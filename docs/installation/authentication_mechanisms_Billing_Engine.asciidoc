@@ -1,0 +1,325 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+=== Billing Engine
+
+PacketFence integrates the ability to use a payment gateway to bill users to gain
+access to the network. When configured, the user who wants to access the network /
+Internet is prompted by a page asking for it's personal information as well as
+it's credit card information.
+
+PacketFence currently supports two payment gateways: Authorize.net, Paypal and
+Stripe.
+
+To activate the billing, configure the following components :
+
+[options="compact"]
+ * Billing source(s)
+ * Billing tier(s)
+
+==== Configuring a billing source
+
+First select a billing provider and follow the instructions below.
+
+===== Paypal
+
+NOTE: This provider requires that the PacketFence server is accessible on the
+public domain. For this the PacketFence portal should be available on a public IP
+using the DNS server name configured in PacketFence.
+
+If having a business account and not wanting to configure a test environment,
+skip the next section.
+
+*Sandbox account*
+
+To configure a sandbox paypal account for use in PacketFence, head to
+https://developer.paypal.com/ and either sign up or login into an existing
+account.
+
+Then in the Sandbox menu, click `Accounts`
+
+Create an account that has the type `Personal` and one that has the type `Business`.
+
+Afterwards, go back into accounts, and expand the business account, then click `Profile`
+
+image::billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
+
+Now, click the `Change password` link and change the password and note it.
+
+image::billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
+
+Do the same thing with the personal account you created
+
+*Configuring the merchant account*
+
+Login into the Paypal business account that you created at https://www.sandbox.paypal.com/ if you are using a sandbox account or on https://www.paypal.com/ if you are using a real account.
+
+Next, go to _Account_Settings_ on the top right below the user account.
+
+Next, in the `Account Settings`, select _Website Payment -> Website preferences_
+
+Configure the settings so they match the screenshot below.
+
+Turn on `Auto Return`, set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
+
+Enable `Payment data transfert` and the `Identity Token` should appear, note it as it will be required in the PacketFence configuration.
+
+image::billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
+image::billing/paypal-website-payment2.png[scaledwidth="100%",alt="Paypal website payment settings"]
+image::billing/paypal-website-payment3.png[scaledwidth="100%",alt="Paypal website payment settings"]
+
+Next go back in _Account_Settings_ on the top right below the user account, select _Website Payment -> Encrypted payment settings_
+
+Now on this page submit the certificate used by PacketFence to Paypal ([filename]`/usr/local/pf/conf/ssl/server.crt` by default).
+
+Once submitted, note it's associated `Cert ID` as it will need to be configured in PacketFence.
+
+Still on that page, click the `Download` link to download the Paypal public certificate and put it on the PacketFence server under path : [filename]`/usr/local/pf/conf/ssl/paypal.pem`
+
+image::billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
+
+CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
+
+*Configuring PacketFence*
+
+Now, in the admin interface, go to _Configuration -> Policies and Access Control -> Authentication Sources_ and create a new source of type _Billing -> Paypal_.
+
+image::billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
+
+Where :
+[options="compact"]
+ * *Identity token* is the one you noted when on the 'Website Payment Preferences' page.
+ * *Cert ID* is the one you noted when on the 'Encrypted Payment Settings'.
+ * *Payment type* is whether the access is donation based (not mandatory to pay for it).
+ * *Email address* is the email address of the merchant paypal account.
+ * *Cert file* is the path to the PacketFence certificate ([filename]`/usr/local/pf/conf/ssl/server.crt` by default).
+ * *Key file* is the path to the PacketFence certificate ([filename]`/usr/local/pf/conf/ssl/server.key` by default).
+ * *Paypal cert file* is the path to the Paypal certificate ([filename]`/usr/local/pf/conf/ssl/paypal.pem` in this example).
+ * *Currency* is the currency that will be used in the transactions.
+ * *Test mode* should be activated if you are using a sandbox account.
+
+NOTE: If they aren't already enabled, enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details
+
+===== Stripe
+
+*Stripe account*
+
+First go on https://dashboard.stripe.com, create an account and login.
+
+Next on the top right click `Account` then `Account settings`.
+
+Navigate to the `API keys` tab and note the key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
+
+image::billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
+
+*Configuring PacketFence*
+
+Now, in the admin interface, go to _Configuration -> Policies and Access Control -> Authentication Sources_ and create a new source of type _Billing -> Stripe_
+
+image::billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where :
+[options="compact"]
+ * *Secret key* is the secret key obtained from the Stripe account.
+ * *Publishable key* is the publishable key obtained from the Stripe account.
+ * *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section `Subscription based registration` below for details on how to configure it.
+ * *Currency* is the currency that will be used in the transactions.
+ * *Test mode* should be activated if you are using the test key and secret account.
+
+NOTE: If they aren't already enabled, enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details.
+
+====== Stripe customer portal
+
+PacketFence supports integrating with the Stripe customer portal and will handle subscription cancelations by default using webhooks. Additional hooks can be supported by extending `lib/pf/billing/custom_hook.pm`.
+
+In order to enable the customer portal in Stripe, go in _Settings -> Product settings -> Billing -> Customer portal_. Next, enable the options you want for the customer portal.
+
+PacketFence supports the following options:
+
+[options="compact"]
+ * Allow customers to view their invoice history
+ * Allow customers to update their billing information
+ * Allow customers to update their payment method
+ * Allow customers to cancel subscriptions
+
+Optionally, once this is configured, ensure the captive portal is accessible publicly for Stripe to send it webhooks if subscription cancellations support is desired. Once its accessible publicly, configure a webhook to receive the event `customer.subscription.deleted` on `https://PF_DOMAIN_NAME/hook/billing/STRIPE_SOURCE_ID`. Replace `STRIPE_SOURCE_ID` by the identifier (name) of the Stripe source in the PacketFence configuration.
+
+Next, in PacketFence, go in the Stripe source (_Configuration -> Policies and Access Control -> Authentication Sources_) and enable the option `Customer portal` in the Stripe source.
+
+Now when users visit the status page (https://PF_DOMAIN_NAME/status), they will have the option to manage their subscriptions and visit the Stripe customer portal.
+
+==== Adding billing tiers
+
+Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
+
+In the admin interface, go to _Configuration -> Advanced Access Configuration -> Billing tiers_
+
+Then click `Add billing tier` and configure it.
+
+image::billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where :
+[options="compact"]
+ * *Billing tier* is the unique identifier of the billing tier.
+ * *Name* is the friendly name of the billing tier.
+ * *Description* is an extended description of the billing tier.
+ * *Price* is the amount that will be charged to the user.
+ * *Access duration* is the amount of time the user will be granted access to the network.
+ * *Role* is the target role the user should be in.
+ * *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
+
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the `Connection profile`.
+
+==== Subscription based registration
+
+PacketFence supports subscription based billing using Stripe as a billing provider.
+
+===== Stripe configuration
+
+In the Stripe dashboard, go in _Products -> Add product_.
+
+Then create a new product.
+
+image::billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+
+Where :
+[options="compact"]
+ * *Price* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+ * *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+ * *Billing period* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+Save it and edit the product to see details information
+
+image::billing/stripe-product-detail.png[scaledwidth="100%",alt="Stripe product detail"]
+
+Where :
+[options="compact"]
+ * *API ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+
+Now, following the same procedure, create the advance plan.
+
+===== Billing tier
+
+When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
+
+
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan `base` and `advance` configured using the following parameters.
+In this case price_1KW0jVIHkusDcikdVCGcvCii and price_1HFl6mIHkusDcikdZfIh5Bcj are the *API ID* copied from the 2 products.
+
+[source,bash]
+----
+  [price_1KW0jVIHkusDcikdVCGcvCii]
+  name=Base access
+  description=Click here if you are poor
+  price=3.99
+  role=guest
+  access_duration=10Y
+  use_time_balance=disabled
+
+  [price_1HFl6mIHkusDcikdZfIh5Bcj]
+  name=Advanced network access
+  description=Click here if you are poor
+  price=9.99
+  role=advanced_guest
+  access_duration=10Y
+  use_time_balance=disabled
+----
+
+===== Receiving updates from Stripe
+
+As the subscription can be cancelled by a user, the PacketFence installation needs to be set up to receive updates from Stripe.
+
+Updates are sent using HTTP requests on a public IP.
+
+Ensure that the PacketFence server is available through a public IP on port 80 and that the PacketFence server hostname resolves on the public domain.
+
+Then, in Stripe, configure a `Webhook` so Stripe informs PacketFence of any event that happens in this Stripe merchant account.
+
+In order to do so go in _Your Account -> Developers -> Webhooks_ and click `Add an endpoint`.
+
+image::billing/stripe-add-endpoint.png[scaledwidth="100%",alt="Stripe add endpoint"]
+
+image::billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
+
+Where :
+[options="compact"]
+ * *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
+ * *Select events to listen to* Select all the events
+
+Now every time a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from the network.
+
+==== Extending access before it ends
+
+PacketFence allows users to extend their access before it has ended. In order to do so, enable `Allow access to registration portal when registered` accessible via the `Captive Portal` tab of the `Connection Profiles`. Once this is activated, the users can reach https://PORTAL_IP/status and select `Extend access` in order to be able to access the billing section after they have registered.
+
+=== External API Authentication
+
+PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
+
+==== Authentication
+
+This should provide the information about whether or not the username/password combination is valid
+
+These information are available through the POST fields of the request
+
+The server should reply with two attributes in a JSON response
+
+[options="compact"]
+ * *result* : should be 1 for success, 0 for failure
+ * *message* : should be the reason it succeeded or failed
+
+Example JSON response :
+[source,bash]
+----
+  {"result":1,"message":"Valid username and password"}
+----
+
+==== Authorization
+
+This should provide the actions to apply on a user based on it's attributes
+
+The following attributes are available for the reply : *access_duration*, *access_level*, *sponsor*, *unregdate*, *category*.
+
+Sample JSON response, note that not all attributes are necessary, only send back what you need.
+
+[source,bash]
+----
+  {"access_duration":"1D","access_level":"ALL","sponsor":1
+    ,"unregdate":"2030-01-01","category":"default"}
+----
+
+NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` for an example implementation compatible with PacketFence.
+
+==== PacketFence Configuration
+
+In PacketFence, you need to configure an HTTP source in order to use an external API.
+
+Here is a brief description of the fields :
+
+[options="compact"]
+ * *Host* : First, the protocol, then the IP address or hostname of the API and lastly the port to connect to the API.
+ * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
+ * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
+ * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
+
+include::authentication_mechanisms_azuread.asciidoc[]
+
+include::authentication_mechanisms_google_workspace_ldap.asciidoc[]
+
+include::authentication_mechanisms_advanced_access_control_for_admin_login.asciidoc[]
+

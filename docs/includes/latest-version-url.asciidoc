@@ -1,0 +1,16 @@
+////
+
+    Latest version URL reference
+
+    This file is part of the PacketFence project.
+    Authors:
+      - Inverse inc. <info@inverse.ca>
+
+    Copyright (C) 2005-2025 Inverse inc.
+    License: GFDL 1.2 or later. https://www.gnu.org/licenses/fdl.html
+
+////
+
+Find the latest version at https://packetfence.org/documentation/
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

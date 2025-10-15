@@ -23,6 +23,7 @@ endif::[]
 
 PacketFence supports these 3Com switches _without VoIP_ using one trap type:
 
+[options="compact"]
 * linkUp===linkDown
 * Port Security (with static MACs)
 
@@ -34,7 +35,8 @@ Don't forget to update the startup config!
 Global config settings:
 
   snmp-agent
-  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname
+  public
   snmp-agent trap enable standard linkup linkdown
 
 On each interface:
@@ -46,7 +48,8 @@ On each interface:
 Global config settings:
 
   snmp-agent
-  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname
+  public
   snmp-agent trap enable
   port-security enable
   port-security trap addresslearned
@@ -93,7 +96,8 @@ Global config settings:
   accounting optional
  domain system
 
- voice vlan mac-address f4ea-6700-0000 mask ffff-ff00-0000 description Cisco IP Phone
+ voice vlan mac-address f4ea-6700-0000 mask ffff-ff00-0000 description Cisco IP
+ Phone
  undo voice vlan security enable
  voice vlan 6 enable
 
@@ -116,6 +120,7 @@ On each interface with VoIP:
 
 PacketFence supports these 3Com switches with the following techniques:
 
+[options="compact"]
 * 802.1X with MAC Authentication fallback
 * linkUp/linkDown (not recommended)
 
@@ -129,7 +134,8 @@ Don't forget to update the startup config!
 Global config settings:
 
   snmp-agent
-  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname
+  public
   snmp-agent trap enable standard linkup linkdown
 
 On each interface:
@@ -191,6 +197,7 @@ where `xx` stands for the interface index.
 
 PacketFence supports these 3Com switches with the following techniques: 
 
+[options="compact"]
 * 802.1X with MAC Authentication fallback 
 * linkUp/linkDown (not recommended) 
 
@@ -234,12 +241,16 @@ Global config settings:
      port-security enable 
   quit 
 
-If your management authentication on your switch is default, applying the configuration above 
-will have your authentication switch to a RADIUS based one with PacketFence as the 
+If your management authentication on your switch is default, applying the
+configuration above
+will have your authentication switch to a RADIUS based one with PacketFence as
+the
 authentication server. *It is almost certain that you do not want that!*
 
-Below, we will just create a local password for `vty` accesses (telnet) and nothing on the 
-console. *In order to avoid locking yourself out, make sure to verify your configuration!*
+Below, we will just create a local password for `vty` accesses (telnet) and
+nothing on the
+console. *In order to avoid locking yourself out, make sure to verify your
+configuration!*
 
   system-view 
      user-interface aux 0 
@@ -267,4 +278,5 @@ where `xx` stands for the interface index
 
 This switch does not support port-security. 
 
-To configure: use web interface to send the linkUp/linkDown traps to the PacketFence server. 
+To configure: use the switch web interface to send the linkUp/linkDown traps to
+the PacketFence server.

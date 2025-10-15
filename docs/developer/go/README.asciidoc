@@ -22,7 +22,7 @@ endif::[]
 
 This is a guide on how to setup/use the PacketFence Golang libraries.
 
-In order to bootstrap your environment:
+To bootstrap the environment:
 
 [source,bash]
 ----
@@ -30,7 +30,7 @@ cd /usr/local/pf/go
 make go-env
 ----
 
-If you work directly on sources, you can run:
+To work directly on sources, run:
 
 [source,bash]
 ----
@@ -41,14 +41,14 @@ GO_REPO=${PWD} make go-env
 This will install Golang version use to build PacketFence Golang binaries and
 check if all modules defined in [filename]`go.mod` are available.
 
-You should then source your .bashrc to get the new environment variables:
+Source the .bashrc to get the new environment variables:
 
 [source,bash]
 ----
 source ~/.bashrc
 ----
 
-You can get a complete overview of your Golang environment with [command]`go env` command.
+Get a complete overview of the Golang environment with [command]`go env` command.
 
 ==== Pulling the dependencies
 
@@ -71,8 +71,7 @@ apt install libipset-dev pkg-config
 
 ==== Update dependencies
 
-After you add or remove Golang dependencies, you should run following command
-in [filename]`go` directory to update `go.mod` and `go.sum` files:
+After adding or removing Golang dependencies, run following command in [filename]`go` directory to update `go.mod` and `go.sum` files:
 
 [source,bash]
 ----
@@ -106,7 +105,7 @@ make copy
 
 ==== Creating a service
 
-Once you've built `pfhttpd`, you can use a [filename]`Caddyfile` to load your middleware and bind it on a specific port:
+Once `pfhttpd` is built, use a [filename]`Caddyfile` to load middleware and bind it on a specific port:
 
 ----
 localhost:1234 {
@@ -124,31 +123,33 @@ localhost:1234 {
 
 This file should be put in [filename]`/usr/local/pf/conf/caddy-services/pfexample.conf`
 
-Note how you can control the logger configuration from the [filename]`Caddyfile`. If your middleware (in this example `pfsso`) uses or calls the logger, you *must* declare it in your [filename]`Caddyfile`.
+Note how the logger configuration can be controlled from the [filename]`Caddyfile`. If the middleware (in this example `pfsso`) uses or calls the logger, it *must* be declared in the [filename]`Caddyfile`.
 
-If your middleware uses `statsd`, you don't have to configure `statsd` in your [filename]`Caddyfile` which will result in the packets just not being sent (a dummy `statsd` client will be created).
+If the middleware uses `statsd`, `statsd` does not have to be configured in the [filename]`Caddyfile` which will result in the packets just not being sent (a dummy `statsd` client will be created).
 
-You can start `pfhttpd` with your [filename]`Caddyfile` using the following command:
+Start `pfhttpd` with the [filename]`Caddyfile` using the following command:
 
 [source,bash]
 ----
-/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+/usr/local/pf/sbin/pfhttpd -conf
+/usr/local/pf/conf/caddy-services/pfexample.conf
 ----
 
-Once you have ascertained that the service is working correctly, you need to
-create an instance of `pf::services::manager` for it. You will also need to
-create a unitfile for it in [filename]`conf/systemd` like the following:
+Once it is ascertained that the service is working correctly, create an instance of `pf::services::manager` for it. Also create a unitfile for it in [filename]`conf/systemd` like the following:
 
 ----
 [Unit]
 Description=PacketFence Example Service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service
+packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service
+packetfence-iptables.service
 Before=packetfence-pfexample.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/pfexample.pid
-ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf
+/usr/local/pf/conf/caddy-services/pfexample.conf
 Restart=on-failure
 Slice=packetfence.slice
 
@@ -180,7 +181,7 @@ cd /usr/local/pf/go/firewallsso/lib
 go test
 ----
 
-In order to run all the tests easily you can also do:
+To run all the tests easily, use:
 
 [source,bash]
 ----

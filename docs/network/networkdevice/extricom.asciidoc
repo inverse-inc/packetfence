@@ -21,13 +21,20 @@ endif::[]
 
 ==== EXSW Wireless Switches (Controllers)
 
-In order to have the Extricom controller working with PacketFence, you need to define two ESSID definition, one for the "public" network, and one for the "secure" network. This can be done under a very short time period since Extricom supports RADIUS assigned VLANs out of the box.
+In order to have the Extricom controller working with PacketFence, you need to
+define two ESSID definition, one for the "public" network, and one for the
+"secure" network. This can be done under a very short time period since Extricom
+supports RADIUS assigned VLANs out of the box.
 
-You first need to configure you RADIUS server. This is done under the: _WLAN Settings -> RADIUS_ tab. Enter the PacketFence RADIUS server information. For the ESSID configuration. in the administration UI, go to _WLAN Settings -> ESSID definitions_. Create the profiles per the following:
+You first need to configure you RADIUS server. This is done under the: _WLAN
+Settings -> RADIUS_ tab. Enter the PacketFence RADIUS server information. For
+the ESSID configuration. in the administration UI, go to _WLAN Settings -> ESSID
+definitions_. Create the profiles per the following:
 
 [float]
 ===== Public SSID
 
+[options="compact"]
 * MAC Authentication must be ticked
 * Encryption method needs to be set to None
 * Select PacketFence as the MAC Authentication RADIUS server (previously added)
@@ -35,9 +42,11 @@ You first need to configure you RADIUS server. This is done under the: _WLAN Set
 [float]
 ===== Secure SSID
 
+[options="compact"]
 * Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise
 * AES only needs to be selected
 * Select PacketFence as the RADIUS server (previously added)
 
-The final step is to enable SNMP Agent and SNMP Traps on the controller. This is done under the following tab in the administrative UI: _Advanced -> SNMP_.
+The final step is to enable SNMP Agent and SNMP Traps on the controller. This is
+done under the following tab in the administrative UI: _Advanced -> SNMP_.
 

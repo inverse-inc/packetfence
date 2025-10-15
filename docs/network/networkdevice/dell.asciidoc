@@ -19,7 +19,11 @@ endif::[]
 
 //=== Dell
 
-NOTE: When doing MAC Authentication, there is a known issue with some Dell switches. If you get errors where the device is using EAP type MD5, but PacketFence is expecting PEAP, you will need to edit the line *default_eap_type = peap* under the section *eap* in the file */usr/local/pf/conf/radiusd/eap.conf* to *default_eap_type = md5*.
+NOTE: When doing MAC Authentication, there is a known issue with some Dell
+switches. If you get errors where the device is using EAP type MD5, but
+PacketFence is expecting PEAP, you will need to edit the line *default_eap_type
+= peap* under the section *eap* in the file
+*/usr/local/pf/conf/radiusd/eap.conf* to *default_eap_type = md5*.
 
 ==== Force 10
 
@@ -67,7 +71,8 @@ Configure CoA
    auth-type all
    exit
 
-Enable authentication and globally enable 802.1x client authentication via RADIUS
+Enable authentication and globally enable 802.1x client authentication via
+RADIUS
    
    authentication enable
    aaa authentication dot1x default radius
@@ -78,7 +83,9 @@ Enable authentication and globally enable 802.1x client authentication via RADIU
 
    dot1x dynamic-vlan enable
 
-On the interface, enable MAC based authentication mode, enable MAB, and set the order of authentication to 802.1X followed by MAC authentication. Also enable periodic re-authentication.
+On the interface, enable MAC based authentication mode, enable MAB, and set the
+order of authentication to 802.1X followed by MAC authentication. Also enable
+periodic re-authentication.
 
    interface te1/0/4
    dot1x port-control mac-based
@@ -93,7 +100,8 @@ On the interface, enable MAC based authentication mode, enable MAB, and set the 
 
 ==== N1500 Series Switch
 
-PacketFence supports this switch using RADIUS, MAC-Authentication, 802.1x and VoIP
+PacketFence supports this switch using RADIUS, MAC-Authentication, 802.1x and
+VoIP
 
 ===== 802.1X with MAC Authentication fallback and VoIP
 
@@ -225,12 +233,14 @@ Web-Auth:
   1010 permit tcp any any eq http
   1020 permit tcp any any eq 443
 
-==== N1500 Series (FW >= 6.8.0)
+==== N1500 Series (FW >= 6.8)
 
 Downloadable ACLs:
 
 This configuration has been tested on FW 6.8.1.
-Important, even if "authentication allow-srcipanyacl enable" has been enable on the switch, it doesn't support ACL with source ip and the ACL direction are only in.
+Important, even if "authentication allow-srcipanyacl enable" has been enable on
+the switch, it doesn't support ACL with source ip and the ACL direction are only
+in.
 So, for example, if you have this configured in PacketFence:
 
  permit ip 10.0.0.1 host 192.168.3.1
@@ -242,7 +252,8 @@ Then you have to convert it to:
  permit ip any any
 
 
-The configuration needs to be done is the one above (N1500 Series (FW >= 6.6.0.17))
+The configuration needs to be done is the one above (N1500 Series (FW >=
+6.6.0.17))
 
 Troubleshooting command:
 

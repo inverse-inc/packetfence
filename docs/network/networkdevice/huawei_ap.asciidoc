@@ -23,6 +23,7 @@ endif::[]
 
 PacketFence supports this controller with the following technologies:
 
+[options="compact"]
 * Wireless 802.1X
 * Wireless MAC Authentication
 
@@ -37,17 +38,21 @@ Setup the radius server (@IP of PacketFence) authentication + accounting:
 
 [NOTE]
 ===============================
-In this configuration I will use the ip address of the VIP of PacketFence: 192.168.1.2; Registration VLAN : 145, Isolation VLAN : 146
+In this configuration I will use the ip address of the VIP of PacketFence:
+192.168.1.2; Registration VLAN : 145, Isolation VLAN : 146
 ===============================
 
 	<AC>system-view
 	[AC] radius-server template radius_packetfence
-	[AC-radius-radius_packetfence] radius-server authentication 192.168.1.2 1812 weight 80
-	[AC-radius-radius_packetfence] radius-server accounting 192.168.1.2 1813 weight 80
+	[AC-radius-radius_packetfence] radius-server authentication 192.168.1.2 1812
+	weight 80
+	[AC-radius-radius_packetfence] radius-server accounting 192.168.1.2 1813 weight
+	80
 	[AC-radius-radius_packetfence] radius-server shared-key cipher s3cr3t
 	[AC-radius-radius_packetfence] undo radius-server user-name domain-included
 	[AC-radius-radius_packetfence] quit
-	[AC] radius-server authorization 192.168.1.2 shared-key cipher s3cr3t server-group radius_packetfence
+	[AC] radius-server authorization 192.168.1.2 shared-key cipher s3cr3t
+	server-group radius_packetfence
 	[AC] aaa
 	[AC-aaa] authentication-scheme radius_packetfence
 	[AC-aaa-authen-radius_packetfence] authentication-mode radius
@@ -100,11 +105,14 @@ Configure radios for APs:
 	t value, are you sure to continue?[Y/N]: y
 	[AC-wlan-radio-1/0] quit
 	
-Configure a security profile named huawei-ap. Set the security policy to WPA authentication, authentication method to 802.1X+PEAP, and encryption mode to CCMP:
+Configure a security profile named huawei-ap. Set the security policy to WPA
+authentication, authentication method to 802.1X+PEAP, and encryption mode to
+CCMP:
 
 	[AC-wlan-view] security-profile name huawei-ap-wpa2
 	[AC-wlan-sec-prof-huawei-ap-wpa2] security-policy wpa2
-	[AC-wlan-sec-prof-huawei-ap-wpa2] wpa-wpa2 authentication-method dot1x encryption-method ccmp
+	[AC-wlan-sec-prof-huawei-ap-wpa2] wpa-wpa2 authentication-method dot1x
+	encryption-method ccmp
 	[AC-wlan-sec-prof-huawei-ap-wpa2] quit
 
 Configure a traffic profile:
@@ -112,7 +120,8 @@ Configure a traffic profile:
 	[AC-wlan-view] traffic-profile name huawei-ap
 	[AC-wlan-wmm-traffic-huawei-ap] quit
 
-Configure service sets for APs, and set the data forwarding mode to direct forwarding:
+Configure service sets for APs, and set the data forwarding mode to direct
+forwarding:
 
 The direct forwarding mode is used by default.
 	
@@ -156,14 +165,16 @@ Configure WLAN-ESS 1 interfaces:
 
 Configure AP parameters:
 
-Configure a security profile named huawei-ap-wep. Set the security policy to WEP authentication.
+Configure a security profile named huawei-ap-wep. Set the security policy to WEP
+authentication.
 	
 	[AC]wlan
 	[AC-wlan-view] security-profile name huawei-ap-wep
 	[AC-wlan-sec-prof-huawei-ap-wep] security-policy wep
 	[AC-wlan-sec-prof-huawei-ap-wep] quit
 
-Configure service sets for APs, and set the data forwarding mode to direct forwarding:
+Configure service sets for APs, and set the data forwarding mode to direct
+forwarding:
 
 The direct forwarding mode is used by default.
 	
@@ -172,7 +183,8 @@ The direct forwarding mode is used by default.
 	[AC-wlan-service-set-PacketFence-WEP] wlan-ess 1
 	[AC-wlan-service-set-PacketFence-WEP] service-vlan 1
 	[AC-wlan-service-set-PacketFence-WEP] security-profile name huawei-ap-wep
-	[AC-wlan-service-set-PacketFence-WEP] traffic-profile name huawei-ap (already created before)
+	[AC-wlan-service-set-PacketFence-WEP] traffic-profile name huawei-ap (already
+	created before)
 	[AC-wlan-service-set-PacketFence-WEP] forward-mode tunnel
 	[AC-wlan-service-set-PacketFence-WEP] quit
 

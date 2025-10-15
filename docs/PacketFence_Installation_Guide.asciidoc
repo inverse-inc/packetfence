@@ -1,40 +1,32 @@
-= Installation Guide
-////
-
-    This file is part of the PacketFence project.
-
-    See includes/global-attributes.asciidoc
-    for authors, copyright and license information.
-
-////
+= PacketFence Installation Guide
+include::includes/file-header.asciidoc[]
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide will walk you through PacketFence installation and day-to-day administration.
+This guide covers PacketFence installation and day-to-day administration. It
+provides comprehensive instructions for system requirements assessment, initial
+deployment, network integration, authentication configuration, and ongoing
+maintenance. The guide covers both standalone and distributed deployments,
+including certificate management, database configuration, and integration with
+external authentication systems like Active Directory and LDAP.
 
-The latest version of this guide is available at https://packetfence.org/documentation/
+include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
+:current_guide_installation:
+include::includes/other-sources-information.asciidoc[]
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environment.
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  instructions for supporting new equipment.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
-  Covers switches, WiFi controllers and access points configuration.
-<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
-https://packetfence.org/news.html[PacketFence News]::
-  Covers noteworthy features, improvements and bug fixes by release.
-
-These files are included in the package and release tarballs.
+include::includes/package-tarballs-note.asciidoc[]
 
 == Introduction
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks. For a more detailed presentation on PacketFence please visit https://packetfence.org.
+PacketFence is a fully supported, trusted, Free and Open Source network access
+control (NAC) system. It features a captive portal for registration and
+remediation, centralized wired and wireless management, 802.1X support, layer-2
+isolation of problematic devices, and integration with IDS, vulnerability
+scanners and firewalls. PacketFence effectively secures networks from small to
+very large heterogeneous environments. Visit https://packetfence.org for more
+details.
 
 == System Requirements
 
@@ -71,10 +63,6 @@ include::installation/enforcement/inline.asciidoc[]
 == Adding VLAN Enforcement to Existing Installation
 
 include::installation/enforcement/out-of-band.asciidoc[]
-
-== Troubleshooting PacketFence
-
-include::installation/troubleshooting_packetfence.asciidoc[]
 
 == Authentication Mechanisms
 
@@ -153,13 +141,15 @@ include::installation/export_import_mechanism.asciidoc[]
 
 include::installation/certificate.asciidoc[]
 
+== Troubleshooting PacketFence
+
+include::installation/troubleshooting_packetfence.asciidoc[]
+
 // INCLUDES
-
-include::includes/additional-info.asciidoc[]
-
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
 
 == Appendix
 

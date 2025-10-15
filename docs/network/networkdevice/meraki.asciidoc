@@ -25,9 +25,10 @@ The 'Disconnect port' field must be set to '1700'.
 
 ==== WebAuth
 
-In this section, we will cover the configuration of the Meraki controller to use Web authentication.
+Configure Meraki controller for Web authentication.
 
-NOTE: While using the WebAuth mode on the Meraki controller, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab 'Roles' from the switch configuration.
+NOTE: WebAuth mode on Meraki controller requires "Role mapping by Switch Role"
+and "Role by Web Auth URL" in switch configuration 'Roles' tab.
 
 Configure your SSID as shown below:
 
@@ -35,53 +36,66 @@ image::Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration
 
 image::Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
 
-NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
+NOTE: Must use Airespace-ACL-Name as "RADIUS attribute specifying group policy
+name".
 
-The switch module to use for this configuration is "Meraki cloud controller V2".
+Use switch module "Meraki cloud controller V2" for this configuration.
 
-Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
+Configure device roles for your network. Go to 'Network-wide->Group policies' to
+create policies configurable as roles in PacketFence switch configuration.
+Creating policy `Guest`:
 
 image::Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
-Your configuration for the tab "Roles" in PacketFence will look like the following:
+Your configuration for the tab "Roles" in PacketFence will look like the
+following:
 
 image::meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 image::meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
-URL in registration field should be in the form: 'http://<your_captive_portal_ip>/Meraki::MR_v2'
+URL in registration field should be in the form:
+'http://<your_captive_portal_ip>/Meraki::MR_v2'
 
 ==== VLAN enforcement
 
-This section will cover how to configure the Meraki WiFI controller to use with VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
+This section will cover how to configure the Meraki WiFI controller to use with
+VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
 
-In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs matching roles.
+In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs
+matching roles.
 
 image::meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 ==== Dynamic PSK (Pre-Shared Key)
 
-This section will cover how to configure the Meraki WiFI controller to use with Dynamic PSK with PacketFence.
+This section will cover how to configure the Meraki WiFI controller to use with
+Dynamic PSK with PacketFence.
 
-You will be able to attribute one PSK per user to use on every device they want. There is a common key to connect to a given PSK secured SSID to register and you will have an option to provision your device with that configuration on Windows, Apple and Android devices.
+You will be able to attribute one PSK per user to use on every device they want.
+There is a common key to connect to a given PSK secured SSID to register and you
+will have an option to provision your device with that configuration on Windows,
+Apple and Android devices.
 
 Create the SSID
 
-image::meraki-dpsk-ssid-config-1.jpg[scaledwidth="100%",alt="DPSK SSID configuration"] 
+image::meraki-dpsk-ssid-config-1.jpg[scaledwidth="100%",alt="DPSK SSID configuration"]
 
-image::meraki-dpsk-ssid-config-2.jpg[scaledwidth="100%",alt="DPSK SSID configuration"] 
+image::meraki-dpsk-ssid-config-2.jpg[scaledwidth="100%",alt="DPSK SSID configuration"]
 
 Provioner configuration
 
-Go to Configuration > Advanced Access Configuration > Provisioner > New provisioner > DPSK
+Go to Configuration > Advanced Access Configuration > Provisioner > New
+provisioner > DPSK
 
 image::meraki-dpsk-provioner.jpg[scaledwidth="100%",alt="DPSK provisioner configuration"]
 
 Connection profile configuration
 
-Go to Configuration > Policies and Access Control > Connection Profiles > New Connection Profile
+Go to Configuration > Policies and Access Control > Connection Profiles > New
+Connection Profile
 
-image::meraki-dpsk-connection-profile-1.jpg[scaledwidth="100%",alt="Connection Profile configuration"] 
+image::meraki-dpsk-connection-profile-1.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
 
 image::meraki-dpsk-connection-profile-2.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
 
@@ -90,38 +104,64 @@ image::meraki-dpsk-connection-profile-3.jpg[scaledwidth="100%",alt="Connection P
 ===== MS Switch Modules
 
 MS Modules
-This is a standard switch module designed to support all the legacy Meraki Switch series using MS version earlier than v15.x.
+This is a standard switch module designed to support all the legacy Meraki
+Switch series using MS version earlier than v15.x.
 
 Meraki MSv15 
-MSv15 module is designed for the switch series operating on MS_OS v15. Furthermore, it inherits all functionalities from the old "MS220_8" module, making all the configurations below applicable to MSv15.
+MSv15 module is designed for the switch series operating on MS_OS v15.
+Furthermore, it inherits all functionalities from the old "MS220_8" module,
+making all the configurations below applicable to MSv15.
 
-NOTE: You should already have one port setup as Uplink, using a mode trunk, with at least your Registration and Production VLAN allowed on it.
+NOTE: You should already have one port setup as Uplink, using a mode trunk, with
+at least your Registration and Production VLAN allowed on it.
 
 The Meraki switch offer configuration for VLAN enforcement only.
 
-You will need to access the Meraki dashboard to configure your switch. When you reach it you will need first to create a policy. You can create a "MAC authentication bypass" or a "802.1X" policy. Depending if you want to authenticate user via dot1x or MAB. You cannot combine both neither use a fallback mode on the same port, each port with a policy applied will be exclusive to MAB or dot1x.
+You will need to access the Meraki dashboard to configure your switch. When you
+reach it you will need first to create a policy. You can create a "MAC
+authentication bypass" or a "802.1X" policy. Depending if you want to
+authenticate user via dot1x or MAB. You cannot combine both neither use a
+fallback mode on the same port, each port with a policy applied will be
+exclusive to MAB or dot1x.
 
-To access the policy creation go to 'Switching->Access Policies' in the Meraki dashboard menu. From there create a new policy, use the example below to create your policy.
+To access the policy creation go to 'Switching->Access Policies' in the Meraki
+dashboard menu. From there create a new policy, use the example below to create
+your policy.
 
 image::Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
 
-You now need to apply one of your policies to ports. To do so, go to 'Switch->Switch ports' and chose your options. To add a policy you created earlier, select it in the drop down list in `Access policy`. You need to configure the port in "mode access", the default access VLAN is not important if your VLANs are properly configured on PacketFence.
+You now need to apply one of your policies to ports. To do so, go to
+'Switch->Switch ports' and chose your options. To add a policy you created
+earlier, select it in the drop down list in `Access policy`. You need to
+configure the port in "mode access", the default access VLAN is not important if
+your VLANs are properly configured on PacketFence.
 
 image::Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
 
 ===== RADSEC
 
-It is possible to use RADSEC between Meraki and PacketFence in order to perform RADIUS over TCP and encrypted using TLS. Before performing the steps outlined in this section, make sure you have a working SSID using normal unencrypted RADIUS by following the steps in the sections above
+It is possible to use RADSEC between Meraki and PacketFence in order to perform
+RADIUS over TCP and encrypted using TLS. Before performing the steps outlined in
+this section, make sure you have a working SSID using normal unencrypted RADIUS
+by following the steps in the sections above
 
-Then, in order to enable RADSEC, go in your SSID configuration and under 'RADIUS proxy', select 'Use Meraki proxy' and save the settings.
+Then, in order to enable RADSEC, go in your SSID configuration and under 'RADIUS
+proxy', select 'Use Meraki proxy' and save the settings.
 
 After saving, check the RADSEC checkbox and save your settings.
 
-Now, on your PacketFence server, you must add the Meraki CA root to the trusted Certificate Authorities of FreeRADIUS when performing RADSEC. You should download the Meraki CA certificate from your Meraki dashboard under Organization->Configure->Certificates and selecting "Download CA" below RadSec AP Certificates. You can then append the content of this certificate to /usr/local/pf/raddb/certs/ca.pem on your PacketFence server.
+Now, on your PacketFence server, you must add the Meraki CA root to the trusted
+Certificate Authorities of FreeRADIUS when performing RADSEC. You should
+download the Meraki CA certificate from your Meraki dashboard under
+Organization->Configure->Certificates and selecting "Download CA" below RadSec
+AP Certificates. You can then append the content of this certificate to
+/usr/local/pf/raddb/certs/ca.pem on your PacketFence server.
 
 Next, restart radiusd to reload the CA certificates using:
 
   # /usr/local/pf/bin/pfcmd service radiusd restart
 
-NOTE: RADSEC is done over port 2083 so make sure your server is available via a public IP address for this port and allows connections from your Meraki cloud controller. Refer to the Meraki documentation for details.
+NOTE: RADSEC is done over port 2083 so make sure your server is available via a
+public IP address for this port and allows connections from your Meraki cloud
+controller. Refer to the Meraki documentation for details.
 

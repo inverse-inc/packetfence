@@ -9,10 +9,10 @@ endif::[]
 
 ////
 
-    This file is part of the PacketFence project.
+This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
-    for authors, copyright and license information.
+See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+for authors, copyright and license information.
 
 ////
 
@@ -21,20 +21,22 @@ endif::[]
 
 PacketFence supports Cisco switches with VoIP using three different trap types: 
 
+[options="compact"]
 * linkUp/linkDown 
 * MAC Notification 
 * Port Security (with static MACs) 
 
-You also need to make sure that lldp or cdp notification is configured on all ports that will handle VoIP.
+Ensure LLDP or CDP notification is configured on all VoIP ports.
 
-On some recent models, we can also use more secure and robust features like: 
+Recent models support more secure features: 
 
+[options="compact"]
 * MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
 * 802.1X (Multi-Host or Multi-Domain) 
 
-Depending of the switch model, we recommend the use of the most secure and reliable feature 
-first. In other words, you should consider the following order:
+Use most secure feature available for the switch model in this order:
 
+[options="compact"]
 . 802.1X/MAB
 . Port-Security
 . linkUp/linkDown
@@ -45,63 +47,64 @@ first. In other words, you should consider the following order:
 
 Global config settings: 
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps snmp linkdown linkup 
-  snmp-server enable traps mac-notification 
-  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
-  mac-address-table notification interval 0 
-  mac-address-table notification 
-  mac-address-table aging-time 3600 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps snmp linkdown linkup 
+snmp-server enable traps mac-notification 
+snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
+mac-address-table notification interval 0 
+mac-address-table notification 
+mac-address-table aging-time 3600 
 
 On each interface _without VoIP_: 
 
-  switchport mode access 
-  switchport access vlan 4 
-  snmp trap mac-notification added 
+switchport mode access 
+switchport access vlan 4 
+snmp trap mac-notification added 
 
 On each interface _with VoIP_:
 
-  switchport trunk encapsulation dot1q 
-  switchport trunk native vlan 4 
-  switchport mode trunk 
-  switchport voice vlan 100 
-  snmp trap mac-notification added 
-  snmp trap mac-notification removed 
+switchport trunk encapsulation dot1q 
+switchport trunk native vlan 4 
+switchport mode trunk 
+switchport voice vlan 100 
+snmp trap mac-notification added 
+snmp trap mac-notification removed 
 
 ==== Cisco IOS
 
-This switch module is built for switches using Cisco IOS versions earlier than 12.2(46)SE. This provides support for PortSecurity for networks with or without VoIP. 
+Switch module for Cisco IOS versions before 12.2(46)SE. Supports PortSecurity
+with/without VoIP.
 
 ===== Port­Security for IOS earlier than 12.2(46)SE  
 
 Global config settings:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps port-security 
+snmp-server enable traps port-security trap-rate 1 
+snmp-server host 192.168.1.5 version 2c public port-security 
 
 On each interface _without VoIP_: 
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 1 vlan access 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.000x.xxxx 
 
 where `xxxxx` stands for the interface `ifIndex` 
 
 On each interface with VoIP:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport voice vlan 100 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 2 
+switchport port-security maximum 1 vlan access 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.000x.xxxx 
 
 where `xxxxx` stands for the interface `ifIndex` 
 
@@ -111,18 +114,20 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses 
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa0/1...Fa0/48 -> 10001...10048 
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
 
 ==== Cisco IOS 12.x 
 
-Those versions are now supported using 802.1X for networks with or without VoIP. 
+Those versions are now supported using 802.1X for networks with or without VoIP.
 You can also use port-security with static MAC address but we can not secure 
 a MAC on the data VLAN specifically so enable it if there is no VoIP, use 
 linkUp/linkDown and MAC notification otherwise.So on setup that needs to 
 handle VoIP with this switch, go with a 802.1X configuration. 
-Note: This module is renamed from the old 2950 module and therefore inherits all its capabilities.
+Note: This module is renamed from the old 2950 module and therefore inherits all
+its capabilities.
 
 ===== 802.1X
 
@@ -133,16 +138,16 @@ Make sure that you have a local account, because enabling 802.1X or MAB will ask
 
 Global config settings:
 
-  dot1x system-auth-control 
+dot1x system-auth-control 
 
 AAA configuration:
 
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813 
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence
+aaa new-model 
+aaa group server radius packetfence 
+server 192.168.1.5 auth-port 1812 acct-port 1813 
+aaa authentication login default local 
+aaa authentication dot1x default group packetfence 
+aaa authorization network default group packetfence
 
 AAA configuration (accounting):
 
@@ -152,48 +157,52 @@ aaa accounting dot1x default start-stop group packetfence
 
 RADIUS server configuration:
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 
-  key useStrongerSecret 
-  radius-server vsa send authentication 
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 
+key useStrongerSecret 
+radius-server vsa send authentication 
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport mode access 
-  dot1x port-control auto 
-  dot1x host-mode multi-host 
-  dot1x reauthentication 
+switchport access vlan 4 
+switchport mode access 
+dot1x port-control auto 
+dot1x host-mode multi-host 
+dot1x reauthentication 
 
 On each interface _with VoIP_:
 
-  switchport access vlan 4 
-  switchport mode access 
-  switchport voice vlan 100 
-  dot1x port-control auto 
-  dot1x host-mode multi-host 
-  dot1x reauthentication 
+switchport access vlan 4 
+switchport mode access 
+switchport voice vlan 100 
+dot1x port-control auto 
+dot1x host-mode multi-host 
+dot1x reauthentication 
 
 ===== Port-Security 
 
-CAUTION: With port-security, if no MAC is connected on ports when activating port-security, we need 
-to secure bogus MAC addresses on ports in order for the switch to send a trap when a new 
-MAC appears on a port. On the other hand, if a MAC is actually connected when you enable 
-port security, you must secure this MAC rather than the bogus one. Otherwise this MAC will 
+CAUTION: With port-security, if no MAC is connected on ports when activating
+port-security, we need
+to secure bogus MAC addresses on ports in order for the switch to send a trap
+when a new
+MAC appears on a port. On the other hand, if a MAC is actually connected when
+you enable
+port security, you must secure this MAC rather than the bogus one. Otherwise
+this MAC will
 lose its connectivity instantly. 
 
 Global config settings _without VoIP_:
 
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server enable traps port-security 
+snmp-server enable traps port-security trap-rate 1 
+snmp-server host 192.168.1.5 version 2c public port-security 
 
 On each interface _without VoIP_:
 
-  switchport mode access 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.0000.00xx 
+switchport mode access 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.0000.00xx 
 
 where `xx` stands for the interface `ifIndex`.
 
@@ -203,71 +212,80 @@ where `xx` stands for the interface `ifIndex`.
 Use the following templates for interface `IfIndex` in bogus MAC addresses 
 (0200.0000.00xx):
 
+[options="compact"]
 * Fa0/1, ..., Fa0/48 => 1, ..., 48 
 * Gi0/1, Gi0/2 => 49, 50 
 ===========================================================================
 
 Global config settings _with VoIP_:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps snmp linkdown linkup 
-  snmp-server enable traps mac-notification 
-  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
-  mac-address-table notification interval 0 
-  mac-address-table notification 
-  mac-address-table aging-time 3600 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps snmp linkdown linkup 
+snmp-server enable traps mac-notification 
+snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
+mac-address-table notification interval 0 
+mac-address-table notification 
+mac-address-table aging-time 3600 
 
 On each interface _with VoIP_:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport mode access 
-  snmp trap mac-notification added 
-  snmp trap mac-notification removed 
+switchport voice vlan 100 
+switchport access vlan 4 
+switchport mode access 
+snmp trap mac-notification added 
+snmp trap mac-notification removed 
 
 ==== 3550 (802.1X with MAB)
 
-CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
+CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can
+only support 802.1X with MAB using Multi-Host, MAB, and port security.
 
-CAUTION: The Catalyst 3550 does *not* support CoA. https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in PacketFence Administration GUI under _Configuration -> Policies and Access Control -> Network Devices ->  Switches_ for the switch IP configured below.
+CAUTION: The Catalyst 3550 does *not* support CoA.
+https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is
+12.2(46)SE. Set "Deauthentication Method" to "SNMP" in the admin interface under
+_Configuration -> Policies and Access Control -> Network Devices -> Switches_
+for the switch IP configured below.
 
 ===== Global settings:
 
-  dot1x system-auth-control 
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
+dot1x system-auth-control 
+aaa new-model 
+aaa group server radius packetfence 
+server 192.168.1.5 auth-port 1812 acct-port 1813
+aaa authentication login default local 
+aaa authentication dot1x default group packetfence 
+aaa authorization network default group packetfence 
 
 RADIUS server configuration:
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
-  radius-server vsa send authentication 
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key
+useStrongerSecret
+radius-server vsa send authentication 
 
 Enable SNMP on the switch:
 
-  snmp-server community public RO
-  snmp-server community private RW
+snmp-server community public RO
+snmp-server community private RW
 
 On each interface:
 
-  switchport mode access
-  dot1x mac-auth-bypass
-  dot1x pae authenticator
-  dot1x port-control auto
-  dot1x violation-mode protect
-  dot1x timeout quiet-period 2
-  dot1x timeout reauth-period 7200
-  dot1x timeout tx-period 3
-  dot1x reauthentication
+switchport mode access
+dot1x mac-auth-bypass
+dot1x pae authenticator
+dot1x port-control auto
+dot1x violation-mode protect
+dot1x timeout quiet-period 2
+dot1x timeout reauth-period 7200
+dot1x timeout tx-period 3
+dot1x reauthentication
 
 ==== Cisco IOS 15.0
 
-This switch module is built for switches using Cisco IOS versions 15.0 or greater. 
-Note: This module is renamed from the old 2960 module and therefore inherits all its capabilities.
+This switch module is built for switches using Cisco IOS versions 15.0 or
+greater.
+Note: This module is renamed from the old 2960 module and therefore inherits all
+its capabilities.
 
 CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS, this section below>>.
 
@@ -276,38 +294,39 @@ CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS, this sec
 Since version PacketFence 2.2.1, the way to handle VoIP when using 
 port-security dramatically changed. Ensure that you follow the instructions 
 below. To make the story short, instead on relying on the dynamic 
-MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger a new security 
+MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger
+a new security
 violation, and then authorize the phone MAC address on the network. 
 
 Global config settings:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps port-security 
+snmp-server enable traps port-security trap-rate 1 
+snmp-server host 192.168.1.5 version 2c public port-security 
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 1 vlan access 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.000x.xxxx 
 
 where `xxxxx` stands for the interface `ifIndex`
 
 On each interface _with VoIP_: 
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security maximum 1 vlan voice 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.010x.xxxx vlan voice 
-  switchport port-security mac-address 0200.000x.xxxx vlan access 
+switchport voice vlan 100 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 2 
+switchport port-security maximum 1 vlan access 
+switchport port-security maximum 1 vlan voice 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.010x.xxxx vlan voice 
+switchport port-security mac-address 0200.000x.xxxx vlan access 
 
 where `xxxxx` stands for the interface `ifIndex` 
 
@@ -317,6 +336,7 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa0/1...Fa0/48 -> 10001...10048 
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
@@ -324,7 +344,8 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 [[Catalyst_RADIUS]]
 ===== 2960, 2970, 3560, 3750
 
-NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC
+Authentication. This can cause unexpected behavior.
 
 [WARNING]
 ====
@@ -337,93 +358,93 @@ When doing 802.1X and network interface teaming on the same switch or stack, you
 
 To prevent this behavior, you need to tell the switch to allow MAC address movements between ports. The global command is the following:
 
-  authentication mac-move permit
+authentication mac-move permit
 ====
 
 ===== Global settings:
 
-  dot1x system-auth-control 
-  aaa new-model 
-  aaa group server radius packetfence 
-   server name pfnac
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
+dot1x system-auth-control 
+aaa new-model 
+aaa group server radius packetfence 
+server name pfnac
+aaa authentication login default local 
+aaa authentication dot1x default group packetfence 
+aaa authorization network default group packetfence 
 
 RADIUS server configuration:
 
-  radius server pfnac
-    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
-    automate-tester username dummy ignore-acct-port idle-time 3
-    key 0 useStrongerSecret
-  
-  radius-server vsa send authentication 
+radius server pfnac
+address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+automate-tester username dummy ignore-acct-port idle-time 3
+key 0 useStrongerSecret
+
+radius-server vsa send authentication 
 
 CoA configuration
 
-  aaa server radius dynamic-author
-   client 192.168.1.5 server-key useStrongerSecret
-   port 3799
+aaa server radius dynamic-author
+client 192.168.1.5 server-key useStrongerSecret
+port 3799
 
 Activate SNMP v1 on the switch:
 
-  snmp-server community public RO
+snmp-server community public RO
 
 ===== 802.1X with MAC Authentication bypass (Multi­Domain) 
 
 On each interface:
 
-  switchport mode access 
-  switchport voice vlan 100
-  authentication host-mode multi-domain 
-  authentication order dot1x mab 
-  authentication priority dot1x mab 
-  authentication port-control auto 
-  authentication periodic 
-  authentication timer restart 10800 
-  authentication timer reauthenticate 10800 
-  authentication violation replace
-  mab 
-  no snmp trap link-status 
-  dot1x pae authenticator 
-  dot1x timeout quiet-period 2 
-  dot1x timeout tx-period 3 
+switchport mode access 
+switchport voice vlan 100
+authentication host-mode multi-domain 
+authentication order dot1x mab 
+authentication priority dot1x mab 
+authentication port-control auto 
+authentication periodic 
+authentication timer restart 10800 
+authentication timer reauthenticate 10800 
+authentication violation replace
+mab 
+no snmp trap link-status 
+dot1x pae authenticator 
+dot1x timeout quiet-period 2 
+dot1x timeout tx-period 3 
 
 ===== 802.1X with MAC Authentication bypass (Multi­Host)
 
 On each interface:
 
-  switchport mode access 
-  authentication order dot1x mab 
-  authentication priority dot1x mab 
-  authentication port-control auto 
-  authentication periodic 
-  authentication timer restart 10800 
-  authentication timer reauthenticate 7200 
-  authentication violation replace
-  mab 
-  no snmp trap link-status 
-  dot1x pae authenticator 
-  dot1x timeout quiet-period 2 
-  dot1x timeout tx-period 3 
+switchport mode access 
+authentication order dot1x mab 
+authentication priority dot1x mab 
+authentication port-control auto 
+authentication periodic 
+authentication timer restart 10800 
+authentication timer reauthenticate 7200 
+authentication violation replace
+mab 
+no snmp trap link-status 
+dot1x pae authenticator 
+dot1x timeout quiet-period 2 
+dot1x timeout tx-period 3 
 
 ===== MAC Authentication bypass only 
 
 On each interface:
 
-  switchport mode access 
-  switchport voice vlan 100 
-  dot1x mac-auth-bypass 
-  dot1x pae authenticator 
-  dot1x port-control auto 
-  dot1x timeout tx-period 5 
-  dot1x reauthentication 
-  authentication periodic 
-  authentication timer restart 10800 
-  authentication timer reauthenticate 7200 
-  authentication violation replace
-  mab 
-  no snmp trap link-status 
+switchport mode access 
+switchport voice vlan 100 
+dot1x mac-auth-bypass 
+dot1x pae authenticator 
+dot1x port-control auto 
+dot1x timeout tx-period 5 
+dot1x reauthentication 
+authentication periodic 
+authentication timer restart 10800 
+authentication timer reauthenticate 7200 
+authentication violation replace
+mab 
+no snmp trap link-status 
 
 [NOTE]
 .802.1X on various models of 2960
@@ -435,11 +456,11 @@ We have found a couple of commands that are working great or MAB:
 
 On each interface
 
-  switchport mode access
-  authentication order mab
-  authentication port-control auto
-  mab
-  dot1x pae authenticator
+switchport mode access
+authentication order mab
+authentication port-control auto
+mab
+dot1x pae authenticator
 
 But, as it is difficult for us to maintain the whole list of commands to 
 configure each and every different model of 2960 with different IOS, 
@@ -448,139 +469,159 @@ please refer to Cisco documentation for very specific cases.
 
 ===== Web auth
 
-The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
+The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This
+procedure has been tested on IOS 15.0.2SE5.
 
-In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
+In this example, the ACL that triggers the redirection to the portal for
+registration is 'registration'.
 
-Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of Cisco IOS 15.0 in this document.
+Configure the global configuration of the switch using the section __MAC
+Authentication bypass only__ of Cisco IOS 15.0 in this document.
 
 Then add this additional configuration on the global level
 
-  ip device tracking
-  ip http server
-  ip http secure-server
-  snmp-server community public RO
-  snmp-server community private RW
+ip device tracking
+ip http server
+ip http secure-server
+snmp-server community public RO
+snmp-server community private RW
 
 Add the required access lists
 
   ip access-list extended registration
-   deny ip any host <your captive portal ip> 
+   deny ip any host <captive portal ip> 
    permit tcp any any eq www
    permit tcp any any eq 443
 
 Then on each controlled interface
 
-   switchport access vlan <vlan> 
-   switchport mode access
-   authentication priority mab
-   authentication port-control auto
-   authentication periodic
-   authentication violation replace
-   mab
-   spanning-tree portfast
+switchport access vlan <vlan> 
+switchport mode access
+authentication priority mab
+authentication port-control auto
+authentication periodic
+authentication violation replace
+mab
+spanning-tree portfast
 
 PacketFence switch configuration 
 
+[options="compact"]
 * Select the type to 'Cisco IOS 15.0'
-* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
-* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_0'
-* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* Set the 'Registration' role to 'registration' (If left empty then it will
+  use the role name)
+* Set Role by Web Auth URL for registration to
+  'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_0'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the
+  switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 ===== Dynamic ACLs
 
-The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
+The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define
+the ACLs centrally in PacketFence without configuring them in the switches and
+their rules will be applied to the switch during the authentication.
 
-These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+These ACLs are defined by role like the VLANs which means you can define
+different ACLs for the registration VLAN, production VLAN, guest VLAN, etc.
 
 Add the following configuration setting on the global level 
 
-   ip device tracking
+ip device tracking
 
-For IOS 12.2, you need to create this acl and assign it to the switch port interface:
+For IOS 12.2, you need to create this acl and assign it to the switch port
+interface:
 
- ip access-list extended Auth-Default-ACL
-  permit udp any range bootps 65347 any range bootpc 65348
-  permit udp any any range bootps 65347
-  permit udp any any eq domain
-  deny   ip any any
+ip access-list extended Auth-Default-ACL
+permit udp any range bootps 65347 any range bootpc 65348
+permit udp any any range bootps 65347
+permit udp any any eq domain
+deny   ip any any
 
- interface GigabitEthernetx/y/z
-  ...
-  ip access-group Auth-Default-ACL in
-  ...
+interface GigabitEthernetx/y/z
+...
+ip access-group Auth-Default-ACL in
+...
 
-Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
+Before continuing, configure the switch to be in MAC authentication bypass or
+802.1X.
 
-Now in the PacketFence interface go in the switch configuration and in the Roles tab.
+Now in the PacketFence interface go in the switch configuration and in the Roles
+tab.
 
-Check 'Role by access list' and you should now be able to configure the access lists as below.
+Check 'Role by access list' and you should now be able to configure the access
+lists as below.
 
-For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+For example if you want the users that are in the registration VLAN to only use
+HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration
+category.
 
 image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
 
-Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+Now if for example, the normal users are placed in the 'default' category and
+the guests in the 'guest' category.
 
-If for example the 'default' category uses the network 192.168.5.0/24 and your guest network uses the network 192.168.10.0/24.
+If for example the 'default' category uses the network 192.168.5.0/24 and the
+guest network uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
 
 image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
-You could also only prevent your guest users from using shared directories
+Could also only prevent the guest users from using shared directories
 
 image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
 
-Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+Or also could restrict the users to use only the DNS server where
+192.168.5.2 is the DNS server
 
 image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
 
 ==== Cisco IOS 15.5
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_2,this section below>>.
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_15_5,this section below>>.
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 
-Since version PacketFence 2.2.1, the way to handle VoIP when using 
-port-security dramatically changed. Ensure that you follow the instructions 
-below. To make the story short, instead on relying on the dynamic 
-MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger a new security 
-violation, and then authorize the phone MAC address on the network. 
+Since version PacketFence 2.2.1, the way to handle VoIP when using
+port-security dramatically changed. Ensure that you follow the instructions
+below. To make the story short, instead on relying on the dynamic
+MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger
+a new security
+violation, and then authorize the phone MAC address on the network.
 
 Global config settings:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps port-security
+snmp-server enable traps port-security trap-rate 1
+snmp-server host 192.168.1.5 version 2c public port-security
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport access vlan 4
+switchport port-security
+switchport port-security maximum 1 vlan access
+switchport port-security violation restrict
+switchport port-security mac-address 0200.000x.xxxx
 
 where `xxxxx` stands for the interface `ifIndex`
 
-On each interface _with VoIP_: 
+On each interface _with VoIP_:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security maximum 1 vlan voice 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.010x.xxxx vlan voice 
-  switchport port-security mac-address 0200.000x.xxxx vlan access 
+switchport voice vlan 100
+switchport access vlan 4
+switchport port-security
+switchport port-security maximum 2
+switchport port-security maximum 1 vlan access
+switchport port-security maximum 1 vlan voice
+switchport port-security violation restrict
+switchport port-security mac-address 0200.010x.xxxx vlan voice
+switchport port-security mac-address 0200.000x.xxxx vlan access
 
-where `xxxxx` stands for the interface `ifIndex` 
+where `xxxxx` stands for the interface `ifIndex`
 
 [NOTE]
 .ifIndex mapping
@@ -588,14 +629,16 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
-* Fa0/1...Fa0/48 -> 10001...10048 
-* Gi0/1...Gi0/48 -> 10101...10148 
+[options="compact"]
+* Fa0/1...Fa0/48 -> 10001...10048
+* Gi0/1...Gi0/48 -> 10101...10148
 ===========================================================================
 
-[[Catalyst_RADIUS_2]]
+[[Catalyst_RADIUS_15_5]]
 ===== 2960, 2970, 3560, 3750
 
-NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC
+Authentication. This can cause unexpected behavior.
 
 [WARNING]
 ====
@@ -719,11 +762,14 @@ please refer to Cisco documentation for very specific cases.
 
 ===== Web auth
 
-The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
+The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This
+procedure has been tested on IOS 15.0.2SE5.
 
-In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
+In this example, the ACL that triggers the redirection to the portal for
+registration is 'registration'.
 
-Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of Cisco IOS 15.5 in this document.
+Configure the global configuration of the switch using the section __MAC
+Authentication bypass only__ of Cisco IOS 15.5 in this document.
 
 Then add this additional configuration on the global level
 
@@ -736,7 +782,7 @@ Then add this additional configuration on the global level
 Add the required access lists
 
   ip access-list extended registration
-   deny ip any host <your captive portal ip> 
+   deny ip any host <captive portal ip> 
    permit tcp any any eq www
    permit tcp any any eq 443
 
@@ -753,23 +799,30 @@ Then on each controlled interface
 
 PacketFence switch configuration 
 
+[options="compact"]
 * Select the type to 'Cisco IOS 15.5'
-* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set the 'Registration' role to 'registration' (If left empty then it will
+  use the role name)
 * Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_5'
-* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* The URL can contain dynamic parameters, like the MAC address ($mac), the
+  switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 ===== Dynamic ACLs
 
-The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
+The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define
+the ACLs centrally in PacketFence without configuring them in the switches and
+their rules will be applied to the switch during the authentication.
 
-These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+These ACLs are defined by role like the VLANs which means you can define
+different ACLs for the registration VLAN, production VLAN, guest VLAN, etc.
 
 Add the following configuration setting on the global level 
 
    ip device tracking
 
-For IOS 12.2, you need to create this acl and assign it to the switch port interface:
+For IOS 12.2, you need to create this acl and assign it to the switch port
+interface:
 
  ip access-list extended Auth-Default-ACL
   permit udp any range bootps 65347 any range bootpc 65348
@@ -782,29 +835,37 @@ For IOS 12.2, you need to create this acl and assign it to the switch port inter
   ip access-group Auth-Default-ACL in
   ...
 
-Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
+Before continuing, configure the switch to be in MAC authentication bypass or
+802.1X.
 
-Now in the PacketFence interface go in the switch configuration and in the Roles tab.
+Now in the PacketFence interface go in the switch configuration and in the Roles
+tab.
 
-Check 'Role by access list' and you should now be able to configure the access lists as below.
+Check 'Role by access list' and you should now be able to configure the access
+lists as below.
 
-For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+For example if you want the users that are in the registration VLAN to only use
+HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration
+category.
 
 image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
 
-Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+Now if for example, the normal users are placed in the 'default' category and
+the guests in the 'guest' category.
 
-If for example the 'default' category uses the network 192.168.5.0/24 and your guest network uses the network 192.168.10.0/24.
+If for example the 'default' category uses the network 192.168.5.0/24 and the
+guest network uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
 
 image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
-You could also only prevent your guest users from using shared directories
+Could also only prevent the guest users from using shared directories
 
 image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
 
-Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+Or also could restrict the users to use only the DNS server where
+192.168.5.2 is the DNS server
 
 image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
@@ -812,9 +873,13 @@ image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS AC
 ===== Downloadable ACLs
 
 Starting from IOS 15.2, Cisco switches supports Downloadable ACLs.
-The size of the radius packet limit the number of ACLs a switch can receive from a single Access-Accept answer, so Cisco Switches supports Downloadable ACLs which mean that the RADIUS server will do multiples Access-Challenge to send the complete ACL.
+The size of the radius packet limit the number of ACLs a switch can receive from
+a single Access-Accept answer, so Cisco Switches supports Downloadable ACLs
+which mean that the RADIUS server will do multiples Access-Challenge to send the
+complete ACL.
 
-Use the Cisco::Cisco_IOS_15_5 switch module to use the DACLs method and use the same Global settings as the 'Dynamic ACLs' section above.
+Use the Cisco::Cisco_IOS_15_5 switch module to use the DACLs method and use the
+same Global settings as the 'Dynamic ACLs' section above.
 
 Add the following configuration setting on the global level
 
@@ -822,9 +887,14 @@ Add the following configuration setting on the global level
 
 ===== Web auth and Dynamic ACLs
 
-It's possible to mix web authentication and downloadable ACLs starting from version 12.2 of the IOS, each roles can be configured to forward the device to the captive portal for an http or an https and only allow specific traffic with the ACL.
-To do that, you need to configure PacketFence with Role by Web Auth URL and with Role by access list (For each role you need).
-On the switch you need to change the Auth-Default-ACL to add the portal IP address:
+It's possible to mix web authentication and downloadable ACLs starting from
+version 12.2 of the IOS, each roles can be configured to forward the device to
+the captive portal for an http or an https and only allow specific traffic with
+the ACL.
+To do that, you need to configure PacketFence with Role by Web Auth URL and with
+Role by access list (For each role you need).
+On the switch you need to change the Auth-Default-ACL to add the portal IP
+address:
 
 For IOS 12.2:
 
@@ -870,9 +940,13 @@ For IOS 15.2:
 
 ==== Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 
-The 4500 Series and all the stacked switches work exactly the same way as if they were not stacked so the configuration is the same: they support port-security with static MAC address and allow us to secure a MAC on the data VLAN so we enable it whether there is VoIP or not. 
+The 4500 Series and all the stacked switches work exactly the same way as if
+they were not stacked so the configuration is the same: they support
+port-security with static MAC address and allow us to secure a MAC on the data
+VLAN so we enable it whether there is VoIP or not.
 
-We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port. 
+We need to secure bogus MAC addresses on ports in order for the switch to send a
+trap when a new MAC appears on a port.
 
 Global config settings 
 
@@ -908,6 +982,7 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa1/0/1...Fa1/0/48 -> 10001...10048 
 * Gi1/0/1...Gi1/0/48 -> 10101...10148 
 * Fa2/0/1...Fa2/0/48 -> 10501...10548 
@@ -921,7 +996,8 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 
 ==== IOS XE Switches
 
-PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X and web authentication.
+PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X
+and web authentication.
 
 ===== MAC Authentication Bypass
 
@@ -956,7 +1032,8 @@ AAA groups and configuration:
 
 RADIUS server configuration:
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key
+  useStrongerSecret
   radius-server vsa send authentication 
 
 CoA configuration:
@@ -972,19 +1049,23 @@ Activate SNMP on the switch:
 
 ===== 802.1X only
 
-Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following: 
+Follow the same configuration as for MAC Authentication Bypass but change the
+`authentication priority` line with the following:
 
   authentication priority dot1x
 
 ===== 802.1X with MAC Authentication fallback
 
-Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following:
+Follow the same configuration as for MAC Authentication Bypass but change the
+`authentication priority` line with the following:
 
   authentication priority dot1x mab
 
 ===== Web auth
 
-Web auth requires at least MAC Authentication Bypass to be activated on the switchport but can also work with 802.1X. Configure your switchports as you would usually do, then add the following access lists.
+Web auth requires at least MAC Authentication Bypass to be activated on the
+switchport but can also work with 802.1X. Configure your switchports as you
+would usually do, then add the following access lists.
 
   ip access-list extended redirect
    deny   ip any host 192.168.1.5
@@ -1003,18 +1084,26 @@ Global config settings:
 
 PacketFence switch configuration:
 
+[options="compact"]
 * Select the type to 'Cisco IOS 15.5'
-* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set the 'Registration' role to 'registration' (If left empty then it will
+  use the role name)
 * Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_5'
-* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* The URL can contain dynamic parameters, like the MAC address ($mac), the
+  switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
-NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.
+NOTE: AAA authentication is slow to come up after a reload of the IOS XE
+switches. This makes the recovery from a reboot longer to complete. This is due
+to a bug in IOS XE. A workaround is to execute the following command `no aaa
+accounting system default start-stop group tacacs+`.
 
 ===== Identity Networking Policy
 
-Starting from version 15.2(1)E (IOS) and 3.4.0E (IOSXE) , Cisco introduced the Identity Based Networking Services.
-It means that you can create an authentication workflow on the switch and create interfaces templates.
+Starting from version 15.2(1)E (IOS) and 3.4E (IOSXE) , Cisco introduced the
+Identity Based Networking Services.
+It means that you can create an authentication workflow on the switch and create
+interfaces templates.
 
 To enable it:
 
@@ -1114,9 +1203,12 @@ Class map:
 
 Policy map:
 
-On the 3 following configurations if the RADIUS server is down then we will apply
- CRITICAL_AUTH_VLAN, DEFAULT_CRITICAL_VOICE_TEMPLATE and CRITICAL-ACCESS service template.
-If the RADIUS server goes up then it reinitializes the authentication if the port is in
+On the 3 following configurations if the RADIUS server is down then we will
+apply
+ CRITICAL_AUTH_VLAN, DEFAULT_CRITICAL_VOICE_TEMPLATE and CRITICAL-ACCESS service
+ template.
+If the RADIUS server goes up then it reinitializes the authentication if the
+port is in
 IN_CRITICAL_VLAN.
 
 for 802.1X with MAC Authentication fallback:
@@ -1344,7 +1436,8 @@ To see what is the status of a port let's run:
 
 Debug command:
 
-In order to be able to debug the Identity Networking Policy you can launch the following command in the switch cli:
+In order to be able to debug the Identity Networking Policy you can launch the
+following command in the switch cli:
 
  term mon
  debug pre all
@@ -1364,9 +1457,12 @@ On uplink interfaces:
 
 ===== Router ISR 1800 Series 
 
-PacketFence supports the 1800 series Router with linkUp / linkDown traps. It cannot do 
-anything about the router interfaces (ie: fa0 and fa1 on a 1811). VLAN interfaces `ifIndex` should 
-also be marked as uplinks in the PacketFence switch configuration as they generate traps but 
+PacketFence supports the 1800 series Router with linkUp / linkDown traps. It
+cannot do
+anything about the router interfaces (ie: fa0 and fa1 on a 1811). VLAN
+interfaces `ifIndex` should
+also be marked as uplinks in the PacketFence switch configuration as they
+generate traps but
 are of no interest to PacketFence (layer 3). 
 
 Global config settings: 
@@ -1381,11 +1477,17 @@ On each interface:
 
 ==== EAP-FAST authentication Support
 
-PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and EAP-MSCHAPv2 authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
+PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and
+EAP-MSCHAPv2 authentication methods. Upon successful authentication against
+PacketFence, the authenticator switch will give trunk access to the supplicant
+switch.
 
-Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
+Here is an official Cisco guide, from which the following configuration derives:
+https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
 
-The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketFence.
+The following configuration example contains required changes to be applied on
+both authenticator and supplicant switches to provide EAP-FAST authentication
+against PacketFence.
 
 ===== Authenticator
 
@@ -1431,8 +1533,10 @@ Uplink settings:
 
 ==== Device Sensor for Cisco Equipment
 
-Device sensor is a way to be able to receive some information about endpoints from the RADIUS accounting packet. (like DHCP, CDP, LLDP and HTTP information)
-In order to enable Device Sensor feature, you need to add the following parameters to your switch configuration:
+Device sensor is a way to be able to receive some information about endpoints
+from the RADIUS accounting packet. (like DHCP, CDP, LLDP and HTTP information)
+In order to enable Device Sensor feature, you need to add the following
+parameters to your switch configuration:
 
  radius server packetfence
  address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
@@ -1463,5 +1567,6 @@ In order to enable Device Sensor feature, you need to add the following paramete
  device-sensor filter-spec cdp include list cdp-list
  device-sensor notify all-changes
 
-This configuration will make the switch send information about DHCP, LLDP and CDP of the endpoint in the RADIUS accounting packets.
+This configuration will make the switch send information about DHCP, LLDP and
+CDP of the endpoint in the RADIUS accounting packets.
 

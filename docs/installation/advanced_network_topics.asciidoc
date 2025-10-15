@@ -20,15 +20,25 @@ endif::[]
 
 === Floating Network Devices
 
-PacketFence supports floating network devices. A Floating network device is a device for which PacketFence has a different behavior compared to a non-floating (regular) network device. This functionality was originally added to support mobile Access Points.
+PacketFence supports floating network devices. A Floating network device is a
+device for which PacketFence has a different behavior compared to a non-floating
+(regular) network device. This functionality was originally added to support
+mobile Access Points.
 
-CAUTION: Currently only Cisco and Nortel switches configured with port-security are supported.
+CAUTION: Currently only Cisco and Nortel switches configured with port-security
+are supported.
 
-A regular device is placed in the VLAN corresponding to its status (Registration, Isolation or Production VLAN) and is authorized on the port (port-security). This is not managed the same way as a floating network device.
+A regular device is placed in the VLAN corresponding to its status
+(Registration, Isolation or Production VLAN) and is authorized on the port
+(port-security). This is not managed the same way as a floating network device.
 
-When a floating network device is connected, PacketFence will let/allow all the MAC addresses are connected to this device or appear on the port. If necessary the port is configured as multi-vlan (trunk) the PVID is set and VLANs are tagged on the port.
+When a floating network device is connected, PacketFence will let/allow all the
+MAC addresses are connected to this device or appear on the port. If necessary
+the port is configured as multi-vlan (trunk) the PVID is set and VLANs are
+tagged on the port.
 
-When a floating network device is disconnected, PacketFence will reconfigure the port to what it was before the device connected.
+When a floating network device is disconnected, PacketFence will reconfigure the
+port to what it was before the device connected.
 
 ==== How it works
 
@@ -38,7 +48,8 @@ Configuration:
 * floating network devices have to be identified using their MAC address.
 * linkup/linkdown traps are not enabled on the switches, only port-security traps are enabled.
 
-.When a port-security trap is received for a floating network device, the port configuration is changed with:
+.When a port-security trap is received for a floating network device, the port
+configuration is changed with:
 
 [options="compact"]
 * disable port-security
@@ -46,7 +57,8 @@ Configuration:
 * eventually set the port as multi-vlan (trunk) and set the tagged VLANs
 * enable linkdown traps
 
-.When a linkdown trap is received on a port in which a floating network device was connected, the port configuration is changed with:
+.When a linkdown trap is received on a port in which a floating network device
+was connected, the port configuration is changed with:
 
 [options="compact"]
 * enable port-security
@@ -54,11 +66,12 @@ Configuration:
 
 ==== Identification
 
-Each floating network device has to be identified. There are two ways to do this:
+Each floating network device has to be identified. There are two ways to do
+this:
 
 [options="compact"]
 * by editing [filename]`/usr/local/pf/conf/floating_network_device.conf`
-* through the Web GUI, in _Configuration -> Network Configuration -> Floating Device_
+* through the admin interface, in _Configuration -> Network Configuration -> Floating Device_
 
 Available settings:
 
@@ -71,27 +84,40 @@ trunkPort::
 pvid::
   Port VLAN.
 taggedVlan::
-  Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that are tagged on the port.
+  Comma separated list of VLANs. If the port is a multi-vlan, these are the
+  VLANs that are tagged on the port.
 
 === Production DHCP access
 
-MAC addresses need to be mapped to IP addresses in order to perform access control.
+MAC addresses need to be mapped to IP addresses in order to perform access
+control.
 
-To have the ability to isolate a node or to have IP information about a node within a network or VLAN, *one* of the following techniques must be used.
+To have the ability to isolate a node or to have IP information about a node
+within a network or VLAN, *one* of the following techniques must be used.
 
-NOTE: This is not required for the Registration or Isolation VLANs and inline interfaces since PacketFence acts as the DHCP server within these networks.
+NOTE: This is not required for the Registration or Isolation VLANs and inline
+interfaces since PacketFence acts as the DHCP server within these networks.
 
 ==== IP Helpers
 
-If IP-helpers for your production DHCP in your production VLANs are already being used then this approach is the simplest to setup and works the best.
+If IP-helpers for your production DHCP in your production VLANs are already
+being used then this approach is the simplest to setup and works the best.
 
-Add PacketFence's management IP address as the last `ip helper-address` in your network equipment. PacketFence will receive a copy of all DHCP requests for that VLAN and will record the IP addresses that were leased to each device using the `pfdhcplistener` daemon.
+Add PacketFence's management IP address as the last `ip helper-address` in your
+network equipment. PacketFence will receive a copy of all DHCP requests for that
+VLAN and will record the IP addresses that were leased to each device using the
+`pfdhcplistener` daemon.
 
-No DHCP Server should be listening on the interface where these requests are being sent, otherwise PacketFence would pointlessly reply to all DHCP requests.
+No DHCP Server should be listening on the interface where these requests are
+being sent, otherwise PacketFence would pointlessly reply to all DHCP requests.
 
 ==== Copy of the DHCP traffic
 
-To copy all the DHCP Traffic from a dedicated physical interface of the PacketFence server run `pfdhcplistener` on the desired interface. This will properly configure the switch in order to perform port mirroring (network span) and sets the proper interface parameters to the operating system and in [filename]`/usr/local/pf/conf/pf.conf`.
+To copy all the DHCP Traffic from a dedicated physical interface of the
+PacketFence server run `pfdhcplistener` on the desired interface. This will
+properly configure the switch in order to perform port mirroring (network span)
+and sets the proper interface parameters to the operating system and in
+[filename]`/usr/local/pf/conf/pf.conf`.
 
 `/etc/sysconfig/network-scripts/ifcfg-eth2`:
 
@@ -113,11 +139,15 @@ Restart PacketFence to apply the changes.
 
 ==== Interface in every VLAN
 
-Because DHCP traffic is broadcast traffic, an alternative for small networks with few local VLANs is to put a VLAN interface for every VLAN on the PacketFence server and have a `pfdhcplistener` listen on that VLAN interface.
+Because DHCP traffic is broadcast traffic, an alternative for small networks
+with few local VLANs is to put a VLAN interface for every VLAN on the
+PacketFence server and have a `pfdhcplistener` listen on that VLAN interface.
 
-On the network side ensure that the VLAN reaches from your client to the DHCP infrastructure to the PacketFence server.
+On the network side ensure that the VLAN reaches from your client to the DHCP
+infrastructure to the PacketFence server.
 
-First configure an operating system VLAN interface in PacketFence like the example below [filename]`/etc/sysconfig/network-scripts/ifcfg-eth0.1010`:
+First configure an operating system VLAN interface in PacketFence like the
+example below [filename]`/etc/sysconfig/network-scripts/ifcfg-eth0.1010`:
 
   # Engineering VLAN
   DEVICE=eth0.1010
@@ -127,7 +157,8 @@ First configure an operating system VLAN interface in PacketFence like the examp
   NETMASK=255.255.255.0
   VLAN=yes
 
-Then specify `type=dhcp-listener` in `/usr/local/pf/conf/pf.conf` within the VLANs using DHCP:
+Then specify `type=dhcp-listener` in `/usr/local/pf/conf/pf.conf` within the
+VLANs using DHCP:
 
   [interface eth0.1010]
   mask=255.255.255.0
@@ -135,17 +166,24 @@ Then specify `type=dhcp-listener` in `/usr/local/pf/conf/pf.conf` within the VLA
   gateway=10.0.101.1
   ip=10.0.101.4
 
-Repeat the above steps for all production VLANs then restart PacketFence to apply the changes.
+Repeat the above steps for all production VLANs then restart PacketFence to
+apply the changes.
 
 === Routed Networks
 
-PacketFence will need to be configured if the Isolation and Registration networks are not reachable locally (at layer 2) on the network, but instead routed to the PacketFence server. PacketFence is able to provide DHCP and DNS in these routed networks.
+PacketFence will need to be configured if the Isolation and Registration
+networks are not reachable locally (at layer 2) on the network, but instead
+routed to the PacketFence server. PacketFence is able to provide DHCP and DNS in
+these routed networks.
 
 image::diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
 
-For dhcpd, ensure the clients DHCP requests are being forwarded correctly (IP Helpers in the remote routers) to the PacketFence server.
+For dhcpd, ensure the clients DHCP requests are being forwarded correctly (IP
+Helpers in the remote routers) to the PacketFence server.
 
-Considering the network architecture illustrated above, [filename]`/usr/local/pf/conf/pf.conf` will include the local Registration and Isolation interfaces only.
+Considering the network architecture illustrated above,
+[filename]`/usr/local/pf/conf/pf.conf` will include the local Registration and
+Isolation interfaces only.
 
    [interface eth0.2]
    enforcement=vlan
@@ -159,9 +197,15 @@ Considering the network architecture illustrated above, [filename]`/usr/local/pf
    type=internal
    mask=255.255.255.0
 
-NOTE: PacketFence will not start unless at least one 'internal' interface is detected, thus local Registration and Isolation VLANs will need to be created even if they are not needed. The [command]`dhcpd` daemon only listens on the 'internal' interfaces, therefore the remote Registration and Isolation subnets need to point their DHCP helper-address to those particular IP addresses.
+NOTE: PacketFence will not start unless at least one 'internal' interface is
+detected, thus local Registration and Isolation VLANs will need to be created
+even if they are not needed. The [command]`dhcpd` daemon only listens on the
+'internal' interfaces, therefore the remote Registration and Isolation subnets
+need to point their DHCP helper-address to those particular IP addresses.
 
-Provide the routed networks to PacketFence through the GUI in _Configuration -> Network Configuration -> Networks_ or manually in [filename]`/usr/local/pf/conf/networks.conf`.
+Provide the routed networks to PacketFence through the admin interface in
+_Configuration -> Network Configuration -> Networks_ or manually in
+[filename]`/usr/local/pf/conf/networks.conf`.
 
 Example `/usr/local/pf/conf/networks.conf`:
 
@@ -248,7 +292,7 @@ This has the advantage of preventing machines in Isolation from attacking each o
 
 Used only for VLAN enforcement. Inline enforcement can skip this section.
 
-PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. You can modify this configuration directly in [filename]`/usr/local/pf/conf/switches.conf` or from the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_ (recommended).
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. You can modify this configuration directly in [filename]`/usr/local/pf/conf/switches.conf` or from the admin interface in _Configuration -> Policies and Access Control -> Switches_ (recommended).
 
 .The [filename]`/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
 
@@ -361,7 +405,7 @@ PacketFence can occasionally establish an interactive command-line session with 
   cliPwd = admin_pwd
   cliEnablePwd =
 
-This can also be configured with the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_.
+This can also be configured with the admin interface in _Configuration -> Policies and Access Control -> Switches_.
 
 ==== Web Services Interface
 
@@ -371,7 +415,7 @@ PacketFence can occasionally establish a Web Services dialog with a switch. Edit
   wsUser = admin
   wsPwd = admin_pwd
 
-This can also be configured with the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_.
+This can also be configured with the admin interface in _Configuration -> Policies and Access Control -> Switches_.
 
 ==== Role-based Enforcement
 
@@ -387,7 +431,7 @@ Example that returns the `full-access` role to the nodes categorized as admin or
   engineeringRole=full-access
   salesRole=little-access
 
-This can also be configured with the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_.
+This can also be configured with the admin interface in _Configuration -> Policies and Access Control -> Switches_.
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 

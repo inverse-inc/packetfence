@@ -1,0 +1,67 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+=== External API Authentication
+
+PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
+
+==== Authentication
+
+This should provide the information about whether or not the username/password combination is valid
+
+These information are available through the POST fields of the request
+
+The server should reply with two attributes in a JSON response
+
+[options="compact"]
+ * *result* : should be 1 for success, 0 for failure
+ * *message* : should be the reason it succeeded or failed
+
+Example JSON response :
+[source,bash]
+----
+  {"result":1,"message":"Valid username and password"}
+----
+
+==== Authorization
+
+This should provide the actions to apply on a user based on it's attributes
+
+The following attributes are available for the reply : *access_duration*, *access_level*, *sponsor*, *unregdate*, *category*.
+
+Sample JSON response, note that not all attributes are necessary, only send back what you need.
+
+[source,bash]
+----
+  {"access_duration":"1D","access_level":"ALL","sponsor":1
+    ,"unregdate":"2030-01-01","category":"default"}
+----
+
+NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` for an example implementation compatible with PacketFence.
+
+==== PacketFence Configuration
+
+In PacketFence, you need to configure an HTTP source in order to use an external API.
+
+Here is a brief description of the fields :
+
+[options="compact"]
+ * *Host* : First, the protocol, then the IP address or hostname of the API and lastly the port to connect to the API.
+ * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
+ * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
+ * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.

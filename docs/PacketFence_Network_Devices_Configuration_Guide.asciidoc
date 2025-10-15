@@ -1,51 +1,40 @@
-= Network Devices Configuration Guide
-////
-
-    This file is part of the PacketFence project.
-
-    See includes/global-attributes.asciidoc
-    for authors, copyright and license information.
-
-////
+= PacketFence Network Devices Configuration Guide
+include::includes/file-header.asciidoc[]
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers the configuration of network devices in order to integrate
-them with PacketFence in VLAN enforcement. Switches, wireless controllers and
-wireless access points are all considered network devices in PacketFence's
-terms.
+This guide covers network device configuration for VLAN enforcement and access
+control with PacketFence. It provides device-specific configuration
+instructions for over 80 supported network vendors including managed switches,
+wireless controllers, and wireless access points. The guide covers 802.1X
+authentication, MAC authentication bypass, VLAN assignment, RADIUS
+configuration, and SNMP integration with various network equipment
+manufacturers.
 
-The latest version of this guide is available at https://packetfence.org/documentation/
+include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
+:current_guide_network_devices:
+include::includes/other-sources-information.asciidoc[]
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environment.
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  instructions for supporting new equipment.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
-  Covers installation and configuration of PacketFence.
-<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
-https://packetfence.org/news.html[PacketFence News]::
-  Covers noteworthy features, improvements and bug fixes by release.
+include::includes/package-tarballs-note.asciidoc[]
 
-These files are included in the package and release tarballs.
+== Important Notes
+=== Inline enforcement support
 
-== Note on Inline enforcement support
+Inline enforcement does not require this guide, except for RADIUS inline. RADIUS
+inline uses a flat layer-2 network on PacketFence's inline interface with no
+other gateway for Internet access.
 
-There is no need to follow this guide with inline enforcement, except RADIUS inline. In this case, a flat layer-2 network is used on PacketFence's inline interface with no other gateway available for devices to reach out to the Internet.
+Use this technique when network hardware does not support VLAN enforcement.
 
-This technique is usually used when the network hardware does not support VLAN enforcement.
+=== RADIUS accounting
 
-== Note on RADIUS accounting
+Enabling RADIUS accounting on network devices significantly increases database
+size and may cause performance issues. Use RADIUS accounting only if absolutely
+required.
 
-Enabling RADIUS accounting on the network devices will significantly increase the database size and may cause performance issues. Only use RADIUS accounting if it is absolutely required.
-
-== List of supported Network Devices
+=== Supported Network Devices
 
 include::network/list_of_supported_network_devices.asciidoc[]
 
@@ -67,10 +56,10 @@ include::network/firewall_configuration.asciidoc[]
 
 // INCLUDES
 
-include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

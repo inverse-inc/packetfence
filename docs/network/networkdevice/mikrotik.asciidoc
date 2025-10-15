@@ -19,47 +19,73 @@ endif::[]
   
 //=== Mikrotik
 
-PacketFence supports MikroTik's RouterOS to provide wireless 802.1X (WPA2-Enterprise and MAC-based authentication) as well as wired 802.1X (EAPoL (Extensible 
+PacketFence supports MikroTik's RouterOS to provide wireless 802.1X
+(WPA2-Enterprise and MAC-based authentication) as well as wired 802.1X (EAPoL
+(Extensible
 Authentication Protocol over LAN)).
 
-MikroTik has supported wireless 802.1X RADIUS disconnect for 2+ years, but this is not available for wired 802.1X (dot1x).
+MikroTik has supported wireless 802.1X RADIUS disconnect for 2+ years, but this
+is not available for wired 802.1X (dot1x).
 
-This configuration has been tested on a variety of MikroTik devices, including RB433AH, hAP ac, hAP ac lite, RB1100, RB3011 and various CCR devices. MikroTik
-provide free software updates ('/system package update install' and then '/sys routerboard upgrade' after booting new RouterOS).
+This configuration has been tested on a variety of MikroTik devices, including
+RB433AH, hAP ac, hAP ac lite, RB1100, RB3011 and various CCR devices. MikroTik
+provide free software updates ('/system package update install' and then '/sys
+routerboard upgrade' after booting new RouterOS).
 
-Default MikroTik de-auth method has been changed to RADIUS, instead of SSH. Change 'my $default = $SNMP::RADIUS;' back to 'my $default = $SNMP::SSH;' if you 
+Default MikroTik de-auth method has been changed to RADIUS, instead of SSH.
+Change 'my $default = $SNMP::RADIUS;' back to 'my $default = $SNMP::SSH;' if you
 want to continue using SSH as the de-authentication method.
 
-EAPoL (802.1X) wired authentication has been available since v6.46 (Dec 2019) with MAB fallback being stable in v6.48.3.
+EAPoL (802.1X) wired authentication has been available since v6.46 (Dec 2019)
+with MAB fallback being stable in v6.48.3.
 
-PS: Don't forget to use the pf account to ssh on the Access Point, to receive the ssh key, if you switch back to using SSH.
+PS: Don't forget to use the pf account to ssh on the Access Point, to receive
+the ssh key, if you switch back to using SSH.
 
 [float]
-==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC-based authentication on WPA2-PSK SSID
+==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC-based authentication on
+WPA2-PSK SSID
 
-In this example the 2.4 and 5 GHz radios are configured to provide wireless 802.1X with a virtual AP being added to provide MAC-based authentication
-on a WPA2-PSK SSID where the password is disclosed as part of the SSID. Although the Pre-Shared Key (PSK) is published each wireless client's connection
+In this example the 2.4 and 5 GHz radios are configured to provide wireless
+802.1X with a virtual AP being added to provide MAC-based authentication
+on a WPA2-PSK SSID where the password is disclosed as part of the SSID. Although
+the Pre-Shared Key (PSK) is published each wireless client's connection
 would still be encrypted with a dynamically generated key.
 
 First we create the SSIDs and virtual AP for the second SSID:
 
   /interface wireless security-profiles
-    add authentication-types=wpa2-eap disable-pmkid=yes interim-update=15m management-protection=allowed mode=dynamic-keys name=radius-eap \
+    add authentication-types=wpa2-eap disable-pmkid=yes interim-update=15m
+    management-protection=allowed mode=dynamic-keys name=radius-eap \
       radius-eap-accounting=yes supplicant-identity=""
-    add authentication-types=wpa2-psk disable-pmkid=yes eap-methods="" interim-update=15m management-protection=allowed mode=dynamic-keys name=\
-      radius-mac radius-mac-accounting=yes radius-mac-authentication=yes supplicant-identity="" wpa2-pre-shared-key="internet"
+    add authentication-types=wpa2-psk disable-pmkid=yes eap-methods=""
+    interim-update=15m management-protection=allowed mode=dynamic-keys name=\
+      radius-mac radius-mac-accounting=yes radius-mac-authentication=yes
+      supplicant-identity="" wpa2-pre-shared-key="internet"
   /interface wireless
-    set [ find default-name=wlan1 ] band=2ghz-b/g/n channel-width=20mhz country="south africa" disabled=no frequency=auto mode=ap-bridge name=\
-      "wlan1 - 2.4 GHz - ACME WiFi" security-profile=radius-eap skip-dfs-channels=all ssid="ACME WiFi" station-roaming=enabled vlan-id=3999 \
+    set [ find default-name=wlan1 ] band=2ghz-b/g/n channel-width=20mhz
+    country="south africa" disabled=no frequency=auto mode=ap-bridge name=\
+      "wlan1 - 2.4 GHz - ACME WiFi" security-profile=radius-eap
+      skip-dfs-channels=all ssid="ACME WiFi" station-roaming=enabled
+      vlan-id=3999 \
       vlan-mode=use-tag wireless-protocol=802.11 wps-mode=disabled
-    add disabled=no master-interface="wlan1 - 2.4 GHz - ACME WiFi" multicast-helper=full name="wlan1 - 2.4 GHz - ACME Guest" \
-      security-profile=radius-mac ssid="ACME Guest (pw: internet)" station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
-    set [ find default-name=wlan2 ] band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country="south africa" disabled=no frequency=auto mode=ap-bridge \
-      name="wlan2 - 5 GHz - ACME WiFi" security-profile=radius-eap skip-dfs-channels=all ssid="ACME WiFi" station-roaming=enabled vlan-id=3999 \
+    add disabled=no master-interface="wlan1 - 2.4 GHz - ACME WiFi"
+    multicast-helper=full name="wlan1 - 2.4 GHz - ACME Guest" \
+      security-profile=radius-mac ssid="ACME Guest (pw: internet)"
+      station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
+    set [ find default-name=wlan2 ] band=5ghz-a/n/ac
+    channel-width=20/40/80mhz-Ceee country="south africa" disabled=no
+    frequency=auto mode=ap-bridge \
+      name="wlan2 - 5 GHz - ACME WiFi" security-profile=radius-eap
+      skip-dfs-channels=all ssid="ACME WiFi" station-roaming=enabled
+      vlan-id=3999 \
       vlan-mode=use-tag wireless-protocol=802.11 wps-mode=disabled
-    add disabled=no master-interface="wlan2 - 5 GHz - ACME WiFi" multicast-helper=full name="wlan2 - 5 GHz - ACME Guest" \
-      security-profile=radius-mac ssid="ACME Guest (pw: internet)" station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
-  PS: VLAN 3999 is purposefully bogus, to ensure no access without VLAN assignment in the RADIUS response.
+    add disabled=no master-interface="wlan2 - 5 GHz - ACME WiFi"
+    multicast-helper=full name="wlan2 - 5 GHz - ACME Guest" \
+      security-profile=radius-mac ssid="ACME Guest (pw: internet)"
+      station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
+  PS: VLAN 3999 is purposefully bogus, to ensure no access without VLAN
+  assignment in the RADIUS response.
 
 Next we create a VLAN filtering bridge:
 
@@ -71,16 +97,24 @@ Next we create a VLAN filtering bridge:
     add bridge=bridge interface="wlan1 - 2.4 GHz - ACME Guest"
     add bridge=bridge interface="wlan2 - 5 GHz - ACME Guest"
   /interface bridge vlan
-    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=52
-    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=666
-    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=667
+    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz -
+    ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest"
+    vlan-ids=52
+    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz -
+    ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest"
+    vlan-ids=666
+    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz -
+    ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest"
+    vlan-ids=667
 
 Next we create the VLANs and assign IPs:
 
   /interface vlan
     add comment="Guest WiFi:" interface=bridge name=vlan52 vlan-id=52
-    add comment="PacketFence - Registration:" interface=bridge name=vlan666 vlan-id=666
-    add comment="PacketFence - Isolation:" interface=bridge name=vlan667 vlan-id=667
+    add comment="PacketFence - Registration:" interface=bridge name=vlan666
+    vlan-id=666
+    add comment="PacketFence - Isolation:" interface=bridge name=vlan667
+    vlan-id=667
   /ip address
     add address=172.16.20.1/24 interface=bridge
     add address=10.239.239.1/24 interface=vlan52
@@ -88,25 +122,36 @@ Next we create the VLANs and assign IPs:
     add address=192.168.10.241/28 interface=vlan667
   PS: 172.16.20.1 is essentially assigned to VLAN 1 (untagged)
 
-Last settings on the MikroTik defines PacketFence as the RADIUS server and filters traffic on Guest, Registration and Isolation networks:
+Last settings on the MikroTik defines PacketFence as the RADIUS server and
+filters traffic on Guest, Registration and Isolation networks:
 
   /radius
-    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=wireless src-address=172.16.20.1 timeout=1s
+    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret
+    service=wireless src-address=172.16.20.1 timeout=1s
   /radius incoming
     set accept=yes
   /ip dhcp-relay
-    add dhcp-server=172.31.31.1 disabled=no interface=vlan666 local-address=192.168.10.225 add-relay-info=yes name="PacketFence - Registration"
-    add dhcp-server=172.31.31.129 disabled=no interface=vlan667 local-address=192.168.10.241 add-relay-info=yes name="PacketFence - Isolation"
+    add dhcp-server=172.31.31.1 disabled=no interface=vlan666
+    local-address=192.168.10.225 add-relay-info=yes name="PacketFence -
+    Registration"
+    add dhcp-server=172.31.31.129 disabled=no interface=vlan667
+    local-address=192.168.10.241 add-relay-info=yes name="PacketFence -
+    Isolation"
   /ip firewall address-list
     add address=10.0.0.0/8 list=local
     add address=172.16.0.0/12 list=local
     add address=192.168.0.0/16 list=local
   /ip firewall filter
-    add action=reject chain=forward comment="Limit WiFi - Guest:" dst-address=!41.1.1.1 dst-address-list=local in-interface=vlan52
-    add action=reject chain=forward comment="Limit PacketFence - Registration:" dst-address=!172.31.31.1 in-interface=vlan666
-    add action=reject chain=forward comment="Limit PacketFence - Isolation:" dst-address=!172.31.31.129 in-interface=vlan667
-  PS: Use 'src-address' to originate requests from an IP other than the one associated with the interface that routes towards PacketFence.
-      172.31.31.1 is PacketFence's routed registration network IP and 172.31.31.129 is the routed Isolation IP.
+    add action=reject chain=forward comment="Limit WiFi - Guest:"
+    dst-address=!41.1.1.1 dst-address-list=local in-interface=vlan52
+    add action=reject chain=forward comment="Limit PacketFence - Registration:"
+    dst-address=!172.31.31.1 in-interface=vlan666
+    add action=reject chain=forward comment="Limit PacketFence - Isolation:"
+    dst-address=!172.31.31.129 in-interface=vlan667
+  PS: Use 'src-address' to originate requests from an IP other than the one
+  associated with the interface that routes towards PacketFence.
+      172.31.31.1 is PacketFence's routed registration network IP and
+      172.31.31.129 is the routed Isolation IP.
 
 PacketFence switch configuration:
 
@@ -136,13 +181,15 @@ PacketFence switch configuration:
 MikroTik calls this dot1x and is documented in more detail here:
   https://help.mikrotik.com/docs/display/ROS/Dot1X
 
-The configuration requires a VLAN filtering bridge with Spanning Tree Protocol enabled. New bridges by default have RSTP (Rapid Spanning Tree Protocol) 
+The configuration requires a VLAN filtering bridge with Spanning Tree Protocol
+enabled. New bridges by default have RSTP (Rapid Spanning Tree Protocol)
 enabled, so you can follow similar steps as above for wireless 802.1X.
 
 Set the PacketFence RADIUS server to be used for dot1x:
 
   /radius
-    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=dot1x src-address=172.16.20.1 timeout=1s
+    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret
+    service=dot1x src-address=172.16.20.1 timeout=1s
 
 Add the ethernet ports to the bridge:
 
@@ -165,19 +212,23 @@ Lastly we enable 802.1X for those interfaces, with MAB fallback:
 
 ==== Open SSID
 
-In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
+In this setup we use the interface ether5 for the bridge (Trunk interface) and
+ether1 as the management interface.
 
 Configure your access point with the following configuration:
 
   /interface wireless
   # managed by CAPsMAN
   # channel: 5180/20-Ce/an(17dBm), SSID: OPEN, local forwarding
-  set [ find default-name=wlan1 ] band=5ghz-a/n channel-width=20/40mhz-Ce disabled=no l2mtu=1600 mode=ap-bridge ssid=MikroTik-05A64D
+  set [ find default-name=wlan1 ] band=5ghz-a/n channel-width=20/40mhz-Ce
+  disabled=no l2mtu=1600 mode=ap-bridge ssid=MikroTik-05A64D
   /interface ethernet
   set [ find default-name=ether1 ] name=ether1-gateway
   set [ find default-name=ether2 ] name=ether2-master-local
-  set [ find default-name=ether3 ] master-port=ether2-master-local name=ether3-slave-local
-  set [ find default-name=ether4 ] master-port=ether2-master-local name=ether4-slave-local
+  set [ find default-name=ether3 ] master-port=ether2-master-local
+  name=ether3-slave-local
+  set [ find default-name=ether4 ] master-port=ether2-master-local
+  name=ether4-slave-local
   set [ find default-name=ether5 ] name=ether5-master-local
   /interface vlan
   add interface=BR-CAPS l2mtu=1594 name=default vlan-id=1
@@ -210,9 +261,12 @@ Configure your access point with the following configuration:
 
 ==== Webauth
 
-You can use webauth (external captive portal) on Mikrotik APs. In order to do so, you will have to activate the hotspot feature in the AP configuration as well as modify the redirection template so that it points to PacketFence.
+You can use webauth (external captive portal) on Mikrotik APs. In order to do
+so, you will have to activate the hotspot feature in the AP configuration as
+well as modify the redirection template so that it points to PacketFence.
 
-First, you must establish an FTP connection to your access point and replace the content of `hotspot/login.html` with the following:
+First, you must establish an FTP connection to your access point and replace the
+content of `hotspot/login.html` with the following:
 
   <html>
   <head><title>...</title></head>
@@ -246,9 +300,13 @@ First, you must establish an FTP connection to your access point and replace the
   </body>
   </html>
 
-Next, in the `login.html` you have just uploaded, make sure you change `AP_IP_ADDRESS_HERE` by the management IP address of your access point and `192.168.1.5` by the IP address of your PacketFence captive portal.
+Next, in the `login.html` you have just uploaded, make sure you change
+`AP_IP_ADDRESS_HERE` by the management IP address of your access point and
+`192.168.1.5` by the IP address of your PacketFence captive portal.
 
-Now, you must configure the hotspot feature on your AP. This configuration is done on top of an existing SSID you have previously configured which is on interface `wlan1`. Adjust the interface name if needed.
+Now, you must configure the hotspot feature on your AP. This configuration is
+done on top of an existing SSID you have previously configured which is on
+interface `wlan1`. Adjust the interface name if needed.
 
   /ip hotspot
   setup
@@ -284,7 +342,8 @@ Create local hotspot user
   password for the user: 
 
 
-Next, you need to allow access to the PacketFence portal in the hotspot access list. Change `192.168.1.5` with the IP address you pointed to in `login.html`
+Next, you need to allow access to the PacketFence portal in the hotspot access
+list. Change `192.168.1.5` with the IP address you pointed to in `login.html`
 
   /ip hotspot walled-garden
   add dst-host=192.168.1.5
@@ -294,7 +353,8 @@ Next, you need to allow access to the PacketFence portal in the hotspot access l
   add action=accept disabled=no dst-host=192.168.1.5
   add action=accept disabled=no src-address=192.168.1.5
 
-Now, you will also need to configure the hotspot to point to your PacketFence RADIUS server:
+Now, you will also need to configure the hotspot to point to your PacketFence
+RADIUS server:
 
   /radius
   add address=192.168.1.5 secret=useStrongerSecret service=hotspot
@@ -302,7 +362,9 @@ Now, you will also need to configure the hotspot to point to your PacketFence RA
   /ip hotspot profile
   add hotspot-address=10.5.50.1 name=hsprof1 use-radius=yes
 
-Next, you need to configure PacketFence to use webauth for this Access Point using the following `switches.conf` configuration. Change `AP_IP_ADDRESS_HERE` by the IP address you've put in login.html.
+Next, you need to configure PacketFence to use webauth for this Access Point
+using the following `switches.conf` configuration. Change `AP_IP_ADDRESS_HERE`
+by the IP address you've put in login.html.
 
   [AP_IP_ADDRESS_HERE]
   VlanMap=Y

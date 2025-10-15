@@ -19,8 +19,10 @@ endif::[]
 
 //=== HP ProCurve
 
-PacketFence supports ProCurve switches _without VoIP_ using two different trap types:
+PacketFence supports ProCurve switches _without VoIP_ using two different trap
+types:
 
+[options="compact"]
 * linkUp/linkDown
 * Port Security (with static MACs)
 
@@ -28,26 +30,42 @@ PacketFence supports ProCurve switches _without VoIP_ using two different trap t
 
 Don't forget to update the startup config!
 
-NOTE: HP ProCurve only sends one security trap to PacketFence per security violation so make sure PacketFence runs when you configure port-security. Also, because of the above limitation, it is considered good practice to reset the intrusion flag as a first troubleshooting step.
+NOTE: HP ProCurve only sends one security trap to PacketFence per security
+violation so make sure PacketFence runs when you configure port-security. Also,
+because of the above limitation, it is considered good practice to reset the
+intrusion flag as a first troubleshooting step.
 
-If you want to learn more about intrusion flag and port-security, please refer to the ProCurve documentation.
+If you want to learn more about intrusion flag and port-security, please refer
+to the ProCurve documentation.
 
-CAUTION: If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the intrusion list without a security trap sent to PacketFence. This is undesired because PacketFence will not be notified that it needs to configure the port. As a work-around, unplug clients before activating port-security or remove the intrusion flag after you enabled port-security with: `port-security <port> clear-intrusion-flag`.
+CAUTION: If you configure a switch that is already in production be careful that
+enabling port-security causes active MAC addresses to be automatically added to
+the intrusion list without a security trap sent to PacketFence. This is
+undesired because PacketFence will not be notified that it needs to configure
+the port. As a work-around, unplug clients before activating port-security or
+remove the intrusion flag after you enabled port-security with: `port-security
+<port> clear-intrusion-flag`.
 
 ==== ArubaOS Switch 16.x (ProCurve)
 
-These switch modules are built for ProCurve switch series 2500,2600,2920 and 5400 using ArubaOS-Switch versions earlier than and including AOS-Switch v16.11.xx.
+These switch modules are built for ProCurve switch series 2500,2600,2920 and
+5400 using ArubaOS-Switch versions earlier than and including AOS-Switch
+v16.11.xx.
 
 ==== Procurve
 
-Note: The "Procurve" module is developed for the ProCurve 2500 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 25
+Note: The "Procurve" module is developed for the ProCurve 2500 Series switches
+using AOS Switch version 16.x and also this module inherits all its capabilities
+from the old "ProCurve 25
 00 Series" module.
 
 ===== Port-Security
 
-linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+linkUp/linkDown traps are enabled by default so we disable them and enable Port
+Security only.
 
-On Procurve, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+On Procurve, we need to secure bogus MAC addresses on ports in order for the
+switch to send a trap when a new MAC appears on a port.
 
 Global config settings:
 
@@ -63,7 +81,8 @@ where `xx` stands for the interface index
 
 ===== CLI authentication
 
-You can use PacketFence for RADIUS CLI authentication on the Procurve (2500 Series).
+You can use PacketFence for RADIUS CLI authentication on the Procurve (2500
+Series).
 
 Global config settings
 
@@ -71,17 +90,23 @@ Global config settings
   aaa authentication ssh login radius local
   aaa authentication telnet login radius local
 
-Next, make sure you configure the switch in PacketFence accordingly as well as the proper administrative access. Refer to the Administration Guide for more details.
+Next, make sure you configure the switch in PacketFence accordingly as well as
+the proper administrative access. Refer to the Administration Guide for more
+details.
 
 ==== 2600 and 3400cl Series
 
-#Note: "Procurve_2600" module is developed for the ProCurve 2600 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 2600 Series" module.
+#Note: "Procurve_2600" module is developed for the ProCurve 2600 Series switches
+using AOS Switch version 16.x and also this module inherits all its capabilities
+from the old "ProCurve 2600 Series" module.
 
 ===== Port-Security
 
-linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+linkUp/linkDown traps are enabled by default so we disable them and enable Port
+Security only.
 
-On 2600 (AOS Switch v16.x), we *don't* need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+On 2600 (AOS Switch v16.x), we *don't* need to secure bogus MAC addresses on
+ports in order for the switch to send a trap when a new MAC appears on a port.
 
 Global config settings
 
@@ -97,7 +122,9 @@ where `xx` stands for the interface index
 
 ===== MAC Authentication (Firmware > 11.72)
 
-In order to enable RADIUS mac authentication on the ports, you first need to join the ports to either the registration or the mac detection vlan (as a security measure).
+In order to enable RADIUS mac authentication on the ports, you first need to
+join the ports to either the registration or the mac detection vlan (as a
+security measure).
 
 Next, define the RADIUS server host:
 
@@ -107,11 +134,14 @@ Next, we create a server-group that points to the PacketFence server,
 
    aaa server-group radius "packetfence" host 192.168.1.5
 
-Configure the AAA authentication for MAC authentication to use the right server-group:
+Configure the AAA authentication for MAC authentication to use the right
+server-group:
 
    aaa authentication mac-based chap-radius server-group "packetfence"
 
-Optionally, you can configure the SSH and telnet authentication to point to PacketFence (make sure you also follow instructions in the Administration Guide to activate the CLI access):
+Optionally, you can configure the SSH and telnet authentication to point to
+PacketFence (make sure you also follow instructions in the Administration Guide
+to activate the CLI access):
 
   aaa authentication login privilege-mode
 
@@ -122,7 +152,8 @@ Finally, enable MAC authentication on all necessary ports:
 
    aaa port-access mac-based 1-24
 
-Don't forget to permit address moves and the reauth period.  x represents the port index:
+Don't forget to permit address moves and the reauth period. x represents the
+port index:
 
    aaa port-access mac-based x addr-moves
    aaa port-access mac-based x reauth-period 14400
@@ -170,13 +201,20 @@ Configuration of the port:
 
 ==== 4100, 5300, 5400 (ArubaOS Switch 16.x) Series
 
-Note: The "ArubaOS Switch 16.x" module is developed for the ProCurve 5400 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 5400 Series" module.
+Note: The "ArubaOS Switch 16.x" module is developed for the ProCurve 5400 Series
+switches using AOS Switch version 16.x and also this module inherits all its
+capabilities from the old "ProCurve 5400 Series" module.
 
 ===== Port-Security
 
-linkUp/linkDown traps are enabled by default and we have not found a way yet to disable them so do not forget to declare the trunk ports as uplinks in the switch config file.
+linkUp/linkDown traps are enabled by default and we have not found a way yet to
+disable them so do not forget to declare the trunk ports as uplinks in the
+switch config file.
 
-On 4100's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port. The ports are indexed differently on 4100's: it's based on the number of modules you have in your 4100, each module is indexed with a letter.
+On 4100's, we need to secure bogus MAC addresses on ports in order for the
+switch to send a trap when a new MAC appears on a port. The ports are indexed
+differently on 4100's: it's based on the number of modules you have in your
+4100, each module is indexed with a letter.
 
 Global config settings
 
@@ -197,8 +235,11 @@ You should configure interfaces like this:
 
 ===== MAC Authentication (with VoIP)
 
-In order to have MAC Authentication working with VoIP, you need to ensure that the Voice VLAN is tagged on all the port first. You also need to activate lldp notification on all ports that will handle VoIP. 
-*Finally, make sure to change the value of the $VOICEVLANAME variable in the ArubaOS Switch 16.x (old Procurve 5400) module's source code.*
+In order to have MAC Authentication working with VoIP, you need to ensure that
+the Voice VLAN is tagged on all the port first. You also need to activate lldp
+notification on all ports that will handle VoIP.
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the
+ArubaOS Switch 16.x (old Procurve 5400) module's source code.*
 
 RADIUS configuration
   radius-server host 192.168.1.5 key strongKey
@@ -215,8 +256,11 @@ MAC Authentication
 
 ===== 802.1X (with VoIP)
 
-Same as MAC Authentication, you need to ensure that the Voice VLAN is tagged on all the port first if using 802.1X. You also need to activate lldp notification on all ports that will handle VoIP. 
-*Finally, make sure to change the value of the $VOICEVLANAME variable in the ArubaOS Switch 16.x (old Procurve 5400) module's source code.*
+Same as MAC Authentication, you need to ensure that the Voice VLAN is tagged on
+all the port first if using 802.1X. You also need to activate lldp notification
+on all ports that will handle VoIP.
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the
+ArubaOS Switch 16.x (old Procurve 5400) module's source code.*
 
 RADIUS configuration
 
@@ -232,9 +276,19 @@ RADIUS configuration
 
 ===== Downloadable ACLs
 
-HP and Aruba switches running the ArubaOS-Switch operating system (previously called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS authentication using the 802.1X, Web authentication or MAC authentication available on the switch. You can define ACLs in PacketFence so that they can be automatically applied on the ports of the switches based on the role assigned. We have tested it successfully on the Aruba 2930M and 3810 series on version 16.05.0004.
+HP and Aruba switches running the ArubaOS-Switch operating system (previously
+called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS
+authentication using the 802.1X, Web authentication or MAC authentication
+available on the switch. You can define ACLs in PacketFence so that they can be
+automatically applied on the ports of the switches based on the role assigned.
+We have tested it successfully on the Aruba 2930M and 3810 series on version
+16.05.0004.
 
-To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to _Configuration -> Policies and Access Control -> Switches_. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
+To use this feature, first configure RADIUS and the authentication method on
+your switch. Next, in the admin interface, go to _Configuration -> Policies and
+Access Control -> Network Devices -> Switches_. Click on the switch you want,
+then on the 'Roles' tab, and check 'Role by access list'. Now you are able to
+add ACLs for each role.
 
 Configure RADIUS operation on the switch:
 
@@ -249,31 +303,41 @@ You can also view ACL counter hits using either of the following commands:
   show access-list radius <port-list>
   show port-access <authenticator|mac-based|web-based> <port-list> clients detailed
 
-Configure an authentication method. Options include 802.1X, web-based authentication, and MAC authentication. You can configure 802.1X, web-based authentication, and/or MAC authentication to operate simultaneously on the same ports.
+Configure an authentication method. Options include 802.1X, web-based
+authentication, and MAC authentication. You can configure 802.1X, web-based
+authentication, and/or MAC authentication to operate simultaneously on the same
+ports.
 
+[options="compact"]
 * 802.1X Option:
 
   aaa port-access authenticator <port-list>
   aaa authentication port-access chap-radius
   aaa port-access authenticator active
 
+[options="compact"]
 * MAC Authentication Option:
 
   aaa port-access mac-based <port-list>
 
+[options="compact"]
 * Web Authentication Option:
 
   aaa port-access web-based <port-list>
 
-This command configures web-based authentication on the switch and activates this feature on the specified ports.
+This command configures web-based authentication on the switch and activates
+this feature on the specified ports.
 
-For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
+For example, if you want the users that are in the registration VLAN to only use
+HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
 
 image::aruba-registration-acl.png[scaledwidth="100%",alt="Registration ACL"]
 
-Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
+Now, your normal users are placed in the 'default' role and your guests in the
+'guest' role.
 
-The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network 192.168.10.0/24.
+The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network
+192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
 
@@ -283,6 +347,7 @@ You could also only prevent your guest users from using shared directories
 
 image::aruba-acl-guest.png[scaledwidth="100%",alt="Deny shares ACL"]
 
-You could also restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+You could also restrict your users to use only your DNS server where 192.168.5.2
+is your DNS server
 
 image::aruba-acl-default-dns.png[scaledwidth="100%",alt="Force DNS ACL"]

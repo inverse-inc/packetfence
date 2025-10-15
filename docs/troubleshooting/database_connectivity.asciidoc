@@ -1,0 +1,41 @@
+=== Database Connectivity Issues
+
+Check PacketFence application can connect to the database by emulating how
+PacketFence connects:
+
+.For PacketFence versions 11.0 and later
+[source,bash]
+----
+mysql -u $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+----
+
+.For PacketFence versions prior to 11.0
+[source,bash]
+----
+mysql -u $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+----
+
+If you got a prompt, it means PacketFence must be able to connect to the database.
+
+To perform a small query to the database using PacketFence codebase:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd checkup
+----
+
+If the command doesn't return any database error, PacketFence is able to perform reads on database.
+
+**Common Database Connection Issues:**
+
+1. **Too Many Connections**: Default MariaDB limit is often too low (100). Increase to at least 300 for wireless environments with heavy RADIUS traffic.
+
+2. **Host Blocked**: After 10 connection timeouts, MariaDB may block the host. Check for "Host <hostname> is blocked" errors.
+
+3. **Custom Database Configuration**: If API requests return errors, check `packetfence.log` for full MySQL error messages.
+
+4. **Configuration Reload**: After database configuration changes, run:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+----

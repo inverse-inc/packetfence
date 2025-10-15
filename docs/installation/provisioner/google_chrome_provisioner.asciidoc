@@ -19,10 +19,14 @@ endif::[]
 
 ==== Creating a service account JSON config
 
-In order to communicate with the Google API you must configure a service account, and download JSON security keys, and create a user to impersonate with the proper permissions.
+In order to communicate with the Google API you must configure a service
+account, and download JSON security keys, and create a user to impersonate with
+the proper permissions.
 
-These instructions have been adapted from https://developers.google.com/identity/protocols/oauth2/service-account.
+These instructions have been adapted from
+https://developers.google.com/identity/protocols/oauth2/service-account.
 
+[options="compact"]
 * Open the Service accounts page https://console.developers.google.com/iam-admin/serviceaccounts.
 * If prompted, select a project, or create a new one.
 * Click add Create service account.
@@ -37,6 +41,7 @@ These instructions have been adapted from https://developers.google.com/identity
 
 ==== Delegating domain-wide authority to the service account
 
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Security > API Controls.
 * Scroll down to the Domain wide delegation pane, select Manage Domain Wide Delegation.
 * Click Add new.
@@ -46,6 +51,7 @@ These instructions have been adapted from https://developers.google.com/identity
 
 ==== Create Role
 
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Account > Admin roles.
 * Click 'Create new role'
 * Enter Name and Description click 'CONTINUE'
@@ -54,12 +60,14 @@ These instructions have been adapted from https://developers.google.com/identity
 * Click 'CREATE ROLE'
 
 ==== Create a user if needed.
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Directory > Users.
 * Click 'Create new user'
 * Enter First Name, Last Name and Primary email. then click 'ADD NEW USER'.
 
 ==== Assign Role to a user.
 
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Directory > Users.
 * Select user for service account
 * Click 'Admin roles and privileges'
@@ -69,12 +77,15 @@ These instructions have been adapted from https://developers.google.com/identity
 
 ==== Create a new provisioner
 
-Login in the PacketFence administration interface, then go to 'Configuration' > 'Advanced Access Configuration' > 'Provisioners' > 'New provisioner' > 'Google Workspace Chromebook'.
+Login to the admin interface, then go to _Configuration -> Advanced Access
+Configuration -> Provisioners -> New provisioner -> Google Workspace
+Chromebook_.
 
 image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google Workspace Chromebook portal configuration"]
 
 Now configure this new provisioner with the information you got above.
 
+[options="compact"]
 * The Provisioning ID is the friendly name of the provisioner.
 * User for service account to impersonate.
 * The JSON security keys for Service Account created.

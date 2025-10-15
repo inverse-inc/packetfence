@@ -1,0 +1,57 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Clustering_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//=== Backup procedure
+
+==== Automatic Backup files
+
+The PacketFence servers have a daily backup done, each night (0:30AM).
+
+To externalize those backups, locate them in:
+
+[source,ini]
+----
+/root/backup
+----
+
+File description:
+
+[options="compact"]
+* packetfence-exportable-backup-DATE_00h30.tgz is an exportable packetfence backup that contains:
+ * `packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz` are the SQL dump of the MariaDB database.
+ * `packetfence-config-dump-DATE_00h30.tgz` are the dump of the PacketFence files.
+
+==== Manual backups
+
+To make a "manual" backup, execute the following command:
+
+[source,bash]
+----
+/usr/local/pf/addons/exportable-backup.sh
+----
+
+Like the daily automatic backups, the file will be located in:
+
+[source,ini]
+----
+/root/backup/
+----
+
+Exportable file will be available, tagged with the Date and Time of the backup.
+
+For cluster maintenance issues or service failures, see <<PacketFence_Clustering_Guide.asciidoc#_service_startup_failures,Service Startup Failures>>, <<PacketFence_Clustering_Guide.asciidoc#_checking_the_mariadb_sync,Checking the MariaDB sync>>, and <<PacketFence_Clustering_Guide.asciidoc#_cluster_database_recovery,Cluster Database Recovery>> in the Troubleshooting section.

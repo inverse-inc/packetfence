@@ -1,94 +1,67 @@
 = PacketFence Upgrade Guide
-////
-
-    This file is part of the PacketFence project.
-
-    See docs/includes/global-attributes.asciidoc
-    for authors, copyright and license information.
-
-////
+include::includes/file-header.asciidoc[]
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers procedures to upgrade PacketFence servers.
+This guide covers step-by-step procedures for upgrading PacketFence servers
+safely and efficiently. It provides version-specific compatibility information,
+manual configuration migration steps, database schema update procedures, and
+critical upgrade notes. The guide includes troubleshooting procedures for
+common upgrade issues and rollback strategies when necessary.
 
-=== Other sources of information
+:current_guide_upgrade:
+include::includes/other-sources-information.asciidoc[]
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environment.
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  instructions for supporting new equipment.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
-  Covers installation and configuration of PacketFence.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
-  Covers switches, WiFi controllers and access points configuration.
-https://packetfence.org/news.html[PacketFence News]::
-  Covers noteworthy features, improvements and bug fixes by release.
-
-These files are included in the package and release tarballs.
+include::includes/package-tarballs-note.asciidoc[]
 
 == General Upgrade Tips
 
-=== Prerequisites
+**Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the
+OS changed)
 
-The MariaDB root password that was provided during the initial configuration is required.
+**Never attempt**: OS upgrade to reach a new version
 
-=== Database and configurations backup
+[IMPORTANT]
+====
+**Specific upgrade steps exists** :All PacketFence upgrades must be performed
+according to general and specific upgrades steps, like
+<<#_mariadb_specific_upgrades,MariaDB Specific Upgrades>>.
 
-NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
-doing an
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automated
-upgrade>>.
+**Prerequisites**
+The MariaDB root password that was provided during the initial configuration is
+required.
+====
 
-Taking a complete backup of the current installation is strongly recommended.
-Perform a backup using:
+=== Operating System Compatibility
 
-.For PacketFence versions prior to 9.0.0:
-[source,bash]
-----
-/usr/local/pf/addons/database-backup-and-maintenance.sh
-----
+PacketFence versions have specific operating system requirements. **Operating
+system migrations require export/import procedures** - in-place upgrades are not
+supported when changing operating systems.
 
-.For PacketFence versions 9.0.0 and later:
-[source,bash]
-----
-/usr/local/pf/addons/backup-and-maintenance.sh
-----
+[cols="2,2,3",options="header"]
+|===
+|PacketFence Version |Supported Operating Systems |Migration Required
 
-=== Disable monit alerts (only if monit is installed)
+|14.0 and later
+|Debian 12 (bookworm), RHEL 8
+|**Yes** - from Debian 11 to Debian 12
 
-NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
-doing an
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automated
-upgrade>>.
+|11.0 - 13.x
+|Debian 11 (bullseye), RHEL 8
+|**Yes** - from Debian 9 to 11, from CentOS 7 to RHEL 8
 
-If `monit` is installed and running, stop and disable it with:
+|===
 
-[source,bash]
-----
-systemctl stop monit
-systemctl disable monit
-----
+*RHEL 8 Continuity*: Systems already on RHEL 8 can perform in-place PacketFence
+upgrades through all supported versions without OS migration.
 
-== Type of upgrades
+=== Specific Upgrades
 
-PacketFence installation can be upgraded in two ways:
-
-* <<#_apply_maintenance_patches,Apply maintenance patches>>
-* <<#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>
-
-For all PacketFence versions prior to 12.0.0, upgrading steps are described in the <<_archived_upgrade_notes,Archived upgrade notes>>.
-
-== Apply maintenance patches
-
-=== Important note for cluster environments
-
-In cluster environments, perform following steps on **one server
-at a time**. To avoid multiple moves of the virtual IP addresses, start with
-nodes which don't own any virtual IP addresses first. Ensure all
-services have been restarted correctly before moving to the next node.
+Certain PacketFence upgrades **require following specific procedures**,
+particularly when upgrading MariaDB across major versions. Each PacketFence release
+is validated against
+specific minor versions of MariaDB (e.g., 10.11.x).
 
 === Disable monit alerts (only if monit is installed)
 
@@ -100,9 +73,23 @@ systemctl stop monit
 systemctl disable monit
 ----
 
+=== Backup procedure
+
+include::common/backup_procedure.asciidoc[]
+
+== Apply maintenance patches
+
+=== Important note for cluster environments
+
+In cluster environments, perform following steps on **one server
+at a time**. To avoid multiple moves of the virtual IP addresses, start with
+nodes which don't own any virtual IP addresses first. Ensure all
+services have been restarted correctly before moving to the next node.
+
 === Stop all PacketFence services
 
-It is recommended to stop all PacketFence services that are currently running before proceeding any further:
+It is recommended to stop all PacketFence services that are currently running
+before proceeding any further:
 
 [source,bash]
 ----
@@ -128,21 +115,76 @@ include::common/reboot.asciidoc[]
 
 include::common/restart.asciidoc[]
 
-== Upgrade to another version (major or minor)
+If services fail to start after upgrade, see <<#_service_startup_failures,Service Startup Failures>> and <<#_log_files,Log Files>> in the Troubleshooting section.
 
-=== For a standalone server
+== Major/Minor Version Upgrades
 
-Follow instructions related to <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
+[TIP]
+====
+**OS Migration Required?** Check the <<#_operating_system_compatibility,Operating System Compatibility>>
+matrix first. If your target version requires a different operating system, check specific upgrade steps
+and use <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import migration>> instead
+of these in-place upgrade procedures.
 
-=== For a cluster
+**IMPORTANT**: Be aware that even minor version upgrade can have specific upgrade procedures.
+====
 
-Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>.
+*MANDATORY*: Before every PacketFence upgrade, update all operating system
+packages and <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>>
+to ensure compatibility and security.
+
+**Before Starting**:
+
+[options="compact"]
+ . **Apply maintenance patches**: Follow <<#_apply_maintenance_patches,Apply maintenance patches procedures>>
+ . **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
+ . **Plan upgrade path**: Determine if a specifc upgrade steps is neeeded to reach your target
+ . **Review breaking changes**: Check upgrade notes and specific steps for each version in your path
+
+=== Standalone Server Upgrades
+
+**Automated Process Available** (PacketFence 11.0+):
+
+[options="compact"]
+ . **Plan downtime**: Standalone upgrades will imply downtime due to services not available during upgrade
+ . **Check current version**: Confirm you're upgrading to the next sequential version
+ . **Follow automation**: Use <<#_automation_of_upgrades,automation of upgrades>>
+ . **Verify success**: Confirm services start correctly before proceeding to next version
+
+**Example Upgrade Sequence** (13.0 → 13.2):
+
+[options="compact"]
+ . Upgrade 13.0 → 13.2 (check 13.1 and 13.2 specific upgrade steps, then do the <<#_automation_of_upgrades,Automation of upgrades>>)
+
+=== Cluster Upgrades
+
+**Process**:
+
+[options="compact"]
+ . **Downtime**: Cluster upgrades require coordination across all nodes in order to avoid important downtime
+ . **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+ . **Upgrade all nodes**: Ensure all nodes reach the same version
+
+**Critical**: Never have cluster nodes running different versions simultaneously.
 
 == Automation of upgrades
 
+[NOTE]
+====
+**Before Using Automation**:
+
+[options="compact"]
+ * <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>> 
+ * Review the <<#_operating_system_compatibility,Operating System Compatibility>>
+matrix to determine if your upgrade requires OS migration via export/import
+procedures instead of automated in-place upgrades.
+====
+
 include::upgrade-notes/automation_of_upgrades.asciidoc[]
 
-== Upgrading from a version prior to 12.0.0
+== Upgrading from a version prior to 12.0
+
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
 
 === Tenant code deprecated
 
@@ -158,12 +200,12 @@ If ProxySQL causes issues in the deployment, revert back to haproxy-db by follow
 
 Tracking the bandwidth accounting information is now disabled by default.
 If bandwidth reports or security events are required then enable it by following
-Go to _Configuration -> System Configuration -> RADIUS -> General_
+In the admin interface, go to _Configuration -> System Configuration -> RADIUS -> General_
 Then enable 'Process Bandwidth Accounting'. The `pfacct` service has to be restarted to apply any changes.
 
 === Fix permissions and checkups deprecated
 
-API calls used to fix permissions and to perform checkups from web admin have been deprecated.
+API calls used to fix permissions and to perform checkups from the admin interface have been deprecated.
 With the containerization of several services, it didn't make sense to keep them available.
 
 However, it's still possible to perform these commands on a PacketFence server using `pfcmd fixpermissions` and `pfcmd checkup`.
@@ -221,7 +263,9 @@ The ability to backup a remote database configured in PacketFence has been depre
 From now on, a dedicated tool on the database server itself must be used to backup the external database.
 If the database is hosted on the PacketFence server (default behavior), then no adjustment is required.
 
-== Upgrading from a version prior to 12.1.0
+== Upgrading from a version prior to 12.1
+
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
 
 === configreload deprecated on pfcmd service pf restart
 
@@ -233,7 +277,7 @@ If a config file is modified directly on the filesystem then a manual `configrel
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
-== Upgrading from a version prior to 12.2.0
+== Upgrading from a version prior to 12.2
 
 === Changed dynamic ACL attribute for Aruba modules
 
@@ -260,7 +304,9 @@ patch /etc/rc.local /tmp/rc-local.patch
 ----
 
 
-== Upgrading from a version prior to 13.0.0
+== Upgrading from a version prior to 13.0
+
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
 
 === Adding the LDAP search attributes
 
@@ -275,7 +321,9 @@ Two switch types will be converted to the new way of defining a switch. Now, a s
 The following provisioners will be removed from Packetfence configuration IBM, ServiceNow, SEPM, Symantec, Opswat
 
 
-== Upgrading from a version prior to 13.1.0
+== Upgrading from a version prior to 13.1
+
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
 
 === Domain join
 
@@ -320,45 +368,78 @@ For each remaining server in the cluster:
 
 4. Click Save
 
+If domain joining fails during upgrade, see <<#_authentication_failures,Authentication Failures>> and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 
-== Upgrading from a version prior to 13.2.0
 
-=== Domain Config
+== Upgrading from a version prior to 13.2
 
-Since 13.2 PacketFence implements a local NT Key cache to track failed login attempts to prevent the account from being locked on the AD. To implement the NT Key cache perform the following steps:
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
+
+=== Configuration Upgrades
+
+==== Domain Config
+
+Since 13.2 PacketFence implements a local NT Key cache to track failed login
+attempts to prevent the account from being locked on the AD. To implement the
+NT Key cache perform the following steps:
 
 [source,bash]
 ----
+# Update domain configuration for NT Key cache support
 /usr/local/pf/addons/upgrade/to-13.2-update-domain-config.pl
 ----
 
-=== Admin Role
+==== Admin Role
 
-Since 13.2 PacketFence is able to receive events from the AD to report password changes, which allows PacketFence to reset failed login attempts in the NT Key cache. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+Since 13.2 PacketFence is able to receive events from the AD to report password
+changes, which allows PacketFence to reset failed login attempts in the NT Key
+cache. To add a new admin role to receive these events through the PacketFence
+API perform the following steps:
 
 [source,bash]
 ----
+# Add admin roles for AD password change events
 /usr/local/pf/addons/upgrade/to-13.2-adds-new-admin-roles.pl
 ----
 
-=== Switches
+==== Switches
 
-Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules to use OS versions rather than hardware versions. To update the current switch configurations to the new OS versions perform the following:
+Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch
+modules to use OS versions rather than hardware versions. To update the current
+switch configurations to the new OS versions perform the following:
 
 [source,bash]
 ----
+# Convert switch configurations to new OS-based modules
 /usr/local/pf/addons/upgrade/to-13.2-convert-switch-types.pl
 /usr/local/pf/addons/upgrade/to-13.2-convert-juniper-switch-types.pl
 /usr/local/pf/addons/upgrade/to-13.2-convert-merakiswitch-types.pl
 ----
 
-== Upgrading from a version prior to 14.0.0
+=== Database Schema Upgrade
+
+Changes have been made to the database schema. An SQL upgrade script is provided
+to upgrade the database from the 13.1 schema to 13.2.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+# Upgrade database schema from 13.1 to 13.2
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.1-13.2.sql
+----
+
+== Upgrading from a version prior to 14.0
+
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+
+**Upgrade Type**: Database changed for Debian 12
 
 === Specific automation upgrade
 
 ==== Debian
 
-Packetfence 14.0.0, we change the OS from Debian 11 to Debian 12.
+Packetfence 14.0, we change the OS from Debian 11 to Debian 12.
 
 To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created, then <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,import/export>> from the previous installation to the new one.
 
@@ -366,13 +447,26 @@ To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created
 
 Automated upgrade is available on RedHat 8.
 
-=== Admin Role
+[NOTE]
+====
+**OS Migration Alert**: PacketFence 14.0 dropped support for Debian 11. Systems
+running Debian 11 **must migrate to Debian 12** using export/import procedures.
+See <<#_operating_system_migration_to_packetfence_140,OS Migration to PacketFence 14.0+>>
+for complete migration procedures.
+====
 
-Since 14.0 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+=== Configuration Upgrades
+
+==== Admin Role
+
+Since 14.0 PacketFence is able to receive events from the FleetDM servers,
+which allows PacketFence to detect policy violations or CVEs of devices managed
+by FleetDM. To add a new admin role to receive these events through the
+PacketFence API perform the following steps:
 
 [source,bash]
-
 ----
+# Add FleetDM admin roles for API event handling
 /usr/local/pf/addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pl
 ----
 
@@ -381,7 +475,7 @@ Since 14.0 PacketFence is able to receive events from the FleetDM servers, which
 Since 14.0, we've changed the structure of `domain.conf`, added a `host identifier` prefix to each domain profile. +
 Here is an example of a node joined both domain "a.com" and "b.com". The hostname of the node is `pfv14`.
 
-`domain.conf` structure prior to v14.0.0:
+`domain.conf` structure prior to v14.0:
 ----
 [domainA]
 ntlm_auth_port=5000
@@ -396,7 +490,7 @@ dns_name=b.com
 ....
 ----
 
-`domain.conf` structure after v14.0.0:
+`domain.conf` structure after v14.0:
 ----
 [pfv14 domainA]
 ntlm_auth_port=5000
@@ -443,16 +537,19 @@ dns_name=a.com
 ....
 ----
 
-A node will try to find their configuration from the section starts with its hostname.
+A node will try to find their configuration from the section starts with its
+hostname.
 
-During the upgrading process, the following script will be executed on each node. It will add the hostname prefix to each of the domain sections to match the new `domain.conf` structure.
+During the upgrading process, the following script will be executed on each
+node. It will add the hostname prefix to each of the domain sections to match
+the new `domain.conf` structure.
 
 [source,bash]
 ----
 /usr/local/pf/addons/upgrade/to-14.0-update-domain-config-section.pl
 ----
 
-Upgrading a PacketFence standalone installation prior to v14.0.0, nothing more is required after the
+Upgrading a PacketFence standalone installation prior to v14.0, nothing more is required after the
 upgrade script has completed.
 
 However, upgrading a PacketFence cluster, there are additional steps required:
@@ -467,20 +564,23 @@ If a force configuration sync has already been done before merging the `domain.c
 There are 2 ways to do this:
 
 ==== option 1: manually merge the domain.conf
- 1. check the `domain.conf` on each of the node and make sure if all the nodes have both their own section and sections of other cluster members
- 2. If there are missing parts, go to each of the node and copy-paste the corresponding part to master node's `domain.conf`.
- 3. save the changes on master node, do a force configuration sync on other nodes.
+
+[options="compact"]
+ . check the `domain.conf` on each of the node and make sure if all the nodes have both their own section and sections of other cluster members
+ . If there are missing parts, go to each of the node and copy-paste the corresponding part to master node's `domain.conf`.
+ . save the changes on master node, do a force configuration sync on other nodes.
 
 ==== option 2: check and rejoin nodes later
 Note:
 Hostnames using the `%h` prefix or suffix must still be used when upgrading from a previous version
 unless specifying individual machine account names for each node.
 
+[options="compact"]
  . Do a configuration sync after upgrade - so all the slave nodes lost their domain config.
- . Open PacketFence Admin UI, go to "configuration" -> "Policies and Access Control" -> "Active Directory Domains"
+ . Open the admin interface, go to _Configuration -> Policies and Access Control -> Active Directory Domains_
  . Take a note of the configuration for later, the entire configuration will need to be replicated on the slave nodes.
  . Use "API redirect" to switch between nodes or directly access the API using node's IP.
-   .. Using API redirect: Visit the API redirect in "Admin UI" -> "Status" -> "Services" -> "API redirect", then select the node to handle API request.
+   .. Using API redirect: Visit the API redirect in _Status -> Services -> API redirect_, then select the node to handle API request.
    .. Directly access the node using IP address: use "https://node_ip:1443/" to select the node to handle API request.
    .. Then select a specific node to handle the API requests, the "Domain Joining" operation will be only be performed on the selected node.
  . Using either API redirect or manually selection to switch across all the nodes
@@ -488,140 +588,256 @@ unless specifying individual machine account names for each node.
  . repeat the joining steps on all the nodes to make sure all the nodes are having the same domain profile.
 
 
-=== Upgrade on RedHat EL8
+=== Operating System Migration to PacketFence 14.0+
 
-In place upgrades are supported for Redhat EL8. Follow up the current <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>.
+PacketFence 14.0 introduces changes to supported operating systems:
 
-=== Pre-automation Upgrade on Debian 12
+[options="compact"]
+ - **Dropped**: Debian 11 (bullseye) 
+ - **Added**: Debian 12 (bookworm)
+ - **Continued**: RedHat EL8 support
 
-PacketFence 14.0.0 has removed support for Debian 11 (bullseye) and added support for Debian 12 (bookworm). In place upgrades from Debian 11 to Debian 12 are not supported. A new operating system will need to be provisioned in order to migrate from either Debian 11 or RedHat EL8, to Debian 12.
+==== RedHat EL8 Systems
 
-To simplify the upgrade process to PacketFence 14.0.0 and future versions, we utilize a custom export/import procedure.
+**In-place upgrades supported** - Follow standard upgrade procedures:
 
-The mariadb-backup package is installed with a PacketFence cluster and can also be used with standalone. The mariadb-backup package should have the same major version as the mariadb-server package.
+[options="compact"]
+ . Use the automated upgrade process: <<#_sequential_version_upgrades_minor_versions_only,Sequential Version Upgrades (minor versions only)>>
+ . No OS migration required - PacketFence continues supporting EL8
 
-To know which package version of mariadb-backup is installed:
+==== Migration to Debian 12
 
+**New OS installation required** - In-place OS upgrades not supported:
+
+[WARNING]
+====
+**CLUSTER ENVIRONMENTS**: Debian 12 migration on clusters requires **careful
+coordination** to prevent data loss. Export/import procedures must include
+**cluster-specific steps** that are not required for standalone installations.
+
+**Critical Cluster Considerations**:
+[options="compact"]
+ - Complete cluster shutdown required before export
+ - Database cluster state must be verified as synchronized
+ - Primary node selection for import process
+ - Cluster reconfiguration and rejoining procedures after import
+====
+
+[options="compact"]
+ . **Source Systems**: Debian 11 or RedHat EL8 installations
+ . **Target System**: Fresh Debian 12 installation
+ . **Migration Method**: Export/import procedure (detailed below)
+ . **For clusters**: Additional cluster-specific procedures required
+
+To simplify the upgrade process to PacketFence 14.0 and future versions, we
+utilize a custom export/import procedure that handles MariaDB version
+differences automatically.
+
+**CRITICAL MariaDB Pre-Requisites for Export/Import**
+
+The export/import procedure handles MariaDB version differences between source
+and target systems automatically. However, specific pre-requisites must be met:
+
+[IMPORTANT]
+====
+**MariaDB Backup Package Requirement**:
+
+[options="compact"]
+ - The `mariadb-backup` package is **required** for cluster installations
+ - Can also be used for standalone installations for better reliability
+ - **Must match major version** of the `mariadb-server` package
+ - Different OS versions use different MariaDB versions automatically
+====
+
+**Verify MariaDB Backup Compatibility**
+
+Check that mariadb-backup matches your MariaDB server version:
+
+[source,bash]
 ----
-# Debian 11
-# /usr/bin/mariabackup --version
-/usr/bin/mariabackup based on MariaDB server 10.5.24-MariaDB debian-linux-gnu (x86_64)
+# Verify mariadb-backup is available and compatible
+/usr/bin/mariabackup --version
 
-# Debian 12
-# /usr/bin/mariabackup --version
-/usr/bin/mariabackup based on MariaDB server 10.11.6-MariaDB debian-linux-gnu (x86_64)
+# This should show version matching your MariaDB server
+# No manual intervention required - versions handled automatically
 ----
 
-If it is not installed follow the default export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
+**Expected MariaDB Versions by OS**:
 
-Before continuing, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>>.
+[options="compact"]
+ - **Debian 11**: MariaDB server 10.5.24-MariaDB
+ - **Debian 12**: MariaDB server 10.11.6-MariaDB
+ - **RedHat EL8**: Version server 10.5.24-MariaDB
 
-==== Export database with mariadb-backup and Import to PacketFence 14.0 on Debian 12
+**Alternative Export Method**: If mariadb-backup is not installed, use the
+standard export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
+
+**Additional Prerequisites**: Review <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> before proceeding.
+
+===== Debian 12 Migration Procedure
 
 PacketFence versions < 11.1 must upgrade to 11.1 before continuing.
 
+**Step 1: Export from Source System** (Debian 11 or EL8)
 
-===== Backup database locally
+Create database and configuration backups on your current PacketFence system:
 
-Backup using the following script where the database export is created using mariadb-backup (10.5). This backup is used to Import the database in the new host.
-
+[source,bash]
 ----
+# Create database backup
 /usr/local/pf/addons/backup-and-maintenance.sh
-----
 
-Ensure the backup exists in /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
+# Verify backup creation
+ls -la /root/backup/packetfence-db-dump-innobackup-*.xbstream.gz
 
-
-===== Prepare the configuration for exportation
-
-This export is only used to Import the configuration files in the new host.
-
-----
+# Export configuration
 /usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
 ----
 
+**Step 2: Prepare Migration Files** (Source System)
 
-===== Prepare the database on Debian 11 or EL8
+Process the database backup for migration:
 
-Restore locally the database backup into a new copy for mariabackup.
-
+[source,bash]
 ----
+# Decompress and prepare database backup
 gunzip /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
 mkdir -p /root/backup/restore/
-pushd /root/backup/restore/
-mv /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream /root/backup/restore/
+cd /root/backup/restore/
+mv /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream ./
 mbstream -x < packetfence-db-dump-innobackup-*.xbstream
 rm packetfence-db-dump-innobackup-*.xbstream
 mariabackup --prepare --target-dir=./
 ----
 
-=> SCP (copy) the restored files and the export.tgz to the Debian 12 server
+**Step 3: Transfer to Target System**
 
+Copy prepared files to your new Debian 12 server:
+
+[source,bash]
 ----
-# create the restore directory
-ssh root@PacketFence_Debian_12 mkdir -p /root/backup/restore/
-scp -r /root/backup/restore/* root@PacketFence_Debian_12:/root/backup/restore/
-scp /tmp/export.tgz root@PacketFence_Debian_12:/tmp/export.tgz
+# Transfer database and configuration files
+ssh root@NEW_DEBIAN12_SERVER mkdir -p /root/backup/restore/
+scp -r /root/backup/restore/* root@NEW_DEBIAN12_SERVER:/root/backup/restore/
+scp /tmp/export.tgz root@NEW_DEBIAN12_SERVER:/tmp/export.tgz
 ----
 
 
-===== Import the database on Debian 12
+**Step 4: Import Database** (Debian 12 Target System)
 
+Restore the database on your new Debian 12 PacketFence installation:
+
+[source,bash]
 ----
+# Stop database services
 systemctl stop packetfence-mariadb
 pkill -9 -f mariadbd || echo 1 > /dev/null
-mv /var/lib/mysql/ "/var/lib/mysql-`date +%s`"
+
+# Backup existing data and restore from migration
+mv /var/lib/mysql/ "/var/lib/mysql-backup-$(date +%s)"
 mkdir /var/lib/mysql
 cd /root/backup/restore/
-mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --move-back --force-non-empty-directories ./
+
+# Restore database files
+mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf \
+  --move-back --force-non-empty-directories ./
 chown -R mysql: /var/lib/mysql
+
+# Start database and upgrade schema
 systemctl start packetfence-mariadb
 mysql_upgrade -p
 systemctl restart packetfence-mariadb
 ----
 
+**Step 5: Import Configuration** (Debian 12 Target System)
 
-===== Import the configuration files on Debian 12
+Restore PacketFence configuration from source system:
 
-Import only the configuration files, do not import the database.
-
+[source,bash]
 ----
+# Import configuration only (database already restored above)
 /usr/local/pf/addons/full-import/import.sh --conf -f /tmp/export.tgz
 ----
 
-The configuration and database is now migrated to the new host.
+**Migration Complete** - Configuration and database are now migrated to Debian 12.
 
-If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
+If all goes well, restart services using <<#_restart_packetfence_services,following instructions>>.
+
+If migration fails, verify database backup integrity and check available disk space. For troubleshooting import/export issues, see <<#_log_files,Log Files>> and <<#_database_connectivity_issues,Database Connectivity Issues>> in the Troubleshooting section.
 
 
 ===== Additional steps to build or rebuild a cluster
 
 To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
-If the previous installation was a cluster, some steps may not be required.  The export archive will contain the previous [filename]`cluster.conf` file.
+If the previous installation was a cluster, some steps may not be required. The export archive will contain the previous [filename]`cluster.conf` file.
+
+=== Database Schema Upgrade (In-Place Upgrades Only)
+
+For systems performing in-place upgrades (RHEL 8 systems not migrating OS),
+the database schema must be upgraded:
+
+[source,bash]
+----
+# Upgrade database schema from 13.2 to 14.0 (in-place upgrades only)
+# Note: OS migration procedures handle database changes automatically
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.2-14.0.sql
+----
+
+[NOTE]
+====
+**Migration vs In-Place**: Database schema upgrades are **only needed for
+manual in-place upgrades**. The export/import migration procedure and
+Automation of upgrades handle database schema changes automatically during
+the migration process.
+====
 
 
-== Upgrading from a version prior to 14.1.0
+== Upgrading from a version prior to 14.1
 
-=== Pre-automation Upgrade Standalone RedHat EL8
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+**Upgrade Type**: Database changed for RHEL 8
 
-Please follow these command line BEFORE starting the full automation upgrade.
+**Expected MariaDB Versions by OS**:
+[options="compact"]
+ - **Debian 12**: MariaDB server 10.11.x-MariaDB
+ - **RedHat EL8**: Version server 10.11.x-MariaDB
 
-.RHEL / CentOS based systems **only**
+=== RedHat EL8 Upgrade Procedures
+
+RedHat EL8 systems support **in-place PacketFence upgrades** without OS migration.
+
+==== RedHat EL8 Standalone Server Upgrade
+
+**Prerequisites for PacketFence 14.1+ on EL8:**
+
+Install the upgrade package before running automated upgrade:
+
 [source,bash]
 ----
 yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
 ----
 
-Then follow the standard <<PacketFence_Upgrade_Guide.asciidoc#_full_upgrade_for_packetfence_versions_11_1_0_and_later,Full upgrade>>.
+**Standard Upgrade Process:**
 
-=== Pre-automation Upgrade Cluster RedHat EL8
+Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>>
 
-The first steps are the same as in <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
-but at the step <<PacketFence_Clustering_Guide.asciidoc#_upgrade_node_c>> for node C,
-follow the upgrade instructions <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>.
+==== RedHat EL8 Cluster Upgrade 
+
+**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+
+**EL8-specific step**: When upgrading node C, install the RedHat EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
+
 
 == Upgrading from a version prior to X.Y.Z
+
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+
+**Expected MariaDB Versions by OS**:
+
+[options="compact"]
+ - **Debian 12**: MariaDB server 10.11.x-MariaDB
+ - **RedHat EL8**: Version server 10.11.x-MariaDB
 
 === Custom Iptables Rules
 
@@ -633,7 +849,7 @@ The custom configuration file appends the iptables rules on top of all other rul
 
 For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT:
 [source,json]
----
+----
 {
    "filter" : {
       "FORWARD" : [],
@@ -657,7 +873,7 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
       "PREROUTING" : []
    }
 }
----
+----
 
 An example file is available [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
 
@@ -675,13 +891,26 @@ If a difference is found the current configuration will be saved in [filename]`/
 /usr/local/pf/addons/upgrade/to-15.0-check-custom-iptables-configurations.sh
 ----
 
+== Troubleshooting Upgrades
 
+include::troubleshooting/service_failures.asciidoc[]
+
+include::troubleshooting/database_upgrade_issues.asciidoc[]
+
+include::troubleshooting/database_connectivity.asciidoc[]
+
+include::troubleshooting/authentication_failures.asciidoc[]
+
+include::troubleshooting/radius_debugging.asciidoc[]
+
+include::troubleshooting/log_files.asciidoc[]
+
+include::troubleshooting/performance_issues.asciidoc[]
 
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
 
-include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
 

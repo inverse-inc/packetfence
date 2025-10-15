@@ -20,19 +20,31 @@ endif::[]
 
 === DHCP Remote Sensor
 
-The DHCP remote sensor consists of a lightweight binary installed on the production DHCP server to replicate all DHCP traffic (1-to-1) to the PacketFence server. This solution is more reliable than DHCP relaying since PacketFence receives a copy of all the DHCP traffic including broadcast traffic. Supported DHCP servers include Microsoft DHCP server and CentOS 6 and 7.
+The DHCP remote sensor consists of a lightweight binary installed on the
+production DHCP server to replicate all DHCP traffic (1-to-1) to the PacketFence
+server. This solution is more reliable than DHCP relaying since PacketFence
+receives a copy of all the DHCP traffic including broadcast traffic. Supported
+DHCP servers include Microsoft DHCP server and CentOS 6 and 7.
 
-These sensors capture low-level packets on the DHCP server and forwards them to the PacketFence management interface.
+These sensors capture low-level packets on the DHCP server and forwards them to
+the PacketFence management interface.
 
 ==== Microsoft Remote Sensor
 
-The PacketFence-Forwarder is an optimized version of the udp-reflector, which installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the source to the destination as well optionally mirroring DNS traffic for integration with the Fingerbank Collector
+The PacketFence-Forwarder is an optimized version of the udp-reflector, which
+installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the
+source to the destination as well optionally mirroring DNS traffic for
+integration with the Fingerbank Collector
 
-Download the http://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
+Download the
+https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
 
-This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and port, saves the configuration, and finally installs and launches the DHCP-Forwarder service.
+This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and
+port, saves the configuration, and finally installs and launches the
+DHCP-Forwarder service.
 
-When asked for a host IP and UDP port for DHCP mirroring provide the PacketFence management IP and 767 respectively.
+When asked for a host IP and UDP port for DHCP mirroring provide the PacketFence
+management IP and 767 respectively.
 
 Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[PacketFence Forwarder project page].
 
@@ -84,7 +96,8 @@ g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
 
 Place the following line in `/etc/rc.local`
 [options="compact"]
-* where `pcap0` is the pcap interface where the DHCP server listens on. (List them using `udp_reflector -l`)
+* where `pcap0` is the pcap interface where the DHCP server listens on.
+  (List them using `udp_reflector -l`)
 * where `192.168.1.5` is the management IP of the PacketFence server
 
 [source,bash]
@@ -105,11 +118,13 @@ All DHCP traffic is now reflected to the PacketFence server.
 
 ==== Deleted Account
 
-Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content:
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with
+the following content:
 
 ----
 #########################################################################################
-#Powershell script to unregister deleted Active Directory account based on the UserName.#
+#Powershell script to unregister deleted Active Directory account based on the
+UserName.#
 #########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4726 |
@@ -137,7 +152,10 @@ Get-EventLog -LogName Security -InstanceId 4726 |
    }
 ----
 
-NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server and change the `$username` and `$password` so they match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server
+and change the `$username` and `$password` so they match the credentials
+defined in the Web admin interface under
+_Configuration -> Integration -> Web Services_.
 
 ===== Create a scheduled task for an event ID
 
@@ -173,7 +191,8 @@ Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
 Settings:
 
 ----
-At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
+At the bottom, select in the list "Run a new instance in parallel" in order to
+unregister multiple nodes at the same time.
 ----
 
 Validate with Ok and provide the account that will run this task (usually _DOMAIN\Administrator_).
@@ -184,7 +203,8 @@ Create the script `unreg_node_disabled_account.ps1` on the Windows Server with t
 
 ----
 ##########################################################################################
-#Powershell script to unregister disabled Active Directory account based on the UserName.#
+#Powershell script to unregister disabled Active Directory account based on the
+UserName.#
 ##########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4725 |
@@ -213,7 +233,10 @@ Get-EventLog -LogName Security -InstanceId 4725 |
    }
 ----
 
-NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server and change the `$username` and `$password` so they match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server
+and change the `$username` and `$password` so they match the credentials
+defined in the Web admin interface under
+_Configuration -> Integration -> Web Services_.
 
 ===== Create a scheduled task for an event ID
 
@@ -260,7 +283,8 @@ Create the script `unreg_node_locked_account.ps1` on the Windows Server with the
 
 ----
 #########################################################################################
-#Powershell script to unregister locked Active Directory account based on the UserName.#
+#Powershell script to unregister locked Active Directory account based on the
+UserName.#
 #########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4740 |
@@ -289,7 +313,10 @@ Get-EventLog -LogName Security -InstanceId 4740 |
    }
 ----
 
-NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server and change the `$username` and `$password` so they match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server
+and change the `$username` and `$password` so they match the credentials
+defined in the Web admin interface under
+_Configuration -> Integration -> Web Services_.
 
 ===== Create the scheduled task based on an event ID
 
@@ -333,7 +360,7 @@ Validate with Ok and provide the account that will run this task (usually _DOMAI
 === Switch Login Access
 
 PacketFence is able to provide an authentication and authorization service on port 1815 for granting command-line interface (CLI) access to switches.
-PacketFence currently supports Cisco switches which must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence web admin interface, configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or with an Administration rule in an internal source.
+PacketFence currently supports Cisco switches which must be configured using the following guide: https://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence admin interface, configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or with an Administration rule in an internal source.
 
 Then enable `_CLI Access Enabled_` setting on the switch(s) to manage in _Configuration -> Network devices -> Switches_.
 
@@ -365,10 +392,12 @@ The monit configuration path is different between EL and Debian systems:
 
 EL based systems:
 
+[options="compact"]
 * [filename]`MONIT_PATH=/etc/monit.d`
 
 Debian based systems:
 
+[options="compact"]
 * [filename]`MONIT_PATH=/etc/monit/conf.d`
 
 To simplify further documentation, `$MONIT_PATH` will be used as a reference to these paths herein.
@@ -391,7 +420,7 @@ systemctl restart monit
 
 ==== Monitoring scripts
 
-Digitally signed scripts are included in the monit configuration which are fetched from http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and run at regular intervals to ensure the environment follows the best practices defined by Inverse and to email alerts of any important changes that may need to be performed.
+Digitally signed scripts are included in the monit configuration which are fetched from https://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and run at regular intervals to ensure the environment follows the best practices defined by Inverse and to email alerts of any important changes that may need to be performed.
 
 Run manually to help with troubleshooting:
 
@@ -410,7 +439,10 @@ For example, to ignore the script that generated the following output add [filen
 ------------------------------------------
 /usr/local/pf/var/monitoring-scripts/.check-epel.sh failed
 Result of /usr/local/pf/var/monitoring-scripts/.check-epel.sh
-The EPEL repository is enabled. This can cause disastrous issues by having the wrong versions of certain packages installed. It is recommended to disable it using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g' /etc/yum.repos.d/epel.repo
+The EPEL repository is enabled. This can cause disastrous issues by having the
+wrong versions of certain packages installed. It is recommended to disable it
+using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g'
+/etc/yum.repos.d/epel.repo
 ------------------------------------------
 ----
 
@@ -434,5 +466,9 @@ monit summary
 ----
 
 TIP: More information on the monit command line arguments is available at https://mmonit.com/monit/documentation/monit.html
+
+=== FleetDM Integration
+
+include::fleetdm.asciidoc[]
 
 

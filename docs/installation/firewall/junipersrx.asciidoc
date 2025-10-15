@@ -20,7 +20,8 @@ endif::[]
 
 ==== Configuration of the Juniper SRX in PacketFence
 
-Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> JuniperSRX*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall ->
+JuniperSRX*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your JuniperSRX
@@ -46,7 +47,8 @@ Next setup user entry settings
  set services user-identification authentication-source aruba-clearpass no-user-query
  set services user-identification device-information authentication-source network-access-controller
 
-Then you need to allow traffic from the PacketFence management interface to port you set up on webapi settings (i.e. 8443) on SRX device.
+Then you need to allow traffic from the PacketFence management interface to port
+you set up on webapi settings (i.e. 8443) on SRX device.
 
 
 ==== Step 2: Verification

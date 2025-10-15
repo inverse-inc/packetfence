@@ -18,7 +18,10 @@ endif::[]
 
 //== Documentation
 
-The in-depth or more technical documentation is always as close to the code as possible. Always look at the `POD` doc footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html]. To do so, the preferred way is using the `perldoc` command as follows:
+The in-depth or more technical documentation is always as close to the code as
+possible. Always look at the `POD` doc footnote:[Perl's Plain Old Documentation:
+http://perldoc.perl.org/perlpod.html]. To do so, the preferred way is using the
+`perldoc` command as follows:
 
   perldoc lib/pfconfig/cached.pm
 
@@ -30,12 +33,14 @@ The in-depth or more technical documentation is always as close to the code as p
 ==== Shell commands in code blocks
 
 .To ease copy-paste of shell commands:
+[options="compact"]
 * Remove useless characters in code blocks like `#` or `$`
 * Split long lines with `\`
 
 ==== Titles
 
-We use Asciidoctor tags for section titles (headings) in place of AsciiDoc tags, see table below for equivalence:
+We use Asciidoctor tags for section titles (headings) in place of AsciiDoc tags,
+see table below for equivalence:
 
 
 .Compatibility between AsciiDoc and Asciidoctor syntax for section titles
@@ -67,17 +72,22 @@ We use Asciidoctor tags for section titles (headings) in place of AsciiDoc tags,
 
 \* (asterisk) for important vocabulary. Ex: \*This Part* is important
 
-_ (underscore) for menus. Ex: \_Configuration -> Policies and Access Control -> Connection Profile -> Profile Name_
+_ (underscore) for menus. Ex: \_Configuration -> Policies and Access Control ->
+Connection Profile -> Profile Name_
 
 backquotes ` for buttons. Ex: Click on \`Save`
 
 ==== Inter-document cross references
 
-We use link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document cross references feature] to make links between all PacketFence guides. When we need to link to a specific section of a document, we use link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic anchors feature] to have a correct display in PDF.
+We use
+link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document cross references feature] to make links between all PacketFence guides. When we
+need to link to a specific section of a document, we use
+link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic anchors feature] to have a correct display in PDF.
 
 ==== List of Asciidoctor tags used
 
-Source: link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc Mark-up Quick Reference for Red Hat Documentation]
+Source:
+link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc Mark-up Quick Reference for Red Hat Documentation]
 
 [NOTE]
 ====
@@ -168,7 +178,8 @@ a|
 ....
 Edit the [filename]`pf.conf` file as required and save your changes.
 
-The [filename]`networks.conf` configuration file is located in the [filename]`/usr/local/pf/` directory.
+The [filename]`networks.conf` configuration file is located in the
+[filename]`/usr/local/pf/` directory.
 ....
 
 a|Edit the [filename]`pf.conf` file as required and save your changes.
@@ -280,10 +291,10 @@ a| kbd:[Ctrl+Alt+Del]
 
 a|
 ....
-link:http://www.packetfence.org[PacketFence]
+link:https://www.packetfence.org[PacketFence]
 ....
 
-a| link:http://www.packetfence.org[PacketFence]
+a| link:https://www.packetfence.org[PacketFence]
 
 |===
 
@@ -326,12 +337,14 @@ Term B:: description
 
 a|.Ordered list
 
+[options="compact"]
 . First item
 . Second item
 . Third item
 
 .Unordered list
 
+[options="compact"]
 * This
 * That
 * The other
@@ -342,9 +355,11 @@ Term A:: description
 Term B:: description
 
 .Checklist
+[options="compact"]
 * [ ] first step
 ** [ ] first task
 ** [ ] second task
+[options="compact"]
 * [ ] second step
 * [ ] third step
 
@@ -393,7 +408,8 @@ a|See the PacketFence link:guide-url[_Installation Guide_] for more information.
 |System or software variable to be replaced by the user
 a|
 ....
-Use the following command to roll back a deployment, specifying the deployment name: `oc rollback _deployment_`.
+Use the following command to roll back a deployment, specifying the deployment
+name: `oc rollback _deployment_`.
 ....
 
 a|
@@ -430,6 +446,7 @@ Start the `packetfence-iptables` service.
 
 === Checklist to create a new guide
 
+[options="compact"]
 * [ ] create PacketFence_GUIDENAME.asciidoc based on PacketFence link:PacketFence_Template_Guide.asciidoc[_Template Guide_]
 * [ ] update `all` target in Makefile
 * [ ] update packaging (if necessary)

@@ -21,7 +21,8 @@ endif::[]
 
 ==== RackSwitch G8052
 
-PacketFence supports only 802.1X authentication. It has been tested on version 7.9.11.0.
+PacketFence supports only 802.1X authentication. It has been tested on version
+7.9.11.0.
 
 ===== RADIUS configuration
 
@@ -60,11 +61,13 @@ RS G8052(config-if)# end
 
 ===== PacketFence configuration
 
-In order to configure the IBM RackSwitch G8052 switch module, go in the PacketFence administration interface under *Configuration->Switches->Add switch*
+To configure the IBM RackSwitch G8052 switch module, in the admin interface go
+to *Configuration -> Network Devices -> Switches -> Add switch*
 
 Definition:
 
- IP: This will be the IP of the IBM StackSwitch G8052 switch on the management network
+ IP: This will be the IP of the IBM StackSwitch G8052 switch on the management
+ network
  Description: IBM StackSwitch G8052
  Type: IBM RackSwitch G8052
  Mode: Production

@@ -21,6 +21,7 @@ endif::[]
 ==== Unit tests: prerequisites
 
 .Prerequisites to run unit tests:
+[options="compact"]
 * MariaDB up and running
 * PacketFence package(s) installed with all dependencies in [filename]`/usr/local/pf` directory
 * Fingerbank API key configured
@@ -28,12 +29,14 @@ endif::[]
 ** `_PF_TEST_MGMT_INT_`
 ** `_PF_TEST_MGMT_IP_`
 ** `_PF_TEST_MGMT_MASK_`
+[options="compact"]
 * <<_basic_setup,Golang environment>>
 
 You can meet these prerequisites by starting a `pf*dev` Vagrant virtual
 machine using instructions in <<_virtual_environment_initial_setup>> section.
 
-Inside `pf*dev` virtual machines, [filename]`t` directory  will be available under [filename]`/usr/local/pf/t`.
+Inside `pf*dev` virtual machines, [filename]`t` directory will be available
+under [filename]`/usr/local/pf/t`.
 
 ==== Running all unit tests
 

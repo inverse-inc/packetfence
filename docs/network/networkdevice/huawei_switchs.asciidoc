@@ -37,7 +37,8 @@ radius-server template packetfence
 radius-server authorization 192.168.1.5 shared-key cipher <yourSecret>
 
 # to accept RADIUS Disconnect messages with MAC in AA-BB-CC-DD-FF-EE format
-radius-server authorization calling-station-id decode-mac-format ascii hyphen-split common
+radius-server authorization calling-station-id decode-mac-format ascii
+ hyphen-split common
 
 aaa
  authentication-scheme pf-auth

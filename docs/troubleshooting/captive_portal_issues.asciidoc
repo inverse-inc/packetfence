@@ -1,0 +1,42 @@
+=== Captive Portal Issues
+
+**Portal Not Appearing:**
+
+1. **Network Configuration**: Verify portal interface configuration:
+   - Check that 'portal' interface type is configured
+   - Verify IP addresses and VLAN configuration
+   - Test network connectivity from client to PacketFence portal IP
+
+2. **Apache/HTTP Services**: Check portal web services:
++
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf status | grep httpd
+systemctl status httpd.portal
+----
+
+3. **DNS and Redirection**: Verify DNS redirection is working:
+   - Check that unregistered devices receive portal IP in DNS responses
+   - Verify iptables rules for portal redirection
+   - Test with: `nslookup google.com` from unregistered client
+
+==== Content Security Policy (CSP) Issues
+
+1. **CSP Blocking Content**: If portal content is blocked by CSP:
+   - Disable CSP headers via _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP headers for Captive Portal_
+   - Check browser developer tools for CSP violation errors
+   - Verify all external content sources are whitelisted
+
+==== SSL/TLS Certificate Issues
+
+1. **Certificate Problems**: For HTTPS portal access:
+   - Verify SSL certificate matches portal hostname
+   - Check certificate expiration date
+   - For self-signed certificates, ensure proper trust chain
+
+==== Pre-registration Security
+
+1. **External Access Issues**: When pre-registration is enabled:
+   - Verify perimeter firewall allows access to port 443
+   - Check that domain name resolves to management interface IP
+   - Monitor for security attacks on exposed `/signup` endpoint

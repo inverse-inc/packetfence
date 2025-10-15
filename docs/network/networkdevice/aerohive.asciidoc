@@ -19,7 +19,11 @@ endif::[]
 
 //=== Aerohive Networks
 
-Aerohive products are a bit different compared to the other vendors. They support either a local HiveManager (similar to a wireless controller) or a cloud-based HiveManager. However, the configuration is the same for the local and the cloud-based controller. Note that all the configurations are made on the HiveManager and then pushed to the APs.
+Aerohive products are a bit different compared to the other vendors. They
+support either a local HiveManager (similar to a wireless controller) or a
+cloud-based HiveManager. However, the configuration is the same for the local
+and the cloud-based controller. Note that all the configurations are made on the
+HiveManager and then pushed to the APs.
 
 
 ==== MAC Authentication and 802.1X Configuration
@@ -30,11 +34,11 @@ Aerohive products are a bit different compared to the other vendors. They suppor
 * the network architecture is in order to give acces to the Aerohive Access Point, and has access to Internet
 * the VLANs are defined for registration, isolation and management networks
 * from this documentation, we will assume that the VLANs tags are define like following:
-[options="compact"]
 ** PacketFence Management VLAN: 1 IP address: 192.168.1.5
 ** registration VLAN ID 2, subnet 192.168.2.0/24
 ** isolation VLAN ID 3, subnet 192.168.3.0/24
 ** production VLAN ID 10, subnet 172.16.1.0/24
+[options="compact"]
 * the VLANs are spanned in the switches and switching L2 equipments, from the _Production Network_ to the PacketFence server(s)
 * the VLANs are allowed in the trunks
 * Aerohive Access Point is loaded with HiveOS with version 6 or later
@@ -59,6 +63,7 @@ For an open (no encryption) SSID using MAC-based authentication:
 * click on *New*
 ** SSID Access Security: *Open*
 ** check the box _Enable MAC authentication_
+[options="compact"]
 * click on *Save*
 
 image::pfaerohive02.png[scaledwidth="100%",alt="AerohiveOpenSSIDconfig"]
@@ -95,11 +100,13 @@ image::pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config"]
 * click on *Save*
 * next to your _SSID Name_ Click on the *<RADIUS Setting>*, Click *OK*
 
-We will create the default VLAN to be assign by the AP, when a new endpoint get in the SSID:
+We will create the default VLAN to be assign by the AP, when a new endpoint get
+in the SSID:
 [options="compact"]
 * Under _User Profile_, Click on *Add/Remove*,and Click on *New*, in the _Default_ section
+** You will need to create one _User Profile_ for each VLANs used, for us, we
+will create 3 Users Profiles, Registration, Isolation and Production
 [options="compact"]
-** You will need to create one _User Profile_ for each VLANs used, for us, we will create 3 Users Profiles, Registration, Isolation and Production
 * from name, give the name of a rule to manage the VLANs with PacketFence (Registration ; Isolation ; Production)
 * from _Attribute Name_, give the VLAN ID of the VLAN
 * from _Default VLan_, Click on the (*+*) (New)
@@ -133,11 +140,20 @@ Push your configuration to your AP:
 * click on _Update_
 * wait until the date and time apprears under _Update Status_
 
-NOTE: Aerohive have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*. The other way to support Roaming is to enable SNMP trap in the Aerohive configuration to PacketFence server. PacketFence will recognize the ahConnectionChangeEvent and will change the location of the node in his base.
+NOTE: Aerohive have a session replication feature to ease the EAP session
+roaming between two access points. However, this may cause problems when you
+bounce the wireless card of a client, it will not do a new RADIUS request. Two
+settings can be tweaked to reduce the caching impact, it is the roaming cache
+update interval and roaming cache ageout. They are located in *Configuration ->
+SSIDs -> [SSID Name] -> Optional Settings -> Advanced*. The other way to support
+Roaming is to enable SNMP trap in the Aerohive configuration to PacketFence
+server. PacketFence will recognize the ahConnectionChangeEvent and will change
+the location of the node in his base.
 
 ===== Configure PacketFence
 
-We will now need to create a new switch in PacketFence to be able to manage the endpoints behind the Aerohive APs.
+We will now need to create a new switch in PacketFence to be able to manage the
+endpoints behind the Aerohive APs.
 
 Logon to your PacketFence interface:
 [options="compact"]
@@ -173,11 +189,13 @@ This ends the PacketFence configuration.
 
 ==== Web Auth (External Captive Portal) Configuration
 
-In this section we will describe the WebAuth configuration using PacketFence as an external captive poral.
+In this section we will describe the WebAuth configuration using PacketFence as
+an external captive poral.
 
 ===== Assumptions
 
-In this part, it is recommended that the default VLAN must be the native VLAN. This way, the AP and the others network equipments will be able to manage VLANs.
+In this part, it is recommended that the default VLAN must be the native VLAN.
+This way, the AP and the others network equipments will be able to manage VLANs.
 
 You already have a Network Policy and at least one Access Point configured.
 
@@ -213,6 +231,7 @@ Configure and broadcast your SSID:
 
 image::pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configuration"]
 
+[options="compact"]
 * under Authentication click on _<Captive Web Portal>_ and select the captive portal previously configured
 * once the _<RADIUS Settings>_ appears under the captive portal, click on it
 * on that new window _Choose RADIUS_ click New
@@ -221,30 +240,36 @@ image::pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configurati
 
 image::pfaerohive17.png[scaledwidth="100%",alt="Radius configuration"]
 
+[options="compact"]
 * click on Apply
 * click on _Optional Settings (not supported by RADIUS Proxy)_ and check *Permit Dynamic Change of Authorization Messages (RFC 3576)*
 
 image::pfaerohive18.png[scaledwidth="100%",alt="CoA configuration"]
 
+[options="compact"]
 * click on the Save button
 
 Configure the User profile:
 
 image::pfaerohive19.png[scaledwidth="100%",alt="CoA configuration"]
 
+[options="compact"]
 * under _User Profile_ , click on *Add/Remove* and click on New
 
 image::pfaerohive20.png[scaledwidth="100%",alt="User Profile configuration"]
 
+[options="compact"]
 * enter the profile name, the VLAN ID and create the default VLAN as the same as the attribute number
 * create a new default VLAN, click on the *+* button
 
 image::pfaerohive21.png[scaledwidth="100%",alt="vlan configuration"]
 
+[options="compact"]
 * click the Save button
 * make sure the new user profile name is selected and then Save
 
 Push the configuration to the Access Point:
+[options="compact"]
 * click on Continue
 * select the AP and click Update - Update Devices
 * under Configuration: select *Perform a complete configuration update for all selected devices*
@@ -265,9 +290,14 @@ image::pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID configuratio
 
 ==== MAC Authentication/802.1X and Web Auth Configuration 
 
-In this case we want to be able to enable a MAC Authentication/802.1X and Web Auth SSID on the same wireless equipment. By default it's not possible to provide a MAC Authentication/802.1X SSID and a Web Auth SSID with the same switch configuration, but by using the _Switch Filters_ it will be possible to do it.
+In this case we want to be able to enable a MAC Authentication/802.1X and Web
+Auth SSID on the same wireless equipment. By default it's not possible to
+provide a MAC Authentication/802.1X SSID and a Web Auth SSID with the same
+switch configuration, but by using the _Switch Filters_ it will be possible to
+do it.
 
-We will assume that we have an up and running SSID (_YourSecuredSSID_) already configured with Mac Authentication/802.1X:
+We will assume that we have an up and running SSID (_YourSecuredSSID_) already
+configured with Mac Authentication/802.1X:
 [options="compact"]
 * from this documentation, we will assume that the VLANs tags are defined like following :
  ** PacketFence Management VLAN: 1 IP address: 192.168.1.5
@@ -275,11 +305,13 @@ We will assume that we have an up and running SSID (_YourSecuredSSID_) already c
  ** isolation VLAN ID 3, subnet 192.168.3.0/24
  ** production VLAN ID 10, subnet 172.16.1.0/24
 
-Our SSID will be named _YourOpenSSID_, assuming that we want to provide a public Internet hotspot for example.
+Our SSID will be named _YourOpenSSID_, assuming that we want to provide a public
+Internet hotspot for example.
 
 ===== Add a New SSID
 
-You should create a new SSID, has explained before, secured or open, as you need.
+You should create a new SSID, has explained before, secured or open, as you
+need.
 
 ===== Configure Filters in PacketFence
 
@@ -303,14 +335,18 @@ condition=ssid == "YourOpenSSID"
 
 Click on *SAVE*.
 
-NOTE: The default configuration in the _Switch filters_ for _ExternalPortalEnforcement_ is set to *N*
+NOTE: The default configuration in the _Switch filters_ for
+_ExternalPortalEnforcement_ is set to *N*
 
 ==== Advanced Topics
 
 ===== Roles (User Profiles)
 
-PacketFence supports user profiles on the Aerohive equipment.  To build a User Profile, go to *Configuration -> User Profiles*, and create what you need. When you define the switch
-definition in PacketFence, the role will match the User Profile attribute number. For example:
+PacketFence supports user profiles on the Aerohive equipment. To build a User
+Profile, go to *Configuration -> User Profiles*, and create what you need. When
+you define the switch
+definition in PacketFence, the role will match the User Profile attribute
+number. For example:
 
    roles=CategoryStudent=1;CategoryStaff=2
 
@@ -319,6 +355,11 @@ And in the Aerohive configuration, you have:
    StudentProfile attribute number 1
    StaffProfile attribute number 2
 
-Last step is to allow the User Profile to be returned for a particular SSID.  Go to *Configuration -> SSIDs -> Your_SSID -> User Profiles for Traffic Management*, and select the User Profiles you will return for the devices.
+Last step is to allow the User Profile to be returned for a particular SSID. Go
+to *Configuration -> SSIDs -> Your_SSID -> User Profiles for Traffic
+Management*, and select the User Profiles you will return for the devices.
 
-In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
+In version 6 or later of the HiveOS, we do return VLAN ID matching the number
+that the *User Profile* has. Create your *User Profile* in the HiveManager as
+usual, assign the matching VLAN, and in PacketFence configuration add the wanted
+VLAN ID in the section *Roles by VLAN*.

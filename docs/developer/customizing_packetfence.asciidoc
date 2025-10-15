@@ -25,75 +25,91 @@ endif::[]
 ===== XHTML Templates
 
 
-Captive portal content use http://template-toolkit.org/[Template Toolkit]
-templates. The default template files are located in `/usr/local/pf/html/captive-portal/templates`.
-You can freely edit the `HTML` code in these files.
+Captive portal content uses http://template-toolkit.org/[Template Toolkit]
+templates. Default template files located in
+`/usr/local/pf/html/captive-portal/templates`. Edit HTML code freely in these
+files.
 
-Each template relies on `layout.html` for the common top and bottom portions of the page.
+Each template relies on `layout.html` for the common top and bottom portions of
+the page.
 
 ===== Internationalized AUP
 
-In the event that you need an Acceptable Usage Policy that should be translated in different languages in the captive portal, you can create specially named templates that will be used for different languages.
+For Acceptable Usage Policy translations in different captive portal languages,
+create specially named templates for different languages.
 
-For example, if the browser locale is `es_ES`, creating a template named `aup_text.es.html` will display this AUP when it detects this locale.
-Same goes for a browser with locale `en_US`, where creating a template named `aup_text.en.html` will be used for English browsers.
+Example: browser locale `es_ES` uses template `aup_text.es.html` when detected.
+Browser locale `en_US` uses template `aup_text.en.html` for English browsers.
 
 The template `aup_text.html` is used as the final fallback for all locales.
 
-Note that you cannot use the full locale in the template name (i.e. `aup_text.en_US.html`) as only the two letter prefix should be used.
+Cannot use full locale in template name (`aup_text.en_US.html`); use only
+two-letter prefix.
 
 ===== Logo
 
-In order to customize the default logo that is shown on the captive portal, go in _Configuration->Policies And Access Control->Connection Profiles->default->Files_. Next, upload your logo at the root of the files. Once it has been uploaded, go in the _Captive Portal_ section of the connection profile and change the 'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
+Customize captive portal logo: go to _Configuration->Policies And Access
+Control->Connection Profiles->default->Files_. Upload logo at root of files.
+After upload, go to _Captive Portal_ section of connection profile and change
+'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
 
-Alternatively, you could also delete the existing `logo.png` in the files, then upload your logo and rename it to `logo.png`. Doing so will not require to alter the value of 'Logo' in the connection profile.
+Alternative: delete existing `logo.png`, upload your logo and rename to
+`logo.png`. This avoids altering 'Logo' value in connection profile.
 
-You can also have a different logo per connection profile. In order to do so, upload your logo in the appropriate connection profile, then edit it's 'Logo' value to be `/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
+You can also have a different logo per connection profile. In order to do so,
+upload your logo in the appropriate connection profile, then edit it's 'Logo'
+value to be
+`/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
 
 For the best results, your logo size should be approximately 330x75 pixels.
 
 ===== CSS
 
-The easiest way to customize CSS is to override default CSS using a `<style>` tag inside [filename]`layout.html`.
+The easiest way to customize CSS is to override default CSS using a `<style>`
+tag inside [filename]`layout.html`.
 
 `<style>` tag must be inserted just before `<\head>` in [filename]`layout.html`.
 
-You also need to disable Content-Security-Policy (CSP) headers on captive portal (see <<PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
+You also need to disable Content-Security-Policy (CSP) headers on captive portal
+(see
+<<PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
 
 ===== Workflow
 
-When a `HTTP` request is received by the Apache web server, the following workflow happens:
+When a `HTTP` request is received by the Apache web server, the following
+workflow happens:
 
 
-. URL is compared against the redirection instructions in
-  `/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf`
-
-. Requested CGI script in `/usr/local/pf/html/captive-portal/` is executed
-
-. CGI script calls a `generate_<type>` which is defined in `/usr/local/pf/lib/pf/web.pm`
-
-. The `generate_<type>` function populate the proper template in
-  `/usr/local/pf/html/captive-portal/templates` in order to render the page
+[options="compact"]
+ . URL is compared against the redirection instructions in
+   `/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf`
+ . Requested CGI script in `/usr/local/pf/html/captive-portal/` is executed
+ . CGI script calls a `generate_<type>` which is defined in
+   `/usr/local/pf/lib/pf/web.pm`
+ . The `generate_<type>` function populate the proper template in
+   `/usr/local/pf/html/captive-portal/templates` in order to render the page
 
 ===== Remediation Pages
 
 The remediation page shown to the user during isolation are specified through
-the URL parameter of the given security event in `/usr/local/pf/conf/security_events.conf`.
-In its default configuration, PacketFence uses Template Toolkit to render text provided
-in the directory `/usr/local/pf/html/captive-portal/templates/security_events` and obeys
-to everything mentioned in the <<_presentation,Presentation>> section.
+the URL parameter of the given security event in
+`/usr/local/pf/conf/security_events.conf`.
+In its default configuration, PacketFence uses Template Toolkit to render text
+provided in the directory `/usr/local/pf/html/captive-portal/templates/security_events`
+and obeys to everything mentioned in the <<_presentation,Presentation>> section.
 
 
-// TODO: should move in admin guide under advanced topics
 ===== Translations
 
 The language of the user registration pages is selected through the
 `general.locale` configuration parameter. Translatable strings are handled
 differently for the Remediation pages and the rest of the captive portal:
 
+[options="compact"]
 * Remediation pages
 +
-Strings defined in the security event pages (in `/usr/local/pf/html/captive-portal/templates/security_events`)
+Strings defined in the security event pages (in
+`/usr/local/pf/html/captive-portal/templates/security_events`)
 will be looked up in the translation files in `/usr/local/pf/conf/locale/..`
 and if a translation is available the translated string will be the one
 visible on the captive portal.
@@ -117,17 +133,23 @@ Also `pf::web` takes care of performing some of the other translations.
 
 === Adding custom fields to the database
 
-You can, if needed, add additional fields to the PacketFence database. Keep in mind though that this
-might lead to more work when you upgrade to the next PacketFence version. Depending on the degree of
-integration of these fields with PacketFence, you'll have to execute one or more of the following steps
+You can, if needed, add additional fields to the PacketFence database. Keep in
+mind though that this
+might lead to more work when you upgrade to the next PacketFence version.
+Depending on the degree of
+integration of these fields with PacketFence, you'll have to execute one or more
+of the following steps
 
 ==== Adding a field to the database only
 
-In this case, the field is part of one of the main PacketFence tables, but PacketFence is unaware of
-it. PacketFence won't consult the field and won't be able to modify it. A possible usage scenario would be a
+In this case, the field is part of one of the main PacketFence tables, but
+PacketFence is unaware of
+it. PacketFence won't consult the field and won't be able to modify it. A
+possible usage scenario would be a
 3rd party application which maintains this field.
 
-Since PacketFence doesn't have to know about the field, all you have to do is execute your `SQL ALTER
+Since PacketFence doesn't have to know about the field, all you have to do is
+execute your `SQL ALTER
 TABLE` query and you are done.
 
 ==== Adding a field and giving PacketFence read-only access
@@ -137,11 +159,16 @@ In this case, PacketFence can show the contents of the table using both
 
 Start by modifying the database table using an `SQL ALTER TABLE` query.
 
-Then, modify the Perl module having the same name as the table you have added the field to, i.e. If you
-added the field to the node table, then edit `/usr/local/pf/lib/pf/node.pm`. You'll have to modify the
-`SQL SELECT` queries at the beginning of the file to include your new field and, possibly the functions
-using these queries. If your new field should be used in reports, the dashboard or graphs, you'll also
-have to modify the queries in `/usr/local/pf/lib/pf/pfcmd/graph.pm`, `/usr/local/pf/lib/pf/pfcmd/report.pm`
+Then, modify the Perl module having the same name as the table you have added
+the field to, i.e. If you
+added the field to the node table, then edit `/usr/local/pf/lib/pf/node.pm`.
+You'll have to modify the
+`SQL SELECT` queries at the beginning of the file to include your new field and,
+possibly the functions
+using these queries. If your new field should be used in reports, the dashboard
+or graphs, you'll also
+have to modify the queries in `/usr/local/pf/lib/pf/pfcmd/graph.pm`,
+`/usr/local/pf/lib/pf/pfcmd/report.pm`
 and `/usr/local/pf/lib/pf/pfcmd/dashboard.pm`.
 
 
@@ -157,6 +184,7 @@ Perl module, as well as the associated functions.
 PacketFence uses the `getRegisteredRole` function defined in `pf::role::custom`
 to determine a node's VLAN. Here's the default function:
 
+[source,bash]
 ----
 sub getRegisteredRole {
     #$switch is the switch object (pf::Switch)
@@ -175,5 +203,6 @@ sub getRegisteredRole {
 ----
 
 
-As you can see, the function receives several parameters (such as the switch and full node details)
+As you can see, the function receives several parameters (such as the switch and
+full node details)
 which allow you to return the VLAN in a way that matches exactly your needs!

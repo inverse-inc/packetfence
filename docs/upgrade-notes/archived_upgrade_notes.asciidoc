@@ -1,5 +1,5 @@
 
-=== Upgrading from a version prior to 4.0.0
+=== Upgrading from a version prior to 4.0
 
 
 Upgrading an old version of PacketFence to v4 will be quite
@@ -14,75 +14,90 @@ Moreover, an "admin" user is now automatically created. The default password
 is also "admin". Finally, a new table has been added for saved searches in the
 new Web administrative interface.
 
+[source,bash]
+----
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-3.6.1-4.0.0.sql
+----
 
 ==== Other important changes
 
 
-PacketFence v4 received a major overhaul, especially regarding the authentication
+PacketFence v4 received a major overhaul, especially regarding the
+authentication
 sources. Authentication modules found in `conf/authentication/` are no longer
 being used and have been replaced by the `conf/authentication.conf` file. While
-this file can be hand-edited, you should create your authentication sources
+this file can be hand-edited, you must create your authentication sources
 and perform roles-mapping using the Configuation > Users > Sources page from
 PacketFence's Web administrative interface.
 
-Also, in PacketFence v4, the VLANs can be assigned in `conf/switches.conf` by constructing
-the parameter names from the VLAN names and the `Vlan` suffix. The VLAN names must match one
-of the default names (registration, isolation, macDetection, inline, and voice) or one of the
-defined roles. If you were using custom VLANs, you must create a new role per VLAN and assign
+Also, in PacketFence v4, the VLANs can be assigned in `conf/switches.conf` by
+constructing
+the parameter names from the VLAN names and the `Vlan` suffix. The VLAN names
+must match one
+of the default names (registration, isolation, macDetection, inline, and voice)
+or one of the
+defined roles. If you were using custom VLANs, you must create a new role per
+VLAN and assign
 them accordingly.
 
 Other key changes were done, such as:
 
-* moved remediation templates in `html/captive-portal/templates/violations` and converted them to Template Toolkit
-* dropped guests_admin_registration.category
-* dropped guests_self_registration.access_duration
-* dropped guests_self_registration.category
-* dropped guests_self_registration.sponsor_authentication
-* dropped guests_self_registration.sponsors_only_from_localdomain
-* dropped ports.listeners
-* dropped registration.auth and registration.default_auth
-* dropped registration.maxnodes
-* dropped registration.expire_* and registration.skip_*
-* dropped trapping.blacklist
-* dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
-* dropped `sbin/pfredirect` binary
-* splitted the httpd services in three: httpd.admin, httpd.portal and httpd.webservices
-* domain-name is no longer required in each section of networks.conf
+[options="compact"]
+ * moved remediation templates in `html/captive-portal/templates/violations` and
+  converted them to Template Toolkit
+ * dropped guests_admin_registration.category
+ * dropped guests_self_registration.access_duration
+ * dropped guests_self_registration.category
+ * dropped guests_self_registration.sponsor_authentication
+ * dropped guests_self_registration.sponsors_only_from_localdomain
+ * dropped ports.listeners
+ * dropped registration.auth and registration.default_auth
+ * dropped registration.maxnodes
+ * dropped registration.expire_* and registration.skip_*
+ * dropped trapping.blacklist
+ * dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
+ * dropped `sbin/pfredirect` binary
+ * splitted the httpd services in three: httpd.admin, httpd.portal and
+  httpd.webservices
+ * domain-name is no longer required in each section of networks.conf
 
-For all parameters related to authentication (categories, access duration, sponsor authentication, etc.),
-you should now set proper actions in the `conf/authentication.conf` file.
+For all parameters related to authentication (categories, access duration,
+sponsor authentication, etc.),
+you must now set proper actions in the `conf/authentication.conf` file.
 
-Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary. As root, please do:
+Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary.
+As root, please do:
 
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
-
-
-
+[source,bash]
+----
+echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
+----
 
 === Upgrading from a version prior to 4.0.1
 
 
 This release only fixes various bugs and doesn't need the database schema to be
-modified. Simply update the file /usr/local/pf/conf/currently-at to match the new
-release number.
+modified. Simply update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number.
 === Upgrading from a version prior to 4.0.2
 
 
 This release only fixes various bugs and doesn't need the database schema to be
-modified. Simply update the file /usr/local/pf/conf/currently-at to match the new
-release number.
+modified. Simply update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number.
 
 LDAP SSL and STARTTLS is now correctly implemented.
-Make sure the server you specify in authentication.conf supports the encryption type 
-requested on the port configured. Failure to do so will break LDAP and Active Directory 
+Make sure the server you specify in authentication.conf supports the encryption
+type
+requested on the port configured. Failure to do so will break LDAP and Active
+Directory
 authentication.
 
 === Upgrading from a version prior to 4.0.3
 
 
 You need to downgrade the version of perl-Net-DNS and perl-Net-DNS-Nameserver to
-version 0.65-4 in order to fix the issue with pfdns crashing.
+version 0.65-4 to fix the issue with pfdns crashing.
 
 === Upgrading from a version prior to 4.0.4
 
@@ -94,8 +109,9 @@ authentication source is selected (Email, SMS, SponsorEmail, or Oauth2).
 === Upgrading from a version prior to 4.0.5
 
 
-This release adds a new dependency on the Perl module Apache::SSLLookup. Once installed, 
-update the file /usr/local/pf/conf/currently-at to match the new release number.
+This release adds a new dependency on the Perl module Apache::SSLLookup. Once
+installed, update the file [filename]`/usr/local/pf/conf/currently-at` to match
+the new release number.
 
 === Upgrading from a version prior to 4.0.6
 
@@ -103,13 +119,15 @@ update the file /usr/local/pf/conf/currently-at to match the new release number.
 ==== Changes to authentication API
 
 
-The method pf::authentication::authenticate now expects an array of pf::authentication::Source objects
+The method pf::authentication::authenticate now expects an array of
+pf::authentication::Source objects
 instead of an array of source IDs.
 
-The methods getSourceByType, getInternalSources, and getExternalSources of the module pf::Portal::Profile
+The methods getSourceByType, getInternalSources, and getExternalSources of the
+module pf::Portal::Profile
 now return pf::authentication::Source objects instead of source IDs.
 
-=== Upgrading from a version prior to 4.1.0
+=== Upgrading from a version prior to 4.1
 
 
 ==== Database schema update
@@ -117,28 +135,34 @@ now return pf::authentication::Source objects instead of source IDs.
 
 The category column in the temporary_password should not be mandatory.
 
-Also, the access_level of the temporary_password table is now a string instead of a bit string.
+Also, the access_level of the temporary_password table is now a string instead
+of a bit string.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.0.0-4.1.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.0-4.1.0.sql`
 
 ==== Configuration changes
 
 
-The parameters `trapping.redirecturl` and `trapping.always_use_redirecturl` from `pf.conf` (or `pf.conf.defaults`)
+The parameters `trapping.redirecturl` and `trapping.always_use_redirecturl` from
+`pf.conf` (or `pf.conf.defaults`)
 were moved to the default portal profile in `profiles.conf`.
 
-The parameter `registration.range` has been deprecated. Make sure you remove it from your configuration file.
+The parameter `registration.range` has been deprecated. Make sure you remove it
+from your configuration file.
 
-The action `set_access_level` of authentication sources in `authentication.conf` must now match one of the admin roles
-defined in `adminroles.conf`. The previous level `4294967295` must be replaced by *ALL* and the level `0` by *NONE*.
+The action `set_access_level` of authentication sources in `authentication.conf`
+must now match one of the admin roles
+defined in `adminroles.conf`. The previous level `4294967295` must be replaced
+by *ALL* and the level `0` by *NONE*.
 
 Adjust your configuration files accordingly.
 
-Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
+Once the configuration completed, update the file
+[filename]`/usr/local/pf/conf/currently-at` to match the new release number.
 
-=== Upgrading from a version prior to 4.2.0
+=== Upgrading from a version prior to 4.2
 
 
 ==== Database schema update
@@ -146,13 +170,16 @@ Once the configuration completed, update the file /usr/local/pf/conf/currently-a
 
 The person table has many new columns that can be used for registration.
 
-The node table has new columns to store the time and bandwidth balances of a node.
+The node table has new columns to store the time and bandwidth balances of a
+node.
 
-The node table has also a new column to keep the audit-session-id from the RADIUS request to use with the CoA.
+The node table has also a new column to keep the audit-session-id from the
+RADIUS request to use with the CoA.
 
 Added a new column config_timestamp in radius_nas table.
 
-The locationlog table has new columns to store the switch IP and MAC when using dynamic controllers.
+The locationlog table has new columns to store the switch IP and MAC when using
+dynamic controllers.
 
 New table for inline (layer 3) accounting.
 
@@ -160,70 +187,85 @@ New table for WRIX data.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.1.0-4.2.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.1-4.2.0.sql`
 
 ==== Configuration changes
 
 
-The parameter `guests_self_registration.mandatory_fields` from `pf.conf` (or `pf.conf.defaults`) was moved to the
+The parameter `guests_self_registration.mandatory_fields` from `pf.conf` (or
+`pf.conf.defaults`) was moved to the
 default portal profile in `profiles.conf`.
 
-The parameters `registration.gaming_devices_registration` and `registration.gaming_devices_registration_role` are replaced
-with `registration.device_registration` and `registration.device_registration_role`.
+The parameters `registration.gaming_devices_registration` and
+`registration.gaming_devices_registration_role` are replaced
+with `registration.device_registration` and
+`registration.device_registration_role`.
 
 Adjust your configuration files accordingly.
 
-The captive portal has been rewritten using the Catalyst MVC framework. Any customization to the previous CGI scripts
-will need to be ported to the new architecture.
+The captive portal has been rewritten using the Catalyst MVC framework. Any
+customization to the previous CGI scripts
+must be ported to the new architecture.
 
-Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
+Once the configuration completed, update the file
+[filename]`/usr/local/pf/conf/currently-at` to match the new release number.
 
-=== Upgrading from a version prior to 4.3.0
+=== Upgrading from a version prior to 4.3
 
 
 ==== Database schema update
 
 
-The person table has 2 new column to keep the portal and the source used to authenticate.
+The person table has 2 new column to keep the portal and the source used to
+authenticate.
 
-The tables email_activation and sms_activation have been merged in a table named `activation`. It has an additional column to keep the portal used to register.
+The tables email_activation and sms_activation have been merged in a table named
+`activation`. It has an additional column to keep the portal used to register.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.2.0-4.3.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.2-4.3.0.sql`
 
 ==== Configuration changes
 
 
-The parameters `VlanMap` and `RoleMap` have been added in `switches.conf`; be sure to add them in the [default] switch section.
+The parameters `VlanMap` and `RoleMap` have been added in `switches.conf`; be
+sure to add them in the [default] switch section.
 
-The OAuth passthroughs will not be activated unless `trapping.passthrough` in `pf.conf` is enabled. Make sure you enable it if you have OAuth authentication sources (Google, Facebook, Github, LinkedIn and Windows Live).
+The OAuth passthroughs will not be activated unless `trapping.passthrough` in
+`pf.conf` is enabled. Make sure you enable it if you have OAuth authentication
+sources (Google, Facebook, Github, LinkedIn and Windows Live).
 
-Once the configuration is completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
+Once the configuration is completed, update the file
+[filename]`/usr/local/pf/conf/currently-at` to match the new release number.
 
-=== Upgrading from a version prior to 4.4.0
+=== Upgrading from a version prior to 4.4
 
 
 ==== Database schema update
 
 
-Introduced the 'iplog_history' table for easier cleanup of the existing 'iplog' table.
+Introduced the 'iplog_history' table for easier cleanup of the existing 'iplog'
+table.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.3.0-4.4.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.3-4.4.0.sql`
 
 ==== Cache serialization
 
 
-The serialization of the objects in the cache changed, making all the previous cached objects invalid.
+The serialization of the objects in the cache changed, making all the previous
+cached objects invalid.
 With PacketFence completely stopped do :
 
-  rm -fr /usr/local/pf/var/cache/*
+  rm -fr [filename]`/usr/local/pf/var/cache`/*
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.4.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 4.4).
 
-=== Upgrading from a version prior to 4.5.0
+=== Upgrading from a version prior to 4.5
 
 
 ==== Database schema update
@@ -233,45 +275,55 @@ The class table has a new column delay_by.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.4.0-4.5.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.4-4.5.0.sql`
 
 ==== Violation configuration
 
 
-A new parameter 'delay_by' has been introduced in the violation configuration. Make sure to add the following to the 'defaults' section of 'conf/violations.conf' to avoid any problem.
+A new parameter 'delay_by' has been introduced in the violation configuration.
+Make sure to add the following to the 'defaults' section of
+'conf/violations.conf' to avoid any problem.
 
 delay_by=0s
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.5.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 4.5).
 
-=== Upgrading from a version prior to 4.6.0
+=== Upgrading from a version prior to 4.6
 
 
 ==== Database schema update
 
 
-The locationlog and locationlog_history table have 2 new columns stripped_user_name and realm.
+The locationlog and locationlog_history table have 2 new columns
+stripped_user_name and realm.
 We added new INDEX on iplog, violation and locationlog tables.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.5.0-4.6.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.5-4.6.0.sql`
 
 
 ==== Violation template pages language handling
 
 
-Code to match violation template pages have been reworked. Make sure to lowercase FR to fr in french template files name.
+Code to match violation template pages have been reworked. Make sure to
+lowercase FR to fr in french template files name.
 
 ==== Realm configuration
 
 
-Realm are now managed by Freeradius server so if your users authenticate with a username like username@acme.com then add the realm acme.com
-in the Radius Realms configuration menu and in your Active Directory source select 'Use stripped username'.
+Realm are now managed by Freeradius server so if your users authenticate with a
+username like username@acme.com then add the realm acme.com
+in the Radius Realms configuration menu and in your Active Directory source
+select 'Use stripped username'.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.6.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 4.6).
 
-=== Upgrading from a version prior to 4.7.0
+=== Upgrading from a version prior to 4.7
 
 
 ==== Database schema update
@@ -281,27 +333,35 @@ The 'node' table has a new column (machine_account).
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.6.0-4.7.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.6-4.7.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.7.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 4.7).
 
-=== Upgrading from a version prior to 5.0.0
+=== Upgrading from a version prior to 5.0
 
 
-Upgrading a version of PacketFence older than 4.1 to v5 will be a complex undertaking.
+Upgrading a version of PacketFence older than 4.1 to v5 will be a complex
+undertaking.
 While it's entirely possible if done meticulously, we
 suggest you start from scratch and move your customizations and
 nodes information over to your new installation.
 
-Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
+Please note that the sections below are cumulative. That is to say, if you are
+upgrading from version 4.3 to version 5.0 you must apply in order all changes in
+between the two versions, including database schema changes.
 
-As always, taking a complete backup of your current installation is strongly recommended. 
-A backup should contain a copy of all PacketFence files as well as a copy of the database.
+As always, taking a complete backup of your current installation is strongly
+recommended.
+A backup should contain a copy of all PacketFence files as well as a copy of the
+database.
 You can take a backup of the pf directory with the following command:
 
   tar -C /usr/local -czf /root/packetfence.tar.gz pf 
 
-A backup of the database can be taken using the procedure described in the next section.
+A backup of the database can be taken using the procedure described in the next
+section.
 
 ==== Database schema update
 
@@ -311,21 +371,27 @@ A complete database backup can be taken using this command:
 
   mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
 
-If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
+If your database is more than a few hundred megabytes, you may also want to
+consider using a tool such as Percona XtraBackup which makes for much faster
+restores than mysqldump.
 
 
-Multiple changes have been made to the database schema. You will need to update it accordingly.
-Since we will be dropping and recreating the 'iplog' table it is essential that you have a backup if you need the data it contains.
+Multiple changes have been made to the database schema. You will need to update
+it accordingly.
+Since we will be dropping and recreating the 'iplog' table it is essential that
+you have a backup if you need the data it contains.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.7.0-5.0.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.7-5.0.0.sql`
 
 ==== Configuration changes
 
 
-You must manually enter the MySQL password of the pf user in the conf/pfconfig.conf file.
-The MySQL password is saved in the conf/pf.conf file under the [database] section.
+You must manually enter the MySQL password of the pf user in the
+conf/pfconfig.conf file.
+The MySQL password is saved in the conf/pf.conf file under the [database]
+section.
 Copy the following from conf/pf.conf to conf/pfconfig.conf: 
 
   pass=$YOURPASSWORDHERE
@@ -335,10 +401,13 @@ Copy the following from conf/pf.conf to conf/pfconfig.conf:
 
 
 The violation triggers have been reworked for the new Fingerbank integration.
-We highly suggest you copy `conf/violations.conf.example` over `conf/violations.conf` and then reconfigure any violations you had before.
+We highly suggest you copy `conf/violations.conf.example` over
+`conf/violations.conf` and then reconfigure any violations you had before.
 
-Also, make sure you adjust the following triggers to their new ID (Can be found under 'Configuration->Fingerbank'):
+Also, ensure you adjust the following triggers to their new ID (Can be found
+under 'Configuration->Fingerbank'):
 
+[options="compact"]
 * `USERAGENT` becomes `user_agent`
 * `VENDORMAC` becomes `mac_vendor`
 
@@ -348,68 +417,87 @@ You will need to adjust these triggers to the new ids as well as renaming them.
 ==== iptables changes
 
 
-The iptables configuration file doesn't use the generated rules '%%input_mgmt_guest_rules%%' anymore. 
+The iptables configuration file doesn't use the generated rules
+'%%input_mgmt_guest_rules%%' anymore.
 Make sure you remove this line from conf/iptables.conf.
 
 Also a lot of additions were made to the iptables configuration file. 
-Make sure you add the new rules in conf/iptables.conf.example to your existing iptables file or execute the following command to replace the whole file.
+Make sure you add the new rules in conf/iptables.conf.example to your existing
+iptables file or execute the following command to replace the whole file.
 
-  cp /usr/local/pf/conf/iptables.conf.example /usr/local/pf/conf/iptables.conf
+  cp [filename]`/usr/local/pf/conf/iptables.conf.example` \
+     [filename]`/usr/local/pf/conf/iptables.conf`
 
 ==== Using EAP local authentication
 
 
-If you are using EAP MS-CHAP local authentication, meaning your 802.1x connections authenticate against your local database, you will need to make sure you deactivate password encryption in the database.
-In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext`
+If you are using EAP MS-CHAP local authentication, meaning your 802.1x
+connections authenticate against your local database, you will need to ensure
+you deactivate password encryption in the database.
+In the administration interface, go in 'Configuration -> Advanced' and set
+'Database passwords hashing method' to `plaintext`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.0.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.0).
 
-=== Upgrading from a version prior to 5.1.0
+=== Upgrading from a version prior to 5.1
 
 
 ==== Database schema update
 
 
-Multiple changes have been made to the database schema. You will need to update it accordingly.
+Multiple changes have been made to the database schema. You will need to update
+it accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.0.0-5.1.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.0-5.1.0.sql`
 
 ==== pfsetvlan and snmptrapd
 
 
 These two services have been disabled by default. 
-If you are using SNMP traps enforcement on your switches (like port-security), make sure you re-enable them in 'Configuration->Services'.
+If you are using SNMP traps enforcement on your switches (like port-security),
+ensure you re-enable them in 'Configuration->Services'.
 
 ==== Active Directory domain join
 
 
-The Microsoft Active Directory domain join configuration is now part of PacketFence. 
-A migration script has been made so you can migrate an existing domain join into this configuration.
-Note that this step is not mandatory, as the old join method is still supported. But if you do
-not perform this step, you will not see its configuration from the PacketFence web administrative interface.
+The Microsoft Active Directory domain join configuration is now part of
+PacketFence.
+A migration script has been made so you can migrate an existing domain join into
+this configuration.
+Note that this step is not mandatory, as the old join method is still supported.
+But if you do
+not perform this step, you will not see its configuration from the PacketFence
+web administrative interface.
 
-Simply execute the following script and follow its instructions `/usr/local/pf/addons/AD/migrate.pl`
+Simply execute the following script and follow its instructions
+`/usr/local/pf/addons/AD/migrate.pl`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.1.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.1).
 
-=== Upgrading from a version prior to 5.2.0
+=== Upgrading from a version prior to 5.2
 
 
 ==== Database schema update
 
 
-Multiple changes have been made to the database schema. You will need to update it accordingly.
+Multiple changes have been made to the database schema. You will need to update
+it accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.1.0-5.2.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.1-5.2.0.sql`
 
 ==== Database monitoring host
 
 
-If you are using an Active/Active cluster, you will need to adjust the monitoring database host to point to your database as it is not forced anymore.
+If you are using an Active/Active cluster, you will need to adjust the
+monitoring database host to point to your database as it is not forced anymore.
 
 In `conf/pf.conf` :
 
@@ -421,7 +509,11 @@ db_host=127.0.0.1
 ==== New 'portal' interface type
 
 
-If you are using email registration, web-auth enforcement (external captive-portal), device registration feature, or anything that would require to access the captive portal from outside the registration/isolation VLANs, you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
+If you are using email registration, web-auth enforcement (external
+captive-portal), device registration feature, or anything that would require to
+access the captive portal from outside the registration/isolation VLANs, you
+might want (actually, you need otherwise it will no longer works!) to add the
+'portal' type to the existing 'management' interface.
 
 In `conf/pf.conf` :
 
@@ -431,19 +523,22 @@ type=management,portal
 ----
 
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.2.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.2).
 
-=== Upgrading from a version prior to 5.3.0
+=== Upgrading from a version prior to 5.3
 
 
 ==== Database schema update
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
+Changes have been made to the database schema. You will need to update it
+accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.2.0-5.3.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.2-5.3.0.sql`
 
 ==== Debian and Ubuntu
 
@@ -453,49 +548,63 @@ A downgrade in a package version may cause an error when trying to upgrade.
 If you receive this error: 
 
   The following packages have unmet dependencies:
-   packetfence : Depends: libhtml-formhandler-perl (= 0.40013-2) but 0.40050-2 is to be installed
+   packetfence : Depends: libhtml-formhandler-perl (= 0.40013-2) but 0.40050-2
+   is to be installed
   E: Unable to correct problems, you have held broken packages.
 
 Run the following commands:
 
   # dpkg -r --ignore-depends=packetfence   libhtml-formhandler-perl
-  # apt-get install  libhtml-formhandler-perl  libtemplate-autofilter-perl  libmoo-perl 
-  # apt-get install packetfence packetfence-config packetfence-pfcmd-suid libdist-checkconflicts-perl libimport-into-perl 
+  # apt-get install libhtml-formhandler-perl libtemplate-autofilter-perl
+  libmoo-perl
+  # apt-get install packetfence packetfence-config packetfence-pfcmd-suid
+  libdist-checkconflicts-perl libimport-into-perl
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.3.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.3).
 
 
-=== Upgrading from a version prior to 5.4.0
+=== Upgrading from a version prior to 5.4
 
 
 ==== Database schema update
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
+Changes have been made to the database schema. You will need to update it
+accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.3.0-5.4.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.3-5.4.0.sql`
 
 ==== Authentication sources rules rework
 
 
-Authentication sources rules have been reworked in a way to differentiate an 'authentication' rule and an 'administration' rule. Codewise, that means that codeflow will look into specific types of rules depending of the use case.
+Authentication sources rules have been reworked in a way to differentiate an
+'authentication' rule and an 'administration' rule. Codewise, that means that
+codeflow will look into specific types of rules depending of the use case.
 
-Please take a minute or two to go through the existing rules for each of the authentication sources and make sure there is no 'administration' class actions into an 'authentication' class rule and vice versa, otherwise the "invalid" action will be ignored.
+Please take a minute or two to go through the existing rules for each of the
+authentication sources and ensure there is no 'administration' class actions
+into an 'authentication' class rule and vice versa, otherwise the "invalid"
+action will be ignored.
 
 Authentication sources rules structure is as follow:
 
+[options="compact"]
 * 'authentication' rule class available actions:
 ** Set role (set_role)
 ** Set access duration (set_access_duration)
 ** Set unregistration date (set_unreg_date)
+[options="compact"]
 * 'administration' rule class available actions:
 ** Set access level of Web admin (set_access_level)
 ** Mark as sponsor (mark_as_sponsor)
 
 For example, if an existing rule is as follow:
 
+[options="compact"]
 * Name: AllAdmins
 * Class: No class defined since the class attribute is new
 * Conditions: ...
@@ -504,13 +613,17 @@ For example, if an existing rule is as follow:
 ** Set role -> default
 ** Set access duration -> 24H
 
-That existing rule will default to the 'authentication' class if none is being set. 
-If that's the case, the first action "Set access level of Web admin" will then be ignored.
+That existing rule will default to the 'authentication' class if none is being
+set.
+If that's the case, the first action "Set access level of Web admin" will then
+be ignored.
 
-To replicate that existing rule with the new classes, you would have to create two separate rules, as follow:
+To replicate that existing rule with the new classes, you would have to create
+two separate rules, as follow:
 
 Rule for 'administration' purposes
 
+[options="compact"]
 * Name: AllAdmins_admin 
 * Class: administration
 * Conditions: ...
@@ -519,6 +632,7 @@ Rule for 'administration' purposes
 
 Rule for 'authentication' purposes
 
+[options="compact"]
 * Name: AllAdmins_auth
 * Class: authentication
 * Conditions: ...
@@ -526,43 +640,54 @@ Rule for 'authentication' purposes
 ** Set role -> default
 ** Set access duration -> 24H
 
-Configuration will be validated on every start / restart so that "bogus" authentication sources / rules can be identified.
+Configuration will be validated on every start / restart so that "bogus"
+authentication sources / rules can be identified.
 
 
 ==== OAuth2 authentication sources changes
 
 
 The Facebook API now requires to specify the fields to be defined in the query.
-In all your facebook sources, change the parameter protected_resource_url to https://graph.facebook.com/me?fields=id,name,email,first_name,last_name
+In all your facebook sources, change the parameter protected_resource_url to
+https://graph.facebook.com/me?fields=id,name,email,first_name,last_name
 
-Change the parameter scope to user,user:email in all your Github sources as PacketFence is now fetching the email address of the user when registering with Github.
+Change the parameter scope to user,user:email in all your Github sources as
+PacketFence is now fetching the email address of the user when registering with
+Github.
 
 ==== StatsD configuration changes
 
 
-monitoring.statsd_host and monitoring.statsd_port have been removed from pf.conf. 
-If you have specified a specific host or port, remove them from your configuration and change them in /usr/local/pf/lib/pf/StatsD.pm
+monitoring.statsd_host and monitoring.statsd_port have been removed from
+pf.conf.
+If you have specified a specific host or port, remove them from your
+configuration and change them in [filename]`/usr/local/pf/lib/pf/StatsD.pm`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.4.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.4).
 
-=== Upgrading from a version prior to 5.5.0
+=== Upgrading from a version prior to 5.5
 
 
 ==== Database schema update
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
+Changes have been made to the database schema. You will need to update it
+accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.4.0-5.5.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.4-5.5.0.sql`
 
 ==== VLAN Filter configuration changes
 
 
-The VLAN filter has been reworked to use a more generalized syntax to allow more complex filters to be created.
+The VLAN filter has been reworked to use a more generalized syntax to allow more
+complex filters to be created.
 
-This mean nested conditions no longer need to specify the attribute in the condition.
+This mean nested conditions no longer need to specify the attribute in the
+condition.
 
 So the following attribute
 
@@ -611,65 +736,81 @@ To the following
 ==== pf.conf configuration file changes
 
 
-The following parameters have been removed from pf.conf. Make sure to remove them from your file if configured.
+The following parameters have been removed from pf.conf. Make sure to remove
+them from your file if configured.
 
+[options="compact"]
 * alerting.wins_server
 * alerting.admin_netbiosname
 
 ==== violations.conf configuration file changes
 
 
-Violations have been reworked and configuration changes are necessary in order to maintain functionnality.
+Violations have been reworked and configuration changes are necessary to
+maintain functionnality.
 
-In violations.conf the following actions have been renamed, please update them accordingly.
+In violations.conf the following actions have been renamed, please update them
+accordingly.
 
+[options="compact"]
 * trap -> reevaluate_access
 * email -> email_admin
 
 The following action have been removed from the violations :
 
+[options="compact"]
 * popup
 
-Also in violations.conf, the parameter whitelisted_categories has been renamed into whitelisted_roles
+Also in violations.conf, the parameter whitelisted_categories has been renamed
+into whitelisted_roles
 
 ==== Billing configuration change
 
 
 The parameter `billing_engine` of the Portal Profiles has been deprecated.
-Remove it from all your profiles configuration in `/usr/local/pf/conf/profiles.conf`.
+Remove it from all your profiles configuration in
+[filename]`/usr/local/pf/conf/profiles.conf`.
 
 The billing engine of PacketFence has been reworked completely.
 
-It will require to reconfigure existing billing providers from scratch as there is no retro-compatibility with the previous configuration.
+It will require to reconfigure existing billing providers from scratch as there
+is no retro-compatibility with the previous configuration.
 
-Please see the Administration Guide for details on how to configure the billing engine.
+Please see the Administration Guide for details on how to configure the billing
+engine.
 
 ==== Mod_qos configuration changes
 
 
-Mod_qos configuration has been moved from "services" to "captive_portal" section.
+Mod_qos configuration has been moved from "services" to "captive_portal"
+section.
 Make sure to apply the appropriate changes if needed.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.5.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.5).
 
-=== Upgrading from a version prior to 5.6.0
+=== Upgrading from a version prior to 5.6
 
 
 ==== Database schema update
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
+Changes have been made to the database schema. You will need to update it
+accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.5.0-5.6.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.5-5.6.0.sql`
 
 ==== Extension points changes
 
 
 The file lib/pf/vlan/custom.pm has now been renamed to lib/pf/role/custom.pm.
-Most of the customizations that used to be made in vlan/custom.pm can now be handled by configuring a vlan filter.
-You should take a good look at your existing vlan/custom.pm and consider porting the changes to conf/vlan_filters.conf. 
+Most of the customizations that used to be made in vlan/custom.pm can now be
+handled by configuring a vlan filter.
+You should take a good look at your existing vlan/custom.pm and consider porting
+the changes to conf/vlan_filters.conf.
 
 ==== VLAN filters changes
 
@@ -682,41 +823,53 @@ RegistrationVlan    -> RegistrationRole
 ViolationVlan       -> ViolationRole
 InlineVlan          -> InlineRole
 
-If you have defined any filters in /usr/local/pf/conf/vlan_filters.conf, make sure to rename all references to the left hand side with the new names on the right hand side.
+If you have defined any filters in [filename]`/usr/local/pf/conf/vlan_filters.conf`,
+ensure to rename all references to the left hand side with the new names on the
+right hand side.
 
 ==== Default type for the switches
 
 
-The default type for the switches now needs to be set explicitly. Add the following line in the default section of `/usr/local/pf/conf/switches.conf`
+The default type for the switches now must be set explicitly. Add the following
+line in the default section of [filename]`/usr/local/pf/conf/switches.conf`
 
 `type=Generic`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.6.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.6).
 
-=== Upgrading from a version prior to 5.7.0
+=== Upgrading from a version prior to 5.7
 
 
 ==== Suricata violation trigger renaming
 
 
-With the introduction of the ability to trigger a violation based on a MD5 hash detected by Suricata, a new trigger type has been introduced, requiring the modification of the actual 'suricata' trigger.
-Make sure to go through your violations configuration and change any 'suricata' trigger name for 'suricata_event'.
+With the introduction of the ability to trigger a violation based on a MD5 hash
+detected by Suricata, a new trigger type has been introduced, requiring the
+modification of the actual 'suricata' trigger.
+Make sure to go through your violations configuration and change any 'suricata'
+trigger name for 'suricata_event'.
 
 ==== Database schema update
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
+Changes have been made to the database schema. You will need to update it
+accordingly.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.6.0-5.7.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.6-5.7.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.7.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 5.7).
 
-=== Upgrading from a version prior to 6.0.0
+=== Upgrading from a version prior to 6.0
 
 
-Upgrading PacketFence from a version older than v6.0.0 will be a complex undertaking.
+Upgrading PacketFence from a version older than v6.0 will be a complex
+undertaking.
 While it's entirely possible if done meticulously, we
 suggest you start from scratch and move your customizations and
 nodes information over to your new installation.
@@ -725,7 +878,8 @@ nodes information over to your new installation.
 ==== Devices parking
 
 
-The new registration devices parking requires that you add the following violation in `/usr/local/pf/conf/violations.conf`
+The new registration devices parking requires that you add the following
+violation in [filename]`/usr/local/pf/conf/violations.conf`
 
   [1300003]
   priority=1
@@ -741,49 +895,70 @@ The new registration devices parking requires that you add the following violati
 ==== Chained authentication
 
 
-The chained source has been deprecated in favor of a fully customizable flow in the captive portal.
+The chained source has been deprecated in favor of a fully customizable flow in
+the captive portal.
 
 Make sure you delete the source *BEFORE* upgrading your installation.
 
-Once you upgrade, configure a portal module for each of your sources and a chained one that contains both. Refer to the administration guide for a detailed example.
+Once you upgrade, configure a portal module for each of your sources and a
+chained one that contains both. Refer to the administration guide for a detailed
+example.
 
 ==== Redesigned captive portal
 
 
-The parameter `mandatory_fields` of the Portal Profiles has been deprecated. Remove it from all the profiles in `profiles.conf`
+The parameter `mandatory_fields` of the Portal Profiles has been deprecated.
+Remove it from all the profiles in `profiles.conf`
 
-To configure mandatatory fields in the portal, refer to the 'Portal Modules' section of the Administration guide
+To configure mandatatory fields in the portal, refer to the 'Portal Modules'
+section of the Administration guide
 
-You need to add the `root_module` parameter to your default portal profile. In `profiles.conf` add `root_module=default_policy` to the default portal profile
+You need to add the `root_module` parameter to your default portal profile. In
+`profiles.conf` add `root_module=default_policy` to the default portal profile
 
 ==== Changes to OAuth2 sources callback URL
 
 
-All the OAuth2 sources you have configured (Facebook, Github, Google, LinkedIn ,Twitter, Windows Live) need to be adjusted as the redirect URL is now the same for all the types.
+All the OAuth2 sources you have configured (Facebook, Github, Google, LinkedIn
+,Twitter, Windows Live) need to be adjusted as the redirect URL is now the same
+for all the types.
 
-In the admin interface change `Portal URL` from `https://YOUR_HOSTNAME/oauth2/SOURCE_TYPE` to `https://YOUR_HOSTNAME/oauth/callback` (where `SOURCE_TYPE` would be the lower case name of the source type). Note that this parameter is named `redirect_url` in the configuration file.
+In the admin interface change `Portal URL` from
+`https://YOUR_HOSTNAME/oauth2/SOURCE_TYPE` to
+`https://YOUR_HOSTNAME/oauth/callback` (where `SOURCE_TYPE` would be the lower
+case name of the source type). Note that this parameter is named `redirect_url`
+in the configuration file.
 
 ==== Changes to Cisco Web auth
 
 
-Use the Cisco::Catalyst_2960 switch module instead of the Cisco::Catalyst_2960_http as switch type.
+Use the Cisco::Catalyst_2960 switch module instead of the
+Cisco::Catalyst_2960_http as switch type.
 
 Use the Cisco::WLC switch module instead of the Cisco::WLC_http as switch type.
 
-The portalURL configuration parameter is now configured per-role so make sure you have `http://ip_portal/$session_id` assigned to the registration role in the `Role by Web Auth URL` section of the switch configuration.
+The portalURL configuration parameter is now configured per-role so ensure you
+have `http://ip_portal/$session_id` assigned to the registration role in the
+`Role by Web Auth URL` section of the switch configuration.
 
 See the Network Device configuration guide for additional details.
 
 ==== SMS carrier database table
 
 
-Google Project Fi have been added as a supported carrier. Since an ID is hardcoded on creation of a new entry in the 'sms_carrier' database table, a manual intervention may be required in the case the database schema update fails.
+Google Project Fi have been added as a supported carrier. Since an ID is
+hardcoded on creation of a new entry in the 'sms_carrier' database table, a
+manual intervention may be required in the case the database schema update
+fails.
 
 ==== pf.conf configuration parameters
 
 
-'expire' and 'maintenance' section have been reworked and 'expire' section is no longer a thing. Make sure to adjust configuration parameter accordingly if needed;
+'expire' and 'maintenance' section have been reworked and 'expire' section is no
+longer a thing. Make sure to adjust configuration parameter accordingly if
+needed;
  
+[options="compact"]
 * expire.node is now maintenance.node_cleanup_window
 * expire.iplog is now maintenance.iplog_cleanup_window
 * expire.locationlog is now maintenance.locationlog_cleanup_window
@@ -793,7 +968,8 @@ Google Project Fi have been added as a supported carrier. Since an ID is hardcod
 ==== node category / role
 
 
-The 'REJECT' role is now a default standard role. If you already have such role, make sure no conflict exists.
+The 'REJECT' role is now a default standard role. If you already have such role,
+ensure no conflict exists.
 
 Also, add the following line to the default section of `switches.conf` :
 
@@ -802,146 +978,213 @@ Also, add the following line to the default section of `switches.conf` :
 ==== Changes to the generated smb.conf
 
 
-If you have a domain configured directly in PacketFence (in 'Configuration->Domains'), you need to re-generate the associated configuration files as changes have been made to the samba configuration.
+If you have a domain configured directly in PacketFence (in
+'Configuration->Domains'), you need to re-generate the associated configuration
+files as changes have been made to the samba configuration.
 
-Using the CLI `/usr/local/pf/bin/pfcmd generatedomainconfig` or in the admin interface in 'Configuration->Domains', click 'Refresh domain configuration'
+Using the CLI `/usr/local/pf/bin/pfcmd generatedomainconfig` or in the admin
+interface in 'Configuration->Domains', click 'Refresh domain configuration'
 
 ==== Upgrade from FreeRADIUS 2 to FreeRADIUS 3
 
 
-PacketFence 6 relies on FreeRADIUS 3 rather that FreeRADIUS 2 as provided in PacketFence 5.
-The configuration files, directory layout and "unlang" directives have changed significantly.
-The packaging will automatically rename the existing raddb directory to raddb-pre6.
-All your existing configuration and certificates (if stored under raddb/certs) should be preserved but may need to be merged with the new raddb directory layout if you customized them.
+PacketFence 6 relies on FreeRADIUS 3 rather that FreeRADIUS 2 as provided in
+PacketFence 5.
+The configuration files, directory layout and "unlang" directives have changed
+significantly.
+The packaging will automatically rename the existing raddb directory to
+raddb-pre6.
+All your existing configuration and certificates (if stored under raddb/certs)
+should be preserved but may need to be merged with the new raddb directory
+layout if you customized them.
 
 The configuration files under conf/radiusd/*.example have also changed.
-Make sure to compare them to your conf/radiusd/* files if you have any customizations, and merge any *.rpmnew files that may have been created by the packaging.
+Make sure to compare them to your conf/radiusd/* files if you have any
+customizations, and merge any *.rpmnew files that may have been created by the
+packaging.
 
-The default location for the FreeRADIUS server certificates has changed from conf/ssl/ to raddb/certs/.
+The default location for the FreeRADIUS server certificates has changed from
+conf/ssl/ to raddb/certs/.
 The configuration of the certificates location is in conf/radiusd/eap.conf.
-You may point it to any valid certificate and key by setting the value of `certificate_file` and `private_key_file` respectively.
-It is not recommended to use the same server certificate for the HTTP services and the RADIUS server as the requirements for each are different.
-Reusing the same certificate will work, but you would be well advised to consider separate certificates.
+You may point it to any valid certificate and key by setting the value of
+`certificate_file` and `private_key_file` respectively.
+It is not recommended to use the same server certificate for the HTTP services
+and the RADIUS server as the requirements for each are different.
+Reusing the same certificate will work, but you would be well advised to
+consider separate certificates.
 
-Finally, the database schema for the RADIUS accounting tables and stored procedures have changed.
+Finally, the database schema for the RADIUS accounting tables and stored
+procedures have changed.
 Make sure to apply the database changes as described in the following section.
 
 ==== Database schema update
 
 
-Significant changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 5.7 schema to 6.0.
+Significant changes have been made to the database schema. You will need to
+update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 5.7
+schema to 6.0.
 
-Since the schema of the `radacct` table has been reworked, the script will rename the existing table to `radacct2` and insert it's content into the new `radacct` table.
-If your existing `radacct` table is large (as is sometimes the case), the operation may take a long time and consume a significant amount of disk space.
+Since the schema of the `radacct` table has been reworked, the script will
+rename the existing table to `radacct2` and insert it's content into the new
+`radacct` table.
+If your existing `radacct` table is large (as is sometimes the case), the
+operation may take a long time and consume a significant amount of disk space.
 Make sure to have plenty of both before running the upgrade script.
 
-You can estimate the size of the existing `radacct` table by running the following command:
+You can estimate the size of the existing `radacct` table by running the
+following command:
 
     mysql> SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" FROM information_schema.TABLES WHERE table_schema = "pf" AND table_name = "radacct";
 
-You should have at least twice as much space as that table uses in the filesystem on which the MySQL data directory is mounted (usually /var/lib/mysql).
+You should have at least twice as much space as that table uses in the
+filesystem on which the MySQL data directory is mounted (usually
+/var/lib/mysql).
 
-If you do not have enough space or time, you may consider truncating the `radacct` table (or simply deleting some of the rows) before running the upgrade script.
+If you do not have enough space or time, you may consider truncating the
+`radacct` table (or simply deleting some of the rows) before running the upgrade
+script.
 
 When ready, run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.7.0-6.0.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.7-6.0.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.0.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 6.0).
 
-You will also want to drop the `radacct2` table from the database as it will no longer be needed.
+You will also want to drop the `radacct2` table from the database as it will no
+longer be needed.
 
-=== Upgrading from a version prior to 6.1.0
+=== Upgrading from a version prior to 6.1
 
 
-Significant changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.0 schema to 6.1.
+Significant changes have been made to the database schema. You will need to
+update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.0
+schema to 6.1.
 
 To upgrade the database schema, run the following command: 
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.0.0-6.1.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.0-6.1.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.1.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 6.1).
 
 
 ==== Dynamically created local secret
 
 
-The management IP(s) of PacketFence are now defined as switches with a forced RADIUS secret defined in /usr/local/pf/conf/local_secret. Make sure you reconfigure the secret in the file if necessary and that this file is synchronized on all your cluster members if that applies. Note that this doesn't affect the RADIUS secret you have configured for wireless controllers and switches. It only affects RADIUS requests that originate from the management IP(s)
+The management IP(s) of PacketFence are now defined as switches with a forced
+RADIUS secret defined in [filename]`/usr/local/pf/conf/local_secret`. Make sure you
+reconfigure the secret in the file if necessary and that this file is
+synchronized on all your cluster members if that applies. Note that this doesn't
+affect the RADIUS secret you have configured for wireless controllers and
+switches. It only affects RADIUS requests that originate from the management
+IP(s)
 
 ==== Changes to LinkedIn source
 
 
-A change to the authorize URL of LinkedIn was made. Make sure to change the 'API Authorize Path' in all your LinkedIn source to `/uas/oauth2/authorization`.
+A change to the authorize URL of LinkedIn was made. Make sure to change the 'API
+Authorize Path' in all your LinkedIn source to `/uas/oauth2/authorization`.
 
-=== Upgrading from a version prior to 6.2.0
+=== Upgrading from a version prior to 6.2
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.1 schema to 6.2.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.1
+schema to 6.2.
 
 To upgrade the database schema, run the following command: 
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.1.0-6.2.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.1-6.2.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.2.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 6.2.1).
 
 === Upgrading from a version prior to 6.2.1
 
 
 Changes have been made to the httpd.admin configuration.
-Make sure you copy the conf/httpd.conf.d/httpd.admin.tt.example file over conf/httpd.conf.d/httpd.admin.tt.
+Make sure you copy the conf/httpd.conf.d/httpd.admin.tt.example file over
+conf/httpd.conf.d/httpd.admin.tt.
 If you customized that file in any way, you will have to merge the changes.
 
 Restart the httpd.admin process once that is done by running 
-  /usr/local/pf/bin/pfcmd service httpd.admin restart
+`/usr/local/pf/bin/pfcmd service httpd.admin restart`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.2.1).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 6.2.1).
 
-=== Upgrading from a version prior to 6.3.0
+=== Upgrading from a version prior to 6.3
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.2 schema to 6.3.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.2
+schema to 6.3.
 
 To upgrade the database schema, run the following command: 
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.2.0-6.3.0.sql
+[source.bash]
+----
+  mysql -u root -p pf -v < `/usr/local/pf/db/upgrade-6.2-6.3.0.sql
+----
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.3.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 6.3).
 
 ==== RADIUS configuration file changes
 
 
-The following file: /usr/local/pf/conf/radiusd/eap.conf was modified to use TemplateToolkit, you will need to replace it by /usr/local/pf/conf/radiusd/eap.conf.example, make sure to re-edit the new file and add your certificate if needed.
+The following file: [filename]`/usr/local/pf/conf/radiusd/eap.conf` was modified to use
+TemplateToolkit, you will need to replace it by
+[filename]`/usr/local/pf/conf/radiusd/eap.conf.example`, ensure to re-edit the new file and
+add your certificate if needed.
 
 ==== Samba cache directory changed
 
 
 Rejoining the domains from PacketFence GUI is required. 
 
-Go under `Configuration->RADIUS->Domains` and click `Rejoin` for each domain configured.
+Go under `Configuration->RADIUS->Domains` and click `Rejoin` for each domain
+configured.
 
 ==== Configuration changes to the Provisioning and Scaning
 
 
-The configuration of the Scan engines and the Provisioners has been reworked to use the Fingerbank device IDs in the OS matching. `scan.conf` and `provisioning.conf` need to be migrated to use the new values. A migration script should be run `# /usr/local/pf/addons/upgrade/to-6.3-os-rewrite.pl` to migrate the configuration. This will output the migrated configuration in `/usr/local/pf/conf/provisioning.conf.new` and `/usr/local/pf/conf/scan.conf.new`. First run the script and then validate that their content is fine. Once that is done, copy the files over the original ones using : 
+The configuration of the Scan engines and the Provisioners has been reworked to
+use the Fingerbank device IDs in the OS matching. `scan.conf` and
+`provisioning.conf` need to be migrated to use the new values. A migration
+script should be run `# [filename]`/usr/local/pf/addons/upgrade/to-6.3-os-rewrite.pl`` to
+migrate the configuration. This will output the migrated configuration in
+`/usr/local/pf/conf/provisioning.conf.new` and
+`/usr/local/pf/conf/scan.conf.new`. First run the script and then validate that
+their content is fine. Once that is done, copy the files over the original ones
+using :
 
-```
+[source,bash]
+----
 # cp /usr/local/pf/conf/provisioning.conf.new /usr/local/pf/conf/provisioning.conf
 # cp /usr/local/pf/conf/scan.conf.new /usr/local/pf/conf/scan.conf
 # /usr/local/pf/bin/pfcmd configreload hard
-```
+----
 
 ==== Fingerbank database moving to MySQL (optionnal but highly suggested)
 
 
-The Fingerbank database can now be hosted in the same MySQL database PacketFence uses.
+The Fingerbank database can now be hosted in the same MySQL database PacketFence
+uses.
 
-In order to do so, you need to collect the database credentials from the PacketFence configuration:
+In order to do so, you need to collect the database credentials from the
+PacketFence configuration:
 
-```
+[source, bash]
+----
 # /usr/local/pf/bin/pfcmd pfconfig show resource::Database
 $VAR1 = {
           'pass' => 'myPassword',
@@ -950,19 +1193,23 @@ $VAR1 = {
           'port' => '3306',
           'host' => 'localhost'
         };
-```
+----
 
-Now, you need to create the database and assign the proper rights to the user by executing the following commands:
+Now, you need to create the database and assign the proper rights to the user by
+executing the following commands:
 
-```
+[srouce,bash]
+----
 # mysql -u root -p -e "CREATE DATABASE pf_fingerbank"
 # mysql -u root -p -e "GRANT ALL PRIVILEGES ON pf_fingerbank.* TO 'pf'@'%' IDENTIFIED BY 'myPassword'"
 # mysql -u root -p -e "GRANT ALL PRIVILEGES ON pf_fingerbank.* TO 'pf'@'localhost' IDENTIFIED BY 'myPassword'"
-```
+----
 
-Replace `myPassword` by the password displayed (`pass`) when running the first command.
+Replace `myPassword` by the password displayed (`pass`) when running the first
+command.
 
-Next, head to 'Configuration->Fingerbank Settings' in the web administration interface and configure the following parameters:
+Next, head to 'Configuration->Fingerbank Settings' in the web administration
+interface and configure the following parameters:
 
  * MySQL host : set this to the value of `host` you got from running the command above.
  * MySQL port : set this to the value of `port` you got from running the command above.
@@ -970,40 +1217,51 @@ Next, head to 'Configuration->Fingerbank Settings' in the web administration int
  * MySQL password : set this to the value of `pass` you got from running the command above.
  * MySQL database : set this to `pf_fingerbank`.
  
-After saving those new parameters, at the top of the same page, click 'Initialize MySQL database' to start the import process. Once that is completed, you will receive an e-mail to the one configured for alerting and PacketFence will start using the MySQL backend for the Fingerbank database.
+After saving those new parameters, at the top of the same page, click
+'Initialize MySQL database' to start the import process. Once that is completed,
+you will receive an e-mail to the one configured for alerting and PacketFence
+will start using the MySQL backend for the Fingerbank database.
 
-=== Upgrading from a version prior to 6.4.0
+=== Upgrading from a version prior to 6.4
 
 
 ==== Database schema updates
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.3 schema to 6.4.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.3
+schema to 6.4.
 
 To upgrade the database schema, run the following command: 
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.3.0-6.4.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.3-6.4.0.sql`
 
 
 ==== Changes to web authentication configuration
 
 
-Rework of the external captive portal capabilities involves some significant changes in the switch modules configuration.
-Some switch modules have been moved to other ones and some others have been removed. Please adjust the configuration (type) accordingly within switches.conf.
+Rework of the external captive portal capabilities involves some significant
+changes in the switch modules configuration.
+Some switch modules have been moved to other ones and some others have been
+removed. Please adjust the configuration (type) accordingly within
+switches.conf.
 
  * AeroHIVE::AP_http -> AeroHIVE::AP
  * Meraki::AP_http -> Meraki::MR
  * Meraki::AP_http_V2 -> Meraki::MR_v2
  * Xirrus:AP_http -> Xirrus
 
-To instruct a switch module to perform external captive portal enforcement, a new switch configuration parameter have been added. Make sure to adjust the following parameter to your needs in switches.conf
+To instruct a switch module to perform external captive portal enforcement, a
+new switch configuration parameter have been added. Make sure to adjust the
+following parameter to your needs in switches.conf
 
-```
+----
 ExternalPortalEnforcement = Y
-```
+----
 
-External captive portal URLs have also changed. Change them accordingly depending on the type of equipment you use:
+External captive portal URLs have also changed. Change them accordingly
+depending on the type of equipment you use:
 
  * AeroHIVE: http://portal_IP/AeroHIVE::AP
  * Aruba: http://portal_IP/Aruba
@@ -1014,97 +1272,129 @@ External captive portal URLs have also changed. Change them accordingly dependin
  * Ruckus: http://portal_IP/Ruckus
  * Xirrus: http://portal_IP/Xirrus
 
-Where portal_ip is the IP Address (or DNS name) of your captive portal as it was configured before
+Where portal_ip is the IP Address (or DNS name) of your captive portal as it was
+configured before
 
 
 ==== Changes to default cronjob
 
 
-Upon PacketFence installation, a default cronjob will be in /etc/cron.d/. You should make sure you do not invoke the /usr/local/pf/addons/backup-and-maintenance.sh
+Upon PacketFence installation, a default cronjob will be in /etc/cron.d/. You
+should ensure you do not invoke the
+[filename]`/usr/local/pf/addons/backup-and-maintenance.sh`
 script from any other cronjob.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.4.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 6.4).
 
 
-=== Upgrading from a version prior to 6.5.0
+=== Upgrading from a version prior to 6.5
 
 
 ==== Database schema updates
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.4 schema to 6.5.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.4
+schema to 6.5.
 
 To upgrade the database schema, run the following command: 
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.4.0-6.5.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.4-6.5.0.sql`
 
 
 ==== Custom code warning
 
 
-The method signature of pf::node::node_register has been modified. Make sure you adjust any custom code / external scripts to handle the new returned values.
+The method signature of pf::node::node_register has been modified. Make sure you
+adjust any custom code / external scripts to handle the new returned values.
 
 ==== Switches Configuration
 
-You must rename "controllerPort" to "disconnectPort" in your switches.conf configuration file. You can automate this using:
+You must rename "controllerPort" to "disconnectPort" in your switches.conf
+configuration file. You can automate this using:
 
   cd /usr/local/pf
   find . -name "switches.conf" -exec sed -i "s/controllerPort/disconnectPort/g" '{}' \;
 
 ==== Eduroam
 
-Eduroam authentication source is now an "exclusive" authentication source rather than an "external" one. That being said, make sure to adjust portal profile accordingly (an "exclusive" authentication source can be the only one configured in a portal profile).
+Eduroam authentication source is now an "exclusive" authentication source rather
+than an "external" one. That being said, ensure to adjust portal profile
+accordingly (an "exclusive" authentication source can be the only one configured
+in a portal profile).
 
 ==== Improved Logging
 
-In order to be sure all your logging facilities use the new logging backend which ensures the processes will not die in case of a logging failure, you must execute the following command:
+In order to be sure all your logging facilities use the new logging backend
+which ensures the processes will not die in case of a logging failure, you must
+execute the following command:
 
   cd /usr/local/pf
-  find conf/log.conf.d/ -type f -exec sed -i.bak "s/Log::Log4perl::Appender::File/pf::log::FileAppender/g" {} \; ; find conf/log.conf.d/ -name '*.bak' -delete
+  find conf/log.conf.d/ -type f -exec sed -i.bak
+  "s/Log::Log4perl::Appender::File/pf::log::FileAppender/g" {} \; ; find
+  conf/log.conf.d/ -name '*.bak' -delete
 
 ==== Email templates
 
 
-The email templates have been moved from /usr/local/pf/conf/emails/ to /usr/local/pf/html/captive-portal/templates/emails/ as they are now configurable by portal profile. Also you can configure the language in which PacketFence should send emails to the administrator in the Advanced section of the configuration.
+The email templates have been moved from [filename]`/usr/local/pf/conf/emails/` to
+[filename]`/usr/local/pf/html/captive-portal/templates/emails/` as they are now configurable
+by portal profile. Also you can configure the language in which PacketFence
+should send emails to the administrator in the Advanced section of the
+configuration.
 
 Make sure you run the following command after upgrading:
 
-  /usr/local/pf/bin/pfcmd cache configfiles clear
+  [filename]`/usr/local/pf/bin/pfcmd` cache configfiles clear
 
 ==== Violations
 
-When whitelisting roles in a violation, the registration role will now match unregistered devices where before it would never match. Make sure to go through violations that may include this role to make sure it is relevant.
+When whitelisting roles in a violation, the registration role will now match
+unregistered devices where before it would never match. Make sure to go through
+violations that may include this role to ensure it is relevant.
 
 ==== Database schema updates
 
-The "configfile" and "traplog" database tables are now deprecated. If you wish to reclaim the disk space used by those two database tables, they should be manually removed.
+The "configfile" and "traplog" database tables are now deprecated. If you wish
+to reclaim the disk space used by those two database tables, they should be
+manually removed.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.5.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 6.5).
 
 
 ==== Default RoleMap for the switches
 
 
-If you were using the default 'RoleMap = Y' in the conf/switches.conf it's disabled by default now. You will need to put 'RoleMap = Y' under your switches or switch group configuration.
+If you were using the default 'RoleMap = Y' in the conf/switches.conf it's
+disabled by default now. You will need to put 'RoleMap = Y' under your switches
+or switch group configuration.
 
-=== Upgrading from a version prior to 7.0.0
+=== Upgrading from a version prior to 7.0
 
 
-NOTE: You cannot upgrade from CentOS 6 or Debian Wheezy to PacketFence 7.0 and above
+NOTE: You cannot upgrade from CentOS 6 or Debian Wheezy to PacketFence 7.0 and
+above
 
 ==== Debian upgrade
 
 
-The requirement for MariaDB 10.1 means that a simple "apt upgrade" will not be enough.
-You will need to help apt through the upgrade by manually removing some packages and installing some others.
+The requirement for MariaDB 10.1 means that a simple "apt upgrade" will not be
+enough.
+You will need to help apt through the upgrade by manually removing some packages
+and installing some others.
 The need to ensure you have backups cannot be overstated.
 
 Make sure the apt database is up to date
 
     apt update
 
-Remove the MySQL 5.5 packages (do not purge them, as that would delete the database)
+Remove the MySQL 5.5 packages (do not purge them, as that would delete the
+database)
 
     dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
 
@@ -1116,14 +1406,17 @@ Finally, upgrade the rest of the packages
 
     apt full-upgrade
 
-Note that "full-upgrade" may also affect other packages you might have installed on the system if you had other software than PacketFence on it.
+Note that "full-upgrade" may also affect other packages you might have installed
+on the system if you had other software than PacketFence on it.
 
 ==== MariaDB upgrade (CentOS + RHEL only)
 
 
-Upgrading to PacketFence 7+ will install a more recent version of MariaDB than the one that is shipped with CentOS.
+Upgrading to PacketFence 7+ will install a more recent version of MariaDB than
+the one that is shipped with CentOS.
 
-In order to upgrade the MariaDB metadata files and tables, first stop any started process.
+In order to upgrade the MariaDB metadata files and tables, first stop any
+started process.
 
   systemctl stop mariadb
   systemctl stop packetfence-mariadb
@@ -1138,11 +1431,13 @@ Then, execute the upgrade script and enter the root password when prompted
 
   mysql_upgrade -u root -p
 
-When done, kill the mysqld_safe process we started before the update, reattach to it and wait for it to exit
+When done, kill the mysqld_safe process we started before the update, reattach
+to it and wait for it to exit
 
   kill %1 && fg
 
-Note that it might take up to a few minutes for the process to exit depending on the size of your database.
+Note that it might take up to a few minutes for the process to exit depending on
+the size of your database.
 
 Once done, restart the MariaDB service (managed by PacketFence)
 
@@ -1151,25 +1446,33 @@ Once done, restart the MariaDB service (managed by PacketFence)
 ==== Database schema update (all Linux distributions)
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.5
+schema to 7.0.
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.5-7.0.0.sql`
 
 ==== Systemd integration
 
 
-All PacketFence services are managed individually via systemd unit files instead of one unit file (`packetfence.service`). When you updated the PacketFence package, it already set the system target to `packetfence.target`.
+All PacketFence services are managed individually via systemd unit files instead
+of one unit file (`packetfence.service`). When you updated the PacketFence
+package, it already set the system target to `packetfence.target`.
 
-If you are hosting the MySQL/MariaDB service on your PacketFence servers (it is by default), you should now manage the service via `packetfence-mariadb.service` instead of `mariadb.service`.
+If you are hosting the MySQL/MariaDB service on your PacketFence servers (it is
+by default), you must now manage the service via `packetfence-mariadb.service`
+instead of `mariadb.service`.
 The changes in the server startup will be done automatically by the packaging.
 
 ==== Admin roles configuration
 
 
-Given the portal profiles have now been renamed to connection profiles, you need to make sure any admin role that allowed portal profile Create/Read/Update/Delete operations is updated to be valid for connection profiles.
+Given the portal profiles have now been renamed to connection profiles, you need
+to ensure any admin role that allowed portal profile Create/Read/Update/Delete
+operations is updated to be valid for connection profiles.
 
   cd /usr/local/pf
   sed -i "s/PORTAL_PROFILE/CONNECTION_PROFILE/g" conf/adminroles.conf
@@ -1177,25 +1480,30 @@ Given the portal profiles have now been renamed to connection profiles, you need
 ==== PacketFence configuration
 
 
-Multiple parameters inside `pf.conf` have been renamed for better clarity. Execute the following in order to migrate the parameters.
+Multiple parameters inside `pf.conf` have been renamed for better clarity.
+Execute the following to migrate the parameters.
 
-  /usr/local/pf/addons/upgrade/to-7.0-pf-conf-changes.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-7.0-pf-conf-changes.pl`
 
 ==== Maintenance configuration
 
 
-Maintenance related configuration for pfmon has been moved to a dedicated configuration file (`/usr/local/pf/conf/pfmon.conf`).
+Maintenance related configuration for pfmon has been moved to a dedicated
+configuration file (`/usr/local/pf/conf/pfmon.conf`).
 
-In order to migrate your settings from `pf.conf` to `pfmon.conf`, run the following script:
+In order to migrate your settings from `pf.conf` to `pfmon.conf`, run the
+following script:
 
-  /usr/local/pf/addons/upgrade/to-7.0-pf.conf-to-pfmon.conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-7.0-pf.conf-to-pfmon.conf.pl`
 
 ==== DHCP filters configuration
 
 
-Minor changes were made to the DHCP filters configuration (`/usr/local/pf/conf/dhcp_filters.conf`).
+Minor changes were made to the DHCP filters configuration
+(`/usr/local/pf/conf/dhcp_filters.conf`).
 
-First, the `computer_name` attribute was renamed to `computername` to be consistent with the rest of the application.
+First, the `computer_name` attribute was renamed to `computername` to be
+consistent with the rest of the application.
 Then, the `DhcpFingerbank` scope was changed to `Fingerbank`
 
 In order to rename those in an automated way:
@@ -1207,23 +1515,31 @@ In order to rename those in an automated way:
 ==== Roles configuration
 
 
-The source of truth for roles is now in a configuration file (`/usr/local/pf/conf/roles.conf`) instead of being in the database. In order to pull the existing roles from your database into the configuration file, execute the following command:
+The source of truth for roles is now in a configuration file
+(`/usr/local/pf/conf/roles.conf`) instead of being in the database. In order to
+pull the existing roles from your database into the configuration file, execute
+the following command:
 
-  /usr/local/pf/addons/upgrade/to-7.0-roles-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-7.0-roles-conf.pl`
 
-NOTE: The roles still exist in the database like before (node_category table), but their source of truth is now in the configuration file. Should you remove a role manually from `roles.conf`, it will *not* be removed from the database unless you manually go delete it from the database.
+NOTE: The roles still exist in the database like before (node_category table),
+but their source of truth is now in the configuration file. Should you remove a
+role manually from `roles.conf`, it will *not* be removed from the database
+unless you manually go delete it from the database.
 
 ==== pfdetect configuration
 
 
-New parameters have been introduced in `conf/pfdetect.conf`. Run the following script to migrate your configuration.
+New parameters have been introduced in `conf/pfdetect.conf`. Run the following
+script to migrate your configuration.
 
-  /usr/local/pf/addons/upgrade/to-7.0-pfdetect-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-7.0-pfdetect-conf.pl`
 
 ==== LinkedIn Source changes
 
 
-If you are using the LinkedIn OAuth2 source, a change has been made on their API, thus you will need to do the following:
+If you are using the LinkedIn OAuth2 source, a change has been made on their
+API, thus you will need to do the following:
 
   cd /usr/local/pf
   sed -i "s/uas\/oauth2/oauth\/v2/g" conf/authentication.conf
@@ -1232,9 +1548,14 @@ If you are using the LinkedIn OAuth2 source, a change has been made on their API
 ==== Logging service
 
 
-Since all logging now goes through rsyslog, if you had edited the logging configuration (e.g. to forward logs to a centralized syslog server) make sure that the new logging rules in `/etc/rsyslog.d/packetfence.conf` do not conflict with your changes.
+Since all logging now goes through rsyslog, if you had edited the logging
+configuration (e.g. to forward logs to a centralized syslog server) ensure that
+the new logging rules in `/etc/rsyslog.d/packetfence.conf` do not conflict with
+your changes.
 
-Take a look at `/usr/local/pf/conf/log.conf` and `/usr/local/pf/conf/log.conf.d/*` for the detailed configuration of the PacketFence services.
+Take a look at `/usr/local/pf/conf/log.conf` and
+`/usr/local/pf/conf/log.conf.d/*` for the detailed configuration of the
+PacketFence services.
 
 ==== Redis Queue
 
@@ -1249,30 +1570,45 @@ Clear the redis queue to avoid old stale jobs from being processes.
 ==== SSL certificates
 
 
-Given that haproxy is now the termination point for the captive portal, any SSL configuration you have in `/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf` needs to be ported so that it works with haproxy.
+Given that haproxy is now the termination point for the captive portal, any SSL
+configuration you have in
+`/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf` must be ported so that
+it works with haproxy.
 
-Easiest solution is to bundle your server cert, your intermediates (if any) along with the key in the default file used by the PacketFence haproxy process (`/usr/local/pf/conf/ssl/server.pem`)
+Easiest solution is to bundle your server cert, your intermediates (if any)
+along with the key in the default file used by the PacketFence haproxy process
+(`/usr/local/pf/conf/ssl/server.pem`)
 
 In order to do so:
 
   # cd /usr/local/pf/
-  # cat /path/to/your/server.crt /path/to/your/intermediates.crt /path/to/your/server.key > /usr/local/pf/conf/ssl/server.pem
+  # cat /path/to/your/server.crt /path/to/your/intermediates.crt
+  /path/to/your/server.key > [filename]`/usr/local/pf/conf/ssl/server.pem`
 
 ==== Running 7.0+ in a cluster
 
 
-A complete re-visit of the database clustering stack was done in version 7.0. If you run your PacketFence installation in a cluster, make sure you read the following section.
+A complete re-visit of the database clustering stack was done in version 7.0. If
+you run your PacketFence installation in a cluster, ensure you read the
+following section.
 
 ==== Active/Active clusters with Active/Passive DB (default before 7.0)
 
-We highly suggest you migrate your existing clustered installation using Corosync/Pacemaker to the new cluster stack of PacketFence that uses MariaDB Galera cluster.
-The easiest way to perform this is to build new servers and port your configuration (by copying the configuration files) and your database (using mysqldump).
-There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is not covered in this guide.
+We highly suggest you migrate your existing clustered installation using
+Corosync/Pacemaker to the new cluster stack of PacketFence that uses MariaDB
+Galera cluster.
+The easiest way to perform this is to build new servers and port your
+configuration (by copying the configuration files) and your database (using
+mysqldump).
+There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is
+not covered in this guide.
 
 ===== Corosync adjustment
 
-Note that you can safely keep your existing 2-node cluster with Corosync/Pacemaker in place and things will work like before.
-You will simply have to adjust your Corosync configuration so that MariaDB points to the packetfence-mariadb file instead of the mariadb unit.
+Note that you can safely keep your existing 2-node cluster with
+Corosync/Pacemaker in place and things will work like before.
+You will simply have to adjust your Corosync configuration so that MariaDB
+points to the packetfence-mariadb file instead of the mariadb unit.
 
   primitive MariaDB systemd:packetfence-mariadb \
           op start timeout=60s interval=0 \
@@ -1281,16 +1617,20 @@ You will simply have to adjust your Corosync configuration so that MariaDB point
 
 ===== Disabling Galera cluster
 
-You must then disable the MariaDB Galera cluster as a replication mechanism as you will still be using DRBD. In order to do so, add the following in `/usr/local/pf/conf/pf.conf`
+You must then disable the MariaDB Galera cluster as a replication mechanism as
+you will still be using DRBD. In order to do so, add the following in
+`/usr/local/pf/conf/pf.conf`
 
   [active_active]
   galera_replication=disabled
 
 ===== IP address bind
 
-You must also instruct packetfence-mariadb to bind to the management IP address of the server manually.
+You must also instruct packetfence-mariadb to bind to the management IP address
+of the server manually.
 
-In order to do so, replace the following section in `/usr/local/pf/conf/mariadb/mariadb.conf.tt`:
+In order to do so, replace the following section in
+`/usr/local/pf/conf/mariadb/mariadb.conf.tt`:
 
   [% IF server_ip.length %]
   bind-address=[% server_ip %]
@@ -1306,7 +1646,8 @@ Where 1.2.3.4 is the management IP address of the server.
 
 ===== Disable packetfence-mariadb on boot
 
-Like in previous versions where mariadb shouldn't have been started on boot, now you must ensure its replacement (packetfence-mariadb) doesn't start on boot.
+Like in previous versions where mariadb shouldn't have been started on boot, now
+you must ensure its replacement (packetfence-mariadb) doesn't start on boot.
 
   systemctl disable packetfence-mariadb
 
@@ -1323,17 +1664,32 @@ No changes to your clustering stack is required when using an external database.
 ==== Active/Passive clusters
 
 
-CAUTION: You shouldn't be running active/passive clusters anymore. If you do, you're pretty much on your own for community support. Inverse provides professionnal services to help you maintain these clusters. If you intend to keep an active/passive cluster, we suggest you have deep knowledge of Corosync/Pacemaker and strong Linux skills.
+CAUTION: You shouldn't be running active/passive clusters anymore. If you do,
+you're pretty much on your own for community support. Inverse provides
+professionnal services to help you maintain these clusters. If you intend to
+keep an active/passive cluster, we suggest you have deep knowledge of
+Corosync/Pacemaker and strong Linux skills.
 
-First, no changes are required to your database stack as MariaDB supports being deployed in Active/Passive.
+First, no changes are required to your database stack as MariaDB supports being
+deployed in Active/Passive.
 
-You will need to adjust the Corosync/Pacemaker configuration to take in consideration the changes made to systemd for PacketFence services. Before 7.0, PacketFence used to be controlled via a single systemd unit file while now it uses a multiple services grouped in targets. In order to mimic the single service behavior that was in previous versions, a unit file is provided here: https://github.com/inverse-inc/packetfence/blob/devel/packetfence-active-passive.service. You should install this file in `/etc/systemd/system/packetfence.service` and make sure there are no other leftovers of `packetfence.service` unit files on your system.
+You will need to adjust the Corosync/Pacemaker configuration to take in
+consideration the changes made to systemd for PacketFence services. Before 7.0,
+PacketFence used to be controlled via a single systemd unit file while now it
+uses a multiple services grouped in targets. In order to mimic the single
+service behavior that was in previous versions, a unit file is provided here:
+https://github.com/inverse-inc/packetfence/blob/devel/packetfence-active-passive.service.
+You should install this file in `/etc/systemd/system/packetfence.service` and
+ensure there are no other leftovers of `packetfence.service` unit files on your
+system.
 
-Then, you must adjust the systemd default target so PacketFence doesn't start on boot and note that this should be done on every future upgrade of your system.
+Then, you must adjust the systemd default target so PacketFence doesn't start on
+boot and note that this should be done on every future upgrade of your system.
 
   # systemctl set-default multi-user.target
 
-You should then change your Corosync configuration for MariaDB and PacketFence to the following:
+You should then change your Corosync configuration for MariaDB and PacketFence
+to the following:
 
   primitive MariaDB systemd:packetfence-mariadb \
           op start timeout=60s interval=0 \
@@ -1344,65 +1700,76 @@ You should then change your Corosync configuration for MariaDB and PacketFence t
           op stop timeout=300s interval=0 \
           op monitor interval=300s timeout=300s
 
-=== Upgrading from a version prior to 7.1.0
+=== Upgrading from a version prior to 7.1
 
 
 ==== Multiple DNS servers per domain
 
 
-The PacketFence Active Directory Domains integration now supports multiple DNS servers to be specified to find a DC. For this reason the parameter dns_server has been renamed to dns_servers in domain.conf. In order to automatically rename the parameters, run the following command:
+The PacketFence Active Directory Domains integration now supports multiple DNS
+servers to be specified to find a DC. For this reason the parameter dns_server
+has been renamed to dns_servers in domain.conf. In order to automatically rename
+the parameters, run the following command:
 
-    sed -i.bak "s/^dns_server/dns_servers/g" /usr/local/pf/conf/domain.conf
+    sed -i.bak "s/^dns_server/dns_servers/g" [filename]`/usr/local/pf/conf/domain.conf`
 
 ==== Add default values to new auth source parameters
 
 
-    /usr/local/pf/addons/upgrade/to-7.1-authentication-conf.pl
+    [filename]`/usr/local/pf/addons/upgrade/to-7.1-authentication-conf.pl`
 
 ==== Fix the Ubiquiti typo
 
 
-In order to use the Ubiquiti switch module that has been renamed, run the following command:
+In order to use the Ubiquiti switch module that has been renamed, run the
+following command:
 
-    sed -i.bak "s/Ubiquity/Ubiquiti/g" /usr/local/pf/conf/switches.conf
+    sed -i.bak "s/Ubiquity/Ubiquiti/g" [filename]`/usr/local/pf/conf/switches.conf`
 
 ==== Instagram source changes
 
 
-Due to a change in the API of Instagram please change the scope if you are using an Instagram OAuth2 source. Replace 'scope=email' by 'scope=basic' in conf/authentication.conf under the section '[Instagram Source]'.
+Due to a change in the API of Instagram please change the scope if you are using
+an Instagram OAuth2 source. Replace 'scope=email' by 'scope=basic' in
+conf/authentication.conf under the section '[Instagram Source]'.
 
 ==== Database schema update (all Linux distributions)
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 7.0 schema to 7.1.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.0
+schema to 7.1.
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.0.0-7.1.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.0-7.1.0.sql`
 
 
-=== Upgrading from a version prior to 7.2.0
+=== Upgrading from a version prior to 7.2
 
 
 ==== Ability to «pin» a domain DC
 
 
-PacketFence is now able to instruct Samba to «pin» a DC for authentication or use all of them.
-You should instruct Samba to connect to all domain controllers by adding the following to each of your domains in domain.conf:
+PacketFence is now able to instruct Samba to «pin» a DC for authentication or
+use all of them.
+You should instruct Samba to connect to all domain controllers by adding the
+following to each of your domains in domain.conf:
 
   sticky_dc=*
 
 And then regenerate the domain configuration:
 
-  /usr/local/pf/bin/pfcmd fixpermissions
-  /usr/local/pf/bin/pfcmd configreload hard
-  /usr/local/pf/bin/pfcmd generatedomainconfig
+  [filename]`/usr/local/pf/bin/pfcmd` fixpermissions
+  [filename]`/usr/local/pf/bin/pfcmd` configreload hard
+  [filename]`/usr/local/pf/bin/pfcmd` generatedomainconfig
 
 ==== Change to sponsor CC address
 
 
-The CC address for sponsors is now BCC. In order to adjust the configuration, execute the following:
+The CC address for sponsors is now BCC. In order to adjust the configuration,
+execute the following:
 
   cd /usr/local/pf
   sed -i "s/sponsorship_cc/sponsorship_bcc/g" conf/authentication.conf
@@ -1410,72 +1777,89 @@ The CC address for sponsors is now BCC. In order to adjust the configuration, ex
 ==== Changes to authentication sources codebase
 
 
-Any custom authentication sources forms and templates would need to be copied to the new location.
+Any custom authentication sources forms and templates would need to be copied to
+the new location.
 
 Templates
-/usr/local/pf/html/pfappserver/root/authentication/source/type/ -> /usr/local/pf/html/pfappserver/root/config/source/type/
+[filename]`/usr/local/pf/html/pfappserver/root/authentication/source/type/` ->
+[filename]`/usr/local/pf/html/pfappserver/root/config/source/type/`
 
 Forms
-/usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source ->
+/usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source
+->
 /usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Source
 
 
 ==== Database schema update (all Linux distributions)
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 7.1 schema to 7.2.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.1
+schema to 7.2.
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.1.0-7.2.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.1-7.2.0.sql`
 
-=== Upgrading from a version prior to 7.3.0
+=== Upgrading from a version prior to 7.3
 
 
 ==== Device Registration
 
 
-You will need to remove anything related to [device_registration] in the conf/pf.conf file.
-Once done, you will need to reconfigure any device registration policy using the following instructions: https://packetfence.org/doc/PacketFence_Installation_Guide.html#_devices_registration
+You will need to remove anything related to [device_registration] in the
+conf/pf.conf file.
+Once done, you will need to reconfigure any device registration policy using the
+following instructions:
+https://packetfence.org/doc/PacketFence_Installation_Guide.html#_devices_registration
 
 ==== Changes to `authentication.conf` and `domain.conf` regarding realms and source matching
 
 
 You have to run the following script to change the configuration:
 
-  /usr/local/pf/addons/upgrade/to-7.3-authentication-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-7.3-authentication-conf.pl`
 
 ==== MariaDB database read-only mode
 
 
-There was, in some cases, an issue where the database cluster was put in a read-only mode which then prevent it to comes back gracefully.
+There was, in some cases, an issue where the database cluster was put in a
+read-only mode which then prevent it to comes back gracefully.
 
-A modification have been made to now use the wsrep_ready state of the DB as a read only indicator. Therefore, PacketFence will stop putting the DB in read only on quorum + primary loss of MariaDB and trust wsrep_ready instead
+A modification have been made to now use the wsrep_ready state of the DB as a
+read only indicator. Therefore, PacketFence will stop putting the DB in read
+only on quorum + primary loss of MariaDB and trust wsrep_ready instead
 
-Ensure you merge changes in the galera section of `conf/mariadb/mariadb.conf.tt.rpmnew` into `conf/mariadb/mariadb.conf.tt`
+Ensure you merge changes in the galera section of
+`conf/mariadb/mariadb.conf.tt.rpmnew` into `conf/mariadb/mariadb.conf.tt`
 
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 7.3.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 7.3).
 
 
 ==== Database schema update (all Linux distributions)
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 7.2 schema to 7.3.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.2
+schema to 7.3.
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.2.0-7.3.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.2-7.3.0.sql`
 
-=== Upgrading from a version prior to 7.4.0
+=== Upgrading from a version prior to 7.4
 
 
 ==== New LinkedIn domain list
 
 
-If you use social login with LinkedIn OAuth2, you will need to adjust the list of domains that are passthroughs in the LinkedIn source.
+If you use social login with LinkedIn OAuth2, you will need to adjust the list
+of domains that are passthroughs in the LinkedIn source.
 
 For all your LinkedIn sources, change the domains to:
 
@@ -1484,62 +1868,75 @@ For all your LinkedIn sources, change the domains to:
 ==== Portal redirection timer
 
 
-The redirection timer configuration (length of the timer bar at the end of the portal) has been moved from the fencing section to the captive_portal section. More precisely, it has moved from `fencing.redirtimer` to `captive_portal.network_redirect_delay`.
+The redirection timer configuration (length of the timer bar at the end of the
+portal) has been moved from the fencing section to the captive_portal section.
+More precisely, it has moved from `fencing.redirtimer` to
+`captive_portal.network_redirect_delay`.
 
 ==== Database schema update (all Linux distributions)
 
 
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 7.3 schema to 7.4.
+Changes have been made to the database schema. You will need to update it
+accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.3
+schema to 7.4.
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.3.0-7.4.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.3-7.4.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 7.4.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
+release number (PacketFence 7.4).
 
-=== Upgrading from a version prior to 8.0.0
+=== Upgrading from a version prior to 8.0
 
 
 ==== Realms upgrade
 
 
-The way PacketFence detects if the realm is stripped out of the username when performing authentication and authorisation has been moved to the realms. Moreover, it is now configurable based on the context (login on the captive portal or administration interface, as well as when performing authorization in RADIUS 802.1x)
+The way PacketFence detects if the realm is stripped out of the username when
+performing authentication and authorisation has been moved to the realms.
+Moreover, it is now configurable based on the context (login on the captive
+portal or administration interface, as well as when performing authorization in
+RADIUS 802.1x)
 
-In order to migrate the configuration, use the following script to help guide you through the migration:
+In order to migrate the configuration, use the following script to help guide
+you through the migration:
 
- /usr/local/pf/addons/upgrade/to-8.0-authentication-conf.pl
+ [filename]`/usr/local/pf/addons/upgrade/to-8.0-authentication-conf.pl`
 
 ==== Fingerbank v2
 
 
 *Device names*
 
-Packetfence now uses Fingerbank v2 for improved device profiling. Since this new version brings new device names, a rename of the current data is necessary.
+Packetfence now uses Fingerbank v2 for improved device profiling. Since this new
+version brings new device names, a rename of the current data is necessary.
 
 Rename the current data:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-8.0-fingerbank-db-data.pl
+[filename]`/usr/local/pf/addons/upgrade/to-8.0-fingerbank-db-data.pl`
 ----
 
 *Mandatory Fingerbank API key*
 
 Fingerbank no longer releases a signature database and now uses an API for device profiling. In order for device profiling to continue working, there must be a Fingerbank API key configured in PacketFence.
 
-In order to do so, you should make sure you have the following in `/usr/local/fingerbank/conf/fingerbank.conf`
+In order to do so, you must ensure you have the following in `/usr/local/fingerbank/conf/fingerbank.conf`
 
 NOTE: In order to request an API key, you can visit the following URL: https://api.fingerbank.org/users/register
 
-```
+----
 [upstream]
 api_key=YOUR_API_KEY_GOES_HERE
-```
+----
 
-WARNING: Fingerbank v1 and v2 *do not* use the same infrastructure. The accounts (API keys) created on fingerbank.inverse.ca before the 8.0 release have been migrated to api.fingerbank.org. Still, you should make sure that you have the correct API key configured in fingerbank.conf by looking at your profile on https://api.fingerbank.org/users/register. If you have a corporate account, then you can safely assume its been migrated, you can email fingerbank@inverse.ca for a confirmation. If you use a Github account and you have tried Fingerbank v2 prior to the PacketFence 8.0 release, *then your API key will be different*. Make sure you update fingerbank.conf in that case.
+WARNING: Fingerbank v1 and v2 *do not* use the same infrastructure. The accounts (API keys) created on fingerbank.inverse.ca before the 8.0 release have been migrated to api.fingerbank.org. Still, you must ensure that you have the correct API key configured in fingerbank.conf by looking at your profile on https://api.fingerbank.org/users/register. If you have a corporate account, then you can safely assume its been migrated, you can email fingerbank@inverse.ca for a confirmation. If you use a Github account and you have tried Fingerbank v2 prior to the PacketFence 8.0 release, *then your API key will be different*. Make sure you update fingerbank.conf in that case.
 
-If you manage a large scale environment, you'll want to make sure your account can perform an unlimited amount of API requests on Fingerbank so that device profiling works correctly in a consistent way. In order to obtain this, contact fingerbank@inverse.ca. Note that most Inverse customers are entitled to free unlimited usage of the Fingerbank Cloud API.
+If you manage a large scale environment, you'll want to ensure your account can perform an unlimited amount of API requests on Fingerbank so that device profiling works correctly in a consistent way. In order to obtain this, contact fingerbank@inverse.ca. Note that most Inverse customers are entitled to free unlimited usage of the Fingerbank Cloud API.
 
 ==== Changes to the default switch roles
 
@@ -1572,7 +1969,7 @@ The $qname parameter need to be removed from dns_filters.conf
 
 In order to do so, execute the following command:
 
-  sed -i -e 's/\$qname//g' /usr/local/pf/conf/dns_filters.conf
+  sed -i -e 's/\$qname//g' [filename]`/usr/local/pf/conf/dns_filters.conf`
 
 ==== Database schema update (all Linux distributions)
 
@@ -1582,18 +1979,19 @@ An SQL upgrade script has been provided to upgrade the database from the 7.4 sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.4.0-8.0.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.4-8.0.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.0.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.0).
 
-=== Upgrading from a version prior to 8.1.0
+=== Upgrading from a version prior to 8.1
 
 
 ==== Changes on unreg_on_accounting_stop parameter
 
 
 The global configuration parameter unreg_on_acct_stop has been moved in the connection profile.
-So if you enabled it then make sure to enable it now in the connection profile.
+So if you enabled it then ensure to enable it now in the connection profile.
 
 
 ==== Database schema update (all Linux distributions)
@@ -1604,18 +2002,19 @@ An SQL upgrade script has been provided to upgrade the database from the 7.4 sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-8.0.0-8.1.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.0-8.1.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.1.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.1).
 
-=== Upgrading from a version prior to 8.2.0
+=== Upgrading from a version prior to 8.2
 
 
 ==== Queue Stats maintenance job removal
 
 The queue_stats maintenance job has been deprecated in favor of using pfstats. In order to remove configuration related to this maintenance job, run:
 
-  /usr/local/pf/addons/upgrade/to-8.2-pfmon-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-8.2-pfmon-conf.pl`
 
 ==== Upgrade pfdetect Perl regex to the go RE2 regex
 
@@ -1624,16 +2023,16 @@ RE2 is mostly is compatiable the Perl regex syntax.
 More information on the RE2 syntax can be found here https://github.com/google/re2/wiki/Syntax.
 To upgrade the regex run:
 
-  /usr/local/pf/addons/upgrade/to-8.2-pfdetect-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-8.2-pfdetect-conf.pl`
 
 Any Perl regex that cannnot be convert will be displayed and should be fixed.
 
 ==== Upgrade realm.conf to be tenant aware
 
 
-The realms are now multi-tenant aware, in order to upgrade your configuration to have the existing realms use the default tenant, execute the following script:
+The realms are now multi-tenant aware, to upgrade your configuration to have the existing realms use the default tenant, execute the following script:
 
-  /usr/local/pf/addons/upgrade/to-8.2-realm-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-8.2-realm-conf.pl`
 
 
 ==== The api_user table has been deprecated
@@ -1650,11 +2049,11 @@ have additional privileges to do that task.
 
 To upgrade the privileges of that user, run the following command:
 
- /usr/local/pf/addons/upgrade/to-8.2-upgrade-pf-privileges.sh
+ [filename]`/usr/local/pf/addons/upgrade/to-8.2-upgrade-pf-privileges.sh`
 
 ==== Update connection_type from WIRED_MAC_AUTH to Ethernet-NoEAP
 
-We merged the WIRED_MAC_AUTH and Ethernet-NoEAP to Ethernet-NoEAP so the configuration needs to be updated, to do that run:
+We merged the WIRED_MAC_AUTH and Ethernet-NoEAP to Ethernet-NoEAP so the configuration must be updated, to do that run:
 
  sed -i "s/WIRED_MAC_AUTH/Ethernet-NoEAP/g" /usr/local/pf/conf/profiles.conf /usr/local/pf/conf/vlan_filters.conf /usr/local/pf/conf/radius_filters.conf /usr/local/pf/conf/switch_filters.conf /usr/local/pf/conf/authentication.conf
 
@@ -1666,11 +2065,12 @@ An SQL upgrade script has been provided to upgrade the database from the 8.1 sch
 
 To upgrade the database schema, run the following command:
 
- mysql -u root -p pf -v < /usr/local/pf/db/upgrade-8.1.0-8.2.0.sql
+ mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.1-8.2.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.2.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.2).
 
-=== Upgrading from a version prior to 8.3.0
+=== Upgrading from a version prior to 8.3
 
 
 ==== Upgrade pf.conf to rename configuration parameters
@@ -1679,7 +2079,7 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 We moved radius_authentication_methods section to radius_configuration and moved all the radius configuration parameters in this new section.
 To upgrade your configuration execute the following script:
 
-  /usr/local/pf/addons/upgrade/to-8.3-rename-pf-conf-parameters.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-8.3-rename-pf-conf-parameters.pl`
 
 
 ==== Upgrade authentication.conf to add searchattributes parameter
@@ -1689,7 +2089,7 @@ We added a new parameter in AD and LDAP authentication sources to be able to do 
 This parameter "searchattributes" need to be added in the existing authentication sources.
 To apply this configuration execute the following script:
 
- /usr/local/pf/addons/upgrade/to-8.3-authentication-searchattributes.pl
+ [filename]`/usr/local/pf/addons/upgrade/to-8.3-authentication-searchattributes.pl`
 
 ==== Adjustment to the encoding of the configuration files and templates
 
@@ -1698,7 +2098,7 @@ Configuration and templates in the admin were previously being saved as latin1 i
 
 This script will convert all latin1 config file to utf8
 
-  /usr/local/pf/addons/upgrade/to-8.3-conf-latin1-to-utf8.sh
+  [filename]`/usr/local/pf/addons/upgrade/to-8.3-conf-latin1-to-utf8.sh`
 
 ==== Database schema
 
@@ -1708,17 +2108,18 @@ An SQL upgrade script has been provided to upgrade the database from the 8.2 sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-8.2.0-8.3.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.2-8.3.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.3.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.3).
 
-=== Upgrading from a version prior to 9.0.0
+=== Upgrading from a version prior to 9.0
 
 
 ==== Support for Debian 8 dropped
 
 
-Debian 8 will not be supported anymore for versions 9.0.0 and above. You should instead use Debian 9 now as it is currently the only supported Debian version.
+Debian 8 will not be supported anymore for versions 9.0 and above. You should instead use Debian 9 now as it is currently the only supported Debian version.
 
 ==== Necessity to use MariaDB
 
@@ -1744,14 +2145,14 @@ the dhcp answer on the fly.
 
 The violations have been renamed to security events. In order to make the appropriate changes in your configuration, execute the following script:
 
-  /usr/local/pf/addons/upgrade/to-9.0-security-events.sh
+  [filename]`/usr/local/pf/addons/upgrade/to-9.0-security-events.sh`
 
 ==== Removed MAC detection setting
 
 
 The MAC detection setting in the switches has been removed. In order to cleanup the switches configuration for the removal of this setting, execute the following script:
 
-  /usr/local/pf/addons/upgrade/to-9.0-remove_mac_detection.sh
+  [filename]`/usr/local/pf/addons/upgrade/to-9.0-remove_mac_detection.sh`
 
 ==== Modifications to accounting cleanup
 
@@ -1775,12 +2176,13 @@ An SQL upgrade script has been provided to upgrade the database from the 8.3 sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-8.3.0-9.0.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.3-9.0.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.0.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.0).
 
 
-=== Upgrading from a version prior to 9.1.0
+=== Upgrading from a version prior to 9.1
 
 
 ==== Now possible to disable a domain
@@ -1788,14 +2190,14 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 
 In order to add the necessary enabled flag to your existing domains, run the following command:
 
-  /usr/local/pf/addons/upgrade/to-9.1-add-domain-conf.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-9.1-add-domain-conf.pl`
 
 ==== pfperl-api port
 
 
-The port of the pfperl-api service has changed, in order to adjust the existing configuration, run the following command:
+The port of the pfperl-api service has changed, to adjust the existing configuration, run the following command:
 
-  /usr/local/pf/addons/upgrade/to-9.1-update-api.conf.sh
+  [filename]`/usr/local/pf/addons/upgrade/to-9.1-update-api.conf.sh`
 
 ==== Linkedin OAuth2
 
@@ -1812,14 +2214,14 @@ The VLAN pool strategy configuration has been moved to the connection profiles.
 
 In order to migrate the current setting of pf.conf into profiles.conf, you will need to run the following command:
 
-	/usr/local/pf/addons/upgrade/to-9.1-move-vlan-pool-technique-parameter.pl
+	[filename]`/usr/local/pf/addons/upgrade/to-9.1-move-vlan-pool-technique-parameter.pl`
 
 ==== Remove Useragent Triggers
 
 
 The useragent and user_agent security event triggers have been deprecated. Performing HTTP User-Agent based detection is extremelly inefficient given the very dynamic nature of HTTP User-Agents. You should instead be using the device trigger which leverages the device profiling performed by Fingerbank. In order to remove any existing useragent trigger, execute the following script:
 
-   /usr/local/pf/addons/upgrade/to-9.1-security-events-remove-useragent.pl
+   [filename]`/usr/local/pf/addons/upgrade/to-9.1-security-events-remove-useragent.pl`
 
 ==== Self service portal
 
@@ -1829,7 +2231,7 @@ In order to migrate your configuration, run the following script:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-9.1-selfservice-conf.pl
+[filename]`/usr/local/pf/addons/upgrade/to-9.1-selfservice-conf.pl`
 ----
 
 ==== Password of the day rotation
@@ -1840,7 +2242,7 @@ In order to migrate your configuration, run the following script:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-9.1-update-potd.pl
+[filename]`/usr/local/pf/addons/upgrade/to-9.1-update-potd.pl`
 ----
 
 
@@ -1852,20 +2254,22 @@ An SQL upgrade script has been provided to upgrade the database from the 9.0 sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.0.0-9.1.0.sql
+  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.0-9.1.0.sql`
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.1.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.1).
 
-=== Upgrading from a version prior to 9.2.0
+=== Upgrading from a version prior to 9.2
 
 
 ==== Merge of all RPM packages into one (RHEL / CentOS only)
 
-NOTE: This step needs to be done *before* packages upgrade.
+NOTE: This step must be done *before* packages upgrade.
 
 Starting from now, PacketFence will be released as an unique RPM package for
 `x86_64` architectures. To remove properly older RPM packages, you need to follow these steps:
 
+[options="compact"]
 . Follow instructions mentioned in <<_stop_all_packetfence_services,Stop all PacketFence services>> section and stop before starting packages upgrades
 . Uninstall old RPM without running post-uninstallation steps:
 +
@@ -1878,6 +2282,7 @@ rpm -e --nodeps --noscripts packetfence-remote-arp-sensor
 ----
 +
 
+[options="compact"]
 . Recopy previous [filename]`pfconfig.conf` filename to its original location:
 +
 [source,bash]
@@ -1886,17 +2291,18 @@ mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
 ----
 +
 
+[options="compact"]
 . Upgrade PacketFence packages by following instructions in <<_packages_upgrades,Packages upgrades>> section for RHEL / CentOS based systems
 . Continue upgrade procedure
 
-At the end of upgrade procedure, you should have only one RPM package called
+At the end of upgrade procedure, you must have only one RPM package called
 [package]`packetfence`. If you previously installed
-[package]`packetfence-release` package in order to have PacketFence repository
+[package]`packetfence-release` package to have PacketFence repository
 installed, this one has been upgraded to latest version.
 
 ==== New GPG key for Debian installations (Debian only)
 
-NOTE: This step needs to be done *before* packages upgrade.
+NOTE: This step must be done *before* packages upgrade.
 
 In order to install new versions of Debian packages, you will need to add a new GPG key to your system:
 
@@ -1920,23 +2326,25 @@ To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.1.0-9.2.0.sql
+mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.1-9.2.0.sql`
 ----
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 9.2.0):
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.2):
 
 [source,bash]
 ----
-cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
+cat [filename]`/usr/local/pf/conf/pf-release` > [filename]`/usr/local/pf/conf/currently-at`
 ----
 
-=== Upgrading from a version prior to 9.3.0
+=== Upgrading from a version prior to 9.3
 
 ==== Execute script action doesn't use sudo anymore
 
 Execute script action in security events doesn't use [command]`sudo` anymore to run scripts.
-Consequently, you should ensure that `pf` user is:
+Consequently, you must ensure that `pf` user is:
 
+[options="compact"]
 * able to read and execute these scripts
 * able to run commands inside these scripts (without `sudo`)
 
@@ -1949,23 +2357,24 @@ To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.2.0-9.3.0.sql
+mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.2-9.3.0.sql`
 ----
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 9.3.0):
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.3):
 
 [source,bash]
 ----
-cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
+cat [filename]`/usr/local/pf/conf/pf-release` > [filename]`/usr/local/pf/conf/currently-at`
 ----
 
-=== Upgrading from a version prior to 10.0.0
+=== Upgrading from a version prior to 10.0
 
 ==== Kernel development package
 
-NOTE: This step needs to be done *before* packages upgrade.
+NOTE: This step must be done *before* packages upgrade.
 
-In this version we need to have the kernel development package that matches your current kernel version in order to build the Netflow kernel module.
+In this version we need to have the kernel development package that matches your current kernel version to build the Netflow kernel module.
 
 ===== RHEL / CentOS based systems
 
@@ -1995,10 +2404,10 @@ apt install linux-headers-$(uname -r)
 ==== Timezone
 
 The timezone set in pf.conf will be set on the operating system every time PacketFence reloads its configuration.
-For this reason, you should review the timezone setting in the general section of pf.conf (System Configuration -> General Configuration in the admin).
+For this reason, you must review the timezone setting in the general section of pf.conf (System Configuration -> General Configuration in the admin).
 If its empty, PacketFence will use the timezone that is already set on the server and you don't have anything to do.
 Otherwise, it will set the timezone in this setting on the operating system layer for consistency which may modify the timezone setting of your operating system.
-In this case you should ensure that you reboot the server after completing all the steps of the upgrade so that the services start with the right timezone.
+In this case you must ensure that you reboot the server after completing all the steps of the upgrade so that the services start with the right timezone.
 
 ==== Tracking configuration service enabled by default
 
@@ -2015,7 +2424,7 @@ PacketFence-pki is deprecated in favour of the new PacketFence PKI written in Go
 If you previously used the PacketFence-pki you will need to migrate from the SQLite database to MariaDB.
 To migrate, be sure that the database is running and the new PKI too and do the following:
 
-  /usr/local/pf/addons/upgrade/to-10.0-packetfence-pki-migrate.pl
+  [filename]`/usr/local/pf/addons/upgrade/to-10.0-packetfence-pki-migrate.pl`
 
 Next edit the PKI providers (Configuration -> PKI Providers) and redefine the profile to use.
 Finally, if you use OCSP then change the URL to use this one:
@@ -2034,14 +2443,14 @@ The file [filename]`/usr/local/pf/conf/currently-at` is no longer needed, it can
 
 [source,bash]
 ----
-rm /usr/local/pf/conf/currently-at
+rm [filename]`/usr/local/pf/conf/currently-at`
 ----
 
 You also need to disable access to configurator by running:
 
 [source,bash]
 ----
-printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf
+printf '\n[advanced]\nconfigurator=disabled\n' >> [filename]`/usr/local/pf/conf/pf.conf`
 ----
 
 ==== Database Privileges
@@ -2051,7 +2460,7 @@ You will be prompted for the MariaDB root password when running this script:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.0-upgrade-pf-privileges.sh
+[filename]`/usr/local/pf/addons/upgrade/to-10.0-upgrade-pf-privileges.sh`
 ----
 
 ==== Filter Engine
@@ -2061,7 +2470,7 @@ This script will convert the old format to the new one:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.0-filter_engines.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.0-filter_engines.pl`
 ----
 
 ==== httpd.admin daemon disabled by default
@@ -2083,10 +2492,10 @@ To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.3.0-10.0.0.sql
+mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.3-10.0.0.sql`
 ----
 
-=== Upgrading from a version prior to 10.1.0
+=== Upgrading from a version prior to 10.1
 
 ==== RADIUS attributes in authentication sources
 
@@ -2095,7 +2504,7 @@ This script will add the prefix:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.1-authentication-prefix.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.1-authentication-prefix.pl`
 ----
 
 ==== Changes in RADIUS configuration for better LDAP support
@@ -2105,7 +2514,7 @@ This script will update your current configuration:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.1-move-radius-configuration-parmeters.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.1-move-radius-configuration-parmeters.pl`
 ----
 
 ==== RADIUS filter templates
@@ -2115,7 +2524,7 @@ This script will update your RADIUS filters to new format:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.1-radius-filter-template.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.1-radius-filter-template.pl`
 ----
 
 ==== New EAP configuration parameter in realm.conf file
@@ -2125,7 +2534,7 @@ This script will add this parameter to your current configuration file:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.1-realm-conf.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.1-realm-conf.pl`
 ----
 
 ==== Status of rules
@@ -2135,7 +2544,7 @@ This script will add the new `status` parameter:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.1-rule-status.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.1-rule-status.pl`
 ----
 
 ==== Support for CoA in Unifi controllers
@@ -2146,34 +2555,34 @@ Make sure you run the latest version of the controller and firmware if you use U
 ==== Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 10.0.0 schema to 10.1.0.
+An SQL upgrade script has been provided to upgrade the database from the 10.0 schema to 10.1.
 
 To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.0.0-10.1.0.sql
+mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-10.0-10.1.0.sql`
 ----
 
-=== Upgrading from a version prior to 10.2.0
+=== Upgrading from a version prior to 10.2
 
 ==== Backup of pfmon.conf (Debian-based systems only)
 
-NOTE: This step needs to be done *before* packages upgrade.
+NOTE: This step must be done *before* packages upgrade.
 
 Debian packages upgrades will remove [filename]`/usr/local/pf/conf/pfmon.conf` file in favor of [filename]`/usr/local/pf/conf/pfcron.conf`.
 In order to keep your configuration in place, you need to make a backup of your `pfmon.conf` file *before* running packages upgrades:
 
 [source,bash]
 ----
-cp /usr/local/pf/conf/pfmon.conf /root/pfmon.conf.rpmsave
+cp [filename]`/usr/local/pf/conf/pfmon.conf` /root/pfmon.conf.rpmsave
 ----
 
 After packages upgrades have been performed, you can move file to its original location:
 
 [source,bash]
 ----
-mv /root/pfmon.conf.rpmsave /usr/local/pf/conf/pfmon.conf.rpmsave
+mv /root/pfmon.conf.rpmsave [filename]`/usr/local/pf/conf/pfmon.conf.rpmsave`
 ----
 
 Configuration will be moved to [filename]`/usr/local/pf/conf/pfcron.conf` file during configuration migration step.
@@ -2182,20 +2591,20 @@ WARNING: `rpmsave` extension is not an error, script `to-10.2-pfmon-maintenance.
 
 ==== Self registration portal
 
-The parameter device_registration_role has been renamed device_registration_roles, in order to apply the change run the following script:
+The parameter device_registration_role has been renamed device_registration_roles, to apply the change run the following script:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.2-selfservice-conf.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.2-selfservice-conf.pl`
 ----
 
-==== Switch type needs to be defined
+==== Switch type must be defined
 
 If switch type was not defined, this script will set it to `Generic`:
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.2-default-switch-packetfence-standard.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.2-default-switch-packetfence-standard.pl`
 ----
 
 ==== Convert the pfmon configuration file to pfcron
@@ -2204,7 +2613,7 @@ Convert the pfmon configuration file to pfcron
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.2-pfmon-maintenance.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.2-pfmon-maintenance.pl`
 ----
 
 ==== Rename PFMON* actions to PFCRON*
@@ -2213,7 +2622,7 @@ Rename PFMON actions to the PFCRON actions
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.2-adminroles-conf.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.2-adminroles-conf.pl`
 ----
 
 ==== Syslog parsers are now tenant aware
@@ -2222,26 +2631,26 @@ Add the tenant_id to pfdetect
 
 [source,bash]
 ----
-/usr/local/pf/addons/upgrade/to-10.2-pfdetect-conf.pl
+[filename]`/usr/local/pf/addons/upgrade/to-10.2-pfdetect-conf.pl`
 ----
 
 ==== Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 10.1.0 schema to 10.2.0.
+An SQL upgrade script has been provided to upgrade the database from the 10.1 schema to 10.2.
 
 To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.1.0-10.2.0.sql
+mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-10.1-10.2.0.sql`
 ----
 
-=== Upgrading from a version prior to 10.3.0
+=== Upgrading from a version prior to 10.3
 
 ==== MariaDB Upgrade to 10.2
 
-NOTE: This step needs to be done *before* packages upgrade.
+NOTE: This step must be done *before* packages upgrade.
 
 PacketFence now depends of the MariaDB version 10.2. In order to upgrade the
 MariaDB version you need to execute the following steps before upgrading
@@ -2251,8 +2660,7 @@ PacketFence.
 
 In order to be able to work on the server, we first need to stop all the
 PacketFence application services on it, see
-<<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
-PacketFence services section>>.
+<<#_stop_all_packetfence_services,Stop all PacketFence services section>>.
 
 Now stop `packetfence-mariadb`:
 
@@ -2273,11 +2681,14 @@ yum install --enablerepo=packetfence MariaDB-server
 .Debian-based systems
 [source,bash]
 ----
-dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
-mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18 mysql-common
+dpkg -r --force-depends mariadb-server mariadb-client-10.1
+mariadb-client-core-10.1 \
+mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+mysql-common
 apt update
 apt install mariadb-server mariadb-client-10.2 mariadb-client-core-10.2 \
-mariadb-common mariadb-server-10.2 mariadb-server-core-10.2 libmariadbclient18 libmariadb3 \
+mariadb-common mariadb-server-10.2 mariadb-server-core-10.2 libmariadbclient18
+libmariadb3 \
 mysql-common
 ----
 
@@ -2343,11 +2754,11 @@ In this procedure, the 3 nodes will be named A, B and C and they are in this ord
 
 ====== Backups
 
-First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using <<PacketFence_Upgrade_Guide.asciidoc#_database_and_configurations_backup,database and configurations backup instructions>>
+First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using <<#_database_and_configurations_backup,database and configurations backup instructions>>
 
 ====== Disabling the auto-correction of configuration
 
-The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
+The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you must disable it.
 
 In order to do so, go in _Configuration->System Configuration->Maintenance_ and disable the _Cluster Check_ task.
 
@@ -2425,11 +2836,11 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
 /usr/local/pf/bin/cluster/node node-B-hostname disable
 ----
 
-The commands above will make sure that nodes A and B will not be forwarding
+The commands above will ensure that nodes A and B will not be forwarding
 requests to C even if it is alive. Same goes for C which won't be sending
 traffic to A and B. This means A and B will continue to have the same database
 informations while C will start to diverge from it when it goes live. We'll
-make sure to reconcile this data afterwards.
+ensure to reconcile this data afterwards.
 
 [NOTE]
 ====
@@ -2455,7 +2866,8 @@ yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 .Debian-based systems
 [source,bash]
 ----
-dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
+dpkg -r --force-depends mariadb-server mariadb-client-10.1
+mariadb-client-core-10.1 \
 mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18 \
 mysql-common
 apt update
@@ -2523,11 +2935,10 @@ Upgrading node C
 
 Next, you can upgrade your operating system and/or PacketFence on node C by
 following instructions of
-<<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
-section>>.
+<<#_upgrade_packages,Packages upgrades section>>.
 
 IMPORTANT: If you are on a RHEL/CentOS based systems, the command to install
-`packetfence-release` released with 10.3.0 version will be:
+`packetfence-release` released with 10.3 version will be:
 
 [source,bash]
 ----
@@ -2546,7 +2957,7 @@ include::../common/maintenance_patches.asciidoc[]
 Configuration migration and database schema updates (on node C)
 ====
 
-Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server **including** the database schema updates.
+Now, ensure you follow the directives in the <<#,upgrade guide>> as you would on a standalone server **including** the database schema updates.
 
 [NOTE]
 ====
@@ -2571,6 +2982,7 @@ Stop services on nodes A and B
 
 Next, stop all application services on node A and B:
 
+[options="compact"]
 * Stop all PacketFence services:
 +
 [source,bash]
@@ -2581,6 +2993,7 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload hard
 /usr/local/pf/bin/pfcmd service pf stop
 ----
+[options="compact"]
 * Stop database:
 +
 [source,bash]
@@ -2623,7 +3036,7 @@ Once you are feeling confident to try your failover to node C again, you can do 
 If all goes well
 ====
 
-If you are happy about the state of your upgrade, you can continue on the steps below in order to complete the upgrade of the two remaining nodes.
+If you are happy about the state of your upgrade, you can continue on the steps below to complete the upgrade of the two remaining nodes.
 
 [NOTE]
 ====
@@ -2642,7 +3055,8 @@ yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 .Debian-based systems
 [source,bash]
 ----
-dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
+dpkg -r --force-depends mariadb-server mariadb-client-10.1
+mariadb-client-core-10.1 \
 mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18 \
 mysql-common
 apt update
@@ -2682,12 +3096,13 @@ At this step you have now the MariaDB 10.2 database ready.
 Optional step: Cleaning up data on node C
 ====
 
-When you will re-establish a cluster using node C in the steps below, your environment will be set in read-only mode for the duration of the database sync (which needs to be done from scratch).
+When you will re-establish a cluster using node C in the steps below, your environment will be set in read-only mode for the duration of the database sync (which must be done from scratch).
 
 This can take from a few minutes to an hour depending on your database size.
 
 We highly suggest you delete data from the following tables if you don't need it:
 
+[options="compact"]
 * `radius_audit_log`: contains the data in _Auditing->RADIUS Audit Logs_
 * `ip4log_history`: Archiving data for the IPv4 history
 * `ip4log_archive`: Archiving data for the IPv4 history
@@ -2751,7 +3166,7 @@ though it is in read-only mode using the MariaDB command line:
 mysql -u root -p pf -h localhost
 ----
 
-If its not, make sure you check the MariaDB log
+If its not, ensure you check the MariaDB log
 ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
 [NOTE]
@@ -2769,7 +3184,7 @@ rm -fr /var/lib/mysql/*
 systemctl start packetfence-mariadb
 ----
 
-Should there be any issues during the sync, make sure you look into the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
+Should there be any issues during the sync, ensure you look into the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
 Once both nodes have completely synced (try connecting to it using the MariaDB
 command line), then you can break the cluster election command you have
@@ -2783,13 +3198,12 @@ Upgrading nodes A and B
 
 Next, you can upgrade your operating system and/or PacketFence on nodes A and B by
 following instructions of
-<<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
-section>>.
+<<#_upgrade_packages,Packages upgrades section>>.
 
 WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
 
 IMPORTANT: If you are on a RHEL/CentOS based systems, the command to install
-`packetfence-release` released with 10.3.0 version will be:
+`packetfence-release` released with 10.3 version will be:
 
 [source,bash]
 ----
@@ -2818,6 +3232,7 @@ You do not need to follow the upgrade procedure when upgrading these nodes. You 
 
 Where:
 
+[options="compact"]
 * `_192.168.1.5_` is the management IP of node C
 * `_packet_` is the webservices username (_Configuration->Webservices_)
 * `_fence_` is the webservices password (_Configuration->Webservices_)
@@ -2849,7 +3264,7 @@ systemctl restart packetfence-config
 
 ====== Restart node C
 
-Now, you should restart PacketFence on node C using following instructions:
+Now, you must restart PacketFence on node C using following instructions:
 
 [source,bash]
 ----
@@ -2866,7 +3281,7 @@ You should now have full service on all 3 nodes using the latest version of Pack
 
 ====== Reactivate the configuration conflict handling
 
-Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
+Now that your cluster is back to a healthy state, you must reactivate the configuration conflict resolution.
 
 In order to do, so go in _Configuration->System Configuration->Maintenance_ and re-enable the _Cluster Check_ task.
 
@@ -2921,13 +3336,13 @@ To add the default `tenant_id` (1) to all network configurations run:
 ==== Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 10.2.0 schema to 10.3.0.
+An SQL upgrade script has been provided to upgrade the database from the 10.2 schema to 10.3.
 
 To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.2.0-10.3.0.sql
+mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-10.2-10.3.0.sql`
 ----
 
 ==== Restart of `packetfence-mariadb` service (standalone installations **only**)
@@ -2946,10 +3361,10 @@ systemctl restart packetfence-mariadb
 
 ==== Specific upgrade
 
-Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in favor of Debian 11 and RHEL 8.
+Starting from PacketFence 11.0, Debian 9 and CentOS 7 support are dropped in favor of Debian 11 and RHEL 8.
 In place upgrades are not supported. Provision new operating system(s) in order to migrate.
 
-To simplify upgrade process to PacketFence 11.0.0 and future versions, we now
+To simplify upgrade process to PacketFence 11.0 and future versions, we now
 rely on an export/import mechanism.
 
 Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
@@ -2986,7 +3401,8 @@ Then perform a full upgrade using following command:
 
 ===== PacketFence version before 10.3.0
 
-. Follow upgrade path to PacketFence 10.3.0
+[options="compact"]
+. Follow upgrade path to PacketFence 10.3
 . Go to next section
 
 ===== PacketFence version 10.3.0 or later
@@ -3047,15 +3463,15 @@ using theses protocols, move to TLS 1.2. If TLS 1.2 is not possible adjust
 
 ==== Automation of upgrades for standalone servers
 
-Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.
 Follow instructions related to
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
-of upgrades>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
 
 ==== Support of custom rules in iptables.conf
 
 PacketFence now provides a way to add custom rules in [filename]`/usr/local/pf/conf/iptables.conf` using two files:
 
+[options="compact"]
 * [filename]`/usr/local/pf/conf/iptables-input.conf.inc` for all input traffic
 * [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` for all input traffic related to management interface
 
@@ -3068,8 +3484,7 @@ PacketFence now allow to enable or disable local authentication for 802.1X direc
 If `packetfence-local-auth` has been previously enabled in
 [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`, we recommend
 enabling this feature in PacketFence web admin (see
-<<PacketFence_Installation_Guide.asciidoc#_eap_local_user_authentication,EAP
-local user authentication>>).
+<<PacketFence_Installation_Guide.asciidoc#_eap_local_user_authentication,EAP local user authentication>>).
 
 
 ==== Support of Monit configuration in pf.conf
@@ -3112,10 +3527,9 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.0-11.1.sql
 
 ==== Automation of upgrades for standalone servers
 
-Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.
 Follow instructions related to
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
-of upgrades>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
 
 ==== Note for cluster upgrades
 

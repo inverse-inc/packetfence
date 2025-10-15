@@ -18,14 +18,18 @@ endif::[]
 
 ===== Monitoring with Netdata Cloud
 
-PacketFence includes Netdata that is pre-installed and configured for most use-cases.
+PacketFence includes Netdata that is pre-installed and configured for most
+use-cases.
 
 The metrics are displayed in 2 separate sections
 
+[options="compact"]
 * Dashboard: This section displays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence.
 * Monitoring: This section displays system metrics collected by Netdata for the local host (standalone), or all hosts in a cluster.
 
-All metrics are retained for a maximum of 28 days. Older metrics are automatically pruned to limit disk usage. To increase the retention rate edit the configuration and restart the service:
+All metrics are retained for a maximum of 28 days. Older metrics are
+automatically pruned to limit disk usage. To increase the retention rate edit
+the configuration and restart the service:
 
 [source,bash]
 ----
@@ -35,10 +39,12 @@ vi /usr/local/pf/conf/monitoring/netdata.conf
     retention = 2419200 # 28 days (seconds)
 ----
 
-
 ====== Dashboard
 
-The dashboard diplays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence. These metrics are common across all cluster members, therefore a complete view is displayed from any host that is a member of the same cluster.
+The dashboard displays the metrics collected by pfstats for the
+unregistration/registration status of all nodes managed by PacketFence. These
+metrics are common across all cluster members, therefore a complete view is
+displayed from any host that is a member of the same cluster.
 
 [#netdata-cloud-dashboard-monitoring]
 [NOTE]
@@ -48,6 +54,7 @@ Monitoring: The monitoring section displays the metrics collected by netdata for
 
 The User Interface (Web Admin) now includes:
 
+[options="compact"]
 * A duration selection that can be used to zoom-in/zoom-out the timeline, up to a maximum of 28 days. If the retention rate is increased, these selections will remain the same.
 * A "Netdata Cloud" button that opens a new window with the Netdata UI. Once launched the user can login anonymously (bottom-right), or the session_id can be used to attach the PacketFence instance to the Netdata Cloud.
 * A zoom-able popup that displays and compares a single metric for all members in the cluster. Click any metric title to open this popup.
@@ -59,9 +66,11 @@ To obtain the local Netdata random session identifier:
 cat /usr/local/pf/var/netdata-lib/netdata_random_session_id
 ----
 
-Once connected to Netdata Cloud, Netdata alerts will be sent to the email address used to register the Netdata Cloud account.
+Once connected to Netdata Cloud, Netdata alerts will be sent to the email
+address used to register the Netdata Cloud account.
 
-To attach all members of a cluster, each member has its own unique session id; where each must be used to login to Netdata Cloud manually.
+To attach all members of a cluster, each member has its own unique session id;
+where each must be used to login to Netdata Cloud manually.
 
 
 ===== Restarting Service

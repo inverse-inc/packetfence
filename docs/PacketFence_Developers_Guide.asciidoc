@@ -1,35 +1,22 @@
-= Developer's Guide
-////
-
-    This file is part of the PacketFence project.
-
-    See includes/global-attributes.asciidoc
-    for authors, copyright and license information.
-
-////
+= PacketFence Developer's Guide
+include::includes/file-header.asciidoc[]
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide will help modify PacketFence to your specific needs and contains information on how to add support for new switches.
+This guide provides technical documentation for customizing and extending
+PacketFence. It covers REST API integration, captive portal theming and
+functionality modifications, SNMP module development, adding support for new
+network equipment, and core application code customizations. Essential for
+integrators, developers extending PacketFence functionality, and organizations
+requiring specialized implementations.
 
-The latest version of this guide is available at https://packetfence.org/documentation/.
+include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
+:current_guide_developers:
+include::includes/other-sources-information.asciidoc[]
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environment.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
-  Covers installation and configuration of PacketFence.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
-  Covers switches, WiFi controllers and access points configuration.
-<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
-https://packetfence.org/news.html[PacketFence News]::
-  Covers noteworthy features, improvements and bug fixes by release.
-
-These files are included in the package and release tarballs.
+include::includes/package-tarballs-note.asciidoc[]
 
 == Creating a new Switch via a Template
 
@@ -93,15 +80,13 @@ include::developer/integration_tests/README.asciidoc[]
 
 include::developer/contributing.asciidoc[]
 
-//TODO: process the rest. I found quickest way to be:
-// paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
 
 // INCLUDES
 
-include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

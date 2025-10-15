@@ -21,6 +21,7 @@ endif::[]
 
 PacketFence supports Amer switches _without VoIP_ using one trap type: 
 
+[options="compact"]
 * linkUp/linkDown 
 
 Don't forget to update the startup config! 

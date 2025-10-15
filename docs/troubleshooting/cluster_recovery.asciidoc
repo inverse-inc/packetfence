@@ -1,0 +1,64 @@
+=== Cluster Database Recovery
+
+==== Cluster offers database service without all nodes
+
+When at least one of the nodes of the cluster is able to offer database
+service, you can apply the following commands on a broken node to rejoin it to
+the cluster:
+
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl stop packetfence-galera-autofix
+rm -fr /var/lib/mysql/*
+systemctl start packetfence-mariadb
+systemctl start packetfence-galera-autofix
+----
+
+This action will not cause service disruption on current cluster.
+
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
+
+==== None of the nodes is offering database service
+
+When there is no more database service in your cluster, you need to do a full recovery.
+
+You must identify the node you wish to keep the data from and start it with the
+`--force-new-cluster` option.
+
+Find the node which has the highest `seqno` value in
+`/var/lib/mysql/grastate.dat`.
+
+If the `seqno` value is `-1`, you need to start MariaDB manually with
+`--wsrep-recover` to update the `seqno` value using the commands below:
+
+[source,bash]
+----
+systemctl stop packetfence-galera-autofix
+systemctl stop packetfence-mariadb
+mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf --wsrep-recover
+----
+
+In MariaDB log file under `/usr/local/pf/logs` or in output of `journalctl -u packetfence-mariadb`, you should
+find a line like this:
+
+----
+[Note] WSREP: Recovered position: 220dcdcb-1629-11e4-add3-aec059ad3734:1122
+----
+
+The recovered position is a pair `<cluster state UUID>:<sequence
+number>`. The node with the highest sequence number in its
+recovered position is the most up-to-date, and should be chosen as
+bootstrap candidate.
+
+Once you have identified the most up-to-date node, run
+following commands on it:
+
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl stop packetfence-galera-autofix
+/usr/local/pf/sbin/pf-mariadb --force-new-cluster
+----
+
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.

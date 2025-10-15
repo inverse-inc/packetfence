@@ -1,0 +1,7 @@
+=== RADIUS Audit Log
+
+PacketFence RADIUS auditing module tracks all incoming RADIUS
+requests/responses. Access via _Auditing -> RADIUS Audit Log_. Advanced search
+criteria create complex, savable search expressions. Click log entries to view
+endpoint information, request origin, and RADIUS payload between NAS and
+PacketFence.
