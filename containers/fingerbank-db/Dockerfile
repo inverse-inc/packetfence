@@ -4,7 +4,7 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 RUN apt update && apt install fingerbank --reinstall
 
-FROM alpine:3.19.4
+FROM alpine:3.22.2
 
 ARG FINGERBANK_BUILD_API_KEY
 
