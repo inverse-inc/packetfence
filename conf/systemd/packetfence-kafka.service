@@ -15,7 +15,7 @@ Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/kafka-systemd-notify.pid
 # iptables rules
-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("add")'
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("add")'
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("REMOVE")'
 
 [Install]
