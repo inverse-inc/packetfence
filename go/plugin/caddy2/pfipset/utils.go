@@ -134,7 +134,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 		`
 		SELECT DISTINCT n.mac, i.ip, n.category_id AS role_id
 		FROM node AS n LEFT JOIN locationlog AS l ON n.mac=l.mac LEFT JOIN ip4log AS i ON n.mac=i.mac
-		WHERE l.connection_type = "inline" and n.status="reg" and n.mac=i.mac and i.end_time > NOW() and mac > ?
+		WHERE l.connection_type = "inline" and n.status="reg" and n.mac=i.mac and i.end_time > NOW() and n.mac > ?
 		ORDER BY n.mac
 		LIMIT 100
 		`,
@@ -185,7 +185,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 				}
 			}
 		}
-		if count == 0 {
+		if count < 100 {
 			break
 		}
 	}
