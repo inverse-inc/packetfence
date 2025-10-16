@@ -185,6 +185,12 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 				}
 			}
 		}
+
+		if err = rows.Err(); err != nil {
+			logger.Error("Error looping through rows:" + err.Error())
+			return
+		}
+
 		if count < 100 {
 			break
 		}
