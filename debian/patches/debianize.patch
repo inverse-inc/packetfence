@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index aa8447a4e4..d4d209b070 100644
+index 44f36c6913..d5e27aa616 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -479,7 +479,7 @@ radiusd=enabled
@@ -292,7 +292,7 @@ index e4184dbe5e..6b1476c6bf 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-kafka.service b/conf/systemd/packetfence-kafka.service
-index 2f126b3306..764735f870 100644
+index 3de894cfe4..f9c5fc2b6b 100644
 --- a/conf/systemd/packetfence-kafka.service
 +++ b/conf/systemd/packetfence-kafka.service
 @@ -8,15 +8,15 @@ StartLimitBurst=3
@@ -307,9 +307,9 @@ index 2f126b3306..764735f870 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/kafka-systemd-notify.pid
  # iptables rules
--ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("add")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("REMOVE")'
-+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("add")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_kafka_rules("REMOVE")'
  
  [Install]
@@ -715,10 +715,10 @@ index 2a6c6be96e..9af37a29cb 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index 841a0d9dea..12b91a5df1 100644
+index ca68be80cf..7b0c114619 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -20,8 +20,8 @@ Restart=on-failure
+@@ -21,8 +21,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid
  # iptables rules
