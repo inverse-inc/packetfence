@@ -667,11 +667,22 @@ retry:
 			// Reserve with a fake mac
 			handler.available.ReserveIPIndex(uint64(free), FakeMac)
 			// Put it back into the available IPs in 10 minutes
-			go func(ctx context.Context, free int, ipaddr net.IP) {
-				time.Sleep(10 * time.Minute)
-				log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool" + " mac=" + clientMac)
-				handler.available.FreeIPIndex(uint64(free))
-			}(ctx, free, ipaddr)
+			go func(free int, ipaddr net.IP) {
+				// Use a timer that can be interrupted by context cancellation
+				timer := time.NewTimer(10 * time.Minute)
+				defer timer.Stop()
+
+				select {
+				case <-timer.C:
+					// Timer expired normally, release the IP
+					log.LoggerWContext(context.Background()).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
+					handler.available.FreeIPIndex(uint64(free))
+				case <-ctx.Done():
+					// Context cancelled, still release the IP to avoid leaks
+					log.LoggerWContext(context.Background()).Info("Context cancelled, releasing previously pingable IP " + ipaddr.String() + " back into the pool")
+					handler.available.FreeIPIndex(uint64(free))
+				}
+			}(free, ipaddr)
 			free = -1
 			goto retry
 		}
