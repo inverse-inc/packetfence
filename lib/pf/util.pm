@@ -1817,14 +1817,13 @@ sub expand_ordered_array {
 }
 
 sub make_node_id {
-    my ($tenant_id, $mac) = @_;
+    my ($mac) = @_;
     $mac =~ tr/://d; #A faster way to delete a character
     return (0 << 48) | hex($mac);
 }
 
 sub split_node_id {
     my ($node_id) = @_;
-    my $tenant_id = $node_id >> 48;
     my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
     return (0, $mac);
 }

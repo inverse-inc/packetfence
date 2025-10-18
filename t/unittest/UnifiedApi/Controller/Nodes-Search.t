@@ -50,8 +50,8 @@ for my $m ($mac1, $mac2, $mac3) {
       ->status_is(201);
 }
 
-my $node_id2 = make_node_id(1, $mac2);
-my $node_id3 = make_node_id(1, $mac3);
+my $node_id2 = make_node_id($mac2);
+my $node_id3 = make_node_id($mac3);
 
 pf::dal::node_current_session->create({
     mac => $mac2,

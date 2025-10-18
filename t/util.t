@@ -512,7 +512,7 @@ for my $test (@MAC2DEC) {
         my $node_id = $test->{node_id};
         my $mac = $test->{mac};
         is(
-            make_node_id(0, $mac),
+            make_node_id($mac),
             $node_id,
             "Convert tenant_id mac (0, $mac) to a node_id ($node_id)"
         );

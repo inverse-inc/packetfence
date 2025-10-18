@@ -278,7 +278,7 @@ SQL
 
 sub node_has_bandwidth_accounting {
     my ($mac) = @_;
-    my $node_id = make_node_id(1, $mac);
+    my $node_id = make_node_id($mac);
 
     my $sql = <<"SQL";
     select sum(c) as entries from (select count(1) as c from bandwidth_accounting where node_id=? union all select count(1) as c from bandwidth_accounting_history where node_id=?) x;
