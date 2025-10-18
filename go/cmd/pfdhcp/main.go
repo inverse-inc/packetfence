@@ -296,11 +296,22 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 					handler.available.FreeIPIndex(uint64(leaseNum))
 					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
 					// Put it back into the available IPs in 30 seconds
-					go func(ctx context.Context, leaseNum int, reqIP net.IP) {
-						time.Sleep(30 * time.Second)
-						log.LoggerWContext(ctx).Info("Releasing previously declined IP " + reqIP.String() + " back into the pool")
-						handler.available.FreeIPIndex(uint64(leaseNum))
-					}(ctx, leaseNum, reqIP)
+					go func(leaseNum int, reqIP net.IP) {
+						// Use a timer that can be interrupted by context cancellation
+						timer := time.NewTimer(30 * time.Second)
+						defer timer.Stop()
+
+						select {
+						case <-timer.C:
+							// Timer expired normally, release the IP
+							log.LoggerWContext(context.Background()).Info("Releasing previously declined IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						case <-ctx.Done():
+							// Context cancelled, still release the IP to avoid leaks
+							log.LoggerWContext(context.Background()).Info("Context cancelled, releasing previously declined IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						}
+					}(leaseNum, reqIP)
 				}
 			} else {
 				log.LoggerWContext(ctx).Debug(prettyType + "Found the mac in the cache for but wrong IP" + " mac=" + clientMac)
@@ -341,11 +352,22 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 					handler.available.FreeIPIndex(uint64(leaseNum))
 					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
 					// Put it back into the available IPs in 30 seconds
-					go func(ctx context.Context, leaseNum int, reqIP net.IP) {
-						time.Sleep(30 * time.Second)
-						log.LoggerWContext(ctx).Info("Releasing previously released IP " + reqIP.String() + " back into the pool")
-						handler.available.FreeIPIndex(uint64(leaseNum))
-					}(ctx, leaseNum, reqIP)
+					go func(leaseNum int, reqIP net.IP) {
+						// Use a timer that can be interrupted by context cancellation
+						timer := time.NewTimer(30 * time.Second)
+						defer timer.Stop()
+
+						select {
+						case <-timer.C:
+							// Timer expired normally, release the IP
+							log.LoggerWContext(context.Background()).Info("Releasing previously released IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						case <-ctx.Done():
+							// Context cancelled, still release the IP to avoid leaks
+							log.LoggerWContext(context.Background()).Info("Context cancelled, releasing previously released IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						}
+					}(leaseNum, reqIP)
 				}
 			} else {
 				log.LoggerWContext(ctx).Debug(prettyType + " Found the mac in the cache for but wrong IP" + " mac=" + clientMac)
