@@ -419,6 +419,9 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 		if len(ipRangeArray) >= 1 {
 			for _, rangeip := range ipRangeArray {
 				result := rgx.FindStringSubmatch(rangeip)
+				if result == nil || len(result) < 3 {
+					continue
+				}
 				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 				// Remove the position in the roaming bitmap
 				dhcpHandler.available.ReserveIPIndex(uint64(position), result[1])
