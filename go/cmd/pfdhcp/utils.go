@@ -88,9 +88,16 @@ func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfig
 				leaseDuration = endTime.Sub(now)
 			}
 			ip := net.ParseIP(ipstr)
+			if ip == nil {
+				continue
+			}
+			ip4 := ip.To4()
+			if ip4 == nil {
+				continue
+			}
 
 			// Calculate the position for the roaring bitmap
-			position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			position := uint32(binary.BigEndian.Uint32(ip4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 			// Remove the position in the roaming bitmap
 			dhcpHandler.available.ReserveIPIndex(uint64(position), mac)
 			// Add the mac in the cache
@@ -400,8 +407,12 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ipRange string) []net.IP {
 
 	for _, excludeIP := range excludeIPs {
 		if excludeIP != nil {
+			excludeIP4 := excludeIP.To4()
+			if excludeIP4 == nil {
+				continue
+			}
 			// Calculate the position for the dhcp pool
-			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			position := uint32(binary.BigEndian.Uint32(excludeIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
 			dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac)
 		}
@@ -422,11 +433,19 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 				if result == nil || len(result) < 3 {
 					continue
 				}
-				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+				parsedIP := net.ParseIP(result[2])
+				if parsedIP == nil {
+					continue
+				}
+				parsedIP4 := parsedIP.To4()
+				if parsedIP4 == nil {
+					continue
+				}
+				position := uint32(binary.BigEndian.Uint32(parsedIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 				// Remove the position in the roaming bitmap
 				dhcpHandler.available.ReserveIPIndex(uint64(position), result[1])
 				couple[result[1]] = position
-				iplist = append(iplist, net.ParseIP(result[2]))
+				iplist = append(iplist, parsedIP)
 			}
 		}
 	}

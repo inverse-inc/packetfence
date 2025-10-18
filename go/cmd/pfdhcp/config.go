@@ -144,7 +144,13 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 				}
 
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
+					dhcpStart := net.ParseIP(ConfNet.DhcpStart).To4()
+					dhcpEnd := net.ParseIP(ConfNet.DhcpEnd).To4()
+					if dhcpStart == nil || dhcpEnd == nil {
+						log.LoggerWContext(ctx).Error("Invalid DHCP start or end IP address for network " + key)
+						continue
+					}
+					if int(binary.BigEndian.Uint32(dhcpStart)) > int(binary.BigEndian.Uint32(dhcpEnd)) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
 						continue
 					}
