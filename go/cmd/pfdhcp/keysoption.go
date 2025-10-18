@@ -42,11 +42,11 @@ func MysqlGet(ctx context.Context, key string, db *sql.DB) (string, string) {
 	}
 
 	rows, err := db.QueryContext(dbCtx, "select id, value from key_value_storage where id = ?", "/dhcpd/"+key)
-	defer rows.Close()
 	if err != nil {
 		log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + key + "': " + err.Error())
 		return "", ""
 	}
+	defer rows.Close()
 	var (
 		ID    string
 		Value string
@@ -67,8 +67,7 @@ func MysqlDel(key string, db *sql.DB) bool {
 	if err := db.PingContext(dbCtx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
-	rows, err := db.QueryContext(dbCtx, "delete from key_value_storage where id = ?", "/dhcpd/"+key)
-	defer rows.Close()
+	_, err := db.ExecContext(dbCtx, "delete from key_value_storage where id = ?", "/dhcpd/"+key)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Error while deleting MySQL key '" + key + "': " + err.Error())
 		return false
