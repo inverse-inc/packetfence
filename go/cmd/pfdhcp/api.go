@@ -346,7 +346,11 @@ func decodeOptions(ctx context.Context, b string, db *sql.DB) (map[dhcp.OptionCo
 func extractMembers(v Network) ([]Node, []string, int) {
 	var Members []Node
 	var Macs []string
-	id, _ := GlobalTransactionLock.Lock()
+	id, err := GlobalTransactionLock.Lock()
+	if err != nil {
+		log.LoggerWContext(context.Background()).Error("Failed to acquire transaction lock in extractMembers: " + err.Error())
+		return Members, Macs, 0
+	}
 	members := v.dhcpHandler.hwcache.Items()
 	GlobalTransactionLock.Unlock(id)
 	var Count int

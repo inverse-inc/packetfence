@@ -427,20 +427,23 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 				if index, found := handler.hwcache.Get(answer.MAC.String()); found {
 					// Requested IP is equal to what we have in the cache ?
 
-					if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-						id, _ := GlobalTransactionLock.Lock()
-						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
-							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
-							GlobalTransactionLock.Unlock(id)
-							Reply = false
-							return answer
-						}
-						RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+				if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
+					id, err := GlobalTransactionLock.Lock()
+					if err != nil {
+						log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
+						Reply = false
+						return answer
+					}
+					if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
+						log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
 						GlobalTransactionLock.Unlock(id)
-						Reply = true
-						Index = index.(int)
-
-						// So remove the ip from the cache
+						Reply = false
+						return answer
+					}
+					RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+					GlobalTransactionLock.Unlock(id)
+					Reply = true
+					Index = index.(int)						// So remove the ip from the cache
 					} else {
 						Reply = false
 						log.LoggerWContext(ctx).Info(answer.MAC.String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()) + " mac=" + clientMac)
@@ -750,7 +753,11 @@ reply:
 // lockTransaction locks the transaction for a specific MAC address and message type
 func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, msgType dhcp.MessageType) bool {
 	cacheKey := mac.String() + " " + msgType.String()
-	id, _ := GlobalTransactionLock.Lock()
+	id, err := GlobalTransactionLock.Lock()
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
+		return false
+	}
 	if _, found := GlobalTransactionCache.Get(cacheKey); found {
 		log.LoggerWContext(ctx).Debug("Not answering to packet. Already in progress")
 		GlobalTransactionLock.Unlock(id)
