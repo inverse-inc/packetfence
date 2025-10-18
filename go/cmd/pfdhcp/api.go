@@ -310,7 +310,7 @@ func (a *API) handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Requ
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error removing betwork options: " + err.Error())
+		log.LoggerWContext(ctx).Error("Error removing network options: " + err.Error())
 	}
 }
 
