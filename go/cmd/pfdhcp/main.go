@@ -1044,7 +1044,7 @@ func setupSystemdWatchdog(ctx context.Context) {
 				log.LoggerWContext(ctx).Error(err.Error())
 				continue
 			}
-			resp.Body.Close()
+			defer resp.Body.Close()
 
 			daemon.SdNotify(false, "WATCHDOG=1")
 		}

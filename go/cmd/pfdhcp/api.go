@@ -238,14 +238,22 @@ func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) 
 
 	body, err := io.ReadAll(io.LimitReader(req.Body, 1048576))
 	if err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error reading request body: " + err.Error() + " mac=" + vars["mac"])
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 	if err := req.Body.Close(); err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error closing request body: " + err.Error() + " mac=" + vars["mac"])
+		unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Insert information in MySQL
-	_ = MysqlInsert(a.Ctx, vars["mac"], sharedutils.ConvertToString(body), a.DB)
+	if !MysqlInsert(a.Ctx, vars["mac"], sharedutils.ConvertToString(body), a.DB) {
+		log.LoggerWContext(a.Ctx).Error("Failed to insert MAC options into database" + " mac=" + vars["mac"])
+		unifiedapierrors.Error(res, "Failed to save options", http.StatusInternalServerError)
+		return
+	}
 
 	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
@@ -262,14 +270,22 @@ func (a *API) handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Re
 
 	body, err := io.ReadAll(io.LimitReader(req.Body, 1048576))
 	if err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error reading request body: " + err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 	if err := req.Body.Close(); err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error closing request body: " + err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Insert information in MySQL
-	_ = MysqlInsert(a.Ctx, vars["network"], sharedutils.ConvertToString(body), a.DB)
+	if !MysqlInsert(a.Ctx, vars["network"], sharedutils.ConvertToString(body), a.DB) {
+		log.LoggerWContext(a.Ctx).Error("Failed to insert network options into database")
+		unifiedapierrors.Error(res, "Failed to save options", http.StatusInternalServerError)
+		return
+	}
 
 	var result = &Info{Network: vars["network"], Status: "ACK"}
 

@@ -144,7 +144,11 @@ func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface,
 		var found bool
 		found = false
 		for _, adresse := range adresses {
-			IP, _, _ := net.ParseCIDR(adresse.String())
+			IP, _, err := net.ParseCIDR(adresse.String())
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Failed to parse CIDR address " + adresse.String() + ": " + err.Error())
+				continue
+			}
 			VIPIp[v.Name] = net.ParseIP(keyConfCluster.Ip)
 			if IP.Equal(VIPIp[v.Name]) {
 				found = true
