@@ -177,11 +177,12 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (
 	// and that the context is cancelled if one of the queries fails
 
 	rows, err := db.QueryContext(dbCtx, "SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
-	defer rows.Close()
-
 	if err != nil {
 		log.LoggerWContext(ctx).Crit(err.Error())
+		// Return default values on error
+		return NodeInfo{Mac: target.String(), Status: "unreg", Category: "default"}
 	}
+	defer rows.Close()
 
 	var (
 		Category string
