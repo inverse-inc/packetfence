@@ -333,12 +333,13 @@ func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate random number: %w", err)
 		}
-		// Convert bytes to int and apply modulo
-		j := int(uint64(b[0])|uint64(b[1])<<8|uint64(b[2])<<16|uint64(b[3])<<24|
-			uint64(b[4])<<32|uint64(b[5])<<40|uint64(b[6])<<48|uint64(b[7])<<56) % (i + 1)
-		if j < 0 {
-			j += i + 1
-		}
+		// Convert bytes to uint64 and apply modulo
+		// Keep as uint64 to avoid overflow issues
+		randomUint64 := uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
+			uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
+
+		// Safely convert to int after modulo operation (which guarantees the value is within range)
+		j := int(randomUint64 % uint64(i+1))
 
 		// Swap
 		ips[i], ips[j] = ips[j], ips[i]
