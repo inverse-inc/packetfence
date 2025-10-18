@@ -215,32 +215,38 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	prettyType := "DHCP" + strings.ToUpper(msgType.String())
 
 	// Get the appropriate handler and network scope
-       handler, NetScope, found := I.findHandlerAndNetwork(p, answer.MAC, db)
-       log.LoggerWContext(ctx).Debug(fmt.Sprintf(
-	       "ServeDHCP: MAC=%s giaddr=%s ciaddr=%s msgType=%s found=%v handlerIP=%s NetScope=%v",
-	       answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String(), found, func() string { if len(handler.ip) > 0 { return handler.ip.String() } else { return "" } }(), NetScope))
-       if !found || len(handler.ip) == 0 {
-	       log.LoggerWContext(ctx).Info(fmt.Sprintf(
-		       "Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (no handler/network found)",
-		       answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
-	       return answer
-       }
+	handler, NetScope, found := I.findHandlerAndNetwork(p, answer.MAC, db)
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf(
+		"ServeDHCP: MAC=%s giaddr=%s ciaddr=%s msgType=%s found=%v handlerIP=%s NetScope=%v",
+		answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String(), found, func() string {
+			if len(handler.ip) > 0 {
+				return handler.ip.String()
+			} else {
+				return ""
+			}
+		}(), NetScope))
+	if !found || len(handler.ip) == 0 {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (no handler/network found)",
+			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
+		return answer
+	}
 
 	// Check if we have the VIP or if the backend supports cluster mode
-       if !VIP[I.Name] && !handler.available.Listen() {
-	       log.LoggerWContext(ctx).Info(fmt.Sprintf(
-		       "Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (VIP/cluster not available)",
-		       answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
-	       return answer
-       }
+	if !VIP[I.Name] && !handler.available.Listen() {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (VIP/cluster not available)",
+			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
+		return answer
+	}
 
 	// Lock transaction to prevent duplicates
-       if !I.lockTransaction(ctx, answer.MAC, msgType) {
-	       log.LoggerWContext(ctx).Info(fmt.Sprintf(
-		       "Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (transaction lock)",
-		       answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
-	       return answer
-       }
+	if !I.lockTransaction(ctx, answer.MAC, msgType) {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (transaction lock)",
+			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
+		return answer
+	}
 
 	log.LoggerWContext(ctx).Debug(clientMac + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
@@ -403,14 +409,14 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 						id, _ := GlobalTransactionLock.Lock()
 						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
 							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
-							Reply = false
 							GlobalTransactionLock.Unlock(id)
+							Reply = false
 							return answer
 						}
-						Reply = true
-						Index = index.(int)
 						RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
 						GlobalTransactionLock.Unlock(id)
+						Reply = true
+						Index = index.(int)
 
 						// So remove the ip from the cache
 					} else {
