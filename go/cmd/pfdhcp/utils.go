@@ -258,6 +258,9 @@ func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte
 	addressesArray := strings.Split(addresses, ",")
 	if len(addressesArray) == 1 {
 		singleIP := net.ParseIP(addressesArray[0]).To4()
+		if singleIP == nil {
+			return nil
+		}
 		slice := make([]byte, 0, len(singleIP))
 		slice = append(slice, singleIP...)
 		return slice
@@ -305,6 +308,9 @@ func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte
 func ShuffleNetIP(ctx context.Context, array []net.IP) (r []byte) {
 	if len(array) == 1 {
 		singleIP := array[0].To4()
+		if singleIP == nil {
+			return nil
+		}
 		slice := make([]byte, 0, len(singleIP))
 		slice = append(slice, singleIP...)
 		return slice
@@ -371,7 +377,7 @@ func IPsFromRange(iPrange string) (r []net.IP, i int) {
 			ips := strings.Split(rangeip, "-")
 			if len(ips) == 1 {
 				iplist = append(iplist, net.ParseIP(ips[0]))
-			} else {
+			} else if len(ips) >= 2 {
 				start := net.ParseIP(ips[0])
 				end := net.ParseIP(ips[1])
 
