@@ -8,7 +8,7 @@ jobs:
       include: httpd.aaa-docker-wrapper
     log_type: csv
     csv_config:
-      format: '- - - - $remote_addr - - - "$request" $status $bytes_sent $request_length $request_time - - "$host"'
+      format: '$remote_addr - - [$time_local] "$request" $status $bytes_sent $request_length $request_time $http_referer $http_user_agent "$host"'
 
   - name: api-frontend
     path: /usr/local/pf/logs/httpd.apache
@@ -16,7 +16,7 @@ jobs:
       include: api-frontend-docker-wrapper
     log_type: csv
     csv_config:
-      format: '- - - - $remote_addr - - - "$request" $status $bytes_sent - -'
+      format: '- $remote_addr - - [$time_local] "$request" $status $bytes_sent $http_referer $http_user_agent'
 
   - name: httpd.portal
     path: /usr/local/pf/logs/httpd.apache
@@ -24,7 +24,7 @@ jobs:
       include: httpd.portal-docker-wrapper
     log_type: csv
     csv_config:
-      format: '- - - - - - - [- -] "$request" $status $bytes_sent - -'
+      format: '- - - [$time_local] "$request" $status $bytes_sent $request_length $request_time $http_referer $http_user_agent'
 
   - name: httpd.webservices
     path: /usr/local/pf/logs/httpd.apache
