@@ -99,7 +99,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.wireless_dot1x_eap_peap.sources.ad_user.name}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.wireless_dot1x_eap_teap.sources.ad_user.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
