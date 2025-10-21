@@ -87,7 +87,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.wireless_dot1x_eap_peap.profiles.wireless.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.wireless_dot1x_eap_teap.profiles.wireless.id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
