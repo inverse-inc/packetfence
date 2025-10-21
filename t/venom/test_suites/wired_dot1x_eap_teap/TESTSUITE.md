@@ -1,4 +1,4 @@
-# dot1x_eap_peap
+# dot1x_eap_teap
 
 ## Requirements
 AD server running
