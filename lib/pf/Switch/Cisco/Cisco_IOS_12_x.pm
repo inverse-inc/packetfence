@@ -129,6 +129,7 @@ Warning: The list of subroutine is incomplete
 # special features
 use pf::SwitchSupports qw(
     FloatingDevice
+    WiredMacAuth
     WiredDot1x
     RadiusDynamicVlanAssignment
     AccessListBasedEnforcement
