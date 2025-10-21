@@ -1,0 +1,29 @@
+diff --git a/debian/control b/debian/control                                                                                                                                                                 
+index a557078390..15c2a652e1 100644                                                                                                                                                                          
+--- a/debian/control                                                                                                                                                                                         
++++ b/debian/control                                                                                                                                                                                         
+@@ -24,8 +24,8 @@ Pre-Depends:  ca-certificates,                                                                                                                                                             
+  packetfence-perl (>= 1.2.4),                                                                                                                                                                               
+ # Removed for now                                                                                                                                                                                           
+ # libmariadbd-dev (>= 10.1), libmariadbd-dev (<< 10.5.18)                                                                                                                                                   
+-Breaks: libdata-alias-perl                                                                                                                                                                                  
+-Conflicts: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript                                                                                                       
++Breaks: libdata-alias-perl, packetfence-export                                                                                                                                                              
++Conflicts: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript, packetfence-export
+ Replaces: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript
+ Depends: ${misc:Depends}, vlan,
+  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
+diff --git a/rpm/packetfence.spec b/rpm/packetfence.spec
+index 30bbcf09c4..6905a19f97 100644
+--- a/rpm/packetfence.spec
++++ b/rpm/packetfence.spec
+@@ -43,6 +43,8 @@ Obsoletes: %{name}-config <= 9.1.0
+  
+ AutoReqProv: 0
+  
++Conflicts: packetfence-export
++
+ Requires: firewalld
+ Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
+ # for process management
+
