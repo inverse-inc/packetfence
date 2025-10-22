@@ -9,7 +9,6 @@ import {
   reCommonName,
   reEmail,
   reDomain,
-  reEnv,
   reIpv4,
   reIpv6,
   reFilename,
