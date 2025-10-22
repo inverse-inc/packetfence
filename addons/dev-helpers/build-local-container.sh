@@ -38,6 +38,13 @@ source /usr/local/pf/conf/build_id
 img_name=packetfence/$name:$TAG_OR_BRANCH_NAME
 PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' /usr/local/pf/conf/pf-release)
 
+echo "Untag/Remove current pfdebian and pfbuild-debian-bookworm images to be sure that we are using the latest images."
+
+docker rmi -f ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME
+docker rmi -f ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm:$TAG_OR_BRANCH_NAME
+
+sub_splitter
+
 echo "Building image $img_name"
 
 sub_splitter
