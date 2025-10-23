@@ -58,10 +58,11 @@ if [ -f /etc/os-release ]; then
             ;;
         *)
             echo "Unknown Linux distribution: $PRETTY_NAME"
+            die "Unsupported Linux distribution: $ID"
             ;;
     esac
 else
-    echo "/etc/os-release not found; unsupported OS"
+    die "/etc/os-release not found; unsupported OS"
 fi
 
 cd /usr/local/pf/
@@ -94,23 +95,40 @@ if [ -f /etc/os-release ]; then
     case "$ID" in
         debian|ubuntu)
             echo "Detected Debian-based system: $PRETTY_NAME"
-            apt install ruby ruby-dev build-essential
+            apt install -y ruby ruby-dev build-essential
             ;;
         rhel|centos|rocky|almalinux|fedora)
             echo "Detected Red Hat-based system: $PRETTY_NAME"
             dnf module reset ruby -y
-            yum install @ruby:2.6
+            yum install -y @ruby:2.6
             ;;
         *)
             echo "Unknown Linux distribution: $PRETTY_NAME"
+            die "Unsupported Linux distribution: $ID"
             ;;
     esac
 else
-    echo "/etc/os-release not found; unsupported OS"
+    die "/etc/os-release not found; unsupported OS"
 fi
-gem install asciidoctor
-gem install asciidoctor-pdf
-gem install rouge -f
+
+# Check if gems are already installed to avoid reinstalling
+if ! gem list -i asciidoctor > /dev/null 2>&1; then
+    gem install asciidoctor
+else
+    echo "asciidoctor already installed, skipping..."
+fi
+
+if ! gem list -i asciidoctor-pdf > /dev/null 2>&1; then
+    gem install asciidoctor-pdf
+else
+    echo "asciidoctor-pdf already installed, skipping..."
+fi
+
+if ! gem list -i rouge > /dev/null 2>&1; then
+    gem install rouge -f
+else
+    echo "rouge already installed, skipping..."
+fi
 
 log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/
