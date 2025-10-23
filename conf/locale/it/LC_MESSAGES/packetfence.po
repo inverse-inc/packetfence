@@ -2224,3 +2224,7 @@ msgstr ""
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "scansione del sistema in corso"
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr ""

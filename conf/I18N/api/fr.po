@@ -4,8 +4,7 @@
 # 
 # Translators:
 # GurVan, 2019
-# Maxime Andre <andmaxime+transifex@gmail.com>, 2019
-# tolivierl1 <thomas.olivier@univ-lille1.fr>, 2020
+# 6cd36d5588a56dc96be07a81dccd6094_cfd3212 <65757670ff8e21205c26b30fb18b9c66_844927>, 2019
 # Stéphane GAUDICHE <stephane.gaudiche@laposte.net>, 2020
 # Nicolas Quiniou-Briand <nqb@azyx.fr>, 2020
 # julsemaan <jsemaan@inverse.ca>, 2021
@@ -13,11 +12,12 @@
 # lzammit <lzammit@inverse.ca>, 2022
 # Christopher <chuguet@inverse.ca>, 2023
 # inverse <support@inverse.ca>, 2023
+# tolivierl1 <thomas.olivier@univ-lille1.fr>, 2025
 # jgoimard <jgoimard@inverse.ca>, 2025
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: 14.1.0\n"
+"Project-Id-Version: 15.0.0\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
 "PO-Revision-Date: 2019-05-01 17:57+0000\n"
 "Last-Translator: jgoimard <jgoimard@inverse.ca>, 2025\n"
@@ -36,7 +36,7 @@ msgstr "${labelCreate.value} et ${labelActionKey.value}"
 msgid "${labelSave.value} & ${labelActionKey.value}"
 msgstr "${labelSave.value} et ${labelActionKey.value}"
 
-#: html/pfappserver/root/src/utils/yup.js:45
+#: html/pfappserver/root/src/utils/yup.js:46
 msgid "${path} required."
 msgstr "${path} requis."
 
@@ -56,12 +56,12 @@ msgstr ""
 "(Expérimental) Appliquer Content-Security-Policy (CSP) dans les en-têtes de "
 "réponse HTTP du portail captif."
 
-#: html/pfappserver/root/src/globals/pfField.js:340
+#: html/pfappserver/root/src/globals/pfField.js:349
 #: html/pfappserver/root/src/views/Reports/_components/BaseInputDateRange.vue:147
 msgid "1 day"
 msgstr "1 jour"
 
-#: html/pfappserver/root/src/globals/pfField.js:337
+#: html/pfappserver/root/src/globals/pfField.js:346
 #: html/pfappserver/root/src/views/Reports/_components/BaseInputDateRange.vue:144
 #: html/pfappserver/root/src/views/Status/monitoring/_components/TheView.vue:315
 msgid "1 hour"
@@ -80,7 +80,7 @@ msgstr "1 semaine"
 msgid "1 year"
 msgstr "1 an"
 
-#: html/pfappserver/root/src/globals/pfField.js:339
+#: html/pfappserver/root/src/globals/pfField.js:348
 #: html/pfappserver/root/src/views/Reports/_components/BaseInputDateRange.vue:146
 #: html/pfappserver/root/src/views/Status/monitoring/_components/TheView.vue:318
 msgid "12 hours"
@@ -90,7 +90,7 @@ msgstr "12 heures"
 msgid "15 minutes"
 msgstr "15 minutes"
 
-#: html/pfappserver/root/src/globals/pfField.js:341
+#: html/pfappserver/root/src/globals/pfField.js:350
 #: html/pfappserver/root/src/views/Status/monitoring/_components/TheView.vue:320
 msgid "2 days"
 msgstr "2 jours"
@@ -116,11 +116,11 @@ msgstr "24 heures"
 msgid "28 days"
 msgstr "28 jours"
 
-#: html/pfappserver/root/src/globals/pfField.js:342
+#: html/pfappserver/root/src/globals/pfField.js:351
 msgid "3 days"
 msgstr "3 jours"
 
-#: html/pfappserver/root/src/globals/pfField.js:338
+#: html/pfappserver/root/src/globals/pfField.js:347
 msgid "3 hours"
 msgstr "3 heures"
 
@@ -133,7 +133,7 @@ msgstr "30 minutes"
 msgid "4 days"
 msgstr "4 jours"
 
-#: html/pfappserver/root/src/globals/pfField.js:343
+#: html/pfappserver/root/src/globals/pfField.js:352
 msgid "5 days"
 msgstr "5 jours"
 
@@ -370,7 +370,7 @@ msgstr "Taille de bloc API"
 msgid "API inactivity timeout"
 msgstr "Délai d'expiration du jeton d'accès à l'API"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:112
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:126
 msgid "API key"
 msgstr "Clé de l’API"
 
@@ -577,7 +577,7 @@ msgstr "Accounting restant"
 #: html/pfappserver/root/src/views/Auditing/adminApiLogs/_search.js:38
 #: html/pfappserver/root/src/views/Auditing/adminApiLogs/_search.js:93
 #: html/pfappserver/root/src/views/Configuration/snmpTraps/schema.js:4
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:60
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:75
 msgid "Action"
 msgstr "Action"
 
@@ -944,12 +944,12 @@ msgid "Additional message"
 msgstr "Message supplémentaire"
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupServerAddressPort.vue:26
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:190
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:191
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:205
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:206
 #: html/pfappserver/root/src/views/Configuration/wrix/schema.js:38
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:81
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:68
-#: html/pfappserver/root/src/views/Users/_config/index.js:177
+#: html/pfappserver/root/src/views/Users/_config/index.js:179
 #: html/pfappserver/root/src/views/Users/_search.js:282
 #: html/pfappserver/root/src/views/Users/_search.js:87
 msgid "Address"
@@ -969,7 +969,7 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/layer2Networks/schema.js:41
 #: html/pfappserver/root/src/views/Configuration/networks/layer2Networks/schema.js:42
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:182
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:197
 msgid "Addresses"
 msgstr "Adresses"
 
@@ -1061,7 +1061,7 @@ msgstr "AdminProxy"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLinkedIn.vue:92
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:88
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:42
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:68
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:73
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:92
 msgid "Administration Rules"
 msgstr "Règle d'administration"
@@ -1070,7 +1070,7 @@ msgstr "Règle d'administration"
 msgid "Administrator"
 msgstr "Administrateur"
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:43
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:45
 msgid "Administrator Account"
 msgstr "Compte Administrateur"
 
@@ -1550,7 +1550,7 @@ msgstr "Animer"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:84
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:71
-#: html/pfappserver/root/src/views/Users/_config/index.js:163
+#: html/pfappserver/root/src/views/Users/_config/index.js:165
 #: html/pfappserver/root/src/views/Users/_search.js:272
 #: html/pfappserver/root/src/views/Users/_search.js:75
 msgid "Anniversary"
@@ -1578,7 +1578,7 @@ msgstr "N'importe quel évènement"
 msgid "Apache"
 msgstr "Apache"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:184
+#: html/pfappserver/root/src/views/Users/_config/index.js:186
 #: html/pfappserver/root/src/views/Users/_search.js:287
 #: html/pfappserver/root/src/views/Users/_search.js:93
 msgid "Apartment Number"
@@ -1682,7 +1682,7 @@ msgstr "Appliquer l'événement de sécurité"
 msgid "Apply role"
 msgstr "Appliquer le rôle."
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:45
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:54
 msgid "Applying configuration"
 msgstr "Application de la configuration"
 
@@ -1733,7 +1733,7 @@ msgstr "Actifs/Inventaire"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeKerberos.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:115
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:33
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:59
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:64
 msgid "Associated Realms"
 msgstr "Realms associés"
 
@@ -1747,12 +1747,12 @@ msgstr "Au moins une interface doit être de type \"management\"."
 
 #: html/pfappserver/root/src/views/Configuration/networkBehaviorPolicy/schema.js:50
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/schema.js:77
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:213
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:37
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:228
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:52
 msgid "Attribute"
 msgstr "Attribut"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:37
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:52
 msgid "Attribute required."
 msgstr "Attribut requis."
 
@@ -1849,7 +1849,7 @@ msgstr "Authentification"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeNull.vue:24
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:84
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:38
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:64
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:69
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSms.vue:64
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSponsorEmail.vue:101
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeTwilio.vue:69
@@ -1949,7 +1949,7 @@ msgstr "Auto enregistrement"
 #: html/pfappserver/root/src/views/Nodes/_search.js:254
 #: html/pfappserver/root/src/views/Nodes/_search.js:550
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:254
-#: html/pfappserver/root/src/views/Users/_config/index.js:537
+#: html/pfappserver/root/src/views/Users/_config/index.js:539
 msgid "Auto Registration"
 msgstr "Auto enregistrement"
 
@@ -2065,7 +2065,7 @@ msgstr "Bande passante"
 #: html/pfappserver/root/src/views/Nodes/_search.js:259
 #: html/pfappserver/root/src/views/Nodes/_search.js:556
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:260
-#: html/pfappserver/root/src/views/Users/_config/index.js:542
+#: html/pfappserver/root/src/views/Users/_config/index.js:544
 msgid "Bandwidth Balance"
 msgstr "Bande passante restante"
 
@@ -2097,7 +2097,7 @@ msgstr "BarracudaNG"
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:42
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:50
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:119
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:133
 msgid "Base DN"
 msgstr "DN de base"
 
@@ -2156,7 +2156,7 @@ msgstr "DN de connexion"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:87
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:74
-#: html/pfappserver/root/src/views/Users/_config/index.js:170
+#: html/pfappserver/root/src/views/Users/_config/index.js:172
 #: html/pfappserver/root/src/views/Users/_search.js:277
 #: html/pfappserver/root/src/views/Users/_search.js:81
 msgid "Birthday"
@@ -2232,7 +2232,7 @@ msgstr "Formulaire de construction"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:75
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:62
-#: html/pfappserver/root/src/views/Users/_config/index.js:191
+#: html/pfappserver/root/src/views/Users/_config/index.js:193
 #: html/pfappserver/root/src/views/Users/_search.js:100
 #: html/pfappserver/root/src/views/Users/_search.js:292
 msgid "Building Number"
@@ -2288,7 +2288,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:80
 #: html/pfappserver/root/src/views/Nodes/_search.js:203
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:52
-#: html/pfappserver/root/src/views/Users/_config/index.js:497
+#: html/pfappserver/root/src/views/Users/_config/index.js:499
 msgid "Bypass ACLS"
 msgstr "Contourner les ACLS"
 
@@ -2297,7 +2297,7 @@ msgstr "Contourner les ACLS"
 #: html/pfappserver/root/src/views/Nodes/_search.js:209
 #: html/pfappserver/root/src/views/Nodes/_search.js:340
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:40
-#: html/pfappserver/root/src/views/Users/_config/index.js:502
+#: html/pfappserver/root/src/views/Users/_config/index.js:504
 msgid "Bypass Role"
 msgstr "Rôle de contournement"
 
@@ -2306,7 +2306,7 @@ msgstr "Rôle de contournement"
 #: html/pfappserver/root/src/views/Nodes/_search.js:197
 #: html/pfappserver/root/src/views/Nodes/_search.js:346
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:46
-#: html/pfappserver/root/src/views/Users/_config/index.js:492
+#: html/pfappserver/root/src/views/Users/_config/index.js:494
 msgid "Bypass VLAN"
 msgstr "VLAN de contournement"
 
@@ -2411,7 +2411,7 @@ msgstr "CSR"
 msgid "CSR copied to clipboard."
 msgstr "CSR copié dans le presse papier"
 
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:89
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:88
 msgid "CSR required."
 msgstr "CSR requis."
 
@@ -2564,7 +2564,7 @@ msgstr "Catégorie"
 msgid "Cellphone number"
 msgstr "Numéro de téléphone portable"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:273
+#: html/pfappserver/root/src/views/Users/_config/index.js:275
 msgid "Cellular Phone"
 msgstr "Téléphone Mobile"
 
@@ -2692,13 +2692,13 @@ msgid "Certificate password copied to clipboard"
 msgstr "Mot de passe du certificat copié dans le presse-papiers"
 
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/ButtonCaGenerateCsr.vue:193
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:47
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:81
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:123
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:142
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:148
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:176
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:198
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:51
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:86
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:137
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:156
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:162
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:190
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:213
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/schema.js:20
 msgid "Certificate required."
 msgstr "Certificat requis."
@@ -2912,6 +2912,10 @@ msgstr "Cisco ISE-PIC"
 msgid "City"
 msgstr "Ville"
 
+#: conf/pfcron.conf.defaults[security_event_purge]/description
+msgid "Cleanup closed security events."
+msgstr "Nettoyage des événements de sécurité fermés."
+
 #: conf/pfcron.conf.defaults[node_current_session_cleanup]/description
 msgid "Cleanup node current session."
 msgstr "Nettoyez la session en cours du nœud."
@@ -3026,7 +3030,7 @@ msgstr "Passerelle du client"
 
 #: html/pfappserver/root/src/views/Configuration/clouds/schema.js:33
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAzureAD.vue:18
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:128
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:142
 msgid "Client ID"
 msgstr "Identifiant du client"
 
@@ -3048,7 +3052,7 @@ msgstr "Déclarations des clients"
 msgid "Client Support"
 msgstr "Support du client"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:127
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:141
 msgid "Client certificate"
 msgstr "Certificat client"
 
@@ -3068,7 +3072,7 @@ msgstr "Certificat client qui sera utilisé pour générer le fichier p12."
 msgid "Client events"
 msgstr "Événements clients"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:129
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:143
 msgid "Client key"
 msgstr "Clé client"
 
@@ -3093,7 +3097,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/pki/scepServers/_components/TheSearch.vue:171
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:93
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:542
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:86
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:93
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:358
 msgid "Clipboard not supported."
 msgstr "Presse-papiers non pris en charge."
@@ -3740,7 +3744,7 @@ msgstr "Communauté d’écriture"
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:47
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:60
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:47
-#: html/pfappserver/root/src/views/Users/_config/index.js:205
+#: html/pfappserver/root/src/views/Users/_config/index.js:207
 #: html/pfappserver/root/src/views/Users/_search.js:114
 #: html/pfappserver/root/src/views/Users/_search.js:302
 msgid "Company"
@@ -3763,7 +3767,7 @@ msgstr "Conformité"
 #: html/pfappserver/root/src/views/Nodes/_search.js:352
 #: html/pfappserver/root/src/views/Nodes/_search.js:60
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:58
-#: html/pfappserver/root/src/views/Users/_config/index.js:394
+#: html/pfappserver/root/src/views/Users/_config/index.js:396
 msgid "Computer Name"
 msgstr "Nom de l’appareil"
 
@@ -3776,7 +3780,7 @@ msgid "Concurrency"
 msgstr "Simultanéité"
 
 #: html/pfappserver/root/src/views/Configuration/filterEngines/_components/TheForm.vue:35
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:61
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:76
 msgid "Condition"
 msgstr "Condition"
 
@@ -3824,6 +3828,10 @@ msgstr "Confirmation"
 #: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:89
 msgid "Conflict resolution threshold"
 msgstr "Seuil de résolution de conflit"
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:49
+msgid "Connect Through Port"
+msgstr "Connectez-vous via le port"
 
 #: html/pfappserver/root/src/views/Status/dashboard/_config/dashboard.js:10
 msgid "Connected Devices"
@@ -3889,7 +3897,7 @@ msgstr "Sous-type de connexion"
 #: html/pfappserver/root/src/views/Nodes/_search.js:144
 #: html/pfappserver/root/src/views/Nodes/_search.js:358
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:64
-#: html/pfappserver/root/src/views/Users/_config/index.js:457
+#: html/pfappserver/root/src/views/Users/_config/index.js:459
 msgid "Connection Type"
 msgstr "Type de connexion"
 
@@ -4064,9 +4072,9 @@ msgstr "Copiez le mot de passe dans le presse-papiers"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/ButtonSamlMetaData.vue:8
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:26
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:80
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:19
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:35
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:51
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:20
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:37
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:54
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:130
 msgid "Copy to Clipboard"
 msgstr "Copier dans le presse-papier"
@@ -4101,7 +4109,7 @@ msgstr "Impossible de copier les journaux dans le presse-papier."
 
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:90
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:539
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:83
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:90
 msgid "Could not copy password to clipboard."
 msgstr "Impossible de copier le mot de passe dans le presse-papiers."
 
@@ -4159,7 +4167,7 @@ msgstr "Pays"
 msgid "Country for the certificate."
 msgstr "Pays défini dans le certificat"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:51
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:50
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_composables/useCsr.js:17
 msgid "Country required."
 msgstr "Pays requis."
@@ -4338,11 +4346,11 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/fencing/_composables/useResource.js:17
 msgid ""
-"Creating or modifying the fencing requires to restart the rsyslog system "
+"Creating or modifying the fencing requires to restart the pfdns system "
 "service."
 msgstr ""
-"La création ou la modification du système de barriérage (fencing) nécessite "
-"de redémarrer le service du système rsyslog."
+"La création ou la modification de la clôture nécessite le redémarrage du "
+"service système pfdns."
 
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/_composables/useResource.js:17
 msgid ""
@@ -4459,55 +4467,55 @@ msgstr "Champ personnalisé N°9"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:96
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:131
-#: html/pfappserver/root/src/views/Users/_config/index.js:287
+#: html/pfappserver/root/src/views/Users/_config/index.js:289
 msgid "Custom Field 1"
 msgstr "Champ personnalisé 1"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:99
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:134
-#: html/pfappserver/root/src/views/Users/_config/index.js:294
+#: html/pfappserver/root/src/views/Users/_config/index.js:296
 msgid "Custom Field 2"
 msgstr "Champ personnalisé 2"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:102
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:137
-#: html/pfappserver/root/src/views/Users/_config/index.js:301
+#: html/pfappserver/root/src/views/Users/_config/index.js:303
 msgid "Custom Field 3"
 msgstr "Champ personnalisé 3"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:105
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:140
-#: html/pfappserver/root/src/views/Users/_config/index.js:308
+#: html/pfappserver/root/src/views/Users/_config/index.js:310
 msgid "Custom Field 4"
 msgstr "Champ personnalisé 4"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:108
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:143
-#: html/pfappserver/root/src/views/Users/_config/index.js:315
+#: html/pfappserver/root/src/views/Users/_config/index.js:317
 msgid "Custom Field 5"
 msgstr "Champ personnalisé 5"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:111
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:146
-#: html/pfappserver/root/src/views/Users/_config/index.js:322
+#: html/pfappserver/root/src/views/Users/_config/index.js:324
 msgid "Custom Field 6"
 msgstr "Champ personnalisé 6"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:114
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:149
-#: html/pfappserver/root/src/views/Users/_config/index.js:329
+#: html/pfappserver/root/src/views/Users/_config/index.js:331
 msgid "Custom Field 7"
 msgstr "Champ personnalisé 7"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:117
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:152
-#: html/pfappserver/root/src/views/Users/_config/index.js:336
+#: html/pfappserver/root/src/views/Users/_config/index.js:338
 msgid "Custom Field 8"
 msgstr "Champ personnalisé 8"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:120
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:155
-#: html/pfappserver/root/src/views/Users/_config/index.js:343
+#: html/pfappserver/root/src/views/Users/_config/index.js:345
 msgid "Custom Field 9"
 msgstr "Champ personnalisé 9"
 
@@ -4553,7 +4561,7 @@ msgstr "DHCP"
 #: html/pfappserver/root/src/views/Configuration/securityEvents/config.js:45
 #: html/pfappserver/root/src/views/Nodes/_components/TabFingerbank.vue:34
 #: html/pfappserver/root/src/views/Nodes/_search.js:130
-#: html/pfappserver/root/src/views/Users/_config/index.js:446
+#: html/pfappserver/root/src/views/Users/_config/index.js:448
 msgid "DHCP Fingerprint"
 msgstr "Empreinte DHCP"
 
@@ -4664,7 +4672,7 @@ msgstr "Fournisseur DHCP"
 #: html/pfappserver/root/src/views/Configuration/securityEvents/config.js:60
 #: html/pfappserver/root/src/views/Nodes/_components/TabFingerbank.vue:43
 #: html/pfappserver/root/src/views/Nodes/_search.js:118
-#: html/pfappserver/root/src/views/Users/_config/index.js:436
+#: html/pfappserver/root/src/views/Users/_config/index.js:438
 msgid "DHCPv6 Enterprise"
 msgstr "Entreprise DHCPv6"
 
@@ -4685,7 +4693,7 @@ msgstr "Entreprises DHCPv6"
 #: html/pfappserver/root/src/views/Configuration/securityEvents/config.js:55
 #: html/pfappserver/root/src/views/Nodes/_components/TabFingerbank.vue:40
 #: html/pfappserver/root/src/views/Nodes/_search.js:124
-#: html/pfappserver/root/src/views/Users/_config/index.js:441
+#: html/pfappserver/root/src/views/Users/_config/index.js:443
 msgid "DHCPv6 Fingerprint"
 msgstr "Empreinte DHCPv6"
 
@@ -4783,7 +4791,7 @@ msgstr "Démons"
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:82
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:87
 #: html/pfappserver/root/src/views/Status/network_communication/_components/BaseDataTable.vue:6
 msgid "Data"
 msgstr "Donnée"
@@ -4823,7 +4831,7 @@ msgstr "Base de donnée ProxySQL"
 msgid "Database Root Account"
 msgstr "Le compte Root de la base de données"
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:27
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:28
 msgid "Database User Account"
 msgstr "Compte d'utilisateur de base de données"
 
@@ -4915,8 +4923,8 @@ msgstr "Jours avant renouvellement"
 msgid "Days before sending renewal email"
 msgstr "Jours avant l'envoie d un courriel pour le renouvellement"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:74
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:72
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:73
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:71
 msgid "Days required."
 msgstr "Jours requis."
 
@@ -5039,7 +5047,7 @@ msgstr "Définir le mot de passe root pour le serveur MySQL."
 msgid "Define if the PSK needs to be generated."
 msgstr "Définissez si le PSK doit être généré."
 
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:55
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:60
 msgid ""
 "Define options for FreeRADIUS home_server definition (if you use the source "
 "in the realm configuration). Need a radiusd restart."
@@ -5652,7 +5660,7 @@ msgstr "Désenregistrer un appareil par PID"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:14
 #: html/pfappserver/root/src/views/Configuration/sources/_composables/useCollection.js:108
 #: html/pfappserver/root/src/views/Configuration/sources/_composables/useCollection.js:141
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:131
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:145
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:22
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:117
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:65
@@ -5673,7 +5681,7 @@ msgstr "Description"
 #: html/pfappserver/root/src/views/Configuration/adminRoles/schema.js:52
 #: html/pfappserver/root/src/views/Configuration/eventLoggers/schema.js:33
 #: html/pfappserver/root/src/views/Configuration/securityEvents/schema.js:130
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:131
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:145
 #: html/pfappserver/root/src/views/Configuration/switchGroups/schema.js:40
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/schema.js:44
 msgid "Description required."
@@ -5742,7 +5750,7 @@ msgstr "Détecté"
 #: html/pfappserver/root/src/views/Nodes/_search.js:364
 #: html/pfappserver/root/src/views/Nodes/_search.js:37
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:70
-#: html/pfappserver/root/src/views/Users/_config/index.js:371
+#: html/pfappserver/root/src/views/Users/_config/index.js:373
 msgid "Detected Date"
 msgstr "Date de détection"
 
@@ -5800,7 +5808,7 @@ msgstr "Catégorie périphérique"
 #: html/pfappserver/root/src/views/Nodes/_search.js:400
 #: html/pfappserver/root/src/views/Nodes/_search.js:87
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:106
-#: html/pfappserver/root/src/views/Users/_config/index.js:410
+#: html/pfappserver/root/src/views/Users/_config/index.js:412
 msgid "Device Class"
 msgstr "Classe d’appareil"
 
@@ -5808,7 +5816,7 @@ msgstr "Classe d’appareil"
 #: html/pfappserver/root/src/views/Nodes/_search.js:406
 #: html/pfappserver/root/src/views/Nodes/_search.js:94
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:112
-#: html/pfappserver/root/src/views/Users/_config/index.js:416
+#: html/pfappserver/root/src/views/Users/_config/index.js:418
 msgid "Device Manufacturer"
 msgstr "Fabricant de l'appareil"
 
@@ -5824,7 +5832,7 @@ msgid "Device Profiling"
 msgstr "Profilage de l'appareil"
 
 #: html/pfappserver/root/src/views/Nodes/_search.js:100
-#: html/pfappserver/root/src/views/Users/_config/index.js:421
+#: html/pfappserver/root/src/views/Users/_config/index.js:423
 msgid "Device Score"
 msgstr "Score de l'appareil"
 
@@ -5836,13 +5844,13 @@ msgstr "Événements de sécurité de l'appareil"
 #: html/pfappserver/root/src/views/Nodes/_search.js:106
 #: html/pfappserver/root/src/views/Nodes/_search.js:412
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:118
-#: html/pfappserver/root/src/views/Users/_config/index.js:426
+#: html/pfappserver/root/src/views/Users/_config/index.js:428
 msgid "Device Type"
 msgstr "Type d’appareil"
 
 #: html/pfappserver/root/src/views/Nodes/_search.js:112
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:124
-#: html/pfappserver/root/src/views/Users/_config/index.js:431
+#: html/pfappserver/root/src/views/Users/_config/index.js:433
 msgid "Device Version"
 msgstr "Version de l'appareil"
 
@@ -5915,8 +5923,8 @@ msgstr ""
 msgid "Digest"
 msgstr "Digest"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:73
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:71
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:72
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:70
 msgid "Digest required."
 msgstr "Digest requis."
 
@@ -5972,7 +5980,7 @@ msgstr "Désactivez cette case si vous utilisez un SSID masqué."
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: html/pfappserver/root/src/globals/pfLocales.js:18
+#: html/pfappserver/root/src/globals/pfLocales.js:49
 msgid "Disabled services {services}."
 msgstr "Services désactivés {services}."
 
@@ -5981,7 +5989,7 @@ msgstr "Services désactivés {services}."
 msgid "Disabling"
 msgstr "Désactivation"
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:53
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:67
 msgid "Disabling Configurator"
 msgstr "Désactivation du configurateur"
 
@@ -6082,7 +6090,7 @@ msgstr ""
 "Nom de domaine de PacketFence. Une modification requiert un redémarrage du "
 "service haproxy-portal."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:44
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:59
 msgid "Domain required."
 msgstr "Domaine requis."
 
@@ -6092,8 +6100,8 @@ msgstr "Domaine requis."
 #: html/pfappserver/root/src/views/Configuration/networks/fencing/schema.js:7
 #: html/pfappserver/root/src/views/Configuration/networks/fencing/schema.js:8
 #: html/pfappserver/root/src/views/Configuration/networks/fencing/schema.js:9
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:57
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:132
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:61
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:146
 msgid "Domains"
 msgstr "Domaines"
 
@@ -6182,7 +6190,7 @@ msgstr "Simulation terminée"
 msgid "Dry run paused"
 msgstr "Simulation suspendue"
 
-#: html/pfappserver/root/src/globals/pfActions.js:224
+#: html/pfappserver/root/src/globals/pfActions.js:227
 #: html/pfappserver/root/src/views/Configuration/filterEngines/schema.js:27
 msgid "Duplicate action."
 msgstr "Dupliquer l'action."
@@ -6204,12 +6212,12 @@ msgstr "Dupliquer le plan de facturation"
 msgid "Duplicate choice."
 msgstr "Choix en double."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:42
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:57
 #: html/pfappserver/root/src/views/Configuration/switches/schema.js:29
 msgid "Duplicate condition."
 msgstr "Dupliquer la condition."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:46
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:61
 msgid "Duplicate domain."
 msgstr "Dupliquer le domaine."
 
@@ -6217,7 +6225,7 @@ msgstr "Dupliquer le domaine."
 msgid "Duplicate filter."
 msgstr "Dupliquer le filtre."
 
-#: html/pfappserver/root/src/utils/yup.js:54
+#: html/pfappserver/root/src/utils/yup.js:55
 msgid "Duplicate item, must be unique."
 msgstr "L'élément en double doit être unique."
 
@@ -6229,7 +6237,7 @@ msgstr "Dupliquer la clé"
 msgid "Duplicate locale."
 msgstr "Dupliquer la locale."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:71
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:86
 msgid "Duplicate mapping."
 msgstr "Mappage en double."
 
@@ -6249,7 +6257,7 @@ msgstr "Dupliquer le paramètre."
 msgid "Duplicate provisioner."
 msgstr "Dupliquer l'agent de configuration."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:64
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:79
 msgid "Duplicate rule."
 msgstr "Règle en double."
 
@@ -6281,9 +6289,13 @@ msgstr "Durée"
 msgid "Duration required."
 msgstr "Durée requise."
 
-#: html/pfappserver/root/src/globals/pfActions.js:214
+#: html/pfappserver/root/src/globals/pfActions.js:217
 msgid "Duration(s) required."
 msgstr "Durée(s) requise(s)."
+
+#: html/pfappserver/root/src/globals/pfLocales.js:31
+msgid "Dutch"
+msgstr "Néerlandais"
 
 #: html/pfappserver/root/src/views/Configuration/switches/_components/BaseFormGroupToggleStaticDynamicDefault.vue:33
 #: html/pfappserver/root/src/views/Configuration/switches/_components/BaseFormGroupToggleStaticDynamicDefault.vue:43
@@ -6413,12 +6425,12 @@ msgstr "Options du realm d'Eduroam"
 #: html/pfappserver/root/src/views/Configuration/portalModules/config.js:79
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:23
 #: html/pfappserver/root/src/views/Configuration/sources/config.js:22
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:133
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:165
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:147
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:179
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:32
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:18
 #: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:85
-#: html/pfappserver/root/src/views/Users/_config/index.js:140
+#: html/pfappserver/root/src/views/Users/_config/index.js:142
 #: html/pfappserver/root/src/views/Users/_search.js:257
 #: html/pfappserver/root/src/views/Users/_search.js:56
 msgid "Email"
@@ -6493,7 +6505,7 @@ msgstr "En-tête de l'e-mail."
 msgid "Email is required when token not specified."
 msgstr "L'e-mail est requis lorsque le jeton n'est pas spécifié."
 
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:46
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:45
 msgid "Email is required."
 msgstr "Le courriel est requis."
 
@@ -6501,8 +6513,8 @@ msgstr "Le courriel est requis."
 msgid "Email required"
 msgstr "Courriel requis"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:45
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:34
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:44
+#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:33
 #: html/pfappserver/root/src/views/Users/schema.js:79
 msgid "Email required."
 msgstr "Email requis."
@@ -6580,6 +6592,10 @@ msgstr "Activer le DPSK"
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:461
 msgid "Enable Downloadable ACLs through RADIUS instead of Dynamic ACLs."
 msgstr "Active les ACLs Downloadable au lieu des ACLs Dynamic."
+
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:210
+msgid "Enable Fingerprinting"
+msgstr "Activer les empreintes digitales"
 
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/_components/TheForm.vue:70
 #: html/pfappserver/root/src/views/Configuration/networks/routedNetworks/_components/TheForm.vue:29
@@ -6768,7 +6784,7 @@ msgstr ""
 msgid "Enabled"
 msgstr "Activé"
 
-#: html/pfappserver/root/src/globals/pfLocales.js:22
+#: html/pfappserver/root/src/globals/pfLocales.js:53
 msgid "Enabled services {services}."
 msgstr "Services activés {services}."
 
@@ -6802,7 +6818,7 @@ msgstr ""
 msgid "Enabling"
 msgstr "Activation"
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:47
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:57
 msgid "Enabling PacketFence"
 msgstr "Activer PacketFence"
 
@@ -6828,7 +6844,7 @@ msgid "Encoding"
 msgstr "Encodage"
 
 #: html/pfappserver/root/src/views/Configuration/alerting/schema.js:11
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:134
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:148
 msgid "Encryption"
 msgstr "Chiffrement"
 
@@ -6888,8 +6904,7 @@ msgstr "Moteur"
 msgid "Engine ID"
 msgstr "ID du moteur"
 
-#: html/pfappserver/root/src/utils/locale.js:39
-#: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:14
+#: html/pfappserver/root/src/globals/pfLocales.js:3
 msgid "English"
 msgstr "Anglais"
 
@@ -6929,8 +6944,8 @@ msgstr "Entrer un nom unique"
 msgid "Enter search criteria"
 msgstr "Ajouter les critères de recherche"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:151
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:201
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:165
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:216
 msgid "Entity ID"
 msgstr "Entity ID"
 
@@ -7185,7 +7200,7 @@ msgstr "Echec"
 msgid "Failed RADIUS authentications in the last day"
 msgstr "Échecs d'authentification RADIUS du dernier jour"
 
-#: html/pfappserver/root/src/globals/pfLocales.js:19
+#: html/pfappserver/root/src/globals/pfLocales.js:50
 msgid ""
 "Failed to disable services {services}. See the server error logs for more "
 "information."
@@ -7193,7 +7208,7 @@ msgstr ""
 "Impossible de désactiver les services {services}. Consultez les journaux "
 "d'erreurs du serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:20
+#: html/pfappserver/root/src/globals/pfLocales.js:51
 msgid ""
 "Failed to disable services {services}. This service is required for this "
 "page to function and CLI access may be required to remediate any issues "
@@ -7204,7 +7219,7 @@ msgstr ""
 "résoudre les problèmes causés par l'échec. Consultez les journaux d'erreurs "
 "du serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:23
+#: html/pfappserver/root/src/globals/pfLocales.js:54
 msgid ""
 "Failed to enable services {services}. See the server error logs for more "
 "information."
@@ -7212,7 +7227,7 @@ msgstr ""
 "Échec de l'activation des services {services}. Consultez les journaux "
 "d'erreurs du serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:24
+#: html/pfappserver/root/src/globals/pfLocales.js:55
 msgid ""
 "Failed to enable services {services}. This service is required for this page"
 " to function and CLI access may be required to remediate any issues caused "
@@ -7228,8 +7243,20 @@ msgstr ""
 msgid "Failed to precreate ACLs on switch <code>{id}</code>."
 msgstr "Échec de la précréation des ACL sur le commutateur <code>{id}</code>."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:27
-#: html/pfappserver/root/src/globals/pfLocales.js:40
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:63
+msgid "Failed to restart haproxy-admin"
+msgstr "Échec du redémarrage de haproxy-admin"
+
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:55
+msgid "Failed to restart packetfence-config"
+msgstr "Failed to restart packetfence-config"
+
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:61
+msgid "Failed to restart pfperl-api"
+msgstr "Échec du redémarrage de pfperl-api"
+
+#: html/pfappserver/root/src/globals/pfLocales.js:58
+#: html/pfappserver/root/src/globals/pfLocales.js:71
 msgid ""
 "Failed to restart services {services}. See the server error logs for more "
 "information."
@@ -7237,7 +7264,7 @@ msgstr ""
 "Échec du redémarrage des services {services}. Consultez les journaux "
 "d'erreurs du serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:28
+#: html/pfappserver/root/src/globals/pfLocales.js:59
 msgid ""
 "Failed to restart services {services}. This service is required for this "
 "page to function and CLI access may be required to remediate any issues "
@@ -7248,7 +7275,11 @@ msgstr ""
 "les problèmes causés par l'échec. Consultez les journaux d'erreurs du "
 "serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:31
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:65
+msgid "Failed to start packetfence services"
+msgstr "Échec du démarrage des services packetfence"
+
+#: html/pfappserver/root/src/globals/pfLocales.js:62
 msgid ""
 "Failed to start services {services}. See the server error logs for more "
 "information."
@@ -7256,7 +7287,7 @@ msgstr ""
 "Impossible de démarrer les services {services}. Consultez les journaux "
 "d'erreurs du serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:34
+#: html/pfappserver/root/src/globals/pfLocales.js:65
 msgid ""
 "Failed to stop services {services}. See the server error logs for more "
 "information."
@@ -7264,7 +7295,15 @@ msgstr ""
 "Impossible d'arrêter les services {services}. Consultez les journaux "
 "d'erreurs du serveur pour plus d'informations."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:37
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:70
+msgid "Failed to update advanced"
+msgstr "Échec de la mise à jour avancée"
+
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:58
+msgid "Failed to update systemd"
+msgstr "Échec de la mise à jour de systemd"
+
+#: html/pfappserver/root/src/globals/pfLocales.js:68
 msgid ""
 "Failed to update systemd for {service}. See the server error logs for more "
 "information."
@@ -7301,7 +7340,7 @@ msgstr "Profil rapide <code> {id}</code>"
 msgid "Fast Profiles"
 msgstr "Profils Fast"
 
-#: html/pfappserver/root/src/globals/pfField.js:266
+#: html/pfappserver/root/src/globals/pfField.js:268
 msgid "Female"
 msgstr "Féminin"
 
@@ -7352,7 +7391,7 @@ msgstr ""
 msgid "File name required."
 msgstr "Nom de fichier requis."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:169
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:183
 msgid "File/path required."
 msgstr "Le fichier/chemin est requis."
 
@@ -7498,10 +7537,20 @@ msgstr "Appareil Fingerbank n'est pas"
 msgid "Fingerbank on-boarding"
 msgstr "Embarquement Fingerbank"
 
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:224
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:225
+msgid "Fingerprint Cache Expiration"
+msgstr "Expiration du cache Fingerprint"
+
 #: html/pfappserver/root/src/views/Configuration/fingerbank/dhcpFingerprints/schema.js:7
 #: html/pfappserver/root/src/views/Configuration/fingerbank/dhcpv6Fingerprints/schema.js:7
 msgid "Fingerprint required."
 msgstr "Empreinte requise."
+
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:211
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:219
+msgid "Fingerprint."
+msgstr "Fingerprint."
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/TheSearch.vue:4
 #: html/pfappserver/root/src/views/Configuration/index.vue:78
@@ -7521,7 +7570,7 @@ msgstr "Pare-feu SSO:"
 msgid "Firewall Type"
 msgstr "Type de pare-feu"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:119
+#: html/pfappserver/root/src/views/Users/_config/index.js:121
 msgid "First Name"
 msgstr "Prénom"
 
@@ -7665,8 +7714,7 @@ msgstr "Proxy Freeradius Eduroam"
 msgid "Freeradius Proxy"
 msgstr "Proxy Freeradius"
 
-#: html/pfappserver/root/src/utils/locale.js:43
-#: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:15
+#: html/pfappserver/root/src/globals/pfLocales.js:15
 msgid "French"
 msgstr "Français"
 
@@ -7687,7 +7735,7 @@ msgstr ""
 msgid "Fully Qualified Device Name"
 msgstr "Nom de domaine pleinement qualifié (FQDN)"
 
-#: html/pfappserver/root/src/App.vue:64
+#: html/pfappserver/root/src/App.vue:65
 msgid "GIT Commit ID"
 msgstr "GIT Commit ID"
 
@@ -7717,7 +7765,7 @@ msgstr "Passerelle requise."
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:45
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:32
-#: html/pfappserver/root/src/views/Users/_config/index.js:212
+#: html/pfappserver/root/src/views/Users/_config/index.js:214
 #: html/pfappserver/root/src/views/Users/_search.js:120
 #: html/pfappserver/root/src/views/Users/_search.js:307
 msgid "Gender"
@@ -7793,12 +7841,16 @@ msgstr "Générer la requête de signature pour le certificat {certificate}"
 msgid "Generate password"
 msgstr "Générer le mot de passe"
 
+#: html/pfappserver/root/src/globals/pfLocales.js:7
+msgid "German"
+msgstr "Allemand"
+
 #: html/pfappserver/root/src/views/Configuration/eventHandlers/config.js:111
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/config.js:87
 msgid "Get role details"
 msgstr "Obtenir les détails du rôle"
 
-#: html/pfappserver/root/src/App.vue:138
+#: html/pfappserver/root/src/App.vue:139
 msgid "Go to configuration"
 msgstr "Aller dans configuration"
 
@@ -7832,7 +7884,7 @@ msgstr "Groupe"
 msgid "Group header"
 msgstr "En-tête de groupe"
 
-#: html/pfappserver/root/src/globals/pfField.js:178
+#: html/pfappserver/root/src/globals/pfField.js:180
 msgid "Groups"
 msgstr "Groupes"
 
@@ -7853,7 +7905,7 @@ msgstr "Réponses HTTP (${name})"
 msgid "HTTP user-agent"
 msgstr "HTTP user-agent"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:136
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:150
 msgid "Hash"
 msgstr "Hash"
 
@@ -7862,10 +7914,14 @@ msgid "Hashing Cost"
 msgstr "Coût du hachage"
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:200
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:135
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:212
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:149
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:227
 msgid "Header"
 msgstr "En-tête"
+
+#: html/pfappserver/root/src/globals/pfLocales.js:19
+msgid "Hebrew"
+msgstr "Hébreu"
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:202
 msgid "Heuristics"
@@ -7939,7 +7995,6 @@ msgstr "Type de pool de serveurs domestiques."
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/schema.js:22
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/schema.js:8
 #: html/pfappserver/root/src/views/Configuration/kafka/_components/BaseHostConfig.vue:18
-#: html/pfappserver/root/src/views/Configuration/kafka/schema.js:26
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/schema.js:67
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeAirwatch.vue:65
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeIntune.vue:75
@@ -7948,15 +8003,15 @@ msgstr "Type de pool de serveurs domestiques."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeKandji.vue:66
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:66
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:58
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:44
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:61
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:48
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:65
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:13
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_composables/useCollection.js:84
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:18
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeKerberos.vue:18
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:21
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:18
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:48
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:63
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/FormTypeServer.vue:18
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/schema.js:33
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:294
@@ -8052,7 +8107,7 @@ msgstr "Nom d'hôte ou adresse IP requis."
 msgid "Hostname required."
 msgstr "Nom d'hôte requis."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:50
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:65
 #: html/pfappserver/root/src/views/Status/network_communication/_components/BaseDataHosts.vue:103
 #: html/pfappserver/root/src/views/Status/network_communication/_components/BaseDataHosts.vue:4
 #: html/pfappserver/root/src/views/Status/network_communication/_components/BaseDataProtocols.vue:109
@@ -8136,15 +8191,15 @@ msgid "I have a certificate"
 msgstr "Je possède déjà un certificat."
 
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_composables/useCollection.js:45
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:113
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:126
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:164
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:209
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:127
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:140
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:178
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:224
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:15
 msgid "ID"
 msgstr "Identifiant"
 
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:31
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:35
 #: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:8
 msgid "ID exists."
 msgstr "L'identifiant existe."
@@ -8165,7 +8220,7 @@ msgstr "ID de la configuration de balayage sur le serveur OpenVAS."
 msgid "ID of the security event"
 msgstr "ID de l'événement de sécurité"
 
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:30
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:34
 msgid "ID required."
 msgstr "Pièce d'identité requise."
 
@@ -8270,7 +8325,7 @@ msgstr "Clients IPtables"
 msgid "IPtables Cluster"
 msgstr "Cluster IPtables"
 
-#: html/pfappserver/root/src/views/Configuration/kafka/schema.js:33
+#: html/pfappserver/root/src/views/Configuration/kafka/schema.js:18
 #: html/pfappserver/root/src/views/Nodes/_components/TabIp4Logs.vue:4
 msgid "IPv4"
 msgstr "IPv4"
@@ -8281,7 +8336,7 @@ msgstr "IPv4"
 #: html/pfappserver/root/src/views/Nodes/_search.js:418
 #: html/pfappserver/root/src/views/Nodes/_search.js:74
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:130
-#: html/pfappserver/root/src/views/Users/_config/index.js:400
+#: html/pfappserver/root/src/views/Users/_config/index.js:402
 msgid "IPv4 Address"
 msgstr "Adresse IPv4"
 
@@ -8313,7 +8368,7 @@ msgstr "IPv6"
 #: html/pfappserver/root/src/views/Nodes/_search.js:424
 #: html/pfappserver/root/src/views/Nodes/_search.js:81
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:137
-#: html/pfappserver/root/src/views/Users/_config/index.js:405
+#: html/pfappserver/root/src/views/Users/_config/index.js:407
 msgid "IPv6 Address"
 msgstr "Adresse IPv6"
 
@@ -9143,33 +9198,24 @@ msgstr "Intune"
 msgid "Invalid API key."
 msgstr "Clé API invalide"
 
-#: html/pfappserver/root/src/utils/yup.js:155
+#: html/pfappserver/root/src/utils/yup.js:156
 msgid "Invalid CIDR."
 msgstr "CIDR invalide."
 
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:30
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:40
-msgid "Invalid Common name."
-msgstr "Nom commun non valide."
-
-#: html/pfappserver/root/src/utils/yup.js:24
+#: html/pfappserver/root/src/utils/yup.js:25
 msgid "Invalid Email."
 msgstr "Email invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:364
+#: html/pfappserver/root/src/utils/yup.js:365
 msgid "Invalid FQDN."
 msgstr "FQDN invalide."
 
-#: html/pfappserver/root/src/views/Configuration/kafka/schema.js:27
-msgid "Invalid Hostname."
-msgstr "Nom d'hôte non valide."
-
-#: html/pfappserver/root/src/utils/yup.js:380
+#: html/pfappserver/root/src/utils/yup.js:385
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:151
 msgid "Invalid IPv4 Address."
 msgstr "Adresse IPv4 non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:406
+#: html/pfappserver/root/src/utils/yup.js:411
 msgid "Invalid IPv6 Address."
 msgstr "Adresse IPv6 non valide."
 
@@ -9183,8 +9229,8 @@ msgstr "JSON invalide."
 msgid "Invalid MAC address."
 msgstr "Adresse MAC invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:414
-#: html/pfappserver/root/src/utils/yup.js:502
+#: html/pfappserver/root/src/utils/yup.js:419
+#: html/pfappserver/root/src/utils/yup.js:507
 msgid "Invalid MAC."
 msgstr "MAC non valide."
 
@@ -9193,16 +9239,16 @@ msgstr "MAC non valide."
 msgid "Invalid OUI."
 msgstr "OUI invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:446
+#: html/pfappserver/root/src/utils/yup.js:451
 msgid "Invalid VLAN."
 msgstr "VLAN invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:139
+#: html/pfappserver/root/src/utils/yup.js:140
 msgid "Invalid character, only letters (A-Z) or numbers (0-9)."
 msgstr ""
 "Caractère non valide, uniquement des lettres (A-Z) ou des chiffres (0-9)."
 
-#: html/pfappserver/root/src/utils/yup.js:147
+#: html/pfappserver/root/src/utils/yup.js:148
 msgid ""
 "Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), underscore"
 " (_), or dot (.)."
@@ -9210,7 +9256,7 @@ msgstr ""
 "Caractère non valide, uniquement des lettres (A-Z), des chiffres (0-9), un "
 "trait d'union (-), un trait de soulignement (_) ou un point (.)."
 
-#: html/pfappserver/root/src/utils/yup.js:174
+#: html/pfappserver/root/src/utils/yup.js:175
 msgid ""
 "Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), "
 "underscores (_), or colons (:)."
@@ -9218,7 +9264,7 @@ msgstr ""
 "Caractère non valide, uniquement lettres (A-Z), chiffres (0-9), tirets (-), "
 "traits de soulignement (_) ou deux points (:)."
 
-#: html/pfappserver/root/src/utils/yup.js:288
+#: html/pfappserver/root/src/utils/yup.js:289
 msgid ""
 "Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or "
 "colons (:)."
@@ -9226,38 +9272,37 @@ msgstr ""
 "Caractère non valide, uniquement des lettres (A-Z), des chiffres (0-9), des "
 "traits de soulignement (_) ou des deux-points (:)."
 
-#: html/pfappserver/root/src/utils/yup.js:388
+#: html/pfappserver/root/src/utils/yup.js:393
 msgid "Invalid comma-separated list of IPv4 addresses."
 msgstr "Liste d'adresses IPv4 séparées par des virgules non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:271
+#: html/pfappserver/root/src/utils/yup.js:272
 msgid "Invalid comma-separated list of email addresses."
 msgstr "Liste d'adresses e-mail séparées par des virgules non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:182
-#: html/pfappserver/root/src/utils/yup.js:191
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:41
+#: html/pfappserver/root/src/utils/yup.js:183
+#: html/pfappserver/root/src/utils/yup.js:192
 msgid "Invalid common name."
 msgstr "Nom commun invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:307
+#: html/pfappserver/root/src/utils/yup.js:308
 msgid "Invalid content-type. Must be one of: {contentTypes}."
 msgstr "Type de contenu invalide. Cela doit être un de: {contentTypes}."
 
-#: html/pfappserver/root/src/utils/yup.js:219
+#: html/pfappserver/root/src/utils/yup.js:220
 msgid "Invalid date, must be {comparison} {date}."
 msgstr "Date non valide, elle devrait être {comparison} {date}."
 
-#: html/pfappserver/root/src/utils/yup.js:231
-#: html/pfappserver/root/src/utils/yup.js:244
+#: html/pfappserver/root/src/utils/yup.js:232
+#: html/pfappserver/root/src/utils/yup.js:245
 msgid "Invalid date, use format \"{dateFormat}\"."
 msgstr "Date invalide, le format est \"{dateFormat}\"."
 
-#: html/pfappserver/root/src/utils/yup.js:199
+#: html/pfappserver/root/src/utils/yup.js:200
 msgid "Invalid date."
 msgstr "Date invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:478
+#: html/pfappserver/root/src/utils/yup.js:483
 msgid "Invalid datetime, use format \"{format}\"."
 msgstr "Format invalide, le format est \"{format}\"."
 
@@ -9265,22 +9310,22 @@ msgstr "Format invalide, le format est \"{format}\"."
 msgid "Invalid directory name."
 msgstr "Nom de répertoire non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:258
+#: html/pfappserver/root/src/utils/yup.js:259
 msgid "Invalid domain name."
 msgstr "Nom de domaine invalide."
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:46
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:35
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:44
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:45
+#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:34
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:43
 msgid "Invalid email address."
 msgstr "Adresse courriel invalideé"
 
-#: html/pfappserver/root/src/utils/yup.js:497
-#: html/pfappserver/root/src/views/Users/_config/index.js:144
+#: html/pfappserver/root/src/utils/yup.js:502
+#: html/pfappserver/root/src/views/Users/_config/index.js:146
 msgid "Invalid email."
 msgstr "Courriel invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:296
+#: html/pfappserver/root/src/utils/yup.js:297
 msgid "Invalid extension. Must be one of: {extensions}."
 msgstr "Extension non valide. Doit être l'une des: {extensions}."
 
@@ -9298,12 +9343,12 @@ msgstr ""
 msgid "Invalid fingerprint."
 msgstr "Empreinte digitale non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:372
+#: html/pfappserver/root/src/utils/yup.js:377
 msgid "Invalid hostname."
 msgstr "Nom d'hôte est invalide."
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:69
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:68
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:68
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:67
 msgid "Invalid key size. {type} only supports {list}"
 msgstr "Taille de clé non valide. {type} prend uniquement en charge {list}"
 
@@ -9311,7 +9356,10 @@ msgstr "Taille de clé non valide. {type} prend uniquement en charge {list}"
 msgid "Invalid parent, must not be self."
 msgstr "Parent invalide, il ne doit pas être lui-même."
 
-#: html/pfappserver/root/src/utils/yup.js:422
+#: html/pfappserver/root/src/utils/yup.js:427
+msgid "Invalid port range (${min}-${max})."
+msgstr "Plage de ports non valide (${min}-${max})."
+
 #: html/pfappserver/root/src/views/Configuration/switchGroups/schema.js:79
 #: html/pfappserver/root/src/views/Configuration/switchGroups/schema.js:80
 #: html/pfappserver/root/src/views/Configuration/switches/schema.js:87
@@ -9319,22 +9367,22 @@ msgstr "Parent invalide, il ne doit pas être lui-même."
 msgid "Invalid port."
 msgstr "Port invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:430
+#: html/pfappserver/root/src/utils/yup.js:435
 #: html/pfappserver/root/src/views/Configuration/billingTiers/schema.js:35
 msgid "Invalid price."
 msgstr "Prix non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:438
+#: html/pfappserver/root/src/utils/yup.js:443
 msgid "Invalid static route."
 msgstr "Route statique non valide."
 
-#: html/pfappserver/root/src/utils/yup.js:105
-#: html/pfappserver/root/src/utils/yup.js:113
+#: html/pfappserver/root/src/utils/yup.js:106
+#: html/pfappserver/root/src/utils/yup.js:114
 msgid "Invalid value"
 msgstr "Valeur invalide."
 
-#: html/pfappserver/root/src/utils/yup.js:37
-#: html/pfappserver/root/src/utils/yup.js:492
+#: html/pfappserver/root/src/utils/yup.js:38
+#: html/pfappserver/root/src/utils/yup.js:497
 msgid "Invalid value."
 msgstr "Valeur invalide."
 
@@ -9374,6 +9422,10 @@ msgstr "Domaines d'isolation passthrough"
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/config.js:8
 msgid "Issuer"
 msgstr "Émetteur"
+
+#: html/pfappserver/root/src/globals/pfLocales.js:23
+msgid "Italian"
+msgstr "Italien"
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/config.js:11
 msgid "JSONRPC"
@@ -9443,17 +9495,16 @@ msgstr "Kandji"
 #: html/pfappserver/root/src/views/Configuration/activeActive/schema.js:5
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/schema.js:85
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/schema.js:7
-#: html/pfappserver/root/src/views/Configuration/kafka/schema.js:19
 #: html/pfappserver/root/src/views/Configuration/mfas/schema.js:35
 #: html/pfappserver/root/src/views/Configuration/mfas/schema.js:37
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:52
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:56
 #: html/pfappserver/root/src/views/Configuration/radius/fast/_components/TheForm.vue:23
 #: html/pfappserver/root/src/views/Configuration/radius/fast/schema.js:33
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:6
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:183
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:184
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:188
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:210
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:198
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:199
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:203
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:225
 msgid "Key"
 msgstr "Clé"
 
@@ -9465,8 +9516,8 @@ msgstr "Fichier clé (key)"
 msgid "Key buffer size"
 msgstr "Taille de la mémoire tampon clé"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:161
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:205
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:175
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:220
 msgid "Key required."
 msgstr "Le fichier clé (key) est requis."
 
@@ -9475,8 +9526,8 @@ msgstr "Le fichier clé (key) est requis."
 msgid "Key size"
 msgstr "Taille de la clé"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:66
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:65
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:65
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:64
 msgid "Key size required."
 msgstr "Taille de la clé requise."
 
@@ -9485,8 +9536,8 @@ msgstr "Taille de la clé requise."
 msgid "Key type"
 msgstr "Type de clé"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:56
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:55
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:55
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:54
 msgid "Key type required."
 msgstr "Type de clé requis."
 
@@ -9549,7 +9600,7 @@ msgstr "Gabarit d'inscription"
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:10
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:42
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:29
-#: html/pfappserver/root/src/views/Users/_config/index.js:220
+#: html/pfappserver/root/src/views/Users/_config/index.js:222
 #: html/pfappserver/root/src/views/Users/_search.js:126
 #: html/pfappserver/root/src/views/Users/_search.js:312
 msgid "Language"
@@ -9586,7 +9637,7 @@ msgstr "Dernier .1X nom d'utilisateur"
 #: html/pfappserver/root/src/views/Nodes/_components/TabInfo.vue:47
 #: html/pfappserver/root/src/views/Nodes/_components/TabTimeline.vue:108
 #: html/pfappserver/root/src/views/Nodes/_search.js:227
-#: html/pfappserver/root/src/views/Users/_config/index.js:518
+#: html/pfappserver/root/src/views/Users/_config/index.js:520
 msgid "Last ARP"
 msgstr "Dernier ARP"
 
@@ -9602,7 +9653,7 @@ msgstr "Dernier type de connexion"
 #: html/pfappserver/root/src/views/Nodes/_components/TabInfo.vue:50
 #: html/pfappserver/root/src/views/Nodes/_components/TabTimeline.vue:120
 #: html/pfappserver/root/src/views/Nodes/_search.js:234
-#: html/pfappserver/root/src/views/Users/_config/index.js:525
+#: html/pfappserver/root/src/views/Users/_config/index.js:527
 msgid "Last DHCP"
 msgstr "Dernier DHCP"
 
@@ -9619,7 +9670,7 @@ msgstr "Dernier si correspond"
 msgid "Last Modified"
 msgstr "Dernière modification"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:126
+#: html/pfappserver/root/src/views/Users/_config/index.js:128
 msgid "Last Name"
 msgstr "Nom de famille"
 
@@ -9740,7 +9791,7 @@ msgstr ""
 " le montant le plus élevé à enregistrer. Ne changez pas si vous ne savez pas"
 " ce que vous faites"
 
-#: html/pfappserver/root/src/globals/pfActions.js:209
+#: html/pfappserver/root/src/globals/pfActions.js:212
 msgid "Level(s) required."
 msgstr "Niveau requis."
 
@@ -9981,7 +10032,7 @@ msgstr "Localité"
 msgid "Locality for the certificate."
 msgstr "Localité définie dans le certificat"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:53
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:52
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_composables/useCsr.js:19
 msgid "Locality required."
 msgstr "Localité requise."
@@ -10070,7 +10121,7 @@ msgstr "Nom du journal"
 msgid "Log file(s) required."
 msgstr "Fichier(s) journal requis."
 
-#: html/pfappserver/root/src/App.vue:41
+#: html/pfappserver/root/src/App.vue:42
 msgid "Log out"
 msgstr "Déconnexion"
 
@@ -10142,7 +10193,7 @@ msgstr "Chercher"
 #: html/pfappserver/root/src/views/Configuration/floatingDevices/_composables/useCollection.js:80
 #: html/pfappserver/root/src/views/Nodes/_components/TheFormCreate.vue:9
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:30
-#: html/pfappserver/root/src/views/Users/_config/index.js:599
+#: html/pfappserver/root/src/views/Users/_config/index.js:601
 msgid "MAC"
 msgstr "MAC"
 
@@ -10165,7 +10216,7 @@ msgstr "MAC"
 #: html/pfappserver/root/src/views/Nodes/_search.js:334
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:34
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:90
-#: html/pfappserver/root/src/views/Users/_config/index.js:364
+#: html/pfappserver/root/src/views/Users/_config/index.js:366
 msgid "MAC Address"
 msgstr "Adresse MAC"
 
@@ -10237,7 +10288,7 @@ msgstr "URI pour télécharger l’agent Mac OSX "
 #: html/pfappserver/root/src/views/Nodes/_search.js:248
 #: html/pfappserver/root/src/views/Nodes/_search.js:430
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:144
-#: html/pfappserver/root/src/views/Users/_config/index.js:532
+#: html/pfappserver/root/src/views/Users/_config/index.js:534
 msgid "Machine Account"
 msgstr "Compte machine"
 
@@ -10319,7 +10370,7 @@ msgstr "Assurez-vous d'avoir fourni la bonne adresse IP / identifiants."
 msgid "Make sure to keep them in a secure place"
 msgstr "Assurez-vous de les conserver dans un endroit sûr"
 
-#: html/pfappserver/root/src/globals/pfField.js:265
+#: html/pfappserver/root/src/globals/pfField.js:267
 msgid "Male"
 msgstr "Masculin"
 
@@ -10439,34 +10490,34 @@ msgstr "Maximiser"
 msgid "Maximum 100."
 msgstr "Maximum 100."
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:50
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:72
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:36
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:49
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:71
+#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:35
+#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:37
 #: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:38
 #: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:39
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:40
+#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:42
 #: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:43
 #: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:44
 #: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:45
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:46
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:45
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:48
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:44
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:47
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:50
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:51
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:52
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:53
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:54
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:72
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:73
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:74
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:75
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:76
 msgid "Maximum 255 characters."
 msgstr "Maximum de 255 caractères."
 
 #: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:39
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:49
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:48
 #: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:29
-#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:41
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:49
+#: html/pfappserver/root/src/views/Configuration/pki/certs/schema.js:40
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:48
 msgid "Maximum 64 characters."
 msgstr "64 caractères maximum."
 
@@ -10541,20 +10592,20 @@ msgstr ""
 "Le nombre maximum de fois qu’un utilisateur peut réessayer un code PIN SMS "
 "avant d’avoir à demander un autre code. Une valeur de 0 désactive la limite."
 
-#: html/pfappserver/root/src/utils/yup.js:487
+#: html/pfappserver/root/src/utils/yup.js:492
 msgid "Maximum value of {max}."
 msgstr "Valeur maximale de {max}."
 
-#: html/pfappserver/root/src/utils/yup.js:473
+#: html/pfappserver/root/src/utils/yup.js:478
 #: html/pfappserver/root/src/views/Users/schema.js:99
 msgid "Maximum {maxLength} characters."
 msgstr "Maximum {maxLength} de caractères."
 
-#: html/pfappserver/root/src/utils/yup.js:123
+#: html/pfappserver/root/src/utils/yup.js:124
 msgid "Maximum {maxValue}."
 msgstr "Maximum {maxValue}."
 
-#: html/pfappserver/root/src/utils/yup.js:26
+#: html/pfappserver/root/src/utils/yup.js:27
 msgid "Maximum {max} characters."
 msgstr "Maximum {max} caractères."
 
@@ -10581,7 +10632,7 @@ msgstr "Meru Controlleur v2"
 msgid "Message"
 msgstr "Message"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:155
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:169
 msgid "Metadata required."
 msgstr "Métadonnées requises."
 
@@ -10614,8 +10665,8 @@ msgstr "Minimiser"
 msgid "Minimum 0."
 msgstr "Minimum 0."
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:75
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:72
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:74
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:71
 msgid "Minimum 1 day(s)."
 msgstr "Minimum 1 jour."
 
@@ -10631,15 +10682,15 @@ msgstr ""
 "Écart minimum avant la date d'expiration du certificat (le certificat va "
 "expirer dans ...)."
 
-#: html/pfappserver/root/src/utils/yup.js:485
+#: html/pfappserver/root/src/utils/yup.js:490
 msgid "Minimum value of {min}."
 msgstr "Valeur minimale de {min}."
 
-#: html/pfappserver/root/src/utils/yup.js:131
+#: html/pfappserver/root/src/utils/yup.js:132
 msgid "Minimum {minValue}."
 msgstr "minimum {minValue}."
 
-#: html/pfappserver/root/src/utils/yup.js:25
+#: html/pfappserver/root/src/utils/yup.js:26
 msgid "Minimum {min} characters."
 msgstr "Minimum de {min} caractères."
 
@@ -10647,8 +10698,8 @@ msgstr "Minimum de {min} caractères."
 msgid "Missing required fields."
 msgstr "Des champs requis sont manquants."
 
-#: html/pfappserver/root/src/utils/yup.js:74
-#: html/pfappserver/root/src/utils/yup.js:88
+#: html/pfappserver/root/src/utils/yup.js:75
+#: html/pfappserver/root/src/utils/yup.js:89
 msgid "Missing value."
 msgstr "Valeur manquante."
 
@@ -10773,7 +10824,7 @@ msgstr "Hôte multiple"
 msgid "Multiple"
 msgstr "Multiple"
 
-#: html/pfappserver/root/src/utils/yup.js:483
+#: html/pfappserver/root/src/utils/yup.js:488
 msgid "Must be numeric."
 msgstr "Doit être numérique."
 
@@ -10841,7 +10892,7 @@ msgstr "ID NAS"
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:62
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:204
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:362
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:49
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:54
 msgid "NAS IP Address"
 msgstr "Adresse IP NAS"
 
@@ -11045,7 +11096,7 @@ msgstr "Latence NTLM"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:9
 #: html/pfappserver/root/src/views/Configuration/sources/_composables/useCollection.js:136
 #: html/pfappserver/root/src/views/Configuration/sources/_composables/useCollection.js:93
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:54
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:69
 #: html/pfappserver/root/src/views/Configuration/wrix/schema.js:37
 #: html/pfappserver/root/src/views/Configuration/wrix/schema.js:42
 #: html/pfappserver/root/src/views/Configuration/wrix/schema.js:43
@@ -11079,7 +11130,8 @@ msgstr "Le nom existe déjà."
 #: html/pfappserver/root/src/views/Configuration/scanEngines/schema.js:8
 #: html/pfappserver/root/src/views/Configuration/selfServices/schema.js:35
 #: html/pfappserver/root/src/views/Configuration/selfServices/schema.js:8
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:102
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:116
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:39
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/schema.js:31
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/schema.js:8
 msgid "Name exists."
@@ -11111,7 +11163,7 @@ msgstr "Nom du scanneur à utiliser sur le serveur Nessus."
 #: html/pfappserver/root/src/views/Configuration/pki/scepServers/schema.js:37
 #: html/pfappserver/root/src/views/Configuration/roles/schema.js:55
 #: html/pfappserver/root/src/views/Configuration/selfServices/schema.js:34
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:101
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:115
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/schema.js:30
 msgid "Name required."
 msgstr "Nom requis."
@@ -11175,7 +11227,7 @@ msgstr "NetFlow sur tous les réseaux"
 msgid "Netflow Accounting Enabled"
 msgstr "Comptabilité Netflow activée"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:121
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:107
 msgid "Netflow address"
 msgstr "Netflow adresse"
 
@@ -11334,6 +11386,10 @@ msgstr "Réseaux"
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:27
 msgid "Networks on which to do SSO"
 msgstr "Réseaux sur lesquels appliquer le SSO"
+
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:218
+msgid "Networks where Fingerprinting in enabled"
+msgstr "Réseaux où le Fingerprinting est activé"
 
 #: html/pfappserver/root/src/views/Configuration/_components/TheSectionNetworkConfiguration.vue:9
 msgid "Networks:"
@@ -11703,7 +11759,7 @@ msgstr "Prochaine intervalle de temps"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:57
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:44
-#: html/pfappserver/root/src/views/Users/_config/index.js:133
+#: html/pfappserver/root/src/views/Users/_config/index.js:135
 #: html/pfappserver/root/src/views/Users/_search.js:252
 #: html/pfappserver/root/src/views/Users/_search.js:50
 msgid "Nickname"
@@ -11711,7 +11767,7 @@ msgstr "Surnom"
 
 #: html/pfappserver/root/src/components/new/BaseFormGroupToggleNY.js:11
 #: html/pfappserver/root/src/components/new/BaseFormGroupToggleNoYes.js:11
-#: html/pfappserver/root/src/globals/pfField.js:349
+#: html/pfappserver/root/src/globals/pfField.js:358
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:25
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:35
 #: html/pfappserver/root/src/views/Configuration/_components/new/BaseFormGroupToggleNYDefault.vue:32
@@ -12064,6 +12120,10 @@ msgstr "Nonce"
 msgid "None"
 msgstr "Aucun"
 
+#: html/pfappserver/root/src/globals/pfLocales.js:27
+msgid "Norwegian"
+msgstr "Norvégien"
+
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:101
 #: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:81
 msgid "Not Before"
@@ -12110,9 +12170,9 @@ msgstr "Note : Une URL est toujours précédée d'une barre oblique (/)."
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:51
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:93
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:80
-#: html/pfappserver/root/src/views/Users/_config/index.js:227
-#: html/pfappserver/root/src/views/Users/_config/index.js:508
-#: html/pfappserver/root/src/views/Users/_config/index.js:627
+#: html/pfappserver/root/src/views/Users/_config/index.js:229
+#: html/pfappserver/root/src/views/Users/_config/index.js:510
+#: html/pfappserver/root/src/views/Users/_config/index.js:629
 #: html/pfappserver/root/src/views/Users/_search.js:132
 #: html/pfappserver/root/src/views/Users/_search.js:317
 msgid "Notes"
@@ -12327,7 +12387,7 @@ msgstr "Appareils en ligne"
 msgid "Online Status"
 msgstr "Status en ligne"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:359
+#: html/pfappserver/root/src/views/Users/_config/index.js:361
 msgid "Online/Offline"
 msgstr "En ligne/Hors ligne"
 
@@ -12405,17 +12465,17 @@ msgstr "Attributs OpenID"
 msgid "OpenVAS"
 msgstr "OpenVAS"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:38
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:53
 msgid "Operator"
 msgstr "Opérateur"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:217
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:232
 msgid "Operator Name"
 msgstr "Nom de l'opérateur"
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/schema.js:55
 #: html/pfappserver/root/src/views/Configuration/filterEngines/schema.js:39
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:38
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:53
 msgid "Operator required."
 msgstr "Operateur requis."
 
@@ -12484,8 +12544,8 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:42
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:47
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:54
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:214
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:59
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:229
 msgid "Options"
 msgstr "Options"
 
@@ -12498,7 +12558,7 @@ msgstr "Options"
 msgid "Organisation"
 msgstr "Organisation"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:49
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:48
 msgid "Organisation required."
 msgstr "Organisation requise."
 
@@ -12537,7 +12597,7 @@ msgstr "Unité organisationnelle"
 msgid "Organizational unit for the certificate."
 msgstr "Unité organisationnelle pour le certificat."
 
-#: html/pfappserver/root/src/globals/pfField.js:267
+#: html/pfappserver/root/src/globals/pfField.js:269
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/config.js:13
 #: html/pfappserver/root/src/views/Configuration/portalModules/config.js:95
 msgid "Other"
@@ -12667,7 +12727,7 @@ msgstr "Objet du courriel P12"
 msgid "PEAP Profile"
 msgstr "Profil PEAP"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:96
+#: html/pfappserver/root/src/views/Users/_config/index.js:98
 #: html/pfappserver/root/src/views/Users/_search.js:232
 msgid "PID"
 msgstr "PID"
@@ -12691,7 +12751,7 @@ msgstr "Le PID existe."
 msgid "PID field"
 msgstr "Champ PID"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:100
+#: html/pfappserver/root/src/views/Users/_config/index.js:102
 msgid "PID required."
 msgstr "PID requis."
 
@@ -12751,7 +12811,7 @@ msgstr "Certificats SSL PKI"
 msgid "PKI:"
 msgstr "ICP:"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:241
+#: html/pfappserver/root/src/views/Users/_config/index.js:243
 #: html/pfappserver/root/src/views/Users/_search.js:144
 #: html/pfappserver/root/src/views/Users/_search.js:327
 msgid "PSK"
@@ -12905,7 +12965,7 @@ msgstr "Packetfence Local"
 msgid "Packetfence PKI"
 msgstr "PKI de Packetfence"
 
-#: html/pfappserver/root/src/App.vue:61
+#: html/pfappserver/root/src/App.vue:62
 msgid "Packetfence Version"
 msgstr "Version de Packetfence"
 
@@ -12927,7 +12987,7 @@ msgstr "PaloAlto"
 msgid "Param required."
 msgstr "Param requis."
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:108
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:122
 msgid "Parameter"
 msgstr "Paramètre"
 
@@ -12997,7 +13057,7 @@ msgstr "Domaines passthrough"
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/_components/FormTypeScep.vue:24
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/schema.js:70
 #: html/pfappserver/root/src/views/Configuration/portalModules/config.js:82
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:37
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:41
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:21
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:21
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:21
@@ -13018,14 +13078,14 @@ msgstr "Domaines passthrough"
 #: html/pfappserver/root/src/views/Configuration/webServices/_components/TheForm.vue:14
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:19
 #: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:17
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:33
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:49
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:34
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:51
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:29
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:23
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:174
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:176
 #: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:91
-#: html/pfappserver/root/src/views/Users/_config/index.js:105
+#: html/pfappserver/root/src/views/Users/_config/index.js:107
 msgid "Password"
 msgstr "Mot de passe"
 
@@ -13047,7 +13107,7 @@ msgstr "Le mot de passe changé avec succès."
 
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:88
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:537
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:81
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:88
 msgid "Password copied to clipboard"
 msgstr "Mot de passe copié dans le presse-papiers"
 
@@ -13131,8 +13191,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/adminLogin/schema.js:7
 #: html/pfappserver/root/src/views/Configuration/captivePortal/schema.js:6
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/schema.js:10
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:109
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:117
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:123
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:131
 msgid "Path"
 msgstr "Chemin"
 
@@ -13175,7 +13235,7 @@ msgid "Pay for your access"
 msgstr "Payez votre accès"
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePaypal.vue:65
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:172
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:186
 msgid "Payment type"
 msgstr "Type de paiement"
 
@@ -13183,7 +13243,7 @@ msgstr "Type de paiement"
 msgid "Paypal Certificate File"
 msgstr "Fichier de certificat Paypal"
 
-#: html/pfappserver/root/src/globals/pfField.js:274
+#: html/pfappserver/root/src/globals/pfField.js:276
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:64
 msgid "Pending"
 msgstr "En attente"
@@ -13250,7 +13310,7 @@ msgstr "Pfacct workers"
 msgid "Pfflow processing job"
 msgstr "Tâche de traitement Pfflow"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:211
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:226
 #: html/pfappserver/root/src/views/Configuration/wrix/schema.js:44
 msgid "Phone"
 msgstr "Téléphone"
@@ -13326,6 +13386,10 @@ msgstr "Politique"
 msgid "Policy required."
 msgstr "Politique Requise."
 
+#: html/pfappserver/root/src/globals/pfLocales.js:35
+msgid "Polish"
+msgstr "Polonais"
+
 #: html/pfappserver/root/src/globals/pfFilters.js:28
 #: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheView.vue:14
 #: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_search.js:117
@@ -13351,13 +13415,13 @@ msgstr "Politique Requise."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeJamfCloud.vue:62
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeKandji.vue:70
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:62
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:45
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:49
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_composables/useCollection.js:122
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_composables/useCollection.js:98
 #: html/pfappserver/root/src/views/Configuration/scanEngines/schema.js:49
 #: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupServerAddressPort.vue:34
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:22
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:180
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:194
 #: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:12
 #: html/pfappserver/root/src/views/Configuration/switches/config.js:19
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/FormTypeServer.vue:22
@@ -13403,7 +13467,7 @@ msgid "Port {port} is standard for {encryption} encryption."
 msgstr "Le port {port} est standard pour le cryptage {cryptage}."
 
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/config.js:10
-#: html/pfappserver/root/src/views/Users/_config/index.js:234
+#: html/pfappserver/root/src/views/Users/_config/index.js:236
 #: html/pfappserver/root/src/views/Users/_search.js:138
 #: html/pfappserver/root/src/views/Users/_search.js:322
 msgid "Portal"
@@ -13468,6 +13532,10 @@ msgstr ""
 "redirection 53/UDP (DNS) semble avoir des problèmes et n’est pas non plus "
 "recommandée."
 
+#: html/pfappserver/root/src/globals/pfLocales.js:39
+msgid "Portuguese"
+msgstr "Portugais"
+
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:293
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:298
 msgid "Post MFA Validation"
@@ -13494,7 +13562,7 @@ msgstr "Code postal pour le certificat."
 msgid "Precreate ACLs"
 msgstr "Pré-créer des ACLs"
 
-#: html/pfappserver/root/src/App.vue:39
+#: html/pfappserver/root/src/App.vue:40
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:71
 msgid "Preferences"
 msgstr "Préférences"
@@ -14148,7 +14216,7 @@ msgstr "Lecture du fichier"
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/config.js:32
 #: html/pfappserver/root/src/views/Configuration/firewalls/schema.js:43
 #: html/pfappserver/root/src/views/Configuration/realms/_components/TheForm.vue:12
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:115
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:129
 #: html/pfappserver/root/src/views/Nodes/_components/TabInfo.vue:14
 msgid "Realm"
 msgstr "Realm"
@@ -14182,7 +14250,7 @@ msgstr "Realms"
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAuthorization.vue:19
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:34
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:60
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:65
 msgid ""
 "Realms that will be associated with this source (for the portal/admin "
 "GUI/RADIUS post-auth, not for FreeRADIUS proxy)."
@@ -14263,7 +14331,7 @@ msgstr ""
 msgid "Redirect"
 msgstr "Rediriger"
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:57
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:72
 msgid "Redirecting to login page"
 msgstr "Redirection vers la page d'enregistrement"
 
@@ -14364,7 +14432,7 @@ msgstr "Enregistrer un appareil par MAC"
 msgid "Register on activation"
 msgstr "Enregistrer à l'activation"
 
-#: html/pfappserver/root/src/globals/pfField.js:272
+#: html/pfappserver/root/src/globals/pfField.js:274
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:63
 #: html/pfappserver/root/src/views/Nodes/_components/TabTimeline.vue:89
 #: html/pfappserver/root/src/views/Nodes/_components/TabTimeline.vue:96
@@ -14436,7 +14504,7 @@ msgstr "Enregistrement"
 
 #: html/pfappserver/root/src/views/Nodes/_components/TabInfo.vue:41
 #: html/pfappserver/root/src/views/Nodes/_search.js:45
-#: html/pfappserver/root/src/views/Users/_config/index.js:378
+#: html/pfappserver/root/src/views/Users/_config/index.js:380
 msgid "Registration Date"
 msgstr "Date d’enregistrement"
 
@@ -14484,7 +14552,7 @@ msgstr "Par rapport au début de la période"
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:235
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:100
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:50
-#: html/pfappserver/root/src/views/Users/_config/index.js:616
+#: html/pfappserver/root/src/views/Users/_config/index.js:618
 msgid "Release Date"
 msgstr "Date de désenregistrement"
 
@@ -14712,8 +14780,8 @@ msgstr "Redémarrer le port du commutateur"
 msgid "Restart Switchport"
 msgstr "Redémarrer le port du commutateur"
 
-#: html/pfappserver/root/src/globals/pfLocales.js:26
-#: html/pfappserver/root/src/globals/pfLocales.js:39
+#: html/pfappserver/root/src/globals/pfLocales.js:57
+#: html/pfappserver/root/src/globals/pfLocales.js:70
 msgid "Restarted services {services}."
 msgstr "Services redémarrés {services}."
 
@@ -14835,8 +14903,8 @@ msgstr "Interval illégal"
 #: html/pfappserver/root/src/views/Nodes/_search.js:136
 #: html/pfappserver/root/src/views/Nodes/_search.js:454
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:168
-#: html/pfappserver/root/src/views/Users/_config/index.js:248
-#: html/pfappserver/root/src/views/Users/_config/index.js:451
+#: html/pfappserver/root/src/views/Users/_config/index.js:250
+#: html/pfappserver/root/src/views/Users/_config/index.js:453
 msgid "Role"
 msgstr "Rôle"
 
@@ -14889,7 +14957,7 @@ msgstr "Rôle par URL pour l’authentification web"
 #: html/pfappserver/root/src/views/Configuration/roles/schema.js:8
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:129
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:69
-#: html/pfappserver/root/src/views/Users/_config/index.js:253
+#: html/pfappserver/root/src/views/Users/_config/index.js:255
 msgid "Role does not exist."
 msgstr "Le rôle n'existe pas."
 
@@ -15018,7 +15086,7 @@ msgstr "Rôles:"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:78
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:65
-#: html/pfappserver/root/src/views/Users/_config/index.js:198
+#: html/pfappserver/root/src/views/Users/_config/index.js:200
 #: html/pfappserver/root/src/views/Users/_search.js:107
 #: html/pfappserver/root/src/views/Users/_search.js:297
 msgid "Room Number"
@@ -15084,6 +15152,10 @@ msgstr "Ruckus SmartZone v2"
 #: html/pfappserver/root/src/views/Configuration/eventHandlers/schema.js:33
 msgid "Rule contains one or more errors."
 msgstr "La règle contient une ou plusieurs erreurs."
+
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:20
+msgid "Rule required."
+msgstr "Règle requise."
 
 #: html/pfappserver/root/src/views/Configuration/eventHandlers/_components/BaseFormGroupTest.js:37
 #: html/pfappserver/root/src/views/Configuration/eventHandlers/_components/FormTypeRegex.vue:28
@@ -15152,7 +15224,7 @@ msgstr "Serveur SCEP <code>{id}</code>"
 msgid "SCEP Server Enabled"
 msgstr "Serveur SCEP Activé"
 
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:79
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:78
 msgid "SCEP Server required."
 msgstr "Serveur SCEP requis."
 
@@ -15174,7 +15246,7 @@ msgstr "Mot de passe de challenge SCEP."
 msgid "SCEP days before renewal"
 msgstr "SCEP jours avant le renouvellement"
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:110
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:124
 msgid "SID"
 msgstr "SID"
 
@@ -15286,7 +15358,7 @@ msgstr "SNMP:"
 #: html/pfappserver/root/src/views/Nodes/_search.js:185
 #: html/pfappserver/root/src/views/Nodes/_search.js:496
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:210
-#: html/pfappserver/root/src/views/Users/_config/index.js:482
+#: html/pfappserver/root/src/views/Users/_config/index.js:484
 msgid "SSID"
 msgstr "SSID"
 
@@ -15530,8 +15602,8 @@ msgstr "Schéma"
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLinkedIn.vue:42
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:38
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:42
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:107
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:187
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:121
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:202
 msgid "Scope"
 msgstr "Etendue"
 
@@ -15613,15 +15685,15 @@ msgid "Seconds"
 msgstr "Secondes"
 
 #: html/pfappserver/root/src/views/Configuration/connectors/_components/TheForm.vue:18
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:41
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:53
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:70
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:45
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:57
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:74
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:27
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:130
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:185
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:189
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:192
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:193
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:144
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:200
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:204
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:207
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:208
 msgid "Secret"
 msgstr "Mot de passe"
 
@@ -15650,6 +15722,7 @@ msgid "Secret or Key"
 msgstr "Mot de passe ou clé"
 
 #: html/pfappserver/root/src/views/Configuration/pki/scepServers/schema.js:46
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:204
 msgid "Secret required."
 msgstr "Mot de passe du serveur SCEP requis."
 
@@ -15658,7 +15731,7 @@ msgid "Secure redirect"
 msgstr "Redirection sécurisée"
 
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:223
-#: html/pfappserver/root/src/views/Users/_config/index.js:604
+#: html/pfappserver/root/src/views/Users/_config/index.js:606
 msgid "Security Event"
 msgstr "Événement de sécurité"
 
@@ -15677,12 +15750,12 @@ msgstr "Nombre d'événements de sécurité fermés [Numéro # 3400]"
 #: html/pfappserver/root/src/views/Nodes/_search.js:279
 #: html/pfappserver/root/src/views/Nodes/_search.js:508
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:235
-#: html/pfappserver/root/src/views/Users/_config/index.js:574
+#: html/pfappserver/root/src/views/Users/_config/index.js:576
 msgid "Security Event Closed"
 msgstr "Événement de sécurité fermé"
 
 #: html/pfappserver/root/src/views/Nodes/_search.js:286
-#: html/pfappserver/root/src/views/Users/_config/index.js:584
+#: html/pfappserver/root/src/views/Users/_config/index.js:586
 msgid "Security Event Closed Count"
 msgstr "Nombre d'événements de sécurité fermés"
 
@@ -15699,13 +15772,13 @@ msgstr "Nombre d'événements de sécurité retardés"
 #: html/pfappserver/root/src/views/Nodes/_search.js:307
 #: html/pfappserver/root/src/views/Nodes/_search.js:532
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:223
-#: html/pfappserver/root/src/views/Users/_config/index.js:557
+#: html/pfappserver/root/src/views/Users/_config/index.js:559
 msgid "Security Event Open"
 msgstr "Événement de sécurité ouvert"
 
 #: html/pfappserver/root/src/views/Nodes/_search.js:314
 #: html/pfappserver/root/src/views/Nodes/_search.js:538
-#: html/pfappserver/root/src/views/Users/_config/index.js:567
+#: html/pfappserver/root/src/views/Users/_config/index.js:569
 msgid "Security Event Open Count"
 msgstr "Nombre d'événements de sécurité ouverts"
 
@@ -15823,10 +15896,6 @@ msgstr "Politique de self service"
 #: html/pfappserver/root/src/views/Users/_components/ThePreview.vue:32
 msgid "Send"
 msgstr "Envoyer"
-
-#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:176
-msgid "Send Topic"
-msgstr "Envoyer le sujet"
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:177
 msgid "Send Topic."
@@ -15978,7 +16047,7 @@ msgstr "En série"
 msgid "Server"
 msgstr "Serveur"
 
-#: html/pfappserver/root/src/App.vue:67
+#: html/pfappserver/root/src/App.vue:68
 #: html/pfappserver/root/src/views/Configurator/network/_components/TheList.vue:96
 msgid "Server Hostname"
 msgstr "Nom d'hôte du serveur"
@@ -16126,7 +16195,7 @@ msgstr "Session Batch"
 
 #: html/pfappserver/root/src/views/Nodes/_components/TabInfo.vue:20
 #: html/pfappserver/root/src/views/Nodes/_search.js:150
-#: html/pfappserver/root/src/views/Users/_config/index.js:462
+#: html/pfappserver/root/src/views/Users/_config/index.js:464
 msgid "Session ID"
 msgstr "Identifiant de session"
 
@@ -16166,7 +16235,7 @@ msgstr ""
 " uniquement vers la VIP en mode cluster plutôt que vers l'ensemble des "
 "serveurs du cluster."
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:141
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:127
 msgid ""
 "Set the max size of DHCP packets. Do not change unless you know what you're "
 "doing."
@@ -16220,18 +16289,18 @@ msgstr "Mot de passe Partagé"
 msgid "Should Fingerbank interact with WWW using a proxy?"
 msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:293
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:279
 msgid ""
 "Should Kafka be started? Keep disabled unless you know what you're doing."
 msgstr ""
 "Est ce que le service Kafka doit être démarré? Garder le service désactivé "
 "sauf si vous savez ce que vous faites."
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:265
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:251
 msgid "Should Redis be started?"
 msgstr "Faut-il démarrer Redis ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:251
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:237
 msgid "Should Redis for caching be started?"
 msgstr "Faut-il démarrer Redis pour la mise en cache ?"
 
@@ -16280,15 +16349,7 @@ msgstr "Faut-il démarrer httpd.portal ?"
 msgid "Should httpd.webservices be started?"
 msgstr "httpd.webservices doit-il être démarré ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:94
-msgid "Should ip6tables be managed by PacketFence?"
-msgstr "Les tables IP6 doivent-elles être gérées par PacketFence ?"
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:87
-msgid "Should iptables be managed by PacketFence?"
-msgstr "Iptables doit-il être géré par PacketFence ?"
-
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:101
 msgid "Should keepalived be started?"
 msgstr "Faut-il démarrer KeepAlive ?"
 
@@ -16306,31 +16367,31 @@ msgstr ""
 msgid "Should match the NAC name from the Iboss configuration."
 msgstr "Doit correspondre au nom du NAC dans la configuration du Iboss."
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:286
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:272
 msgid "Should mysql-probe be started?"
 msgstr "Faut-il démarrer mysql-probe ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:108
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:94
 msgid "Should netdata be managed by PacketFence?"
 msgstr "Est-ce netdata doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:300
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:286
 msgid "Should ntlm-auth-api be started?"
 msgstr "Faut-il démarrer ntlm-auth-api ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:115
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:101
 msgid "Should pfacct be started?"
 msgstr "Faut-il démarrer pfactt ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:167
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:153
 msgid "Should pfcron be started?"
 msgstr "Faut-il démarrer pfcron ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:127
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:113
 msgid "Should pfdhcp be managed by PacketFence?"
 msgstr "Est-ce pfdhcp doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:134
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:120
 msgid ""
 "Should pfdhcplistener be started? Keep enabled unless you know what you're "
 "doing"
@@ -16338,67 +16399,67 @@ msgstr ""
 "Faut-il démarrer pfdhcplistener? Restez activé sauf si vous savez ce que "
 "vous faites"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:146
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:132
 msgid "Should pfdns be managed by PacketFence?"
 msgstr "Est-ce que pfdns doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:153
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:139
 msgid "Should pffilter be managed by PacketFence?"
 msgstr "Est-ce que pffilter doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:160
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:146
 msgid "Should pfipset be managed by PacketFence?"
 msgstr "Est-ce pfipset doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:174
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:160
 msgid "Should pfperl-api be started?"
 msgstr "Faut-il démarrer pfperl-api ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:181
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:167
 msgid "Should pfpki be started?"
 msgstr "Faut-il démarrer pfpki ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:188
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:174
 msgid "Should pfqueue-backend be started?"
 msgstr "Faut-il démarrer pfqueue-backend ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:195
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:181
 msgid "Should pfqueue-go be started?"
 msgstr "Faut-il démarrer pfqueue-go ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:202
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:188
 msgid "Should pfsso be managed by PacketFence?"
 msgstr "Est-ce que pfsso doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:209
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:195
 msgid "Should pfstats be managed by PacketFence?"
 msgstr "Est-ce pfstats doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:216
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:202
 msgid "Should proxysql be managed by PacketFence?"
 msgstr "Proxysql doit-il être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:223
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:209
 msgid "Should radiusd be managed by PacketFence?"
 msgstr "Est-ce radiusd doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:230
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:216
 msgid "Should radiusd-acct be started?"
 msgstr "Est-ce que radiusd-acct doit être démarré ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:237
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:223
 msgid "Should radiusd-auth be started?"
 msgstr "Radiusd-auth doit-il être démarré ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:244
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:230
 msgid "Should radsniff be managed by PacketFence?"
 msgstr "Est-ce radsniff doit être géré par PacketFence ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:272
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:258
 msgid "Should snmptrapd be started?"
 msgstr "Est-ce que snmptrapd doit être démarré ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:258
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:244
 msgid ""
 "Should the Redis NTLM cache be started? Use this if you are enabling an "
 "Active Directory NTLM cache."
@@ -16447,7 +16508,7 @@ msgstr ""
 "Est-ce que les noms d'utilisateurs associés à ce realm devraient être "
 "tronqués pour le portail captif?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:279
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:265
 msgid "Should tracking-config be managed by PacketFence?"
 msgstr "Le suivi-configuration doit-il être géré par PacketFence?"
 
@@ -16658,8 +16719,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/domains/schema.js:118
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:57
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:58
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:116
-#: html/pfappserver/root/src/views/Users/_config/index.js:257
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:130
+#: html/pfappserver/root/src/views/Users/_config/index.js:259
 #: html/pfappserver/root/src/views/Users/_search.js:23
 #: html/pfappserver/root/src/views/Users/_search.js:332
 msgid "Source"
@@ -16694,7 +16755,7 @@ msgstr "Port source du commutateur"
 msgid "Source Switch Port Description"
 msgstr "Description du port source du commutateur"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:261
+#: html/pfappserver/root/src/views/Users/_config/index.js:263
 msgid "Source does not exist."
 msgstr "La source n'existe pas."
 
@@ -16734,6 +16795,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/_components/TheSectionPoliciesAccessControl.vue:13
 msgid "Sources:"
 msgstr "Sources:"
+
+#: html/pfappserver/root/src/globals/pfLocales.js:11
+msgid "Spanish"
+msgstr "Espagnol"
 
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:72
 msgid ""
@@ -16777,7 +16842,7 @@ msgstr "Séparer les réseaux par rôle"
 #: html/pfappserver/root/src/views/Configuration/sources/config.js:31
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:36
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:21
-#: html/pfappserver/root/src/views/Users/_config/index.js:149
+#: html/pfappserver/root/src/views/Users/_config/index.js:151
 #: html/pfappserver/root/src/views/Users/_search.js:262
 #: html/pfappserver/root/src/views/Users/_search.js:63
 msgid "Sponsor"
@@ -16792,7 +16857,7 @@ msgid "Sponsor access durations"
 msgstr "Durée d'accès du sponsor"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:24
-#: html/pfappserver/root/src/views/Users/_config/index.js:156
+#: html/pfappserver/root/src/views/Users/_config/index.js:158
 #: html/pfappserver/root/src/views/Users/_search.js:267
 #: html/pfappserver/root/src/views/Users/_search.js:69
 msgid "Sponsored Date"
@@ -16854,7 +16919,7 @@ msgstr "Tout démarrer séquentiellement"
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:228
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:43
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:95
-#: html/pfappserver/root/src/views/Users/_config/index.js:610
+#: html/pfappserver/root/src/views/Users/_config/index.js:612
 msgid "Start Date"
 msgstr "Date de démarrage"
 
@@ -16879,7 +16944,7 @@ msgstr "Heure de démarrage"
 msgid "Start the pfpki service."
 msgstr "Démarrez le service pfpki."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:30
+#: html/pfappserver/root/src/globals/pfLocales.js:61
 msgid "Started services {services}."
 msgstr "Services démarrés {services}."
 
@@ -16900,7 +16965,7 @@ msgstr "IP de démarrage"
 msgid "Starting MySQL service"
 msgstr "Démarrer le service MySQL"
 
-#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:49
+#: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:60
 msgid "Starting PacketFence"
 msgstr "Démarrage PacketFence"
 
@@ -16923,7 +16988,7 @@ msgstr "État du certificat."
 msgid "State or Province"
 msgstr "État ou province"
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:52
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:51
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_composables/useCsr.js:18
 msgid "State required."
 msgstr "État requis."
@@ -16976,8 +17041,8 @@ msgstr "Niveau de chronométrage des statistiques"
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:28
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:23
 #: html/pfappserver/root/src/views/Status/services_saas/_components/TheView.vue:125
-#: html/pfappserver/root/src/views/Users/_config/index.js:353
-#: html/pfappserver/root/src/views/Users/_config/index.js:594
+#: html/pfappserver/root/src/views/Users/_config/index.js:355
+#: html/pfappserver/root/src/views/Users/_config/index.js:596
 msgid "Status"
 msgstr "Statut"
 
@@ -17026,7 +17091,7 @@ msgstr "Tout arrêter séquentiellement"
 msgid "Stop processing rules if this rule matches."
 msgstr "Arrêter de traiter les règles si cette règle correspond."
 
-#: html/pfappserver/root/src/globals/pfLocales.js:33
+#: html/pfappserver/root/src/globals/pfLocales.js:64
 msgid "Stopped services {services}."
 msgstr "Services arrêtés {services}."
 
@@ -17243,13 +17308,13 @@ msgstr "IP du commutateur"
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:174
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:452
 #: html/pfappserver/root/src/views/Nodes/_search.js:162
-#: html/pfappserver/root/src/views/Users/_config/index.js:472
+#: html/pfappserver/root/src/views/Users/_config/index.js:474
 msgid "Switch IP Address"
 msgstr "Adresse IP du commutateur"
 
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:55
 #: html/pfappserver/root/src/views/Nodes/_search.js:156
-#: html/pfappserver/root/src/views/Users/_config/index.js:467
+#: html/pfappserver/root/src/views/Users/_config/index.js:469
 msgid "Switch Identifier"
 msgstr "Identifiant du commutateur"
 
@@ -17267,7 +17332,7 @@ msgid "Switch MAC"
 msgstr "MAC du commutateur"
 
 #: html/pfappserver/root/src/views/Nodes/_search.js:168
-#: html/pfappserver/root/src/views/Users/_config/index.js:477
+#: html/pfappserver/root/src/views/Users/_config/index.js:479
 msgid "Switch MAC Address"
 msgstr "Adresse MAC du commutateur"
 
@@ -17471,8 +17536,8 @@ msgstr "VRAI"
 msgid "TTLS Profile"
 msgstr "Profil TTLS"
 
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:85
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:86
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:90
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:91
 msgid "Table"
 msgstr "Table"
 
@@ -17559,7 +17624,7 @@ msgstr ""
 msgid "Task type"
 msgstr "Type de tâche"
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:266
+#: html/pfappserver/root/src/views/Users/_config/index.js:268
 msgid "Telephone"
 msgstr "Téléphone"
 
@@ -17633,12 +17698,12 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/clouds/schema.js:32
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeIntune.vue:71
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAzureAD.vue:26
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:208
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:223
 msgid "Tenant ID"
 msgstr "Identifiant d'entité"
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeAirwatch.vue:85
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:88
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:93
 msgid "Tenant code"
 msgstr "Code du Tenant"
 
@@ -18034,7 +18099,7 @@ msgstr "L'ID client du service intune"
 msgid "The client secret of the intune service"
 msgstr "Le mot de passe client du service Intune"
 
-#: html/pfappserver/root/src/App.vue:136
+#: html/pfappserver/root/src/App.vue:137
 msgid ""
 "The configurator is enabled. You should disable it if your PacketFence "
 "configuration is completed."
@@ -18050,7 +18115,7 @@ msgstr ""
 "Le facteur coût à appliquer au hachage de mot de passe le cas échéant. "
 "Actuellement cela s’applique uniquement aux bcrypt."
 
-#: html/pfappserver/root/src/App.vue:130
+#: html/pfappserver/root/src/App.vue:131
 #: html/pfappserver/root/src/store/modules/system.js:86
 msgid "The database is in readonly mode. Not all functionality is available."
 msgstr ""
@@ -18360,7 +18425,7 @@ msgstr ""
 "utilisée dans la configuration de haproxy-db pour définir le délai "
 "d'attente."
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:122
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:108
 msgid ""
 "The network address to listen to listen on. Do not change unless you know "
 "what you're doing."
@@ -19186,7 +19251,7 @@ msgstr "Seuil"
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:242
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:105
 #: html/pfappserver/root/src/views/Status/network_threats/_search.js:57
-#: html/pfappserver/root/src/views/Users/_config/index.js:622
+#: html/pfappserver/root/src/views/Users/_config/index.js:624
 msgid "Ticket Ref"
 msgstr "Référence ticket"
 
@@ -19197,7 +19262,7 @@ msgid "Time"
 msgstr "Temps"
 
 #: html/pfappserver/root/src/views/Nodes/_search.js:268
-#: html/pfappserver/root/src/views/Users/_config/index.js:547
+#: html/pfappserver/root/src/views/Users/_config/index.js:549
 msgid "Time Balance"
 msgstr "Temps d'utilisation"
 
@@ -19251,7 +19316,7 @@ msgstr "Fuseau horaire"
 
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:48
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:35
-#: html/pfappserver/root/src/views/Users/_config/index.js:112
+#: html/pfappserver/root/src/views/Users/_config/index.js:114
 #: html/pfappserver/root/src/views/Users/_search.js:237
 #: html/pfappserver/root/src/views/Users/_search.js:30
 msgid "Title"
@@ -19278,10 +19343,10 @@ msgstr ""
 "PacketFence puisse réagir en fonction de cela via ses événements de "
 "sécurité."
 
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:32
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:78
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:114
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:138
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:36
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:82
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:128
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:152
 msgid "Token"
 msgstr "Jeton"
 
@@ -19576,6 +19641,10 @@ msgstr ""
 "Les certificats d'autorité client de confiance, dont les certificats racines"
 " ou intermédiaires utilisés pour EAP-TLS, doivent être ajoutés ici."
 
+#: html/pfappserver/root/src/globals/pfLocales.js:43
+msgid "Turkish"
+msgstr "Turc"
+
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeTwilio.vue:19
 msgid "Twilio Account SID."
 msgstr "Compte SID Twilio."
@@ -19620,7 +19689,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEduroam.vue:33
 #: html/pfappserver/root/src/views/Configuration/sources/_composables/useCollection.js:100
 #: html/pfappserver/root/src/views/Configuration/sources/_composables/useCollection.js:146
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:216
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:231
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:26
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:127
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:72
@@ -19665,7 +19734,7 @@ msgstr "Type à rechercher"
 msgid "Type to search results."
 msgstr "Tapez pour les résultats de la recherche."
 
-#: html/pfappserver/root/src/globals/pfField.js:165
+#: html/pfappserver/root/src/globals/pfField.js:167
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:5
 msgid "Types"
 msgstr "Types"
@@ -19687,14 +19756,14 @@ msgstr "User-agent UPnP"
 
 #: html/pfappserver/root/src/globals/pfFilters.js:78
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/config.js:75
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:35
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:36
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:62
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:63
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:64
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:39
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:40
 #: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:66
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:91
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:92
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:67
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:68
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:70
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:96
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:97
 msgid "URI"
 msgstr "URI"
 
@@ -19714,9 +19783,9 @@ msgstr "URI"
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:10
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/schema.js:33
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/schema.js:36
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:181
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:186
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:194
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:196
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:201
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:209
 msgid "URL"
 msgstr "URL"
 
@@ -19733,8 +19802,8 @@ msgid "URL query is malformed."
 msgstr "Le format de l´URL est incorrect."
 
 #: html/pfappserver/root/src/views/Configuration/pki/scepServers/schema.js:42
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:105
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:106
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:119
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:120
 msgid "URL required."
 msgstr "URL Requise."
 
@@ -19835,7 +19904,7 @@ msgstr "Unité requise."
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: html/pfappserver/root/src/utils/yup.js:463
+#: html/pfappserver/root/src/utils/yup.js:468
 msgid "Unknown error."
 msgstr "Erreur inconnue"
 
@@ -19848,7 +19917,7 @@ msgstr "Reprendre"
 msgid "Unreg Window"
 msgstr "Fenètre dé-enregistrement"
 
-#: html/pfappserver/root/src/globals/pfField.js:273
+#: html/pfappserver/root/src/globals/pfField.js:275
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:65
 msgid "Unregistered"
 msgstr "Non enregistré"
@@ -19865,7 +19934,7 @@ msgstr "Désenregistrement"
 
 #: html/pfappserver/root/src/views/Nodes/_components/TabInfo.vue:44
 #: html/pfappserver/root/src/views/Nodes/_search.js:52
-#: html/pfappserver/root/src/views/Users/_config/index.js:386
+#: html/pfappserver/root/src/views/Users/_config/index.js:388
 msgid "Unregistration Date"
 msgstr "Date de désenregistrement"
 
@@ -19950,7 +20019,7 @@ msgstr "Mettre à jour l'iplog à l'aide des demandes de portail externes"
 msgid "Updated"
 msgstr "Mis-à-jour"
 
-#: html/pfappserver/root/src/globals/pfLocales.js:36
+#: html/pfappserver/root/src/globals/pfLocales.js:67
 msgid "Updated systemd for {service}."
 msgstr "Systemd mis à jour pour {service}."
 
@@ -20381,7 +20450,7 @@ msgstr "Utiliser le navigateur Web par défaut"
 #: html/pfappserver/root/src/views/Configuration/database/general/_components/TheForm.vue:24
 #: html/pfappserver/root/src/views/Configuration/database/general/schema.js:8
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeGoogleWorkspaceChromebook.vue:63
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:89
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:94
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:152
 msgid "User"
 msgstr "Utilisateur"
@@ -20398,7 +20467,7 @@ msgstr "Utilisateur <code>{pid}</code> n'existe pas."
 #: html/pfappserver/root/src/views/Nodes/_search.js:273
 #: html/pfappserver/root/src/views/Nodes/_search.js:502
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:216
-#: html/pfappserver/root/src/views/Users/_config/index.js:552
+#: html/pfappserver/root/src/views/Users/_config/index.js:554
 msgid "User Agent"
 msgstr "User Agent"
 
@@ -20490,8 +20559,8 @@ msgstr "Utilisateur {pid}"
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeAuthenticationPassword.vue:48
 #: html/pfappserver/root/src/views/Configuration/portalModules/schema.js:50
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:58
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:39
-#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:90
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:43
+#: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:95
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:17
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:17
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:17
@@ -20508,8 +20577,8 @@ msgstr "Utilisateur {pid}"
 #: html/pfappserver/root/src/views/Configuration/webServices/_components/TheForm.vue:9
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:13
 #: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:14
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:30
-#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:46
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:31
+#: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:48
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:195
 #: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:79
 #: html/pfappserver/root/src/views/Users/_search.js:15
@@ -20606,7 +20675,7 @@ msgstr "Utilisateurs"
 #: html/pfappserver/root/src/views/Nodes/_components/TabLocationLogs.vue:13
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:267
 #: html/pfappserver/root/src/views/Nodes/_search.js:191
-#: html/pfappserver/root/src/views/Users/_config/index.js:487
+#: html/pfappserver/root/src/views/Users/_config/index.js:489
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -20671,12 +20740,11 @@ msgstr "Validité"
 
 #: html/pfappserver/root/src/views/Configuration/dns/schema.js:5
 #: html/pfappserver/root/src/views/Configuration/kafka/schema.js:13
-#: html/pfappserver/root/src/views/Configuration/kafka/schema.js:20
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:39
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:54
 msgid "Value"
 msgstr "Valeur"
 
-#: html/pfappserver/root/src/globals/pfActions.js:197
+#: html/pfappserver/root/src/globals/pfActions.js:200
 msgid "Value must be a URL."
 msgstr "La valeur doit être une URL."
 
@@ -20689,16 +20757,16 @@ msgid "Value required"
 msgstr "Valeur requise"
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:547
-#: html/pfappserver/root/src/globals/pfActions.js:196
-#: html/pfappserver/root/src/globals/pfActions.js:201
-#: html/pfappserver/root/src/globals/pfActions.js:218
-#: html/pfappserver/root/src/utils/yup.js:27
+#: html/pfappserver/root/src/globals/pfActions.js:199
+#: html/pfappserver/root/src/globals/pfActions.js:204
+#: html/pfappserver/root/src/globals/pfActions.js:221
+#: html/pfappserver/root/src/utils/yup.js:28
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/schema.js:56
 #: html/pfappserver/root/src/views/Configuration/filterEngines/schema.js:40
 #: html/pfappserver/root/src/views/Configuration/filterEngines/schema.js:50
 #: html/pfappserver/root/src/views/Configuration/securityEvents/schema.js:27
 #: html/pfappserver/root/src/views/Configuration/securityEvents/schema.js:57
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:39
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:54
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/schema.js:24
 #: html/pfappserver/root/src/views/Configuration/switches/schema.js:25
 msgid "Value required."
@@ -20805,7 +20873,7 @@ msgstr "Colonnes visibles"
 #: html/pfappserver/root/src/views/Nodes/_search.js:222
 #: html/pfappserver/root/src/views/Nodes/_search.js:544
 #: html/pfappserver/root/src/views/Nodes/network/_search.js:248
-#: html/pfappserver/root/src/views/Users/_config/index.js:513
+#: html/pfappserver/root/src/views/Users/_config/index.js:515
 msgid "VoIP"
 msgstr "VoIP"
 
@@ -21010,25 +21078,25 @@ msgstr ""
 msgid ""
 "When enabled, PacketFence uses pfdns if you defined Isolation Passthroughs "
 "to allow trapped devices in isolation state to reach web sites. Modifying "
-"this parameter requires to restart pfdns and iptables to be fully effective."
+"this parameter requires to restart pfdns to be fully effective."
 msgstr ""
-"Lorsque cette option est activée, PacketFence utilise pfdns si vous avez "
-"défini des étapes d’isolation pour permettre aux périphériques piégés en "
-"état d’isolement d’atteindre des sites Web. La modification de ce paramètre "
-"nécessite de redémarrer pfdns et iptables pour être pleinement efficace."
+"Lorsqu'il est activé, PacketFence utilise pfdns si vous avez défini des "
+"règles dans Isolation Passthroughs pour permettre aux appareils en état "
+"d'isolement d'atteindre les sites Web. La modification de ce paramètre "
+"nécessite de redémarrer pfdns pour être pleinement efficace."
 
 #: html/pfappserver/root/src/views/Configuration/networks/fencing/_components/TheForm.vue:20
 msgid ""
 "When enabled, PacketFence uses pfdns if you defined Passthroughs or Apache "
 "mod-proxy if you defined Proxy passthroughs to allow trapped devices to "
-"reach web sites. Modifying this parameter requires to restart pfdns and "
-"iptables to be fully effective."
+"reach web sites. Modifying this parameter requires to restart pfdns to be "
+"fully effective."
 msgstr ""
 "Lorsqu'il est activé, PacketFence utilise pfdns si vous avez défini "
 "Passthroughs ou Apache mod-proxy si vous avez défini Proxy Passthroughs pour"
 " permettre aux périphériques piégés d'accéder aux sites Web. La modification"
-" de ce paramètre nécessite de redémarrer pfdns et iptables pour être "
-"pleinement efficace."
+" de ce paramètre nécessite de redémarrer pfdns pour être pleinement "
+"efficace."
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:63
 msgid ""
@@ -21345,7 +21413,7 @@ msgstr ""
 msgid "Whether or not, this message can be skipped"
 msgstr "S’il est possible ou pas d'ignorer ce message"
 
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:50
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:55
 msgid ""
 "Which NAS IP Address to use when communicating with the RADIUS server. "
 "Leaving this empty will make the source use the management IP of the server "
@@ -21441,6 +21509,10 @@ msgstr ""
 " envoyer ou relayer les adresses définies dans le paramètre "
 "monit.alert_email_to. Si cette valeur est vide alors le serveur SMTP défini "
 "dans la section Alerte sera utilisé."
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:50
+msgid "Which port to use."
+msgstr "Quel port utiliser."
 
 #: html/pfappserver/root/src/views/Configuration/networkBehaviorPolicy/_components/TheForm.vue:57
 msgid ""
@@ -21638,7 +21710,7 @@ msgstr ""
 "En l’absence de source spécifiée, toutes les sources internes et externes "
 "seront utilisées."
 
-#: html/pfappserver/root/src/views/Users/_config/index.js:280
+#: html/pfappserver/root/src/views/Users/_config/index.js:282
 msgid "Work Phone"
 msgstr "Téléphone Bureau"
 
@@ -21667,6 +21739,10 @@ msgstr "Groupe de travail requis."
 msgid "Workphone number"
 msgstr "Numéro de téléphone Bureau"
 
+#: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:176
+msgid "Write Topic"
+msgstr "Écrire un sujet"
+
 #: html/pfappserver/root/src/views/Configuration/sources/_components/ButtonSamlMetaData.vue:60
 msgid "XML copied to clipboard"
 msgstr "XML copié dans le presse papier"
@@ -21677,7 +21753,7 @@ msgstr "Année"
 
 #: html/pfappserver/root/src/components/new/BaseFormGroupToggleNY.js:12
 #: html/pfappserver/root/src/components/new/BaseFormGroupToggleNoYes.js:12
-#: html/pfappserver/root/src/globals/pfField.js:348
+#: html/pfappserver/root/src/globals/pfField.js:357
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:24
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:34
 #: html/pfappserver/root/src/views/Configuration/_components/new/BaseFormGroupToggleNYDefault.vue:33
@@ -21755,15 +21831,15 @@ msgstr ""
 " passerelle, ainsi que sa configuration pour autoriser le nom DNS du domaine"
 " et le nom DNS de chaque contrôleur de domaine (ou nom * .dns)."
 
-#: html/pfappserver/root/src/globals/pfActions.js:227
+#: html/pfappserver/root/src/globals/pfActions.js:230
 msgid "\"{no_action}\" prohibits other actions."
 msgstr "\"{no_action}\" interdit d'autres actions."
 
-#: html/pfappserver/root/src/globals/pfActions.js:239
+#: html/pfappserver/root/src/globals/pfActions.js:242
 msgid "\"{set_access_durations}\" requires \"{mark_as_sponsor}\"."
 msgstr "\"{set_access_durations}\" nécessite \"{mark_as_sponsor}\"."
 
-#: html/pfappserver/root/src/globals/pfActions.js:233
+#: html/pfappserver/root/src/globals/pfActions.js:236
 msgid ""
 "\"{set_access_duration}\" requires either \"{set_role}\", "
 "\"{set_role_from_source}\" or \"{set_role_on_not_found}\"."
@@ -21771,7 +21847,7 @@ msgstr ""
 "\"{set_access_duration}\" nécessite soit \"{set_role}\", "
 "\"{set_role_from_source}\" ou \"{set_role_on_not_found}\"."
 
-#: html/pfappserver/root/src/globals/pfActions.js:251
+#: html/pfappserver/root/src/globals/pfActions.js:254
 msgid ""
 "\"{set_role_from_source}\" requires either \"{set_access_duration}\" or "
 "\"{set_unreg_date}\"."
@@ -21779,7 +21855,7 @@ msgstr ""
 "\"{set_role_from_source}\" nécessite \"{set_access_duration}\" ou "
 "\"{set_unreg_date}\"."
 
-#: html/pfappserver/root/src/globals/pfActions.js:257
+#: html/pfappserver/root/src/globals/pfActions.js:260
 msgid ""
 "\"{set_role_on_not_found}\" requires either \"{set_access_duration}\" or "
 "\"{set_unreg_date}\"."
@@ -21787,15 +21863,15 @@ msgstr ""
 "\"{set_role_on_not_found}\" nécessite \"{set_access_duration}\" ou "
 "\"{set_unreg_date}\"."
 
-#: html/pfappserver/root/src/globals/pfActions.js:245
+#: html/pfappserver/root/src/globals/pfActions.js:248
 msgid "\"{set_role}\" requires either \"{set_access_duration}\" or \"{set_unreg_date}\"."
 msgstr "\"{set_role}\" nécessite \"{set_access_duration}\" ou \"{set_unreg_date}\"."
 
-#: html/pfappserver/root/src/globals/pfActions.js:269
+#: html/pfappserver/root/src/globals/pfActions.js:272
 msgid "\"{set_unreg_date}\" conflicts with \"{set_access_duration}\"."
 msgstr "\"{set_unreg_date}\" est en conflit avec \"{set_access_duration}\"."
 
-#: html/pfappserver/root/src/globals/pfActions.js:263
+#: html/pfappserver/root/src/globals/pfActions.js:266
 msgid ""
 "\"{set_unreg_date}\" requires either \"{set_role}\" or "
 "\"{set_role_on_not_found}\"."
@@ -21898,7 +21974,7 @@ msgstr "périphériques"
 msgid "eDirectory"
 msgstr "eDirectory"
 
-#: html/pfappserver/root/src/globals/pfField.js:301
+#: html/pfappserver/root/src/globals/pfField.js:310
 #: html/pfappserver/root/src/store/modules/config.js:644
 msgid "empty - None"
 msgstr "vide - aucun"
@@ -22049,7 +22125,7 @@ msgstr "ou"
 msgid "pending"
 msgstr "En attente"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:140
+#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:126
 msgid "pfdhcplistener Packet Size"
 msgstr "Taille du packet pour pfdhcplistener"
 
@@ -22183,8 +22259,8 @@ msgstr "{file} remplacé."
 msgid "{file} uploaded."
 msgstr "{file} téléchargé vers le serveur."
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:63
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:62
+#: html/pfappserver/root/src/views/Configuration/pki/cas/schema.js:62
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/schema.js:61
 msgid "{first} or {last}"
 msgstr "{first} ou {last}"
 
@@ -22264,7 +22340,7 @@ msgstr "{name} - Clé privée du Serveur"
 msgid "{num} selected"
 msgstr "{num} sélectionné"
 
-#: html/pfappserver/root/src/utils/yup.js:21
+#: html/pfappserver/root/src/utils/yup.js:22
 msgid "{path} required."
 msgstr "{chemin} requis."
 

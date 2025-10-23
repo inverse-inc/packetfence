@@ -18,7 +18,7 @@
 # Louis Munro <git@louismunro.com>, 2016
 # lzammit <lzammit@inverse.ca>, 2014,2016,2018,2021
 # lzammit <lzammit@inverse.ca>, 2014,2016,2018
-# Maxime Andre <andmaxime+transifex@gmail.com>, 2019
+# 6cd36d5588a56dc96be07a81dccd6094_cfd3212 <65757670ff8e21205c26b30fb18b9c66_844927>, 2019
 # Nicolas Quiniou-Briand <nqb@azyx.fr>, 2018
 # Nicolas Quiniou-Briand <nqb@azyx.fr>, 2018
 # obilodeau <obilodeau@inverse.ca>, 2011
@@ -2233,3 +2233,7 @@ msgstr "événement de sécurité: mise en quarantaine établie"
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "Votre appareil est en cours d'analyse. Ce processus devrait prendre environ %s secondes."
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr "tr_TR"

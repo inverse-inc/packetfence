@@ -2209,3 +2209,7 @@ msgstr ""
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "Enheten din skannes. Denne prosessen vil ta ca %s sekunder."
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr ""

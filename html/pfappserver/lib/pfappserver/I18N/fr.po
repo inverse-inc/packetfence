@@ -13,9 +13,9 @@
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Louis Munro <git@louismunro.com>, 2015,2017
 # lzammit <lzammit@inverse.ca>, 2014-2020
-# Maxime Andre <andmaxime+transifex@gmail.com>, 2019
+# 6cd36d5588a56dc96be07a81dccd6094_cfd3212 <65757670ff8e21205c26b30fb18b9c66_844927>, 2019
 # Nicolas Quiniou-Briand <nqb@azyx.fr>, 2019
-# tolivierl1 <thomas.olivier@univ-lille1.fr>, 2019-2020
+# tolivierl1 <thomas.olivier@univ-lille1.fr>, 2019-2020,2025
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
@@ -324,11 +324,11 @@ msgstr "Adresse"
 
 # conf/documentation.conf (fencing.range)
 msgid ""
-"Address ranges/CIDR blocks that PacketFence will monitor/detect/trap on.  "
+"Address ranges/CIDR blocks that PacketFence will monitor/detect/trap on. "
 "Gateway, network, and broadcast addresses are ignored. Comma-delimited "
 "entries should be of the form <ul><li>a.b.c.0/24</li> <li>a.b.c.0-255</li> "
 "<li>a.b.c.0-a.b.c.255</li> <li>a.b.c.d</li></ul>"
-msgstr "Les plages d’adresses / les blocs CIDR que PacketFence va surveiller/détecter/intercepter. Les adresses de passerelle, de réseau et de diffusion sont ignorées. Les entrées délimitées par des virgules doivent être de la forme <ul><li>a.b.c.0/24</li> <li>a.b.c.0-255</li> <li>a.b.c.0-a.b.c.255</li> <li>a.b.c.d</li></ul>"
+msgstr "Plages d’adresses / blocs CIDR que PacketFence va surveiller/détecter/intercepter. Les adresses de passerelle, de réseau et de diffusion sont ignorées. Les entrées délimitées par des virgules doivent être de la forme <ul><li>a.b.c.0/24</li> <li>a.b.c.0-255</li> <li>a.b.c.0-a.b.c.255</li> <li>a.b.c.d</li></ul>"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid ""
@@ -1373,12 +1373,6 @@ msgstr "Realm par défaut"
 msgid "Define if the PSK needs to be generated"
 msgstr "Définit si la clé PSK doit être générée"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
-msgid ""
-"Define options for FreeRADIUS home_server definition (if you use the source "
-"in the realm configuration). Need a radius restart."
-msgstr "Définit les options pour la définition home_server de FreeRADIUS (Si vous utilisez la source dans la configuration Realm). Toute modification nécessite un redémarrage du service Radius."
-
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid ""
 "Define the FQDN of the portal for this network. Leaving empty will use the "
@@ -1971,6 +1965,18 @@ msgstr "Filtrer les événements entrants"
 msgid "Filters"
 msgstr "Filtres"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "Fingerprint cache expiration"
+msgstr "Expiration du cache Fingerprint"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "Fingerprint networks"
+msgstr "Réseau Fingerprint"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "Fingerprint nodes"
+msgstr "Empreinte des appareils"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "Firewall Type"
 msgstr "Type de coupe-feu"
@@ -2352,12 +2358,6 @@ msgid ""
 "If you use an alternative port, please specify. This parameter is ignored "
 "when the Syslog transport is selected."
 msgstr "Si vous utiliser un port alternatif alors définissez le. Ce paramètre est ignoré si Syslog est sélectionné."
-
-# html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
-msgid ""
-"If you use this source in the realm configuration the accounting port will "
-"be this port + 1"
-msgstr "Si vous utilisez cette source dans la configuration du Realm le port d'accounting sera ce port + 1"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/SAML.pm
 msgid ""
@@ -8561,6 +8561,10 @@ msgid "none"
 msgstr "(Aucun)"
 
 # pf::Authentication::constants (Conditions)
+msgid "not contains"
+msgstr "ne contient pas"
+
+# pf::Authentication::constants (Conditions)
 msgid "not equals"
 msgstr "non égal"
 
@@ -9739,6 +9743,10 @@ msgstr "Test"
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "title"
 msgstr "Titre"
+
+# conf/documentation.conf (advanced.language options)
+msgid "tr_TR"
+msgstr "tr_TR"
 
 # pf::Authentication::constants (Actions)
 msgid "trigger_portal_mfa"

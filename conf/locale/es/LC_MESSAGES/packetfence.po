@@ -2218,3 +2218,7 @@ msgstr "Evento de seguridad: Se estableció una cuarentena"
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "Su sistema está siendo inspeccionado. Este proceso demorará aproximadamente %s segundos."
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr ""

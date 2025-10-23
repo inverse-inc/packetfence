@@ -2215,3 +2215,7 @@ msgstr "güvenli̇k olayi: karanti̇na kuruldu"
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "sisteminiz taranıyor. - Bu işlem yaklaşık %s saniye sürecek"
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr ""
