@@ -829,7 +829,7 @@ Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>
 **EL8-specific step**: When upgrading node C, install the RedHat EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
 
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 15.0.0
 
 **OS Requirements**: Debian 12 (bookworm) or RHEL 8
 
