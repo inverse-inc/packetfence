@@ -19,21 +19,50 @@ fi
 
 log_section "Cleanup previous dev setup directories"
 rm -fr /usr/local/go
-rm -fr /usr/local/pf-pkg
+if [ ! -d "/usr/local/pf-pkg/lib_perl" ]; then
+    echo "Directory /usr/local/pf-pkg/lib_perl not found. Removing /usr/local/pf-pkg/..."
+    rm -rf /usr/local/pf-pkg/
+else
+    echo "Directory /usr/local/pf-pkg/lib_perl exists. No action taken."
+fi
 
 log_section "Stop services"
 systemctl isolate multi-user
 
 log_section "Replace /usr/local/pf by git repository"
-mv /usr/local/pf /usr/local/pf-pkg
-git clone https://github.com/inverse-inc/packetfence /usr/local/pf
+if [ ! -d "/usr/local/pf-pkg/lib_perl" ]; then
+    echo "Directory /usr/local/pf-pkg/lib_perl not found. Move /usr/local/pf/ to /usr/local/pf-pkg"
+    mv /usr/local/pf /usr/local/pf-pkg
+    git clone https://github.com/inverse-inc/packetfence /usr/local/pf
+else
+    echo "Directory /usr/local/pf-pkg/lib_perl exists. Git pull only."
+    cd /usr/local/pf
+    git pull
+fi
 
 log_section "Set the safe.directory in git"
 git config --global --add safe.directory /usr/local/pf
 
 log_section "install required header files from PF repo"
-#apt install -y libcurl4-openssl-dev libcjson-dev
-dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
+
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case "$ID" in
+        debian|ubuntu)
+            echo "Detected Debian-based system: $PRETTY_NAME"
+            apt install -y libcurl4-openssl-dev libcjson-dev
+            ;;
+        rhel|centos|rocky|almalinux|fedora)
+            echo "Detected Red Hat-based system: $PRETTY_NAME"
+            dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
+            ;;
+        *)
+            echo "Unknown Linux distribution: $PRETTY_NAME"
+            ;;
+    esac
+else
+    echo "/etc/os-release not found; unsupported OS"
+fi
 
 cd /usr/local/pf/
 
@@ -56,6 +85,32 @@ cp /usr/local/pf-pkg/conf/pf.conf conf/
 cp /usr/local/pf-pkg/conf/pfconfig.conf conf/
 cp /usr/local/pf-pkg/conf/networks.conf conf/
 cp /usr/local/pf-pkg/sbin/sdnotify-proxy sbin/sdnotify-proxy
+cp /usr/local/pf-pkg/conf/system_init_key /usr/local/pf/conf/system_init_key
+
+log_section "Install asciidoc*"
+
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case "$ID" in
+        debian|ubuntu)
+            echo "Detected Debian-based system: $PRETTY_NAME"
+            apt install ruby ruby-dev build-essential
+            ;;
+        rhel|centos|rocky|almalinux|fedora)
+            echo "Detected Red Hat-based system: $PRETTY_NAME"
+            dnf module reset ruby -y
+            yum install @ruby:2.6
+            ;;
+        *)
+            echo "Unknown Linux distribution: $PRETTY_NAME"
+            ;;
+    esac
+else
+    echo "/etc/os-release not found; unsupported OS"
+fi
+gem install asciidoctor
+gem install asciidoctor-pdf
+gem install rouge -f
 
 log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/
@@ -72,6 +127,13 @@ cd /usr/local/pf/go
 make go-env
 make all
 make copy
+
+log_section "Build Artifacts DOCS devel"
+cd /usr/local/pf
+make -C html/pfappserver/root/ vendor
+make -C html/pfappserver/root/ light-dist
+make pdf
+make html
 
 log_section "Setup container files"
 cd /usr/local/pf
@@ -106,3 +168,4 @@ systemctl restart rsyslog
 
 log_section "Start all PF services"
 /usr/local/pf/bin/pfcmd service pf restart
+
