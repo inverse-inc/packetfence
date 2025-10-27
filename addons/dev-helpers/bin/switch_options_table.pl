@@ -311,8 +311,9 @@ $html .= '
         $("#searchBar").removeAttr("width");
       }
     }
- 
+
     window.addEventListener("scroll", adapt);
+
 
     $(document).ready(function() {
       var $theader = $("#switches > thead").clone();
@@ -428,6 +429,7 @@ $html .= '
       });
 
       setShowHide();
+      adapt();
     }
     </script>
 
