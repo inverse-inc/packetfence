@@ -23,7 +23,7 @@ endif::[]
 
 ==== Context and Objectives of the Documentation
 
-Since PacketFence v15.0, we introduced EAP-TEAP support, EAP-TEAP is considered as a faster and next generation of EAP-PEAP.
+Since PacketFence v15.1, we introduced EAP-TEAP support, EAP-TEAP is considered as a faster and next generation of EAP-PEAP.
 As EAP-TEAP is still being developed rapidly, it may not be fully supported on all your network devices or platforms.
 
 It is tested and known to work on
