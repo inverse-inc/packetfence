@@ -891,6 +891,8 @@ If a difference is found the current configuration will be saved in [filename]`/
 /usr/local/pf/addons/upgrade/to-15.0-check-custom-iptables-configurations.sh
 ----
 
+== Upgrading from a version prior to X.Y.Z
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
