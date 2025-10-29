@@ -3,10 +3,19 @@ package connector
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
+	"os"
+	"regexp"
+	"strings"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
+
+var mgmtipregex = regexp.MustCompile(`%mgmtip%`)
+
+const dockerIpPort = "100.64.0.1:5353"
 
 // A struct which contains all the connector IDs along with their instantiated Connectors struct
 // It implements pfconfigdriver.Refreshable so that this can be part of a pfconfigdriver.Pool
@@ -51,20 +60,148 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 	return cc.Get(ctx, "local_connector")
 }
 
+func (cc *ConnectorsContainer) IpPartOf(ctx context.Context, ip net.IP) bool {
+	for _, id := range cc.Keys(ctx) {
+		c := cc.Get(ctx, id)
+		for _, network := range c.NetworksObjects {
+			if network.Contains(ip) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 const connectorsContainerContextKey = "ConnectorsContainerContextKey"
 
-func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string) (string, error) {
+func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string, localPort string) (string, error) {
 	if cc := ConnectorsContainerFromContext(ctx); cc != nil {
+		keyPfConfPfDnsConnector := pfconfigdriver.PfConfPfDnsConnector{}
+		keyPfConfPfDnsConnector.PfconfigNS = "config::Pf"
+		keyPfConfPfDnsConnector.PfconfigHostnameOverlay = "yes"
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyPfConfPfDnsConnector)
+
+		dstIp := net.ParseIP(toIP)
+		if dstIp == nil {
+			log.Printf("OpenConnectionTo: %s is not a valid IP address, trying to resolve it", toIP)
+			// probably a hostname, try to resolve it
+			dnsServer := keyPfConfPfDnsConnector.PfdnsConnectorServer
+			log.Printf("OpenConnectionTo: using DNS server %s to resolve %s", dnsServer, toIP)
+			dnsServer = replaceMgmtIP(ctx, dnsServer)
+			log.Printf("OpenConnectionTo: replaced management IP in DNS server: %s", dnsServer)
+
+			if dnsServer == "" {
+				// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server
+				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
+				// This allows the code to work in both standalone and Kubernetes environments.
+				dnsServer = os.Getenv("K8S_DNS_SERVER") + ":53"
+				log.Printf("OpenConnectionTo: PFDNS_CONNECTOR_HOST_PORT is not set, using default DNS server %s", dnsServer)
+			}
+
+			host, port, err := net.SplitHostPort(dnsServer)
+			if err != nil {
+				log.Printf("OpenConnectionTo: unable to split host and port %s: %v", dnsServer, err)
+				return "", err
+			}
+			dnsServerIP := net.ParseIP(host) // Ensure dnsServer is a valid IP address
+			if dnsServerIP == nil {
+				log.Printf("OpenConnectionTo: resolved DNS server %s is not a valid IP address", host)
+				// If PFDNS_CONNECTOR_HOST_PORT is a hostname , use the default DNS server
+				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
+				// This allows the code to work in both standalone and Kubernetes environments.
+				kubeDnsServer := os.Getenv("K8S_DNS_SERVER") + ":53"
+				if !(strings.Contains(host, ".svc.cluster.local")) {
+					host = host + ".svc.cluster.local"
+				}
+				ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
+				if err != nil {
+					log.Printf("OpenConnectionTo: unable to resolve %s: %v", host, err)
+					return "", fmt.Errorf("unable to resolve %s: %v", host, err)
+				}
+				if len(ips) == 0 {
+					log.Printf("OpenConnectionTo: no IPs resolved for %s", host)
+					return "", fmt.Errorf("no IPs resolved for %s", host)
+				}
+				log.Printf("OpenConnectionTo: resolved DNS server %s to %s", host, ips[0])
+				dstIp = net.ParseIP(ips[0])
+				if dstIp == nil {
+					log.Printf("OpenConnectionTo: resolved IP %s is not a valid IP address", ips[0])
+					return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
+				}
+				dnsServer = dstIp.String() + ":" + port // Append the DNS port
+			}
+			log.Printf("OpenConnectionTo: using DNS server %s", dnsServer)
+			if len(toIP) == 0 || toIP[len(toIP)-1] != '.' {
+				toIP = toIP + "."
+			}
+
+			ips, err := resolveDNSWithCustomResolver(toIP, dnsServer)
+			if err != nil {
+				log.Printf("OpenConnectionTo: unable to resolve %s: %v", toIP, err)
+				return "", fmt.Errorf("unable to resolve %s: %v", toIP, err)
+			}
+			if len(ips) == 0 {
+				log.Printf("OpenConnectionTo: no IPs resolved for %s", toIP)
+				return "", fmt.Errorf("no IPs resolved for %s", toIP)
+			}
+			found := false
+			for _, ip := range ips {
+				if cc.IpPartOf(ctx, net.ParseIP(ip)) {
+					log.Printf("OpenConnectionTo: %s is part of the connector networks", ip)
+					dstIp = net.ParseIP(ip)
+					found = true
+					break
+				} else {
+					log.Printf("OpenConnectionTo: %s is not part of the connector networks", ip)
+				}
+			}
+			if !found {
+				log.Printf("OpenConnectionTo: %s is not part of the connector networks, using the first resolved IP", toIP)
+				dstIp = net.ParseIP(ips[0])
+			}
+
+			log.Printf("OpenConnectionTo: resolved %s to %s", toIP, dstIp.String())
+
+			if dstIp == nil {
+				return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
+			}
+			toIP = dstIp.String()
+		}
 		c := cc.ForIP(ctx, net.ParseIP(toIP))
-		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
+		var connInfo DynReverseConnectionInfo
+		var err error
+		if localPort != "" {
+			connInfo, err = c.DynReverseWithPort(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto), localPort)
+		} else {
+			connInfo, err = c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
+		}
 		if err != nil {
 			return "", fmt.Errorf("unable to obtain dynreverse for %s on port %s with proto %s", toIP, toPort, proto)
 		}
-
 		return fmt.Sprintf("%s:%s", connInfo.Host, connInfo.Port), nil
 	}
 
 	return "", fmt.Errorf("unable to find connectors container in context")
+}
+
+// Get the management IP address
+func getDnsDestinationIp(ctx context.Context) net.IP {
+	managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
+	return net.ParseIP(managementNetwork.Ip)
+}
+
+func replaceMgmtIP(ctx context.Context, input string) string {
+	match := "%mgmtip%:5353"
+	if strings.Contains(input, match) {
+		// Replace %mgmtip% with the management IP address
+		mgmtIP := getDnsDestinationIp(ctx)
+		if mgmtIP == nil {
+			return dockerIpPort
+		}
+		outputString := mgmtipregex.ReplaceAllString(input, mgmtIP.String())
+		return outputString
+	}
+	return input
 }
 
 func ConnectorsContainerFromContext(ctx context.Context) *ConnectorsContainer {
@@ -77,4 +214,41 @@ func ConnectorsContainerFromContext(ctx context.Context) *ConnectorsContainer {
 
 func WithConnectorsContainer(ctx context.Context, cc *ConnectorsContainer) context.Context {
 	return context.WithValue(ctx, connectorsContainerContextKey, cc)
+}
+
+func resolveDNSWithCustomResolver(fqdn, dnsServer string) ([]string, error) {
+	host, port, err := net.SplitHostPort(dnsServer)
+	if err != nil {
+		return nil, fmt.Errorf("invalid DNS server address: %v", err)
+	}
+	if port == "" {
+		// If no port is specified, default to port 53
+		dnsServer = host + ":53"
+	}
+	resolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{
+				Timeout: 2 * time.Second,
+			}
+			return d.DialContext(ctx, network, dnsServer)
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	ips, err := resolver.LookupIPAddr(ctx, fqdn)
+	if err != nil {
+		return nil, fmt.Errorf("error trying to resolve: %v", err)
+	}
+
+	var result []string
+	for _, ip := range ips {
+		if ip.IP.To4() != nil { // IPv4 seulement
+			result = append(result, ip.IP.String())
+		}
+	}
+
+	return result, nil
 }

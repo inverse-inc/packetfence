@@ -45,7 +45,7 @@
                               disabled-value="0"
     />
 
-    <form-group-connect-through-port namespace="connect_through_port"
+    <form-group-pfconnector-port namespace="pfconnector_port"
                                      :column-label="$i18n.t('Connect Through Port')"
                                      :text="$i18n.t('Which port to use.')"
     />
@@ -79,13 +79,13 @@ import {BaseForm} from '@/components/new/'
 import {
   FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
-  FormGroupConnectThroughPort,
   FormGroupDescription,
   FormGroupHost,
   FormGroupIdentifier,
   FormGroupMonitor,
   FormGroupNasIpAddress,
   FormGroupOptions,
+  FormGroupPfconnectorPort,
   FormGroupPort,
   FormGroupRealms,
   FormGroupSecret,
@@ -98,13 +98,13 @@ const components = {
 
   FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
-  FormGroupConnectThroughPort,
   FormGroupDescription,
   FormGroupHost,
   FormGroupIdentifier,
   FormGroupMonitor,
   FormGroupNasIpAddress,
   FormGroupOptions,
+  FormGroupPfconnectorPort,
   FormGroupPort,
   FormGroupRealms,
   FormGroupSecret,

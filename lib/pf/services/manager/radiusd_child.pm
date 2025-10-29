@@ -112,6 +112,7 @@ sub _generateConfig {
     $self->generate_radiusd_acctconf($tt);
     $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf($tt);
+    $self->generate_radiusd_redisconf($tt);
     $self->generate_radiusd_sqlconf($tt);
     $self->generate_radiusd_sitesconf($tt);
     $self->generate_radiusd_proxy($tt);
@@ -325,7 +326,6 @@ EOT
 
 }
 
-
 =head2 generate_radiusd_mainconf
 
 Generates the radiusd.conf configuration file
@@ -351,6 +351,12 @@ sub generate_radiusd_mainconf {
     $tt->process("$conf_dir/radiusd/radiusd_cli.conf", \%tags, "$install_dir/raddb/radiusd_cli.conf") or die $tt->error();
 }
 
+=head2 generate_radiusd_restconf
+
+Generates the rest configuration file
+
+=cut
+
 sub generate_radiusd_restconf {
     my ($self, $tt) = @_;
     my %tags;
@@ -364,6 +370,26 @@ sub generate_radiusd_restconf {
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
     $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
+}
+
+=head2 generate_radiusd_redisconf
+
+Generates the redis configuration file
+
+=cut
+
+sub generate_radiusd_redisconf {
+    my ($self, $tt) = @_;
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/radiusd/redis.conf";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'redis_cache_host'} = $Config{services}{redis_cache_host} || "127.0.0.1";
+    $tags{'redis_cache_port'} = $Config{services}{redis_cache_port} || "6379";
+    $tags{'redis_ntlm_cache_host'} = $Config{services}{redis_ntlm_cache_host} || "127.0.0.1";
+    $tags{'redis_ntlm_cache_port'} = $Config{services}{redis_ntlm_cache_port} || "6383";
+
+    $tt->process("$conf_dir/radiusd/redis.conf", \%tags, "$install_dir/raddb/mods-enabled/redis") or die $tt->error();
 }
 
 sub generate_radiusd_authconf {
@@ -1045,9 +1071,9 @@ EOT
         $source->{'options'} =~ s/\$src_ip/$src_ip/;
         my $host = $source->{'host'};
         my $port = $source->{'port'};
-        if ($source->{'use_connector'} && $source->{'connect_through_port'} ne "") {
+        if ($source->{'use_connector'} && $source->{'pfconnector_port'} ne "") {
             $host = exists $ENV{PFCONNECTOR_SERVICE_HOST} ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
-            $port = $source->{'connect_through_port'};
+            $port = $source->{'pfconnector_port'};
         }
         $tags{'radius_sources'} .= <<"EOT";
 
@@ -1394,18 +1420,18 @@ EOT
     } else {
         my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
         unlink($file);
-        my $management_ip
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
-        $tags{'config'} .= <<"EOT";
-client $management_ip {
-        require_message_authenticator = no
-        ipaddr = $management_ip
-        secret = '$local_secret'
-        shortname = pf
-}
-EOT
+        #my $management_ip
+        #= defined( $management_network->tag('vip') )
+        #? $management_network->tag('vip')
+        #: $management_network->tag('ip');
+        #$tags{'config'} .= <<"EOT";
+        #client $management_ip {
+        #require_message_authenticator = no
+        #ipaddr = $management_ip
+        #secret = '$local_secret'
+        #shortname = pf
+        #}
+        #EOT
     }
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";

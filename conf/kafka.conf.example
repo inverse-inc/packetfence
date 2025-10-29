@@ -28,4 +28,4 @@ KAFKA_SASL_ENABLED_MECHANISMS=PLAIN
 
 [[% ENV.env_or_default("KAFKA_HOSTNAME", '%hostname%') %]]
 KAFKA_NODE_ID=1
-KAFKA_ADVERTISED_LISTENERS=INTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:29092,EXTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_EXTERNAL", '%mgmtip%') %]:9092,PF://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:9095,PFCONNECTOR://127.0.0.1:9096
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:29092,EXTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_EXTERNAL", '%mgmtip%') %]:9092,PF://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:9095

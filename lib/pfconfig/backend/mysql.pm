@@ -124,7 +124,7 @@ sub db_wsrep_healthy {
     my $dbh = $self->{_db} || $self->_get_db();
     return 0 unless $dbh;
 
-    my $sth = $dbh->prepare_cached('show status like "wsrep_provider_name";');
+    my $sth = $dbh->prepare_cached(q{show status like 'wsrep_provider_name'});
     return 0 unless $sth->execute;
     my $row = $sth->fetch;
     $sth->finish;
@@ -132,7 +132,7 @@ sub db_wsrep_healthy {
     if(defined($row) && $row->[1] ne "") {
         $logger->debug("There is a wsrep provider, checking the wsrep_ready flag");
         # check if the wsrep_ready status is ON
-        $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
+        $sth = $dbh->prepare_cached(q{show status like 'wsrep_ready'});
         return 0 unless $sth->execute;
         $row = $sth->fetch;
         $sth->finish;

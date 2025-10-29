@@ -1,6 +1,8 @@
 package pfk8s
 
 import (
+	"bytes"
+	"cmp"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -8,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -46,8 +47,22 @@ func IsRunningInK8S() bool {
 	return os.Getenv("K8S_MASTER_TOKEN") != ""
 }
 
-func NewClient(baseURI string, token string) *Client {
-	return &Client{BaseURI: baseURI, Token: token, Namespace: "default"}
+func NewAdminClientFromEnv() *Client {
+	if !IsRunningInK8S() {
+		return nil
+	}
+
+	baseURI := sharedutils.EnvOrDefault("K8S_MASTER_URI", "http://localhost")
+	token := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("K8S_ADMIN_TOKEN_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/token"))
+	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
+	c := NewClient(baseURI, token, namespace)
+	c.SetTLSConfigFromEnv()
+
+	return c
+}
+
+func NewClient(baseURI string, token string, namespace string) *Client {
+	return &Client{BaseURI: baseURI, Token: token, Namespace: cmp.Or(namespace, "default")}
 }
 
 func NewClientFromEnv() *Client {
@@ -55,16 +70,18 @@ func NewClientFromEnv() *Client {
 	token := sharedutils.EnvOrDefault("K8S_MASTER_TOKEN", "")
 	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
 
-	c := NewClient(baseURI, token)
-	c.Namespace = string(namespace)
-
+	c := NewClient(baseURI, token, namespace)
 	c.SetTLSConfigFromEnv()
 
 	return c
 }
 
 func (c *Client) SetTLSConfigFromEnv() {
-	caCerts := []byte(sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")))
+	c.SetTLSConfigFromFile(sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"))
+}
+
+func (c *Client) SetTLSConfigFromFile(path string) {
+	caCerts := []byte(sharedutils.ReadFromFileOrStr(path))
 	rootCAs, _ := x509.SystemCertPool()
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
@@ -111,7 +128,7 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	}
 
 	defer res.Body.Close()
-	b, err := ioutil.ReadAll(res.Body)
+	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return PodList{}, err
 	}
@@ -128,6 +145,70 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	}
 
 	return pods, nil
+}
+
+func (c *Client) PatchPorts(p []PatchPorts) error {
+	data, err := json.Marshal(p)
+	if err != nil {
+		return fmt.Errorf("PatchPorts, failed to encode to JSON: %w", err)
+	}
+
+	req, err := c.newRequest("PATCH", "/api/v1/namespaces/"+c.Namespace+"/services/pfconnector", bytes.NewBuffer(data))
+	if err != nil {
+		return fmt.Errorf("PatchPorts, failed to create the request: %w", err)
+	}
+
+	req.Header.Add("Content-Type", "application/json-patch+json")
+	resp, err := c.getHttpClient().Do(req)
+	if err != nil {
+		return fmt.Errorf("PatchPorts, failed request: %w", err)
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("PatchPorts, failed to read the body: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("PatchPorts, request error returned: %d %s", resp.StatusCode, string(body))
+	}
+	_ = body
+
+	return nil
+}
+
+func (c *Client) GetService(serviceName string) (Service, error) {
+	service := Service{}
+	req, err := c.newRequest("GET", "/api/v1/namespaces/"+c.Namespace+"/services/"+serviceName, nil)
+	if err != nil {
+		return service, fmt.Errorf("GetService, failed to create the request: %w", err)
+	}
+
+	resp, err := c.getHttpClient().Do(req)
+	if err != nil {
+		return service, fmt.Errorf("GetService, failed request: %w", err)
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return service, fmt.Errorf("GetService, failed to read the body: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return service, fmt.Errorf("GetService, request error returned: %d %s", resp.StatusCode, string(body))
+	}
+
+	err = json.Unmarshal(body, &service)
+
+	if err != nil {
+		return service, fmt.Errorf("GetService, failed to decode JSON: %w", err)
+	}
+
+	_ = body
+
+	return service, nil
 }
 
 func (c *Client) UnifiedAPICallDeployment(ctx context.Context, useTLS bool, appSelector, method, path string, createResponseStructPtr func(serverId string) interface{}) map[string]error {

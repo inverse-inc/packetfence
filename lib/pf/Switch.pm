@@ -3447,23 +3447,28 @@ Create a radius session id.
 
 sub setRadiusSession {
     my($self, $args) = @_;
-    my $mac = $args->{'mac'};
     my $session_id;
     if (exists($args->{'id_session'})) {
         $session_id = $args->{'id_session'};
     } else {
         my $acl_part = $args->{acl} ? join(".", map { ref eq 'ARRAY' ? @$_ : $_ } @{$args->{acl}}) : "";
-        my $stringToHash = join('.', grep { $_ ne "" } ($mac, $args->{'switch'}->{'_id'}, $acl_part));
+        my $stringToHash = join('.', grep { $_ ne "" } ($args->{'switch'}->{'_id'}, $acl_part));
         $session_id = substr(sha512_hex($stringToHash), 0, 6);
     }
     my $chi = $self->radius_cache_distributed;
     $chi->set($session_id,{
-        client_mac => $mac,
+        client_mac => (defined $args->{'mac'} ? $args->{'mac'}
+                       : defined $args->{'client_mac'} ? $args->{'client_mac'}
+                       : ''),
         wlan => $args->{'ssid'},
-        switch_id => $args->{'switch'}->{'_id'},
+        switch_id => (
+            defined($args->{'switch'}->{'_id'}) ? $args->{'switch'}->{'_id'}
+            : defined($args->{'switch_id'}) ? $args->{'switch_id'}
+            : ''),
         acl => exists($args->{'acl'}) ? $args->{acl} : (),
         acl_num => exists($args->{'acl_num'}) ? $args->{'acl_num'} : (),
-    });
+        id_session => $session_id,
+    }, { expires_in => 30 });
     return $session_id;
 }
 

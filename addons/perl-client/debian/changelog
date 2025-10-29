@@ -1,3 +1,9 @@
+fingerbank (4.3.3) unstable; urgency=medium
+
+  * Use env variables for the configuration
+
+ -- Inverse inc. <info@inverse.ca>  Tue, 15 Apr 2025 11:12:12 +0200
+
 fingerbank (4.3.2) unstable; urgency=medium
 
   * Adjust permissions detection for SQLite3 databases

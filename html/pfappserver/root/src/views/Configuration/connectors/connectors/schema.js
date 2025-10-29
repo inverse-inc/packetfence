@@ -25,6 +25,17 @@ const schemaNetworks = yup.array().ensure()
   .unique(i18n.t('Duplicate network.'))
   .of(schemaNetwork)
 
+const schemaFingerbankEnvironment = yup.object().shape({
+  name: yup.string().nullable()
+    .required(i18n.t('Environment variable required.')),
+  value: yup.string().nullable()
+    .required(i18n.t('Value required.'))
+})
+
+const schemaFingerbankEnvironments = yup.array().ensure()
+  .unique(i18n.t('Duplicate environment variable.'), ({ name }) => name)
+  .of(schemaFingerbankEnvironment)
+
 export default (props) => {
   const {
     id,
@@ -36,8 +47,18 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Connector ID required.'))
+      .isAlphaNumeric()
+      .length(40, i18n.t('Connector ID must be 40 characters.'))
       .connectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Connector ID exists.')),
-    description: yup.string().nullable().label(i18n.t('Description')),
-    networks: schemaNetworks
+    description: yup.string()
+      .nullable()
+      .required(i18n.t('Description required.'))
+      .label(i18n.t('Description')),
+    secret: yup.string()
+      .nullable()
+      .required(i18n.t('Secret required.'))
+      .label(i18n.t('Secret')),
+    networks: schemaNetworks,
+    fingerbank_environment: schemaFingerbankEnvironments
   })
 }

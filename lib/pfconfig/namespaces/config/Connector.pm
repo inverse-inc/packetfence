@@ -44,6 +44,7 @@ sub build_child {
 
     for my $id (keys(%tmp_cfg)) {
         $tmp_cfg{$id}{networks} = $tmp_cfg{$id}{networks} ? [split(/\n/, $tmp_cfg{$id}{networks})] : [];
+        $tmp_cfg{$id}{fingerbank_environment} = $tmp_cfg{$id}{fingerbank_environment} ? [split(/\n/, $tmp_cfg{$id}{fingerbank_environment})] : [];
     }
 
     return \%tmp_cfg;

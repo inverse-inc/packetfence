@@ -50,6 +50,8 @@ sub generateConfig {
     my $db_pass = $db_config->{'pass'};
     my $db = $db_config->{'db'};
     my $db_unix_socket = $db_config->{'unix_socket'};
+    my $redis_cache_host = $Config{services}{redis_cache_host};
+    my $redis_cache_port = $Config{services}{redis_cache_port};
 
     if (!defined($db_host) || !defined($db_port) || !defined($db_user) || !defined($db_pass) || !defined($db) || !defined($db_unix_socket) || $db_host eq "" || $db_port eq "" || $db_user eq "" || $db_pass eq "" || $db eq "" || $db_unix_socket eq "") {
         print("Warning: Some of the database settings are missing while generating db.ini, ntlm-auth-api might not able to start properly\n")
@@ -64,8 +66,9 @@ sub generateConfig {
     pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
 
     pf_run("sudo echo '[CACHE]' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'CACHE_HOST=containers-gateway.internal' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'CACHE_PORT=6379' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+
+    pf_run("sudo echo 'CACHE_HOST=$redis_cache_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'CACHE_PORT=$redis_cache_port' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
 
     my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {

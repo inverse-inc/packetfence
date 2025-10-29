@@ -5,7 +5,7 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 RUN apt-get -qq update \
     && apt-get clean \
     && apt-get -qq install -y freeradius=4:3.2.7+git freeradius-common=4:3.2.7+git freeradius-config=4:3.2.7+git freeradius-ldap=4:3.2.7+git freeradius-mysql=4:3.2.7+git freeradius-redis=4:3.2.7+git freeradius-rest=4:3.2.7+git freeradius-utils=4:3.2.7+git \
-    && apt-get clean 
+    && apt-get clean
 
 WORKDIR /usr/local/pf/
 
@@ -42,4 +42,3 @@ RUN chown -R pf: /usr/local/pf/logs && \
     chmod 664 -R /usr/local/pf/logs
 
 RUN sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
-

@@ -13,6 +13,8 @@ has secret => (is => 'rw');
 
 has networks => (is => 'rw');
 
+has fingerbank_environment => (is => 'rw');
+
 my %connections;
 my $redis;
 sub CLONE {
@@ -59,7 +61,7 @@ sub dynreverse {
     #Override the host value if this is a container so that it always goes through the local containers interface
     #Otherwise the UDP packets don't get an answer because the docker proxy doesn't get them back on the containers network
     #This shouldn't apply to K8S containers, only when running containers on a 'Classic PF'
-    if ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) {
+    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && $ENV{PF_SAAS} ne 'yes') ) {
         $connector_conn->{host} = "containers-gateway.internal";
     }
     

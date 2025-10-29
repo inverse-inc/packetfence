@@ -15,12 +15,17 @@ node_modules
 addons/stress-tester/plan.conf
 conf/connectors.conf
 conf/admin.conf
+conf/domains_connectors.conf
+conf/dns_connectors.conf
 conf/httpd.conf
 conf/wgorchestrator-auth.json
 conf/named.conf
 conf/cluster-files.txt
 conf/event_loggers.conf
 conf/pf.conf
+conf/monitoring/go.d/*.conf
+conf/monitoring/go.d.conf
+conf/pfdns-connector.conf
 conf/*.lock
 conf/*.lockonce
 conf/git_commit_id

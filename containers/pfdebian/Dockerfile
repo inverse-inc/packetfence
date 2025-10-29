@@ -31,7 +31,7 @@ RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /e
 # Install Deps
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get -qq --no-install-recommends install -y freeradius-common python3-venv
+    apt-get -qq --no-install-recommends install -y freeradius-common python3-venv git-crypt
 
 # Clean
 RUN find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \

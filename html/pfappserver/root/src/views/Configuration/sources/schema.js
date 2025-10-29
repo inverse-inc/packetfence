@@ -2,6 +2,10 @@ import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import {
+  connectThroughPortMin,
+  connectThroughPortMax
+} from './config'
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
@@ -40,7 +44,7 @@ yup.addMethod(yup.string, 'sourceConnectThroughPortNotExistsExcept', function (e
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getSources').then(response => {
-        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.connect_through_port.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.pfconnector_port.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -193,6 +197,10 @@ export const schema = (props) => {
     person_mappings: schemaPersonMappings,
     port: yup.string().label(i18n.t('Port'))
       .isPort(),
+    pfconnector_port: yup.string().nullable()
+      .label(i18n.t('Port'))
+      .sourceConnectThroughPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
+      .isPort(connectThroughPortMin, connectThroughPortMax),
     protected_resource_url: yup.string().label(i18n.t('URL')),
     proxy_addresses: yup.string().label(i18n.t('Addresses')),
     public_client_key: yup.string().label(i18n.t('Key')),

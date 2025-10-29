@@ -55,7 +55,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
 Requires: redis >= 7.2.5
-Requires: freeradius >= 3.2.6, freeradius-mysql >= 3.2.6, freeradius-perl >= 3.2.6, freeradius-ldap >= 3.2.6, freeradius-utils >= 3.2.6, freeradius-redis >= 3.2.6, freeradius-rest >= 3.2.6
+Requires: freeradius >= 3.2.7, freeradius-mysql >= 3.2.7, freeradius-perl >= 3.2.7, freeradius-ldap >= 3.2.7, freeradius-utils >= 3.2.7, freeradius-redis >= 3.2.7, freeradius-rest >= 3.2.7
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -315,7 +315,7 @@ Requires: docker-ce docker-ce-cli containerd.io
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
+Requires: fingerbank >= 4.3.3, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
@@ -408,6 +408,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns-connector.service %{buildroot}%{_unitdir}/packetfence-pfdns-connector.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
@@ -1024,6 +1025,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns-connector-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
@@ -1046,6 +1048,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/config.toml
 %config(noreplace)      /usr/local/pf/conf/nexpose-responses.txt
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
+%config(noreplace)      /usr/local/pf/conf/pfdns-connector.conf
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
@@ -1056,6 +1059,10 @@ fi
                         /usr/local/pf/conf/self_service.conf.example
 %config(noreplace)      /usr/local/pf/conf/connectors.conf
                         /usr/local/pf/conf/connectors.conf.example
+%config(noreplace)      /usr/local/pf/conf/dns_connectors.conf
+                        /usr/local/pf/conf/dns_connectors.conf.example
+%config(noreplace)      /usr/local/pf/conf/domains_connectors.conf
+                        /usr/local/pf/conf/domains_connectors.conf.example
 %config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
                         /usr/local/pf/conf/network_behavior_policies.conf.example
 %config(noreplace)      /usr/local/pf/conf/cloud.conf
@@ -1211,6 +1218,8 @@ fi
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/rest.conf
                         /usr/local/pf/conf/radiusd/rest.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/redis.conf
+                        /usr/local/pf/conf/radiusd/redis.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cli.conf
                         /usr/local/pf/conf/radiusd/cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cli

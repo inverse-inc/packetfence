@@ -8,6 +8,8 @@
 /usr/local/pf/conf/cloud.conf
 /usr/local/pf/conf/config.toml
 /usr/local/pf/conf/connectors.conf
+/usr/local/pf/conf/dns_connectors.conf
+/usr/local/pf/conf/domains_connectors.conf
 /usr/local/pf/conf/pfcron.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
@@ -30,6 +32,7 @@
 /usr/local/pf/conf/pfdetect.conf
 /usr/local/pf/conf/pfdhcp.conf
 /usr/local/pf/conf/pfdns.conf
+/usr/local/pf/conf/pfdns-connector.conf
 /usr/local/pf/conf/pfqueue.conf
 /usr/local/pf/conf/pki_provider.conf
 /usr/local/pf/conf/portal_modules.conf
@@ -90,6 +93,7 @@
 /usr/local/pf/conf/radiusd/radiusd_cli.conf
 /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
 /usr/local/pf/conf/radiusd/rest.conf
+/usr/local/pf/conf/radiusd/redis.conf
 /usr/local/pf/conf/radiusd/sql.conf
 /usr/local/pf/conf/radiusd/tls.conf
 /usr/local/pf/conf/radiusd/packetfence

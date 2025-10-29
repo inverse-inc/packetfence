@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -188,6 +189,49 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
+
+	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
+		patchPortsAdd := []pfk8s.PatchPorts{}
+		patchPortsDel := []pfk8s.PatchPorts{}
+
+		services, err := client.GetService("pfconnector")
+		if err != nil {
+			l.Printf("Error getting pfconnector service: %v", err)
+			// If we can't get the service, we can't patch it, so we just return
+		}
+
+		for _, remote := range additionalRemotes {
+			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
+			for index, port := range services.Spec.Ports {
+				if port.Name == "port-"+strings.ToLower(remote.LocalProto)+"-"+remote.LocalPort {
+					// If the port already exists, we need to remove it first
+
+					patchPortsDel = append(patchPortsDel, pfk8s.PatchPorts{
+						Op:   "remove",
+						Path: "/spec/ports/" + strconv.Itoa(index),
+					})
+				}
+			}
+
+			patchPortsAdd = append(patchPortsAdd, pfk8s.PatchPorts{
+				Op:   "add",
+				Path: "/spec/ports/-",
+				Value: pfk8s.PatchPortAdd{
+					Port:       int(port),
+					TargetPort: int(port),
+					Protocol:   strings.ToUpper(remote.LocalProto),
+					Name:       "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort,
+				},
+			})
+		}
+		if err := client.PatchPorts(patchPortsDel); err != nil {
+			l.Printf("Error deleting ports: %v", err)
+		}
+		if err := client.PatchPorts(patchPortsAdd); err != nil {
+			l.Printf("Error adding ports: %v", err)
+		}
+	}
+
 	//successfuly validated config!
 	r.Reply(true, nil)
 	//tunnel per ssh connection
@@ -246,6 +290,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	payload := struct {
 		ConnectorID string `json:"connector_id"`
 		To          string `json:"to"`
+		LocalPort   string `json:"local_port,omitempty"`
 	}{}
 
 	err := json.NewDecoder(req.Body).Decode(&payload)
@@ -272,7 +317,12 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		for i := 0; i < DYNREVERSE_BIND_ATTEMPTS; i++ {
 			tun := o.(*tunnel.Tunnel)
 			to := payload.To
-			remoteStr := fmt.Sprintf("R:0:%s", to)
+			if payload.LocalPort != "" {
+				to = fmt.Sprintf("%s:%s", payload.LocalPort, to)
+			} else {
+				to = fmt.Sprintf("0:%s", to)
+			}
+			remoteStr := fmt.Sprintf("R:%s", to)
 			remote, err := settings.DecodeRemote(remoteStr)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
@@ -390,7 +440,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
 			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
 			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
-			fmt.Sprintf("127.0.0.1:9090:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9090", fmt.Sprintf("%s:9090", managementIP))),
+			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
 		}})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
@@ -467,6 +517,11 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 	webservices := pfconfigdriver.PfConfWebservices{}
 	pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices)
 
+	connectors := pfconfigdriver.Connectors{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors)
+
+	connectorId := req.URL.Query().Get("CONNECTOR_ID")
+
 	env := map[string]string{
 		"COLLECTOR_ARP_LOOKUP":                fingerbankSettings.Collector.ArpLookup,
 		"COLLECTOR_CLUSTERED":                 "true",
@@ -495,6 +550,20 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 		}
 	}
 
+	if connectorId != "" {
+		for name, connector := range connectors.Element {
+			if name == connectorId {
+				for _, l := range connector.FingerbankEnvironment {
+					d := strings.Split(l, "=")
+					if len(d) == 2 {
+						env[d[0]] = d[1]
+					} else if len(d) > 2 {
+						env[d[0]] = strings.Join(d[1:len(d)], "=")
+					}
+				}
+			}
+		}
+	}
 	envFile := ""
 	for k, v := range env {
 		envFile += fmt.Sprintf("export %s=%s\n", k, v)
@@ -504,7 +573,7 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 }
 
 func (s *Server) handleRemoteFingerbankCollectorNbaConf(w http.ResponseWriter, req *http.Request) {
-	if nbaConf, err := ioutil.ReadFile("/usr/local/pf/conf/network_behavior_policies.conf"); err == nil {
+	if nbaConf, err := os.ReadFile("/usr/local/pf/conf/network_behavior_policies.conf"); err == nil {
 		w.Write(nbaConf)
 	} else {
 		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error while reading Fingerbank NBA config: %s", err))

@@ -591,6 +591,7 @@ type PfConfAdvanced struct {
 	SsoOnDhcp                        string   `json:"sso_on_dhcp"`
 	Language                         string   `json:"language"`
 	StatsdListenPort                 string   `json:"statsd_listen_port"`
+	StatsdListenHost                 string   `json:"statsd_listen_host"`
 	SsoOnAccounting                  string   `json:"sso_on_accounting"`
 	LocationlogCloseOnAccountingStop string   `json:"locationlog_close_on_accounting_stop"`
 	PortalCspSecurityHeaders         string   `json:"portal_csp_security_headers"`
@@ -900,7 +901,10 @@ type Connectors struct {
 	PfconfigNS              string `val:"config::Connector"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]struct {
-		Secret string `json:"secret"`
+		Secret                string   `json:"secret"`
+		Networks              []string `json:"networks"`
+		Description           string   `json:"description"`
+		FingerbankEnvironment []string `json:"fingerbank_environment"`
 	}
 }
 
@@ -965,3 +969,114 @@ type FingerbankSettings struct {
 }
 
 var FingerbankConf = FingerbankSettings{}
+
+type PfConfSwitch struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Switch"`
+	PfconfigHashNS string `val:"-"` // Will be the switch IP
+
+	// Basic Information
+	Type        string `json:"type"`
+	Description string `json:"description"`
+	Group       string `json:"group"`
+
+	// VLANs
+	Vlans   map[string]string `json:"vlans"`
+	VlanMap string            `json:"VlanMap"`
+
+	// Interfaces
+	Interfaces map[string]interface{} `json:"interfaces"`
+
+	//Roles
+	Roles   map[string]string `json:"roles"`
+	RoleMap string            `json:"RoleMap"`
+
+	// Network Related
+	Networks     map[string]interface{} `json:"networks"`
+	NetworksFrom map[string]interface{} `json:"networks_from"`
+
+	// Access Control
+	AccessLists           map[string]interface{} `json:"access_lists"`
+	AccessListMap         string                 `json:"AccessListMap"`
+	ACLsLimit             string                 `json:"ACLsLimit"`
+	DownloadableACLsLimit string                 `json:"DownloadableACLsLimit"`
+	UsePushACLs           string                 `json:"UsePushACLs"`
+	UseDownloadableACLs   string                 `json:"UseDownloadableACLs"`
+	PushACLs              string                 `json:"pushACLs"`
+
+	// WebAuth
+	UrlMap                    string                 `json:"UrlMap"`
+	Urls                      map[string]interface{} `json:"urls"`
+	ExternalPortalEnforcement string                 `json:"ExternalPortalEnforcement"`
+
+	// VPN
+	Vpn    map[string]interface{} `json:"vpn"`
+	VpnMap string                 `json:"VpnMap"`
+
+	// MFA
+	PostMfaValidation string `json:"PostMfaValidation"`
+
+	// SNMP
+	SNMPUseConnector   string `json:"SNMPUseConnector"`
+	SNMPVersion        string `json:"SNMPVersion"`
+	SNMPVersionTrap    string `json:"SNMPVersionTrap"`
+	SNMPCommunityRead  string `json:"SNMPCommunityRead"`
+	SNMPCommunityWrite string `json:"SNMPCommunityWrite"`
+	SNMPCommunityTrap  string `json:"SNMPCommunityTrap"`
+
+	// CLI
+	CliAccess    string              `json:"cliAccess"`
+	CliUser      string              `json:"cliUser"`
+	CliPwd       pfcrypt.CryptString `json:"cliPwd"`
+	CliEnablePwd pfcrypt.CryptString `json:"cliEnablePwd"`
+	CliTransport string              `json:"cliTransport"`
+
+	// Web Services
+	WsTransport string              `json:"wsTransport"`
+	WsUser      string              `json:"wsUser"`
+	WsPwd       pfcrypt.CryptString `json:"wsPwd"`
+
+	// VoIP Detection
+	VoIPEnabled    int    `json:"VoIPEnabled"`
+	VoIPCDPDetect  string `json:"VoIPCDPDetect"`
+	VoIPDHCPDetect string `json:"VoIPDHCPDetect"`
+	VoIPLLDPDetect string `json:"VoIPLLDPDetect"`
+
+	// RADIUS
+	UseCoA                   string              `json:"useCoA"`
+	RadiusSecret             pfcrypt.CryptString `json:"radiusSecret"`
+	RadiusDeauthUseConnector string              `json:"radiusDeauthUseConnector"`
+
+	//Advanced
+	InlineTrigger            []interface{} `json:"inlineTrigger"`
+	Mode                     string        `json:"mode"`
+	MacSearchesMaxNb         string        `json:"macSearchesMaxNb"`
+	MacSearchesSleepInterval string        `json:"macSearchesSleepInterval"`
+	DeauthOnPrevious         string        `json:"deauthOnPrevious"`
+	Uplink                   []string      `json:"uplink"`
+}
+
+// PfSwitch struct that will help when fetching multiple switch config from config::Switch
+type PfSwitches struct {
+	PfconfigKeys
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Switch"`
+	Keys           []string
+}
+
+type PfConfPfDnsConnector struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"pfdns_connector"`
+	PfdnsConnectorServer string `json:"pfdns_connector_server"`
+}
+
+type PfConfDnsConnectors struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::DnsConnectors"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}

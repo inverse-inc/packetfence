@@ -97,6 +97,7 @@ export {
   BaseFormGroupChosenOne                    as FormGroupPaymentType,
   BaseFormGroupFileUpload                   as FormGroupPaypalCertFile,
   BaseFormGroupPersonMappings               as FormGroupPersonMappings,
+  BaseFormGroupInputNumber                  as FormGroupPfconnectorPort,
   BaseFormGroupInputNumber                  as FormGroupPinCodeLength,
   BaseFormGroupInputNumber                  as FormGroupPort,
   BaseFormGroupInput                        as FormGroupProtectedResourceUrl,

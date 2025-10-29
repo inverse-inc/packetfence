@@ -77,6 +77,7 @@ EOT
 
     my $i = 100;
     my $database_proxysql = $pf::config::Config{database_proxysql};
+    my $port = $database_proxysql->{port} || 3306;  # Use configured port or default to 3306
 
     if (isenabled($database_proxysql->{status})) {
         my $cacert = $database_proxysql->{cacert};
@@ -90,16 +91,18 @@ EOT
         my $backend = $database_proxysql->{backend};
         my $ssl = $cacert ? 1 : 0;
         $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=3306 , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
+    { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
 EOT
     } elsif (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
         my @mysql_write_backend = pf::cluster::getWriteDB();
         my @mysql_read_backend = pf::cluster::getReadDB();
+        
+        # Get port from database_proxysql config or default to 3306
 
         foreach my $mysql_back (@mysql_write_backend) {
             $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
+    { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
 
 EOT
         $i--;
@@ -107,7 +110,7 @@ EOT
         $i = 100;
         foreach my $mysql_back (@mysql_read_backend) {
             $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=1000, weight=$i },
+    { address="$mysql_back" , port=$port , hostgroup=30, max_connections=1000, weight=$i },
 
 EOT
         $i--;
@@ -116,10 +119,12 @@ EOT
         my @mysql_backend;
 
         @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+        
+        # Get port from database_proxysql config or default to 3306
 
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
+    { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
 EOT
         $i--;
         }
@@ -127,17 +132,17 @@ EOT
         my @mysql_backend;
 
         @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
-
+        
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
+    { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
 EOT
         $i--;
         }
         my $j = 101 - @mysql_backend;
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=1000, weight=$j },
+    { address="$mysql_back" , port=$port , hostgroup=30, max_connections=1000, weight=$j },
 EOT
         next if ($j = (102 - @mysql_backend));
         $j++;
@@ -145,14 +150,14 @@ EOT
         $i = 100;
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=810, max_connections=1000, weight=$i },
+    { address="$mysql_back" , port=$port , hostgroup=810, max_connections=1000, weight=$i },
 EOT
         $i--;
         }
         $j = 101 - @mysql_backend;
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=830, max_connections=1000, weight=$j },
+    { address="$mysql_back" , port=$port , hostgroup=830, max_connections=1000, weight=$j },
 EOT
         $j++;
         }
