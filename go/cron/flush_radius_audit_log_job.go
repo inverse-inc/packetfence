@@ -147,7 +147,7 @@ func (j *FlushRadiusAuditLogJob) flushLogs(entries [][]interface{}) error {
 		}
 
 	} else {
-		fmt.Printf("Zero Args\n")
+		log.LogDebug(ctx, "Zero Args")
 	}
 
 	log.LogInfo(ctx, fmt.Sprintf("Flushed %d radius_audit_log", rows))
@@ -308,6 +308,7 @@ func keyExists(myMap map[string]interface{}, key string) bool {
 }
 
 func (j *FlushRadiusAuditLogJob) argsFromEntriesForTLS(entries [][]interface{}) []interface{} {
+	ctx := context.Background()
 	args := make([]interface{}, 0, len(entries)*NODE_TLS_COLUMN_COUNT)
 	for _, e := range entries {
 		if len(e) < 1 {
@@ -318,12 +319,12 @@ func (j *FlushRadiusAuditLogJob) argsFromEntriesForTLS(entries [][]interface{}) 
 			continue
 		}
 		if !keyExists(lookup, "Calling-Station-Id") {
-			fmt.Printf("Not found Calling-Station-Id\n")
+			log.LogDebug(ctx, "Not found Calling-Station-Id")
 			continue
 		}
 
 		if !keyExists(lookup, "TLS-Client-Cert-Common-Name") {
-			fmt.Printf("Not found TLS-Client-Cert-Common-Name\n")
+			log.LogDebug(ctx, "Not found TLS-Client-Cert-Common-Name")
 			continue
 		}
 
