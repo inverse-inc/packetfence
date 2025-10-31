@@ -141,6 +141,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	NewRadacctLog(ctx, DBP).AddToRouter(router)
 	NewRadiusAuditLog(ctx, DBP).AddToRouter(router)
 	NewWrix(ctx, DBP).AddToRouter(router)
+	NewDynamicReport(ctx, DBP).AddToRouter(router)
 
 	m.router = router
 	return nil
