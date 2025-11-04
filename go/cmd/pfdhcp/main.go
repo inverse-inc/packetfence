@@ -32,6 +32,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/timedlock"
+	"github.com/vishvananda/netlink"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
@@ -80,12 +81,16 @@ var (
 	// Configuration
 	webservices        *pfconfigdriver.PfConfWebservices
 	intNametoInterface map[string]*Interface
+	intMutex           sync.RWMutex // Protects intNametoInterface map
 
 	// Stats
 	StatsdClient *statsd.Client
 
 	// Connection pool
 	dbConnPool *sql.DB
+
+	// Hotplug monitoring
+	jobChannel chan job // Global job channel for worker pool
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -150,12 +155,16 @@ func main() {
 
 	// Initialize worker pool for DHCP requests
 	jobChan := initializeWorkerPool(dbConnPool)
+	jobChannel = jobChan // Store in global for hotplug monitoring
 
 	// Map interface names to interface objects
 	intNametoInterface = make(map[string]*Interface)
 
 	// Start listeners for each interface
 	startNetworkListeners(ctx, jobChan)
+
+	// Start monitoring for interface hotplug events
+	go monitorInterfaceHotplug(ctx)
 
 	// Setup and start HTTP API
 	router := setupAPIRoutes(ctx, dbConnPool)
@@ -900,7 +909,9 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	// Start unicast listeners
 	for _, v := range DHCPConfig.intsNet {
 		v := v
+		intMutex.Lock()
 		intNametoInterface[v.Name] = &v
+		intMutex.Unlock()
 
 		wg.Add(1)
 		go func() {
@@ -1017,4 +1028,103 @@ func refreshConfigLoop(ctx context.Context) {
 			pfconfigdriver.PfConfigStorePool.Refresh(ctx)
 		}
 	}
+}
+
+// monitorInterfaceHotplug monitors for network interface additions using netlink
+func monitorInterfaceHotplug(ctx context.Context) {
+	log.LoggerWContext(ctx).Info("Starting network interface hotplug monitoring")
+
+	// Create a channel to receive link updates
+	linkUpdates := make(chan netlink.LinkUpdate)
+	done := make(chan struct{})
+	defer close(done)
+
+	// Subscribe to link updates
+	if err := netlink.LinkSubscribe(linkUpdates, done); err != nil {
+		log.LoggerWContext(ctx).Error("Failed to subscribe to netlink updates: " + err.Error())
+		return
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.LoggerWContext(ctx).Info("Stopping interface hotplug monitoring")
+			return
+		case update := <-linkUpdates:
+			// Only process new link additions
+			if update.Header.Type == syscall.RTM_NEWLINK {
+				handleNewInterface(ctx, update)
+			}
+		}
+	}
+}
+
+// handleNewInterface processes a newly detected network interface
+func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
+	linkAttrs := update.Link.Attrs()
+	if linkAttrs == nil {
+		return
+	}
+
+	interfaceName := linkAttrs.Name
+	log.LoggerWContext(ctx).Info("Detected new network interface: " + interfaceName)
+
+	// Check if interface is already being monitored
+	intMutex.RLock()
+	if _, exists := intNametoInterface[interfaceName]; exists {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " is already being monitored")
+		intMutex.RUnlock()
+		return
+	}
+	intMutex.RUnlock()
+
+	// Check if this interface is in the DHCP configuration
+	var interfaceConfig *Interface
+	for i := range DHCPConfig.intsNet {
+		if DHCPConfig.intsNet[i].Name == interfaceName {
+			interfaceConfig = &DHCPConfig.intsNet[i]
+			break
+		}
+	}
+
+	if interfaceConfig == nil {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " is not in DHCP configuration, skipping")
+		return
+	}
+
+	// Wait a moment for the interface to be fully up
+	time.Sleep(1 * time.Second)
+
+	// Verify the interface is actually up and has the expected configuration
+	link, err := netlink.LinkByName(interfaceName)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Failed to get link info for " + interfaceName + ": " + err.Error())
+		return
+	}
+
+	if link.Attrs().OperState != netlink.OperUp {
+		log.LoggerWContext(ctx).Info("Interface " + interfaceName + " is not up yet, waiting...")
+		// Could implement a retry mechanism here if needed
+		return
+	}
+
+	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName)
+
+	// Add to the interface map
+	intMutex.Lock()
+	intNametoInterface[interfaceName] = interfaceConfig
+	intMutex.Unlock()
+
+	// Start unicast and broadcast listeners for this interface
+	go func() {
+		log.LoggerWContext(ctx).Info("Starting unicast listener for " + interfaceName)
+		interfaceConfig.runUnicast(ctx, jobChannel)
+	}()
+
+	go func() {
+		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + interfaceName)
+		interfaceConfig.run(ctx, jobChannel)
+	}()
+
+	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
 }
