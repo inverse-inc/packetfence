@@ -1075,13 +1075,16 @@ func monitorInterfaceHotplug(ctx context.Context) {
 			log.LoggerWContext(ctx).Info("Stopping interface hotplug monitoring")
 			return
 		case update := <-linkUpdates:
-			// Only process new link additions when interface is UP
-			if update.Header.Type == syscall.RTM_NEWLINK {
-				// Check if the interface is actually up
+			switch update.Header.Type {
+			case syscall.RTM_NEWLINK:
+				// Only process new link additions when interface is UP
 				linkAttrs := update.Link.Attrs()
 				if linkAttrs != nil && linkAttrs.OperState == netlink.OperUp {
 					go handleNewInterface(ctx, update)
 				}
+			case syscall.RTM_DELLINK:
+				// Handle interface deletion to clean up tracking
+				go handleDeletedInterface(ctx, update)
 			}
 		}
 	}
@@ -1247,4 +1250,40 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	}()
 
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
+}
+
+// handleDeletedInterface processes interface deletion events
+func handleDeletedInterface(ctx context.Context, update netlink.LinkUpdate) {
+	linkAttrs := update.Link.Attrs()
+	if linkAttrs == nil {
+		return
+	}
+
+	interfaceName := linkAttrs.Name
+	log.LoggerWContext(ctx).Info("Detected interface deletion: " + interfaceName)
+
+	// Check if we're monitoring this interface
+	intMutex.RLock()
+	_, exists := intNametoInterface[interfaceName]
+	intMutex.RUnlock()
+
+	if !exists {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " was not being monitored, ignoring deletion")
+		return
+	}
+
+	// Remove from tracking map
+	intMutex.Lock()
+	delete(intNametoInterface, interfaceName)
+	intMutex.Unlock()
+
+	// Also clear from processing map to allow immediate re-detection
+	processingMutex.Lock()
+	delete(processingInterfaces, interfaceName)
+	processingMutex.Unlock()
+
+	log.LoggerWContext(ctx).Info("Removed interface " + interfaceName + " from monitoring (listeners will terminate when interface is unavailable)")
+
+	// Note: We don't need to explicitly stop the listener goroutines
+	// They will fail when trying to read from the deleted interface and exit naturally
 }
