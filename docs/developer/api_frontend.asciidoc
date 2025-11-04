@@ -1,0 +1,140 @@
+= Adding API Endpoints to API Frontend
+
+This document describes how to add new endpoints to the API frontend in `go/plugin/caddy2/api/api.go`.
+
+== Overview
+
+The API frontend uses Caddy v2 with a custom handler that routes requests through `httprouter`.
+Endpoints are registered in the `buildHandler` method and implemented as handler functions.
+
+== Adding a New Endpoint
+
+=== 1. Register the Route
+
+In the `buildHandler` method, add your route using the appropriate HTTP method:
+
+[source,go]
+----
+router.POST("/api/v1/your_endpoint", m.yourHandler)
+router.GET("/api/v1/your_endpoint", m.yourHandler)
+router.PUT("/api/v1/your_endpoint", m.yourHandler)
+router.DELETE("/api/v1/your_endpoint", m.yourHandler)
+----
+
+=== 2. Implement the Handler Function
+
+Add a handler method to the `APIHandler` struct with this signature:
+
+[source,go]
+----
+func (m *APIHandler) yourHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+    ctx := r.Context()
+    
+    // Your implementation here
+    
+    // Set response headers (already set to application/json by default)
+    // w.Header().Set("Content-Type", "application/json")
+    
+    // Write response
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte(`{"status": "success"}`))
+}
+----
+
+=== 3. Handler Function Guidelines
+
+* Always extract the context: `ctx := r.Context()`
+* Use `httprouter.Params` to access URL parameters
+* Response content-type is automatically set to `application/json`
+* Use appropriate HTTP status codes
+* Handle errors gracefully and return meaningful error responses
+
+=== 4. Database Access
+
+If you need database access, the database connection is already initialized in `buildHandler`.
+You can create a new API module that receives the database connection:
+
+[source,go]
+----
+// In buildHandler, after line 144:
+NewYourApiModule(ctx, DBP).AddToRouter(router)
+----
+
+Create a new file for your module:
+
+[source,go]
+----
+type YourApiModule struct {
+    ctx context.Context
+    db  **gorm.DB
+}
+
+func NewYourApiModule(ctx context.Context, db **gorm.DB) *YourApiModule {
+    return &YourApiModule{
+        ctx: ctx,
+        db:  db,
+    }
+}
+
+func (m *YourApiModule) AddToRouter(router *httprouter.Router) {
+    router.POST("/api/v1/your_endpoint", m.yourHandler)
+}
+
+func (m *YourApiModule) yourHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+    // Your implementation with database access
+}
+----
+
+== Example
+
+Here's a complete example of adding a simple health check endpoint:
+
+[source,go]
+----
+// In buildHandler method:
+router.GET("/api/v1/health", m.healthCheck)
+
+// Handler method:
+func (m *APIHandler) healthCheck(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+    ctx := r.Context()
+    
+    response := map[string]string{
+        "status": "healthy",
+        "timestamp": time.Now().Format(time.RFC3339),
+    }
+    
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(response)
+}
+----
+
+== Testing
+
+After adding your endpoint:
+
+* Optionally to test without authentication comment out api-aaa in /usr/local/pf/conf/caddy-services/api.conf.
+* Run 
+ ** Without docker `/usr/local/pf/addons/dev-helpers/api-frontend-dev-run.sh | tee api-frontend-dev.log`
+ ** With docker::
+[source,bash]
+----
+/usr/local/pf/addons/dev-helpers/build-local-container.sh api-frontend
+systemctl restart packetfence-api-frontend
+----
+
+* Test your endpoint using curl or similar tool::
+[source,bash]
+----
+curl -k -v -X POST https://localhost:9999/api/v1/your_endpoint \
+  -H "Content-Type: application/json" \
+  -d '{"param": "value"}'
+----
+
+== Best Practices
+
+* Follow RESTful conventions for URL design
+* Use appropriate HTTP methods (GET for retrieval, POST for creation, PUT for updates, DELETE for removal)
+* Validate input parameters and request bodies
+* Return consistent error responses
+* Add logging using `log.LoggerWContext(ctx)`
+* Handle panics using the existing panic handler middleware
