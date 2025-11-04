@@ -1091,10 +1091,12 @@ func monitorInterfaceHotplug(ctx context.Context) {
 func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	linkAttrs := update.Link.Attrs()
 	if linkAttrs == nil {
+		log.LoggerWContext(ctx).Debug("Received netlink update with nil link attributes")
 		return
 	}
 
 	interfaceName := linkAttrs.Name
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Processing netlink event for interface: %s (OperState: %s)", interfaceName, linkAttrs.OperState))
 
 	// Debouncing: Check if we've recently processed this interface
 	processingMutex.Lock()
@@ -1111,15 +1113,56 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 
 	// Check if interface is already being monitored
 	intMutex.RLock()
-	if _, exists := intNametoInterface[interfaceName]; exists {
-		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " is already being monitored")
-		intMutex.RUnlock()
-		return
+	existingInterface, exists := intNametoInterface[interfaceName]
+	var monitoredInterfaces []string
+	for name := range intNametoInterface {
+		monitoredInterfaces = append(monitoredInterfaces, name)
 	}
 	intMutex.RUnlock()
 
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Currently monitored interfaces: %v", monitoredInterfaces))
+
+	if exists {
+		// Interface is in the map, but check if it was properly initialized
+		// If the interface didn't exist at startup, it may be in the map but not functional
+		var ipv4Status, networkStatus string
+		if existingInterface.Ipv4 == nil {
+			ipv4Status = "nil"
+		} else {
+			ipv4Status = existingInterface.Ipv4.String()
+		}
+		networkStatus = fmt.Sprintf("%d networks", len(existingInterface.network))
+
+		if existingInterface.Ipv4 == nil || len(existingInterface.network) == 0 {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s is in monitoring map but not properly initialized (IPv4: %s, Networks: %s), will reconfigure", interfaceName, ipv4Status, networkStatus))
+			// Remove the incomplete entry so we can re-add it properly
+			intMutex.Lock()
+			delete(intNametoInterface, interfaceName)
+			intMutex.Unlock()
+		} else {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s is already being monitored and appears configured (IPv4: %s, Networks: %s), skipping", interfaceName, ipv4Status, networkStatus))
+			return
+		}
+	}
+
 	// Wait a moment for the interface to stabilize (IP assignment, etc.)
-	time.Sleep(2 * time.Second)
+	// Bridges and virtual interfaces may need extra time for IP configuration
+	log.LoggerWContext(ctx).Debug("Waiting for interface " + interfaceName + " to stabilize...")
+
+	// Check if interface has an IP address before waiting
+	iface, err := net.InterfaceByName(interfaceName)
+	if err == nil && iface != nil {
+		addrs, _ := iface.Addrs()
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s current addresses (before wait): %v", interfaceName, addrs))
+	}
+
+	time.Sleep(3 * time.Second)
+
+	// Check again after waiting
+	if err == nil && iface != nil {
+		addrs, _ := iface.Addrs()
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s current addresses (after wait): %v", interfaceName, addrs))
+	}
 
 	// Re-read DHCP configuration to pick up the new interface
 	log.LoggerWContext(ctx).Info("Refreshing DHCP configuration for interface: " + interfaceName)
@@ -1127,6 +1170,13 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	// Create a new temporary config object and read the config
 	tempConfig := newDHCPConfig()
 	tempConfig.readConfig(ctx, dbConnPool)
+
+	// Log all interfaces found in the configuration for debugging
+	var foundInterfaces []string
+	for i := range tempConfig.intsNet {
+		foundInterfaces = append(foundInterfaces, tempConfig.intsNet[i].Name)
+	}
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interfaces in DHCP config after refresh: %v", foundInterfaces))
 
 	// Find the newly configured interface
 	var interfaceConfig *Interface
@@ -1139,7 +1189,7 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	}
 
 	if interfaceConfig == nil {
-		log.LoggerWContext(ctx).Info("Interface " + interfaceName + " is not in DHCP configuration, skipping")
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s is not in DHCP configuration (available: %v), skipping", interfaceName, foundInterfaces))
 		return
 	}
 
