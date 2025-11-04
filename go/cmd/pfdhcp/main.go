@@ -90,7 +90,9 @@ var (
 	dbConnPool *sql.DB
 
 	// Hotplug monitoring
-	jobChannel chan job // Global job channel for worker pool
+	jobChannel          chan job      // Global job channel for worker pool
+	processingInterfaces map[string]time.Time // Track interfaces being processed to prevent duplicates
+	processingMutex     sync.Mutex    // Protects processingInterfaces map
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -159,6 +161,7 @@ func main() {
 
 	// Map interface names to interface objects
 	intNametoInterface = make(map[string]*Interface)
+	processingInterfaces = make(map[string]time.Time)
 
 	// Start listeners for each interface
 	startNetworkListeners(ctx, jobChan)
@@ -1045,15 +1048,40 @@ func monitorInterfaceHotplug(ctx context.Context) {
 		return
 	}
 
+	// Cleanup old entries from processingInterfaces periodically
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				processingMutex.Lock()
+				now := time.Now()
+				for iface, t := range processingInterfaces {
+					if now.Sub(t) > 5*time.Minute {
+						delete(processingInterfaces, iface)
+					}
+				}
+				processingMutex.Unlock()
+			}
+		}
+	}()
+
 	for {
 		select {
 		case <-ctx.Done():
 			log.LoggerWContext(ctx).Info("Stopping interface hotplug monitoring")
 			return
 		case update := <-linkUpdates:
-			// Only process new link additions
+			// Only process new link additions when interface is UP
 			if update.Header.Type == syscall.RTM_NEWLINK {
-				handleNewInterface(ctx, update)
+				// Check if the interface is actually up
+				linkAttrs := update.Link.Attrs()
+				if linkAttrs != nil && linkAttrs.OperState == netlink.OperUp {
+					go handleNewInterface(ctx, update)
+				}
 			}
 		}
 	}
@@ -1067,6 +1095,18 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	}
 
 	interfaceName := linkAttrs.Name
+
+	// Debouncing: Check if we've recently processed this interface
+	processingMutex.Lock()
+	lastProcessed, exists := processingInterfaces[interfaceName]
+	if exists && time.Since(lastProcessed) < 10*time.Second {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " was recently processed, skipping duplicate event")
+		processingMutex.Unlock()
+		return
+	}
+	processingInterfaces[interfaceName] = time.Now()
+	processingMutex.Unlock()
+
 	log.LoggerWContext(ctx).Info("Detected new network interface: " + interfaceName)
 
 	// Check if interface is already being monitored
@@ -1078,52 +1118,82 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	}
 	intMutex.RUnlock()
 
-	// Check if this interface is in the DHCP configuration
+	// Wait a moment for the interface to stabilize (IP assignment, etc.)
+	time.Sleep(2 * time.Second)
+
+	// Re-read DHCP configuration to pick up the new interface
+	log.LoggerWContext(ctx).Info("Refreshing DHCP configuration for interface: " + interfaceName)
+
+	// Create a new temporary config object and read the config
+	tempConfig := newDHCPConfig()
+	tempConfig.readConfig(ctx, dbConnPool)
+
+	// Find the newly configured interface
 	var interfaceConfig *Interface
-	for i := range DHCPConfig.intsNet {
-		if DHCPConfig.intsNet[i].Name == interfaceName {
-			interfaceConfig = &DHCPConfig.intsNet[i]
+	for i := range tempConfig.intsNet {
+		if tempConfig.intsNet[i].Name == interfaceName {
+			interfaceConfig = &tempConfig.intsNet[i]
+			log.LoggerWContext(ctx).Info("Found interface " + interfaceName + " in refreshed configuration")
 			break
 		}
 	}
 
 	if interfaceConfig == nil {
-		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " is not in DHCP configuration, skipping")
+		log.LoggerWContext(ctx).Info("Interface " + interfaceName + " is not in DHCP configuration, skipping")
 		return
 	}
 
-	// Wait a moment for the interface to be fully up
-	time.Sleep(1 * time.Second)
-
-	// Verify the interface is actually up and has the expected configuration
-	link, err := netlink.LinkByName(interfaceName)
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Failed to get link info for " + interfaceName + ": " + err.Error())
+	// Verify interface has proper configuration
+	if interfaceConfig.Ipv4 == nil {
+		log.LoggerWContext(ctx).Error("Interface " + interfaceName + " has no IPv4 address configured, cannot start DHCP")
 		return
 	}
 
-	if link.Attrs().OperState != netlink.OperUp {
-		log.LoggerWContext(ctx).Info("Interface " + interfaceName + " is not up yet, waiting...")
-		// Could implement a retry mechanism here if needed
+	if len(interfaceConfig.network) == 0 {
+		log.LoggerWContext(ctx).Error("Interface " + interfaceName + " has no DHCP network configuration, cannot start DHCP")
 		return
 	}
 
-	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName)
-
-	// Add to the interface map
+	// Atomically add to the interface map and DHCPConfig
 	intMutex.Lock()
+	// Double-check it's not already there
+	if _, exists := intNametoInterface[interfaceName]; exists {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " was added by another goroutine, skipping")
+		intMutex.Unlock()
+		return
+	}
+
+	// Add to tracking map
 	intNametoInterface[interfaceName] = interfaceConfig
+
+	// Also add to the global DHCPConfig
+	DHCPConfig.intsNet = append(DHCPConfig.intsNet, *interfaceConfig)
 	intMutex.Unlock()
 
-	// Start unicast and broadcast listeners for this interface
+	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName + " (IPv4: " + interfaceConfig.Ipv4.String() + ")")
+
+	// Start unicast listener
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in unicast listener for %s: %v", interfaceName, r))
+			}
+		}()
 		log.LoggerWContext(ctx).Info("Starting unicast listener for " + interfaceName)
 		interfaceConfig.runUnicast(ctx, jobChannel)
+		log.LoggerWContext(ctx).Error("Unicast listener for " + interfaceName + " exited unexpectedly")
 	}()
 
+	// Start broadcast listener
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in broadcast listener for %s: %v", interfaceName, r))
+			}
+		}()
 		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + interfaceName)
 		interfaceConfig.run(ctx, jobChannel)
+		log.LoggerWContext(ctx).Error("Broadcast listener for " + interfaceName + " exited unexpectedly")
 	}()
 
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
