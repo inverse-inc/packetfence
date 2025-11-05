@@ -1248,9 +1248,9 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 	interfaceCancels[interfaceName] = cancel
 	cancelsMutex.Unlock()
 
-	// Start unicast listener with connection management
-	// The listener needs to be forcibly stopped by deleting the interface when context is cancelled
-	// because the Serve() function doesn't check context - it blocks on ReadFromRaw()
+	// Start unicast listener
+	// When the interface is deleted, we forcibly close the socket which causes
+	// ReadFromRaw() to return with an error, allowing the listener to exit
 	go func(iface Interface, name string, ifaceCtx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -1260,28 +1260,13 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 		}()
 
 		log.LoggerWContext(ctx).Info("Starting unicast listener for " + name)
-
-		// Start listener in a goroutine so we can monitor context
-		listenerDone := make(chan error, 1)
-		go func() {
-			listenerDone <- iface.runUnicast(ifaceCtx, jobChannel)
-		}()
-
-		// Wait for either listener to exit or context cancellation
-		select {
-		case err := <-listenerDone:
-			if err != nil && !errors.Is(err, net.ErrClosed) {
-				log.LoggerWContext(ctx).Error(fmt.Sprintf("Unicast listener for %s error: %v", name, err))
-			}
-		case <-ifaceCtx.Done():
-			log.LoggerWContext(ctx).Info(fmt.Sprintf("Unicast listener for %s received cancellation signal", name))
-			// Context cancelled - force listener to stop by bringing interface down temporarily
-			// The blocking ReadFromRaw() will return an error when interface state changes
-			// This is a workaround since Serve() doesn't check context
-		}
+		iface.runUnicast(ifaceCtx, jobChannel)
+		log.LoggerWContext(ctx).Info("Unicast listener for " + name + " stopped")
 	}(interfaceConfigCopy, interfaceName, interfaceCtx)
 
-	// Start broadcast listener with connection management
+	// Start broadcast listener
+	// When the interface is deleted, we forcibly close the socket which causes
+	// ReadFromRaw() to return with an error, allowing the listener to exit
 	go func(iface Interface, name string, ifaceCtx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -1291,24 +1276,8 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 		}()
 
 		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + name)
-
-		// Start listener in a goroutine so we can monitor context
-		listenerDone := make(chan error, 1)
-		go func() {
-			listenerDone <- iface.run(ifaceCtx, jobChannel)
-		}()
-
-		// Wait for either listener to exit or context cancellation
-		select {
-		case err := <-listenerDone:
-			if err != nil && !errors.Is(err, net.ErrClosed) {
-				log.LoggerWContext(ctx).Error(fmt.Sprintf("Broadcast listener for %s error: %v", name, err))
-			}
-		case <-ifaceCtx.Done():
-			log.LoggerWContext(ctx).Info(fmt.Sprintf("Broadcast listener for %s received cancellation signal", name))
-			// Context cancelled - listener will exit when interface is deleted
-			// The kernel will close the socket when interface goes away
-		}
+		iface.run(ifaceCtx, jobChannel)
+		log.LoggerWContext(ctx).Info("Broadcast listener for " + name + " stopped")
 	}(interfaceConfigCopy, interfaceName, interfaceCtx)
 
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
