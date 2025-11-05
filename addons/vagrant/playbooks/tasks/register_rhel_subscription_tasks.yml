@@ -1,11 +1,37 @@
 ---
-- name: Install Python 3.11
-  dnf:
-    name: python3.11
-    state: present
+- name: Ensure Rocky Linux BaseOS repo file (disabled by default)
+  copy:
+    dest: /etc/yum.repos.d/Rocky-BaseOS.repo
+    content: |
+      [baseos]
+      name=Rocky Linux $releasever - BaseOS
+      mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever
+      gpgcheck=1
+      enabled=0
+      gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
 
-- name: Set python3 alternative to Python 3.11
-  command: update-alternatives --set python3 /usr/bin/python3.11
+- name: Ensure Rocky Linux AppStream repo file (disabled by default)
+  copy:
+    dest: /etc/yum.repos.d/Rocky-AppStream.repo
+    content: |
+      [appstream]
+      name=Rocky Linux $releasever - AppStream
+      mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=AppStream-$releasever
+      gpgcheck=1
+      enabled=0
+      gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
+
+- name: Install python3.11 using BaseOS and AppStream temporarily enabled
+  command: >
+    dnf install python3.11 --enablerepo=baseos,appstream -y
+
+- name: Remove Rocky Linux repo files after installation
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/yum.repos.d/Rocky-AppStream.repo
+    - /etc/yum.repos.d/Rocky-BaseOS.repo
 
 - name: Get RHEL username using psonoci
   ansible.builtin.command:

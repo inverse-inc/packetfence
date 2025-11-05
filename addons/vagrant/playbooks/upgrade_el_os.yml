@@ -11,10 +11,13 @@
         - "!all"
 
   tasks:
-    - name: Install Python 3.11
+    - name: Remove and reinstall python3.11
       dnf:
         name: python3.11
-        state: present
+        state: "{{ item }}"
+      loop:
+        - absent
+        - present
 
     - name: Set python3 alternative to Python 3.11
       command: update-alternatives --set python3 /usr/bin/python3.11
