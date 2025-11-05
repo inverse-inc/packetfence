@@ -1112,8 +1112,12 @@ func monitorInterfaceHotplug(ctx context.Context) {
 					processingMutex.Unlock()
 				}
 			case syscall.RTM_DELLINK:
-				// Handle interface deletion to clean up tracking (can be async)
-				go handleDeletedInterface(ctx, update)
+				// Handle interface deletion SYNCHRONOUSLY to prevent races
+				// If we do this async, recreation events can arrive before deletion completes
+				linkAttrs := update.Link.Attrs()
+				if linkAttrs != nil {
+					handleDeletedInterfaceSync(ctx, linkAttrs.Name)
+				}
 			}
 		}
 	}
@@ -1255,14 +1259,9 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
 }
 
-// handleDeletedInterface processes interface deletion events
-func handleDeletedInterface(ctx context.Context, update netlink.LinkUpdate) {
-	linkAttrs := update.Link.Attrs()
-	if linkAttrs == nil {
-		return
-	}
-
-	interfaceName := linkAttrs.Name
+// handleDeletedInterfaceSync processes interface deletion events SYNCHRONOUSLY
+// Called directly from event loop to ensure deletion completes before recreation events
+func handleDeletedInterfaceSync(ctx context.Context, interfaceName string) {
 	log.LoggerWContext(ctx).Info("Detected interface deletion: " + interfaceName)
 
 	// Check if we're monitoring this interface
@@ -1293,12 +1292,14 @@ func handleDeletedInterface(ctx context.Context, update netlink.LinkUpdate) {
 	delete(VIP, interfaceName)
 	delete(VIPIp, interfaceName)
 
-	// Also clear from processing map to allow immediate re-detection
+	// Clear processing timestamp to allow immediate recreation
+	// The synchronous processing will handle deduplication of recreation events
 	processingMutex.Lock()
 	delete(processingInterfaces, interfaceName)
 	processingMutex.Unlock()
 
 	log.LoggerWContext(ctx).Info("Removed interface " + interfaceName + " from monitoring (listeners will terminate when interface is unavailable)")
+	log.LoggerWContext(ctx).Info("Cleared debounce timestamp for " + interfaceName + " - ready for recreation if needed")
 
 	// Note: We don't need to explicitly stop the listener goroutines
 	// They will fail when trying to read from the deleted interface and exit naturally
