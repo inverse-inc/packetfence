@@ -64,6 +64,7 @@ sub build_child {
         $tmp_cfg{$key}{base_conditions} = \@formatted_base_conditions;
         $tmp_cfg{$key}{searches} = \@formatted_searches;
         $tmp_cfg{$key}{joins} //= "";
+        $tmp_cfg{$key}{id} = $key;
         $tmp_cfg{$key}{joins} = [ split("\n", $tmp_cfg{$key}{joins}) ];
     }
 
