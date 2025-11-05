@@ -1082,11 +1082,18 @@ func monitorInterfaceHotplug(ctx context.Context) {
 				if linkAttrs != nil && linkAttrs.OperState == netlink.OperUp {
 					interfaceName := linkAttrs.Name
 
-					// ATOMIC check-and-set to prevent race conditions
-					// Must check and set under same lock to be atomic
-					processingMutex.Lock()
+					// Check if already being monitored (quick check)
+					intMutex.RLock()
+					_, alreadyMonitored := intNametoInterface[interfaceName]
+					intMutex.RUnlock()
 
-					// Check if recently processed (debouncing)
+					if alreadyMonitored {
+						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s already monitored, skipping RTM_NEWLINK event", interfaceName))
+						continue
+					}
+
+					// Check debouncing with WRITE LOCK - ensures only one can proceed
+					processingMutex.Lock()
 					lastProcessed, recentlyProcessed := processingInterfaces[interfaceName]
 					if recentlyProcessed && time.Since(lastProcessed) < 30*time.Second {
 						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s was recently processed (%v ago), skipping duplicate event", interfaceName, time.Since(lastProcessed)))
@@ -1094,59 +1101,36 @@ func monitorInterfaceHotplug(ctx context.Context) {
 						continue
 					}
 
-					// Check if already being monitored
-					intMutex.RLock()
-					_, alreadyMonitored := intNametoInterface[interfaceName]
-					intMutex.RUnlock()
-
-					if alreadyMonitored {
-						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s already monitored, skipping RTM_NEWLINK event", interfaceName))
-						processingMutex.Unlock()
-						continue
-					}
-
-					// Mark as processing NOW (while still holding lock)
+					// Mark as processing NOW and hold lock during entire operation
 					processingInterfaces[interfaceName] = time.Now()
-					processingMutex.Unlock()
+					log.LoggerWContext(ctx).Info(fmt.Sprintf("Claimed interface %s for processing, will process synchronously", interfaceName))
 
-					// Now safe to spawn goroutine - we've atomically claimed this interface
-					go handleNewInterface(ctx, update)
+					// Process synchronously while holding lock - prevents any other event from processing same interface
+					handleNewInterfaceSync(ctx, update, interfaceName)
+
+					// Release lock after fully processed
+					processingMutex.Unlock()
 				}
 			case syscall.RTM_DELLINK:
-				// Handle interface deletion to clean up tracking
+				// Handle interface deletion to clean up tracking (can be async)
 				go handleDeletedInterface(ctx, update)
 			}
 		}
 	}
 }
 
-// handleNewInterface processes a newly detected network interface
-// Note: Debouncing and initial checks are done before this function is called
-func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
-	linkAttrs := update.Link.Attrs()
-	if linkAttrs == nil {
-		log.LoggerWContext(ctx).Debug("Received netlink update with nil link attributes")
-		return
-	}
+// handleNewInterfaceSync processes a newly detected network interface SYNCHRONOUSLY
+// Called while holding processingMutex to ensure only one event processes this interface
+// Note: All checks (debouncing, already monitored) are done before calling this
+func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, interfaceName string) {
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("Processing new interface: %s (holding processing lock)", interfaceName))
 
-	interfaceName := linkAttrs.Name
-	log.LoggerWContext(ctx).Info(fmt.Sprintf("Processing new interface: %s (OperState: %s)", interfaceName, linkAttrs.OperState))
-
-	// Final check if interface is already being monitored (race condition protection)
-	// This is a second check after the initial one before spawning this goroutine
+	// Check if interface is in map but not properly initialized (from failed startup)
 	intMutex.RLock()
 	existingInterface, exists := intNametoInterface[interfaceName]
 	intMutex.RUnlock()
 
-	if exists {
-		// Interface is in the map, check if it was properly initialized
-		if existingInterface.Ipv4 != nil && len(existingInterface.network) > 0 {
-			// Already configured properly, another goroutine must have processed it
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s already configured by another goroutine, skipping", interfaceName))
-			return
-		}
-
-		// Interface is in map but not properly initialized (didn't exist at startup)
+	if exists && (existingInterface.Ipv4 == nil || len(existingInterface.network) == 0) {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s in monitoring map but not initialized (likely didn't exist at startup), will reconfigure", interfaceName))
 		intMutex.Lock()
 		delete(intNametoInterface, interfaceName)
