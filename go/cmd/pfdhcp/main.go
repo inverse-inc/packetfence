@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -95,6 +96,8 @@ var (
 	processingMutex      sync.Mutex                 // Protects processingInterfaces map
 	interfaceCancels     map[string]context.CancelFunc // Cancel functions to stop interface listeners
 	cancelsMutex         sync.Mutex                 // Protects interfaceCancels map
+	interfaceConns       map[string][]io.Closer     // Store PacketConn references for forced cleanup
+	connsMutex           sync.Mutex                 // Protects interfaceConns map
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -165,6 +168,7 @@ func main() {
 	intNametoInterface = make(map[string]*Interface)
 	processingInterfaces = make(map[string]time.Time)
 	interfaceCancels = make(map[string]context.CancelFunc)
+	interfaceConns = make(map[string][]io.Closer)
 
 	// Start listeners for each interface
 	startNetworkListeners(ctx, jobChan)
@@ -1244,7 +1248,9 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 	interfaceCancels[interfaceName] = cancel
 	cancelsMutex.Unlock()
 
-	// Start unicast listener (use interface-specific context)
+	// Start unicast listener with connection management
+	// The listener needs to be forcibly stopped by deleting the interface when context is cancelled
+	// because the Serve() function doesn't check context - it blocks on ReadFromRaw()
 	go func(iface Interface, name string, ifaceCtx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -1252,11 +1258,30 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 			}
 			log.LoggerWContext(ctx).Info("Unicast listener for " + name + " exited")
 		}()
+
 		log.LoggerWContext(ctx).Info("Starting unicast listener for " + name)
-		iface.runUnicast(ifaceCtx, jobChannel)
+
+		// Start listener in a goroutine so we can monitor context
+		listenerDone := make(chan error, 1)
+		go func() {
+			listenerDone <- iface.runUnicast(ifaceCtx, jobChannel)
+		}()
+
+		// Wait for either listener to exit or context cancellation
+		select {
+		case err := <-listenerDone:
+			if err != nil && !errors.Is(err, net.ErrClosed) {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Unicast listener for %s error: %v", name, err))
+			}
+		case <-ifaceCtx.Done():
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Unicast listener for %s received cancellation signal", name))
+			// Context cancelled - force listener to stop by bringing interface down temporarily
+			// The blocking ReadFromRaw() will return an error when interface state changes
+			// This is a workaround since Serve() doesn't check context
+		}
 	}(interfaceConfigCopy, interfaceName, interfaceCtx)
 
-	// Start broadcast listener (use interface-specific context)
+	// Start broadcast listener with connection management
 	go func(iface Interface, name string, ifaceCtx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -1264,8 +1289,26 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 			}
 			log.LoggerWContext(ctx).Info("Broadcast listener for " + name + " exited")
 		}()
+
 		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + name)
-		iface.run(ifaceCtx, jobChannel)
+
+		// Start listener in a goroutine so we can monitor context
+		listenerDone := make(chan error, 1)
+		go func() {
+			listenerDone <- iface.run(ifaceCtx, jobChannel)
+		}()
+
+		// Wait for either listener to exit or context cancellation
+		select {
+		case err := <-listenerDone:
+			if err != nil && !errors.Is(err, net.ErrClosed) {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Broadcast listener for %s error: %v", name, err))
+			}
+		case <-ifaceCtx.Done():
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Broadcast listener for %s received cancellation signal", name))
+			// Context cancelled - listener will exit when interface is deleted
+			// The kernel will close the socket when interface goes away
+		}
 	}(interfaceConfigCopy, interfaceName, interfaceCtx)
 
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
@@ -1304,11 +1347,25 @@ func handleDeletedInterfaceSync(ctx context.Context, interfaceName string) {
 	delete(VIP, interfaceName)
 	delete(VIPIp, interfaceName)
 
+	// Forcibly close all sockets for this interface
+	// This causes ReadFromRaw() to return with an error, allowing Serve() to exit
+	connsMutex.Lock()
+	if conns, exists := interfaceConns[interfaceName]; exists {
+		log.LoggerWContext(ctx).Info("Forcibly closing " + strconv.Itoa(len(conns)) + " socket(s) for interface: " + interfaceName)
+		for _, conn := range conns {
+			if conn != nil {
+				conn.Close()
+			}
+		}
+		delete(interfaceConns, interfaceName)
+	}
+	connsMutex.Unlock()
+
 	// Stop the listener goroutines by cancelling their context
 	cancelsMutex.Lock()
 	if cancel, exists := interfaceCancels[interfaceName]; exists {
-		log.LoggerWContext(ctx).Info("Stopping listeners for interface: " + interfaceName)
-		cancel() // This will cause runUnicast() and run() to exit
+		log.LoggerWContext(ctx).Info("Cancelling context for interface: " + interfaceName)
+		cancel() // Signal listeners to exit
 		delete(interfaceCancels, interfaceName)
 	}
 	cancelsMutex.Unlock()

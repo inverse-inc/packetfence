@@ -65,6 +65,30 @@ func ListenAndServeIf(ctx context.Context, interfaceNet *Interface, handler Hand
 	}
 	defer p.Close()
 
+	// Store connection reference for forced cleanup on interface deletion
+	connsMutex.Lock()
+	interfaceConns[interfaceNet.Name] = append(interfaceConns[interfaceNet.Name], p)
+	connsMutex.Unlock()
+
+	// Remove from map when function exits
+	defer func() {
+		connsMutex.Lock()
+		if conns, exists := interfaceConns[interfaceNet.Name]; exists {
+			// Remove this specific connection from the slice
+			for i, conn := range conns {
+				if conn == p {
+					interfaceConns[interfaceNet.Name] = append(conns[:i], conns[i+1:]...)
+					break
+				}
+			}
+			// Clean up empty slice
+			if len(interfaceConns[interfaceNet.Name]) == 0 {
+				delete(interfaceConns, interfaceNet.Name)
+			}
+		}
+		connsMutex.Unlock()
+	}()
+
 	return ServeIf(ctx, iface.Index, p, handler, jobs, interfaceNet)
 }
 
@@ -117,6 +141,30 @@ func ListenAndServeIfUnicast(ctx context.Context, interfaceNet *Interface, handl
 		return err
 	}
 	defer p.Close()
+
+	// Store connection reference for forced cleanup on interface deletion
+	connsMutex.Lock()
+	interfaceConns[interfaceNet.Name] = append(interfaceConns[interfaceNet.Name], p)
+	connsMutex.Unlock()
+
+	// Remove from map when function exits
+	defer func() {
+		connsMutex.Lock()
+		if conns, exists := interfaceConns[interfaceNet.Name]; exists {
+			// Remove this specific connection from the slice
+			for i, conn := range conns {
+				if conn == p {
+					interfaceConns[interfaceNet.Name] = append(conns[:i], conns[i+1:]...)
+					break
+				}
+			}
+			// Clean up empty slice
+			if len(interfaceConns[interfaceNet.Name]) == 0 {
+				delete(interfaceConns, interfaceNet.Name)
+			}
+		}
+		connsMutex.Unlock()
+	}()
 
 	return ServeIf(ctx, iface.Index, p, handler, jobs, interfaceNet)
 }
