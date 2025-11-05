@@ -1080,31 +1080,36 @@ func monitorInterfaceHotplug(ctx context.Context) {
 				// Only process new link additions when interface is UP
 				linkAttrs := update.Link.Attrs()
 				if linkAttrs != nil && linkAttrs.OperState == netlink.OperUp {
-					// Do debouncing check BEFORE spawning goroutine to prevent race conditions
 					interfaceName := linkAttrs.Name
 
-					// Quick check if already being monitored (most common case)
-					intMutex.RLock()
-					_, alreadyMonitored := intNametoInterface[interfaceName]
-					intMutex.RUnlock()
-
-					if alreadyMonitored {
-						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s already monitored, skipping RTM_NEWLINK event", interfaceName))
-						continue
-					}
-
-					// Check debouncing to prevent processing same interface multiple times
+					// ATOMIC check-and-set to prevent race conditions
+					// Must check and set under same lock to be atomic
 					processingMutex.Lock()
+
+					// Check if recently processed (debouncing)
 					lastProcessed, recentlyProcessed := processingInterfaces[interfaceName]
 					if recentlyProcessed && time.Since(lastProcessed) < 30*time.Second {
 						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s was recently processed (%v ago), skipping duplicate event", interfaceName, time.Since(lastProcessed)))
 						processingMutex.Unlock()
 						continue
 					}
+
+					// Check if already being monitored
+					intMutex.RLock()
+					_, alreadyMonitored := intNametoInterface[interfaceName]
+					intMutex.RUnlock()
+
+					if alreadyMonitored {
+						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s already monitored, skipping RTM_NEWLINK event", interfaceName))
+						processingMutex.Unlock()
+						continue
+					}
+
+					// Mark as processing NOW (while still holding lock)
 					processingInterfaces[interfaceName] = time.Now()
 					processingMutex.Unlock()
 
-					// Now spawn goroutine after passing all checks
+					// Now safe to spawn goroutine - we've atomically claimed this interface
 					go handleNewInterface(ctx, update)
 				}
 			case syscall.RTM_DELLINK:
@@ -1181,28 +1186,31 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interfaces in DHCP config after refresh: %v", foundInterfaces))
 
-	// Find the newly configured interface
-	var interfaceConfig *Interface
-	for i := range tempConfig.intsNet {
-		if tempConfig.intsNet[i].Name == interfaceName {
-			interfaceConfig = &tempConfig.intsNet[i]
+	// Find the newly configured interface and make a copy (like startup does)
+	var interfaceConfigCopy Interface
+	var found bool
+	for _, iface := range tempConfig.intsNet {
+		if iface.Name == interfaceName {
+			// Make explicit copy (like startup code: v := v)
+			interfaceConfigCopy = iface
+			found = true
 			log.LoggerWContext(ctx).Info("Found interface " + interfaceName + " in refreshed configuration")
 			break
 		}
 	}
 
-	if interfaceConfig == nil {
+	if !found {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s is not in DHCP configuration (available: %v), skipping", interfaceName, foundInterfaces))
 		return
 	}
 
 	// Verify interface has proper configuration
-	if interfaceConfig.Ipv4 == nil {
+	if interfaceConfigCopy.Ipv4 == nil {
 		log.LoggerWContext(ctx).Error("Interface " + interfaceName + " has no IPv4 address configured, cannot start DHCP")
 		return
 	}
 
-	if len(interfaceConfig.network) == 0 {
+	if len(interfaceConfigCopy.network) == 0 {
 		log.LoggerWContext(ctx).Error("Interface " + interfaceName + " has no DHCP network configuration, cannot start DHCP")
 		return
 	}
@@ -1216,38 +1224,39 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 		return
 	}
 
-	// Add to tracking map
+	// Store pointer to our copy (like startup: &v)
+	interfaceConfig := &interfaceConfigCopy
 	intNametoInterface[interfaceName] = interfaceConfig
 
-	// Also add to the global DHCPConfig
-	DHCPConfig.intsNet = append(DHCPConfig.intsNet, *interfaceConfig)
+	// Also add copy to the global DHCPConfig
+	DHCPConfig.intsNet = append(DHCPConfig.intsNet, interfaceConfigCopy)
 	intMutex.Unlock()
 
-	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName + " (IPv4: " + interfaceConfig.Ipv4.String() + ")")
+	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName + " (IPv4: " + interfaceConfigCopy.Ipv4.String() + ")")
 
-	// Start unicast listener
-	go func() {
+	// Start unicast listener (use copy directly, like startup code)
+	go func(iface Interface, name string) {
 		defer func() {
 			if r := recover(); r != nil {
-				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in unicast listener for %s: %v", interfaceName, r))
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in unicast listener for %s: %v", name, r))
 			}
 		}()
-		log.LoggerWContext(ctx).Info("Starting unicast listener for " + interfaceName)
-		interfaceConfig.runUnicast(ctx, jobChannel)
-		log.LoggerWContext(ctx).Error("Unicast listener for " + interfaceName + " exited unexpectedly")
-	}()
+		log.LoggerWContext(ctx).Info("Starting unicast listener for " + name)
+		iface.runUnicast(ctx, jobChannel)
+		log.LoggerWContext(ctx).Error("Unicast listener for " + name + " exited unexpectedly")
+	}(interfaceConfigCopy, interfaceName)
 
-	// Start broadcast listener
-	go func() {
+	// Start broadcast listener (use copy directly, like startup code)
+	go func(iface Interface, name string) {
 		defer func() {
 			if r := recover(); r != nil {
-				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in broadcast listener for %s: %v", interfaceName, r))
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in broadcast listener for %s: %v", name, r))
 			}
 		}()
-		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + interfaceName)
-		interfaceConfig.run(ctx, jobChannel)
-		log.LoggerWContext(ctx).Error("Broadcast listener for " + interfaceName + " exited unexpectedly")
-	}()
+		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + name)
+		iface.run(ctx, jobChannel)
+		log.LoggerWContext(ctx).Error("Broadcast listener for " + name + " exited unexpectedly")
+	}(interfaceConfigCopy, interfaceName)
 
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
 }
@@ -1272,9 +1281,18 @@ func handleDeletedInterface(ctx context.Context, update netlink.LinkUpdate) {
 		return
 	}
 
-	// Remove from tracking map
+	// Remove from tracking maps and global config
 	intMutex.Lock()
 	delete(intNametoInterface, interfaceName)
+
+	// Also remove from DHCPConfig.intsNet to prevent duplicates
+	var newIntsNet []Interface
+	for _, iface := range DHCPConfig.intsNet {
+		if iface.Name != interfaceName {
+			newIntsNet = append(newIntsNet, iface)
+		}
+	}
+	DHCPConfig.intsNet = newIntsNet
 	intMutex.Unlock()
 
 	// Also clear from processing map to allow immediate re-detection
