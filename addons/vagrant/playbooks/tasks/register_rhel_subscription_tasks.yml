@@ -1,4 +1,10 @@
 ---
+- name: Download Rocky official GPG key
+  get_url:
+    url: https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-rockyofficial
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
+    mode: '0644'
+
 - name: Ensure Rocky Linux BaseOS repo file (disabled by default)
   copy:
     dest: /etc/yum.repos.d/Rocky-BaseOS.repo
@@ -52,6 +58,11 @@
   retries: 3
   delay: 10
   until: reg_rhel_sub_register_password is successful
+
+- name: Remove Rocky GPG key after installation
+  file:
+    path: /etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
+    state: absent
   
 - name: Register RHEL subscription
   community.general.redhat_subscription:
