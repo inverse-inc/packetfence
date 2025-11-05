@@ -29,12 +29,25 @@ func NewDynamicReport(ctx context.Context, dbp **gorm.DB) *DynamicReport {
 	}
 }
 
+func getReports(r *http.Request) (map[string]pfconfigdriver.ReportOptions, error) {
+	o, err := CachedReportConfig.Value(r.Context())
+	if err != nil {
+		return nil, err
+	}
+	reports := o.(*pfconfigdriver.Reports)
+	return reports.Element, nil
+}
+
 func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body RespBody
-	o, _ := CachedReportConfig.Value(r.Context())
-	reports := o.(*pfconfigdriver.Reports)
-	items := slices.Collect(maps.Values(reports.Element))
-	body.Items = items
+	reports, err := getReports(r)
+	if err != nil {
+		setError(&body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
+		outputResult(w, body)
+		return
+	}
+	reportsAsArray := slices.Collect(maps.Values(reports))
+	body.Items = reportsAsArray
 	body.Status = http.StatusOK
 	outputResult(w, body)
 }
@@ -42,9 +55,13 @@ func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httproute
 func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body RespBody
 	id := p.ByName("id")
-	o, _ := CachedReportConfig.Value(r.Context())
-	reports := o.(*pfconfigdriver.Reports)
-	item, ok := reports.Element[id]
+	reports, err := getReports(r)
+	if err != nil {
+		setError(&body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
+		outputResult(w, body)
+		return
+	}
+	item, ok := reports[id]
 	if !ok {
 		setError(&body, errors.New("Report not found"), http.StatusNotFound)
 		outputResult(w, body)
@@ -152,12 +169,16 @@ func fillOptionsStruct(options *reportOptionsResponse, report *pfconfigdriver.Re
 
 func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body RespBody
-	o, _ := CachedReportConfig.Value(r.Context())
-	reports := o.(*pfconfigdriver.Reports)
 	id := p.ByName("id")
-	report, ok := reports.Element[id]
+	reports, err := getReports(r)
+	if err != nil {
+		setError(&body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
+		outputResult(w, body)
+		return
+	}
+	report, ok := reports[id]
 	if !ok {
-		setError(&body, errors.New("report not found"), http.StatusNotFound)
+		setError(&body, errors.New("Report not found"), http.StatusNotFound)
 		outputResult(w, body)
 		return
 	}
