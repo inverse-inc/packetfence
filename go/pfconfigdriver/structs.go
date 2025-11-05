@@ -895,6 +895,32 @@ type PfConfAdminLogin struct {
 	AllowUsernamePassword string `json:"allow_username_password"`
 }
 
+type ReportOptions struct {
+	Id          string   `json:"id"`
+	Type        string   `json:"type"`
+	Description string   `json:"description"`
+	Charts      []string `json:"charts"`
+	Columns     []string `json:"columns"`
+	Formatting  []struct {
+		Field  string `json:"field"`
+		Format string `json:"format"`
+	} `json:"formatting"`
+	PersonFields []string `json:"person_fields"`
+	NodeFields   []string `json:"node_fields"`
+	RoleFields   []string `json:"role_fields"`
+	DefaultLimit string   `json:"default_limit"`
+	DateLimit    string   `json:"date_limit,omitempty"`
+}
+
+// Reports contains the report data
+type Reports struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Report"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]ReportOptions
+}
+
 type Connectors struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
