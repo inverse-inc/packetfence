@@ -57,6 +57,11 @@ const (
 	dbPingInterval        = 5 * time.Second
 	vipDetectInterval     = 3 * time.Second
 	configRefreshInterval = 1 * time.Second
+
+	// Hotplug configuration
+	hotplugDebounceInterval          = 30 * time.Second // Prevent duplicate interface hotplug events
+	interfaceStabilizationDelay      = 3 * time.Second  // Wait for interface to stabilize after creation
+	processingInterfaceCleanupPeriod = 5 * time.Minute  // Cleanup stale processing entries
 )
 
 // Global variables
@@ -73,8 +78,9 @@ var (
 	RequestGlobalTransactionCache *cache.Cache
 
 	// VIP management
-	VIP   map[string]bool
-	VIPIp map[string]net.IP
+	VIP      map[string]bool
+	VIPIp    map[string]net.IP
+	vipMutex sync.RWMutex // Protects VIP and VIPIp maps
 
 	// Base context
 	ctx context.Context
@@ -240,7 +246,11 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 
 	// Check if we have the VIP or if the backend supports cluster mode
-	if !VIP[I.Name] && !handler.available.Listen() {
+	vipMutex.RLock()
+	hasVIP := VIP[I.Name]
+	vipMutex.RUnlock()
+
+	if !hasVIP && !handler.available.Listen() {
 		return answer
 	}
 
@@ -1067,7 +1077,7 @@ func monitorInterfaceHotplug(ctx context.Context) {
 				processingMutex.Lock()
 				now := time.Now()
 				for iface, t := range processingInterfaces {
-					if now.Sub(t) > 5*time.Minute {
+					if now.Sub(t) > processingInterfaceCleanupPeriod {
 						delete(processingInterfaces, iface)
 					}
 				}
@@ -1102,7 +1112,7 @@ func monitorInterfaceHotplug(ctx context.Context) {
 					// Check debouncing with WRITE LOCK - ensures only one can proceed
 					processingMutex.Lock()
 					lastProcessed, recentlyProcessed := processingInterfaces[interfaceName]
-					if recentlyProcessed && time.Since(lastProcessed) < 30*time.Second {
+					if recentlyProcessed && time.Since(lastProcessed) < hotplugDebounceInterval {
 						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s was recently processed (%v ago), skipping duplicate event", interfaceName, time.Since(lastProcessed)))
 						processingMutex.Unlock()
 						continue
@@ -1159,7 +1169,8 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s current addresses (before wait): %v", interfaceName, addrs))
 	}
 
-	time.Sleep(3 * time.Second)
+	// Wait for interface to stabilize (IP configuration, link up, etc.)
+	time.Sleep(interfaceStabilizationDelay)
 
 	// Check again after waiting
 	if err == nil && iface != nil {
@@ -1313,8 +1324,10 @@ func handleDeletedInterfaceSync(ctx context.Context, interfaceName string) {
 	intMutex.Unlock()
 
 	// Clean up VIP status
+	vipMutex.Lock()
 	delete(VIP, interfaceName)
 	delete(VIPIp, interfaceName)
+	vipMutex.Unlock()
 
 	// Forcibly close all sockets for this interface
 	// This causes ReadFromRaw() to return with an error, allowing Serve() to exit
