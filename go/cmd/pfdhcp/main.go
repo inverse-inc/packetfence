@@ -90,9 +90,11 @@ var (
 	dbConnPool *sql.DB
 
 	// Hotplug monitoring
-	jobChannel          chan job      // Global job channel for worker pool
-	processingInterfaces map[string]time.Time // Track interfaces being processed to prevent duplicates
-	processingMutex     sync.Mutex    // Protects processingInterfaces map
+	jobChannel           chan job                   // Global job channel for worker pool
+	processingInterfaces map[string]time.Time       // Track interfaces being processed to prevent duplicates
+	processingMutex      sync.Mutex                 // Protects processingInterfaces map
+	interfaceCancels     map[string]context.CancelFunc // Cancel functions to stop interface listeners
+	cancelsMutex         sync.Mutex                 // Protects interfaceCancels map
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -162,6 +164,7 @@ func main() {
 	// Map interface names to interface objects
 	intNametoInterface = make(map[string]*Interface)
 	processingInterfaces = make(map[string]time.Time)
+	interfaceCancels = make(map[string]context.CancelFunc)
 
 	// Start listeners for each interface
 	startNetworkListeners(ctx, jobChan)
@@ -1232,29 +1235,38 @@ func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, inte
 		DHCPConfig.detectVIP(ctx, []*net.Interface{netIface}, dbConnPool)
 	}
 
-	// Start unicast listener (use copy directly, like startup code)
-	go func(iface Interface, name string) {
+	// Create a cancellable context for this interface's listeners
+	// This allows us to stop listeners when interface is deleted
+	interfaceCtx, cancel := context.WithCancel(ctx)
+
+	// Store cancel function so we can stop listeners on interface deletion
+	cancelsMutex.Lock()
+	interfaceCancels[interfaceName] = cancel
+	cancelsMutex.Unlock()
+
+	// Start unicast listener (use interface-specific context)
+	go func(iface Interface, name string, ifaceCtx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
 				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in unicast listener for %s: %v", name, r))
 			}
+			log.LoggerWContext(ctx).Info("Unicast listener for " + name + " exited")
 		}()
 		log.LoggerWContext(ctx).Info("Starting unicast listener for " + name)
-		iface.runUnicast(ctx, jobChannel)
-		log.LoggerWContext(ctx).Error("Unicast listener for " + name + " exited unexpectedly")
-	}(interfaceConfigCopy, interfaceName)
+		iface.runUnicast(ifaceCtx, jobChannel)
+	}(interfaceConfigCopy, interfaceName, interfaceCtx)
 
-	// Start broadcast listener (use copy directly, like startup code)
-	go func(iface Interface, name string) {
+	// Start broadcast listener (use interface-specific context)
+	go func(iface Interface, name string, ifaceCtx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
 				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in broadcast listener for %s: %v", name, r))
 			}
+			log.LoggerWContext(ctx).Info("Broadcast listener for " + name + " exited")
 		}()
 		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + name)
-		iface.run(ctx, jobChannel)
-		log.LoggerWContext(ctx).Error("Broadcast listener for " + name + " exited unexpectedly")
-	}(interfaceConfigCopy, interfaceName)
+		iface.run(ifaceCtx, jobChannel)
+	}(interfaceConfigCopy, interfaceName, interfaceCtx)
 
 	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
 }
@@ -1292,15 +1304,21 @@ func handleDeletedInterfaceSync(ctx context.Context, interfaceName string) {
 	delete(VIP, interfaceName)
 	delete(VIPIp, interfaceName)
 
+	// Stop the listener goroutines by cancelling their context
+	cancelsMutex.Lock()
+	if cancel, exists := interfaceCancels[interfaceName]; exists {
+		log.LoggerWContext(ctx).Info("Stopping listeners for interface: " + interfaceName)
+		cancel() // This will cause runUnicast() and run() to exit
+		delete(interfaceCancels, interfaceName)
+	}
+	cancelsMutex.Unlock()
+
 	// Clear processing timestamp to allow immediate recreation
 	// The synchronous processing will handle deduplication of recreation events
 	processingMutex.Lock()
 	delete(processingInterfaces, interfaceName)
 	processingMutex.Unlock()
 
-	log.LoggerWContext(ctx).Info("Removed interface " + interfaceName + " from monitoring (listeners will terminate when interface is unavailable)")
+	log.LoggerWContext(ctx).Info("Removed interface " + interfaceName + " from monitoring (listeners stopped)")
 	log.LoggerWContext(ctx).Info("Cleared debounce timestamp for " + interfaceName + " - ready for recreation if needed")
-
-	// Note: We don't need to explicitly stop the listener goroutines
-	// They will fail when trying to read from the deleted interface and exit naturally
 }
