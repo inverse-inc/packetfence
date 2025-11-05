@@ -1234,6 +1234,16 @@ func handleNewInterface(ctx context.Context, update netlink.LinkUpdate) {
 
 	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName + " (IPv4: " + interfaceConfigCopy.Ipv4.String() + ")")
 
+	// Immediately detect VIP status for this interface (don't wait for periodic check)
+	// This is critical - without VIP status, DHCP requests may be silently ignored
+	netIface, err := net.InterfaceByName(interfaceName)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to get net.Interface for %s: %v", interfaceName, err))
+	} else {
+		log.LoggerWContext(ctx).Info("Checking VIP status for hotplugged interface: " + interfaceName)
+		DHCPConfig.detectVIP(ctx, []*net.Interface{netIface}, dbConnPool)
+	}
+
 	// Start unicast listener (use copy directly, like startup code)
 	go func(iface Interface, name string) {
 		defer func() {
@@ -1294,6 +1304,10 @@ func handleDeletedInterface(ctx context.Context, update netlink.LinkUpdate) {
 	}
 	DHCPConfig.intsNet = newIntsNet
 	intMutex.Unlock()
+
+	// Clean up VIP status
+	delete(VIP, interfaceName)
+	delete(VIPIp, interfaceName)
 
 	// Also clear from processing map to allow immediate re-detection
 	processingMutex.Lock()
