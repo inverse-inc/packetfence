@@ -9,6 +9,7 @@
 [default]
 description=Default Profile
 logo=/profile-templates/default/logo.png
+portal_css_theme=default
 redirecturl=http://www.packetfence.org/
 always_use_redirecturl=disabled
 locale=en_US

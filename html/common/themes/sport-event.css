@@ -1,0 +1,37 @@
+/**
+ * Sport Event Theme
+ * Energetic and bold color scheme suitable for sports venues
+ * Colors: Bright orange (#ff6b35), Dark blue (#004e89)
+ */
+
+html { background-color: #f0f4f8 !important; }
+header { background-color: #f0f4f8 !important; }
+html, body { color: #2d2d2d !important; }
+footer { color: #2d2d2d !important; }
+
+/* Primary - Energetic Orange */
+.c-btn--primary, a.c-btn--primary { background-color: #ff6b35 !important; }
+.c-btn--primary:hover, .c-btn--primary:focus, a.c-btn--primary:hover, a.c-btn--primary:focus { background-color: #ff7f4d !important; }
+.o-box--highlight { border-left-color: #ff6b35 !important; }
+.dot div { border-color: #004e89 !important; }
+.dot--active div, .dot:hover div { background-color: #0066b2 !important; }
+
+/* Secondary - Sport Blue */
+.c-btn--secondary, a.c-btn--secondary { background-color: #004e89 !important; }
+.c-btn--secondary:hover, .c-btn--secondary:focus, a.c-btn--secondary:hover, a.c-btn--secondary:focus { background-color: #0066b2 !important; }
+.c-iconic--secondary use { fill: #004e89 !important; }
+
+/* Links */
+a, a:visited, a:active { color: #004e89 !important; }
+.c-btn--tertiary, a.c-btn--tertiary { color: #004e89 !important; }
+.c-btn--tertiary:hover, .c-btn--tertiary:focus, a.c-btn--tertiary:hover, a.c-btn--tertiary:focus { color: #0066b2 !important; }
+
+/* Inputs */
+.input-container input, .input-container select { border-color: #c5d4e0 !important; }
+.input-container label { color: #6d6d6d !important; }
+
+/* Notifications */
+.o-media--notice { color: #2a9d4e !important; background-color: #f0f4f8 !important; }
+.o-media--notice .c-iconic use { fill: #2a9d4e !important; }
+.o-media--error { color: #d62828 !important; background-color: #f0f4f8 !important; }
+.o-media--error .c-iconic use { fill: #d62828 !important; }

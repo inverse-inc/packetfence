@@ -1,0 +1,37 @@
+/**
+ * Restaurant Theme
+ * Warm and appetizing color scheme suitable for restaurants
+ * Colors: Warm red (#c1440e), Brown (#6b4423), and Cream tones
+ */
+
+html { background-color: #fdf8f3 !important; }
+header { background-color: #fdf8f3 !important; }
+html, body { color: #3d2e22 !important; }
+footer { color: #3d2e22 !important; }
+
+/* Primary - Warm Red */
+.c-btn--primary, a.c-btn--primary { background-color: #c1440e !important; }
+.c-btn--primary:hover, .c-btn--primary:focus, a.c-btn--primary:hover, a.c-btn--primary:focus { background-color: #d45520 !important; }
+.o-box--highlight { border-left-color: #c1440e !important; }
+.dot div { border-color: #6b4423 !important; }
+.dot--active div, .dot:hover div { background-color: #8a5930 !important; }
+
+/* Secondary - Rich Brown */
+.c-btn--secondary, a.c-btn--secondary { background-color: #6b4423 !important; }
+.c-btn--secondary:hover, .c-btn--secondary:focus, a.c-btn--secondary:hover, a.c-btn--secondary:focus { background-color: #8a5930 !important; }
+.c-iconic--secondary use { fill: #6b4423 !important; }
+
+/* Links */
+a, a:visited, a:active { color: #6b4423 !important; }
+.c-btn--tertiary, a.c-btn--tertiary { color: #6b4423 !important; }
+.c-btn--tertiary:hover, .c-btn--tertiary:focus, a.c-btn--tertiary:hover, a.c-btn--tertiary:focus { color: #8a5930 !important; }
+
+/* Inputs */
+.input-container input, .input-container select { border-color: #d4c5b0 !important; }
+.input-container label { color: #7d6555 !important; }
+
+/* Notifications */
+.o-media--notice { color: #4a7c4e !important; background-color: #fdf8f3 !important; }
+.o-media--notice .c-iconic use { fill: #4a7c4e !important; }
+.o-media--error { color: #be2125 !important; background-color: #fdf8f3 !important; }
+.o-media--error .c-iconic use { fill: #be2125 !important; }

@@ -93,6 +93,19 @@ sub getLogo {
 
 *logo = \&getLogo;
 
+=item getPortalCssTheme
+
+Returns the portal CSS theme for the current connection profile.
+
+=cut
+
+sub getPortalCssTheme {
+    my ($self) = @_;
+    return $self->{'_portal_css_theme'} || 'default';
+}
+
+*portal_css_theme = \&getPortalCssTheme;
+
 =item getGuestModes
 
 Returns the available enabled modes for guest self-registration for the current connection profile.

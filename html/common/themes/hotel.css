@@ -1,0 +1,114 @@
+/**
+ * Hotel Theme
+ * Elegant and sophisticated color scheme suitable for hotels
+ * Colors: Gold (#d4af37), Navy Blue (#1e3a5f), and Cream tones
+ */
+
+/* Background colors */
+html {
+  background-color: #f5f3ed !important;
+}
+
+header {
+  background-color: #f5f3ed !important;
+}
+
+.c-frame {
+  background-color: #ffffff !important;
+}
+
+/* Primary color overrides - Gold */
+.c-btn--primary, a.c-btn--primary {
+  background-color: #d4af37 !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background-color: #e0bf4d !important;
+}
+
+.o-box--highlight {
+  border-left-color: #d4af37 !important;
+}
+
+.dot div {
+  border-color: #1e3a5f !important;
+}
+
+.dot--active div, .dot:hover div {
+  background-color: #2a4d7f !important;
+}
+
+/* Secondary color overrides - Navy Blue */
+.c-btn--secondary, a.c-btn--secondary {
+  background-color: #1e3a5f !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background-color: #2a4d7f !important;
+}
+
+.c-iconic--secondary use {
+  fill: #1e3a5f !important;
+}
+
+/* Link colors */
+a, a:visited, a:active {
+  color: #1e3a5f !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #1e3a5f !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  color: #2a4d7f !important;
+}
+
+/* Text colors */
+html, body {
+  color: #3d3d3d !important;
+}
+
+footer {
+  color: #3d3d3d !important;
+}
+
+/* Input styling */
+.input-container input, .input-container select {
+  border-color: #d4c5a9 !important;
+}
+
+.input-container label {
+  color: #6d6d6d !important;
+}
+
+/* Error and notice colors */
+.o-media--notice {
+  color: #2d7a4e !important;
+  background-color: #f5f3ed !important;
+}
+
+.o-media--notice .c-iconic use {
+  fill: #2d7a4e !important;
+}
+
+.o-media--error {
+  color: #c84445 !important;
+  background-color: #f5f3ed !important;
+}
+
+.o-media--error .c-iconic use {
+  fill: #c84445 !important;
+}
+
+.input-container .error input,
+.input-container .error select {
+  border-color: #c84445 !important;
+}
+
+.input-container .error .error_message {
+  color: #c84445 !important;
+}

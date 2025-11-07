@@ -384,6 +384,7 @@ sub render {
         client_ip => $self->current_ip,
         title => $self->title,
         logo => $profile->getLogo,
+        portal_css_theme => $profile->getPortalCssTheme,
         profile => $profile,
         lang => $self->session->{lang},
         %saved_fields,

@@ -1,0 +1,37 @@
+/**
+ * Home Theme
+ * Cozy and comfortable color scheme suitable for residential WiFi
+ * Colors: Soft green (#6a994e), Warm beige (#a67c52)
+ */
+
+html { background-color: #faf8f3 !important; }
+header { background-color: #faf8f3 !important; }
+html, body { color: #3d3d3d !important; }
+footer { color: #3d3d3d !important; }
+
+/* Primary - Soft Green */
+.c-btn--primary, a.c-btn--primary { background-color: #6a994e !important; }
+.c-btn--primary:hover, .c-btn--primary:focus, a.c-btn--primary:hover, a.c-btn--primary:focus { background-color: #7eb361 !important; }
+.o-box--highlight { border-left-color: #6a994e !important; }
+.dot div { border-color: #6a994e !important; }
+.dot--active div, .dot:hover div { background-color: #7eb361 !important; }
+
+/* Secondary - Warm Wood Brown */
+.c-btn--secondary, a.c-btn--secondary { background-color: #a67c52 !important; }
+.c-btn--secondary:hover, .c-btn--secondary:focus, a.c-btn--secondary:hover, a.c-btn--secondary:focus { background-color: #bc926a !important; }
+.c-iconic--secondary use { fill: #a67c52 !important; }
+
+/* Links */
+a, a:visited, a:active { color: #6a994e !important; }
+.c-btn--tertiary, a.c-btn--tertiary { color: #6a994e !important; }
+.c-btn--tertiary:hover, .c-btn--tertiary:focus, a.c-btn--tertiary:hover, a.c-btn--tertiary:focus { color: #7eb361 !important; }
+
+/* Inputs */
+.input-container input, .input-container select { border-color: #d9d3c8 !important; }
+.input-container label { color: #7d7d7d !important; }
+
+/* Notifications */
+.o-media--notice { color: #52b788 !important; background-color: #faf8f3 !important; }
+.o-media--notice .c-iconic use { fill: #52b788 !important; }
+.o-media--error { color: #c1666b !important; background-color: #faf8f3 !important; }
+.o-media--error .c-iconic use { fill: #c1666b !important; }

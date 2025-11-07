@@ -1,0 +1,37 @@
+/**
+ * Fast Food Theme
+ * Bright and fun color scheme suitable for fast food restaurants
+ * Colors: Bright red (#e63946), Yellow (#f4a127)
+ */
+
+html { background-color: #fff8e7 !important; }
+header { background-color: #fff8e7 !important; }
+html, body { color: #2b2d42 !important; }
+footer { color: #2b2d42 !important; }
+
+/* Primary - Fast Food Red */
+.c-btn--primary, a.c-btn--primary { background-color: #e63946 !important; }
+.c-btn--primary:hover, .c-btn--primary:focus, a.c-btn--primary:hover, a.c-btn--primary:focus { background-color: #f14d59 !important; }
+.o-box--highlight { border-left-color: #e63946 !important; }
+.dot div { border-color: #f4a127 !important; }
+.dot--active div, .dot:hover div { background-color: #f6b042 !important; }
+
+/* Secondary - Mustard Yellow */
+.c-btn--secondary, a.c-btn--secondary { background-color: #f4a127 !important; }
+.c-btn--secondary:hover, .c-btn--secondary:focus, a.c-btn--secondary:hover, a.c-btn--secondary:focus { background-color: #f6b042 !important; }
+.c-iconic--secondary use { fill: #f4a127 !important; }
+
+/* Links */
+a, a:visited, a:active { color: #e63946 !important; }
+.c-btn--tertiary, a.c-btn--tertiary { color: #f4a127 !important; }
+.c-btn--tertiary:hover, .c-btn--tertiary:focus, a.c-btn--tertiary:hover, a.c-btn--tertiary:focus { color: #f6b042 !important; }
+
+/* Inputs */
+.input-container input, .input-container select { border-color: #f4e0b9 !important; }
+.input-container label { color: #6d6d6d !important; }
+
+/* Notifications */
+.o-media--notice { color: #38a169 !important; background-color: #fff8e7 !important; }
+.o-media--notice .c-iconic use { fill: #38a169 !important; }
+.o-media--error { color: #d90429 !important; background-color: #fff8e7 !important; }
+.o-media--error .c-iconic use { fill: #d90429 !important; }

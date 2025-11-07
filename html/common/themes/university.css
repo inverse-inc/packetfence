@@ -1,0 +1,37 @@
+/**
+ * University Theme
+ * Academic and professional color scheme suitable for educational institutions
+ * Colors: Deep blue (#003366), Burgundy (#8b1538)
+ */
+
+html { background-color: #f4f4f6 !important; }
+header { background-color: #f4f4f6 !important; }
+html, body { color: #2d2d2d !important; }
+footer { color: #2d2d2d !important; }
+
+/* Primary - Academic Burgundy */
+.c-btn--primary, a.c-btn--primary { background-color: #8b1538 !important; }
+.c-btn--primary:hover, .c-btn--primary:focus, a.c-btn--primary:hover, a.c-btn--primary:focus { background-color: #a11e43 !important; }
+.o-box--highlight { border-left-color: #8b1538 !important; }
+.dot div { border-color: #003366 !important; }
+.dot--active div, .dot:hover div { background-color: #004080 !important; }
+
+/* Secondary - Deep Blue */
+.c-btn--secondary, a.c-btn--secondary { background-color: #003366 !important; }
+.c-btn--secondary:hover, .c-btn--secondary:focus, a.c-btn--secondary:hover, a.c-btn--secondary:focus { background-color: #004080 !important; }
+.c-iconic--secondary use { fill: #003366 !important; }
+
+/* Links */
+a, a:visited, a:active { color: #003366 !important; }
+.c-btn--tertiary, a.c-btn--tertiary { color: #003366 !important; }
+.c-btn--tertiary:hover, .c-btn--tertiary:focus, a.c-btn--tertiary:hover, a.c-btn--tertiary:focus { color: #004080 !important; }
+
+/* Inputs */
+.input-container input, .input-container select { border-color: #d4d4d9 !important; }
+.input-container label { color: #6d6d6d !important; }
+
+/* Notifications */
+.o-media--notice { color: #2d6a3f !important; background-color: #f4f4f6 !important; }
+.o-media--notice .c-iconic use { fill: #2d6a3f !important; }
+.o-media--error { color: #c1272d !important; background-color: #f4f4f6 !important; }
+.o-media--error .c-iconic use { fill: #c1272d !important; }
