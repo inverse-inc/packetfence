@@ -29,7 +29,7 @@ collections:
   - name: community.docker
     version: 3.4.8
   - name: community.general
-    version: 10.7.0
+    version: 11.4.0
 
 # For collections, to test locally
 # Ansible will create an export, not a symlink to git repository
