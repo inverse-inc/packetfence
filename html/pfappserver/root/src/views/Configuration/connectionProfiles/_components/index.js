@@ -53,6 +53,7 @@ export {
   BaseFormGroupChosenOne              as FormGroupSelfService,
 
   BaseFormGroupInput                  as FormGroupLogo,
+  BaseFormGroupChosenOne              as FormGroupPortalCssTheme,
   BaseFormGroupInput                  as FormGroupRedirectUrl,
   BaseFormGroupSwitch                 as FormGroupAlwaysUseRedirecturl,
   BaseFormGroupSwitch                 as FormGroupShowManageDevicesOnMaxNodes,

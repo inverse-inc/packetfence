@@ -95,6 +95,7 @@ export default (props) => {
     locale: schemaArray.unique(i18n.t('Duplicate locale.')),
     login_attempt_limit: yup.string().nullable().label( i18n.t('Limit')),
     logo: yup.string().nullable().label(i18n.t('Logo')),
+    portal_css_theme: yup.string().nullable().label(i18n.t('Theme')),
     provisioners: schemaArray.unique(i18n.t('Duplicate provisioner.')),
     redirecturl: yup.string().nullable().label(i18n.t('Redirect')),
     root_module: yup.string().nullable().label(i18n.t('Module')),

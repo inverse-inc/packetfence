@@ -149,6 +149,11 @@
                          :column-label="$i18n.t('Logo')"
         />
 
+        <form-group-portal-css-theme namespace="portal_css_theme"
+                                     :column-label="$i18n.t('Portal CSS Theme')"
+                                     :text="$i18n.t('The CSS theme to use for the captive portal. Different themes provide color schemes suitable for different venue types (hotel, restaurant, sports, etc.).')"
+        />
+
         <form-group-redirect-url namespace="redirecturl"
                                  :column-label="$i18n.t('Redirection URL')"
                                  :text="$i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-security event redirect URL is not defined.')"
@@ -256,6 +261,7 @@ import {
   FormGroupScans,
   FormGroupSelfService,
   FormGroupLogo,
+  FormGroupPortalCssTheme,
   FormGroupRedirectUrl,
   FormGroupAlwaysUseRedirecturl,
   FormGroupShowManageDevicesOnMaxNodes,
@@ -298,6 +304,7 @@ const components = {
   FormGroupScans,
   FormGroupSelfService,
   FormGroupLogo,
+  FormGroupPortalCssTheme,
   FormGroupRedirectUrl,
   FormGroupAlwaysUseRedirecturl,
   FormGroupShowManageDevicesOnMaxNodes,

@@ -54,7 +54,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup)],
+    render_list => [qw(logo portal_css_theme redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup)],
   );
 
 =head1 Fields
@@ -98,6 +98,23 @@ has_field 'logo' =>
   (
    type => 'Text',
    label => 'Logo',
+  );
+
+=head2 portal_css_theme
+
+The CSS theme for the captive portal
+
+=cut
+
+has_field 'portal_css_theme' =>
+  (
+   type => 'Select',
+   label => 'Portal CSS Theme',
+   options_method => \&options_portal_css_theme,
+   element_class => ['chzn-select'],
+   default => 'default',
+   tags => { after_element => \&help,
+             help => 'The CSS theme to use for the captive portal. Different themes provide color schemes suitable for different venue types (hotel, restaurant, sports, etc.).' },
   );
 
 =head2 root_module
@@ -668,6 +685,25 @@ Returns the list of the vlan pool technique
 sub options_vlan_pool {
 
     return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH, $POOL_PER_USER_VLAN );
+}
+
+=head2 options_portal_css_theme
+
+Returns the list of available portal CSS themes
+
+=cut
+
+sub options_portal_css_theme {
+    return (
+        { value => 'default', label => 'Default' },
+        { value => 'hotel', label => 'Hotel' },
+        { value => 'restaurant', label => 'Restaurant' },
+        { value => 'sport-event', label => 'Sport Event' },
+        { value => 'fastfood', label => 'Fast Food' },
+        { value => 'university', label => 'University' },
+        { value => 'retail', label => 'Retail' },
+        { value => 'home', label => 'Home' },
+    );
 }
 
 
