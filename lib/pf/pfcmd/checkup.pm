@@ -951,12 +951,12 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub connection_profiles {
 
-    my $profile_params = qr/(?:locale |filter|top_op|logo|guest_self_reg|guest_modes|template_path|
+    my $profile_params = qr/(?:locale |filter|top_op|logo|portal_css_theme|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|self_service|
-        dpsk|default_psk_key|status|unreg_on_acct_stop|vlan_pool_technique|show_manage_devices_on_max_nodes)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|scans|root_module|preregistration|autoregister|access_registration_when_registered|self_service|
+        dpsk|unbound_dpsk|default_psk_key|status|unreg_on_acct_stop|network_logoff|network_logoff_popup|vlan_pool_technique|show_manage_devices_on_max_nodes)/x;
     my $validator = pf::validation::profile_filters->new;
 
     foreach my $connection_profile ( keys %Profiles_Config ) {
