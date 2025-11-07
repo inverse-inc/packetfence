@@ -38,6 +38,7 @@ import FormTypeMessage from './FormTypeMessage'
 import FormTypeProvisioning from './FormTypeProvisioning'
 import FormTypeRoot from './FormTypeRoot'
 import FormTypeRootSSO from './FormTypeRootSSO'
+import FormTypeSelfRegSSO from './FormTypeSelfRegSSO'
 import FormTypeSelectRole from './FormTypeSelectRole'
 import FormTypeShowLocalAccount from './FormTypeShowLocalAccount'
 import FormTypeSslInspection from './FormTypeSslInspection'
@@ -66,6 +67,7 @@ const components = {
   FormTypeProvisioning,
   FormTypeRoot,
   FormTypeRootSSO,
+  FormTypeSelfRegSSO,
   FormTypeSelectRole,
   FormTypeShowLocalAccount,
   FormTypeSslInspection,
@@ -141,6 +143,9 @@ export const setup = (props) => {
 
       case 'RootSSO':
         return FormTypeRootSSO // break
+
+      case 'SelfRegSSO':
+        return FormTypeSelfRegSSO // break
 
       case 'SelectRole':
         return FormTypeSelectRole // break
