@@ -101,7 +101,7 @@ sub nextCursor {
 
     if ($last_item) {
         if ($self->cursor_type eq 'field') {
-            return $last_item->{$self->cursor_field};
+            return $last_item->{$self->cursor_field}[0];
         }
 
         if ($self->cursor_type eq 'multi_field') {
