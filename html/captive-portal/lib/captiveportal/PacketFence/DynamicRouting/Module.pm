@@ -80,6 +80,7 @@ sub available_actions {
         'set_bandwidth_balance',
         'destination_url',
         'set_access_level',
+        'mark_as_sponsor',
     ];
 }
 

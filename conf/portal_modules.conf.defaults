@@ -62,3 +62,8 @@ type=MFA
 description=Default admin SSO policy
 type=RootSSO
 modules=default_registration_policy,default_mfa_policy
+
+[default_self_reg_sso_policy]
+description=Default self registration SSO policy
+type=SelfRegSSO
+modules=default_registration_policy,default_mfa_policy
