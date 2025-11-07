@@ -1,94 +1,151 @@
 /**
  * Hotel Theme
- * Elegant and sophisticated color scheme suitable for hotels
- * Colors: Gold (#d4af37), Navy Blue (#1e3a5f), and Cream tones
+ * Elegant and sophisticated - Beige and Dark Gray palette
+ * Colors: Beige (#DDD0C8), Dark Gray (#323232), Accents (#A08D7E)
  */
 
-/* Background colors */
+/* Typography */
+html, body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  color: #323232 !important;
+  letter-spacing: 0.3px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300 !important;
+  letter-spacing: 0.5px !important;
+  color: #323232 !important;
+}
+
+/* Background with subtle gradient */
 html {
-  background-color: #f5f3ed !important;
+  background: linear-gradient(135deg, #DDD0C8 0%, #c9bbb0 100%) !important;
+  min-height: 100vh;
 }
 
 header {
-  background-color: #f5f3ed !important;
+  background: linear-gradient(180deg, rgba(221, 208, 200, 0.95) 0%, rgba(221, 208, 200, 0.9) 100%) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(50, 50, 50, 0.08);
 }
 
 .c-frame {
-  background-color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 8px 32px rgba(50, 50, 50, 0.12) !important;
+  border-radius: 12px !important;
 }
 
-/* Primary color overrides - Gold */
+/* Buttons with elegant styling */
 .c-btn--primary, a.c-btn--primary {
-  background-color: #d4af37 !important;
+  background: linear-gradient(135deg, #A08D7E 0%, #8a7869 100%) !important;
+  border-radius: 24px !important;
+  padding: 14px 32px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase;
+  font-size: 0.9rem !important;
+  box-shadow: 0 4px 12px rgba(160, 141, 126, 0.3);
+  transition: all 0.3s ease !important;
+  border: none !important;
 }
 
 .c-btn--primary:hover, .c-btn--primary:focus,
 a.c-btn--primary:hover, a.c-btn--primary:focus {
-  background-color: #e0bf4d !important;
+  background: linear-gradient(135deg, #8a7869 0%, #756458 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(160, 141, 126, 0.4) !important;
 }
 
-.o-box--highlight {
-  border-left-color: #d4af37 !important;
-}
-
-.dot div {
-  border-color: #1e3a5f !important;
-}
-
-.dot--active div, .dot:hover div {
-  background-color: #2a4d7f !important;
-}
-
-/* Secondary color overrides - Navy Blue */
 .c-btn--secondary, a.c-btn--secondary {
-  background-color: #1e3a5f !important;
+  background: linear-gradient(135deg, #323232 0%, #1a1a1a 100%) !important;
+  border-radius: 24px !important;
+  padding: 14px 32px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.8px !important;
+  box-shadow: 0 4px 12px rgba(50, 50, 50, 0.2);
+  transition: all 0.3s ease !important;
 }
 
 .c-btn--secondary:hover, .c-btn--secondary:focus,
 a.c-btn--secondary:hover, a.c-btn--secondary:focus {
-  background-color: #2a4d7f !important;
-}
-
-.c-iconic--secondary use {
-  fill: #1e3a5f !important;
-}
-
-/* Link colors */
-a, a:visited, a:active {
-  color: #1e3a5f !important;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(50, 50, 50, 0.3) !important;
 }
 
 .c-btn--tertiary, a.c-btn--tertiary {
-  color: #1e3a5f !important;
+  color: #323232 !important;
+  border: 2px solid #323232 !important;
+  border-radius: 24px !important;
+  background: transparent !important;
+  padding: 12px 30px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
 }
 
 .c-btn--tertiary:hover, .c-btn--tertiary:focus,
 a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
-  color: #2a4d7f !important;
+  background: #323232 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
 }
 
-/* Text colors */
-html, body {
-  color: #3d3d3d !important;
+/* Links */
+a, a:visited, a:active {
+  color: #A08D7E !important;
+  font-weight: 500;
 }
 
-footer {
-  color: #3d3d3d !important;
+a:hover {
+  color: #8a7869 !important;
 }
 
-/* Input styling */
+/* Input styling with soft borders */
 .input-container input, .input-container select {
-  border-color: #d4c5a9 !important;
+  border: 2px solid #DDD0C8 !important;
+  border-radius: 8px !important;
+  background-color: #fafafa !important;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.input-container input:focus, .input-container select:focus {
+  border-color: #A08D7E !important;
+  box-shadow: 0 0 0 3px rgba(160, 141, 126, 0.1) !important;
+  background-color: #ffffff !important;
 }
 
 .input-container label {
-  color: #6d6d6d !important;
+  color: #323232 !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
 }
 
-/* Error and notice colors */
+/* Icons and dots */
+.dot div {
+  border-color: #A08D7E !important;
+  border-width: 2px;
+}
+
+.dot--active div, .dot:hover div {
+  background-color: #A08D7E !important;
+  border-color: #A08D7E !important;
+}
+
+.c-iconic use {
+  fill: #323232 !important;
+}
+
+.c-iconic--secondary use {
+  fill: #A08D7E !important;
+}
+
+/* Notifications with soft colors */
 .o-media--notice {
   color: #2d7a4e !important;
-  background-color: #f5f3ed !important;
+  background-color: rgba(221, 208, 200, 0.3) !important;
+  border: 1px solid rgba(45, 122, 78, 0.2) !important;
+  border-radius: 8px !important;
 }
 
 .o-media--notice .c-iconic use {
@@ -97,7 +154,9 @@ footer {
 
 .o-media--error {
   color: #c84445 !important;
-  background-color: #f5f3ed !important;
+  background-color: rgba(221, 208, 200, 0.3) !important;
+  border: 1px solid rgba(200, 68, 69, 0.2) !important;
+  border-radius: 8px !important;
 }
 
 .o-media--error .c-iconic use {
@@ -111,4 +170,16 @@ footer {
 
 .input-container .error .error_message {
   color: #c84445 !important;
+}
+
+/* Footer */
+footer {
+  color: #323232 !important;
+  opacity: 0.8;
+}
+
+/* Highlight box */
+.o-box--highlight {
+  border-left-color: #A08D7E !important;
+  border-left-width: 4px;
 }

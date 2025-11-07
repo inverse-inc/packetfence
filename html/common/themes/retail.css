@@ -1,37 +1,217 @@
 /**
  * Retail Theme
- * Modern and commercial color scheme suitable for retail stores
- * Colors: Teal (#00bfa5), Coral (#ff6b6b)
+ * Energetic and joyful - Green and Pink palette
+ * Colors: Malachite Green (#31EC56), Bright Pink (#EF036C)
  */
 
-html { background-color: #f8f9fa !important; }
-header { background-color: #f8f9fa !important; }
-html, body { color: #3d3d3d !important; }
-footer { color: #3d3d3d !important; }
+/* Typography - Modern and friendly */
+html, body {
+  font-family: 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif !important;
+  color: #1a1a1a !important;
+  letter-spacing: 0.2px;
+}
 
-/* Primary - Modern Teal */
-.c-btn--primary, a.c-btn--primary { background-color: #00bfa5 !important; }
-.c-btn--primary:hover, .c-btn--primary:focus, a.c-btn--primary:hover, a.c-btn--primary:focus { background-color: #1dd1b7 !important; }
-.o-box--highlight { border-left-color: #00bfa5 !important; }
-.dot div { border-color: #00bfa5 !important; }
-.dot--active div, .dot:hover div { background-color: #1dd1b7 !important; }
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600 !important;
+  letter-spacing: 0.4px !important;
+  color: #1a1a1a !important;
+}
 
-/* Secondary - Coral Accent */
-.c-btn--secondary, a.c-btn--secondary { background-color: #ff6b6b !important; }
-.c-btn--secondary:hover, .c-btn--secondary:focus, a.c-btn--secondary:hover, a.c-btn--secondary:focus { background-color: #ff8080 !important; }
-.c-iconic--secondary use { fill: #ff6b6b !important; }
+/* Background with fresh gradient */
+html {
+  background: linear-gradient(135deg, #f0fdf4 0%, #fef2f7 100%) !important;
+  min-height: 100vh;
+}
+
+header {
+  background: linear-gradient(90deg, rgba(49, 236, 86, 0.15) 0%, rgba(239, 3, 108, 0.15) 100%) !important;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(49, 236, 86, 0.1);
+}
+
+.c-frame {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 20px !important;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.c-frame:before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #31EC56 0%, #EF036C 100%);
+  border-radius: 20px;
+  z-index: -1;
+}
+
+/* Buttons with vibrant styling */
+.c-btn--primary, a.c-btn--primary {
+  background: linear-gradient(135deg, #31EC56 0%, #28d948 100%) !important;
+  border-radius: 30px !important;
+  padding: 16px 36px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 6px 20px rgba(49, 236, 86, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  color: #1a1a1a !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background: linear-gradient(135deg, #28d948 0%, #20c13d 100%) !important;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 28px rgba(49, 236, 86, 0.5) !important;
+  color: #1a1a1a !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background: linear-gradient(135deg, #EF036C 0%, #d6025f 100%) !important;
+  border-radius: 30px !important;
+  padding: 16px 36px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  box-shadow: 0 6px 20px rgba(239, 3, 108, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background: linear-gradient(135deg, #d6025f 0%, #bd0252 100%) !important;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 28px rgba(239, 3, 108, 0.5) !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #EF036C !important;
+  border: 3px solid #EF036C !important;
+  border-radius: 30px !important;
+  background: transparent !important;
+  padding: 13px 33px !important;
+  font-weight: 700 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  background: #EF036C !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 3, 108, 0.3);
+}
 
 /* Links */
-a, a:visited, a:active { color: #00bfa5 !important; }
-.c-btn--tertiary, a.c-btn--tertiary { color: #00bfa5 !important; }
-.c-btn--tertiary:hover, .c-btn--tertiary:focus, a.c-btn--tertiary:hover, a.c-btn--tertiary:focus { color: #1dd1b7 !important; }
+a, a:visited, a:active {
+  color: #EF036C !important;
+  font-weight: 600;
+  text-decoration: none;
+}
 
-/* Inputs */
-.input-container input, .input-container select { border-color: #d9dde0 !important; }
-.input-container label { color: #6d6d6d !important; }
+a:hover {
+  color: #31EC56 !important;
+  text-decoration: underline;
+}
 
-/* Notifications */
-.o-media--notice { color: #06d6a0 !important; background-color: #f8f9fa !important; }
-.o-media--notice .c-iconic use { fill: #06d6a0 !important; }
-.o-media--error { color: #e63946 !important; background-color: #f8f9fa !important; }
-.o-media--error .c-iconic use { fill: #e63946 !important; }
+/* Input styling with vibrant accents */
+.input-container input, .input-container select {
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  background-color: #ffffff !important;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  padding: 14px !important;
+}
+
+.input-container input:focus, .input-container select:focus {
+  border-color: #31EC56 !important;
+  box-shadow: 0 0 0 4px rgba(49, 236, 86, 0.15) !important;
+  background-color: #ffffff !important;
+}
+
+.input-container label {
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Icons and dots */
+.dot div {
+  border-color: #31EC56 !important;
+  border-width: 3px;
+  transition: all 0.3s ease;
+}
+
+.dot--active div, .dot:hover div {
+  background-color: #EF036C !important;
+  border-color: #EF036C !important;
+}
+
+.c-iconic use {
+  fill: #1a1a1a !important;
+}
+
+.c-iconic--secondary use {
+  fill: #EF036C !important;
+}
+
+.c-iconic--primary use {
+  fill: #31EC56 !important;
+}
+
+/* Notifications with joyful colors */
+.o-media--notice {
+  color: #059669 !important;
+  background: linear-gradient(135deg, rgba(49, 236, 86, 0.1) 0%, rgba(49, 236, 86, 0.05) 100%) !important;
+  border: 2px solid #31EC56 !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+}
+
+.o-media--notice .c-iconic use {
+  fill: #059669 !important;
+}
+
+.o-media--error {
+  color: #dc2626 !important;
+  background: linear-gradient(135deg, rgba(239, 3, 108, 0.1) 0%, rgba(239, 3, 108, 0.05) 100%) !important;
+  border: 2px solid #EF036C !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+}
+
+.o-media--error .c-iconic use {
+  fill: #dc2626 !important;
+}
+
+.input-container .error input,
+.input-container .error select {
+  border-color: #dc2626 !important;
+  border-width: 2px !important;
+}
+
+.input-container .error .error_message {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+/* Footer */
+footer {
+  color: #1a1a1a !important;
+  font-weight: 500;
+}
+
+/* Highlight box */
+.o-box--highlight {
+  border-left-color: #31EC56 !important;
+  border-left-width: 5px;
+  background: linear-gradient(90deg, rgba(49, 236, 86, 0.05) 0%, transparent 100%);
+}
