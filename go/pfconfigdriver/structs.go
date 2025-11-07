@@ -896,6 +896,7 @@ type PfConfAdminLogin struct {
 }
 
 type ReportOptions struct {
+	// db report fields
 	Id          string   `json:"id"`
 	Type        string   `json:"type"`
 	Description string   `json:"description"`
@@ -904,12 +905,20 @@ type ReportOptions struct {
 	Formatting  []struct {
 		Field  string `json:"field"`
 		Format string `json:"format"`
-	} `json:"formatting"`
-	PersonFields []string `json:"person_fields"`
-	NodeFields   []string `json:"node_fields"`
-	RoleFields   []string `json:"role_fields"`
+	} `json:"formatting,omitempty"`
+	PersonFields []string `json:"person_fields,omitempty"`
+	NodeFields   []string `json:"node_fields,omitempty"`
+	RoleFields   []string `json:"role_fields,omitempty"`
 	DefaultLimit string   `json:"default_limit"`
 	DateLimit    string   `json:"date_limit,omitempty"`
+	// db sql fields
+	HasLimit      string   `json:"has_limit"`
+	HasDateRange  string   `json:"has_date_range"`
+	Sql           string   `json:"sql"`
+	CursorType    string   `json:"cursor_type"`
+	CursorField   []string `json:"cursor_field,omitempty"`
+	CursorDefault []string `json:"cursor_default,omitempty"`
+	Bindings      []string `json:"bindings,omitempty"`
 }
 
 // Reports contains the report data
