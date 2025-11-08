@@ -1,0 +1,189 @@
+/**
+ * Home Theme - Blocksy Style
+ * Modern, flexible with good typography and spacing
+ * Colors: Soft Green (#6a994e), Warm Wood (#a67c52)
+ */
+
+/* Blocksy-inspired Typography - Modern and flexible */
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Roboto, Arial, sans-serif !important;
+  font-size: 18px;
+  line-height: 1.65;
+  color: #2d3134 !important;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: #212529 !important;
+  margin-bottom: 0.75em;
+}
+
+h1 { font-size: 42px !important; }
+h2 { font-size: 35px !important; }
+h3 { font-size: 28px !important; }
+
+/* Modern flexible background */
+html {
+  background: #f9fafb !important;
+}
+
+header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.c-frame {
+  background: #ffffff !important;
+  border: 1px solid #e8eaed !important;
+  border-radius: 5px !important;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04) !important;
+  padding: 45px 35px !important;
+}
+
+/* Blocksy-style buttons - Modern and balanced */
+.c-btn--primary, a.c-btn--primary {
+  background: #6a994e !important;
+  color: #ffffff !important;
+  border: 2px solid #6a994e !important;
+  border-radius: 5px !important;
+  padding: 12px 25px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 1px 3px 0 rgba(106,153,78,0.3) !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background: #5a8341 !important;
+  border-color: #5a8341 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px 0 rgba(106,153,78,0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background: #a67c52 !important;
+  color: #ffffff !important;
+  border: 2px solid #a67c52 !important;
+  border-radius: 5px !important;
+  padding: 12px 25px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 1px 3px 0 rgba(166,124,82,0.3) !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background: #8f6943 !important;
+  border-color: #8f6943 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px 0 rgba(166,124,82,0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #6a994e !important;
+  background: transparent !important;
+  border: 2px solid transparent !important;
+  border-radius: 5px !important;
+  padding: 12px 25px !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  text-decoration: none !important;
+  transition: all 0.25s ease !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  background: rgba(106,153,78,0.08) !important;
+  color: #5a8341 !important;
+}
+
+/* Links - Blocksy style */
+a, a:visited {
+  color: #6a994e !important;
+  text-decoration: none !important;
+  transition: color 0.25s ease !important;
+}
+
+a:hover {
+  color: #5a8341 !important;
+  text-decoration: underline !important;
+}
+
+/* Input fields - Blocksy flexible style */
+.input-container input,
+.input-container select {
+  border: 2px solid #e8eaed !important;
+  border-radius: 5px !important;
+  padding: 12px 15px !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  background: #ffffff !important;
+  transition: all 0.25s ease !important;
+}
+
+.input-container input:focus,
+.input-container select:focus {
+  border-color: #6a994e !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 3px rgba(106,153,78,0.1) !important;
+}
+
+.input-container label {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #2d3134 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+
+/* Visual elements */
+.dot div {
+  border: 2px solid #6a994e !important;
+  border-radius: 5px;
+}
+
+.dot--active div, .dot:hover div {
+  background: #6a994e !important;
+}
+
+.c-iconic use {
+  fill: #2d3134 !important;
+}
+
+/* Notifications - Modern Blocksy cards */
+.o-media--notice {
+  background: #f0f9ff !important;
+  border: 1px solid #bae6fd !important;
+  padding: 16px 20px !important;
+  border-radius: 5px !important;
+  color: #075985 !important;
+}
+
+.o-media--error {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  padding: 16px 20px !important;
+  border-radius: 5px !important;
+  color: #991b1b !important;
+}
+
+footer {
+  color: #6c757d !important;
+  font-size: 15px !important;
+}
+
+.o-box--highlight {
+  border-left: 4px solid #6a994e !important;
+  padding-left: 20px !important;
+  background: rgba(106,153,78,0.03) !important;
+}

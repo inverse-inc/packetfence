@@ -1,0 +1,189 @@
+/**
+ * Sport Event Theme - OceanWP Style
+ * Modern, vibrant, with good use of whitespace
+ * Colors: Blue (#00ABE4), Orange (#FFCC00)
+ */
+
+/* OceanWP-inspired Typography - Modern and bold */
+html, body {
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #555555 !important;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  color: #333333 !important;
+  margin-bottom: 15px;
+}
+
+h1 { font-size: 36px !important; }
+h2 { font-size: 30px !important; }
+h3 { font-size: 24px !important; }
+
+/* Modern background with subtle color */
+html {
+  background: #f8f8f8 !important;
+}
+
+header {
+  background: #ffffff !important;
+  box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+}
+
+.c-frame {
+  background: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.08) !important;
+  padding: 50px 30px !important;
+}
+
+/* OceanWP-style buttons - Bold and modern */
+.c-btn--primary, a.c-btn--primary {
+  background: #00ABE4 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  padding: 14px 30px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: none !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background: #0095c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 15px rgba(0, 171, 228, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background: #FFCC00 !important;
+  color: #333333 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  padding: 14px 30px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  transition: all 0.3s ease !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background: #e6b800 !important;
+  color: #333333 !important;
+  box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #00ABE4 !important;
+  background: transparent !important;
+  border: 2px solid #00ABE4 !important;
+  border-radius: 4px !important;
+  padding: 12px 28px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  background: #00ABE4 !important;
+  color: #ffffff !important;
+}
+
+/* Links - Bold and modern */
+a, a:visited {
+  color: #00ABE4 !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease !important;
+}
+
+a:hover {
+  color: #0095c7 !important;
+}
+
+/* Input fields - OceanWP style */
+.input-container input,
+.input-container select {
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  padding: 12px 15px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  background: #ffffff !important;
+  transition: all 0.3s ease !important;
+}
+
+.input-container input:focus,
+.input-container select:focus {
+  border-color: #00ABE4 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 3px rgba(0, 171, 228, 0.1) !important;
+}
+
+.input-container label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #333333 !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Visual elements */
+.dot div {
+  border: 3px solid #00ABE4 !important;
+}
+
+.dot--active div, .dot:hover div {
+  background: #FFCC00 !important;
+  border-color: #FFCC00 !important;
+}
+
+.c-iconic use {
+  fill: #333333 !important;
+}
+
+/* Notifications - Modern cards */
+.o-media--notice {
+  background: #f0f9ff !important;
+  border-left: 3px solid #00ABE4 !important;
+  padding: 20px !important;
+  border-radius: 4px !important;
+  color: #0c5460 !important;
+}
+
+.o-media--error {
+  background: #fff3f3 !important;
+  border-left: 3px solid #dc3545 !important;
+  padding: 20px !important;
+  border-radius: 4px !important;
+  color: #721c24 !important;
+}
+
+footer {
+  color: #999999 !important;
+  font-size: 13px !important;
+}
+
+.o-box--highlight {
+  border-left: 4px solid #FFCC00 !important;
+  padding-left: 20px !important;
+  background: rgba(255, 204, 0, 0.05) !important;
+}

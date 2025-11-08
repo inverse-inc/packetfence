@@ -1,0 +1,181 @@
+/**
+ * Restaurant Theme - GeneratePress Style
+ * Lightweight, minimal, and professional
+ * Colors: Deep Blue (#001233), Coral Red (#FF595A), Beige (#CAC0B3)
+ */
+
+/* GeneratePress-inspired Typography - Lightweight and fast */
+html, body {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif !important;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #000000 !important;
+  font-weight: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: #001233 !important;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+h1 { font-size: 40px !important; }
+h2 { font-size: 30px !important; }
+h3 { font-size: 20px !important; }
+
+/* Minimal background */
+html {
+  background: #ffffff !important;
+}
+
+header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.c-frame {
+  background: #ffffff !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 40px 20px !important;
+}
+
+/* GeneratePress-style buttons - Lightweight */
+.c-btn--primary, a.c-btn--primary {
+  background-color: #FF595A !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+  line-height: 1.5 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  transition: background-color 0.3s ease-in-out !important;
+  box-shadow: none !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background-color: #ff4548 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background-color: #001233 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  transition: background-color 0.3s ease-in-out !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background-color: #001a4d !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #FF595A !important;
+  background: transparent !important;
+  border: none !important;
+  text-decoration: none !important;
+  padding: 10px 0 !important;
+  font-weight: normal !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-size: 14px !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  color: #ff4548 !important;
+}
+
+/* Links - Simple and clean */
+a, a:visited {
+  color: #FF595A !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: #001233 !important;
+}
+
+/* Input fields - Minimal GeneratePress style */
+.input-container input,
+.input-container select {
+  border: 1px solid #cccccc !important;
+  border-radius: 0 !important;
+  padding: 10px !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  background: #ffffff !important;
+  transition: border-color 0.3s ease-in-out !important;
+}
+
+.input-container input:focus,
+.input-container select:focus {
+  border-color: #FF595A !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.input-container label {
+  font-size: 15px !important;
+  font-weight: bold !important;
+  color: #000000 !important;
+  margin-bottom: 5px !important;
+}
+
+/* Visual elements */
+.dot div {
+  border: 2px solid #FF595A !important;
+}
+
+.dot--active div, .dot:hover div {
+  background: #FF595A !important;
+}
+
+.c-iconic use {
+  fill: #001233 !important;
+}
+
+/* Notifications - Simple borders */
+.o-media--notice {
+  background: #ffffff !important;
+  border: 1px solid #46b450 !important;
+  padding: 15px !important;
+  border-radius: 0 !important;
+  color: #000000 !important;
+}
+
+.o-media--error {
+  background: #ffffff !important;
+  border: 1px solid #dc3232 !important;
+  padding: 15px !important;
+  border-radius: 0 !important;
+  color: #000000 !important;
+}
+
+footer {
+  color: #000000 !important;
+  font-size: 15px !important;
+}
+
+.o-box--highlight {
+  border-left: 2px solid #FF595A !important;
+  padding-left: 20px !important;
+}

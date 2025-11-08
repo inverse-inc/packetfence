@@ -1,0 +1,284 @@
+/**
+ * Bootstrap Theme
+ * Twitter Bootstrap design system with utility-first approach
+ * Colors: Primary Blue (#007bff), Secondary Gray (#6c757d)
+ */
+
+/* Bootstrap Typography */
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #212529 !important;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  color: #212529 !important;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 2.5rem !important; }
+h2 { font-size: 2rem !important; }
+h3 { font-size: 1.75rem !important; }
+h4 { font-size: 1.5rem !important; }
+h5 { font-size: 1.25rem !important; }
+h6 { font-size: 1rem !important; }
+
+/* Bootstrap background */
+html {
+  background: #f8f9fa !important;
+}
+
+header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.c-frame {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.125) !important;
+  border-radius: 0.25rem !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  padding: 1.25rem !important;
+}
+
+/* Bootstrap Buttons */
+.c-btn--primary, a.c-btn--primary {
+  background: #007bff !important;
+  color: #ffffff !important;
+  border: 1px solid #007bff !important;
+  border-radius: 0.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  user-select: none !important;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+              border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+  box-shadow: none !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background: #0069d9 !important;
+  border-color: #0062cc !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.c-btn--primary:focus,
+a.c-btn--primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5) !important;
+}
+
+.c-btn--primary:active,
+a.c-btn--primary:active {
+  background: #0062cc !important;
+  border-color: #005cbf !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background: #6c757d !important;
+  color: #ffffff !important;
+  border: 1px solid #6c757d !important;
+  border-radius: 0.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+              border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background: #5a6268 !important;
+  border-color: #545b62 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+.c-btn--secondary:focus,
+a.c-btn--secondary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5) !important;
+}
+
+/* Bootstrap Outline Button */
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #007bff !important;
+  background: transparent !important;
+  border: 1px solid #007bff !important;
+  border-radius: 0.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+              border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  background: #007bff !important;
+  border-color: #007bff !important;
+  color: #ffffff !important;
+}
+
+.c-btn--tertiary:focus,
+a.c-btn--tertiary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5) !important;
+}
+
+/* Links - Bootstrap style */
+a, a:visited {
+  color: #007bff !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  transition: color 0.15s ease-in-out !important;
+}
+
+a:hover {
+  color: #0056b3 !important;
+  text-decoration: underline !important;
+}
+
+/* Input fields - Bootstrap form controls */
+.input-container input,
+.input-container select {
+  border: 1px solid #ced4da !important;
+  border-radius: 0.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  color: #495057 !important;
+  background: #ffffff !important;
+  background-clip: padding-box !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.input-container input:hover,
+.input-container select:hover {
+  border-color: #adb5bd !important;
+}
+
+.input-container input:focus,
+.input-container select:focus {
+  border-color: #80bdff !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  background: #ffffff !important;
+  color: #495057 !important;
+}
+
+.input-container label {
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  color: #212529 !important;
+  margin-bottom: 0.5rem !important;
+  display: inline-block !important;
+}
+
+/* Bootstrap form validation states */
+.input-container input:invalid,
+.input-container select:invalid {
+  border-color: #dc3545 !important;
+}
+
+.input-container input:invalid:focus,
+.input-container select:invalid:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.input-container input:valid,
+.input-container select:valid {
+  border-color: #28a745 !important;
+}
+
+.input-container input:valid:focus,
+.input-container select:valid:focus {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+/* Visual elements */
+.dot div {
+  border: 2px solid #007bff !important;
+  border-radius: 0.25rem;
+}
+
+.dot--active div, .dot:hover div {
+  background: #007bff !important;
+  border-color: #007bff !important;
+}
+
+.c-iconic use {
+  fill: #6c757d !important;
+}
+
+/* Notifications - Bootstrap alerts */
+.o-media--notice {
+  background: #d4edda !important;
+  border: 1px solid #c3e6cb !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 0.25rem !important;
+  color: #155724 !important;
+  box-shadow: none !important;
+}
+
+.o-media--error {
+  background: #f8d7da !important;
+  border: 1px solid #f5c6cb !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 0.25rem !important;
+  color: #721c24 !important;
+  box-shadow: none !important;
+}
+
+footer {
+  color: #6c757d !important;
+  font-size: 0.875rem !important;
+}
+
+.o-box--highlight {
+  border-left: 0.25rem solid #007bff !important;
+  padding-left: 1rem !important;
+  background: rgba(0, 123, 255, 0.05) !important;
+}
+
+/* Bootstrap utility classes support */
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-primary {
+  color: #007bff !important;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-info {
+  color: #17a2b8 !important;
+}

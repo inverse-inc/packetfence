@@ -1,0 +1,189 @@
+/**
+ * Retail Theme - Hestia Style
+ * Material Design inspired, bold colors, card-based
+ * Colors: Green (#31EC56), Pink (#EF036C)
+ */
+
+/* Hestia-inspired Typography - Material Design */
+html, body {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, sans-serif !important;
+  font-size: 14px;
+  line-height: 1.6em;
+  color: #3c4858 !important;
+  font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto Slab', 'Roboto', Georgia, serif !important;
+  font-weight: 400 !important;
+  line-height: 1.5em !important;
+  color: #3c4858 !important;
+  margin-top: 0;
+}
+
+h1 { font-size: 3.3125rem !important; }
+h2 { font-size: 2.25rem !important; }
+h3 { font-size: 1.5625rem !important; }
+
+/* Material background */
+html {
+  background: #e5e5e5 !important;
+}
+
+header {
+  background: #31EC56 !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.26);
+  color: #ffffff;
+}
+
+.c-frame {
+  background: #ffffff !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 10px -4px rgba(0,0,0,0.15) !important;
+  padding: 30px !important;
+}
+
+/* Hestia Material buttons - Raised card style */
+.c-btn--primary, a.c-btn--primary {
+  background: #EF036C !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 3px !important;
+  padding: 12px 30px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 1.4em !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0 !important;
+  transition: box-shadow 0.2s cubic-bezier(0.4,0,1,1), background-color 0.2s cubic-bezier(0.4,0,0.2,1) !important;
+  box-shadow: 0 2px 2px 0 rgba(239,3,108,0.14), 0 3px 1px -2px rgba(239,3,108,0.2), 0 1px 5px 0 rgba(239,3,108,0.12) !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background: #d6025f !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 26px -12px rgba(239,3,108,0.42), 0 4px 23px 0 rgba(0,0,0,0.12), 0 8px 10px -5px rgba(239,3,108,0.2) !important;
+  transform: none !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background: #31EC56 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 3px !important;
+  padding: 12px 30px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  transition: box-shadow 0.2s cubic-bezier(0.4,0,1,1), background-color 0.2s cubic-bezier(0.4,0,0.2,1) !important;
+  box-shadow: 0 2px 2px 0 rgba(49,236,86,0.14), 0 3px 1px -2px rgba(49,236,86,0.2), 0 1px 5px 0 rgba(49,236,86,0.12) !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background: #28d948 !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 26px -12px rgba(49,236,86,0.42), 0 4px 23px 0 rgba(0,0,0,0.12), 0 8px 10px -5px rgba(49,236,86,0.2) !important;
+  transform: none !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #EF036C !important;
+  background: transparent !important;
+  border: none !important;
+  text-decoration: none !important;
+  padding: 12px 30px !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  font-size: 12px !important;
+  transition: color 0.2s ease !important;
+}
+
+.c-btn--tertiary:hover, .c-btn--tertiary:focus,
+a.c-btn--tertiary:hover, a.c-btn--tertiary:focus {
+  color: #d6025f !important;
+}
+
+/* Links - Material style */
+a, a:visited {
+  color: #EF036C !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease !important;
+}
+
+a:hover {
+  color: #31EC56 !important;
+}
+
+/* Input fields - Material Design */
+.input-container input,
+.input-container select {
+  border: 0 !important;
+  border-bottom: 1px solid #d2d2d2 !important;
+  border-radius: 0 !important;
+  padding: 10px 0 !important;
+  font-size: 14px !important;
+  line-height: 1.4em !important;
+  background: transparent !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.input-container input:focus,
+.input-container select:focus {
+  border-bottom: 2px solid #31EC56 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.input-container label {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #3c4858 !important;
+  margin-bottom: 5px !important;
+}
+
+/* Material elements */
+.dot div {
+  border: 2px solid #31EC56 !important;
+  border-radius: 50%;
+}
+
+.dot--active div, .dot:hover div {
+  background: #EF036C !important;
+  border-color: #EF036C !important;
+}
+
+.c-iconic use {
+  fill: #3c4858 !important;
+}
+
+/* Notifications - Material cards */
+.o-media--notice {
+  background: #dff0d8 !important;
+  border: 0 !important;
+  padding: 15px 20px !important;
+  border-radius: 6px !important;
+  color: #3c763d !important;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.2), 0 1px 5px 0 rgba(0,0,0,0.12) !important;
+}
+
+.o-media--error {
+  background: #f2dede !important;
+  border: 0 !important;
+  padding: 15px 20px !important;
+  border-radius: 6px !important;
+  color: #a94442 !important;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.2), 0 1px 5px 0 rgba(0,0,0,0.12) !important;
+}
+
+footer {
+  color: #999999 !important;
+  font-size: 12px !important;
+}
+
+.o-box--highlight {
+  border-left: 3px solid #31EC56 !important;
+  padding-left: 20px !important;
+}

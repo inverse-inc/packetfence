@@ -1,0 +1,187 @@
+/**
+ * University Theme - Divi Style
+ * Elegant, sophisticated with rounded elements
+ * Colors: Purple (#4F0341), White, Light accents
+ */
+
+/* Divi-inspired Typography - Elegant and refined */
+html, body {
+  font-family: 'Open Sans', Helvetica, Arial, Lucida, sans-serif !important;
+  font-size: 14px;
+  line-height: 1.7em;
+  color: #666666 !important;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  line-height: 1em !important;
+  color: #333333 !important;
+  padding-bottom: 10px;
+}
+
+h1 { font-size: 30px !important; }
+h2 { font-size: 26px !important; }
+h3 { font-size: 22px !important; }
+
+/* Elegant background */
+html {
+  background: #ffffff !important;
+}
+
+header {
+  background: #ffffff !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+}
+
+.c-frame {
+  background: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1) !important;
+  padding: 50px !important;
+}
+
+/* Divi-style buttons - Elegant and rounded */
+.c-btn--primary, a.c-btn--primary {
+  background: #4F0341 !important;
+  color: #ffffff !important;
+  border: 2px solid transparent !important;
+  border-radius: 3px !important;
+  padding: 16px 28px !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  line-height: 1em !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  transition: all 0.4s ease-in-out !important;
+  box-shadow: none !important;
+}
+
+.c-btn--primary:hover, .c-btn--primary:focus,
+a.c-btn--primary:hover, a.c-btn--primary:focus {
+  background: rgba(79, 3, 65, 0) !important;
+  color: #4F0341 !important;
+  border: 2px solid #4F0341 !important;
+  transform: none !important;
+}
+
+.c-btn--secondary, a.c-btn--secondary {
+  background: transparent !important;
+  color: #666666 !important;
+  border: 2px solid #666666 !important;
+  border-radius: 3px !important;
+  padding: 14px 26px !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  transition: all 0.4s ease-in-out !important;
+}
+
+.c-btn--secondary:hover, .c-btn--secondary:focus,
+a.c-btn--secondary:hover, a.c-btn--secondary:focus {
+  background: #666666 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  color: #4F0341 !important;
+  background: transparent !important;
+  border: none !important;
+  text-decoration: none !important;
+  padding: 15px 0 !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  position: relative !important;
+}
+
+.c-btn--tertiary:after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #4F0341;
+  transition: width 0.3s ease;
+}
+
+/* Links - Divi style */
+a, a:visited {
+  color: #4F0341 !important;
+  text-decoration: none !important;
+  transition: all 0.4s ease-in-out !important;
+}
+
+a:hover {
+  color: #3a022f !important;
+}
+
+/* Input fields - Elegant Divi style */
+.input-container input,
+.input-container select {
+  border: 0 !important;
+  border-bottom: 1px solid #ddd !important;
+  border-radius: 0 !important;
+  padding: 10px 0 !important;
+  font-size: 14px !important;
+  line-height: 1.7em !important;
+  background: transparent !important;
+  transition: all 0.4s ease-in-out !important;
+}
+
+.input-container input:focus,
+.input-container select:focus {
+  border-bottom-color: #4F0341 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.input-container label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #666666 !important;
+  margin-bottom: 10px !important;
+}
+
+/* Visual elements */
+.dot div {
+  border: 2px solid #4F0341 !important;
+  border-radius: 3px;
+}
+
+.dot--active div, .dot:hover div {
+  background: #4F0341 !important;
+}
+
+.c-iconic use {
+  fill: #666666 !important;
+}
+
+/* Notifications - Divi style */
+.o-media--notice {
+  background: #e9f7ea !important;
+  border: 0 !important;
+  padding: 20px 30px !important;
+  border-radius: 3px !important;
+  color: #4caf50 !important;
+}
+
+.o-media--error {
+  background: #feebee !important;
+  border: 0 !important;
+  padding: 20px 30px !important;
+  border-radius: 3px !important;
+  color: #f44336 !important;
+}
+
+footer {
+  color: #999999 !important;
+  font-size: 14px !important;
+}
+
+.o-box--highlight {
+  border-left: 3px solid #4F0341 !important;
+  padding-left: 30px !important;
+}

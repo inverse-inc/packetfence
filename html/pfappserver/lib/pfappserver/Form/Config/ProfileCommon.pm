@@ -696,13 +696,15 @@ Returns the list of available portal CSS themes
 sub options_portal_css_theme {
     return (
         { value => 'default', label => 'Default' },
-        { value => 'hotel', label => 'Hotel' },
-        { value => 'restaurant', label => 'Restaurant' },
-        { value => 'sport-event', label => 'Sport Event' },
-        { value => 'fastfood', label => 'Fast Food' },
-        { value => 'university', label => 'University' },
-        { value => 'retail', label => 'Retail' },
-        { value => 'home', label => 'Home' },
+        { value => 'astra', label => 'Astra (Hotel/Business)' },
+        { value => 'generatepress', label => 'GeneratePress (Restaurant)' },
+        { value => 'oceanwp', label => 'OceanWP (Sport Event)' },
+        { value => 'neve', label => 'Neve (Fast Food)' },
+        { value => 'divi', label => 'Divi (University/Education)' },
+        { value => 'hestia', label => 'Hestia (Retail/Shop)' },
+        { value => 'blocksy', label => 'Blocksy (Home/Residential)' },
+        { value => 'material', label => 'Material Design (Modern/Tech)' },
+        { value => 'bootstrap', label => 'Bootstrap (Classic/Utility)' },
     );
 }
 
