@@ -1,110 +1,17 @@
 package captiveportal::DynamicRouting::Module::StatusSSO;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::StatusSSO'; }
 
 =head1 NAME
 
-DynamicRouting::StatusSSO
+captiveportal::DynamicRouting::Module::StatusSSO - Status SSO module for captiveportal
 
 =head1 DESCRIPTION
 
 Status SSO module for Dynamic Routing - handles SSO authentication for status page validation
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Chained';
-with 'captiveportal::Role::Routed';
-
-has '+route_map' => (default => sub {
-    tie my %map, 'Tie::IxHash', (
-        '/logout' => \&logout,
-    );
-    return \%map;
-
-});
-
-use pf::log;
-use pf::util;
-use pf::CHI;
-use pf::constants qw($TRUE);
-use Bytes::Random::Secure;
-
-sub cache { return pf::CHI->new(namespace => 'portalstatus'); }
-
-has '+parent' => (required => 0);
-
-=head2 around done
-
-Once this is done, we release the user on the network
-
-=cut
-
-around 'done' => sub {
-    my ($orig, $self) = @_;
-    if($self->execute_actions()){
-        $self->release();
-    }
-    else {
-        $self->app->reset_session();
-        $self->redirect_root();
-    }
-};
-
-=head2 logout
-
-Logout of the captive portal
-
-=cut
-
-sub logout {
-    my ($self) = @_;
-    my $callback = $self->app->session->{callback};
-    $self->app->reset_session;
-    $self->app->redirect($callback."?error=canceled");
-}
-
-=head2 release
-
-Reevaluate the access of the user and show the release page
-
-=cut
-
-sub release {
-    my ($self) = @_;
-    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{status_session_token});
-}
-
-=head2 execute_child
-
-Execute the flow for this module
-
-=cut
-
-sub execute_child {
-    my ($self) = @_;
-    if ($self->app->request->param('callback')) {
-        $self->app->session->{callback} = $self->app->request->param('callback');
-    }
-
-    $self->SUPER::execute_child();
-}
-
-=head2 execute_actions
-
-Register the device and apply the new node info
-
-=cut
-
-sub execute_actions {
-    my ($self) = @_;
-    my $rand = Bytes::Random::Secure->new(
-            Bits        => 64,
-            NonBlocking => 1,
-        );
-    my $token = unpack("H*", $rand->bytes(32));
-    cache->set($token, $self->new_node_info);
-    $self->{status_session_token} = $token;
-    return $TRUE;
-}
 
 =head1 AUTHOR
 
