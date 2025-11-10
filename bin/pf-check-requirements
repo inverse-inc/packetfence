@@ -1,0 +1,58 @@
+#!/usr/bin/perl -T
+=head1 NAME
+
+pf-check-requirements - Check system hardware requirements for PacketFence
+
+=head1 SYNOPSIS
+
+pf-check-requirements
+
+Check if system meets recommended hardware requirements:
+- RAM: 8 GB minimum
+- CPU: 8 cores minimum
+- Disk: 50 GB minimum
+
+=cut
+
+use strict;
+use warnings;
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+
+# force UID/EUID to root
+$> = 0;
+$< = 0;
+
+# To ensure group permissions are properly added
+umask(0007);
+$ENV{PATH} = "/sbin:/usr/sbin:/bin:/usr/bin";
+delete $ENV{BASH_ENV};
+
+use pf::cmd::pf::checkrequirements;
+exit pf::cmd::pf::checkrequirements->new({args => \@ARGV})->run();
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2025 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and::or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut

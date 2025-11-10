@@ -14,6 +14,7 @@ pfcmd <command> [options]
 
  Commands
   cache                       | manage the cache subsystem
+  checkrequirements           | check system hardware requirements (RAM, CPU, disk)
   checkup                     | perform a sanity checkup and report any problems
   class                       | view security event classes
   configreload                | reload the configution
