@@ -955,6 +955,7 @@ fi
                         /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/get_pf_conf
+%attr(0755, pf, pf)     /usr/local/pf/bin/pf-check-requirements
 %attr(0755, pf, pf)     /usr/local/pf/bin/proxysql-read-only-handler.sh
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
@@ -1019,7 +1020,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
@@ -1369,6 +1369,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
+%dir                    /usr/local/pf/lib/pf/cmd
+                        /usr/local/pf/lib/pf/cmd/*
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
 %dir                    /usr/local/pf/lib/pf/Portal
