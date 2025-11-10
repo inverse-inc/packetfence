@@ -8,13 +8,14 @@ function clean() {
   chmod a+rw $ISO_OUT
 }
 
-ISO_IN=${ISO_IN:-debian-12.6.0-amd64-netinst.iso}
+DEBIAN_VERSION=12.12.0
+ISO_IN=${ISO_IN:-debian-$DEBIAN_VERSION-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
 trap clean EXIT
 
 if ! [ -f $ISO_IN ]; then
-	wget https://cdimage.debian.org/cdimage/archive/12.12.0/amd64/iso-cd/$ISO_IN
+	wget https://cdimage.debian.org/cdimage/archive/$DEBIAN_VERSION/amd64/iso-cd/$ISO_IN
 fi
 
 rm -fr isofiles/
