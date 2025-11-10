@@ -1540,6 +1540,15 @@ sub iptables_fingerbank_collector_rules {
         util_safe_push( "-i $tint -p tcp -m tcp --dport 4723 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p udp -m udp --dport 4739 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Add rules for interfaces with radius additional daemon
+        foreach my $tint ( @radius_ints ) {
+            my $tint = $network->{Tint};
+            util_safe_push( "-i $tint -p udp -m udp --dport 1192 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 2055 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 4723 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 4739 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        }
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {
