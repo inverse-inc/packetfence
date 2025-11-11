@@ -20,8 +20,14 @@ chown mysql: /run/mysqld/
 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/reset-root.log 2>&1 &
 MYSQLD_PID=$!
 # Wait for mysqld to finish processing init-file (max 10 seconds)
-sleep 2
-# Shutdown mysqld gracefully
+TIMEOUT=10
+INTERVAL=0.5
+ELAPSED=0
+while kill -0 $MYSQLD_PID 2>/dev/null && (( $(echo "$ELAPSED < $TIMEOUT" | bc) )); do
+    sleep $INTERVAL
+    ELAPSED=$(echo "$ELAPSED + $INTERVAL" | bc)
+done
+# Shutdown mysqld gracefully if still running
 kill $MYSQLD_PID 2>/dev/null || true
 wait $MYSQLD_PID 2>/dev/null || true
 rm -f /tmp/reset-root.sql
