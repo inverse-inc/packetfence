@@ -214,11 +214,15 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Install PacketFence with environment set for installer mode
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+# Download PacketFence package without installing
+apt-get download packetfence
 
-# Override the run-docker-in-debian-installer.sh script to do nothing in chroot
-# The real script tries to mount cgroups and load modules which won't work here
+# Extract the package
+dpkg-deb -x packetfence_*.deb /tmp/pf-extract
+dpkg-deb -e packetfence_*.deb /tmp/pf-control
+
+# Create dummy Docker script before installation
+mkdir -p /usr/local/pf/containers
 cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
 #!/bin/bash
 # Dummy script for live-build chroot environment
@@ -229,9 +233,19 @@ exit 0
 EOFDOCKER
 chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
 
-# Re-run the postinst configure step now that we've replaced the Docker script
-# This should complete successfully now
-dpkg --configure packetfence || true
+# Use dpkg-divert to ensure our dummy script is not overwritten
+dpkg-divert --add --rename --divert /usr/local/pf/containers/run-docker-in-debian-installer.sh.real \
+    /usr/local/pf/containers/run-docker-in-debian-installer.sh
+
+# Now install PacketFence - it will use our dummy script
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+
+# Clean up
+rm -f packetfence_*.deb
+rm -rf /tmp/pf-extract /tmp/pf-control
+
+# Remove the diversion (the real script can be restored on first boot if needed)
+dpkg-divert --remove /usr/local/pf/containers/run-docker-in-debian-installer.sh || true
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
