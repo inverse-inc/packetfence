@@ -17,3 +17,33 @@ mkdir /run/mysqld
 chown mysql: /run/mysqld/
 timeout 10 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/reset-root.log 2>&1
 rm -f /tmp/reset-root.sql
+
+# Add custom message to display before login prompt
+cat > /etc/issue << 'EOF'
+
+================================================================================
+  This VM has been installed with PacketFence net install ISO
+  
+  - SSH root access by password has been granted
+  - You can find the admin GUI on https://\4{eth0}:1443/
+  
+  Note: Replace the IP address with your VM's actual IP if not using eth0
+  
+  To update or delete this message, edit or remove /etc/issue
+================================================================================
+
+EOF
+
+# Also add to /etc/issue.net for SSH sessions
+cat > /etc/issue.net << 'EOF'
+
+================================================================================
+  This VM has been installed with PacketFence net install ISO
+  
+  - SSH root access by password has been granted
+  - You can find the admin GUI on https://VM_IP:1443/
+  
+  To update or delete this message, edit or remove /etc/issue.net
+================================================================================
+
+EOF
