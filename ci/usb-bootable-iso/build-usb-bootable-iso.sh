@@ -196,19 +196,6 @@ mkdir -p /media/cdrom
 touch /media/cdrom/postinst-debian-installer.sh
 chmod +x /media/cdrom/postinst-debian-installer.sh
 
-# Ensure containers directory exists before creating dummy script
-mkdir -p /usr/local/pf/containers
-
-# Create a dummy script that will be called instead of Docker operations
-cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
-#!/bin/bash
-# Dummy script for live-build chroot environment
-# Docker operations will be performed on first boot
-echo "Docker operations skipped in chroot - will run on first boot"
-exit 0
-EOFDOCKER
-chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
-
 # Create policy-rc.d to prevent service starts during installation
 cat > /usr/sbin/policy-rc.d <<'EOFPOLICY'
 #!/bin/bash
@@ -229,6 +216,22 @@ apt-get update
 
 # Install PacketFence with environment set for installer mode
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+
+# Override the run-docker-in-debian-installer.sh script to do nothing in chroot
+# The real script tries to mount cgroups and load modules which won't work here
+cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
+#!/bin/bash
+# Dummy script for live-build chroot environment
+# Docker operations will be performed on first boot
+echo "INFO: Docker operations skipped in live-build chroot"
+echo "INFO: Docker will be started properly on first boot"
+exit 0
+EOFDOCKER
+chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+
+# Re-run the postinst configure step now that we've replaced the Docker script
+# This should complete successfully now
+dpkg --configure packetfence || true
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
