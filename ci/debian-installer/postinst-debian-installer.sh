@@ -13,9 +13,17 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downlo
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 apt-get update
 apt-get install packetfence -y
-mkdir /run/mysqld
+# Reset MariaDB root password to empty for PacketFence
+# This is required because the ISO installer environment skips this in the package postinst
+mkdir -p /run/mysqld
 chown mysql: /run/mysqld/
-timeout 10 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/reset-root.log 2>&1
+mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/reset-root.log 2>&1 &
+MYSQLD_PID=$!
+# Wait for mysqld to finish processing init-file (max 10 seconds)
+sleep 2
+# Shutdown mysqld gracefully
+kill $MYSQLD_PID 2>/dev/null || true
+wait $MYSQLD_PID 2>/dev/null || true
 rm -f /tmp/reset-root.sql
 
 # Add custom message to display before login prompt
