@@ -26,16 +26,17 @@ kill $MYSQLD_PID 2>/dev/null || true
 wait $MYSQLD_PID 2>/dev/null || true
 rm -f /tmp/reset-root.sql
 
+# Detect primary non-loopback IPv4 address
+VM_IP=$(ip -4 addr show scope global | awk '/inet / {print $2}' | cut -d/ -f1 | head -n1)
+
 # Add custom message to display before login prompt
-cat > /etc/issue << 'EOF'
+cat > /etc/issue <<EOF
 
 ================================================================================
   This VM has been installed with PacketFence net install ISO
   
   - SSH root access by password has been granted
-  - You can find the admin GUI on https://\4{eth0}:1443/
-  
-  Note: Replace the IP address with your VM's actual IP if not using eth0
+  - You can find the admin GUI on https://${VM_IP}:1443/
   
   To update or delete this message, edit or remove /etc/issue
 ================================================================================
