@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"maps"
 	"net/http"
 	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -16,6 +18,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
 )
+
+const defaultSearchLimit int = 25
 
 type reportOptionsColumn struct {
 	Text     string `json:"text"`
@@ -33,13 +37,14 @@ type reportQueryField struct {
 }
 
 type reportOptionsResponse struct {
+	RespBody
 	ReportMeta struct {
 		Id               string                `json:"id"`
 		Description      string                `json:"description"`
 		HasCursor        bool                  `json:"has_cursor"`
 		HasLimit         bool                  `json:"has_limit"`
 		HasDateRange     bool                  `json:"has_date_range"`
-		DefaultLimit     string                `json:"default_limit"`
+		DefaultLimit     string                `json:"default_limit,omitempty"`
 		DateLimit        string                `json:"date_limit,omitempty"`
 		DefaultStartDate string                `json:"default_start_date,omitempty"`
 		DefaultEndDate   string                `json:"default_end_date,omitempty"`
@@ -47,8 +52,19 @@ type reportOptionsResponse struct {
 		Charts           []string              `json:"charts"`
 		QueryFields      []reportQueryField    `json:"query_fields"`
 	} `json:"report_meta"`
-	Status int `json:"status"`
 }
+
+type reportSearchParams struct {
+	Id        string   `json:"id"` // ignore it
+	Limit     int      `json:"limit,omitempty"`
+	Fields    []string `json:"fields"` // abstract only
+	StartDate string   `json:"start_date,omitempty"`
+	EndDate   string   `json:"end_date,omitempty"`
+	Query     any      `json:"query,omitempty"` // abstract only
+	Cursor    []string `json:"cursor,omitempty"`
+}
+
+type reportSearchFieldQuery = map[string]any
 
 var CachedReportConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Reports{}))
 
@@ -64,7 +80,7 @@ func NewDynamicReport(ctx context.Context, dbp **gorm.DB) *DynamicReport {
 	}
 }
 
-func getReports(r *http.Request) (map[string]pfconfigdriver.ReportOptions, error) {
+func getReports(r *http.Request) (map[string]pfconfigdriver.Report, error) {
 	o, err := CachedReportConfig.Value(r.Context())
 	if err != nil {
 		return nil, err
@@ -112,10 +128,6 @@ func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httpro
 	outputResult(w, body)
 }
 
-func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	w.WriteHeader(http.StatusNoContent)
-}
-
 func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
 	startDate := "000-00-00 00:00:00"
 	endDate := "999-12-31 23:59:59"
@@ -140,7 +152,7 @@ func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
 	return startDate, endDate
 }
 
-func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.ReportOptions) {
+func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.Report) {
 	// Match TEXT in: foo [as ][\]"TEXT[\]"
 	// All possible format: foo as \"bar\" | foo "bar" | "foo \"bar\"" | "bar"
 	regexp := regexp.MustCompile(`^\S+\s+(?:as\s)?\\?\"(.+)\\?\"`)
@@ -167,7 +179,7 @@ func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.R
 	}
 }
 
-func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report *pfconfigdriver.ReportOptions) {
+func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report *pfconfigdriver.Report) {
 	// Copy paste values
 	options.ReportMeta.Id = report.Id
 	options.ReportMeta.Description = report.Description
@@ -199,28 +211,139 @@ func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p ht
 	id := p.ByName("id")
 	reports, err := getReports(r)
 	if err != nil {
-		setError(&body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
-		outputResult(w, body)
+		outputError(w, &body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
 		return
 	}
 	report, ok := reports[id]
 	if !ok {
-		setError(&body, errors.New("Report not found"), http.StatusNotFound)
-		outputResult(w, body)
+		outputError(w, &body, errors.New("Report not found"), http.StatusNotFound)
 		return
 	}
-	options := reportOptionsResponse{Status: http.StatusOK}
+	var options reportOptionsResponse
 	fillOptionsStruct(a, &options, &report)
-	data, err := json.Marshal(&options)
+	options.Status = http.StatusOK
+	outputResultRaw(w, &options, options.Status)
+}
+
+func validateSearchPayload(opts map[string]string, payload reportSearchParams, report *pfconfigdriver.Report) []error {
+	errLst := make([]error, 0, 8)
+	if slices.Contains(report.Bindings, "limit") {
+		var tmp string
+		if payload.Limit != 0 {
+			tmp = strconv.Itoa(payload.Limit)
+		} else if len(report.DefaultLimit) != 0 {
+			tmp = report.DefaultLimit
+		} else {
+			tmp = strconv.Itoa(defaultSearchLimit)
+		}
+		opts["limit"] = tmp
+	}
+	if sharedutils.IsEnabled(report.HasDateRange) {
+		if slices.Contains(report.Bindings, "start_date") {
+			if len(payload.StartDate) == 0 {
+				errLst = append(errLst, errors.New("start_date must have a value"))
+			} else {
+				opts["start_data"] = payload.StartDate
+			}
+		} else {
+			errLst = append(errLst, errors.New("start_date must have a value"))
+		}
+		if slices.Contains(report.Bindings, "end_date") {
+			if len(payload.EndDate) == 0 {
+				errLst = append(errLst, errors.New("end_date must have a value"))
+			} else {
+				opts["end_date"] = payload.EndDate
+			}
+		} else {
+			errLst = append(errLst, errors.New("end_date must have a value"))
+		}
+	} // else ignore even if start_date and end_date in query
+	// cursorRe := regexp.MustCompile(`^cursor(\.\d)?$`)
+	if slices.Contains(report.Bindings, "cursor") {
+		if report.CursorType == "offset" {
+			opts["cursor"] = payload.Cursor[0] // if not present it's 0 anyway
+		} else {
+			// manage multi cursor, cursor.0, cursor.1, cursor.0 ....
+			opts["cursor"] = report.CursorDefault[0]
+		}
+	}
+	return errLst
+}
+
+func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearchFieldQuery, error) {
+	regexp := regexp.MustCompile(`\\n\s*`)
+	cleanSql := regexp.ReplaceAllString(sql, " ")
+	rows, err := (*db).Raw(cleanSql, bindings...).Rows()
 	if err != nil {
-		setError(&body, err, http.StatusInternalServerError)
+		return nil, errors.New("Cannot execute sql: " + err.Error())
+	}
+	defer rows.Close()
+	var items []reportSearchFieldQuery
+	for rows.Next() {
+		var tmp reportSearchFieldQuery
+		err = (*db).ScanRows(rows, &tmp)
+		if err != nil {
+			return nil, errors.New("Cannot read data: " + err.Error())
+		}
+		items = append(items, tmp)
+	}
+	return items, nil
+}
+
+func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	var body RespBody
+	id := p.ByName("id")
+	reports, err := getReports(r)
+	if err != nil {
+		outputError(w, &body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
+		return
+	}
+	report, ok := reports[id]
+	if !ok {
+		outputError(w, &body, errors.New("Report not found"), http.StatusNotFound)
+		return
+	}
+	defer r.Body.Close()
+	var payload reportSearchParams
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		outputError(w, &body, errors.New("Cannot parse request: "+err.Error()), http.StatusBadRequest)
+		return
+	}
+	options := make(map[string]string, 8)
+	validationErrors := validateSearchPayload(options, payload, &report)
+	if len(validationErrors) > 0 {
+		for _, e := range validationErrors {
+			setError(&body, e, http.StatusBadRequest)
+		}
 		outputResult(w, body)
 		return
 	}
-	// Do not use outputResult, since fields are at root, not under "item"
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(options.Status)
-	w.Write(data)
+	injectedBindings := make([]any, 0, 8)
+	bindingError := false
+	for _, binding := range report.Bindings {
+		e, ok := options[binding]
+		if !ok {
+			bindingError = true
+			setError(&body, errors.New("Missing binding: "+binding), http.StatusBadRequest)
+			continue
+		}
+		injectedBindings = append(injectedBindings, e)
+	}
+	if bindingError {
+		outputResult(w, body)
+		return
+	}
+	fmt.Println(injectedBindings)
+	items, err := executeSearchQuery(a.DBP, report.Sql, injectedBindings)
+	if err != nil {
+		outputError(w, &body, errors.New("Cannot execute search query: "+err.Error()),
+			http.StatusInternalServerError)
+		return
+	}
+	body.Items = items
+	body.Status = http.StatusOK
+	outputResult(w, body)
 }
 
 func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
