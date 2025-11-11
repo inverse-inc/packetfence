@@ -56,7 +56,7 @@ configure_live_build() {
         --linux-flavours amd64 \
         --bootappend-live "boot=live components quiet splash persistence net.ifnames=0 apparmor=0" \
         --bootappend-install "net.ifnames=0 apparmor=0" \
-        --bootloaders "grub-efi grub-pc syslinux" \
+        --bootloaders "grub-efi grub-pc" \
         --binary-images iso-hybrid \
         --iso-application "PacketFence" \
         --iso-publisher "Inverse Inc." \
