@@ -190,6 +190,25 @@ echo "=========================================="
 echo "Installing PacketFence..."
 echo "=========================================="
 
+# Create marker file to signal we're in an installer-like environment
+# This prevents the postinst script from trying to start Docker
+mkdir -p /media/cdrom
+touch /media/cdrom/postinst-debian-installer.sh
+chmod +x /media/cdrom/postinst-debian-installer.sh
+
+# Ensure containers directory exists before creating dummy script
+mkdir -p /usr/local/pf/containers
+
+# Create a dummy script that will be called instead of Docker operations
+cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
+#!/bin/bash
+# Dummy script for live-build chroot environment
+# Docker operations will be performed on first boot
+echo "Docker operations skipped in chroot - will run on first boot"
+exit 0
+EOFDOCKER
+chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+
 # Create policy-rc.d to prevent service starts during installation
 cat > /usr/sbin/policy-rc.d <<'EOFPOLICY'
 #!/bin/bash
@@ -208,23 +227,23 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Install PacketFence with policy-rc.d preventing service starts
-DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 apt-get install -y --no-install-recommends packetfence || {
-    # If installation fails, check if it's just because of post-install issues
-    # Configure the package anyway to complete the installation
-    dpkg --configure -a || true
-}
+# Install PacketFence with environment set for installer mode
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+
+# Clean up marker files
+rm -f /media/cdrom/postinst-debian-installer.sh
+rmdir /media/cdrom 2>/dev/null || true
 
 # Remove policy-rc.d
 rm -f /usr/sbin/policy-rc.d
 
-# Ensure services are stopped (in case they somehow started)
+# Ensure services are stopped
 systemctl stop packetfence-mariadb || true
 systemctl stop packetfence-redis-cache || true
+systemctl stop packetfence-config || true
+systemctl stop packetfence-httpd.admin_dispatcher || true
+systemctl stop packetfence-haproxy-admin || true
 systemctl stop packetfence || true
-
-# Docker won't be available in chroot, so we skip docker image operations
-# Images will be downloaded on first boot
 
 echo "=========================================="
 echo "PacketFence installed successfully"
