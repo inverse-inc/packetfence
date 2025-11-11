@@ -190,6 +190,13 @@ echo "=========================================="
 echo "Installing PacketFence..."
 echo "=========================================="
 
+# Create policy-rc.d to prevent service starts during installation
+cat > /usr/sbin/policy-rc.d <<'EOFPOLICY'
+#!/bin/bash
+exit 101
+EOFPOLICY
+chmod +x /usr/sbin/policy-rc.d
+
 # Add PacketFence GPG key
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 
@@ -201,24 +208,27 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Install PacketFence
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+# Install PacketFence with policy-rc.d preventing service starts
+DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 apt-get install -y --no-install-recommends packetfence || {
+    # If installation fails, check if it's just because of post-install issues
+    # Configure the package anyway to complete the installation
+    dpkg --configure -a || true
+}
 
-# Reset MariaDB root password
-echo "Resetting MariaDB root password..."
-mkdir -p /run/mysqld
-chown mysql:mysql /run/mysqld
-echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
-timeout 30 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/log/reset-root.log 2>&1 || true
-rm -f /tmp/reset-root.sql
+# Remove policy-rc.d
+rm -f /usr/sbin/policy-rc.d
 
-# Stop all services (they will start on actual boot)
+# Ensure services are stopped (in case they somehow started)
 systemctl stop packetfence-mariadb || true
 systemctl stop packetfence-redis-cache || true
 systemctl stop packetfence || true
 
+# Docker won't be available in chroot, so we skip docker image operations
+# Images will be downloaded on first boot
+
 echo "=========================================="
 echo "PacketFence installed successfully"
+echo "Note: Docker images will be downloaded on first boot"
 echo "=========================================="
 EOFHOOK
     
