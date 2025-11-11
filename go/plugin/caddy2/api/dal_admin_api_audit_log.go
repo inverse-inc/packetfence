@@ -44,8 +44,29 @@ func setError(body *RespBody, err error, status int) {
 func outputResult(w http.ResponseWriter, body RespBody) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(body.Status)
-	res, _ := json.Marshal(body)
+	res, err := json.Marshal(body)
+	if err != nil {
+		outputError(w, &body, err, http.StatusInternalServerError)
+		return
+	}
 	w.Write(res)
+}
+
+func outputResultRaw(w http.ResponseWriter, data any, status int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(status)
+	res, err := json.Marshal(data)
+	if err != nil {
+		var body RespBody
+		outputError(w, &body, err, http.StatusInternalServerError)
+		return
+	}
+	w.Write(res)
+}
+
+func outputError(w http.ResponseWriter, body *RespBody, err error, status int) {
+	setError(body, err, status)
+	outputResult(w, *body)
 }
 
 func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
