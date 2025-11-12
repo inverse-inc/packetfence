@@ -214,12 +214,20 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Download the package first
+# First, install all dependencies without configuring packetfence
+echo "Installing PacketFence dependencies..."
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -d packetfence
+
+# Download the package
 echo "Downloading PacketFence package..."
 cd /tmp
 apt-get download packetfence
 
-# Unpack the package manually (this extracts files without running postinst)
+# Install dependencies first (everything except packetfence itself)
+echo "Installing dependencies and pre-dependencies..."
+DEBIAN_FRONTEND=noninteractive apt-get install -y -f || true
+
+# Now unpack the package (this extracts files without running postinst)
 echo "Unpacking PacketFence package..."
 dpkg --unpack packetfence_*.deb
 
