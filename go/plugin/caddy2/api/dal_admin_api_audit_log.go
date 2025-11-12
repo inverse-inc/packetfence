@@ -29,6 +29,21 @@ type RespBody struct {
 	Message string       `json:"message,omitempty"`
 }
 
+func NewRespBody() RespBody {
+	return RespBody{
+		DBRes: models.DBRes{
+			Item:       nil,
+			Items:      []any{},
+			Total:      nil,
+			NextCursor: nil,
+			PrevCursor: nil,
+		},
+		Status:  http.StatusOK,
+		Errors:  nil,
+		Message: "",
+	}
+}
+
 func NewAdminApiAuditLog(ctx context.Context, dbp **gorm.DB) *AdminApiAuditLog {
 	return &AdminApiAuditLog{
 		DBP: dbp,

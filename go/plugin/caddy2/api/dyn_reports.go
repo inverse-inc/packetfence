@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"maps"
 	"net/http"
 	"reflect"
@@ -196,7 +195,7 @@ func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report 
 	} else {
 		options.ReportMeta.HasCursor = true
 	}
-	defaultStartDate, defaultEndDate := "", ""
+	defaultStartDate, defaultEndDate := "", "" // empty string won't appear in json response
 	if sharedutils.IsEnabled(report.HasDateRange) {
 		defaultStartDate, defaultEndDate = getDefaultDateRange(a, report.DateLimit)
 	}
@@ -230,42 +229,67 @@ func validateSearchPayload(opts map[string]string, payload reportSearchParams, r
 	if slices.Contains(report.Bindings, "limit") {
 		var tmp string
 		if payload.Limit != 0 {
-			tmp = strconv.Itoa(payload.Limit)
+			tmp = strconv.Itoa(payload.Limit + 1)
 		} else if len(report.DefaultLimit) != 0 {
 			tmp = report.DefaultLimit
 		} else {
 			tmp = strconv.Itoa(defaultSearchLimit)
 		}
-		opts["limit"] = tmp
+		opts["limit"] = tmp // contains +1 to get the cursor of the next page
 	}
 	if sharedutils.IsEnabled(report.HasDateRange) {
 		if slices.Contains(report.Bindings, "start_date") {
 			if len(payload.StartDate) == 0 {
-				errLst = append(errLst, errors.New("start_date must have a value"))
+				errLst = append(errLst, errors.New("start_date has an invalid value"))
 			} else {
 				opts["start_data"] = payload.StartDate
 			}
 		} else {
-			errLst = append(errLst, errors.New("start_date must have a value"))
+			errLst = append(errLst, errors.New("start_date is required"))
 		}
 		if slices.Contains(report.Bindings, "end_date") {
 			if len(payload.EndDate) == 0 {
-				errLst = append(errLst, errors.New("end_date must have a value"))
+				errLst = append(errLst, errors.New("end_date has an invalid value"))
 			} else {
 				opts["end_date"] = payload.EndDate
 			}
 		} else {
-			errLst = append(errLst, errors.New("end_date must have a value"))
+			errLst = append(errLst, errors.New("end_date is required"))
 		}
 	} // else ignore even if start_date and end_date in query
-	// cursorRe := regexp.MustCompile(`^cursor(\.\d)?$`)
-	if slices.Contains(report.Bindings, "cursor") {
-		if report.CursorType == "offset" {
-			opts["cursor"] = payload.Cursor[0] // if not present it's 0 anyway
-		} else {
-			// manage multi cursor, cursor.0, cursor.1, cursor.0 ....
-			opts["cursor"] = report.CursorDefault[0]
+	switch report.CursorType {
+	case "offset":
+		if slices.Contains(report.Bindings, "cursor") {
+			if len(payload.Cursor) != 0 {
+				opts["cursor"] = payload.Cursor[0] // contains only one value
+			} else {
+				opts["cursor"] = "0"
+			}
 		}
+	case "field":
+		if slices.Contains(report.Bindings, "cursor") {
+			if len(payload.Cursor) != 0 {
+				opts["cursor"] = payload.Cursor[0] // contains only one value
+			} else {
+				opts["cursor"] = report.CursorDefault[0] // containes only on value
+			}
+		}
+	case "multi_field":
+		cursorRe := regexp.MustCompile(`^cursor\.(\d+)$`)
+		for _, binding := range report.Bindings {
+			if _, ok := opts[binding]; ok {
+				continue // skip already added cursors
+			}
+			if result := cursorRe.FindStringSubmatch(binding); result != nil {
+				index, _ := strconv.Atoi(result[1])
+				if len(payload.Cursor) >= index+1 {
+					opts[binding] = payload.Cursor[index]
+				} else {
+					opts[binding] = report.CursorDefault[index]
+				}
+			}
+		}
+	default: // nothing to do, should not happens
 	}
 	return errLst
 }
@@ -278,7 +302,7 @@ func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearc
 		return nil, errors.New("Cannot execute sql: " + err.Error())
 	}
 	defer rows.Close()
-	var items []reportSearchFieldQuery
+	items := []reportSearchFieldQuery{}
 	for rows.Next() {
 		var tmp reportSearchFieldQuery
 		err = (*db).ScanRows(rows, &tmp)
@@ -291,7 +315,7 @@ func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearc
 }
 
 func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body RespBody
+	body := NewRespBody()
 	id := p.ByName("id")
 	reports, err := getReports(r)
 	if err != nil {
@@ -310,7 +334,8 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		outputError(w, &body, errors.New("Cannot parse request: "+err.Error()), http.StatusBadRequest)
 		return
 	}
-	options := make(map[string]string, 8)
+	// Valide the payload and store binding data into a map for later use
+	options := make(map[string]string)
 	validationErrors := validateSearchPayload(options, payload, &report)
 	if len(validationErrors) > 0 {
 		for _, e := range validationErrors {
@@ -319,7 +344,8 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		outputResult(w, body)
 		return
 	}
-	injectedBindings := make([]any, 0, 8)
+	// Create the binding list in order. A binding can appear multiple time at different positions
+	injectedBindings := make([]any, 0)
 	bindingError := false
 	for _, binding := range report.Bindings {
 		e, ok := options[binding]
@@ -334,7 +360,6 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		outputResult(w, body)
 		return
 	}
-	fmt.Println(injectedBindings)
 	items, err := executeSearchQuery(a.DBP, report.Sql, injectedBindings)
 	if err != nil {
 		outputError(w, &body, errors.New("Cannot execute search query: "+err.Error()),
