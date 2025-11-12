@@ -214,19 +214,18 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Install PacketFence - let it fail during postinst (expected in chroot)
-# The package files will be unpacked, but postinst will fail when trying to run Docker
-set +e
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
-INSTALL_RESULT=$?
-set -e
+# Download the package first
+echo "Downloading PacketFence package..."
+cd /tmp
+apt-get download packetfence
 
-echo "Initial install exit code: $INSTALL_RESULT (non-zero expected)"
+# Unpack the package manually (this extracts files without running postinst)
+echo "Unpacking PacketFence package..."
+dpkg --unpack packetfence_*.deb
 
-# Now replace the Docker script with a dummy version
-# The files are already unpacked, so the script exists
+# Now the files are on disk, replace the Docker script before configuration
+echo "Replacing Docker installer script..."
 if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
-    echo "Replacing Docker installer script with dummy version..."
     cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
 #!/bin/bash
 # Dummy script for live-build chroot environment
@@ -236,13 +235,18 @@ echo "INFO: Docker will be started properly on first boot"
 exit 0
 EOFDOCKER
     chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+    echo "Docker script replaced successfully"
 else
-    echo "WARNING: Docker installer script not found at expected location"
+    echo "ERROR: Docker script not found after unpacking!"
+    ls -la /usr/local/pf/containers/ || echo "Directory does not exist"
 fi
 
-# Reconfigure the package with the dummy script in place
-echo "Reconfiguring PacketFence with dummy Docker script..."
-dpkg --configure packetfence || echo "Configuration completed with warnings (expected)"
+# Install dependencies and configure the package
+echo "Installing dependencies..."
+DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+
+# Clean up
+rm -f /tmp/packetfence_*.deb
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
