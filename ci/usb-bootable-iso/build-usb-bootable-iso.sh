@@ -298,6 +298,12 @@ systemctl enable packetfence-mariadb || true
 systemctl enable packetfence-redis-cache || true
 systemctl enable packetfence || true
 
+# Load pre-downloaded Docker images if they exist
+if [ -f /usr/local/pf/bin/load-predownloaded-images.sh ]; then
+    echo "Loading pre-downloaded Docker images..."
+    /usr/local/pf/bin/load-predownloaded-images.sh || echo "Warning: Some images failed to load"
+fi
+
 echo "=========================================="
 echo "System configuration completed"
 echo "=========================================="
@@ -478,6 +484,97 @@ EOFGRUB
     echo "==> GRUB menu created"
 }
 
+# Pre-download Docker images
+predownload_docker_images() {
+    echo "==> Pre-downloading Docker images..."
+    
+    # Check if Docker is available on the build host
+    if ! command -v docker &> /dev/null; then
+        echo "WARNING: Docker not available on build host. Images will be downloaded on first boot."
+        return 0
+    fi
+    
+    # Create directory for saved images
+    mkdir -p config/includes.chroot/usr/local/pf/var/docker-images
+    
+    # Read the build_id to get the tag/branch name
+    if [ -f ../../conf/build_id ]; then
+        source ../../conf/build_id
+    else
+        TAG_OR_BRANCH_NAME="${PF_VERSION}"
+    fi
+    
+    # Read registry URL from config
+    if [ -f ../../config.mk ]; then
+        KNK_REGISTRY_URL=$(grep 'KNK_REGISTRY_URL' ../../config.mk | cut -d'=' -f2 | tr -d ' ')
+    else
+        echo "WARNING: config.mk not found. Skipping image pre-download."
+        return 0
+    fi
+    
+    # List of container images to download
+    CONTAINER_IMAGES="pfconfig pfsetacls pfcmd radiusd-cli pfcron pfpki radiusd-eduroam pfqueue pfdns-connector api-frontend kafka httpd.admin_dispatcher radiusd-load-balancer pfconnector radiusd-auth ntlm-auth-api pfsso fingerbank-db haproxy-portal httpd.portal httpd.webservices pfperl-api pfldapexplorer proxysql radiusd-acct pfacct haproxy-admin httpd.dispatcher httpd.aaa pfstats netdata"
+    
+    echo "Downloading Docker images with tag: ${TAG_OR_BRANCH_NAME}"
+    
+    IMAGES_SAVED=0
+    for img in ${CONTAINER_IMAGES}; do
+        IMAGE_NAME="${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+        echo "  Pulling ${img}..."
+        
+        if docker pull -q "${IMAGE_NAME}" 2>/dev/null; then
+            # Save the image to a tar file
+            docker save "${IMAGE_NAME}" | gzip > "config/includes.chroot/usr/local/pf/var/docker-images/${img}.tar.gz"
+            IMAGES_SAVED=$((IMAGES_SAVED + 1))
+            echo "    ✓ Saved ${img}"
+        else
+            echo "    ✗ Failed to download ${img} (will be downloaded on first boot)"
+        fi
+    done
+    
+    if [ $IMAGES_SAVED -gt 0 ]; then
+        echo "==> Successfully pre-downloaded ${IMAGES_SAVED} Docker images"
+        
+        # Create a script to load images on first boot
+        cat > config/includes.chroot/usr/local/pf/bin/load-predownloaded-images.sh <<'EOFLOAD'
+#!/bin/bash
+# Load pre-downloaded Docker images
+
+IMAGE_DIR="/usr/local/pf/var/docker-images"
+
+if [ ! -d "$IMAGE_DIR" ]; then
+    echo "No pre-downloaded images found"
+    exit 0
+fi
+
+echo "Loading pre-downloaded Docker images..."
+IMAGE_COUNT=0
+
+for img_file in "$IMAGE_DIR"/*.tar.gz; do
+    if [ -f "$img_file" ]; then
+        echo "  Loading $(basename $img_file)..."
+        gunzip -c "$img_file" | docker load
+        IMAGE_COUNT=$((IMAGE_COUNT + 1))
+        # Remove the file after loading to save space
+        rm -f "$img_file"
+    fi
+done
+
+echo "Loaded $IMAGE_COUNT Docker images"
+
+# Remove the directory if empty
+rmdir "$IMAGE_DIR" 2>/dev/null || true
+
+exit 0
+EOFLOAD
+        chmod +x config/includes.chroot/usr/local/pf/bin/load-predownloaded-images.sh
+        
+    else
+        echo "==> No images were pre-downloaded"
+        rm -rf config/includes.chroot/usr/local/pf/var/docker-images
+    fi
+}
+
 # Build the ISO
 build_iso() {
     echo "==> Building ISO image..."
@@ -511,6 +608,7 @@ main() {
     create_hooks
     create_includes
     create_grub_menu
+    predownload_docker_images
     build_iso
     
     echo ""
