@@ -261,6 +261,15 @@ systemctl stop packetfence-httpd.admin_dispatcher || true
 systemctl stop packetfence-haproxy-admin || true
 systemctl stop packetfence || true
 
+# Kill any remaining processes to ensure clean unmount
+echo "Cleaning up processes..."
+killall -9 mysqld 2>/dev/null || true
+killall -9 redis-server 2>/dev/null || true
+killall -9 perl 2>/dev/null || true
+
+# Give processes time to terminate
+sleep 2
+
 echo "=========================================="
 echo "PacketFence installed successfully"
 echo "Note: Docker images will be downloaded on first boot"
