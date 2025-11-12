@@ -268,10 +268,6 @@ echo "PacketFence installed successfully"
 echo "Note: Docker images will be downloaded on first boot"
 echo "=========================================="
 EOFHOOK
-echo "PacketFence installed successfully"
-echo "Note: Docker images will be downloaded on first boot"
-echo "=========================================="
-EOFHOOK
     
     chmod +x config/hooks/normal/0100-install-packetfence.hook.chroot
     
