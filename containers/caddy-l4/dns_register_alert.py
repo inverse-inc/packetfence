@@ -22,6 +22,9 @@ def send_mail(client_id, smtp_user, smtp_password, smtp_from, smtp_host, smtp_po
     <body>
         <p>Hi {client_id}!</p>
         <p>The domain <b> {domain} </b> failed to resolve. Kindly create a DNS entry and try again.</p>
+        <br>
+        <p>Best regards,</p>
+        <p>Inverse team</p>
     </body>
     </html>
     """

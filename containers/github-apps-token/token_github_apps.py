@@ -118,12 +118,15 @@ def send_mail( smtp_password, error, client_name, smtp_from, smtp_user, smtp_hos
     <html>
     <body>
         <p>Hi {client_name}!</p>
-        <p>The next error was encountered during update of token: </p>
+        <p>The next error was encountered during update of fine graned token: </p>
         <p><b>{error}</b> </p>
         </br>
         <p>Other informations:</p>
             <p>Client namespace:  {k8s_namespace_name}</p>
             <p>Client secret name: {k8s_secret_name}</p>
+        </br>
+        <p>Best regards,</p>
+        <p>Inverse team</p>
     </body>
     </html>
     """
