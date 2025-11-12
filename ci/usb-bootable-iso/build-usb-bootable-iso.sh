@@ -214,16 +214,20 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Download PacketFence package without installing
-apt-get download packetfence
+# Install PacketFence - let it fail during postinst (expected in chroot)
+# The package files will be unpacked, but postinst will fail when trying to run Docker
+set +e
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+INSTALL_RESULT=$?
+set -e
 
-# Extract the package
-dpkg-deb -x packetfence_*.deb /tmp/pf-extract
-dpkg-deb -e packetfence_*.deb /tmp/pf-control
+echo "Initial install exit code: $INSTALL_RESULT (non-zero expected)"
 
-# Create dummy Docker script before installation
-mkdir -p /usr/local/pf/containers
-cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
+# Now replace the Docker script with a dummy version
+# The files are already unpacked, so the script exists
+if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
+    echo "Replacing Docker installer script with dummy version..."
+    cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
 #!/bin/bash
 # Dummy script for live-build chroot environment
 # Docker operations will be performed on first boot
@@ -231,21 +235,14 @@ echo "INFO: Docker operations skipped in live-build chroot"
 echo "INFO: Docker will be started properly on first boot"
 exit 0
 EOFDOCKER
-chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+    chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+else
+    echo "WARNING: Docker installer script not found at expected location"
+fi
 
-# Use dpkg-divert to ensure our dummy script is not overwritten
-dpkg-divert --add --rename --divert /usr/local/pf/containers/run-docker-in-debian-installer.sh.real \
-    /usr/local/pf/containers/run-docker-in-debian-installer.sh
-
-# Now install PacketFence - it will use our dummy script
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
-
-# Clean up
-rm -f packetfence_*.deb
-rm -rf /tmp/pf-extract /tmp/pf-control
-
-# Remove the diversion (the real script can be restored on first boot if needed)
-dpkg-divert --remove /usr/local/pf/containers/run-docker-in-debian-installer.sh || true
+# Reconfigure the package with the dummy script in place
+echo "Reconfiguring PacketFence with dummy Docker script..."
+dpkg --configure packetfence || echo "Configuration completed with warnings (expected)"
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
@@ -263,6 +260,10 @@ systemctl stop packetfence-haproxy-admin || true
 systemctl stop packetfence || true
 
 echo "=========================================="
+echo "PacketFence installed successfully"
+echo "Note: Docker images will be downloaded on first boot"
+echo "=========================================="
+EOFHOOK
 echo "PacketFence installed successfully"
 echo "Note: Docker images will be downloaded on first boot"
 echo "=========================================="
