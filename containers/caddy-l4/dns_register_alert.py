@@ -3,6 +3,7 @@ import urllib.request
 import socket
 from flask import Flask, request, jsonify
 import smtplib
+import ssl
 from email.mime.text import MIMEText
 import re
 import os.path
@@ -10,14 +11,12 @@ from os import getenv
 
 app = Flask(__name__)
 
-def send_mail(client_id, sender_email, client_email, inverse_admin_email, domain ):
+def send_mail(client_id, smtp_user, smtp_password, smtp_from, smtp_host, smtp_port, client_email, inverse_admin_email, domain):
     subject = f"[ PFaaS: {client_id} ] Error DNS resolution for {domain}"
-    sender = sender_email
     if client_email == None:
         client_email = inverse_admin_email
     recipients = [client_email, inverse_admin_email]
 
-    gmail_smtp_password=os.environ.get('GMAIL_SMTP_PASSWORD')
     body = """
     <html>
     <body>
@@ -29,11 +28,19 @@ def send_mail(client_id, sender_email, client_email, inverse_admin_email, domain
     body = body.format(domain=domain, client_id=client_id)
     msg = MIMEText(body, 'html')
     msg['Subject'] = subject
-    msg['From'] = sender
+    msg['From'] = smtp_from
     msg['To'] = ', '.join(recipients)
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-        smtp_server.login(sender, gmail_smtp_password)
-        smtp_server.sendmail(sender, recipients, msg.as_string())
+
+    # Create an SSL context enforcing TLS v1.2+
+    context = ssl.create_default_context()
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+
+    with smtplib.SMTP(smtp_host, smtp_port) as smtp_server:
+        smtp_server.ehlo()
+        smtp_server.starttls(context=context)  # Upgrade to TLS v1.2+
+        smtp_server.ehlo()
+        smtp_server.login(smtp_user, smtp_password)
+        smtp_server.sendmail(smtp_from, recipients, msg.as_string())
     print("Message sent!")
 
 def find_email(fqdn):
@@ -140,10 +147,13 @@ def check_domain():
         client_email=find_email(domain)
         client_id = find_id_by_fqdn_recursive(load_data_from_json(), domain)
         inverse_admin_email = getenv('INVERSE_ADMIN_EMAIL', 'dl-Inverse-All@akamai.com')
-        sender_email = getenv('SENDER_EMAIL', 'packetfenceaas@gmail.com')
-        send_mail(client_id, sender_email,client_email, inverse_admin_email, domain)
+        smtp_from = getenv('SMTP_FROM', 'packetfence-saas@akamai.com')
+        smtp_user = getenv('SMTP_USER', 'packetfence-saas')
+        smtp_host = getenv('SMTP_HOST', 'smtp-us.ser.proofpoint.com')
+        smtp_port = getenv('SMTP_PORT', '587')
+        smtp_password=os.environ.get('SMTP_PASSWORD')
+        send_mail(client_id, smtp_user, smtp_password, smtp_from, smtp_host, smtp_port, client_email, inverse_admin_email, domain)
         return jsonify({"domain": domain, "status": "not allowed"}), 404
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5555)

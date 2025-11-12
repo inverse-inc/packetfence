@@ -10,9 +10,9 @@ import time
 from base64 import b64encode
 import requests
 import smtplib
+import ssl
 from email.mime.text import MIMEText
 import re
-
 
 def b64encodestr(string):
     return b64encode(string.encode("utf-8")).decode()
@@ -111,9 +111,8 @@ def  generate_token(jwt_token, org_github_apps_id, github_client_repository_name
 
 
 
-def send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name ):
+def send_mail( smtp_password, error, client_name, smtp_from, smtp_user, smtp_host, smtp_port, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name ):
     subject = f"[ PFaaS: {client_id} ] Error token update"
-    sender = sender_email
     recipients = [client_email, inverse_admin_email]
     body = """
     <html>
@@ -131,13 +130,20 @@ def send_mail( gmail_smtp_password, error, client_name, sender_email, client_ema
     body = body.format(client_name=client_name, error=error, k8s_namespace_name=k8s_namespace_name, k8s_secret_name=k8s_secret_name )
     msg = MIMEText(body, 'html')
     msg['Subject'] = subject
-    msg['From'] = sender
+    msg['From'] = smtp_from
     msg['To'] = ', '.join(recipients)
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-        smtp_server.login(sender, gmail_smtp_password)
-        smtp_server.sendmail(sender, recipients, msg.as_string())
-    print("Message sent!")
 
+    context = ssl.create_default_context()
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+
+    # Use STARTTLS for secure connection
+    with smtplib.SMTP(smtp_host, smtp_port) as smtp_server:
+        smtp_server.ehlo()
+        smtp_server.starttls(context=context)
+        smtp_server.ehlo()
+        smtp_server.login(smtp_user, smtp_password)
+        smtp_server.sendmail(smtp_from, recipients, msg.as_string())
+    print("Message sent!")
 
 def email_type(value):
     RE_EMAIL = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
@@ -153,11 +159,14 @@ def main():
     parser.add_argument("--github_client_repository_name", default=os.environ.get('GITHUB_CLIENT_REPOSITORY_NAME'), help="GitHub client repostory name")
     parser.add_argument("--k8s_namespace_name", default=os.environ.get('K8S_NAMESPACE_NAME'), help="Kubernetes namespace name")
     parser.add_argument("--k8s_secret_name", default=os.environ.get('K8S_SECRET_NAME'), help="Kubernetes secret name")
-    parser.add_argument("--gmail_smtp_password", default=getenv('GMAIL_SMTP_PASSWORD'), help="Gmail SMTP secret")
     parser.add_argument("--client_name", default=getenv('CLIENT_NAME'), help="Client Name")
     parser.add_argument("--client_email", default=getenv('CLIENT_EMAIL'), type=email_type,  help="Client email")
     parser.add_argument("--inverse_admin_email", default=getenv('INVERSE_ADMIN_EMAIL', 'dl-Inverse-All@akamai.com'), help="Inverse Admin email")
-    parser.add_argument("--sender_email", default=getenv('SENDER_EMAIL', 'packetfenceaas@gmail.com'), help="Sender email")
+    parser.add_argument("--smtp_from", default=getenv('SMTP_FROM', 'packetfence-saas@akamai.com'), help="Sender email")
+    parser.add_argument("--smtp_user", default=getenv('SMTP_USER', 'packetfence-saas'), help="SMTP user")
+    parser.add_argument("--smtp_host", default=getenv('SMTP_HOST', 'smtp-us.ser.proofpoint.com'), help="SMTP host")
+    parser.add_argument("--smtp_port", default=getenv('SMTP_PORT', 587), help="SMTP port")
+    parser.add_argument("--smtp_password", default=getenv('SMTP_PASSWORD'), help="SMTP secret")
     args =  parser.parse_args()
 
     private_key_file=args.private_key_file
@@ -166,11 +175,14 @@ def main():
     github_client_repository_name=args.github_client_repository_name
     k8s_namespace_name=args.k8s_namespace_name
     k8s_secret_name=args.k8s_secret_name
-    gmail_smtp_password=args.gmail_smtp_password
     client_name=args.client_name
     client_email=args.client_email
     inverse_admin_email=args.inverse_admin_email
-    sender_email=args.sender_email
+    smtp_password=args.smtp_password
+    smtp_from=args.smtp_from
+    smtp_user=args.smtp_user
+    smtp_host=args.smtp_host
+    smtp_port=args.smtp_port
 
     if not private_key_file or not github_org_apps_id or not github_installed_apps_id or not k8s_namespace_name or not k8s_secret_name or not github_client_repository_name:
         exit(parser.print_usage())
@@ -180,7 +192,7 @@ def main():
     except Exception as e:
         error=f"Error: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( smtp_password, error, client_name, smtp_from, smtp_user, smtp_host, smtp_port, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 
@@ -189,7 +201,7 @@ def main():
     except RuntimeError as e:
         error=f"Error: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, sender_email,client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( smtp_password, error, client_name, smtp_from, smtp_user, smtp_host, smtp_port, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 # update the github_token
     try:
@@ -198,7 +210,7 @@ def main():
     except Exception as e:
         error=f"Error update k8s secret on { k8s_namespace_name }: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( smtp_password, error, client_name, smtp_from, smtp_user, smtp_host, smtp_port, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 # update the github_token
@@ -209,7 +221,7 @@ def main():
     except Exception as e:
         error=f"Error update k8s secret on { k8s_namespace_name }: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( smtp_password, error, client_name, smtp_from, smtp_user, smtp_host, smtp_port, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 if __name__ == '__main__':
