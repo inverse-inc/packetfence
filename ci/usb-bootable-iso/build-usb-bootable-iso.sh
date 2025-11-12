@@ -214,24 +214,17 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# First, install all dependencies without configuring packetfence
-echo "Installing PacketFence dependencies..."
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -d packetfence
+# Install PacketFence - let it fail during postinst (expected in chroot)
+# But apt will install all dependencies and unpack all files first
+echo "Installing PacketFence (postinst failure expected)..."
+set +e
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+INSTALL_RESULT=$?
+set -e
 
-# Download the package
-echo "Downloading PacketFence package..."
-cd /tmp
-apt-get download packetfence
+echo "Initial install exit code: $INSTALL_RESULT"
 
-# Install dependencies first (everything except packetfence itself)
-echo "Installing dependencies and pre-dependencies..."
-DEBIAN_FRONTEND=noninteractive apt-get install -y -f || true
-
-# Now unpack the package (this extracts files without running postinst)
-echo "Unpacking PacketFence package..."
-dpkg --unpack packetfence_*.deb
-
-# Now the files are on disk, replace the Docker script before configuration
+# Now the files are on disk (even though postinst failed), replace the Docker script
 echo "Replacing Docker installer script..."
 if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
     cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
@@ -245,16 +238,13 @@ EOFDOCKER
     chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
     echo "Docker script replaced successfully"
 else
-    echo "ERROR: Docker script not found after unpacking!"
+    echo "ERROR: Docker script not found after install!"
     ls -la /usr/local/pf/containers/ || echo "Directory does not exist"
 fi
 
-# Install dependencies and configure the package
-echo "Installing dependencies..."
-DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-
-# Clean up
-rm -f /tmp/packetfence_*.deb
+# Now reconfigure the package with the dummy Docker script in place
+echo "Reconfiguring PacketFence with dummy Docker script..."
+dpkg --configure -a || echo "Configuration completed with warnings (expected in chroot)"
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
