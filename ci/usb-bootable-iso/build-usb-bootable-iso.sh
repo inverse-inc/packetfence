@@ -261,14 +261,27 @@ systemctl stop packetfence-httpd.admin_dispatcher || true
 systemctl stop packetfence-haproxy-admin || true
 systemctl stop packetfence || true
 
+# Stop all user services and timers
+systemctl --user daemon-reload 2>/dev/null || true
+systemctl stop --all 2>/dev/null || true
+
 # Kill any remaining processes to ensure clean unmount
 echo "Cleaning up processes..."
 killall -9 mysqld 2>/dev/null || true
 killall -9 redis-server 2>/dev/null || true
 killall -9 perl 2>/dev/null || true
+killall -9 systemd-udevd 2>/dev/null || true
+killall -9 systemd-journald 2>/dev/null || true
 
-# Give processes time to terminate
-sleep 2
+# Sync filesystems
+sync
+
+# Give processes time to terminate and release file handles
+sleep 3
+
+# Try to lazy unmount any busy mounts in /sys
+umount -l /sys/fs/cgroup/* 2>/dev/null || true
+umount -l /sys/* 2>/dev/null || true
 
 echo "=========================================="
 echo "PacketFence installed successfully"
