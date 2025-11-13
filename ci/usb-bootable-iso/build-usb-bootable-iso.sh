@@ -331,6 +331,33 @@ EOFHOOK
     
     chmod +x config/hooks/normal/0200-system-configuration.hook.chroot
     
+    # Final cleanup hook - runs last to ensure clean unmount
+    cat > config/hooks/normal/9999-final-cleanup.hook.chroot <<'EOFHOOK'
+#!/bin/bash
+
+echo "=========================================="
+echo "Final cleanup before unmount..."
+echo "=========================================="
+
+# Stop all systemd services
+systemctl stop --all 2>/dev/null || true
+
+# Kill all running processes except init
+for pid in $(ps -eo pid | grep -v PID); do
+    if [ "$pid" != "1" ] && [ "$pid" != "$$" ]; then
+        kill -9 $pid 2>/dev/null || true
+    fi
+done
+
+# Sync and wait
+sync
+sleep 5
+
+echo "Cleanup completed"
+EOFHOOK
+    
+    chmod +x config/hooks/normal/9999-final-cleanup.hook.chroot
+    
     echo "==> Hooks created"
 }
 
