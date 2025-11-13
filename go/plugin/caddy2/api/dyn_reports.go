@@ -13,6 +13,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/wip"
 	"github.com/inverse-inc/packetfence/go/util"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
@@ -36,7 +37,6 @@ type reportQueryField struct {
 }
 
 type reportOptionsResponse struct {
-	RespBody
 	ReportMeta struct {
 		Id               string                `json:"id"`
 		Description      string                `json:"description"`
@@ -89,42 +89,34 @@ func getReports(r *http.Request) (map[string]pfconfigdriver.Report, error) {
 }
 
 func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body RespBody
+	var body wip.ApiBody
 	reports, err := getReports(r)
 	if err != nil {
-		setError(&body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
-		outputResult(w, body)
+		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	reportsAsArray := slices.Collect(maps.Values(reports))
-	body.Items = reportsAsArray
-	body.Status = http.StatusOK
-	outputResult(w, body)
+	body.ResponseItems(w, http.StatusOK, reportsAsArray)
 }
 
 func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body RespBody
+	var body wip.ApiBody
 	reports, err := getReports(r)
 	if err != nil {
-		setError(&body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
-		outputResult(w, body)
+		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	id := p.ByName("id")
 	if len(id) == 0 {
-		setError(&body, errors.New("No report id specified"), http.StatusBadRequest)
-		outputResult(w, body)
+		body.ReplyError(w, http.StatusBadRequest, wip.ApiError{Message: "report id required"})
 		return
 	}
 	item, ok := reports[id]
 	if !ok {
-		setError(&body, errors.New("Report not found"), http.StatusNotFound)
-		outputResult(w, body)
+		body.ReplyError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
 		return
 	}
-	body.Item = item
-	body.Status = http.StatusOK
-	outputResult(w, body)
+	body.ResponseItem(w, http.StatusOK, item)
 }
 
 func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
@@ -206,22 +198,21 @@ func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report 
 }
 
 func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body RespBody
+	var body wip.ApiBody
 	id := p.ByName("id")
 	reports, err := getReports(r)
 	if err != nil {
-		outputError(w, &body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
+		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	report, ok := reports[id]
 	if !ok {
-		outputError(w, &body, errors.New("Report not found"), http.StatusNotFound)
+		body.ReplyError(w, http.StatusNotFound, wip.ApiError{Message: "Report not found"})
 		return
 	}
 	var options reportOptionsResponse
 	fillOptionsStruct(a, &options, &report)
-	options.Status = http.StatusOK
-	outputResultRaw(w, &options, options.Status)
+	body.ResponseRaw(w, http.StatusOK, &options)
 }
 
 func validateSearchPayload(opts map[string]string, payload reportSearchParams, report *pfconfigdriver.Report) []error {
@@ -315,23 +306,23 @@ func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearc
 }
 
 func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	body := NewRespBody()
+	var body wip.ApiBody
 	id := p.ByName("id")
 	reports, err := getReports(r)
 	if err != nil {
-		outputError(w, &body, errors.New("Cannot get reports from cache: "+err.Error()), http.StatusInternalServerError)
+		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	report, ok := reports[id]
 	if !ok {
-		outputError(w, &body, errors.New("Report not found"), http.StatusNotFound)
+		body.ReplyError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
 		return
 	}
 	defer r.Body.Close()
 	var payload reportSearchParams
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		outputError(w, &body, errors.New("Cannot parse request: "+err.Error()), http.StatusBadRequest)
+		body.ReplyError(w, http.StatusBadRequest, wip.ApiError{Message: "cannot parse request: " + err.Error()})
 		return
 	}
 	// Valide the payload and store binding data into a map for later use
@@ -339,9 +330,9 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 	validationErrors := validateSearchPayload(options, payload, &report)
 	if len(validationErrors) > 0 {
 		for _, e := range validationErrors {
-			setError(&body, e, http.StatusBadRequest)
+			body.AddError(wip.ApiError{Message: e.Error()})
 		}
-		outputResult(w, body)
+		body.Error(w, http.StatusBadRequest)
 		return
 	}
 	// Create the binding list in order. A binding can appear multiple time at different positions
@@ -351,24 +342,21 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		e, ok := options[binding]
 		if !ok {
 			bindingError = true
-			setError(&body, errors.New("Missing binding: "+binding), http.StatusBadRequest)
+			body.AddError(wip.ApiError{Message: "missing binding: " + binding})
 			continue
 		}
 		injectedBindings = append(injectedBindings, e)
 	}
 	if bindingError {
-		outputResult(w, body)
+		body.Error(w, http.StatusInternalServerError)
 		return
 	}
 	items, err := executeSearchQuery(a.DBP, report.Sql, injectedBindings)
 	if err != nil {
-		outputError(w, &body, errors.New("Cannot execute search query: "+err.Error()),
-			http.StatusInternalServerError)
+		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "cannot execute search query: " + err.Error()})
 		return
 	}
-	body.Items = items
-	body.Status = http.StatusOK
-	outputResult(w, body)
+	body.ResponseItems(w, http.StatusOK, items)
 }
 
 func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
