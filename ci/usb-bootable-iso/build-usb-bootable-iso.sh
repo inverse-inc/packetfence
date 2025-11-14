@@ -196,20 +196,6 @@ mkdir -p /media/cdrom
 touch /media/cdrom/postinst-debian-installer.sh
 chmod +x /media/cdrom/postinst-debian-installer.sh
 
-# Create dummy Docker script BEFORE installing PacketFence
-# This ensures it's in place when postinst runs
-mkdir -p /usr/local/pf/containers
-cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
-#!/bin/bash
-# Dummy script for live-build chroot environment
-# Docker operations will be performed on first boot
-echo "INFO: Docker operations skipped in live-build chroot"
-echo "INFO: Docker will be started properly on first boot"
-exit 0
-EOFDOCKER
-chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
-echo "Dummy Docker script created"
-
 # Create policy-rc.d to prevent service starts during installation
 cat > /usr/sbin/policy-rc.d <<'EOFPOLICY'
 #!/bin/bash
@@ -237,9 +223,33 @@ apt-get install -y --no-install-recommends \
     docker.io \
     docker-compose
 
-# Now install PacketFence - it should complete successfully with our dummy Docker script
-echo "Installing PacketFence..."
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+# Download and unpack PacketFence package without configuring (running postinst)
+echo "Downloading and unpacking PacketFence..."
+apt-get install -y --no-install-recommends -d packetfence
+dpkg --unpack /var/cache/apt/archives/packetfence*.deb
+
+# Now replace the Docker script AFTER files are extracted but BEFORE postinst runs
+echo "Replacing Docker installer script..."
+if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
+    cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
+#!/bin/bash
+# Dummy script for live-build chroot environment
+# Docker operations will be performed on first boot
+echo "INFO: Docker operations skipped in live-build chroot"
+echo "INFO: Docker will be started properly on first boot"
+exit 0
+EOFDOCKER
+    chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+    echo "Docker script replaced successfully"
+else
+    echo "ERROR: Docker script not found after unpacking!"
+    ls -la /usr/local/pf/containers/ || echo "Directory does not exist"
+    exit 1
+fi
+
+# Now configure the package with the dummy Docker script in place
+echo "Configuring PacketFence with dummy Docker script..."
+dpkg --configure packetfence
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
