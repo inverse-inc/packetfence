@@ -10,7 +10,7 @@ import (
 
 // ApiError struct contains data to manage API response error
 type ApiError struct {
-	Code    int    `json:"code,omitzero"`   // custom code
+	Code    int    `json:"code,omitzero"`   // custom code, 0 not used
 	Field   string `json:"field,omitempty"` // what field is the error about
 	Op      string `json:"op,omitempty"`    // mostly used for the query API
 	Message string `json:"message"`         // message to show to the caller
@@ -19,7 +19,7 @@ type ApiError struct {
 // ApiPagination struct contains data to manage pagination
 // Cursor will mostly be of type int or string
 type ApiPagination struct {
-	Count      int  `json:"count,omitzero"`       // items in the current page
+	Count      *int `json:"count,omitempty"`      // items in the current page
 	Limit      *int `json:"limit,omitempty"`      // number of items per page
 	Total      *int `json:"total,omitempty"`      // total number of items
 	NextCursor any  `json:"nextCursor,omitempty"` // starting value(s) of next page
@@ -46,6 +46,10 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.IsZero()
 	}
 	return false
+}
+
+func isZeroValue(v reflect.Value) bool {
+	return v.IsZero()
 }
 
 // based on json/encode: https://cs.opensource.google/go/go/+/refs/tags/go1.25.4:src/encoding/json/encode.go
@@ -81,7 +85,7 @@ FieldLoop:
 						continue FieldLoop
 					}
 				} else if splitAlias[tagId] == "omitzero" {
-					if fieldValue.IsZero() {
+					if isZeroValue(fieldValue) {
 						continue FieldLoop
 					}
 				} else if splitAlias[tagId] == "-" {
