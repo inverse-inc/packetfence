@@ -357,6 +357,42 @@ EOFHOOK
     
     chmod +x config/hooks/normal/9999-final-cleanup.hook.chroot
     
+    # Binary hook - runs from host after chroot to ensure clean unmount
+    mkdir -p config/hooks/normal
+    cat > config/hooks/normal/0010-cleanup-chroot.binary <<'EOFHOOK'
+#!/bin/bash
+
+echo "=========================================="
+echo "Cleaning up chroot from host system..."
+echo "=========================================="
+
+CHROOT_DIR="chroot"
+
+# Kill all processes running in the chroot
+for pid in $(lsof -t +D "$CHROOT_DIR" 2>/dev/null); do
+    echo "Killing process $pid holding files in chroot"
+    kill -9 $pid 2>/dev/null || true
+done
+
+# Kill processes by chroot path
+for pid in $(fuser -m "$CHROOT_DIR" 2>/dev/null); do
+    echo "Killing process $pid using chroot filesystem"
+    kill -9 $pid 2>/dev/null || true
+done
+
+# Sync and wait
+sync
+sleep 2
+
+# Lazy unmount any remaining busy mounts
+umount -l "$CHROOT_DIR/sys/fs/cgroup" 2>/dev/null || true
+umount -l "$CHROOT_DIR/sys" 2>/dev/null || true
+
+echo "Chroot cleanup completed"
+EOFHOOK
+    
+    chmod +x config/hooks/normal/0010-cleanup-chroot.binary
+    
     echo "==> Hooks created"
 }
 
