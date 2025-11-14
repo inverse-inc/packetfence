@@ -428,7 +428,8 @@ sub TIEHASH {
     } else {
         $object = $proto->new(@args);
     }
-    die "cannot create a tied pf::IniFiles"
+    use Data::Dumper;
+    die "cannot create a tied pf::IniFiles: " . join(", ", @Config::IniFiles::errors)
         unless $object;
     return $object;
 }
