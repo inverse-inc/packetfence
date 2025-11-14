@@ -196,6 +196,20 @@ mkdir -p /media/cdrom
 touch /media/cdrom/postinst-debian-installer.sh
 chmod +x /media/cdrom/postinst-debian-installer.sh
 
+# Create dummy Docker script BEFORE installing PacketFence
+# This ensures it's in place when postinst runs
+mkdir -p /usr/local/pf/containers
+cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
+#!/bin/bash
+# Dummy script for live-build chroot environment
+# Docker operations will be performed on first boot
+echo "INFO: Docker operations skipped in live-build chroot"
+echo "INFO: Docker will be started properly on first boot"
+exit 0
+EOFDOCKER
+chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
+echo "Dummy Docker script created"
+
 # Create policy-rc.d to prevent service starts during installation
 cat > /usr/sbin/policy-rc.d <<'EOFPOLICY'
 #!/bin/bash
@@ -214,37 +228,18 @@ echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downl
 # Update package lists
 apt-get update
 
-# Install PacketFence - let it fail during postinst (expected in chroot)
-# But apt will install all dependencies and unpack all files first
-echo "Installing PacketFence (postinst failure expected)..."
-set +e
+# Install PacketFence dependencies first to ensure everything needed is available
+echo "Installing PacketFence dependencies..."
+apt-get install -y --no-install-recommends \
+    mariadb-server \
+    mariadb-client \
+    redis-server \
+    docker.io \
+    docker-compose
+
+# Now install PacketFence - it should complete successfully with our dummy Docker script
+echo "Installing PacketFence..."
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
-INSTALL_RESULT=$?
-set -e
-
-echo "Initial install exit code: $INSTALL_RESULT"
-
-# Now the files are on disk (even though postinst failed), replace the Docker script
-echo "Replacing Docker installer script..."
-if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
-    cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
-#!/bin/bash
-# Dummy script for live-build chroot environment
-# Docker operations will be performed on first boot
-echo "INFO: Docker operations skipped in live-build chroot"
-echo "INFO: Docker will be started properly on first boot"
-exit 0
-EOFDOCKER
-    chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
-    echo "Docker script replaced successfully"
-else
-    echo "ERROR: Docker script not found after install!"
-    ls -la /usr/local/pf/containers/ || echo "Directory does not exist"
-fi
-
-# Now reconfigure the package with the dummy Docker script in place
-echo "Reconfiguring PacketFence with dummy Docker script..."
-dpkg --configure -a || echo "Configuration completed with warnings (expected in chroot)"
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
@@ -253,39 +248,20 @@ rmdir /media/cdrom 2>/dev/null || true
 # Remove policy-rc.d
 rm -f /usr/sbin/policy-rc.d
 
-# Ensure services are stopped
+# Stop all PacketFence services to ensure clean state
+echo "Stopping PacketFence services..."
 systemctl stop packetfence-mariadb || true
 systemctl stop packetfence-redis-cache || true
-systemctl stop packetfence-config || true
-systemctl stop packetfence-httpd.admin_dispatcher || true
-systemctl stop packetfence-haproxy-admin || true
 systemctl stop packetfence || true
 
-# Stop all user services and timers
-systemctl --user daemon-reload 2>/dev/null || true
-systemctl stop --all 2>/dev/null || true
-
-# Kill any remaining processes to ensure clean unmount
-echo "Cleaning up processes..."
-killall -9 mysqld 2>/dev/null || true
-killall -9 redis-server 2>/dev/null || true
-killall -9 perl 2>/dev/null || true
-killall -9 systemd-udevd 2>/dev/null || true
-killall -9 systemd-journald 2>/dev/null || true
-
-# Sync filesystems
-sync
-
-# Give processes time to terminate and release file handles
-sleep 3
-
-# Try to lazy unmount any busy mounts in /sys
-umount -l /sys/fs/cgroup/* 2>/dev/null || true
-umount -l /sys/* 2>/dev/null || true
+# Disable services so they don't start during live-build operations
+# They will be re-enabled in the system configuration hook
+systemctl disable packetfence-mariadb || true
+systemctl disable packetfence-redis-cache || true
+systemctl disable packetfence || true
 
 echo "=========================================="
 echo "PacketFence installed successfully"
-echo "Note: Docker images will be downloaded on first boot"
 echo "=========================================="
 EOFHOOK
     
@@ -330,68 +306,6 @@ echo "=========================================="
 EOFHOOK
     
     chmod +x config/hooks/normal/0200-system-configuration.hook.chroot
-    
-    # Final cleanup hook - runs last to ensure clean unmount
-    cat > config/hooks/normal/9999-final-cleanup.hook.chroot <<'EOFHOOK'
-#!/bin/bash
-
-echo "=========================================="
-echo "Final cleanup before unmount..."
-echo "=========================================="
-
-# Stop all systemd services gracefully
-systemctl stop --all 2>/dev/null || true
-
-# Stop specific services that might hold /sys
-systemctl stop systemd-udevd systemd-journald systemd-logind 2>/dev/null || true
-
-# Kill any remaining database/service processes
-killall -9 mysqld mariadbd redis-server 2>/dev/null || true
-
-# Sync and wait for cleanup
-sync
-sleep 2
-
-echo "Cleanup completed"
-EOFHOOK
-    
-    chmod +x config/hooks/normal/9999-final-cleanup.hook.chroot
-    
-    # Binary hook - runs from host after chroot to ensure clean unmount
-    mkdir -p config/hooks/normal
-    cat > config/hooks/normal/0010-cleanup-chroot.binary <<'EOFHOOK'
-#!/bin/bash
-
-echo "=========================================="
-echo "Cleaning up chroot from host system..."
-echo "=========================================="
-
-CHROOT_DIR="chroot"
-
-# Kill all processes running in the chroot
-for pid in $(lsof -t +D "$CHROOT_DIR" 2>/dev/null); do
-    echo "Killing process $pid holding files in chroot"
-    kill -9 $pid 2>/dev/null || true
-done
-
-# Kill processes by chroot path
-for pid in $(fuser -m "$CHROOT_DIR" 2>/dev/null); do
-    echo "Killing process $pid using chroot filesystem"
-    kill -9 $pid 2>/dev/null || true
-done
-
-# Sync and wait
-sync
-sleep 2
-
-# Lazy unmount any remaining busy mounts
-umount -l "$CHROOT_DIR/sys/fs/cgroup" 2>/dev/null || true
-umount -l "$CHROOT_DIR/sys" 2>/dev/null || true
-
-echo "Chroot cleanup completed"
-EOFHOOK
-    
-    chmod +x config/hooks/normal/0010-cleanup-chroot.binary
     
     echo "==> Hooks created"
 }
@@ -578,19 +492,24 @@ predownload_docker_images() {
     
     # Create directory for saved images
     mkdir -p config/includes.chroot/usr/local/pf/var/docker-images
+    mkdir -p config/includes.chroot/usr/local/pf/bin
+    
+    # Determine paths relative to the script location
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PACKETFENCE_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
     
     # Read the build_id to get the tag/branch name
-    if [ -f ../../conf/build_id ]; then
-        source ../../conf/build_id
+    if [ -f "${PACKETFENCE_ROOT}/conf/build_id" ]; then
+        source "${PACKETFENCE_ROOT}/conf/build_id"
     else
         TAG_OR_BRANCH_NAME="${PF_VERSION}"
     fi
     
     # Read registry URL from config
-    if [ -f ../../config.mk ]; then
-        KNK_REGISTRY_URL=$(grep 'KNK_REGISTRY_URL' ../../config.mk | cut -d'=' -f2 | tr -d ' ')
+    if [ -f "${PACKETFENCE_ROOT}/config.mk" ]; then
+        KNK_REGISTRY_URL=$(grep 'KNK_REGISTRY_URL' "${PACKETFENCE_ROOT}/config.mk" | cut -d'=' -f2 | tr -d ' ')
     else
-        echo "WARNING: config.mk not found. Skipping image pre-download."
+        echo "WARNING: config.mk not found at ${PACKETFENCE_ROOT}/config.mk. Skipping image pre-download."
         return 0
     fi
     
