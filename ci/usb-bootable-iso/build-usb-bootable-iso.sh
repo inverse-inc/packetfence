@@ -223,12 +223,21 @@ apt-get install -y --no-install-recommends \
     docker.io \
     docker-compose
 
-# Download and unpack PacketFence package without configuring (running postinst)
-echo "Downloading and unpacking PacketFence..."
+# Download and unpack PacketFence and all dependencies without configuring
+echo "Downloading PacketFence and dependencies..."
 apt-get install -y --no-install-recommends -d packetfence
-dpkg --unpack /var/cache/apt/archives/packetfence*.deb
 
-# Now replace the Docker script AFTER files are extracted but BEFORE postinst runs
+# Unpack all downloaded packages
+echo "Unpacking all packages..."
+for deb in /var/cache/apt/archives/*.deb; do
+    dpkg --unpack "$deb" || true
+done
+
+# Configure all dependencies first (but not packetfence yet)
+echo "Configuring dependencies..."
+dpkg --configure --pending --skip-same-version packetfence || true
+
+# Now replace the Docker script AFTER files are extracted but BEFORE packetfence postinst runs
 echo "Replacing Docker installer script..."
 if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
     cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
@@ -247,7 +256,7 @@ else
     exit 1
 fi
 
-# Now configure the package with the dummy Docker script in place
+# Now configure packetfence with the dummy Docker script in place
 echo "Configuring PacketFence with dummy Docker script..."
 dpkg --configure packetfence
 
