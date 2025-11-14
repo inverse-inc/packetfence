@@ -339,19 +339,18 @@ echo "=========================================="
 echo "Final cleanup before unmount..."
 echo "=========================================="
 
-# Stop all systemd services
+# Stop all systemd services gracefully
 systemctl stop --all 2>/dev/null || true
 
-# Kill all running processes except init
-for pid in $(ps -eo pid | grep -v PID); do
-    if [ "$pid" != "1" ] && [ "$pid" != "$$" ]; then
-        kill -9 $pid 2>/dev/null || true
-    fi
-done
+# Stop specific services that might hold /sys
+systemctl stop systemd-udevd systemd-journald systemd-logind 2>/dev/null || true
 
-# Sync and wait
+# Kill any remaining database/service processes
+killall -9 mysqld mariadbd redis-server 2>/dev/null || true
+
+# Sync and wait for cleanup
 sync
-sleep 5
+sleep 2
 
 echo "Cleanup completed"
 EOFHOOK
