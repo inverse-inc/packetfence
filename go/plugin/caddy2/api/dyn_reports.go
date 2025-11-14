@@ -60,7 +60,7 @@ type reportSearchParams struct {
 	StartDate string   `json:"start_date,omitempty"`
 	EndDate   string   `json:"end_date,omitempty"`
 	Query     any      `json:"query,omitempty"` // abstract only
-	Cursor    []string `json:"cursor,omitempty"`
+	Cursor    any      `json:"cursor,omitempty"`
 }
 
 type reportSearchFieldQuery = map[string]any
@@ -215,16 +215,21 @@ func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p ht
 	body.ResponseRaw(w, http.StatusOK, &options)
 }
 
-func validateSearchPayload(opts map[string]string, payload reportSearchParams, report *pfconfigdriver.Report) []error {
-	errLst := make([]error, 0, 8)
+func validateSearchPayload(opts map[string]any, payload reportSearchParams, report *pfconfigdriver.Report) []error {
+	errLst := make([]error, 0)
 	if slices.Contains(report.Bindings, "limit") {
 		var tmp string
-		if payload.Limit != 0 {
+		if sharedutils.IsEnabled(report.HasLimit) && payload.Limit != 0 {
 			tmp = strconv.Itoa(payload.Limit + 1)
 		} else if len(report.DefaultLimit) != 0 {
-			tmp = report.DefaultLimit
+			defaultLimitInt, err := strconv.Atoi(report.DefaultLimit)
+			if err != nil {
+				errLst = append(errLst, errors.New("Bad defaultLimit value: "+err.Error()))
+			} else {
+				tmp = strconv.Itoa(defaultLimitInt + 1)
+			}
 		} else {
-			tmp = strconv.Itoa(defaultSearchLimit)
+			tmp = strconv.Itoa(defaultSearchLimit + 1)
 		}
 		opts["limit"] = tmp // contains +1 to get the cursor of the next page
 	}
@@ -233,7 +238,7 @@ func validateSearchPayload(opts map[string]string, payload reportSearchParams, r
 			if len(payload.StartDate) == 0 {
 				errLst = append(errLst, errors.New("start_date has an invalid value"))
 			} else {
-				opts["start_data"] = payload.StartDate
+				opts["start_date"] = payload.StartDate
 			}
 		} else {
 			errLst = append(errLst, errors.New("start_date is required"))
@@ -248,24 +253,50 @@ func validateSearchPayload(opts map[string]string, payload reportSearchParams, r
 			errLst = append(errLst, errors.New("end_date is required"))
 		}
 	} // else ignore even if start_date and end_date in query
+	opts["cursor_type"] = report.CursorType
+	opts["cursor_default"] = report.CursorDefault
+	// payload.Cursor can be int/string or []int/[]string
+	// convert all to []any, convert int/string to string
+	optsCursor := make([]string, 0)
+	reqCursor := make([]any, 0)
+	if payload.Cursor != nil && hasLen(payload.Cursor) && getLen(payload.Cursor) != 0 {
+		if report.CursorType == "multi_field" {
+			reqCursor = payload.Cursor.([]any)
+		} else {
+			reqCursor = append(reqCursor, payload.Cursor)
+		}
+	}
 	switch report.CursorType {
 	case "offset":
+		// always int
 		if slices.Contains(report.Bindings, "cursor") {
-			if len(payload.Cursor) != 0 {
-				opts["cursor"] = payload.Cursor[0] // contains only one value
+			if len(reqCursor) != 0 {
+				optsCursor = append(optsCursor, strconv.Itoa(reqCursor[0].(int)))
 			} else {
-				opts["cursor"] = "0"
+				optsCursor = append(optsCursor, "0")
 			}
+			opts["cursor_field"] = report.CursorField[0]
 		}
 	case "field":
+		// int or string
 		if slices.Contains(report.Bindings, "cursor") {
-			if len(payload.Cursor) != 0 {
-				opts["cursor"] = payload.Cursor[0] // contains only one value
+			if len(reqCursor) != 0 {
+				switch tmp := reqCursor[0].(type) {
+				case int:
+					optsCursor = append(optsCursor, strconv.Itoa(tmp))
+				case float32, float64:
+					optsCursor = append(optsCursor, strconv.FormatFloat(tmp.(float64), 'f', 8, 64))
+				case string:
+					optsCursor = append(optsCursor, tmp)
+				default:
+				}
 			} else {
-				opts["cursor"] = report.CursorDefault[0] // containes only on value
+				optsCursor = append(optsCursor, report.CursorDefault[0]) // contains only on value
 			}
+			opts["cursor_field"] = report.CursorField[0]
 		}
 	case "multi_field":
+		opts["cursor_field"] = make([]any, 0)
 		cursorRe := regexp.MustCompile(`^cursor\.(\d+)$`)
 		for _, binding := range report.Bindings {
 			if _, ok := opts[binding]; ok {
@@ -273,14 +304,25 @@ func validateSearchPayload(opts map[string]string, payload reportSearchParams, r
 			}
 			if result := cursorRe.FindStringSubmatch(binding); result != nil {
 				index, _ := strconv.Atoi(result[1])
-				if len(payload.Cursor) >= index+1 {
-					opts[binding] = payload.Cursor[index]
+				if len(reqCursor) > index { // cursor.3 requires 4 cursor specified
+					opts[binding] = reqCursor[index]
 				} else {
-					opts[binding] = report.CursorDefault[index]
+					if len(report.CursorDefault) > index {
+						opts[binding] = report.CursorDefault[index]
+					}
+					errLst = append(errLst, errors.New("Bad cursor: "+binding))
+					continue
 				}
+				optsCursor = append(optsCursor, opts[binding].(string))
+				opts["cursor_field"] = append(opts["cursor_field"].([]any), report.CursorField[index])
 			}
 		}
 	default: // nothing to do, should not happens
+	}
+	if len(optsCursor) > 0 {
+		opts["cursor"] = optsCursor
+	} else {
+		opts["cursor"] = nil
 	}
 	return errLst
 }
@@ -326,7 +368,7 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 	// Valide the payload and store binding data into a map for later use
-	options := make(map[string]string)
+	options := make(map[string]any)
 	validationErrors := validateSearchPayload(options, payload, &report)
 	if len(validationErrors) > 0 {
 		for _, e := range validationErrors {
@@ -356,7 +398,67 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "cannot execute search query: " + err.Error()})
 		return
 	}
+	paginateQuery(&body, &items, options)
 	body.ResponseItems(w, http.StatusOK, items)
+}
+
+func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options map[string]any) {
+	currPageCount := len(*items)
+	limit, _ := strconv.Atoi(options["limit"].(string))
+	limit = max(limit-1, 0) // handle the case limit=0, even if it should not happen
+	body.Limit = &limit
+	cursorType := options["cursor_type"].(string)
+	if cursorType == "multi_field" {
+		body.PrevCursor = options["cursor"]
+	} else {
+		if options["cursor"] != nil && hasLen(options["cursor"]) && getLen(options["cursor"]) != 0 {
+			body.PrevCursor = options["cursor"].([]string)[0]
+		} else { // if no cursor specified in the request, take the cursor of the first record
+			if currPageCount == 0 {
+				body.PrevCursor = options["cursor_default"].([]string)[0]
+			} else {
+				body.PrevCursor = (*items)[0][options["cursor_field"].(string)]
+			}
+		}
+	}
+	if currPageCount > limit {
+		currPageCount -= 1
+		if options["cursor_type"].(string) == "offset" {
+			body.NextCursor = body.PrevCursor.(int) + limit
+		} else {
+			// TODO multi_field: iterate over cursor_field
+			body.NextCursor = (*items)[limit][options["cursor_field"].(string)]
+		}
+		*items = (*items)[:len(*items)-1] // do not return the +1 record fetched
+	} else {
+		body.NextCursor = make([]any, 0)
+	}
+	body.Count = &currPageCount
+
+}
+
+func hasLen(value any) bool {
+	switch reflect.TypeOf(value).Kind() {
+	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
+		return true
+	default:
+		return false
+	}
+}
+
+func isArrayOrSlice(value any) bool {
+	switch reflect.TypeOf(value).Kind() {
+	case reflect.Array, reflect.Slice:
+		return true
+	default:
+		return false
+	}
+}
+
+// getLen return the len by reflection of value.
+// value MUST have beend checked to implement Len
+func getLen(value any) int {
+	return reflect.ValueOf(value).Len()
 }
 
 func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
