@@ -223,21 +223,17 @@ apt-get install -y --no-install-recommends \
     docker.io \
     docker-compose
 
-# Download and unpack PacketFence and all dependencies without configuring
-echo "Downloading PacketFence and dependencies..."
-apt-get install -y --no-install-recommends -d packetfence
+# Install PacketFence - let it fail during postinst (expected in chroot)
+# apt-get will handle dependencies and unpack all files first
+echo "Installing PacketFence (postinst failure expected in chroot)..."
+set +e
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence
+INSTALL_RESULT=$?
+set -e
 
-# Unpack all downloaded packages
-echo "Unpacking all packages..."
-for deb in /var/cache/apt/archives/*.deb; do
-    dpkg --unpack "$deb" || true
-done
+echo "Initial install exit code: $INSTALL_RESULT"
 
-# Configure all dependencies first (but not packetfence yet)
-echo "Configuring dependencies..."
-dpkg --configure --pending --skip-same-version packetfence || true
-
-# Now replace the Docker script AFTER files are extracted but BEFORE packetfence postinst runs
+# Now the files are on disk (even though postinst may have failed), replace the Docker script
 echo "Replacing Docker installer script..."
 if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
     cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
@@ -251,14 +247,14 @@ EOFDOCKER
     chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
     echo "Docker script replaced successfully"
 else
-    echo "ERROR: Docker script not found after unpacking!"
+    echo "ERROR: Docker script not found after install!"
     ls -la /usr/local/pf/containers/ || echo "Directory does not exist"
     exit 1
 fi
 
-# Now configure packetfence with the dummy Docker script in place
-echo "Configuring PacketFence with dummy Docker script..."
-dpkg --configure packetfence
+# Now reconfigure the package with the dummy Docker script in place
+echo "Reconfiguring PacketFence with dummy Docker script..."
+dpkg --configure -a
 
 # Clean up marker files
 rm -f /media/cdrom/postinst-debian-installer.sh
