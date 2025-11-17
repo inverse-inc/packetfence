@@ -233,8 +233,8 @@ set -e
 
 echo "Initial install exit code: $INSTALL_RESULT"
 
-# Now the files are on disk (even though postinst may have failed), replace the Docker script
-echo "Replacing Docker installer script..."
+# Now the files are on disk (even though postinst may have failed), replace Docker scripts
+echo "Replacing Docker installer scripts..."
 if [ -f /usr/local/pf/containers/run-docker-in-debian-installer.sh ]; then
     cat > /usr/local/pf/containers/run-docker-in-debian-installer.sh <<'EOFDOCKER'
 #!/bin/bash
@@ -245,10 +245,27 @@ echo "INFO: Docker will be started properly on first boot"
 exit 0
 EOFDOCKER
     chmod +x /usr/local/pf/containers/run-docker-in-debian-installer.sh
-    echo "Docker script replaced successfully"
+    echo "Docker installer script replaced successfully"
 else
-    echo "ERROR: Docker script not found after install!"
+    echo "ERROR: Docker installer script not found after install!"
     ls -la /usr/local/pf/containers/ || echo "Directory does not exist"
+    exit 1
+fi
+
+# Also replace manage-images.sh to skip Docker operations in chroot
+if [ -f /usr/local/pf/containers/manage-images.sh ]; then
+    cat > /usr/local/pf/containers/manage-images.sh <<'EOFMANAGE'
+#!/bin/bash
+# Dummy script for live-build chroot environment
+# Image management will be performed on first boot
+echo "INFO: Container image management skipped in live-build chroot"
+echo "INFO: Images will be loaded properly on first boot"
+exit 0
+EOFMANAGE
+    chmod +x /usr/local/pf/containers/manage-images.sh
+    echo "manage-images.sh script replaced successfully"
+else
+    echo "ERROR: manage-images.sh not found after install!"
     exit 1
 fi
 
