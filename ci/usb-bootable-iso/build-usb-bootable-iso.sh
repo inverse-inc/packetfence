@@ -292,6 +292,17 @@ systemctl disable packetfence-mariadb || true
 systemctl disable packetfence-redis-cache || true
 systemctl disable packetfence || true
 
+# Kill any remaining processes that might hold /sys
+# This is a last resort cleanup before live-build tries to unmount
+echo "Performing final cleanup..."
+killall -9 mysqld mariadbd 2>/dev/null || true
+killall -9 redis-server 2>/dev/null || true
+killall -9 perl 2>/dev/null || true
+
+# Sync to ensure all writes are complete
+sync
+sleep 2
+
 echo "=========================================="
 echo "PacketFence installed successfully"
 echo "=========================================="
@@ -338,6 +349,33 @@ echo "=========================================="
 EOFHOOK
     
     chmod +x config/hooks/normal/0200-system-configuration.hook.chroot
+    
+    # Binary hook to patch live-build's unmount behavior to use lazy unmount
+    mkdir -p config/hooks/live
+    cat > config/hooks/live/0010-patch-sysfs-unmount.binary <<'EOFBINARY'
+#!/bin/bash
+
+echo "==> Patching live-build to use lazy unmount for /sys"
+
+# Patch the chroot_sysfs script to use lazy unmount
+SYSFS_SCRIPT="/usr/lib/live/build/chroot_sysfs"
+
+if [ -f "$SYSFS_SCRIPT" ]; then
+    # Backup original
+    cp "$SYSFS_SCRIPT" "${SYSFS_SCRIPT}.orig"
+    
+    # Replace 'umount' with 'umount -l' (lazy unmount) for /sys
+    sed -i 's/umount "\${_DIRECTORY}"/umount -l "${_DIRECTORY}" || umount "${_DIRECTORY}" || true/g' "$SYSFS_SCRIPT"
+    
+    echo "Live-build chroot_sysfs patched to use lazy unmount"
+else
+    echo "Warning: chroot_sysfs script not found, lazy unmount not applied"
+fi
+
+exit 0
+EOFBINARY
+    
+    chmod +x config/hooks/live/0010-patch-sysfs-unmount.binary
     
     echo "==> Hooks created"
 }
