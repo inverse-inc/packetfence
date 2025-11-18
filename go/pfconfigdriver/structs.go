@@ -899,7 +899,7 @@ type PfConfAdminLogin struct {
 type Report struct {
 	// pf::Report fields
 	Id          string   `json:"id"`
-	Type        string   `json:"type"`
+	Type        string   `json:"type"` // 'sql' only
 	Description string   `json:"description"`
 	Charts      []string `json:"charts"`
 	Columns     []string `json:"columns"`

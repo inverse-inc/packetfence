@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -21,6 +22,27 @@ import (
 
 const defaultSearchLimit int = 25
 
+// Report struct
+// pfconfigdriver.Report is used ot read data from backend
+// This struct is used to response request. For compatibility purpose,
+// all arrays are converted to commad separted strings: [1, 2, 3] => "1,2,3"
+// Sql field is converted to array of lines (split sql with "\n" char)
+// output
+type report struct {
+	pfconfigdriver.Report
+	Charts        string   `json:"charts,omitempty"`
+	Columns       string   `json:"columns,omitempty"`
+	Formatting    string   `json:"formatting,omitempty"`
+	PersonFields  string   `json:"person_fields,omitempty"`
+	NodeFields    string   `json:"node_fields,omitempty"`
+	RoleFields    string   `json:"role_fields,omitempty"`
+	CursorField   string   `json:"cursor_field,omitempty"`
+	CursorDefault string   `json:"cursor_default,omitempty"`
+	Bindings      string   `json:"bindings,omitempty"`
+	Sql           []string `json:"sql,omitempty"`
+}
+
+// output
 type reportOptionsColumn struct {
 	Text     string `json:"text"`
 	Name     string `json:"name"`
@@ -30,12 +52,7 @@ type reportOptionsColumn struct {
 	IsCursor bool   `json:"is_cursor"`
 }
 
-type reportQueryField struct {
-	Name string `json:"name"`
-	Text string `json:"text"`
-	Type string `json:"type"`
-}
-
+// output
 type reportOptionsResponse struct {
 	ReportMeta struct {
 		Id               string                `json:"id"`
@@ -43,24 +60,21 @@ type reportOptionsResponse struct {
 		HasCursor        bool                  `json:"has_cursor"`
 		HasLimit         bool                  `json:"has_limit"`
 		HasDateRange     bool                  `json:"has_date_range"`
-		DefaultLimit     string                `json:"default_limit,omitempty"`
+		DefaultLimit     string                `json:"default_limit"`
 		DateLimit        string                `json:"date_limit,omitempty"`
 		DefaultStartDate string                `json:"default_start_date,omitempty"`
 		DefaultEndDate   string                `json:"default_end_date,omitempty"`
 		Columns          []reportOptionsColumn `json:"columns"`
 		Charts           []string              `json:"charts"`
-		QueryFields      []reportQueryField    `json:"query_fields"`
 	} `json:"report_meta"`
 }
 
+// input
 type reportSearchParams struct {
-	Id        string   `json:"id"` // ignore it
-	Limit     int      `json:"limit,omitempty"`
-	Fields    []string `json:"fields"` // abstract only
-	StartDate string   `json:"start_date,omitempty"`
-	EndDate   string   `json:"end_date,omitempty"`
-	Query     any      `json:"query,omitempty"` // abstract only
-	Cursor    any      `json:"cursor,omitempty"`
+	Limit     int    `json:"limit,omitempty"`
+	StartDate string `json:"start_date,omitempty"`
+	EndDate   string `json:"end_date,omitempty"`
+	Cursor    any    `json:"cursor,omitempty"`
 }
 
 type reportSearchFieldQuery = map[string]any
@@ -79,6 +93,47 @@ func NewDynamicReport(ctx context.Context, dbp **gorm.DB) *DynamicReport {
 	}
 }
 
+func cleanSql(sql string) string {
+	regexp := regexp.MustCompile(`\n\s*`)
+	cleanSql := regexp.ReplaceAllString(sql, " ")
+	return strings.TrimSpace(cleanSql)
+}
+
+func parseReportForResponse(output *report, input *pfconfigdriver.Report) {
+	output.Id = input.Id
+	output.Type = input.Type
+	output.Description = input.Description
+	output.DefaultLimit = input.DefaultLimit
+	output.DateLimit = input.DateLimit
+	output.CursorType = input.CursorType
+	// if empty string, set to "disabled"
+	if sharedutils.IsEnabled(input.HasDateRange) {
+		output.HasDateRange = "enabled"
+	} else {
+		output.HasDateRange = "disabled"
+	}
+	if sharedutils.IsEnabled(input.HasLimit) {
+		output.HasLimit = "enabled"
+	} else {
+		output.HasLimit = "disabled"
+	}
+	output.Sql = strings.Split(input.Sql, "\n")
+	output.Charts = strings.TrimSpace(strings.Join(input.Charts, ","))
+	output.Columns = strings.TrimSpace(strings.Join(input.Columns, ","))
+	output.PersonFields = strings.TrimSpace(strings.Join(input.PersonFields, ","))
+	output.NodeFields = strings.TrimSpace(strings.Join(input.NodeFields, ","))
+	output.RoleFields = strings.TrimSpace(strings.Join(input.RoleFields, ","))
+	output.CursorField = strings.TrimSpace(strings.Join(input.CursorField, ","))
+	output.CursorDefault = strings.TrimSpace(strings.Join(input.CursorDefault, ","))
+	output.Bindings = strings.TrimSpace(strings.Join(input.Bindings, ","))
+	for _, format := range input.Formatting {
+		if len(output.Formatting) > 0 {
+			output.Formatting += ","
+		}
+		output.Formatting += format.Field + ":" + format.Format
+	}
+}
+
 func getReports(r *http.Request) (map[string]pfconfigdriver.Report, error) {
 	o, err := CachedReportConfig.Value(r.Context())
 	if err != nil {
@@ -92,31 +147,48 @@ func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httproute
 	var body wip.ApiBody
 	reports, err := getReports(r)
 	if err != nil {
-		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
+		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	reportsAsArray := slices.Collect(maps.Values(reports))
-	body.ResponseItems(w, http.StatusOK, reportsAsArray)
+	respReports := make([]report, len(reportsAsArray))
+	for k := range reportsAsArray {
+		tmpReport := report{}
+		parseReportForResponse(&tmpReport, &reportsAsArray[k])
+		respReports = append(respReports, tmpReport)
+	}
+	body.ResponseItems(w, http.StatusOK, respReports)
 }
 
+// swagger:operation GET /api/demo Demo GetDemo
+//
+// # Demo
+//
+// ---
+// responses:
+//
+//	"200":
+//	  description: demo
 func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body wip.ApiBody
 	reports, err := getReports(r)
 	if err != nil {
-		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
+		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	id := p.ByName("id")
 	if len(id) == 0 {
-		body.ReplyError(w, http.StatusBadRequest, wip.ApiError{Message: "report id required"})
+		body.FastError(w, http.StatusBadRequest, wip.ApiError{Message: "report id required"})
 		return
 	}
 	item, ok := reports[id]
 	if !ok {
-		body.ReplyError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
+		body.FastError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
 		return
 	}
-	body.ResponseItem(w, http.StatusOK, item)
+	tmpReport := report{}
+	parseReportForResponse(&tmpReport, &item)
+	body.ResponseItem(w, http.StatusOK, tmpReport)
 }
 
 func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
@@ -174,12 +246,15 @@ func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report 
 	// Copy paste values
 	options.ReportMeta.Id = report.Id
 	options.ReportMeta.Description = report.Description
-	options.ReportMeta.QueryFields = []reportQueryField{} // force json [] instead of null
-	options.ReportMeta.Charts = []string{}                // force json [] instead of null
+	options.ReportMeta.Charts = []string{} // force json [] instead of null
 	options.ReportMeta.Charts = append(options.ReportMeta.Charts, report.Charts...)
 	options.ReportMeta.HasLimit = sharedutils.IsEnabled(report.HasLimit)
 	options.ReportMeta.HasDateRange = sharedutils.IsEnabled(report.HasDateRange)
-	options.ReportMeta.DefaultLimit = report.DefaultLimit
+	if len(report.DefaultLimit) == 0 {
+		options.ReportMeta.DefaultLimit = strconv.Itoa(defaultSearchLimit)
+	} else {
+		options.ReportMeta.DefaultLimit = report.DefaultLimit
+	}
 	options.ReportMeta.DateLimit = report.DateLimit
 	// Computed values
 	if len(report.CursorType) == 0 || report.CursorType == "none" {
@@ -202,12 +277,12 @@ func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p ht
 	id := p.ByName("id")
 	reports, err := getReports(r)
 	if err != nil {
-		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
+		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	report, ok := reports[id]
 	if !ok {
-		body.ReplyError(w, http.StatusNotFound, wip.ApiError{Message: "Report not found"})
+		body.FastError(w, http.StatusNotFound, wip.ApiError{Message: "Report not found"})
 		return
 	}
 	var options reportOptionsResponse
@@ -309,9 +384,10 @@ func validateSearchPayload(opts map[string]any, payload reportSearchParams, repo
 				} else {
 					if len(report.CursorDefault) > index {
 						opts[binding] = report.CursorDefault[index]
+					} else {
+						errLst = append(errLst, errors.New("Bad cursor: "+binding))
+						continue
 					}
-					errLst = append(errLst, errors.New("Bad cursor: "+binding))
-					continue
 				}
 				optsCursor = append(optsCursor, opts[binding].(string))
 				opts["cursor_field"] = append(opts["cursor_field"].([]any), report.CursorField[index])
@@ -328,9 +404,7 @@ func validateSearchPayload(opts map[string]any, payload reportSearchParams, repo
 }
 
 func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearchFieldQuery, error) {
-	regexp := regexp.MustCompile(`\\n\s*`)
-	cleanSql := regexp.ReplaceAllString(sql, " ")
-	rows, err := (*db).Raw(cleanSql, bindings...).Rows()
+	rows, err := (*db).Raw(sql, bindings...).Rows()
 	if err != nil {
 		return nil, errors.New("Cannot execute sql: " + err.Error())
 	}
@@ -352,19 +426,19 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 	id := p.ByName("id")
 	reports, err := getReports(r)
 	if err != nil {
-		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
+		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
 		return
 	}
 	report, ok := reports[id]
 	if !ok {
-		body.ReplyError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
+		body.FastError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
 		return
 	}
 	defer r.Body.Close()
 	var payload reportSearchParams
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		body.ReplyError(w, http.StatusBadRequest, wip.ApiError{Message: "cannot parse request: " + err.Error()})
+		body.FastError(w, http.StatusBadRequest, wip.ApiError{Message: "cannot parse request: " + err.Error()})
 		return
 	}
 	// Valide the payload and store binding data into a map for later use
@@ -374,7 +448,7 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		for _, e := range validationErrors {
 			body.AddError(wip.ApiError{Message: e.Error()})
 		}
-		body.Error(w, http.StatusBadRequest)
+		body.ResponseError(w, http.StatusBadRequest)
 		return
 	}
 	// Create the binding list in order. A binding can appear multiple time at different positions
@@ -390,12 +464,13 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		injectedBindings = append(injectedBindings, e)
 	}
 	if bindingError {
-		body.Error(w, http.StatusInternalServerError)
+		body.ResponseError(w, http.StatusInternalServerError)
 		return
 	}
-	items, err := executeSearchQuery(a.DBP, report.Sql, injectedBindings)
+	cleanedSql := cleanSql(report.Sql)
+	items, err := executeSearchQuery(a.DBP, cleanedSql, injectedBindings)
 	if err != nil {
-		body.ReplyError(w, http.StatusInternalServerError, wip.ApiError{Message: "cannot execute search query: " + err.Error()})
+		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "cannot execute search query: " + err.Error()})
 		return
 	}
 	paginateQuery(&body, &items, options)
@@ -423,15 +498,18 @@ func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options m
 	}
 	if currPageCount > limit {
 		currPageCount -= 1
-		if options["cursor_type"].(string) == "offset" {
+		switch options["cursor_type"].(string) {
+		case "offset":
 			body.NextCursor = body.PrevCursor.(int) + limit
-		} else {
-			// TODO multi_field: iterate over cursor_field
+		case "field":
 			body.NextCursor = (*items)[limit][options["cursor_field"].(string)]
+		case "multi_field":
+			// TODO multi_field: iterate over cursor_field
+			body.NextCursor = (*items)[limit][options["cursor_field"].([]string)[0]]
 		}
 		*items = (*items)[:len(*items)-1] // do not return the +1 record fetched
 	} else {
-		body.NextCursor = make([]any, 0)
+		body.NextCursor = nil
 	}
 	body.Count = &currPageCount
 
