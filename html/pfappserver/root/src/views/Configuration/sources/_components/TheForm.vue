@@ -26,6 +26,7 @@ import FormTypeAuthorization from './FormTypeAuthorization'
 import FormTypeAzureAD from './FormTypeAzureAD'
 import FormTypeBlackhole from './FormTypeBlackhole'
 import FormTypeClickatell from './FormTypeClickatell'
+import FormTypeTeltonikaSMSGateway from './FormTypeTeltonikaSMSGateway'
 import FormTypeEapTls from './FormTypeEapTls'
 import FormTypeEdir from './FormTypeEdir'
 import FormTypeEduroam from './FormTypeEduroam'
@@ -81,6 +82,7 @@ const components = {
   FormTypeSms,
   FormTypeSponsorEmail,
   FormTypeStripe,
+  FormTypeTeltonikaSMSGateway,
   FormTypeTwilio,
   FormTypeWindowsLive,
 }
@@ -100,6 +102,7 @@ export const setup = (props) => {
       case 'AzureAD':             return FormTypeAzureAD // break
       case 'Blackhole':           return FormTypeBlackhole //break
       case 'Clickatell':          return FormTypeClickatell //break
+      case 'TeltonikaSMSGateway': return FormTypeTeltonikaSMSGateway //break
       case 'EAPTLS':              return FormTypeEapTls //break
       case 'EDIR':                return FormTypeEdir // break
       case 'Eduroam':             return FormTypeEduroam // break
