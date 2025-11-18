@@ -10,7 +10,7 @@ import (
 
 // ApiError struct contains data to manage API response error
 type ApiError struct {
-	Code    int    `json:"code,omitzero"`   // custom code, 0 not used
+	Code    int    `json:"code,omitempty"`  // custom code, 0 not used
 	Field   string `json:"field,omitempty"` // what field is the error about
 	Op      string `json:"op,omitempty"`    // mostly used for the query API
 	Message string `json:"message"`         // message to show to the caller
@@ -19,9 +19,10 @@ type ApiError struct {
 // ApiPagination struct contains data to manage pagination
 // Cursor will mostly be of type int or string
 type ApiPagination struct {
-	Count      *int `json:"count,omitempty"`      // items in the current page
-	Limit      *int `json:"limit,omitempty"`      // number of items per page
-	Total      *int `json:"total,omitempty"`      // total number of items
+	// omit useless fields for now, legacy Perl does not use them
+	Count      *int // `json:"count,omitempty"`      // items in the current page
+	Limit      *int // `json:"limit,omitempty"`      // number of items per page
+	Total      *int // `json:"total,omitempty"`      // total number of items
 	NextCursor any  `json:"nextCursor,omitempty"` // starting value(s) of next page
 	PrevCursor any  `json:"prevCursor,omitempty"` // startgin value(s) of previous page
 }
@@ -34,29 +35,29 @@ type ApiBody struct {
 	Errors        []ApiError `json:"errors,omitempty"`      // optionnal list of all errors
 	Message       string     `json:"message,omitempty"`     // Optionnal informative message
 	Status        int        `json:"status"`                // HTTP response status
-	rawResponse   []byte     // the actual response to be sent
 	tag           string     // name to replace the Payload name, or empty to keep struct fields
 }
 
-func isEmptyValue(v reflect.Value) bool {
+func isEmptyValue(v *reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len() == 0
-	case reflect.Uintptr, reflect.Interface, reflect.Pointer:
+	case reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
+		reflect.Float32, reflect.Float64,
+		reflect.Interface, reflect.Pointer:
 		return v.IsZero()
+	default:
+		return false
 	}
-	return false
 }
 
-func isZeroValue(v reflect.Value) bool {
+func isZeroValue(v *reflect.Value) bool {
 	return v.IsZero()
 }
 
 // based on json/encode: https://cs.opensource.google/go/go/+/refs/tags/go1.25.4:src/encoding/json/encode.go
-// except:
-// omitempty check only ptr, array, interface, slice, string, map
-// not int/uint/float/bool anymore
-// omitzero works the same: chekc for zero value of the type
 func marshal(fields map[string]any, data any) {
 	valueData := reflect.ValueOf(data)
 	for ; valueData.Kind() == reflect.Ptr; valueData = reflect.Indirect(valueData) {
@@ -81,11 +82,11 @@ FieldLoop:
 			splitAlias := strings.Split(alias, ",") // omitempty, omitzero, -
 			for tagId := 1; tagId < len(splitAlias); tagId++ {
 				if splitAlias[tagId] == "omitempty" {
-					if isEmptyValue(fieldValue) {
+					if isEmptyValue(&fieldValue) {
 						continue FieldLoop
 					}
 				} else if splitAlias[tagId] == "omitzero" {
-					if isZeroValue(fieldValue) {
+					if isZeroValue(&fieldValue) {
 						continue FieldLoop
 					}
 				} else if splitAlias[tagId] == "-" {
@@ -116,47 +117,61 @@ func (body *ApiBody) MarshalJSON() ([]byte, error) {
 	return json.Marshal(data)
 }
 
-func (body *ApiBody) marshalResponse(w http.ResponseWriter, payload any, tag string) error {
+func (body *ApiBody) serializeResponse(w http.ResponseWriter, payload any, tag string) ([]byte, error) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(body.Status)
 	body.Payload = payload
 	body.tag = tag
-	var err error
-	body.rawResponse, err = json.Marshal(body)
+	return json.Marshal(body)
+}
+
+func (body *ApiBody) ResponseItem(w http.ResponseWriter, status int, payload any) error {
+	body.Status = status
+	data, err := body.serializeResponse(w, payload, "item")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
 	return err
 }
 
-func (body *ApiBody) ResponseItem(w http.ResponseWriter, status int, payload any) {
+func (body *ApiBody) ResponseItems(w http.ResponseWriter, status int, payload any) error {
 	body.Status = status
-	_ = body.marshalResponse(w, payload, "item")
-	_, _ = w.Write(body.rawResponse)
+	data, err := body.serializeResponse(w, payload, "items")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
-func (body *ApiBody) ResponseItems(w http.ResponseWriter, status int, payload any) {
+func (body *ApiBody) ResponseRaw(w http.ResponseWriter, status int, payload any) error {
 	body.Status = status
-	_ = body.marshalResponse(w, payload, "items")
-	_, _ = w.Write(body.rawResponse)
-}
-
-func (body *ApiBody) ResponseRaw(w http.ResponseWriter, status int, payload any) {
-	body.Status = status
-	_ = body.marshalResponse(w, payload, "")
-	_, _ = w.Write(body.rawResponse)
+	data, err := body.serializeResponse(w, payload, "")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
 func (body *ApiBody) AddError(err ApiError) {
 	body.Errors = append(body.Errors, err)
 }
 
-func (body *ApiBody) Error(w http.ResponseWriter, status int) {
+func (body *ApiBody) ResponseError(w http.ResponseWriter, status int) error {
 	body.Status = status
-	_ = body.marshalResponse(w, nil, "")
-	_, _ = w.Write(body.rawResponse)
+	data, err := body.serializeResponse(w, nil, "")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
-func (body *ApiBody) ReplyError(w http.ResponseWriter, status int, err ApiError) {
+func (body *ApiBody) FastError(w http.ResponseWriter, status int, err ApiError) error {
 	body.AddError(err)
-	body.Error(w, status)
+	return body.ResponseError(w, status)
 }
 
 // Simpler but less efficient version, but 100% safe
