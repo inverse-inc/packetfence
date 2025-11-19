@@ -107,9 +107,11 @@ func (s *KafkaSubmiter) send(events []*NetworkEvent) {
 	if s.filterEvents {
 		db, err := getDb()
 		if err != nil {
+			log.LogErrorf(context.Background(), "Failed to get database connection for filtering: %v", err)
 		} else {
 			filter, err := GetFilterFromNetworkEvents(db, events)
 			if err != nil {
+				log.LogErrorf(context.Background(), "Failed to get filter from network events: %v", err)
 			} else {
 				filteredEvents = filter.FilterEvents(events)
 			}
@@ -124,10 +126,15 @@ func (s *KafkaSubmiter) send(events []*NetworkEvent) {
 	for i := 0; i < len(filteredEvents); i++ {
 		data, err := json.Marshal(events[i])
 		if err != nil {
-			//TODO log error
+			log.LogErrorf(ctx, "Failed to marshal network event: %v", err)
 			continue
 		}
 		messages = append(messages, kafka.Message{Value: data})
+	}
+
+	if len(messages) == 0 {
+		log.LogDebugf(ctx, "No messages to send to Kafka after filtering")
+		return
 	}
 
 	log.LogInfof(
@@ -136,7 +143,23 @@ func (s *KafkaSubmiter) send(events []*NetworkEvent) {
 		len(messages),
 	)
 
-	s.writer.WriteMessages(context.Background(), messages...)
+	// WriteMessages with error handling - kafka.Writer has built-in retry logic
+	// with MaxAttempts (10), WriteBackoffMin (100ms), and WriteBackoffMax (1s)
+	err := s.writer.WriteMessages(ctx, messages...)
+	if err != nil {
+		log.LogErrorf(
+			ctx,
+			"Failed to write %d messages to Kafka after retries: %v",
+			len(messages),
+			err,
+		)
+		// The kafka.Writer will automatically retry up to MaxAttempts times
+		// with exponential backoff between WriteBackoffMin and WriteBackoffMax
+		// If it still fails after all retries, the connection may be down
+		// and the writer will attempt to reconnect on the next WriteMessages call
+	} else {
+		log.LogDebugf(ctx, "Successfully sent %d messages to Kafka", len(messages))
+	}
 }
 
 func (s *KafkaSubmiter) Stop() {
