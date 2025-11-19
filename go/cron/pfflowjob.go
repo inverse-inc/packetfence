@@ -3,7 +3,6 @@ package maint
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -96,30 +95,66 @@ func (j *PfFlowJob) kafkaDialer() *kafka.Dialer {
 }
 
 func (j *PfFlowJob) Run() {
-	r := kafka.NewReader(kafka.ReaderConfig{
-
-		Brokers:  j.Brokers,
-		Topic:    j.ReadTopic,
-		GroupID:  j.GroupID,
-		MaxBytes: 10e6, // 10MB
-		Dialer:   j.kafkaDialer(),
-	})
+	var r *kafka.Reader
+	maxReconnectDelay := 60 * time.Second
+	reconnectDelay := 1 * time.Second
+	consecutiveErrors := 0
 
 	defer func() {
-		if err := r.Close(); err != nil {
-			log.Fatal("failed to close reader:", err)
+		if r != nil {
+			if err := r.Close(); err != nil {
+				log.Printf("failed to close reader: %v", err)
+			}
 		}
 	}()
 
 	for {
+		// Create or recreate the reader
+		if r == nil {
+			log.Printf("Connecting to Kafka brokers: %v, topic: %s", j.Brokers, j.ReadTopic)
+			r = kafka.NewReader(kafka.ReaderConfig{
+				Brokers:  j.Brokers,
+				Topic:    j.ReadTopic,
+				GroupID:  j.GroupID,
+				MaxBytes: 10e6, // 10MB
+				Dialer:   j.kafkaDialer(),
+			})
+		}
+
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
-			fmt.Printf("Error : %s\n", err.Error())
-			break
+			consecutiveErrors++
+			log.Printf("Error reading from Kafka (attempt %d): %s", consecutiveErrors, err.Error())
+
+			// Close the current reader on error
+			if closeErr := r.Close(); closeErr != nil {
+				log.Printf("Error closing reader: %v", closeErr)
+			}
+			r = nil
+
+			// Exponential backoff with max delay
+			if reconnectDelay < maxReconnectDelay {
+				reconnectDelay = reconnectDelay * 2
+				if reconnectDelay > maxReconnectDelay {
+					reconnectDelay = maxReconnectDelay
+				}
+			}
+
+			log.Printf("Reconnecting to Kafka in %v...", reconnectDelay)
+			time.Sleep(reconnectDelay)
+			continue
+		}
+
+		// Reset error counter and delay on successful read
+		if consecutiveErrors > 0 {
+			log.Printf("Successfully reconnected to Kafka after %d errors", consecutiveErrors)
+			consecutiveErrors = 0
+			reconnectDelay = 1 * time.Second
 		}
 
 		pfFlows := &PfFlows{}
 		if err := json.Unmarshal(m.Value, pfFlows); err != nil {
+			log.Printf("Error unmarshaling message: %v", err)
 			continue
 		}
 
