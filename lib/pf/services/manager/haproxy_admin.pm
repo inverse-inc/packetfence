@@ -67,6 +67,10 @@ sub generateConfig {
     my $api_frontend_service_host = $api_frontend_service_uri->host;
     my $api_frontend_service_port = $api_frontend_service_uri->port;
 
+    my $httpd_admin_dispatcher_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher'};
+    my $httpd_admin_dispatcher_host = $httpd_admin_dispatcher_uri->host;
+    my $httpd_admin_dispatcher_port = $httpd_admin_dispatcher_uri->port;
+
     my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
@@ -225,8 +229,8 @@ backend $mgmt_cluster_ip-portal
         http-request lua.admin
         http-request set-header Host $portal_preview_ip
         http-request add-header X-Forwarded-For-Packetfence 127.0.0.1
-        http-request set-dst-port int(8890)
-        server service 100.64.0.1:0
+        http-request set-dst-port int($httpd_admin_dispatcher_port)
+        server service $httpd_admin_dispatcher_host:0
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
 
