@@ -1,0 +1,69 @@
+ApiError:
+  description: An error response object used across multiple endpoints.
+  type: object
+  properties:
+    code:
+      type: integer
+      description: The error code representing the type of error.
+    field:
+      type: string
+      description: The field associated with the error, if applicable.
+    op:
+      type: string
+      description: The operation during which the error occurred.
+    message:
+      type: string
+      description: A descriptive message about the error.
+
+ApiPagination:
+  description: A common pagination object used across multiple endpoints.
+  type: object
+  properties:
+    count:
+      type: integer
+      description: Total number of items available.
+    total:
+      type: integer
+      description: Total number of pages available.
+    limit:
+      type: integer
+      description: Number of items per page.
+    prevCursor:
+      type: [array, number, string, boolean, null]
+      description: The current page cursor.
+    nextCursor:
+      type: [array, number, string, boolean, null]
+      description: The next page cursor.
+
+ApiResponse:
+  description: A common response object used across multiple endpoints.
+  allOf:
+    - type: object
+      properties:
+        message:
+          type: string
+          description: A message describing the response.
+        status:
+          type: int
+          description: The HTTP status of the response.
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiError"
+
+ApiResponsePaginated:
+  description: A common response object used across multiple endpoints.
+  allOf:
+    - type: object
+      properties:
+        message:
+          type: string
+          description: A message describing the response.
+        status:
+          type: integer
+          description: The HTTP status of the response.
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiError"
+    - $ref: "#/components/schemas/ApiPagination"

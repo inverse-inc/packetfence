@@ -2140,7 +2140,8 @@ components:
             type: object
       description: Request successful. Response contains the bulk items.
   schemas:
-    AdminApiAuditLog:
+    ApiError:
+      description: An error response object used across multiple endpoints.
       properties:
         action:
           type: string
@@ -2164,14 +2165,20 @@ components:
       type: object
     AdminApiAuditLogsList:
       allOf:
-      - $ref: '#/components/schemas/Iterable'
       - properties:
-          items:
-            description: Items.
+          errors:
             items:
-              $ref: '#/components/schemas/AdminApiAuditLog'
+              $ref: '#/components/schemas/ApiError'
             type: array
+          message:
+            description: A message describing the response.
+            type: string
+          status:
+            description: The HTTP status of the response.
+            type: integer
         type: object
+      - $ref: '#/components/schemas/ApiPagination'
+      description: A common response object used across multiple endpoints.
     Async:
       properties:
         async:
@@ -3265,61 +3272,6 @@ components:
         success:
           description: Whether or not the operation has succeeded
           type: boolean
-    ConfigCloud:
-      properties:
-        client_id:
-          description: Client ID
-          type: string
-        client_secret:
-          description: Client Secret
-          type: string
-        id:
-          description: Name
-          type: string
-        tenant_id:
-          description: Tenant ID
-          type: string
-        type:
-          description: Type
-          type: string
-      required:
-      - id
-      - tenant_id
-      - client_id
-      - client_secret
-      type: object
-    ConfigCloudMeta:
-      properties:
-        meta:
-          properties:
-            client_id:
-              $ref: '#/components/schemas/Meta'
-            client_secret:
-              $ref: '#/components/schemas/Meta'
-            id:
-              $ref: '#/components/schemas/Meta'
-            tenant_id:
-              $ref: '#/components/schemas/Meta'
-            type:
-              $ref: '#/components/schemas/Meta'
-          type: object
-      type: object
-    ConfigCloudWrapped:
-      properties:
-        item:
-          $ref: '#/components/schemas/ConfigCloud'
-        status:
-          type: integer
-      type: object
-    ConfigCloudsList:
-      allOf:
-      - $ref: '#/components/schemas/Iterable'
-      - properties:
-          items:
-            items:
-              $ref: '#/components/schemas/ConfigCloud'
-            type: array
-        type: object
     ConfigConditionFlatten:
       properties:
         condition:
@@ -3355,205 +3307,6 @@ components:
           type: object
         status:
           $ref: '#/components/schemas/Status'
-      type: object
-    ConfigConnectionProfile:
-      properties:
-        access_registration_when_registered:
-          description: This allows already registered users to be able to re-register
-            their device by first accessing the status page and then accessing the
-            portal. This is useful to allow users to extend their access even though
-            they are already registered.
-          type: string
-        advanced_filter:
-          description: Advanced filter
-          properties:
-            field:
-              description: Field
-              type: string
-            op:
-              description: Value
-              type: string
-            value:
-              description: Value
-              type: string
-            values:
-              description: Values
-              items:
-                description: Value
-                type: string
-              type: array
-          type: object
-        always_use_redirecturl:
-          description: Under most circumstances we can redirect the user to the URL
-            he originally intended to visit. However, you may prefer to force the
-            captive portal to redirect the user to the redirection URL.
-          type: string
-        autoregister:
-          description: This activates automatic registation of devices for the profile.
-            Devices will not be shown a captive portal and RADIUS authentication credentials
-            will be used to register the device. This option only makes sense in the
-            context of an 802.1x authentication.
-          type: string
-        billing_tiers:
-          description: Billing tiers
-          items:
-            description: Billing tier
-            type: string
-          type: array
-        block_interval:
-          description: The amount of time a user is blocked after reaching the defined
-            limit for login, sms request and sms pin retry.
-          properties:
-            interval:
-              description: Interval
-              type: integer
-            unit:
-              description: Unit
-              type: string
-          type: object
-        default_psk_key:
-          description: This is the default PSK key when you enable DPSK on this connection
-            profile. The minimum length is eight characters.
-          type: string
-        description:
-          description: Profile Description
-          type: string
-        dot1x_recompute_role_from_portal:
-          description: When enabled, PacketFence will not use the role initialy computed
-            on the portal but will use the dot1x username to recompute the role.
-          type: string
-        dot1x_unset_on_unmatch:
-          description: When enabled, PacketFence will unset the role of the device
-            if no authentication sources returned one.
-          type: string
-        dpsk:
-          description: This enables the Dynamic PSK feature on this connection profile.
-            It means that the RADIUS server will answer requests with specific attributes
-            like the PSK key to use to connect on the SSID.
-          type: string
-        filter:
-          description: Filters
-          items:
-            description: Filter
-            properties:
-              match:
-                description: Match
-                type: string
-              type:
-                description: Type
-                type: string
-            type: object
-          type: array
-        filter_match_style:
-          description: Filter match style
-          type: string
-        id:
-          description: A profile id can only contain alphanumeric characters, dashes,
-            period and or underscores.
-          type: string
-        locale:
-          description: Locales
-          items:
-            description: Locale
-            type: string
-          type: array
-        login_attempt_limit:
-          description: Limit the number of login attempts. A value of 0 disables the
-            limit.
-          type: integer
-        logo:
-          description: Logo
-          type: string
-        mac_auth_recompute_role_from_portal:
-          description: When enabled, PacketFence will not use the role initialy computed
-            on the portal but will use an authorized source if defined to recompute
-            the role.
-          type: string
-        network_logoff:
-          description: This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff)
-            in order to terminate their network access (switch their device back to
-            unregistered)
-          type: string
-        network_logoff_popup:
-          description: When the "Network Logoff" feature is enabled, this will have
-            it opened in a popup at the end of the registration process.
-          type: string
-        preregistration:
-          description: This activates preregistration on the connection profile. Meaning,
-            instead of applying the access to the currently connected device, it displays
-            a local account that is created while registering. Note that activating
-            this disables the on-site registration on this connection profile. Also,
-            make sure the sources on the connection profile have "Create local account"
-            enabled.
-          type: string
-        provisioners:
-          description: Provisioners
-          items:
-            description: Provisioner
-            type: string
-          type: array
-        redirecturl:
-          description: Default URL to redirect to on registration/mitigation release.
-            This is only used if a per security event redirect URL is not defined.
-          type: string
-        reuse_dot1x_credentials:
-          description: This option emulates SSO when someone needs to face the captive
-            portal after a successful 802.1x connection. 802.1x credentials are reused
-            on the portal to match an authentication and get the appropriate actions.
-            As a security precaution, this option will only reuse 802.1x credentials
-            if there is an authentication source matching the provided realm. This
-            means, if users use 802.1x credentials with a domain part (username@domain,
-            domain\username), the domain part needs to be configured as a realm under
-            the RADIUS section and an authentication source needs to be configured
-            for that realm. If users do not use 802.1x credentials with a domain part,
-            only the NULL realm will be match IF an authentication source is configured
-            for it.
-          type: string
-        root_module:
-          description: The Root Portal Module to use
-          type: string
-        scans:
-          description: Scans
-          items:
-            description: Scan
-            type: string
-          type: array
-        self_service:
-          description: Self service
-          type: string
-        show_manage_devices_on_max_nodes:
-          description: Show manage devices on max nodes
-          type: string
-        sms_pin_retry_limit:
-          description: Maximum number of times a user can retry a SMS PIN before having
-            to request another PIN. A value of 0 disables the limit.
-          type: integer
-        sms_request_limit:
-          description: Maximum number of times a user can request a SMS PIN. A value
-            of 0 disables the limit.
-          type: integer
-        sources:
-          description: Sources
-          items:
-            description: Source
-            type: string
-          type: array
-        status:
-          description: Enable profile
-          type: string
-        unbound_dpsk:
-          description: Unbound dpsk
-          type: string
-        unreg_on_acct_stop:
-          description: This activates automatic deregistation of devices for the profile
-            if PacketFence receives a RADIUS accounting stop.
-          type: string
-        vlan_pool_technique:
-          description: The Vlan Pool Technique to use
-          type: string
-      required:
-      - id
-      - root_module
       type: object
     ConfigConnectionProfileFilesDir:
       properties:
@@ -25100,13 +24853,6 @@ components:
             type: array
         type: object
       description: List
-    ConfigWrapped:
-      properties:
-        item:
-          $ref: '#/components/schemas/Config'
-        status:
-          type: integer
-      type: object
     CountResponse:
       properties:
         count:
@@ -25314,18 +25060,20 @@ components:
       properties:
         circuit_id_string:
           type: string
-        created_at:
+        charts:
+          description: Comma separated list of chart
           type: string
         host:
           type: string
-        mac:
-          description: '`PRIMARY KEY`'
+        cursor_default:
+          description: Comma separated list of default cursor
           type: string
         module:
           type: string
         option82_switch:
           type: string
-        port:
+        date_limit:
+          description: Date limit for report
           type: string
         switch_id:
           type: string
@@ -25346,14 +25094,17 @@ components:
       properties:
         answer:
           type: string
-        created_at:
-          type: string
+        has_date_range:
+          $ref: '#/components/schemas/EnableValue'
+          description: Enable/disable date range for report
+        has_limit:
+          $ref: '#/components/schemas/EnableValue'
+          description: Enable/disable limit for report
         id:
-          description: '`PRIMARY KEY`'
-          type: integer
-        ip:
+          description: Report ID
           type: string
-        mac:
+        node_fields:
+          description: Comma separated list of nodes
           type: string
         qname:
           type: string
@@ -25451,20 +25202,23 @@ components:
       additionalProperties: true
       properties:
         cursor:
-          oneOf:
-          - type: string
-          - items:
-              type: string
-            type: array
+          description: Cursor for pagination
+          type:
+          - array
+          - string
+          - integer
+          - boolean
+          - ~
         end_date:
+          description: End date filter. Required if report has date range enabled
           example: 1970-01-01 00:00:00
           format: date-time
           type: string
         limit:
+          description: Limit of results
           type: integer
-        query:
-          $ref: '#/components/schemas/Query'
         start_date:
+          description: Start date filter. Required if report has date range enabled
           example: 1970-01-01 00:00:00
           format: date-time
           type: string
@@ -29020,7 +28774,6 @@ components:
     SecurityEvent:
       properties:
         id:
-          description: '`PRIMARY KEY`'
           type: integer
         mac:
           type: string
@@ -29037,16 +28790,6 @@ components:
         ticket_ref:
           type: string
       type: object
-    SecurityEventsList:
-      allOf:
-      - $ref: '#/components/schemas/Iterable'
-      - properties:
-          items:
-            description: Items.
-            items:
-              $ref: '#/components/schemas/SecurityEvent'
-            type: array
-        type: object
     SecurityEventsPerDeviceClass:
       properties:
         items:
@@ -29399,14 +29142,6 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
-            description: Items.
-            items:
-              $ref: '#/components/schemas/User'
-            type: array
-        type: object
-      - $ref: '#/components/schemas/Iterable'
-      - properties:
-          items:
             items:
               $ref: '#/components/schemas/UserWithLinks'
             type: array
@@ -29684,343 +29419,42 @@ info:
   version: 1.2.0
 openapi: 3.1.0
 paths:
-  /api/v1.1/report/{report_id}:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
+  /api/v1.2/dynamic_report/{id}:
     get:
-      description: Get a report
-      operationId: api.v1.1.DynamicReports.resource.get
+      description: Get a single report
+      operationId: GetReportById
       parameters:
-      - description: '`PRIMARY KEY`'
+      - description: Report ID
         in: path
-        name: report_id
+        name: id
         required: true
-        schema:
-          enum:
-          - Accounting::Bandwidth
-          - Accounting::Node
-          - Accounting::Operating System Class
-          - Accounting::User
-          - Authentication::All
-          - Authentication::All Failures
-          - Authentication::All Successes
-          - Authentication::Top Failures::Connection Profile to Source
-          - Authentication::Top Failures::By Connection Profile
-          - Authentication::Top Failures::By Source
-          - Authentication::Top Successes::By Connection Profile
-          - Authentication::Top Successes::By Source
-          - Authentication::Top Successes::Connection Profile to Source
-          - Connection Types::Active
-          - Connection Types::All
-          - Connection Types::Date Range
-          - Connection Types::Registered Active
-          - Connection Types::Registered All
-          - Fingerbank::Unknown Fingerprints::Active
-          - Fingerbank::Unknown Fingerprints::All
-          - Ip4Log::Archive
-          - Ip4Log::History
-          - Node::Active
-          - Node::Inactive
-          - Node::Registered::Active
-          - Node::Registered::All
-          - Node::Unregistered::Active
-          - Node::Unregistered::All
-          - Operating System Class::Active
-          - Operating System Class::All
-          - Operating Systems::Active
-          - Operating Systems::All
-          - RADIUS Authentication::Top Failures::By MAC
-          - RADIUS Authentication::Top Failures::By SSID
-          - RADIUS Authentication::Top Failures::By Username
-          - RADIUS Authentication::Top Successes::By Computername
-          - RADIUS Authentication::Top Successes::By MAC
-          - RADIUS Authentication::Top Successes::By SSID
-          - RADIUS Authentication::Top Successes::By Username
-          - Roles::Active
-          - Roles::Active per device class
-          - Roles::Active per device manufacturer
-          - Roles::Active per device type
-          - Roles::All
-          - Security Events::Closed
-          - Security Events::Open
-          - Security Events::Open Active
-          - Security Events::Open All
-          - SSID::Active
-          - SSID::All
-          - Top Sponsors::All
-          - User::Registration::Email
-          - User::Registration::SMS
-          - User::Registration::Sponsor
-          type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - DynamicReports
-    options:
-      description: Get meta of a report
-      operationId: api.v1.1.DynamicReports.resource.options
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: report_id
-        required: true
-        schema:
-          enum:
-          - Accounting::Bandwidth
-          - Accounting::Node
-          - Accounting::Operating System Class
-          - Accounting::User
-          - Authentication::All
-          - Authentication::All Failures
-          - Authentication::All Successes
-          - Authentication::Top Failures::Connection Profile to Source
-          - Authentication::Top Failures::By Connection Profile
-          - Authentication::Top Failures::By Source
-          - Authentication::Top Successes::By Connection Profile
-          - Authentication::Top Successes::By Source
-          - Authentication::Top Successes::Connection Profile to Source
-          - Connection Types::Active
-          - Connection Types::All
-          - Connection Types::Date Range
-          - Connection Types::Registered Active
-          - Connection Types::Registered All
-          - Fingerbank::Unknown Fingerprints::Active
-          - Fingerbank::Unknown Fingerprints::All
-          - Ip4Log::Archive
-          - Ip4Log::History
-          - Node::Active
-          - Node::Inactive
-          - Node::Registered::Active
-          - Node::Registered::All
-          - Node::Unregistered::Active
-          - Node::Unregistered::All
-          - Operating System Class::Active
-          - Operating System Class::All
-          - Operating Systems::Active
-          - Operating Systems::All
-          - RADIUS Authentication::Top Failures::By MAC
-          - RADIUS Authentication::Top Failures::By SSID
-          - RADIUS Authentication::Top Failures::By Username
-          - RADIUS Authentication::Top Successes::By Computername
-          - RADIUS Authentication::Top Successes::By MAC
-          - RADIUS Authentication::Top Successes::By SSID
-          - RADIUS Authentication::Top Successes::By Username
-          - Roles::Active
-          - Roles::Active per device class
-          - Roles::Active per device manufacturer
-          - Roles::Active per device type
-          - Roles::All
-          - Security Events::Closed
-          - Security Events::Open
-          - Security Events::Open Active
-          - Security Events::Open All
-          - SSID::Active
-          - SSID::All
-          - Top Sponsors::All
-          - User::Registration::Email
-          - User::Registration::SMS
-          - User::Registration::Sponsor
-          type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/DynamicReportMeta'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - DynamicReports
-  /api/v1.1/report/{report_id}/search:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
-    post:
-      description: Search a report
-      operationId: api.v1.1.DynamicReports.resource.search
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: report_id
-        required: true
-        schema:
-          enum:
-          - Accounting::Bandwidth
-          - Accounting::Node
-          - Accounting::Operating System Class
-          - Accounting::User
-          - Authentication::All
-          - Authentication::All Failures
-          - Authentication::All Successes
-          - Authentication::Top Failures::Connection Profile to Source
-          - Authentication::Top Failures::By Connection Profile
-          - Authentication::Top Failures::By Source
-          - Authentication::Top Successes::By Connection Profile
-          - Authentication::Top Successes::By Source
-          - Authentication::Top Successes::Connection Profile to Source
-          - Connection Types::Active
-          - Connection Types::All
-          - Connection Types::Date Range
-          - Connection Types::Registered Active
-          - Connection Types::Registered All
-          - Fingerbank::Unknown Fingerprints::Active
-          - Fingerbank::Unknown Fingerprints::All
-          - Ip4Log::Archive
-          - Ip4Log::History
-          - Node::Active
-          - Node::Inactive
-          - Node::Registered::Active
-          - Node::Registered::All
-          - Node::Unregistered::Active
-          - Node::Unregistered::All
-          - Operating System Class::Active
-          - Operating System Class::All
-          - Operating Systems::Active
-          - Operating Systems::All
-          - RADIUS Authentication::Top Failures::By MAC
-          - RADIUS Authentication::Top Failures::By SSID
-          - RADIUS Authentication::Top Failures::By Username
-          - RADIUS Authentication::Top Successes::By Computername
-          - RADIUS Authentication::Top Successes::By MAC
-          - RADIUS Authentication::Top Successes::By SSID
-          - RADIUS Authentication::Top Successes::By Username
-          - Roles::Active
-          - Roles::Active per device class
-          - Roles::Active per device manufacturer
-          - Roles::Active per device type
-          - Roles::All
-          - Security Events::Closed
-          - Security Events::Open
-          - Security Events::Open Active
-          - Security Events::Open All
-          - SSID::Active
-          - SSID::All
-          - Top Sponsors::All
-          - User::Registration::Email
-          - User::Registration::SMS
-          - User::Registration::Sponsor
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DynamicReportSearchRequest'
-      responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - DynamicReports
-  /api/v1.1/reports:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
-    get:
-      description: List reports
-      operationId: api.v1.1.DynamicReports.list
-      parameters: []
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - DynamicReports
-  /api/v1/admin_api_audit_log/{admin_api_audit_log_id}:
-    description: pf::UnifiedApi::Controller::AdminApiAuditLogs
-    get:
-      description: Get an item.
-      operationId: api.v1.AdminApiAuditLogs.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: admin_api_audit_log_id
-        required: true
-        schema:
-          type: string
+        type: string
       responses:
         '200':
           content:
             application/json:
               schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/AdminApiAuditLog'
-                type: object
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+                - properties:
+                    item:
+                      $ref: '#/components/schemas/DynamicReport'
+                      type: object
+                  type: object
+          description: Successful response
         '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
+          description: Report not found
+        '500':
+          description: Internal server error
       tags:
-      - AdminApiAuditLogs
-  /api/v1/admin_api_audit_logs:
-    description: pf::UnifiedApi::Controller::AdminApiAuditLogs
-    get:
-      description: List all items.
-      operationId: api.v1.AdminApiAuditLogs.list
+      - DynamicReport
+    options:
+      description: Options for a single report
+      operationId: OptionsReportById
       parameters:
-      - description: Comma delimited list of fields to return with each item.
-        explode: false
-        in: query
-        name: fields
+      - description: Report ID
+        in: path
+        name: id
         required: true
         schema:
           example:
@@ -30086,220 +29520,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminApiAuditLogsList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
+                allOf:
+                - $ref: '#/components/schemas/ApiResponse'
+                - properties:
+                    report_meta:
+                      $ref: '#/components/schemas/DynamicReportOptions'
+                      type: object
+                  type: object
+          description: Successful response
         '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
+          description: Report not found
+        '500':
+          description: Internal server error
       tags:
-      - AdminApiAuditLogs
-  /api/v1/admin_api_audit_logs/search:
-    description: pf::UnifiedApi::Controller::AdminApiAuditLogs
+      - DynamicReport
+  /api/v1.2/dynamic_report/{id}/search:
     post:
-      description: Search all items.
-      operationId: api.v1.AdminApiAuditLogs.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              fields:
-              - action
-              - created_at
-              - id
-              - method
-              - object_id
-              - request
-              - status
-              - url
-              - user_name
-              limit: 25
-              query:
-                op: and
-                values:
-                - op: or
-                  values:
-                  - field: action
-                    op: contains
-                    value: foo
-                  - field: created_at
-                    op: contains
-                    value: foo
-                  - field: id
-                    op: contains
-                    value: foo
-                  - field: method
-                    op: contains
-                    value: foo
-                  - field: object_id
-                    op: contains
-                    value: foo
-                  - field: request
-                    op: contains
-                    value: foo
-                  - field: status
-                    op: contains
-                    value: foo
-                  - field: url
-                    op: contains
-                    value: foo
-                  - field: user_name
-                    op: contains
-                    value: foo
-              sort:
-              - id ASC
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
-                    items:
-                      enum:
-                      - action
-                      - created_at
-                      - id
-                      - method
-                      - object_id
-                      - request
-                      - status
-                      - url
-                      - user_name
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      enum:
-                      - action ASC
-                      - action DESC
-                      - created_at ASC
-                      - created_at DESC
-                      - id ASC
-                      - id DESC
-                      - method ASC
-                      - method DESC
-                      - object_id ASC
-                      - object_id DESC
-                      - request ASC
-                      - request DESC
-                      - status ASC
-                      - status DESC
-                      - url ASC
-                      - url DESC
-                      - user_name ASC
-                      - user_name DESC
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AdminApiAuditLogsList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - AdminApiAuditLogs
-  /api/v1/auth_log/{auth_log_id}:
-    delete:
-      description: Delete an item.
-      operationId: api.v1.AuthLogs.resource.remove
+      description: Get columns of a report
+      operationId: SearchReportById
       parameters:
-      - description: '`PRIMARY KEY`'
+      - description: Report ID
         in: path
-        name: auth_log_id
+        name: id
         required: true
-        schema:
-          type: string
-      responses:
-        '204':
-          description: Item deleted.
-      tags:
-      - AuthLogs
-    description: pf::UnifiedApi::Controller::AuthLogs
-    get:
-      description: Get an item.
-      operationId: api.v1.AuthLogs.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: auth_log_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/AuthLog'
-                type: object
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - AuthLogs
-    patch:
-      description: Update an item.
-      operationId: api.v1.AuthLogs.resource.update
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: auth_log_id
-        required: true
-        schema:
-          type: string
+        type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthLog'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - AuthLogs
-    put:
-      description: Replace an item.
-      operationId: api.v1.AuthLogs.resource.replace
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: auth_log_id
+              $ref: '#/components/schemas/DynamicReportSearchBody'
+        description: Search request data
         required: true
         schema:
           type: string
@@ -30394,190 +29644,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthLogsList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - AuthLogs
-    post:
-      description: Create a new item.
-      operationId: api.v1.AuthLogs.create
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthLog'
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - AuthLogs
-  /api/v1/auth_logs/search:
-    description: pf::UnifiedApi::Controller::AuthLogs
-    post:
-      description: Search all items.
-      operationId: api.v1.AuthLogs.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              fields:
-              - attempted_at
-              - completed_at
-              - id
-              - mac
-              - pid
-              - process_name
-              - profile
-              - source
-              - status
-              limit: 25
-              query:
-                op: and
-                values:
-                - op: or
-                  values:
-                  - field: attempted_at
-                    op: contains
-                    value: foo
-                  - field: completed_at
-                    op: contains
-                    value: foo
-                  - field: id
-                    op: contains
-                    value: foo
-                  - field: mac
-                    op: contains
-                    value: foo
-                  - field: pid
-                    op: contains
-                    value: foo
-                  - field: process_name
-                    op: contains
-                    value: foo
-                  - field: profile
-                    op: contains
-                    value: foo
-                  - field: source
-                    op: contains
-                    value: foo
-                  - field: status
-                    op: contains
-                    value: foo
-              sort:
-              - id ASC
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
+                allOf:
+                - $ref: '#/components/schemas/ApiResponsePaginated'
+                - properties:
                     items:
-                      enum:
-                      - attempted_at
-                      - completed_at
-                      - id
-                      - mac
-                      - pid
-                      - process_name
-                      - profile
-                      - source
-                      - status
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      enum:
-                      - attempted_at ASC
-                      - attempted_at DESC
-                      - completed_at ASC
-                      - completed_at DESC
-                      - id ASC
-                      - id DESC
-                      - mac ASC
-                      - mac DESC
-                      - pid ASC
-                      - pid DESC
-                      - process_name ASC
-                      - process_name DESC
-                      - profile ASC
-                      - profile DESC
-                      - source ASC
-                      - source DESC
-                      - status ASC
-                      - status DESC
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthLogsList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
+                      description: Columns value, can be any type
+                      items:
+                        type: object
+                      type: array
+                  type: object
+          description: Successful response
         '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - AuthLogs
-  /api/v1/class/{class_id}:
-    description: pf::UnifiedApi::Controller::Classes
-    get:
-      description: Get an item.
-      operationId: api.v1.Classes.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: class_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/Class'
-                type: object
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
+          description: Report not found
+        '500':
+          description: Internal server error
       tags:
       - Classes
   /api/v1/classes:
@@ -30687,198 +29767,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClassesList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Classes
-  /api/v1/classes/search:
-    description: pf::UnifiedApi::Controller::Classes
-    post:
-      description: Search all items.
-      operationId: api.v1.Classes.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              fields:
-              - auto_enable
-              - button_text
-              - delay_by
-              - description
-              - enabled
-              - external_command
-              - grace_period
-              - max_enable_url
-              - max_enables
-              - priority
-              - redirect_url
-              - security_event_id
-              - target_category
-              - template
-              - vclose
-              - vlan
-              - window
-              limit: 25
-              query:
-                op: and
-                values:
-                - op: or
-                  values:
-                  - field: auto_enable
-                    op: contains
-                    value: foo
-                  - field: button_text
-                    op: contains
-                    value: foo
-                  - field: delay_by
-                    op: contains
-                    value: foo
-                  - field: description
-                    op: contains
-                    value: foo
-                  - field: enabled
-                    op: contains
-                    value: foo
-                  - field: external_command
-                    op: contains
-                    value: foo
-                  - field: grace_period
-                    op: contains
-                    value: foo
-                  - field: max_enable_url
-                    op: contains
-                    value: foo
-                  - field: max_enables
-                    op: contains
-                    value: foo
-                  - field: priority
-                    op: contains
-                    value: foo
-                  - field: redirect_url
-                    op: contains
-                    value: foo
-                  - field: security_event_id
-                    op: contains
-                    value: foo
-                  - field: target_category
-                    op: contains
-                    value: foo
-                  - field: template
-                    op: contains
-                    value: foo
-                  - field: vclose
-                    op: contains
-                    value: foo
-                  - field: vlan
-                    op: contains
-                    value: foo
-                  - field: window
-                    op: contains
-                    value: foo
-              sort:
-              - security_event_id ASC
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
+                allOf:
+                - $ref: '#/components/schemas/ApiResponsePaginated'
+                - properties:
                     items:
-                      enum:
-                      - auto_enable
-                      - button_text
-                      - delay_by
-                      - description
-                      - enabled
-                      - external_command
-                      - grace_period
-                      - max_enable_url
-                      - max_enables
-                      - priority
-                      - redirect_url
-                      - security_event_id
-                      - target_category
-                      - template
-                      - vclose
-                      - vlan
-                      - window
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      enum:
-                      - auto_enable ASC
-                      - auto_enable DESC
-                      - button_text ASC
-                      - button_text DESC
-                      - delay_by ASC
-                      - delay_by DESC
-                      - description ASC
-                      - description DESC
-                      - enabled ASC
-                      - enabled DESC
-                      - external_command ASC
-                      - external_command DESC
-                      - grace_period ASC
-                      - grace_period DESC
-                      - max_enable_url ASC
-                      - max_enable_url DESC
-                      - max_enables ASC
-                      - max_enables DESC
-                      - priority ASC
-                      - priority DESC
-                      - redirect_url ASC
-                      - redirect_url DESC
-                      - security_event_id ASC
-                      - security_event_id DESC
-                      - target_category ASC
-                      - target_category DESC
-                      - template ASC
-                      - template DESC
-                      - vclose ASC
-                      - vclose DESC
-                      - vlan ASC
-                      - vlan DESC
-                      - window ASC
-                      - window DESC
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClassesList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
+                      items:
+                        $ref: '#/components/schemas/DynamicReport'
+                      type: array
+                  type: object
+          description: Successful response
+        '500':
+          description: Internal server error
       tags:
-      - Classes
+      - DynamicReport
   /api/v1/cluster/config:
     get:
       responses:
@@ -53182,102 +52083,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
       - Ip6logs
-  /api/v1/ip6logs/search:
-    description: pf::UnifiedApi::Controller::Ip6logs
-    post:
-      description: Search all items.
-      operationId: api.v1.Ip6logs.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              fields:
-              - end_time
-              - ip
-              - mac
-              - start_time
-              - type
-              limit: 25
-              query:
-                op: and
-                values:
-                - op: or
-                  values:
-                  - field: end_time
-                    op: contains
-                    value: foo
-                  - field: ip
-                    op: contains
-                    value: foo
-                  - field: mac
-                    op: contains
-                    value: foo
-                  - field: start_time
-                    op: contains
-                    value: foo
-                  - field: type
-                    op: contains
-                    value: foo
-              sort:
-              - ip ASC
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
-                    items:
-                      enum:
-                      - end_time
-                      - ip
-                      - mac
-                      - start_time
-                      - type
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      enum:
-                      - end_time ASC
-                      - end_time DESC
-                      - ip ASC
-                      - ip DESC
-                      - mac ASC
-                      - mac DESC
-                      - start_time ASC
-                      - start_time DESC
-                      - type ASC
-                      - type DESC
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ip6logsList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Ip6logs
   /api/v1/ipset/add_ip/{ipset_name}:
     post:
       description: Add an IP to a specific ipset
@@ -54041,230 +52846,6 @@ paths:
       summary: Touch session without updating read pointer.
       tags:
       - LiveLogs
-  /api/v1/node/{node_id}:
-    delete:
-      description: Delete an item.
-      operationId: api.v1.Nodes.resource.remove
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '204':
-          description: Item deleted.
-      tags:
-      - Nodes
-    description: |-
-      pf::UnifiedApi::Controller::Nodes
-
-        register
-          register
-
-        deregister
-          deregister
-
-        bulk_register
-          bulk_register
-
-        bulk_init_results
-          bulk_init_results
-
-        bulk_deregister
-          bulk_deregister
-
-        fingerbank_info
-          fingerbank_info
-
-        fingerbank_refresh
-          fingerbank_refresh
-
-        bulk_close_security_events
-          bulk_close_security_events
-
-        close_security_event
-          close_security_event
-
-        create_error_msg
-          create_error_msg
-
-        bulk_reevaluate_access
-          bulk_reevaluate_access
-
-        bulk_fingerbank_refresh
-          bulk_fingerbank_refresh
-
-        post_update
-          post_update
-
-        bulk_restart_switchport
-          bulk_restart_switchport
-
-        bulk_apply_security_event
-          bulk_apply_security_event
-
-        apply_security_event
-          apply_security_event
-
-        bulk_apply_role
-          bulk_apply_role
-
-        bulk_apply_bypass_role
-          bulk_apply_bypass_role
-
-        bulk_apply_bypass_acls
-          bulk update bypass_acls
-
-        bulk_apply_bypass_vlan
-          bulk update bypass_vlan
-
-        do_bulk_update_field
-          do_bulk_update_field
-
-        do_bulk_update_field
-          do_bulk_update_field2
-
-        restart_switchport
-          restart_switchport
-
-        do_restart_switchport
-          do_restart_switchport
-
-        reevaluate_access
-          reevaluate_access
-
-        rapid7
-          rapid7
-
-        security_events
-          security_events
-
-        park
-          park
-
-        unpark
-          unpark
-
-        network_graph
-          network_graph
-
-        build_network_graph_info
-          build_network_graph_info
-
-        network_graph_search_builder
-          network_graph_search_builder
-
-        pf_network_graph_node
-          pf_network_graph_node
-
-        map_to_network_graph
-          map_to_network_graph
-
-        add_switch_to_network_graph
-          add_switch_to_network_graph
-
-        add_swith_group_to_network_graph
-          add_swith_group_to_network_graph
-
-        pf_network_graph_switch_info
-          pf_network_graph_switch_info
-
-        get_switch_data
-          get_switch_data
-
-        bulk_import
-          bulk_import
-
-        validate
-          validate
-
-        _do_remove
-          _do_remove
-
-        create_data_update
-          create_data_update
-    get:
-      description: Get an item.
-      operationId: api.v1.Nodes.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/Node'
-                type: object
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Nodes
-    patch:
-      description: Update an item.
-      operationId: api.v1.Nodes.resource.update
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Node'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Nodes
-    put:
-      description: Replace an item.
-      operationId: api.v1.Nodes.resource.replace
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Node'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Nodes
   /api/v1/node/{node_id}/apply_security_event:
     put:
       parameters:
@@ -55241,411 +53822,6 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
       summary: Get count of nodes per device class.
-      tags:
-      - Nodes
-  /api/v1/nodes/search:
-    description: |-
-      pf::UnifiedApi::Controller::Nodes
-
-        register
-          register
-
-        deregister
-          deregister
-
-        bulk_register
-          bulk_register
-
-        bulk_init_results
-          bulk_init_results
-
-        bulk_deregister
-          bulk_deregister
-
-        fingerbank_info
-          fingerbank_info
-
-        fingerbank_refresh
-          fingerbank_refresh
-
-        bulk_close_security_events
-          bulk_close_security_events
-
-        close_security_event
-          close_security_event
-
-        create_error_msg
-          create_error_msg
-
-        bulk_reevaluate_access
-          bulk_reevaluate_access
-
-        bulk_fingerbank_refresh
-          bulk_fingerbank_refresh
-
-        post_update
-          post_update
-
-        bulk_restart_switchport
-          bulk_restart_switchport
-
-        bulk_apply_security_event
-          bulk_apply_security_event
-
-        apply_security_event
-          apply_security_event
-
-        bulk_apply_role
-          bulk_apply_role
-
-        bulk_apply_bypass_role
-          bulk_apply_bypass_role
-
-        bulk_apply_bypass_acls
-          bulk update bypass_acls
-
-        bulk_apply_bypass_vlan
-          bulk update bypass_vlan
-
-        do_bulk_update_field
-          do_bulk_update_field
-
-        do_bulk_update_field
-          do_bulk_update_field2
-
-        restart_switchport
-          restart_switchport
-
-        do_restart_switchport
-          do_restart_switchport
-
-        reevaluate_access
-          reevaluate_access
-
-        rapid7
-          rapid7
-
-        security_events
-          security_events
-
-        park
-          park
-
-        unpark
-          unpark
-
-        network_graph
-          network_graph
-
-        build_network_graph_info
-          build_network_graph_info
-
-        network_graph_search_builder
-          network_graph_search_builder
-
-        pf_network_graph_node
-          pf_network_graph_node
-
-        map_to_network_graph
-          map_to_network_graph
-
-        add_switch_to_network_graph
-          add_switch_to_network_graph
-
-        add_swith_group_to_network_graph
-          add_swith_group_to_network_graph
-
-        pf_network_graph_switch_info
-          pf_network_graph_switch_info
-
-        get_switch_data
-          get_switch_data
-
-        bulk_import
-          bulk_import
-
-        validate
-          validate
-
-        _do_remove
-          _do_remove
-
-        create_data_update
-          create_data_update
-    post:
-      description: Search all items.
-      operationId: api.v1.Nodes.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              fields:
-              - autoreg
-              - bandwidth_balance
-              - bypass_acls
-              - bypass_role_id
-              - bypass_vlan
-              - category_id
-              - computername
-              - detect_date
-              - device_class
-              - device_manufacturer
-              - device_score
-              - device_type
-              - device_version
-              - dhcp6_enterprise
-              - dhcp6_fingerprint
-              - dhcp_fingerprint
-              - dhcp_vendor
-              - last_arp
-              - last_dhcp
-              - last_seen
-              - mac
-              - machine_account
-              - notes
-              - pid
-              - regdate
-              - sessionid
-              - status
-              - time_balance
-              - unregdate
-              - user_agent
-              - voip
-              limit: 25
-              query:
-                op: and
-                values:
-                - op: or
-                  values:
-                  - field: autoreg
-                    op: contains
-                    value: foo
-                  - field: bandwidth_balance
-                    op: contains
-                    value: foo
-                  - field: bypass_acls
-                    op: contains
-                    value: foo
-                  - field: bypass_role_id
-                    op: contains
-                    value: foo
-                  - field: bypass_vlan
-                    op: contains
-                    value: foo
-                  - field: category_id
-                    op: contains
-                    value: foo
-                  - field: computername
-                    op: contains
-                    value: foo
-                  - field: detect_date
-                    op: contains
-                    value: foo
-                  - field: device_class
-                    op: contains
-                    value: foo
-                  - field: device_manufacturer
-                    op: contains
-                    value: foo
-                  - field: device_score
-                    op: contains
-                    value: foo
-                  - field: device_type
-                    op: contains
-                    value: foo
-                  - field: device_version
-                    op: contains
-                    value: foo
-                  - field: dhcp6_enterprise
-                    op: contains
-                    value: foo
-                  - field: dhcp6_fingerprint
-                    op: contains
-                    value: foo
-                  - field: dhcp_fingerprint
-                    op: contains
-                    value: foo
-                  - field: dhcp_vendor
-                    op: contains
-                    value: foo
-                  - field: last_arp
-                    op: contains
-                    value: foo
-                  - field: last_dhcp
-                    op: contains
-                    value: foo
-                  - field: last_seen
-                    op: contains
-                    value: foo
-                  - field: mac
-                    op: contains
-                    value: foo
-                  - field: machine_account
-                    op: contains
-                    value: foo
-                  - field: notes
-                    op: contains
-                    value: foo
-                  - field: pid
-                    op: contains
-                    value: foo
-                  - field: regdate
-                    op: contains
-                    value: foo
-                  - field: sessionid
-                    op: contains
-                    value: foo
-                  - field: status
-                    op: contains
-                    value: foo
-                  - field: time_balance
-                    op: contains
-                    value: foo
-                  - field: unregdate
-                    op: contains
-                    value: foo
-                  - field: user_agent
-                    op: contains
-                    value: foo
-                  - field: voip
-                    op: contains
-                    value: foo
-              sort:
-              - mac ASC
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
-                    items:
-                      enum:
-                      - autoreg
-                      - bandwidth_balance
-                      - bypass_acls
-                      - bypass_role_id
-                      - bypass_vlan
-                      - category_id
-                      - computername
-                      - detect_date
-                      - device_class
-                      - device_manufacturer
-                      - device_score
-                      - device_type
-                      - device_version
-                      - dhcp6_enterprise
-                      - dhcp6_fingerprint
-                      - dhcp_fingerprint
-                      - dhcp_vendor
-                      - last_arp
-                      - last_dhcp
-                      - last_seen
-                      - mac
-                      - machine_account
-                      - notes
-                      - pid
-                      - regdate
-                      - sessionid
-                      - status
-                      - time_balance
-                      - unregdate
-                      - user_agent
-                      - voip
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      enum:
-                      - autoreg ASC
-                      - autoreg DESC
-                      - bandwidth_balance ASC
-                      - bandwidth_balance DESC
-                      - bypass_acls ASC
-                      - bypass_acls DESC
-                      - bypass_role_id ASC
-                      - bypass_role_id DESC
-                      - bypass_vlan ASC
-                      - bypass_vlan DESC
-                      - category_id ASC
-                      - category_id DESC
-                      - computername ASC
-                      - computername DESC
-                      - detect_date ASC
-                      - detect_date DESC
-                      - device_class ASC
-                      - device_class DESC
-                      - device_manufacturer ASC
-                      - device_manufacturer DESC
-                      - device_score ASC
-                      - device_score DESC
-                      - device_type ASC
-                      - device_type DESC
-                      - device_version ASC
-                      - device_version DESC
-                      - dhcp6_enterprise ASC
-                      - dhcp6_enterprise DESC
-                      - dhcp6_fingerprint ASC
-                      - dhcp6_fingerprint DESC
-                      - dhcp_fingerprint ASC
-                      - dhcp_fingerprint DESC
-                      - dhcp_vendor ASC
-                      - dhcp_vendor DESC
-                      - last_arp ASC
-                      - last_arp DESC
-                      - last_dhcp ASC
-                      - last_dhcp DESC
-                      - last_seen ASC
-                      - last_seen DESC
-                      - mac ASC
-                      - mac DESC
-                      - machine_account ASC
-                      - machine_account DESC
-                      - notes ASC
-                      - notes DESC
-                      - pid ASC
-                      - pid DESC
-                      - regdate ASC
-                      - regdate DESC
-                      - sessionid ASC
-                      - sessionid DESC
-                      - status ASC
-                      - status DESC
-                      - time_balance ASC
-                      - time_balance DESC
-                      - unregdate ASC
-                      - unregdate DESC
-                      - user_agent ASC
-                      - user_agent DESC
-                      - voip ASC
-                      - voip DESC
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NodesList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
       tags:
       - Nodes
   /api/v1/pfqueue/task/{task_id}/status/poll:
@@ -57854,276 +56030,6 @@ paths:
       summary: List all translations.
       tags:
       - Locales
-  /api/v1/user/{user_id}:
-    delete:
-      description: Delete an item.
-      operationId: api.v1.Users.resource.remove
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '204':
-          description: Item deleted.
-      tags:
-      - Users
-    description: |-
-      pf::UnifiedApi::Controller::User
-
-        create_data_update
-          create_data_update
-
-        cleanup_item
-          Remove the password field from the item
-
-        unassign_nodes
-          unassign user nodes
-
-        security_events
-          security_events
-
-        bulk_register
-          bulk_register
-
-        bulk_deregister
-          bulk_deregister
-
-        bulk_close_security_events
-          bulk_close_security_events
-
-        close_security_events
-          close_security_events
-
-        bulk_apply_security_event
-          bulk_apply_security_event
-
-        bulk_reevaluate_access
-          bulk_reevaluate_access
-
-        bulk_init_results
-          bulk_init_results
-
-        bulk_fingerbank_refresh
-          bulk_fingerbank_refresh
-
-        do_bulk_update_field
-          do_bulk_update_field
-
-        bulk_apply_role
-          bulk_apply_role
-
-        bulk_apply_bypass_role
-          bulk_apply_bypass_role
-
-        bulk_delete
-          bulk_delete
-
-        bulk_import
-          bulk_import
-    get:
-      description: Get an item.
-      operationId: api.v1.Users.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/User'
-                type: object
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users
-    patch:
-      description: Update an item.
-      operationId: api.v1.Users.resource.update
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users
-    put:
-      description: Replace an item.
-      operationId: api.v1.Users.resource.replace
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users
-  /api/v1/user/{user_id}/node/{node_id}:
-    delete:
-      description: Delete an item.
-      operationId: api.v1.Users.resource.Users.Nodes.resource.remove
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '204':
-          description: Item deleted.
-      tags:
-      - Users/Nodes
-    description: pf::UnifiedApi::Controller::Users::Nodes
-    get:
-      description: Get an item.
-      operationId: api.v1.Users.resource.Users.Nodes.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/UsersNode'
-                type: object
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users/Nodes
-    patch:
-      description: Update an item.
-      operationId: api.v1.Users.resource.Users.Nodes.resource.update
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UsersNode'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users/Nodes
-    put:
-      description: Replace an item.
-      operationId: api.v1.Users.resource.Users.Nodes.resource.replace
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: node_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UsersNode'
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users/Nodes
   /api/v1/user/{user_id}/node/{node_id}/locationlog/{locationlog_id}:
     delete:
       description: Remove an item
@@ -58298,290 +56204,6 @@ paths:
       summary: Get all Nodes for a User.
       tags:
       - Users
-  /api/v1/user/{user_id}/nodes/search:
-    description: pf::UnifiedApi::Controller::Users::Nodes
-    post:
-      description: Search all items.
-      operationId: api.v1.Users.resource.Users.Nodes.search
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              fields:
-              - autoreg
-              - bandwidth_balance
-              - bypass_acls
-              - bypass_role_id
-              - bypass_vlan
-              - category_id
-              - computername
-              - detect_date
-              - device_class
-              - device_manufacturer
-              - device_score
-              - device_type
-              - device_version
-              - dhcp6_enterprise
-              - dhcp6_fingerprint
-              - dhcp_fingerprint
-              - dhcp_vendor
-              - last_arp
-              - last_dhcp
-              - last_seen
-              - mac
-              - machine_account
-              - notes
-              - pid
-              - regdate
-              - sessionid
-              - status
-              - time_balance
-              - unregdate
-              - user_agent
-              - voip
-              limit: 25
-              query:
-                op: and
-                values:
-                - op: or
-                  values:
-                  - field: autoreg
-                    op: contains
-                    value: foo
-                  - field: bandwidth_balance
-                    op: contains
-                    value: foo
-                  - field: bypass_acls
-                    op: contains
-                    value: foo
-                  - field: bypass_role_id
-                    op: contains
-                    value: foo
-                  - field: bypass_vlan
-                    op: contains
-                    value: foo
-                  - field: category_id
-                    op: contains
-                    value: foo
-                  - field: computername
-                    op: contains
-                    value: foo
-                  - field: detect_date
-                    op: contains
-                    value: foo
-                  - field: device_class
-                    op: contains
-                    value: foo
-                  - field: device_manufacturer
-                    op: contains
-                    value: foo
-                  - field: device_score
-                    op: contains
-                    value: foo
-                  - field: device_type
-                    op: contains
-                    value: foo
-                  - field: device_version
-                    op: contains
-                    value: foo
-                  - field: dhcp6_enterprise
-                    op: contains
-                    value: foo
-                  - field: dhcp6_fingerprint
-                    op: contains
-                    value: foo
-                  - field: dhcp_fingerprint
-                    op: contains
-                    value: foo
-                  - field: dhcp_vendor
-                    op: contains
-                    value: foo
-                  - field: last_arp
-                    op: contains
-                    value: foo
-                  - field: last_dhcp
-                    op: contains
-                    value: foo
-                  - field: last_seen
-                    op: contains
-                    value: foo
-                  - field: mac
-                    op: contains
-                    value: foo
-                  - field: machine_account
-                    op: contains
-                    value: foo
-                  - field: notes
-                    op: contains
-                    value: foo
-                  - field: pid
-                    op: contains
-                    value: foo
-                  - field: regdate
-                    op: contains
-                    value: foo
-                  - field: sessionid
-                    op: contains
-                    value: foo
-                  - field: status
-                    op: contains
-                    value: foo
-                  - field: time_balance
-                    op: contains
-                    value: foo
-                  - field: unregdate
-                    op: contains
-                    value: foo
-                  - field: user_agent
-                    op: contains
-                    value: foo
-                  - field: voip
-                    op: contains
-                    value: foo
-              sort:
-              - mac ASC
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
-                    items:
-                      enum:
-                      - autoreg
-                      - bandwidth_balance
-                      - bypass_acls
-                      - bypass_role_id
-                      - bypass_vlan
-                      - category_id
-                      - computername
-                      - detect_date
-                      - device_class
-                      - device_manufacturer
-                      - device_score
-                      - device_type
-                      - device_version
-                      - dhcp6_enterprise
-                      - dhcp6_fingerprint
-                      - dhcp_fingerprint
-                      - dhcp_vendor
-                      - last_arp
-                      - last_dhcp
-                      - last_seen
-                      - mac
-                      - machine_account
-                      - notes
-                      - pid
-                      - regdate
-                      - sessionid
-                      - status
-                      - time_balance
-                      - unregdate
-                      - user_agent
-                      - voip
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      enum:
-                      - autoreg ASC
-                      - autoreg DESC
-                      - bandwidth_balance ASC
-                      - bandwidth_balance DESC
-                      - bypass_acls ASC
-                      - bypass_acls DESC
-                      - bypass_role_id ASC
-                      - bypass_role_id DESC
-                      - bypass_vlan ASC
-                      - bypass_vlan DESC
-                      - category_id ASC
-                      - category_id DESC
-                      - computername ASC
-                      - computername DESC
-                      - detect_date ASC
-                      - detect_date DESC
-                      - device_class ASC
-                      - device_class DESC
-                      - device_manufacturer ASC
-                      - device_manufacturer DESC
-                      - device_score ASC
-                      - device_score DESC
-                      - device_type ASC
-                      - device_type DESC
-                      - device_version ASC
-                      - device_version DESC
-                      - dhcp6_enterprise ASC
-                      - dhcp6_enterprise DESC
-                      - dhcp6_fingerprint ASC
-                      - dhcp6_fingerprint DESC
-                      - dhcp_fingerprint ASC
-                      - dhcp_fingerprint DESC
-                      - dhcp_vendor ASC
-                      - dhcp_vendor DESC
-                      - last_arp ASC
-                      - last_arp DESC
-                      - last_dhcp ASC
-                      - last_dhcp DESC
-                      - last_seen ASC
-                      - last_seen DESC
-                      - mac ASC
-                      - mac DESC
-                      - machine_account ASC
-                      - machine_account DESC
-                      - notes ASC
-                      - notes DESC
-                      - pid ASC
-                      - pid DESC
-                      - regdate ASC
-                      - regdate DESC
-                      - sessionid ASC
-                      - sessionid DESC
-                      - status ASC
-                      - status DESC
-                      - time_balance ASC
-                      - time_balance DESC
-                      - unregdate ASC
-                      - unregdate DESC
-                      - user_agent ASC
-                      - user_agent DESC
-                      - voip ASC
-                      - voip DESC
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsersNodesList'
-          description: Request successful.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Users/Nodes
   /api/v1/user/{user_id}/password:
     delete:
       responses:

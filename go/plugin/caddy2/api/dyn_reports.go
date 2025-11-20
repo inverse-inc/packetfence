@@ -23,13 +23,13 @@ import (
 const defaultSearchLimit int = 25
 
 // Report struct
-// pfconfigdriver.Report is used ot read data from backend
+// pfconfigdriver.DynamicReport is used ot read data from backend
 // This struct is used to response request. For compatibility purpose,
 // all arrays are converted to commad separted strings: [1, 2, 3] => "1,2,3"
 // Sql field is converted to array of lines (split sql with "\n" char)
 // output
 type report struct {
-	pfconfigdriver.Report
+	pfconfigdriver.DynamicReport
 	Charts        string   `json:"charts,omitempty"`
 	Columns       string   `json:"columns,omitempty"`
 	Formatting    string   `json:"formatting,omitempty"`
@@ -79,7 +79,7 @@ type reportSearchParams struct {
 
 type reportSearchFieldQuery = map[string]any
 
-var CachedReportConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Reports{}))
+var CachedReportConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.DynamicReports{}))
 
 type DynamicReport struct {
 	DBP **gorm.DB
@@ -99,7 +99,7 @@ func cleanSql(sql string) string {
 	return strings.TrimSpace(cleanSql)
 }
 
-func parseReportForResponse(output *report, input *pfconfigdriver.Report) {
+func parseReportForResponse(output *report, input *pfconfigdriver.DynamicReport) {
 	output.Id = input.Id
 	output.Type = input.Type
 	output.Description = input.Description
@@ -134,12 +134,12 @@ func parseReportForResponse(output *report, input *pfconfigdriver.Report) {
 	}
 }
 
-func getReports(r *http.Request) (map[string]pfconfigdriver.Report, error) {
+func getReports(r *http.Request) (map[string]pfconfigdriver.DynamicReport, error) {
 	o, err := CachedReportConfig.Value(r.Context())
 	if err != nil {
 		return nil, err
 	}
-	reports := o.(*pfconfigdriver.Reports)
+	reports := o.(*pfconfigdriver.DynamicReports)
 	return reports.Element, nil
 }
 
@@ -215,7 +215,7 @@ func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
 	return startDate, endDate
 }
 
-func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.Report) {
+func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.DynamicReport) {
 	// Match TEXT in: foo [as ][\]"TEXT[\]"
 	// All possible format: foo as \"bar\" | foo "bar" | "foo \"bar\"" | "bar"
 	regexp := regexp.MustCompile(`^\S+\s+(?:as\s)?\\?\"(.+)\\?\"`)
@@ -242,7 +242,7 @@ func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.R
 	}
 }
 
-func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report *pfconfigdriver.Report) {
+func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report *pfconfigdriver.DynamicReport) {
 	// Copy paste values
 	options.ReportMeta.Id = report.Id
 	options.ReportMeta.Description = report.Description
@@ -290,7 +290,7 @@ func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p ht
 	body.ResponseRaw(w, http.StatusOK, &options)
 }
 
-func validateSearchPayload(opts map[string]any, payload reportSearchParams, report *pfconfigdriver.Report) []error {
+func validateSearchPayload(opts map[string]any, payload reportSearchParams, report *pfconfigdriver.DynamicReport) []error {
 	errLst := make([]error, 0)
 	if slices.Contains(report.Bindings, "limit") {
 		var tmp string
@@ -371,7 +371,7 @@ func validateSearchPayload(opts map[string]any, payload reportSearchParams, repo
 			opts["cursor_field"] = report.CursorField[0]
 		}
 	case "multi_field":
-		opts["cursor_field"] = make([]any, 0)
+		opts["cursor_field"] = make([]string, 0)
 		cursorRe := regexp.MustCompile(`^cursor\.(\d+)$`)
 		for _, binding := range report.Bindings {
 			if _, ok := opts[binding]; ok {
@@ -390,7 +390,7 @@ func validateSearchPayload(opts map[string]any, payload reportSearchParams, repo
 					}
 				}
 				optsCursor = append(optsCursor, opts[binding].(string))
-				opts["cursor_field"] = append(opts["cursor_field"].([]any), report.CursorField[index])
+				opts["cursor_field"] = append(opts["cursor_field"].([]string), report.CursorField[index])
 			}
 		}
 	default: // nothing to do, should not happens
@@ -504,8 +504,14 @@ func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options m
 		case "field":
 			body.NextCursor = (*items)[limit][options["cursor_field"].(string)]
 		case "multi_field":
-			// TODO multi_field: iterate over cursor_field
-			body.NextCursor = (*items)[limit][options["cursor_field"].([]string)[0]]
+			cursorFields := options["cursor_field"].([]string)
+			nextCursor := make([]any, 0)
+			for _, field := range cursorFields {
+				nextCursor = append(nextCursor, (*items)[limit][field])
+			}
+			body.NextCursor = nextCursor
+		default:
+			// none
 		}
 		*items = (*items)[:len(*items)-1] // do not return the +1 record fetched
 	} else {

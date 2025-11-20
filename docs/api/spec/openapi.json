@@ -3223,7 +3223,8 @@
          }
       },
       "schemas" : {
-         "AdminApiAuditLog" : {
+         "ApiError" : {
+            "description" : "An error response object used across multiple endpoints.",
             "properties" : {
                "action" : {
                   "type" : "string"
@@ -3243,9 +3244,16 @@
                },
                "request" : {
                   "type" : "string"
-               },
-               "status" : {
-                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ApiPagination" : {
+            "description" : "A common pagination object used across multiple endpoints.",
+            "properties" : {
+               "count" : {
+                  "description" : "Total number of items available.",
+                  "type" : "integer"
                },
                "url" : {
                   "type" : "string"
@@ -3256,19 +3264,23 @@
             },
             "type" : "object"
          },
-         "AdminApiAuditLogsList" : {
+         "ApiResponse" : {
             "allOf" : [
                {
-                  "$ref" : "#/components/schemas/Iterable"
-               },
-               {
                   "properties" : {
-                     "items" : {
-                        "description" : "Items.",
+                     "errors" : {
                         "items" : {
-                           "$ref" : "#/components/schemas/AdminApiAuditLog"
+                           "$ref" : "#/components/schemas/ApiError"
                         },
                         "type" : "array"
+                     },
+                     "message" : {
+                        "description" : "A message describing the response.",
+                        "type" : "string"
+                     },
+                     "status" : {
+                        "description" : "The HTTP status of the response.",
+                        "type" : "int"
                      }
                   },
                   "type" : "object"
@@ -3325,21 +3337,23 @@
          "AuthLogsList" : {
             "allOf" : [
                {
-                  "$ref" : "#/components/schemas/Iterable"
-               },
-               {
-                  "properties" : {
-                     "items" : {
-                        "description" : "Items.",
-                        "items" : {
-                           "$ref" : "#/components/schemas/AuthLog"
-                        },
-                        "type" : "array"
-                     }
-                  },
-                  "type" : "object"
+                  "$ref" : "#/components/schemas/ApiPagination"
                }
-            ]
+            ],
+            "description" : "A common response object used across multiple endpoints."
+         },
+         "Async" : {
+            "properties" : {
+               "async" : {
+                  "description" : "Run the task asyncronously.",
+                  "enum" : [
+                     true,
+                     false
+                  ],
+                  "type" : "boolean"
+               }
+            },
+            "type" : "object"
          },
          "BulkImport" : {
             "properties" : {
@@ -4951,91 +4965,6 @@
                }
             }
          },
-         "ConfigCloud" : {
-            "properties" : {
-               "client_id" : {
-                  "description" : "Client ID",
-                  "type" : "string"
-               },
-               "client_secret" : {
-                  "description" : "Client Secret",
-                  "type" : "string"
-               },
-               "id" : {
-                  "description" : "Name",
-                  "type" : "string"
-               },
-               "tenant_id" : {
-                  "description" : "Tenant ID",
-                  "type" : "string"
-               },
-               "type" : {
-                  "description" : "Type",
-                  "type" : "string"
-               }
-            },
-            "required" : [
-               "id",
-               "tenant_id",
-               "client_id",
-               "client_secret"
-            ],
-            "type" : "object"
-         },
-         "ConfigCloudMeta" : {
-            "properties" : {
-               "meta" : {
-                  "properties" : {
-                     "client_id" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "client_secret" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "id" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "tenant_id" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "type" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     }
-                  },
-                  "type" : "object"
-               }
-            },
-            "type" : "object"
-         },
-         "ConfigCloudWrapped" : {
-            "properties" : {
-               "item" : {
-                  "$ref" : "#/components/schemas/ConfigCloud"
-               },
-               "status" : {
-                  "type" : "integer"
-               }
-            },
-            "type" : "object"
-         },
-         "ConfigCloudsList" : {
-            "allOf" : [
-               {
-                  "$ref" : "#/components/schemas/Iterable"
-               },
-               {
-                  "properties" : {
-                     "items" : {
-                        "items" : {
-                           "$ref" : "#/components/schemas/ConfigCloud"
-                        },
-                        "type" : "array"
-                     }
-                  },
-                  "type" : "object"
-               }
-            ]
-         },
          "ConfigConditionFlatten" : {
             "properties" : {
                "condition" : {
@@ -5090,221 +5019,6 @@
                   "$ref" : "#/components/schemas/Status"
                }
             },
-            "type" : "object"
-         },
-         "ConfigConnectionProfile" : {
-            "properties" : {
-               "access_registration_when_registered" : {
-                  "description" : "This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.",
-                  "type" : "string"
-               },
-               "advanced_filter" : {
-                  "description" : "Advanced filter",
-                  "properties" : {
-                     "field" : {
-                        "description" : "Field",
-                        "type" : "string"
-                     },
-                     "op" : {
-                        "description" : "Value",
-                        "type" : "string"
-                     },
-                     "value" : {
-                        "description" : "Value",
-                        "type" : "string"
-                     },
-                     "values" : {
-                        "description" : "Values",
-                        "items" : {
-                           "description" : "Value",
-                           "type" : "string"
-                        },
-                        "type" : "array"
-                     }
-                  },
-                  "type" : "object"
-               },
-               "always_use_redirecturl" : {
-                  "description" : "Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.",
-                  "type" : "string"
-               },
-               "autoregister" : {
-                  "description" : "This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.",
-                  "type" : "string"
-               },
-               "billing_tiers" : {
-                  "description" : "Billing tiers",
-                  "items" : {
-                     "description" : "Billing tier",
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "block_interval" : {
-                  "description" : "The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.",
-                  "properties" : {
-                     "interval" : {
-                        "description" : "Interval",
-                        "type" : "integer"
-                     },
-                     "unit" : {
-                        "description" : "Unit",
-                        "type" : "string"
-                     }
-                  },
-                  "type" : "object"
-               },
-               "default_psk_key" : {
-                  "description" : "This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.",
-                  "type" : "string"
-               },
-               "description" : {
-                  "description" : "Profile Description",
-                  "type" : "string"
-               },
-               "dot1x_recompute_role_from_portal" : {
-                  "description" : "When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.",
-                  "type" : "string"
-               },
-               "dot1x_unset_on_unmatch" : {
-                  "description" : "When enabled, PacketFence will unset the role of the device if no authentication sources returned one.",
-                  "type" : "string"
-               },
-               "dpsk" : {
-                  "description" : "This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.",
-                  "type" : "string"
-               },
-               "filter" : {
-                  "description" : "Filters",
-                  "items" : {
-                     "description" : "Filter",
-                     "properties" : {
-                        "match" : {
-                           "description" : "Match",
-                           "type" : "string"
-                        },
-                        "type" : {
-                           "description" : "Type",
-                           "type" : "string"
-                        }
-                     },
-                     "type" : "object"
-                  },
-                  "type" : "array"
-               },
-               "filter_match_style" : {
-                  "description" : "Filter match style",
-                  "type" : "string"
-               },
-               "id" : {
-                  "description" : "A profile id can only contain alphanumeric characters, dashes, period and or underscores.",
-                  "type" : "string"
-               },
-               "locale" : {
-                  "description" : "Locales",
-                  "items" : {
-                     "description" : "Locale",
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "login_attempt_limit" : {
-                  "description" : "Limit the number of login attempts. A value of 0 disables the limit.",
-                  "type" : "integer"
-               },
-               "logo" : {
-                  "description" : "Logo",
-                  "type" : "string"
-               },
-               "mac_auth_recompute_role_from_portal" : {
-                  "description" : "When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.",
-                  "type" : "string"
-               },
-               "network_logoff" : {
-                  "description" : "This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)",
-                  "type" : "string"
-               },
-               "network_logoff_popup" : {
-                  "description" : "When the \"Network Logoff\" feature is enabled, this will have it opened in a popup at the end of the registration process.",
-                  "type" : "string"
-               },
-               "preregistration" : {
-                  "description" : "This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have \"Create local account\" enabled.",
-                  "type" : "string"
-               },
-               "provisioners" : {
-                  "description" : "Provisioners",
-                  "items" : {
-                     "description" : "Provisioner",
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "redirecturl" : {
-                  "description" : "Default URL to redirect to on registration/mitigation release. This is only used if a per security event redirect URL is not defined.",
-                  "type" : "string"
-               },
-               "reuse_dot1x_credentials" : {
-                  "description" : "This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.",
-                  "type" : "string"
-               },
-               "root_module" : {
-                  "description" : "The Root Portal Module to use",
-                  "type" : "string"
-               },
-               "scans" : {
-                  "description" : "Scans",
-                  "items" : {
-                     "description" : "Scan",
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "self_service" : {
-                  "description" : "Self service",
-                  "type" : "string"
-               },
-               "show_manage_devices_on_max_nodes" : {
-                  "description" : "Show manage devices on max nodes",
-                  "type" : "string"
-               },
-               "sms_pin_retry_limit" : {
-                  "description" : "Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.",
-                  "type" : "integer"
-               },
-               "sms_request_limit" : {
-                  "description" : "Maximum number of times a user can request a SMS PIN. A value of 0 disables the limit.",
-                  "type" : "integer"
-               },
-               "sources" : {
-                  "description" : "Sources",
-                  "items" : {
-                     "description" : "Source",
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "status" : {
-                  "description" : "Enable profile",
-                  "type" : "string"
-               },
-               "unbound_dpsk" : {
-                  "description" : "Unbound dpsk",
-                  "type" : "string"
-               },
-               "unreg_on_acct_stop" : {
-                  "description" : "This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.",
-                  "type" : "string"
-               },
-               "vlan_pool_technique" : {
-                  "description" : "The Vlan Pool Technique to use",
-                  "type" : "string"
-               }
-            },
-            "required" : [
-               "id",
-               "root_module"
-            ],
             "type" : "object"
          },
          "ConfigConnectionProfileFilesDir" : {
@@ -35565,17 +35279,6 @@
             ],
             "description" : "List"
          },
-         "ConfigWrapped" : {
-            "properties" : {
-               "item" : {
-                  "$ref" : "#/components/schemas/Config"
-               },
-               "status" : {
-                  "type" : "integer"
-               }
-            },
-            "type" : "object"
-         },
          "CountResponse" : {
             "properties" : {
                "count" : {
@@ -35866,19 +35569,21 @@
             "type" : "object",
             "x-go-name" : "DhcpNetworkResponseSchema"
          },
-         "DhcpOption82" : {
+         "DynamicReport" : {
+            "description" : "A report",
             "properties" : {
                "circuit_id_string" : {
                   "type" : "string"
                },
-               "created_at" : {
+               "charts" : {
+                  "description" : "Comma separated list of chart",
                   "type" : "string"
                },
                "host" : {
                   "type" : "string"
                },
-               "mac" : {
-                  "description" : "`PRIMARY KEY`",
+               "cursor_default" : {
+                  "description" : "Comma separated list of default cursor",
                   "type" : "string"
                },
                "module" : {
@@ -35887,7 +35592,8 @@
                "option82_switch" : {
                   "type" : "string"
                },
-               "port" : {
+               "date_limit" : {
+                  "description" : "Date limit for report",
                   "type" : "string"
                },
                "switch_id" : {
@@ -35895,14 +35601,10 @@
                },
                "vlan" : {
                   "type" : "string"
-               }
-            },
-            "type" : "object"
-         },
-         "DhcpOption82sList" : {
-            "allOf" : [
-               {
-                  "$ref" : "#/components/schemas/Iterable"
+               },
+               "formatting" : {
+                  "description" : "Comma separated list of formatting",
+                  "type" : "string"
                },
                {
                   "properties" : {
@@ -35923,17 +35625,16 @@
                "answer" : {
                   "type" : "string"
                },
-               "created_at" : {
+               "node_fields" : {
+                  "description" : "Comma separated list of nodes",
                   "type" : "string"
                },
-               "id" : {
-                  "description" : "`PRIMARY KEY`",
-                  "type" : "integer"
-               },
-               "ip" : {
+               "person_fields" : {
+                  "description" : "Comma separated list of person",
                   "type" : "string"
                },
-               "mac" : {
+               "role_fields" : {
+                  "description" : "Comma separated list of roles",
                   "type" : "string"
                },
                "qname" : {
@@ -36066,34 +35767,31 @@
             "type" : "object",
             "x-go-name" : "DynamicReportMetaSchema"
          },
-         "DynamicReportSearchRequest" : {
-            "additionalProperties" : true,
+         "DynamicReportSearchBody" : {
+            "description" : "A search query on a report",
             "properties" : {
                "cursor" : {
-                  "oneOf" : [
-                     {
-                        "type" : "string"
-                     },
-                     {
-                        "items" : {
-                           "type" : "string"
-                        },
-                        "type" : "array"
-                     }
+                  "description" : "Cursor for pagination",
+                  "type" : [
+                     "array",
+                     "string",
+                     "integer",
+                     "boolean",
+                     null
                   ]
                },
                "end_date" : {
+                  "description" : "End date filter. Required if report has date range enabled",
                   "example" : "1970-01-01 00:00:00",
                   "format" : "date-time",
                   "type" : "string"
                },
                "limit" : {
+                  "description" : "Limit of results",
                   "type" : "integer"
                },
-               "query" : {
-                  "$ref" : "#/components/schemas/Query"
-               },
                "start_date" : {
+                  "description" : "Start date filter. Required if report has date range enabled",
                   "example" : "1970-01-01 00:00:00",
                   "format" : "date-time",
                   "type" : "string"
@@ -41227,7 +40925,6 @@
          "SecurityEvent" : {
             "properties" : {
                "id" : {
-                  "description" : "`PRIMARY KEY`",
                   "type" : "integer"
                },
                "mac" : {
@@ -41253,25 +40950,6 @@
                }
             },
             "type" : "object"
-         },
-         "SecurityEventsList" : {
-            "allOf" : [
-               {
-                  "$ref" : "#/components/schemas/Iterable"
-               },
-               {
-                  "properties" : {
-                     "items" : {
-                        "description" : "Items.",
-                        "items" : {
-                           "$ref" : "#/components/schemas/SecurityEvent"
-                        },
-                        "type" : "array"
-                     }
-                  },
-                  "type" : "object"
-               }
-            ]
          },
          "SecurityEventsPerDeviceClass" : {
             "properties" : {
@@ -41784,21 +41462,6 @@
                {
                   "properties" : {
                      "items" : {
-                        "description" : "Items.",
-                        "items" : {
-                           "$ref" : "#/components/schemas/User"
-                        },
-                        "type" : "array"
-                     }
-                  },
-                  "type" : "object"
-               },
-               {
-                  "$ref" : "#/components/schemas/Iterable"
-               },
-               {
-                  "properties" : {
-                     "items" : {
                         "items" : {
                            "$ref" : "#/components/schemas/UserWithLinks"
                         },
@@ -42233,303 +41896,17 @@
    },
    "openapi" : "3.1.0",
    "paths" : {
-      "/api/v1.1/report/{report_id}" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
+      "/api/v1.2/dynamic_report/{id}" : {
          "get" : {
-            "description" : "Get a report",
-            "operationId" : "api.v1.1.DynamicReports.resource.get",
+            "description" : "Get a single report",
+            "operationId" : "GetReportById",
             "parameters" : [
                {
-                  "description" : "`PRIMARY KEY`",
+                  "description" : "Report ID",
                   "in" : "path",
-                  "name" : "report_id",
+                  "name" : "id",
                   "required" : true,
-                  "schema" : {
-                     "enum" : [
-                        "Accounting::Bandwidth",
-                        "Accounting::Node",
-                        "Accounting::Operating System Class",
-                        "Accounting::User",
-                        "Authentication::All",
-                        "Authentication::All Failures",
-                        "Authentication::All Successes",
-                        "Authentication::Top Failures::Connection Profile to Source",
-                        "Authentication::Top Failures::By Connection Profile",
-                        "Authentication::Top Failures::By Source",
-                        "Authentication::Top Successes::By Connection Profile",
-                        "Authentication::Top Successes::By Source",
-                        "Authentication::Top Successes::Connection Profile to Source",
-                        "Connection Types::Active",
-                        "Connection Types::All",
-                        "Connection Types::Date Range",
-                        "Connection Types::Registered Active",
-                        "Connection Types::Registered All",
-                        "Fingerbank::Unknown Fingerprints::Active",
-                        "Fingerbank::Unknown Fingerprints::All",
-                        "Ip4Log::Archive",
-                        "Ip4Log::History",
-                        "Node::Active",
-                        "Node::Inactive",
-                        "Node::Registered::Active",
-                        "Node::Registered::All",
-                        "Node::Unregistered::Active",
-                        "Node::Unregistered::All",
-                        "Operating System Class::Active",
-                        "Operating System Class::All",
-                        "Operating Systems::Active",
-                        "Operating Systems::All",
-                        "RADIUS Authentication::Top Failures::By MAC",
-                        "RADIUS Authentication::Top Failures::By SSID",
-                        "RADIUS Authentication::Top Failures::By Username",
-                        "RADIUS Authentication::Top Successes::By Computername",
-                        "RADIUS Authentication::Top Successes::By MAC",
-                        "RADIUS Authentication::Top Successes::By SSID",
-                        "RADIUS Authentication::Top Successes::By Username",
-                        "Roles::Active",
-                        "Roles::Active per device class",
-                        "Roles::Active per device manufacturer",
-                        "Roles::Active per device type",
-                        "Roles::All",
-                        "Security Events::Closed",
-                        "Security Events::Open",
-                        "Security Events::Open Active",
-                        "Security Events::Open All",
-                        "SSID::Active",
-                        "SSID::All",
-                        "Top Sponsors::All",
-                        "User::Registration::Email",
-                        "User::Registration::SMS",
-                        "User::Registration::Sponsor"
-                     ],
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         },
-         "options" : {
-            "description" : "Get meta of a report",
-            "operationId" : "api.v1.1.DynamicReports.resource.options",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "report_id",
-                  "required" : true,
-                  "schema" : {
-                     "enum" : [
-                        "Accounting::Bandwidth",
-                        "Accounting::Node",
-                        "Accounting::Operating System Class",
-                        "Accounting::User",
-                        "Authentication::All",
-                        "Authentication::All Failures",
-                        "Authentication::All Successes",
-                        "Authentication::Top Failures::Connection Profile to Source",
-                        "Authentication::Top Failures::By Connection Profile",
-                        "Authentication::Top Failures::By Source",
-                        "Authentication::Top Successes::By Connection Profile",
-                        "Authentication::Top Successes::By Source",
-                        "Authentication::Top Successes::Connection Profile to Source",
-                        "Connection Types::Active",
-                        "Connection Types::All",
-                        "Connection Types::Date Range",
-                        "Connection Types::Registered Active",
-                        "Connection Types::Registered All",
-                        "Fingerbank::Unknown Fingerprints::Active",
-                        "Fingerbank::Unknown Fingerprints::All",
-                        "Ip4Log::Archive",
-                        "Ip4Log::History",
-                        "Node::Active",
-                        "Node::Inactive",
-                        "Node::Registered::Active",
-                        "Node::Registered::All",
-                        "Node::Unregistered::Active",
-                        "Node::Unregistered::All",
-                        "Operating System Class::Active",
-                        "Operating System Class::All",
-                        "Operating Systems::Active",
-                        "Operating Systems::All",
-                        "RADIUS Authentication::Top Failures::By MAC",
-                        "RADIUS Authentication::Top Failures::By SSID",
-                        "RADIUS Authentication::Top Failures::By Username",
-                        "RADIUS Authentication::Top Successes::By Computername",
-                        "RADIUS Authentication::Top Successes::By MAC",
-                        "RADIUS Authentication::Top Successes::By SSID",
-                        "RADIUS Authentication::Top Successes::By Username",
-                        "Roles::Active",
-                        "Roles::Active per device class",
-                        "Roles::Active per device manufacturer",
-                        "Roles::Active per device type",
-                        "Roles::All",
-                        "Security Events::Closed",
-                        "Security Events::Open",
-                        "Security Events::Open Active",
-                        "Security Events::Open All",
-                        "SSID::Active",
-                        "SSID::All",
-                        "Top Sponsors::All",
-                        "User::Registration::Email",
-                        "User::Registration::SMS",
-                        "User::Registration::Sponsor"
-                     ],
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/DynamicReportMeta"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         }
-      },
-      "/api/v1.1/report/{report_id}/search" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
-         "post" : {
-            "description" : "Search a report",
-            "operationId" : "api.v1.1.DynamicReports.resource.search",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "report_id",
-                  "required" : true,
-                  "schema" : {
-                     "enum" : [
-                        "Accounting::Bandwidth",
-                        "Accounting::Node",
-                        "Accounting::Operating System Class",
-                        "Accounting::User",
-                        "Authentication::All",
-                        "Authentication::All Failures",
-                        "Authentication::All Successes",
-                        "Authentication::Top Failures::Connection Profile to Source",
-                        "Authentication::Top Failures::By Connection Profile",
-                        "Authentication::Top Failures::By Source",
-                        "Authentication::Top Successes::By Connection Profile",
-                        "Authentication::Top Successes::By Source",
-                        "Authentication::Top Successes::Connection Profile to Source",
-                        "Connection Types::Active",
-                        "Connection Types::All",
-                        "Connection Types::Date Range",
-                        "Connection Types::Registered Active",
-                        "Connection Types::Registered All",
-                        "Fingerbank::Unknown Fingerprints::Active",
-                        "Fingerbank::Unknown Fingerprints::All",
-                        "Ip4Log::Archive",
-                        "Ip4Log::History",
-                        "Node::Active",
-                        "Node::Inactive",
-                        "Node::Registered::Active",
-                        "Node::Registered::All",
-                        "Node::Unregistered::Active",
-                        "Node::Unregistered::All",
-                        "Operating System Class::Active",
-                        "Operating System Class::All",
-                        "Operating Systems::Active",
-                        "Operating Systems::All",
-                        "RADIUS Authentication::Top Failures::By MAC",
-                        "RADIUS Authentication::Top Failures::By SSID",
-                        "RADIUS Authentication::Top Failures::By Username",
-                        "RADIUS Authentication::Top Successes::By Computername",
-                        "RADIUS Authentication::Top Successes::By MAC",
-                        "RADIUS Authentication::Top Successes::By SSID",
-                        "RADIUS Authentication::Top Successes::By Username",
-                        "Roles::Active",
-                        "Roles::Active per device class",
-                        "Roles::Active per device manufacturer",
-                        "Roles::Active per device type",
-                        "Roles::All",
-                        "Security Events::Closed",
-                        "Security Events::Open",
-                        "Security Events::Open Active",
-                        "Security Events::Open All",
-                        "SSID::Active",
-                        "SSID::All",
-                        "Top Sponsors::All",
-                        "User::Registration::Email",
-                        "User::Registration::SMS",
-                        "User::Registration::Sponsor"
-                     ],
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/DynamicReportSearchRequest"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         }
-      },
-      "/api/v1.1/reports" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
-         "get" : {
-            "description" : "List reports",
-            "operationId" : "api.v1.1.DynamicReports.list",
-            "parameters" : [],
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         }
-      },
-      "/api/v1/admin_api_audit_log/{admin_api_audit_log_id}" : {
-         "description" : "pf::UnifiedApi::Controller::AdminApiAuditLogs",
-         "get" : {
-            "description" : "Get an item.",
-            "operationId" : "api.v1.AdminApiAuditLogs.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "admin_api_audit_log_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
+                  "type" : "string"
                }
             ],
             "responses" : {
@@ -42537,43 +41914,44 @@
                   "content" : {
                      "application/json" : {
                         "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/AdminApiAuditLog"
+                           "allOf" : [
+                              {
+                                 "$ref" : "#/components/schemas/ApiResponse"
+                              },
+                              {
+                                 "properties" : {
+                                    "item" : {
+                                       "$ref" : "#/components/schemas/DynamicReport",
+                                       "type" : "object"
+                                    }
+                                 },
+                                 "type" : "object"
                               }
-                           },
-                           "type" : "object"
+                           ]
                         }
                      }
                   },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "description" : "Successful response"
                },
                "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
+                  "description" : "Report not found"
                },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
+               "500" : {
+                  "description" : "Internal server error"
                }
             },
             "tags" : [
-               "AdminApiAuditLogs"
+               "DynamicReport"
             ]
-         }
-      },
-      "/api/v1/admin_api_audit_logs" : {
-         "description" : "pf::UnifiedApi::Controller::AdminApiAuditLogs",
-         "get" : {
-            "description" : "List all items.",
-            "operationId" : "api.v1.AdminApiAuditLogs.list",
+         },
+         "options" : {
+            "description" : "Options for a single report",
+            "operationId" : "OptionsReportById",
             "parameters" : [
                {
-                  "description" : "Comma delimited list of fields to return with each item.",
-                  "explode" : false,
-                  "in" : "query",
-                  "name" : "fields",
+                  "description" : "Report ID",
+                  "in" : "path",
+                  "name" : "id",
                   "required" : true,
                   "schema" : {
                      "example" : [
@@ -42654,340 +42032,55 @@
                   "content" : {
                      "application/json" : {
                         "schema" : {
-                           "$ref" : "#/components/schemas/AdminApiAuditLogsList"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "AdminApiAuditLogs"
-            ]
-         }
-      },
-      "/api/v1/admin_api_audit_logs/search" : {
-         "description" : "pf::UnifiedApi::Controller::AdminApiAuditLogs",
-         "post" : {
-            "description" : "Search all items.",
-            "operationId" : "api.v1.AdminApiAuditLogs.search",
-            "parameters" : [],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "example" : {
-                        "cursor" : 0,
-                        "fields" : [
-                           "action",
-                           "created_at",
-                           "id",
-                           "method",
-                           "object_id",
-                           "request",
-                           "status",
-                           "url",
-                           "user_name"
-                        ],
-                        "limit" : 25,
-                        "query" : {
-                           "op" : "and",
-                           "values" : [
+                           "allOf" : [
                               {
-                                 "op" : "or",
-                                 "values" : [
-                                    {
-                                       "field" : "action",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "created_at",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "method",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "object_id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "request",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "status",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "url",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "user_name",
-                                       "op" : "contains",
-                                       "value" : "foo"
+                                 "$ref" : "#/components/schemas/ApiResponse"
+                              },
+                              {
+                                 "properties" : {
+                                    "report_meta" : {
+                                       "$ref" : "#/components/schemas/DynamicReportOptions",
+                                       "type" : "object"
                                     }
-                                 ]
+                                 },
+                                 "type" : "object"
                               }
                            ]
-                        },
-                        "sort" : [
-                           "id ASC"
-                        ]
-                     },
-                     "schema" : {
-                        "allOf" : [
-                           {
-                              "$ref" : "#/components/schemas/Search"
-                           },
-                           {
-                              "properties" : {
-                                 "cursor" : {
-                                    "type" : "string"
-                                 },
-                                 "fields" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "action",
-                                          "created_at",
-                                          "id",
-                                          "method",
-                                          "object_id",
-                                          "request",
-                                          "status",
-                                          "url",
-                                          "user_name"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 },
-                                 "limit" : {
-                                    "maximum" : 1000,
-                                    "minimum" : 1,
-                                    "type" : "integer"
-                                 },
-                                 "sort" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "action ASC",
-                                          "action DESC",
-                                          "created_at ASC",
-                                          "created_at DESC",
-                                          "id ASC",
-                                          "id DESC",
-                                          "method ASC",
-                                          "method DESC",
-                                          "object_id ASC",
-                                          "object_id DESC",
-                                          "request ASC",
-                                          "request DESC",
-                                          "status ASC",
-                                          "status DESC",
-                                          "url ASC",
-                                          "url DESC",
-                                          "user_name ASC",
-                                          "user_name DESC"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 }
-                              },
-                              "required" : [
-                                 "fields",
-                                 "sort"
-                              ]
-                           }
-                        ]
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/AdminApiAuditLogsList"
                         }
                      }
                   },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "description" : "Successful response"
                },
                "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
+                  "description" : "Report not found"
                },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
+               "500" : {
+                  "description" : "Internal server error"
                }
             },
             "tags" : [
-               "AdminApiAuditLogs"
+               "DynamicReport"
             ]
          }
       },
-      "/api/v1/auth_log/{auth_log_id}" : {
-         "delete" : {
-            "description" : "Delete an item.",
-            "operationId" : "api.v1.AuthLogs.resource.remove",
+      "/api/v1.2/dynamic_report/{id}/search" : {
+         "post" : {
+            "description" : "Get columns of a report",
+            "operationId" : "SearchReportById",
             "parameters" : [
                {
-                  "description" : "`PRIMARY KEY`",
+                  "description" : "Report ID",
                   "in" : "path",
-                  "name" : "auth_log_id",
+                  "name" : "id",
                   "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "204" : {
-                  "description" : "Item deleted."
-               }
-            },
-            "tags" : [
-               "AuthLogs"
-            ]
-         },
-         "description" : "pf::UnifiedApi::Controller::AuthLogs",
-         "get" : {
-            "description" : "Get an item.",
-            "operationId" : "api.v1.AuthLogs.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "auth_log_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/AuthLog"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "AuthLogs"
-            ]
-         },
-         "patch" : {
-            "description" : "Update an item.",
-            "operationId" : "api.v1.AuthLogs.resource.update",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "auth_log_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
+                  "type" : "string"
                }
             ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
                      "schema" : {
-                        "$ref" : "#/components/schemas/AuthLog"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "AuthLogs"
-            ]
-         },
-         "put" : {
-            "description" : "Replace an item.",
-            "operationId" : "api.v1.AuthLogs.resource.replace",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "auth_log_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/AuthLog"
+                        "$ref" : "#/components/schemas/DynamicReportSearchBody"
                      }
                   }
                }
@@ -43102,258 +42195,44 @@
                   "content" : {
                      "application/json" : {
                         "schema" : {
-                           "$ref" : "#/components/schemas/AuthLogsList"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "AuthLogs"
-            ]
-         },
-         "post" : {
-            "description" : "Create a new item.",
-            "operationId" : "api.v1.AuthLogs.create",
-            "parameters" : [],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/AuthLog"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "201" : {
-                  "$ref" : "#/components/responses/Created"
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "AuthLogs"
-            ]
-         }
-      },
-      "/api/v1/auth_logs/search" : {
-         "description" : "pf::UnifiedApi::Controller::AuthLogs",
-         "post" : {
-            "description" : "Search all items.",
-            "operationId" : "api.v1.AuthLogs.search",
-            "parameters" : [],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "example" : {
-                        "cursor" : 0,
-                        "fields" : [
-                           "attempted_at",
-                           "completed_at",
-                           "id",
-                           "mac",
-                           "pid",
-                           "process_name",
-                           "profile",
-                           "source",
-                           "status"
-                        ],
-                        "limit" : 25,
-                        "query" : {
-                           "op" : "and",
-                           "values" : [
+                           "allOf" : [
                               {
-                                 "op" : "or",
-                                 "values" : [
-                                    {
-                                       "field" : "attempted_at",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "completed_at",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "mac",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "pid",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "process_name",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "profile",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "source",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "status",
-                                       "op" : "contains",
-                                       "value" : "foo"
+                                 "$ref" : "#/components/schemas/ApiResponsePaginated"
+                              },
+                              {
+                                 "properties" : {
+                                    "items" : {
+                                       "description" : "Columns value, can be any type",
+                                       "items" : {
+                                          "type" : "object"
+                                       },
+                                       "type" : "array"
                                     }
-                                 ]
+                                 },
+                                 "type" : "object"
                               }
                            ]
-                        },
-                        "sort" : [
-                           "id ASC"
-                        ]
-                     },
-                     "schema" : {
-                        "allOf" : [
-                           {
-                              "$ref" : "#/components/schemas/Search"
-                           },
-                           {
-                              "properties" : {
-                                 "cursor" : {
-                                    "type" : "string"
-                                 },
-                                 "fields" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "attempted_at",
-                                          "completed_at",
-                                          "id",
-                                          "mac",
-                                          "pid",
-                                          "process_name",
-                                          "profile",
-                                          "source",
-                                          "status"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 },
-                                 "limit" : {
-                                    "maximum" : 1000,
-                                    "minimum" : 1,
-                                    "type" : "integer"
-                                 },
-                                 "sort" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "attempted_at ASC",
-                                          "attempted_at DESC",
-                                          "completed_at ASC",
-                                          "completed_at DESC",
-                                          "id ASC",
-                                          "id DESC",
-                                          "mac ASC",
-                                          "mac DESC",
-                                          "pid ASC",
-                                          "pid DESC",
-                                          "process_name ASC",
-                                          "process_name DESC",
-                                          "profile ASC",
-                                          "profile DESC",
-                                          "source ASC",
-                                          "source DESC",
-                                          "status ASC",
-                                          "status DESC"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 }
-                              },
-                              "required" : [
-                                 "fields",
-                                 "sort"
-                              ]
-                           }
-                        ]
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/AuthLogsList"
                         }
                      }
                   },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "description" : "Successful response"
                },
                "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
+                  "description" : "Report not found"
                },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
+               "500" : {
+                  "description" : "Internal server error"
                }
             },
             "tags" : [
-               "AuthLogs"
+               "DynamicReport"
             ]
          }
       },
-      "/api/v1/class/{class_id}" : {
-         "description" : "pf::UnifiedApi::Controller::Classes",
+      "/api/v1.2/dynamic_reports" : {
          "get" : {
-            "description" : "Get an item.",
-            "operationId" : "api.v1.Classes.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "class_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
+            "description" : "Get all reports",
+            "operationId" : "GetReports",
             "responses" : {
                "200" : {
                   "content" : {
@@ -43674,114 +42553,26 @@
                                  },
                                  "fields" : {
                                     "items" : {
-                                       "enum" : [
-                                          "auto_enable",
-                                          "button_text",
-                                          "delay_by",
-                                          "description",
-                                          "enabled",
-                                          "external_command",
-                                          "grace_period",
-                                          "max_enable_url",
-                                          "max_enables",
-                                          "priority",
-                                          "redirect_url",
-                                          "security_event_id",
-                                          "target_category",
-                                          "template",
-                                          "vclose",
-                                          "vlan",
-                                          "window"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
+                                       "items" : {
+                                          "$ref" : "#/components/schemas/DynamicReport"
+                                       },
+                                       "type" : "array"
+                                    }
                                  },
-                                 "limit" : {
-                                    "maximum" : 1000,
-                                    "minimum" : 1,
-                                    "type" : "integer"
-                                 },
-                                 "sort" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "auto_enable ASC",
-                                          "auto_enable DESC",
-                                          "button_text ASC",
-                                          "button_text DESC",
-                                          "delay_by ASC",
-                                          "delay_by DESC",
-                                          "description ASC",
-                                          "description DESC",
-                                          "enabled ASC",
-                                          "enabled DESC",
-                                          "external_command ASC",
-                                          "external_command DESC",
-                                          "grace_period ASC",
-                                          "grace_period DESC",
-                                          "max_enable_url ASC",
-                                          "max_enable_url DESC",
-                                          "max_enables ASC",
-                                          "max_enables DESC",
-                                          "priority ASC",
-                                          "priority DESC",
-                                          "redirect_url ASC",
-                                          "redirect_url DESC",
-                                          "security_event_id ASC",
-                                          "security_event_id DESC",
-                                          "target_category ASC",
-                                          "target_category DESC",
-                                          "template ASC",
-                                          "template DESC",
-                                          "vclose ASC",
-                                          "vclose DESC",
-                                          "vlan ASC",
-                                          "vlan DESC",
-                                          "window ASC",
-                                          "window DESC"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 }
-                              },
-                              "required" : [
-                                 "fields",
-                                 "sort"
-                              ]
-                           }
-                        ]
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ClassesList"
+                                 "type" : "object"
+                              }
+                           ]
                         }
                      }
                   },
-                  "description" : "Request successful."
+                  "description" : "Successful response"
                },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
+               "500" : {
+                  "description" : "Internal server error"
                }
             },
             "tags" : [
-               "Classes"
+               "DynamicReport"
             ]
          }
       },
@@ -75522,151 +74313,6 @@
             ]
          }
       },
-      "/api/v1/ip6logs/search" : {
-         "description" : "pf::UnifiedApi::Controller::Ip6logs",
-         "post" : {
-            "description" : "Search all items.",
-            "operationId" : "api.v1.Ip6logs.search",
-            "parameters" : [],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "example" : {
-                        "cursor" : 0,
-                        "fields" : [
-                           "end_time",
-                           "ip",
-                           "mac",
-                           "start_time",
-                           "type"
-                        ],
-                        "limit" : 25,
-                        "query" : {
-                           "op" : "and",
-                           "values" : [
-                              {
-                                 "op" : "or",
-                                 "values" : [
-                                    {
-                                       "field" : "end_time",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "ip",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "mac",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "start_time",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "type",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    }
-                                 ]
-                              }
-                           ]
-                        },
-                        "sort" : [
-                           "ip ASC"
-                        ]
-                     },
-                     "schema" : {
-                        "allOf" : [
-                           {
-                              "$ref" : "#/components/schemas/Search"
-                           },
-                           {
-                              "properties" : {
-                                 "cursor" : {
-                                    "type" : "string"
-                                 },
-                                 "fields" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "end_time",
-                                          "ip",
-                                          "mac",
-                                          "start_time",
-                                          "type"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 },
-                                 "limit" : {
-                                    "maximum" : 1000,
-                                    "minimum" : 1,
-                                    "type" : "integer"
-                                 },
-                                 "sort" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "end_time ASC",
-                                          "end_time DESC",
-                                          "ip ASC",
-                                          "ip DESC",
-                                          "mac ASC",
-                                          "mac DESC",
-                                          "start_time ASC",
-                                          "start_time DESC",
-                                          "type ASC",
-                                          "type DESC"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 }
-                              },
-                              "required" : [
-                                 "fields",
-                                 "sort"
-                              ]
-                           }
-                        ]
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/Ip6logsList"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Ip6logs"
-            ]
-         }
-      },
       "/api/v1/ipset/add_ip/{ipset_name}" : {
          "post" : {
             "description" : "Add an IP to a specific ipset",
@@ -76788,158 +75434,6 @@
             "summary" : "Touch session without updating read pointer.",
             "tags" : [
                "LiveLogs"
-            ]
-         }
-      },
-      "/api/v1/node/{node_id}" : {
-         "delete" : {
-            "description" : "Delete an item.",
-            "operationId" : "api.v1.Nodes.resource.remove",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "204" : {
-                  "description" : "Item deleted."
-               }
-            },
-            "tags" : [
-               "Nodes"
-            ]
-         },
-         "description" : "pf::UnifiedApi::Controller::Nodes\n\n  register\n    register\n\n  deregister\n    deregister\n\n  bulk_register\n    bulk_register\n\n  bulk_init_results\n    bulk_init_results\n\n  bulk_deregister\n    bulk_deregister\n\n  fingerbank_info\n    fingerbank_info\n\n  fingerbank_refresh\n    fingerbank_refresh\n\n  bulk_close_security_events\n    bulk_close_security_events\n\n  close_security_event\n    close_security_event\n\n  create_error_msg\n    create_error_msg\n\n  bulk_reevaluate_access\n    bulk_reevaluate_access\n\n  bulk_fingerbank_refresh\n    bulk_fingerbank_refresh\n\n  post_update\n    post_update\n\n  bulk_restart_switchport\n    bulk_restart_switchport\n\n  bulk_apply_security_event\n    bulk_apply_security_event\n\n  apply_security_event\n    apply_security_event\n\n  bulk_apply_role\n    bulk_apply_role\n\n  bulk_apply_bypass_role\n    bulk_apply_bypass_role\n\n  bulk_apply_bypass_acls\n    bulk update bypass_acls\n\n  bulk_apply_bypass_vlan\n    bulk update bypass_vlan\n\n  do_bulk_update_field\n    do_bulk_update_field\n\n  do_bulk_update_field\n    do_bulk_update_field2\n\n  restart_switchport\n    restart_switchport\n\n  do_restart_switchport\n    do_restart_switchport\n\n  reevaluate_access\n    reevaluate_access\n\n  rapid7\n    rapid7\n\n  security_events\n    security_events\n\n  park\n    park\n\n  unpark\n    unpark\n\n  network_graph\n    network_graph\n\n  build_network_graph_info\n    build_network_graph_info\n\n  network_graph_search_builder\n    network_graph_search_builder\n\n  pf_network_graph_node\n    pf_network_graph_node\n\n  map_to_network_graph\n    map_to_network_graph\n\n  add_switch_to_network_graph\n    add_switch_to_network_graph\n\n  add_swith_group_to_network_graph\n    add_swith_group_to_network_graph\n\n  pf_network_graph_switch_info\n    pf_network_graph_switch_info\n\n  get_switch_data\n    get_switch_data\n\n  bulk_import\n    bulk_import\n\n  validate\n    validate\n\n  _do_remove\n    _do_remove\n\n  create_data_update\n    create_data_update",
-         "get" : {
-            "description" : "Get an item.",
-            "operationId" : "api.v1.Nodes.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/Node"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Nodes"
-            ]
-         },
-         "patch" : {
-            "description" : "Update an item.",
-            "operationId" : "api.v1.Nodes.resource.update",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/Node"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Nodes"
-            ]
-         },
-         "put" : {
-            "description" : "Replace an item.",
-            "operationId" : "api.v1.Nodes.resource.replace",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/Node"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Nodes"
             ]
          }
       },
@@ -78162,385 +76656,6 @@
                }
             },
             "summary" : "Get count of nodes per device class.",
-            "tags" : [
-               "Nodes"
-            ]
-         }
-      },
-      "/api/v1/nodes/search" : {
-         "description" : "pf::UnifiedApi::Controller::Nodes\n\n  register\n    register\n\n  deregister\n    deregister\n\n  bulk_register\n    bulk_register\n\n  bulk_init_results\n    bulk_init_results\n\n  bulk_deregister\n    bulk_deregister\n\n  fingerbank_info\n    fingerbank_info\n\n  fingerbank_refresh\n    fingerbank_refresh\n\n  bulk_close_security_events\n    bulk_close_security_events\n\n  close_security_event\n    close_security_event\n\n  create_error_msg\n    create_error_msg\n\n  bulk_reevaluate_access\n    bulk_reevaluate_access\n\n  bulk_fingerbank_refresh\n    bulk_fingerbank_refresh\n\n  post_update\n    post_update\n\n  bulk_restart_switchport\n    bulk_restart_switchport\n\n  bulk_apply_security_event\n    bulk_apply_security_event\n\n  apply_security_event\n    apply_security_event\n\n  bulk_apply_role\n    bulk_apply_role\n\n  bulk_apply_bypass_role\n    bulk_apply_bypass_role\n\n  bulk_apply_bypass_acls\n    bulk update bypass_acls\n\n  bulk_apply_bypass_vlan\n    bulk update bypass_vlan\n\n  do_bulk_update_field\n    do_bulk_update_field\n\n  do_bulk_update_field\n    do_bulk_update_field2\n\n  restart_switchport\n    restart_switchport\n\n  do_restart_switchport\n    do_restart_switchport\n\n  reevaluate_access\n    reevaluate_access\n\n  rapid7\n    rapid7\n\n  security_events\n    security_events\n\n  park\n    park\n\n  unpark\n    unpark\n\n  network_graph\n    network_graph\n\n  build_network_graph_info\n    build_network_graph_info\n\n  network_graph_search_builder\n    network_graph_search_builder\n\n  pf_network_graph_node\n    pf_network_graph_node\n\n  map_to_network_graph\n    map_to_network_graph\n\n  add_switch_to_network_graph\n    add_switch_to_network_graph\n\n  add_swith_group_to_network_graph\n    add_swith_group_to_network_graph\n\n  pf_network_graph_switch_info\n    pf_network_graph_switch_info\n\n  get_switch_data\n    get_switch_data\n\n  bulk_import\n    bulk_import\n\n  validate\n    validate\n\n  _do_remove\n    _do_remove\n\n  create_data_update\n    create_data_update",
-         "post" : {
-            "description" : "Search all items.",
-            "operationId" : "api.v1.Nodes.search",
-            "parameters" : [],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "example" : {
-                        "cursor" : 0,
-                        "fields" : [
-                           "autoreg",
-                           "bandwidth_balance",
-                           "bypass_acls",
-                           "bypass_role_id",
-                           "bypass_vlan",
-                           "category_id",
-                           "computername",
-                           "detect_date",
-                           "device_class",
-                           "device_manufacturer",
-                           "device_score",
-                           "device_type",
-                           "device_version",
-                           "dhcp6_enterprise",
-                           "dhcp6_fingerprint",
-                           "dhcp_fingerprint",
-                           "dhcp_vendor",
-                           "last_arp",
-                           "last_dhcp",
-                           "last_seen",
-                           "mac",
-                           "machine_account",
-                           "notes",
-                           "pid",
-                           "regdate",
-                           "sessionid",
-                           "status",
-                           "time_balance",
-                           "unregdate",
-                           "user_agent",
-                           "voip"
-                        ],
-                        "limit" : 25,
-                        "query" : {
-                           "op" : "and",
-                           "values" : [
-                              {
-                                 "op" : "or",
-                                 "values" : [
-                                    {
-                                       "field" : "autoreg",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bandwidth_balance",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bypass_acls",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bypass_role_id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bypass_vlan",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "category_id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "computername",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "detect_date",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_class",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_manufacturer",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_score",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_type",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_version",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp6_enterprise",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp6_fingerprint",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp_fingerprint",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp_vendor",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "last_arp",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "last_dhcp",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "last_seen",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "mac",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "machine_account",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "notes",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "pid",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "regdate",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "sessionid",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "status",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "time_balance",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "unregdate",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "user_agent",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "voip",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    }
-                                 ]
-                              }
-                           ]
-                        },
-                        "sort" : [
-                           "mac ASC"
-                        ]
-                     },
-                     "schema" : {
-                        "allOf" : [
-                           {
-                              "$ref" : "#/components/schemas/Search"
-                           },
-                           {
-                              "properties" : {
-                                 "cursor" : {
-                                    "type" : "string"
-                                 },
-                                 "fields" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "autoreg",
-                                          "bandwidth_balance",
-                                          "bypass_acls",
-                                          "bypass_role_id",
-                                          "bypass_vlan",
-                                          "category_id",
-                                          "computername",
-                                          "detect_date",
-                                          "device_class",
-                                          "device_manufacturer",
-                                          "device_score",
-                                          "device_type",
-                                          "device_version",
-                                          "dhcp6_enterprise",
-                                          "dhcp6_fingerprint",
-                                          "dhcp_fingerprint",
-                                          "dhcp_vendor",
-                                          "last_arp",
-                                          "last_dhcp",
-                                          "last_seen",
-                                          "mac",
-                                          "machine_account",
-                                          "notes",
-                                          "pid",
-                                          "regdate",
-                                          "sessionid",
-                                          "status",
-                                          "time_balance",
-                                          "unregdate",
-                                          "user_agent",
-                                          "voip"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 },
-                                 "limit" : {
-                                    "maximum" : 1000,
-                                    "minimum" : 1,
-                                    "type" : "integer"
-                                 },
-                                 "sort" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "autoreg ASC",
-                                          "autoreg DESC",
-                                          "bandwidth_balance ASC",
-                                          "bandwidth_balance DESC",
-                                          "bypass_acls ASC",
-                                          "bypass_acls DESC",
-                                          "bypass_role_id ASC",
-                                          "bypass_role_id DESC",
-                                          "bypass_vlan ASC",
-                                          "bypass_vlan DESC",
-                                          "category_id ASC",
-                                          "category_id DESC",
-                                          "computername ASC",
-                                          "computername DESC",
-                                          "detect_date ASC",
-                                          "detect_date DESC",
-                                          "device_class ASC",
-                                          "device_class DESC",
-                                          "device_manufacturer ASC",
-                                          "device_manufacturer DESC",
-                                          "device_score ASC",
-                                          "device_score DESC",
-                                          "device_type ASC",
-                                          "device_type DESC",
-                                          "device_version ASC",
-                                          "device_version DESC",
-                                          "dhcp6_enterprise ASC",
-                                          "dhcp6_enterprise DESC",
-                                          "dhcp6_fingerprint ASC",
-                                          "dhcp6_fingerprint DESC",
-                                          "dhcp_fingerprint ASC",
-                                          "dhcp_fingerprint DESC",
-                                          "dhcp_vendor ASC",
-                                          "dhcp_vendor DESC",
-                                          "last_arp ASC",
-                                          "last_arp DESC",
-                                          "last_dhcp ASC",
-                                          "last_dhcp DESC",
-                                          "last_seen ASC",
-                                          "last_seen DESC",
-                                          "mac ASC",
-                                          "mac DESC",
-                                          "machine_account ASC",
-                                          "machine_account DESC",
-                                          "notes ASC",
-                                          "notes DESC",
-                                          "pid ASC",
-                                          "pid DESC",
-                                          "regdate ASC",
-                                          "regdate DESC",
-                                          "sessionid ASC",
-                                          "sessionid DESC",
-                                          "status ASC",
-                                          "status DESC",
-                                          "time_balance ASC",
-                                          "time_balance DESC",
-                                          "unregdate ASC",
-                                          "unregdate DESC",
-                                          "user_agent ASC",
-                                          "user_agent DESC",
-                                          "voip ASC",
-                                          "voip DESC"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 }
-                              },
-                              "required" : [
-                                 "fields",
-                                 "sort"
-                              ]
-                           }
-                        ]
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/NodesList"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
             "tags" : [
                "Nodes"
             ]
@@ -81798,346 +79913,6 @@
             ]
          }
       },
-      "/api/v1/user/{user_id}" : {
-         "delete" : {
-            "description" : "Delete an item.",
-            "operationId" : "api.v1.Users.resource.remove",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "204" : {
-                  "description" : "Item deleted."
-               }
-            },
-            "tags" : [
-               "Users"
-            ]
-         },
-         "description" : "pf::UnifiedApi::Controller::User\n\n  create_data_update\n    create_data_update\n\n  cleanup_item\n    Remove the password field from the item\n\n  unassign_nodes\n    unassign user nodes\n\n  security_events\n    security_events\n\n  bulk_register\n    bulk_register\n\n  bulk_deregister\n    bulk_deregister\n\n  bulk_close_security_events\n    bulk_close_security_events\n\n  close_security_events\n    close_security_events\n\n  bulk_apply_security_event\n    bulk_apply_security_event\n\n  bulk_reevaluate_access\n    bulk_reevaluate_access\n\n  bulk_init_results\n    bulk_init_results\n\n  bulk_fingerbank_refresh\n    bulk_fingerbank_refresh\n\n  do_bulk_update_field\n    do_bulk_update_field\n\n  bulk_apply_role\n    bulk_apply_role\n\n  bulk_apply_bypass_role\n    bulk_apply_bypass_role\n\n  bulk_delete\n    bulk_delete\n\n  bulk_import\n    bulk_import",
-         "get" : {
-            "description" : "Get an item.",
-            "operationId" : "api.v1.Users.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/User"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users"
-            ]
-         },
-         "patch" : {
-            "description" : "Update an item.",
-            "operationId" : "api.v1.Users.resource.update",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/User"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users"
-            ]
-         },
-         "put" : {
-            "description" : "Replace an item.",
-            "operationId" : "api.v1.Users.resource.replace",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/User"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users"
-            ]
-         }
-      },
-      "/api/v1/user/{user_id}/node/{node_id}" : {
-         "delete" : {
-            "description" : "Delete an item.",
-            "operationId" : "api.v1.Users.resource.Users.Nodes.resource.remove",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               },
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "204" : {
-                  "description" : "Item deleted."
-               }
-            },
-            "tags" : [
-               "Users/Nodes"
-            ]
-         },
-         "description" : "pf::UnifiedApi::Controller::Users::Nodes",
-         "get" : {
-            "description" : "Get an item.",
-            "operationId" : "api.v1.Users.resource.Users.Nodes.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               },
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/UsersNode"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users/Nodes"
-            ]
-         },
-         "patch" : {
-            "description" : "Update an item.",
-            "operationId" : "api.v1.Users.resource.Users.Nodes.resource.update",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               },
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/UsersNode"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users/Nodes"
-            ]
-         },
-         "put" : {
-            "description" : "Replace an item.",
-            "operationId" : "api.v1.Users.resource.Users.Nodes.resource.replace",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               },
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "node_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/UsersNode"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users/Nodes"
-            ]
-         }
-      },
       "/api/v1/user/{user_id}/node/{node_id}/locationlog/{locationlog_id}" : {
          "delete" : {
             "description" : "Remove an item",
@@ -82430,395 +80205,6 @@
             "summary" : "Get all Nodes for a User.",
             "tags" : [
                "Users"
-            ]
-         }
-      },
-      "/api/v1/user/{user_id}/nodes/search" : {
-         "description" : "pf::UnifiedApi::Controller::Users::Nodes",
-         "post" : {
-            "description" : "Search all items.",
-            "operationId" : "api.v1.Users.resource.Users.Nodes.search",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "example" : {
-                        "cursor" : 0,
-                        "fields" : [
-                           "autoreg",
-                           "bandwidth_balance",
-                           "bypass_acls",
-                           "bypass_role_id",
-                           "bypass_vlan",
-                           "category_id",
-                           "computername",
-                           "detect_date",
-                           "device_class",
-                           "device_manufacturer",
-                           "device_score",
-                           "device_type",
-                           "device_version",
-                           "dhcp6_enterprise",
-                           "dhcp6_fingerprint",
-                           "dhcp_fingerprint",
-                           "dhcp_vendor",
-                           "last_arp",
-                           "last_dhcp",
-                           "last_seen",
-                           "mac",
-                           "machine_account",
-                           "notes",
-                           "pid",
-                           "regdate",
-                           "sessionid",
-                           "status",
-                           "time_balance",
-                           "unregdate",
-                           "user_agent",
-                           "voip"
-                        ],
-                        "limit" : 25,
-                        "query" : {
-                           "op" : "and",
-                           "values" : [
-                              {
-                                 "op" : "or",
-                                 "values" : [
-                                    {
-                                       "field" : "autoreg",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bandwidth_balance",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bypass_acls",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bypass_role_id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "bypass_vlan",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "category_id",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "computername",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "detect_date",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_class",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_manufacturer",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_score",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_type",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "device_version",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp6_enterprise",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp6_fingerprint",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp_fingerprint",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "dhcp_vendor",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "last_arp",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "last_dhcp",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "last_seen",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "mac",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "machine_account",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "notes",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "pid",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "regdate",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "sessionid",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "status",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "time_balance",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "unregdate",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "user_agent",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
-                                       "field" : "voip",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    }
-                                 ]
-                              }
-                           ]
-                        },
-                        "sort" : [
-                           "mac ASC"
-                        ]
-                     },
-                     "schema" : {
-                        "allOf" : [
-                           {
-                              "$ref" : "#/components/schemas/Search"
-                           },
-                           {
-                              "properties" : {
-                                 "cursor" : {
-                                    "type" : "string"
-                                 },
-                                 "fields" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "autoreg",
-                                          "bandwidth_balance",
-                                          "bypass_acls",
-                                          "bypass_role_id",
-                                          "bypass_vlan",
-                                          "category_id",
-                                          "computername",
-                                          "detect_date",
-                                          "device_class",
-                                          "device_manufacturer",
-                                          "device_score",
-                                          "device_type",
-                                          "device_version",
-                                          "dhcp6_enterprise",
-                                          "dhcp6_fingerprint",
-                                          "dhcp_fingerprint",
-                                          "dhcp_vendor",
-                                          "last_arp",
-                                          "last_dhcp",
-                                          "last_seen",
-                                          "mac",
-                                          "machine_account",
-                                          "notes",
-                                          "pid",
-                                          "regdate",
-                                          "sessionid",
-                                          "status",
-                                          "time_balance",
-                                          "unregdate",
-                                          "user_agent",
-                                          "voip"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 },
-                                 "limit" : {
-                                    "maximum" : 1000,
-                                    "minimum" : 1,
-                                    "type" : "integer"
-                                 },
-                                 "sort" : {
-                                    "items" : {
-                                       "enum" : [
-                                          "autoreg ASC",
-                                          "autoreg DESC",
-                                          "bandwidth_balance ASC",
-                                          "bandwidth_balance DESC",
-                                          "bypass_acls ASC",
-                                          "bypass_acls DESC",
-                                          "bypass_role_id ASC",
-                                          "bypass_role_id DESC",
-                                          "bypass_vlan ASC",
-                                          "bypass_vlan DESC",
-                                          "category_id ASC",
-                                          "category_id DESC",
-                                          "computername ASC",
-                                          "computername DESC",
-                                          "detect_date ASC",
-                                          "detect_date DESC",
-                                          "device_class ASC",
-                                          "device_class DESC",
-                                          "device_manufacturer ASC",
-                                          "device_manufacturer DESC",
-                                          "device_score ASC",
-                                          "device_score DESC",
-                                          "device_type ASC",
-                                          "device_type DESC",
-                                          "device_version ASC",
-                                          "device_version DESC",
-                                          "dhcp6_enterprise ASC",
-                                          "dhcp6_enterprise DESC",
-                                          "dhcp6_fingerprint ASC",
-                                          "dhcp6_fingerprint DESC",
-                                          "dhcp_fingerprint ASC",
-                                          "dhcp_fingerprint DESC",
-                                          "dhcp_vendor ASC",
-                                          "dhcp_vendor DESC",
-                                          "last_arp ASC",
-                                          "last_arp DESC",
-                                          "last_dhcp ASC",
-                                          "last_dhcp DESC",
-                                          "last_seen ASC",
-                                          "last_seen DESC",
-                                          "mac ASC",
-                                          "mac DESC",
-                                          "machine_account ASC",
-                                          "machine_account DESC",
-                                          "notes ASC",
-                                          "notes DESC",
-                                          "pid ASC",
-                                          "pid DESC",
-                                          "regdate ASC",
-                                          "regdate DESC",
-                                          "sessionid ASC",
-                                          "sessionid DESC",
-                                          "status ASC",
-                                          "status DESC",
-                                          "time_balance ASC",
-                                          "time_balance DESC",
-                                          "unregdate ASC",
-                                          "unregdate DESC",
-                                          "user_agent ASC",
-                                          "user_agent DESC",
-                                          "voip ASC",
-                                          "voip DESC"
-                                       ],
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 }
-                              },
-                              "required" : [
-                                 "fields",
-                                 "sort"
-                              ]
-                           }
-                        ]
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/UsersNodesList"
-                        }
-                     }
-                  },
-                  "description" : "Request successful."
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "404" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "Users/Nodes"
             ]
          }
       },
