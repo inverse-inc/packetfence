@@ -894,11 +894,11 @@ type PfConfAdminLogin struct {
 	AllowUsernamePassword string `json:"allow_username_password"`
 }
 
-// Report struct
-type Report struct {
+// DynamicReport
+type DynamicReport struct {
 	// pf::Report fields
 	Id          string   `json:"id"`
-	Type        string   `json:"type"` // 'sql' only
+	Type        string   `json:"type"` // 'sql' only, 'abstract' is deprecated
 	Description string   `json:"description"`
 	Charts      []string `json:"charts"`
 	Columns     []string `json:"columns"`
@@ -921,13 +921,13 @@ type Report struct {
 	Bindings      []string `json:"bindings,omitempty"`
 }
 
-// Reports contains the report data
-type Reports struct {
+// DynamicReports
+type DynamicReports struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Report"`
 	PfconfigDecodeInElement string `val:"yes"`
-	Element                 map[string]Report
+	Element                 map[string]DynamicReport
 }
 
 type Connectors struct {

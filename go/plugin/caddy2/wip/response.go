@@ -161,6 +161,14 @@ func (body *ApiBody) AddError(err ApiError) {
 
 func (body *ApiBody) ResponseError(w http.ResponseWriter, status int) error {
 	body.Status = status
+	// Always set first error message as main message
+	if len(body.Message) == 0 {
+		if len(body.Errors) > 0 {
+			body.Message = body.Errors[0].Message
+		} else {
+			body.Message = http.StatusText(status)
+		}
+	}
 	data, err := body.serializeResponse(w, nil, "")
 	if err != nil {
 		return err

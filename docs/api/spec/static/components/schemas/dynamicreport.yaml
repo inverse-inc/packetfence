@@ -1,74 +1,156 @@
-DynamicReportMeta:
-  description: Report Meta
+DynamicReport:
+  description: A report
   type: object
   properties:
-    report_meta:
-      description: Meta for each item
-      type: object
-      properties:
-        charts:
-          description: Array of charts
-          type: array
-        columns:
-          description: Array of columns
-          type: array
-          items:
-            description: Column meta
-            type: object
-            properties:
-              is_cursor:
-                description: Column is used in cursor, can be used as PK
-                type: boolean
-              is_node:
-                description: Column is a node, can be used as PK
-                type: boolean
-              is_person:
-                description: Column is a person, can be used as PK
-                type: boolean
-              is_role:
-                description: Column is a role, can be used as PK
-                type: boolean
-              name:
-                description: Name of the column
-                type: string
-              text:
-                  description: Text of the column
-                  type: string
-        date_limit:
-          description: Enforce maximum date range to prevent database full table scans
-          type: string
-        default_end_date:
-          description: Default end datetime if no end_date is defined
-          type: string
-          format: date-time
-          example: 1970-01-01 00:00:00
-        default_limit:
-          description: Default query limit
-          type: string
-        default_start_data:
-          description: Default start datetime if no end_date is defined
-          type: string
-          format: date-time
-          example: 1970-01-01 00:00:00
-        description:
-          description: Descriptive text
-          type: string
-        has_cursor:
-          description: Pagination is available
-          type: boolean
-        has_date_range:
-          description: Date range is available
-          type: boolean
-        has_limit:
-          description: Query limits enforced
-          type: boolean
-        id:
-          description: Unique identifier
-          type: string
-        query_fields:
-          description: Fields available for query
-          type: array
-          items:
-            description: Field available for query
-            type: string
+    id:
+      description: Report ID
+      type: string
+    type:
+      description: Report type. Only 'sql' supported
+      type: string
+      default: "sql"
+      enum:
+        - sql
+    description:
+      description: Report description
+      type: string
+    default_limit:
+      description: Default limit for report
+      type: string
+      default: "25"
+    date_limit:
+      description: Date limit for report
+      type: string
+    has_limit:
+      description: Enable/disable limit for report
+      $ref: "#/components/schemas/EnableValue"
+    has_date_range:
+      description: Enable/disable date range for report
+      $ref: "#/components/schemas/EnableValue"
+    charts:
+      description: Comma separated list of chart
+      type: string
+    columns:
+      description: Comma separated list of columns
+      type: string
+    formatting:
+      description: Comma separated list of formatting
+      type: string
+    person_fields:
+      description: Comma separated list of person
+      type: string
+    node_fields:
+      description: Comma separated list of nodes
+      type: string
+    role_fields:
+      description: Comma separated list of roles
+      type: string
+    cursor_type:
+      description: Cursor type
+      type: string
+      enum:
+        - field
+        - multi_field
+        - offset
+        - none
+    cursor_field:
+      description: Comma separated list of cursor fields
+      type: string
+    cursor_default:
+      description: Comma separated list of default cursor
+      type: string
+    bindings:
+      description: Comma separated list of bindings
+      type: string
+    sql:
+      description: SQL query separated in multiple lines
+      type: array
+      items:
+        type: string
 
+DynamicReportOptions:
+  description: A report
+  type: object
+  properties:
+    id:
+      description: Report ID
+      type: string
+    description:
+      description: Descriptive text
+      type: string
+    has_cursor:
+      description: Pagination is available
+      type: boolean
+    has_limit:
+      description: Query limits enforced
+      type: boolean
+    has_date_range:
+      description: Date range is available
+      type: boolean
+    default_limit:
+      description: Default query limit
+      type: string
+      default: "25"
+    date_limit:
+      description: Enforce maximum date range to prevent database full table scans
+      type: string
+    default_end_date:
+      description: Default end datetime if no end_date is defined
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    default_start_date:
+      description: Default start datetime if no start_date is defined
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    columns:
+      description: Comma separated list of columns
+      type: array
+      items:
+        type: object
+        properties:
+          text:
+            description: Column text
+            type: string
+          name:
+            description: Column name
+            type: string
+          is_person:
+            description: Column is a person, can be used as PK
+            type: boolean
+          is_node:
+            description: Column is a node, can be used as PK
+            type: boolean
+          is_role:
+            description: Column is a role, can be used as PK
+            type: boolean
+          is_cursor:
+            description: Column is used in cursor, can be used as PK
+            type: boolean
+    charts:
+      description: Comma separated list of chart
+      type: array
+      items:
+        type: string
+
+DynamicReportSearchBody:
+  description: A search query on a report
+  type: object
+  properties:
+    limit:
+      description: Limit of results
+      type: integer
+    start_date:
+      description: Start date filter. Required if report has date range enabled
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    end_date:
+      description: End date filter. Required if report has date range enabled
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    cursor:
+      description: Cursor for pagination
+      type: [array, string, integer, boolean, null]
