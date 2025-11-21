@@ -3063,7 +3063,7 @@
             "description" : "An error response object used across multiple endpoints.",
             "properties" : {
                "code" : {
-                  "description" : "The error code representing the type of error.",
+                  "description" : "A numeric code representing the error type, if applicable. 0 is never used.",
                   "type" : "integer"
                },
                "field" : {
@@ -3075,7 +3075,7 @@
                   "type" : "string"
                },
                "op" : {
-                  "description" : "The operation during which the error occurred.",
+                  "description" : "The operation during which the error occurred, if applicable.",
                   "type" : "string"
                }
             },
@@ -3085,7 +3085,7 @@
             "description" : "A common pagination object used across multiple endpoints.",
             "properties" : {
                "count" : {
-                  "description" : "Total number of items available.",
+                  "description" : "Total number of items in current page.",
                   "type" : "integer"
                },
                "limit" : {
@@ -3093,7 +3093,7 @@
                   "type" : "integer"
                },
                "nextCursor" : {
-                  "description" : "The next page cursor.",
+                  "description" : "The next page cursor(s).",
                   "type" : [
                      "array",
                      "number",
@@ -3103,7 +3103,7 @@
                   ]
                },
                "prevCursor" : {
-                  "description" : "The current page cursor.",
+                  "description" : "The current page cursor(s).",
                   "type" : [
                      "array",
                      "number",
@@ -3113,62 +3113,42 @@
                   ]
                },
                "total" : {
-                  "description" : "Total number of pages available.",
+                  "description" : "Total number of items.",
                   "type" : "integer"
                }
             },
             "type" : "object"
          },
          "ApiResponse" : {
-            "allOf" : [
-               {
-                  "properties" : {
-                     "errors" : {
-                        "items" : {
-                           "$ref" : "#/components/schemas/ApiError"
-                        },
-                        "type" : "array"
-                     },
-                     "message" : {
-                        "description" : "A message describing the response.",
-                        "type" : "string"
-                     },
-                     "status" : {
-                        "description" : "The HTTP status of the response.",
-                        "type" : "int"
-                     }
+            "description" : "A common response object used across multiple endpoints.",
+            "properties" : {
+               "errors" : {
+                  "items" : {
+                     "$ref" : "#/components/schemas/ApiError"
                   },
-                  "type" : "object"
+                  "type" : "array"
+               },
+               "message" : {
+                  "description" : "A message describing the response, mostly used for errors.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The HTTP status of the response.",
+                  "type" : "int"
                }
-            ],
-            "description" : "A common response object used across multiple endpoints."
+            },
+            "type" : "object"
          },
          "ApiResponsePaginated" : {
             "allOf" : [
                {
-                  "properties" : {
-                     "errors" : {
-                        "items" : {
-                           "$ref" : "#/components/schemas/ApiError"
-                        },
-                        "type" : "array"
-                     },
-                     "message" : {
-                        "description" : "A message describing the response.",
-                        "type" : "string"
-                     },
-                     "status" : {
-                        "description" : "The HTTP status of the response.",
-                        "type" : "integer"
-                     }
-                  },
-                  "type" : "object"
+                  "$ref" : "#/components/schemas/ApiResponse"
                },
                {
                   "$ref" : "#/components/schemas/ApiPagination"
                }
             ],
-            "description" : "A common response object used across multiple endpoints."
+            "description" : "A common response object used across multiple endpoints, with pagination."
          },
          "Async" : {
             "properties" : {
@@ -5122,7 +5102,7 @@
             "description" : "A search query on a report",
             "properties" : {
                "cursor" : {
-                  "description" : "Cursor for pagination",
+                  "description" : "Cursor for pagination. Support multi-cursor.",
                   "type" : [
                      "array",
                      "string",
@@ -5138,7 +5118,7 @@
                   "type" : "string"
                },
                "limit" : {
-                  "description" : "Limit of results",
+                  "description" : "The maximum number of items to return (SQL limit). Enable if report has limit enabled",
                   "type" : "integer"
                },
                "start_date" : {
@@ -5174,6 +5154,7 @@
             "type" : "object"
          },
          "EnableValue" : {
+            "description" : "Enable/disable value as string.",
             "enum" : [
                "enabled",
                "enable",

@@ -1988,7 +1988,8 @@ components:
       description: An error response object used across multiple endpoints.
       properties:
         code:
-          description: The error code representing the type of error.
+          description: A numeric code representing the error type, if applicable.
+            0 is never used.
           type: integer
         field:
           description: The field associated with the error, if applicable.
@@ -1997,20 +1998,20 @@ components:
           description: A descriptive message about the error.
           type: string
         op:
-          description: The operation during which the error occurred.
+          description: The operation during which the error occurred, if applicable.
           type: string
       type: object
     ApiPagination:
       description: A common pagination object used across multiple endpoints.
       properties:
         count:
-          description: Total number of items available.
+          description: Total number of items in current page.
           type: integer
         limit:
           description: Number of items per page.
           type: integer
         nextCursor:
-          description: The next page cursor.
+          description: The next page cursor(s).
           type:
           - array
           - number
@@ -2018,7 +2019,7 @@ components:
           - boolean
           - ~
         prevCursor:
-          description: The current page cursor.
+          description: The current page cursor(s).
           type:
           - array
           - number
@@ -2026,40 +2027,28 @@ components:
           - boolean
           - ~
         total:
-          description: Total number of pages available.
+          description: Total number of items.
           type: integer
       type: object
     ApiResponse:
-      allOf:
-      - properties:
-          errors:
-            items:
-              $ref: '#/components/schemas/ApiError'
-            type: array
-          message:
-            description: A message describing the response.
-            type: string
-          status:
-            description: The HTTP status of the response.
-            type: int
-        type: object
       description: A common response object used across multiple endpoints.
+      properties:
+        errors:
+          items:
+            $ref: '#/components/schemas/ApiError'
+          type: array
+        message:
+          description: A message describing the response, mostly used for errors.
+          type: string
+        status:
+          description: The HTTP status of the response.
+          type: int
+      type: object
     ApiResponsePaginated:
       allOf:
-      - properties:
-          errors:
-            items:
-              $ref: '#/components/schemas/ApiError'
-            type: array
-          message:
-            description: A message describing the response.
-            type: string
-          status:
-            description: The HTTP status of the response.
-            type: integer
-        type: object
+      - $ref: '#/components/schemas/ApiResponse'
       - $ref: '#/components/schemas/ApiPagination'
-      description: A common response object used across multiple endpoints.
+      description: A common response object used across multiple endpoints, with pagination.
     Async:
       properties:
         async:
@@ -3412,7 +3401,7 @@ components:
       description: A search query on a report
       properties:
         cursor:
-          description: Cursor for pagination
+          description: Cursor for pagination. Support multi-cursor.
           type:
           - array
           - string
@@ -3425,7 +3414,8 @@ components:
           format: date-time
           type: string
         limit:
-          description: Limit of results
+          description: The maximum number of items to return (SQL limit). Enable if
+            report has limit enabled
           type: integer
         start_date:
           description: Start date filter. Required if report has date range enabled
@@ -3449,6 +3439,7 @@ components:
     EmailSend:
       type: object
     EnableValue:
+      description: Enable/disable value as string.
       enum:
       - enabled
       - enable

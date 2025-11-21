@@ -4,13 +4,13 @@ ApiError:
   properties:
     code:
       type: integer
-      description: The error code representing the type of error.
+      description: A numeric code representing the error type, if applicable. 0 is never used.
     field:
       type: string
       description: The field associated with the error, if applicable.
     op:
       type: string
-      description: The operation during which the error occurred.
+      description: The operation during which the error occurred, if applicable.
     message:
       type: string
       description: A descriptive message about the error.
@@ -21,49 +21,37 @@ ApiPagination:
   properties:
     count:
       type: integer
-      description: Total number of items available.
+      description: Total number of items in current page.
     total:
       type: integer
-      description: Total number of pages available.
+      description: Total number of items.
     limit:
       type: integer
       description: Number of items per page.
     prevCursor:
       type: [array, number, string, boolean, null]
-      description: The current page cursor.
+      description: The current page cursor(s).
     nextCursor:
       type: [array, number, string, boolean, null]
-      description: The next page cursor.
+      description: The next page cursor(s).
 
 ApiResponse:
   description: A common response object used across multiple endpoints.
-  allOf:
-    - type: object
-      properties:
-        message:
-          type: string
-          description: A message describing the response.
-        status:
-          type: int
-          description: The HTTP status of the response.
-        errors:
-          type: array
-          items:
-            $ref: "#/components/schemas/ApiError"
+  type: object
+  properties:
+    message:
+      type: string
+      description: A message describing the response, mostly used for errors.
+    status:
+      type: int
+      description: The HTTP status of the response.
+    errors:
+      type: array
+      items:
+        $ref: "#/components/schemas/ApiError"
 
 ApiResponsePaginated:
-  description: A common response object used across multiple endpoints.
+  description: A common response object used across multiple endpoints, with pagination.
   allOf:
-    - type: object
-      properties:
-        message:
-          type: string
-          description: A message describing the response.
-        status:
-          type: integer
-          description: The HTTP status of the response.
-        errors:
-          type: array
-          items:
-            $ref: "#/components/schemas/ApiError"
+    - $ref: "#/components/schemas/ApiResponse"
     - $ref: "#/components/schemas/ApiPagination"
