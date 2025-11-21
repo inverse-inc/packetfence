@@ -67,7 +67,7 @@ sub generateConfig {
     my $api_frontend_service_host = $api_frontend_service_uri->host;
     my $api_frontend_service_port = $api_frontend_service_uri->port;
 
-    my $httpd_admin_dispatcher_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher'};
+    my $httpd_admin_dispatcher_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher'});
     my $httpd_admin_dispatcher_host = $httpd_admin_dispatcher_uri->host;
     my $httpd_admin_dispatcher_port = $httpd_admin_dispatcher_uri->port;
 
