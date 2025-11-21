@@ -31,11 +31,104 @@ type ApiPagination struct {
 // The only requirements is that [Payload] must be marshalable
 type ApiBody struct {
 	ApiPagination            // optionnal if not set
-	Payload       any        `json:"__PAYLOAD__,omitempty"` // data asked here, rename at runtime
+	Payload       any        `json:"__PAYLOAD__,omitempty"` // data asked here, renamed at runtime
 	Errors        []ApiError `json:"errors,omitempty"`      // optionnal list of all errors
 	Message       string     `json:"message,omitempty"`     // Optionnal informative message
 	Status        int        `json:"status"`                // HTTP response status
-	tag           string     // name to replace the Payload name, or empty to keep struct fields
+	tag           string     // tag to replace the 'Payload' name, or empty to keep struct fields
+}
+
+// Override marshalization. We need to rename the payload field at runtime
+func (body *ApiBody) MarshalJSON() ([]byte, error) {
+	data := make(map[string]any)
+	if body.Payload != nil {
+		if len(body.tag) != 0 {
+			data[body.tag] = body.Payload
+		} else {
+			marshal(data, body.Payload)
+		}
+	}
+	body.Payload = nil // we already parsed it
+	marshal(data, body)
+	return json.Marshal(data)
+}
+
+func (body *ApiBody) ResponseItem(w http.ResponseWriter, status int, payload any) error {
+	body.Status = status
+	data, err := body.response(w, payload, "item")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
+}
+
+func (body *ApiBody) ResponseItems(w http.ResponseWriter, status int, payload any) error {
+	body.Status = status
+	data, err := body.response(w, payload, "items")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
+}
+
+func (body *ApiBody) ResponseRaw(w http.ResponseWriter, status int, payload any) error {
+	body.Status = status
+	data, err := body.response(w, payload, "")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
+}
+
+func (body *ApiBody) ResponseError(w http.ResponseWriter, status int) error {
+	body.Status = status
+	// Always set first error message as main message, need for compatibility
+	if len(body.Message) == 0 {
+		if len(body.Errors) > 0 {
+			body.Message = body.Errors[0].Message
+		} else { // default value based on status code, but you should always have at least one error
+			body.Message = http.StatusText(status)
+		}
+	}
+	data, err := body.response(w, nil, "")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
+}
+
+func (body *ApiBody) AddError(err ApiError) {
+	body.Errors = append(body.Errors, err)
+}
+
+func (body *ApiBody) AddFieldError(field, message string) {
+	body.AddError(ApiError{Field: field, Message: message})
+}
+
+func (body *ApiBody) AddMessageError(message string) {
+	body.AddError(ApiError{Message: message})
+}
+
+func (body *ApiBody) QuickError(w http.ResponseWriter, status int, message string) error {
+	body.AddMessageError(message)
+	return body.ResponseError(w, status)
+}
+
+func (body *ApiBody) QuickFieldError(w http.ResponseWriter, status int, field, message string) error {
+	body.AddFieldError(field, message)
+	return body.ResponseError(w, status)
+}
+
+func (body *ApiBody) response(w http.ResponseWriter, payload any, tag string) ([]byte, error) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(body.Status)
+	body.Payload = payload
+	body.tag = tag
+	return json.Marshal(body)
 }
 
 func isEmptyValue(v *reflect.Value) bool {
@@ -101,93 +194,12 @@ FieldLoop:
 	}
 }
 
-// Override marshalization
-// We need to rename the payload field at runtime
-func (body *ApiBody) MarshalJSON() ([]byte, error) {
-	data := make(map[string]any)
-	if body.Payload != nil {
-		if len(body.tag) != 0 {
-			data[body.tag] = body.Payload
-		} else {
-			marshal(data, body.Payload)
-		}
-	}
-	body.Payload = nil // we already parsed it
-	marshal(data, body)
-	return json.Marshal(data)
-}
-
-func (body *ApiBody) serializeResponse(w http.ResponseWriter, payload any, tag string) ([]byte, error) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(body.Status)
-	body.Payload = payload
-	body.tag = tag
-	return json.Marshal(body)
-}
-
-func (body *ApiBody) ResponseItem(w http.ResponseWriter, status int, payload any) error {
-	body.Status = status
-	data, err := body.serializeResponse(w, payload, "item")
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(data)
-	return err
-}
-
-func (body *ApiBody) ResponseItems(w http.ResponseWriter, status int, payload any) error {
-	body.Status = status
-	data, err := body.serializeResponse(w, payload, "items")
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(data)
-	return err
-}
-
-func (body *ApiBody) ResponseRaw(w http.ResponseWriter, status int, payload any) error {
-	body.Status = status
-	data, err := body.serializeResponse(w, payload, "")
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(data)
-	return err
-}
-
-func (body *ApiBody) AddError(err ApiError) {
-	body.Errors = append(body.Errors, err)
-}
-
-func (body *ApiBody) ResponseError(w http.ResponseWriter, status int) error {
-	body.Status = status
-	// Always set first error message as main message
-	if len(body.Message) == 0 {
-		if len(body.Errors) > 0 {
-			body.Message = body.Errors[0].Message
-		} else {
-			body.Message = http.StatusText(status)
-		}
-	}
-	data, err := body.serializeResponse(w, nil, "")
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(data)
-	return err
-}
-
-func (body *ApiBody) FastError(w http.ResponseWriter, status int, err ApiError) error {
-	body.AddError(err)
-	return body.ResponseError(w, status)
-}
-
-// Simpler but less efficient version, but 100% safe
+// Simpler but less efficient version of renaming Payload at runtime, but 100% safe
 //func (body *ApiBody) renamePayload(name string) error {
 //	var tmp any
 //	json.Unmarshal(body.rawResponse, &tmp)
 //	data1 := tmp.(map[string]any)
-//	data2 := data1["data"].(map[string]any)
+//	data2 := data1["__PAYLOAD__"].(map[string]any)
 //	subKey := slices.Collect(maps.Keys(data2))[0]
 //	var newName string
 //	if len(name) == 0 {

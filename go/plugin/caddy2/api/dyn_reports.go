@@ -22,13 +22,12 @@ import (
 
 const defaultSearchLimit int = 25
 
-// Report struct
+// reportSerializer, output
 // pfconfigdriver.DynamicReport is used ot read data from backend
 // This struct is used to response request. For compatibility purpose,
 // all arrays are converted to commad separted strings: [1, 2, 3] => "1,2,3"
 // Sql field is converted to array of lines (split sql with "\n" char)
-// output
-type report struct {
+type reportData struct {
 	pfconfigdriver.DynamicReport
 	Charts        string   `json:"charts,omitempty"`
 	Columns       string   `json:"columns,omitempty"`
@@ -42,7 +41,7 @@ type report struct {
 	Sql           []string `json:"sql,omitempty"`
 }
 
-// output
+// reportOptionsColumn, output
 type reportOptionsColumn struct {
 	Text     string `json:"text"`
 	Name     string `json:"name"`
@@ -52,7 +51,7 @@ type reportOptionsColumn struct {
 	IsCursor bool   `json:"is_cursor"`
 }
 
-// output
+// reportOptionsResponse, output
 type reportOptionsResponse struct {
 	ReportMeta struct {
 		Id               string                `json:"id"`
@@ -69,7 +68,7 @@ type reportOptionsResponse struct {
 	} `json:"report_meta"`
 }
 
-// input
+// reportSearchParams, input
 type reportSearchParams struct {
 	Limit     int    `json:"limit,omitempty"`
 	StartDate string `json:"start_date,omitempty"`
@@ -79,7 +78,7 @@ type reportSearchParams struct {
 
 type reportSearchFieldQuery = map[string]any
 
-var CachedReportConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.DynamicReports{}))
+var cachedReportConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.DynamicReports{}))
 
 type DynamicReport struct {
 	DBP **gorm.DB
@@ -93,102 +92,99 @@ func NewDynamicReport(ctx context.Context, dbp **gorm.DB) *DynamicReport {
 	}
 }
 
-func cleanSql(sql string) string {
-	regexp := regexp.MustCompile(`\n\s*`)
-	cleanSql := regexp.ReplaceAllString(sql, " ")
-	return strings.TrimSpace(cleanSql)
-}
-
-func parseReportForResponse(output *report, input *pfconfigdriver.DynamicReport) {
-	output.Id = input.Id
-	output.Type = input.Type
-	output.Description = input.Description
-	output.DefaultLimit = input.DefaultLimit
-	output.DateLimit = input.DateLimit
-	output.CursorType = input.CursorType
-	// if empty string, set to "disabled"
-	if sharedutils.IsEnabled(input.HasDateRange) {
-		output.HasDateRange = "enabled"
-	} else {
-		output.HasDateRange = "disabled"
-	}
-	if sharedutils.IsEnabled(input.HasLimit) {
-		output.HasLimit = "enabled"
-	} else {
-		output.HasLimit = "disabled"
-	}
-	output.Sql = strings.Split(input.Sql, "\n")
-	output.Charts = strings.TrimSpace(strings.Join(input.Charts, ","))
-	output.Columns = strings.TrimSpace(strings.Join(input.Columns, ","))
-	output.PersonFields = strings.TrimSpace(strings.Join(input.PersonFields, ","))
-	output.NodeFields = strings.TrimSpace(strings.Join(input.NodeFields, ","))
-	output.RoleFields = strings.TrimSpace(strings.Join(input.RoleFields, ","))
-	output.CursorField = strings.TrimSpace(strings.Join(input.CursorField, ","))
-	output.CursorDefault = strings.TrimSpace(strings.Join(input.CursorDefault, ","))
-	output.Bindings = strings.TrimSpace(strings.Join(input.Bindings, ","))
-	for _, format := range input.Formatting {
-		if len(output.Formatting) > 0 {
-			output.Formatting += ","
-		}
-		output.Formatting += format.Field + ":" + format.Format
-	}
-}
-
-func getReports(r *http.Request) (map[string]pfconfigdriver.DynamicReport, error) {
-	o, err := CachedReportConfig.Value(r.Context())
-	if err != nil {
-		return nil, err
-	}
-	reports := o.(*pfconfigdriver.DynamicReports)
-	return reports.Element, nil
+func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
+	r.GET("/api/v1.2/dynamic_reports", a.List)
+	r.GET("/api/v1.2/dynamic_report/:id", a.GetItem)
+	r.OPTIONS("/api/v1.2/dynamic_report/:id", a.OptionsItem)
+	r.POST("/api/v1.2/dynamic_report/:id/search", a.SearchItem)
 }
 
 func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body wip.ApiBody
 	reports, err := getReports(r)
 	if err != nil {
-		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
+		body.QuickError(w, http.StatusInternalServerError, "Cannot get reports from cache: "+err.Error())
 		return
 	}
 	reportsAsArray := slices.Collect(maps.Values(reports))
-	respReports := make([]report, len(reportsAsArray))
+	respReports := make([]reportData, len(reportsAsArray))
 	for k := range reportsAsArray {
-		tmpReport := report{}
-		parseReportForResponse(&tmpReport, &reportsAsArray[k])
+		tmpReport := reportData{}
+		reportSerializer(&tmpReport, &reportsAsArray[k])
 		respReports = append(respReports, tmpReport)
 	}
 	body.ResponseItems(w, http.StatusOK, respReports)
 }
 
-// swagger:operation GET /api/demo Demo GetDemo
-//
-// # Demo
-//
-// ---
-// responses:
-//
-//	"200":
-//	  description: demo
 func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body wip.ApiBody
-	reports, err := getReports(r)
+	inReport, shouldReturn := getReportById(w, r, p, &body)
+	if shouldReturn {
+		return
+	}
+	outReport := reportData{}
+	reportSerializer(&outReport, inReport)
+	body.ResponseItem(w, http.StatusOK, outReport)
+}
+
+func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	var body wip.ApiBody
+	inReport, shouldReturn := getReportById(w, r, p, &body)
+	if shouldReturn {
+		return
+	}
+	var options reportOptionsResponse
+	fillOptionsStruct(a, &options, inReport)
+	body.ResponseRaw(w, http.StatusOK, &options)
+}
+
+func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	var body wip.ApiBody
+	inReport, shouldReturn := getReportById(w, r, p, &body)
+	if shouldReturn {
+		return
+	}
+	defer r.Body.Close()
+	var payload reportSearchParams
+	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
+		body.QuickError(w, http.StatusBadRequest, "cannot parse request: "+err.Error())
 		return
 	}
-	id := p.ByName("id")
-	if len(id) == 0 {
-		body.FastError(w, http.StatusBadRequest, wip.ApiError{Message: "report id required"})
+	// Valide the payload and store binding data into a map for later use
+	options := make(map[string]any)
+	validationErrors := validateSearchPayload(options, payload, inReport)
+	if len(validationErrors) > 0 {
+		for _, e := range validationErrors {
+			body.AddMessageError(e.Error())
+		}
+		body.ResponseError(w, http.StatusBadRequest)
 		return
 	}
-	item, ok := reports[id]
-	if !ok {
-		body.FastError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
+	// Create the binding list in order. A binding can appear multiple time at different positions
+	injectedBindings := make([]any, 0)
+	bindingError := false
+	for _, binding := range inReport.Bindings {
+		e, ok := options[binding]
+		if !ok {
+			bindingError = true
+			body.AddMessageError("missing binding: " + binding)
+			continue
+		}
+		injectedBindings = append(injectedBindings, e)
+	}
+	if bindingError {
+		body.ResponseError(w, http.StatusInternalServerError)
 		return
 	}
-	tmpReport := report{}
-	parseReportForResponse(&tmpReport, &item)
-	body.ResponseItem(w, http.StatusOK, tmpReport)
+	cleanedSql := cleanSql(inReport.Sql)
+	items, err := executeSearchQuery(a.DBP, cleanedSql, injectedBindings)
+	if err != nil {
+		body.QuickError(w, http.StatusInternalServerError, "cannot execute search query: "+err.Error())
+		return
+	}
+	paginateQuery(&body, &items, options)
+	body.ResponseItems(w, http.StatusOK, items)
 }
 
 func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
@@ -270,24 +266,6 @@ func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report 
 	options.ReportMeta.DefaultEndDate = defaultEndDate
 	options.ReportMeta.Columns = []reportOptionsColumn{} // force json [] instead of null
 	fillOptionsColumns(&options.ReportMeta.Columns, report)
-}
-
-func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body wip.ApiBody
-	id := p.ByName("id")
-	reports, err := getReports(r)
-	if err != nil {
-		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
-		return
-	}
-	report, ok := reports[id]
-	if !ok {
-		body.FastError(w, http.StatusNotFound, wip.ApiError{Message: "Report not found"})
-		return
-	}
-	var options reportOptionsResponse
-	fillOptionsStruct(a, &options, &report)
-	body.ResponseRaw(w, http.StatusOK, &options)
 }
 
 func validateSearchPayload(opts map[string]any, payload reportSearchParams, report *pfconfigdriver.DynamicReport) []error {
@@ -421,62 +399,6 @@ func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearc
 	return items, nil
 }
 
-func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body wip.ApiBody
-	id := p.ByName("id")
-	reports, err := getReports(r)
-	if err != nil {
-		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "Cannot get reports from cache: " + err.Error()})
-		return
-	}
-	report, ok := reports[id]
-	if !ok {
-		body.FastError(w, http.StatusNotFound, wip.ApiError{Message: "report not found"})
-		return
-	}
-	defer r.Body.Close()
-	var payload reportSearchParams
-	err = json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		body.FastError(w, http.StatusBadRequest, wip.ApiError{Message: "cannot parse request: " + err.Error()})
-		return
-	}
-	// Valide the payload and store binding data into a map for later use
-	options := make(map[string]any)
-	validationErrors := validateSearchPayload(options, payload, &report)
-	if len(validationErrors) > 0 {
-		for _, e := range validationErrors {
-			body.AddError(wip.ApiError{Message: e.Error()})
-		}
-		body.ResponseError(w, http.StatusBadRequest)
-		return
-	}
-	// Create the binding list in order. A binding can appear multiple time at different positions
-	injectedBindings := make([]any, 0)
-	bindingError := false
-	for _, binding := range report.Bindings {
-		e, ok := options[binding]
-		if !ok {
-			bindingError = true
-			body.AddError(wip.ApiError{Message: "missing binding: " + binding})
-			continue
-		}
-		injectedBindings = append(injectedBindings, e)
-	}
-	if bindingError {
-		body.ResponseError(w, http.StatusInternalServerError)
-		return
-	}
-	cleanedSql := cleanSql(report.Sql)
-	items, err := executeSearchQuery(a.DBP, cleanedSql, injectedBindings)
-	if err != nil {
-		body.FastError(w, http.StatusInternalServerError, wip.ApiError{Message: "cannot execute search query: " + err.Error()})
-		return
-	}
-	paginateQuery(&body, &items, options)
-	body.ResponseItems(w, http.StatusOK, items)
-}
-
 func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options map[string]any) {
 	currPageCount := len(*items)
 	limit, _ := strconv.Atoi(options["limit"].(string))
@@ -530,24 +452,77 @@ func hasLen(value any) bool {
 	}
 }
 
-func isArrayOrSlice(value any) bool {
-	switch reflect.TypeOf(value).Kind() {
-	case reflect.Array, reflect.Slice:
-		return true
-	default:
-		return false
-	}
-}
-
 // getLen return the len by reflection of value.
 // value MUST have beend checked to implement Len
 func getLen(value any) int {
 	return reflect.ValueOf(value).Len()
 }
 
-func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
-	r.GET("/api/v1.2/dynamic_reports", a.List)
-	r.GET("/api/v1.2/dynamic_report/:id", a.GetItem)
-	r.POST("/api/v1.2/dynamic_report/:id/search", a.SearchItem)
-	r.OPTIONS("/api/v1.2/dynamic_report/:id", a.OptionsItem)
+func cleanSql(sql string) string {
+	regexp := regexp.MustCompile(`\n\s*`)
+	cleanSql := regexp.ReplaceAllString(sql, " ")
+	return strings.TrimSpace(cleanSql)
+}
+
+func reportSerializer(output *reportData, input *pfconfigdriver.DynamicReport) {
+	output.Id = input.Id
+	output.Type = input.Type
+	output.Description = input.Description
+	output.DefaultLimit = input.DefaultLimit
+	output.DateLimit = input.DateLimit
+	output.CursorType = input.CursorType
+	// if empty string, set to "disabled"
+	if sharedutils.IsEnabled(input.HasDateRange) {
+		output.HasDateRange = "enabled"
+	} else {
+		output.HasDateRange = "disabled"
+	}
+	if sharedutils.IsEnabled(input.HasLimit) {
+		output.HasLimit = "enabled"
+	} else {
+		output.HasLimit = "disabled"
+	}
+	output.Sql = strings.Split(input.Sql, "\n")
+	output.Charts = strings.TrimSpace(strings.Join(input.Charts, ","))
+	output.Columns = strings.TrimSpace(strings.Join(input.Columns, ","))
+	output.PersonFields = strings.TrimSpace(strings.Join(input.PersonFields, ","))
+	output.NodeFields = strings.TrimSpace(strings.Join(input.NodeFields, ","))
+	output.RoleFields = strings.TrimSpace(strings.Join(input.RoleFields, ","))
+	output.CursorField = strings.TrimSpace(strings.Join(input.CursorField, ","))
+	output.CursorDefault = strings.TrimSpace(strings.Join(input.CursorDefault, ","))
+	output.Bindings = strings.TrimSpace(strings.Join(input.Bindings, ","))
+	for _, format := range input.Formatting {
+		if len(output.Formatting) > 0 {
+			output.Formatting += ","
+		}
+		output.Formatting += format.Field + ":" + format.Format
+	}
+}
+
+func getReports(r *http.Request) (map[string]pfconfigdriver.DynamicReport, error) {
+	o, err := cachedReportConfig.Value(r.Context())
+	if err != nil {
+		return nil, err
+	}
+	reports := o.(*pfconfigdriver.DynamicReports)
+	return reports.Element, nil
+}
+
+func getReportById(w http.ResponseWriter, r *http.Request, p httprouter.Params, body *wip.ApiBody) (*pfconfigdriver.DynamicReport, bool) {
+	reports, err := getReports(r)
+	if err != nil {
+		body.QuickError(w, http.StatusInternalServerError, "Cannot get reports from cache: "+err.Error())
+		return nil, true
+	}
+	id := p.ByName("id")
+	if len(id) == 0 {
+		body.QuickError(w, http.StatusBadRequest, "report id required")
+		return nil, true
+	}
+	inReport, ok := reports[id]
+	if !ok {
+		body.QuickError(w, http.StatusNotFound, "report not found")
+		return nil, true
+	}
+	return &inReport, false
 }
