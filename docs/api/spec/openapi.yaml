@@ -2165,20 +2165,9 @@ components:
       type: object
     AdminApiAuditLogsList:
       allOf:
-      - properties:
-          errors:
-            items:
-              $ref: '#/components/schemas/ApiError'
-            type: array
-          message:
-            description: A message describing the response.
-            type: string
-          status:
-            description: The HTTP status of the response.
-            type: integer
-        type: object
+      - $ref: '#/components/schemas/ApiResponse'
       - $ref: '#/components/schemas/ApiPagination'
-      description: A common response object used across multiple endpoints.
+      description: A common response object used across multiple endpoints, with pagination.
     Async:
       properties:
         async:
@@ -25202,7 +25191,7 @@ components:
       additionalProperties: true
       properties:
         cursor:
-          description: Cursor for pagination
+          description: Cursor for pagination. Support multi-cursor.
           type:
           - array
           - string
@@ -25215,7 +25204,8 @@ components:
           format: date-time
           type: string
         limit:
-          description: Limit of results
+          description: The maximum number of items to return (SQL limit). Enable if
+            report has limit enabled
           type: integer
         start_date:
           description: Start date filter. Required if report has date range enabled

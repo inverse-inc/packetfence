@@ -139,7 +139,7 @@ DynamicReportSearchBody:
   type: object
   properties:
     limit:
-      description: Limit of results
+      description: The maximum number of items to return (SQL limit). Enable if report has limit enabled
       type: integer
     start_date:
       description: Start date filter. Required if report has date range enabled
@@ -152,5 +152,5 @@ DynamicReportSearchBody:
       format: date-time
       example: 1970-01-01 00:00:00
     cursor:
-      description: Cursor for pagination
+      description: Cursor for pagination. Support multi-cursor.
       type: [array, string, integer, boolean, null]

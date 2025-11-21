@@ -3252,7 +3252,7 @@
             "description" : "A common pagination object used across multiple endpoints.",
             "properties" : {
                "count" : {
-                  "description" : "Total number of items available.",
+                  "description" : "Total number of items in current page.",
                   "type" : "integer"
                },
                "url" : {
@@ -3265,25 +3265,21 @@
             "type" : "object"
          },
          "ApiResponse" : {
-            "allOf" : [
-               {
-                  "properties" : {
-                     "errors" : {
-                        "items" : {
-                           "$ref" : "#/components/schemas/ApiError"
-                        },
-                        "type" : "array"
-                     },
-                     "message" : {
-                        "description" : "A message describing the response.",
-                        "type" : "string"
-                     },
-                     "status" : {
-                        "description" : "The HTTP status of the response.",
-                        "type" : "int"
-                     }
+            "description" : "A common response object used across multiple endpoints.",
+            "properties" : {
+               "errors" : {
+                  "items" : {
+                     "$ref" : "#/components/schemas/ApiError"
                   },
-                  "type" : "object"
+                  "type" : "array"
+               },
+               "message" : {
+                  "description" : "A message describing the response, mostly used for errors.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The HTTP status of the response.",
+                  "type" : "int"
                }
             ]
          },
@@ -3340,7 +3336,7 @@
                   "$ref" : "#/components/schemas/ApiPagination"
                }
             ],
-            "description" : "A common response object used across multiple endpoints."
+            "description" : "A common response object used across multiple endpoints, with pagination."
          },
          "Async" : {
             "properties" : {
@@ -35771,7 +35767,7 @@
             "description" : "A search query on a report",
             "properties" : {
                "cursor" : {
-                  "description" : "Cursor for pagination",
+                  "description" : "Cursor for pagination. Support multi-cursor.",
                   "type" : [
                      "array",
                      "string",
@@ -35787,7 +35783,7 @@
                   "type" : "string"
                },
                "limit" : {
-                  "description" : "Limit of results",
+                  "description" : "The maximum number of items to return (SQL limit). Enable if report has limit enabled",
                   "type" : "integer"
                },
                "start_date" : {
