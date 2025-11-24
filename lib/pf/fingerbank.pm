@@ -334,14 +334,25 @@ sub find_device_class {
     my $timer = pf::StatsD::Timer->new({level => 7});
 
     my $logger = get_logger;
-    my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", sub {
+
+    # Check if we have a rate limit flag in cache
+    my $rate_limit_key = "pf::fingerbank::rate_limited";
+    my $is_rate_limited = cache()->get($rate_limit_key);
+
+    # Use shorter cache time (1 hour) if rate limited, otherwise use default (24h)
+    my $cache_options = $is_rate_limited ? { expires_in => '1h' } : {};
+
+    my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", $cache_options, sub {
         my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
         foreach my $k (@fingerbank::Constant::DEVICE_CLASS_LOOKUP_ORDER) {
             my $other_device_id = $fingerbank::Constant::DEVICE_CLASS_IDS{$k};
             $logger->debug("Checking if device $device_name is a $other_device_id");
             my $is_a = fingerbank::Model::Device->is_a($device_name, $other_device_id);
             if(!defined($is_a)) {
-                $logger->error("Didn't get a valid result when checking if $device_name is a $other_device_id");
+                $logger->error("Didn't get a valid result when checking if $device_name is a $other_device_id. Setting reduced cache timeout (1h) to avoid API pressure.");
+                # Set rate limit flag when API errors occur (including 429)
+                # This reduces cache time from 24h to 1h for future queries
+                cache()->set($rate_limit_key, 1, '1h');
                 return undef;
             }
             elsif($is_a) {
