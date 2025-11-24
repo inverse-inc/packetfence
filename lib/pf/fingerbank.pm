@@ -356,10 +356,20 @@ sub find_device_class {
                 return undef;
             }
             elsif($is_a) {
+                # Clear rate limit flag on successful API response
+                if ($is_rate_limited) {
+                    $logger->info("API responding normally again, clearing rate limit flag");
+                    cache()->remove($rate_limit_key);
+                }
                 my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
                 $logger->info("Device $device_name is a $other_device_name");
                 return $other_device_name;
             }
+        }
+        # Clear rate limit flag on successful API response (even if no match found)
+        if ($is_rate_limited) {
+            $logger->info("API responding normally again, clearing rate limit flag");
+            cache()->remove($rate_limit_key);
         }
         $logger->debug("Device $device_name is not part of any special OS class, taking top level parent $top_level_parent");
         return $top_level_parent;
