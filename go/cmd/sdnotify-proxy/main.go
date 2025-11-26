@@ -119,7 +119,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	path := strings.Trim(proxySock, ".sock")
+	path := strings.TrimSuffix(proxySock, ".sock")
 	f, err := os.Create(path + ".pid")
 	_, err = f.Write([]byte(strconv.Itoa(proc.Pid)))
 	f.Sync()
