@@ -93,7 +93,7 @@ cp ${SCRIPT_DIR}/postinst-offline.sh ${ISOFILES_DIR}/
 
 # Step 10: Update boot configurations
 echo "===> Step 10: Updating boot configurations"
-chmod a+w ${ISOFILES_DIR}/isolinux/gtk.cfg ${ISOFILES_DIR}/isolinux/drkgtk.cfg ${ISOFILES_DIR}/boot/grub/grub.cfg || true
+chmod a+w ${ISOFILES_DIR}/isolinux/gtk.cfg ${ISOFILES_DIR}/isolinux/drkgtk.cfg ${ISOFILES_DIR}/isolinux/menu.cfg ${ISOFILES_DIR}/boot/grub/grub.cfg || true
 cp ${SCRIPT_DIR}/gtk.cfg ${ISOFILES_DIR}/isolinux/gtk.cfg
 cp ${SCRIPT_DIR}/drkgtk.cfg ${ISOFILES_DIR}/isolinux/drkgtk.cfg
 cp ${SCRIPT_DIR}/menu.cfg ${ISOFILES_DIR}/isolinux/menu.cfg
