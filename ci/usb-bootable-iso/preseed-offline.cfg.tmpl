@@ -1,0 +1,147 @@
+#_preseed_V1
+#### Contents of the preconfiguration file (for bookworm) - OFFLINE USB INSTALLER
+### Localization
+# Preseeding only locale sets language, country and locale.
+d-i debian-installer/locale string en_US
+
+# Keyboard selection.
+d-i keyboard-configuration/xkb-keymap select us
+
+### Network configuration
+# netcfg will choose an interface that has link if possible. This makes it
+# skip displaying a list if there is more than one interface.
+d-i netcfg/choose_interface select auto
+
+# Any hostname and domain names assigned from dhcp take precedence over
+# values set here. However, setting the values still prevents the questions
+# from being shown, even if values come from dhcp.
+d-i netcfg/hostname string packetfence
+
+# Disable that annoying WEP key dialog.
+d-i netcfg/wireless_wep string
+
+### Configure package manager - OFFLINE MODE
+# Disable CD-ROM as package source after initial install
+d-i apt-setup/cdrom/set-first boolean false
+d-i apt-setup/cdrom/set-next boolean false
+d-i apt-setup/cdrom/set-failed boolean false
+
+# Disable network mirror - we use local repository on ISO
+d-i apt-setup/use_mirror boolean false
+
+### Mirror settings - Use local repository from ISO
+d-i mirror/country string manual
+d-i mirror/http/hostname string
+d-i mirror/http/directory string
+d-i mirror/http/proxy string
+
+### Account setup
+# Skip creation of a normal user account.
+d-i passwd/make-user boolean false
+
+# The user account will be added to some standard initial groups.
+d-i passwd/user-default-groups string audio cdrom video sudo
+
+### Clock and time zone setup
+# Controls whether or not the hardware clock is set to UTC.
+d-i clock-setup/utc boolean true
+
+# You may set this to any valid setting for $TZ; see the contents of
+# /usr/share/zoneinfo/ for valid values.
+d-i time/zone string UTC
+
+# Controls whether to use NTP to set the clock during the install
+d-i clock-setup/ntp boolean true
+
+### Partitioning
+# Use LVM for partitioning
+d-i partman-auto/method string lvm
+
+# Use max size for LVM volume group
+d-i partman-auto-lvm/guided_size string max
+
+# Remove existing LVM configuration
+d-i partman-lvm/device_remove_lvm boolean true
+# Remove existing software RAID
+d-i partman-md/device_remove_md boolean true
+# Confirm LVM partitions
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+# Use atomic partitioning (all files in one partition)
+d-i partman-auto/choose_recipe select atomic
+
+# Confirm partitioning
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman-md/confirm boolean true
+
+### Base system installation
+# Force non-interactive install
+debconf debconf/frontend select Noninteractive
+
+d-i krb5-config/admin_server string
+d-i krb5-config/default_realm string
+d-i krb5-config/kerberos_servers string
+
+### Package selection
+tasksel tasksel/first multiselect standard ssh-server
+
+# Individual additional packages to install
+# PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
+d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
+                          zlib1g-dev wget curl dkms make \
+                          nfs-common net-tools build-essential \
+                          linux-headers-amd64 gnupg2 apt-transport-https \
+                          tmux tcpdump lnav apg sysstat bsd-mailx \
+                          cgroupfs-mount
+
+# Whether to upgrade packages after debootstrap.
+# Allowed values: none, safe-upgrade, full-upgrade
+d-i pkgsel/upgrade select full-upgrade
+
+# Do not participate in popularity contest
+popularity-contest popularity-contest/participate boolean false
+
+### Boot loader installation
+# This is fairly safe to set, it makes grub install automatically to the UEFI
+# partition/boot record if no other operating system is detected on the machine.
+d-i grub-installer/only_debian boolean true
+
+# Install to the primary device
+d-i grub-installer/bootdev string default
+
+# Add kernel options for PacketFence
+d-i debian-installer/add-kernel-opts string net.ifnames=0 apparmor=0
+
+### Finishing up the installation
+# Avoid that last message about the install being complete.
+d-i finish-install/reboot_in_progress note
+
+### Preseeding other packages
+# Prevent packaged version of VirtualBox Guest Additions being installed:
+d-i preseed/early_command string sed -i \
+  '/in-target/idiscover(){/sbin/discover|grep -v VirtualBox;}' \
+  /usr/lib/pre-pkgsel.d/20install-hwpackages
+
+# Late command - run post-installation script for offline setup
+# This script will:
+# - Configure the local repository from the ISO
+# - Install PacketFence from local packages
+# - Load pre-downloaded Docker images
+# - Configure the system for first boot
+d-i preseed/late_command string \
+  mount --bind /proc /target/proc ; \
+  mount --bind /sys /target/sys ; \
+  mount --bind /dev /target/dev ; \
+  in-target mkdir -p /media/cdrom ; \
+  mount /dev/sr0 /target/media/cdrom || mount /dev/sda1 /target/media/cdrom || true ; \
+  in-target cp -a /media/cdrom/postinst-offline.sh /usr/local/bin/ ; \
+  in-target chmod 700 /usr/local/bin/postinst-offline.sh ; \
+  in-target /bin/bash /usr/local/bin/postinst-offline.sh %%PF_VERSION%% ; \
+  umount /target/media/cdrom || true ; \
+  umount /target/dev ; \
+  umount /target/proc ; \
+  umount /target/sys
