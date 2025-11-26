@@ -288,10 +288,10 @@ $html .= '
     var $searchBar = document.getElementById("searchBar");
     var $searchBarT = 1200;
 
-    $(window).bind("scroll", function() {
+    var adapt = function() {
       var $nameSize = $("#switches").find("th:first-child").width();
       $("#switches-fixed").find("th:first-child").width($nameSize);
-    
+
       var $fixedHeader = $("#switches-fixed");
       var $searchBarW = $("#defaultWidth").width();
       var offset = $(this).scrollTop();
@@ -301,7 +301,7 @@ $html .= '
       }
 
       if (offset >= $searchBarT && $fixedHeader.is(":hidden")) {
-        //$searchBar.classList.add("stickier", "ui", "center", "aligned", "container");
+        
         $searchBar.classList.add("stickier");
         $("#searchBar").width($searchBarW);
         $fixedHeader.show();
@@ -310,8 +310,10 @@ $html .= '
         $fixedHeader.hide();
         $("#searchBar").removeAttr("width");
       }
-    });
-    
+    }
+ 
+    window.addEventListener("scroll", adapt);
+
     $(document).ready(function() {
       var $theader = $("#switches > thead").clone();
       var $fixedHeader = $("#switches-fixed").append($theader);
