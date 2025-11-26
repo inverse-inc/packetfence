@@ -16,15 +16,16 @@ type ApiError struct {
 	Message string `json:"message"`         // message to show to the caller
 }
 
+type ApiErrors []ApiError
+
 // ApiPagination struct contains data to manage pagination
 // Cursor will mostly be of type int or string
 type ApiPagination struct {
-	// omit useless fields for now, legacy Perl does not use them
-	Count      *int // `json:"count,omitempty"`      // items in the current page
-	Limit      *int // `json:"limit,omitempty"`      // number of items per page
-	Total      *int // `json:"total,omitempty"`      // total number of items
-	NextCursor any  `json:"nextCursor,omitempty"` // starting value(s) of next page
-	PrevCursor any  `json:"prevCursor,omitempty"` // startgin value(s) of previous page
+	//Count      *int `json:"count,omitempty"`      // items in the current page
+	//Limit      *int `json:"limit,omitempty"`      // number of items per page
+	//Total      *int `json:"total,omitempty"`      // total number of items
+	NextCursor any `json:"nextCursor,omitempty"` // starting value(s) of next page
+	PrevCursor any `json:"prevCursor,omitempty"` // startgin value(s) of previous page
 }
 
 // ApiBody struct contains data to be serialized into the HTTP response
@@ -36,6 +37,19 @@ type ApiBody struct {
 	Message       string     `json:"message,omitempty"`     // Optionnal informative message
 	Status        int        `json:"status"`                // HTTP response status
 	tag           string     // tag to replace the 'Payload' name, or empty to keep struct fields
+}
+
+type ApiSerializerPagination struct {
+	ApiPagination
+	Errors  []ApiError `json:"errors,omitempty"`  // optionnal list of all errors
+	Message string     `json:"message,omitempty"` // Optionnal informative message
+	Status  int        `json:"status"`            // HTTP response status
+}
+
+type ApiSerializer struct {
+	Errors  []ApiError `json:"errors,omitempty"`  // optionnal list of all errors
+	Message string     `json:"message,omitempty"` // Optionnal informative message
+	Status  int        `json:"status"`            // HTTP response status
 }
 
 // Override marshalization. We need to rename the payload field at runtime
