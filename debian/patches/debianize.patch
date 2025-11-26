@@ -1,17 +1,17 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 44f36c6913..d5e27aa616 100644
+index 20d96c8c63..c197d61a01 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -479,7 +479,7 @@ radiusd=enabled
+@@ -483,7 +483,7 @@ radiusd=enabled
  # services.radiusd_binary
- # 
+ #
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 -radiusd_binary=/usr/sbin/radiusd
 +radiusd_binary=/usr/sbin/freeradius
  #
  # services.radiusd_acct
  #
-@@ -544,7 +544,7 @@ httpd_aaa=enabled
+@@ -548,7 +548,7 @@ httpd_aaa=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -20,9 +20,9 @@ index 44f36c6913..d5e27aa616 100644
  #
  # services.snmptrapd
  #
-@@ -648,7 +648,7 @@ openssl_binary=/usr/bin/openssl
+@@ -672,7 +672,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
- # 
+ #
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
 -arp_binary=/sbin/arp
 +arp_binary=/usr/sbin/arp
@@ -68,7 +68,7 @@ index 83845dd15b..1e940135ac 100644
  [Install]
  WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 185d2a0661..689b489833 100644
+index 0def805764..092b486fe4 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -80,9 +80,9 @@ index 185d2a0661..689b489833 100644
  ExecStart=/usr/local/pf/sbin/haproxy-admin-docker-wrapper
  ExecStop=/bin/bash -c "docker stop haproxy-admin ; echo Stopped"
  Restart=on-failure
-@@ -17,8 +17,8 @@ TimeoutStopSec=30
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/haproxy-admin-systemd-notify.pid
+@@ -19,8 +19,8 @@ PIDFile=/usr/local/pf/var/run/haproxy-admin-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check haproxy-admin haproxy
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_admin_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_admin_rules("REMOVE")'
@@ -116,7 +116,7 @@ index dac2e493ec..5f831702bc 100644
  [Install]
  WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index e134c94bfe..8300722e02 100644
+index fd23f3fcd8..14195b5b4d 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
 @@ -8,7 +8,7 @@ Type=notify
@@ -128,9 +128,9 @@ index e134c94bfe..8300722e02 100644
  ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
  ExecStop=/bin/bash -c "docker stop haproxy-portal ; echo Stopped"
  Restart=on-failure
-@@ -16,10 +16,10 @@ TimeoutStopSec=30
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/haproxy-portal-systemd-notify.pid
+@@ -18,10 +18,10 @@ PIDFile=/usr/local/pf/var/run/haproxy-portal-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check haproxy-portal haproxy
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_portal_rules("add")'
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::ip6tables -Mpf::config -e 'pf::ip6tables::ip6tables_haproxy_portal_rules("add")'
@@ -144,7 +144,7 @@ index e134c94bfe..8300722e02 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 1cecf351cf..ce14457019 100644
+index cf50d0a0eb..5d8c0b5a11 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
 @@ -12,7 +12,7 @@ Type=notify
@@ -156,9 +156,9 @@ index 1cecf351cf..ce14457019 100644
  ExecStart=/usr/local/pf/sbin/httpd.aaa-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.aaa ; echo Stopped"
  TimeoutStopSec=30
-@@ -20,8 +20,8 @@ Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/httpd.aaa-systemd-notify.pid
+@@ -22,8 +22,8 @@ PIDFile=/usr/local/pf/var/run/httpd.aaa-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check httpd.aaa apache2
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_aaa_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_aaa_rules("REMOVE")'
@@ -181,10 +181,10 @@ index 671ead6314..ab5fc1a457 100644
  ExecStop=/bin/bash -c "docker stop httpd.admin_dispatcher ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.dispatcher.service b/conf/systemd/packetfence-httpd.dispatcher.service
-index 072d429c51..c22cfd9046 100644
+index c9b26a28a2..1eec932eb5 100644
 --- a/conf/systemd/packetfence-httpd.dispatcher.service
 +++ b/conf/systemd/packetfence-httpd.dispatcher.service
-@@ -10,15 +10,15 @@ Type=notify
+@@ -10,7 +10,7 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=8192
@@ -193,8 +193,9 @@ index 072d429c51..c22cfd9046 100644
  ExecStart=/usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.dispatcher ; echo Stopped"
  Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/httpd.dispatcher-systemd-notify.pid
+@@ -19,8 +19,8 @@ PIDFile=/usr/local/pf/var/run/httpd.dispatcher-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check httpd.dispatcher pfhttpd
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_dispatcher_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_dispatcher_rules("REMOVE")'
@@ -204,7 +205,7 @@ index 072d429c51..c22cfd9046 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index 8b7bb297f5..2cc511504b 100644
+index f611d4816d..72656b235d 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -216,9 +217,9 @@ index 8b7bb297f5..2cc511504b 100644
  ExecStart=/usr/local/pf/sbin/httpd.portal-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.portal ; echo Stopped"
  TimeoutStopSec=60
-@@ -17,8 +17,8 @@ Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
+@@ -19,8 +19,8 @@ PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check httpd.portal apache2
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_portal_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_portal_rules("REMOVE")'
@@ -228,7 +229,7 @@ index 8b7bb297f5..2cc511504b 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index cb8f01c0c5..dca05ec908 100644
+index c740c186a4..6ddaead2eb 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
 @@ -11,7 +11,7 @@ Type=notify
@@ -240,9 +241,9 @@ index cb8f01c0c5..dca05ec908 100644
  ExecStart=/usr/local/pf/sbin/httpd.webservices-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.webservices ; echo Stopped"
  TimeoutStartSec=300
-@@ -20,8 +20,8 @@ Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/httpd.webservices-systemd-notify.pid
+@@ -22,8 +22,8 @@ PIDFile=/usr/local/pf/var/run/httpd.webservices-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check httpd.webservices apache2
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_webservices_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_webservices_rules("REMOVE")'
@@ -395,20 +396,21 @@ index d7ba65fd2f..f553ae2176 100644
  ExecStop=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper stop
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfacct.service b/conf/systemd/packetfence-pfacct.service
-index 1e0405828a..7ef9c9524c 100644
+index 559ab1ef28..c9f1224289 100644
 --- a/conf/systemd/packetfence-pfacct.service
 +++ b/conf/systemd/packetfence-pfacct.service
-@@ -9,15 +9,15 @@ Before=packetfence-httpd.portal.service
- Type=notify
+@@ -10,7 +10,7 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
+ WatchdogSec=30s
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfacct' -e 'pf::services::manager::pfacct->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfacct' -e 'pf::services::manager::pfacct->new()->generateConfig()'
  ExecStart=/usr/local/pf/sbin/pfacct-docker-wrapper
  ExecStop=/bin/bash -c "docker stop pfacct ; echo Stopped"
  Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/pfacct-systemd-notify.pid
+@@ -19,8 +19,8 @@ PIDFile=/usr/local/pf/var/run/pfacct-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check pfacct pfacct
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("REMOVE")'
@@ -481,6 +483,19 @@ index deba9b6843..81bc9e40b7 100644
  
  [Install]
  WantedBy=packetfence.target
+diff --git a/conf/systemd/packetfence-pfdns-connector.service b/conf/systemd/packetfence-pfdns-connector.service
+index aa98a095ba..8b52bef30a 100644
+--- a/conf/systemd/packetfence-pfdns-connector.service
++++ b/conf/systemd/packetfence-pfdns-connector.service
+@@ -9,7 +9,7 @@ Before=packetfence-httpd.portal.service
+ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdns_connector' -e 'pf::services::manager::pfdns_connector->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdns_connector' -e 'pf::services::manager::pfdns_connector->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfdns-connector-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfdns-connector ; echo Stopped"
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
 index 16524507dd..8773106fa3 100644
 --- a/conf/systemd/packetfence-pfdns.service
@@ -563,11 +578,11 @@ index 40cf9cceda..99313b4270 100644
  TimeoutStopSec=30
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfqueue-go.service b/conf/systemd/packetfence-pfqueue-go.service
-index ea836d4227..1060b1f9e4 100644
+index bfb4a139cd..fd5cdc1aba 100644
 --- a/conf/systemd/packetfence-pfqueue-go.service
 +++ b/conf/systemd/packetfence-pfqueue-go.service
-@@ -12,7 +12,7 @@ TimeoutStopSec=60
- NotifyAccess=all
+@@ -13,7 +13,7 @@ NotifyAccess=all
+ WatchdogSec=30s
  StartLimitBurst=3
  StartLimitInterval=10
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_go' -e 'pf::services::manager::pfqueue_go->new()->generateConfig()'
@@ -615,10 +630,10 @@ index ea570be973..9f04493861 100644
  ExecStop=/bin/bash -c "docker stop pfsso ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-proxysql.service b/conf/systemd/packetfence-proxysql.service
-index b8c41df819..b9269fa612 100644
+index ecb248adea..7653c26816 100644
 --- a/conf/systemd/packetfence-proxysql.service
 +++ b/conf/systemd/packetfence-proxysql.service
-@@ -9,14 +9,14 @@ Type=notify
+@@ -9,7 +9,7 @@ Type=notify
  NotifyAccess=all
  ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh
  ExecStartPre=/bin/rm -f /usr/local/pf/var/run/proxysql/proxysql.pid
@@ -627,7 +642,9 @@ index b8c41df819..b9269fa612 100644
  ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
  ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped"
  TimeoutStopSec=60
- Restart=on-failure
+@@ -17,8 +17,8 @@ Restart=on-failure
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check proxysql proxysql
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("REMOVE")'
@@ -637,12 +654,12 @@ index b8c41df819..b9269fa612 100644
  [Install]
  WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index 0dc15fce6b..64e75fde8c 100644
+index e8c2b7595b..a989c1fbd9 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
-@@ -20,8 +20,8 @@ Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/radiusd-acct-systemd-notify.pid
+@@ -22,8 +22,8 @@ PIDFile=/usr/local/pf/var/run/radiusd-acct-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check radiusd-acct freeradius
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_acct_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_acct_rules("REMOVE")'
@@ -676,12 +693,12 @@ index d49e1ae9d9..caebd34dbe 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index 3821fdc204..689ea38b5d 100644
+index 7ac32c5c6d..3090f27629 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
-@@ -20,8 +20,8 @@ Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/radiusd-cli-systemd-notify.pid
+@@ -22,8 +22,8 @@ PIDFile=/usr/local/pf/var/run/radiusd-cli-systemd-notify.pid
+ # health check
+ ExecStartPost=/usr/local/pf/sbin/docker-health-check radiusd-cli freeradius
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_cli_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_cli_rules("REMOVE")'
