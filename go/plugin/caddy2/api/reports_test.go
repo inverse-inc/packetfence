@@ -213,8 +213,17 @@ func TestSearchReport(t *testing.T) {
 		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:01, 1970-01-01 00:00:00"}
 		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::MultiField/search", &payload, http.StatusOK, &body)
 		isEqInt(t, "Items", len(body.Items), limitExpected)
-		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:2b", "2025-06-06T00:00:00Z"})
-		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:2f", "2025-06-05T16:00:00Z"})
+		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
+		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
+	})
+	t.Run("Check cursor multi_field again", func(t *testing.T) {
+		var body reportSearchResponse
+		limitExpected := 4
+		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:8e, 2025-05-28 18:00:00"}
+		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::MultiField/search", &payload, http.StatusOK, &body)
+		isEqInt(t, "Items", len(body.Items), limitExpected)
+		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
+		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
 	})
 }
 
