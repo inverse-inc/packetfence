@@ -1,23 +1,20 @@
-PF_VERSION=$(CI_COMMIT_REF_NAME)
-RESULT_DIR=results
+.PHONY: iso clean upload
 
-.PHONY: iso
+# Default values
+PF_VERSION ?= $(shell cat ../../conf/pf-release | cut -d' ' -f2)
+PF_RELEASE ?= $(shell cat ../../conf/pf-release)
+ISO_OUT ?= PacketFence-USB-ISO-$(PF_VERSION).iso
+
+# Export for sub-scripts
+export PF_VERSION
+export PF_RELEASE
+export ISO_OUT
+
 iso:
-	echo "Building PacketFence USB Bootable ISO for $(PF_VERSION)"
-	PF_RELEASE='$(shell cat ../../conf/pf-release)' \
-	PF_VERSION='$(PF_VERSION)' \
-	 ./build-and-upload.sh
+	./build-and-upload.sh
 
-.PHONY: local
-local:
-	echo "Building PacketFence USB Bootable ISO locally"
-	PF_RELEASE='$(shell cat ../../conf/pf-release)' \
-	PF_VERSION='localtest' \
-	ISO_OUT='PacketFence-USB-Bootable-localtest.iso' \
-	 ./build-usb-bootable-iso.sh
-
-.PHONY: clean
 clean:
-	rm -rf $(RESULT_DIR)
-	rm -rf build
-	rm -f PacketFence-USB-Bootable-*.iso*
+	rm -rf work/ results/ *.iso *.md5 isofiles/ pool/ dists/ docker-images/
+
+upload:
+	./build-and-upload.sh
