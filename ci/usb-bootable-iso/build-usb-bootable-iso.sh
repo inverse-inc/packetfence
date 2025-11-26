@@ -44,8 +44,9 @@ mkdir -p ${DOCKER_IMAGES_DIR}
 # Step 1: Download base Debian ISO if not present
 echo "===> Step 1: Checking base Debian ISO"
 if ! [ -f ${SCRIPT_DIR}/${ISO_IN} ]; then
-    echo "Downloading ${ISO_IN}..."
-    wget -q --show-progress https://cdimage.debian.org/cdimage/archive/12.6.0/amd64/iso-cd/${ISO_IN} -O ${SCRIPT_DIR}/${ISO_IN}
+    echo "Downloading ${ISO_IN}... (this may take a few minutes)"
+    wget -q https://cdimage.debian.org/cdimage/archive/12.6.0/amd64/iso-cd/${ISO_IN} -O ${SCRIPT_DIR}/${ISO_IN}
+    echo "Download complete: $(du -h ${SCRIPT_DIR}/${ISO_IN} | cut -f1)"
 else
     echo "Base ISO already present: ${ISO_IN}"
 fi
