@@ -27,7 +27,7 @@ const defaultSearchLimit int = 25
 // This struct is used to response request. For compatibility purpose,
 // all arrays are converted to commad separted strings: [1, 2, 3] => "1,2,3"
 // Sql field is converted to array of lines (split sql with "\n" char)
-type reportData struct {
+type ReportResponse struct {
 	pfconfigdriver.DynamicReport
 	Charts        string   `json:"charts,omitempty"`
 	Columns       string   `json:"columns,omitempty"`
@@ -41,8 +41,8 @@ type reportData struct {
 	Sql           []string `json:"sql,omitempty"`
 }
 
-// reportOptionsColumn, output
-type reportOptionsColumn struct {
+// ReportOptionsColumn, output
+type ReportOptionsColumn struct {
 	Text     string `json:"text"`
 	Name     string `json:"name"`
 	IsPerson bool   `json:"is_person"`
@@ -51,8 +51,8 @@ type reportOptionsColumn struct {
 	IsCursor bool   `json:"is_cursor"`
 }
 
-// reportOptionsResponse, output
-type reportOptionsResponse struct {
+// ReportOptionsResponse, output
+type ReportOptionsResponse struct {
 	ReportMeta struct {
 		Id               string                `json:"id"`
 		Description      string                `json:"description"`
@@ -60,16 +60,16 @@ type reportOptionsResponse struct {
 		HasLimit         bool                  `json:"has_limit"`
 		HasDateRange     bool                  `json:"has_date_range"`
 		DefaultLimit     string                `json:"default_limit"`
-		DateLimit        string                `json:"date_limit,omitempty"`
-		DefaultStartDate string                `json:"default_start_date,omitempty"`
-		DefaultEndDate   string                `json:"default_end_date,omitempty"`
-		Columns          []reportOptionsColumn `json:"columns"`
+		DateLimit        string                `json:"date_limit"`
+		DefaultStartDate string                `json:"default_start_date"`
+		DefaultEndDate   string                `json:"default_end_date"`
+		Columns          []ReportOptionsColumn `json:"columns"`
 		Charts           []string              `json:"charts"`
 	} `json:"report_meta"`
 }
 
-// reportSearchParams, input
-type reportSearchParams struct {
+// ReportSearchParams, input
+type ReportSearchParams struct {
 	Limit     int    `json:"limit,omitempty"`
 	StartDate string `json:"start_date,omitempty"`
 	EndDate   string `json:"end_date,omitempty"`
@@ -107,9 +107,9 @@ func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 	reportsAsArray := slices.Collect(maps.Values(reports))
-	respReports := make([]reportData, len(reportsAsArray))
+	respReports := make([]ReportResponse, 0, len(reportsAsArray))
 	for k := range reportsAsArray {
-		tmpReport := reportData{}
+		tmpReport := ReportResponse{}
 		reportSerializer(&tmpReport, &reportsAsArray[k])
 		respReports = append(respReports, tmpReport)
 	}
@@ -122,7 +122,7 @@ func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httpro
 	if shouldReturn {
 		return
 	}
-	outReport := reportData{}
+	outReport := ReportResponse{}
 	reportSerializer(&outReport, inReport)
 	body.ResponseItem(w, http.StatusOK, outReport)
 }
@@ -133,7 +133,7 @@ func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p ht
 	if shouldReturn {
 		return
 	}
-	var options reportOptionsResponse
+	var options ReportOptionsResponse
 	fillOptionsStruct(a, &options, inReport)
 	body.ResponseRaw(w, http.StatusOK, &options)
 }
@@ -145,7 +145,7 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 	defer r.Body.Close()
-	var payload reportSearchParams
+	var payload ReportSearchParams
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		body.QuickError(w, http.StatusBadRequest, "cannot parse request: "+err.Error())
@@ -183,7 +183,10 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		body.QuickError(w, http.StatusInternalServerError, "cannot execute search query: "+err.Error())
 		return
 	}
-	paginateQuery(&body, &items, options)
+	if err := paginateQuery(&body, &items, options); err != nil {
+		body.QuickError(w, http.StatusBadRequest, "cannot paginate results: "+err.Error())
+		return
+	}
 	body.ResponseItems(w, http.StatusOK, items)
 }
 
@@ -211,13 +214,13 @@ func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
 	return startDate, endDate
 }
 
-func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.DynamicReport) {
+func fillOptionsColumns(columns *[]ReportOptionsColumn, report *pfconfigdriver.DynamicReport) {
 	// Match TEXT in: foo [as ][\]"TEXT[\]"
 	// All possible format: foo as \"bar\" | foo "bar" | "foo \"bar\"" | "bar"
 	regexp := regexp.MustCompile(`^\S+\s+(?:as\s)?\\?\"(.+)\\?\"`)
 	for _, v := range report.Columns {
 		var value string
-		newColumn := reportOptionsColumn{}
+		newColumn := ReportOptionsColumn{}
 		submatches := regexp.FindStringSubmatch(v)
 		if submatches == nil {
 			if len(v) == 0 { // should not happen ?
@@ -238,7 +241,7 @@ func fillOptionsColumns(columns *[]reportOptionsColumn, report *pfconfigdriver.D
 	}
 }
 
-func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report *pfconfigdriver.DynamicReport) {
+func fillOptionsStruct(a *DynamicReport, options *ReportOptionsResponse, report *pfconfigdriver.DynamicReport) {
 	// Copy paste values
 	options.ReportMeta.Id = report.Id
 	options.ReportMeta.Description = report.Description
@@ -264,98 +267,92 @@ func fillOptionsStruct(a *DynamicReport, options *reportOptionsResponse, report 
 	}
 	options.ReportMeta.DefaultStartDate = defaultStartDate
 	options.ReportMeta.DefaultEndDate = defaultEndDate
-	options.ReportMeta.Columns = []reportOptionsColumn{} // force json [] instead of null
+	options.ReportMeta.Columns = []ReportOptionsColumn{} // force json [] instead of null
 	fillOptionsColumns(&options.ReportMeta.Columns, report)
 }
 
-func validateSearchPayload(opts map[string]any, payload reportSearchParams, report *pfconfigdriver.DynamicReport) []error {
-	errLst := make([]error, 0)
-	if slices.Contains(report.Bindings, "limit") {
-		var tmp string
-		if sharedutils.IsEnabled(report.HasLimit) && payload.Limit != 0 {
-			tmp = strconv.Itoa(payload.Limit + 1)
-		} else if len(report.DefaultLimit) != 0 {
-			defaultLimitInt, err := strconv.Atoi(report.DefaultLimit)
-			if err != nil {
-				errLst = append(errLst, errors.New("Bad defaultLimit value: "+err.Error()))
-			} else {
-				tmp = strconv.Itoa(defaultLimitInt + 1)
-			}
-		} else {
-			tmp = strconv.Itoa(defaultSearchLimit + 1)
-		}
-		opts["limit"] = tmp // contains +1 to get the cursor of the next page
-	}
-	if sharedutils.IsEnabled(report.HasDateRange) {
-		if slices.Contains(report.Bindings, "start_date") {
-			if len(payload.StartDate) == 0 {
-				errLst = append(errLst, errors.New("start_date has an invalid value"))
-			} else {
-				opts["start_date"] = payload.StartDate
-			}
-		} else {
-			errLst = append(errLst, errors.New("start_date is required"))
-		}
-		if slices.Contains(report.Bindings, "end_date") {
-			if len(payload.EndDate) == 0 {
-				errLst = append(errLst, errors.New("end_date has an invalid value"))
-			} else {
-				opts["end_date"] = payload.EndDate
-			}
-		} else {
-			errLst = append(errLst, errors.New("end_date is required"))
-		}
-	} // else ignore even if start_date and end_date in query
+func validateSearchPayload(opts map[string]any, payload ReportSearchParams, report *pfconfigdriver.DynamicReport) []error {
 	opts["cursor_type"] = report.CursorType
 	opts["cursor_default"] = report.CursorDefault
-	// payload.Cursor can be int/string or []int/[]string
-	// convert all to []any, convert int/string to string
-	optsCursor := make([]string, 0)
-	reqCursor := make([]any, 0)
-	if payload.Cursor != nil && hasLen(payload.Cursor) && getLen(payload.Cursor) != 0 {
-		if report.CursorType == "multi_field" {
-			reqCursor = payload.Cursor.([]any)
-		} else {
-			reqCursor = append(reqCursor, payload.Cursor)
-		}
+	opts["cursor_field"] = nil
+	errLst := make([]error, 0)
+	if len(report.Bindings) == 0 {
+		return errLst
 	}
-	switch report.CursorType {
-	case "offset":
-		// always int
-		if slices.Contains(report.Bindings, "cursor") {
-			if len(reqCursor) != 0 {
-				optsCursor = append(optsCursor, strconv.Itoa(reqCursor[0].(int)))
-			} else {
-				optsCursor = append(optsCursor, "0")
-			}
-			opts["cursor_field"] = report.CursorField[0]
+	cursorRe := regexp.MustCompile(`^cursor\.(\d+)$`) // to match multi_field cursor.x
+	// payload.Cursor is a string, each value ar comma separted: 'cursor1,cursor2,...'
+	// convert all to []string
+	optsCursor := make([]string, 0)
+	reqCursor := make([]string, 0)
+	if payload.Cursor != nil && len(payload.Cursor.(string)) > 0 {
+		reqCursor = append(reqCursor, strings.Split(payload.Cursor.(string), ",")...)
+	}
+	for _, binding := range report.Bindings {
+		if _, ok := opts[binding]; ok {
+			continue // skip already added cursors
 		}
-	case "field":
-		// int or string
-		if slices.Contains(report.Bindings, "cursor") {
-			if len(reqCursor) != 0 {
-				switch tmp := reqCursor[0].(type) {
-				case int:
-					optsCursor = append(optsCursor, strconv.Itoa(tmp))
-				case float32, float64:
-					optsCursor = append(optsCursor, strconv.FormatFloat(tmp.(float64), 'f', 8, 64))
-				case string:
-					optsCursor = append(optsCursor, tmp)
-				default:
+		opts[binding] = nil
+		switch binding {
+		case "limit":
+			var tmp string
+			if sharedutils.IsEnabled(report.HasLimit) && payload.Limit != 0 {
+				tmp = strconv.Itoa(payload.Limit + 1)
+			} else if len(report.DefaultLimit) != 0 {
+				defaultLimitInt, err := strconv.Atoi(report.DefaultLimit)
+				if err != nil {
+					errLst = append(errLst, errors.New("Bad defaultLimit value: "+err.Error()))
+				} else {
+					tmp = strconv.Itoa(defaultLimitInt + 1)
 				}
 			} else {
-				optsCursor = append(optsCursor, report.CursorDefault[0]) // contains only on value
+				tmp = strconv.Itoa(defaultSearchLimit + 1)
 			}
-			opts["cursor_field"] = report.CursorField[0]
-		}
-	case "multi_field":
-		opts["cursor_field"] = make([]string, 0)
-		cursorRe := regexp.MustCompile(`^cursor\.(\d+)$`)
-		for _, binding := range report.Bindings {
-			if _, ok := opts[binding]; ok {
-				continue // skip already added cursors
+			opts["limit"] = tmp // contains +1 to get the cursor of the next page
+		case "start_date", "end_date":
+			dateReg := regexp.MustCompile(`^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$`)
+			if binding == "start_date" {
+				if len(payload.StartDate) == 0 {
+					errLst = append(errLst, errors.New("start_date has an empty value"))
+				} else {
+					if !dateReg.MatchString(payload.StartDate) {
+						errLst = append(errLst, errors.New("start_date has an invalid value"))
+					} else {
+						opts["start_date"] = payload.StartDate
+					}
+				}
+			} else {
+				if len(payload.EndDate) == 0 {
+					errLst = append(errLst, errors.New("end_date has an empty value"))
+				} else {
+					if !dateReg.MatchString(payload.EndDate) {
+						errLst = append(errLst, errors.New("start_date has an invalid value"))
+					} else {
+						opts["end_date"] = payload.EndDate
+					}
+				}
 			}
+		case "cursor":
+			switch report.CursorType {
+			case "offset":
+				if len(reqCursor) != 0 {
+					opts["cursor"] = reqCursor[0]
+				} else {
+					opts["cursor"] = "0"
+				}
+				opts["cursor_field"] = nil // no field since it's an offset
+			case "field":
+				if len(reqCursor) != 0 {
+					opts["cursor"] = reqCursor[0]
+				} else {
+					opts["cursor"] = report.CursorDefault[0] // contains only on value
+				}
+				opts["cursor_field"] = report.CursorField[0]
+			default:
+				errLst = append(errLst, errors.New("cursor_type has invalid value"))
+			}
+		default: // multi_field cursor.x, or any columns
 			if result := cursorRe.FindStringSubmatch(binding); result != nil {
+				opts["cursor_field"] = report.CursorField
 				index, _ := strconv.Atoi(result[1])
 				if len(reqCursor) > index { // cursor.3 requires 4 cursor specified
 					opts[binding] = reqCursor[index]
@@ -368,15 +365,26 @@ func validateSearchPayload(opts map[string]any, payload reportSearchParams, repo
 					}
 				}
 				optsCursor = append(optsCursor, opts[binding].(string))
-				opts["cursor_field"] = append(opts["cursor_field"].([]string), report.CursorField[index])
+
+			} else { // any other column binding
+
 			}
 		}
-	default: // nothing to do, should not happens
 	}
-	if len(optsCursor) > 0 {
-		opts["cursor"] = optsCursor
-	} else {
-		opts["cursor"] = nil
+	if report.CursorType == "multi_field" {
+		if len(optsCursor) > 0 {
+			opts["cursor"] = optsCursor
+		} else {
+			opts["cursor"] = nil
+		}
+	}
+	if sharedutils.IsEnabled(report.HasDateRange) {
+		if opts["start_date"] == nil {
+			errLst = append(errLst, errors.New("start_date is required"))
+		}
+		if opts["end_date"] == nil {
+			errLst = append(errLst, errors.New("end_date is required"))
+		}
 	}
 	return errLst
 }
@@ -399,26 +407,51 @@ func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearc
 	return items, nil
 }
 
-func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options map[string]any) {
+func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options map[string]any) error {
+	limitElem, ok := options["limit"]
+	if !ok {
+		return nil
+	}
+	limit, _ := strconv.Atoi(limitElem.(string))
 	currPageCount := len(*items)
-	limit, _ := strconv.Atoi(options["limit"].(string))
-	limit = max(limit-1, 0) // handle the case limit=0, even if it should not happen
-	body.Limit = &limit
-	cursorType := options["cursor_type"].(string)
-	if cursorType == "multi_field" {
-		body.PrevCursor = options["cursor"]
-	} else {
-		if options["cursor"] != nil && hasLen(options["cursor"]) && getLen(options["cursor"]) != 0 {
-			body.PrevCursor = options["cursor"].([]string)[0]
-		} else { // if no cursor specified in the request, take the cursor of the first record
+
+	var cursorType string
+	if options["cursor_type"] != nil {
+		cursorType = options["cursor_type"].(string)
+	}
+	if !(len(cursorType) == 0 || cursorType == "none" || options["cursor"] == nil) {
+		if cursorType == "multi_field" {
+			cursorFields := options["cursor_field"].([]string)
+			prevCursor := make([]any, 0)
+			field := (*items)[0]
+			for _, fieldName := range cursorFields {
+				fieldValue, ok := field[fieldName]
+				if !ok {
+					return errors.New("cannot find cursor field: " + fieldName)
+				}
+				prevCursor = append(prevCursor, fieldValue)
+			}
+			body.PrevCursor = prevCursor
+		} else { // take the cursor of the first record
 			if currPageCount == 0 {
-				body.PrevCursor = options["cursor_default"].([]string)[0]
+				if options["cursor_default"] != nil {
+					body.PrevCursor = options["cursor_default"].([]string)[0]
+				} else if hasLen(options["cursor"]) && getLen(options["cursor"]) != 0 {
+					body.PrevCursor = options["cursor"].(string)
+				} else {
+					body.PrevCursor = options["cursor"]
+				}
 			} else {
+				// fields checked already in prevCursor part
 				body.PrevCursor = (*items)[0][options["cursor_field"].(string)]
 			}
 		}
+
+	} else {
+		body.PrevCursor = options["cursor"]
 	}
-	if currPageCount > limit {
+	if currPageCount >= limit {
+		limit -= 1
 		currPageCount -= 1
 		switch options["cursor_type"].(string) {
 		case "offset":
@@ -433,14 +466,16 @@ func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options m
 			}
 			body.NextCursor = nextCursor
 		default:
-			// none
+			body.NextCursor = nil
 		}
-		*items = (*items)[:len(*items)-1] // do not return the +1 record fetched
+		*items = (*items)[:currPageCount] // do not return the +1 record fetched
 	} else {
 		body.NextCursor = nil
 	}
-	body.Count = &currPageCount
-
+	// We don't need it right now
+	// body.Count = &currPageCount
+	// body.Limit = &limit
+	return nil
 }
 
 func hasLen(value any) bool {
@@ -464,7 +499,7 @@ func cleanSql(sql string) string {
 	return strings.TrimSpace(cleanSql)
 }
 
-func reportSerializer(output *reportData, input *pfconfigdriver.DynamicReport) {
+func reportSerializer(output *ReportResponse, input *pfconfigdriver.DynamicReport) {
 	output.Id = input.Id
 	output.Type = input.Type
 	output.Description = input.Description
