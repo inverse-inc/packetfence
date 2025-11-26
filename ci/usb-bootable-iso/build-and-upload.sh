@@ -8,9 +8,9 @@ PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 # Version handling
 PF_VERSION=${PF_VERSION:-localtest}
 
-# Fix PF version if maintenance branch to match tag format
+# Fix PF version if maintenance branch to match tag format (e.g., maintenance/15.0 -> v15.0.0)
 if [[ "$PF_VERSION" =~ ^maintenance\/([0-9]+\.[0-9]+)$ ]]; then
-    PF_VERSION="maintenance-${BASH_REMATCH[1]}"
+    PF_VERSION="v${BASH_REMATCH[1]}.0"
     echo "Maintenance branch detected, using version: $PF_VERSION"
 elif [[ "$PF_VERSION" =~ ^.*\/.*$ ]]; then
     # Replace slashes with dashes for any other branch format
