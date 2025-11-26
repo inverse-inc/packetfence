@@ -14,6 +14,7 @@ iso:
 	./build-and-upload.sh
 
 clean:
+	chmod -R +w work/ isofiles/ 2>/dev/null || true
 	rm -rf work/ results/ *.iso *.md5 isofiles/ pool/ dists/ docker-images/
 
 upload:
