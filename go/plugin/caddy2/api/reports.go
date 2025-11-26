@@ -286,6 +286,9 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 	reqCursor := make([]string, 0)
 	if payload.Cursor != nil && len(payload.Cursor.(string)) > 0 {
 		reqCursor = append(reqCursor, strings.Split(payload.Cursor.(string), ",")...)
+		for i := range reqCursor {
+			reqCursor[i] = strings.TrimSpace(reqCursor[i])
+		}
 	}
 	for _, binding := range report.Bindings {
 		if _, ok := opts[binding]; ok {
