@@ -15,6 +15,8 @@ Restart=on-failure
 TimeoutStopSec=30
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/haproxy-portal-systemd-notify.pid
+# health check
+ExecStartPost=/usr/local/pf/sbin/docker-health-check haproxy-portal haproxy
 # iptables rules
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_portal_rules("add")'
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::ip6tables -Mpf::config -e 'pf::ip6tables::ip6tables_haproxy_portal_rules("add")'

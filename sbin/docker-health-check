@@ -1,0 +1,67 @@
+#!/bin/bash
+# Copyright (C) Inverse inc.
+#
+# Health check script for docker containers
+# Verifies that a specific process is running inside the container
+#
+# Usage: docker-health-check <container_name> <process_pattern> [max_retries] [retry_interval]
+#
+# Arguments:
+#   container_name  - Name of the docker container to check
+#   process_pattern - Process name or pattern to search for (passed to pgrep -f)
+#   max_retries     - Maximum number of retries (default: 10)
+#   retry_interval  - Seconds between retries (default: 1)
+#
+# Exit codes:
+#   0 - Process found and running
+#   1 - Process not found after all retries
+#   2 - Container not running
+#   3 - Invalid arguments
+
+set -e
+
+CONTAINER_NAME="${1:-}"
+PROCESS_PATTERN="${2:-}"
+MAX_RETRIES="${3:-10}"
+RETRY_INTERVAL="${4:-1}"
+
+if [ -z "$CONTAINER_NAME" ] || [ -z "$PROCESS_PATTERN" ]; then
+    echo "Usage: $0 <container_name> <process_pattern> [max_retries] [retry_interval]" >&2
+    exit 3
+fi
+
+# Check if container is running
+check_container_running() {
+    docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>/dev/null | grep -q "true"
+}
+
+# Check if process is running inside container
+check_process_running() {
+    docker exec "$CONTAINER_NAME" pgrep -f "$PROCESS_PATTERN" >/dev/null 2>&1
+}
+
+# Wait for container to be running
+for i in $(seq 1 "$MAX_RETRIES"); do
+    if check_container_running; then
+        break
+    fi
+    if [ "$i" -eq "$MAX_RETRIES" ]; then
+        echo "Container '$CONTAINER_NAME' is not running after $MAX_RETRIES retries" >&2
+        exit 2
+    fi
+    sleep "$RETRY_INTERVAL"
+done
+
+# Check for process with retries
+for i in $(seq 1 "$MAX_RETRIES"); do
+    if check_process_running; then
+        echo "Process '$PROCESS_PATTERN' is running in container '$CONTAINER_NAME'"
+        exit 0
+    fi
+    if [ "$i" -lt "$MAX_RETRIES" ]; then
+        sleep "$RETRY_INTERVAL"
+    fi
+done
+
+echo "Process '$PROCESS_PATTERN' not found in container '$CONTAINER_NAME' after $MAX_RETRIES retries" >&2
+exit 1

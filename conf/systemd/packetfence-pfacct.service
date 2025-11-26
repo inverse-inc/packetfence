@@ -16,6 +16,8 @@ ExecStop=/bin/bash -c "docker stop pfacct ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/pfacct-systemd-notify.pid
+# health check
+ExecStartPost=/usr/local/pf/sbin/docker-health-check pfacct pfacct
 # iptables rules
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("add")'
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("REMOVE")'
