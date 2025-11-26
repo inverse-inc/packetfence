@@ -314,6 +314,12 @@ sub stopService {
     my ($self) = @_;
     my $name = $self->name;
     my $logger = get_logger();
+    # Check if the unit file exists before trying to stop it
+    my $exists = system("sudo systemctl cat packetfence-$name >/dev/null 2>&1") == 0;
+    unless ($exists) {
+        $logger->debug("Unit packetfence-$name does not exist, skipping stop");
+        return;
+    }
     my $pid    = $self->pid;
     $logger->info("Stopping $name with pid $pid");
     `sudo systemctl stop packetfence-$name`;
@@ -321,8 +327,8 @@ sub stopService {
         $logger->error("failed to execute: $!\n");
     }
     elsif ( $? & 127 ) {
-        $logger->error(sprintf("child died with signal %d, %s coredump\n", 
-                ( $? & 127 ), 
+        $logger->error(sprintf("child died with signal %d, %s coredump\n",
+                ( $? & 127 ),
                 (( $? & 128 ) ? 'with' : 'without')));
     }
     else {
@@ -485,7 +491,11 @@ Disable the service in systemd.
 
 sub sysdDisable {
     my $self = shift;
-    return system( "sudo systemctl disable " . $self->systemdTarget) == 0;
+    my $target = $self->systemdTarget;
+    # Check if the unit file exists before trying to disable it
+    my $exists = system("sudo systemctl cat $target >/dev/null 2>&1") == 0;
+    return $TRUE unless $exists;
+    return system( "sudo systemctl disable " . $target) == 0;
 }
 
 =head2 _build_restart_launcher
