@@ -117,6 +117,10 @@ func TestOptionsReport(t *testing.T) {
 		var body reportOptionsResponse
 		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
 	})
+	t.Run("Should respond to OPTIONS not found", func(t *testing.T) {
+		var body reportOptionsResponse
+		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Nothin", nil, http.StatusNotFound, &body)
+	})
 	t.Run("Check default values", func(t *testing.T) {
 		var body reportOptionsResponse
 		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
@@ -137,7 +141,6 @@ func TestOptionsReport(t *testing.T) {
 }
 
 func TestSearchReport(t *testing.T) {
-
 	t.Run("Check default limit 1", func(t *testing.T) {
 		payload := api.ReportSearchParams{Limit: 10, Cursor: 0}
 		var body reportSearchResponse
@@ -224,6 +227,12 @@ func TestSearchReport(t *testing.T) {
 		isEqInt(t, "Items", len(body.Items), limitExpected)
 		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
 		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
+	})
+	t.Run("Check cursor field unallowed binding", func(t *testing.T) {
+		var body reportSearchResponse
+		limitExpected := 4
+		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:00"}
+		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::BindingIsAColumn/search", &payload, http.StatusBadRequest, &body)
 	})
 }
 
