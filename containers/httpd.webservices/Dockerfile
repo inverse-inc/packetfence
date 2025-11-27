@@ -17,7 +17,4 @@ COPY lib lib
 copy html html
 RUN chown -R pf: /usr/local/pf/html
 
-COPY containers/pf-apache-wrapper containers/pf-apache-wrapper
-RUN chmod +x containers/pf-apache-wrapper
-
-ENTRYPOINT /usr/local/pf/containers/pf-apache-wrapper /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND
+ENTRYPOINT /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND
