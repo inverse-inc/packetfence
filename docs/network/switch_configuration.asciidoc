@@ -132,6 +132,60 @@ PacketFence support these switches _without VoIP_ using one trap type:
 
 Exact command-line configuration to be contributed...
 
+=== Intelbras
+
+==== SC 5530
+
+General Radius:
+
+  radius scheme packetfence
+   primary authentication 192.168.1.5 key simple useStrongerSecret
+   primary accounting 192.168.1.5 key simple useStrongerSecret
+   user-name-format without-domain
+   nas-ip interface Vlan-interface1
+   
+  eap-profile packetfence
+   method peap-mschapv2
+  
+  domain packetfence
+   authentication lan-access radius-scheme packetfence
+   authorization lan-access radius-scheme packetfence
+   accounting lan-access radius-scheme packetfence
+   authentication default radius-scheme packetfence # RADIUS Cli login (optional)
+  
+  domain default enable packetfence
+  
+  dot1x
+  dot1x authentication-method eap
+  dot1x quiet-period
+  dot1x retry 3
+  dot1x timer quiet-period 30
+  dot1x timer handshake-period 30
+  dot1x access-user log enable abnormal-logoff failed-login normal-logoff successful-login
+  
+  mac-authentication
+  
+Radius COA:
+
+  radius dynamic-author server
+   client ip 192.168.1.5 key simple useStrongerSecret
+
+Dot1x:
+
+  interface Twenty-FiveGigE1/0/28
+   port link-mode bridge
+   mirroring-group 1 monitor-port
+   dot1x
+   dot1x re-authenticate
+   
+Mac authentication:
+ 
+  interface Twenty-FiveGigE1/0/34
+   port link-mode bridge
+   port link-type trunk
+   port trunk permit vlan 1
+   mac-authentication
+  
 === Juniper
 
 include::networkdevice/juniper.asciidoc[]
