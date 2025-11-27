@@ -28,7 +28,14 @@ const defaultSearchLimit int = 25
 // all arrays are converted to commad separted strings: [1, 2, 3] => "1,2,3"
 // Sql field is converted to array of lines (split sql with "\n" char)
 type ReportResponse struct {
-	pfconfigdriver.DynamicReport
+	Id            string   `json:"id"`
+	Type          string   `json:"type"` // 'sql' only, 'abstract' is deprecated
+	Description   string   `json:"description"`
+	HasLimit      string   `json:"has_limit"`
+	HasDateRange  string   `json:"has_date_range"`
+	DefaultLimit  string   `json:"default_limit,omitempty"`
+	DateLimit     string   `json:"date_limit,omitempty"`
+	CursorType    string   `json:"cursor_type,omitempty"`
 	Charts        string   `json:"charts,omitempty"`
 	Columns       string   `json:"columns,omitempty"`
 	Formatting    string   `json:"formatting,omitempty"`
@@ -60,9 +67,9 @@ type ReportOptionsResponse struct {
 		HasLimit         bool                  `json:"has_limit"`
 		HasDateRange     bool                  `json:"has_date_range"`
 		DefaultLimit     string                `json:"default_limit"`
-		DateLimit        string                `json:"date_limit"`
-		DefaultStartDate string                `json:"default_start_date"`
-		DefaultEndDate   string                `json:"default_end_date"`
+		DateLimit        *string               `json:"date_limit"`
+		DefaultStartDate *string               `json:"default_start_date"`
+		DefaultEndDate   *string               `json:"default_end_date"`
 		Columns          []ReportOptionsColumn `json:"columns"`
 		Charts           []string              `json:"charts"`
 	} `json:"report_meta"`
@@ -145,6 +152,10 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 	defer r.Body.Close()
+	if inReport.Type != "sql" {
+		body.QuickError(w, http.StatusBadRequest, "abstract report are deprecated, only sql reports are supported")
+		return
+	}
 	var payload ReportSearchParams
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
@@ -254,19 +265,25 @@ func fillOptionsStruct(a *DynamicReport, options *ReportOptionsResponse, report 
 	} else {
 		options.ReportMeta.DefaultLimit = report.DefaultLimit
 	}
-	options.ReportMeta.DateLimit = report.DateLimit
+	if len(report.DateLimit) == 0 {
+		options.ReportMeta.DateLimit = nil
+	} else {
+		options.ReportMeta.DateLimit = &report.DateLimit
+	}
 	// Computed values
 	if len(report.CursorType) == 0 || report.CursorType == "none" {
 		options.ReportMeta.HasCursor = false
 	} else {
 		options.ReportMeta.HasCursor = true
 	}
-	defaultStartDate, defaultEndDate := "", "" // empty string won't appear in json response
 	if sharedutils.IsEnabled(report.HasDateRange) {
-		defaultStartDate, defaultEndDate = getDefaultDateRange(a, report.DateLimit)
+		defaultStartDate, defaultEndDate := getDefaultDateRange(a, report.DateLimit)
+		options.ReportMeta.DefaultEndDate = &defaultEndDate
+		options.ReportMeta.DefaultStartDate = &defaultStartDate
+	} else {
+		options.ReportMeta.DefaultEndDate = nil
+		options.ReportMeta.DefaultStartDate = nil
 	}
-	options.ReportMeta.DefaultStartDate = defaultStartDate
-	options.ReportMeta.DefaultEndDate = defaultEndDate
 	options.ReportMeta.Columns = []ReportOptionsColumn{} // force json [] instead of null
 	fillOptionsColumns(&options.ReportMeta.Columns, report)
 }
@@ -370,7 +387,8 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 				optsCursor = append(optsCursor, opts[binding].(string))
 
 			} else { // any other column binding
-
+				errLst = append(errLst, errors.New("Unallowed binding: "+binding))
+				continue
 			}
 		}
 	}
