@@ -111,6 +111,19 @@ cd ${SCRIPT_DIR}
 
 # Step 12: Build final ISO
 echo "===> Step 12: Building final ISO"
+# ISO 9660 volume ID has a 32 character limit
+# Format: PFusb-${short_name} (6 chars prefix + 26 chars max for name)
+if [[ "${PF_VERSION}" == *"/"* ]]; then
+    VERSION_SHORT="${PF_VERSION##*/}"
+    echo "Volume ID: extracted '${VERSION_SHORT}' from '${PF_VERSION}'"
+else
+    VERSION_SHORT="${PF_VERSION}"
+    echo "Volume ID: using '${VERSION_SHORT}' (no slash found)"
+fi
+# Truncate to 26 characters to fit within 32 char limit with "PFusb-" prefix
+VERSION_SHORT="${VERSION_SHORT:0:26}"
+VOLID="PFusb-${VERSION_SHORT}"
+echo "Volume ID: final value '${VOLID}' (${#VOLID} chars)"
 xorriso -as mkisofs \
     -r -J -joliet-long \
     -b isolinux/isolinux.bin \
@@ -123,7 +136,7 @@ xorriso -as mkisofs \
     -no-emul-boot \
     -isohybrid-gpt-basdat \
     -isohybrid-apm-hfsplus \
-    -V "PacketFence USB ${PF_VERSION}" \
+    -V "${VOLID}" \
     -o ${ISO_OUT} \
     ${ISOFILES_DIR}
 
