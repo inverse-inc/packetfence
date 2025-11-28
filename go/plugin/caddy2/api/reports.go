@@ -297,14 +297,33 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 		return errLst
 	}
 	cursorRe := regexp.MustCompile(`^cursor\.(\d+)$`) // to match multi_field cursor.x
-	// payload.Cursor is a string, each value ar comma separted: 'cursor1,cursor2,...'
-	// convert all to []string
+	// payload.Cursor is a string or []string, convert all to []string
 	optsCursor := make([]string, 0)
-	reqCursor := make([]string, 0)
-	if payload.Cursor != nil && len(payload.Cursor.(string)) > 0 {
-		reqCursor = append(reqCursor, strings.Split(payload.Cursor.(string), ",")...)
-		for i := range reqCursor {
-			reqCursor[i] = strings.TrimSpace(reqCursor[i])
+	payloadCursor := make([]string, 0)
+	if payload.Cursor != nil {
+		if isSliceOrArray(payload.Cursor) {
+			for _, tmp := range payload.Cursor.([]any) {
+				tmpStr, err := formatAnyToString(tmp)
+				if err != nil {
+					errLst = append(errLst, errors.New("Bad type value in cursor. Only string, int, uint or float accepted"))
+					return errLst
+				}
+				payloadCursor = append(payloadCursor, tmpStr)
+			}
+		} else {
+			if report.CursorType == "multi_field" {
+				errLst = append(errLst, errors.New("Multi field cursor requires an array of cursor"))
+				return errLst
+			}
+			tmpStr, err := formatAnyToString(payload.Cursor)
+			if err != nil {
+				errLst = append(errLst, errors.New("Bad type value in cursor. Only string, int, uint or float accepted"))
+				return errLst
+			}
+			payloadCursor = append(payloadCursor, tmpStr)
+		}
+		for i := range payloadCursor {
+			payloadCursor[i] = strings.TrimSpace(payloadCursor[i])
 		}
 	}
 	for _, binding := range report.Bindings {
@@ -354,15 +373,15 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 		case "cursor":
 			switch report.CursorType {
 			case "offset":
-				if len(reqCursor) != 0 {
-					opts["cursor"] = reqCursor[0]
+				if len(payloadCursor) != 0 {
+					opts["cursor"] = payloadCursor[0]
 				} else {
 					opts["cursor"] = "0"
 				}
 				opts["cursor_field"] = nil // no field since it's an offset
 			case "field":
-				if len(reqCursor) != 0 {
-					opts["cursor"] = reqCursor[0]
+				if len(payloadCursor) != 0 {
+					opts["cursor"] = payloadCursor[0]
 				} else {
 					opts["cursor"] = report.CursorDefault[0] // contains only on value
 				}
@@ -374,8 +393,8 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 			if result := cursorRe.FindStringSubmatch(binding); result != nil {
 				opts["cursor_field"] = report.CursorField
 				index, _ := strconv.Atoi(result[1])
-				if len(reqCursor) > index { // cursor.3 requires 4 cursor specified
-					opts[binding] = reqCursor[index]
+				if len(payloadCursor) > index { // cursor.3 requires 4 cursor specified
+					opts[binding] = payloadCursor[index]
 				} else {
 					if len(report.CursorDefault) > index {
 						opts[binding] = report.CursorDefault[index]
@@ -385,7 +404,6 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 					}
 				}
 				optsCursor = append(optsCursor, opts[binding].(string))
-
 			} else { // any other column binding
 				errLst = append(errLst, errors.New("Unallowed binding: "+binding))
 				continue
@@ -499,12 +517,37 @@ func paginateQuery(body *wip.ApiBody, items *[]reportSearchFieldQuery, options m
 	return nil
 }
 
+func isSliceOrArray(value any) bool {
+	switch reflect.TypeOf(value).Kind() {
+	case reflect.Array, reflect.Slice:
+		return true
+	default:
+		return false
+	}
+}
+
 func hasLen(value any) bool {
 	switch reflect.TypeOf(value).Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
 		return true
 	default:
 		return false
+	}
+}
+
+// Convert any string, int, uint and float to string
+func formatAnyToString(data any) (string, error) {
+	switch reflect.TypeOf(data).Kind() {
+	case reflect.String:
+		return data.(string), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(data.(int64), 10), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return strconv.FormatUint(data.(uint64), 10), nil
+	case reflect.Float32, reflect.Float64:
+		return strconv.FormatFloat(data.(float64), 'f', 14, 64), nil
+	default:
+		return "", errors.New("Type not supported")
 	}
 }
 
