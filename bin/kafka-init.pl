@@ -1,0 +1,176 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+kafka-init -
+
+=head1 DESCRIPTION
+
+kafka-init
+
+=cut
+
+use strict;
+use warnings;
+use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
+use pf::file_paths qw($kafka_config_file);
+use pf::IniFiles;
+use pf::cluster qw($cluster_enabled @cluster_hosts %ConfigCluster);
+use Crypt::OpenSSL::Random;
+use MIME::Base64;
+use Data::UUID;
+
+my $ini = pf::IniFiles->new(-file => $kafka_config_file);
+my $changed = 0;
+
+my @setup_values = (
+    {
+        section => 'admin',
+        param => 'pass',
+        default_val => '%admin_password%',
+        new_val => sub {
+            return unpack("H*", Crypt::OpenSSL::Random::random_bytes(16));
+        }
+    },
+    {
+        section => 'auth client',
+        param => 'pass',
+        default_val => '%client_password%',
+        new_val => sub {
+            return unpack("H*", Crypt::OpenSSL::Random::random_bytes(16));
+        }
+    },
+    {
+        section => 'cluster',
+        param => 'CLUSTER_ID',
+        default_val => '%uuid%',
+        new_val => sub {
+            my $uuid = Data::UUID->new->create_bin();
+            my $cluster_id =  encode_base64($uuid, '');
+            $cluster_id =~ tr|+/=|\-_|d;
+            return $cluster_id;
+        }
+    },
+
+);
+
+
+sub get_kafka_config() {
+    return {%ConfigCluster{@cluster_hosts}}
+}
+
+
+for my $setup (@setup_values) {
+    my $val = $ini->val($setup->{section}, $setup->{param});
+    if ($val eq $setup->{default_val}) {
+        $ini->setval($setup->{section}, $setup->{param}, $setup->{new_val}->());
+        $changed |= 1;
+    }
+}
+
+my %keep = map { $_ => 1 } ('cluster', 'admin', 'auth client', 'iptables') ;
+
+if ($cluster_enabled) {
+    for my $section ($ini->Sections) {
+        next if exists $keep{$section} || $section =~ /^auth /;
+        $changed |= 1;
+        $ini->DeleteSection($section);
+    }
+
+    my @cluster_members = get_cluster_member_for_kafka();
+    my $quorum_voters = make_quorum_voters(\@cluster_members);
+    my $factor = (scalar @cluster_members )/ 2 + 1;
+    set_or_create($ini, 'cluster', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR', $factor);
+    set_or_create($ini, 'cluster', 'KAFKA_CONTROLLER_QUORUM_VOTERS', $quorum_voters);
+    for my $cluster_member (@cluster_members) {
+        my $id = $cluster_member->{host};
+        set_or_create($ini, $id, 'KAFKA_NODE_ID', $cluster_member->{node_id});
+        set_or_create($ini, $id, 'KAFKA_ADVERTISED_LISTENERS', $cluster_member->{advertised_listeners});
+    }
+}
+
+sub get_cluster_member_for_kafka {
+    my @members;
+    my $config = get_kafka_config();
+    my $i = 0;
+    for my $k (sort keys %$config) {
+        $i++;
+        my $val = $config->{$k};
+        push @members, make_member(
+            $val->{host},
+            $val->{management_ip}, $i
+        );
+    }
+
+    return @members;
+}
+
+sub make_member {
+    my ($host, $ip, $node_id) = @_;
+    my $advertised_listeners = qq{INTERNAL://${ip}:29092,EXTERNAL://${ip}:9092,PF://containers-gateway.internal:9095};
+    return {
+        host => $host,
+        node_id => $node_id,
+        mgmtip => $ip,
+        advertised_listeners => $advertised_listeners,
+    };
+}
+
+sub make_quorum_voters {
+    my ($members) = @_;
+    return join(",", map { "$_->{node_id}\@$_->{mgmtip}:9093" } @$members);
+}
+
+#[hostname1]
+#KAFKA_NODE_ID=1
+#KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.1:29092,EXTERNAL://172.16.3.1:9092,PF://100.64.0.1:9095
+#
+#[hostname2]
+#KAFKA_NODE_ID=2
+#KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.2:29092,EXTERNAL://172.16.3.2:9092,PF://100.64.0.1:9095
+#
+#[hostname3]
+#KAFKA_NODE_ID=3
+#KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.3:29092,EXTERNAL://172.16.3.3:9092,PF://100.64.0.1:9095
+
+sub set_or_create {
+    my ($ini, $section, $param, $val) = @_;
+    $changed |= 1;
+    if ($ini->exists($section, $param)) {
+        $ini->setval($section, $param, $val);
+    } else {
+        $ini->newval($section, $param, $val);
+    }
+}
+
+$ini->RewriteConfig() if $changed;
+
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2025 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
