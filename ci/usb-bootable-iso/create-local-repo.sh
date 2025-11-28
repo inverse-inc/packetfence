@@ -143,7 +143,7 @@ done
 # Move all downloaded packages to repo
 echo "===> Moving packages to repository"
 find ${TEMP_DIR} -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
-find /var/cache/apt/archives -name "*.deb" -exec cp {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+# Note: Don't copy from /var/cache/apt/archives as it contains unrelated host packages
 
 # Generate Packages file
 echo "===> Generating Packages index"
