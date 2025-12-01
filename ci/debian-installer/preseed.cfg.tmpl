@@ -339,12 +339,6 @@ d-i partman/confirm_nooverwrite boolean true
 # "GPG key public keyring" format, the "keybox database" format is
 # currently not supported.
 
-d-i apt-setup/local0/repository string \
-  http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bookworm bookworm
-d-i apt-setup/local0/source boolean true
-d-i apt-setup/local0/key string https://inverse.ca/downloads/GPG_PUBLIC_KEY
-
-
 # By default the installer requires that repositories be authenticated
 # using a known gpg key. This setting can be used to disable that
 # authentication. Warning: Insecure, not recommended.
