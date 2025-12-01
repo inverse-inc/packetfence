@@ -315,8 +315,7 @@ sub stopService {
     my $name = $self->name;
     my $logger = get_logger();
     # Check if the unit file exists before trying to stop it
-    my $exists = system("sudo systemctl cat packetfence-$name >/dev/null 2>&1") == 0;
-    unless ($exists) {
+    unless ($self->_unitFileExists()) {
         $logger->debug("Unit packetfence-$name does not exist, skipping stop");
         return;
     }
@@ -472,6 +471,18 @@ sub systemdTarget {
     return "packetfence-" . $self->name;
 }
 
+=head2 _unitFileExists
+
+Check if a systemd unit file exists for the given target.
+
+=cut
+
+sub _unitFileExists {
+    my ($self, $target) = @_;
+    $target //= $self->systemdTarget;
+    return system("sudo systemctl cat $target >/dev/null 2>&1") == 0;
+}
+
 =head2 sysdEnable 
 
 Enable the service in systemd.
@@ -493,8 +504,7 @@ sub sysdDisable {
     my $self = shift;
     my $target = $self->systemdTarget;
     # Check if the unit file exists before trying to disable it
-    my $exists = system("sudo systemctl cat $target >/dev/null 2>&1") == 0;
-    return $TRUE unless $exists;
+    return $TRUE unless $self->_unitFileExists($target);
     return system( "sudo systemctl disable " . $target) == 0;
 }
 
