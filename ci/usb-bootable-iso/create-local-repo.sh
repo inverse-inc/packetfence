@@ -149,3 +149,33 @@ echo "Packages: ${PKG_COUNT}"
 echo "Size: ${REPO_SIZE}"
 echo "Location: ${REPO_DIR}"
 echo "=============================================="
+
+# Verify key packages are present
+echo ""
+echo "===> Verifying key packages in repository:"
+KEY_PACKAGES="packetfence packetfence-pfcmd-suid docker.io containerd mariadb-server redis-server freeradius fingerbank-collector"
+MISSING=""
+for pkg in ${KEY_PACKAGES}; do
+    if find ${REPO_DIR}/pool -name "${pkg}_*.deb" | grep -q .; then
+        echo "  [OK] ${pkg}"
+    else
+        echo "  [MISSING] ${pkg}"
+        MISSING="${MISSING} ${pkg}"
+    fi
+done
+
+if [ -n "${MISSING}" ]; then
+    echo ""
+    echo "WARNING: Missing packages:${MISSING}"
+    echo "The offline installation may fail!"
+    exit 1
+fi
+
+echo ""
+echo "===> Package breakdown by source:"
+echo "  PacketFence packages: $(find ${REPO_DIR}/pool -name "packetfence*.deb" -o -name "fingerbank*.deb" | wc -l)"
+echo "  Docker packages: $(find ${REPO_DIR}/pool -name "docker*.deb" -o -name "containerd*.deb" | wc -l)"
+echo "  MariaDB packages: $(find ${REPO_DIR}/pool -name "mariadb*.deb" -o -name "mysql*.deb" -o -name "galera*.deb" | wc -l)"
+echo "  FreeRADIUS packages: $(find ${REPO_DIR}/pool -name "freeradius*.deb" | wc -l)"
+echo "  Other packages: $(find ${REPO_DIR}/pool -name "*.deb" | wc -l) total"
+echo "=============================================="
