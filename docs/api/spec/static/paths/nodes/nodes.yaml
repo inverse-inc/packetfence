@@ -202,6 +202,23 @@
     tags:
       - Nodes
 
+/api/v1/nodes/bulk_delete:
+  delete:
+    summary: Delete bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
 /api/v1/nodes/fingerbank_communications:
   post:
     summary: Get network communication of bulk nodes.
