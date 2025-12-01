@@ -121,8 +121,17 @@ func (j *PfFlowJob) Run() {
 			})
 		}
 
-		m, err := r.ReadMessage(context.Background())
+		// Use a timeout context to avoid blocking forever if Kafka is unresponsive
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		m, err := r.ReadMessage(ctx)
+		cancel()
 		if err != nil {
+			// Check if it's just a timeout (no messages available) vs a real error
+			if err == context.DeadlineExceeded {
+				// Timeout waiting for messages is normal, just retry without reconnecting
+				continue
+			}
+
 			consecutiveErrors++
 			log.Printf("Error reading from Kafka (attempt %d): %s", consecutiveErrors, err.Error())
 
