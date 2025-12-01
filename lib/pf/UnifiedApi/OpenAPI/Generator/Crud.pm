@@ -212,7 +212,6 @@ sub dalToOpFields {
     my $fields = $self->dalToFields($dal);
     return {
         name => 'fields',
-        required => JSON::MaybeXS::true,
         in => 'query',
         required => JSON::MaybeXS::true,
         schema => {
