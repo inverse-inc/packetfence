@@ -16,76 +16,44 @@ echo "REPO_DIR: ${REPO_DIR}"
 echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
 echo "=============================================="
 
+# Use absolute path for REPO_DIR
+REPO_DIR=$(cd "$(dirname "${REPO_DIR}")" && pwd)/$(basename "${REPO_DIR}")
+
 # Create directory structure
 mkdir -p ${REPO_DIR}/pool/main
 mkdir -p ${REPO_DIR}/dists/bookworm/main/binary-amd64
 
-# Create a temporary directory for package download
-TEMP_DIR=$(mktemp -d)
-trap "rm -rf ${TEMP_DIR}" EXIT
+# Create a temporary chroot for clean package resolution
+CHROOT_DIR=$(mktemp -d)
+trap "echo 'Cleaning up chroot...'; rm -rf ${CHROOT_DIR}" EXIT
 
-# Create a minimal sources.list for downloading packages
-cat > ${TEMP_DIR}/sources.list << EOF
+echo "===> Creating minimal chroot for package download"
+debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
+
+# Configure repositories in chroot
+cat > ${CHROOT_DIR}/etc/apt/sources.list << EOF
 deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
 deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
 deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
-deb http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
 EOF
 
-# Create apt configuration
-mkdir -p ${TEMP_DIR}/apt/lists/partial
-mkdir -p ${TEMP_DIR}/apt/cache/archives/partial
+# Add PacketFence repository
+mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor > ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg
+cat > ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list << EOF
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
+EOF
 
-APT_CONFIG="Dir::Etc::sourcelist=${TEMP_DIR}/sources.list;
-Dir::Etc::sourceparts=-;
-Dir::State::lists=${TEMP_DIR}/apt/lists;
-Dir::Cache=${TEMP_DIR}/apt/cache;
-APT::Get::AllowUnauthenticated=true;
-Acquire::AllowInsecureRepositories=true;"
+# Copy GPG key to repo for later use
+cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
-# Add PacketFence GPG key
-echo "===> Adding PacketFence GPG key"
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor > ${TEMP_DIR}/packetfence.gpg
-export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-
-# Update package lists
-echo "===> Updating package lists"
-apt-get -o "${APT_CONFIG}" update 2>/dev/null || true
-
-# List of base packages needed for installation
-BASE_PACKAGES="
-    sudo
-    bzip2
-    acpid
-    cryptsetup
-    zlib1g-dev
-    wget
-    curl
-    dkms
-    make
-    nfs-common
-    net-tools
-    build-essential
-    linux-headers-amd64
-    gnupg2
-    apt-transport-https
-    tmux
-    tcpdump
-    lnav
-    apg
-    sysstat
-    bsd-mailx
-    cgroupfs-mount
-    openssh-server
-"
-
-# PacketFence and its major dependencies
-PF_PACKAGES="
+# List of packages to install (will pull all dependencies)
+PACKAGES="
     packetfence
-    mariadb-server
-    redis-server
     docker.io
     containerd
+    mariadb-server
+    redis-server
     freeradius
     freeradius-utils
     freeradius-ldap
@@ -95,55 +63,46 @@ PF_PACKAGES="
     snmp
     snmptrapd
     snmpd
-    libsnmp-dev
-    nodejs
     fingerbank-collector
+    sudo
+    openssh-server
+    curl
+    wget
+    gnupg2
+    ca-certificates
+    apt-transport-https
+    net-tools
+    tcpdump
+    tmux
+    lnav
 "
 
-# Download all packages with dependencies
-echo "===> Downloading packages (this may take a while)..."
-cd ${TEMP_DIR}
+# Update and download all packages with dependencies in chroot
+echo "===> Updating package lists in chroot"
+chroot ${CHROOT_DIR} apt-get update
 
-# Download packages
-apt-get -o "${APT_CONFIG}" download \
-    --print-uris \
-    ${BASE_PACKAGES} ${PF_PACKAGES} 2>/dev/null | \
-    grep "^'" | \
-    cut -d"'" -f2 > ${TEMP_DIR}/package_urls.txt || true
+echo "===> Downloading all packages with dependencies"
+# Use apt-get install with download-only to get ALL dependencies
+chroot ${CHROOT_DIR} apt-get install -y --download-only -o APT::Install-Recommends=0 ${PACKAGES} || true
 
-# Also get dependencies
-apt-get -o "${APT_CONFIG}" install \
-    --download-only \
-    --print-uris \
-    -y \
-    ${BASE_PACKAGES} ${PF_PACKAGES} 2>/dev/null | \
-    grep "^'" | \
-    cut -d"'" -f2 >> ${TEMP_DIR}/package_urls.txt || true
+# Some packages may fail due to pre-depends, try downloading them directly
+echo "===> Downloading any missing packages"
+chroot ${CHROOT_DIR} bash -c "apt-get download ${PACKAGES} 2>/dev/null || true"
 
-# Remove duplicates
-sort -u ${TEMP_DIR}/package_urls.txt > ${TEMP_DIR}/package_urls_unique.txt
-
-# Download packages using wget for better progress
-echo "===> Downloading $(wc -l < ${TEMP_DIR}/package_urls_unique.txt) packages..."
-mkdir -p ${TEMP_DIR}/packages
-cd ${TEMP_DIR}/packages
-
-# Download in parallel using xargs
-cat ${TEMP_DIR}/package_urls_unique.txt | xargs -P 10 -I {} wget -q --show-progress -nc {} 2>/dev/null || true
-
-# Alternative: use apt-get download directly
-echo "===> Using apt-get to download remaining packages..."
-apt-get -o "${APT_CONFIG}" download ${BASE_PACKAGES} ${PF_PACKAGES} 2>/dev/null || true
-
-# Also download dependencies
-for pkg in ${BASE_PACKAGES} ${PF_PACKAGES}; do
-    apt-get -o "${APT_CONFIG}" download $(apt-cache -o "${APT_CONFIG}" depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${pkg} 2>/dev/null | grep "^\w" | sort -u) 2>/dev/null || true
+# Download dependencies recursively using apt-cache
+echo "===> Resolving and downloading all dependencies"
+chroot ${CHROOT_DIR} bash -c '
+PACKAGES="packetfence docker.io containerd mariadb-server redis-server freeradius fingerbank-collector"
+for pkg in $PACKAGES; do
+    deps=$(apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances "$pkg" 2>/dev/null | grep "^\w" | grep -v "^<" | sort -u)
+    apt-get download $deps 2>/dev/null || true
 done
+'
 
 # Move all downloaded packages to repo
 echo "===> Moving packages to repository"
-find ${TEMP_DIR} -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
-# Note: Don't copy from /var/cache/apt/archives as it contains unrelated host packages
+find ${CHROOT_DIR}/var/cache/apt/archives -name "*.deb" -exec cp {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+find ${CHROOT_DIR} -maxdepth 1 -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
 
 # Generate Packages file
 echo "===> Generating Packages index"
