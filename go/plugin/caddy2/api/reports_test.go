@@ -1,4 +1,4 @@
-package api_test
+package api
 
 import (
 	"bytes"
@@ -9,14 +9,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"slices"
 	"testing"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/plugin/caddy2/api"
-	"github.com/inverse-inc/packetfence/go/plugin/caddy2/wip"
-	"github.com/inverse-inc/packetfence/go/test_helpers"
+	"github.com/inverse-inc/packetfence/go/utils_test"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -52,202 +49,202 @@ var cleanupSql = [...]string{
 }
 
 type reportsResponse struct {
-	Items []api.ReportResponse `json:"items"`
-	wip.ApiSerializerPagination
+	Items []Report `json:"items"`
+	ApiResponsePagination
 }
 
 type reportResponse struct {
-	Item api.ReportResponse `json:"item"`
-	wip.ApiSerializerPagination
+	Item Report `json:"item"`
+	ApiResponse
 }
 
 type reportOptionsResponse struct {
-	api.ReportOptionsResponse
-	wip.ApiSerializer
+	ReportOptions
+	ApiResponse
 }
 
 type reportSearchResponse struct {
 	Items []any `json:"items"`
-	wip.ApiSerializerPagination
+	ApiResponsePagination
 }
 
-func TestGetReports(t *testing.T) {
+func TestReportList(t *testing.T) {
 	t.Run("Should return multiple reports", func(t *testing.T) {
 		var body reportsResponse
-		execReq(t, http.MethodGet, "/api/v1.2/dynamic_reports", nil, http.StatusOK, &body)
-		isGT(t, "", len(body.Items), 4)
+		execReq(t, http.MethodGet, "/api/v1.1/reports", nil, http.StatusOK, &body)
+		utils_test.IsGT(t, "", len(body.Items), 4)
 	})
 }
 
-func TestGetReport(t *testing.T) {
+func TestReportGet(t *testing.T) {
 	t.Run("Unknown report", func(t *testing.T) {
 		var body reportResponse
-		execReq(t, http.MethodGet, "/api/v1.2/dynamic_report/Node::Report::Test::unknown42", nil, http.StatusNotFound, &body)
-		isEqInt(t, "", body.Status, 404)
+		execReq(t, http.MethodGet, "/api/v1.1/report/Node::Report::Test::unknown42", nil, http.StatusNotFound, &body)
+		utils_test.IsEqInt(t, "", body.Status, 404)
 	})
 	t.Run("Should exists", func(t *testing.T) {
 		var body reportResponse
-		execReq(t, http.MethodGet, "/api/v1.2/dynamic_report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
-		isEqStr(t, "", body.Item.Id, "Node::Report::Test::Nothing")
+		execReq(t, http.MethodGet, "/api/v1.1/report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
+		utils_test.IsEqStr(t, "", body.Item.Id, "Node::Report::Test::Nothing")
 		t.Run("Should have default values", func(t *testing.T) {
-			isEqBool(t, "HasDateRange", sharedutils.IsEnabled(body.Item.HasDateRange), false)
-			isEqBool(t, "HasLimit", sharedutils.IsEnabled(body.Item.HasLimit), false)
+			utils_test.IsEqBool(t, "HasDateRange", sharedutils.IsEnabled(body.Item.HasDateRange), false)
+			utils_test.IsEqBool(t, "HasLimit", sharedutils.IsEnabled(body.Item.HasLimit), false)
 		})
 	})
 	t.Run("Should exists an other", func(t *testing.T) {
 		var body reportResponse
-		execReq(t, http.MethodGet, "/api/v1.2/dynamic_report/Node::Report::Test::Cursor", nil, http.StatusOK, &body)
-		isEqStr(t, "id", body.Item.Id, "Node::Report::Test::Cursor")
-		isEqStr(t, "type", body.Item.Type, "sql")
+		execReq(t, http.MethodGet, "/api/v1.1/report/Node::Report::Test::Cursor", nil, http.StatusOK, &body)
+		utils_test.IsEqStr(t, "id", body.Item.Id, "Node::Report::Test::Cursor")
+		utils_test.IsEqStr(t, "type", body.Item.Type, "sql")
 	})
 	t.Run("Check report values", func(t *testing.T) {
 		var body reportResponse
-		execReq(t, http.MethodGet, "/api/v1.2/dynamic_report/Node::Report::Test::Cursor", nil, http.StatusOK, &body)
-		isEqBool(t, "HasDateRange", sharedutils.IsEnabled(body.Item.HasDateRange), false)
-		isEqStr(t, "DefaultLimit", body.Item.DefaultLimit, "4")
-		isEqStr(t, "CursorType", body.Item.CursorType, "field")
-		isEqStr(t, "CursorField", body.Item.CursorField, "mac")
-		isEqStr(t, "CursorDefault", body.Item.CursorDefault, "00:00:00:00:00:00")
-		isEqStr(t, "Bindings", body.Item.Bindings, "cursor,limit")
+		execReq(t, http.MethodGet, "/api/v1.1/report/Node::Report::Test::Cursor", nil, http.StatusOK, &body)
+		utils_test.IsEqBool(t, "HasDateRange", sharedutils.IsEnabled(body.Item.HasDateRange), false)
+		utils_test.IsEqStr(t, "DefaultLimit", body.Item.DefaultLimit, "4")
+		utils_test.IsEqStr(t, "CursorType", body.Item.CursorType, "field")
+		utils_test.IsEqStr(t, "CursorField", body.Item.CursorField, "mac")
+		utils_test.IsEqStr(t, "CursorDefault", body.Item.CursorDefault, "00:00:00:00:00:00")
+		utils_test.IsEqStr(t, "Bindings", body.Item.Bindings, "cursor,limit")
 	})
 }
 
-func TestOptionsReport(t *testing.T) {
+func TestReportOptions(t *testing.T) {
 	t.Run("Should respond to OPTIONS", func(t *testing.T) {
 		var body reportOptionsResponse
-		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
+		execReq(t, http.MethodOptions, "/api/v1.1/report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
 	})
 	t.Run("Should respond to OPTIONS not found", func(t *testing.T) {
 		var body reportOptionsResponse
-		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Nothin", nil, http.StatusNotFound, &body)
+		execReq(t, http.MethodOptions, "/api/v1.1/report/Node::Report::Test::Nothin", nil, http.StatusNotFound, &body)
 	})
 	t.Run("Check default values", func(t *testing.T) {
 		var body reportOptionsResponse
-		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
-		isEqStr(t, "Id", body.ReportMeta.Id, "Node::Report::Test::Nothing")
-		isEqBool(t, "HasDateRange", body.ReportMeta.HasDateRange, false)
-		isEqBool(t, "HasLimit", body.ReportMeta.HasLimit, false)
-		isEqBool(t, "HasCursor", body.ReportMeta.HasCursor, false)
+		execReq(t, http.MethodOptions, "/api/v1.1/report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
+		utils_test.IsEqStr(t, "Id", body.ReportMeta.Id, "Node::Report::Test::Nothing")
+		utils_test.IsEqBool(t, "HasDateRange", body.ReportMeta.HasDateRange, false)
+		utils_test.IsEqBool(t, "HasLimit", body.ReportMeta.HasLimit, false)
+		utils_test.IsEqBool(t, "HasCursor", body.ReportMeta.HasCursor, false)
 	})
 	t.Run("Check values", func(t *testing.T) {
 		var body reportOptionsResponse
-		execReq(t, http.MethodOptions, "/api/v1.2/dynamic_report/Node::Report::Test::Cursor", nil, http.StatusOK, &body)
-		isEqStr(t, "Id", body.ReportMeta.Id, "Node::Report::Test::Cursor")
-		isEqStr(t, "DefaultLimit", body.ReportMeta.DefaultLimit, "4")
-		isEqBool(t, "HasDateRange", body.ReportMeta.HasDateRange, false)
-		isEqBool(t, "HasLimit", body.ReportMeta.HasLimit, true)
-		isEqBool(t, "HasCursor", body.ReportMeta.HasCursor, true)
+		execReq(t, http.MethodOptions, "/api/v1.1/report/Node::Report::Test::Cursor", nil, http.StatusOK, &body)
+		utils_test.IsEqStr(t, "Id", body.ReportMeta.Id, "Node::Report::Test::Cursor")
+		utils_test.IsEqStr(t, "DefaultLimit", body.ReportMeta.DefaultLimit, "4")
+		utils_test.IsEqBool(t, "HasDateRange", body.ReportMeta.HasDateRange, false)
+		utils_test.IsEqBool(t, "HasLimit", body.ReportMeta.HasLimit, true)
+		utils_test.IsEqBool(t, "HasCursor", body.ReportMeta.HasCursor, true)
 	})
 }
 
-func TestSearchReport(t *testing.T) {
+func TestReporSearch(t *testing.T) {
 	t.Run("Check default limit 1", func(t *testing.T) {
-		payload := api.ReportSearchParams{Limit: 10, Cursor: 0}
+		payload := ReportSearchParams{Limit: 10, Cursor: 0}
 		var body reportSearchResponse
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::Nothing/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), 1)
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Nothing/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), 1)
 	})
 	t.Run("Check limit", func(t *testing.T) {
 		limitExpected := 5
-		payload := api.ReportSearchParams{Limit: limitExpected}
+		payload := ReportSearchParams{Limit: limitExpected}
 		var body reportSearchResponse
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::Limit/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Limit/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
 	})
 	t.Run("Check cursor field", func(t *testing.T) {
 		limitExpected := 3
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:01"}
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:01"}
 		var body reportSearchResponse
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::Cursor/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Cursor/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
 		firstItem := body.Items[0].(map[string]any)
 		mac := firstItem["mac"].(string)
-		isEqStr(t, "firstItem", mac, "00:00:00:00:00:2b")
+		utils_test.IsEqStr(t, "firstItem", mac, "00:00:00:00:00:2b")
 		lastItem := body.Items[limitExpected-1].(map[string]any)
 		mac = lastItem["mac"].(string)
-		isEqStr(t, "lastItem", mac, "00:00:00:00:00:2d")
+		utils_test.IsEqStr(t, "lastItem", mac, "00:00:00:00:00:2d")
 	})
 	t.Run("Check cursor field prev/next", func(t *testing.T) {
 		limitExpected := 5
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:2c"}
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:2c"}
 		var body reportSearchResponse
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::Cursor/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Cursor/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
 		firstItem := body.Items[0].(map[string]any)
 		mac := firstItem["mac"].(string)
-		isEqStr(t, "firstItem", mac, "00:00:00:00:00:2c")
+		utils_test.IsEqStr(t, "firstItem", mac, "00:00:00:00:00:2c")
 		lastItem := body.Items[limitExpected-1].(map[string]any)
 		mac = lastItem["mac"].(string)
-		isEqStr(t, "lastItem", mac, "00:00:00:00:00:30")
-		isEqStr(t, "PrevCursor", body.PrevCursor.(string), "00:00:00:00:00:2c")
-		isEqStr(t, "NextCursor", body.NextCursor.(string), "00:00:00:00:00:31")
+		utils_test.IsEqStr(t, "lastItem", mac, "00:00:00:00:00:30")
+		utils_test.IsEqStr(t, "PrevCursor", body.PrevCursor.(string), "00:00:00:00:00:2c")
+		utils_test.IsEqStr(t, "NextCursor", body.NextCursor.(string), "00:00:00:00:00:31")
 	})
 	t.Run("Check cursor field out of bound", func(t *testing.T) {
 		limitExpected := 5
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "ff:ff:ff:ff:ff:ff"}
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: "ff:ff:ff:ff:ff:ff"}
 		var body reportSearchResponse
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::Cursor/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), 0)
-		isEqStr(t, "PrevCursor", body.PrevCursor.(string), "00:00:00:00:00:00")
-		isNil(t, "NextCursor", body.NextCursor)
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Cursor/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), 0)
+		utils_test.IsEqStr(t, "PrevCursor", body.PrevCursor.(string), "00:00:00:00:00:00")
+		utils_test.IsNil(t, "NextCursor", body.NextCursor)
 	})
 	t.Run("Check cursor empty date range", func(t *testing.T) {
 		var body reportSearchResponse
-		payload := api.ReportSearchParams{Limit: 5, Cursor: "ff:ff:ff:ff:ff:ff", StartDate: "", EndDate: ""}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::DateRange/search", &payload, http.StatusBadRequest, &body)
+		payload := ReportSearchParams{Limit: 5, Cursor: "ff:ff:ff:ff:ff:ff", StartDate: "", EndDate: ""}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::DateRange/search", &payload, http.StatusBadRequest, &body)
 	})
 	t.Run("Check cursor bad date range", func(t *testing.T) {
 		var body reportSearchResponse
-		payload := api.ReportSearchParams{Limit: 5, Cursor: "ff:ff:ff:ff:ff:ff", StartDate: "123", EndDate: "123"}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::DateRange/search", &payload, http.StatusBadRequest, &body)
+		payload := ReportSearchParams{Limit: 5, Cursor: "ff:ff:ff:ff:ff:ff", StartDate: "123", EndDate: "123"}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::DateRange/search", &payload, http.StatusBadRequest, &body)
 	})
 	t.Run("Check cursor date range", func(t *testing.T) {
 		var body reportSearchResponse
 		limitExpected := 5
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:01", StartDate: "1970-01-01 00:00:00", EndDate: "2100-01-01 00:00:00"}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::DateRange/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
-		isEqStr(t, "PrevCursor", body.PrevCursor.(string), "00:00:00:00:00:2b")
-		isEqStr(t, "NextCursor", body.NextCursor.(string), "00:00:00:00:00:30")
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:01", StartDate: "1970-01-01 00:00:00", EndDate: "2100-01-01 00:00:00"}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::DateRange/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		utils_test.IsEqStr(t, "PrevCursor", body.PrevCursor.(string), "00:00:00:00:00:2b")
+		utils_test.IsEqStr(t, "NextCursor", body.NextCursor.(string), "00:00:00:00:00:30")
 	})
 	t.Run("Check cursor multi_field", func(t *testing.T) {
 		var body reportSearchResponse
 		limitExpected := 4
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: []string{"00:00:00:00:00:01", "1970-01-01 00:00:00"}}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::MultiField/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
-		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
-		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: []string{"00:00:00:00:00:01", "1970-01-01 00:00:00"}}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::MultiField/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		utils_test.IsEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
+		utils_test.IsEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
 	})
 	t.Run("Check cursor multi_field again", func(t *testing.T) {
 		var body reportSearchResponse
 		limitExpected := 4
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: []string{"00:00:00:00:00:8e", "2025-05-28 18:00:00"}}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::MultiField/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
-		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
-		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: []string{"00:00:00:00:00:8e", "2025-05-28 18:00:00"}}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::MultiField/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		utils_test.IsEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:8e", "2025-05-28T18:00:00Z"})
+		utils_test.IsEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:8a", "2025-05-29T02:00:00Z"})
 	})
 	t.Run("Check cursor multi_field multi type", func(t *testing.T) {
 		// json number are float64 be carefull
 		var body reportSearchResponse
 		limitExpected := 4
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: []any{"00:00:00:00:00:00", 0.0}}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::CursorMultiType/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
-		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:2e", 1.0})
-		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:3e", 1.0})
-		payload = api.ReportSearchParams{Limit: limitExpected, Cursor: []any{"00:00:00:00:00:00", "0"}}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::CursorMultiType/search", &payload, http.StatusOK, &body)
-		isEqInt(t, "Items", len(body.Items), limitExpected)
-		isEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:2e", 1.0})
-		isEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:3e", 1.0})
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: []any{"00:00:00:00:00:00", 0.0}}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::CursorMultiType/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		utils_test.IsEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:2e", 1.0})
+		utils_test.IsEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:3e", 1.0})
+		payload = ReportSearchParams{Limit: limitExpected, Cursor: []any{"00:00:00:00:00:00", "0"}}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::CursorMultiType/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		utils_test.IsEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:2e", 1.0})
+		utils_test.IsEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:3e", 1.0})
 	})
 	t.Run("Check cursor field unallowed binding", func(t *testing.T) {
 		var body reportSearchResponse
 		limitExpected := 4
-		payload := api.ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:00"}
-		execReq(t, http.MethodPost, "/api/v1.2/dynamic_report/Node::Report::Test::BindingIsAColumn/search", &payload, http.StatusBadRequest, &body)
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: "00:00:00:00:00:00"}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::BindingIsAColumn/search", &payload, http.StatusBadRequest, &body)
 	})
 }
 
@@ -258,108 +255,18 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Cannot initialize router and db: %s", err.Error())
 		os.Exit(1)
 	}
-	err = test_helpers.RunStatements(setupSql[:])
+	err = utils_test.RunStatements(setupSql[:])
 	if err != nil {
 		fmt.Printf("Cannot setup test data: %s", err.Error())
 		os.Exit(1)
 	}
 	code := m.Run()
-	err = test_helpers.RunStatements(cleanupSql[:])
+	err = utils_test.RunStatements(cleanupSql[:])
 	if err != nil {
 		fmt.Printf("Cannot cleanup test data: %s", err.Error())
 		os.Exit(1)
 	}
 	os.Exit(code)
-}
-
-func isEqStr(t *testing.T, extra_log string, actual, expected string) {
-	if expected != actual {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected '%s', got '%s'", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected '%s', got '%s'", extra_log, expected, actual)
-		}
-	}
-}
-
-func isEqInt(t *testing.T, extra_log string, actual, expected int) {
-	if expected != actual {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected %d, got %d", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected %d, got %d", extra_log, expected, actual)
-		}
-	}
-}
-
-func isEqBool(t *testing.T, extra_log string, actual, expected bool) {
-	if expected != actual {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected %t, got %t", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected %t, got %t", extra_log, expected, actual)
-		}
-	}
-}
-
-func isGT(t *testing.T, extra_log string, actual, expected int) {
-	if actual <= expected {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected >%d, got %d", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected >%d, got %d", extra_log, expected, actual)
-		}
-	}
-}
-
-func isGTE(t *testing.T, extra_log string, actual, expected int) {
-	if actual < expected {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected >=%d, got %d", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected >=%d, got %d", extra_log, expected, actual)
-		}
-	}
-}
-
-func isLT(t *testing.T, extra_log string, actual, expected int) {
-	if actual >= expected {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected <%d, got %d", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected <%d, got %d", extra_log, expected, actual)
-		}
-	}
-}
-
-func isLTE(t *testing.T, extra_log string, actual, expected int) {
-	if actual > expected {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected <=%d, got %d", expected, actual)
-		} else {
-			t.Fatalf("[%s] Expected <=%d, got %d", extra_log, expected, actual)
-		}
-	}
-}
-
-func isEqArr(t *testing.T, extra_log string, actual, expected []any) {
-	if !slices.Equal(actual, expected) {
-		if len(extra_log) == 0 {
-			t.Fatalf("Array not equal: %v => %v", expected, actual)
-		} else {
-			t.Fatalf("[%s] Array not equal: %v => %v", extra_log, expected, actual)
-		}
-	}
-}
-
-func isNil(t *testing.T, extra_log string, actual any) {
-	if actual != nil {
-		if len(extra_log) == 0 {
-			t.Fatalf("Expected nil value")
-		} else {
-			t.Fatalf("[%s] Expected nil value", extra_log)
-		}
-	}
 }
 
 func execReq(t *testing.T, method, url string, payload any, statusExpected int, bodyOut any) {
@@ -378,9 +285,10 @@ func execReq(t *testing.T, method, url string, payload any, statusExpected int, 
 		t.Fatalf("Cannot read body: %s", err.Error())
 	}
 	if res.StatusCode != statusExpected {
-		var errBody wip.ApiSerializer
+		var errBody ApiResponse
 		err = json.Unmarshal(body, &errBody)
 		if err != nil {
+			fmt.Println(string(body))
 			t.Fatalf("Cannot unmarshall: %s", err.Error())
 		}
 		t.Fatalf("Expected status %d, got %d: %v", statusExpected, res.StatusCode, errBody.Errors)
@@ -398,7 +306,7 @@ func initRouterAndDb() (*httprouter.Router, error) {
 		return nil, fmt.Errorf("Cannot open db %s", err.Error())
 	}
 	tmpRouter := httprouter.New()
-	reportHandler := api.NewDynamicReport(context.Background(), &DB)
+	reportHandler := NewDynamicReport(context.Background(), &DB)
 	reportHandler.AddToRouter(tmpRouter)
 	return tmpRouter, nil
 }
