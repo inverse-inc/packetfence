@@ -105,8 +105,18 @@ function set_upgrade_to() {
   fi
 }
 
+function install_gpg_key(){
+  if is_deb_based; then
+    apt install gnupg sudo curl
+    curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+  elif is_rpm_based; then
+    rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
+  fi
+}
+
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
+  install_gpg_key
   echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
   apt update
   if is_enabled $1; then
@@ -128,6 +138,7 @@ function apt_upgrade_packetfence_package() {
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
+  install_gpg_key
   yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
   yum_upgrade_mariadb_server
