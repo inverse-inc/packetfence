@@ -87,7 +87,9 @@ d-i krb5-config/default_realm string
 d-i krb5-config/kerberos_servers string
 
 ### Package selection
+# Pre-select standard utilities and ssh-server, skip the interactive dialog
 tasksel tasksel/first multiselect standard ssh-server
+d-i pkgsel/tasksel/first/seen boolean true
 
 # Individual additional packages to install
 # PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
