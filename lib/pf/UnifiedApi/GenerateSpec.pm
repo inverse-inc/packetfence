@@ -15,10 +15,10 @@ pf::UnifiedApi::GenerateSpec
 use strict;
 use warnings;
 our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
-    PosInteger => 'integer',
-    Port       => 'integer',
-    Integer    => 'integer',
-    IntRange   => 'integer',
+    PosInteger => 'string',
+    Port       => 'string',
+    Integer    => 'string',
+    IntRange   => 'string',
     PathUpload => 'string',
 );
 use Lingua::EN::Inflexion qw(noun);

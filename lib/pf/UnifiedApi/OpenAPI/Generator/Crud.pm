@@ -142,7 +142,7 @@ my %SQLTYPES_TO_OPENAPI = (
     LONGBLOB  => { type => 'string' },
     TEXT      => { type => 'string' },
     VARCHAR   => { type => 'string' },
-    DATETIME  => { type => 'string', format => 'date-time', example => '1970-01-01 00:00:00' },
+    DATETIME  => { type => 'string' },
     TIMESTAMP => { type => 'string' },
     CHAR      => { type => 'string' },
     ENUM      => { type => 'string' },
