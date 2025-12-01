@@ -556,6 +556,21 @@ components:
             type: object
       required: true
       x-go-name: NodesBulkRequest
+    NodesBulkBypassAcls:
+      content:
+        application/json:
+          schema:
+            properties:
+              bypass_acls:
+                description: The bypass ACLs.
+                type: string
+              items:
+                items:
+                  description: The nodes `PRIMARY_KEY` (MAC Address).
+                  type: string
+                type: array
+            type: object
+      required: true
     NodesBulkBypassRole:
       content:
         application/json:
@@ -2169,12 +2184,8 @@ components:
     AuthLog:
       properties:
         attempted_at:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         completed_at:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         id:
           description: '`PRIMARY KEY`'
@@ -2429,6 +2440,83 @@ components:
       - properties:
           meta:
             properties:
+              aaa:
+                $ref: '#/components/schemas/Meta'
+              admin:
+                $ref: '#/components/schemas/Meta'
+              collector:
+                $ref: '#/components/schemas/Meta'
+              httpd_portal_modstatus:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pfacct_netflow:
+                $ref: '#/components/schemas/Meta'
+              soap:
+                $ref: '#/components/schemas/Meta'
+              unifiedapi:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              device_class_whitelist:
+                $ref: '#/components/schemas/Meta'
+              enable:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              trigger_on_device_class_change:
+                $ref: '#/components/schemas/Meta'
+              triggers:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              pass:
+                $ref: '#/components/schemas/Meta'
+              user:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              autoconfig:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              certificate:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              ssid:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              email:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              token:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
               auth_on_management:
                 $ref: '#/components/schemas/Meta'
               centralize_vips:
@@ -2470,83 +2558,32 @@ components:
       - properties:
           meta:
             properties:
-              category:
-                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              pid:
+              lease_length:
                 $ref: '#/components/schemas/Meta'
-              voip:
+              place_in_dhcp_parking_group:
+                $ref: '#/components/schemas/Meta'
+              show_parking_portal:
+                $ref: '#/components/schemas/Meta'
+              threshold:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
           meta:
             properties:
-              access_duration_choices:
+              dhcpservers:
                 $ref: '#/components/schemas/Meta'
-              default_access_duration:
+              domain:
                 $ref: '#/components/schemas/Meta'
-              default_access_duration_add:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              bounce_duration:
+              hostname:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              trap_limit:
+              send_anonymous_stats:
                 $ref: '#/components/schemas/Meta'
-              trap_limit_action:
-                $ref: '#/components/schemas/Meta'
-              trap_limit_threshold:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              pass:
-                $ref: '#/components/schemas/Meta'
-              user:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              connection_type_change_detection:
-                $ref: '#/components/schemas/Meta'
-              dhcp_process_ipv6:
-                $ref: '#/components/schemas/Meta'
-              dhcp_rate_limiting:
-                $ref: '#/components/schemas/Meta'
-              dhcpdetector:
-                $ref: '#/components/schemas/Meta'
-              dhcpoption82logger:
-                $ref: '#/components/schemas/Meta'
-              force_listener_update_on_ack:
-                $ref: '#/components/schemas/Meta'
-              hostname_change_detection:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              interfaceSNAT:
-                $ref: '#/components/schemas/Meta'
-              learn_network_cidr_by_role:
-                $ref: '#/components/schemas/Meta'
-              rogue_dhcp_detection:
-                $ref: '#/components/schemas/Meta'
-              rogueinterval:
-                $ref: '#/components/schemas/Meta'
-              staticroutes:
+              timezone:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -2580,115 +2617,77 @@ components:
       - properties:
           meta:
             properties:
-              aaa:
-                $ref: '#/components/schemas/Meta'
-              admin:
-                $ref: '#/components/schemas/Meta'
-              collector:
-                $ref: '#/components/schemas/Meta'
-              httpd_portal_modstatus:
-                $ref: '#/components/schemas/Meta'
               id:
-                $ref: '#/components/schemas/Meta'
-              pfacct_netflow:
-                $ref: '#/components/schemas/Meta'
-              soap:
-                $ref: '#/components/schemas/Meta'
-              unifiedapi:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
           meta:
             properties:
-              dhcpservers:
-                $ref: '#/components/schemas/Meta'
-              domain:
-                $ref: '#/components/schemas/Meta'
-              hostname:
-                $ref: '#/components/schemas/Meta'
               id:
-                $ref: '#/components/schemas/Meta'
-              send_anonymous_stats:
-                $ref: '#/components/schemas/Meta'
-              timezone:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
           meta:
             properties:
-              detection_mecanism_bypass:
+              accounting_timebucket_size:
                 $ref: '#/components/schemas/Meta'
-              detection_mecanism_urls:
+              active_directory_os_join_check_bypass:
                 $ref: '#/components/schemas/Meta'
-              expose_fingerbank_info_all_templates:
+              admin_csp_security_headers:
                 $ref: '#/components/schemas/Meta'
-              id:
+              api_inactivity_timeout:
                 $ref: '#/components/schemas/Meta'
-              image_path:
+              api_max_expiration:
                 $ref: '#/components/schemas/Meta'
-              ip_address:
+              configurator:
                 $ref: '#/components/schemas/Meta'
-              loadbalancers_ip:
+              disable_pf_domain_auth:
                 $ref: '#/components/schemas/Meta'
-              network_detection:
+              hash_passwords:
                 $ref: '#/components/schemas/Meta'
-              network_detection_initial_delay:
-                $ref: '#/components/schemas/Meta'
-              network_detection_ip:
-                $ref: '#/components/schemas/Meta'
-              network_detection_retry_delay:
-                $ref: '#/components/schemas/Meta'
-              network_redirect_delay:
-                $ref: '#/components/schemas/Meta'
-              other_domain_names:
-                $ref: '#/components/schemas/Meta'
-              rate_limiting:
-                $ref: '#/components/schemas/Meta'
-              rate_limiting_threshold:
-                $ref: '#/components/schemas/Meta'
-              request_timeout:
-                $ref: '#/components/schemas/Meta'
-              secure_redirect:
-                $ref: '#/components/schemas/Meta'
-              status_only_on_production:
-                $ref: '#/components/schemas/Meta'
-              wispr_redirection:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              db:
-                $ref: '#/components/schemas/Meta'
-              host:
+              hashing_cost:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              pass:
+              language:
                 $ref: '#/components/schemas/Meta'
-              port:
+              ldap_attributes:
                 $ref: '#/components/schemas/Meta'
-              unix_socket:
+              locationlog_close_on_accounting_stop:
                 $ref: '#/components/schemas/Meta'
-              user:
+              multihost:
                 $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              email:
+              netflow_on_all_networks:
                 $ref: '#/components/schemas/Meta'
-              host:
+              openid_attributes:
                 $ref: '#/components/schemas/Meta'
-              id:
+              pffilter_processes:
                 $ref: '#/components/schemas/Meta'
-              password:
+              pfperl_api_processes:
                 $ref: '#/components/schemas/Meta'
-              token:
+              pfperl_api_timeout:
+                $ref: '#/components/schemas/Meta'
+              pfupdate_custom_script_path:
+                $ref: '#/components/schemas/Meta'
+              portal_csp_security_headers:
+                $ref: '#/components/schemas/Meta'
+              scan_on_accounting:
+                $ref: '#/components/schemas/Meta'
+              source_to_send_sms_when_creating_users:
+                $ref: '#/components/schemas/Meta'
+              statsd_listen_host:
+                $ref: '#/components/schemas/Meta'
+              statsd_listen_port:
+                $ref: '#/components/schemas/Meta'
+              timing_stats_level:
+                $ref: '#/components/schemas/Meta'
+              update_iplog_with_accounting:
+                $ref: '#/components/schemas/Meta'
+              update_iplog_with_authentication:
+                $ref: '#/components/schemas/Meta'
+              update_iplog_with_external_portal_requests:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -2802,27 +2801,45 @@ components:
       - properties:
           meta:
             properties:
-              emailaddr:
+              db:
                 $ref: '#/components/schemas/Meta'
-              fromaddr:
+              host:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              smtp_encryption:
+              pass:
                 $ref: '#/components/schemas/Meta'
-              smtp_password:
+              port:
                 $ref: '#/components/schemas/Meta'
-              smtp_port:
+              unix_socket:
                 $ref: '#/components/schemas/Meta'
-              smtp_timeout:
+              user:
                 $ref: '#/components/schemas/Meta'
-              smtp_username:
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
                 $ref: '#/components/schemas/Meta'
-              smtp_verifyssl:
+              interfaceSNAT:
                 $ref: '#/components/schemas/Meta'
-              smtpserver:
+              ports_redirect:
                 $ref: '#/components/schemas/Meta'
-              subjectprefix:
+              should_reauth_on_vlan_change:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              category:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pid:
+                $ref: '#/components/schemas/Meta'
+              voip:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -2864,6 +2881,97 @@ components:
       - properties:
           meta:
             properties:
+              emailaddr:
+                $ref: '#/components/schemas/Meta'
+              fromaddr:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              smtp_encryption:
+                $ref: '#/components/schemas/Meta'
+              smtp_password:
+                $ref: '#/components/schemas/Meta'
+              smtp_port:
+                $ref: '#/components/schemas/Meta'
+              smtp_timeout:
+                $ref: '#/components/schemas/Meta'
+              smtp_username:
+                $ref: '#/components/schemas/Meta'
+              smtp_verifyssl:
+                $ref: '#/components/schemas/Meta'
+              smtpserver:
+                $ref: '#/components/schemas/Meta'
+              subjectprefix:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              detection_mecanism_bypass:
+                $ref: '#/components/schemas/Meta'
+              detection_mecanism_urls:
+                $ref: '#/components/schemas/Meta'
+              expose_fingerbank_info_all_templates:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              image_path:
+                $ref: '#/components/schemas/Meta'
+              ip_address:
+                $ref: '#/components/schemas/Meta'
+              loadbalancers_ip:
+                $ref: '#/components/schemas/Meta'
+              network_detection:
+                $ref: '#/components/schemas/Meta'
+              network_detection_initial_delay:
+                $ref: '#/components/schemas/Meta'
+              network_detection_ip:
+                $ref: '#/components/schemas/Meta'
+              network_detection_retry_delay:
+                $ref: '#/components/schemas/Meta'
+              network_redirect_delay:
+                $ref: '#/components/schemas/Meta'
+              other_domain_names:
+                $ref: '#/components/schemas/Meta'
+              rate_limiting:
+                $ref: '#/components/schemas/Meta'
+              rate_limiting_threshold:
+                $ref: '#/components/schemas/Meta'
+              request_timeout:
+                $ref: '#/components/schemas/Meta'
+              secure_redirect:
+                $ref: '#/components/schemas/Meta'
+              status_only_on_production:
+                $ref: '#/components/schemas/Meta'
+              wispr_redirection:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              bounce_duration:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              trap_limit:
+                $ref: '#/components/schemas/Meta'
+              trap_limit_action:
+                $ref: '#/components/schemas/Meta'
+              trap_limit_threshold:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              access_duration_choices:
+                $ref: '#/components/schemas/Meta'
+              default_access_duration:
+                $ref: '#/components/schemas/Meta'
+              default_access_duration_add:
+                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
             type: object
@@ -2922,128 +3030,31 @@ components:
       - properties:
           meta:
             properties:
-              id:
+              connection_type_change_detection:
                 $ref: '#/components/schemas/Meta'
-              lease_length:
+              dhcp_process_ipv6:
                 $ref: '#/components/schemas/Meta'
-              place_in_dhcp_parking_group:
+              dhcp_rate_limiting:
                 $ref: '#/components/schemas/Meta'
-              show_parking_portal:
+              dhcpdetector:
                 $ref: '#/components/schemas/Meta'
-              threshold:
+              dhcpoption82logger:
                 $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              accounting_timebucket_size:
+              force_listener_update_on_ack:
                 $ref: '#/components/schemas/Meta'
-              active_directory_os_join_check_bypass:
+              hostname_change_detection:
                 $ref: '#/components/schemas/Meta'
-              admin_csp_security_headers:
-                $ref: '#/components/schemas/Meta'
-              api_inactivity_timeout:
-                $ref: '#/components/schemas/Meta'
-              api_max_expiration:
-                $ref: '#/components/schemas/Meta'
-              configurator:
-                $ref: '#/components/schemas/Meta'
-              disable_pf_domain_auth:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              hashing_cost:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              language:
-                $ref: '#/components/schemas/Meta'
-              ldap_attributes:
-                $ref: '#/components/schemas/Meta'
-              locationlog_close_on_accounting_stop:
-                $ref: '#/components/schemas/Meta'
-              multihost:
-                $ref: '#/components/schemas/Meta'
-              netflow_on_all_networks:
-                $ref: '#/components/schemas/Meta'
-              openid_attributes:
-                $ref: '#/components/schemas/Meta'
-              pffilter_processes:
-                $ref: '#/components/schemas/Meta'
-              pfperl_api_processes:
-                $ref: '#/components/schemas/Meta'
-              pfperl_api_timeout:
-                $ref: '#/components/schemas/Meta'
-              pfupdate_custom_script_path:
-                $ref: '#/components/schemas/Meta'
-              portal_csp_security_headers:
-                $ref: '#/components/schemas/Meta'
-              scan_on_accounting:
-                $ref: '#/components/schemas/Meta'
-              source_to_send_sms_when_creating_users:
-                $ref: '#/components/schemas/Meta'
-              statsd_listen_host:
-                $ref: '#/components/schemas/Meta'
-              statsd_listen_port:
-                $ref: '#/components/schemas/Meta'
-              timing_stats_level:
-                $ref: '#/components/schemas/Meta'
-              update_iplog_with_accounting:
-                $ref: '#/components/schemas/Meta'
-              update_iplog_with_authentication:
-                $ref: '#/components/schemas/Meta'
-              update_iplog_with_external_portal_requests:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              device_class_whitelist:
-                $ref: '#/components/schemas/Meta'
-              enable:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              trigger_on_device_class_change:
-                $ref: '#/components/schemas/Meta'
-              triggers:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              autoconfig:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              certificate:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              ssid:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
               id:
                 $ref: '#/components/schemas/Meta'
               interfaceSNAT:
                 $ref: '#/components/schemas/Meta'
-              ports_redirect:
+              learn_network_cidr_by_role:
                 $ref: '#/components/schemas/Meta'
-              should_reauth_on_vlan_change:
+              rogue_dhcp_detection:
+                $ref: '#/components/schemas/Meta'
+              rogueinterval:
+                $ref: '#/components/schemas/Meta'
+              staticroutes:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -3070,7 +3081,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -3378,7 +3389,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -3432,7 +3443,7 @@ components:
         login_attempt_limit:
           description: Limit the number of login attempts. A value of 0 disables the
             limit.
-          type: integer
+          type: string
         logo:
           description: Logo
           type: string
@@ -3442,7 +3453,7 @@ components:
             the role.
           type: string
         network_logoff:
-          description: This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff)
+          description: This allows users to access the network logoff page (http://dev.lab.inverse.ca/networklogoff)
             in order to terminate their network access (switch their device back to
             unregistered)
           type: string
@@ -3499,11 +3510,11 @@ components:
         sms_pin_retry_limit:
           description: Maximum number of times a user can retry a SMS PIN before having
             to request another PIN. A value of 0 disables the limit.
-          type: integer
+          type: string
         sms_request_limit:
           description: Maximum number of times a user can request a SMS PIN. A value
             of 0 disables the limit.
-          type: integer
+          type: string
         sources:
           description: Sources
           items:
@@ -3749,30 +3760,30 @@ components:
         ad_account_lockout_duration:
           description: How long will an account keep locked after hitting bad password
             threshold. In minutes
-          type: integer
+          type: string
         ad_account_lockout_threshold:
           description: Max bad login attempts before an account is locked out automatically,
             default is 0, never locks.
-          type: integer
+          type: string
         ad_fqdn:
           description: The FQDN of the Active Directory server
           type: string
         ad_old_password_allowed_period:
           description: Old Password Allowed Period in NTLM Authentication. In minutes
-          type: integer
+          type: string
         ad_reset_account_lockout_counter_after:
           description: After how long will the lockout counter resets. In minutes.
-          type: integer
+          type: string
         ad_server:
           description: The IPv4 of the Active Directory server
           type: string
         ad_server_port:
           description: Ad server port
-          type: integer
+          type: string
         additional_machine_accounts:
           description: How many additional machine accounts should be created and
             used to parallel NTLM authentication
-          type: integer
+          type: string
         bind_dn:
           description: The username of a Domain Admin to use to join the server to
             the domain
@@ -3822,13 +3833,13 @@ components:
           type: string
         max_allowed_password_attempts_per_device:
           description: Maximum bad login attempt for a single device.
-          type: integer
+          type: string
         nt_key_cache_enabled:
           description: Should the NT Key cache be enabled for this domain?
           type: string
         nt_key_cache_expire:
           description: The amount of seconds an entry should be cached.
-          type: integer
+          type: string
         ntlm_auth_host:
           description: The IP address of NTLM auth API
           type: string
@@ -3840,7 +3851,7 @@ components:
           type: string
         ntlm_cache_expiry:
           description: The amount of seconds an entry should be cached.
-          type: integer
+          type: string
         ntlm_cache_source:
           description: The source to use to connect to your Active Directory server
             for NTLM caching.
@@ -4032,15 +4043,15 @@ components:
           suricata_md5: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
         propertyName: type
       oneOf:
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSnort'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeDhcp'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortigateDhcp'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeRegex'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSnort'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeDhcp'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion'
     ConfigEventHandlerMetaSubTypeDhcp:
       properties:
         meta:
@@ -4200,7 +4211,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4230,7 +4241,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4260,7 +4271,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4290,7 +4301,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4320,7 +4331,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4358,7 +4369,7 @@ components:
                 properties:
                   interval:
                     description: Interval
-                    type: integer
+                    type: string
                   unit:
                     description: Unit
                     type: string
@@ -4393,7 +4404,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4423,7 +4434,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4453,7 +4464,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4483,7 +4494,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -4538,7 +4549,7 @@ components:
           type: array
         port:
           description: Port
-          type: integer
+          type: string
         priority:
           description: Priority
           type: string
@@ -4834,19 +4845,19 @@ components:
         propertyName: type
       oneOf:
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileconfig'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAirwatch'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook'
     ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept:
       properties:
         meta:
@@ -6570,18 +6581,18 @@ components:
           WatchGuard: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
         propertyName: type
       oneOf:
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeIboss'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJsonrpc'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFortigate'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeIboss'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypePaloalto'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeLightspeedrocket'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeBarracudang'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypePaloalto'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeLightspeedrocket'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper'
     ConfigFirewallMetaSubTypeBarracudang:
       properties:
         meta:
@@ -7060,7 +7071,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7089,7 +7100,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7132,7 +7143,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7161,7 +7172,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7200,7 +7211,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7229,7 +7240,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7268,7 +7279,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7300,7 +7311,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7338,7 +7349,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7367,7 +7378,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7406,7 +7417,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7438,7 +7449,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7477,7 +7488,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7506,7 +7517,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7549,7 +7560,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7578,7 +7589,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7621,7 +7632,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7650,7 +7661,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7689,7 +7700,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7720,7 +7731,7 @@ components:
         port:
           description: If you use an alternative port, please specify. This parameter
             is ignored when the Syslog transport is selected.
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7753,7 +7764,7 @@ components:
         vsys:
           description: Please define the Virtual System number. This only has an effect
             when used with the HTTP transport.
-          type: integer
+          type: string
       required:
       - id
       type: object
@@ -7765,7 +7776,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7794,7 +7805,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7833,7 +7844,7 @@ components:
         cache_timeout:
           description: Adjust the "Cache timeout" to half the expiration delay in
             your firewall.<br/>Your DHCP renewal interval should match this value.
-          type: integer
+          type: string
         cache_updates:
           description: Enable this to debounce updates to the Firewall.<br/>By default,
             PacketFence will send a SSO on every DHCP request for every device. Enabling
@@ -7862,7 +7873,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         sso_on_access_reevaluation:
           description: Sso on access reevaluation
           type: string
@@ -7919,7 +7930,7 @@ components:
           type: string
         pvid:
           description: VLAN in which PacketFence should put the port
-          type: integer
+          type: string
         taggedVlan:
           description: Comma separated list of VLANs. If the port is a multi-vlan,
             these are the VLANs that have to be tagged on the port.
@@ -8201,13 +8212,13 @@ components:
           type: string
         dhcp_default_lease_time:
           description: Default Lease Time
-          type: integer
+          type: string
         dhcp_end:
           description: Ending IP Address
           type: string
         dhcp_max_lease_time:
           description: Max Lease Time
-          type: integer
+          type: string
         dhcp_reply_ip:
           description: DHCP IP Reply
           type: string
@@ -8405,36 +8416,36 @@ components:
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp6logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeOption82Query'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp6logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup'
     ConfigMaintenanceTaskMetaSubTypeAcctCleanup:
       properties:
         meta:
@@ -9015,7 +9026,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9031,7 +9042,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9045,7 +9056,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9080,7 +9091,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9096,7 +9107,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9111,7 +9122,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9126,7 +9137,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9142,7 +9153,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9156,7 +9167,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9171,18 +9182,18 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         history_batch:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         history_timeout:
           description: Maximum amount of time this task can run.
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9192,7 +9203,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9207,13 +9218,13 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         session_timeout:
           description: Maximum amount of time this task can run.
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9223,7 +9234,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9237,7 +9248,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9251,7 +9262,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9271,7 +9282,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9300,7 +9311,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9316,7 +9327,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9355,7 +9366,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9371,7 +9382,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9386,7 +9397,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9421,7 +9432,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9437,7 +9448,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9456,7 +9467,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9472,7 +9483,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9491,7 +9502,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9504,13 +9515,13 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         rotate_timeout:
           description: Maximum amount of time this task can run.
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9521,7 +9532,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9538,7 +9549,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9553,7 +9564,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9568,7 +9579,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9581,13 +9592,13 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         rotate_timeout:
           description: Maximum amount of time this task can run.
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9598,7 +9609,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9615,7 +9626,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9630,7 +9641,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9645,7 +9656,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9661,7 +9672,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9676,7 +9687,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9691,14 +9702,14 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         delete_window:
           description: How long can an unregistered node be inactive on the network
             before being deleted.<br>This shouldn't be used if you are using port-security
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9718,7 +9729,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9733,7 +9744,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9751,7 +9762,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -9767,7 +9778,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9781,7 +9792,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9883,7 +9894,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -9923,7 +9934,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         type:
           default: pfflow
           description: Discriminator `pfflow`
@@ -9999,7 +10010,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10014,7 +10025,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -10030,7 +10041,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10045,7 +10056,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10060,7 +10071,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -10076,7 +10087,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10095,7 +10106,7 @@ components:
           description: Amount of items that will be processed in each batch of this
             task. Batches are executed until there is no more items to process or
             until the timeout is reached.
-          type: integer
+          type: string
         id:
           description: Pfcron Name
           type: string
@@ -10111,7 +10122,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10125,7 +10136,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10211,8 +10222,8 @@ components:
           TOTP: '#/components/schemas/ConfigMfaMetaSubTypeTotp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMfaMetaSubTypeAkamai'
       - $ref: '#/components/schemas/ConfigMfaMetaSubTypeTotp'
+      - $ref: '#/components/schemas/ConfigMfaMetaSubTypeAkamai'
     ConfigMfaMetaSubTypeAkamai:
       properties:
         meta:
@@ -10273,7 +10284,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10292,7 +10303,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10333,7 +10344,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10346,7 +10357,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10398,13 +10409,13 @@ components:
       properties:
         blacklisted_ip_hosts_threshold:
           description: Blacklisted ip hosts threshold
-          type: integer
+          type: string
         blacklisted_ip_hosts_window:
           description: Blacklisted ip hosts window
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10417,7 +10428,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -10427,7 +10438,7 @@ components:
           type: string
         device_attributes_diff_score:
           description: Device attributes diff score
-          type: integer
+          type: string
         device_attributes_diff_threshold_overrides:
           description: Device attributes diff threshold overrides
           items:
@@ -10539,9 +10550,9 @@ components:
           scep: '#/components/schemas/ConfigPkiProviderMetaSubTypeScep'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypePacketfenceLocal'
       - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypeScep'
       - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypePacketfencePki'
+      - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypePacketfenceLocal'
     ConfigPkiProviderMetaSubTypePacketfenceLocal:
       properties:
         meta:
@@ -10734,7 +10745,7 @@ components:
           type: string
         port:
           description: Port on which to contact the PacketFence PKI API
-          type: integer
+          type: string
         postalcode:
           description: Postal Code for the certificate
           type: string
@@ -10949,37 +10960,37 @@ components:
           URL: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
         propertyName: type
       oneOf:
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSms'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRoot'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMfa'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGoogle'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationPassword'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBilling'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMessage'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationLogin'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSms'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationPassword'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBilling'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMessage'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSslInspection'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole'
     ConfigPortalModuleMetaSubTypeAuthentication:
       properties:
         meta:
@@ -13315,20 +13326,20 @@ components:
           windows: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeKandji'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeIntune'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDeny'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamf'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook'
     ConfigProvisioningMetaSubTypeAccept:
       properties:
         meta:
@@ -14120,7 +14131,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Protocol
           type: string
@@ -14554,7 +14565,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Protocol
           type: string
@@ -14649,7 +14660,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Protocol
           type: string
@@ -14738,7 +14749,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Protocol
           type: string
@@ -14824,7 +14835,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Protocol
           type: string
@@ -14985,7 +14996,7 @@ components:
           type: string
         boarding_port:
           description: Boarding port
-          type: integer
+          type: string
         category:
           description: Nodes with the selected roles will be affected
           items:
@@ -15115,7 +15126,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Protocol
           type: string
@@ -15750,7 +15761,7 @@ components:
         max_nodes_per_pid:
           description: The maximum number of nodes a user having this role can register.
             A number of 0 means unlimited number of devices.
-          type: integer
+          type: string
         notes:
           description: Description
           type: string
@@ -15815,13 +15826,13 @@ components:
           type: string
         dhcp_default_lease_time:
           description: Default Lease Time
-          type: integer
+          type: string
         dhcp_end:
           description: Ending IP Address
           type: string
         dhcp_max_lease_time:
           description: Max Lease Time
-          type: integer
+          type: string
         dhcp_reply_ip:
           description: DHCP IP Reply
           type: string
@@ -16033,10 +16044,10 @@ components:
           pfappserver::Form::Config::Scan::Rapid7: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6'
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus'
       - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanOpenvas'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
     ConfigScanMetaSubTypePfappserverFormConfigScanNessus:
       properties:
         meta:
@@ -16194,7 +16205,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16219,7 +16230,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         post_registration:
           description: If this option is enabled, the PF system will scan host after
             on the production vlan. This will not work for devices that are in an
@@ -16261,7 +16272,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16286,7 +16297,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         post_registration:
           description: If this option is enabled, the PF system will scan host after
             on the production vlan. This will not work for devices that are in an
@@ -16334,7 +16345,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16365,7 +16376,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         post_registration:
           description: If this option is enabled, the PF system will scan host after
             on the production vlan. This will not work for devices that are in an
@@ -16407,7 +16418,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16433,7 +16444,7 @@ components:
           type: string
         port:
           description: If you use an alternative port, please specify
-          type: integer
+          type: string
         post_registration:
           description: If this option is enabled, the PF system will scan host after
             on the production vlan. This will not work for devices that are in an
@@ -16509,7 +16520,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16534,7 +16545,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16547,12 +16558,12 @@ components:
           description: Number of times a host will be able to try and self remediate
             before they are locked out and have to call the help desk. This is useful
             for users who just <i>click through</i> security event pages.
-          type: integer
+          type: string
         priority:
           description: Range 1-10, with 1 the higest priority and 10 the lowest. Higher
             priority security events will be addressed first if a host has more than
             one.
-          type: integer
+          type: string
         recipient_email:
           description: Recipient email addresses that will receive the security event
             email.
@@ -16606,7 +16617,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16705,7 +16716,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -16890,38 +16901,38 @@ components:
           WindowsLive: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGithub'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEduroam'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLdap'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLinkedin'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAdminproxy'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKerberos'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeFacebook'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKickbox'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAuthorization'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogle'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeTwilio'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEmail'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAzuread'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeNull'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePotd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHtpasswd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSql'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEdir'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeBlackhole'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePaypal'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEaptls'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHttp'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAd'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogle'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeClickatell'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEdir'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGithub'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSql'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAzuread'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKerberos'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeTwilio'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeFacebook'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePaypal'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeBlackhole'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAuthorization'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePotd'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEaptls'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKickbox'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAd'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHttp'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEmail'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLdap'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeOpenid'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAdminproxy'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeNull'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEduroam'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHtpasswd'
     ConfigSourceMetaSubTypeAd:
       properties:
         meta:
@@ -18259,7 +18270,7 @@ components:
           type: string
         dead_duration:
           description: Dead duration
-          type: integer
+          type: string
         description:
           description: Description
           type: string
@@ -18287,7 +18298,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         read_timeout:
           description: LDAP response timeout
           type: string
@@ -18729,14 +18740,14 @@ components:
           type: string
         timeout:
           description: Timeout
-          type: integer
+          type: string
         type:
           default: AzureAD
           description: Discriminator `AzureAD`
           type: string
         user_groups_cache:
           description: User groups cache
-          type: integer
+          type: string
       required:
       - id
       - description
@@ -18888,7 +18899,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -18896,16 +18907,16 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         message:
           description: SMS text message ($pin will be replaced by the PIN number)
           type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         pin_code_length:
           description: The length of the PIN code to be sent over sms
-          type: integer
+          type: string
         type:
           default: Clickatell
           description: Discriminator `Clickatell`
@@ -19184,7 +19195,7 @@ components:
           type: string
         dead_duration:
           description: Dead duration
-          type: integer
+          type: string
         description:
           description: Description
           type: string
@@ -19212,7 +19223,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         read_timeout:
           description: LDAP response timeout
           type: string
@@ -19318,7 +19329,7 @@ components:
           type: array
         auth_listening_port:
           description: Auth listening port
-          type: integer
+          type: string
         authentication_rules:
           description: Authentication rules
           items:
@@ -19547,7 +19558,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -19564,7 +19575,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -19572,10 +19583,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         type:
           default: Email
           description: Discriminator `Email`
@@ -19726,7 +19737,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -19734,10 +19745,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         protected_resource_url:
           description: Graph API URL of logged user
           type: string
@@ -19911,7 +19922,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -19919,10 +19930,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -20097,7 +20108,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -20105,10 +20116,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -20282,7 +20293,7 @@ components:
           type: string
         dead_duration:
           description: Dead duration
-          type: integer
+          type: string
         description:
           description: Description
           type: string
@@ -20310,7 +20321,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         read_timeout:
           description: LDAP response timeout
           type: string
@@ -20517,7 +20528,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         protocol:
           description: Encryption
           type: string
@@ -20943,7 +20954,7 @@ components:
           type: string
         dead_duration:
           description: Dead duration
-          type: integer
+          type: string
         description:
           description: Description
           type: string
@@ -20971,7 +20982,7 @@ components:
           type: string
         port:
           description: Port
-          type: integer
+          type: string
         read_timeout:
           description: LDAP response timeout
           type: string
@@ -21164,7 +21175,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -21172,10 +21183,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -21334,7 +21345,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -21342,10 +21353,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         type:
           default: Null
           description: Discriminator `Null`
@@ -21495,7 +21506,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -21503,10 +21514,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         person_mappings:
           description: Person mappings
           items:
@@ -21606,7 +21617,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -21614,10 +21625,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         payment_type:
           description: The type of transactions this source will do (donations or
             sales).
@@ -21764,7 +21775,7 @@ components:
           type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         password_rotation:
           description: Period of time after the password must be rotated.
           type: string
@@ -21892,7 +21903,7 @@ components:
           type: array
         connect_through_port:
           description: Connect through port
-          type: integer
+          type: string
         description:
           description: Description
           type: string
@@ -21915,7 +21926,7 @@ components:
         port:
           description: If you use this source in the realm configuration the accounting
             port will be this port + 1
-          type: integer
+          type: string
         realms:
           description: Realms that will be associated with this source (For the Portal/Admin
             GUI/RADIUS post-auth, not for FreeRADIUS proxy)
@@ -21929,7 +21940,7 @@ components:
           type: string
         timeout:
           description: Timeout
-          type: integer
+          type: string
         type:
           default: RADIUS
           description: Discriminator `RADIUS`
@@ -22130,7 +22141,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22138,23 +22149,23 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         message:
           description: SMS text message ($pin will be replaced by the PIN number)
           type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         pin_code_length:
           description: The amount of digits of the PIN number.
-          type: integer
+          type: string
         sms_activation_timeout:
           description: This is the delay given to a guest who registered by SMS confirmation
             to fill the PIN code.
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22311,7 +22322,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22331,7 +22342,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22339,10 +22350,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         register_on_activation:
           description: Register on activation
           type: string
@@ -22520,7 +22531,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22528,10 +22539,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         publishable_key:
           description: Publishable key
           type: string
@@ -22690,7 +22701,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22698,16 +22709,16 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         message:
           description: SMS text message ($pin will be replaced by the PIN number)
           type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         pin_code_length:
           description: The length of the PIN code to be sent over SMS
-          type: integer
+          type: string
         twilio_phone_number:
           description: Twilio provided phone number which will show as the sender
           type: string
@@ -22866,7 +22877,7 @@ components:
           properties:
             interval:
               description: Interval
-              type: integer
+              type: string
             unit:
               description: Unit
               type: string
@@ -22874,10 +22885,10 @@ components:
         local_account_logins:
           description: The amount of times, the local account can be used after its
             created. 0 means infinite.
-          type: integer
+          type: string
         password_length:
           description: The length of the password to generate.
-          type: integer
+          type: string
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -22930,7 +22941,7 @@ components:
       properties:
         ACLsLimit:
           description: ACLsLimit
-          type: integer
+          type: string
         AccessListMap:
           description: Role by access list
           type: string
@@ -22962,7 +22973,7 @@ components:
           type: array
         DownloadableACLsLimit:
           description: DownloadableACLsLimit
-          type: integer
+          type: string
         ExternalPortalEnforcement:
           description: ExternalPortalEnforcement
           type: string
@@ -23170,7 +23181,7 @@ components:
           type: string
         coaPort:
           description: For CoA request, if we have to send to another port
-          type: integer
+          type: string
         controllerIp:
           description: Use instead this IP address for de-authentication requests.
             Normally used for Wi-Fi only
@@ -23186,7 +23197,7 @@ components:
           type: string
         disconnectPort:
           description: For Disconnect request, if we have to send to another port
-          type: integer
+          type: string
         group:
           description: Changing the group requires to save to see the new default
             values
@@ -23209,10 +23220,10 @@ components:
           type: array
         macSearchesMaxNb:
           description: Maximum number of MAC addresses retrived from a port
-          type: integer
+          type: string
         macSearchesSleepInterval:
           description: Sleep interval between queries of MAC addresses
-          type: integer
+          type: string
         mac_trigger:
           description: Mac trigger
           type: string
@@ -23221,7 +23232,7 @@ components:
           type: string
         port_trigger:
           description: Port trigger
-          type: integer
+          type: string
         radiusDeauthUseConnector:
           description: RadiusDeauthUseConnector
           type: string
@@ -23260,7 +23271,7 @@ components:
       properties:
         ACLsLimit:
           description: ACLsLimit
-          type: integer
+          type: string
         AccessListMap:
           description: Role by access list
           type: string
@@ -23292,7 +23303,7 @@ components:
           type: array
         DownloadableACLsLimit:
           description: DownloadableACLsLimit
-          type: integer
+          type: string
         ExternalPortalEnforcement:
           description: ExternalPortalEnforcement
           type: string
@@ -23500,7 +23511,7 @@ components:
           type: string
         coaPort:
           description: For CoA request, if we have to send to another port
-          type: integer
+          type: string
         controllerIp:
           description: Use instead this IP address for de-authentication requests.
             Normally used for Wi-Fi only
@@ -23516,7 +23527,7 @@ components:
           type: string
         disconnectPort:
           description: For Disconnect request, if we have to send to another port
-          type: integer
+          type: string
         id:
           description: Group name
           type: string
@@ -23535,10 +23546,10 @@ components:
           type: array
         macSearchesMaxNb:
           description: Maximum number of MAC addresses retrived from a port
-          type: integer
+          type: string
         macSearchesSleepInterval:
           description: Sleep interval between queries of MAC addresses
-          type: integer
+          type: string
         mac_trigger:
           description: Mac trigger
           type: string
@@ -23547,7 +23558,7 @@ components:
           type: string
         port_trigger:
           description: Port trigger
-          type: integer
+          type: string
         radiusDeauthUseConnector:
           description: RadiusDeauthUseConnector
           type: string
@@ -24035,7 +24046,7 @@ components:
           type: array
         port:
           description: Port
-          type: integer
+          type: string
         proto:
           description: Proto
           type: string
@@ -25054,7 +25065,7 @@ components:
         inherit_web_auth_url:
           type: string
         max_nodes_per_pid:
-          type: integer
+          type: string
         name:
           type: string
         notes:
@@ -26902,8 +26913,6 @@ components:
     Ip4log:
       properties:
         end_time:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         ip:
           description: '`PRIMARY KEY`'
@@ -26911,8 +26920,6 @@ components:
         mac:
           type: string
         start_time:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
       type: object
     Ip4logsList:
@@ -26928,8 +26935,6 @@ components:
     Ip6log:
       properties:
         end_time:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         ip:
           description: '`PRIMARY KEY`'
@@ -26937,8 +26942,6 @@ components:
         mac:
           type: string
         start_time:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         type:
           type: string
@@ -27062,8 +27065,6 @@ components:
         dot1x_username:
           type: string
         end_time:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         ifDesc:
           type: string
@@ -27081,8 +27082,6 @@ components:
         ssid:
           type: string
         start_time:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         stripped_user_name:
           type: string
@@ -27345,8 +27344,6 @@ components:
         computername:
           type: string
         detect_date:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         device_class:
           type: string
@@ -27367,16 +27364,10 @@ components:
         dhcp_vendor:
           type: string
         last_arp:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         last_dhcp:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         last_seen:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         mac:
           description: '`PRIMARY KEY`'
@@ -27388,8 +27379,6 @@ components:
         pid:
           type: string
         regdate:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         sessionid:
           type: string
@@ -27398,8 +27387,6 @@ components:
         time_balance:
           type: integer
         unregdate:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         user_agent:
           type: string
@@ -28863,8 +28850,6 @@ components:
     SMSCarrier:
       properties:
         created:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         email_pattern:
           type: string
@@ -28918,14 +28903,10 @@ components:
         notes:
           type: string
         release_date:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         security_event_id:
           type: integer
         start_date:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         status:
           type: string
@@ -29269,8 +29250,6 @@ components:
         sponsor:
           type: string
         sponsored_date:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         telephone:
           type: string
@@ -29328,8 +29307,6 @@ components:
         computername:
           type: string
         detect_date:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         device_class:
           type: string
@@ -29350,16 +29327,10 @@ components:
         dhcp_vendor:
           type: string
         last_arp:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         last_dhcp:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         last_seen:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         mac:
           description: '`PRIMARY KEY`'
@@ -29371,8 +29342,6 @@ components:
         pid:
           type: string
         regdate:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         sessionid:
           type: string
@@ -29381,8 +29350,6 @@ components:
         time_balance:
           type: integer
         unregdate:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         user_agent:
           type: string
@@ -29460,8 +29427,6 @@ components:
         category:
           type: integer
         expiration:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         login_remaining:
           type: integer
@@ -29477,12 +29442,8 @@ components:
         trigger_radius_mfa:
           type: string
         unregdate:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
         valid_from:
-          example: 1970-01-01 00:00:00
-          format: date-time
           type: string
       type: object
     UsersPasswordList:
@@ -54233,6 +54194,22 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
       - Nodes
+  /api/v1/nodes/bulk_apply_bypass_acls:
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/NodesBulkBypassAcls'
+      responses:
+        '200':
+          $ref: '#/components/responses/NodesBulk'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Apply Bypass ACLs to bulk nodes.
+      tags:
+      - Nodes
   /api/v1/nodes/bulk_apply_bypass_role:
     post:
       requestBody:
@@ -54311,6 +54288,22 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Close all Security Events for bulk nodes.
+      tags:
+      - Nodes
+  /api/v1/nodes/bulk_delete:
+    delete:
+      requestBody:
+        $ref: '#/components/requestBodies/NodesBulk'
+      responses:
+        '200':
+          $ref: '#/components/responses/NodesBulk'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Delete bulk nodes.
       tags:
       - Nodes
   /api/v1/nodes/bulk_deregister:
