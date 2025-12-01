@@ -32,6 +32,23 @@
     tags:
       - Nodes
 
+/api/v1/nodes/bulk_apply_bypass_acls:
+  post:
+    summary: Apply Bypass ACLs to bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulkBypassAcls"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
 /api/v1/nodes/bulk_apply_role:
   post:
     summary: Apply Role to bulk nodes.
