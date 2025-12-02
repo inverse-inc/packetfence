@@ -2,8 +2,8 @@ cursor:
   name: cursor
   in: query
   schema:
-    type: integer
-    example: 0
+    type: string
+    example: 42 or "1970-01-01 10:12:00"
   description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
 
 limit:
@@ -11,8 +11,9 @@ limit:
   in: query
   schema:
     type: integer
+    default: 25
     minimum: 1
-    maximum: 1000
+    maximum: 9999
     enum:
       - 1
       - 5
@@ -23,8 +24,8 @@ limit:
       - 250
       - 500
       - 1000
-    example: 1
-  description: The maximum amount of entries to get.
+    example: 10
+  description: The maximum amount of entries in a page.
 
 sort:
   name: sort

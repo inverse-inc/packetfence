@@ -80,6 +80,7 @@
             "in" : "query",
             "name" : "limit",
             "schema" : {
+               "default" : 25,
                "enum" : [
                   1,
                   5,
@@ -91,8 +92,8 @@
                   500,
                   1000
                ],
-               "example" : 1,
-               "maximum" : 1000,
+               "example" : 10,
+               "maximum" : 9999,
                "minimum" : 1,
                "type" : "integer"
             }
@@ -163,29 +164,14 @@
             "schema" : {
                "enum" : [
                   "api-frontend",
-                  "fingerbank-collector",
-                  "galera-autofix",
-                  "haproxy-admin",
-                  "haproxy-db",
-                  "haproxy-portal",
-                  "httpd.aaa",
                   "httpd.admin_dispatcher",
                   "httpd.dispatcher",
-                  "httpd.portal",
-                  "httpd.webservices",
                   "ip6tables",
-                  "iptables",
                   "kafka",
-                  "keepalived",
-                  "mysql-probe",
-                  "netdata",
                   "ntlm-auth-api",
-                  "pfacct",
                   "pfconnector-client",
                   "pfconnector-server",
-                  "pfcron",
                   "pfdetect",
-                  "pfdhcp",
                   "pfdhcplistener",
                   "pfdns",
                   "pfdns-connector",
@@ -198,18 +184,9 @@
                   "pfqueue-go",
                   "pfqueue-perl",
                   "pfsetacls",
-                  "pfsso",
                   "pfstats",
-                  "proxysql",
-                  "radiusd-auth",
-                  "radiusd-load_balancer",
-                  "radiusd-acct",
-                  "radiusd-eduroam",
-                  "radiusd-cli",
-                  "radsniff",
                   "redis_ntlm_cache",
                   "redis_queue",
-                  "snmptrapd",
                   "tracking-config"
                ],
                "type" : "string"
@@ -1386,6 +1363,75 @@
          }
       },
       "responses" : {
+         "APIBadRequest" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 403,
+                                 "type" : "int"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Bad request"
+         },
+         "APIInternalServerError" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 500,
+                                 "type" : "int"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Check server logs for more details"
+         },
+         "APINotFound" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 404,
+                                 "type" : "int"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Resource not found"
+         },
          "Async" : {
             "content" : {
                "application/json" : {
@@ -3224,7 +3270,7 @@
       },
       "schemas" : {
          "ApiError" : {
-            "description" : "An error response object used across multiple endpoints.",
+            "description" : "An error object used to define an error in API calls.",
             "properties" : {
                "action" : {
                   "type" : "string"
@@ -3266,6 +3312,20 @@
          },
          "ApiResponse" : {
             "description" : "A common response object used across multiple endpoints.",
+            "properties" : {
+               "message" : {
+                  "description" : "A message describing the response, mostly used for errors.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The HTTP status of the response.",
+                  "type" : "int"
+               }
+            },
+            "type" : "object"
+         },
+         "ApiResponseError" : {
+            "description" : "Common HTTP errors returned by the API.",
             "properties" : {
                "errors" : {
                   "items" : {
@@ -41892,7 +41952,7 @@
    },
    "openapi" : "3.1.0",
    "paths" : {
-      "/api/v1.2/dynamic_report/{id}" : {
+      "/api/v1.1/report/{id}" : {
          "get" : {
             "description" : "Get a single report",
             "operationId" : "GetReportById",
@@ -41917,7 +41977,7 @@
                               {
                                  "properties" : {
                                     "item" : {
-                                       "$ref" : "#/components/schemas/DynamicReport",
+                                       "$ref" : "#/components/schemas/Report",
                                        "type" : "object"
                                     }
                                  },
@@ -41929,15 +41989,18 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "404" : {
-                  "description" : "Report not found"
+                  "$ref" : "#/components/responses/APINotFound"
                },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          },
          "options" : {
@@ -42035,7 +42098,7 @@
                               {
                                  "properties" : {
                                     "report_meta" : {
-                                       "$ref" : "#/components/schemas/DynamicReportOptions",
+                                       "$ref" : "#/components/schemas/ReportOptions",
                                        "type" : "object"
                                     }
                                  },
@@ -42047,19 +42110,22 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "404" : {
-                  "description" : "Report not found"
+                  "$ref" : "#/components/responses/APINotFound"
                },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          }
       },
-      "/api/v1.2/dynamic_report/{id}/search" : {
+      "/api/v1.1/report/{id}/search" : {
          "post" : {
             "description" : "Get columns of a report",
             "operationId" : "SearchReportById",
@@ -42076,7 +42142,7 @@
                "content" : {
                   "application/json" : {
                      "schema" : {
-                        "$ref" : "#/components/schemas/DynamicReportSearchBody"
+                        "$ref" : "#/components/schemas/ReportSearchBody"
                      }
                   }
                }
@@ -42213,19 +42279,22 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "404" : {
-                  "description" : "Report not found"
+                  "$ref" : "#/components/responses/APINotFound"
                },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          }
       },
-      "/api/v1.2/dynamic_reports" : {
+      "/api/v1.1/reports" : {
          "get" : {
             "description" : "Get all reports",
             "operationId" : "GetReports",
@@ -42550,7 +42619,7 @@
                                  "fields" : {
                                     "items" : {
                                        "items" : {
-                                          "$ref" : "#/components/schemas/DynamicReport"
+                                          "$ref" : "#/components/schemas/Report"
                                        },
                                        "type" : "array"
                                     }
@@ -42563,12 +42632,15 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          }
       },
