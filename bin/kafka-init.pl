@@ -80,14 +80,19 @@ if ($cluster_enabled) {
 
     my @cluster_members = get_cluster_member_for_kafka();
     my $quorum_voters = make_quorum_voters(\@cluster_members);
-    my $factor = (scalar @cluster_members )/ 2 + 1;
+    my $factor = int((scalar @cluster_members )/ 2) + 1;
     set_or_create($ini, 'cluster', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR', $factor);
     set_or_create($ini, 'cluster', 'KAFKA_CONTROLLER_QUORUM_VOTERS', $quorum_voters);
+    my @ips;
     for my $cluster_member (@cluster_members) {
+        push @ips, $cluster_member->{mgmtip};
         my $id = $cluster_member->{host};
         set_or_create($ini, $id, 'KAFKA_NODE_ID', $cluster_member->{node_id});
         set_or_create($ini, $id, 'KAFKA_ADVERTISED_LISTENERS', $cluster_member->{advertised_listeners});
     }
+
+    set_or_create($ini, 'iptables', 'cluster_ips', join(",", @ips));
+    set_or_create($ini, 'iptables', 'clients', join(",", @ips));
 }
 
 sub get_cluster_member_for_kafka {
