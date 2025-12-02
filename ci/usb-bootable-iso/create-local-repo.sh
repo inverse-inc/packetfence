@@ -1,6 +1,9 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
+# Ensure /usr/sbin is in PATH (debootstrap is installed there)
+export PATH="/usr/sbin:/sbin:${PATH}"
+
 # Arguments
 REPO_DIR=${1:-./repo}
 PF_RELEASE_VERSION=${2:-15.1}

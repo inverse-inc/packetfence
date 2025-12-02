@@ -5,6 +5,27 @@ set -o nounset -o pipefail -o errexit
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 
+# Install required packages if not present
+echo "===> Checking/installing required packages..."
+# Note: docker.io not listed - CI runner has Docker from docker.com repo
+REQUIRED_PKGS="debootstrap xorriso dpkg-dev cpio gnupg"
+MISSING_PKGS=""
+for pkg in ${REQUIRED_PKGS}; do
+    if ! dpkg -s "${pkg}" >/dev/null 2>&1; then
+        MISSING_PKGS="${MISSING_PKGS} ${pkg}"
+    fi
+done
+if [ -n "${MISSING_PKGS}" ]; then
+    echo "Installing missing packages:${MISSING_PKGS}"
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq ${MISSING_PKGS}
+fi
+# Verify docker is available (from any source)
+if ! command -v docker >/dev/null 2>&1; then
+    echo "ERROR: docker command not found. Please install Docker."
+    exit 1
+fi
+
 # Configuration
 ISO_IN=${ISO_IN:-debian-12.6.0-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-usb-installer.iso}
