@@ -367,7 +367,31 @@ sub cleanup_item {
     $item->{not_deletable} = $cs->is_section_in_import($id) ? $self->json_true : $self->json_false;
     $item->{not_sortable} = $self->is_sortable($cs, $id, $item);
     $item->{id} = $id;
+    $self->ensure_integer_fields($item, $form);
     return $item;
+}
+
+=head2 ensure_integer_fields
+
+Ensures that integer-type form fields (PosInteger, Integer, Port) are returned as actual
+integers for consistent JSON serialization. This fixes inconsistencies where values
+from config files are strings but form defaults are integers.
+
+=cut
+
+my %INTEGER_FIELD_TYPES = map { $_ => 1 } qw(PosInteger Integer Port);
+
+sub ensure_integer_fields {
+    my ($self, $item, $form) = @_;
+    return unless defined $form && defined $item;
+
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        my $type = $field->type;
+        if ($INTEGER_FIELD_TYPES{$type} && exists $item->{$name} && defined $item->{$name}) {
+            $item->{$name} = int($item->{$name});
+        }
+    }
 }
 
 sub is_sortable {

@@ -15,9 +15,9 @@ pf::UnifiedApi::GenerateSpec
 use strict;
 use warnings;
 our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
-    PosInteger => 'string',
-    Port       => 'string',
-    Integer    => 'string',
+    PosInteger => 'integer',
+    Port       => 'integer',
+    Integer    => 'integer',
     IntRange   => 'string',
     PathUpload => 'string',
 );

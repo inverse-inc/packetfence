@@ -84,11 +84,6 @@ sub cleanup_item {
         $item->{children} = $ConfigRoles{$id}{children};
     }
 
-    # Ensure max_nodes_per_pid is always an integer for consistent JSON serialization
-    if (defined $item->{max_nodes_per_pid}) {
-        $item->{max_nodes_per_pid} = int($item->{max_nodes_per_pid});
-    }
-
     return $item;
 }
 
