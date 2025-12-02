@@ -8,7 +8,8 @@ PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 # Install required packages if not present
 echo "===> Checking/installing required packages..."
 # Note: docker.io not listed - CI runner has Docker from docker.com repo
-REQUIRED_PKGS="debootstrap xorriso dpkg-dev cpio gnupg"
+# Note: debootstrap not listed - runs inside Docker container
+REQUIRED_PKGS="xorriso dpkg-dev cpio gnupg"
 MISSING_PKGS=""
 for pkg in ${REQUIRED_PKGS}; do
     if ! dpkg -s "${pkg}" >/dev/null 2>&1; then
@@ -74,10 +75,17 @@ fi
 
 # Step 2: Create local APT repository with all packages
 echo "===> Step 2: Creating local APT repository"
-# debootstrap requires root privileges
-sudo ${SCRIPT_DIR}/create-local-repo.sh ${REPO_DIR} ${PF_RELEASE_VERSION}
-# Fix ownership after running as root
-sudo chown -R $(id -u):$(id -g) ${REPO_DIR}
+# Run in Docker container since debootstrap requires root privileges
+# Mount the script directory and repo directory, run as root inside container
+docker run --rm \
+    -v ${SCRIPT_DIR}:/build:ro \
+    -v ${REPO_DIR}:/repo \
+    -e REPO_DIR=/repo \
+    -e PF_RELEASE_VERSION=${PF_RELEASE_VERSION} \
+    debian:bookworm \
+    bash -c "apt-get update -qq && apt-get install -y -qq debootstrap curl dpkg-dev && /build/create-local-repo.sh /repo ${PF_RELEASE_VERSION}"
+# Fix ownership after running as root in container
+docker run --rm -v ${REPO_DIR}:/repo debian:bookworm chown -R $(id -u):$(id -g) /repo
 
 # Step 3: Pre-download Docker images
 echo "===> Step 3: Pre-downloading Docker images"
