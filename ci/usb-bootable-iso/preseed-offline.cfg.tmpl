@@ -21,8 +21,8 @@ d-i netcfg/hostname string packetfence
 d-i netcfg/wireless_wep string
 
 ### Configure package manager - OFFLINE MODE
-# Disable CD-ROM as package source after initial install
-d-i apt-setup/cdrom/set-first boolean false
+# Keep CD-ROM as package source for base system packages
+d-i apt-setup/cdrom/set-first boolean true
 d-i apt-setup/cdrom/set-next boolean false
 d-i apt-setup/cdrom/set-failed boolean false
 
