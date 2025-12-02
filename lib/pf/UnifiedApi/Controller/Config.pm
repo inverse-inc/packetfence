@@ -377,6 +377,8 @@ Ensures that integer-type form fields (PosInteger, Integer, Port) are returned a
 integers for consistent JSON serialization. This fixes inconsistencies where values
 from config files are strings but form defaults are integers.
 
+Handles both simple fields and compound fields (like Duration with interval subfields).
+
 =cut
 
 my %INTEGER_FIELD_TYPES = map { $_ => 1 } qw(PosInteger Integer Port);
@@ -388,8 +390,20 @@ sub ensure_integer_fields {
     for my $field ($form->fields) {
         my $name = $field->name;
         my $type = $field->type;
+
+        # Handle simple integer fields
         if ($INTEGER_FIELD_TYPES{$type} && exists $item->{$name} && defined $item->{$name}) {
             $item->{$name} = int($item->{$name});
+        }
+        # Handle compound fields (e.g., Duration with interval/unit subfields)
+        elsif ($field->can('fields') && exists $item->{$name} && ref($item->{$name}) eq 'HASH') {
+            for my $subfield ($field->fields) {
+                my $subname = $subfield->name;
+                my $subtype = $subfield->type;
+                if ($INTEGER_FIELD_TYPES{$subtype} && exists $item->{$name}{$subname} && defined $item->{$name}{$subname}) {
+                    $item->{$name}{$subname} = int($item->{$name}{$subname});
+                }
+            }
         }
     }
 }
