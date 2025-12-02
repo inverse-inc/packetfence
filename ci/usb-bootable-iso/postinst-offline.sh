@@ -25,8 +25,8 @@ cat > /etc/apt/sources.list.d/packetfence-local.list << EOF
 deb [trusted=yes] file:///media/cdrom/pf-repo bookworm main
 EOF
 
-# Disable CD-ROM sources
-sed -i '/^deb cdrom:/s/^/#/' /etc/apt/sources.list
+# Disable CD-ROM apt source (prevents "Please insert CD" prompts)
+sed -i '/^deb cdrom:/d' /etc/apt/sources.list
 
 # Update package lists
 apt-get update
