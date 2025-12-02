@@ -74,7 +74,10 @@ fi
 
 # Step 2: Create local APT repository with all packages
 echo "===> Step 2: Creating local APT repository"
-${SCRIPT_DIR}/create-local-repo.sh ${REPO_DIR} ${PF_RELEASE_VERSION}
+# debootstrap requires root privileges
+sudo ${SCRIPT_DIR}/create-local-repo.sh ${REPO_DIR} ${PF_RELEASE_VERSION}
+# Fix ownership after running as root
+sudo chown -R $(id -u):$(id -g) ${REPO_DIR}
 
 # Step 3: Pre-download Docker images
 echo "===> Step 3: Pre-downloading Docker images"
