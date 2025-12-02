@@ -36,6 +36,12 @@ d-i mirror/http/directory string
 d-i mirror/http/proxy string
 
 ### Account setup
+# Enable root login
+d-i passwd/root-login boolean true
+
+# Do not allow empty root password - installer will prompt for password
+d-i passwd/root-password-empty boolean false
+
 # Skip creation of a normal user account.
 d-i passwd/make-user boolean false
 
