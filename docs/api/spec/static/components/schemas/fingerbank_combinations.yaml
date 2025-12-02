@@ -40,7 +40,7 @@ FingerbankCombination:
     mac_vendor_id:
       type: string
     score:
-      type: string
+      type: integer
     user_agent_id:
       type: string
     version:
@@ -77,7 +77,7 @@ FingerbankCombinationDecorated:
     mac_vendor_id:
       type: string
     score:
-      type: string
+      type: integer
     user_agent_id:
       type: string
     version:
