@@ -23,7 +23,7 @@
             "description" : "The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).",
             "name" : "cursor",
             "schema" : {
-               "example" : 0,
+               "example" : "42 or \"1970-01-01 10:12:00\"",
                "type" : "string"
             }
          },
@@ -73,9 +73,10 @@
             }
          },
          "limit" : {
-            "description" : "The maximum amount of entries to get.",
+            "description" : "The maximum amount of entries in a page.",
             "name" : "limit",
             "schema" : {
+               "default" : 25,
                "enum" : [
                   1,
                   5,
@@ -87,8 +88,8 @@
                   500,
                   1000
                ],
-               "example" : 1,
-               "maximum" : 1000,
+               "example" : 10,
+               "maximum" : 9999,
                "minimum" : 1,
                "type" : "integer"
             }
@@ -158,33 +159,15 @@
             "schema" : {
                "enum" : [
                   "api-frontend",
-                  "fingerbank-collector",
-                  "galera-autofix",
-                  "haproxy-admin",
-                  "haproxy-db",
-                  "haproxy-portal",
-                  "httpd.aaa",
                   "httpd.admin_dispatcher",
                   "httpd.dispatcher",
-                  "httpd.portal",
-                  "httpd.webservices",
                   "ip6tables",
-                  "iptables",
                   "kafka",
-                  "keepalived",
-                  "mysql-probe",
-                  "netdata",
                   "ntlm-auth-api",
-                  "pfacct",
                   "pfconnector-client",
                   "pfconnector-server",
-                  "pfcron",
                   "pfdetect",
-                  "pfdhcp",
                   "pfdhcplistener",
-                  "pfdns",
-                  "pffilter",
-                  "pfipset",
                   "pfldapexplorer",
                   "pfperl-api",
                   "pfpki",
@@ -192,18 +175,9 @@
                   "pfqueue-go",
                   "pfqueue-perl",
                   "pfsetacls",
-                  "pfsso",
                   "pfstats",
-                  "proxysql",
-                  "radiusd-auth",
-                  "radiusd-load_balancer",
-                  "radiusd-acct",
-                  "radiusd-eduroam",
-                  "radiusd-cli",
-                  "radsniff",
                   "redis_ntlm_cache",
                   "redis_queue",
-                  "snmptrapd",
                   "tracking-config"
                ],
                "type" : "string"
@@ -1312,6 +1286,75 @@
          }
       },
       "responses" : {
+         "APIBadRequest" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 403,
+                                 "type" : "int"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Bad request"
+         },
+         "APIInternalServerError" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 500,
+                                 "type" : "int"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Check server logs for more details"
+         },
+         "APINotFound" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 404,
+                                 "type" : "int"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Resource not found"
+         },
          "Async" : {
             "content" : {
                "application/json" : {
@@ -1569,16 +1612,6 @@
                }
             },
             "description" : "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created."
-         },
-         "DynamicReportMeta" : {
-            "content" : {
-               "application/json" : {
-                  "schema" : {
-                     "$ref" : "#/components/schemas/DynamicReportMeta"
-                  }
-               }
-            },
-            "description" : "A response that contains the report meta"
          },
          "EmailMailer" : {
             "content" : {
@@ -3060,7 +3093,7 @@
       },
       "schemas" : {
          "ApiError" : {
-            "description" : "An error response object used across multiple endpoints.",
+            "description" : "An error object used to define an error in API calls.",
             "properties" : {
                "code" : {
                   "description" : "A numeric code representing the error type, if applicable. 0 is never used.",
@@ -3093,7 +3126,7 @@
                   "type" : "integer"
                },
                "nextCursor" : {
-                  "description" : "The next page cursor(s).",
+                  "description" : "The next page cursor(s). Arrays can contain multiple type.",
                   "type" : [
                      "array",
                      "number",
@@ -3103,7 +3136,7 @@
                   ]
                },
                "prevCursor" : {
-                  "description" : "The current page cursor(s).",
+                  "description" : "The current page cursor(s). Arrays can contain multiple type.",
                   "type" : [
                      "array",
                      "number",
@@ -3121,6 +3154,20 @@
          },
          "ApiResponse" : {
             "description" : "A common response object used across multiple endpoints.",
+            "properties" : {
+               "message" : {
+                  "description" : "A message describing the response, mostly used for errors.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The HTTP status of the response.",
+                  "type" : "int"
+               }
+            },
+            "type" : "object"
+         },
+         "ApiResponseError" : {
+            "description" : "Common HTTP errors returned by the API.",
             "properties" : {
                "errors" : {
                   "items" : {
@@ -4919,217 +4966,6 @@
             },
             "type" : "object"
          },
-         "DynamicReport" : {
-            "description" : "A report",
-            "properties" : {
-               "bindings" : {
-                  "description" : "Comma separated list of bindings",
-                  "type" : "string"
-               },
-               "charts" : {
-                  "description" : "Comma separated list of chart",
-                  "type" : "string"
-               },
-               "columns" : {
-                  "description" : "Comma separated list of columns",
-                  "type" : "string"
-               },
-               "cursor_default" : {
-                  "description" : "Comma separated list of default cursor",
-                  "type" : "string"
-               },
-               "cursor_field" : {
-                  "description" : "Comma separated list of cursor fields",
-                  "type" : "string"
-               },
-               "cursor_type" : {
-                  "description" : "Cursor type",
-                  "enum" : [
-                     "field",
-                     "multi_field",
-                     "offset",
-                     "none"
-                  ],
-                  "type" : "string"
-               },
-               "date_limit" : {
-                  "description" : "Date limit for report",
-                  "type" : "string"
-               },
-               "default_limit" : {
-                  "default" : "25",
-                  "description" : "Default limit for report",
-                  "type" : "string"
-               },
-               "description" : {
-                  "description" : "Report description",
-                  "type" : "string"
-               },
-               "formatting" : {
-                  "description" : "Comma separated list of formatting",
-                  "type" : "string"
-               },
-               "has_date_range" : {
-                  "$ref" : "#/components/schemas/EnableValue",
-                  "description" : "Enable/disable date range for report"
-               },
-               "has_limit" : {
-                  "$ref" : "#/components/schemas/EnableValue",
-                  "description" : "Enable/disable limit for report"
-               },
-               "id" : {
-                  "description" : "Report ID",
-                  "type" : "string"
-               },
-               "node_fields" : {
-                  "description" : "Comma separated list of nodes",
-                  "type" : "string"
-               },
-               "person_fields" : {
-                  "description" : "Comma separated list of person",
-                  "type" : "string"
-               },
-               "role_fields" : {
-                  "description" : "Comma separated list of roles",
-                  "type" : "string"
-               },
-               "sql" : {
-                  "description" : "SQL query separated in multiple lines",
-                  "items" : {
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "type" : {
-                  "default" : "sql",
-                  "description" : "Report type. Only 'sql' supported",
-                  "enum" : [
-                     "sql"
-                  ],
-                  "type" : "string"
-               }
-            },
-            "type" : "object"
-         },
-         "DynamicReportOptions" : {
-            "description" : "A report",
-            "properties" : {
-               "charts" : {
-                  "description" : "Comma separated list of chart",
-                  "items" : {
-                     "type" : "string"
-                  },
-                  "type" : "array"
-               },
-               "columns" : {
-                  "description" : "Comma separated list of columns",
-                  "items" : {
-                     "properties" : {
-                        "is_cursor" : {
-                           "description" : "Column is used in cursor, can be used as PK",
-                           "type" : "boolean"
-                        },
-                        "is_node" : {
-                           "description" : "Column is a node, can be used as PK",
-                           "type" : "boolean"
-                        },
-                        "is_person" : {
-                           "description" : "Column is a person, can be used as PK",
-                           "type" : "boolean"
-                        },
-                        "is_role" : {
-                           "description" : "Column is a role, can be used as PK",
-                           "type" : "boolean"
-                        },
-                        "name" : {
-                           "description" : "Column name",
-                           "type" : "string"
-                        },
-                        "text" : {
-                           "description" : "Column text",
-                           "type" : "string"
-                        }
-                     },
-                     "type" : "object"
-                  },
-                  "type" : "array"
-               },
-               "date_limit" : {
-                  "description" : "Enforce maximum date range to prevent database full table scans",
-                  "type" : "string"
-               },
-               "default_end_date" : {
-                  "description" : "Default end datetime if no end_date is defined",
-                  "example" : "1970-01-01 00:00:00",
-                  "format" : "date-time",
-                  "type" : "string"
-               },
-               "default_limit" : {
-                  "default" : "25",
-                  "description" : "Default query limit",
-                  "type" : "string"
-               },
-               "default_start_date" : {
-                  "description" : "Default start datetime if no start_date is defined",
-                  "example" : "1970-01-01 00:00:00",
-                  "format" : "date-time",
-                  "type" : "string"
-               },
-               "description" : {
-                  "description" : "Descriptive text",
-                  "type" : "string"
-               },
-               "has_cursor" : {
-                  "description" : "Pagination is available",
-                  "type" : "boolean"
-               },
-               "has_date_range" : {
-                  "description" : "Date range is available",
-                  "type" : "boolean"
-               },
-               "has_limit" : {
-                  "description" : "Query limits enforced",
-                  "type" : "boolean"
-               },
-               "id" : {
-                  "description" : "Report ID",
-                  "type" : "string"
-               }
-            },
-            "type" : "object"
-         },
-         "DynamicReportSearchBody" : {
-            "description" : "A search query on a report",
-            "properties" : {
-               "cursor" : {
-                  "description" : "Cursor for pagination. Support multi-cursor.",
-                  "type" : [
-                     "array",
-                     "string",
-                     "integer",
-                     "boolean",
-                     null
-                  ]
-               },
-               "end_date" : {
-                  "description" : "End date filter. Required if report has date range enabled",
-                  "example" : "1970-01-01 00:00:00",
-                  "format" : "date-time",
-                  "type" : "string"
-               },
-               "limit" : {
-                  "description" : "The maximum number of items to return (SQL limit). Enable if report has limit enabled",
-                  "type" : "integer"
-               },
-               "start_date" : {
-                  "description" : "Start date filter. Required if report has date range enabled",
-                  "example" : "1970-01-01 00:00:00",
-                  "format" : "date-time",
-                  "type" : "string"
-               }
-            },
-            "type" : "object"
-         },
          "EmailMailer" : {
             "properties" : {
                "status" : {
@@ -5154,7 +4990,7 @@
             "type" : "object"
          },
          "EnableValue" : {
-            "description" : "Enable/disable value as string.",
+            "description" : "Enable/disable boolean value as string.",
             "enum" : [
                "enabled",
                "enable",
@@ -9695,6 +9531,217 @@
             },
             "type" : "object"
          },
+         "Report" : {
+            "description" : "A report",
+            "properties" : {
+               "bindings" : {
+                  "description" : "Comma separated list of bindings",
+                  "type" : "string"
+               },
+               "charts" : {
+                  "description" : "Comma separated list of chart",
+                  "type" : "string"
+               },
+               "columns" : {
+                  "description" : "Comma separated list of columns",
+                  "type" : "string"
+               },
+               "cursor_default" : {
+                  "description" : "Comma separated list of default cursor",
+                  "type" : "string"
+               },
+               "cursor_field" : {
+                  "description" : "Comma separated list of cursor fields",
+                  "type" : "string"
+               },
+               "cursor_type" : {
+                  "description" : "Cursor type",
+                  "enum" : [
+                     "field",
+                     "multi_field",
+                     "offset",
+                     "none"
+                  ],
+                  "type" : "string"
+               },
+               "date_limit" : {
+                  "description" : "Date limit for report",
+                  "type" : "string"
+               },
+               "default_limit" : {
+                  "default" : "25",
+                  "description" : "Default limit for report",
+                  "type" : "string"
+               },
+               "description" : {
+                  "description" : "Report description",
+                  "type" : "string"
+               },
+               "formatting" : {
+                  "description" : "Comma separated list of formatting",
+                  "type" : "string"
+               },
+               "has_date_range" : {
+                  "$ref" : "#/components/schemas/EnableValue",
+                  "description" : "Enable/disable date range for report"
+               },
+               "has_limit" : {
+                  "$ref" : "#/components/schemas/EnableValue",
+                  "description" : "Enable/disable limit for report"
+               },
+               "id" : {
+                  "description" : "Report ID",
+                  "type" : "string"
+               },
+               "node_fields" : {
+                  "description" : "Comma separated list of nodes",
+                  "type" : "string"
+               },
+               "person_fields" : {
+                  "description" : "Comma separated list of person",
+                  "type" : "string"
+               },
+               "role_fields" : {
+                  "description" : "Comma separated list of roles",
+                  "type" : "string"
+               },
+               "sql" : {
+                  "description" : "SQL query separated in multiple lines",
+                  "items" : {
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "type" : {
+                  "default" : "sql",
+                  "description" : "Report type. Only 'sql' supported",
+                  "enum" : [
+                     "sql"
+                  ],
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportOptions" : {
+            "description" : "A report",
+            "properties" : {
+               "charts" : {
+                  "description" : "Comma separated list of chart",
+                  "items" : {
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "columns" : {
+                  "description" : "Comma separated list of columns",
+                  "items" : {
+                     "properties" : {
+                        "is_cursor" : {
+                           "description" : "Column is used in cursor, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "is_node" : {
+                           "description" : "Column is a node, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "is_person" : {
+                           "description" : "Column is a person, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "is_role" : {
+                           "description" : "Column is a role, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "name" : {
+                           "description" : "Column name",
+                           "type" : "string"
+                        },
+                        "text" : {
+                           "description" : "Column text",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "date_limit" : {
+                  "description" : "Enforce maximum date range to prevent database full table scans",
+                  "type" : "string"
+               },
+               "default_end_date" : {
+                  "description" : "Default end datetime if no end_date is defined",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "default_limit" : {
+                  "default" : "25",
+                  "description" : "Default query limit",
+                  "type" : "string"
+               },
+               "default_start_date" : {
+                  "description" : "Default start datetime if no start_date is defined",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "description" : {
+                  "description" : "Descriptive text",
+                  "type" : "string"
+               },
+               "has_cursor" : {
+                  "description" : "Pagination is available",
+                  "type" : "boolean"
+               },
+               "has_date_range" : {
+                  "description" : "Date range is available",
+                  "type" : "boolean"
+               },
+               "has_limit" : {
+                  "description" : "Query limits enforced",
+                  "type" : "boolean"
+               },
+               "id" : {
+                  "description" : "Report ID",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportSearchBody" : {
+            "description" : "A search query on a report",
+            "properties" : {
+               "cursor" : {
+                  "description" : "Cursor for pagination. Support multi-cursor.",
+                  "type" : [
+                     "array",
+                     "string",
+                     "integer",
+                     "boolean",
+                     null
+                  ]
+               },
+               "end_date" : {
+                  "description" : "End date filter. Required if report has date range enabled",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "limit" : {
+                  "description" : "The maximum number of items to return (SQL limit). Enable if report has limit enabled",
+                  "type" : "integer"
+               },
+               "start_date" : {
+                  "description" : "Start date filter. Required if report has date range enabled",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
          "Search" : {
             "properties" : {
                "cursor" : {
@@ -10266,7 +10313,7 @@
    },
    "openapi" : "3.1.0",
    "paths" : {
-      "/api/v1.2/dynamic_report/{id}" : {
+      "/api/v1.1/report/{id}" : {
          "get" : {
             "description" : "Get a single report",
             "operationId" : "GetReportById",
@@ -10291,7 +10338,7 @@
                               {
                                  "properties" : {
                                     "item" : {
-                                       "$ref" : "#/components/schemas/DynamicReport",
+                                       "$ref" : "#/components/schemas/Report",
                                        "type" : "object"
                                     }
                                  },
@@ -10303,15 +10350,18 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "404" : {
-                  "description" : "Report not found"
+                  "$ref" : "#/components/responses/APINotFound"
                },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          },
          "options" : {
@@ -10338,7 +10388,7 @@
                               {
                                  "properties" : {
                                     "report_meta" : {
-                                       "$ref" : "#/components/schemas/DynamicReportOptions",
+                                       "$ref" : "#/components/schemas/ReportOptions",
                                        "type" : "object"
                                     }
                                  },
@@ -10350,19 +10400,22 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "404" : {
-                  "description" : "Report not found"
+                  "$ref" : "#/components/responses/APINotFound"
                },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          }
       },
-      "/api/v1.2/dynamic_report/{id}/search" : {
+      "/api/v1.1/report/{id}/search" : {
          "post" : {
             "description" : "Get columns of a report",
             "operationId" : "SearchReportById",
@@ -10379,7 +10432,7 @@
                "content" : {
                   "application/json" : {
                      "schema" : {
-                        "$ref" : "#/components/schemas/DynamicReportSearchBody"
+                        "$ref" : "#/components/schemas/ReportSearchBody"
                      }
                   }
                },
@@ -10413,19 +10466,22 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "404" : {
-                  "description" : "Report not found"
+                  "$ref" : "#/components/responses/APINotFound"
                },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          }
       },
-      "/api/v1.2/dynamic_reports" : {
+      "/api/v1.1/reports" : {
          "get" : {
             "description" : "Get all reports",
             "operationId" : "GetReports",
@@ -10442,7 +10498,7 @@
                                  "properties" : {
                                     "items" : {
                                        "items" : {
-                                          "$ref" : "#/components/schemas/DynamicReport"
+                                          "$ref" : "#/components/schemas/Report"
                                        },
                                        "type" : "array"
                                     }
@@ -10455,12 +10511,15 @@
                   },
                   "description" : "Successful response"
                },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
                "500" : {
-                  "description" : "Internal server error"
+                  "$ref" : "#/components/responses/APIInternalServerError"
                }
             },
             "tags" : [
-               "DynamicReport"
+               "Report"
             ]
          }
       },

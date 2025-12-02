@@ -1,0 +1,38 @@
+APINotFound:
+  description: Resource not found
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: "#/components/schemas/ApiResponseError"
+          - type: object
+            properties:
+              status:
+                type: int
+                default: 404
+
+APIBadRequest:
+  description: Bad request
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: "#/components/schemas/ApiResponseError"
+          - type: object
+            properties:
+              status:
+                type: int
+                default: 403
+
+APIInternalServerError:
+  description: Check server logs for more details
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: "#/components/schemas/ApiResponseError"
+          - type: object
+            properties:
+              status:
+                type: int
+                default: 500

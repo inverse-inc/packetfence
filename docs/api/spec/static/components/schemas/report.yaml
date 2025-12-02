@@ -1,4 +1,4 @@
-DynamicReport:
+Report:
   description: A report
   type: object
   properties:
@@ -68,7 +68,7 @@ DynamicReport:
       items:
         type: string
 
-DynamicReportOptions:
+ReportOptions:
   description: A report
   type: object
   properties:
@@ -134,7 +134,7 @@ DynamicReportOptions:
       items:
         type: string
 
-DynamicReportSearchBody:
+ReportSearchBody:
   description: A search query on a report
   type: object
   properties:

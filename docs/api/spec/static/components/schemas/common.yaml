@@ -1,5 +1,5 @@
 EnableValue:
-  description: Enable/disable value as string.
+  description: Enable/disable boolean value as string.
   type: string
   enum:
     - enabled

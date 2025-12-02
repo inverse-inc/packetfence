@@ -1,9 +1,9 @@
-/api/v1.2/dynamic_reports:
+/api/v1.1/reports:
   get:
     description: Get all reports
     operationId: GetReports
     tags:
-      - DynamicReport
+      - Report
     responses:
       "200":
         description: Successful response
@@ -17,16 +17,18 @@
                     items:
                       type: array
                       items:
-                        $ref: "#/components/schemas/DynamicReport"
+                        $ref: "#/components/schemas/Report"
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
       "500":
-        description: Internal server error
+        $ref: "#/components/responses/APIInternalServerError"
 
-/api/v1.2/dynamic_report/{id}:
+/api/v1.1/report/{id}:
   get:
     description: Get a single report
     operationId: GetReportById
     tags:
-      - DynamicReport
+      - Report
     parameters:
       - name: id
         description: Report ID
@@ -45,16 +47,18 @@
                   properties:
                     item:
                       type: object
-                      $ref: "#/components/schemas/DynamicReport"
+                      $ref: "#/components/schemas/Report"
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
       "404":
-        description: Report not found
+        $ref: "#/components/responses/APINotFound"
       "500":
-        description: Internal server error
+        $ref: "#/components/responses/APIInternalServerError"
   options:
     description: Options for a single report
     operationId: OptionsReportById
     tags:
-      - DynamicReport
+      - Report
     parameters:
       - name: id
         description: Report ID
@@ -73,18 +77,20 @@
                   properties:
                     report_meta:
                       type: object
-                      $ref: "#/components/schemas/DynamicReportOptions"
+                      $ref: "#/components/schemas/ReportOptions"
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
       "404":
-        description: Report not found
+        $ref: "#/components/responses/APINotFound"
       "500":
-        description: Internal server error
+        $ref: "#/components/responses/APIInternalServerError"
 
-/api/v1.2/dynamic_report/{id}/search:
+/api/v1.1/report/{id}/search:
   post:
     description: Get columns of a report
     operationId: SearchReportById
     tags:
-      - DynamicReport
+      - Report
     parameters:
       - name: id
         description: Report ID
@@ -97,7 +103,7 @@
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/DynamicReportSearchBody"
+            $ref: "#/components/schemas/ReportSearchBody"
     responses:
       "200":
         description: Successful response
@@ -113,7 +119,9 @@
                       type: array
                       items:
                         type: object
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
       "404":
-        description: Report not found
+        $ref: "#/components/responses/APINotFound"
       "500":
-        description: Internal server error
+        $ref: "#/components/responses/APIInternalServerError"
