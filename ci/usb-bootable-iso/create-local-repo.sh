@@ -28,27 +28,27 @@ mkdir -p ${REPO_DIR}/dists/bookworm/main/binary-amd64
 
 # Create a temporary chroot for clean package resolution
 CHROOT_DIR=$(mktemp -d)
-trap "echo 'Cleaning up chroot...'; rm -rf ${CHROOT_DIR}" EXIT
+trap "echo 'Cleaning up chroot...'; sudo rm -rf ${CHROOT_DIR}" EXIT
 
 echo "===> Creating minimal chroot for package download"
-debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
+sudo debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
 
-# Configure repositories in chroot
-cat > ${CHROOT_DIR}/etc/apt/sources.list << EOF
+# Configure repositories in chroot (need sudo since debootstrap created files as root)
+sudo tee ${CHROOT_DIR}/etc/apt/sources.list > /dev/null << EOF
 deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
 deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
 deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
 EOF
 
 # Add PacketFence repository
-mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor > ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg
-cat > ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list << EOF
+sudo mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
+sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
 deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
 EOF
 
 # Copy GPG key to repo for later use
-cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
+sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
 # List of packages to install (will pull all dependencies)
 PACKAGES="
@@ -82,19 +82,19 @@ PACKAGES="
 
 # Update and download all packages with dependencies in chroot
 echo "===> Updating package lists in chroot"
-chroot ${CHROOT_DIR} apt-get update
+sudo chroot ${CHROOT_DIR} apt-get update
 
 echo "===> Downloading all packages with dependencies"
 # Use apt-get install with download-only to get ALL dependencies
-chroot ${CHROOT_DIR} apt-get install -y --download-only -o APT::Install-Recommends=0 ${PACKAGES} || true
+sudo chroot ${CHROOT_DIR} apt-get install -y --download-only -o APT::Install-Recommends=0 ${PACKAGES} || true
 
 # Some packages may fail due to pre-depends, try downloading them directly
 echo "===> Downloading any missing packages"
-chroot ${CHROOT_DIR} bash -c "apt-get download ${PACKAGES} 2>/dev/null || true"
+sudo chroot ${CHROOT_DIR} bash -c "apt-get download ${PACKAGES} 2>/dev/null || true"
 
 # Download dependencies recursively using apt-cache
 echo "===> Resolving and downloading all dependencies"
-chroot ${CHROOT_DIR} bash -c '
+sudo chroot ${CHROOT_DIR} bash -c '
 PACKAGES="packetfence docker.io containerd mariadb-server redis-server freeradius fingerbank-collector"
 for pkg in $PACKAGES; do
     deps=$(apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances "$pkg" 2>/dev/null | grep "^\w" | grep -v "^<" | sort -u)
@@ -104,8 +104,10 @@ done
 
 # Move all downloaded packages to repo
 echo "===> Moving packages to repository"
-find ${CHROOT_DIR}/var/cache/apt/archives -name "*.deb" -exec cp {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
-find ${CHROOT_DIR} -maxdepth 1 -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+sudo find ${CHROOT_DIR}/var/cache/apt/archives -name "*.deb" -exec cp {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+sudo find ${CHROOT_DIR} -maxdepth 1 -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+# Fix ownership of copied files
+sudo chown -R $(id -u):$(id -g) ${REPO_DIR}
 
 # Generate Packages file
 echo "===> Generating Packages index"
