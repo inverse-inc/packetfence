@@ -8,6 +8,10 @@ echo "PacketFence Offline Post-Installation Script"
 echo "=============================================="
 echo "PF_VERSION: ${PF_VERSION}"
 echo "=============================================="
+echo "NOTE: DVD ISO is mounted at /media/cdrom"
+echo "      DVD provides all Debian packages"
+echo "      PF repo at /media/cdrom/pf-repo"
+echo "=============================================="
 
 # Step 1: Configure local repository from ISO
 echo "===> Step 1: Configuring local APT repository from ISO"

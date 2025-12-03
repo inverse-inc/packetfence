@@ -27,7 +27,7 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 # Configuration
-ISO_IN=${ISO_IN:-debian-12.6.0-amd64-netinst.iso}
+ISO_IN=${ISO_IN:-debian-12.6.0-amd64-DVD-1.iso}
 ISO_OUT=${ISO_OUT:-packetfence-usb-installer.iso}
 WORK_DIR=${SCRIPT_DIR}/work
 ISOFILES_DIR=${WORK_DIR}/isofiles
@@ -62,14 +62,14 @@ mkdir -p ${ISOFILES_DIR}
 mkdir -p ${REPO_DIR}
 mkdir -p ${DOCKER_IMAGES_DIR}
 
-# Step 1: Download base Debian ISO if not present
-echo "===> Step 1: Checking base Debian ISO"
+# Step 1: Download base Debian DVD ISO if not present
+echo "===> Step 1: Checking base Debian DVD ISO"
 if ! [ -f ${SCRIPT_DIR}/${ISO_IN} ]; then
-    echo "Downloading ${ISO_IN}... (this may take a few minutes)"
-    wget -q https://cdimage.debian.org/cdimage/archive/12.6.0/amd64/iso-cd/${ISO_IN} -O ${SCRIPT_DIR}/${ISO_IN}
+    echo "Downloading ${ISO_IN}... (this will take several minutes - ~3.8 GB)"
+    wget --progress=dot:giga https://cdimage.debian.org/cdimage/archive/12.6.0/amd64/iso-dvd/${ISO_IN} -O ${SCRIPT_DIR}/${ISO_IN}
     echo "Download complete: $(du -h ${SCRIPT_DIR}/${ISO_IN} | cut -f1)"
 else
-    echo "Base ISO already present: ${ISO_IN}"
+    echo "Base DVD ISO already present: ${ISO_IN} ($(du -h ${SCRIPT_DIR}/${ISO_IN} | cut -f1))"
 fi
 
 # Step 2: Create local APT repository with all packages

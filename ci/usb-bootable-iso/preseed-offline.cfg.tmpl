@@ -20,16 +20,19 @@ d-i netcfg/hostname string packetfence
 # Disable that annoying WEP key dialog.
 d-i netcfg/wireless_wep string
 
-### Configure package manager - OFFLINE MODE
-# Keep CD-ROM as package source for base system packages
+### Configure package manager - OFFLINE MODE WITH DVD
+# Keep CD-ROM as PRIMARY package source - DVD has complete Debian packages
 d-i apt-setup/cdrom/set-first boolean true
 d-i apt-setup/cdrom/set-next boolean false
 d-i apt-setup/cdrom/set-failed boolean false
 
-# Disable network mirror - we use local repository on ISO
+# Disable network mirror - we use DVD + local PF repo on ISO
 d-i apt-setup/use_mirror boolean false
 
-### Mirror settings - Use local repository from ISO
+# Do NOT eject CD-ROM - we need it mounted for PacketFence installation
+d-i cdrom-detect/eject boolean false
+
+### Mirror settings - No external mirrors
 d-i mirror/country string manual
 d-i mirror/http/hostname string
 d-i mirror/http/directory string
@@ -91,12 +94,13 @@ tasksel tasksel/first multiselect standard ssh-server
 
 # Individual additional packages to install
 # PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
+# PF: install systemd packages explicitly for offline installer
 d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
                           tmux tcpdump lnav apg sysstat bsd-mailx \
-                          cgroupfs-mount
+                          cgroupfs-mount systemd systemd-sysv libnss-systemd
 
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
@@ -127,17 +131,18 @@ d-i preseed/early_command string sed -i \
   /usr/lib/pre-pkgsel.d/20install-hwpackages
 
 # Late command - run post-installation script for offline setup
+# IMPORTANT: ISO must stay mounted for PacketFence installation
 # This script will:
-# - Configure the local repository from the ISO
-# - Install PacketFence from local packages
-# - Load pre-downloaded Docker images
+# - Configure the local PF repository from the ISO
+# - Install PacketFence from local packages (ISO must be mounted)
+# - Load pre-downloaded Docker images from ISO
 # - Configure the system for first boot
 d-i preseed/late_command string \
   mount --bind /proc /target/proc ; \
   mount --bind /sys /target/sys ; \
   mount --bind /dev /target/dev ; \
   in-target mkdir -p /media/cdrom ; \
-  mount /dev/sr0 /target/media/cdrom || mount /dev/sda1 /target/media/cdrom || true ; \
+  mount --bind /cdrom /target/media/cdrom ; \
   in-target cp -a /media/cdrom/postinst-offline.sh /usr/local/bin/ ; \
   in-target chmod 700 /usr/local/bin/postinst-offline.sh ; \
   in-target /bin/bash /usr/local/bin/postinst-offline.sh %%PF_VERSION%% ; \

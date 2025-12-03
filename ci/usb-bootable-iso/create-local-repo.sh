@@ -13,7 +13,8 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 
 echo "=============================================="
-echo "Creating Local APT Repository"
+echo "Creating PacketFence Package Repository"
+echo "(Will be appended to DVD repo on ISO)"
 echo "=============================================="
 echo "REPO_DIR: ${REPO_DIR}"
 echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
@@ -22,25 +23,19 @@ echo "=============================================="
 # Use absolute path for REPO_DIR
 REPO_DIR=$(cd "$(dirname "${REPO_DIR}")" && pwd)/$(basename "${REPO_DIR}")
 
-# Create directory structure
+# Create directory structure for PacketFence packages
 mkdir -p ${REPO_DIR}/pool/main
 mkdir -p ${REPO_DIR}/dists/bookworm/main/binary-amd64
 
-# Create a temporary chroot for clean package resolution
+# Create a temporary chroot for package download
 CHROOT_DIR=$(mktemp -d)
 trap "echo 'Cleaning up chroot...'; sudo rm -rf ${CHROOT_DIR}" EXIT
 
 echo "===> Creating minimal chroot for package download"
 sudo debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
 
-# Configure repositories in chroot (need sudo since debootstrap created files as root)
-sudo tee ${CHROOT_DIR}/etc/apt/sources.list > /dev/null << EOF
-deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
-deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
-deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
-EOF
-
-# Add PacketFence repository
+# Add PacketFence repository only (we'll use DVD for Debian packages)
+echo "===> Configuring PacketFence repository in chroot"
 sudo mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
 sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
@@ -50,57 +45,26 @@ EOF
 # Copy GPG key to repo for later use
 sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
-# List of packages to install (will pull all dependencies)
+# List of PacketFence-specific packages to download
+# Note: DVD already has all standard Debian packages (systemd, docker.io, mariadb, etc.)
+# We only need to download what's NOT on the DVD (mainly PacketFence itself)
 PACKAGES="
     packetfence
-    docker.io
-    containerd
-    mariadb-server
-    redis-server
-    freeradius
-    freeradius-utils
-    freeradius-ldap
-    freeradius-postgresql
-    freeradius-mysql
-    freeradius-krb5
-    snmp
-    snmptrapd
-    snmpd
     fingerbank-collector
-    sudo
-    openssh-server
-    curl
-    wget
-    gnupg2
-    ca-certificates
-    apt-transport-https
-    net-tools
-    tcpdump
-    tmux
-    lnav
 "
 
-# Update and download all packages with dependencies in chroot
+# Update and download PacketFence packages
 echo "===> Updating package lists in chroot"
 sudo chroot ${CHROOT_DIR} apt-get update
 
-echo "===> Downloading all packages with dependencies"
-# Use apt-get install with download-only to get ALL dependencies
-sudo chroot ${CHROOT_DIR} apt-get install -y --download-only -o APT::Install-Recommends=0 ${PACKAGES} || true
+echo "===> Downloading PacketFence packages and dependencies"
+# Download PacketFence and fingerbank-collector with all dependencies
+# Dependencies not on DVD will be downloaded here
+sudo chroot ${CHROOT_DIR} apt-get install -y --download-only ${PACKAGES} || true
 
-# Some packages may fail due to pre-depends, try downloading them directly
-echo "===> Downloading any missing packages"
+# Download the packages directly as well
+echo "===> Downloading packages directly"
 sudo chroot ${CHROOT_DIR} bash -c "apt-get download ${PACKAGES} 2>/dev/null || true"
-
-# Download dependencies recursively using apt-cache
-echo "===> Resolving and downloading all dependencies"
-sudo chroot ${CHROOT_DIR} bash -c '
-PACKAGES="packetfence docker.io containerd mariadb-server redis-server freeradius fingerbank-collector"
-for pkg in $PACKAGES; do
-    deps=$(apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances "$pkg" 2>/dev/null | grep "^\w" | grep -v "^<" | sort -u)
-    apt-get download $deps 2>/dev/null || true
-done
-'
 
 # Move all downloaded packages to repo
 echo "===> Moving packages to repository"
@@ -149,7 +113,7 @@ PKG_COUNT=$(find ${REPO_DIR}/pool -name "*.deb" | wc -l)
 REPO_SIZE=$(du -sh ${REPO_DIR} | cut -f1)
 
 echo "=============================================="
-echo "Local APT Repository created successfully!"
+echo "PacketFence Repository created successfully!"
 echo "Packages: ${PKG_COUNT}"
 echo "Size: ${REPO_SIZE}"
 echo "Location: ${REPO_DIR}"
@@ -158,7 +122,7 @@ echo "=============================================="
 # Verify key packages are present
 echo ""
 echo "===> Verifying key packages in repository:"
-KEY_PACKAGES="packetfence packetfence-pfcmd-suid docker.io containerd mariadb-server redis-server freeradius fingerbank-collector"
+KEY_PACKAGES="packetfence fingerbank-collector"
 MISSING=""
 for pkg in ${KEY_PACKAGES}; do
     if find ${REPO_DIR}/pool -name "${pkg}_*.deb" | grep -q .; then
@@ -177,10 +141,7 @@ if [ -n "${MISSING}" ]; then
 fi
 
 echo ""
-echo "===> Package breakdown by source:"
-echo "  PacketFence packages: $(find ${REPO_DIR}/pool -name "packetfence*.deb" -o -name "fingerbank*.deb" | wc -l)"
-echo "  Docker packages: $(find ${REPO_DIR}/pool -name "docker*.deb" -o -name "containerd*.deb" | wc -l)"
-echo "  MariaDB packages: $(find ${REPO_DIR}/pool -name "mariadb*.deb" -o -name "mysql*.deb" -o -name "galera*.deb" | wc -l)"
-echo "  FreeRADIUS packages: $(find ${REPO_DIR}/pool -name "freeradius*.deb" | wc -l)"
-echo "  Other packages: $(find ${REPO_DIR}/pool -name "*.deb" | wc -l) total"
+echo "Note: DVD ISO provides all standard Debian packages"
+echo "      (systemd, docker, mariadb, freeradius, etc.)"
+echo "      This repo only adds PacketFence-specific packages."
 echo "=============================================="
