@@ -103,8 +103,11 @@ d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           cgroupfs-mount systemd systemd-sysv libnss-systemd
 
 # Whether to upgrade packages after debootstrap.
-# Allowed values: none, safe-upgrade, full-upgrade
-d-i pkgsel/upgrade select full-upgrade
+# For offline installation, skip upgrade (no network mirrors available)
+d-i pkgsel/upgrade select none
+
+# Skip autoremove during installation
+d-i pkgsel/update-policy select none
 
 # Do not participate in popularity contest
 popularity-contest popularity-contest/participate boolean false
