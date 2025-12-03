@@ -93,18 +93,16 @@ d-i krb5-config/default_realm string
 d-i krb5-config/kerberos_servers string
 
 ### Package selection
-# Skip tasksel dialog entirely - we install packages directly
-d-i pkgsel/run_tasksel boolean false
+tasksel tasksel/first multiselect standard ssh-server
 
 # Individual additional packages to install
 # PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
-# Note: openssh-server included since tasksel is disabled
 d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
                           tmux tcpdump lnav apg sysstat bsd-mailx \
-                          cgroupfs-mount openssh-server
+                          cgroupfs-mount
 
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
