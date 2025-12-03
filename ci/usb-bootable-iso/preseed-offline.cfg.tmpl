@@ -36,17 +36,11 @@ d-i mirror/http/directory string
 d-i mirror/http/proxy string
 
 ### Account setup
-# Enable root login
-d-i passwd/root-login boolean true
-
-# Do not allow empty root password - installer will prompt for password
-d-i passwd/root-password-empty boolean false
-
-# Skip creation of a normal user account.
+# Skip creation of a normal user account - only root will be created
 d-i passwd/make-user boolean false
 
-# The user account will be added to some standard initial groups.
-d-i passwd/user-default-groups string audio cdrom video sudo
+# Root password will be set during installation
+d-i passwd/root-login boolean true
 
 ### Clock and time zone setup
 # Controls whether or not the hardware clock is set to UTC.
