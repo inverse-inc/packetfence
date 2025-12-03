@@ -3,6 +3,8 @@ package maint
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -94,6 +96,47 @@ func (j *PfFlowJob) kafkaDialer() *kafka.Dialer {
 	return &dialer
 }
 
+// WaitForTopic polls the broker until the topic appears or the context times out
+func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, topic string) error {
+	// 1. Establish a connection to the broker
+	// We dial inside the function, but in a real app you might reuse an existing connection.
+	conn, err := dialer.Dial("tcp", brokerAddr)
+	if err != nil {
+		return fmt.Errorf("failed to dial broker: %w", err)
+	}
+	defer conn.Close()
+
+	// 2. Create a ticker for the polling interval (e.g., check every 1 second)
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return errors.New("timed out waiting for topic creation")
+		case <-ticker.C:
+			// 3. Fetch list of all partitions (metadata)
+			partitions, err := conn.ReadPartitions()
+			if err != nil {
+				// Optional: You might want to log this error, but generally
+				// we keep retrying in case the broker is temporarily restarting.
+				fmt.Printf("Failed to read partitions, retrying: %v\n", err)
+				continue
+			}
+
+			// 4. Check if our topic exists in the partition list
+			for _, p := range partitions {
+				if p.Topic == topic {
+					return nil // Topic found!
+				}
+			}
+
+			// If we get here, the topic was not found in this cycle.
+			// The loop continues on the next tick.
+		}
+	}
+}
+
 func (j *PfFlowJob) Run() {
 	var r *kafka.Reader
 	maxReconnectDelay := 60 * time.Second
@@ -108,6 +151,9 @@ func (j *PfFlowJob) Run() {
 		}
 	}()
 
+	dialer := j.kafkaDialer()
+	WaitForTopic(dialer, context.Background(), j.Brokers[0], j.ReadTopic)
+
 	for {
 		// Create or recreate the reader
 		if r == nil {
@@ -117,7 +163,7 @@ func (j *PfFlowJob) Run() {
 				Topic:    j.ReadTopic,
 				GroupID:  j.GroupID,
 				MaxBytes: 10e6, // 10MB
-				Dialer:   j.kafkaDialer(),
+				Dialer:   dialer,
 			})
 		}
 
