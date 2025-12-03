@@ -365,7 +365,7 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 					errLst = append(errLst, errors.New("end_date has an empty value"))
 				} else {
 					if !dateReg.MatchString(payload.EndDate) {
-						errLst = append(errLst, errors.New("start_date has an invalid value"))
+						errLst = append(errLst, errors.New("end_date has an invalid value"))
 					} else {
 						opts["end_date"] = payload.EndDate
 					}

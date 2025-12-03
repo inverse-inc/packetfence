@@ -43,7 +43,7 @@ ApiResponse:
       type: string
       description: A message describing the response, mostly used for errors.
     status:
-      type: int
+      type: integer
       description: The HTTP status of the response.
 
 ApiResponsePaginated:
@@ -64,5 +64,5 @@ ApiResponseError:
       type: string
       description: A message describing the response, mostly used for errors.
     status:
-      type: int
+      type: integer
       description: The HTTP status of the response.

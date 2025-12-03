@@ -47,7 +47,7 @@ func HasLen(value any) bool {
 	}
 }
 
-// GetLen return the len by reflection of value. value MUST have beend checked to implement Len
+// GetLen return the len by reflection of value. value MUST have been checked to implement Len
 func GetLen(value any) int {
 	return reflect.ValueOf(value).Len()
 }
