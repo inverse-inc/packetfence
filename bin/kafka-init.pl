@@ -23,7 +23,6 @@ use Data::UUID;
 
 my $ini = pf::IniFiles->new(-file => $kafka_config_file);
 my $changed = 0;
-
 my @setup_values = (
     {
         section => 'admin',
@@ -55,11 +54,9 @@ my @setup_values = (
 
 );
 
-
 sub get_kafka_config() {
     return {%ConfigCluster{@cluster_hosts}}
 }
-
 
 for my $setup (@setup_values) {
     my $val = $ini->val($setup->{section}, $setup->{param});
@@ -127,18 +124,6 @@ sub make_quorum_voters {
     return join(",", map { "$_->{node_id}\@$_->{mgmtip}:9093" } @$members);
 }
 
-#[hostname1]
-#KAFKA_NODE_ID=1
-#KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.1:29092,EXTERNAL://172.16.3.1:9092,PF://100.64.0.1:9095
-#
-#[hostname2]
-#KAFKA_NODE_ID=2
-#KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.2:29092,EXTERNAL://172.16.3.2:9092,PF://100.64.0.1:9095
-#
-#[hostname3]
-#KAFKA_NODE_ID=3
-#KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.3:29092,EXTERNAL://172.16.3.3:9092,PF://100.64.0.1:9095
-
 sub set_or_create {
     my ($ini, $section, $param, $val) = @_;
     $changed |= 1;
@@ -150,7 +135,6 @@ sub set_or_create {
 }
 
 $ini->RewriteConfig() if $changed;
-
 
 =head1 AUTHOR
 
@@ -178,4 +162,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
