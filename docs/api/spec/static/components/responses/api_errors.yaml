@@ -8,7 +8,7 @@ APINotFound:
           - type: object
             properties:
               status:
-                type: int
+                type: integer
                 default: 404
 
 APIBadRequest:
@@ -21,7 +21,7 @@ APIBadRequest:
           - type: object
             properties:
               status:
-                type: int
+                type: integer
                 default: 403
 
 APIInternalServerError:
@@ -34,5 +34,5 @@ APIInternalServerError:
           - type: object
             properties:
               status:
-                type: int
+                type: integer
                 default: 500

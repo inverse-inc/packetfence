@@ -29,7 +29,7 @@ type ApiPagination struct {
 	//Limit      *int `json:"limit,omitempty"`      // number of items per page, not used yet
 	//Total      *int `json:"total,omitempty"`      // total number of items, not used yet
 	NextCursor any `json:"nextCursor,omitempty"` // starting value(s) of next page
-	PrevCursor any `json:"prevCursor,omitempty"` // startgin value(s) of previous page
+	PrevCursor any `json:"prevCursor,omitempty"` // starting value(s) of previous page
 }
 
 // ApiResponse struct contains data to be serialized into the HTTP response
