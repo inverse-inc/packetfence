@@ -99,12 +99,14 @@ tasksel tasksel/first multiselect standard ssh-server
 # Individual additional packages to install
 # PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
 # PF: install systemd packages explicitly for offline installer
+# PF: include apparmor and klibc-utils to prevent autoremove errors
 d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
                           tmux tcpdump lnav apg sysstat bsd-mailx \
-                          cgroupfs-mount systemd systemd-sysv libnss-systemd
+                          cgroupfs-mount systemd systemd-sysv libnss-systemd \
+                          apparmor klibc-utils linux-base
 
 # Whether to upgrade packages after debootstrap.
 # For offline installation, skip upgrade (no network mirrors available)
@@ -127,15 +129,6 @@ d-i debian-installer/add-kernel-opts string net.ifnames=0 apparmor=0
 ### Finishing up the installation
 # Avoid that last message about the install being complete.
 d-i finish-install/reboot_in_progress note
-
-### Preseeding other packages
-# Create pre-pkgsel hook to allow package removal during installation
-# This fixes "Packages need to be removed but remove is disabled" error
-d-i preseed/early_command string \
-  echo '#!/bin/sh' > /usr/lib/pre-pkgsel.d/00allow-remove ; \
-  echo 'mkdir -p /target/etc/apt/apt.conf.d' >> /usr/lib/pre-pkgsel.d/00allow-remove ; \
-  echo 'echo "APT::Get::AutomaticRemove \"true\";" > /target/etc/apt/apt.conf.d/99allow-remove' >> /usr/lib/pre-pkgsel.d/00allow-remove ; \
-  chmod +x /usr/lib/pre-pkgsel.d/00allow-remove
 
 # Late command - run post-installation script for offline setup
 # IMPORTANT: ISO must stay mounted for PacketFence installation
