@@ -42,6 +42,10 @@ d-i mirror/http/proxy string
 # Skip creation of a normal user account - only root will be created
 d-i passwd/make-user boolean false
 
+# Explicitly set no username to prevent any user creation prompts
+d-i passwd/username string
+d-i passwd/user-fullname string
+
 # Root password will be set during installation
 d-i passwd/root-login boolean true
 
