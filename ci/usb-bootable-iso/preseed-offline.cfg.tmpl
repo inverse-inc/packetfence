@@ -110,9 +110,6 @@ d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
 # For offline installation, skip upgrade (no network mirrors available)
 d-i pkgsel/upgrade select none
 
-# Skip autoremove during installation
-d-i pkgsel/update-policy select none
-
 # Do not participate in popularity contest
 popularity-contest popularity-contest/participate boolean false
 
@@ -132,10 +129,13 @@ d-i debian-installer/add-kernel-opts string net.ifnames=0 apparmor=0
 d-i finish-install/reboot_in_progress note
 
 ### Preseeding other packages
-# Prevent packaged version of VirtualBox Guest Additions being installed:
-d-i preseed/early_command string sed -i \
-  '/in-target/idiscover(){/sbin/discover|grep -v VirtualBox;}' \
-  /usr/lib/pre-pkgsel.d/20install-hwpackages
+# Create pre-pkgsel hook to allow package removal during installation
+# This fixes "Packages need to be removed but remove is disabled" error
+d-i preseed/early_command string \
+  echo '#!/bin/sh' > /usr/lib/pre-pkgsel.d/00allow-remove ; \
+  echo 'mkdir -p /target/etc/apt/apt.conf.d' >> /usr/lib/pre-pkgsel.d/00allow-remove ; \
+  echo 'echo "APT::Get::AutomaticRemove \"true\";" > /target/etc/apt/apt.conf.d/99allow-remove' >> /usr/lib/pre-pkgsel.d/00allow-remove ; \
+  chmod +x /usr/lib/pre-pkgsel.d/00allow-remove
 
 # Late command - run post-installation script for offline setup
 # IMPORTANT: ISO must stay mounted for PacketFence installation
