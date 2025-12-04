@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync/atomic"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
 )
@@ -25,6 +27,7 @@ type PfFlowJob struct {
 	Password        string
 	FilterEvents    int
 	fingerprintChan chan []*PfFlows
+	schedule        OnceSchedule
 }
 
 func defaultFromConfig[T any](config map[string]interface{}, name string, defaultVal T) T {
@@ -77,7 +80,24 @@ func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 		UserName:        config["kafka_user"].(string),
 		Password:        config["kafka_pass"].(string),
 		fingerprintChan: fingerbankChan,
+		schedule:        OnceSchedule{},
 	}
+}
+
+type OnceSchedule struct {
+	ran atomic.Bool
+}
+
+func (o *OnceSchedule) Next(n time.Time) time.Time {
+	if o.ran.CompareAndSwap(false, true) {
+		return n
+	}
+
+	return time.Time{}
+}
+
+func (j *PfFlowJob) Schedule() cron.Schedule {
+	return &j.schedule
 }
 
 func (j *PfFlowJob) kafkaDialer() *kafka.Dialer {
@@ -149,6 +169,8 @@ func (j *PfFlowJob) Run() {
 				log.Printf("failed to close reader: %v", err)
 			}
 		}
+
+		j.schedule.ran.Store(false)
 	}()
 
 	dialer := j.kafkaDialer()
