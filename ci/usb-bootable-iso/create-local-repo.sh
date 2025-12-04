@@ -46,12 +46,47 @@ EOF
 sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
 # List of PacketFence-specific packages to download
-# Note: DVD already has all standard Debian packages (systemd, docker.io, mariadb, etc.)
-# We only need to download what's NOT on the DVD (mainly PacketFence itself)
+# Note: DVD already has all standard Debian packages (systemd, mariadb, etc.)
+# We need to download what's NOT on the DVD:
+#   - PacketFence and fingerbank packages
+#   - Packages that might be missing from DVD-1
+#   - FreeRADIUS packages (specific versions needed)
+#   - Other dependencies
 PACKAGES="
     packetfence
     fingerbank-collector
+    bind9-dnsutils
+    openssh-server
+    freeradius
+    freeradius-ldap
+    freeradius-mysql
+    freeradius-utils
+    freeradius-rest
+    freeradius-redis
+    freeradius-common
+    mariadb-server
+    mariadb-client
+    samba
+    haproxy
+    keepalived
+    monit
+    snmpd
+    snmp
+    vlan
+    arping
+    fping
+    ipset
 "
+
+# Add Docker repository for docker-ce packages
+echo "===> Adding Docker repository for docker-ce packages"
+curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/docker.gpg > /dev/null
+sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/docker.list > /dev/null << EOF
+deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable
+EOF
+
+# Docker packages to download
+DOCKER_PACKAGES="docker-ce docker-ce-cli containerd.io"
 
 # Update and download PacketFence packages
 echo "===> Updating package lists in chroot"
@@ -61,6 +96,9 @@ echo "===> Downloading PacketFence packages and dependencies"
 # Download PacketFence and fingerbank-collector with all dependencies
 # Dependencies not on DVD will be downloaded here
 sudo chroot ${CHROOT_DIR} apt-get install -y --download-only ${PACKAGES} || true
+
+echo "===> Downloading Docker packages"
+sudo chroot ${CHROOT_DIR} apt-get install -y --download-only ${DOCKER_PACKAGES} || true
 
 # Download the packages directly as well
 echo "===> Downloading packages directly"
@@ -122,7 +160,7 @@ echo "=============================================="
 # Verify key packages are present
 echo ""
 echo "===> Verifying key packages in repository:"
-KEY_PACKAGES="packetfence fingerbank-collector"
+KEY_PACKAGES="packetfence fingerbank-collector docker-ce docker-ce-cli containerd.io"
 MISSING=""
 for pkg in ${KEY_PACKAGES}; do
     if find ${REPO_DIR}/pool -name "${pkg}_*.deb" | grep -q .; then
@@ -141,7 +179,6 @@ if [ -n "${MISSING}" ]; then
 fi
 
 echo ""
-echo "Note: DVD ISO provides all standard Debian packages"
-echo "      (systemd, docker, mariadb, freeradius, etc.)"
-echo "      This repo only adds PacketFence-specific packages."
+echo "Note: DVD ISO provides most standard Debian packages."
+echo "      This repo adds PacketFence, Docker, and missing dependencies."
 echo "=============================================="

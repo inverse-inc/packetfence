@@ -100,13 +100,15 @@ tasksel tasksel/first multiselect standard ssh-server
 # PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
 # PF: install systemd packages explicitly for offline installer
 # PF: include apparmor and klibc-utils to prevent autoremove errors
+# PF: include bind9-dnsutils for DNS utilities needed by PacketFence
 d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
                           tmux tcpdump lnav apg sysstat bsd-mailx \
                           cgroupfs-mount systemd systemd-sysv libnss-systemd \
-                          apparmor klibc-utils linux-base
+                          apparmor klibc-utils linux-base \
+                          bind9-dnsutils openssh-server
 
 # Whether to upgrade packages after debootstrap.
 # For offline installation, skip upgrade (no network mirrors available)
