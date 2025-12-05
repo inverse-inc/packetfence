@@ -127,6 +127,10 @@ func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface,
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
+	// Lock VIP maps for the entire detection process
+	vipMutex.Lock()
+	defer vipMutex.Unlock()
+
 	for _, v := range Interfaces {
 		keyConfCluster.PfconfigHashNS = "interface " + v.Name
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)

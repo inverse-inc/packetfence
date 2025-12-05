@@ -303,9 +303,11 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 						DHCPNet.network.IP = net.ParseIP(key)
 						DHCPNet.network.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 						DHCPScope.ip = IP.To4()
-						if _, found := VIPIp[eth.Name]; found {
-							DHCPScope.vip = VIPIp[eth.Name]
+						vipMutex.RLock()
+						if vipIP, found := VIPIp[eth.Name]; found {
+							DHCPScope.vip = vipIP
 						}
+						vipMutex.RUnlock()
 						DHCPScope.role = "none"
 						DHCPScope.start = net.ParseIP(ConfNet.DhcpStart)
 						seconds, _ := strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)

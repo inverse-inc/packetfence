@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -32,6 +33,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/timedlock"
+	"github.com/vishvananda/netlink"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
@@ -55,6 +57,11 @@ const (
 	dbPingInterval        = 5 * time.Second
 	vipDetectInterval     = 3 * time.Second
 	configRefreshInterval = 1 * time.Second
+
+	// Hotplug configuration
+	hotplugDebounceInterval          = 30 * time.Second // Prevent duplicate interface hotplug events
+	interfaceStabilizationDelay      = 3 * time.Second  // Wait for interface to stabilize after creation
+	processingInterfaceCleanupPeriod = 5 * time.Minute  // Cleanup stale processing entries
 )
 
 // Global variables
@@ -71,8 +78,9 @@ var (
 	RequestGlobalTransactionCache *cache.Cache
 
 	// VIP management
-	VIP   map[string]bool
-	VIPIp map[string]net.IP
+	VIP      map[string]bool
+	VIPIp    map[string]net.IP
+	vipMutex sync.RWMutex // Protects VIP and VIPIp maps
 
 	// Base context
 	ctx context.Context
@@ -80,12 +88,22 @@ var (
 	// Configuration
 	webservices        *pfconfigdriver.PfConfWebservices
 	intNametoInterface map[string]*Interface
+	intMutex           sync.RWMutex // Protects intNametoInterface map
 
 	// Stats
 	StatsdClient *statsd.Client
 
 	// Connection pool
 	dbConnPool *sql.DB
+
+	// Hotplug monitoring
+	jobChannel           chan job                   // Global job channel for worker pool
+	processingInterfaces map[string]time.Time       // Track interfaces being processed to prevent duplicates
+	processingMutex      sync.Mutex                 // Protects processingInterfaces map
+	interfaceCancels     map[string]context.CancelFunc // Cancel functions to stop interface listeners
+	cancelsMutex         sync.Mutex                 // Protects interfaceCancels map
+	interfaceConns       map[string][]io.Closer     // Store PacketConn references for forced cleanup
+	connsMutex           sync.Mutex                 // Protects interfaceConns map
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -150,12 +168,19 @@ func main() {
 
 	// Initialize worker pool for DHCP requests
 	jobChan := initializeWorkerPool(dbConnPool)
+	jobChannel = jobChan // Store in global for hotplug monitoring
 
 	// Map interface names to interface objects
 	intNametoInterface = make(map[string]*Interface)
+	processingInterfaces = make(map[string]time.Time)
+	interfaceCancels = make(map[string]context.CancelFunc)
+	interfaceConns = make(map[string][]io.Closer)
 
 	// Start listeners for each interface
 	startNetworkListeners(ctx, jobChan)
+
+	// Start monitoring for interface hotplug events
+	go monitorInterfaceHotplug(ctx)
 
 	// Setup and start HTTP API
 	router := setupAPIRoutes(ctx, dbConnPool)
@@ -221,7 +246,11 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 
 	// Check if we have the VIP or if the backend supports cluster mode
-	if !VIP[I.Name] && !handler.available.Listen() {
+	vipMutex.RLock()
+	hasVIP := VIP[I.Name]
+	vipMutex.RUnlock()
+
+	if !hasVIP && !handler.available.Listen() {
 		return answer
 	}
 
@@ -900,7 +929,9 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	// Start unicast listeners
 	for _, v := range DHCPConfig.intsNet {
 		v := v
+		intMutex.Lock()
 		intNametoInterface[v.Name] = &v
+		intMutex.Unlock()
 
 		wg.Add(1)
 		go func() {
@@ -1017,4 +1048,316 @@ func refreshConfigLoop(ctx context.Context) {
 			pfconfigdriver.PfConfigStorePool.Refresh(ctx)
 		}
 	}
+}
+
+// monitorInterfaceHotplug monitors for network interface additions using netlink
+func monitorInterfaceHotplug(ctx context.Context) {
+	log.LoggerWContext(ctx).Info("Starting network interface hotplug monitoring")
+
+	// Create a channel to receive link updates
+	linkUpdates := make(chan netlink.LinkUpdate)
+	done := make(chan struct{})
+	defer close(done)
+
+	// Subscribe to link updates
+	if err := netlink.LinkSubscribe(linkUpdates, done); err != nil {
+		log.LoggerWContext(ctx).Error("Failed to subscribe to netlink updates: " + err.Error())
+		return
+	}
+
+	// Cleanup old entries from processingInterfaces periodically
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				processingMutex.Lock()
+				now := time.Now()
+				for iface, t := range processingInterfaces {
+					if now.Sub(t) > processingInterfaceCleanupPeriod {
+						delete(processingInterfaces, iface)
+					}
+				}
+				processingMutex.Unlock()
+			}
+		}
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.LoggerWContext(ctx).Info("Stopping interface hotplug monitoring")
+			return
+		case update := <-linkUpdates:
+			switch update.Header.Type {
+			case syscall.RTM_NEWLINK:
+				// Only process new link additions when interface is UP
+				linkAttrs := update.Link.Attrs()
+				if linkAttrs != nil && linkAttrs.OperState == netlink.OperUp {
+					interfaceName := linkAttrs.Name
+
+					// Check if already being monitored (quick check)
+					intMutex.RLock()
+					_, alreadyMonitored := intNametoInterface[interfaceName]
+					intMutex.RUnlock()
+
+					if alreadyMonitored {
+						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s already monitored, skipping RTM_NEWLINK event", interfaceName))
+						continue
+					}
+
+					// Check debouncing with WRITE LOCK - ensures only one can proceed
+					processingMutex.Lock()
+					lastProcessed, recentlyProcessed := processingInterfaces[interfaceName]
+					if recentlyProcessed && time.Since(lastProcessed) < hotplugDebounceInterval {
+						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s was recently processed (%v ago), skipping duplicate event", interfaceName, time.Since(lastProcessed)))
+						processingMutex.Unlock()
+						continue
+					}
+
+					// Mark as processing NOW and hold lock during entire operation
+					processingInterfaces[interfaceName] = time.Now()
+					log.LoggerWContext(ctx).Info(fmt.Sprintf("Claimed interface %s for processing, will process synchronously", interfaceName))
+
+					// Process synchronously while holding lock - prevents any other event from processing same interface
+					handleNewInterfaceSync(ctx, update, interfaceName)
+
+					// Release lock after fully processed
+					processingMutex.Unlock()
+				}
+			case syscall.RTM_DELLINK:
+				// Handle interface deletion SYNCHRONOUSLY to prevent races
+				// If we do this async, recreation events can arrive before deletion completes
+				linkAttrs := update.Link.Attrs()
+				if linkAttrs != nil {
+					handleDeletedInterfaceSync(ctx, linkAttrs.Name)
+				}
+			}
+		}
+	}
+}
+
+// handleNewInterfaceSync processes a newly detected network interface SYNCHRONOUSLY
+// Called while holding processingMutex to ensure only one event processes this interface
+// Note: All checks (debouncing, already monitored) are done before calling this
+func handleNewInterfaceSync(ctx context.Context, update netlink.LinkUpdate, interfaceName string) {
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("Processing new interface: %s (holding processing lock)", interfaceName))
+
+	// Check if interface is in map but not properly initialized (from failed startup)
+	intMutex.RLock()
+	existingInterface, exists := intNametoInterface[interfaceName]
+	intMutex.RUnlock()
+
+	if exists && (existingInterface.Ipv4 == nil || len(existingInterface.network) == 0) {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s in monitoring map but not initialized (likely didn't exist at startup), will reconfigure", interfaceName))
+		intMutex.Lock()
+		delete(intNametoInterface, interfaceName)
+		intMutex.Unlock()
+	}
+
+	// Wait a moment for the interface to stabilize (IP assignment, etc.)
+	// Bridges and virtual interfaces may need extra time for IP configuration
+	log.LoggerWContext(ctx).Debug("Waiting for interface " + interfaceName + " to stabilize...")
+
+	// Check if interface has an IP address before waiting
+	iface, err := net.InterfaceByName(interfaceName)
+	if err == nil && iface != nil {
+		addrs, _ := iface.Addrs()
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s current addresses (before wait): %v", interfaceName, addrs))
+	}
+
+	// Wait for interface to stabilize (IP configuration, link up, etc.)
+	time.Sleep(interfaceStabilizationDelay)
+
+	// Check again after waiting
+	if err == nil && iface != nil {
+		addrs, _ := iface.Addrs()
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interface %s current addresses (after wait): %v", interfaceName, addrs))
+	}
+
+	// Re-read DHCP configuration to pick up the new interface
+	log.LoggerWContext(ctx).Info("Refreshing DHCP configuration for interface: " + interfaceName)
+
+	// Create a new temporary config object and read the config
+	tempConfig := newDHCPConfig()
+	tempConfig.readConfig(ctx, dbConnPool)
+
+	// Log all interfaces found in the configuration for debugging
+	var foundInterfaces []string
+	for i := range tempConfig.intsNet {
+		foundInterfaces = append(foundInterfaces, tempConfig.intsNet[i].Name)
+	}
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Interfaces in DHCP config after refresh: %v", foundInterfaces))
+
+	// Find the newly configured interface and make a copy (like startup does)
+	var interfaceConfigCopy Interface
+	var found bool
+	for _, iface := range tempConfig.intsNet {
+		if iface.Name == interfaceName {
+			// Make explicit copy (like startup code: v := v)
+			interfaceConfigCopy = iface
+			found = true
+			log.LoggerWContext(ctx).Info("Found interface " + interfaceName + " in refreshed configuration")
+			break
+		}
+	}
+
+	if !found {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Interface %s is not in DHCP configuration (available: %v), skipping", interfaceName, foundInterfaces))
+		return
+	}
+
+	// Verify interface has proper configuration
+	if interfaceConfigCopy.Ipv4 == nil {
+		log.LoggerWContext(ctx).Error("Interface " + interfaceName + " has no IPv4 address configured, cannot start DHCP")
+		return
+	}
+
+	if len(interfaceConfigCopy.network) == 0 {
+		log.LoggerWContext(ctx).Error("Interface " + interfaceName + " has no DHCP network configuration, cannot start DHCP")
+		return
+	}
+
+	// Atomically add to the interface map and DHCPConfig
+	intMutex.Lock()
+	// Double-check it's not already there
+	if _, exists := intNametoInterface[interfaceName]; exists {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " was added by another goroutine, skipping")
+		intMutex.Unlock()
+		return
+	}
+
+	// Store pointer to our copy (like startup: &v)
+	interfaceConfig := &interfaceConfigCopy
+	intNametoInterface[interfaceName] = interfaceConfig
+
+	// Also add copy to the global DHCPConfig
+	DHCPConfig.intsNet = append(DHCPConfig.intsNet, interfaceConfigCopy)
+	intMutex.Unlock()
+
+	log.LoggerWContext(ctx).Info("Starting DHCP listeners for hotplugged interface: " + interfaceName + " (IPv4: " + interfaceConfigCopy.Ipv4.String() + ")")
+
+	// Immediately detect VIP status for this interface (don't wait for periodic check)
+	// This is critical - without VIP status, DHCP requests may be silently ignored
+	netIface, err := net.InterfaceByName(interfaceName)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to get net.Interface for %s: %v", interfaceName, err))
+	} else {
+		log.LoggerWContext(ctx).Info("Checking VIP status for hotplugged interface: " + interfaceName)
+		DHCPConfig.detectVIP(ctx, []*net.Interface{netIface}, dbConnPool)
+	}
+
+	// Create a cancellable context for this interface's listeners
+	// This allows us to stop listeners when interface is deleted
+	interfaceCtx, cancel := context.WithCancel(ctx)
+
+	// Store cancel function so we can stop listeners on interface deletion
+	cancelsMutex.Lock()
+	interfaceCancels[interfaceName] = cancel
+	cancelsMutex.Unlock()
+
+	// Start unicast listener
+	// When the interface is deleted, we forcibly close the socket which causes
+	// ReadFromRaw() to return with an error, allowing the listener to exit
+	go func(iface Interface, name string, ifaceCtx context.Context) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in unicast listener for %s: %v", name, r))
+			}
+			log.LoggerWContext(ctx).Info("Unicast listener for " + name + " exited")
+		}()
+
+		log.LoggerWContext(ctx).Info("Starting unicast listener for " + name)
+		iface.runUnicast(ifaceCtx, jobChannel)
+		log.LoggerWContext(ctx).Info("Unicast listener for " + name + " stopped")
+	}(interfaceConfigCopy, interfaceName, interfaceCtx)
+
+	// Start broadcast listener
+	// When the interface is deleted, we forcibly close the socket which causes
+	// ReadFromRaw() to return with an error, allowing the listener to exit
+	go func(iface Interface, name string, ifaceCtx context.Context) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Panic in broadcast listener for %s: %v", name, r))
+			}
+			log.LoggerWContext(ctx).Info("Broadcast listener for " + name + " exited")
+		}()
+
+		log.LoggerWContext(ctx).Info("Starting broadcast listener for " + name)
+		iface.run(ifaceCtx, jobChannel)
+		log.LoggerWContext(ctx).Info("Broadcast listener for " + name + " stopped")
+	}(interfaceConfigCopy, interfaceName, interfaceCtx)
+
+	log.LoggerWContext(ctx).Info("Successfully configured hotplugged interface: " + interfaceName)
+}
+
+// handleDeletedInterfaceSync processes interface deletion events SYNCHRONOUSLY
+// Called directly from event loop to ensure deletion completes before recreation events
+func handleDeletedInterfaceSync(ctx context.Context, interfaceName string) {
+	log.LoggerWContext(ctx).Info("Detected interface deletion: " + interfaceName)
+
+	// Check if we're monitoring this interface
+	intMutex.RLock()
+	_, exists := intNametoInterface[interfaceName]
+	intMutex.RUnlock()
+
+	if !exists {
+		log.LoggerWContext(ctx).Debug("Interface " + interfaceName + " was not being monitored, ignoring deletion")
+		return
+	}
+
+	// Remove from tracking maps and global config
+	intMutex.Lock()
+	delete(intNametoInterface, interfaceName)
+
+	// Also remove from DHCPConfig.intsNet to prevent duplicates
+	var newIntsNet []Interface
+	for _, iface := range DHCPConfig.intsNet {
+		if iface.Name != interfaceName {
+			newIntsNet = append(newIntsNet, iface)
+		}
+	}
+	DHCPConfig.intsNet = newIntsNet
+	intMutex.Unlock()
+
+	// Clean up VIP status
+	vipMutex.Lock()
+	delete(VIP, interfaceName)
+	delete(VIPIp, interfaceName)
+	vipMutex.Unlock()
+
+	// Forcibly close all sockets for this interface
+	// This causes ReadFromRaw() to return with an error, allowing Serve() to exit
+	connsMutex.Lock()
+	if conns, exists := interfaceConns[interfaceName]; exists {
+		log.LoggerWContext(ctx).Info("Forcibly closing " + strconv.Itoa(len(conns)) + " socket(s) for interface: " + interfaceName)
+		for _, conn := range conns {
+			if conn != nil {
+				conn.Close()
+			}
+		}
+		delete(interfaceConns, interfaceName)
+	}
+	connsMutex.Unlock()
+
+	// Stop the listener goroutines by cancelling their context
+	cancelsMutex.Lock()
+	if cancel, exists := interfaceCancels[interfaceName]; exists {
+		log.LoggerWContext(ctx).Info("Cancelling context for interface: " + interfaceName)
+		cancel() // Signal listeners to exit
+		delete(interfaceCancels, interfaceName)
+	}
+	cancelsMutex.Unlock()
+
+	// Clear processing timestamp to allow immediate recreation
+	// The synchronous processing will handle deduplication of recreation events
+	processingMutex.Lock()
+	delete(processingInterfaces, interfaceName)
+	processingMutex.Unlock()
+
+	log.LoggerWContext(ctx).Info("Removed interface " + interfaceName + " from monitoring (listeners stopped)")
+	log.LoggerWContext(ctx).Info("Cleared debounce timestamp for " + interfaceName + " - ready for recreation if needed")
 }
