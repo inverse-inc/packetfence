@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"net"
 	"sync"
@@ -14,7 +15,10 @@ import (
 	"github.com/segmentio/kafka-go/sasl/plain"
 )
 
-var aggregatorOnce sync.Once
+var (
+	aggregatorMu      sync.Mutex
+	aggregatorStarted bool
+)
 
 type KafkaSubmiterOptions struct {
 	SubmitChan   chan []*NetworkEvent
@@ -176,42 +180,60 @@ func interfaceArrayToStringArray(a []interface{}) []string {
 }
 
 func SetupKafka(config map[string]interface{}) {
-	aggregatorOnce.Do(func() {
-		GlobalReportingEntity.UUID = config["uuid"].(string)
-		batch_submit := int(config["submit_batch"].(float64))
-		hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
-		aggregatorChan := make(chan []*NetworkEvent, batch_submit)
-		options := KafkaSubmiterOptions{
-			SubmitChan:   aggregatorChan,
-			Hosts:        hosts,
-			Topic:        config["write_topic"].(string),
-			Username:     config["kafka_user"].(string),
-			Password:     config["kafka_pass"].(string),
-			FilterEvents: sharedutils.ISENABLED[config["filter_events"].(string)],
+	aggregatorMu.Lock()
+	defer aggregatorMu.Unlock()
+
+	// Already started successfully, nothing to do
+	if aggregatorStarted {
+		return
+	}
+
+	ctx := context.Background()
+	GlobalReportingEntity.UUID = config["uuid"].(string)
+	batch_submit := int(config["submit_batch"].(float64))
+	hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
+	aggregatorChan := make(chan []*NetworkEvent, batch_submit)
+	options := KafkaSubmiterOptions{
+		SubmitChan:   aggregatorChan,
+		Hosts:        hosts,
+		Topic:        config["write_topic"].(string),
+		Username:     config["kafka_user"].(string),
+		Password:     config["kafka_pass"].(string),
+		FilterEvents: sharedutils.ISENABLED[config["filter_events"].(string)],
+	}
+
+	// Retry database connection until it succeeds
+	var db *sql.DB
+	var err error
+	for {
+		db, err = getDb()
+		if err == nil {
+			break
 		}
+		log.LogErrorf(ctx, "SetupKafka: failed to connect to database, retrying in 5s: %s", err.Error())
+		time.Sleep(5 * time.Second)
+	}
 
-		db, err := getDb()
-		if err != nil {
-			panic(err.Error())
-		}
+	go UpdatePolicyMap(ctx, db)
+	submitter, err := NewKafkaSubmiter(&options)
+	if err != nil {
+		log.LogErrorf(ctx, "SetupKafka: failed to create Kafka submitter: %s", err.Error())
+		return
+	}
 
-		go UpdatePolicyMap(context.Background(), db)
-		submitter, err := NewKafkaSubmiter(&options)
-		if err != nil {
-			panic(err.Error())
-		}
+	go submitter.Run()
 
-		go submitter.Run()
+	aggregator := NewAggregator(
+		&AggregatorOptions{
+			NetworkEventChan: aggregatorChan,
+			Timeout:          time.Minute,
+			Heuristics:       sharedutils.ISENABLED[config["heuristics"].(string)],
+			Db:               db,
+		},
+	)
+	go aggregator.handleEvents()
 
-		aggregator := NewAggregator(
-			&AggregatorOptions{
-				NetworkEventChan: aggregatorChan,
-				Timeout:          time.Minute,
-				Heuristics:       sharedutils.ISENABLED[config["heuristics"].(string)],
-				Db:               db,
-			},
-		)
-		go aggregator.handleEvents()
-
-	})
+	// Mark as successfully started only after everything is set up
+	aggregatorStarted = true
+	log.LogInfof(ctx, "SetupKafka: aggregator and submitter started successfully")
 }
