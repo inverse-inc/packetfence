@@ -35,8 +35,16 @@ sed -i '/^deb cdrom:/d' /etc/apt/sources.list
 # Update package lists
 apt-get update
 
-# Step 2: Install PacketFence from local repository
-echo "===> Step 2: Installing PacketFence"
+# Step 2: Install packages not available on DVD-1
+echo "===> Step 2: Installing packages from local repository (not on DVD-1)"
+
+# Install lnav and cgroupfs-mount (not on DVD-1, must come from local repo)
+DEBIAN_FRONTEND=noninteractive apt-get install -y lnav cgroupfs-mount || {
+    echo "Warning: Some packages failed to install, continuing..."
+}
+
+# Step 3: Install PacketFence from local repository
+echo "===> Step 3: Installing PacketFence"
 
 # Install PacketFence (this will also install dependencies from local repo)
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence || {
@@ -45,8 +53,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packet
     DEBIAN_FRONTEND=noninteractive apt-get install -y -f
 }
 
-# Step 3: Load pre-downloaded Docker images
-echo "===> Step 3: Loading Docker images"
+# Step 4: Load pre-downloaded Docker images
+echo "===> Step 4: Loading Docker images"
 
 if [ -d /media/cdrom/docker-images ] && [ -f /media/cdrom/docker-images/load-images.sh ]; then
     # Start Docker service first
@@ -61,8 +69,8 @@ else
     echo "Warning: Docker images not found on ISO"
 fi
 
-# Step 4: Configure system
-echo "===> Step 4: Configuring system"
+# Step 5: Configure system
+echo "===> Step 5: Configuring system"
 
 # Allow SSH root login
 sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
@@ -71,8 +79,8 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 # (they will be added properly when network is available)
 sed -i 's/.*inverse\.ca.*//g' /etc/apt/sources.list
 
-# Step 5: Configure PacketFence repository for future updates
-echo "===> Step 5: Setting up PacketFence repository for future updates"
+# Step 6: Configure PacketFence repository for future updates
+echo "===> Step 6: Setting up PacketFence repository for future updates"
 
 # Add PacketFence GPG key
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY 2>/dev/null | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg || {
@@ -84,8 +92,8 @@ cat > /etc/apt/sources.list.d/packetfence.list << EOF
 deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm
 EOF
 
-# Step 6: Reset MariaDB root password
-echo "===> Step 6: Resetting MariaDB root password"
+# Step 7: Reset MariaDB root password
+echo "===> Step 7: Resetting MariaDB root password"
 
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 mkdir -p /run/mysqld
@@ -93,8 +101,8 @@ chown mysql: /run/mysqld/
 timeout 30 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/log/reset-root.log 2>&1 || true
 rm -f /tmp/reset-root.sql
 
-# Step 7: Stop services that shouldn't run during installation
-echo "===> Step 7: Stopping services"
+# Step 8: Stop services that shouldn't run during installation
+echo "===> Step 8: Stopping services"
 
 # Stop Docker (will be started on first boot)
 pkill -e docker 2>/dev/null || true
@@ -103,8 +111,8 @@ systemctl stop docker 2>/dev/null || true
 # Stop MariaDB
 systemctl stop mariadb 2>/dev/null || true
 
-# Step 8: Create first-boot marker
-echo "===> Step 8: Creating first-boot configuration"
+# Step 9: Create first-boot marker
+echo "===> Step 9: Creating first-boot configuration"
 
 # Create a first-boot script to finalize setup
 cat > /usr/local/bin/packetfence-first-boot.sh << 'FIRSTBOOT_EOF'

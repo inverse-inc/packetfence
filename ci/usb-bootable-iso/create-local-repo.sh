@@ -51,6 +51,7 @@ sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.g
 #   - PacketFence and fingerbank packages
 #   - Packages that might be missing from DVD-1
 #   - FreeRADIUS packages (specific versions needed)
+#   - Packages from preseed pkgsel/include that may not be on DVD-1
 #   - Other dependencies
 PACKAGES="
     packetfence
@@ -78,6 +79,8 @@ PACKAGES="
     snmp
     vlan
     arping
+    lnav
+    cgroupfs-mount
     fping
     ipset
 "
