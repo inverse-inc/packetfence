@@ -90,6 +90,13 @@
                             disabled-value="0"
                             enabled-value="1"
     />
+
+    <form-group-sso-on-vpn namespace="sso_on_vpn"
+                           :column-label="$i18n.t('SSO on VPN')"
+                           :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on VPN.')"
+                           disabled-value="0"
+                           enabled-value="1"
+    />
   </base-form>
 </template>
 <script>
@@ -110,6 +117,7 @@ import {
   FormGroupSsoOnAccessReevaluation,
   FormGroupSsoOnAccounting,
   FormGroupSsoOnDhcp,
+  FormGroupSsoOnVpn,
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
@@ -131,6 +139,7 @@ const components = {
   FormGroupSsoOnAccessReevaluation,
   FormGroupSsoOnAccounting,
   FormGroupSsoOnDhcp,
+  FormGroupSsoOnVpn,
 }
 
 // @vue/component

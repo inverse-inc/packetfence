@@ -34,6 +34,7 @@ export {
   BaseFormGroupSwitch as FormGroupSsoOnAccessReevaluation,
   BaseFormGroupSwitch as FormGroupSsoOnAccounting,
   BaseFormGroupSwitch as FormGroupSsoOnDhcp,
+  BaseFormGroupSwitch as FormGroupSsoOnVpn,
 
   TheForm,
   TheView
