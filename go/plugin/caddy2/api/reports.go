@@ -203,8 +203,8 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 }
 
 func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
-	startDate := "000-00-00 00:00:00"
-	endDate := "999-12-31 23:59:59"
+	startDate := "1970-01-01 00:00:00"
+	endDate := "2099-12-31 23:59:59"
 	result := struct {
 		Default_start_date string
 		Default_end_date   string
@@ -375,18 +375,18 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 			switch report.CursorType {
 			case "offset":
 				if len(payloadCursor) != 0 {
-					opts["cursor"] = payloadCursor[0]
+					opts["cursor"] = payloadCursor[0] // contains only one value
 				} else {
 					opts["cursor"] = "0"
 				}
 				opts["cursor_field"] = nil // no field since it's an offset
 			case "field":
 				if len(payloadCursor) != 0 {
-					opts["cursor"] = payloadCursor[0]
+					opts["cursor"] = payloadCursor[0] // contains only one value
 				} else {
-					opts["cursor"] = report.CursorDefault[0] // contains only on value
+					opts["cursor"] = report.CursorDefault[0] // contains only one value
 				}
-				opts["cursor_field"] = report.CursorField[0]
+				opts["cursor_field"] = report.CursorField[0] // contains only one value
 			default:
 				errLst = append(errLst, errors.New("cursor_type has invalid value"))
 			}
@@ -394,7 +394,7 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 			if result := cursorRe.FindStringSubmatch(binding); result != nil {
 				opts["cursor_field"] = report.CursorField
 				index, _ := strconv.Atoi(result[1])
-				if len(payloadCursor) > index { // cursor.3 requires 4 cursor specified
+				if len(payloadCursor) > index { // ex: cursor.3 requires 4 cursor specified
 					opts[binding] = payloadCursor[index]
 				} else {
 					if len(report.CursorDefault) > index {

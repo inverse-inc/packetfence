@@ -52,7 +52,7 @@ func GetLen(value any) int {
 	return reflect.ValueOf(value).Len()
 }
 
-// FormatAnyToString convert any string, int, uint and float to string
+// FormatAnyToString convert any string, bool, int, uint and float to string
 func FormatAnyToString(data any) (string, error) {
 	switch reflect.TypeOf(data).Kind() {
 	case reflect.String:
@@ -63,6 +63,13 @@ func FormatAnyToString(data any) (string, error) {
 		return strconv.FormatUint(data.(uint64), 10), nil
 	case reflect.Float32, reflect.Float64:
 		return strconv.FormatFloat(data.(float64), 'f', 14, 64), nil
+	case reflect.Bool:
+		tmp := data.(bool)
+		if tmp {
+			return "1", nil
+		} else {
+			return "0", nil
+		}
 	default:
 		return "", errors.New("Type not supported")
 	}
