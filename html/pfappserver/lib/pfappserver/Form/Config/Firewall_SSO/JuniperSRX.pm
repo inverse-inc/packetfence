@@ -47,9 +47,9 @@ has_field 'port' =>
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
   );
-has_block definition =>
+has_block 'definition' =>
   (
-   render_list => [ qw(id type username password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_accounting sso_on_dhcp) ],
+   render_list => [ qw(id type username password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_accounting sso_on_dhcp sso_on_vpn) ],
   );
 
 has_field 'type' =>

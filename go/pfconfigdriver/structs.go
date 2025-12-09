@@ -589,6 +589,7 @@ type PfConfAdvanced struct {
 	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
 	TimingStatsLevel                 string   `json:"timing_stats_level"`
 	SsoOnDhcp                        string   `json:"sso_on_dhcp"`
+	SsoOnVpn                         string   `json:"sso_on_vpn"`
 	Language                         string   `json:"language"`
 	StatsdListenPort                 string   `json:"statsd_listen_port"`
 	StatsdListenHost                 string   `json:"statsd_listen_host"`

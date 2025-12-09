@@ -67,6 +67,7 @@ type FirewallSSO struct {
 	SsoOnAccessReevaluation string                `json:"sso_on_access_reevaluation"`
 	SsoOnAccounting         string                `json:"sso_on_accounting"`
 	SsoOnDhcp               string                `json:"sso_on_dhcp"`
+	SsoOnVpn                string                `json:"sso_on_vpn"`
 }
 
 func (fw *FirewallSSO) setPfconfigHashNS(id string) {

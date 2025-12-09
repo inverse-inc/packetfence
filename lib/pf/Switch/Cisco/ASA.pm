@@ -480,6 +480,10 @@ sub parseVPNRequest {
             }
         }
     }
+    # Generate fake MAC if not found in Cisco-AVPair
+    if (!defined($client_mac) && exists $radius_request->{'Calling-Station-Id'}) {
+        $client_mac = '02:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Calling-Station-Id'});
+    }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
 

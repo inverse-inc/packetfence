@@ -75,6 +75,7 @@ use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
 use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
+use pf::constants::firewallsso qw($VPN);
 use pf::person;
 use pf::factory::mfa;
 use MIME::Base64;
@@ -989,6 +990,15 @@ sub vpn {
     $return = $self->mfa_post_auth($args, $options, $sources, $source_id, $extra ,$otp, $password);
     return $return if (ref($return) eq 'ARRAY');
     $args->{'message'} = $return;
+
+    # Firewall SSO for VPN
+    if ($args->{'radius_request'}->{'Framed-IP-Address'} && (any { pf::util::isenabled($_->{'sso_on_vpn'}) } values %pf::config::ConfigFirewallSSO)) {
+        my $ip = $args->{'radius_request'}->{'Framed-IP-Address'};
+        my $client = pf::client::getClient();
+        my $timeout = '3600'; #Default to 1 hour
+        $client->notify( 'firewallsso', (method => 'Update', mac => $mac, ip => $ip, timeout => $timeout, source => $VPN) );
+    }
+
     return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
 }
 

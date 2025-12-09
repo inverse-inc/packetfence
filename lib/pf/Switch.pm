@@ -3268,13 +3268,16 @@ sub parseVPNRequest {
                            ? clean_ip($radius_request->{'Calling-Station-Id'}[0])
                            : clean_ip($radius_request->{'Calling-Station-Id'});
 
+    my $mac;
+    $mac                = '02:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Calling-Station-Id'}) if (exists $radius_request->{'Calling-Station-Id'});
+
     my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
 
-    return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+    return ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
 =item getAcceptForm
