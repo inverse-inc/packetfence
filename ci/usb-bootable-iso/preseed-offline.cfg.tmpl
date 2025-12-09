@@ -124,13 +124,16 @@ d-i pkgsel/upgrade select none
 popularity-contest popularity-contest/participate boolean false
 
 ### Boot loader installation
-# Install GRUB if this is the only Debian system or with other OS
-d-i grub-installer/only_debian boolean true
-d-i grub-installer/with_other_os boolean true
-
-# Do NOT preset bootdev - this forces the installer to show choose_bootdev
-# which is a SELECT menu with all available devices listed
-# The user can then pick the correct disk from the list
+# GRUB device selection:
+# By NOT presetting only_debian/with_other_os, the installer will ask the user
+# "Install GRUB to MBR?" question. When the user answers "No", the installer
+# will show the choose_bootdev SELECT menu with a list of all available disks.
+# The user MUST select the DISK (e.g., /dev/sda) NOT a partition (e.g., /dev/sda1)
+# Installing GRUB to a partition instead of a disk will result in unbootable system.
+#
+# NOTE: Do NOT preset these values - they must be asked interactively
+# d-i grub-installer/only_debian boolean true
+# d-i grub-installer/with_other_os boolean true
 # d-i grub-installer/bootdev string default
 
 # Add kernel options for PacketFence
