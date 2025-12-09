@@ -22,7 +22,7 @@ APIBadRequest:
             properties:
               status:
                 type: integer
-                default: 403
+                default: 400
 
 APIInternalServerError:
   description: Check server logs for more details
