@@ -82,12 +82,12 @@ d-i partman-lvm/confirm_nooverwrite boolean true
 # Use atomic partitioning (all files in one partition)
 d-i partman-auto/choose_recipe select atomic
 
-# Let user confirm partitioning choices
-# Do NOT auto-confirm - user should verify before writing
-d-i partman-partitioning/confirm_write_new_label boolean true
-d-i partman/confirm boolean true
-d-i partman/confirm_nooverwrite boolean true
-d-i partman-md/confirm boolean true
+# User must review and confirm partitioning before writing to disk
+# Do NOT preset these - let the installer prompt for confirmation
+# d-i partman-partitioning/confirm_write_new_label boolean true
+# d-i partman/confirm boolean true
+# d-i partman/confirm_nooverwrite boolean true
+# d-i partman-md/confirm boolean true
 
 ### Base system installation
 # Force non-interactive install
