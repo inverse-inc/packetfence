@@ -124,12 +124,13 @@ d-i pkgsel/upgrade select none
 popularity-contest popularity-contest/participate boolean false
 
 ### Boot loader installation
-# Only install GRUB if this is the only OS (avoids overwriting other bootloaders)
-d-i grub-installer/only_debian boolean true
+# Force user to choose GRUB installation device from a list
+# Setting only_debian to false will show device selection menu
+d-i grub-installer/only_debian boolean false
+d-i grub-installer/with_other_os boolean true
 
-# Let user choose where to install GRUB
-# Do NOT preset grub-installer/bootdev - user will be prompted to select device
-# This is important for systems with multiple disks or USB installation
+# Do NOT preset bootdev - user must choose from list of devices
+# This ensures GRUB is installed to the correct disk (not USB stick)
 # d-i grub-installer/bootdev string default
 
 # Add kernel options for PacketFence
