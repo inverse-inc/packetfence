@@ -1,0 +1,36 @@
+name: Create wired MAC auth connection profile
+testcases:
+
+- name: create_wired_mac_auth_connection_profile
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/connection_profiles'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.wired_mac_auth_virtualswitch.profiles.wired.id}}",
+        "description": "{{.wired_mac_auth_virtualswitch.profiles.wired.description}}",
+        "status": "enabled",
+        "filter": [
+          {
+            "match": "{{.wired_mac_auth_virtualswitch.profiles.wired.filters.connection_type}}",
+            "type": "connection_type"
+          }
+        ],
+        "filter_match_style": "all",
+        "unreg_on_acct_stop": "{{.wired_mac_auth_virtualswitch.profiles.wired.unreg_on_acct_stop}}",
+        "dot1x_recompute_role_from_portal": "enabled",
+        "dot1x_unset_on_unmatch": "disabled",
+        "mac_auth_recompute_role_from_portal": "disabled",
+        "dpsk": "disabled",
+        "root_module": "default_policy",
+        "login_attempt_limit": 0,
+        "sms_pin_retry_limit": 0,
+        "sms_request_limit": 0,
+        "vlan_pool_technique": "username_hash",
+        "block_interval": {
+          "interval": "10",
+          "unit": "m"
+        }
+      }

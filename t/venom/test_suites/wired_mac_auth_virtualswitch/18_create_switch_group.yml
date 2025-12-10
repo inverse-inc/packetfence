@@ -1,0 +1,24 @@
+name: Create virtualswitch switch group
+testcases:
+
+- name: create_virtualswitch_switch_group
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/switch_groups'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch_switch_group.id}}",
+        "description": "{{.virtualswitch_switch_group.description}}",
+        "radiusSecret": "{{.virtualswitch_switch_group.radiusSecret}}",
+        "type": "{{.virtualswitch_switch.type}}",
+        "mode": "production",
+        "useCoA": "Y",
+        "VoIPCDPDetect": "N",
+        "VoIPLLDPDetect": "N",
+        "always_trigger": 1,
+        "{{.wired_mac_auth_virtualswitch.roles.headless_device.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.headless_device.vlan_id}}",
+        "{{.wired_mac_auth_virtualswitch.roles.printer.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.printer.vlan_id}}",
+        "registrationVlan": "{{.roles.registration.vlan_id}}"
+      }
