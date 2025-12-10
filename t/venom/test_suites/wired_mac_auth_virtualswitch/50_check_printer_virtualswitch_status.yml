@@ -1,0 +1,10 @@
+name: Verify printer AUTHORIZED via virtualswitch API
+testcases:
+
+- name: check_printer_device_status_authorized
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.printer.interface.id}}'
+    assertions:
+      - result.virtualswitch_device_status ShouldContainSubstring AUTHORIZED

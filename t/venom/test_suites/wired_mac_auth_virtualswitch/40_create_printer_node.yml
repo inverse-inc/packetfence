@@ -1,0 +1,50 @@
+name: Create printer node with known MAC
+testcases:
+
+- name: get_category_id_of_printer_role
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'node_categories/search'
+    status_code: 200
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["category_id"],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "name",
+                  "op": "equals",
+                  "value": "{{.wired_mac_auth_virtualswitch.roles.printer.id}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    vars:
+      printer_category_id:
+        from: result.pf_api_action_.items.items0.category_id
+
+- name: create_printer_node
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'nodes'
+    status_code: 201
+    body: >-
+      {
+        "category_id": "{{.get_category_id_of_printer_role.printer_category_id}}",
+        "mac": "{{.virtualswitch.printer.mac_address}}",
+        "notes": "virtualswitch printer test node",
+        "pid": null,
+        "status": "reg",
+        "unreg_date": null,
+        "unregdate": null
+      }

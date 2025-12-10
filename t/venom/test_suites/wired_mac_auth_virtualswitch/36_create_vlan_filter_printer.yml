@@ -1,0 +1,19 @@
+name: Create VLAN filter to auto-assign printer role based on Fingerbank device class
+testcases:
+
+- name: create_printer_vlan_filter
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/filter_engines/vlan/vlan_filters'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.id}}",
+        "description": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.description}}",
+        "status": "enabled",
+        "run_actions": "enabled",
+        "scopes": ["{{.wired_mac_auth_virtualswitch.vlan_filter.printer.scopes}}"],
+        "condition": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.condition}}",
+        "role": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.role}}"
+      }

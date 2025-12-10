@@ -1,0 +1,11 @@
+name: Verify Fingerbank detected device class as Printer
+testcases:
+
+- name: check_printer_node_device_class
+  steps:
+  - type: pf_api_node_action
+    method: GET
+    id: '{{.virtualswitch.printer.mac_address}}'
+    status_code: 200
+    assertions:
+      - result.pf_api_node_action_.item.device_class ShouldContainSubstring Printer
