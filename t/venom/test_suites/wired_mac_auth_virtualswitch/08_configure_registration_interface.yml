@@ -1,0 +1,20 @@
+name: Configure vswitch-host as registration interface in PacketFence
+testcases:
+
+- name: configure_vswitch_host_as_registration_interface
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/interface/{{.virtualswitch.veth.host}}'
+    status_code: 200
+    body: >-
+      {
+        "id": "{{.virtualswitch.veth.host}}",
+        "type": "{{.virtualswitch.registration.type}}",
+        "ipaddress": "{{.virtualswitch.registration.ip}}",
+        "netmask": "{{.virtualswitch.registration.netmask}}",
+        "dhcpd_enabled": "{{.virtualswitch.registration.dhcpd_enabled}}",
+        "dns": "8.8.8.8",
+        "nat_enabled": "disabled",
+        "high_availability": 0
+      }

@@ -1,0 +1,21 @@
+name: Create registration network on vswitch-host interface
+testcases:
+
+- name: create_registration_network
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/routed_network/{{.virtualswitch.registration.network}}'
+    status_code: 200
+    body: >-
+      {
+        "id": "{{.virtualswitch.registration.network}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.registration.netmask}}",
+        "dhcp_start": "10.99.99.100",
+        "dhcp_end": "10.99.99.200",
+        "dhcp_default_lease_time": "300",
+        "dhcp_max_lease_time": "600",
+        "dns": "8.8.8.8",
+        "pool_backend": "memory"
+      }
