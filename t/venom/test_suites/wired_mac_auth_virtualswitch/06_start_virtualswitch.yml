@@ -1,0 +1,32 @@
+name: Start virtualswitch-namespace service
+testcases:
+
+  - name: start_virtualswitch_namespace_service
+    steps:
+    - type: exec
+      script: systemctl start virtualswitch-namespace
+      assertions:
+        - result.code ShouldEqual 0
+
+  - name: wait_for_virtualswitch_to_start
+    steps:
+    - type: exec
+      script: sleep 5
+
+  - name: verify_virtualswitch_service_running
+    steps:
+    - type: exec
+      script: systemctl is-active virtualswitch-namespace
+      assertions:
+        - result.code ShouldEqual 0
+        - result.systemout ShouldEqual active
+
+  - name: verify_virtualswitch_api_responding
+    steps:
+    - type: exec
+      script: curl -s -o /dev/null -w "%{http_code}" {{.virtualswitch.api.url}}/api/v1/status
+      assertions:
+        - result.code ShouldEqual 0
+        - result.systemout ShouldEqual 200
+      retry: 3
+      delay: 2s

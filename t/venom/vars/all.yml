@@ -678,3 +678,73 @@ firewall_sso.radius.type: FortiGate
 #################################################################################
 html.pfappserver_baseurl: 'https://{{.pfserver_mgmt_ip}}:1443'
 html.pfappserver_dir: '{{.pfserver_root_dir}}/t/html/pfappserver'
+
+################################################################################
+## wired_mac_auth_virtualswitch test suite specific variables
+#################################################################################
+# VirtualSwitch network setup (veth pair)
+virtualswitch.veth.host: vswitch-host
+virtualswitch.veth.ns: vswitch-ns
+
+# Registration interface configuration (on vswitch-host)
+# Using 10.99.99.0/24 to avoid conflicts with vagrant networks (172.18.X.X)
+virtualswitch.registration.ip: "10.99.99.1"
+virtualswitch.registration.netmask: "255.255.255.0"
+virtualswitch.registration.network: "10.99.99.0"
+virtualswitch.registration.type: "registration"
+virtualswitch.registration.dhcpd_enabled: "enabled"
+
+# VirtualSwitch namespace IP (source IP for RADIUS)
+virtualswitch.namespace.ip: "10.99.99.254"
+virtualswitch.namespace.netmask: "255.255.255.0"
+
+# VirtualSwitch API (accessed locally)
+virtualswitch.api.url: "http://127.0.0.1:8080"
+virtualswitch.interface.id: 1
+
+# VirtualSwitch RADIUS config (points to PF registration interface)
+virtualswitch.radius.ip: '{{.virtualswitch.registration.ip}}'
+virtualswitch.radius.port: 1812
+virtualswitch.radius.secret: testing123
+
+# Device profile and MAC
+virtualswitch.profile.name: "Linux Workstation"
+virtualswitch.device.mac_address: "00:0c:29:aa:bb:01"
+
+# Roles (reuse from mac_auth)
+wired_mac_auth_virtualswitch.roles.headless_device.id: '{{.mac_auth.roles.headless_device.id}}'
+wired_mac_auth_virtualswitch.roles.headless_device.notes: '{{.mac_auth.roles.headless_device.notes}}'
+wired_mac_auth_virtualswitch.roles.headless_device.vlan_id: '{{.mac_auth.roles.headless_device.vlan_id}}'
+
+# Printer role (new)
+wired_mac_auth_virtualswitch.roles.printer.id: printer
+wired_mac_auth_virtualswitch.roles.printer.notes: Printer device role
+wired_mac_auth_virtualswitch.roles.printer.vlan_id: 200
+
+# Printer device configuration
+virtualswitch.printer.mac_address: "00:0c:29:aa:bb:02"
+virtualswitch.printer.profile: "hp-printer"
+virtualswitch.printer.interface.id: 2
+
+# VLAN Filter for printers (auto-assign printer role based on Fingerbank device class)
+wired_mac_auth_virtualswitch.vlan_filter.printer.id: autoassign_printer_role
+wired_mac_auth_virtualswitch.vlan_filter.printer.description: Auto-assign printer role based on Fingerbank device class
+wired_mac_auth_virtualswitch.vlan_filter.printer.condition: 'node_info.device_class == "Printers" || node_info.device_class == "Printers/Scanners"'
+wired_mac_auth_virtualswitch.vlan_filter.printer.scopes: RegisteredRole
+wired_mac_auth_virtualswitch.vlan_filter.printer.role: '{{.wired_mac_auth_virtualswitch.roles.printer.id}}'
+
+# Connection profiles
+wired_mac_auth_virtualswitch.profiles.wired.id: catch_wired_mac_auth_vs
+wired_mac_auth_virtualswitch.profiles.wired.description: Wired MAC auth (virtualswitch)
+wired_mac_auth_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+wired_mac_auth_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+# Switch group
+virtualswitch_switch_group.id: virtualswitch_group
+virtualswitch_switch_group.description: VirtualSwitch group
+virtualswitch_switch_group.radiusSecret: '{{.virtualswitch.radius.secret}}'
+
+# Switch (Cisco 15.5) - uses namespace IP as switch identifier
+virtualswitch_switch.id: '{{.virtualswitch.namespace.ip}}'
+virtualswitch_switch.description: virtualswitch
+virtualswitch_switch.type: Cisco::Catalyst_2900XL

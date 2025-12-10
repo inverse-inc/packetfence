@@ -1,0 +1,24 @@
+name: Install virtualswitch package
+testcases:
+
+  - name: install_virtualswitch_package
+    steps:
+    - type: exec
+      script: |
+        if command -v dnf &> /dev/null; then
+          dnf install -y virtualswitch
+        elif command -v apt-get &> /dev/null; then
+          apt-get update && apt-get install -y virtualswitch
+        else
+          echo "Unsupported package manager"
+          exit 1
+        fi
+      assertions:
+        - result.code ShouldEqual 0
+
+  - name: verify_virtualswitch_installed
+    steps:
+    - type: exec
+      script: which virtualswitch || rpm -q virtualswitch || dpkg -l virtualswitch
+      assertions:
+        - result.code ShouldEqual 0
