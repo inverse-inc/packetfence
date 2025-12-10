@@ -22,7 +22,7 @@ import (
 // Report
 // pfconfigdriver.DynamicReport is used ot read data from backend
 // This struct is used to response request. For compatibility purpose,
-// all arrays are converted to commad separted strings: [1, 2, 3] => "1,2,3"
+// all arrays are converted to comma separted strings: [1, 2, 3] => "1,2,3"
 // Sql field is converted to array of lines (split sql with "\n" char)
 type Report struct {
 	Id            string   `json:"id"`
@@ -55,7 +55,7 @@ type ReportOptionsColumn struct {
 	IsCursor bool   `json:"is_cursor"`
 }
 
-// ReportOptions
+// ReportOptionsDetails, used by [ReportOptions]
 type ReportOptionsDetails struct {
 	Id               string                `json:"id"`
 	Description      string                `json:"description"`
@@ -70,6 +70,7 @@ type ReportOptionsDetails struct {
 	Charts           []string              `json:"charts"`
 }
 
+// ReportOptions, response payload for OPTIONS dynamic_report/:id
 type ReportOptions struct {
 	ReportMeta ReportOptionsDetails `json:"report_meta"`
 }
@@ -163,7 +164,7 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		body.QuickError(w, http.StatusBadRequest, "cannot parse request: "+err.Error())
 		return
 	}
-	// Valide the payload and store binding data into a map for later use
+	// Validate payload and store binding data into a map for later use
 	options := make(map[string]any)
 	validationErrors := validateSearchPayload(options, payload, inReport)
 	if len(validationErrors) > 0 {

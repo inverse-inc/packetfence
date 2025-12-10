@@ -32,7 +32,7 @@ type ApiPagination struct {
 	PrevCursor any `json:"prevCursor,omitempty"` // starting value(s) of previous page
 }
 
-// ApiResponse struct contains data to be serialized into the HTTP response
+// ApiBody struct contains data to be serialized into the HTTP response
 // The only requirements is that [Payload] must be marshalable
 type ApiBody struct {
 	ApiPagination               // optionnal if not set

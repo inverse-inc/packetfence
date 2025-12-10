@@ -138,15 +138,33 @@ components:
       schema:
         enum:
         - api-frontend
+        - fingerbank-collector
+        - galera-autofix
+        - haproxy-admin
+        - haproxy-db
+        - haproxy-portal
+        - httpd.aaa
         - httpd.admin_dispatcher
         - httpd.dispatcher
+        - httpd.portal
+        - httpd.webservices
         - ip6tables
+        - iptables
         - kafka
+        - keepalived
+        - mysql-probe
+        - netdata
         - ntlm-auth-api
+        - pfacct
         - pfconnector-client
         - pfconnector-server
+        - pfcron
         - pfdetect
+        - pfdhcp
         - pfdhcplistener
+        - pfdns
+        - pffilter
+        - pfipset
         - pfldapexplorer
         - pfperl-api
         - pfpki
@@ -154,9 +172,18 @@ components:
         - pfqueue-go
         - pfqueue-perl
         - pfsetacls
+        - pfsso
         - pfstats
+        - proxysql
+        - radiusd-auth
+        - radiusd-load_balancer
+        - radiusd-acct
+        - radiusd-eduroam
+        - radiusd-cli
+        - radsniff
         - redis_ntlm_cache
         - redis_queue
+        - snmptrapd
         - tracking-config
         type: string
     sort:
@@ -883,8 +910,8 @@ components:
             - $ref: '#/components/schemas/ApiResponseError'
             - properties:
                 status:
-                  default: 403
-                  type: int
+                  default: 400
+                  type: integer
               type: object
       description: Bad request
     APIInternalServerError:
@@ -896,7 +923,7 @@ components:
             - properties:
                 status:
                   default: 500
-                  type: int
+                  type: integer
               type: object
       description: Check server logs for more details
     APINotFound:
@@ -908,7 +935,7 @@ components:
             - properties:
                 status:
                   default: 404
-                  type: int
+                  type: integer
               type: object
       description: Resource not found
     Async:
@@ -2042,7 +2069,7 @@ components:
           type: string
         status:
           description: The HTTP status of the response.
-          type: int
+          type: integer
       type: object
     ApiResponseError:
       description: Common HTTP errors returned by the API.
@@ -2056,7 +2083,7 @@ components:
           type: string
         status:
           description: The HTTP status of the response.
-          type: int
+          type: integer
       type: object
     ApiResponsePaginated:
       allOf:
