@@ -75,14 +75,12 @@ PkiCasList:
           type: string
         items:
           type: array
-          nullable: true
           items:
             $ref: '#/components/schemas/PkiCa'
         password:
           type: string
         raw:
           type: string
-          nullable: true
         serial:
           type: string
         status:

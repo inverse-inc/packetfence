@@ -142,7 +142,7 @@ my %SQLTYPES_TO_OPENAPI = (
     LONGBLOB  => { type => 'string' },
     TEXT      => { type => 'string' },
     VARCHAR   => { type => 'string' },
-    DATETIME  => { type => 'string', format => 'date-time', example => '1970-01-01 00:00:00' },
+    DATETIME  => { type => 'string' },
     TIMESTAMP => { type => 'string' },
     CHAR      => { type => 'string' },
     ENUM      => { type => 'string' },
@@ -170,9 +170,6 @@ sub dalToOpenAPISchemaProperties {
         $properties{$k} = sqlTypeToOpenAPI($v->{type});
         if ($v->{is_primary_key}) {
             $properties{$k}->{description} = '`PRIMARY KEY`';
-        };
-        if ($v->{is_nullable}) {
-            $properties{$k}->{nullable} = JSON::MaybeXS::true;
         };
         if ($v->{enums_values}) {
             $properties{$k}->{enum} = [ sort { $a cmp $b } keys %{$v->{enums_values}} ];
@@ -215,8 +212,7 @@ sub dalToOpFields {
     my $fields = $self->dalToFields($dal);
     return {
         name => 'fields',
-        required => JSON::MaybeXS::true,
-        in => 'path',
+        in => 'query',
         required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
@@ -238,7 +234,7 @@ sub dalToOpSort {
     my $pk = $self->dalToPK($dal);
     return {
         name => 'sort',
-        in => 'path',
+        in => 'query',
         required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
@@ -265,17 +261,15 @@ sub operationParametersLookup {
     my ($self, $scope, $c, $m, $a) = @_;
 
     my $opFields = $self->dalToOpFields($c->dal);
-    $opFields->{in} = 'query';
 
     my $opSort = $self->dalToOpSort($c->dal);
-    $opSort->{in} = 'query';
 
     return {
         list => [
             $opFields,
             $opSort,
-            { "\$ref" => "#/components/parameters/limit", in => 'query' },
-            { "\$ref" => "#/components/parameters/cursor", in => 'query' },
+            { "\$ref" => "#/components/parameters/limit" },
+            { "\$ref" => "#/components/parameters/cursor" },
         ]
     }
 }

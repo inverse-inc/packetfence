@@ -18,8 +18,8 @@ our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
     PosInteger => 'integer',
     Port       => 'integer',
     Integer    => 'integer',
-    IntRange   => 'integer',
-    PathUpload => 'file',
+    IntRange   => 'string',
+    PathUpload => 'string',
 );
 use Lingua::EN::Inflexion qw(noun);
 
@@ -53,6 +53,9 @@ sub formsToMetaSchemas {
     my %paths;
     my $oneOf = [];
     my %mapping;
+    my @formsWithoutSubtype;
+    
+    # First pass: collect forms with subtypes
     while (my ($k, $form) = each @$forms) {
         my $found = 0;
         for my $field (grep { isSubTypeField($_) } $form->fields) {
@@ -71,7 +74,25 @@ sub formsToMetaSchemas {
             };
         }
         if (!$found) {
-            $paths{$meta_path} = {
+            push @formsWithoutSubtype, $form;
+        }
+    }
+    
+    # If we have mappings (forms with subtypes), only use those
+    # Otherwise, create inline schemas for forms without subtypes
+    if (keys %mapping) {
+        # We have discriminator mappings, only use schemas with refs
+        $paths{$meta_path} = {
+            discriminator => {
+                mapping => \%mapping,
+                propertyName => 'type'
+            },
+            oneOf => [@$oneOf]
+        };
+    } elsif (@formsWithoutSubtype) {
+        # No subtypes at all, create oneOf with inline schemas
+        for my $form (@formsWithoutSubtype) {
+            push @$oneOf, {
                 type => 'object',
                 properties => {
                     meta => {
@@ -81,14 +102,10 @@ sub formsToMetaSchemas {
                 }
             };
         }
+        $paths{$meta_path} = {
+            oneOf => [@$oneOf]
+        };
     }
-    $paths{$item_path} = {
-        discriminator => {
-            mapping => \%mapping,
-            propertyName => 'type'
-        },
-        oneOf => [@$oneOf]
-    };
     return \%paths;
 }
 

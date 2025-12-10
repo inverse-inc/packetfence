@@ -48,7 +48,6 @@ PkiRevokedCertsList:
           type: string
         raw:
           type: string
-          nullable: true
         serial:
           type: string
         status:

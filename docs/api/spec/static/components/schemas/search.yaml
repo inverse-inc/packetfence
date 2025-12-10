@@ -14,7 +14,7 @@ Search:
       type: boolean
       description: The total count for pagination.
     cursor:
-      type: string
+      type: integer
       description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
     query:
       $ref: '#/components/schemas/Query'

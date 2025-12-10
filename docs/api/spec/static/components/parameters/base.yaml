@@ -1,12 +1,14 @@
 cursor:
   name: cursor
+  in: query
   schema:
-    type: string
+    type: integer
     example: 0
   description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
 
 limit:
   name: limit
+  in: query
   schema:
     type: integer
     minimum: 1
@@ -26,6 +28,7 @@ limit:
 
 sort:
   name: sort
+  in: query
   required: true
   schema:
     type: string
@@ -33,6 +36,7 @@ sort:
 
 fields:
   name: fields
+  in: query
   required: true
   schema:
     type: array
@@ -54,6 +58,7 @@ search_query:
 
 local:
   name: local
+  in: query
   required: true
   schema:
     type: integer

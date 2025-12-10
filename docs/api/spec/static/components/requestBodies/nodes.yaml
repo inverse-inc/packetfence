@@ -75,6 +75,22 @@ NodesBulkBypassVlan:
             type: string
             description: The VLAN.
 
+NodesBulkBypassAcls:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).
+          bypass_acls:
+            type: string
+            description: The bypass ACLs.
+
 NodesBulkImport:
   required: true
   content:

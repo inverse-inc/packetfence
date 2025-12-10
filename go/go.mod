@@ -251,6 +251,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.15.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/caddyserver/certmagic v0.23.0 // indirect
@@ -297,6 +298,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-ps v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/oapi-codegen/runtime v1.1.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/pires/go-proxyproto v0.7.1-0.20240628150027-b718e7ce4964 // indirect

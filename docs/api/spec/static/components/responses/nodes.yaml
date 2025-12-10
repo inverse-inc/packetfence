@@ -107,7 +107,6 @@ NodesNetworkGraph:
                       $ref: '#/components/schemas/NetworkGraphLink'
                   metric:
                     type: string
-                    nullable: true
                   nodes:
                     type: array
                     items:

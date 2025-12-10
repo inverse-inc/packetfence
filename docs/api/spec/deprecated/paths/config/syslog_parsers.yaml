@@ -22,7 +22,7 @@
         application/json:
           schema:
             $ref: '#/components/schemas/ConfigSyslogParser'
-    tags:
+    tags: []
 
 /api/v1/config/syslog_parsers:
   description: |-
@@ -44,7 +44,7 @@
         description: Request successful. Response contains a list of resources.
       '401':
         $ref: '#/components/responses/Forbidden'
-    tags:
+    tags: []
 
   options:
     deprecated: true
@@ -62,7 +62,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
+    tags: []
 
   post:
     deprecated: true
@@ -85,7 +85,7 @@
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
-    tags:
+    tags: []
 
 /api/v1/config/syslog_parsers/search:
   description: |-
@@ -135,7 +135,7 @@
         description: Request successful. Response contains a list of resources.
       '401':
         $ref: '#/components/responses/Forbidden'
-    tags:
+    tags: []
 
 /api/v1/config/syslog_parsers/sort_items:
   description: |-
@@ -159,7 +159,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
+    tags: []
 
 /api/v1/config/syslog_parsers/bulk_update:
   description: |-
@@ -193,7 +193,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
+    tags: []
 
 /api/v1/config/syslog_parsers/bulk_import:
   description: |-
@@ -227,7 +227,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
+    tags: []
 
 /api/v1/config/syslog_parsers/bulk_delete:
   description: |-
@@ -262,4 +262,4 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
+    tags: []

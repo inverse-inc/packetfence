@@ -27,20 +27,16 @@ CurrentUserAllowedRole:
         - enabled
     inherit_role:
       type: string
-      nullable: true
     inherit_vlan:
       type: string
-      nullable: true
     inherit_web_auth_url:
       type: string
-      nullable: true
     max_nodes_per_pid:
       type: integer
     name:
       type: string
     notes:
       type: string
-      nullable: true
 
 CurrentUserAllowedAccessDurationsList:
   type: object
