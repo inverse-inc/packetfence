@@ -1,0 +1,10 @@
+executor: virtualswitch_veth_delete
+input:
+  host_interface: "vswitch-host"
+steps:
+- type: exec
+  script: ip link delete {{.input.host_interface}} 2>/dev/null || true
+  assertions:
+    - result.code ShouldEqual 0
+output:
+  virtualswitch_veth_deleted: "{{.input.host_interface}}"

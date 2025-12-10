@@ -1,0 +1,17 @@
+executor: virtualswitch_unplug_device
+input:
+  api_url: "http://127.0.0.1:8080"
+  interface_id: "1"
+  expected_code: "200"
+steps:
+- type: exec
+  script: |
+    curl -s -w "\n%{http_code}" -X POST {{.input.api_url}}/api/v1/interfaces/{{.input.interface_id}}/unplug \
+      -H "Content-Type: application/json"
+  assertions:
+    - result.code ShouldEqual 0
+  vars:
+    response_body:
+      from: result.systemout
+output:
+  virtualswitch_unplug_response: "{{.response_body}}"

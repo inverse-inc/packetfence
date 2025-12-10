@@ -1,0 +1,14 @@
+executor: virtualswitch_device_status
+input:
+  api_url: "http://127.0.0.1:8080"
+  interface_id: "1"
+steps:
+- type: exec
+  script: curl -s {{.input.api_url}}/api/v1/interfaces/{{.input.interface_id}}/status
+  assertions:
+    - result.code ShouldEqual 0
+  vars:
+    device_status:
+      from: result.systemout
+output:
+  virtualswitch_device_status: "{{.device_status}}"

@@ -1,0 +1,36 @@
+executor: virtualswitch_veth_create
+input:
+  host_interface: "vswitch-host"
+  ns_interface: "vswitch-ns"
+  host_ip: "10.99.99.1"
+  ns_ip: "10.99.99.254"
+  netmask_cidr: "24"
+steps:
+- type: exec
+  script: ip link add {{.input.host_interface}} type veth peer name {{.input.ns_interface}}
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: ip link set {{.input.host_interface}} up
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: ip addr add {{.input.host_ip}}/{{.input.netmask_cidr}} dev {{.input.host_interface}}
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: ip link set {{.input.ns_interface}} up
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: ip addr add {{.input.ns_ip}}/{{.input.netmask_cidr}} dev {{.input.ns_interface}}
+  assertions:
+    - result.code ShouldEqual 0
+
+output:
+  virtualswitch_veth_host: "{{.input.host_interface}}"
+  virtualswitch_veth_ns: "{{.input.ns_interface}}"

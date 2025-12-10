@@ -1,60 +1,19 @@
 name: Configure virtualswitch
 testcases:
 
-  - name: create_virtualswitch_config_directory
-    steps:
-    - type: exec
-      script: mkdir -p /etc/virtualswitch
-      assertions:
-        - result.code ShouldEqual 0
-
   - name: deploy_virtualswitch_config
     steps:
-    - type: exec
-      script: |
-        cat > /etc/virtualswitch/config.yaml << 'EOF'
-        interfaces: 5
-        switch_type: cisco
-        network_mapping: "10.99.0.0"
-        radius:
-          ip: {{.virtualswitch.radius.ip}}
-          port: {{.virtualswitch.radius.port}}
-          secret: {{.virtualswitch.radius.secret}}
-          accounting_interval_seconds: 60
-          reauth_interval_seconds: 0
-          auth_retry_interval_seconds: 30
-        dhcp:
-          enabled: false
-        ipfix:
-          enabled: false
-        scep:
-          enabled: false
-        wireless:
-          ssid: "TestWiFi"
-          switch_mac: "aa:bb:cc:dd:ee:ff"
-        device_state:
-          auto_save: false
-        interface_types:
-          - id: 1
-            type: "ethernet"
-          - id: 2
-            type: "ethernet"
-          - id: 3
-            type: "ethernet"
-          - id: 4
-            type: "ethernet"
-          - id: 5
-            type: "ethernet"
-        vlans:
-          - id: 2
-            interfaces: [1,2,3,4,5]
-          - id: 100
-            interfaces: [1,2,3,4,5]
-          - id: 200
-            interfaces: [1,2,3,4,5]
-        EOF
-      assertions:
-        - result.code ShouldEqual 0
+    - type: virtualswitch_config_deploy
+      config_dir: "/etc/virtualswitch"
+      interfaces: "5"
+      switch_type: "cisco"
+      network_mapping: "10.99.0.0"
+      radius_ip: '{{.virtualswitch.radius.ip}}'
+      radius_port: '{{.virtualswitch.radius.port}}'
+      radius_secret: '{{.virtualswitch.radius.secret}}'
+      accounting_interval: "60"
+      reauth_interval: "0"
+      auth_retry_interval: "30"
 
   - name: verify_virtualswitch_config_exists
     steps:

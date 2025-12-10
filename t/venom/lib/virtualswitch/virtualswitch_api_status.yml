@@ -1,0 +1,16 @@
+executor: virtualswitch_api_status
+input:
+  api_url: "http://127.0.0.1:8080"
+  expected_code: "200"
+  retry: 3
+  delay: 2
+steps:
+- type: exec
+  script: curl -s -o /dev/null -w "%{http_code}" {{.input.api_url}}/api/v1/status
+  assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldEqual {{.input.expected_code}}
+  retry: "{{.input.retry}}"
+  delay: "{{.input.delay}}s"
+output:
+  virtualswitch_api_status_code: "{{.result.systemout}}"

@@ -1,40 +1,14 @@
 name: Setup virtualswitch network (veth pair)
 testcases:
 
-  - name: create_veth_pair
+  - name: create_veth_pair_and_configure
     steps:
-    - type: exec
-      script: ip link add {{.virtualswitch.veth.host}} type veth peer name {{.virtualswitch.veth.ns}}
-      assertions:
-        - result.code ShouldEqual 0
-
-  - name: set_vswitch_host_up
-    steps:
-    - type: exec
-      script: ip link set {{.virtualswitch.veth.host}} up
-      assertions:
-        - result.code ShouldEqual 0
-
-  - name: add_ip_to_vswitch_host_interface
-    steps:
-    - type: exec
-      script: ip addr add {{.virtualswitch.registration.ip}}/24 dev {{.virtualswitch.veth.host}}
-      assertions:
-        - result.code ShouldEqual 0
-
-  - name: set_vswitch_ns_up
-    steps:
-    - type: exec
-      script: ip link set {{.virtualswitch.veth.ns}} up
-      assertions:
-        - result.code ShouldEqual 0
-
-  - name: add_ip_to_vswitch_ns_interface
-    steps:
-    - type: exec
-      script: ip addr add {{.virtualswitch.namespace.ip}}/24 dev {{.virtualswitch.veth.ns}}
-      assertions:
-        - result.code ShouldEqual 0
+    - type: virtualswitch_veth_create
+      host_interface: '{{.virtualswitch.veth.host}}'
+      ns_interface: '{{.virtualswitch.veth.ns}}'
+      host_ip: '{{.virtualswitch.registration.ip}}'
+      ns_ip: '{{.virtualswitch.namespace.ip}}'
+      netmask_cidr: "24"
 
   - name: verify_veth_pair_connectivity
     steps:
