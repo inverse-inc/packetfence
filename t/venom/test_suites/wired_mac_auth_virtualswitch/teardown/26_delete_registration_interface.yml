@@ -1,0 +1,9 @@
+name: Remove vswitch-host interface from PF
+testcases:
+
+- name: delete_registration_interface
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/interface/{{.virtualswitch.veth.host}}'
+    status_code: 200

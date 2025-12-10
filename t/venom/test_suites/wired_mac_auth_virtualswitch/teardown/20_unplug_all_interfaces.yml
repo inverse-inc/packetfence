@@ -1,0 +1,32 @@
+name: Unplug any remaining devices on all interfaces (cleanup)
+testcases:
+
+- name: unplug_interface_1
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: "1"
+
+- name: unplug_interface_2
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: "2"
+
+- name: unplug_interface_3
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: "3"
+
+- name: unplug_interface_4
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: "4"
+
+- name: unplug_interface_5
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: "5"

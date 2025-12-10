@@ -1,0 +1,7 @@
+name: Remove veth pair
+testcases:
+
+- name: delete_veth_pair
+  steps:
+  - type: virtualswitch_veth_delete
+    host_interface: '{{.virtualswitch.veth.host}}'

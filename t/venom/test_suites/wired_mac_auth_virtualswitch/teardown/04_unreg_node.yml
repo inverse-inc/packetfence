@@ -1,0 +1,10 @@
+name: Unregister node
+testcases:
+
+- name: unregister_node
+  steps:
+  - type: pf_api_node_action
+    method: POST
+    id: '{{.virtualswitch.device.mac_address}}'
+    url_extra: '/deregister'
+    status_code: 200

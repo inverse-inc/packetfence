@@ -1,0 +1,9 @@
+name: Delete registration network
+testcases:
+
+- name: delete_registration_network
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.registration.network}}'
+    status_code: 200

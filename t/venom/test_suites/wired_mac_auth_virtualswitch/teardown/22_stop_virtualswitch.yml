@@ -1,0 +1,8 @@
+name: Stop virtualswitch-namespace service
+testcases:
+
+- name: stop_virtualswitch_service
+  steps:
+  - type: virtualswitch_service
+    action: stop
+    service_name: virtualswitch-namespace
