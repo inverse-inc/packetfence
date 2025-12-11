@@ -1,0 +1,101 @@
+---
+# Configure virtualswitch01 VM for MAC auth tests
+# This playbook runs during provisioning when internet is available
+
+- hosts: virtualswitch01
+  name: Configure VirtualSwitch VM
+  become: true
+
+  vars:
+    # PF registration interface IP (where RADIUS requests go)
+    pf_registration_ip: "{{ hostvars[groups['pfservers'][0]]['users_vars'][dict_name]['networks'][1]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+    # Management network base for network_mapping
+    mgmt_network_base: "{{ users_vars[dict_name]['networks'][0]['subnet'] | ansible.netcommon.ipaddr('network') }}"
+
+  tasks:
+    - name: Add PacketFence repository GPG key (Debian)
+      ansible.builtin.apt_key:
+        url: https://www.inverse.ca/downloads/GPG_PUBLIC_KEY
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Add PacketFence repository (Debian)
+      ansible.builtin.apt_repository:
+        repo: "deb https://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ pf_minor_release }}"
+        state: present
+        filename: packetfence
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install virtualswitch package
+      ansible.builtin.apt:
+        name: virtualswitch
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Create virtualswitch config directory
+      ansible.builtin.file:
+        path: /etc/virtualswitch
+        state: directory
+        mode: '0755'
+
+    - name: Deploy virtualswitch configuration
+      ansible.builtin.copy:
+        dest: /etc/virtualswitch/config.yaml
+        content: |
+          interfaces: 5
+          switch_type: cisco
+          network_mapping: "{{ mgmt_network_base }}"
+          radius:
+            ip: {{ pf_registration_ip }}
+            port: 1812
+            secret: testing123
+            accounting_interval_seconds: 60
+            reauth_interval_seconds: 0
+            auth_retry_interval_seconds: 30
+          dhcp:
+            enabled: false
+          ipfix:
+            enabled: false
+          scep:
+            enabled: false
+          wireless:
+            ssid: "TestWiFi"
+            switch_mac: "aa:bb:cc:dd:ee:ff"
+          device_state:
+            auto_save: false
+          interface_types:
+            - id: 1
+              type: "ethernet"
+            - id: 2
+              type: "ethernet"
+            - id: 3
+              type: "ethernet"
+            - id: 4
+              type: "ethernet"
+            - id: 5
+              type: "ethernet"
+          vlans:
+            - id: 2
+              interfaces: [1,2,3,4,5]
+            - id: 100
+              interfaces: [1,2,3,4,5]
+            - id: 200
+              interfaces: [1,2,3,4,5]
+        mode: '0644'
+
+    - name: Enable and start virtualswitch service
+      ansible.builtin.systemd:
+        name: virtualswitch
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+    - name: Wait for virtualswitch API to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:8080/api/v1/status"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 30
+      delay: 2

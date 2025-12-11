@@ -1,0 +1,12 @@
+---
+# Development environnement
+## rsync before tests when doing local development
+## preinstall vim
+## fix term
+- import_playbook: ../common/dev.yml
+  when: lookup("env", "CI") != 'true'
+
+# Configure virtualswitch01 VM (install package, deploy config)
+- import_playbook: playbooks/configure.yml
+
+- import_playbook: playbooks/run_tests.yml
