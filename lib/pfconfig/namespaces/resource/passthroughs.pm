@@ -58,7 +58,7 @@ sub build {
             ($_->isa("pf::Authentication::Source::OAuthSource") || $_->isa("pf::Authentication::Source::BillingSource") )
                 ? split(/\s*,\s*/, $_->{domains} // '')
                 : ()
-        } @{$self->{authentication_sources} // []},
+        } grep {defined $_} @{$self->{authentication_sources} // []},
     );
     push (@all_passthroughs, map{
             split(/\s*,\s*/, $self->{provisioning}->{$_}->{domains} // '')
