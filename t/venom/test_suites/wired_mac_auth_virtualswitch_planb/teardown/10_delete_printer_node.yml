@@ -1,0 +1,7 @@
+name: Delete printer node
+testcases:
+
+- name: delete_printer_node
+  steps:
+  - type: pf_api_node_delete
+    id: '{{.virtualswitch_planb.printer.mac_address}}'

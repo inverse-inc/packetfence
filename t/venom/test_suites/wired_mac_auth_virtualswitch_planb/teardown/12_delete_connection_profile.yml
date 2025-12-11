@@ -1,0 +1,7 @@
+name: Delete connection profile
+testcases:
+
+- name: delete_connection_profile
+  steps:
+  - type: pf_api_connection_profile_delete
+    id: '{{.wired_mac_auth_virtualswitch_planb.profiles.wired.id}}'

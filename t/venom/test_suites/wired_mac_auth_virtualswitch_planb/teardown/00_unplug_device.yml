@@ -1,0 +1,10 @@
+name: Unplug device via virtualswitch API (interface 1)
+testcases:
+
+- name: unplug_device
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/{{.virtualswitch_planb.interface.id}}/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404

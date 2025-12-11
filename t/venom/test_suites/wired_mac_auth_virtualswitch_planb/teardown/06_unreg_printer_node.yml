@@ -1,0 +1,10 @@
+name: Unregister printer node
+testcases:
+
+- name: unregister_printer_node
+  steps:
+  - type: pf_api_node_action
+    method: POST
+    id: '{{.virtualswitch_planb.printer.mac_address}}'
+    url_extra: '/deregister'
+    status_code: 200

@@ -1,0 +1,42 @@
+name: Unplug any remaining devices on all interfaces (cleanup)
+testcases:
+
+- name: unplug_interface_1
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/1/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404
+
+- name: unplug_interface_2
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/2/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404
+
+- name: unplug_interface_3
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/3/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404
+
+- name: unplug_interface_4
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/4/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404
+
+- name: unplug_interface_5
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/5/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404

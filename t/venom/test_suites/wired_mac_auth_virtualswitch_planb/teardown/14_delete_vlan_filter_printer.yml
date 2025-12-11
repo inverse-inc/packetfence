@@ -1,0 +1,9 @@
+name: Delete printer VLAN filter
+testcases:
+
+- name: delete_printer_vlan_filter
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/filter_engines/vlan/vlan_filters/{{.wired_mac_auth_virtualswitch_planb.vlan_filter.printer.id}}'
+    status_code: 200

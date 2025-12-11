@@ -1,0 +1,23 @@
+name: Collect VirtualSwitch logs for CI artifacts
+testcases:
+
+- name: collect_virtualswitch_service_logs
+  steps:
+  - type: exec
+    script: |
+      # Create logs directory for virtualswitch
+      mkdir -p /usr/local/pf/logs/virtualswitch01
+
+      # Collect virtualswitch service logs from virtualswitch01 VM via SSH
+      ssh -o StrictHostKeyChecking=no vagrant@{{.virtualswitch01_mgmt_ip}} 'journalctl -u virtualswitch --no-pager' > /usr/local/pf/logs/virtualswitch01/virtualswitch.log 2>&1 || true
+
+      # Collect virtualswitch config
+      scp -o StrictHostKeyChecking=no vagrant@{{.virtualswitch01_mgmt_ip}}:/etc/virtualswitch/config.yaml /usr/local/pf/logs/virtualswitch01/config.yaml 2>/dev/null || true
+
+      # Collect network info from virtualswitch01
+      ssh -o StrictHostKeyChecking=no vagrant@{{.virtualswitch01_mgmt_ip}} 'ip addr' > /usr/local/pf/logs/virtualswitch01/ip-addr.log 2>&1 || true
+      ssh -o StrictHostKeyChecking=no vagrant@{{.virtualswitch01_mgmt_ip}} 'ip route' > /usr/local/pf/logs/virtualswitch01/ip-route.log 2>&1 || true
+
+      echo "VirtualSwitch logs collected from virtualswitch01"
+    assertions:
+      - result.code ShouldEqual 0

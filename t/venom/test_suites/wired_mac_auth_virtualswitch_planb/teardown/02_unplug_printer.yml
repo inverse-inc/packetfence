@@ -1,0 +1,10 @@
+name: Unplug printer device via virtualswitch API (interface 2)
+testcases:
+
+- name: unplug_printer
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/{{.virtualswitch_planb.printer.interface.id}}/unplug'
+    assertions:
+      - result.statuscode ShouldBeIn 200 204 404

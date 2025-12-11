@@ -1,0 +1,11 @@
+name: Verify printer was assigned to printer role
+testcases:
+
+- name: check_printer_node_category
+  steps:
+  - type: pf_api_node_action
+    method: GET
+    id: '{{.virtualswitch_planb.printer.mac_address}}'
+    status_code: 200
+    assertions:
+      - result.pf_api_node_action_.item.category ShouldEqual {{.wired_mac_auth_virtualswitch_planb.roles.printer.id}}

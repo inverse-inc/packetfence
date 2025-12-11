@@ -1,0 +1,70 @@
+name: Check RADIUS audit log for Accept
+testcases:
+
+- name: flush_radius_audit_log_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
+- name: search_radius_audit_log_for_accept
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'radius_audit_logs/search'
+    status_code: 200
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id"],
+        "sort": ["created_at DESC"],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.virtualswitch_planb.device.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "auth_status",
+                  "op": "equals",
+                  "value": "Accept"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.wired_mac_auth_virtualswitch_planb.profiles.wired.filters.connection_type}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    retry: 35
+    delay: 3
+    vars:
+      radius_log_id:
+        from: result.pf_api_action_.items.items0.id
+
+- name: verify_radius_reply_vlan
+  steps:
+  - type: pf_api_action
+    method: GET
+    url: 'radius_audit_log/{{.search_radius_audit_log_for_accept.radius_log_id}}'
+    status_code: 200
+    assertions:
+      - result.pf_api_action_.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_mac_auth_virtualswitch_planb.roles.headless_device.vlan_id}}"'
+      - result.pf_api_action_.item.profile ShouldEqual "{{.wired_mac_auth_virtualswitch_planb.profiles.wired.id}}"

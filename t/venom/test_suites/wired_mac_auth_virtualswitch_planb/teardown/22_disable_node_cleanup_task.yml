@@ -1,0 +1,6 @@
+name: Disable node cleanup task
+testcases:
+
+- name: disable_node_cleanup_task
+  steps:
+  - type: pf_api_node_cleanup_disable

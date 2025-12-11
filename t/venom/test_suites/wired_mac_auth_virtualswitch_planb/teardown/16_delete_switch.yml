@@ -1,0 +1,7 @@
+name: Delete switch
+testcases:
+
+- name: delete_switch
+  steps:
+  - type: pf_api_switch_delete
+    id: '{{.virtualswitch_planb_switch.id}}'

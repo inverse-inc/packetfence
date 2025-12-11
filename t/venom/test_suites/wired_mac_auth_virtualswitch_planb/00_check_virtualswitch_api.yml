@@ -1,0 +1,12 @@
+name: Check virtualswitch API is accessible on virtualswitch01 VM
+testcases:
+
+- name: check_virtualswitch_api_status
+  steps:
+  - type: http
+    method: GET
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/status'
+    retry: 10
+    delay: 5
+    assertions:
+      - result.statuscode ShouldEqual 200

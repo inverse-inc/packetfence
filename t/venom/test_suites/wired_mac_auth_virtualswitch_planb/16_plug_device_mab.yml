@@ -1,0 +1,23 @@
+name: Plug device via virtualswitch REST API with MAB
+testcases:
+
+- name: plug_device_with_mab
+  steps:
+  - type: http
+    method: POST
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/{{.virtualswitch_planb.interface.id}}/plug'
+    body: >-
+      {
+        "mac_address": "{{.virtualswitch_planb.device.mac_address}}",
+        "auth_method": "mab",
+        "profile": "{{.virtualswitch_planb.profile.name}}"
+      }
+    headers:
+      Content-Type: application/json
+    assertions:
+      - result.statuscode ShouldBeIn 200 201
+
+- name: wait_for_radius_auth
+  steps:
+  - type: sleep
+    time_to_sleep: 10

@@ -1,0 +1,9 @@
+name: Clear Fingerbank cache to ensure fresh device detection
+testcases:
+
+- name: clear_fingerbank_cache
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'fingerbank/local/refresh'
+    status_code: 200

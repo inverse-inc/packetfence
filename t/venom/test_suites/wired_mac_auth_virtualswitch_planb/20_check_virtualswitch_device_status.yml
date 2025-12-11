@@ -1,0 +1,11 @@
+name: Verify device AUTHORIZED via virtualswitch API
+testcases:
+
+- name: check_device_status_authorized
+  steps:
+  - type: http
+    method: GET
+    url: '{{.virtualswitch_planb.api.url}}/api/v1/interfaces/{{.virtualswitch_planb.interface.id}}/status'
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldContainSubstring AUTHORIZED
