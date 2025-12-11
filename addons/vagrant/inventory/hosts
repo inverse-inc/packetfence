@@ -86,6 +86,15 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 1024
+        virtualswitch01:
+          box: debian/bookworm64
+          box_version: 12.20250126.1
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['virtualswitch01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['virtualswitch01']['netmask'] }}"
+          ansible_host: "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
+          cpus: 1
+          memory: 512
 
     service_rsyslog:
       hosts:
@@ -106,6 +115,10 @@ all:
     service_samba4ad:
       hosts:
         ad: {}
+
+    service_virtualswitch:
+      hosts:
+        virtualswitch01: {}
 
     pfservers:
       children:
@@ -458,6 +471,9 @@ all:
           linux02:
             ip: '172.18.200.102'
             netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.200.103'
+            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.200.10'
             netmask: '255.255.255.0'
@@ -622,6 +638,9 @@ all:
           linux02:
             ip: '172.18.140.102'
             netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.140.103'
+            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.140.10'
             netmask: '255.255.255.0'
@@ -784,6 +803,9 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.115.102'
+            netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.115.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.115.10'
@@ -948,6 +970,9 @@ all:
           linux02:
             ip: '172.18.145.102'
             netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.145.103'
+            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.145.10'
             netmask: '255.255.255.0'
@@ -1110,6 +1135,9 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.120.102'
+            netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.120.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.120.10'
@@ -1274,6 +1302,9 @@ all:
           linux02:
             ip: '172.18.125.102'
             netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.125.103'
+            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.125.10'
             netmask: '255.255.255.0'
@@ -1436,6 +1467,9 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.135.102'
+            netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.135.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.135.10'
@@ -1600,6 +1634,9 @@ all:
           linux02:
             ip: '172.18.155.102'
             netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.155.103'
+            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.155.10'
             netmask: '255.255.255.0'
@@ -1763,6 +1800,9 @@ all:
           linux02:
             ip: '172.18.160.102'
             netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.160.103'
+            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.160.10'
             netmask: '255.255.255.0'
@@ -1925,6 +1965,9 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.170.102'
+            netmask: '255.255.255.0'
+          virtualswitch01:
+            ip: '172.18.170.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.170.10'
