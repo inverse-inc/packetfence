@@ -748,3 +748,61 @@ virtualswitch_switch_group.radiusSecret: '{{.virtualswitch.radius.secret}}'
 virtualswitch_switch.id: '{{.virtualswitch.namespace.ip}}'
 virtualswitch_switch.description: virtualswitch
 virtualswitch_switch.type: Cisco::Catalyst_2900XL
+
+################################################################################
+## wired_mac_auth_virtualswitch_planb test suite specific variables (separate VM)
+#################################################################################
+# VirtualSwitch VM (separate VM mode - Plan B)
+# Uses virtualswitch01_mgmt_ip from venom_local_vars (set by vagrant inventory)
+
+# VirtualSwitch API (accessed from PF VM via management network)
+virtualswitch_planb.api.url: "http://{{.virtualswitch01_mgmt_ip}}:8080"
+virtualswitch_planb.interface.id: 1
+
+# VirtualSwitch RADIUS config (points to PF's registration interface IP)
+# Uses existing configurator.interfaces.reg.ip from venom_local_vars
+virtualswitch_planb.radius.ip: '{{.configurator.interfaces.reg.ip}}'
+virtualswitch_planb.radius.port: 1812
+virtualswitch_planb.radius.secret: testing123
+
+# Device profile and MAC
+virtualswitch_planb.profile.name: "Linux Workstation"
+virtualswitch_planb.device.mac_address: "00:0c:29:bb:cc:01"
+
+# Roles (reuse from mac_auth)
+wired_mac_auth_virtualswitch_planb.roles.headless_device.id: '{{.mac_auth.roles.headless_device.id}}'
+wired_mac_auth_virtualswitch_planb.roles.headless_device.notes: '{{.mac_auth.roles.headless_device.notes}}'
+wired_mac_auth_virtualswitch_planb.roles.headless_device.vlan_id: '{{.mac_auth.roles.headless_device.vlan_id}}'
+
+# Printer role (new)
+wired_mac_auth_virtualswitch_planb.roles.printer.id: printer_planb
+wired_mac_auth_virtualswitch_planb.roles.printer.notes: Printer device role (Plan B)
+wired_mac_auth_virtualswitch_planb.roles.printer.vlan_id: 200
+
+# Printer device configuration
+virtualswitch_planb.printer.mac_address: "00:0c:29:bb:cc:02"
+virtualswitch_planb.printer.profile: "hp-printer"
+virtualswitch_planb.printer.interface.id: 2
+
+# VLAN Filter for printers (auto-assign printer role based on Fingerbank device class)
+wired_mac_auth_virtualswitch_planb.vlan_filter.printer.id: autoassign_printer_role_planb
+wired_mac_auth_virtualswitch_planb.vlan_filter.printer.description: Auto-assign printer role based on Fingerbank device class (Plan B)
+wired_mac_auth_virtualswitch_planb.vlan_filter.printer.condition: 'node_info.device_class == "Printers" || node_info.device_class == "Printers/Scanners"'
+wired_mac_auth_virtualswitch_planb.vlan_filter.printer.scopes: RegisteredRole
+wired_mac_auth_virtualswitch_planb.vlan_filter.printer.role: '{{.wired_mac_auth_virtualswitch_planb.roles.printer.id}}'
+
+# Connection profiles
+wired_mac_auth_virtualswitch_planb.profiles.wired.id: catch_wired_mac_auth_vs_planb
+wired_mac_auth_virtualswitch_planb.profiles.wired.description: Wired MAC auth (virtualswitch Plan B)
+wired_mac_auth_virtualswitch_planb.profiles.wired.filters.connection_type: Ethernet-NoEAP
+wired_mac_auth_virtualswitch_planb.profiles.wired.unreg_on_acct_stop: disabled
+
+# Switch group
+virtualswitch_planb_switch_group.id: virtualswitch_group_planb
+virtualswitch_planb_switch_group.description: VirtualSwitch group (Plan B)
+virtualswitch_planb_switch_group.radiusSecret: '{{.virtualswitch_planb.radius.secret}}'
+
+# Switch (Cisco 15.5) - uses virtualswitch01's management IP as switch identifier
+virtualswitch_planb_switch.id: '{{.virtualswitch01_mgmt_ip}}'
+virtualswitch_planb_switch.description: virtualswitch01
+virtualswitch_planb_switch.type: Cisco::Catalyst_2900XL
