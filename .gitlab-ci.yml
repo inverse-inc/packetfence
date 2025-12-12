@@ -192,7 +192,7 @@ variables:
 .test_devel_and_maintenance_rules:
   rules:
     # Skip if TEST_ONLY is set and job name doesn't match pattern
-    - if: '$TEST_ONLY != "" && $CI_JOB_NAME !~ $TEST_ONLY'
+    - if: '$TEST_ONLY != "" && $CI_JOB_NAME !~ /$TEST_ONLY/'
       when: never
     # Run on any branch via web/API with TEST=yes (must be first positive rule for feature branches)
     - if: '$CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
@@ -210,7 +210,7 @@ variables:
 .test_branches_only_rules:
   rules:
     # Skip if TEST_ONLY is set and job name doesn't match pattern
-    - if: '$TEST_ONLY != "" && $CI_JOB_NAME !~ $TEST_ONLY'
+    - if: '$TEST_ONLY != "" && $CI_JOB_NAME !~ /$TEST_ONLY/'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
