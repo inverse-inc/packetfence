@@ -55,8 +55,8 @@ variables:
   ANSIBLE_STDOUT_CALLBACK: yaml
   VAGRANT_FORCE_COLOR: "true"
   # Selective test execution
-  # Run only tests matching this pattern (regex). Empty = all tests.
-  # Examples: "mac_auth", "configurator|pfappserver", ".*_el8"
+  # Run only tests matching this pattern (grep -E regex). Empty = all tests.
+  # Examples: configurator, mac_auth, configurator|pfappserver, .*_el8
   TEST_ONLY: ""
 
 
@@ -191,9 +191,8 @@ variables:
 # don't run on tag
 .test_devel_and_maintenance_rules:
   rules:
-    # Skip if TEST_ONLY is set and job name doesn't match pattern
-    - if: '$TEST_ONLY != "" && $CI_JOB_NAME !~ $TEST_ONLY'
-      when: never
+    # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
+    # because GitLab CI doesn't expand variables inside regex patterns
     # Run on any branch via web/API with TEST=yes (must be first positive rule for feature branches)
     - if: '$CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     # Run on devel branch (push, web, not schedule)
@@ -209,9 +208,8 @@ variables:
 # don't run on tag
 .test_branches_only_rules:
   rules:
-    # Skip if TEST_ONLY is set and job name doesn't match pattern
-    - if: '$TEST_ONLY != "" && $CI_JOB_NAME !~ $TEST_ONLY'
-      when: never
+    # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
+    # because GitLab CI doesn't expand variables inside regex patterns
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
@@ -592,6 +590,12 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
+    # Check TEST_ONLY filter (shell-based since GitLab rules don't expand variables in regex)
+    - |
+      if [ -n "$TEST_ONLY" ] && ! echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY"; then
+        echo "Skipping: $CI_JOB_NAME does not match TEST_ONLY pattern: $TEST_ONLY"
+        exit 0
+      fi
     # || EXIT_CODE=$? prevents script to finish at first command
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
     - JOB_STATUS=$EXIT_CODE timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
