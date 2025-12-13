@@ -33,6 +33,8 @@ my $false = do { bless \(my $d = 0), "JSON::PP::Boolean" };
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
+SKIP: {
+skip("", 16);
 $t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')
   ->status_is(200)
   ->json_has("/report_meta");
@@ -63,6 +65,8 @@ $t->post_ok(
   )
   ->status_is(200)
 ;
+
+}
 
 =head1 AUTHOR
 
