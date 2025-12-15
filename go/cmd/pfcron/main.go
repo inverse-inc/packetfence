@@ -16,7 +16,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	maint "github.com/inverse-inc/packetfence/go/cron"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/robfig/cron/v3"
+	"github.com/netresearch/go-cron"
 )
 
 func setProcessing() {
