@@ -6,7 +6,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/robfig/cron/v3"
+	"github.com/netresearch/go-cron"
 )
 
 var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))

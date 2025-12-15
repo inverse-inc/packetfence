@@ -60,7 +60,6 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.70.1 // indirect
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/ti-mo/netfilter v0.2.0
@@ -208,6 +207,7 @@ require (
 	github.com/godbus/dbus/v5 v5.2.2
 	github.com/gosnmp/gosnmp v1.43.1
 	github.com/huandu/go-clone/generic v1.6.0
+	github.com/netresearch/go-cron v0.16.0
 	github.com/onsi/ginkgo/v2 v2.27.2
 	github.com/onsi/gomega v1.38.2
 	github.com/redis/go-redis/v9 v9.3.0
