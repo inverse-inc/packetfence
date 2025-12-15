@@ -52,7 +52,7 @@ LOCAL_REGISTRY = packetfence
 #
 # Golang
 #
-GOVERSION = go1.24.9
+GOVERSION = go1.25.5
 PF_BINARIES = pfhttpd pfqueue-go pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector sdnotify-proxy
 PF_GO_CMDS = pfcrypt pfkafka
 
