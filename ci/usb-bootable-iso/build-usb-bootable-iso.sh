@@ -51,7 +51,7 @@ echo "=============================================="
 # Cleanup function
 cleanup() {
     echo "Cleaning up..."
-    rm -f ${SCRIPT_DIR}/preseed-offline.cfg
+    rm -f ${SCRIPT_DIR}/preseed.cfg
     # Keep work directory for debugging if build fails
 }
 trap cleanup EXIT
@@ -87,15 +87,17 @@ xorriso -osirrox on -indev ${SCRIPT_DIR}/${ISO_IN} -extract / ${ISOFILES_DIR}
 
 # Step 5: Generate preseed configuration
 echo "===> Step 5: Generating preseed configuration"
+# Generate as preseed.cfg (standard name) for auto-detection by installer
 cat ${SCRIPT_DIR}/preseed-offline.cfg.tmpl | \
     sed "s/%%PF_VERSION%%/${PF_RELEASE_VERSION}/g" | \
-    sed "s/%%PF_RELEASE%%/${PF_RELEASE}/g" > ${SCRIPT_DIR}/preseed-offline.cfg
+    sed "s/%%PF_RELEASE%%/${PF_RELEASE}/g" > ${SCRIPT_DIR}/preseed.cfg
 
 # Step 6: Inject preseed into initrd
 echo "===> Step 6: Injecting preseed into initrd"
+# Inject as preseed.cfg (standard name) - installer will auto-detect it
 chmod +w -R ${ISOFILES_DIR}/install.amd/
 gunzip ${ISOFILES_DIR}/install.amd/initrd.gz
-echo preseed-offline.cfg | cpio -H newc -o -A -F ${ISOFILES_DIR}/install.amd/initrd
+echo preseed.cfg | cpio -H newc -o -A -F ${ISOFILES_DIR}/install.amd/initrd
 gzip ${ISOFILES_DIR}/install.amd/initrd
 chmod -w -R ${ISOFILES_DIR}/install.amd/
 
