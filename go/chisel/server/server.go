@@ -55,6 +55,7 @@ type Server struct {
 	connectorsIndexes     map[string]int
 	connectorIndexesLock  *sync.Mutex
 	radiusProxy           *radius_proxy.Proxy
+	baseCtx               context.Context
 }
 
 var upgrader = websocket.Upgrader{
@@ -65,14 +66,20 @@ var upgrader = websocket.Upgrader{
 
 // NewServer creates and returns a new chisel server
 func NewServer(c *Config) (*Server, error) {
+	return NewServerWithContext(context.Background(), c)
+}
+
+// NewServerWithContext creates and returns a new chisel server with the given context
+func NewServerWithContext(ctx context.Context, c *Config) (*Server, error) {
 	server := &Server{
 		config:               c,
-		connectors:           connector.NewConnectorsContainer(context.Background()),
+		connectors:           connector.NewConnectorsContainer(ctx),
 		httpServer:           cnet.NewHTTPServer(),
 		Logger:               cio.NewLogger("server"),
 		sessions:             settings.NewUsers(),
 		connectorsIndexes:    map[string]int{},
 		connectorIndexesLock: &sync.Mutex{},
+		baseCtx:              ctx,
 	}
 	server.Info = true
 	server.users = settings.NewUserIndex(server.Logger)
@@ -225,7 +232,10 @@ var acceptAllAddrs = regexp.MustCompile("")
 var connectors = pfconfigdriver.Connectors{}
 
 func (s *Server) refreshUsersPfconfig() {
-	ctx := context.Background()
+	ctx := s.baseCtx
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	s.connectors.Refresh(ctx)
 	for connectorId, connector := range s.connectors.All(ctx) {
 		s.users.AddUser(&settings.User{
