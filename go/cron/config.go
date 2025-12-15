@@ -17,6 +17,7 @@ type JobSetupConfig interface {
 	ScheduleSpec() string
 	Name() string
 	ForceLocal() bool
+	JobOptions() []cron.JobOption
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
@@ -128,6 +129,12 @@ func (t *Task) Schedule() cron.Schedule {
 
 func (t *Task) ScheduleSpec() string {
 	return t.ScheduleSpecStr
+}
+
+func (t *Task) JobOptions() []cron.JobOption {
+	return []cron.JobOption{
+		cron.WithName(t.Name()),
+	}
 }
 
 func (t *Task) Name() string {

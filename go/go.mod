@@ -208,7 +208,7 @@ require (
 	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
 	github.com/gosnmp/gosnmp v1.43.1
 	github.com/huandu/go-clone/generic v1.6.0
-	github.com/netresearch/go-cron v0.6.1
+	github.com/netresearch/go-cron v0.6.2-0.20251215141217-38d6cd5dc5ce
 	github.com/onsi/ginkgo/v2 v2.22.1
 	github.com/onsi/gomega v1.36.2
 	github.com/redis/go-redis/v9 v9.3.0

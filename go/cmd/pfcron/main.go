@@ -166,7 +166,15 @@ func main() {
 	)))
 
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
-		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name(), job.ForceLocal()))
+		id, err := c.ScheduleJob(
+			job.Schedule(),
+			wrapJob(logger, job.Name(), job.ForceLocal()),
+			job.JobOptions()...,
+		)
+		if err != nil {
+			logger.Error(fmt.Sprintf("Error creating cron job %s: %v", job.Name(), err))
+			continue
+		}
 		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))
 	}
 

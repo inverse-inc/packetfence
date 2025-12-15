@@ -96,6 +96,10 @@ func (o *OnceSchedule) Next(n time.Time) time.Time {
 	return time.Time{}
 }
 
+func (o *OnceSchedule) Prev(n time.Time) time.Time {
+	return n
+}
+
 func (j *PfFlowJob) Schedule() cron.Schedule {
 	return &j.schedule
 }
@@ -155,6 +159,13 @@ func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, 
 			// The loop continues on the next tick.
 		}
 	}
+}
+
+func (j *PfFlowJob) JobOptions() []cron.JobOption {
+	return append(
+		j.Task.JobOptions(),
+		cron.WithRunImmediately(),
+	)
 }
 
 func (j *PfFlowJob) Run() {
