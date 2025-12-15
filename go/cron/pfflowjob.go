@@ -169,6 +169,10 @@ func (j *PfFlowJob) JobOptions() []cron.JobOption {
 }
 
 func (j *PfFlowJob) Run() {
+	j.RunWithContext(context.Background())
+}
+
+func (j *PfFlowJob) RunWithContext(ctx context.Context) {
 	var r *kafka.Reader
 	maxReconnectDelay := 60 * time.Second
 	reconnectDelay := 1 * time.Second
@@ -185,9 +189,14 @@ func (j *PfFlowJob) Run() {
 	}()
 
 	dialer := j.kafkaDialer()
-	WaitForTopic(dialer, context.Background(), j.Brokers[0], j.ReadTopic)
+	WaitForTopic(dialer, ctx, j.Brokers[0], j.ReadTopic)
 
 	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
 		// Create or recreate the reader
 		if r == nil {
 			log.Printf("Connecting to Kafka brokers: %v, topic: %s", j.Brokers, j.ReadTopic)
@@ -201,8 +210,8 @@ func (j *PfFlowJob) Run() {
 		}
 
 		// Use a timeout context to avoid blocking forever if Kafka is unresponsive
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-		m, err := r.ReadMessage(ctx)
+		ctx2, cancel := context.WithTimeout(ctx, 60*time.Second)
+		m, err := r.ReadMessage(ctx2)
 		cancel()
 		if err != nil {
 			// Check if it's just a timeout (no messages available) vs a real error
