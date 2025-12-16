@@ -43,8 +43,18 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y lnav cgroupfs-mount || {
     echo "Warning: Some packages failed to install, continuing..."
 }
 
-# Step 3: Start Docker (required BEFORE PacketFence installation)
-echo "===> Step 3: Starting Docker service"
+# Step 3: Install Docker packages
+echo "===> Step 3: Installing Docker packages"
+
+# Install Docker packages from local repo (required before starting Docker)
+DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io || {
+    echo "Warning: Docker packages installation had issues, attempting to fix..."
+    dpkg --configure -a
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+}
+
+# Step 4: Start Docker service (required BEFORE PacketFence installation)
+echo "===> Step 4: Starting Docker service"
 
 # Start Docker service - PacketFence postinst needs it running
 systemctl start docker || {
@@ -67,8 +77,8 @@ if [ ! -S /var/run/docker.sock ]; then
     echo "ERROR: Docker socket not available after 30 seconds"
 fi
 
-# Step 4: Load pre-downloaded Docker images
-echo "===> Step 4: Loading Docker images"
+# Step 5: Load pre-downloaded Docker images
+echo "===> Step 5: Loading Docker images"
 
 if [ -d /media/cdrom/docker-images ] && [ -f /media/cdrom/docker-images/load-images.sh ]; then
     /media/cdrom/docker-images/load-images.sh || {
@@ -78,8 +88,8 @@ else
     echo "Warning: Docker images not found on ISO"
 fi
 
-# Step 5: Install PacketFence from local repository
-echo "===> Step 5: Installing PacketFence"
+# Step 6: Install PacketFence from local repository
+echo "===> Step 6: Installing PacketFence"
 
 # Install PacketFence (this will also install dependencies from local repo)
 # Docker is now running so postinst scripts can configure containers
@@ -89,8 +99,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packet
     DEBIAN_FRONTEND=noninteractive apt-get install -y -f
 }
 
-# Step 6: Configure system
-echo "===> Step 6: Configuring system"
+# Step 7: Configure system
+echo "===> Step 7: Configuring system"
 
 # Allow SSH root login
 sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
@@ -99,8 +109,8 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 # (they will be added properly when network is available)
 sed -i 's/.*inverse\.ca.*//g' /etc/apt/sources.list
 
-# Step 7: Configure PacketFence repository for future updates
-echo "===> Step 7: Setting up PacketFence repository for future updates"
+# Step 8: Configure PacketFence repository for future updates
+echo "===> Step 8: Setting up PacketFence repository for future updates"
 
 # Add PacketFence GPG key
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY 2>/dev/null | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg || {
@@ -112,8 +122,8 @@ cat > /etc/apt/sources.list.d/packetfence.list << EOF
 deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm
 EOF
 
-# Step 8: Reset MariaDB root password
-echo "===> Step 8: Resetting MariaDB root password"
+# Step 9: Reset MariaDB root password
+echo "===> Step 9: Resetting MariaDB root password"
 
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 mkdir -p /run/mysqld
@@ -121,8 +131,8 @@ chown mysql: /run/mysqld/
 timeout 30 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /var/log/reset-root.log 2>&1 || true
 rm -f /tmp/reset-root.sql
 
-# Step 9: Stop services that shouldn't run during installation
-echo "===> Step 9: Stopping services"
+# Step 10: Stop services that shouldn't run during installation
+echo "===> Step 10: Stopping services"
 
 # Stop Docker (will be started on first boot)
 pkill -e docker 2>/dev/null || true
@@ -131,8 +141,8 @@ systemctl stop docker 2>/dev/null || true
 # Stop MariaDB
 systemctl stop mariadb 2>/dev/null || true
 
-# Step 10: Create first-boot marker
-echo "===> Step 10: Creating first-boot configuration"
+# Step 11: Create first-boot marker
+echo "===> Step 11: Creating first-boot configuration"
 
 # Create a first-boot script to finalize setup
 cat > /usr/local/bin/packetfence-first-boot.sh << 'FIRSTBOOT_EOF'
