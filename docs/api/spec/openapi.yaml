@@ -24,7 +24,7 @@ components:
       name: cursor
       schema:
         example: 0
-        type: integer
+        type: string
     fields:
       description: Comma delimited fields that should be added to the resource by
         performing joins. For example, in order to get the IP address of a node when
@@ -67,7 +67,6 @@ components:
         type: string
     limit:
       description: The maximum amount of entries to get.
-      in: query
       name: limit
       schema:
         default: 25
@@ -1181,7 +1180,6 @@ components:
           schema:
             $ref: '#/components/schemas/DynamicReportMeta'
       description: A response that contains the report meta
-      x-go-name: DynamicReportMetaResponseDef
     EmailMailer:
       content:
         application/json:
@@ -2215,34 +2213,6 @@ components:
               $ref: '#/components/schemas/AdminApiAuditLog'
             type: array
         type: object
-    ApiError:
-      description: An error object used to define an error in API calls.
-      properties:
-        action:
-          type: string
-        created_at:
-          type: string
-        id:
-          description: '`PRIMARY KEY`'
-          type: integer
-        method:
-          type: string
-        object_id:
-          type: string
-        request:
-          type: string
-        status:
-          type: string
-        url:
-          type: string
-        user_name:
-          type: string
-      type: object
-    AdminApiAuditLogsList:
-      allOf:
-      - $ref: '#/components/schemas/ApiResponse'
-      - $ref: '#/components/schemas/ApiPagination'
-      description: A common response object used across multiple endpoints, with pagination.
     Async:
       properties:
         async:
@@ -2508,644 +2478,23 @@ components:
       description: 'Choose one of the request bodies by discriminator (`type`). '
       oneOf: []
     ConfigBaseMeta:
-      oneOf:
-      - properties:
-          meta:
-            properties:
-              autoconfig:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              certificate:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              ssid:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              email:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              token:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              filter_in_eduroam_authorize:
-                $ref: '#/components/schemas/Meta'
-              filter_in_eduroam_post_proxy:
-                $ref: '#/components/schemas/Meta'
-              filter_in_eduroam_pre_proxy:
-                $ref: '#/components/schemas/Meta'
-              filter_in_eduroam_preacct:
-                $ref: '#/components/schemas/Meta'
-              filter_in_packetfence-tunnel_authorize:
-                $ref: '#/components/schemas/Meta'
-              filter_in_packetfence_accounting:
-                $ref: '#/components/schemas/Meta'
-              filter_in_packetfence_authorize:
-                $ref: '#/components/schemas/Meta'
-              filter_in_packetfence_post_proxy:
-                $ref: '#/components/schemas/Meta'
-              filter_in_packetfence_pre_proxy:
-                $ref: '#/components/schemas/Meta'
-              filter_in_packetfence_preacct:
-                $ref: '#/components/schemas/Meta'
-              forward_key_balanced:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              local_auth:
-                $ref: '#/components/schemas/Meta'
-              normalize_radius_machine_auth_username:
-                $ref: '#/components/schemas/Meta'
-              ntlm_redis_cache:
-                $ref: '#/components/schemas/Meta'
-              pfacct_rate_limit:
-                $ref: '#/components/schemas/Meta'
-              pfacct_rate_limit_cache_ttl:
-                $ref: '#/components/schemas/Meta'
-              pfacct_work_queue_size:
-                $ref: '#/components/schemas/Meta'
-              pfacct_workers:
-                $ref: '#/components/schemas/Meta'
-              process_bandwidth_accounting:
-                $ref: '#/components/schemas/Meta'
-              radius_attributes:
-                $ref: '#/components/schemas/Meta'
-              record_accounting_in_sql:
-                $ref: '#/components/schemas/Meta'
-              username_attributes:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              connection_type_change_detection:
-                $ref: '#/components/schemas/Meta'
-              dhcp_process_ipv6:
-                $ref: '#/components/schemas/Meta'
-              dhcp_rate_limiting:
-                $ref: '#/components/schemas/Meta'
-              dhcpdetector:
-                $ref: '#/components/schemas/Meta'
-              dhcpoption82logger:
-                $ref: '#/components/schemas/Meta'
-              force_listener_update_on_ack:
-                $ref: '#/components/schemas/Meta'
-              hostname_change_detection:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              interfaceSNAT:
-                $ref: '#/components/schemas/Meta'
-              learn_network_cidr_by_role:
-                $ref: '#/components/schemas/Meta'
-              rogue_dhcp_detection:
-                $ref: '#/components/schemas/Meta'
-              rogueinterval:
-                $ref: '#/components/schemas/Meta'
-              staticroutes:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              innodb_buffer_pool_size:
-                $ref: '#/components/schemas/Meta'
-              key_buffer_size:
-                $ref: '#/components/schemas/Meta'
-              masterslave:
-                $ref: '#/components/schemas/Meta'
-              max_allowed_packet:
-                $ref: '#/components/schemas/Meta'
-              max_connect_errors:
-                $ref: '#/components/schemas/Meta'
-              max_connections:
-                $ref: '#/components/schemas/Meta'
-              net_read_timeout:
-                $ref: '#/components/schemas/Meta'
-              net_write_timeout:
-                $ref: '#/components/schemas/Meta'
-              other_members:
-                $ref: '#/components/schemas/Meta'
-              performance_schema:
-                $ref: '#/components/schemas/Meta'
-              query_cache_size:
-                $ref: '#/components/schemas/Meta'
-              table_cache:
-                $ref: '#/components/schemas/Meta'
-              thread_cache_size:
-                $ref: '#/components/schemas/Meta'
-              thread_concurrency:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              aaa:
-                $ref: '#/components/schemas/Meta'
-              admin:
-                $ref: '#/components/schemas/Meta'
-              collector:
-                $ref: '#/components/schemas/Meta'
-              httpd_portal_modstatus:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              pfacct_netflow:
-                $ref: '#/components/schemas/Meta'
-              soap:
-                $ref: '#/components/schemas/Meta'
-              unifiedapi:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              emailaddr:
-                $ref: '#/components/schemas/Meta'
-              fromaddr:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              smtp_encryption:
-                $ref: '#/components/schemas/Meta'
-              smtp_password:
-                $ref: '#/components/schemas/Meta'
-              smtp_port:
-                $ref: '#/components/schemas/Meta'
-              smtp_timeout:
-                $ref: '#/components/schemas/Meta'
-              smtp_username:
-                $ref: '#/components/schemas/Meta'
-              smtp_verifyssl:
-                $ref: '#/components/schemas/Meta'
-              smtpserver:
-                $ref: '#/components/schemas/Meta'
-              subjectprefix:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              category:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              pid:
-                $ref: '#/components/schemas/Meta'
-              voip:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              accounting_timebucket_size:
-                $ref: '#/components/schemas/Meta'
-              active_directory_os_join_check_bypass:
-                $ref: '#/components/schemas/Meta'
-              admin_csp_security_headers:
-                $ref: '#/components/schemas/Meta'
-              api_inactivity_timeout:
-                $ref: '#/components/schemas/Meta'
-              api_max_expiration:
-                $ref: '#/components/schemas/Meta'
-              configurator:
-                $ref: '#/components/schemas/Meta'
-              disable_pf_domain_auth:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              hashing_cost:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              language:
-                $ref: '#/components/schemas/Meta'
-              ldap_attributes:
-                $ref: '#/components/schemas/Meta'
-              locationlog_close_on_accounting_stop:
-                $ref: '#/components/schemas/Meta'
-              multihost:
-                $ref: '#/components/schemas/Meta'
-              netflow_on_all_networks:
-                $ref: '#/components/schemas/Meta'
-              openid_attributes:
-                $ref: '#/components/schemas/Meta'
-              pffilter_processes:
-                $ref: '#/components/schemas/Meta'
-              pfperl_api_processes:
-                $ref: '#/components/schemas/Meta'
-              pfperl_api_timeout:
-                $ref: '#/components/schemas/Meta'
-              pfupdate_custom_script_path:
-                $ref: '#/components/schemas/Meta'
-              portal_csp_security_headers:
-                $ref: '#/components/schemas/Meta'
-              scan_on_accounting:
-                $ref: '#/components/schemas/Meta'
-              source_to_send_sms_when_creating_users:
-                $ref: '#/components/schemas/Meta'
-              statsd_listen_host:
-                $ref: '#/components/schemas/Meta'
-              statsd_listen_port:
-                $ref: '#/components/schemas/Meta'
-              timing_stats_level:
-                $ref: '#/components/schemas/Meta'
-              update_iplog_with_accounting:
-                $ref: '#/components/schemas/Meta'
-              update_iplog_with_authentication:
-                $ref: '#/components/schemas/Meta'
-              update_iplog_with_external_portal_requests:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              access_duration_choices:
-                $ref: '#/components/schemas/Meta'
-              default_access_duration:
-                $ref: '#/components/schemas/Meta'
-              default_access_duration_add:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              api-frontend:
-                $ref: '#/components/schemas/Meta'
-              fingerbank-collector:
-                $ref: '#/components/schemas/Meta'
-              galera-autofix:
-                $ref: '#/components/schemas/Meta'
-              haproxy-admin:
-                $ref: '#/components/schemas/Meta'
-              haproxy-db:
-                $ref: '#/components/schemas/Meta'
-              haproxy-portal:
-                $ref: '#/components/schemas/Meta'
-              httpd_aaa:
-                $ref: '#/components/schemas/Meta'
-              httpd_admin_dispatcher:
-                $ref: '#/components/schemas/Meta'
-              httpd_dispatcher:
-                $ref: '#/components/schemas/Meta'
-              httpd_portal:
-                $ref: '#/components/schemas/Meta'
-              httpd_webservices:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              ip6tables:
-                $ref: '#/components/schemas/Meta'
-              iptables:
-                $ref: '#/components/schemas/Meta'
-              kafka:
-                $ref: '#/components/schemas/Meta'
-              keepalived:
-                $ref: '#/components/schemas/Meta'
-              mysql-probe:
-                $ref: '#/components/schemas/Meta'
-              netdata:
-                $ref: '#/components/schemas/Meta'
-              netflow_address:
-                $ref: '#/components/schemas/Meta'
-              netflow_target_host_port:
-                $ref: '#/components/schemas/Meta'
-              ntlm-auth-api:
-                $ref: '#/components/schemas/Meta'
-              pfacct:
-                $ref: '#/components/schemas/Meta'
-              pfconnector-client:
-                $ref: '#/components/schemas/Meta'
-              pfconnector-server:
-                $ref: '#/components/schemas/Meta'
-              pfcron:
-                $ref: '#/components/schemas/Meta'
-              pfdetect:
-                $ref: '#/components/schemas/Meta'
-              pfdhcp:
-                $ref: '#/components/schemas/Meta'
-              pfdhcplistener:
-                $ref: '#/components/schemas/Meta'
-              pfdhcplistener_packet_size:
-                $ref: '#/components/schemas/Meta'
-              pfdns:
-                $ref: '#/components/schemas/Meta'
-              pfdns-connector:
-                $ref: '#/components/schemas/Meta'
-              pfdns-connector_binary:
-                $ref: '#/components/schemas/Meta'
-              pffilter:
-                $ref: '#/components/schemas/Meta'
-              pfipset:
-                $ref: '#/components/schemas/Meta'
-              pfldapexplorer:
-                $ref: '#/components/schemas/Meta'
-              pfperl-api:
-                $ref: '#/components/schemas/Meta'
-              pfpki:
-                $ref: '#/components/schemas/Meta'
-              pfqueue:
-                $ref: '#/components/schemas/Meta'
-              pfqueue-backend:
-                $ref: '#/components/schemas/Meta'
-              pfqueue-go:
-                $ref: '#/components/schemas/Meta'
-              pfsetacls:
-                $ref: '#/components/schemas/Meta'
-              pfsso:
-                $ref: '#/components/schemas/Meta'
-              pfstats:
-                $ref: '#/components/schemas/Meta'
-              proxysql:
-                $ref: '#/components/schemas/Meta'
-              radiusd:
-                $ref: '#/components/schemas/Meta'
-              radiusd_acct:
-                $ref: '#/components/schemas/Meta'
-              radiusd_auth:
-                $ref: '#/components/schemas/Meta'
-              radsniff:
-                $ref: '#/components/schemas/Meta'
-              redis_cache:
-                $ref: '#/components/schemas/Meta'
-              redis_cache_host:
-                $ref: '#/components/schemas/Meta'
-              redis_cache_port:
-                $ref: '#/components/schemas/Meta'
-              redis_ntlm_cache:
-                $ref: '#/components/schemas/Meta'
-              redis_ntlm_cache_host:
-                $ref: '#/components/schemas/Meta'
-              redis_ntlm_cache_port:
-                $ref: '#/components/schemas/Meta'
-              redis_queue:
-                $ref: '#/components/schemas/Meta'
-              redis_queue_host:
-                $ref: '#/components/schemas/Meta'
-              redis_queue_port:
-                $ref: '#/components/schemas/Meta'
-              snmptrapd:
-                $ref: '#/components/schemas/Meta'
-              tracking-config:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              auth_on_management:
-                $ref: '#/components/schemas/Meta'
-              centralize_vips:
-                $ref: '#/components/schemas/Meta'
-              centralized_deauth:
-                $ref: '#/components/schemas/Meta'
-              conflict_resolution_threshold:
-                $ref: '#/components/schemas/Meta'
-              dns_on_vip_only:
-                $ref: '#/components/schemas/Meta'
-              firewall_sso_on_management:
-                $ref: '#/components/schemas/Meta'
-              galera_replication:
-                $ref: '#/components/schemas/Meta'
-              galera_replication_password:
-                $ref: '#/components/schemas/Meta'
-              galera_replication_username:
-                $ref: '#/components/schemas/Meta'
-              gateway_on_vip_only:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              portal_on_management:
-                $ref: '#/components/schemas/Meta'
-              probe_mysql_from_haproxy_db:
-                $ref: '#/components/schemas/Meta'
-              radius_proxy_with_vip:
-                $ref: '#/components/schemas/Meta'
-              use_vip_for_deauth:
-                $ref: '#/components/schemas/Meta'
-              virtual_router_id:
-                $ref: '#/components/schemas/Meta'
-              vrrp_unicast:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              dhcpservers:
-                $ref: '#/components/schemas/Meta'
-              domain:
-                $ref: '#/components/schemas/Meta'
-              hostname:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              send_anonymous_stats:
-                $ref: '#/components/schemas/Meta'
-              timezone:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              db:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              pass:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              unix_socket:
-                $ref: '#/components/schemas/Meta'
-              user:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              interception_proxy:
-                $ref: '#/components/schemas/Meta'
-              interception_proxy_port:
-                $ref: '#/components/schemas/Meta'
-              isolation_passthrough:
-                $ref: '#/components/schemas/Meta'
-              isolation_passthroughs:
-                $ref: '#/components/schemas/Meta'
-              passthrough:
-                $ref: '#/components/schemas/Meta'
-              passthroughs:
-                $ref: '#/components/schemas/Meta'
-              proxy_passthroughs:
-                $ref: '#/components/schemas/Meta'
-              range:
-                $ref: '#/components/schemas/Meta'
-              wait_for_redirect:
-                $ref: '#/components/schemas/Meta'
-              whitelist:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              detection_mecanism_bypass:
-                $ref: '#/components/schemas/Meta'
-              detection_mecanism_urls:
-                $ref: '#/components/schemas/Meta'
-              expose_fingerbank_info_all_templates:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              image_path:
-                $ref: '#/components/schemas/Meta'
-              ip_address:
-                $ref: '#/components/schemas/Meta'
-              loadbalancers_ip:
-                $ref: '#/components/schemas/Meta'
-              network_detection:
-                $ref: '#/components/schemas/Meta'
-              network_detection_initial_delay:
-                $ref: '#/components/schemas/Meta'
-              network_detection_ip:
-                $ref: '#/components/schemas/Meta'
-              network_detection_retry_delay:
-                $ref: '#/components/schemas/Meta'
-              network_redirect_delay:
-                $ref: '#/components/schemas/Meta'
-              other_domain_names:
-                $ref: '#/components/schemas/Meta'
-              rate_limiting:
-                $ref: '#/components/schemas/Meta'
-              rate_limiting_threshold:
-                $ref: '#/components/schemas/Meta'
-              request_timeout:
-                $ref: '#/components/schemas/Meta'
-              secure_redirect:
-                $ref: '#/components/schemas/Meta'
-              status_only_on_production:
-                $ref: '#/components/schemas/Meta'
-              wispr_redirection:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              bounce_duration:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              trap_limit:
-                $ref: '#/components/schemas/Meta'
-              trap_limit_action:
-                $ref: '#/components/schemas/Meta'
-              trap_limit_threshold:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              interfaceSNAT:
-                $ref: '#/components/schemas/Meta'
-              ports_redirect:
-                $ref: '#/components/schemas/Meta'
-              should_reauth_on_vlan_change:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              lease_length:
-                $ref: '#/components/schemas/Meta'
-              place_in_dhcp_parking_group:
-                $ref: '#/components/schemas/Meta'
-              show_parking_portal:
-                $ref: '#/components/schemas/Meta'
-              threshold:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              device_class_whitelist:
-                $ref: '#/components/schemas/Meta'
-              enable:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              trigger_on_device_class_change:
-                $ref: '#/components/schemas/Meta'
-              triggers:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              pass:
-                $ref: '#/components/schemas/Meta'
-              user:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
+      properties:
+        meta:
+          properties:
+            dhcpservers:
+              $ref: '#/components/schemas/Meta'
+            domain:
+              $ref: '#/components/schemas/Meta'
+            hostname:
+              $ref: '#/components/schemas/Meta'
+            id:
+              $ref: '#/components/schemas/Meta'
+            send_anonymous_stats:
+              $ref: '#/components/schemas/Meta'
+            timezone:
+              $ref: '#/components/schemas/Meta'
+          type: object
+      type: object
     ConfigBaseWrapped:
       properties:
         item:
@@ -4238,15 +3587,15 @@ components:
           suricata_md5: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSnort'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeRegex'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortigateDhcp'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeDhcp'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose'
     ConfigEventHandlerMetaSubTypeDhcp:
       properties:
         meta:
@@ -5039,20 +4388,20 @@ components:
           windows: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileconfig'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAirwatch'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAirwatch'
     ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept:
       properties:
         meta:
@@ -6776,18 +6125,56 @@ components:
           WatchGuard: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeIboss'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFortigate'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeLightspeedrocket'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeBarracudang'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJsonrpc'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeIboss'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypePaloalto'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeBarracudang'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFortigate'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeLightspeedrocket'
+    ConfigFirewallMeta:
+      properties:
+        meta:
+          properties:
+            act_on_accounting_stop:
+              $ref: '#/components/schemas/Meta'
+            cache_timeout:
+              $ref: '#/components/schemas/Meta'
+            cache_updates:
+              $ref: '#/components/schemas/Meta'
+            categories:
+              $ref: '#/components/schemas/Meta'
+            default_realm:
+              $ref: '#/components/schemas/Meta'
+            id:
+              $ref: '#/components/schemas/Meta'
+            networks:
+              $ref: '#/components/schemas/Meta'
+            password:
+              $ref: '#/components/schemas/Meta'
+            port:
+              $ref: '#/components/schemas/Meta'
+            sso_on_access_reevaluation:
+              $ref: '#/components/schemas/Meta'
+            sso_on_accounting:
+              $ref: '#/components/schemas/Meta'
+            sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            type:
+              $ref: '#/components/schemas/Meta'
+            uid:
+              $ref: '#/components/schemas/Meta'
+            use_connector:
+              $ref: '#/components/schemas/Meta'
+            username_format:
+              $ref: '#/components/schemas/Meta'
+          type: object
+      type: object
     ConfigFirewallMetaSubTypeBarracudang:
       properties:
         meta:
@@ -8611,36 +7998,36 @@ components:
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeOption82Query'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp6logCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeOption82Query'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup'
     ConfigMaintenanceTaskMetaSubTypeAcctCleanup:
       properties:
         meta:
@@ -11155,37 +10542,39 @@ components:
           URL: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSms'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMfa'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRoot'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSslInspection'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationLogin'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationPassword'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGoogle'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMessage'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMfa'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBilling'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRoot'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationPassword'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth'
     ConfigPortalModuleMetaSubTypeAuthentication:
       properties:
         meta:
@@ -13521,20 +12910,20 @@ components:
           windows: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDeny'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAndroid'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeIntune'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeKandji'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDpsk'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamf'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud'
     ConfigProvisioningMetaSubTypeAccept:
       properties:
         meta:
@@ -16239,9 +15628,9 @@ components:
           pfappserver::Form::Config::Scan::Rapid7: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6'
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus'
       - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6'
       - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanOpenvas'
     ConfigScanMetaSubTypePfappserverFormConfigScanNessus:
       properties:
@@ -17096,38 +16485,38 @@ components:
           WindowsLive: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGithub'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEmail'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHtpasswd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLdap'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEaptls'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeClickatell'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEduroam'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeBlackhole'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAuthorization'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeNull'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeTwilio'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAdminproxy'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEaptls'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeOpenid'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEdir'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogle'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHttp'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKerberos'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAuthorization'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePotd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKickbox'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeTwilio'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEdir'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeBlackhole'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePaypal'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEduroam'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEmail'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeNull'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAdminproxy'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeFacebook'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKickbox'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSql'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeOpenid'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAzuread'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogle'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePotd'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLdap'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGithub'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePaypal'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
     ConfigSourceMetaSubTypeAd:
       properties:
         meta:
@@ -25522,7 +24911,6 @@ components:
               type: array
           type: object
       type: object
-      x-go-name: DynamicReportMetaSchema
     DynamicReportSearchRequest:
       additionalProperties: true
       properties:
@@ -25566,7 +24954,6 @@ components:
       x-go-name: EmailPreviewSchema
     EmailSend:
       type: object
-      x-go-name: EmailSendSchema
     ErrorsWithMessage:
       properties:
         errors:
@@ -29051,6 +28438,166 @@ components:
               $ref: '#/components/schemas/RadiusAuditLog'
             type: array
         type: object
+    Report:
+      description: A report
+      properties:
+        bindings:
+          description: Comma separated list of bindings
+          type: string
+        charts:
+          description: Comma separated list of chart
+          type: string
+        columns:
+          description: Comma separated list of columns
+          type: string
+        cursor_default:
+          description: Comma separated list of default cursor
+          type: string
+        cursor_field:
+          description: Comma separated list of cursor fields
+          type: string
+        cursor_type:
+          description: Cursor type
+          enum:
+          - field
+          - multi_field
+          - offset
+          - none
+          type: string
+        date_limit:
+          description: Date limit for report
+          type: string
+        default_limit:
+          default: '25'
+          description: Default limit for report
+          type: string
+        description:
+          description: Report description
+          type: string
+        formatting:
+          description: Comma separated list of formatting
+          type: string
+        has_date_range:
+          $ref: '#/components/schemas/EnableValue'
+          description: Enable/disable date range for report
+        has_limit:
+          $ref: '#/components/schemas/EnableValue'
+          description: Enable/disable limit for report
+        id:
+          description: Report ID
+          type: string
+        node_fields:
+          description: Comma separated list of nodes
+          type: string
+        person_fields:
+          description: Comma separated list of person
+          type: string
+        role_fields:
+          description: Comma separated list of roles
+          type: string
+        sql:
+          description: SQL query separated in multiple lines
+          items:
+            type: string
+          type: array
+        type:
+          default: sql
+          description: Report type. Only 'sql' supported
+          enum:
+          - sql
+          type: string
+      type: object
+    ReportOptions:
+      description: A report
+      properties:
+        charts:
+          description: Comma separated list of chart
+          items:
+            type: string
+          type: array
+        columns:
+          description: Comma separated list of columns
+          items:
+            properties:
+              is_cursor:
+                description: Column is used in cursor, can be used as PK
+                type: boolean
+              is_node:
+                description: Column is a node, can be used as PK
+                type: boolean
+              is_person:
+                description: Column is a person, can be used as PK
+                type: boolean
+              is_role:
+                description: Column is a role, can be used as PK
+                type: boolean
+              name:
+                description: Column name
+                type: string
+              text:
+                description: Column text
+                type: string
+            type: object
+          type: array
+        date_limit:
+          description: Enforce maximum date range to prevent database full table scans
+          type: string
+        default_end_date:
+          description: Default end datetime if no end_date is defined
+          example: 1970-01-01 00:00:00
+          format: date-time
+          type: string
+        default_limit:
+          default: '25'
+          description: Default query limit
+          type: string
+        default_start_date:
+          description: Default start datetime if no start_date is defined
+          example: 1970-01-01 00:00:00
+          format: date-time
+          type: string
+        description:
+          description: Descriptive text
+          type: string
+        has_cursor:
+          description: Pagination is available
+          type: boolean
+        has_date_range:
+          description: Date range is available
+          type: boolean
+        has_limit:
+          description: Query limits enforced
+          type: boolean
+        id:
+          description: Report ID
+          type: string
+      type: object
+    ReportSearchBody:
+      description: A search query on a report
+      properties:
+        cursor:
+          description: Cursor for pagination. Support multi-cursor.
+          type:
+          - array
+          - string
+          - integer
+          - boolean
+          - ~
+        end_date:
+          description: End date filter. Required if report has date range enabled
+          example: 1970-01-01 00:00:00
+          format: date-time
+          type: string
+        limit:
+          description: The maximum number of items to return (SQL limit). Enable if
+            report has limit enabled
+          type: integer
+        start_date:
+          description: Start date filter. Required if report has date range enabled
+          example: 1970-01-01 00:00:00
+          format: date-time
+          type: string
+      type: object
     SMSCarrier:
       properties:
         created:
@@ -29785,10 +29332,30 @@ info:
   version: 1.2.0
 openapi: 3.1.0
 paths:
-  /api/v1.1/report/{id}:
+  /api/v1.1/report/{report_id}:
+    description: |-
+      pf::UnifiedApi::Controller::DynamicReports
+
+        configStore
+          Get the dynamic reports config store
+
+        search
+          Execute a search on a specific dynamic report
+
+        list
+          List all the dynamic reports
+
+        resource
+          Get a dynamic report
+
+        resource
+          Get a dynamic report
+
+        options
+          options
     get:
-      description: Get a single report
-      operationId: GetReportById
+      description: Get a report
+      operationId: api.v1.1.DynamicReports.resource.get
       parameters:
       - description: Report ID
         in: path
@@ -29938,222 +29505,39 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
-      - AuthLogs
-  /api/v1/auth_logs:
-    description: pf::UnifiedApi::Controller::AuthLogs
+      - DynamicReports
+  /api/v1.1/reports:
+    description: |-
+      pf::UnifiedApi::Controller::DynamicReports
+
+        configStore
+          Get the dynamic reports config store
+
+        search
+          Execute a search on a specific dynamic report
+
+        list
+          List all the dynamic reports
+
+        resource
+          Get a dynamic report
+
+        resource
+          Get a dynamic report
+
+        options
+          options
     get:
-      description: List all items.
-      operationId: api.v1.AuthLogs.list
-      parameters:
-      - description: Comma delimited list of fields to return with each item.
-        explode: false
-        in: query
-        name: fields
-        required: true
-        schema:
-          example:
-          - attempted_at
-          - completed_at
-          - id
-          - mac
-          - pid
-          - process_name
-          - profile
-          - source
-          - status
-          items:
-            enum:
-            - attempted_at
-            - completed_at
-            - id
-            - mac
-            - pid
-            - process_name
-            - profile
-            - source
-            - status
-            type: string
-          type: array
-        style: simple
-      - description: 'Comma delimited list of fields and respective order to sort
-          items (`default: [ id ASC ]`).'
-        explode: false
-        in: query
-        name: sort
-        required: true
-        schema:
-          example:
-          - id ASC
-          items:
-            enum:
-            - attempted_at ASC
-            - attempted_at DESC
-            - completed_at ASC
-            - completed_at DESC
-            - id ASC
-            - id DESC
-            - mac ASC
-            - mac DESC
-            - pid ASC
-            - pid DESC
-            - process_name ASC
-            - process_name DESC
-            - profile ASC
-            - profile DESC
-            - source ASC
-            - source DESC
-            - status ASC
-            - status DESC
-            type: string
-          type: array
-        style: simple
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/cursor'
+      description: List reports
+      operationId: api.v1.1.DynamicReports.list
+      parameters: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/ApiResponsePaginated'
-                - properties:
-                    items:
-                      description: Columns value, can be any type
-                      items:
-                        type: object
-                      type: array
-                  type: object
-          description: Successful response
-        '400':
-          $ref: '#/components/responses/APIBadRequest'
-        '404':
-          $ref: '#/components/responses/APINotFound'
-        '500':
-          $ref: '#/components/responses/APIInternalServerError'
+          $ref: '#/components/responses/Message'
+        '401':
+          $ref: '#/components/responses/Forbidden'
       tags:
-      - Classes
-  /api/v1/classes:
-    description: pf::UnifiedApi::Controller::Classes
-    get:
-      description: List all items.
-      operationId: api.v1.Classes.list
-      parameters:
-      - description: Comma delimited list of fields to return with each item.
-        explode: false
-        in: query
-        name: fields
-        required: true
-        schema:
-          example:
-          - auto_enable
-          - button_text
-          - delay_by
-          - description
-          - enabled
-          - external_command
-          - grace_period
-          - max_enable_url
-          - max_enables
-          - priority
-          - redirect_url
-          - security_event_id
-          - target_category
-          - template
-          - vclose
-          - vlan
-          - window
-          items:
-            enum:
-            - auto_enable
-            - button_text
-            - delay_by
-            - description
-            - enabled
-            - external_command
-            - grace_period
-            - max_enable_url
-            - max_enables
-            - priority
-            - redirect_url
-            - security_event_id
-            - target_category
-            - template
-            - vclose
-            - vlan
-            - window
-            type: string
-          type: array
-        style: simple
-      - description: 'Comma delimited list of fields and respective order to sort
-          items (`default: [ security_event_id ASC ]`).'
-        explode: false
-        in: query
-        name: sort
-        required: true
-        schema:
-          example:
-          - security_event_id ASC
-          items:
-            enum:
-            - auto_enable ASC
-            - auto_enable DESC
-            - button_text ASC
-            - button_text DESC
-            - delay_by ASC
-            - delay_by DESC
-            - description ASC
-            - description DESC
-            - enabled ASC
-            - enabled DESC
-            - external_command ASC
-            - external_command DESC
-            - grace_period ASC
-            - grace_period DESC
-            - max_enable_url ASC
-            - max_enable_url DESC
-            - max_enables ASC
-            - max_enables DESC
-            - priority ASC
-            - priority DESC
-            - redirect_url ASC
-            - redirect_url DESC
-            - security_event_id ASC
-            - security_event_id DESC
-            - target_category ASC
-            - target_category DESC
-            - template ASC
-            - template DESC
-            - vclose ASC
-            - vclose DESC
-            - vlan ASC
-            - vlan DESC
-            - window ASC
-            - window DESC
-            type: string
-          type: array
-        style: simple
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/cursor'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/ApiResponsePaginated'
-                - properties:
-                    items:
-                      items:
-                        $ref: '#/components/schemas/Report'
-                      type: array
-                  type: object
-          description: Successful response
-        '400':
-          $ref: '#/components/responses/APIBadRequest'
-        '500':
-          $ref: '#/components/responses/APIInternalServerError'
-      tags:
-      - Report
+      - DynamicReports
   /api/v1/admin_api_audit_log/{admin_api_audit_log_id}:
     description: pf::UnifiedApi::Controller::AdminApiAuditLogs
     get:
@@ -51578,303 +50962,6 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
       - DnsAuditLogs
-  /api/v1/dynamic_report/{report_id}:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
-    get:
-      description: Get a report
-      operationId: api.v1.DynamicReports.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: report_id
-        required: true
-        schema:
-          enum:
-          - Accounting::Bandwidth
-          - Accounting::Node
-          - Accounting::Operating System Class
-          - Accounting::User
-          - Authentication::All
-          - Authentication::All Failures
-          - Authentication::All Successes
-          - Authentication::Top Failures::Connection Profile to Source
-          - Authentication::Top Failures::By Connection Profile
-          - Authentication::Top Failures::By Source
-          - Authentication::Top Successes::By Connection Profile
-          - Authentication::Top Successes::By Source
-          - Authentication::Top Successes::Connection Profile to Source
-          - Connection Types::Active
-          - Connection Types::All
-          - Connection Types::Date Range
-          - Connection Types::Registered Active
-          - Connection Types::Registered All
-          - Fingerbank::Unknown Fingerprints::Active
-          - Fingerbank::Unknown Fingerprints::All
-          - Ip4Log::Archive
-          - Ip4Log::History
-          - Node::Active
-          - Node::Inactive
-          - Node::Registered::Active
-          - Node::Registered::All
-          - Node::Unregistered::Active
-          - Node::Unregistered::All
-          - Operating System Class::Active
-          - Operating System Class::All
-          - Operating Systems::Active
-          - Operating Systems::All
-          - RADIUS Authentication::Top Failures::By MAC
-          - RADIUS Authentication::Top Failures::By SSID
-          - RADIUS Authentication::Top Failures::By Username
-          - RADIUS Authentication::Top Successes::By Computername
-          - RADIUS Authentication::Top Successes::By MAC
-          - RADIUS Authentication::Top Successes::By SSID
-          - RADIUS Authentication::Top Successes::By Username
-          - Roles::Active
-          - Roles::Active per device class
-          - Roles::Active per device manufacturer
-          - Roles::Active per device type
-          - Roles::All
-          - Security Events::Closed
-          - Security Events::Open
-          - Security Events::Open Active
-          - Security Events::Open All
-          - SSID::Active
-          - SSID::All
-          - Top Sponsors::All
-          - User::Registration::Email
-          - User::Registration::SMS
-          - User::Registration::Sponsor
-          type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - DynamicReports
-    options:
-      description: Get meta of a report
-      operationId: api.v1.DynamicReports.resource.options
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: report_id
-        required: true
-        schema:
-          enum:
-          - Accounting::Bandwidth
-          - Accounting::Node
-          - Accounting::Operating System Class
-          - Accounting::User
-          - Authentication::All
-          - Authentication::All Failures
-          - Authentication::All Successes
-          - Authentication::Top Failures::Connection Profile to Source
-          - Authentication::Top Failures::By Connection Profile
-          - Authentication::Top Failures::By Source
-          - Authentication::Top Successes::By Connection Profile
-          - Authentication::Top Successes::By Source
-          - Authentication::Top Successes::Connection Profile to Source
-          - Connection Types::Active
-          - Connection Types::All
-          - Connection Types::Date Range
-          - Connection Types::Registered Active
-          - Connection Types::Registered All
-          - Fingerbank::Unknown Fingerprints::Active
-          - Fingerbank::Unknown Fingerprints::All
-          - Ip4Log::Archive
-          - Ip4Log::History
-          - Node::Active
-          - Node::Inactive
-          - Node::Registered::Active
-          - Node::Registered::All
-          - Node::Unregistered::Active
-          - Node::Unregistered::All
-          - Operating System Class::Active
-          - Operating System Class::All
-          - Operating Systems::Active
-          - Operating Systems::All
-          - RADIUS Authentication::Top Failures::By MAC
-          - RADIUS Authentication::Top Failures::By SSID
-          - RADIUS Authentication::Top Failures::By Username
-          - RADIUS Authentication::Top Successes::By Computername
-          - RADIUS Authentication::Top Successes::By MAC
-          - RADIUS Authentication::Top Successes::By SSID
-          - RADIUS Authentication::Top Successes::By Username
-          - Roles::Active
-          - Roles::Active per device class
-          - Roles::Active per device manufacturer
-          - Roles::Active per device type
-          - Roles::All
-          - Security Events::Closed
-          - Security Events::Open
-          - Security Events::Open Active
-          - Security Events::Open All
-          - SSID::Active
-          - SSID::All
-          - Top Sponsors::All
-          - User::Registration::Email
-          - User::Registration::SMS
-          - User::Registration::Sponsor
-          type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/DynamicReportMeta'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - DynamicReports
-  /api/v1/dynamic_report/{report_id}/search:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
-    post:
-      description: Search a report
-      operationId: api.v1.DynamicReports.resource.search
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: report_id
-        required: true
-        schema:
-          enum:
-          - Accounting::Bandwidth
-          - Accounting::Node
-          - Accounting::Operating System Class
-          - Accounting::User
-          - Authentication::All
-          - Authentication::All Failures
-          - Authentication::All Successes
-          - Authentication::Top Failures::Connection Profile to Source
-          - Authentication::Top Failures::By Connection Profile
-          - Authentication::Top Failures::By Source
-          - Authentication::Top Successes::By Connection Profile
-          - Authentication::Top Successes::By Source
-          - Authentication::Top Successes::Connection Profile to Source
-          - Connection Types::Active
-          - Connection Types::All
-          - Connection Types::Date Range
-          - Connection Types::Registered Active
-          - Connection Types::Registered All
-          - Fingerbank::Unknown Fingerprints::Active
-          - Fingerbank::Unknown Fingerprints::All
-          - Ip4Log::Archive
-          - Ip4Log::History
-          - Node::Active
-          - Node::Inactive
-          - Node::Registered::Active
-          - Node::Registered::All
-          - Node::Unregistered::Active
-          - Node::Unregistered::All
-          - Operating System Class::Active
-          - Operating System Class::All
-          - Operating Systems::Active
-          - Operating Systems::All
-          - RADIUS Authentication::Top Failures::By MAC
-          - RADIUS Authentication::Top Failures::By SSID
-          - RADIUS Authentication::Top Failures::By Username
-          - RADIUS Authentication::Top Successes::By Computername
-          - RADIUS Authentication::Top Successes::By MAC
-          - RADIUS Authentication::Top Successes::By SSID
-          - RADIUS Authentication::Top Successes::By Username
-          - Roles::Active
-          - Roles::Active per device class
-          - Roles::Active per device manufacturer
-          - Roles::Active per device type
-          - Roles::All
-          - Security Events::Closed
-          - Security Events::Open
-          - Security Events::Open Active
-          - Security Events::Open All
-          - SSID::Active
-          - SSID::All
-          - Top Sponsors::All
-          - User::Registration::Email
-          - User::Registration::SMS
-          - User::Registration::Sponsor
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DynamicReportSearchRequest'
-      responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - DynamicReports
-  /api/v1/dynamic_reports:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
-    get:
-      description: List reports
-      operationId: api.v1.DynamicReports.list
-      parameters: []
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - DynamicReports
   /api/v1/email/pfmailer:
     post:
       requestBody:
