@@ -344,8 +344,19 @@ sub make_pcap_filter {
     for my $type (@types) {
        die "Unknown message type $type" unless exists $MESSAGE_TYPE{$type} && defined $MESSAGE_TYPE{$type};
     }
-    my $type_filter = join(" or ",map { sprintf("(udp[250:1] = 0x%x)",$MESSAGE_TYPE{$_}) } @types);
-    return "((port 67 or port 68 or port 767) and ( $type_filter )) or (port 546 or port 547)";
+    # Check for DHCP option 53 (message type) at multiple offsets
+    # Pattern: 0x3501XX00 where 0x35=option53, 0x01=length, XX=message type
+    # Mask 0xffffff00 ignores the byte after the message type
+    my @offsets = (248, 254, 260);
+    my @type_filters;
+    for my $type (@types) {
+        my $pattern = sprintf("0x3501%02x00", $MESSAGE_TYPE{$type});
+        for my $offset (@offsets) {
+            push @type_filters, "(udp[$offset:4] & 0xffffff00 = $pattern)";
+        }
+    }
+    my $type_filter = join(" or ", @type_filters);
+    return "((port 67 or port 68) and ( $type_filter )) or (port 546 or port 547)";
 }
 
 =back
