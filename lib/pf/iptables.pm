@@ -1592,6 +1592,8 @@ sub iptables_radiusd_eduroam_rules {
                 util_safe_push( "-i $tint -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
         }
+        # Convert to JSON and save to file
+        util_create_service_rules($chains);
     } else {
         $logger->info( "Service $service_name: Eduroam integration is not configured" );
     }
