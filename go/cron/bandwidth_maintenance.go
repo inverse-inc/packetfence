@@ -50,8 +50,7 @@ func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *BandwidthMaintenance) Run() {
-	ctx := context.Background()
+func (j *BandwidthMaintenance) RunWithContext(ctx context.Context) {
 	j.BandwidthMaintenanceSessionCleanup(ctx)
 	j.ProcessBandwidthAccountingNetflow(ctx)
 	j.TriggerBandwidth(ctx)
@@ -62,6 +61,10 @@ func (j *BandwidthMaintenance) Run() {
 	j.BandwidthHistoryAggregation(ctx, "DATE", "DAY", 1)
 	j.BandwidthHistoryAggregation(ctx, "ROUND_TO_MONTH", "MONTH", 1)
 	j.BandwidthAccountingHistoryCleanup(ctx)
+}
+
+func (j *BandwidthMaintenance) Run() {
+	j.RunWithContext(context.Background())
 }
 
 func (j *BandwidthMaintenance) BandwidthMaintenanceSessionCleanup(ctx context.Context) {

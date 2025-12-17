@@ -64,10 +64,10 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 var processJobs uint32 = 1
 
-func wrapJob(logger log.PfLogger, j string, l bool) cron.Job {
+func wrapJob(logger log.PfLogger, j string, l bool) cron.JobWithContext {
 	var ch = make(chan struct{}, 1)
 	ch <- struct{}{}
-	return cron.FuncJob(func() {
+	return cron.FuncJobWithContext(func(ctx context.Context) {
 		defer func() {
 			if r := recover(); r != nil {
 				logger.Error(fmt.Sprintf("Job %s panic: %s", j, r))

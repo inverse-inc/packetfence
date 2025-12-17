@@ -594,8 +594,8 @@ github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee h1:W5t00kpgFd
 github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
-github.com/netresearch/go-cron v0.6.2-0.20251215141217-38d6cd5dc5ce h1:z6Jjfdnyhuldz+JMbDEijPRaFKQ7JOCkLlpdlsME5Wo=
-github.com/netresearch/go-cron v0.6.2-0.20251215141217-38d6cd5dc5ce/go.mod h1:oRPUA7fHC/ul86n+d3SdUD54cEuHIuCLiFJCua5a5/E=
+github.com/netresearch/go-cron v0.7.1 h1:4uhkNSWTR3mBVlY1JtIcnZEaSLirTwkLksKy+fXgJw4=
+github.com/netresearch/go-cron v0.7.1/go.mod h1:oRPUA7fHC/ul86n+d3SdUD54cEuHIuCLiFJCua5a5/E=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/onsi/ginkgo/v2 v2.22.1 h1:QW7tbJAUDyVDVOM5dFa7qaybo+CRfR7bemlQUN6Z8aM=

@@ -84,38 +84,42 @@ func NewKafkaSubmiter(o *KafkaSubmiterOptions) (*KafkaSubmiter, error) {
 	}, nil
 }
 
-func (s *KafkaSubmiter) Run() {
+func (s *KafkaSubmiter) RunWithContext(ctx context.Context) {
 LOOP:
 	for {
 		select {
 		case <-s.stop:
 			break LOOP
 		case events := <-s.batchSubmitChan:
-			s.send(events)
+			s.send(ctx, events)
 		}
 	}
 
 	for events := range s.batchSubmitChan {
-		s.send(events)
+		s.send(ctx, events)
 	}
 
 	s.shutdown()
+}
+
+func (s *KafkaSubmiter) Run() {
+	s.RunWithContext(context.Background())
 }
 
 func (s *KafkaSubmiter) shutdown() {
 	s.writer.Close()
 }
 
-func (s *KafkaSubmiter) send(events []*NetworkEvent) {
+func (s *KafkaSubmiter) send(ctx context.Context, events []*NetworkEvent) {
 	var filteredEvents []*NetworkEvent
 	if s.filterEvents {
 		db, err := getDb()
 		if err != nil {
-			log.LogErrorf(context.Background(), "Failed to get database connection for filtering: %v", err)
+			log.LogErrorf(ctx, "Failed to get database connection for filtering: %v", err)
 		} else {
 			filter, err := GetFilterFromNetworkEvents(db, events)
 			if err != nil {
-				log.LogErrorf(context.Background(), "Failed to get filter from network events: %v", err)
+				log.LogErrorf(ctx, "Failed to get filter from network events: %v", err)
 			} else {
 				filteredEvents = filter.FilterEvents(events)
 			}
@@ -125,7 +129,6 @@ func (s *KafkaSubmiter) send(events []*NetworkEvent) {
 		filteredEvents = events
 	}
 
-	ctx := context.Background()
 	messages := make([]kafka.Message, 0, len(filteredEvents))
 	for i := 0; i < len(filteredEvents); i++ {
 		data, err := json.Marshal(filteredEvents[i])

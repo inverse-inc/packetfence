@@ -11,8 +11,7 @@ type PfcronJob struct {
 	Task
 }
 
-func (j *PfcronJob) Run() {
-	ctx := context.Background()
+func (j *PfcronJob) RunWithContext(ctx context.Context) {
 	client := unifiedapiclient.NewFromConfig(ctx)
 	url := "/api/v1/config/maintenance_task/" + j.Type + "/run"
 	response := map[string]interface{}{}
@@ -29,6 +28,10 @@ func (j *PfcronJob) Run() {
 	} else {
 		log.LogInfo(ctx, fmt.Sprintf("API call %s", url))
 	}
+}
+
+func (j *PfcronJob) Run() {
+	j.RunWithContext(context.Background())
 }
 
 func NewPfcronJob(config map[string]interface{}) JobSetupConfig {

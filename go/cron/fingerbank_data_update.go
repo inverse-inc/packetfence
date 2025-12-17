@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
@@ -17,8 +18,7 @@ type FingerbankDataUpdate struct {
 	Task
 }
 
-func (j *FingerbankDataUpdate) Run() {
-	ctx := context.Background()
+func (j *FingerbankDataUpdate) RunWithContext(ctx context.Context) {
 	method := "fingerbank_update_component"
 	args := []interface{}{
 		"action", "update-upstream-db",
@@ -31,4 +31,8 @@ func (j *FingerbankDataUpdate) Run() {
 			log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 		}
 	}
+}
+
+func (j *FingerbankDataUpdate) Run() {
+	j.RunWithContext(context.Background())
 }
