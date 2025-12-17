@@ -146,13 +146,13 @@ d-i debian-installer/add-kernel-opts string net.ifnames=0 apparmor=0
 d-i finish-install/reboot_in_progress note
 
 # Late command - run post-installation script for offline setup
-# IMPORTANT: ISO must stay mounted for PacketFence installation
+# IMPORTANT: ISO must stay mounted for dependency installation
 # This script will:
 # - Configure the local PF repository from the ISO
-# - Install PacketFence from local packages (ISO must be mounted)
-# - Load pre-downloaded Docker images from ISO
-# - Configure the system for first boot
-# - Display message to remove USB/ISO before reboot
+# - Install all dependencies (Docker, MariaDB, FreeRADIUS, etc.)
+# - Copy Docker images to target filesystem
+# - Create first-boot service to install PacketFence
+# NOTE: PacketFence is installed on first boot (requires Docker running)
 d-i preseed/late_command string \
   mount --bind /proc /target/proc ; \
   mount --bind /sys /target/sys ; \
@@ -163,18 +163,6 @@ d-i preseed/late_command string \
   in-target chmod 700 /usr/local/bin/postinst-offline.sh ; \
   in-target /bin/bash /usr/local/bin/postinst-offline.sh %%PF_VERSION%% ; \
   umount /target/media/cdrom || true ; \
-  umount /target/dev ; \
-  umount /target/proc ; \
-  umount /target/sys ; \
-  chvt 1 ; \
-  echo "" >&/dev/tty1 ; \
-  echo "========================================" >&/dev/tty1 ; \
-  echo "  Installation Complete!" >&/dev/tty1 ; \
-  echo "" >&/dev/tty1 ; \
-  echo "  IMPORTANT: Please REMOVE the USB/ISO" >&/dev/tty1 ; \
-  echo "  device before the system reboots." >&/dev/tty1 ; \
-  echo "" >&/dev/tty1 ; \
-  echo "  Press ENTER to reboot..." >&/dev/tty1 ; \
-  echo "========================================" >&/dev/tty1 ; \
-  echo "" >&/dev/tty1 ; \
-  read -t 30 </dev/tty1 || true
+  umount /target/dev || true ; \
+  umount /target/proc || true ; \
+  umount /target/sys || true
