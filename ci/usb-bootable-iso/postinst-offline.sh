@@ -69,9 +69,14 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli contai
 # Step 4: Install PacketFence dependencies (but NOT PacketFence itself)
 echo "===> Step 4: Installing PacketFence dependencies"
 
+# Ensure kernel is marked to not be auto-removed
+apt-mark hold linux-image-amd64 linux-image-* 2>/dev/null || true
+
 # Install key dependencies that PacketFence needs
 # PacketFence package itself will be installed on first boot when Docker is running
+# Include linux-image-amd64 to ensure kernel is not removed by dependency resolution
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    linux-image-amd64 \
     mariadb-server \
     redis-server \
     freeradius \
@@ -91,6 +96,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     dpkg --configure -a
     DEBIAN_FRONTEND=noninteractive apt-get install -y -f
 }
+
+# Verify kernel is still installed
+if [ ! -f /boot/vmlinuz-* ]; then
+    echo "ERROR: Kernel missing! Reinstalling..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-amd64
+fi
 
 # Step 5: Copy Docker images to target filesystem
 echo "===> Step 5: Copying Docker images to target filesystem"
