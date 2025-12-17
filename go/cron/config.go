@@ -12,7 +12,7 @@ import (
 var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))
 
 type JobSetupConfig interface {
-	cron.Job
+	cron.JobWithContext
 	Schedule() cron.Schedule
 	ScheduleSpec() string
 	Name() string

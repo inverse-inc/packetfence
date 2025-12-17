@@ -207,7 +207,8 @@ func (f *FingerPrintingJob) handleFlows(pfflows []*PfFlows) {
 	}
 }
 
-func (f *FingerPrintingJob) Run() {
+func (f *FingerPrintingJob) RunWithContext(ctx context.Context) {
+	f.Ctx = ctx
 	log.LogDebug(f.Ctx, "Starting FingerPrintingJob")
 	for {
 		select {
@@ -225,6 +226,10 @@ func (f *FingerPrintingJob) Run() {
 			f.handleFlows(pfflows)
 		}
 	}
+}
+
+func (f *FingerPrintingJob) Run() {
+	f.RunWithContext(context.Background())
 }
 
 func (f *FingerPrintingJob) Stop() {

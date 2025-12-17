@@ -11,14 +11,18 @@ type ChiCleanup struct {
 	Timeout time.Duration
 }
 
-func (c *ChiCleanup) Run() {
+func (c *ChiCleanup) RunWithContext(ctx context.Context) {
 	BatchSql(
-		context.Background(),
+		ctx,
 		c.Timeout,
 		`DELETE FROM chi_cache WHERE expires_at < ? LIMIT ?`,
 		float64(time.Now().UnixNano())/float64(time.Second),
 		c.Batch,
 	)
+}
+
+func (c *ChiCleanup) Run() {
+	c.RunWithContext(context.Background())
 }
 
 func NewChiCleanup(config map[string]interface{}) JobSetupConfig {

@@ -21,17 +21,21 @@ func NewFileLogger(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *FileLogger) Run() {
+func (j *FileLogger) RunWithContext(ctx context.Context) {
 	// If the file doesn't exist, create it, or append to the file
 	f, err := os.OpenFile(j.Outfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.LogError(context.Background(), fmt.Sprintf("Cannot open file %s", j.Outfile))
+		log.LogError(ctx, fmt.Sprintf("Cannot open file %s", j.Outfile))
 		return
 	}
 
 	defer f.Close()
 	if _, err := f.Write([]byte(j.Content)); err != nil {
-		log.LogError(context.Background(), fmt.Sprintf("Cannot write to file %s", j.Outfile))
+		log.LogError(ctx, fmt.Sprintf("Cannot write to file %s", j.Outfile))
 	}
 
+}
+
+func (j *FileLogger) Run() {
+	j.RunWithContext(context.Background())
 }

@@ -12,7 +12,14 @@ type PkiCertificatesCheck struct {
 	Task
 	API       string
 	apiClient *unifiedapiclient.Client
-	ctx       context.Context
+}
+
+func (j *PkiCertificatesCheck) RunWithContext(ctx context.Context) {
+	var raw json.RawMessage
+	err := j.apiClient.Call(ctx, "GET", j.API, &raw)
+	if err != nil {
+		log.LogError(ctx, "Error calling "+j.apiClient.Host+": "+err.Error())
+	}
 }
 
 type PkiUnVerifyFileCert struct {
@@ -26,14 +33,9 @@ func NewPkiCertificatesCheck(config map[string]interface{}) JobSetupConfig {
 		Task:      SetupTask(config),
 		API:       "/api/v1/pki/checkrenewal",
 		apiClient: unifiedapiclient.NewFromConfig(ctx),
-		ctx:       ctx,
 	}
 }
 
 func (j *PkiCertificatesCheck) Run() {
-	var raw json.RawMessage
-	err := j.apiClient.Call(j.ctx, "GET", j.API, &raw)
-	if err != nil {
-		log.LogError(j.ctx, "Error calling "+j.apiClient.Host+": "+err.Error())
-	}
+	j.RunWithContext(context.Background())
 }

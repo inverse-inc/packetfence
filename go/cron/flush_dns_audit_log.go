@@ -28,11 +28,10 @@ func NewFlushDNSAuditLog(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *FlushDNSAuditLog) Run() {
+func (j *FlushDNSAuditLog) RunWithContext(ctx context.Context) {
 	start := time.Now()
 	rows_affected := 0
 	i := 0
-	ctx := context.Background()
 	for {
 		i++
 		var data *redis.StringSliceCmd
@@ -56,7 +55,7 @@ func (j *FlushDNSAuditLog) Run() {
 		jsonStr := "[" + strings.Join(a, ",") + "]"
 		var entries []common.DNSAuditLog = make([]common.DNSAuditLog, len(a))
 		json.Unmarshal([]byte(jsonStr), &entries)
-		j.flushLogs(entries)
+		j.flushLogs(ctx, entries)
 		if time.Now().Sub(start) > j.Timeout {
 			break
 		}
@@ -67,8 +66,11 @@ func (j *FlushDNSAuditLog) Run() {
 	}
 }
 
-func (j *FlushDNSAuditLog) flushLogs(entries []common.DNSAuditLog) error {
-	ctx := context.Background()
+func (j *FlushDNSAuditLog) Run() {
+	j.RunWithContext(context.Background())
+}
+
+func (j *FlushDNSAuditLog) flushLogs(ctx context.Context, entries []common.DNSAuditLog) error {
 	sql, args, err := j.buildQuery(entries)
 	if err != nil {
 		return err

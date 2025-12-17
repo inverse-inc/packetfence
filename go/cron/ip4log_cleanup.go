@@ -32,8 +32,7 @@ func NewIp4logCleanup(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *Ip4logCleanup) Run() {
-	ctx := context.Background()
+func (j *Ip4logCleanup) RunWithContext(ctx context.Context) {
 	if j.Rotate == "Y" {
 		j.DoRotate(ctx)
 		BatchSql(
@@ -54,6 +53,10 @@ func (j *Ip4logCleanup) Run() {
 			j.Batch,
 		)
 	}
+}
+
+func (j *Ip4logCleanup) Run() {
+	j.RunWithContext(context.Background())
 }
 
 func (j *Ip4logCleanup) DoRotate(ctx context.Context) {

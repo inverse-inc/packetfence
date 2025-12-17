@@ -32,11 +32,15 @@ func MakeWindowSqlJobSetupConfig(sql string) func(config map[string]interface{})
 	}
 }
 
-func (c *WindowSqlCleanup) Run() {
-	count, _ := BatchSql(context.Background(), c.Timeout, c.Sql, time.Now(), c.Window, c.Batch)
+func (c *WindowSqlCleanup) RunWithContext(ctx context.Context) {
+	count, _ := BatchSql(ctx, c.Timeout, c.Sql, time.Now(), c.Window, c.Batch)
 	if count > -1 {
-		log.LogInfo(context.Background(), fmt.Sprintf("%s cleaned items %d", c.Name(), count))
+		log.LogInfo(ctx, fmt.Sprintf("%s cleaned items %d", c.Name(), count))
 	}
+}
+
+func (c *WindowSqlCleanup) Run() {
+	c.RunWithContext(context.Background())
 }
 
 type MultiWindowSqlCleanup struct {
@@ -59,11 +63,15 @@ func NewMultiWindowSqlCleanup(config map[string]interface{}, sqls ...string) Job
 	}
 }
 
-func (c *MultiWindowSqlCleanup) Run() {
+func (c *MultiWindowSqlCleanup) RunWithContext(ctx context.Context) {
 	now := time.Now()
 	for _, sql := range c.Sqls {
-		BatchSql(context.Background(), c.Timeout, sql, now, c.Window, c.Batch)
+		BatchSql(ctx, c.Timeout, sql, now, c.Window, c.Batch)
 	}
+}
+
+func (c *MultiWindowSqlCleanup) Run() {
+	c.RunWithContext(context.Background())
 }
 
 func MakeMultiWindowSqlJobSetupConfig(sqls ...string) func(config map[string]interface{}) JobSetupConfig {
@@ -86,11 +94,15 @@ func NewSingleWindowSqlCleanup(config map[string]interface{}, sql string) JobSet
 	}
 }
 
-func (c *SingleWindowSqlCleanup) Run() {
-	err := BatchSingleSql(context.Background(), c.Sql, c.Window)
+func (c *SingleWindowSqlCleanup) RunWithContext(ctx context.Context) {
+	err := BatchSingleSql(ctx, c.Sql, c.Window)
 	if err != nil {
-		log.LogError(context.Background(), fmt.Sprintf("%s on sql query", err))
+		log.LogError(ctx, fmt.Sprintf("%s on sql query", err))
 	}
+}
+
+func (c *SingleWindowSqlCleanup) Run() {
+	c.RunWithContext(context.Background())
 }
 
 func MakeSingleWindowSqlJobSetupConfig(sql string) func(config map[string]interface{}) JobSetupConfig {

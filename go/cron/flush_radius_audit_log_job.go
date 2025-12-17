@@ -33,11 +33,10 @@ func NewFlushRadiusAuditLogJob(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *FlushRadiusAuditLogJob) Run() {
+func (j *FlushRadiusAuditLogJob) RunWithContext(ctx context.Context) {
 	start := time.Now()
 	rows_affected := 0
 	i := 0
-	ctx := context.Background()
 	for {
 		i++
 		var data *redis.StringSliceCmd
@@ -91,7 +90,7 @@ func (j *FlushRadiusAuditLogJob) Run() {
 			continue
 		}
 
-		j.flushLogs(entries)
+		j.flushLogs(ctx, entries)
 		if time.Now().Sub(start) > j.Timeout {
 			break
 		}
@@ -101,8 +100,11 @@ func (j *FlushRadiusAuditLogJob) Run() {
 	}
 }
 
-func (j *FlushRadiusAuditLogJob) flushLogs(entries [][]interface{}) error {
-	ctx := context.Background()
+func (j *FlushRadiusAuditLogJob) Run() {
+	j.RunWithContext(context.Background())
+}
+
+func (j *FlushRadiusAuditLogJob) flushLogs(ctx context.Context, entries [][]interface{}) error {
 	sql, args, err := j.buildQuery(entries)
 	if err != nil {
 		return err
@@ -129,7 +131,7 @@ func (j *FlushRadiusAuditLogJob) flushLogs(entries [][]interface{}) error {
 	}
 
 	// REPLACE in node_tls
-	sqlTLS, argsTLS, run := j.buildQueryTLS(entries)
+	sqlTLS, argsTLS, run := j.buildQueryTLS(ctx, entries)
 	if run {
 		res, err = db.ExecContext(
 			ctx,
@@ -262,8 +264,8 @@ func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{
 	return args
 }
 
-func (j *FlushRadiusAuditLogJob) buildQueryTLS(entries [][]interface{}) (string, []interface{}, bool) {
-	args := j.argsFromEntriesForTLS(entries)
+func (j *FlushRadiusAuditLogJob) buildQueryTLS(ctx context.Context, entries [][]interface{}) (string, []interface{}, bool) {
+	args := j.argsFromEntriesForTLS(ctx, entries)
 	if len(args) == 0 {
 		return "", nil, false
 	}
@@ -307,8 +309,7 @@ func keyExists(myMap map[string]interface{}, key string) bool {
 	return exists
 }
 
-func (j *FlushRadiusAuditLogJob) argsFromEntriesForTLS(entries [][]interface{}) []interface{} {
-	ctx := context.Background()
+func (j *FlushRadiusAuditLogJob) argsFromEntriesForTLS(ctx context.Context, entries [][]interface{}) []interface{} {
 	args := make([]interface{}, 0, len(entries)*NODE_TLS_COLUMN_COUNT)
 	for _, e := range entries {
 		if len(e) < 1 {

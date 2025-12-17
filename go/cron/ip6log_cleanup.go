@@ -32,8 +32,7 @@ func NewIp6logCleanup(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *Ip6logCleanup) Run() {
-	ctx := context.Background()
+func (j *Ip6logCleanup) RunWithContext(ctx context.Context) {
 	if j.Rotate == "Y" {
 		j.DoRotate(ctx)
 		BatchSql(
@@ -54,6 +53,10 @@ func (j *Ip6logCleanup) Run() {
 			j.Batch,
 		)
 	}
+}
+
+func (j *Ip6logCleanup) Run() {
+	j.RunWithContext(context.Background())
 }
 
 func (j *Ip6logCleanup) DoRotate(ctx context.Context) {

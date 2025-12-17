@@ -25,6 +25,10 @@ type CertificatesCheck struct {
 	Certificates  []string
 }
 
+func (j *CertificatesCheck) RunWithContext(ctx context.Context) {
+	j.VerifyCertFiles(j.Certificates)
+}
+
 type UnVerifyFileCert struct {
 	Path    string
 	Message string
