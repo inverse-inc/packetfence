@@ -87,6 +87,9 @@ d-i partman/confirm_nooverwrite boolean true
 d-i partman-md/confirm boolean true
 
 ### Base system installation
+# Explicitly specify kernel to install (required for offline DVD installation)
+d-i base-installer/kernel/image string linux-image-amd64
+
 # Force non-interactive install
 debconf debconf/frontend select Noninteractive
 
@@ -107,7 +110,8 @@ tasksel tasksel/first multiselect standard ssh-server
 d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \
-                          linux-headers-amd64 gnupg2 apt-transport-https \
+                          linux-image-amd64 linux-headers-amd64 \
+                          gnupg2 apt-transport-https \
                           tmux tcpdump apg sysstat bsd-mailx \
                           systemd systemd-sysv libnss-systemd \
                           apparmor klibc-utils linux-base \
