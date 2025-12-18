@@ -56,6 +56,8 @@ sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.g
 PACKAGES="
     packetfence
     fingerbank-collector
+    linux-image-amd64
+    linux-headers-amd64
     bind9-dnsutils
     bind9-libs
     bind9-host
@@ -167,7 +169,7 @@ echo "=============================================="
 # Verify key packages are present
 echo ""
 echo "===> Verifying key packages in repository:"
-KEY_PACKAGES="packetfence fingerbank-collector docker-ce docker-ce-cli containerd.io"
+KEY_PACKAGES="packetfence fingerbank-collector docker-ce docker-ce-cli containerd.io linux-image-amd64"
 MISSING=""
 for pkg in ${KEY_PACKAGES}; do
     if find ${REPO_DIR}/pool -name "${pkg}_*.deb" | grep -q .; then
