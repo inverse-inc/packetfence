@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-  const sass = require('node-sass');
+  const sass = require('sass');
   require('es6-promise').polyfill();
   require('time-grunt')(grunt);
 
