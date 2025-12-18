@@ -18,21 +18,22 @@ if ! type npm 2> /dev/null ; then
 fi
 
 log_section "Cleanup previous dev setup directories"
-rm -fr /usr/local/go
-rm -fr /usr/local/pf-pkg
+#rm -fr /usr/local/go
+#rm -fr /usr/local/pf-pkg
 
 log_section "Stop services"
-systemctl isolate multi-user
+#systemctl isolate multi-user
 
 log_section "Replace /usr/local/pf by git repository"
-mv /usr/local/pf /usr/local/pf-pkg
-git clone https://github.com/inverse-inc/packetfence /usr/local/pf
+#mv /usr/local/pf /usr/local/pf-pkg
+#git clone https://github.com/inverse-inc/packetfence /usr/local/pf
 
 log_section "Set the safe.directory in git"
-git config --global --add safe.directory /usr/local/pf
+#git config --global --add safe.directory /usr/local/pf
 
 log_section "install required header files from PF repo"
-dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
+apt install -y libcurl4-openssl-dev libcjson-dev
+#dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
 
 cd /usr/local/pf/
 
@@ -85,6 +86,15 @@ done
 
 log_section "Fix permissions and start unmanaged services"
 cd /usr/local/pf
+# Ensure critical files exist before fixing permissions
+if [ ! -f conf/system_init_key ]; then
+    echo "Creating system_init_key..."
+    make conf/system_init_key
+fi
+if [ ! -L lib/fingerbank ]; then
+    echo "Creating fingerbank symlink..."
+    make fingerbank
+fi
 make permissions
 systemctl start packetfence-config packetfence-redis-cache
 while ! /usr/local/pf/bin/pfcmd pfconfig get resource::fqdn 2>&1| grep last_touch_cache > /dev/null ; do
