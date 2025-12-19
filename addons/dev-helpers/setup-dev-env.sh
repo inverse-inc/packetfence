@@ -18,22 +18,22 @@ if ! type npm 2> /dev/null ; then
 fi
 
 log_section "Cleanup previous dev setup directories"
-#rm -fr /usr/local/go
-#rm -fr /usr/local/pf-pkg
+rm -fr /usr/local/go
+rm -fr /usr/local/pf-pkg
 
 log_section "Stop services"
-#systemctl isolate multi-user
+systemctl isolate multi-user
 
 log_section "Replace /usr/local/pf by git repository"
-#mv /usr/local/pf /usr/local/pf-pkg
-#git clone https://github.com/inverse-inc/packetfence /usr/local/pf
+mv /usr/local/pf /usr/local/pf-pkg
+git clone https://github.com/inverse-inc/packetfence /usr/local/pf
 
 log_section "Set the safe.directory in git"
-#git config --global --add safe.directory /usr/local/pf
+git config --global --add safe.directory /usr/local/pf
 
 log_section "install required header files from PF repo"
-apt install -y libcurl4-openssl-dev libcjson-dev
-#dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
+#apt install -y libcurl4-openssl-dev libcjson-dev
+dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
 
 cd /usr/local/pf/
 
