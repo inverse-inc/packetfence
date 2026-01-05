@@ -120,6 +120,27 @@ else
     echo "Warning: Docker images not found on ISO at /media/cdrom/docker-images"
 fi
 
+# Step 5b: Copy PacketFence .deb package for installation on first boot
+echo "===> Step 5b: Copying PacketFence .deb package to target filesystem"
+
+PF_CACHE_DIR="/var/cache/packetfence-install"
+mkdir -p ${PF_CACHE_DIR}
+
+if [ -d /media/cdrom/pf-repo/pool/main ]; then
+    echo "Copying PacketFence .deb package from ISO to ${PF_CACHE_DIR}..."
+    find /media/cdrom/pf-repo/pool/main -name "packetfence_*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; || {
+        echo "Warning: Failed to copy PacketFence .deb package"
+    }
+    if ls ${PF_CACHE_DIR}/packetfence_*.deb 1> /dev/null 2>&1; then
+        echo "PacketFence .deb package copied successfully"
+        ls -la ${PF_CACHE_DIR}/
+    else
+        echo "ERROR: No PacketFence .deb package found"
+    fi
+else
+    echo "Warning: PF repo not found on ISO at /media/cdrom/pf-repo/pool/main"
+fi
+
 # Step 6: Configure system
 echo "===> Step 6: Configuring system"
 
@@ -159,6 +180,7 @@ echo "Starting at: $(date)"
 echo "=============================================="
 
 DOCKER_CACHE_DIR="/var/cache/packetfence-docker-images"
+PF_CACHE_DIR="/var/cache/packetfence-install"
 
 # Step 1: Start Docker service
 echo "===> Step 1: Starting Docker service"
@@ -197,12 +219,25 @@ fi
 # Step 3: Install PacketFence
 echo "===> Step 3: Installing PacketFence"
 
+# Remove local ISO repository configuration (ISO is no longer mounted)
+echo "Removing local ISO repository configuration..."
+rm -f /etc/apt/sources.list.d/packetfence-local.list
+apt-get update 2>/dev/null || true
+
+# Install PacketFence from the copied .deb file
 # Now that Docker is running, PacketFence postinst can configure containers
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends packetfence || {
-    echo "Warning: PacketFence installation had issues, attempting to fix..."
-    dpkg --configure -a
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-}
+if [ -f ${PF_CACHE_DIR}/packetfence_*.deb ]; then
+    PF_DEB=$(ls ${PF_CACHE_DIR}/packetfence_*.deb | head -n1)
+    echo "Installing PacketFence from ${PF_DEB}..."
+    DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_DEB} || {
+        echo "Warning: PacketFence installation had issues, fixing dependencies..."
+        DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_DEB}
+    }
+else
+    echo "ERROR: PacketFence .deb package not found in ${PF_CACHE_DIR}"
+    exit 1
+fi
 
 # Step 4: Reset MariaDB root password
 echo "===> Step 4: Resetting MariaDB root password"
@@ -229,8 +264,11 @@ if [ -d ${DOCKER_CACHE_DIR} ]; then
     rm -rf ${DOCKER_CACHE_DIR}
 fi
 
-# Remove local ISO repository configuration
-rm -f /etc/apt/sources.list.d/packetfence-local.list
+# Remove PacketFence .deb cache
+if [ -d ${PF_CACHE_DIR} ]; then
+    echo "Removing PacketFence installation cache..."
+    rm -rf ${PF_CACHE_DIR}
+fi
 
 # Update package lists (if network available)
 apt-get update 2>/dev/null || true
