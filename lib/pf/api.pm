@@ -1984,7 +1984,11 @@ sub generate_ansible_configuration_all_switches : Public {
         $logger->debug("Generating Ansible configuration for switch $switch_id");
         $switch->generateAnsibleConfiguration();
 
-        # Need to wait between each switch to avoid error on Ansible Semaphore
+        # Throttle Ansible job creation: when many switches are processed in rapid
+        # succession, Ansible Semaphore can hit its rate/concurrency limits and
+        # start rejecting requests (e.g. HTTP 429 / "too many concurrent jobs").
+        # Sleeping one second between switches keeps job submissions under that
+        # limit and avoids those intermittent errors.
         sleep(1);
     }
 
