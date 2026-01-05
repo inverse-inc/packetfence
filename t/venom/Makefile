@@ -299,14 +299,14 @@ mac_auth_virtualswitch_planb_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="virtualswitch01" \
-	SCENARIOS_TO_RUN=mac_auth_virtualswitch_planb \
+	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
 	$(MAKE_TARGET)
 
 mac_auth_virtualswitch_planb_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="virtualswitch01" \
-	SCENARIOS_TO_RUN=mac_auth_virtualswitch_planb \
+	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
 	$(MAKE_TARGET)
 
 ### alias to run tests on other branches

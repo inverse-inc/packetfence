@@ -40,6 +40,15 @@ Vagrant.configure("2") do |config|
                      :libvirt__dhcp_enabled => false,
                      :libvirt__forward_mode => user_vars['networks'][0]['forward_mode']
 
+      # For virtualswitch01, add registration network interface
+      if server == 'virtualswitch01'
+        srv.vm.network "private_network",
+                       :libvirt__network_name => user_vars['networks'][1]['name'],
+                       :type => "dhcp",
+                       :libvirt__dhcp_enabled => true,
+                       :libvirt__forward_mode => user_vars['networks'][1]['forward_mode']
+      end
+
       srv.vm.provider "libvirt" do |v|
         v.cpus = details['cpus']
         v.memory = details['memory']

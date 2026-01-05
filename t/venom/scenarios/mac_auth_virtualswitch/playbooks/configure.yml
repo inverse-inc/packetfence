@@ -1,12 +1,40 @@
 ---
 # Pre-configuration for mac_auth_virtualswitch scenario
 # This playbook runs before the venom tests
+#
+# NOTE: For Plan B (separate VM approach), the virtualswitch configuration happens during
+# Vagrant pre-provisioning (in addons/vagrant/playbooks/linux_servers/virtualswitch.yml)
+# because the virtualswitch01 VM only has internet access during initial setup.
+#
+# The virtualswitch package is downloaded from an authenticated URL using GitLab CI
+# environment variables (CI_VIRTUALSWITCH_USER, CI_VIRTUALSWITCH_PASSWORD) during
+# pre-provisioning, before the VM is rebooted and loses internet access.
+#
+# After reboot, virtualswitch01 is only accessible from the PF VM via the registration network.
 
-- hosts: pfservers
-  name: Configure MAC auth virtualswitch environment
+- hosts: service_virtualswitch
+  name: Verify VirtualSwitch Configuration (Plan B)
   become: True
+  gather_facts: True
 
   tasks:
-    - name: Ensure virtualswitch package is available
-      debug:
-        msg: "VirtualSwitch will be installed by the test suite"
+    - name: Check virtualswitch service is running
+      ansible.builtin.systemd:
+        name: virtualswitch
+        state: started
+      register: vs_service_status
+      ignore_errors: yes
+
+    - name: Display virtualswitch service status
+      ansible.builtin.debug:
+        msg: "VirtualSwitch service is {{ vs_service_status.status.ActiveState | default('unknown') }}"
+      when: vs_service_status.status is defined
+
+    - name: Verify virtualswitch config file exists
+      ansible.builtin.stat:
+        path: /etc/virtualswitch/config.yaml
+      register: vs_config
+
+    - name: Display config file status
+      ansible.builtin.debug:
+        msg: "VirtualSwitch config exists: {{ vs_config.stat.exists }}"

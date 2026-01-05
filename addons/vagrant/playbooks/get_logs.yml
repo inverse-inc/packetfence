@@ -1,4 +1,4 @@
-- hosts: pfservers, service_venom, nodes
+- hosts: pfservers, service_venom, nodes, service_virtualswitch
   name: Get Venom logs on all VM
   become: True
   gather_facts: False

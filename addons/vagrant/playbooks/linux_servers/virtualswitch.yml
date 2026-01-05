@@ -1,0 +1,61 @@
+---
+- hosts: service_virtualswitch
+  name: Configure VirtualSwitch VM
+  become: True
+  gather_facts: True
+
+  tasks:
+    - name: Download virtualswitch package (Debian)
+      ansible.builtin.get_url:
+        url: "{{ lookup('env', 'VIRTUALSWITCH_DEB_URL') | default('https://support.inverse.ca/~jgoimard/virtualswitch/virtualswitch_2.5.2-1_amd64.deb', true) }}"
+        dest: "/tmp/virtualswitch.deb"
+        url_username: "{{ lookup('env', 'CI_VIRTUALSWITCH_USER') }}"
+        url_password: "{{ lookup('env', 'CI_VIRTUALSWITCH_PASSWORD') }}"
+        mode: '0644'
+        force_basic_auth: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install virtualswitch package (Debian)
+      ansible.builtin.apt:
+        deb: "/tmp/virtualswitch.deb"
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Download virtualswitch package (RHEL)
+      ansible.builtin.get_url:
+        url: "{{ lookup('env', 'VIRTUALSWITCH_RPM_URL') | default('https://support.inverse.ca/~jgoimard/virtualswitch/virtualswitch-2.5.2-1.el8.x86_64.rpm', true) }}"
+        dest: "/tmp/virtualswitch.rpm"
+        url_username: "{{ lookup('env', 'CI_VIRTUALSWITCH_USER') }}"
+        url_password: "{{ lookup('env', 'CI_VIRTUALSWITCH_PASSWORD') }}"
+        mode: '0644'
+        force_basic_auth: yes
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install virtualswitch package (RHEL)
+      ansible.builtin.yum:
+        name: "/tmp/virtualswitch.rpm"
+        state: present
+        disable_gpg_check: yes
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Create virtualswitch config directory
+      ansible.builtin.file:
+        path: /etc/virtualswitch
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Deploy virtualswitch configuration
+      ansible.builtin.template:
+        src: templates/virtualswitch_config.yaml.j2
+        dest: /etc/virtualswitch/config.yaml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable and start virtualswitch service
+      ansible.builtin.systemd:
+        name: virtualswitch
+        enabled: yes
+        state: started

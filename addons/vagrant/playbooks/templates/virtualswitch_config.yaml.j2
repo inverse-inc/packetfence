@@ -1,0 +1,39 @@
+interfaces: 5
+switch_type: cisco
+network_mapping: "{{ users_vars[dict_name]['networks'][1]['subnet'].split('/')[0].rsplit('.', 1)[0] }}"
+radius:
+  ip: "{{ users_vars[dict_name]['networks'][1]['subnet'].split('/')[0].rsplit('.', 1)[0] }}.1"
+  port: 1812
+  secret: testing123
+  accounting_interval_seconds: 60
+  reauth_interval_seconds: 0
+  auth_retry_interval_seconds: 30
+dhcp:
+  enabled: false
+ipfix:
+  enabled: false
+scep:
+  enabled: false
+wireless:
+  ssid: "TestWiFi"
+  switch_mac: "aa:bb:cc:dd:ee:ff"
+device_state:
+  auto_save: false
+interface_types:
+  - id: 1
+    type: "ethernet"
+  - id: 2
+    type: "ethernet"
+  - id: 3
+    type: "ethernet"
+  - id: 4
+    type: "ethernet"
+  - id: 5
+    type: "ethernet"
+vlans:
+  - id: 2
+    interfaces: [1,2,3,4,5]
+  - id: 100
+    interfaces: [1,2,3,4,5]
+  - id: 200
+    interfaces: [1,2,3,4,5]

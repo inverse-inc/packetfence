@@ -15,3 +15,6 @@
 
 - import_playbook: linux_servers/samba4ad.yml
   tags: samba4ad
+
+- import_playbook: linux_servers/virtualswitch.yml
+  tags: virtualswitch
