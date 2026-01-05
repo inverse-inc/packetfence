@@ -88,6 +88,6 @@ Then, make sure you mask keepalived so it does not mount a VIP on your server:
 Finally, you must configure a secure way to reach your Cloud-hosted version of
 PacketFence so that your NAS devices can talk to it in a secure way. One
 approach is to use a site-to-site VPN. Another approach is to use the
-xref:pfconnector.asciidoc[PacketFence Connector].
+xref:../pfconnector.asciidoc[PacketFence Connector].
 
 
