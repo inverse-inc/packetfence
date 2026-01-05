@@ -168,4 +168,4 @@ systemctl status packetfence-pfconnector-remote
 
 In cases where there needs be a static port where the packetfence host needs communicate to a service reserve the ports 30000-30999.
 
-Currenly these are defined for Radius Sources and DNS Connectors.
+Currently these are defined for Radius Sources and DNS Connectors.
