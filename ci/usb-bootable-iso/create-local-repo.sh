@@ -99,6 +99,10 @@ PACKAGES="
     liblog-fast-perl
     libfile-flock-perl
     libcjson1
+    liblog-log4perl-perl
+    libdbd-sqlite3-perl
+    sqlite3
+    libdata-powerset-perl
 "
 
 # Add Docker repository for docker-ce packages
