@@ -98,6 +98,7 @@ PACKAGES="
     libcache-bdb-perl
     liblog-fast-perl
     libfile-flock-perl
+    libcjson1
 "
 
 # Add Docker repository for docker-ce packages
