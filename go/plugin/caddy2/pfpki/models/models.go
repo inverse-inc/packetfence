@@ -672,34 +672,10 @@ func (c CA) FindSerial(p Profile) (*big.Int, error) {
 		c.DB.First(&ca)
 	}
 
-	var maxSerial int64 = 0
-
-	// Check the maximum SerialNumber in Cert table
-	var certdb Cert
-	if err := c.DB.Order("CAST(serial_number AS UNSIGNED) DESC").First(&certdb); err.Error == nil {
-		if serial, err := strconv.ParseInt(certdb.SerialNumber, 10, 64); err == nil {
-			if serial > maxSerial {
-				maxSerial = serial
-			}
-		}
-	}
-
-	// Check the maximum SerialNumber in RevokedCert table
-	var revokedCertdb RevokedCert
-	if err := c.DB.Order("CAST(serial_number AS UNSIGNED) DESC").First(&revokedCertdb); err.Error == nil {
-		if serial, err := strconv.ParseInt(revokedCertdb.SerialNumber, 10, 64); err == nil {
-			if serial > maxSerial {
-				maxSerial = serial
-			}
-		}
-	}
-
-	var SerialNumber *big.Int
-	if maxSerial == 0 {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(maxSerial + 1)
-	}
+	SerialNumber := big.NewInt(int64(ca.SerialNumber))
+	ca.SerialNumber = ca.SerialNumber + 1
+	ca.DB = c.DB
+	ca.DB.Save(ca)
 
 	return SerialNumber, nil
 
@@ -1613,17 +1589,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	}
 
 	// keyOut contain the private key
-	var certdbprevious Cert
 	var newcertdb []Cert
 
-	//Calculate the serial number to assign
-	var SerialNumber *big.Int
-
-	if CertDB := c.DB.Last(&certdbprevious); CertDB.Error != nil {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
-	}
+	//Calculate the serial number to assign using CA counter
+	SerialNumber := big.NewInt(int64(certdb[0].Ca.SerialNumber))
+	certdb[0].Ca.SerialNumber = certdb[0].Ca.SerialNumber + 1
+	certdb[0].Ca.DB = c.DB
+	certdb[0].Ca.DB.Save(&certdb[0].Ca)
 
 	Subject := certdb[0].MakeSubject()
 
