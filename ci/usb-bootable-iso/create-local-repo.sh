@@ -81,6 +81,8 @@ PACKAGES="
     freeradius-common
     mariadb-server
     mariadb-client
+    redis-server
+    redis-tools
     samba
     haproxy
     keepalived
@@ -93,6 +95,9 @@ PACKAGES="
     cgroupfs-mount
     fping
     ipset
+    libcache-bdb-perl
+    liblog-fast-perl
+    libfile-flock-perl
 "
 
 # Add Docker repository for docker-ce packages
