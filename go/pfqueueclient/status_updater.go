@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	uuid "github.com/nu7hatch/gouuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -128,6 +129,11 @@ func NewStatusUpdater(id string, ttl time.Duration, redis *redis.Client) *Status
 	u := statusUpdaterPool.Get().(*StatusUpdater)
 	u.reset(id, ttl, redis)
 	return u
+}
+
+func NewApiTaskID() string {
+	uuid, _ := uuid.NewV4()
+	return "ApiTask:" + uuid.String()
 }
 
 func PutStatusUpdater(u *StatusUpdater) {
