@@ -249,7 +249,7 @@ else
 fi
 
 # Step 3: Install PacketFence
-update_progress "Step 3/6" "Installing PacketFence packages..."
+update_progress "Step 3/6" "Installing PacketFence dependencies..."
 echo "===> Step 3: Installing PacketFence"
 
 # Remove local ISO repository configuration (ISO is no longer mounted)
@@ -263,13 +263,37 @@ if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
     echo "Installing PacketFence and related packages from cached .deb files..."
     echo "Packages to install:"
     ls ${PF_CACHE_DIR}/*.deb
+    echo ""
 
-    # Install all .deb files at once - dpkg will handle the dependency order
-    DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/*.deb || {
-        echo "Warning: PacketFence installation had issues, fixing dependencies..."
-        DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/*.deb
-    }
+    # Step 3a: Install Pre-Depends and Depends packages FIRST
+    echo "===> Step 3a: Installing Pre-Depends packages (fingerbank, packetfence-*, etc.)..."
+    PREDEPENDS_PKGS=$(ls ${PF_CACHE_DIR}/fingerbank*.deb ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null || true)
+    if [ -n "$PREDEPENDS_PKGS" ]; then
+        DEBIAN_FRONTEND=noninteractive dpkg -i $PREDEPENDS_PKGS || {
+            echo "Warning: Some pre-depends packages had issues, fixing dependencies..."
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+        }
+        echo "Pre-depends packages installed successfully"
+    else
+        echo "Warning: No pre-depends packages found"
+    fi
+    echo ""
+
+    # Step 3b: Install main PacketFence package LAST (requires Docker running)
+    echo "===> Step 3b: Installing main PacketFence package..."
+    if ls ${PF_CACHE_DIR}/packetfence_*.deb 1> /dev/null 2>&1; then
+        PF_MAIN=$(ls ${PF_CACHE_DIR}/packetfence_*.deb | head -n1)
+        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_MAIN} || {
+            echo "Warning: PacketFence installation had issues, fixing dependencies..."
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+            DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_MAIN}
+        }
+        echo "PacketFence main package installed successfully"
+    else
+        echo "ERROR: Main PacketFence package not found"
+        exit 1
+    fi
+
     echo "PacketFence installation completed successfully"
 else
     echo "ERROR: No PacketFence .deb packages found in ${PF_CACHE_DIR}"
