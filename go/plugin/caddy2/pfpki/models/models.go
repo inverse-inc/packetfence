@@ -672,15 +672,33 @@ func (c CA) FindSerial(p Profile) (*big.Int, error) {
 		c.DB.First(&ca)
 	}
 
+	var maxSerial int64 = 0
+
+	// Check the maximum SerialNumber in Cert table
 	var certdb Cert
+	if err := c.DB.Order("CAST(serial_number AS UNSIGNED) DESC").First(&certdb); err.Error == nil {
+		if serial, err := strconv.ParseInt(certdb.SerialNumber, 10, 64); err == nil {
+			if serial > maxSerial {
+				maxSerial = serial
+			}
+		}
+	}
+
+	// Check the maximum SerialNumber in RevokedCert table
+	var revokedCertdb RevokedCert
+	if err := c.DB.Order("CAST(serial_number AS UNSIGNED) DESC").First(&revokedCertdb); err.Error == nil {
+		if serial, err := strconv.ParseInt(revokedCertdb.SerialNumber, 10, 64); err == nil {
+			if serial > maxSerial {
+				maxSerial = serial
+			}
+		}
+	}
 
 	var SerialNumber *big.Int
-
-	err := c.DB.Last(&certdb).Where(&ca)
-	if err.Error != nil {
+	if maxSerial == 0 {
 		SerialNumber = big.NewInt(1)
 	} else {
-		SerialNumber = big.NewInt(int64(certdb.ID + 1))
+		SerialNumber = big.NewInt(maxSerial + 1)
 	}
 
 	return SerialNumber, nil
