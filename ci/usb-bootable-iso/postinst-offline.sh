@@ -120,22 +120,27 @@ else
     echo "Warning: Docker images not found on ISO at /media/cdrom/docker-images"
 fi
 
-# Step 5b: Copy PacketFence .deb package for installation on first boot
-echo "===> Step 5b: Copying PacketFence .deb package to target filesystem"
+# Step 5b: Copy PacketFence .deb packages for installation on first boot
+echo "===> Step 5b: Copying PacketFence .deb packages to target filesystem"
 
 PF_CACHE_DIR="/var/cache/packetfence-install"
 mkdir -p ${PF_CACHE_DIR}
 
 if [ -d /media/cdrom/pf-repo/pool/main ]; then
-    echo "Copying PacketFence .deb package from ISO to ${PF_CACHE_DIR}..."
-    find /media/cdrom/pf-repo/pool/main -name "packetfence_*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; || {
-        echo "Warning: Failed to copy PacketFence .deb package"
+    echo "Copying PacketFence .deb packages from ISO to ${PF_CACHE_DIR}..."
+    # Copy all PacketFence-related packages (main + pre-depends + depends)
+    find /media/cdrom/pf-repo/pool/main -name "packetfence*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; || {
+        echo "Warning: Failed to copy some PacketFence .deb packages"
     }
-    if ls ${PF_CACHE_DIR}/packetfence_*.deb 1> /dev/null 2>&1; then
-        echo "PacketFence .deb package copied successfully"
+    # Also copy fingerbank packages (pre-depends)
+    find /media/cdrom/pf-repo/pool/main -name "fingerbank*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; || {
+        echo "Warning: Failed to copy fingerbank .deb packages"
+    }
+    if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
+        echo "PacketFence packages copied successfully:"
         ls -la ${PF_CACHE_DIR}/
     else
-        echo "ERROR: No PacketFence .deb package found"
+        echo "ERROR: No PacketFence .deb packages found"
     fi
 else
     echo "Warning: PF repo not found on ISO at /media/cdrom/pf-repo/pool/main"
@@ -224,18 +229,22 @@ echo "Removing local ISO repository configuration..."
 rm -f /etc/apt/sources.list.d/packetfence-local.list
 apt-get update 2>/dev/null || true
 
-# Install PacketFence from the copied .deb file
+# Install PacketFence and all related packages from the copied .deb files
 # Now that Docker is running, PacketFence postinst can configure containers
-if [ -f ${PF_CACHE_DIR}/packetfence_*.deb ]; then
-    PF_DEB=$(ls ${PF_CACHE_DIR}/packetfence_*.deb | head -n1)
-    echo "Installing PacketFence from ${PF_DEB}..."
-    DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_DEB} || {
+if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
+    echo "Installing PacketFence and related packages from cached .deb files..."
+    echo "Packages to install:"
+    ls ${PF_CACHE_DIR}/*.deb
+
+    # Install all .deb files at once - dpkg will handle the dependency order
+    DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/*.deb || {
         echo "Warning: PacketFence installation had issues, fixing dependencies..."
         DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_DEB}
+        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/*.deb
     }
+    echo "PacketFence installation completed successfully"
 else
-    echo "ERROR: PacketFence .deb package not found in ${PF_CACHE_DIR}"
+    echo "ERROR: No PacketFence .deb packages found in ${PF_CACHE_DIR}"
     exit 1
 fi
 

@@ -55,6 +55,14 @@ sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.g
 #   - Other dependencies
 PACKAGES="
     packetfence
+    packetfence-pfcmd-suid
+    packetfence-config
+    packetfence-redis-cache
+    packetfence-perl
+    packetfence-ntlm-wrapper
+    packetfence-golang-daemon
+    packetfence-archive-keyring
+    fingerbank
     fingerbank-collector
     linux-image-amd64
     linux-headers-amd64
