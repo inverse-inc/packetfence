@@ -101,6 +101,10 @@ sub parse_condition_string {
     pos() = 0;
     #Reduce whitespace
     /\G\s*/gc;
+    # If condition is empty or only whitespace, default to "1" (always true)
+    if (pos() == length($_)) {
+        return (1, '');
+    }
     my $expr = eval {_parse_expr()};
     if ($@) {
         return (undef, $@);
