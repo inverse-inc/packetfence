@@ -179,15 +179,19 @@ set -o pipefail
 LOG_FILE="/var/log/packetfence-first-boot.log"
 exec > >(tee -a ${LOG_FILE}) 2>&1
 
-# Display installation progress message on login screen
-cat > /etc/issue << 'EOF'
+# Function to update installation progress on login screen
+update_progress() {
+    local step="$1"
+    local message="$2"
+    cat > /etc/issue << EOF
 ================================================================================
   PacketFence Installation In Progress - Please Wait
 ================================================================================
 
-  The system is currently installing PacketFence and loading Docker images.
-  This process may take 10-15 minutes.
+  Current Step: ${step}
+  Status: ${message}
 
+  This process may take 10-15 minutes total.
   Progress can be monitored at: /var/log/packetfence-first-boot.log
 
   Please wait until installation completes before using the system.
@@ -195,6 +199,10 @@ cat > /etc/issue << 'EOF'
 ================================================================================
 
 EOF
+}
+
+# Display initial installation progress message on login screen
+update_progress "Initializing" "Starting PacketFence installation..."
 
 echo "=============================================="
 echo "PacketFence First Boot - Phase B"
@@ -205,6 +213,7 @@ DOCKER_CACHE_DIR="/var/cache/packetfence-docker-images"
 PF_CACHE_DIR="/var/cache/packetfence-install"
 
 # Step 1: Start Docker service
+update_progress "Step 1/6" "Starting Docker service..."
 echo "===> Step 1: Starting Docker service"
 systemctl start docker || {
     echo "ERROR: Failed to start Docker service"
@@ -227,6 +236,7 @@ if [ ! -S /var/run/docker.sock ]; then
 fi
 
 # Step 2: Load Docker images
+update_progress "Step 2/6" "Loading Docker images (this may take several minutes)..."
 echo "===> Step 2: Loading Docker images"
 
 if [ -d ${DOCKER_CACHE_DIR} ] && [ -f ${DOCKER_CACHE_DIR}/load-images.sh ]; then
@@ -239,6 +249,7 @@ else
 fi
 
 # Step 3: Install PacketFence
+update_progress "Step 3/6" "Installing PacketFence packages..."
 echo "===> Step 3: Installing PacketFence"
 
 # Remove local ISO repository configuration (ISO is no longer mounted)
@@ -266,6 +277,7 @@ else
 fi
 
 # Step 4: Reset MariaDB root password
+update_progress "Step 4/6" "Configuring MariaDB database..."
 echo "===> Step 4: Resetting MariaDB root password"
 
 systemctl start mariadb || true
@@ -282,6 +294,7 @@ mysql < /tmp/reset-root.sql 2>/dev/null || {
 rm -f /tmp/reset-root.sql
 
 # Step 5: Cleanup
+update_progress "Step 5/6" "Cleaning up temporary files..."
 echo "===> Step 5: Cleanup"
 
 # Remove Docker image cache
@@ -300,6 +313,7 @@ fi
 apt-get update 2>/dev/null || true
 
 # Step 6: Start services
+update_progress "Step 6/6" "Starting services and finalizing installation..."
 echo "===> Step 6: Starting services"
 
 systemctl start mariadb || true
