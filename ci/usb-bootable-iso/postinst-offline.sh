@@ -265,32 +265,48 @@ if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
     ls ${PF_CACHE_DIR}/*.deb
     echo ""
 
-    # Step 3a: Install Pre-Depends and Depends packages FIRST
+    # Step 3a: Install Pre-Depends packages FIRST (but NOT main packetfence package)
     echo "===> Step 3a: Installing Pre-Depends packages (fingerbank, packetfence-*, etc.)..."
-    PREDEPENDS_PKGS=$(ls ${PF_CACHE_DIR}/fingerbank*.deb ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null || true)
-    if [ -n "$PREDEPENDS_PKGS" ]; then
-        DEBIAN_FRONTEND=noninteractive dpkg -i $PREDEPENDS_PKGS || {
-            echo "Warning: Some pre-depends packages had issues, fixing dependencies..."
+    echo "Installing fingerbank packages..."
+    FINGERBANK_PKGS=$(ls ${PF_CACHE_DIR}/fingerbank*.deb 2>/dev/null || true)
+    if [ -n "$FINGERBANK_PKGS" ]; then
+        DEBIAN_FRONTEND=noninteractive dpkg -i $FINGERBANK_PKGS || {
+            echo "Warning: Fingerbank packages had issues, fixing dependencies..."
             DEBIAN_FRONTEND=noninteractive apt-get install -y -f
         }
-        echo "Pre-depends packages installed successfully"
+        echo "Fingerbank packages installed successfully"
     else
-        echo "Warning: No pre-depends packages found"
+        echo "Warning: No fingerbank packages found"
     fi
     echo ""
 
-    # Step 3b: Install main PacketFence package LAST (requires Docker running)
-    echo "===> Step 3b: Installing main PacketFence package..."
+    echo "Installing packetfence dependency packages (packetfence-pfcmd-suid, packetfence-config, etc.)..."
+    # Install packetfence-* packages (hyphen), but NOT packetfence_* (underscore = main package)
+    PFDEP_PKGS=$(ls ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null || true)
+    if [ -n "$PFDEP_PKGS" ]; then
+        DEBIAN_FRONTEND=noninteractive dpkg -i $PFDEP_PKGS || {
+            echo "Warning: Some packetfence dependency packages had issues, fixing dependencies..."
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+        }
+        echo "PacketFence dependency packages installed successfully"
+    else
+        echo "Warning: No packetfence dependency packages found"
+    fi
+    echo ""
+
+    # Step 3b: Install main PacketFence package LAST (requires Docker running + all dependencies)
+    echo "===> Step 3b: Installing main PacketFence package (packetfence_*.deb)..."
     if ls ${PF_CACHE_DIR}/packetfence_*.deb 1> /dev/null 2>&1; then
         PF_MAIN=$(ls ${PF_CACHE_DIR}/packetfence_*.deb | head -n1)
+        echo "Installing: ${PF_MAIN}"
         DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_MAIN} || {
-            echo "Warning: PacketFence installation had issues, fixing dependencies..."
+            echo "Warning: PacketFence main package installation had issues, fixing dependencies..."
             DEBIAN_FRONTEND=noninteractive apt-get install -y -f
             DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_MAIN}
         }
         echo "PacketFence main package installed successfully"
     else
-        echo "ERROR: Main PacketFence package not found"
+        echo "ERROR: Main PacketFence package (packetfence_*.deb) not found"
         exit 1
     fi
 
