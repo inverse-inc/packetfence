@@ -179,6 +179,23 @@ set -o pipefail
 LOG_FILE="/var/log/packetfence-first-boot.log"
 exec > >(tee -a ${LOG_FILE}) 2>&1
 
+# Display installation progress message on login screen
+cat > /etc/issue << 'EOF'
+================================================================================
+  PacketFence Installation In Progress - Please Wait
+================================================================================
+
+  The system is currently installing PacketFence and loading Docker images.
+  This process may take 10-15 minutes.
+
+  Progress can be monitored at: /var/log/packetfence-first-boot.log
+
+  Please wait until installation completes before using the system.
+
+================================================================================
+
+EOF
+
 echo "=============================================="
 echo "PacketFence First Boot - Phase B"
 echo "Starting at: $(date)"
@@ -287,6 +304,43 @@ echo "===> Step 6: Starting services"
 
 systemctl start mariadb || true
 systemctl start redis-server || true
+
+# Update login screen with completion message
+cat > /etc/issue << 'EOF'
+================================================================================
+  PacketFence Installation Complete!
+================================================================================
+
+  PacketFence has been successfully installed and configured.
+
+  Next steps:
+    1. Log in as root
+    2. Run: /usr/local/pf/bin/pfcmd configreload hard
+    3. Access the web interface at https://<this-ip>:1443
+
+  For more information, see: /var/log/packetfence-first-boot.log
+
+================================================================================
+
+EOF
+
+# Also add to MOTD for after login
+cat > /etc/motd << 'EOF'
+================================================================================
+  Welcome to PacketFence!
+================================================================================
+
+  PacketFence has been successfully installed.
+
+  Next steps:
+    1. Run: /usr/local/pf/bin/pfcmd configreload hard
+    2. Access the web interface at https://<this-ip>:1443
+
+  Installation log: /var/log/packetfence-first-boot.log
+  Documentation: https://packetfence.org/doc/
+
+================================================================================
+EOF
 
 # Remove this script and service
 echo "===> Removing first-boot service"
