@@ -204,8 +204,7 @@ host=100.64.0.1
 port=6033
 
 [active_active]
-# Change these 2 values by the credentials you've set when configuring MariaDB
-above
+# Change these 2 values by the credentials you've set when configuring MariaDB above
 galera_replication_username=pfcluster
 galera_replication_password=aMuchMoreSecurePassword
 
