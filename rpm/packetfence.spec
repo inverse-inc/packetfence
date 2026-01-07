@@ -69,6 +69,7 @@ Requires: MariaDB-client >= 10.11
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
 Requires: perl(Cisco::AccessList::Parser)
+Requires: perl(Email::Address::XS)
 Requires: jq
 
 Requires: perl(Net::SSLeay)
