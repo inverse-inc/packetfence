@@ -17,6 +17,7 @@ export {
 
   BaseFormGroupTextarea               as FormGroupEmailAddr,
   BaseFormGroupInput                  as FormGroupFromAddr,
+  BaseFormGroupInput                  as FormGroupSmtpName,
   BaseFormGroupChosenOne              as FormGroupSmtpEncryption,
   BaseFormGroupInputPassword          as FormGroupSmtpPassword,
   BaseFormGroupInputNumber            as FormGroupSmtpPort,

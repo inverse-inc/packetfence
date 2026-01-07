@@ -195,6 +195,12 @@ emailaddr=pf@localhost
 # Source email address for email notifications. Empty means root@<server-domain-name>.
 fromaddr=
 #
+# alerting.smtp_name
+#
+# A descriptive name for the SMTP server connection. This can be used to identify
+# the SMTP server in logs and notifications.
+smtp_name=
+#
 # alerting.smtpserver
 #
 # Server through which to send messages to the above emailaddr.  The default is localhost - be sure you're running an SMTP

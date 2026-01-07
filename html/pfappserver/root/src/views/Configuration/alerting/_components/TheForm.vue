@@ -15,6 +15,11 @@
                           :text="$i18n.t('Email address from which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message are sent. Empty means root@<server-domain-name>.')"
     />
 
+    <form-group-smtp-name namespace="smtp_name"
+                          :column-label="$i18n.t('SMTP name')"
+                          :text="$i18n.t('A descriptive name for the SMTP server connection. This can be used to identify the SMTP server in logs and notifications.')"
+    />
+
     <form-group-smtp-server namespace="smtpserver"
                             :column-label="$i18n.t('SMTP server')"
                             :text="$i18n.t(`Server through which to send messages to the above emailaddr. The default is localhost - be sure you're running an SMTP host locally if you don't change it!`)"
@@ -70,6 +75,7 @@ import schemaFn from '../schema'
 import {
   FormGroupEmailAddr,
   FormGroupFromAddr,
+  FormGroupSmtpName,
   FormGroupSmtpEncryption,
   FormGroupSmtpPassword,
   FormGroupSmtpPort,
@@ -86,6 +92,7 @@ const components = {
 
   FormGroupEmailAddr,
   FormGroupFromAddr,
+  FormGroupSmtpName,
   FormGroupSmtpEncryption,
   FormGroupSmtpPassword,
   FormGroupSmtpPort,
