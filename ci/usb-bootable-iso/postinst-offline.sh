@@ -177,7 +177,8 @@ set -o pipefail
 # =============================================================================
 
 LOG_FILE="/var/log/packetfence-first-boot.log"
-exec > >(tee -a ${LOG_FILE}) 2>&1
+# Redirect all output to log file only (not to console)
+exec >> ${LOG_FILE} 2>&1
 
 # Function to update installation progress on login screen
 update_progress() {
@@ -430,8 +431,8 @@ Type=oneshot
 ExecStart=/usr/local/bin/packetfence-first-boot.sh
 RemainAfterExit=yes
 TimeoutStartSec=900
-StandardOutput=journal+console
-StandardError=journal+console
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
