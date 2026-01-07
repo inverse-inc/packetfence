@@ -51,7 +51,7 @@ apt-get update
 echo "===> Step 2: Installing packages from local repository (not on DVD-1)"
 
 # Install packages that are NOT on DVD-1, must come from local pf-repo
-# These are needed by packetfence-* dependency packages
+# These are needed by fingerbank and packetfence-* dependency packages
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
     lnav \
     cgroupfs-mount \
@@ -63,6 +63,18 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libdbd-sqlite3-perl \
     sqlite3 \
     libdata-powerset-perl \
+    libcatalyst-perl \
+    libcatalyst-modules-perl \
+    libaliased-perl \
+    libmoosex-types-loadableclass-perl \
+    libconfig-general-perl \
+    libreadonly-xs-perl \
+    libcatalyst-action-rest-perl \
+    liblwp-protocol-https-perl \
+    liblwp-protocol-connect-perl \
+    libjson-perl \
+    libsql-translator-perl \
+    libfile-touch-perl \
     || {
     echo "Warning: Some packages failed to install, continuing..."
 }

@@ -103,6 +103,18 @@ PACKAGES="
     libdbd-sqlite3-perl
     sqlite3
     libdata-powerset-perl
+    libcatalyst-perl
+    libcatalyst-modules-perl
+    libaliased-perl
+    libmoosex-types-loadableclass-perl
+    libconfig-general-perl
+    libreadonly-xs-perl
+    libcatalyst-action-rest-perl
+    liblwp-protocol-https-perl
+    liblwp-protocol-connect-perl
+    libjson-perl
+    libsql-translator-perl
+    libfile-touch-perl
 "
 
 # Add Docker repository for docker-ce packages
