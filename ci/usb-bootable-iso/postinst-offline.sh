@@ -75,6 +75,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libjson-perl \
     libsql-translator-perl \
     libfile-touch-perl \
+    libglib2.0-0 \
+    libglib2.0-bin \
     || {
     echo "Warning: Some packages failed to install, continuing..."
 }

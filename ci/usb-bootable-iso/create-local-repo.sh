@@ -115,6 +115,8 @@ PACKAGES="
     libjson-perl
     libsql-translator-perl
     libfile-touch-perl
+    libglib2.0-0
+    libglib2.0-bin
 "
 
 # Add Docker repository for docker-ce packages
