@@ -101,20 +101,35 @@ apt-mark hold linux-image-amd64 linux-image-* 2>/dev/null || true
 # Include linux-image-amd64 to ensure kernel is not removed by dependency resolution
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     linux-image-amd64 \
+    linux-headers-amd64 \
     mariadb-server \
+    mariadb-client \
     redis-server \
+    redis-tools \
     freeradius \
     freeradius-ldap \
     freeradius-mysql \
     freeradius-utils \
     freeradius-rest \
     freeradius-redis \
+    freeradius-common \
     haproxy \
     keepalived \
     samba \
     snmpd \
+    snmp \
     monit \
     fingerbank-collector \
+    bind9-dnsutils \
+    bind9-libs \
+    bind9-host \
+    openssh-server \
+    openssh-client \
+    openssh-sftp-server \
+    vlan \
+    arping \
+    fping \
+    ipset \
     || {
     echo "Warning: Some dependencies failed to install, attempting to fix..."
     dpkg --configure -a
