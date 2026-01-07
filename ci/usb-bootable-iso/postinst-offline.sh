@@ -50,8 +50,20 @@ apt-get update
 # Step 2: Install packages not available on DVD-1
 echo "===> Step 2: Installing packages from local repository (not on DVD-1)"
 
-# Install lnav and cgroupfs-mount (not on DVD-1, must come from local repo)
-DEBIAN_FRONTEND=noninteractive apt-get install -y lnav cgroupfs-mount || {
+# Install packages that are NOT on DVD-1, must come from local pf-repo
+# These are needed by packetfence-* dependency packages
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    lnav \
+    cgroupfs-mount \
+    libcache-bdb-perl \
+    liblog-fast-perl \
+    libfile-flock-perl \
+    libcjson1 \
+    liblog-log4perl-perl \
+    libdbd-sqlite3-perl \
+    sqlite3 \
+    libdata-powerset-perl \
+    || {
     echo "Warning: Some packages failed to install, continuing..."
 }
 
