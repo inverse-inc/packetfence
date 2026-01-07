@@ -191,7 +191,7 @@ update_progress() {
   Current Step: ${step}
   Status: ${message}
 
-  This process may take 10-15 minutes total.
+  Depending on allocated resources, PacketFence installation can take 10-40 minutes.
   Progress can be monitored at: /var/log/packetfence-first-boot.log
 
   Please wait until installation completes before using the system.
