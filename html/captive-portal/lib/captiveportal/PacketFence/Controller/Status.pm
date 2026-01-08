@@ -3,7 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::util;
 use pf::constants;
-use pf::config qw(%Config %ConfigSelfService);
+use pf::config qw(%ConfigSelfService);
 use pf::node;
 use pf::person;
 use pf::web;
@@ -11,8 +11,7 @@ use pf::security_event qw(security_event_view_open);
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::password qw(view);
 use pf::authentication;
-use pf::config::util qw(send_email);
-use pf::Web::guest;
+use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -253,25 +252,13 @@ sub forgot_password : Local {
         # Always show success template (security - no user enumeration)
         $c->stash(template => 'status/forgot_password_sent.html');
 
-        # Attempt to generate token and send email
+        # Attempt to find user and send email
         if ($identifier) {
-            my ($token, $email, $pid) = pf::password::generate_password_reset_token($identifier);
+            my ($pid, $email) = pf::password::initiate_password_reset($identifier);
 
-            if ($token && $email) {
-                # Build reset URL
-                my $reset_url = "https://" . $Config{'general'}{'hostname'} . "."
-                    . $Config{'general'}{'domain'} . "/status/reset_password_token?token=$token";
-
-                # Send password reset email
-                pf::config::util::send_email(
-                    'guest_password_reset',
-                    $email,
-                    $Config{'general'}{'domain'},
-                    {
-                        reset_url => $reset_url,
-                        pid => $pid,
-                        expiration_minutes => 60,
-                    }
+            if ($pid && $email) {
+                pf::activation::create_and_send_password_reset(
+                    $pid, $email, $c->profile->getName, ()
                 );
             }
         }
@@ -327,9 +314,9 @@ sub reset_password_token : Local {
     }
 
     # GET: validate token and display form
-    my $pid = pf::password::validate_password_reset_token($token);
+    my $record = pf::activation::validate_code($PASSWORD_RESET_ACTIVATION, $token);
 
-    if ($pid) {
+    if ($record) {
         $c->stash(
             template => 'status/reset_password_token.html',
             token => $token,

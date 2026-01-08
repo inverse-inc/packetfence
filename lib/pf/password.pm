@@ -72,10 +72,7 @@ use pf::error qw(is_error is_success);
 use pf::dal::password;
 use pf::util;
 use pf::person;
-use pf::rate_limiter;
-
-# Password reset token expiration (1 hour)
-Readonly::Scalar our $RESET_TOKEN_EXPIRATION => 3600;
+use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 
 =item view
 
@@ -563,115 +560,38 @@ sub reset_password {
     return $rows ? $TRUE : $FALSE;
 }
 
-=item generate_password_reset_token
+=item initiate_password_reset
 
-Generate a password reset token for a user identified by PID or email.
-Stores the bcrypt-hashed token in the password table.
-Returns (plaintext_token, email, pid) on success, (undef, undef, undef) on failure.
+Lookup user by PID or email and return (pid, email) if found.
+Returns (undef, undef) if user not found or has no email.
 
 =cut
 
-sub generate_password_reset_token {
+sub initiate_password_reset {
     my ($identifier) = @_;
     my $logger = get_logger();
-
-    # Check rate limit (3 requests per hour per identifier)
-    if (pf::rate_limiter::is_pass_limit("password_reset:$identifier", 3, 3600)) {
-        $logger->info("Password reset rate limit exceeded for identifier: $identifier");
-        return (undef, undef, undef);
-    }
 
     # Lookup user by PID first, then by email
     my $entry = view($identifier) // view_email($identifier);
     if (!$entry) {
         $logger->debug("No password entry found for identifier: $identifier");
-        return (undef, undef, undef);
+        return (undef, undef);
     }
-
-    my $pid = $entry->{pid};
 
     # Get email from person table
-    my $person = pf::person::person_view($pid);
+    my $person = pf::person::person_view($entry->{pid});
     if (!$person || !$person->{email}) {
-        $logger->debug("No email found for pid: $pid");
-        return (undef, undef, undef);
+        $logger->debug("No email found for pid: $entry->{pid}");
+        return (undef, undef);
     }
 
-    my $email = $person->{email};
-
-    # Generate secure random token (32 bytes -> 64 hex chars)
-    my $random = Bytes::Random::Secure->new(Bits => 64, NonBlocking => 1);
-    my $plaintext_token = unpack("H*", $random->bytes(32));
-
-    # Hash token with bcrypt before storage
-    my $hashed_token = bcrypt($plaintext_token);
-
-    # Calculate expiration time
-    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $RESET_TOKEN_EXPIRATION));
-
-    # Store hashed token in password table
-    my ($status, $rows) = pf::dal::password->update_items(
-        -set => {
-            password_reset_token => $hashed_token,
-            password_reset_token_expiration => $expiration,
-        },
-        -where => {
-            pid => $pid,
-        }
-    );
-
-    if (is_error($status)) {
-        $logger->error("Failed to store password reset token for pid: $pid");
-        return (undef, undef, undef);
-    }
-
-    $logger->info("Password reset token generated for pid: $pid");
-    return ($plaintext_token, $email, $pid);
-}
-
-=item validate_password_reset_token
-
-Validate a password reset token against the password table.
-Returns the pid if token is valid and not expired, undef otherwise.
-
-=cut
-
-sub validate_password_reset_token {
-    my ($token) = @_;
-    my $logger = get_logger();
-
-    return undef unless $token;
-
-    # Query all non-expired tokens from password table
-    my ($status, $iter) = pf::dal::password->search(
-        -where => {
-            password_reset_token => { "!=" => undef },
-            password_reset_token_expiration => { ">=" => \"NOW()" },
-        },
-        -columns => [qw(pid password_reset_token)],
-    );
-
-    if (is_error($status)) {
-        $logger->error("Failed to query password reset tokens");
-        return undef;
-    }
-
-    # Check each token with bcrypt comparison
-    while (my $row = $iter->next) {
-        if (_check_bcrypt($token, $row->{password_reset_token})) {
-            $logger->debug("Valid password reset token found for pid: $row->{pid}");
-            return $row->{pid};
-        }
-    }
-
-    $logger->debug("No valid password reset token found");
-    return undef;
+    return ($entry->{pid}, $person->{email});
 }
 
 =item reset_password_with_token
 
 Validate a password reset token and reset the password if valid.
-Clears the token after successful reset.
+Uses the activation table for token validation.
 Returns the pid on success, FALSE on failure.
 
 =cut
@@ -680,28 +600,22 @@ sub reset_password_with_token {
     my ($token, $new_password) = @_;
     my $logger = get_logger();
 
-    # Validate token using password table
-    my $pid = validate_password_reset_token($token);
-    if (!$pid) {
+    # Validate token using activation table
+    my $record = pf::activation::validate_code($PASSWORD_RESET_ACTIVATION, $token);
+    if (!$record) {
         $logger->info("Invalid or expired password reset token");
         return $FALSE;
     }
 
+    my $pid = $record->{pid};
+
     # Reset password using existing function
     my $result = reset_password($pid, $new_password);
 
-    # Clear token after successful reset
+    # Mark token as used
     if ($result) {
-        my ($status, $rows) = pf::dal::password->update_items(
-            -set => {
-                password_reset_token => undef,
-                password_reset_token_expiration => undef,
-            },
-            -where => {
-                pid => $pid,
-            }
-        );
-        $logger->info("Password reset successful for pid: $pid");
+        pf::activation::set_status_verified($PASSWORD_RESET_ACTIVATION, $token);
+        $logger->info("Password reset successful for $pid");
     }
 
     return $result ? $pid : $FALSE;
