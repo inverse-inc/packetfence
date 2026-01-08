@@ -109,7 +109,7 @@ sub resolve {
                 last;
             } else {
                 get_logger->error("Resolved ".$fqdn." to ip ".$resolved_ip." through pfdns-connector is not part of any pfconnector networks");
-	    }
+            }
         }
         if (!$found) {
             return undef;
