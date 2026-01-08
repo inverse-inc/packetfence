@@ -9,7 +9,7 @@ use pf::person;
 use pf::web;
 use pf::security_event qw(security_event_view_open);
 use pf::constants::security_event qw($LOST_OR_STOLEN);
-use pf::password;
+use pf::password qw(view);
 use pf::authentication;
 use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 
@@ -81,7 +81,7 @@ sub index : Path : Args(0) {
 
 sub is_lost_stolen {
     my ( $mac ) = @_;
-   
+
     my @security_events = security_event_view_open($mac);
     if ( grep {$_->{'security_event_id'} eq $LOST_OR_STOLEN} @security_events ) {
         return $TRUE
@@ -155,7 +155,7 @@ sub login : Local {
     my $request = $c->request;
     my $username = $request->param('username');
     my $password = $request->param('password');
-    $c->stash( 
+    $c->stash(
         template => 'status/login.html',
         title => "Status - Login",
     );
@@ -187,7 +187,7 @@ sub reset_password : Local {
         template => 'status/reset_password.html',
         logout_url => $c->user_session->{logout_url},
     );
-} 
+}
 
 sub reset_pw : Local {
     my ( $self, $c ) = @_;
@@ -219,10 +219,10 @@ sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : 
     $c->stash->{template} = "status/billing_cancel_subscription.html";
     if(!$source) {
         $c->stash(
-            error => "Unable to find source $source_id",    
+            error => "Unable to find source $source_id",
         );
     }
-    
+
     if($c->request->method eq "POST") {
         my ($res, $msg) = $source->handleCancelLink($subscription_id, $c->request->parameters);
         if($res) {
