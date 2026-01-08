@@ -69,9 +69,6 @@ PACKAGES="
     bind9-dnsutils
     bind9-libs
     bind9-host
-    openssh-server
-    openssh-client
-    openssh-sftp-server
     freeradius
     freeradius-ldap
     freeradius-mysql

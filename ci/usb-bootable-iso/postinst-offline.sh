@@ -125,9 +125,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bind9-dnsutils \
     bind9-libs \
     bind9-host \
-    openssh-server \
-    openssh-client \
-    openssh-sftp-server \
     vlan \
     arping \
     fping \
