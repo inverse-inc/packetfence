@@ -10,71 +10,152 @@ Add unauthenticated password recovery to the captive portal, allowing users to r
 - **Security**: Always return generic responses - never reveal if email/pid exists
 - **Token**: 1 hour expiration, cryptographically secure
 - **Rate limiting**: 3 requests per hour using `pf::rate_limiter`
-- **Email**: Send recovery link via SMTP (configured in `[alerting]` section)
+- **Email**: Send recovery link via existing activation email infrastructure
 
 ---
 
-## 1. Database Changes
+## Critical Design Decision: Use `activation` Table
 
-### 1.1 Schema Updates
+**DO NOT** add columns to the `password` table. Instead, use the existing `activation` table with `type => 'password_reset'`.
 
-**File**: `/usr/local/pf/db/pf-schema-X.Y.sql` (update password table definition)
+### Why?
 
-Add 2 columns to the `password` table:
-```sql
-`password_reset_token` varchar(255) DEFAULT NULL,
-`password_reset_token_expiration` datetime DEFAULT NULL,
-```
+| Issue with Password Table | Activation Table Advantage |
+|---------------------------|---------------------------|
+| Single token per user (pid is PK) | Supports concurrent reset requests |
+| No lifecycle management (no status column) | Built-in status: unverified → verified → invalidated |
+| Must duplicate bcrypt/validation logic | Reuses `pf::activation` functions |
+| Semantic mismatch (credentials vs tokens) | Designed for token-based flows |
+| Violates existing patterns | Follows guest/sponsor activation pattern |
 
-### 1.2 Upgrade Script
+### Existing Infrastructure to Reuse
 
-**File**: `/usr/local/pf/db/upgrade-X.X-X.Y.sql` (new file)
-
-```sql
-...
-
-\! echo "Adding password reset columns to password table";
-ALTER TABLE `password`
-    ADD COLUMN IF NOT EXISTS `password_reset_token` varchar(255) DEFAULT NULL,
-    ADD COLUMN IF NOT EXISTS `password_reset_token_expiration` datetime DEFAULT NULL;
-
-...
+```perl
+# Already exists in pf::activation:
+pf::activation::create(\%args)                      # Create token record
+pf::activation::validate_code($type, $code)         # Validate token
+pf::activation::set_status_verified($type, $code)   # Mark as used
+pf::activation::invalidate_codes($mac, $pid, $contact)  # Invalidate old tokens
 ```
 
 ---
 
-## 2. Password Module Functions
+## 1. Activation Module Updates
+
+**File**: `/usr/local/pf/lib/pf/activation.pm`
+
+### 1.1 New Type Constant
+
+Add after existing type constants (around line 80):
+
+```perl
+Readonly our $PASSWORD_RESET_ACTIVATION => 'password_reset';
+```
+
+### 1.2 Export the Constant
+
+Add to `@EXPORT_OK`:
+
+```perl
+@EXPORT_OK = qw(
+    ...
+    $PASSWORD_RESET_ACTIVATION
+);
+```
+
+### 1.3 New Function: `create_and_send_password_reset`
+
+```perl
+sub create_and_send_password_reset {
+    my ($pid, $email, $portal, %info) = @_;
+
+    # Check rate limit (returns 1 if BLOCKED, 0 if allowed)
+    if (pf::rate_limiter::is_pass_limit("password_reset:$pid", 3, 3600)) {
+        return (0, "Rate limited");
+    }
+
+    # Invalidate any existing reset tokens for this user
+    invalidate_codes(undef, $pid, $email, $PASSWORD_RESET_ACTIVATION);
+
+    # Create activation record
+    my %args = (
+        pid => $pid,
+        contact_info => $email,
+        type => $PASSWORD_RESET_ACTIVATION,
+        portal => $portal,
+        timeout => 3600,  # 1 hour
+    );
+
+    my $activation_code = create(\%args);
+    return (0, "Failed to create activation code") unless $activation_code;
+
+    # Build activation URI
+    $info{activation_uri} = "https://" . $Config{'general'}{'hostname'} . "."
+        . $Config{'general'}{'domain'} . "/status/reset_password_token?token=$activation_code";
+    $info{activation_timeout} = 3600;
+    $info{pid} = $pid;
+    $info{email} = $email;
+
+    # Send email
+    pf::config::util::send_email(
+        'guest_password_reset',
+        $email,
+        i18n("Password Reset Request"),
+        \%info
+    );
+
+    return (1, $activation_code);
+}
+```
+
+---
+
+## 2. Password Module Updates
 
 **File**: `/usr/local/pf/lib/pf/password.pm`
 
-### 2.1 New Constants
+### 2.1 New Function: `initiate_password_reset`
 
 ```perl
-Readonly::Scalar our $RESET_TOKEN_EXPIRATION => 3600;  # 1 hour in seconds
-Readonly::Scalar our $RESET_RATE_LIMIT => 3;          # 3 requests per hour
-Readonly::Scalar our $RESET_RATE_WINDOW => 3600;      # 1 hour window
+sub initiate_password_reset {
+    my ($identifier) = @_;
+
+    # Lookup user by PID first, then by email
+    my $entry = view($identifier) // view_email($identifier);
+    return (undef, undef) unless $entry;
+
+    # Get email from person table
+    my $person = pf::person::person_view($entry->{pid});
+    my $email = $person->{email};
+    return (undef, undef) unless $email;
+
+    return ($entry->{pid}, $email);
+}
 ```
 
-### 2.2 New Functions
+### 2.2 New Function: `reset_password_with_token`
 
-#### `generate_password_reset_token($identifier)`
-- Lookup user by PID first, then by email using `view()` and `view_email()`
-- Check rate limit using `pf::rate_limiter::is_pass_limit("password_reset:$identifier", 3, 3600)`
-- Generate 32-byte secure random token using `Bytes::Random::Secure`
-- Hash token with bcrypt before storing (same pattern as password hashing)
-- Store hashed token and expiration in password table, replace token columns if exists
-- Return `($plaintext_token, $email, $pid)` or `(undef, undef, undef)`
+```perl
+sub reset_password_with_token {
+    my ($token, $new_password) = @_;
 
-#### `validate_password_reset_token($token)`
-- Query all non-expired tokens from password table
-- Use bcrypt constant-time comparison to check each token
-- Return `$pid` if valid, `undef` if invalid/expired
+    # Validate token using activation module
+    my $record = pf::activation::validate_code($pf::activation::PASSWORD_RESET_ACTIVATION, $token);
+    return $FALSE unless $record;
 
-#### `reset_password_with_token($token, $new_password)`
-- Call `validate_password_reset_token()` to get PID
-- Call existing `reset_password($pid, $new_password)`
-- Clear token columns after successful reset
-- Return `$TRUE` or `$FALSE`
+    my $pid = $record->{pid};
+
+    # Reset password using existing function
+    my $result = reset_password($pid, $new_password);
+
+    # Mark token as used
+    if ($result) {
+        pf::activation::set_status_verified($pf::activation::PASSWORD_RESET_ACTIVATION, $token);
+    }
+
+    return $result ? $pid : $FALSE;
+}
+```
 
 ---
 
@@ -85,8 +166,7 @@ Readonly::Scalar our $RESET_RATE_WINDOW => 3600;      # 1 hour window
 ### 3.1 New Imports
 
 ```perl
-use pf::rate_limiter;
-use pf::config::util qw(send_email);
+use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 ```
 
 ### 3.2 New Routes
@@ -94,33 +174,85 @@ use pf::config::util qw(send_email);
 | Route | Method | Description |
 |-------|--------|-------------|
 | `/status/forgot_password` | GET | Display recovery request form |
-| `/status/forgot_password_request` | POST | Process request, send email |
+| `/status/forgot_password` | POST | Process request, send email |
 | `/status/reset_password_token` | GET | Display reset form (with token param) |
-| `/status/reset_password_token_submit` | POST | Process password reset with token |
+| `/status/reset_password_token` | POST | Process password reset |
 
 ### 3.3 Route Implementation
 
-#### `forgot_password` (GET)
-- Simply render `status/forgot_password.html` template
+```perl
+sub forgot_password : Local {
+    my ($self, $c) = @_;
 
-#### `forgot_password_request` (POST)
-- Get `identifier` param (username or email)
-- **Always** render success template (security)
-- Call `pf::password::generate_password_reset_token($identifier)`
-- If token returned, send email via `pf::config::util::send_email()`
-- Email template: `guest_password_reset`
+    if ($c->request->method eq 'POST') {
+        my $identifier = $c->request->param('identifier');
 
-#### `reset_password_token` (GET)
-- Get `token` param from URL
-- Validate with `pf::password::validate_password_reset_token()`
-- If valid: render `status/reset_password_token.html` with token
-- If invalid: render `status/reset_password_token_invalid.html`
+        # Always show success (security - no enumeration)
+        $c->stash(template => 'status/forgot_password_sent.html');
 
-#### `reset_password_token_submit` (POST)
-- Get `token`, `password`, `password2` params
-- Validate passwords match
-- Call `pf::password::reset_password_with_token()`
-- Render success or error template
+        # Attempt to find user and send email
+        my ($pid, $email) = pf::password::initiate_password_reset($identifier);
+
+        if ($pid && $email) {
+            pf::activation::create_and_send_password_reset(
+                $pid, $email, $c->profile->getName, ()
+            );
+        }
+        return;
+    }
+
+    # GET: display form
+    $c->stash(template => 'status/forgot_password.html');
+}
+
+sub reset_password_token : Local {
+    my ($self, $c) = @_;
+    my $token = $c->request->param('token');
+
+    if ($c->request->method eq 'POST') {
+        my $password = $c->request->param('password');
+        my $password2 = $c->request->param('password2');
+
+        if (!$password || !$password2) {
+            $c->stash(
+                template => 'status/reset_password_token.html',
+                token => $token,
+                status => 'error_fill',
+            );
+            return;
+        }
+
+        if ($password ne $password2) {
+            $c->stash(
+                template => 'status/reset_password_token.html',
+                token => $token,
+                status => 'error_match',
+            );
+            return;
+        }
+
+        my $pid = pf::password::reset_password_with_token($token, $password);
+        if ($pid) {
+            $c->stash(template => 'status/reset_password_token_success.html');
+        } else {
+            $c->stash(template => 'status/reset_password_token_invalid.html');
+        }
+        return;
+    }
+
+    # GET: validate token and display form
+    my $record = pf::activation::validate_code($pf::activation::PASSWORD_RESET_ACTIVATION, $token);
+
+    if ($record) {
+        $c->stash(
+            template => 'status/reset_password_token.html',
+            token => $token,
+        );
+    } else {
+        $c->stash(template => 'status/reset_password_token_invalid.html');
+    }
+}
+```
 
 ---
 
@@ -130,137 +262,226 @@ use pf::config::util qw(send_email);
 
 ### 4.1 Update Login Page
 
-**File**: `status/login.html`
+**File**: `login.html`
 
-Add "Forgot Password" link after the submit button (line 31):
+Add after submit button (around line 31):
 
 ```html
-        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" disabled>
-          [% i18n("Login") %]
-        </button>
-
-        [%# Forgot Password Link %]
-        <div class="u-text-center u-margin-top">
-          <a href="/status/forgot_password" class="c-link">[% i18n("Forgot your password?") %]</a>
-        </div>
+<div class="u-text-center u-margin-top">
+  <a href="/status/forgot_password" class="c-btn c-btn--ghost u-1/1">[% i18n("Forgot your password?") %]</a>
+</div>
 ```
 
-### 4.2 New Templates
+### 4.2 New Template: `forgot_password.html`
 
-| File | Purpose |
-|------|---------|
-| `forgot_password.html` | Form to enter email/username |
-| `forgot_password_sent.html` | Generic "check your email" message |
-| `reset_password_token.html` | Form to set new password (with hidden token) |
-| `reset_password_token_invalid.html` | Token expired/invalid message |
-| `reset_password_token_success.html` | Password reset success message |
+```html
+<div class="u-padding">
+  <form name="forgot_password" method="post" action="/status/forgot_password">
+    <div class="o-layout o-layout--center">
+      <h5>[% i18n("Reset your password") %]</h5>
+    </div>
+
+    <div class="o-layout o-layout--center">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+        <div class="input-container">
+          <label for="identifier">[% i18n("Username or Email") %]</label>
+          <input class="field" name="identifier" id="identifier" type="text" required />
+        </div>
+
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+          [% i18n("Send Reset Link") %]
+        </button>
+
+        <div class="u-text-center u-margin-top">
+          <a href="/status/login">[% i18n("Back to Login") %]</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+```
+
+### 4.3 New Template: `forgot_password_sent.html`
+
+```html
+<div class="u-padding">
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("If an account exists with that username or email, you will receive a password reset link shortly.") %]</p>
+  </div>
+
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="u-text-center u-margin-top">
+        <a href="/status/login" class="c-btn c-btn--primary u-1/1">[% i18n("Back to Login") %]</a>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### 4.4 New Template: `reset_password_token.html`
+
+```html
+<div class="u-padding">
+  [% IF status == "error_match" %]
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("The two entered passwords did not match") %]</p>
+  </div>
+  [% ELSIF status == "error_fill" %]
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("Please fill in all fields") %]</p>
+  </div>
+  [% END %]
+
+  <form name="reset_password_token" method="post" action="/status/reset_password_token">
+    <input type="hidden" name="token" value="[% token %]" />
+
+    <div class="o-layout o-layout--center">
+      <h5>[% i18n("Set your new password") %]</h5>
+    </div>
+
+    <div class="o-layout o-layout--center">
+      <div class="o-layout__item o-layout--left u-1/1 u-2/3@tablet u-3/5@desktop">
+        <div class="input-container">
+          <label for="password">[% i18n("New Password") %]</label>
+          <input class="field" name="password" id="password" type="password" required />
+        </div>
+        <div class="input-container">
+          <label for="password2">[% i18n("Confirm Password") %]</label>
+          <input class="field" name="password2" id="password2" type="password" required />
+        </div>
+
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+          [% i18n("Reset Password") %]
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+```
+
+### 4.5 New Template: `reset_password_token_invalid.html`
+
+```html
+<div class="u-padding">
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("This password reset link is invalid or has expired.") %]</p>
+  </div>
+
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="u-text-center u-margin-top">
+        <a href="/status/forgot_password" class="c-btn c-btn--primary u-1/1">[% i18n("Request a new link") %]</a>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### 4.6 New Template: `reset_password_token_success.html`
+
+```html
+<div class="u-padding">
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Your password has been reset successfully.") %]</p>
+  </div>
+
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="u-text-center u-margin-top">
+        <a href="/status/login" class="c-btn c-btn--primary u-1/1">[% i18n("Login") %]</a>
+      </div>
+    </div>
+  </div>
+</div>
+```
 
 ---
 
 ## 5. Email Template
 
-**Files**:
-- `/usr/local/pf/html/captive-portal/templates/emails/emails-guest_password_reset.mjml`
-- `/usr/local/pf/html/captive-portal/templates/emails/emails-guest_password_reset.html`
+**File**: `/usr/local/pf/html/captive-portal/templates/emails/emails-guest_password_reset.html`
 
-### Template Variables
-- `[% reset_url %]` - Full URL with token
+### Template Variables (following existing patterns)
+- `[% activation_uri %]` - Full URL with token (NOT `reset_url`)
+- `[% activation_timeout %]` - Token validity in seconds
 - `[% pid %]` - Username
-- `[% expiration_minutes %]` - Token validity (60)
 
-### MJML Structure
-Follow existing pattern from `emails-guest_email_activation.mjml`:
-- Include `_header.mjml` and `_footer.mjml`
-- Use `[% i18n("text") %]` for all strings
-- Button with `href="[% reset_url %]"`
+### HTML Template
 
-### Compile to HTML
-```bash
-cd /usr/local/pf/html/captive-portal/templates/emails
-npx mjml emails-guest_password_reset.mjml -o emails-guest_password_reset.html
+Follow structure from `emails-guest_email_activation.html`:
+
+```html
+<!-- Standard email structure with activation_uri button -->
+<a href="[% activation_uri %]" class="button">[% i18n("Reset Password") %]</a>
+<p>[% i18n_format("This link will expire in %s minutes.", activation_timeout / 60) %]</p>
 ```
 
 ---
 
-## 6. OAS Specification
-
-**File**: `/usr/local/pf/docs/api/spec/static/components/schemas/password.yaml`
-
-Add new properties to Password schema:
-```yaml
-password_reset_token:
-  type: string
-  description: Hashed password reset token
-password_reset_token_expiration:
-  type: string
-  format: date-time
-  description: Token expiration timestamp
-```
-
----
-
-## 7. Security Measures
+## 6. Security Measures
 
 | Concern | Mitigation |
 |---------|------------|
 | User enumeration | Always return generic "check your email" response |
 | Token brute force | Rate limit 3 requests/hour via `pf::rate_limiter` |
-| Token interception | Tokens hashed with bcrypt before storage |
-| Timing attacks | Use constant-time bcrypt comparison |
-| Token reuse | Clear token after successful reset |
+| Token storage | Uses existing activation table hashing |
+| Token reuse | `set_status_verified()` marks token as used |
+| Concurrent requests | Previous tokens invalidated via `invalidate_codes()` |
 | Long-lived tokens | 1-hour expiration |
 
 ---
 
-## 8. Files to Create/Modify
+## 7. Files to Create/Modify
 
-### New Files
-- `/usr/local/pf/db/upgrade-15.0-15.1.sql`
-- `/usr/local/pf/html/captive-portal/templates/status/forgot_password.html`
-- `/usr/local/pf/html/captive-portal/templates/status/forgot_password_sent.html`
-- `/usr/local/pf/html/captive-portal/templates/status/reset_password_token.html`
-- `/usr/local/pf/html/captive-portal/templates/status/reset_password_token_invalid.html`
-- `/usr/local/pf/html/captive-portal/templates/status/reset_password_token_success.html`
-- `/usr/local/pf/html/captive-portal/templates/emails/emails-guest_password_reset.mjml`
-- `/usr/local/pf/html/captive-portal/templates/emails/emails-guest_password_reset.html`
+### New Files (6)
+1. `/usr/local/pf/html/captive-portal/templates/status/forgot_password.html`
+2. `/usr/local/pf/html/captive-portal/templates/status/forgot_password_sent.html`
+3. `/usr/local/pf/html/captive-portal/templates/status/reset_password_token.html`
+4. `/usr/local/pf/html/captive-portal/templates/status/reset_password_token_invalid.html`
+5. `/usr/local/pf/html/captive-portal/templates/status/reset_password_token_success.html`
+6. `/usr/local/pf/html/captive-portal/templates/emails/emails-guest_password_reset.html`
 
-### Modified Files
-- `/usr/local/pf/db/pf-schema-15.0.sql` - Add columns to password table
-- `/usr/local/pf/lib/pf/dal/_password.pm` - Add new columns
-- `/usr/local/pf/lib/pf/password.pm` - Add token functions
-- `/usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm` - Add routes
-- `/usr/local/pf/html/captive-portal/templates/status/login.html` - Add forgot link
-- `/usr/local/pf/docs/api/spec/static/components/schemas/password.yaml` - Add fields
+### Modified Files (4)
+1. `/usr/local/pf/lib/pf/activation.pm` - Add constant + `create_and_send_password_reset()`
+2. `/usr/local/pf/lib/pf/password.pm` - Add `initiate_password_reset()` + `reset_password_with_token()`
+3. `/usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm` - Add 2 routes
+4. `/usr/local/pf/html/captive-portal/templates/status/login.html` - Add forgot password link
+
+### NO Database Changes Required
+The `activation` table already supports the `password_reset` type - no schema modifications needed.
 
 ---
 
-## 9. Verification
+## 8. Verification
 
 ### Manual Testing
 1. Navigate to `/status/login` - verify "Forgot password?" link appears
-2. Click link - verify form displays
+2. Click link - verify form displays with username/email field
 3. Enter valid email - verify "check email" message
 4. Enter invalid email - verify same "check email" message (no enumeration)
-5. Check email - verify recovery link received
+5. Check email - verify recovery link received with correct URL
 6. Click link - verify reset form displays
 7. Enter mismatched passwords - verify error
 8. Enter matching passwords - verify success
-9. Try using expired/invalid token - verify error message
-10. Try using same token twice - verify error (already used)
-11. Submit 4+ requests in 1 hour - verify rate limiting (still shows success message)
+9. Try using expired token (wait >1 hour) - verify error
+10. Try using same token twice - verify error (already verified)
+11. Submit 4+ requests in 1 hour - verify rate limiting
 
 ### Database Verification
 ```sql
--- Check new columns exist
-DESCRIBE password;
-
--- Check token storage after request
-SELECT pid, password_reset_token, password_reset_token_expiration
-FROM password WHERE password_reset_token IS NOT NULL;
+-- Check activation records
+SELECT code_id, pid, contact_info, type, status, expiration
+FROM activation
+WHERE type = 'password_reset';
 ```
 
 ### Rate Limiter Verification
 ```bash
-# Check Redis for rate limit keys
 redis-cli KEYS "RateLimiter:password_reset:*"
 ```
