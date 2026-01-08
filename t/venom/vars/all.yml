@@ -698,8 +698,9 @@ virtualswitch.registration.dhcpd_enabled: "enabled"
 virtualswitch.namespace.ip: "10.99.99.254"
 virtualswitch.namespace.netmask: "255.255.255.0"
 
-# VirtualSwitch API (accessed locally)
-virtualswitch.api.url: "http://127.0.0.1:8080"
+# VirtualSwitch API (accessed from host via namespace IP)
+virtualswitch.api.port: "38080"
+virtualswitch.api.url: "http://10.99.99.254:38080"
 virtualswitch.interface.id: 1
 
 # VirtualSwitch RADIUS config (points to PF registration interface)

@@ -1,6 +1,6 @@
 executor: virtualswitch_device_status
 input:
-  api_url: "http://127.0.0.1:8080"
+  api_url: "http://10.99.99.254:38080"
   interface_id: "1"
 steps:
 - type: exec

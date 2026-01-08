@@ -1,6 +1,6 @@
 executor: virtualswitch_plug_device
 input:
-  api_url: "http://127.0.0.1:8080"
+  api_url: "http://10.99.99.254:38080"
   interface_id: "1"
   mac_address: ""
   auth_method: "mab"

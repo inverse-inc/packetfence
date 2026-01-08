@@ -1,6 +1,6 @@
 executor: virtualswitch_api_status
 input:
-  api_url: "http://127.0.0.1:8080"
+  api_url: "http://10.99.99.254:38080"
   expected_code: "200"
   retry: 3
   delay: 2
