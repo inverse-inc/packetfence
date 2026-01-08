@@ -72,7 +72,6 @@ use pf::error qw(is_error is_success);
 use pf::dal::password;
 use pf::util;
 use pf::person;
-use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 
 =item view
 
@@ -558,67 +557,6 @@ sub reset_password {
     }
 
     return $rows ? $TRUE : $FALSE;
-}
-
-=item initiate_password_reset
-
-Lookup user by PID or email and return (pid, email) if found.
-Returns (undef, undef) if user not found or has no email.
-
-=cut
-
-sub initiate_password_reset {
-    my ($identifier) = @_;
-    my $logger = get_logger();
-
-    # Lookup user by PID first, then by email
-    my $entry = view($identifier) // view_email($identifier);
-    if (!$entry) {
-        $logger->debug("No password entry found for identifier: $identifier");
-        return (undef, undef);
-    }
-
-    # Get email from person table
-    my $person = pf::person::person_view($entry->{pid});
-    if (!$person || !$person->{email}) {
-        $logger->debug("No email found for pid: $entry->{pid}");
-        return (undef, undef);
-    }
-
-    return ($entry->{pid}, $person->{email});
-}
-
-=item reset_password_with_token
-
-Validate a password reset token and reset the password if valid.
-Uses the activation table for token validation.
-Returns the pid on success, FALSE on failure.
-
-=cut
-
-sub reset_password_with_token {
-    my ($token, $new_password) = @_;
-    my $logger = get_logger();
-
-    # Validate token using activation table
-    my $record = pf::activation::validate_code($PASSWORD_RESET_ACTIVATION, $token);
-    if (!$record) {
-        $logger->info("Invalid or expired password reset token");
-        return $FALSE;
-    }
-
-    my $pid = $record->{pid};
-
-    # Reset password using existing function
-    my $result = reset_password($pid, $new_password);
-
-    # Mark token as used
-    if ($result) {
-        pf::activation::set_status_verified($PASSWORD_RESET_ACTIVATION, $token);
-        $logger->info("Password reset successful for $pid");
-    }
-
-    return $result ? $pid : $FALSE;
 }
 
 =item consume_login

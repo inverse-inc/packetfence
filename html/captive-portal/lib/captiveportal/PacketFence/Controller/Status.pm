@@ -9,7 +9,7 @@ use pf::person;
 use pf::web;
 use pf::security_event qw(security_event_view_open);
 use pf::constants::security_event qw($LOST_OR_STOLEN);
-use pf::password qw(view);
+use pf::password;
 use pf::authentication;
 use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 
@@ -254,12 +254,16 @@ sub forgot_password : Local {
 
         # Attempt to find user and send email
         if ($identifier) {
-            my ($pid, $email) = pf::password::initiate_password_reset($identifier);
-
-            if ($pid && $email) {
-                pf::activation::create_and_send_password_reset(
-                    $pid, $email, $c->profile->getName, ()
-                );
+            # Lookup user by PID first, then by email
+            my $entry = pf::password::view($identifier) // pf::password::view_email($identifier);
+            if ($entry) {
+                my $pid = $entry->{pid};
+                my $person = pf::person::person_view($pid);
+                if ($person && $person->{email}) {
+                    pf::activation::create_and_send_password_reset(
+                        $pid, $person->{email}, $c->profile->getName, ()
+                    );
+                }
             }
         }
         return;
@@ -304,9 +308,17 @@ sub reset_password_token : Local {
             return;
         }
 
-        my $pid = pf::password::reset_password_with_token($token, $password);
-        if ($pid) {
-            $c->stash(template => 'status/reset_password_token_success.html');
+        # Validate token and reset password
+        my $record = pf::activation::validate_code($PASSWORD_RESET_ACTIVATION, $token);
+        if ($record) {
+            my $pid = $record->{pid};
+            my $result = pf::password::reset_password($pid, $password);
+            if ($result) {
+                pf::activation::set_status_verified($PASSWORD_RESET_ACTIVATION, $token);
+                $c->stash(template => 'status/reset_password_token_success.html');
+            } else {
+                $c->stash(template => 'status/reset_password_token_invalid.html');
+            }
         } else {
             $c->stash(template => 'status/reset_password_token_invalid.html');
         }
