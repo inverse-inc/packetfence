@@ -6,6 +6,7 @@ export const schema = () => {
     emailaddr: yup.string().nullable().label(i18n.t('Email'))
       .isEmailCsv(),
     fromaddr: yup.string().nullable().email(),
+    smtp_name: yup.string().nullable().label(i18n.t('Name')),
     smtpserver: yup.string().nullable().label(i18n.t('Server')),
     subjectprefix: yup.string().nullable().label(i18n.t('Prefix')),
     smtp_encryption: yup.string().nullable().label(i18n.t('Encryption')),

@@ -59,6 +59,7 @@ use pf::file_paths qw(
 use pf::util;
 use pf::log;
 use pf::authentication;
+use Email::Address::XS;
 
 BEGIN {
   use Exporter ();
@@ -510,7 +511,16 @@ sub get_send_email_config {
     } elsif ($encryption eq 'starttls') {
         $args{StartTLS} = 1;
     }
-    $args{From} = $config->{fromaddr} || 'root@' . $fqdn;
+
+    my $from = $config->{fromaddr} || 'root@' . $fqdn;
+    my $smtp_name = $config->{smtp_name};
+    if (defined $smtp_name && length($smtp_name) > 0 ) {
+        my $address = Email::Address::XS->new($smtp_name, $from);
+        $from = $address->format();
+    }
+
+    $args{From} = $from;
+
     if (isdisabled($config->{smtp_verifyssl})) {
         $args{SSL_verify_mode} = SSL_VERIFY_NONE;
     }

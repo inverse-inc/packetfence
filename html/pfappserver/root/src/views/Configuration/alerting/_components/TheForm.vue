@@ -11,8 +11,13 @@
     />
 
     <form-group-from-addr namespace="fromaddr"
-                          :column-label="$i18n.t('Sender')"
+                          :column-label="$i18n.t('Sender address')"
                           :text="$i18n.t('Email address from which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message are sent. Empty means root@<server-domain-name>.')"
+    />
+
+    <form-group-smtp-name namespace="smtp_name"
+                          :column-label="$i18n.t('Sender name')"
+                          :text="$i18n.t('A descriptive name used in the from address to distinguish between different instances using the same address.')"
     />
 
     <form-group-smtp-server namespace="smtpserver"
@@ -70,6 +75,7 @@ import schemaFn from '../schema'
 import {
   FormGroupEmailAddr,
   FormGroupFromAddr,
+  FormGroupSmtpName,
   FormGroupSmtpEncryption,
   FormGroupSmtpPassword,
   FormGroupSmtpPort,
@@ -86,6 +92,7 @@ const components = {
 
   FormGroupEmailAddr,
   FormGroupFromAddr,
+  FormGroupSmtpName,
   FormGroupSmtpEncryption,
   FormGroupSmtpPassword,
   FormGroupSmtpPort,
