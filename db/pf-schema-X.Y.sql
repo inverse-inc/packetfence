@@ -469,6 +469,8 @@ CREATE TABLE `password` (
   `login_remaining` int DEFAULT NULL,
   `trigger_radius_mfa` varchar(255) default NULL,
   `trigger_portal_mfa` varchar(255) default NULL,
+  `password_reset_token` varchar(255) DEFAULT NULL,
+  `password_reset_token_expiration` datetime DEFAULT NULL,
   PRIMARY KEY (pid),
   KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)

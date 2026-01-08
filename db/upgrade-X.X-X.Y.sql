@@ -55,6 +55,11 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
+\! echo "Adding password reset columns to password table...";
+ALTER TABLE `password`
+    ADD COLUMN IF NOT EXISTS `password_reset_token` varchar(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS `password_reset_token_expiration` datetime DEFAULT NULL;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
