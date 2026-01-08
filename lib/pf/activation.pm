@@ -38,7 +38,6 @@ use Encode qw(encode);
 use pf::util;
 use pf::config::util qw();
 use pf::Connection::ProfileFactory;
-use pf::rate_limiter;
 use pf::web::guest::constants;
 use pf::web qw(i18n);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
@@ -79,7 +78,6 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 Readonly our $SPONSOR_ACTIVATION => 'sponsor';
 Readonly our $GUEST_ACTIVATION   => 'guest';
 Readonly our $SMS_ACTIVATION     => 'sms';
-Readonly our $PASSWORD_RESET_ACTIVATION => 'password_reset';
 
 
 BEGIN {
@@ -90,7 +88,7 @@ BEGIN {
     @EXPORT_OK = qw(
         view_by_code
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
-        $SPONSOR_ACTIVATION $GUEST_ACTIVATION $SMS_ACTIVATION $PASSWORD_RESET_ACTIVATION
+        $SPONSOR_ACTIVATION $GUEST_ACTIVATION $SMS_ACTIVATION
     );
 }
 
@@ -544,60 +542,6 @@ sub create_and_send_activation_code {
     }
 
     return ($success, $err, $activation_code);
-}
-
-=head2 create_and_send_password_reset
-
-Create a password reset activation code and send email to user
-
-=cut
-
-sub create_and_send_password_reset {
-    my ($pid, $email, $portal, %info) = @_;
-    my $logger = get_logger();
-
-    # Check rate limit (returns 1 if BLOCKED, 0 if allowed)
-    if (pf::rate_limiter::is_pass_limit("password_reset:$pid", 3, 3600)) {
-        $logger->info("Password reset rate limit exceeded for $pid");
-        return (0, "Rate limited");
-    }
-
-    # Invalidate any existing reset tokens for this user
-    invalidate_codes(undef, $pid, $email, $PASSWORD_RESET_ACTIVATION);
-
-    # Create activation record
-    my %args = (
-        pid          => $pid,
-        contact_info => $email,
-        type         => $PASSWORD_RESET_ACTIVATION,
-        portal       => $portal,
-        timeout      => 3600,  # 1 hour
-    );
-
-    my $activation_code = create(\%args);
-    if (!defined($activation_code)) {
-        $logger->error("Failed to create password reset activation code for $pid");
-        return (0, "Failed to create activation code");
-    }
-
-    # Build activation URI
-    $info{activation_uri} = "https://" . $Config{'general'}{'hostname'} . "."
-        . $Config{'general'}{'domain'} . "/status/reset_password_token?token=$activation_code";
-    $info{activation_timeout} = 3600;
-    $info{pid} = $pid;
-    $info{email} = $email;
-    $info{contact_info} = $email;
-    $info{subject} = i18n("Password Reset Request");
-
-    # Send email
-    my $email_sent = send_email($PASSWORD_RESET_ACTIVATION, $activation_code, 'guest_password_reset', %info);
-    if (!$email_sent) {
-        $logger->error("Failed to send password reset email to $email for $pid");
-        return (0, "Failed to send password reset email");
-    }
-
-    $logger->info("Password reset email sent to $email for $pid");
-    return (1, $activation_code);
 }
 
 # returns the validated activation record hashref or undef

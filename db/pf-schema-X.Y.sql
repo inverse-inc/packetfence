@@ -473,6 +473,7 @@ CREATE TABLE `password` (
   `password_reset_token_expiration` datetime DEFAULT NULL,
   PRIMARY KEY (pid),
   KEY password_category (category),
+  KEY password_reset_token_idx (password_reset_token),
   UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
