@@ -469,11 +469,8 @@ CREATE TABLE `password` (
   `login_remaining` int DEFAULT NULL,
   `trigger_radius_mfa` varchar(255) default NULL,
   `trigger_portal_mfa` varchar(255) default NULL,
-  `password_reset_token` varchar(255) DEFAULT NULL,
-  `password_reset_token_expiration` datetime DEFAULT NULL,
   PRIMARY KEY (pid),
   KEY password_category (category),
-  KEY password_reset_token_idx (password_reset_token),
   UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 

@@ -45,8 +45,6 @@ BEGIN {
         login_remaining
         trigger_radius_mfa
         trigger_portal_mfa
-        password_reset_token
-        password_reset_token_expiration
     );
 
     %DEFAULTS = (
@@ -62,8 +60,6 @@ BEGIN {
         login_remaining => undef,
         trigger_radius_mfa => undef,
         trigger_portal_mfa => undef,
-        password_reset_token => undef,
-        password_reset_token_expiration => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -79,8 +75,6 @@ BEGIN {
         login_remaining
         trigger_radius_mfa
         trigger_portal_mfa
-        password_reset_token
-        password_reset_token_expiration
     );
 
     %FIELDS_META = (
@@ -156,18 +150,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        password_reset_token => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        password_reset_token_expiration => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -187,8 +169,6 @@ BEGIN {
         password.login_remaining
         password.trigger_radius_mfa
         password.trigger_portal_mfa
-        password.password_reset_token
-        password.password_reset_token_expiration
     );
 
 }
