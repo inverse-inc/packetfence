@@ -1,7 +1,7 @@
 executor: virtualswitch_service
 input:
   action: "start"
-  service_name: "virtualswitch-namespace"
+  service_name: "virtualswitch"
 steps:
 - type: exec
   script: systemctl {{.input.action}} {{.input.service_name}}

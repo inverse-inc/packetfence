@@ -1,6 +1,6 @@
 executor: virtualswitch_service_status
 input:
-  service_name: "virtualswitch-namespace"
+  service_name: "virtualswitch"
   expected_status: "active"
 steps:
 - type: exec

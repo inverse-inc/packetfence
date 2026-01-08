@@ -1,11 +1,11 @@
-name: Start virtualswitch-namespace service
+name: Start virtualswitch service
 testcases:
 
-  - name: start_virtualswitch_namespace_service
+  - name: start_virtualswitch_service
     steps:
     - type: virtualswitch_service
       action: start
-      service_name: virtualswitch-namespace
+      service_name: virtualswitch
 
   - name: wait_for_virtualswitch_to_start
     steps:
@@ -15,7 +15,7 @@ testcases:
   - name: verify_virtualswitch_service_running
     steps:
     - type: virtualswitch_service_status
-      service_name: virtualswitch-namespace
+      service_name: virtualswitch
       expected_status: active
 
   - name: verify_virtualswitch_api_responding

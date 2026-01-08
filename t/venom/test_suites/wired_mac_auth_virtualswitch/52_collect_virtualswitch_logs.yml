@@ -1,26 +1,45 @@
 name: Collect VirtualSwitch logs for CI artifacts
 testcases:
 
-- name: collect_virtualswitch_service_logs
+- name: collect_virtualswitch_logs_on_vm
+  steps:
+  - type: ssh
+    host: '{{.virtualswitch01_mgmt_ip}}'
+    user: '{{.ssh_user}}'
+    command: |
+      # Create logs directory
+      mkdir -p /tmp/virtualswitch-logs
+
+      # Collect virtualswitch service logs (systemd journal)
+      journalctl -u virtualswitch --no-pager > /tmp/virtualswitch-logs/virtualswitch.log 2>&1 || true
+
+      # Collect virtualswitch config
+      cp /etc/virtualswitch/config.yaml /tmp/virtualswitch-logs/config.yaml 2>/dev/null || true
+
+      # Collect network info
+      ip addr > /tmp/virtualswitch-logs/ip-addr.log 2>&1 || true
+      ip route > /tmp/virtualswitch-logs/ip-route.log 2>&1 || true
+
+      # Create archive
+      tar czf /tmp/virtualswitch-logs.tar.gz -C /tmp virtualswitch-logs
+
+      echo "VirtualSwitch logs archived"
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: copy_logs_to_pf_vm
   steps:
   - type: exec
     script: |
-      # Create logs directory for virtualswitch
-      mkdir -p /usr/local/pf/logs/virtualswitch
+      # Create destination directory
+      mkdir -p /usr/local/pf/logs/virtualswitch01
 
-      # Collect virtualswitch service logs (systemd journal)
-      journalctl -u virtualswitch-namespace --no-pager > /usr/local/pf/logs/virtualswitch/virtualswitch-namespace.log 2>&1 || true
+      # Copy logs from virtualswitch01 VM
+      scp -o StrictHostKeyChecking=no {{.ssh_user}}@{{.virtualswitch01_mgmt_ip}}:/tmp/virtualswitch-logs.tar.gz /tmp/
 
-      # Collect virtualswitch config
-      cp /etc/virtualswitch/config.yaml /usr/local/pf/logs/virtualswitch/config.yaml 2>/dev/null || true
+      # Extract to PF logs directory
+      tar xzf /tmp/virtualswitch-logs.tar.gz -C /usr/local/pf/logs/virtualswitch01 --strip-components=1
 
-      # Collect namespace network info
-      ip netns exec vswitch-ns ip addr > /usr/local/pf/logs/virtualswitch/namespace-ip-addr.log 2>&1 || true
-      ip netns exec vswitch-ns ip route > /usr/local/pf/logs/virtualswitch/namespace-ip-route.log 2>&1 || true
-
-      # Collect veth pair info from host
-      ip link show {{.virtualswitch.veth.host}} > /usr/local/pf/logs/virtualswitch/veth-host.log 2>&1 || true
-
-      echo "VirtualSwitch logs collected"
+      echo "VirtualSwitch logs copied to PF VM"
     assertions:
       - result.code ShouldEqual 0

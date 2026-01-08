@@ -682,29 +682,16 @@ html.pfappserver_dir: '{{.pfserver_root_dir}}/t/html/pfappserver'
 ################################################################################
 ## wired_mac_auth_virtualswitch test suite specific variables
 #################################################################################
-# VirtualSwitch network setup (veth pair)
-virtualswitch.veth.host: vswitch-host
-virtualswitch.veth.ns: vswitch-ns
+# VirtualSwitch VM (Plan B - separate VM)
+virtualswitch01_hostname: virtualswitch01
 
-# Registration interface configuration (on vswitch-host)
-# Using 10.99.99.0/24 to avoid conflicts with vagrant networks (172.18.X.X)
-virtualswitch.registration.ip: "10.99.99.1"
-virtualswitch.registration.netmask: "255.255.255.0"
-virtualswitch.registration.network: "10.99.99.0"
-virtualswitch.registration.type: "registration"
-virtualswitch.registration.dhcpd_enabled: "enabled"
-
-# VirtualSwitch namespace IP (source IP for RADIUS)
-virtualswitch.namespace.ip: "10.99.99.254"
-virtualswitch.namespace.netmask: "255.255.255.0"
-
-# VirtualSwitch API (accessed from host via namespace IP)
-virtualswitch.api.port: "38080"
-virtualswitch.api.url: "http://10.99.99.254:38080"
+# VirtualSwitch API (accessed from PF VM via management network)
+virtualswitch.api.port: "8080"
+virtualswitch.api.url: "http://{{.virtualswitch01_mgmt_ip}}:8080"
 virtualswitch.interface.id: 1
 
 # VirtualSwitch RADIUS config (points to PF registration interface)
-virtualswitch.radius.ip: '{{.virtualswitch.registration.ip}}'
+virtualswitch.radius.ip: '{{.configurator.interfaces.reg.ip}}'
 virtualswitch.radius.port: 1812
 virtualswitch.radius.secret: testing123
 
