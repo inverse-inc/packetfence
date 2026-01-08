@@ -26,6 +26,12 @@ create_archive() {
          # add pf logs if available
 	 all_path="${all_path} ${pf_logs_root}"
     fi
+    if [[ -f /var/log/syslog ]]; then
+         all_path="${all_path} /var/log/syslog"
+    fi
+    if [[ -f /var/log/messages ]]; then
+         all_path="${all_path} /var/log/messages"
+    fi
     tar c -zf "${venom_result_archive}" ${all_path}
 }
 
