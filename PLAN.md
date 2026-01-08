@@ -18,7 +18,7 @@ Add unauthenticated password recovery to the captive portal, allowing users to r
 
 ### 1.1 Schema Updates
 
-**File**: `/usr/local/pf/db/pf-schema-15.0.sql` (update password table definition)
+**File**: `/usr/local/pf/db/pf-schema-X.Y.sql` (update password table definition)
 
 Add 2 columns to the `password` table:
 ```sql
@@ -28,62 +28,18 @@ Add 2 columns to the `password` table:
 
 ### 1.2 Upgrade Script
 
-**File**: `/usr/local/pf/db/upgrade-15.0-15.1.sql` (new file)
+**File**: `/usr/local/pf/db/upgrade-X.X-X.Y.sql` (new file)
 
 ```sql
-SET sql_mode = "NO_ENGINE_SUBSTITUTION";
-
---
--- PacketFence SQL schema upgrade from 15.0 to 15.1
---
-
-SET @MAJOR_VERSION = 15;
-SET @MINOR_VERSION = 1;
-SET @PREV_MAJOR_VERSION = 15;
-SET @PREV_MINOR_VERSION = 0;
-
-SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8;
-SET @PREV_VERSION_INT = @PREV_MAJOR_VERSION << 16 | @PREV_MINOR_VERSION << 8;
-
-DROP PROCEDURE IF EXISTS ValidateVersion;
-DELIMITER //
-CREATE PROCEDURE ValidateVersion()
-BEGIN
-    DECLARE PREVIOUS_VERSION int(11);
-    DECLARE PREVIOUS_VERSION_STRING varchar(11);
-    DECLARE _message varchar(255);
-    SELECT id, version INTO PREVIOUS_VERSION, PREVIOUS_VERSION_STRING FROM pf_version ORDER BY id DESC LIMIT 1;
-
-    IF PREVIOUS_VERSION != @PREV_VERSION_INT THEN
-        SELECT CONCAT('PREVIOUS VERSION ', PREVIOUS_VERSION_STRING, ' DOES NOT MATCH ', CONCAT_WS('.', @PREV_MAJOR_VERSION, @PREV_MINOR_VERSION)) INTO _message;
-        SIGNAL SQLSTATE VALUE '99999' SET MESSAGE_TEXT = _message;
-    END IF;
-END
-//
-DELIMITER ;
-
-\! echo "Checking PacketFence schema version...";
-call ValidateVersion;
-DROP PROCEDURE IF EXISTS ValidateVersion;
+...
 
 \! echo "Adding password reset columns to password table";
 ALTER TABLE `password`
     ADD COLUMN IF NOT EXISTS `password_reset_token` varchar(255) DEFAULT NULL,
     ADD COLUMN IF NOT EXISTS `password_reset_token_expiration` datetime DEFAULT NULL;
 
-\! echo "Incrementing PacketFence schema version...";
-INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
-
-\! echo "Upgrade completed successfully.";
+...
 ```
-
-### 1.3 DAL Update
-
-**File**: `/usr/local/pf/lib/pf/dal/_password.pm`
-
-Add new columns to the `@COLUMN_NAMES` and `@INSERTABLE_FIELDS` arrays:
-- `password_reset_token`
-- `password_reset_token_expiration`
 
 ---
 
@@ -106,7 +62,7 @@ Readonly::Scalar our $RESET_RATE_WINDOW => 3600;      # 1 hour window
 - Check rate limit using `pf::rate_limiter::is_pass_limit("password_reset:$identifier", 3, 3600)`
 - Generate 32-byte secure random token using `Bytes::Random::Secure`
 - Hash token with bcrypt before storing (same pattern as password hashing)
-- Store hashed token and expiration in password table
+- Store hashed token and expiration in password table, replace token columns if exists
 - Return `($plaintext_token, $email, $pid)` or `(undef, undef, undef)`
 
 #### `validate_password_reset_token($token)`
