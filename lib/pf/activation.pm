@@ -590,7 +590,11 @@ sub create_and_send_password_reset {
     $info{subject} = i18n("Password Reset Request");
 
     # Send email
-    send_email($PASSWORD_RESET_ACTIVATION, $activation_code, 'guest_password_reset', %info);
+    my $email_sent = send_email($PASSWORD_RESET_ACTIVATION, $activation_code, 'guest_password_reset', %info);
+    if (!$email_sent) {
+        $logger->error("Failed to send password reset email to $email for $pid");
+        return (0, "Failed to send password reset email");
+    }
 
     $logger->info("Password reset email sent to $email for $pid");
     return (1, $activation_code);
