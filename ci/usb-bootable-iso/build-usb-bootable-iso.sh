@@ -1,9 +1,10 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-# Get script directory
+# Get script directory and source shared config
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
+source "${SCRIPT_DIR}/../debian-version.conf"
 
 # Install required packages if not present
 echo "===> Checking/installing required packages..."
@@ -27,12 +28,22 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 # Configuration
-ISO_IN=${ISO_IN:-debian-12.6.0-amd64-DVD-1.iso}
+# DEBIAN_VERSION sourced from ../debian-version.conf
+ISO_IN=${ISO_IN:-debian-${DEBIAN_VERSION}-amd64-DVD-1.iso}
 ISO_OUT=${ISO_OUT:-packetfence-usb-installer.iso}
 WORK_DIR=${SCRIPT_DIR}/work
 ISOFILES_DIR=${WORK_DIR}/isofiles
 REPO_DIR=${WORK_DIR}/repo
 DOCKER_IMAGES_DIR=${WORK_DIR}/docker-images
+
+# Clean work directory to avoid stale package conflicts
+# Set SKIP_CLEAN=1 to skip cleaning (for faster rebuilds when debugging)
+if [ "${SKIP_CLEAN:-0}" != "1" ]; then
+    echo "===> Cleaning work directory to avoid stale package conflicts"
+    rm -rf ${WORK_DIR}
+else
+    echo "===> Skipping work directory cleanup (SKIP_CLEAN=1)"
+fi
 
 # Version info
 PF_VERSION=${PF_VERSION:-$(cat "${PF_ROOT}/conf/pf-release" | cut -d' ' -f2)}
@@ -66,7 +77,7 @@ mkdir -p ${DOCKER_IMAGES_DIR}
 echo "===> Step 1: Checking base Debian DVD ISO"
 if ! [ -f ${SCRIPT_DIR}/${ISO_IN} ]; then
     echo "Downloading ${ISO_IN}... (this will take several minutes - ~3.8 GB)"
-    wget --progress=dot:giga https://cdimage.debian.org/cdimage/archive/12.6.0/amd64/iso-dvd/${ISO_IN} -O ${SCRIPT_DIR}/${ISO_IN}
+    wget --progress=dot:giga https://cdimage.debian.org/cdimage/archive/${DEBIAN_VERSION}/amd64/iso-dvd/${ISO_IN} -O ${SCRIPT_DIR}/${ISO_IN}
     echo "Download complete: $(du -h ${SCRIPT_DIR}/${ISO_IN} | cut -f1)"
 else
     echo "Base DVD ISO already present: ${ISO_IN} ($(du -h ${SCRIPT_DIR}/${ISO_IN} | cut -f1))"
