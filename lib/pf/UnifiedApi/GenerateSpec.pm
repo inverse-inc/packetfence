@@ -18,8 +18,8 @@ our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
     PosInteger => 'integer',
     Port       => 'integer',
     Integer    => 'integer',
-    IntRange   => 'string',
-    PathUpload => 'string',
+    IntRange   => 'integer',
+    PathUpload => 'file',
 );
 use Lingua::EN::Inflexion qw(noun);
 
