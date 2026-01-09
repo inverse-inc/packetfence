@@ -14,6 +14,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/discover-network-device/snmp_scan"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/inverse-inc/packetfence/go/redisclient"
 	"github.com/julienschmidt/httprouter"
@@ -72,7 +73,7 @@ type Input struct {
 func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	b := bytes.NewBuffer(nil)
 	b.ReadFrom(r.Body)
-	input := Input{}
+	input := snmp_scan.Payload{}
 	json.Unmarshal(b.Bytes(), &input)
 	taskid := pfqueueclient.NewApiTaskID()
 	task := Task{TaskId: taskid, Status: 202}
@@ -81,10 +82,14 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 		defer pfqueueclient.PutStatusUpdater(statusUpdater)
 		ctx := context.Background()
 		statusUpdater.Start(ctx)
-		/*
-			Do your work
-		*/
-		statusUpdater.Complete(ctx, struct{}{})
+
+		resp, err := snmp_scan.Scan(input)
+		if err != nil {
+			// TODO: return err?
+			statusUpdater.Failed(ctx, err)
+		} else {
+			statusUpdater.Complete(ctx, resp)
+		}
 
 	}(taskid)
 

@@ -1,0 +1,67 @@
+{
+  "devices": [
+    {
+      "name": "Cisco IOS-XR",
+      "vendor": "cisco",
+      "os": "ios-xr",
+      "driver": "cisco_iosxr",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9\\.1(\\..*|$)",
+      "sysOS": "^Cisco IOS XR Software.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Cisco IOS-XE",
+      "vendor": "cisco",
+      "os": "ios-xe",
+      "driver": "cisco_iosxe",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9\\.1(\\..*|$)",
+      "sysOS": "^Cisco (IOS|Internetwork Operating System) Software.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Cisco NX-OS",
+      "vendor": "cisco",
+      "os": "nx-os",
+      "driver": "cisco_nxos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9\\.12(\\..*|$)",
+      "sysOS": "^Cisco NX-OS.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "HPE ArubaOS CX",
+      "vendor": "arubas",
+      "os": "arubaos cx",
+      "driver": "aruba_aoscx",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.47196\\.4\\.1\\.1(\\..*|$)",
+      "sysOS": "^(Aruba|HPE).*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Meraki",
+      "vendor": "meraki",
+      "os": "meraki",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.29671\\.2(\\..*|$)",
+      "sysOS": "^Meraki.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Arista EOS",
+      "vendor": "arista",
+      "os": "eos",
+      "driver": "arista_eos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.30065(\\..*|$)",
+      "sysOS": "^Arista Networks EOS",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Juniper Junos",
+      "vendor": "juniper",
+      "os": "junos",
+      "driver": "juniper_junos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.2636(\\..*|$)",
+      "sysOS": "JUNOS",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    }
+  ]
+}

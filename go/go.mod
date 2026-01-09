@@ -279,6 +279,7 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-tpm v0.9.7 // indirect
 	github.com/google/go-tspi v0.3.0 // indirect
+	github.com/gosnmp/gosnmp v1.43.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
