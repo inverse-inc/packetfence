@@ -1,0 +1,18 @@
+/scan:
+  post:
+    tags:
+      - SnmpScan
+    summary: Scan a network with given addresses and credentials.
+    description: The task can take some time.
+    operationId: snmpScan
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/requestBodies/SnmpScanPayload"
+      required: true
+    responses:
+      "200":
+        $ref: "#/components/responses/Async"
+      "400":
+        $ref: "#/components/responses/BadRequest"

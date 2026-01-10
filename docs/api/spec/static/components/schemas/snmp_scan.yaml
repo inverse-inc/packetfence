@@ -1,0 +1,77 @@
+Device:
+  description: Contains informations found on a device at a given address.
+  type: object
+  properties:
+    credential:
+      $ref: "#/components/schemas/Credential"
+    ip:
+      type: string
+      example: "192.168.10.42"
+    driver:
+      description: The driver id used by Scrapli
+      type: string
+      example: "cisco_iosxr"
+    vendor:
+      type: string
+      example: "CISCO"
+    os:
+      type: string
+      example: "CISCO IOS-XR"
+    version:
+      type: string
+      example: "17.0.42"
+    system:
+      description: The whole SNMP system description string. Usefull if vendor/os/version cannot be matched automatically.
+      type: string
+      example: "Aruba R8N88A 6000 24G 4SFP Swch PL.10.14.1010"
+    oid:
+      description: The OID string return by the SNMP request
+      type: string
+      example: ".1.3.6.1.4.1.9.1"
+Credential:
+  description: Contains credential informations. Support only SNMP v1 or v2c community strings.
+  type: object
+  properties:
+    type:
+      type: string
+      enum: [snmp_v1, snmp_v2c]
+      example: "snmp_v2c"
+    snmp_read:
+      type: string
+      example: public
+      default: public
+Options:
+  description: Optionnal property to manage the SNMP scan. In general, a 0 value means use default value.
+  type: object
+  properties:
+    max_threads:
+      description: The scan use multiple threads to speed up the SNMP scan. The higher the better. 0 = use default
+      type: integer
+      minimum: 0
+      maximum: 128
+      default: 32
+    snmp_timeout:
+      description: Timeout in seconds for a SNMP request. 0 = use default.
+      type: integer
+      minimum: 0
+      maximum: 10
+      default: 1
+    snmp_retry:
+      description: Number of retry if the SNMP request timeout. 0 = use default.
+      type: integer
+      minimum: 0
+      maximum: 3
+      default: 1
+    snmp_port:
+      description: Port used by the SNMP request.
+      type: integer
+      default: 161
+SnmpResult:
+  description: A brief report of error if an address responded to the SNMP request, but device cannot be match
+  type: object
+  properties:
+    address:
+      description: IP address
+      type: string
+    error:
+      type: string

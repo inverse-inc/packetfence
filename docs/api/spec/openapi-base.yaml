@@ -76,5 +76,7 @@ tags:
     description: System summary.
   - name: Users
     description: Manage PacketFence users/persons.
+  - name: SnmpScan
+    description: Scan the network to discover switches and routers.
 
 

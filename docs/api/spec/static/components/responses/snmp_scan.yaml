@@ -1,0 +1,17 @@
+SnmpScanResponse:
+  description: Request successful. A new asyncrounous task was created.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          devices:
+            description: All devices found in given addresses.
+            type: array
+            items:
+              $ref: "#/components/schemas/Device"
+          snmp_report:
+            description: Any error or warning return by SNMP response on device that could not be match
+            type: array
+            items:
+              $ref: "#/components/schemas/SnmpResult"
