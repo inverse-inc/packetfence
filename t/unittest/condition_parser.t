@@ -400,6 +400,13 @@ BEGIN {
                     { op => 'not_regex', field => 'user_name', value => '^host\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*'},
                 ],
             },
+        ],
+        [
+            '',
+            ['FUNC', 'true', []],
+            {
+                op => 'true',
+            },
         ]
     );
 
