@@ -6,11 +6,7 @@
     description: The task can take some time.
     operationId: snmpScan
     requestBody:
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/requestBodies/SnmpScanPayload"
-      required: true
+      $ref: "#/components/requestBodies/SnmpScanPayload"
     responses:
       "200":
         $ref: "#/components/responses/Async"

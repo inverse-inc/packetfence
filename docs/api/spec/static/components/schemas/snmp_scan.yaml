@@ -1,9 +1,9 @@
-Device:
+SnmpDevice:
   description: Contains informations found on a device at a given address.
   type: object
   properties:
     credential:
-      $ref: "#/components/schemas/Credential"
+      $ref: "#/components/schemas/SnmpCredential"
     ip:
       type: string
       example: "192.168.10.42"
@@ -28,7 +28,7 @@ Device:
       description: The OID string return by the SNMP request
       type: string
       example: ".1.3.6.1.4.1.9.1"
-Credential:
+SnmpCredential:
   description: Contains credential informations. Support only SNMP v1 or v2c community strings.
   type: object
   properties:
@@ -40,7 +40,7 @@ Credential:
       type: string
       example: public
       default: public
-Options:
+SnmpOptions:
   description: Optionnal property to manage the SNMP scan. In general, a 0 value means use default value.
   type: object
   properties:

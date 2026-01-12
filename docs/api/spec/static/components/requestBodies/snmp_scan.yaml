@@ -1,20 +1,22 @@
 SnmpScanPayload:
   description: Payload sent to the server to perform the request.
-  type: object
   required:
     - addresses
     - credentials
-  properties:
-    credentials:
-      description: SNMP community strings to be used for scanning. Each address will be test for each credential until a match is found
-      type: array
-      items:
-        $ref: "#/components/schemas/Credential"
-    addresses:
-      description: IP addresse or Class to scan. Only class C /24 supported
-      type: array
-      items:
-        type: string
-      example: ["192.168.10.42", "192.168.10.0/24"]
-    options:
-      $ref: "#/components/schemas/Options"
+  content:
+    application/json:
+      schema:
+        properties:
+          credentials:
+            description: SNMP community strings to be used for scanning. Each address will be test for each credential until a match is found
+            type: array
+            items:
+              $ref: "#/components/schemas/SnmpCredential"
+          addresses:
+            description: IP addresse or Class to scan. Only class C /24 supported
+            type: array
+            items:
+              type: string
+            example: ["192.168.10.42", "192.168.10.0/24"]
+          options:
+            $ref: "#/components/schemas/SnmpOptions"
