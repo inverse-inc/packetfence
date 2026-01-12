@@ -42,7 +42,7 @@ func TestFlushDNSAuditLog(t *testing.T) {
 	}
 	_ = res
 
-	err = j.flushLogs(entries)
+	err = j.flushLogs(context.Background(), entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
@@ -89,7 +89,7 @@ func TestFlushDNSAuditLogFromRedis(t *testing.T) {
 	}
 	_ = res
 
-	err = j.flushLogs(entries)
+	err = j.flushLogs(ctx, entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
