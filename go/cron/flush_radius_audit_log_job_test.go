@@ -317,7 +317,7 @@ func TestFlushRadiusAuditLog(t *testing.T) {
 	}
 	_ = res
 
-	err = j.flushLogs(entries)
+	err = j.flushLogs(context.Background(), entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
