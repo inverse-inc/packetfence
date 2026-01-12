@@ -103,7 +103,7 @@ sub parse_condition_string {
     /\G\s*/gc;
     # If condition is empty or only whitespace, default to "1" (always true)
     if (pos() == length($_)) {
-        return (1, '');
+        return (['FUNC', 'true', []], '');
     }
     my $expr = eval {_parse_expr()};
     if ($@) {
