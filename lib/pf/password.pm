@@ -68,9 +68,10 @@ BEGIN {
 
 use pf::constants;
 use pf::config qw(%Config);
-use pf::error qw(is_error is_success);;
+use pf::error qw(is_error is_success);
 use pf::dal::password;
 use pf::util;
+use pf::person;
 
 =item view
 

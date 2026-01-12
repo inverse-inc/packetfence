@@ -3,7 +3,6 @@ use Moose;
 use namespace::autoclean;
 use pf::util;
 use pf::constants;
-use pf::config;
 use pf::config qw(%ConfigSelfService);
 use pf::node;
 use pf::person;
@@ -12,6 +11,7 @@ use pf::security_event qw(security_event_view_open);
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::password qw(view);
 use pf::authentication;
+use pf::activation qw($PASSWORD_RESET_ACTIVATION);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -81,7 +81,7 @@ sub index : Path : Args(0) {
 
 sub is_lost_stolen {
     my ( $mac ) = @_;
-   
+
     my @security_events = security_event_view_open($mac);
     if ( grep {$_->{'security_event_id'} eq $LOST_OR_STOLEN} @security_events ) {
         return $TRUE
@@ -155,7 +155,7 @@ sub login : Local {
     my $request = $c->request;
     my $username = $request->param('username');
     my $password = $request->param('password');
-    $c->stash( 
+    $c->stash(
         template => 'status/login.html',
         title => "Status - Login",
     );
@@ -187,7 +187,7 @@ sub reset_password : Local {
         template => 'status/reset_password.html',
         logout_url => $c->user_session->{logout_url},
     );
-} 
+}
 
 sub reset_pw : Local {
     my ( $self, $c ) = @_;
@@ -219,10 +219,10 @@ sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : 
     $c->stash->{template} = "status/billing_cancel_subscription.html";
     if(!$source) {
         $c->stash(
-            error => "Unable to find source $source_id",    
+            error => "Unable to find source $source_id",
         );
     }
-    
+
     if($c->request->method eq "POST") {
         my ($res, $msg) = $source->handleCancelLink($subscription_id, $c->request->parameters);
         if($res) {
@@ -235,6 +235,108 @@ sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : 
         }
     }
 
+}
+
+=head2 forgot_password
+
+Display forgot password form (GET) or process forgot password request (POST)
+
+=cut
+
+sub forgot_password : Local {
+    my ($self, $c) = @_;
+
+    if ($c->request->method eq 'POST') {
+        my $identifier = $c->request->param('identifier');
+
+        # Always show success template (security - no user enumeration)
+        $c->stash(template => 'status/forgot_password_sent.html');
+
+        # Attempt to find user and send email
+        if ($identifier) {
+            # Lookup user by PID first, then by email
+            my $entry = pf::password::view($identifier) // pf::password::view_email($identifier);
+            if ($entry) {
+                my $pid = $entry->{pid};
+                my $person = pf::person::person_view($pid);
+                if ($person && $person->{email}) {
+                    pf::activation::create_and_send_password_reset(
+                        $pid, $person->{email}, $c->profile->getName, ()
+                    );
+                }
+            }
+        }
+        return;
+    }
+
+    # GET: display form
+    $c->stash(
+        template => 'status/forgot_password.html',
+        title => "Status - Forgot Password",
+    );
+}
+
+=head2 reset_password_token
+
+Display reset password form (GET) or process password reset (POST)
+
+=cut
+
+sub reset_password_token : Local {
+    my ($self, $c) = @_;
+    my $token = $c->request->param('token');
+
+    if ($c->request->method eq 'POST') {
+        my $password = $c->request->param('password');
+        my $password2 = $c->request->param('password2');
+
+        if (!$password || !$password2) {
+            $c->stash(
+                template => 'status/reset_password_token.html',
+                token => $token,
+                status => 'error_fill',
+            );
+            return;
+        }
+
+        if ($password ne $password2) {
+            $c->stash(
+                template => 'status/reset_password_token.html',
+                token => $token,
+                status => 'error_match',
+            );
+            return;
+        }
+
+        # Validate token and reset password
+        my $record = pf::activation::validate_code($PASSWORD_RESET_ACTIVATION, $token);
+        if ($record) {
+            my $pid = $record->{pid};
+            my $result = pf::password::reset_password($pid, $password);
+            if ($result) {
+                pf::activation::set_status_verified($PASSWORD_RESET_ACTIVATION, $token);
+                $c->stash(template => 'status/reset_password_token_success.html');
+            } else {
+                $c->stash(template => 'status/reset_password_token_invalid.html');
+            }
+        } else {
+            $c->stash(template => 'status/reset_password_token_invalid.html');
+        }
+        return;
+    }
+
+    # GET: validate token and display form
+    my $record = pf::activation::validate_code($PASSWORD_RESET_ACTIVATION, $token);
+
+    if ($record) {
+        $c->stash(
+            template => 'status/reset_password_token.html',
+            token => $token,
+            title => "Status - Reset Password",
+        );
+    } else {
+        $c->stash(template => 'status/reset_password_token_invalid.html');
+    }
 }
 
 
