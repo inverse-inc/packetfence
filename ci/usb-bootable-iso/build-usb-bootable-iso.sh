@@ -38,8 +38,12 @@ DOCKER_IMAGES_DIR=${WORK_DIR}/docker-images
 
 # Clean work directory to avoid stale package conflicts
 # Set SKIP_CLEAN=1 to skip cleaning (for faster rebuilds when debugging)
+# Make files writable first because extracted ISO files have read-only permissions
 if [ "${SKIP_CLEAN:-0}" != "1" ]; then
     echo "===> Cleaning work directory to avoid stale package conflicts"
+    if [ -d "${WORK_DIR}" ]; then
+        chmod -R +w ${WORK_DIR}
+    fi
     rm -rf ${WORK_DIR}
 else
     echo "===> Skipping work directory cleanup (SKIP_CLEAN=1)"
