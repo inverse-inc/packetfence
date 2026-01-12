@@ -101,7 +101,7 @@ sub parse_condition_string {
     pos() = 0;
     #Reduce whitespace
     /\G\s*/gc;
-    # If condition is empty or only whitespace, default to "1" (always true)
+    # If condition is empty or only whitespace, default to a true function (always-true condition)
     if (pos() == length($_)) {
         return (['FUNC', 'true', []], '');
     }
