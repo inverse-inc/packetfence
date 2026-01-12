@@ -12,12 +12,22 @@ PF_RELEASE_VERSION=${2:-15.1}
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 
+# PacketFence repository URL configuration
+# Available options:
+#   - debian-branches: Branch builds (default, for devel/feature branches)
+#   - debian-lastrelease: Last release builds (for maintenance releases)
+#   - gitlab/PIPELINE_ID: Specific CI pipeline builds
+PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
+PF_REPO_BASE_URL="https://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
+
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
 echo "(Will be appended to DVD repo on ISO)"
 echo "=============================================="
 echo "REPO_DIR: ${REPO_DIR}"
 echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
+echo "PF_REPO_TYPE: ${PF_REPO_TYPE}"
+echo "PF_REPO_BASE_URL: ${PF_REPO_BASE_URL}"
 echo "=============================================="
 
 # Use absolute path for REPO_DIR
@@ -39,8 +49,10 @@ echo "===> Configuring PacketFence repository in chroot"
 sudo mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
 sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_REPO_BASE_URL} bookworm bookworm
 EOF
+
+echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
 
 # Copy GPG key to repo for later use
 sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg

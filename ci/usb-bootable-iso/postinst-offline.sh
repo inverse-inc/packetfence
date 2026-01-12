@@ -164,24 +164,41 @@ echo "===> Step 5b: Copying PacketFence .deb packages to target filesystem"
 PF_CACHE_DIR="/var/cache/packetfence-install"
 mkdir -p ${PF_CACHE_DIR}
 
+# Debug: Show what's on the ISO
+echo "Checking ISO contents..."
+echo "Contents of /media/cdrom:"
+ls -la /media/cdrom/ 2>/dev/null || echo "  (cannot list /media/cdrom)"
+echo "Contents of /media/cdrom/pf-repo:"
+ls -la /media/cdrom/pf-repo/ 2>/dev/null || echo "  (cannot list /media/cdrom/pf-repo)"
+echo "Contents of /media/cdrom/pf-repo/pool:"
+ls -la /media/cdrom/pf-repo/pool/ 2>/dev/null || echo "  (cannot list /media/cdrom/pf-repo/pool)"
+echo "Contents of /media/cdrom/pf-repo/pool/main:"
+ls -la /media/cdrom/pf-repo/pool/main/ 2>/dev/null || echo "  (cannot list /media/cdrom/pf-repo/pool/main)"
+
 if [ -d /media/cdrom/pf-repo/pool/main ]; then
     echo "Copying PacketFence .deb packages from ISO to ${PF_CACHE_DIR}..."
-    # Copy all PacketFence-related packages (main + pre-depends + depends)
-    find /media/cdrom/pf-repo/pool/main -name "packetfence*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; || {
-        echo "Warning: Failed to copy some PacketFence .deb packages"
+
+    # Find and show what we're copying
+    echo "PacketFence packages found on ISO:"
+    find /media/cdrom/pf-repo/pool/main -name "packetfence*.deb" -o -name "fingerbank*.deb" 2>/dev/null | head -20
+
+    # Copy all .deb files from the pool (simpler and more reliable)
+    cp /media/cdrom/pf-repo/pool/main/*.deb ${PF_CACHE_DIR}/ 2>/dev/null || {
+        echo "Warning: cp failed, trying find method..."
+        find /media/cdrom/pf-repo/pool/main -name "*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; 2>/dev/null || true
     }
-    # Also copy fingerbank packages (pre-depends)
-    find /media/cdrom/pf-repo/pool/main -name "fingerbank*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; || {
-        echo "Warning: Failed to copy fingerbank .deb packages"
-    }
+
     if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
         echo "PacketFence packages copied successfully:"
         ls -la ${PF_CACHE_DIR}/
     else
-        echo "ERROR: No PacketFence .deb packages found"
+        echo "ERROR: No .deb packages found in ${PF_CACHE_DIR} after copy attempt"
+        echo "This will cause first-boot installation to fail!"
     fi
 else
-    echo "Warning: PF repo not found on ISO at /media/cdrom/pf-repo/pool/main"
+    echo "ERROR: PF repo not found on ISO at /media/cdrom/pf-repo/pool/main"
+    echo "Available directories on ISO:"
+    find /media/cdrom -type d 2>/dev/null | head -20
 fi
 
 # Step 6: Configure system
@@ -195,8 +212,9 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i 's/.*inverse\.ca.*//g' /etc/apt/sources.list
 
 # Configure PacketFence repository for future updates (will be used when network is available)
+# Using debian-branches for now - change to debian/${PF_VERSION} when stable packages are published
 cat > /etc/apt/sources.list.d/packetfence.list << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian-branches/${PF_VERSION} bookworm bookworm
 EOF
 
 # Step 7: Create first-boot service
@@ -205,7 +223,7 @@ echo "===> Step 7: Creating first-boot service"
 # Create the first-boot script (Phase B)
 cat > /usr/local/bin/packetfence-first-boot.sh << 'FIRSTBOOT_EOF'
 #!/bin/bash
-set -o pipefail
+set -o pipefail -o errexit
 
 # =============================================================================
 # PacketFence First Boot Script - Phase B
@@ -215,6 +233,8 @@ set -o pipefail
 # =============================================================================
 
 LOG_FILE="/var/log/packetfence-first-boot.log"
+INSTALL_SUCCESS=0
+
 # Redirect all output to log file only (not to console)
 exec >> ${LOG_FILE} 2>&1
 
@@ -239,6 +259,43 @@ update_progress() {
 
 EOF
 }
+
+# Function to handle script exit (success or failure)
+handle_exit() {
+    local exit_code=$?
+    if [ ${INSTALL_SUCCESS} -eq 0 ] && [ ${exit_code} -ne 0 ]; then
+        echo ""
+        echo "=============================================="
+        echo "ERROR: Script failed with exit code ${exit_code}"
+        echo "Time: $(date)"
+        echo "=============================================="
+        cat > /etc/issue << EOF
+================================================================================
+  PacketFence Installation FAILED
+================================================================================
+
+  The installation encountered an error and could not complete.
+
+  Please check the log file for details:
+    /var/log/packetfence-first-boot.log
+
+  To retry installation:
+    1. Log in as root
+    2. Run: /usr/local/bin/packetfence-first-boot.sh
+
+  Common issues:
+    - Missing .deb packages in /var/cache/packetfence-install
+    - Docker service failed to start
+    - Network issues during package installation
+
+================================================================================
+
+EOF
+    fi
+}
+
+# Set up exit trap to catch all exits (success or failure)
+trap handle_exit EXIT
 
 # Display initial installation progress message on login screen
 update_progress "Initializing" "Starting PacketFence installation..."
@@ -434,6 +491,9 @@ cat > /etc/motd << 'EOF'
 
 ================================================================================
 EOF
+
+# Mark installation as successful (prevents error message in exit trap)
+INSTALL_SUCCESS=1
 
 # Remove this script and service
 echo "===> Removing first-boot service"
