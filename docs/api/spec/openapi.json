@@ -80,6 +80,7 @@
             "in" : "query",
             "name" : "limit",
             "schema" : {
+               "default" : 25,
                "enum" : [
                   1,
                   5,
@@ -91,8 +92,8 @@
                   500,
                   1000
                ],
-               "example" : 1,
-               "maximum" : 1000,
+               "example" : 10,
+               "maximum" : 9999,
                "minimum" : 1,
                "type" : "integer"
             }
@@ -1386,6 +1387,75 @@
          }
       },
       "responses" : {
+         "APIBadRequest" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 400,
+                                 "type" : "integer"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Bad request"
+         },
+         "APIInternalServerError" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 500,
+                                 "type" : "integer"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Check server logs for more details"
+         },
+         "APINotFound" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "allOf" : [
+                        {
+                           "$ref" : "#/components/schemas/ApiResponseError"
+                        },
+                        {
+                           "properties" : {
+                              "status" : {
+                                 "default" : 404,
+                                 "type" : "integer"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     ]
+                  }
+               }
+            },
+            "description" : "Resource not found"
+         },
          "Async" : {
             "content" : {
                "application/json" : {
@@ -3226,6 +3296,7 @@
          "AdminApiAuditLog" : {
             "properties" : {
                "action" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "created_at" : {
@@ -3236,21 +3307,26 @@
                   "type" : "integer"
                },
                "method" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "object_id" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "request" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "status" : {
                   "type" : "string"
                },
                "url" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "user_name" : {
+                  "nullable" : true,
                   "type" : "string"
                }
             },
@@ -3272,6 +3348,80 @@
                      }
                   },
                   "type" : "object"
+               }
+            ]
+         },
+         "ApiError" : {
+            "description" : "An error object used to define an error in API calls.",
+            "properties" : {
+               "action" : {
+                  "type" : "string"
+               },
+               "created_at" : {
+                  "type" : "string"
+               },
+               "id" : {
+                  "description" : "`PRIMARY KEY`",
+                  "type" : "integer"
+               },
+               "method" : {
+                  "type" : "string"
+               },
+               "object_id" : {
+                  "type" : "string"
+               },
+               "request" : {
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ApiPagination" : {
+            "description" : "A common pagination object used across multiple endpoints.",
+            "properties" : {
+               "count" : {
+                  "description" : "Total number of items in current page.",
+                  "type" : "integer"
+               },
+               "url" : {
+                  "type" : "string"
+               },
+               "user_name" : {
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ApiResponse" : {
+            "description" : "A common response object used across multiple endpoints.",
+            "properties" : {
+               "message" : {
+                  "description" : "A message describing the response, mostly used for errors.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The HTTP status of the response.",
+                  "type" : "integer"
+               }
+            },
+            "type" : "object"
+         },
+         "ApiResponseError" : {
+            "description" : "Common HTTP errors returned by the API.",
+            "properties" : {
+               "errors" : {
+                  "items" : {
+                     "$ref" : "#/components/schemas/ApiError"
+                  },
+                  "type" : "array"
+               },
+               "message" : {
+                  "description" : "A message describing the response, mostly used for errors.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The HTTP status of the response.",
+                  "type" : "integer"
                }
             ]
          },
@@ -3311,6 +3461,66 @@
                   "type" : "string"
                },
                "profile" : {
+                  "type" : "string"
+               },
+               "source" : {
+                  "type" : "string"
+               },
+               "status" : {
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "AuthLogsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/ApiPagination"
+               }
+            ],
+            "description" : "A common response object used across multiple endpoints, with pagination."
+         },
+         "Async" : {
+            "properties" : {
+               "async" : {
+                  "description" : "Run the task asyncronously.",
+                  "enum" : [
+                     true,
+                     false
+                  ],
+                  "type" : "boolean"
+               }
+            },
+            "type" : "object"
+         },
+         "AuthLog" : {
+            "properties" : {
+               "attempted_at" : {
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "completed_at" : {
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "id" : {
+                  "description" : "`PRIMARY KEY`",
+                  "type" : "integer"
+               },
+               "mac" : {
+                  "type" : "string"
+               },
+               "pid" : {
+                  "type" : "string"
+               },
+               "process_name" : {
+                  "type" : "string"
+               },
+               "profile" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "source" : {
@@ -5744,6 +5954,231 @@
                   "type" : "object"
                }
             ]
+         },
+         "ConfigConnectorsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ConfigConnector"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ConfigConnectionProfileMeta" : {
+            "properties" : {
+               "meta" : {
+                  "properties" : {
+                     "access_registration_when_registered" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "advanced_filter" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "always_use_redirecturl" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "autoregister" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "billing_tiers" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "block_interval" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "default_psk_key" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "description" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "dot1x_recompute_role_from_portal" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "dot1x_unset_on_unmatch" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "dpsk" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "filter" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "filter_match_style" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "id" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "locale" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "login_attempt_limit" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "logo" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "mac_auth_recompute_role_from_portal" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "network_logoff" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "network_logoff_popup" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "preregistration" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "provisioners" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "redirecturl" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "reuse_dot1x_credentials" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "root_module" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "scans" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "self_service" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "show_manage_devices_on_max_nodes" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "sms_pin_retry_limit" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "sms_request_limit" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "sources" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "status" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "unbound_dpsk" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "unreg_on_acct_stop" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "vlan_pool_technique" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     }
+                  },
+                  "type" : "object"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigConnectionProfileWrapped" : {
+            "properties" : {
+               "item" : {
+                  "$ref" : "#/components/schemas/ConfigConnectionProfile"
+               },
+               "status" : {
+                  "type" : "integer"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigConnectionProfilesList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ConfigConnectionProfile"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ConfigConnector" : {
+            "properties" : {
+               "description" : {
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "description" : "Id",
+                  "type" : "string"
+               },
+               "networks" : {
+                  "description" : "Networks",
+                  "items" : {
+                     "description" : "Network",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "secret" : {
+                  "description" : "Secret",
+                  "type" : "string"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "secret"
+            ],
+            "type" : "object"
+         },
+         "ConfigConnectorMeta" : {
+            "properties" : {
+               "meta" : {
+                  "properties" : {
+                     "description" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "id" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "networks" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "secret" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     }
+                  },
+                  "type" : "object"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigConnectorWrapped" : {
+            "properties" : {
+               "item" : {
+                  "$ref" : "#/components/schemas/ConfigConnector"
+               },
+               "status" : {
+                  "type" : "integer"
+               }
+            },
+            "type" : "object"
          },
          "ConfigConnectorsList" : {
             "allOf" : [
@@ -9910,7 +10345,7 @@
                   "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeFortigate"
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypePaloalto"
                },
                {
                   "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx"
@@ -16072,7 +16507,7 @@
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso"
@@ -19417,7 +19852,7 @@
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeIntune"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone"
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud"
                },
                {
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeKandji"
@@ -19435,7 +19870,7 @@
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron"
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig"
                },
                {
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook"
@@ -23163,7 +23598,7 @@
                   "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanOpenvas"
+                  "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6"
                }
             ]
          },
@@ -24361,7 +24796,7 @@
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAuthorization"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypePotd"
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAd"
                },
                {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeKickbox"
@@ -24385,7 +24820,25 @@
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeBlackhole"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypePaypal"
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSms"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeFacebook"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEaptls"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAuthorization"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeBlackhole"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAzuread"
                },
                {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEduroam"
@@ -35866,19 +36319,21 @@
             "type" : "object",
             "x-go-name" : "DhcpNetworkResponseSchema"
          },
-         "DhcpOption82" : {
+         "DynamicReport" : {
+            "description" : "A report",
             "properties" : {
                "circuit_id_string" : {
                   "type" : "string"
                },
-               "created_at" : {
+               "charts" : {
+                  "description" : "Comma separated list of chart",
                   "type" : "string"
                },
                "host" : {
                   "type" : "string"
                },
-               "mac" : {
-                  "description" : "`PRIMARY KEY`",
+               "cursor_default" : {
+                  "description" : "Comma separated list of default cursor",
                   "type" : "string"
                },
                "module" : {
@@ -35887,7 +36342,8 @@
                "option82_switch" : {
                   "type" : "string"
                },
-               "port" : {
+               "date_limit" : {
+                  "description" : "Date limit for report",
                   "type" : "string"
                },
                "switch_id" : {
@@ -35895,14 +36351,10 @@
                },
                "vlan" : {
                   "type" : "string"
-               }
-            },
-            "type" : "object"
-         },
-         "DhcpOption82sList" : {
-            "allOf" : [
-               {
-                  "$ref" : "#/components/schemas/Iterable"
+               },
+               "formatting" : {
+                  "description" : "Comma separated list of formatting",
+                  "type" : "string"
                },
                {
                   "properties" : {
@@ -35923,17 +36375,16 @@
                "answer" : {
                   "type" : "string"
                },
-               "created_at" : {
+               "node_fields" : {
+                  "description" : "Comma separated list of nodes",
                   "type" : "string"
                },
-               "id" : {
-                  "description" : "`PRIMARY KEY`",
-                  "type" : "integer"
-               },
-               "ip" : {
+               "person_fields" : {
+                  "description" : "Comma separated list of person",
                   "type" : "string"
                },
-               "mac" : {
+               "role_fields" : {
+                  "description" : "Comma separated list of roles",
                   "type" : "string"
                },
                "qname" : {
@@ -36066,6 +36517,149 @@
             "type" : "object",
             "x-go-name" : "DynamicReportMetaSchema"
          },
+         "DynamicReportSearchBody" : {
+            "description" : "A search query on a report",
+            "properties" : {
+               "cursor" : {
+                  "description" : "Cursor for pagination. Support multi-cursor.",
+                  "type" : [
+                     "array",
+                     "string",
+                     "integer",
+                     "boolean",
+                     null
+                  ]
+               },
+               "end_date" : {
+                  "description" : "End date filter. Required if report has date range enabled",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "limit" : {
+                  "description" : "The maximum number of items to return (SQL limit). Enable if report has limit enabled",
+                  "type" : "integer"
+               },
+               "start_date" : {
+                  "description" : "Start date filter. Required if report has date range enabled",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "DhcpOption82" : {
+            "properties" : {
+               "circuit_id_string" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "created_at" : {
+                  "type" : "string"
+               },
+               "host" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "mac" : {
+                  "description" : "`PRIMARY KEY`",
+                  "type" : "string"
+               },
+               "module" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "option82_switch" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "port" : {
+                  "type" : "string"
+               },
+               "switch_id" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "vlan" : {
+                  "nullable" : true,
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "DhcpOption82sList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "description" : "Items.",
+                        "items" : {
+                           "$ref" : "#/components/schemas/DhcpOption82"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "DnsAuditLog" : {
+            "properties" : {
+               "answer" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "created_at" : {
+                  "type" : "string"
+               },
+               "id" : {
+                  "description" : "`PRIMARY KEY`",
+                  "type" : "integer"
+               },
+               "ip" : {
+                  "type" : "string"
+               },
+               "mac" : {
+                  "type" : "string"
+               },
+               "qname" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "qtype" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "scope" : {
+                  "nullable" : true,
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "DnsAuditLogsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "description" : "Items.",
+                        "items" : {
+                           "$ref" : "#/components/schemas/DnsAuditLog"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
          "DynamicReportSearchRequest" : {
             "additionalProperties" : true,
             "properties" : {
@@ -36126,6 +36720,24 @@
          "EmailSend" : {
             "type" : "object",
             "x-go-name" : "EmailSendSchema"
+         },
+         "EnableValue" : {
+            "description" : "Enable/disable boolean value as string.",
+            "enum" : [
+               "enabled",
+               "enable",
+               "yes",
+               "y",
+               true,
+               1,
+               "disabled",
+               "disable",
+               "no",
+               "n",
+               false,
+               0
+            ],
+            "type" : "string"
          },
          "ErrorsWithMessage" : {
             "properties" : {
@@ -41156,6 +41768,217 @@
                }
             ]
          },
+         "Report" : {
+            "description" : "A report",
+            "properties" : {
+               "bindings" : {
+                  "description" : "Comma separated list of bindings",
+                  "type" : "string"
+               },
+               "charts" : {
+                  "description" : "Comma separated list of chart",
+                  "type" : "string"
+               },
+               "columns" : {
+                  "description" : "Comma separated list of columns",
+                  "type" : "string"
+               },
+               "cursor_default" : {
+                  "description" : "Comma separated list of default cursor",
+                  "type" : "string"
+               },
+               "cursor_field" : {
+                  "description" : "Comma separated list of cursor fields",
+                  "type" : "string"
+               },
+               "cursor_type" : {
+                  "description" : "Cursor type",
+                  "enum" : [
+                     "field",
+                     "multi_field",
+                     "offset",
+                     "none"
+                  ],
+                  "type" : "string"
+               },
+               "date_limit" : {
+                  "description" : "Date limit for report",
+                  "type" : "string"
+               },
+               "default_limit" : {
+                  "default" : "25",
+                  "description" : "Default limit for report",
+                  "type" : "string"
+               },
+               "description" : {
+                  "description" : "Report description",
+                  "type" : "string"
+               },
+               "formatting" : {
+                  "description" : "Comma separated list of formatting",
+                  "type" : "string"
+               },
+               "has_date_range" : {
+                  "$ref" : "#/components/schemas/EnableValue",
+                  "description" : "Enable/disable date range for report"
+               },
+               "has_limit" : {
+                  "$ref" : "#/components/schemas/EnableValue",
+                  "description" : "Enable/disable limit for report"
+               },
+               "id" : {
+                  "description" : "Report ID",
+                  "type" : "string"
+               },
+               "node_fields" : {
+                  "description" : "Comma separated list of nodes",
+                  "type" : "string"
+               },
+               "person_fields" : {
+                  "description" : "Comma separated list of person",
+                  "type" : "string"
+               },
+               "role_fields" : {
+                  "description" : "Comma separated list of roles",
+                  "type" : "string"
+               },
+               "sql" : {
+                  "description" : "SQL query separated in multiple lines",
+                  "items" : {
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "type" : {
+                  "default" : "sql",
+                  "description" : "Report type. Only 'sql' supported",
+                  "enum" : [
+                     "sql"
+                  ],
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportOptions" : {
+            "description" : "A report",
+            "properties" : {
+               "charts" : {
+                  "description" : "Comma separated list of chart",
+                  "items" : {
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "columns" : {
+                  "description" : "Comma separated list of columns",
+                  "items" : {
+                     "properties" : {
+                        "is_cursor" : {
+                           "description" : "Column is used in cursor, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "is_node" : {
+                           "description" : "Column is a node, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "is_person" : {
+                           "description" : "Column is a person, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "is_role" : {
+                           "description" : "Column is a role, can be used as PK",
+                           "type" : "boolean"
+                        },
+                        "name" : {
+                           "description" : "Column name",
+                           "type" : "string"
+                        },
+                        "text" : {
+                           "description" : "Column text",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "date_limit" : {
+                  "description" : "Enforce maximum date range to prevent database full table scans",
+                  "type" : "string"
+               },
+               "default_end_date" : {
+                  "description" : "Default end datetime if no end_date is defined",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "default_limit" : {
+                  "default" : "25",
+                  "description" : "Default query limit",
+                  "type" : "string"
+               },
+               "default_start_date" : {
+                  "description" : "Default start datetime if no start_date is defined",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "description" : {
+                  "description" : "Descriptive text",
+                  "type" : "string"
+               },
+               "has_cursor" : {
+                  "description" : "Pagination is available",
+                  "type" : "boolean"
+               },
+               "has_date_range" : {
+                  "description" : "Date range is available",
+                  "type" : "boolean"
+               },
+               "has_limit" : {
+                  "description" : "Query limits enforced",
+                  "type" : "boolean"
+               },
+               "id" : {
+                  "description" : "Report ID",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportSearchBody" : {
+            "description" : "A search query on a report",
+            "properties" : {
+               "cursor" : {
+                  "description" : "Cursor for pagination. Support multi-cursor.",
+                  "type" : [
+                     "array",
+                     "string",
+                     "integer",
+                     "boolean",
+                     null
+                  ]
+               },
+               "end_date" : {
+                  "description" : "End date filter. Required if report has date range enabled",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               },
+               "limit" : {
+                  "description" : "The maximum number of items to return (SQL limit). Enable if report has limit enabled",
+                  "type" : "integer"
+               },
+               "start_date" : {
+                  "description" : "Start date filter. Required if report has date range enabled",
+                  "example" : "1970-01-01 00:00:00",
+                  "format" : "date-time",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
          "SMSCarrier" : {
             "properties" : {
                "created" : {
@@ -41234,6 +42057,7 @@
                   "type" : "string"
                },
                "notes" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "release_date" : {
@@ -41246,9 +42070,11 @@
                   "type" : "string"
                },
                "status" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "ticket_ref" : {
+                  "nullable" : true,
                   "type" : "string"
                }
             },
@@ -41690,10 +42516,20 @@
                },
                "email" : {
                   "description" : "Email of the user.",
+                  "nullable" : true,
                   "type" : "string"
                },
                "firstname" : {
                   "description" : "First name of the user.",
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "gender" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "lang" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "gender" : {
@@ -41704,6 +42540,19 @@
                },
                "lastname" : {
                   "description" : "Last name of the user.",
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "nickname" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "notes" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "otp" : {
+                  "nullable" : true,
                   "type" : "string"
                },
                "nickname" : {
@@ -42233,6 +43082,348 @@
    },
    "openapi" : "3.1.0",
    "paths" : {
+      "/api/v1.1/report/{id}" : {
+         "get" : {
+            "description" : "Get a single report",
+            "operationId" : "GetReportById",
+            "parameters" : [
+               {
+                  "description" : "Report ID",
+                  "in" : "path",
+                  "name" : "id",
+                  "required" : true,
+                  "type" : "string"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "allOf" : [
+                              {
+                                 "$ref" : "#/components/schemas/ApiResponse"
+                              },
+                              {
+                                 "properties" : {
+                                    "item" : {
+                                       "$ref" : "#/components/schemas/Report",
+                                       "type" : "object"
+                                    }
+                                 },
+                                 "type" : "object"
+                              }
+                           ]
+                        }
+                     }
+                  },
+                  "description" : "Successful response"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/APINotFound"
+               },
+               "500" : {
+                  "$ref" : "#/components/responses/APIInternalServerError"
+               }
+            },
+            "tags" : [
+               "Report"
+            ]
+         },
+         "options" : {
+            "description" : "Options for a single report",
+            "operationId" : "OptionsReportById",
+            "parameters" : [
+               {
+                  "description" : "Report ID",
+                  "in" : "path",
+                  "name" : "id",
+                  "required" : true,
+                  "schema" : {
+                     "example" : [
+                        "action",
+                        "created_at",
+                        "id",
+                        "method",
+                        "object_id",
+                        "request",
+                        "status",
+                        "url",
+                        "user_name"
+                     ],
+                     "items" : {
+                        "enum" : [
+                           "action",
+                           "created_at",
+                           "id",
+                           "method",
+                           "object_id",
+                           "request",
+                           "status",
+                           "url",
+                           "user_name"
+                        ],
+                        "type" : "string"
+                     },
+                     "type" : "array"
+                  },
+                  "style" : "simple"
+               },
+               {
+                  "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
+                  "explode" : false,
+                  "in" : "query",
+                  "name" : "sort",
+                  "required" : true,
+                  "schema" : {
+                     "example" : [
+                        "id ASC"
+                     ],
+                     "items" : {
+                        "enum" : [
+                           "action ASC",
+                           "action DESC",
+                           "created_at ASC",
+                           "created_at DESC",
+                           "id ASC",
+                           "id DESC",
+                           "method ASC",
+                           "method DESC",
+                           "object_id ASC",
+                           "object_id DESC",
+                           "request ASC",
+                           "request DESC",
+                           "status ASC",
+                           "status DESC",
+                           "url ASC",
+                           "url DESC",
+                           "user_name ASC",
+                           "user_name DESC"
+                        ],
+                        "type" : "string"
+                     },
+                     "type" : "array"
+                  },
+                  "style" : "simple"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "allOf" : [
+                              {
+                                 "$ref" : "#/components/schemas/ApiResponse"
+                              },
+                              {
+                                 "properties" : {
+                                    "report_meta" : {
+                                       "$ref" : "#/components/schemas/ReportOptions",
+                                       "type" : "object"
+                                    }
+                                 },
+                                 "type" : "object"
+                              }
+                           ]
+                        }
+                     }
+                  },
+                  "description" : "Successful response"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/APINotFound"
+               },
+               "500" : {
+                  "$ref" : "#/components/responses/APIInternalServerError"
+               }
+            },
+            "tags" : [
+               "Report"
+            ]
+         }
+      },
+      "/api/v1.1/report/{id}/search" : {
+         "post" : {
+            "description" : "Get columns of a report",
+            "operationId" : "SearchReportById",
+            "parameters" : [
+               {
+                  "description" : "Report ID",
+                  "in" : "path",
+                  "name" : "id",
+                  "required" : true,
+                  "type" : "string"
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ReportSearchBody"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Message"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "AuthLogs"
+            ]
+         }
+      },
+      "/api/v1/auth_logs" : {
+         "description" : "pf::UnifiedApi::Controller::AuthLogs",
+         "get" : {
+            "description" : "List all items.",
+            "operationId" : "api.v1.AuthLogs.list",
+            "parameters" : [
+               {
+                  "description" : "Comma delimited list of fields to return with each item.",
+                  "explode" : false,
+                  "in" : "query",
+                  "name" : "fields",
+                  "required" : true,
+                  "schema" : {
+                     "example" : [
+                        "attempted_at",
+                        "completed_at",
+                        "id",
+                        "mac",
+                        "pid",
+                        "process_name",
+                        "profile",
+                        "source",
+                        "status"
+                     ],
+                     "items" : {
+                        "enum" : [
+                           "attempted_at",
+                           "completed_at",
+                           "id",
+                           "mac",
+                           "pid",
+                           "process_name",
+                           "profile",
+                           "source",
+                           "status"
+                        ],
+                        "type" : "string"
+                     },
+                     "type" : "array"
+                  },
+                  "style" : "simple"
+               },
+               {
+                  "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
+                  "explode" : false,
+                  "in" : "query",
+                  "name" : "sort",
+                  "required" : true,
+                  "schema" : {
+                     "example" : [
+                        "id ASC"
+                     ],
+                     "items" : {
+                        "enum" : [
+                           "attempted_at ASC",
+                           "attempted_at DESC",
+                           "completed_at ASC",
+                           "completed_at DESC",
+                           "id ASC",
+                           "id DESC",
+                           "mac ASC",
+                           "mac DESC",
+                           "pid ASC",
+                           "pid DESC",
+                           "process_name ASC",
+                           "process_name DESC",
+                           "profile ASC",
+                           "profile DESC",
+                           "source ASC",
+                           "source DESC",
+                           "status ASC",
+                           "status DESC"
+                        ],
+                        "type" : "string"
+                     },
+                     "type" : "array"
+                  },
+                  "style" : "simple"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "allOf" : [
+                              {
+                                 "$ref" : "#/components/schemas/ApiResponsePaginated"
+                              },
+                              {
+                                 "properties" : {
+                                    "items" : {
+                                       "description" : "Columns value, can be any type",
+                                       "items" : {
+                                          "type" : "object"
+                                       },
+                                       "type" : "array"
+                                    }
+                                 },
+                                 "type" : "object"
+                              }
+                           ]
+                        }
+                     }
+                  },
+                  "description" : "Successful response"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/APINotFound"
+               },
+               "500" : {
+                  "$ref" : "#/components/responses/APIInternalServerError"
+               }
+            },
+            "tags" : [
+               "Report"
+            ]
+         }
+      },
       "/api/v1.1/report/{report_id}" : {
          "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
          "get" : {
@@ -42498,21 +43689,352 @@
          }
       },
       "/api/v1.1/reports" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
          "get" : {
-            "description" : "List reports",
-            "operationId" : "api.v1.1.DynamicReports.list",
-            "parameters" : [],
+            "description" : "Get all reports",
+            "operationId" : "GetReports",
             "responses" : {
                "200" : {
-                  "$ref" : "#/components/responses/Message"
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "properties" : {
+                              "item" : {
+                                 "$ref" : "#/components/schemas/Class"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     }
+                  },
+                  "description" : "Request successful."
                },
                "401" : {
                   "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
                }
             },
             "tags" : [
-               "DynamicReports"
+               "Classes"
+            ]
+         }
+      },
+      "/api/v1/classes" : {
+         "description" : "pf::UnifiedApi::Controller::Classes",
+         "get" : {
+            "description" : "List all items.",
+            "operationId" : "api.v1.Classes.list",
+            "parameters" : [
+               {
+                  "description" : "Comma delimited list of fields to return with each item.",
+                  "explode" : false,
+                  "in" : "query",
+                  "name" : "fields",
+                  "required" : true,
+                  "schema" : {
+                     "example" : [
+                        "auto_enable",
+                        "button_text",
+                        "delay_by",
+                        "description",
+                        "enabled",
+                        "external_command",
+                        "grace_period",
+                        "max_enable_url",
+                        "max_enables",
+                        "priority",
+                        "redirect_url",
+                        "security_event_id",
+                        "target_category",
+                        "template",
+                        "vclose",
+                        "vlan",
+                        "window"
+                     ],
+                     "items" : {
+                        "enum" : [
+                           "auto_enable",
+                           "button_text",
+                           "delay_by",
+                           "description",
+                           "enabled",
+                           "external_command",
+                           "grace_period",
+                           "max_enable_url",
+                           "max_enables",
+                           "priority",
+                           "redirect_url",
+                           "security_event_id",
+                           "target_category",
+                           "template",
+                           "vclose",
+                           "vlan",
+                           "window"
+                        ],
+                        "type" : "string"
+                     },
+                     "type" : "array"
+                  },
+                  "style" : "simple"
+               },
+               {
+                  "description" : "Comma delimited list of fields and respective order to sort items (`default: [ security_event_id ASC ]`).",
+                  "explode" : false,
+                  "in" : "query",
+                  "name" : "sort",
+                  "required" : true,
+                  "schema" : {
+                     "example" : [
+                        "security_event_id ASC"
+                     ],
+                     "items" : {
+                        "enum" : [
+                           "auto_enable ASC",
+                           "auto_enable DESC",
+                           "button_text ASC",
+                           "button_text DESC",
+                           "delay_by ASC",
+                           "delay_by DESC",
+                           "description ASC",
+                           "description DESC",
+                           "enabled ASC",
+                           "enabled DESC",
+                           "external_command ASC",
+                           "external_command DESC",
+                           "grace_period ASC",
+                           "grace_period DESC",
+                           "max_enable_url ASC",
+                           "max_enable_url DESC",
+                           "max_enables ASC",
+                           "max_enables DESC",
+                           "priority ASC",
+                           "priority DESC",
+                           "redirect_url ASC",
+                           "redirect_url DESC",
+                           "security_event_id ASC",
+                           "security_event_id DESC",
+                           "target_category ASC",
+                           "target_category DESC",
+                           "template ASC",
+                           "template DESC",
+                           "vclose ASC",
+                           "vclose DESC",
+                           "vlan ASC",
+                           "vlan DESC",
+                           "window ASC",
+                           "window DESC"
+                        ],
+                        "type" : "string"
+                     },
+                     "type" : "array"
+                  },
+                  "style" : "simple"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ClassesList"
+                        }
+                     }
+                  },
+                  "description" : "Request successful."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "409" : {
+                  "$ref" : "#/components/responses/Duplicate"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Classes"
+            ]
+         }
+      },
+      "/api/v1/classes/search" : {
+         "description" : "pf::UnifiedApi::Controller::Classes",
+         "post" : {
+            "description" : "Search all items.",
+            "operationId" : "api.v1.Classes.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "example" : {
+                        "cursor" : 0,
+                        "fields" : [
+                           "auto_enable",
+                           "button_text",
+                           "delay_by",
+                           "description",
+                           "enabled",
+                           "external_command",
+                           "grace_period",
+                           "max_enable_url",
+                           "max_enables",
+                           "priority",
+                           "redirect_url",
+                           "security_event_id",
+                           "target_category",
+                           "template",
+                           "vclose",
+                           "vlan",
+                           "window"
+                        ],
+                        "limit" : 25,
+                        "query" : {
+                           "op" : "and",
+                           "values" : [
+                              {
+                                 "op" : "or",
+                                 "values" : [
+                                    {
+                                       "field" : "auto_enable",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "button_text",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "delay_by",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "description",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "enabled",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "external_command",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "grace_period",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "max_enable_url",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "max_enables",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "priority",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "redirect_url",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "security_event_id",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "target_category",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "template",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "vclose",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "vlan",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    },
+                                    {
+                                       "field" : "window",
+                                       "op" : "contains",
+                                       "value" : "foo"
+                                    }
+                                 ]
+                              }
+                           ]
+                        },
+                        "sort" : [
+                           "security_event_id ASC"
+                        ]
+                     },
+                     "schema" : {
+                        "allOf" : [
+                           {
+                              "$ref" : "#/components/schemas/Search"
+                           },
+                           {
+                              "properties" : {
+                                 "cursor" : {
+                                    "type" : "string"
+                                 },
+                                 "fields" : {
+                                    "items" : {
+                                       "items" : {
+                                          "$ref" : "#/components/schemas/Report"
+                                       },
+                                       "type" : "array"
+                                    }
+                                 },
+                                 "type" : "object"
+                              }
+                           ]
+                        }
+                     }
+                  },
+                  "description" : "Successful response"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/APIBadRequest"
+               },
+               "500" : {
+                  "$ref" : "#/components/responses/APIInternalServerError"
+               }
+            },
+            "tags" : [
+               "Report"
             ]
          }
       },
@@ -42643,10 +44165,12 @@
                   "style" : "simple"
                },
                {
-                  "$ref" : "#/components/parameters/limit"
+                  "$ref" : "#/components/parameters/limit",
+                  "in" : "query"
                },
                {
-                  "$ref" : "#/components/parameters/cursor"
+                  "$ref" : "#/components/parameters/cursor",
+                  "in" : "query"
                }
             ],
             "responses" : {
@@ -43091,10 +44615,12 @@
                   "style" : "simple"
                },
                {
-                  "$ref" : "#/components/parameters/limit"
+                  "$ref" : "#/components/parameters/limit",
+                  "in" : "query"
                },
                {
-                  "$ref" : "#/components/parameters/cursor"
+                  "$ref" : "#/components/parameters/cursor",
+                  "in" : "query"
                }
             ],
             "responses" : {
@@ -43497,10 +45023,12 @@
                   "style" : "simple"
                },
                {
-                  "$ref" : "#/components/parameters/limit"
+                  "$ref" : "#/components/parameters/limit",
+                  "in" : "query"
                },
                {
-                  "$ref" : "#/components/parameters/cursor"
+                  "$ref" : "#/components/parameters/cursor",
+                  "in" : "query"
                }
             ],
             "responses" : {
@@ -72888,289 +74416,6 @@
             },
             "tags" : [
                "DnsAuditLogs"
-            ]
-         }
-      },
-      "/api/v1/dynamic_report/{report_id}" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
-         "get" : {
-            "description" : "Get a report",
-            "operationId" : "api.v1.DynamicReports.resource.get",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "report_id",
-                  "required" : true,
-                  "schema" : {
-                     "enum" : [
-                        "Accounting::Bandwidth",
-                        "Accounting::Node",
-                        "Accounting::Operating System Class",
-                        "Accounting::User",
-                        "Authentication::All",
-                        "Authentication::All Failures",
-                        "Authentication::All Successes",
-                        "Authentication::Top Failures::Connection Profile to Source",
-                        "Authentication::Top Failures::By Connection Profile",
-                        "Authentication::Top Failures::By Source",
-                        "Authentication::Top Successes::By Connection Profile",
-                        "Authentication::Top Successes::By Source",
-                        "Authentication::Top Successes::Connection Profile to Source",
-                        "Connection Types::Active",
-                        "Connection Types::All",
-                        "Connection Types::Date Range",
-                        "Connection Types::Registered Active",
-                        "Connection Types::Registered All",
-                        "Fingerbank::Unknown Fingerprints::Active",
-                        "Fingerbank::Unknown Fingerprints::All",
-                        "Ip4Log::Archive",
-                        "Ip4Log::History",
-                        "Node::Active",
-                        "Node::Inactive",
-                        "Node::Registered::Active",
-                        "Node::Registered::All",
-                        "Node::Unregistered::Active",
-                        "Node::Unregistered::All",
-                        "Operating System Class::Active",
-                        "Operating System Class::All",
-                        "Operating Systems::Active",
-                        "Operating Systems::All",
-                        "RADIUS Authentication::Top Failures::By MAC",
-                        "RADIUS Authentication::Top Failures::By SSID",
-                        "RADIUS Authentication::Top Failures::By Username",
-                        "RADIUS Authentication::Top Successes::By Computername",
-                        "RADIUS Authentication::Top Successes::By MAC",
-                        "RADIUS Authentication::Top Successes::By SSID",
-                        "RADIUS Authentication::Top Successes::By Username",
-                        "Roles::Active",
-                        "Roles::Active per device class",
-                        "Roles::Active per device manufacturer",
-                        "Roles::Active per device type",
-                        "Roles::All",
-                        "Security Events::Closed",
-                        "Security Events::Open",
-                        "Security Events::Open Active",
-                        "Security Events::Open All",
-                        "SSID::Active",
-                        "SSID::All",
-                        "Top Sponsors::All",
-                        "User::Registration::Email",
-                        "User::Registration::SMS",
-                        "User::Registration::Sponsor"
-                     ],
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         },
-         "options" : {
-            "description" : "Get meta of a report",
-            "operationId" : "api.v1.DynamicReports.resource.options",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "report_id",
-                  "required" : true,
-                  "schema" : {
-                     "enum" : [
-                        "Accounting::Bandwidth",
-                        "Accounting::Node",
-                        "Accounting::Operating System Class",
-                        "Accounting::User",
-                        "Authentication::All",
-                        "Authentication::All Failures",
-                        "Authentication::All Successes",
-                        "Authentication::Top Failures::Connection Profile to Source",
-                        "Authentication::Top Failures::By Connection Profile",
-                        "Authentication::Top Failures::By Source",
-                        "Authentication::Top Successes::By Connection Profile",
-                        "Authentication::Top Successes::By Source",
-                        "Authentication::Top Successes::Connection Profile to Source",
-                        "Connection Types::Active",
-                        "Connection Types::All",
-                        "Connection Types::Date Range",
-                        "Connection Types::Registered Active",
-                        "Connection Types::Registered All",
-                        "Fingerbank::Unknown Fingerprints::Active",
-                        "Fingerbank::Unknown Fingerprints::All",
-                        "Ip4Log::Archive",
-                        "Ip4Log::History",
-                        "Node::Active",
-                        "Node::Inactive",
-                        "Node::Registered::Active",
-                        "Node::Registered::All",
-                        "Node::Unregistered::Active",
-                        "Node::Unregistered::All",
-                        "Operating System Class::Active",
-                        "Operating System Class::All",
-                        "Operating Systems::Active",
-                        "Operating Systems::All",
-                        "RADIUS Authentication::Top Failures::By MAC",
-                        "RADIUS Authentication::Top Failures::By SSID",
-                        "RADIUS Authentication::Top Failures::By Username",
-                        "RADIUS Authentication::Top Successes::By Computername",
-                        "RADIUS Authentication::Top Successes::By MAC",
-                        "RADIUS Authentication::Top Successes::By SSID",
-                        "RADIUS Authentication::Top Successes::By Username",
-                        "Roles::Active",
-                        "Roles::Active per device class",
-                        "Roles::Active per device manufacturer",
-                        "Roles::Active per device type",
-                        "Roles::All",
-                        "Security Events::Closed",
-                        "Security Events::Open",
-                        "Security Events::Open Active",
-                        "Security Events::Open All",
-                        "SSID::Active",
-                        "SSID::All",
-                        "Top Sponsors::All",
-                        "User::Registration::Email",
-                        "User::Registration::SMS",
-                        "User::Registration::Sponsor"
-                     ],
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/DynamicReportMeta"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         }
-      },
-      "/api/v1/dynamic_report/{report_id}/search" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
-         "post" : {
-            "description" : "Search a report",
-            "operationId" : "api.v1.DynamicReports.resource.search",
-            "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "report_id",
-                  "required" : true,
-                  "schema" : {
-                     "enum" : [
-                        "Accounting::Bandwidth",
-                        "Accounting::Node",
-                        "Accounting::Operating System Class",
-                        "Accounting::User",
-                        "Authentication::All",
-                        "Authentication::All Failures",
-                        "Authentication::All Successes",
-                        "Authentication::Top Failures::Connection Profile to Source",
-                        "Authentication::Top Failures::By Connection Profile",
-                        "Authentication::Top Failures::By Source",
-                        "Authentication::Top Successes::By Connection Profile",
-                        "Authentication::Top Successes::By Source",
-                        "Authentication::Top Successes::Connection Profile to Source",
-                        "Connection Types::Active",
-                        "Connection Types::All",
-                        "Connection Types::Date Range",
-                        "Connection Types::Registered Active",
-                        "Connection Types::Registered All",
-                        "Fingerbank::Unknown Fingerprints::Active",
-                        "Fingerbank::Unknown Fingerprints::All",
-                        "Ip4Log::Archive",
-                        "Ip4Log::History",
-                        "Node::Active",
-                        "Node::Inactive",
-                        "Node::Registered::Active",
-                        "Node::Registered::All",
-                        "Node::Unregistered::Active",
-                        "Node::Unregistered::All",
-                        "Operating System Class::Active",
-                        "Operating System Class::All",
-                        "Operating Systems::Active",
-                        "Operating Systems::All",
-                        "RADIUS Authentication::Top Failures::By MAC",
-                        "RADIUS Authentication::Top Failures::By SSID",
-                        "RADIUS Authentication::Top Failures::By Username",
-                        "RADIUS Authentication::Top Successes::By Computername",
-                        "RADIUS Authentication::Top Successes::By MAC",
-                        "RADIUS Authentication::Top Successes::By SSID",
-                        "RADIUS Authentication::Top Successes::By Username",
-                        "Roles::Active",
-                        "Roles::Active per device class",
-                        "Roles::Active per device manufacturer",
-                        "Roles::Active per device type",
-                        "Roles::All",
-                        "Security Events::Closed",
-                        "Security Events::Open",
-                        "Security Events::Open Active",
-                        "Security Events::Open All",
-                        "SSID::Active",
-                        "SSID::All",
-                        "Top Sponsors::All",
-                        "User::Registration::Email",
-                        "User::Registration::SMS",
-                        "User::Registration::Sponsor"
-                     ],
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/DynamicReportSearchRequest"
-                     }
-                  }
-               }
-            },
-            "responses" : {
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
-            ]
-         }
-      },
-      "/api/v1/dynamic_reports" : {
-         "description" : "pf::UnifiedApi::Controller::DynamicReports\n\n  configStore\n    Get the dynamic reports config store\n\n  search\n    Execute a search on a specific dynamic report\n\n  list\n    List all the dynamic reports\n\n  resource\n    Get a dynamic report\n\n  resource\n    Get a dynamic report\n\n  options\n    options",
-         "get" : {
-            "description" : "List reports",
-            "operationId" : "api.v1.DynamicReports.list",
-            "parameters" : [],
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
-               }
-            },
-            "tags" : [
-               "DynamicReports"
             ]
          }
       },

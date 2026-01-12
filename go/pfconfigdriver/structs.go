@@ -895,6 +895,42 @@ type PfConfAdminLogin struct {
 	AllowUsernamePassword string `json:"allow_username_password"`
 }
 
+// DynamicReport
+type DynamicReport struct {
+	// pf::Report fields
+	Id          string   `json:"id"`
+	Type        string   `json:"type"` // 'sql' only, 'abstract' is deprecated
+	Description string   `json:"description"`
+	Charts      []string `json:"charts"`
+	Columns     []string `json:"columns"`
+	Formatting  []struct {
+		Field  string `json:"field"`
+		Format string `json:"format"`
+	} `json:"formatting,omitempty"`
+	PersonFields []string `json:"person_fields,omitempty"`
+	NodeFields   []string `json:"node_fields,omitempty"`
+	RoleFields   []string `json:"role_fields,omitempty"`
+	DefaultLimit string   `json:"default_limit,omitempty"`
+	DateLimit    string   `json:"date_limit,omitempty"`
+	// pf::Report::sql fields
+	HasLimit      string   `json:"has_limit"`
+	HasDateRange  string   `json:"has_date_range"`
+	Sql           string   `json:"sql,omitempty"`
+	CursorType    string   `json:"cursor_type,omitempty"`
+	CursorField   []string `json:"cursor_field,omitempty"`
+	CursorDefault []string `json:"cursor_default,omitempty"`
+	Bindings      []string `json:"bindings,omitempty"`
+}
+
+// DynamicReports
+type DynamicReports struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Report"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]DynamicReport
+}
+
 type Connectors struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`

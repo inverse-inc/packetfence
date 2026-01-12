@@ -1,0 +1,68 @@
+ApiError:
+  description: An error object used to define an error in API calls.
+  type: object
+  properties:
+    code:
+      type: integer
+      description: A numeric code representing the error type, if applicable. 0 is never used.
+    field:
+      type: string
+      description: The field associated with the error, if applicable.
+    op:
+      type: string
+      description: The operation during which the error occurred, if applicable.
+    message:
+      type: string
+      description: A descriptive message about the error.
+
+ApiPagination:
+  description: A common pagination object used across multiple endpoints.
+  type: object
+  properties:
+    count:
+      type: integer
+      description: Total number of items in current page.
+    total:
+      type: integer
+      description: Total number of items.
+    limit:
+      type: integer
+      description: Number of items per page.
+    prevCursor:
+      type: [array, number, string, boolean, null]
+      description: The current page cursor(s). Arrays can contain multiple type.
+    nextCursor:
+      type: [array, number, string, boolean, null]
+      description: The next page cursor(s). Arrays can contain multiple type.
+
+ApiResponse:
+  description: A common response object used across multiple endpoints.
+  type: object
+  properties:
+    message:
+      type: string
+      description: A message describing the response, mostly used for errors.
+    status:
+      type: integer
+      description: The HTTP status of the response.
+
+ApiResponsePaginated:
+  description: A common response object used across multiple endpoints, with pagination.
+  allOf:
+    - $ref: "#/components/schemas/ApiResponse"
+    - $ref: "#/components/schemas/ApiPagination"
+
+ApiResponseError:
+  description: Common HTTP errors returned by the API.
+  type: object
+  properties:
+    errors:
+      type: array
+      items:
+        $ref: "#/components/schemas/ApiError"
+    message:
+      type: string
+      description: A message describing the response, mostly used for errors.
+    status:
+      type: integer
+      description: The HTTP status of the response.

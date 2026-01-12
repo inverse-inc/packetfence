@@ -101,7 +101,7 @@ sub nextCursor {
 
     if ($last_item) {
         if ($self->cursor_type eq 'field') {
-            return $last_item->{$self->cursor_field};
+            return $last_item->{$self->cursor_field->[0]};
         }
 
         if ($self->cursor_type eq 'multi_field') {
@@ -155,7 +155,7 @@ sub build_query_options {
     if ($self->cursor_type eq 'offset') {
         $data->{cursor} = $options{offset} = $data->{cursor} // 0;
     } else {
-        $options{cursor} = $data->{cursor} // clone($self->cursor_default);
+        $options{cursor} = $data->{cursor} // $self->get_cursor_default;
     }
 
     for my $f (qw(start_date end_date)) {
@@ -168,6 +168,17 @@ sub build_query_options {
     }
 
     return (200, \%options);
+}
+
+sub get_cursor_default {
+    my ($self) = @_;
+    return undef if $self->cursor_type eq 'none';
+
+    if ($self->cursor_type eq 'field') {
+        return $self->cursor_default->[0];
+    }
+
+    return clone($self->cursor_default);
 }
 
 sub options_has_cursor {

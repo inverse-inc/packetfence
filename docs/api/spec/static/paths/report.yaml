@@ -1,0 +1,127 @@
+/api/v1.1/reports:
+  get:
+    description: Get all reports
+    operationId: GetReports
+    tags:
+      - Report
+    responses:
+      "200":
+        description: Successful response
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ApiResponsePaginated"
+                - type: object
+                  properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/Report"
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
+      "500":
+        $ref: "#/components/responses/APIInternalServerError"
+
+/api/v1.1/report/{id}:
+  get:
+    description: Get a single report
+    operationId: GetReportById
+    tags:
+      - Report
+    parameters:
+      - name: id
+        description: Report ID
+        type: string
+        in: path
+        required: true
+    responses:
+      "200":
+        description: Successful response
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ApiResponse"
+                - type: object
+                  properties:
+                    item:
+                      type: object
+                      $ref: "#/components/schemas/Report"
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
+      "404":
+        $ref: "#/components/responses/APINotFound"
+      "500":
+        $ref: "#/components/responses/APIInternalServerError"
+  options:
+    description: Options for a single report
+    operationId: OptionsReportById
+    tags:
+      - Report
+    parameters:
+      - name: id
+        description: Report ID
+        type: string
+        in: path
+        required: true
+    responses:
+      "200":
+        description: Successful response
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ApiResponse"
+                - type: object
+                  properties:
+                    report_meta:
+                      type: object
+                      $ref: "#/components/schemas/ReportOptions"
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
+      "404":
+        $ref: "#/components/responses/APINotFound"
+      "500":
+        $ref: "#/components/responses/APIInternalServerError"
+
+/api/v1.1/report/{id}/search:
+  post:
+    description: Get columns of a report
+    operationId: SearchReportById
+    tags:
+      - Report
+    parameters:
+      - name: id
+        description: Report ID
+        type: string
+        in: path
+        required: true
+    requestBody:
+      description: Search request data
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReportSearchBody"
+    responses:
+      "200":
+        description: Successful response
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ApiResponsePaginated"
+                - type: object
+                  properties:
+                    items:
+                      description: Columns value, can be any type
+                      type: array
+                      items:
+                        type: object
+      "400":
+        $ref: "#/components/responses/APIBadRequest"
+      "404":
+        $ref: "#/components/responses/APINotFound"
+      "500":
+        $ref: "#/components/responses/APIInternalServerError"
