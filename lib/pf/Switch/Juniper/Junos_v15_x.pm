@@ -21,6 +21,7 @@ use base ('pf::Switch::Juniper::Junos_v13_x');
 
 use pf::constants;
 sub description { 'Junos v15.x' }
+sub switchDriverId { 'juniper_junos' }
 
 # importing switch constants
 use pf::Switch::constants;

@@ -42,6 +42,7 @@ use pf::Switch::Meraki::MR_v2;
 # CAPABILITIES
 # access technology supported
 sub description { 'Meraki switch MS' }
+sub switchDriverId { 'meraki' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x

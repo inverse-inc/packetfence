@@ -65,6 +65,7 @@ use pf::config qw(
 );
 use pf::locationlog;
 sub description { 'Arista Switch' }
+sub switchDriverId { 'arista_eos' }
 
 # importing switch constants
 use pf::Switch::constants;

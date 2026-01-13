@@ -122,7 +122,7 @@ sub inlineCapabilities { return; }
 
 sub vpnAttributes { return $FALSE; }
 
-sub switchDriverId { "unknown" }
+sub switchDriverId { 'none' }
 
 sub new {
     my ($class, $argv) = @_;

@@ -57,6 +57,7 @@ use pf::locationlog;
 use NetAddr::IP;
 
 sub description { 'Aruba CX Switch 10.x' }
+sub switchDriverId { 'cisco_iosxe' }
 
 # CAPABILITIES
 # access technology supported

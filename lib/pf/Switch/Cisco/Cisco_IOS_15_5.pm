@@ -132,6 +132,7 @@ use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
 sub description { 'Cisco IOS v15.5' }
+sub switchDriverId   { 'cisco_iosxe' }
 
 # CAPABILITIES
 # access technology supported
