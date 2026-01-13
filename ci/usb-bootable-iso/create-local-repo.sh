@@ -64,6 +64,16 @@ EOF
 
 echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
 
+# For gitlab pipelines, add devel repo for dependencies (fingerbank, packetfence-perl, etc.)
+# The gitlab repo only contains packetfence packages built during CI
+if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
+    echo "===> Adding devel repository for dependencies"
+    sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
+EOF
+    echo "Configured dependencies repo: http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
+fi
+
 # Copy GPG key to repo for later use
 sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
