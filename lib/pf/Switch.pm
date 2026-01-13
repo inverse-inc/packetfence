@@ -122,6 +122,8 @@ sub inlineCapabilities { return; }
 
 sub vpnAttributes { return $FALSE; }
 
+sub switchDriverId { "unknown" }
+
 sub new {
     my ($class, $argv) = @_;
     my $self = bless {
