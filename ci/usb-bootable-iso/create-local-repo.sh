@@ -21,12 +21,12 @@ PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
 
 # Build URL based on repo type
 # gitlab pipelines use: http://inverse.ca/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
-# other types use: http://inverse.ca/downloads/PacketFence/TYPE/VERSION bookworm bookworm
+# branches use: http://inverse.ca/downloads/PacketFence/debian/VERSION bookworm bookworm
 if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
     PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/debian"
     PF_REPO_COMPONENT="main"
 else
-    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
+    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
     PF_REPO_COMPONENT="bookworm"
 fi
 
