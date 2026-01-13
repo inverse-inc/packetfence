@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initDots();
   initSvgSprite();
   initForm();
+  initQueryParams();
 
   function initButtons() {
     // Don't propagate mouse clicks on disabled buttons and links
@@ -215,6 +216,51 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.setAttribute('disabled', true);
       }
     }
+  }
+
+  function initQueryParams() {
+    // Store params for re-use when cards become visible
+    var params = new URLSearchParams(window.location.search);
+
+    function autofillVisibleInputs() {
+      params.forEach(function(value, key) {
+        // Find visible input fields (not hidden type) matching the parameter name
+        var inputs = document.querySelectorAll(
+          'input[name="' + key + '"]:not([type="hidden"]), ' +
+          'input[id="' + key + '"]:not([type="hidden"])'
+        );
+        inputs.forEach(function(input) {
+          // Only fill if empty (don't smash existing values)
+          if (!input.value) {
+            input.value = value;
+            // Trigger change event so form validation runs
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
+    }
+
+    // Initial autofill
+    autofillVisibleInputs();
+
+    // Re-trigger on card visibility changes (MutationObserver on class changes)
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          var target = mutation.target;
+          // Check if a card just became visible (had c-card--hidden, now doesn't)
+          if (target.classList.contains('c-card') &&
+              !target.classList.contains('c-card--hidden')) {
+            autofillVisibleInputs();
+          }
+        }
+      });
+    });
+
+    // Observe all cards for class changes
+    document.querySelectorAll('.c-card').forEach(function(card) {
+      observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+    });
   }
 
   function addDot(parent, index, active, disabled) {

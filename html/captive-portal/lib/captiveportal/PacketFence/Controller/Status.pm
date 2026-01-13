@@ -315,7 +315,10 @@ sub reset_password_token : Local {
             my $result = pf::password::reset_password($pid, $password);
             if ($result) {
                 pf::activation::set_status_verified($PASSWORD_RESET_ACTIVATION, $token);
-                $c->stash(template => 'status/reset_password_token_success.html');
+                $c->stash(
+                    template => 'status/reset_password_token_success.html',
+                    username => $pid,
+                );
             } else {
                 $c->stash(template => 'status/reset_password_token_invalid.html');
             }
