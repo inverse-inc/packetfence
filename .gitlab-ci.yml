@@ -183,6 +183,7 @@ variables:
     - if: '$CI_COMMIT_TAG'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/'
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -237,13 +238,9 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_iso=yes/ )'
 
 # run this job on any branch with BUILD_PF_IMG_USB_ISO variable defined or build_pf_img_usb_iso=yes in commit message
-# AND when publish_ppa job is also triggered (PUBLISH_PPA=yes, TEST=yes, or release tag)
 .build_pf_img_usb_iso_any_branch_rules:
   rules:
-    - if: '($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/) && ($PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/)'
-    - if: '($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/) && $CI_COMMIT_TAG'
-    - if: '($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/) && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/)'
-    - if: '($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/) && $CI_PIPELINE_SOURCE == "schedule" && ($TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/)'
+    - if: '$BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/'
 
 # run this job on:
 # - devel branch with BUILD_ARTIFACTS_WEBSITE variable defined or build_artifacts_website=yes in commit message
