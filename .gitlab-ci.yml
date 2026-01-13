@@ -2013,6 +2013,7 @@ build_pf_img_usb_iso:
     - job: "publish_ppa_devel_release_branches_and_maintenance:"
   variables:
     PF_VERSION: ${CI_COMMIT_REF_SLUG}
+    PF_REPO_TYPE: gitlab/${CI_PIPELINE_ID}
   environment:
     url: ${SF_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}-usb
   script:
