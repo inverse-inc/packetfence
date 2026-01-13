@@ -2010,6 +2010,7 @@ build_pf_img_usb_iso:
     - .build_pf_img_usb_iso_any_branch_rules
   needs:
     - job: "publish_ppa_devel_release_branches_and_maintenance:"
+      optional: true
   variables:
     PF_VERSION: ${CI_COMMIT_REF_SLUG}
   environment:
