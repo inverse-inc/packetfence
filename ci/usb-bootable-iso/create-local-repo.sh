@@ -18,7 +18,15 @@ PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 #   - debian-lastrelease: Last release builds (for maintenance releases)
 #   - gitlab/PIPELINE_ID: Specific CI pipeline builds
 PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
-PF_REPO_BASE_URL="https://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
+
+# Build URL based on repo type
+# gitlab pipelines use: http://inverse.ca/downloads/PacketFence/gitlab/PIPELINE_ID/debian
+# other types use: http://inverse.ca/downloads/PacketFence/TYPE/VERSION
+if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
+    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/debian"
+else
+    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
+fi
 
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
