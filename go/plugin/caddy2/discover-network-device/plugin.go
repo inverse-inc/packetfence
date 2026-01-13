@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -14,7 +15,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
-	"github.com/inverse-inc/packetfence/go/plugin/caddy2/discover-network-device/snmp_scan"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/inverse-inc/packetfence/go/redisclient"
 	"github.com/julienschmidt/httprouter"
@@ -67,14 +67,46 @@ type Task struct {
 	Status int    `json:"status"`
 }
 
-type Input struct {
+type DiscoverNetworkDeviceResponse struct {
+	Modules []Switches    `json:"modules"`
+	Scan    *ScanResponse `json:"scan"`
+}
+
+func fetchData(ctx context.Context, payload Payload, progressCb func(int)) (any, error) {
+	var wg sync.WaitGroup
+	chanSwitch := make(chan []Switches, 1)
+	chanScan := make(chan *ScanResponse, 1)
+	wg.Go(func() {
+		resp, err := SnmpScan(payload, progressCb)
+		if err != nil {
+
+		} else {
+			chanScan <- resp
+		}
+	})
+	wg.Go(func() {
+		resp, err := GetSwitchModules(ctx)
+		if err != nil {
+
+		} else {
+			chanSwitch <- resp
+		}
+	})
+	wg.Wait()
+	scanResp := <-chanScan
+	modulesResp := <-chanSwitch
+	data := DiscoverNetworkDeviceResponse{
+		Modules: modulesResp,
+		Scan:    scanResp,
+	}
+	return data, nil
 }
 
 func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	b := bytes.NewBuffer(nil)
 	b.ReadFrom(r.Body)
-	input := snmp_scan.Payload{}
-	json.Unmarshal(b.Bytes(), &input)
+	body := Payload{}
+	json.Unmarshal(b.Bytes(), &body)
 	taskid := pfqueueclient.NewApiTaskID()
 	task := Task{TaskId: taskid, Status: 202}
 	go func(taskid string) {
@@ -82,15 +114,15 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 		defer pfqueueclient.PutStatusUpdater(statusUpdater)
 		ctx := context.Background()
 		statusUpdater.Start(ctx)
-
-		resp, err := snmp_scan.Scan(input)
+		data, err := fetchData(ctx, body, func(progress int) {
+			statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
+		})
 		if err != nil {
 			// TODO: return err?
 			statusUpdater.Failed(ctx, err)
 		} else {
-			statusUpdater.Complete(ctx, resp)
+			statusUpdater.Complete(ctx, data)
 		}
-
 	}(taskid)
 
 	res, _ := json.Marshal(&task)

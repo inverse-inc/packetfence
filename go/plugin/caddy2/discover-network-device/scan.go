@@ -1,4 +1,4 @@
-package snmp_scan
+package discovernetworkdevice
 
 import (
 	"encoding/json"
@@ -87,7 +87,7 @@ const (
 	snmpTransport = "udp"
 	sysDescrOid   = ".1.3.6.1.2.1.1.1.0"
 	sysOidOid     = ".1.3.6.1.2.1.1.2.0"
-	driverFile    = "./drivers.json"
+	driverFile    = "/usr/local/pf/go/plugin/caddy2/discover-network-device/drivers.json"
 )
 
 var credTypeList = []string{"snmp_v1", "snmp_v2c"}
@@ -281,7 +281,7 @@ func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult,
 }
 
 // Scan is the main entry of the network scan
-func Scan(payload Payload) (*ScanResponse, error) {
+func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 	var resp ScanResponse
 	drivers, err := readDriverFile(driverFile)
 	if err != nil {
@@ -323,9 +323,12 @@ func Scan(payload Payload) (*ScanResponse, error) {
 		wg.Add(1)
 		go scanPart(&wg, deviceFoundChan, snmpErrChan, drivers.Devices, payload.Credentials, payload.Options, addresses[lid:rid])
 	}
+	progressCb(5)
 	wg.Wait()
 	close(deviceFoundChan)
 	close(snmpErrChan)
+	progressCb(90)
 	wgOut.Wait()
+	progressCb(95)
 	return &resp, nil
 }
