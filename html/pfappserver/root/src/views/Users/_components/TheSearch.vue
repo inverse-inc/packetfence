@@ -103,6 +103,10 @@
             <icon class="position-absolute mt-1" name="trash-alt"></icon>
             <span class="ml-4">{{ $t('Delete') }}</span>
           </b-dropdown-item>
+          <b-dropdown-item @click="onBulkPasswordReset">
+            <icon class="position-absolute mt-1" name="envelope"></icon>
+            <span class="ml-4">{{ $t('Send Password Reset Email') }}</span>
+          </b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
 
           <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
@@ -352,6 +356,17 @@ const setup = (props, context) => {
       })
   }
 
+  const onBulkPasswordReset = () => {
+    const items = selectedItems.value.map(item => item.pid)
+    $store.dispatch(`$_users/bulkPasswordReset`, { items })
+      .then(_items => {
+        $store.dispatch('notification/info', {
+          message: i18n.tc('Sent password reset email to 1 user. | Sent password reset emails to {userCount} users.', _items.length, { userCount: _items.length }),
+          ..._statusCounts(_items)
+        })
+      })
+  }
+
   return {
     useSearch,
     tableRef,
@@ -372,7 +387,8 @@ const setup = (props, context) => {
     onBulkRole,
     onBulkBypassRole,
     onBulkSecurityEvent,
-    onBulkCloseSecurityEvent
+    onBulkCloseSecurityEvent,
+    onBulkPasswordReset
   }
 }
 

@@ -563,6 +563,24 @@ sub create_and_send_password_reset {
         return (0, "Rate limited");
     }
 
+    return _do_password_reset($pid, $email, $portal, %info);
+}
+
+=head2 admin_send_password_reset
+
+Send password reset email from admin API (no rate limiting).
+
+=cut
+
+sub admin_send_password_reset {
+    my ($pid, $email, $portal, %info) = @_;
+    return _do_password_reset($pid, $email, $portal, %info);
+}
+
+sub _do_password_reset {
+    my ($pid, $email, $portal, %info) = @_;
+    my $logger = get_logger();
+
     # Invalidate any existing reset tokens for this user
     invalidate_codes(undef, $pid, $email, $PASSWORD_RESET_ACTIVATION);
 
