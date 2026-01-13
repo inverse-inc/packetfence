@@ -2003,10 +2003,13 @@ build_pf_img_iso_release:
 ### build_pf_img_usb_iso jobs
 # USB bootable offline installer ISO - works on any branch
 # Triggered by BUILD_PF_IMG_USB_ISO=yes variable or build_pf_img_usb_iso=yes in commit message
+# Requires PPA to be published first (like tests)
 build_pf_img_usb_iso:
   extends:
     - .build_pf_img_usb_iso_job
     - .build_pf_img_usb_iso_any_branch_rules
+  needs:
+    - job: publish_ppa_devel_release_branches_and_maintenance
   variables:
     PF_VERSION: ${CI_COMMIT_REF_SLUG}
   environment:
