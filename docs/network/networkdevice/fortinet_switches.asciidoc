@@ -150,6 +150,102 @@ FS-148F-FPOE):
        set security-groups <security-group-name>
      end
 
+==== Dynamic ACL
+
+FortiSwitchOS 7.x supports Dynamic Access Control Lists (DACL) which allow
+PacketFence to push ACL rules to the switch via RADIUS during authentication.
+
+===== RADIUS Server and Security Group
+
+First, ensure a RADIUS server is configured and associated with a security group:
+
+ config user radius
+   edit "<radius_server_name>"
+     set auth-type ms_chap_v2
+     set nas-ip <switch_ip_address>
+     set secret <shared_secret>
+     set server <packetfence_ip_address>
+   next
+ end
+
+ config user group
+   edit "RadiusGroup1"
+     set member "<radius_server_name>"
+   next
+ end
+
+===== Switch Interface Configuration
+
+Enable DACL on the interface:
+
+ config switch interface
+   edit <port>
+     config port-security
+       set dacl enable
+       set port-security-mode {802.1X | 802.1X-mac-based}
+       set mac-auth-bypass enable
+     end
+   next
+ end
+
+Complete example with all recommended settings:
+
+ config switch interface
+   edit "port2"
+     set security-groups "RadiusGroup1"
+     set snmp-index 2
+     config port-security
+       set allow-mac-move enable
+       set auth-fail-vlan disable
+       set auth-order MAB-dot1x
+       set auth-priority legacy
+       set authserver-timeout-period 3
+       set authserver-timeout-tagged disable
+       set authserver-timeout-vlan disable
+       set client-limit 20
+       set dacl enable
+       set eap-auto-untagged-vlans enable
+       set eap-egress-tagged enable
+       set eap-passthru enable
+       set framevid-apply enable
+       set guest-auth-delay 5
+       set guest-vlan disable
+       set mab-eapol-request 3
+       set mac-auth-bypass enable
+       set open-auth disable
+       set port-security-mode 802.1X-mac-based
+       set quarantine-vlan enable
+       set radius-timeout-overwrite disable
+       set auth-fail-vlanid 200
+       set authserver-timeout-vlanid 300
+       set guest-vlanid 100
+     end
+   next
+ end
+
+===== PacketFence Configuration
+
+On the PacketFence side, configure the switch to use ACL-based enforcement:
+
+1. Navigate to Configuration → Policies and Access Control → Switches
+2. Edit your FortiSwitch configuration
+3. In the Roles section, enable "Role by Access List"
+4. Define ACL rules for each role
+
+Example ACL for a registration role (allows access to captive portal):
+
+ permit udp any any eq 53
+ permit udp any any eq 67
+ permit tcp any host 192.168.1.5 eq 80
+ permit tcp any host 192.168.1.5 eq 443
+ deny ip any any
+
+NOTE: Replace 192.168.1.5 with your PacketFence server IP address.
+
+When DACL is enabled, the switch diagnostic output will show:
+
+ Dynamic Access Control List : Enable
+
 ===== Viewing 802.1X Details
 
 Show diagnostics for one or all ports using the CLI:

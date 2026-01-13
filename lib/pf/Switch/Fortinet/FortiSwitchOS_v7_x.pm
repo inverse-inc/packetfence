@@ -23,6 +23,7 @@ use strict;
 use warnings;
 use pf::util;
 use pf::log;
+use NetAddr::IP;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config qw(
@@ -191,6 +192,84 @@ sub returnAccessListAttribute {
     }
 }
 
+=head2 acl_chewer
+
+Format ACL to match with FortiSwitch NAS-Filter-Rule format.
+
+FortiSwitch expects: "<deny|permit> in <protocol> from <src> to <dst> [port]"
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref, @direction) = $self->format_acl($acl);
+
+    my $acl_chewed;
+    my $i = 0;
+    foreach my $acl_entry (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        # Strip protocol code (e.g., tcp(6) -> tcp)
+        my $protocol = $acl_entry->{'protocol'};
+        $protocol =~ s/\(\d*\)//;
+
+        # Process destination
+        my $dest;
+        if ($acl_entry->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $dest = "any";
+        } else {
+            if ($acl_entry->{'destination'}->{'wildcard'} eq '0.0.0.0') {
+                # Single host - use /32
+                $dest = $acl_entry->{'destination'}->{'ipv4_addr'} . "/32";
+            } else {
+                # Network with wildcard mask - convert to CIDR
+                my $net_addr = NetAddr::IP->new(
+                    $acl_entry->{'destination'}->{'ipv4_addr'},
+                    norm_net_mask($acl_entry->{'destination'}->{'wildcard'})
+                );
+                $dest = $net_addr->cidr();
+            }
+        }
+
+        # Process source
+        my $src;
+        if ($acl_entry->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } else {
+            if ($acl_entry->{'source'}->{'wildcard'} eq '0.0.0.0') {
+                $src = $acl_entry->{'source'}->{'ipv4_addr'} . "/32";
+            } else {
+                my $net_addr = NetAddr::IP->new(
+                    $acl_entry->{'source'}->{'ipv4_addr'},
+                    norm_net_mask($acl_entry->{'source'}->{'wildcard'})
+                );
+                $src = $net_addr->cidr();
+            }
+        }
+
+        # Process destination port
+        my $dest_port = "";
+        if (defined($acl_entry->{'destination'}->{'port'})) {
+            $dest_port = $acl_entry->{'destination'}->{'port'};
+            if ($dest_port =~ /range\s+(\d+)\s+(\d+)/) {
+                # range 80 100 -> 80-100
+                $dest_port = "$1-$2";
+            } else {
+                # eq 80 -> 80, gt 1024 -> extract number
+                $dest_port =~ s/\w+\s+//;
+            }
+        }
+
+        # Build FortiSwitch NAS-Filter-Rule format
+        # Format: "<action> in <protocol> from <src> to <dst> [port]"
+        my $rule = $acl_entry->{'action'} . " in " . $protocol . " from " . $src . " to " . $dest;
+        $rule .= " " . $dest_port if $dest_port ne "";
+
+        $acl_chewed .= $rule . "\n";
+        $i++;
+    }
+
+    return $acl_chewed;
+}
 
 =head2 returnRoleAttribute
 
