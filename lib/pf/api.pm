@@ -1967,7 +1967,7 @@ This is called after role configuration changes to avoid blocking the API.
 
 =cut
 
-sub generate_ansible_configuration_all_switches : Public {
+sub generate_ansible_configuration_all_switches : Public : Fork {
     my ($class, %postdata) = @_;
     my $logger = get_logger();
 
