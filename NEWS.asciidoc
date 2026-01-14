@@ -27,6 +27,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Support Intelbras Switch and AP equipments (#8836)
 === Enhancements
 
 === Bug Fixes
