@@ -29,7 +29,7 @@ use pf::constants::realm;
 use pf::error qw(is_error is_success);
 use pf::UnifiedApi::Search::Builder::Users;
 use pf::lookup::person qw();
-use pf::activation qw($PASSWORD_RESET_ACTIVATION);
+use pf::activation;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Users';
