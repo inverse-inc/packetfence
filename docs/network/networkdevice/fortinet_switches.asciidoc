@@ -285,6 +285,16 @@ For example:
 	params:reAuth=60
 	user="local-RADIUS",security_grp="radiusgrp",fortinet_grp="Radius_Admins"
 
+===== Viewing Dynamic ACLs on a Port
+
+Show the dynamic ACLs (DACL) applied to a port using the CLI:
+
+ diagnose switch 802-1x status-dacl <port>
+
+For example:
+
+ diagnose switch 802-1x status-dacl port2
+
 ===== Clearing Authorized Sessions
 
 Clear authorized sessions for an interface:
