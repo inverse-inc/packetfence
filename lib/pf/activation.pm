@@ -607,6 +607,7 @@ sub _do_password_reset {
     $info{email} = $email;
     $info{contact_info} = $email;
     $info{subject} = i18n("Password Reset Request");
+    $info{portal} = $portal;
 
     # Send email
     my $email_sent = send_email($PASSWORD_RESET_ACTIVATION, $activation_code, 'guest_password_reset', %info);
