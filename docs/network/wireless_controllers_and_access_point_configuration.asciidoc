@@ -191,6 +191,56 @@ include::networkdevice/mikrotik.asciidoc[]
 
   To be contributed...
 
+=== Intelbras
+
+==== AP3620
+
+General Radius:
+
+  dot1x authentication-method eap
+   
+  radius scheme packetfence
+   primary authentication 192.168.1.5
+   primary accounting 192.168.1.5
+   key authentication simple useStrongerSecret
+   key accounting simple useStrongerSecret
+   user-name-format without-domain
+  
+  radius dynamic-author server
+   client ip 192.168.1.5 key simple useStrongerSecret
+  
+  domain packetfence
+   authentication default radius-scheme packetfence
+   authorization default radius-scheme packetfence
+   accounting default radius-scheme packetfence
+   
+  interface WLAN-Radio1/0/2
+   service-template pf-secure
+   service-template pf-open
+   max-power 22
+   channel band-width 20
+  
+Secure 802.1x SSID:
+
+  wlan service-template pf-secure
+  	 ssid PF-Secure
+  	 akm mode dot1x
+  	 cipher-suite ccmp
+  	 security-ie rsn
+  	 client-security authentication-mode dot1x
+  	 dot1x domain dot1x
+  	 bss transition-management enable
+  	 service-template enable
+  
+Open Mac-Authentication SSID:
+
+  wlan service-template pf-open
+  	description Captive portal authentication
+  	ssid !PF-Open
+  	client-security authentication-mode mac
+  	mac-authentication domain packetfence
+  	service-template enable
+  
 === Meru
 
 include::networkdevice/meru.asciidoc[]

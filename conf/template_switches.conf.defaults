@@ -163,6 +163,54 @@ EOT
 cliAuthorizeRead=Huawei-Exec-Privilege = 1
 cliAuthorizeWrite=Huawei-Exec-Privilege = 15
 
+[Intelbras::Switch]
+# tested on version 7.1.070, Release 8307P27
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Intelbras Switch
+bounce=
+reject=Reply-Message = This node is not allowed to use this service
+radiusDisconnect=disconnect
+coa=
+voip=
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+cliAuthorizeWrite=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+cliAuthorizeRead=
+acceptRole=
+snmpDisconnect=disabled
+
+[Intelbras::AP]
+# tested on version 7.1.064, Release 2486
+# Do not edit.
+# Any changes will be lost on upgrade.
+cliAuthorizeWrite=
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+snmpDisconnect=disabled
+acceptRole=
+cliAuthorizeRead=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip=
+coa=
+radiusDisconnect=disconnect
+bounce=
+reject=Reply-Message = This node is not allowed to use this service
+description=Intelbras Access Point
+
 [Juniper::Mist]
 # Do not edit.
 # Any changes will be lost on upgrade.
