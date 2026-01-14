@@ -68,13 +68,13 @@ type Task struct {
 }
 
 type DiscoverNetworkDeviceResponse struct {
-	Modules []Switches    `json:"modules"`
-	Scan    *ScanResponse `json:"scan"`
+	Modules []SwitchModules `json:"modules"`
+	Scan    *ScanResponse   `json:"scan"`
 }
 
 func fetchData(ctx context.Context, payload Payload, progressCb func(int)) (any, error) {
 	var wg sync.WaitGroup
-	chanSwitch := make(chan []Switches, 1)
+	chanSwitch := make(chan []SwitchModules, 1)
 	chanScan := make(chan *ScanResponse, 1)
 	wg.Go(func() {
 		resp, err := SnmpScan(payload, progressCb)

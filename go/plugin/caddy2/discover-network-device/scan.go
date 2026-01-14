@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"math"
+	"net/netip"
 	"os"
 	"regexp"
 	"runtime"
@@ -125,6 +126,21 @@ func getSnmpVarAsStr(variable gosnmp.SnmpPDU) (string, error) {
 	}
 }
 
+func generateIpCidrList(cidrStr string) ([]string, error) {
+	prefix, err := netip.ParsePrefix(cidrStr)
+	if err != nil {
+		return nil, err
+	}
+	var ips []string
+	for addr := prefix.Addr(); prefix.Contains(addr); addr = addr.Next() {
+		tmp := addr.As4()
+		if tmp[3] != 0 && tmp[3] != 255 {
+			ips = append(ips, addr.String())
+		}
+	}
+	return ips, nil
+}
+
 // resolveAddresses expand CIDR if needed, and construct an array containing all addresses to scan
 func resolveAddresses(addresses []string) ([]string, error) {
 	lst := make(map[string]bool, 0)
@@ -136,15 +152,19 @@ func resolveAddresses(addresses []string) ([]string, error) {
 		if len(splitIpCidr) == 1 {
 			lst[addr] = true
 		} else {
-			switch splitIpCidr[1] {
-			case "24":
-				splitIp := strings.Split(splitIpCidr[0], ".")
-				for i := 1; i < 255; i++ {
-					tmp := strings.Join([]string{splitIp[0], splitIp[1], splitIp[2], strconv.Itoa(i)}, ".")
-					lst[tmp] = true
-				}
-			default:
-				return nil, fmt.Errorf("Invalid CIDR, only class C /24 supported: %s", addr)
+			cidr, err := strconv.Atoi(splitIpCidr[1])
+			if err != nil {
+				return nil, err
+			}
+			if cidr < 16 || cidr > 32 {
+				return nil, fmt.Errorf("IP CIDR must be between 16 and 32")
+			}
+			ips, err := generateIpCidrList(addr)
+			if err != nil {
+				return nil, err
+			}
+			for _, ip := range ips {
+				lst[ip] = true
 			}
 		}
 	}
@@ -187,7 +207,7 @@ func checkOptions(opts *Options) error {
 	return nil
 }
 
-func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult,
+func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, progressChan chan int,
 	drivers []Driver, creds []Credential, opts Options, addresses []string) {
 	snmp := gosnmp.GoSNMP{}
 	snmp.Port = uint16(opts.SnmpPort)
@@ -198,6 +218,7 @@ func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult,
 	oid_reqs := []string{sysDescrOid, sysOidOid}
 	defer wg.Done()
 	for _, addr := range addresses {
+		progressChan <- 1
 		snmp.Target = addr
 		var sysDesc string
 		for _, cred := range creds {
@@ -301,6 +322,7 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 	var wgOut sync.WaitGroup
 	deviceFoundChan := make(chan Device)
 	snmpErrChan := make(chan SnmpResult)
+	progressChan := make(chan int)
 	wgOut.Go(func() {
 		for device := range deviceFoundChan {
 			resp.Devices = append(resp.Devices, device)
@@ -309,6 +331,20 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 	wgOut.Go(func() {
 		for snmpErr := range snmpErrChan {
 			resp.SnmpReport = append(resp.SnmpReport, snmpErr)
+		}
+	})
+	wgOut.Go(func() {
+		n := 0
+		alreadySeen := make(map[int]bool)
+		for _ = range progressChan {
+			n += 1
+			percentDone := int(float32(n)/float32(len(addresses))*90.0 + 5.0)
+			if percentDone%5 == 0 {
+				if _, ok := alreadySeen[percentDone]; !ok {
+					alreadySeen[percentDone] = true
+					progressCb(int(percentDone))
+				}
+			}
 		}
 	})
 	nThreads := payload.Options.MaxThreads
@@ -321,14 +357,15 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 		}
 		rid := min(lid+offset, len(addresses))
 		wg.Add(1)
-		go scanPart(&wg, deviceFoundChan, snmpErrChan, drivers.Devices, payload.Credentials, payload.Options, addresses[lid:rid])
+		go scanPart(&wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, payload.Credentials, payload.Options, addresses[lid:rid])
 	}
 	progressCb(5)
 	wg.Wait()
 	close(deviceFoundChan)
 	close(snmpErrChan)
-	progressCb(90)
-	wgOut.Wait()
+	close(progressChan)
 	progressCb(95)
+	wgOut.Wait()
+	progressCb(100)
 	return &resp, nil
 }
