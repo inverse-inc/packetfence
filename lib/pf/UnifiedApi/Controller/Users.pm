@@ -705,9 +705,12 @@ sub password_reset {
     }
 
     # Parse optional JSON body for portal parameter
-    my $portal = undef;
+    my $portal;
     my ($json_status, $data) = $self->parse_json;
-    if (is_success($json_status) && $data) {
+    if (is_error($json_status)) {
+        return $self->render(json => $data, status => $json_status);
+    }
+    if ($data) {
         $portal = $data->{portal};
     }
 

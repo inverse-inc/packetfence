@@ -360,8 +360,9 @@ const setup = (props, context) => {
     const items = selectedItems.value.map(item => item.pid)
     $store.dispatch(`$_users/bulkPasswordReset`, { items })
       .then(_items => {
+        const { success } = _statusCounts(_items)
         $store.dispatch('notification/info', {
-          message: i18n.tc('Sent password reset email to 1 user. | Sent password reset emails to {userCount} users.', _items.length, { userCount: _items.length }),
+          message: i18n.tc('Sent password reset email to 1 user. | Sent password reset emails to {userCount} users.', success, { userCount: success }),
           ..._statusCounts(_items)
         })
       })
