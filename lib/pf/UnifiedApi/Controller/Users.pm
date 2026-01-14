@@ -30,6 +30,7 @@ use pf::error qw(is_error is_success);
 use pf::UnifiedApi::Search::Builder::Users;
 use pf::lookup::person qw();
 use pf::activation qw($PASSWORD_RESET_ACTIVATION);
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Users';
 
@@ -685,7 +686,7 @@ sub password_reset {
 
     # Get user details
     my ($status, $iter) = pf::dal::person->search(
-        -columns => [qw(person.pid person.email)],
+        -columns => [qw(person.pid person.email person.portal)],
         -where => { 'person.pid' => $pid },
         -with_class => undef,
     );
@@ -704,18 +705,9 @@ sub password_reset {
         return $self->render_error(422, "User has no email address");
     }
 
-    # Parse optional JSON body for portal parameter
-    my $portal;
-    my ($json_status, $data) = $self->parse_json;
-    if (is_error($json_status)) {
-        return $self->render(json => $data, status => $json_status);
-    }
-    if ($data) {
-        $portal = $data->{portal};
-    }
-
     # Send password reset email (admin API - no rate limiting)
-    my ($success, $result) = pf::activation::admin_send_password_reset($pid, $email, $portal);
+    my $portal = $user->{portal} // $DEFAULT_PROFILE;
+    my ($success, $result) = pf::activation::admin_send_password_reset($pid, $email, $portal, ());
 
     if ($success) {
         $logger->info("Password reset email sent to $email for user $pid");
@@ -740,7 +732,6 @@ sub bulk_password_reset {
     }
 
     my $items = $data->{items} // [];
-    my $portal = $data->{portal};
 
     if (@$items == 0) {
         return $self->render(json => { items => [] });
@@ -748,7 +739,7 @@ sub bulk_password_reset {
 
     # Get user details for all requested pids
     ($status, my $iter) = pf::dal::person->search(
-        -columns => [qw(person.pid person.email)],
+        -columns => [qw(person.pid person.email person.portal)],
         -where => { 'person.pid' => { -in => $items } },
         -with_class => undef,
     );
@@ -757,10 +748,10 @@ sub bulk_password_reset {
         return $self->render_error(500, "Error finding users");
     }
 
-    # Build a hash of pid => email
-    my %user_emails;
+    # Build a hash of pid => user data
+    my %users;
     while (my $user = $iter->next) {
-        $user_emails{$user->{pid}} = $user->{email};
+        $users{$user->{pid}} = $user;
     }
 
     my ($indexes, $results) = bulk_init_results($items);
@@ -769,13 +760,14 @@ sub bulk_password_reset {
         my $result = $results->[$indexes->{$pid}];
 
         # Check if user exists
-        if (!exists $user_emails{$pid}) {
+        if (!exists $users{$pid}) {
             $result->{status} = 404;
             $result->{message} = "User not found";
             next;
         }
 
-        my $email = $user_emails{$pid};
+        my $user = $users{$pid};
+        my $email = $user->{email};
 
         # Check if user has email
         if (!$email) {
@@ -785,7 +777,8 @@ sub bulk_password_reset {
         }
 
         # Send password reset email (admin API - no rate limiting)
-        my ($success, $msg) = pf::activation::admin_send_password_reset($pid, $email, $portal);
+        my $portal = $user->{portal} // $DEFAULT_PROFILE;
+        my ($success, $msg) = pf::activation::admin_send_password_reset($pid, $email, $portal, ());
 
         if ($success) {
             $result->{status} = 200;
