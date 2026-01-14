@@ -618,7 +618,7 @@ sub setup_api_v1_users_routes {
     );
 
     $resource_route->register_sub_action({ method => 'GET', action => 'security_events' });
-    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events)], auditable => 1 });
+    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events password_reset)], auditable => 1 });
     $collection_route->register_sub_actions(
         {
             method  => 'POST',
@@ -627,7 +627,7 @@ sub setup_api_v1_users_routes {
                   bulk_register bulk_deregister bulk_close_security_events
                   bulk_reevaluate_access bulk_apply_security_event
                   bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-                  bulk_delete bulk_import
+                  bulk_delete bulk_import bulk_password_reset
                   )
             ],
             auditable => 1,

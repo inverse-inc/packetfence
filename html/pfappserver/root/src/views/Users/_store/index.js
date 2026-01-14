@@ -303,6 +303,18 @@ const actions = {
       })
     })
   },
+  passwordReset: ({ commit }, pid) => {
+    commit('USER_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.passwordReset(pid).then(response => {
+        commit('USER_SUCCESS')
+        resolve(response)
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   deleteUser: ({ commit }, pid) => {
     commit('USER_REQUEST')
     return new Promise((resolve, reject) => {
@@ -400,6 +412,15 @@ const actions = {
   bulkImport: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkImport(data).then(response => {
+      commit('USER_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkPasswordReset: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkPasswordReset(data).then(response => {
       commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {

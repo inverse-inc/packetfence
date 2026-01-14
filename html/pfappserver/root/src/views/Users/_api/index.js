@@ -75,6 +75,11 @@ export default {
   unassignUserNodes: pid => {
     return apiCall.post(['user', pid, 'unassign_nodes'])
   },
+  passwordReset: pid => {
+    return apiCall.post(['user', pid, 'password_reset']).then(response => {
+      return response.data
+    })
+  },
   bulkRegisterNodes: body => {
     return apiCall.post(['users', 'bulk_register'], body).then(response => {
       return response.data.items
@@ -122,6 +127,11 @@ export default {
   },
   bulkImport: body => {
     return apiCall.post(['users', 'bulk_import'], body).then(response => {
+      return response.data.items
+    })
+  },
+  bulkPasswordReset: body => {
+    return apiCall.post(['users', 'bulk_password_reset'], body).then(response => {
       return response.data.items
     })
   }

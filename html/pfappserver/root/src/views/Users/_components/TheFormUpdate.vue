@@ -185,6 +185,7 @@
           <div class="mt-3">
             <div class="border-top pt-3">
              <b-button class="mr-1" variant="outline-primary" :disabled="isLoading" @click="onResetPassword">{{ $t('Reset Password') }}</b-button>
+             <b-button class="mr-1" variant="outline-primary" :disabled="isLoading || !hasEmail" @click="onSendPasswordResetEmail">{{ $t('Send Password Reset Email') }}</b-button>
             </div>
           </div>
         </base-form-tab>
@@ -397,6 +398,7 @@ const props = {
 }
 
 import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import {
   nodeFields as _nodeFields,
@@ -426,6 +428,7 @@ const setup = (props, context) => {
     return pid === 'default'
   })
   const hasPassword = computed(() => !!form.value.has_password)
+  const hasEmail = computed(() => !!form.value.email)
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
   const isValid = useDebouncedWatchHandler(
     [form],
@@ -481,6 +484,14 @@ const setup = (props, context) => {
     return $store.dispatch('$_users/updatePassword', data)
   }
 
+  const onSendPasswordResetEmail = () => {
+    return $store.dispatch('$_users/passwordReset', pid.value).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Password reset email sent.') })
+    }).catch(() => {
+      $store.dispatch('notification/danger', { message: i18n.t('Failed to send password reset email.') })
+    })
+  }
+
   const onInit = () => {
     $store.dispatch('$_users/getUserNodes', pid.value).then(_nodes => {
       nodes.value = _nodes
@@ -516,6 +527,7 @@ const setup = (props, context) => {
     tabIndex,
     isDefaultUser,
     hasPassword,
+    hasEmail,
     isLoading,
     isValid,
 
@@ -540,6 +552,7 @@ const setup = (props, context) => {
     onSecurityEventCloseAll,
 
     onResetPassword,
+    onSendPasswordResetEmail,
     onClose,
     onRemove,
     onReset,
