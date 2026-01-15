@@ -365,17 +365,29 @@ if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
     fi
     echo ""
 
-    # Install fingerbank packages (depends on perl packages provided by packetfence-perl)
-    echo "Installing fingerbank packages..."
-    FINGERBANK_PKGS=$(ls ${PF_CACHE_DIR}/fingerbank*.deb 2>/dev/null || true)
-    if [ -n "$FINGERBANK_PKGS" ]; then
-        DEBIAN_FRONTEND=noninteractive dpkg -i $FINGERBANK_PKGS || {
-            echo "Warning: Fingerbank packages had issues, fixing dependencies..."
+    # Install fingerbank packages in correct order:
+    # 1. fingerbank-collector first (fingerbank depends on it)
+    # 2. fingerbank second (depends on packetfence-perl and fingerbank-collector)
+    echo "Installing fingerbank-collector..."
+    if ls ${PF_CACHE_DIR}/fingerbank-collector_*.deb 1> /dev/null 2>&1; then
+        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/fingerbank-collector_*.deb || {
+            echo "Warning: fingerbank-collector had issues, fixing dependencies..."
             DEBIAN_FRONTEND=noninteractive apt-get install -y -f
         }
-        echo "Fingerbank packages installed successfully"
+        echo "fingerbank-collector installed successfully"
     else
-        echo "Warning: No fingerbank packages found"
+        echo "Warning: fingerbank-collector package not found"
+    fi
+
+    echo "Installing fingerbank..."
+    if ls ${PF_CACHE_DIR}/fingerbank_*.deb 1> /dev/null 2>&1; then
+        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/fingerbank_*.deb || {
+            echo "Warning: fingerbank had issues, fixing dependencies..."
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+        }
+        echo "fingerbank installed successfully"
+    else
+        echo "Warning: fingerbank package not found"
     fi
     echo ""
 
