@@ -349,7 +349,23 @@ if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
     echo ""
 
     # Step 3a: Install Pre-Depends packages FIRST (but NOT main packetfence package)
-    echo "===> Step 3a: Installing Pre-Depends packages (fingerbank, packetfence-*, etc.)..."
+    # Order matters: packetfence-perl provides virtual perl packages that fingerbank depends on
+    echo "===> Step 3a: Installing Pre-Depends packages..."
+
+    # Install packetfence-perl FIRST - it provides virtual perl packages needed by fingerbank
+    echo "Installing packetfence-perl (provides perl dependencies)..."
+    if ls ${PF_CACHE_DIR}/packetfence-perl_*.deb 1> /dev/null 2>&1; then
+        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/packetfence-perl_*.deb || {
+            echo "Warning: packetfence-perl had issues, fixing dependencies..."
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+        }
+        echo "packetfence-perl installed successfully"
+    else
+        echo "Warning: packetfence-perl package not found"
+    fi
+    echo ""
+
+    # Install fingerbank packages (depends on perl packages provided by packetfence-perl)
     echo "Installing fingerbank packages..."
     FINGERBANK_PKGS=$(ls ${PF_CACHE_DIR}/fingerbank*.deb 2>/dev/null || true)
     if [ -n "$FINGERBANK_PKGS" ]; then
@@ -363,9 +379,9 @@ if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
     fi
     echo ""
 
-    echo "Installing packetfence dependency packages (packetfence-pfcmd-suid, packetfence-config, etc.)..."
-    # Install packetfence-* packages (hyphen), but NOT packetfence_* (underscore = main package)
-    PFDEP_PKGS=$(ls ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null || true)
+    # Install remaining packetfence-* packages (excluding packetfence-perl already installed)
+    echo "Installing other packetfence dependency packages..."
+    PFDEP_PKGS=$(ls ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null | grep -v packetfence-perl_ || true)
     if [ -n "$PFDEP_PKGS" ]; then
         DEBIAN_FRONTEND=noninteractive dpkg -i $PFDEP_PKGS || {
             echo "Warning: Some packetfence dependency packages had issues, fixing dependencies..."
