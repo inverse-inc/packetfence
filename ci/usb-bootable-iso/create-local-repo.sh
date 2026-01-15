@@ -132,28 +132,16 @@ PACKAGES="
     fping
     ipset
     libcache-bdb-perl
-    liblog-fast-perl
-    libfile-flock-perl
     libcjson1
-    liblog-log4perl-perl
     libdbd-sqlite3-perl
     sqlite3
     libdata-powerset-perl
-    libcatalyst-perl
-    libcatalyst-modules-perl
-    libaliased-perl
-    libmoosex-types-loadableclass-perl
-    libconfig-general-perl
-    libreadonly-xs-perl
-    libcatalyst-action-rest-perl
-    liblwp-protocol-https-perl
-    liblwp-protocol-connect-perl
-    libjson-perl
-    libsql-translator-perl
-    libfile-touch-perl
     libglib2.0-0
     libglib2.0-bin
 "
+# Note: Many perl packages (liblog-fast-perl, libcatalyst-perl, libreadonly-perl, etc.)
+# are virtual packages provided by packetfence-perl and should NOT be listed here.
+# Listing them causes apt-get to fail with "no installation candidate".
 
 # Add Docker repository for docker-ce packages
 echo "===> Adding Docker repository for docker-ce packages"
