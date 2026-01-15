@@ -338,7 +338,7 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 		alreadySeen := make(map[int]bool)
 		for _ = range progressChan {
 			n += 1
-			percentDone := int(float32(n)/float32(len(addresses))*90.0 + 5.0)
+			percentDone := int(float32(n)/float32(len(addresses))*99.0 + 1.0)
 			if percentDone%5 == 0 {
 				if _, ok := alreadySeen[percentDone]; !ok {
 					alreadySeen[percentDone] = true
@@ -359,12 +359,12 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 		wg.Add(1)
 		go scanPart(&wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, payload.Credentials, payload.Options, addresses[lid:rid])
 	}
-	progressCb(5)
+	progressCb(1)
 	wg.Wait()
 	close(deviceFoundChan)
 	close(snmpErrChan)
 	close(progressChan)
-	progressCb(95)
+	progressCb(99)
 	wgOut.Wait()
 	progressCb(100)
 	return &resp, nil
