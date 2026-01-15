@@ -21,14 +21,19 @@ PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
 
 # Build URL based on repo type
 # gitlab pipelines use: http://inverse.ca/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
-# branches use: http://inverse.ca/downloads/PacketFence/debian/VERSION bookworm bookworm
+# branches use: http://inverse.ca/downloads/PacketFence/debian-branches/VERSION bookworm bookworm
+# Note: packetfence packages are in debian-branches repo, fingerbank/docker are in debian repo
 if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
     PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/debian"
     PF_REPO_COMPONENT="main"
 else
-    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
+    # Use the PF_REPO_TYPE in the URL (e.g., debian-branches or debian)
+    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
     PF_REPO_COMPONENT="bookworm"
 fi
+
+# URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
+PF_DEPS_BASE_URL="http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
 
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
@@ -38,6 +43,7 @@ echo "REPO_DIR: ${REPO_DIR}"
 echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
 echo "PF_REPO_TYPE: ${PF_REPO_TYPE}"
 echo "PF_REPO_BASE_URL: ${PF_REPO_BASE_URL}"
+echo "PF_DEPS_BASE_URL: ${PF_DEPS_BASE_URL}"
 echo "=============================================="
 
 # Use absolute path for REPO_DIR
@@ -64,14 +70,15 @@ EOF
 
 echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
 
-# For gitlab pipelines, add devel repo for dependencies (fingerbank, packetfence-perl, etc.)
-# The gitlab repo only contains packetfence packages built during CI
-if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
-    echo "===> Adding devel repository for dependencies"
+# Add dependencies repo for fingerbank, freeradius, docker packages
+# These are always in debian/VERSION repo, separate from packetfence packages
+# (packetfence packages are in debian-branches/VERSION or gitlab/PIPELINE_ID repos)
+if [[ "${PF_REPO_BASE_URL}" != "${PF_DEPS_BASE_URL}" ]]; then
+    echo "===> Adding dependencies repository (fingerbank, freeradius, etc.)"
     sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_DEPS_BASE_URL} bookworm bookworm
 EOF
-    echo "Configured dependencies repo: http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
+    echo "Configured dependencies repo: ${PF_DEPS_BASE_URL}"
 fi
 
 # Copy GPG key to repo for later use
