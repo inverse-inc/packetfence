@@ -131,7 +131,7 @@ use pf::constants;
 use pf::config::cluster;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
-tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
+tie our %ConfigKafka, 'pfconfig::cached_hash', "resource::kafka($host_id)";
 
 =head1 SUBROUTINES
 
