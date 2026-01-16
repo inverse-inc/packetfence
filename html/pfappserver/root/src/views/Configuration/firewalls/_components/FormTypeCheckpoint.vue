@@ -67,7 +67,7 @@
 
     <form-group-sso-on-role-change namespace="sso_on_role_change"
                                    :column-label="$i18n.t('SSO on role change')"
-                                   :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) when a device role changes. Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.')"
+                                   :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) when a device role changes. Note: This only triggers during autoregistration. Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.')"
                                    disabled-value="0"
                                    enabled-value="1"
     />
