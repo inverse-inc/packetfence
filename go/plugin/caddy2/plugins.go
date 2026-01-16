@@ -7,6 +7,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api-aaa"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/configstore"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/cors"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/discover-network-device"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdispatcher"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdportalpreview"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/job-status"
