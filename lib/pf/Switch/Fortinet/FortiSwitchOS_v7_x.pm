@@ -206,7 +206,6 @@ sub acl_chewer {
     my ($acl_ref, @direction) = $self->format_acl($acl);
 
     my $acl_chewed;
-    my $i = 0;
     foreach my $acl_entry (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         # Strip protocol code (e.g., tcp(6) -> tcp)
         my $protocol = $acl_entry->{'protocol'};
@@ -265,7 +264,6 @@ sub acl_chewer {
         $rule .= " " . $dest_port if $dest_port ne "";
 
         $acl_chewed .= $rule . "\n";
-        $i++;
     }
 
     return $acl_chewed;
