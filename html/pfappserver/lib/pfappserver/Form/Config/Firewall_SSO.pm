@@ -140,7 +140,9 @@ has_field 'sso_on_role_change',
    type => 'Toggle',
    checkbox_value => '1',
    unchecked_value => '0',
-   default => '1',
+   default => '0',
+   tags => { after_element => \&help,
+             help => 'Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.' },
   );
 
   has_field 'sso_on_accounting',
