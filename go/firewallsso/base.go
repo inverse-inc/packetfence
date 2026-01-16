@@ -65,6 +65,7 @@ type FirewallSSO struct {
 	UseConnector            string                `json:"use_connector"`
 	ActOnAccountingStop     string                `json:"act_on_accounting_stop"`
 	SsoOnAccessReevaluation string                `json:"sso_on_access_reevaluation"`
+	SsoOnRoleChange         string                `json:"sso_on_role_change"`
 	SsoOnAccounting         string                `json:"sso_on_accounting"`
 	SsoOnDhcp               string                `json:"sso_on_dhcp"`
 }

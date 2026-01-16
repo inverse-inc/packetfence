@@ -135,6 +135,14 @@ has_field 'sso_on_access_reevaluation',
    default => '1',
   );
 
+has_field 'sso_on_role_change',
+  (
+   type => 'Toggle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   default => '1',
+  );
+
   has_field 'sso_on_accounting',
   (
    type => 'Toggle',
@@ -153,7 +161,7 @@ has_field 'sso_on_access_reevaluation',
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_accounting sso_on_dhcp) ],
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_role_change sso_on_accounting sso_on_dhcp) ],
   );
 
 =head2 Methods
