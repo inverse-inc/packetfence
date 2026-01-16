@@ -40,7 +40,7 @@ sub build {
         my $iptables = $kafka_config{iptables};
         for my $f (qw(cluster_ips clients)) {
             next if !exists $iptables->{$f};
-            next if !ref($iptables->{$f}) eq 'ARRAY';
+            next if ref($iptables->{$f}) ne 'ARRAY';
 
             # Replace %mgmtip% in each array element
             $iptables->{$f} = [
