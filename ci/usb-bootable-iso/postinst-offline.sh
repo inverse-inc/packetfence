@@ -99,14 +99,14 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli contai
 }
 
 # Step 4: Install PacketFence dependencies (but NOT PacketFence itself)
-echo "===> Step 4: Installing PacketFence dependencies"
+echo "===> Step 4: Installing PacketFence dependencies from DVD"
 
 # Ensure kernel is marked to not be auto-removed
 apt-mark hold linux-image-amd64 linux-image-* 2>/dev/null || true
 
-# Install key dependencies that PacketFence needs
+# Install ALL dependencies that PacketFence needs from the DVD
 # PacketFence package itself will be installed on first boot when Docker is running
-# Include linux-image-amd64 to ensure kernel is not removed by dependency resolution
+# These are standard Debian packages that won't be available after DVD is removed
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     linux-image-amd64 \
     linux-headers-amd64 \
@@ -127,7 +127,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     snmpd \
     snmp \
     monit \
-    fingerbank-collector \
     bind9-dnsutils \
     bind9-libs \
     bind9-host \
@@ -135,6 +134,80 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     arping \
     fping \
     ipset \
+    jq \
+    snmptrapfmt \
+    snmptrapd \
+    snmp-mibs-downloader \
+    conntrack \
+    rsyslog \
+    ipcalc \
+    ipcalc-ng \
+    apache2 \
+    apache2-utils \
+    libapache2-mod-apreq2 \
+    libapache2-mod-perl2 \
+    libapache2-request-perl \
+    libapache-ssllookup-perl \
+    libapache2-mod-systemd \
+    eapoltest \
+    python3-impacket \
+    python-is-python3 \
+    python3.11-venv \
+    krb5-user \
+    sscep \
+    libwww-perl \
+    libtext-csv-xs-perl \
+    libcgi-session-serialize-yaml-perl \
+    libapache-dbi-perl \
+    libdbd-mysql-perl \
+    libnetwork-ipv4addr-perl \
+    iptables-netflow-dkms \
+    liblwp-useragent-determined-perl \
+    libnet-pcap-perl \
+    libsnmp-perl \
+    libnet-telnet-cisco-perl \
+    libnet-cisco-mse-rest-perl \
+    perlmagick \
+    libregexp-common-email-address-perl \
+    libregexp-common-time-perl \
+    libperl-critic-perl \
+    libhtml-template-perl \
+    libtest-perl-critic-perl \
+    libthread-pool-simple-perl \
+    libuniversal-exports-perl \
+    libnet-rawip-perl \
+    libdatetime-format-dateparse-perl \
+    perl-doc \
+    librrds-perl \
+    libnetpacket-perl \
+    libmime-lite-perl \
+    libdata-swap-perl \
+    libposix-atfork-perl \
+    libcrypt-openssl-pkcs12-perl \
+    libnet-dhcp-perl \
+    libnet-interface-perl \
+    libnet-radius-perl \
+    libbsd-resource-perl \
+    libparse-nessus-nbe-perl \
+    libtest-mockdbi-perl \
+    libsoap-lite-perl \
+    libnet-frame-perl \
+    bsdmainutils \
+    libwww-curl-perl \
+    libposix-2008-perl \
+    libdata-messagepack-stream-perl \
+    libnet-nessus-xmlrpc-perl \
+    libnet-nessus-rest-perl \
+    libnet-route-perl \
+    libnet-arp-perl \
+    locales-all \
+    python3-mysqldb \
+    libcrypt-smime-perl \
+    liblasso-perl \
+    libcisco-accesslist-parser-perl \
+    libparse-eyapp-perl \
+    python3-twisted \
+    uuid-runtime \
     || {
     echo "Warning: Some dependencies failed to install, attempting to fix..."
     dpkg --configure -a
