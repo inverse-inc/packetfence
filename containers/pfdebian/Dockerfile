@@ -40,7 +40,8 @@ RUN find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
     rm -rf /usr/share/lintian/* /usr/share/linda/* /var/cache/man/*
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf && \
-    usermod  -u 2025 pf && groupmod -g 2025 pf
+    usermod  -u 2025 pf && groupmod -g 2025 pf && \
+    usermod -aG fingerbank pf
 
 
 RUN mkdir -p /usr/local/pf/lib/ && \
