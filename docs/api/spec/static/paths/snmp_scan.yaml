@@ -1,12 +1,12 @@
-/scan:
+/discovernetworkdevice/discover:
   post:
     tags:
       - SnmpScan
-    summary: Scan a network with given addresses and credentials.
-    description: The task can take some time.
+    summary: Use SNMP requests to try to find switches and routers at the given addresses.
+    description: Depending on the number of addresses to scan and the number of threads used, the task can take some times.
     operationId: snmpScan
     requestBody:
-      $ref: "#/components/requestBodies/SnmpScanPayload"
+      $ref: "#/components/requestBodies/SnmpScanBody"
     responses:
       "200":
         $ref: "#/components/responses/Async"

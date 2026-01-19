@@ -1,5 +1,5 @@
-SnmpScanPayload:
-  description: Payload sent to the server to perform the request.
+SnmpScanBody:
+  description: Parameters needed for the scan.
   required:
     - addresses
     - credentials
@@ -13,10 +13,9 @@ SnmpScanPayload:
             items:
               $ref: "#/components/schemas/SnmpCredential"
           addresses:
-            description: IP addresse or Class to scan. Only class C /24 supported
-            type: array
+            description: Ipv4 addresses in CIDR format (16-32 supported)
             items:
               type: string
-            example: ["192.168.10.42", "192.168.10.0/24"]
+            example: ["192.168.10.42", "192.168.10.0/24", "192.165.0.0/16"]
           options:
             $ref: "#/components/schemas/SnmpOptions"

@@ -69,7 +69,7 @@ type SnmpResult struct {
 }
 
 type ScanResponse struct {
-	SnmpReport []SnmpResult `json:"snmp_report"`
+	SnmpResult []SnmpResult `json:"snmp_report"`
 	Devices    []Device     `json:"devices"`
 }
 
@@ -330,7 +330,7 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 	})
 	wgOut.Go(func() {
 		for snmpErr := range snmpErrChan {
-			resp.SnmpReport = append(resp.SnmpReport, snmpErr)
+			resp.SnmpResult = append(resp.SnmpResult, snmpErr)
 		}
 	})
 	wgOut.Go(func() {
