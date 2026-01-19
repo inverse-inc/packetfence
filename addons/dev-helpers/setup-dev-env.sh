@@ -74,6 +74,18 @@ if ! grep -q "^\[interface " "$PF_CONF" || ! grep -q "type=.*management" "$PF_CO
 fi
 echo "Management interface is configured."
 
+## Install build dependencies
+log_section "Installing build dependencies"
+case "$OS_TYPE" in
+    debian)
+        apt install -y build-essential devscripts dpkg-dev fakeroot git tmux vim gnupg sudo curl
+        ;;
+    rhel)
+        dnf groupinstall -y 'Development Tools'
+        dnf install -y curl-devel git rpm-build tmux vim gnupg2 sudo curl
+        ;;
+esac
+
 ## Check and install Node.js if needed
 log_section "Checking Node.js installation"
 
