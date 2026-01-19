@@ -49,7 +49,7 @@ The host on which the Fingerbank collector should be reached
 EOT
 
 [collector.port]
-type=numeric
+type=text
 description=<<EOT
 The port on which the Fingerbank collector should be reached
 EOT
@@ -96,8 +96,8 @@ EOT
 [collector.cluster_resync_interval]
 type=numeric
 description=<<EOT
-Interval in seconds at which the collector will fully resynchronize with its peers when in cluster mode. 
-The collector synchronizes in real-time, so this only acts as a safety net when there is a communication error between the collectors. 
+Interval in seconds at which the collector will fully resynchronize with its peers when in cluster mode.
+The collector synchronizes in real-time, so this only acts as a safety net when there is a communication error between the collectors.
 EOT
 
 [collector.additional_env]
@@ -120,7 +120,7 @@ Host the proxy is listening on. Only the host must be specified here without any
 EOT
 
 [proxy.port]
-type=numeric
+type=text
 description=<<EOT
 Port the proxy is listening on
 EOT
@@ -131,4 +131,3 @@ options=enabled|disabled
 description=<<EOT
 Whether or not to verify SSL when using proxying
 EOT
-
