@@ -635,7 +635,7 @@ ConditionPathExists=/usr/local/bin/packetfence-first-boot.sh
 Type=oneshot
 ExecStart=/usr/local/bin/packetfence-first-boot.sh
 RemainAfterExit=yes
-TimeoutStartSec=900
+TimeoutStartSec=2700
 StandardOutput=journal
 StandardError=journal
 
