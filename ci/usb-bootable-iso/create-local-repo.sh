@@ -138,10 +138,20 @@ PACKAGES="
     libdata-powerset-perl
     libglib2.0-0
     libglib2.0-bin
+    liblog-log4perl-perl
+    libconfig-inifiles-perl
+    liburi-perl
+    libregexp-ipv6-perl
+    acl
 "
 # Note: Many perl packages (liblog-fast-perl, libcatalyst-perl, libreadonly-perl, etc.)
 # are virtual packages provided by packetfence-perl and should NOT be listed here.
 # Listing them causes apt-get to fail with "no installation candidate".
+# Exceptions - these ARE real Debian packages needed for offline installation:
+# - liblog-log4perl-perl, libconfig-inifiles-perl: fingerbank has versioned dependencies
+#   (>= 1.43 and >= 2.88) that packetfence-perl's unversioned virtual packages cannot satisfy
+# - liburi-perl, libregexp-ipv6-perl: required by HTTP::Request/LWP bundled in packetfence-perl
+# - acl: required by packetfence preinst script (setfacl command)
 
 # Add Docker repository for docker-ce packages
 echo "===> Adding Docker repository for docker-ce packages"

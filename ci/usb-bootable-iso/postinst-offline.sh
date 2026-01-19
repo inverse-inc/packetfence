@@ -47,21 +47,40 @@ sed -i '/^deb cdrom:/d' /etc/apt/sources.list
 # Update package lists
 apt-get update
 
-# Step 2: Install packages not available on DVD-1
-echo "===> Step 2: Installing packages from local repository (not on DVD-1)"
+# Step 2: Install packages from DVD needed for first boot
+echo "===> Step 2: Installing packages from DVD (needed for first boot)"
 
-# Install packages that are NOT on DVD-1, must come from local pf-repo
-# These are needed by fingerbank and packetfence-* dependency packages
-# Note: Many perl packages (liblog-fast-perl, libcatalyst-perl, etc.) are virtual
-# packages provided by packetfence-perl - do NOT list them here.
+# Install packages from DVD that are required during first boot when DVD is removed.
+# These are standard Debian packages ON the DVD, but won't be available after reboot.
+#
+# Packages needed by fingerbank (with versioned dependencies):
+# - liblog-log4perl-perl (>= 1.43): fingerbank requires specific version
+# - libconfig-inifiles-perl (>= 2.88): fingerbank requires specific version
+# - liburi-perl, libregexp-ipv6-perl: needed by HTTP::Request/LWP in packetfence-perl
+# - acl: needed by packetfence preinst script (setfacl command)
+# - libdbd-sqlite3-perl, sqlite3, libdata-powerset-perl: fingerbank dependencies
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    liblog-log4perl-perl \
+    libconfig-inifiles-perl \
+    liburi-perl \
+    libregexp-ipv6-perl \
+    acl \
+    libdbd-sqlite3-perl \
+    sqlite3 \
+    libdata-powerset-perl \
+    || {
+    echo "Warning: Some packages failed to install, continuing..."
+}
+
+# Step 2b: Install packages from pf-repo (not on DVD)
+echo "===> Step 2b: Installing packages from local pf-repo (not on DVD)"
+
+# These packages are NOT on the Debian DVD, they come from pf-repo
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
     lnav \
     cgroupfs-mount \
     libcache-bdb-perl \
     libcjson1 \
-    libdbd-sqlite3-perl \
-    sqlite3 \
-    libdata-powerset-perl \
     libglib2.0-0 \
     libglib2.0-bin \
     || {
