@@ -176,7 +176,7 @@ sub options_parent_id {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2025 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 
