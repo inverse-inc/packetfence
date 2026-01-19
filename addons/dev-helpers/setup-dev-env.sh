@@ -10,11 +10,113 @@ log_section() {
    printf "=\t%s\n" "" "$@" ""
 }
 
-## Is npm Installed
-if ! type npm 2> /dev/null ; then
-  echo "Install npm before running this script"
-  echo "Currently, the nodejs version that should be used is 20.x which can be installed using: \`dnf module install nodejs:20\`"
-  exit 1
+# Detect OS type
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        case "$ID" in
+            debian|ubuntu)
+                OS_TYPE="debian"
+                ;;
+            rhel|centos|rocky|almalinux|fedora)
+                OS_TYPE="rhel"
+                ;;
+            *)
+                die "Unsupported Linux distribution: $ID"
+                ;;
+        esac
+    else
+        die "/etc/os-release not found; unsupported OS"
+    fi
+}
+
+detect_os
+
+## Check if PacketFence is installed
+log_section "Checking if PacketFence is installed"
+PF_INSTALLED=false
+case "$OS_TYPE" in
+    debian)
+        if dpkg -l packetfence 2>/dev/null | grep -q "^ii"; then
+            PF_INSTALLED=true
+        fi
+        ;;
+    rhel)
+        if rpm -q packetfence >/dev/null 2>&1; then
+            PF_INSTALLED=true
+        fi
+        ;;
+esac
+
+if [ "$PF_INSTALLED" = false ]; then
+    echo "PacketFence is not installed."
+    echo "Please install PacketFence first and complete the configuration wizard before running this script."
+    echo "Visit https://www.packetfence.org/doc/PacketFence_Installation_Guide.html for installation instructions."
+    exit 1
+fi
+echo "PacketFence is installed."
+
+## Check if wizard has been completed (management interface configured)
+log_section "Checking if configuration wizard has been completed"
+PF_CONF="/usr/local/pf/conf/pf.conf"
+if [ ! -f "$PF_CONF" ]; then
+    echo "Configuration file $PF_CONF not found."
+    echo "Please complete the PacketFence configuration wizard to set up a basic installation."
+    exit 1
+fi
+
+# Check for management interface in pf.conf
+if ! grep -q "^\[interface " "$PF_CONF" || ! grep -q "type=.*management" "$PF_CONF"; then
+    echo "No management interface configured in $PF_CONF."
+    echo "Please complete the PacketFence configuration wizard to set up the management interface."
+    echo "You can access the wizard at https://<your-server-ip>:1443/configurator"
+    exit 1
+fi
+echo "Management interface is configured."
+
+## Check and install Node.js if needed
+log_section "Checking Node.js installation"
+
+# Get required Node.js version from debian/control, default to 20 if not found
+NODEJS_VERSION="20"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEBIAN_CONTROL="$SCRIPT_DIR/../../debian/control"
+if [ -f "$DEBIAN_CONTROL" ]; then
+    # Extract version from nodejs (>= X.Y) pattern
+    EXTRACTED_VERSION=$(grep -oP 'nodejs \(>= \K[0-9]+' "$DEBIAN_CONTROL" 2>/dev/null || echo "")
+    if [ -n "$EXTRACTED_VERSION" ]; then
+        NODEJS_VERSION="$EXTRACTED_VERSION"
+        echo "Found Node.js version requirement in debian/control: $NODEJS_VERSION"
+    else
+        echo "Could not extract Node.js version from debian/control, using default: $NODEJS_VERSION"
+    fi
+else
+    echo "debian/control not found, using default Node.js version: $NODEJS_VERSION"
+fi
+
+if ! type node 2>/dev/null || ! type npm 2>/dev/null; then
+    echo "Node.js or npm is not installed. Installing Node.js $NODEJS_VERSION..."
+    case "$OS_TYPE" in
+        debian)
+            curl -fsSL "https://deb.nodesource.com/setup_${NODEJS_VERSION}.x" | bash -
+            apt install -y nodejs
+            ;;
+        rhel)
+            dnf module install "nodejs:${NODEJS_VERSION}" -y
+            ;;
+    esac
+
+    # Verify installation
+    if ! type node 2>/dev/null || ! type npm 2>/dev/null; then
+        die "Failed to install Node.js. Please install it manually."
+    fi
+    echo "Node.js installed successfully."
+else
+    INSTALLED_NODE_VERSION=$(node --version | grep -oP 'v\K[0-9]+')
+    echo "Node.js is already installed (version: $(node --version))"
+    if [ "$INSTALLED_NODE_VERSION" -lt "$NODEJS_VERSION" ]; then
+        echo "Warning: Installed Node.js version is older than required ($NODEJS_VERSION). Consider upgrading."
+    fi
 fi
 
 log_section "Cleanup previous dev setup directories"
@@ -45,25 +147,16 @@ git config --global --add safe.directory /usr/local/pf
 
 log_section "install required header files from PF repo"
 
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    case "$ID" in
-        debian|ubuntu)
-            echo "Detected Debian-based system: $PRETTY_NAME"
-            apt install -y libcurl4-openssl-dev libcjson-dev
-            ;;
-        rhel|centos|rocky|almalinux|fedora)
-            echo "Detected Red Hat-based system: $PRETTY_NAME"
-            dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
-            ;;
-        *)
-            echo "Unknown Linux distribution: $PRETTY_NAME"
-            die "Unsupported Linux distribution: $ID"
-            ;;
-    esac
-else
-    die "/etc/os-release not found; unsupported OS"
-fi
+case "$OS_TYPE" in
+    debian)
+        echo "Installing header files for Debian-based system"
+        apt install -y libcurl4-openssl-dev libcjson-dev
+        ;;
+    rhel)
+        echo "Installing header files for Red Hat-based system"
+        dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
+        ;;
+esac
 
 cd /usr/local/pf/
 
@@ -90,26 +183,17 @@ cp /usr/local/pf-pkg/conf/system_init_key /usr/local/pf/conf/system_init_key
 
 log_section "Install asciidoc*"
 
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    case "$ID" in
-        debian|ubuntu)
-            echo "Detected Debian-based system: $PRETTY_NAME"
-            apt install -y ruby ruby-dev build-essential
-            ;;
-        rhel|centos|rocky|almalinux|fedora)
-            echo "Detected Red Hat-based system: $PRETTY_NAME"
-            dnf module reset ruby -y
-            yum install -y @ruby:2.6
-            ;;
-        *)
-            echo "Unknown Linux distribution: $PRETTY_NAME"
-            die "Unsupported Linux distribution: $ID"
-            ;;
-    esac
-else
-    die "/etc/os-release not found; unsupported OS"
-fi
+case "$OS_TYPE" in
+    debian)
+        echo "Installing Ruby for Debian-based system"
+        apt install -y ruby ruby-dev build-essential
+        ;;
+    rhel)
+        echo "Installing Ruby for Red Hat-based system"
+        dnf module reset ruby -y
+        yum install -y @ruby:2.6
+        ;;
+esac
 
 # Check if gems are already installed to avoid reinstalling
 if ! gem list -i asciidoctor > /dev/null 2>&1; then
