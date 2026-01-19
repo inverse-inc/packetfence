@@ -110,7 +110,7 @@ sub get_cluster_member_for_kafka {
 
 sub make_member {
     my ($host, $ip, $node_id) = @_;
-    my $advertised_listeners = qq{INTERNAL://${ip}:29092,EXTERNAL://${ip}:9092,PF://containers-gateway.internal:9095};
+    my $advertised_listeners = qq{INTERNAL://${ip}:29092,EXTERNAL://${ip}:9092,PF://containers-gateway.internal:9095,PFCONNECTOR://127.0.0.1:9096};
     return {
         host => $host,
         node_id => $node_id,
@@ -142,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2025 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 
