@@ -131,7 +131,7 @@ use pf::constants;
 use pf::config::cluster;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
-tie our %ConfigKafka, 'pfconfig::cached_hash', "resource::kafka($host_id)";
+tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 =head1 SUBROUTINES
 
@@ -1464,6 +1464,7 @@ sub iptables_kafka_rules {
 
     if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
+        my $mgmt_ip = $management_network->tag('vip') // $management_network->tag('ip');
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
         util_safe_push( "-i $tint -p tcp -m tcp --dport 9092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -1471,6 +1472,7 @@ sub iptables_kafka_rules {
         util_safe_push( "-i $tint -p tcp -m tcp --dport 29092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         if ( @{$ConfigKafka{iptables}{clients}} ) {
             for my $client (@{$ConfigKafka{iptables}{clients}}) {
+                $client =~ s/%mgmtip%/$mgmt_ip/g if $mgmt_ip;
                 util_safe_push( "-i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
         } else {
@@ -1478,6 +1480,7 @@ sub iptables_kafka_rules {
         }
         if ( @{$ConfigKafka{iptables}{cluster_ips}} ) {
             for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+                $ip =~ s/%mgmtip%/$mgmt_ip/g if $mgmt_ip;
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
