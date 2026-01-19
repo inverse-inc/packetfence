@@ -69,7 +69,7 @@ type SnmpResult struct {
 }
 
 type ScanResponse struct {
-	SnmpResult []SnmpResult `json:"snmp_report"`
+	SnmpResult []SnmpResult `json:"snmp_result"`
 	Devices    []Device     `json:"devices"`
 }
 
