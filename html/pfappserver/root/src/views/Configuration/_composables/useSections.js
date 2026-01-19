@@ -20,7 +20,8 @@ export const useSections = () => {
         { name: i18n.t('Network Devices'),
           items: [
             { name: i18n.t('Switches'), path: '/configuration/switches' },
-            { name: i18n.t('Switch Groups'), path: '/configuration/switch_groups' }
+            { name: i18n.t('Switch Groups'), path: '/configuration/switch_groups' },
+            { name: i18n.t('Discover'), path: '/configuration/discover_network_devices', can: 'read system' }
           ]
         },
         { name: i18n.t('Connection Profiles'), path: '/configuration/connection_profiles' }

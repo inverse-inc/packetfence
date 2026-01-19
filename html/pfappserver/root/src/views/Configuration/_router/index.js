@@ -9,6 +9,7 @@ import RealmsRoutes from '../realms/_router'
 import SourcesRoutes from '../sources/_router'
 import SwitchesRoutes from '../switches/_router'
 import SwitchGroupsRoutes from '../switchGroups/_router'
+import DiscoverNetworkDevicesRoutes from '../discoverNetworkDevices/_router'
 import ConnectionProfilesRoutes from '../connectionProfiles/_router'
 
 /* Compliance */
@@ -102,6 +103,7 @@ const route = {
     ...SourcesRoutes,
     ...SwitchesRoutes,
     ...SwitchGroupsRoutes,
+    ...DiscoverNetworkDevicesRoutes,
     ...ConnectionProfilesRoutes,
 
     /**
