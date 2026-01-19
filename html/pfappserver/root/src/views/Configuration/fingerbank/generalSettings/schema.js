@@ -12,7 +12,7 @@ export const schema = () => {
     }),
     collector: yup.object({
       host: yup.string().nullable().label(i18n.t('Host')),
-      port: yup.string().nullable().label(i18n.t('Port')).isEnv(null, yup.string().isPort()),
+      port: yup.string().nullable().label(i18n.t('Port')),
       inactive_endpoints_expiration: yup.string().nullable().label(i18n.t('Hours')),
       query_cache_time: yup.string().nullable().label(i18n.t('Time')),
       db_persistence_interval: yup.string().nullable().label(i18n.t('Interval')),
