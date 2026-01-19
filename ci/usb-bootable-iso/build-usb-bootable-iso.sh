@@ -54,12 +54,27 @@ PF_VERSION=${PF_VERSION:-$(cat "${PF_ROOT}/conf/pf-release" | cut -d' ' -f2)}
 PF_RELEASE=${PF_RELEASE:-$(cat "${PF_ROOT}/conf/pf-release")}
 PF_RELEASE_VERSION=${PF_RELEASE_VERSION:-$(echo $PF_RELEASE | sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g')}
 
+# Docker image tag - use CI environment or source from build_id if available
+if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then
+    if [ -n "${CI_COMMIT_TAG:-}" ]; then
+        export TAG_OR_BRANCH_NAME="${CI_COMMIT_TAG}"
+    elif [ -n "${CI_COMMIT_REF_SLUG:-}" ]; then
+        export TAG_OR_BRANCH_NAME="${CI_COMMIT_REF_SLUG}"
+    elif [ -f "${PF_ROOT}/conf/build_id" ]; then
+        source "${PF_ROOT}/conf/build_id"
+        export TAG_OR_BRANCH_NAME
+    else
+        export TAG_OR_BRANCH_NAME="devel"
+    fi
+fi
+
 echo "=============================================="
 echo "Building USB Bootable ISO"
 echo "=============================================="
 echo "PF_VERSION: ${PF_VERSION}"
 echo "PF_RELEASE: ${PF_RELEASE}"
 echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
+echo "TAG_OR_BRANCH_NAME: ${TAG_OR_BRANCH_NAME}"
 echo "ISO_OUT: ${ISO_OUT}"
 echo "=============================================="
 

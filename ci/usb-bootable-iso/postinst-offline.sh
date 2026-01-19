@@ -423,6 +423,63 @@ else
     echo "Warning: Docker images not found at ${DOCKER_CACHE_DIR}"
 fi
 
+# Re-tag Docker images to match what PacketFence expects
+# Images may have been downloaded with a different tag (e.g., devel) than what
+# the installed PacketFence package expects (e.g., feature-usb-bootable-iso2)
+echo "===> Checking if Docker images need re-tagging..."
+LOADED_TAG=""
+EXPECTED_TAG=""
+
+# Read the tag that was used when images were downloaded
+if [ -f ${DOCKER_CACHE_DIR}/image-tag.txt ]; then
+    LOADED_TAG=$(cat ${DOCKER_CACHE_DIR}/image-tag.txt | tr -d '[:space:]')
+    echo "Loaded images have tag: ${LOADED_TAG}"
+fi
+
+# Read the tag that PacketFence expects (from build_id or pf-release)
+if [ -f /usr/local/pf/conf/build_id ]; then
+    EXPECTED_TAG=$(grep -oP 'TAG_OR_BRANCH_NAME=\K.*' /usr/local/pf/conf/build_id 2>/dev/null | tr -d '[:space:]' || true)
+fi
+# Fallback: extract version from pf-release if build_id doesn't have TAG_OR_BRANCH_NAME
+if [ -z "${EXPECTED_TAG}" ] && [ -f /usr/local/pf/conf/pf-release ]; then
+    # For releases, use the version number (e.g., 15.1.0)
+    PF_VERSION=$(cat /usr/local/pf/conf/pf-release | awk '{print $2}')
+    if [[ "${PF_VERSION}" == *"/"* ]]; then
+        # Branch name format: feature/branch-name -> feature-branch-name
+        EXPECTED_TAG=$(echo "${PF_VERSION}" | sed 's#/#-#g')
+    else
+        EXPECTED_TAG="${PF_VERSION}"
+    fi
+    echo "PacketFence expects tag (from pf-release): ${EXPECTED_TAG}"
+else
+    echo "PacketFence expects tag (from build_id): ${EXPECTED_TAG}"
+fi
+
+# Re-tag images if needed
+if [ -n "${LOADED_TAG}" ] && [ -n "${EXPECTED_TAG}" ] && [ "${LOADED_TAG}" != "${EXPECTED_TAG}" ]; then
+    echo "Tags differ - re-tagging images from '${LOADED_TAG}' to '${EXPECTED_TAG}'..."
+    # Get list of images with the loaded tag
+    IMAGES_TO_RETAG=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep ":${LOADED_TAG}$" || true)
+    if [ -n "${IMAGES_TO_RETAG}" ]; then
+        for img in ${IMAGES_TO_RETAG}; do
+            new_tag="${img%:${LOADED_TAG}}:${EXPECTED_TAG}"
+            echo "  Re-tagging: ${img} -> ${new_tag}"
+            docker tag "${img}" "${new_tag}" || echo "    Warning: Failed to re-tag ${img}"
+        done
+        echo "Docker images re-tagged successfully"
+    else
+        echo "No images found with tag '${LOADED_TAG}' to re-tag"
+    fi
+else
+    if [ -z "${LOADED_TAG}" ]; then
+        echo "No image-tag.txt found, skipping re-tag"
+    elif [ -z "${EXPECTED_TAG}" ]; then
+        echo "Could not determine expected tag, skipping re-tag"
+    else
+        echo "Tags match (${LOADED_TAG}), no re-tagging needed"
+    fi
+fi
+
 # Step 3: Install PacketFence
 update_progress "Step 3/6" "Installing PacketFence dependencies..."
 echo "===> Step 3: Installing PacketFence"

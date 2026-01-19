@@ -125,6 +125,10 @@ else
         docker save ${PULLED_IMAGES} | gzip > ${OUTPUT_FILE}
         echo "Saved: $(du -h ${OUTPUT_FILE} | cut -f1)"
     fi
+
+    # Save the tag used for these images (needed for re-tagging on target system)
+    echo "${TAG_OR_BRANCH_NAME}" > ${DOCKER_IMAGES_DIR}/image-tag.txt
+    echo "Saved image tag: ${TAG_OR_BRANCH_NAME}"
 fi
 
 # Create a loader script to import images on target system
