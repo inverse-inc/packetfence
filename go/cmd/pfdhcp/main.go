@@ -216,17 +216,35 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	// Get the appropriate handler and network scope
 	handler, NetScope, found := I.findHandlerAndNetwork(p, answer.MAC, db)
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf(
+		"ServeDHCP: MAC=%s giaddr=%s ciaddr=%s msgType=%s found=%v handlerIP=%s NetScope=%v",
+		answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String(), found, func() string {
+			if len(handler.ip) > 0 {
+				return handler.ip.String()
+			} else {
+				return ""
+			}
+		}(), NetScope))
 	if !found || len(handler.ip) == 0 {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (no handler/network found)",
+			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
 		return answer
 	}
 
 	// Check if we have the VIP or if the backend supports cluster mode
 	if !VIP[I.Name] && !handler.available.Listen() {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (VIP/cluster not available)",
+			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
 		return answer
 	}
 
 	// Lock transaction to prevent duplicates
 	if !I.lockTransaction(ctx, answer.MAC, msgType) {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (transaction lock)",
+			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
 		return answer
 	}
 
@@ -278,11 +296,22 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 					handler.available.FreeIPIndex(uint64(leaseNum))
 					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
 					// Put it back into the available IPs in 30 seconds
-					go func(ctx context.Context, leaseNum int, reqIP net.IP) {
-						time.Sleep(30 * time.Second)
-						log.LoggerWContext(ctx).Info("Releasing previously declined IP " + reqIP.String() + " back into the pool")
-						handler.available.FreeIPIndex(uint64(leaseNum))
-					}(ctx, leaseNum, reqIP)
+					go func(leaseNum int, reqIP net.IP) {
+						// Use a timer that can be interrupted by context cancellation
+						timer := time.NewTimer(30 * time.Second)
+						defer timer.Stop()
+
+						select {
+						case <-timer.C:
+							// Timer expired normally, release the IP
+							log.LoggerWContext(context.Background()).Info("Releasing previously declined IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						case <-ctx.Done():
+							// Context cancelled, still release the IP to avoid leaks
+							log.LoggerWContext(context.Background()).Info("Context cancelled, releasing previously declined IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						}
+					}(leaseNum, reqIP)
 				}
 			} else {
 				log.LoggerWContext(ctx).Debug(prettyType + "Found the mac in the cache for but wrong IP" + " mac=" + clientMac)
@@ -323,11 +352,22 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 					handler.available.FreeIPIndex(uint64(leaseNum))
 					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
 					// Put it back into the available IPs in 30 seconds
-					go func(ctx context.Context, leaseNum int, reqIP net.IP) {
-						time.Sleep(30 * time.Second)
-						log.LoggerWContext(ctx).Info("Releasing previously released IP " + reqIP.String() + " back into the pool")
-						handler.available.FreeIPIndex(uint64(leaseNum))
-					}(ctx, leaseNum, reqIP)
+					go func(leaseNum int, reqIP net.IP) {
+						// Use a timer that can be interrupted by context cancellation
+						timer := time.NewTimer(30 * time.Second)
+						defer timer.Stop()
+
+						select {
+						case <-timer.C:
+							// Timer expired normally, release the IP
+							log.LoggerWContext(context.Background()).Info("Releasing previously released IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						case <-ctx.Done():
+							// Context cancelled, still release the IP to avoid leaks
+							log.LoggerWContext(context.Background()).Info("Context cancelled, releasing previously released IP " + reqIP.String() + " back into the pool")
+							handler.available.FreeIPIndex(uint64(leaseNum))
+						}
+					}(leaseNum, reqIP)
 				}
 			} else {
 				log.LoggerWContext(ctx).Debug(prettyType + " Found the mac in the cache for but wrong IP" + " mac=" + clientMac)
@@ -388,19 +428,22 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					// Requested IP is equal to what we have in the cache ?
 
 					if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-						id, _ := GlobalTransactionLock.Lock()
-						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
-							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
+						id, err := GlobalTransactionLock.Lock()
+						if err != nil {
+							log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
 							Reply = false
-							GlobalTransactionLock.Unlock(id)
 							return answer
 						}
-						Reply = true
-						Index = index.(int)
+						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
+							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
+							GlobalTransactionLock.Unlock(id)
+							Reply = false
+							return answer
+						}
 						RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
 						GlobalTransactionLock.Unlock(id)
-
-						// So remove the ip from the cache
+						Reply = true
+						Index = index.(int) // So remove the ip from the cache
 					} else {
 						Reply = false
 						log.LoggerWContext(ctx).Info(answer.MAC.String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()) + " mac=" + clientMac)
@@ -624,11 +667,22 @@ retry:
 			// Reserve with a fake mac
 			handler.available.ReserveIPIndex(uint64(free), FakeMac)
 			// Put it back into the available IPs in 10 minutes
-			go func(ctx context.Context, free int, ipaddr net.IP) {
-				time.Sleep(10 * time.Minute)
-				log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool" + " mac=" + clientMac)
-				handler.available.FreeIPIndex(uint64(free))
-			}(ctx, free, ipaddr)
+			go func(free int, ipaddr net.IP) {
+				// Use a timer that can be interrupted by context cancellation
+				timer := time.NewTimer(10 * time.Minute)
+				defer timer.Stop()
+
+				select {
+				case <-timer.C:
+					// Timer expired normally, release the IP
+					log.LoggerWContext(context.Background()).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
+					handler.available.FreeIPIndex(uint64(free))
+				case <-ctx.Done():
+					// Context cancelled, still release the IP to avoid leaks
+					log.LoggerWContext(context.Background()).Info("Context cancelled, releasing previously pingable IP " + ipaddr.String() + " back into the pool")
+					handler.available.FreeIPIndex(uint64(free))
+				}
+			}(free, ipaddr)
 			free = -1
 			goto retry
 		}
@@ -710,7 +764,11 @@ reply:
 // lockTransaction locks the transaction for a specific MAC address and message type
 func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, msgType dhcp.MessageType) bool {
 	cacheKey := mac.String() + " " + msgType.String()
-	id, _ := GlobalTransactionLock.Lock()
+	id, err := GlobalTransactionLock.Lock()
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
+		return false
+	}
 	if _, found := GlobalTransactionCache.Get(cacheKey); found {
 		log.LoggerWContext(ctx).Debug("Not answering to packet. Already in progress")
 		GlobalTransactionLock.Unlock(id)
@@ -997,9 +1055,9 @@ func setupSystemdWatchdog(ctx context.Context) {
 				log.LoggerWContext(ctx).Error(err.Error())
 				continue
 			}
-			resp.Body.Close()
 
 			daemon.SdNotify(false, "WATCHDOG=1")
+			resp.Body.Close()
 		}
 	}
 }

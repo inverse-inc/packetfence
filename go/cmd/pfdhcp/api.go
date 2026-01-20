@@ -238,14 +238,22 @@ func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) 
 
 	body, err := io.ReadAll(io.LimitReader(req.Body, 1048576))
 	if err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error reading request body: " + err.Error() + " mac=" + vars["mac"])
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 	if err := req.Body.Close(); err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error closing request body: " + err.Error() + " mac=" + vars["mac"])
+		unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Insert information in MySQL
-	_ = MysqlInsert(a.Ctx, vars["mac"], sharedutils.ConvertToString(body), a.DB)
+	if !MysqlInsert(a.Ctx, vars["mac"], sharedutils.ConvertToString(body), a.DB) {
+		log.LoggerWContext(a.Ctx).Error("Failed to insert MAC options into database" + " mac=" + vars["mac"])
+		unifiedapierrors.Error(res, "Failed to save options", http.StatusInternalServerError)
+		return
+	}
 
 	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
@@ -262,14 +270,22 @@ func (a *API) handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Re
 
 	body, err := io.ReadAll(io.LimitReader(req.Body, 1048576))
 	if err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error reading request body: " + err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 	if err := req.Body.Close(); err != nil {
-		panic(err)
+		log.LoggerWContext(a.Ctx).Error("Error closing request body: " + err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Insert information in MySQL
-	_ = MysqlInsert(a.Ctx, vars["network"], sharedutils.ConvertToString(body), a.DB)
+	if !MysqlInsert(a.Ctx, vars["network"], sharedutils.ConvertToString(body), a.DB) {
+		log.LoggerWContext(a.Ctx).Error("Failed to insert network options into database")
+		unifiedapierrors.Error(res, "Failed to save options", http.StatusInternalServerError)
+		return
+	}
 
 	var result = &Info{Network: vars["network"], Status: "ACK"}
 
@@ -310,7 +326,7 @@ func (a *API) handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Requ
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error removing betwork options: " + err.Error())
+		log.LoggerWContext(ctx).Error("Error removing network options: " + err.Error())
 	}
 }
 
@@ -346,7 +362,11 @@ func decodeOptions(ctx context.Context, b string, db *sql.DB) (map[dhcp.OptionCo
 func extractMembers(v Network) ([]Node, []string, int) {
 	var Members []Node
 	var Macs []string
-	id, _ := GlobalTransactionLock.Lock()
+	id, err := GlobalTransactionLock.Lock()
+	if err != nil {
+		log.LoggerWContext(context.Background()).Error("Failed to acquire transaction lock in extractMembers: " + err.Error())
+		return Members, Macs, 0
+	}
 	members := v.dhcpHandler.hwcache.Items()
 	GlobalTransactionLock.Unlock(id)
 	var Count int

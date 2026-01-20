@@ -88,9 +88,16 @@ func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfig
 				leaseDuration = endTime.Sub(now)
 			}
 			ip := net.ParseIP(ipstr)
+			if ip == nil {
+				continue
+			}
+			ip4 := ip.To4()
+			if ip4 == nil {
+				continue
+			}
 
 			// Calculate the position for the roaring bitmap
-			position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			position := uint32(binary.BigEndian.Uint32(ip4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 			// Remove the position in the roaming bitmap
 			dhcpHandler.available.ReserveIPIndex(uint64(position), mac)
 			// Add the mac in the cache
@@ -144,7 +151,11 @@ func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface,
 		var found bool
 		found = false
 		for _, adresse := range adresses {
-			IP, _, _ := net.ParseCIDR(adresse.String())
+			IP, _, err := net.ParseCIDR(adresse.String())
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Failed to parse CIDR address " + adresse.String() + ": " + err.Error())
+				continue
+			}
 			VIPIp[v.Name] = net.ParseIP(keyConfCluster.Ip)
 			if IP.Equal(VIPIp[v.Name]) {
 				found = true
@@ -177,11 +188,12 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (
 	// and that the context is cancelled if one of the queries fails
 
 	rows, err := db.QueryContext(dbCtx, "SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
-	defer rows.Close()
-
 	if err != nil {
 		log.LoggerWContext(ctx).Crit(err.Error())
+		// Return default values on error
+		return NodeInfo{Mac: target.String(), Status: "unreg", Category: "default"}
 	}
+	defer rows.Close()
 
 	var (
 		Category string
@@ -253,6 +265,9 @@ func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte
 	addressesArray := strings.Split(addresses, ",")
 	if len(addressesArray) == 1 {
 		singleIP := net.ParseIP(addressesArray[0]).To4()
+		if singleIP == nil {
+			return nil
+		}
 		slice := make([]byte, 0, len(singleIP))
 		slice = append(slice, singleIP...)
 		return slice
@@ -300,6 +315,9 @@ func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte
 func ShuffleNetIP(ctx context.Context, array []net.IP) (r []byte) {
 	if len(array) == 1 {
 		singleIP := array[0].To4()
+		if singleIP == nil {
+			return nil
+		}
 		slice := make([]byte, 0, len(singleIP))
 		slice = append(slice, singleIP...)
 		return slice
@@ -332,12 +350,13 @@ func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate random number: %w", err)
 		}
-		// Convert bytes to int and apply modulo
-		j := int(uint64(b[0])|uint64(b[1])<<8|uint64(b[2])<<16|uint64(b[3])<<24|
-			uint64(b[4])<<32|uint64(b[5])<<40|uint64(b[6])<<48|uint64(b[7])<<56) % (i + 1)
-		if j < 0 {
-			j += i + 1
-		}
+		// Convert bytes to uint64 and apply modulo
+		// Keep as uint64 to avoid overflow issues
+		randomUint64 := uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
+			uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
+
+		// Safely convert to int after modulo operation (which guarantees the value is within range)
+		j := int(randomUint64 % uint64(i+1))
 
 		// Swap
 		ips[i], ips[j] = ips[j], ips[i]
@@ -365,7 +384,7 @@ func IPsFromRange(iPrange string) (r []net.IP, i int) {
 			ips := strings.Split(rangeip, "-")
 			if len(ips) == 1 {
 				iplist = append(iplist, net.ParseIP(ips[0]))
-			} else {
+			} else if len(ips) >= 2 {
 				start := net.ParseIP(ips[0])
 				end := net.ParseIP(ips[1])
 
@@ -388,8 +407,12 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ipRange string) []net.IP {
 
 	for _, excludeIP := range excludeIPs {
 		if excludeIP != nil {
+			excludeIP4 := excludeIP.To4()
+			if excludeIP4 == nil {
+				continue
+			}
 			// Calculate the position for the dhcp pool
-			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			position := uint32(binary.BigEndian.Uint32(excludeIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
 			dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac)
 		}
@@ -407,11 +430,22 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 		if len(ipRangeArray) >= 1 {
 			for _, rangeip := range ipRangeArray {
 				result := rgx.FindStringSubmatch(rangeip)
-				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+				if result == nil || len(result) < 3 {
+					continue
+				}
+				parsedIP := net.ParseIP(result[2])
+				if parsedIP == nil {
+					continue
+				}
+				parsedIP4 := parsedIP.To4()
+				if parsedIP4 == nil {
+					continue
+				}
+				position := uint32(binary.BigEndian.Uint32(parsedIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 				// Remove the position in the roaming bitmap
 				dhcpHandler.available.ReserveIPIndex(uint64(position), result[1])
 				couple[result[1]] = position
-				iplist = append(iplist, net.ParseIP(result[2]))
+				iplist = append(iplist, parsedIP)
 			}
 		}
 	}
