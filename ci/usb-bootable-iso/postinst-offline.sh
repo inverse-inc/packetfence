@@ -455,7 +455,7 @@ else
     echo "PacketFence expects tag (from build_id): ${EXPECTED_TAG}"
 fi
 
-# Re-tag images if needed
+# Re-tag images if needed (for different tags)
 if [ -n "${LOADED_TAG}" ] && [ -n "${EXPECTED_TAG}" ] && [ "${LOADED_TAG}" != "${EXPECTED_TAG}" ]; then
     echo "Tags differ - re-tagging images from '${LOADED_TAG}' to '${EXPECTED_TAG}'..."
     # Get list of images with the loaded tag
@@ -478,6 +478,28 @@ else
     else
         echo "Tags match (${LOADED_TAG}), no re-tagging needed"
     fi
+fi
+
+# Re-tag images for local registry alias (packetfence/<image>:<tag>)
+# PacketFence services expect images at packetfence/<image> not ghcr.io/inverse-inc/packetfence/<image>
+echo "===> Creating local registry aliases for Docker images..."
+TAG_TO_USE="${EXPECTED_TAG:-${LOADED_TAG}}"
+if [ -n "${TAG_TO_USE}" ]; then
+    GHCR_IMAGES=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep "ghcr.io/inverse-inc/packetfence/.*:${TAG_TO_USE}$" || true)
+    if [ -n "${GHCR_IMAGES}" ]; then
+        for img in ${GHCR_IMAGES}; do
+            # Extract image name (e.g., pfconfig from ghcr.io/inverse-inc/packetfence/pfconfig:tag)
+            img_name=$(echo "${img}" | sed "s|ghcr.io/inverse-inc/packetfence/||" | sed "s|:${TAG_TO_USE}$||")
+            local_tag="packetfence/${img_name}:${TAG_TO_USE}"
+            echo "  Creating alias: ${img} -> ${local_tag}"
+            docker tag "${img}" "${local_tag}" || echo "    Warning: Failed to create alias ${local_tag}"
+        done
+        echo "Local registry aliases created successfully"
+    else
+        echo "No ghcr.io images found to alias"
+    fi
+else
+    echo "No tag available, skipping local registry aliases"
 fi
 
 # Step 3: Install PacketFence
