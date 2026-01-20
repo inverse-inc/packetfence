@@ -7,6 +7,7 @@ After=packetfence-base.target packetfence-config.service
 [Service]
 Type=notify
 NotifyAccess=all
+Environment=LOG_LEVEL=INFO
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfcron' -e 'pf::services::manager::pfcron->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfcron-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfcron ; echo Stopped"

@@ -10,6 +10,7 @@ Type=notify
 TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=8192
+Environment=LOG_LEVEL=INFO
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfsso' -e 'pf::services::manager::pfsso->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfsso-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfsso ; echo Stopped"

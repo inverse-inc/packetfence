@@ -10,6 +10,7 @@ Type=notify
 TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=infinity
+Environment=LOG_LEVEL=INFO
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/api-frontend-docker-wrapper
 ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"
