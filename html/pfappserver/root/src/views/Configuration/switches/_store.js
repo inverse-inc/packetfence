@@ -101,13 +101,32 @@ const actions = {
         ]
         roles
           .forEach(role => {
-            item = {
+            // Set defaults for mapping fields
+            const defaults = {
               [`${role}Vlan`]: null,
               [`${role}Role`]: null,
               [`${role}AccessList`]: null,
               [`${role}Url`]: null,
+              [`${role}Vpn`]: null,
+              [`${role}Interface`]: null,
+              [`${role}VlanEnabled`]: 'enabled',
+              [`${role}RoleEnabled`]: 'enabled',
+              [`${role}AccessListEnabled`]: 'enabled',
+              [`${role}UrlEnabled`]: 'enabled',
+              [`${role}VpnEnabled`]: 'enabled',
+              [`${role}InterfaceEnabled`]: 'enabled'
+            }
+            // Merge with existing item, but use defaults for null/undefined Enabled fields
+            item = {
+              ...defaults,
               ...item
             }
+            // Ensure Enabled fields default to 'enabled' if null/undefined
+            Object.keys(defaults).forEach(key => {
+              if (key.endsWith('Enabled') && (item[key] === null || item[key] === undefined)) {
+                item[key] = 'enabled'
+              }
+            })
           })
         commit('ITEM_REPLACED', item)
         return JSON.parse(JSON.stringify(state.cache[id]))

@@ -128,10 +128,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                 'controller_role' => ''
             },
             {
-                'role'            => 'macDetection',
-                'controller_role' => ''
-            },
-            {
                 'role'            => 'normal',
                 'controller_role' => ''
             },
@@ -164,10 +160,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             },
             {
                 'role'            => 'isolation',
-                'controller_role' => ''
-            },
-            {
-                'role'            => 'macDetection',
                 'controller_role' => ''
             },
             {
@@ -207,10 +199,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                     'controller_role' => ''
                 },
                 {
-                    'role'            => 'macDetection',
-                    'controller_role' => ''
-                },
-                {
                     'role'            => 'normal',
                     'controller_role' => ''
                 },
@@ -227,7 +215,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             voiceRole => 'voice',
             registrationRole => '',
             normalRole => '',
-            macDetectionRole => '',
             inlineRole => 'inline',
             guestRole => 'restricted',
             isolationRole => '',

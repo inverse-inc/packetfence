@@ -1,13 +1,13 @@
-package pf::Switch::Aruba::Controller_200;
+package pf::Switch::Aruba::Mobility_Master;
 
 =head1 NAME
 
-pf::Switch::Aruba::Controller_200 - Object oriented module to access SNMP enabled Aruba Controller 200
+pf::Switch::Aruba::Mobility_Master - Object oriented module to access Aruba Mobility Master
 
 =head1 SYNOPSIS
 
-The pf::Switch::Aruba::Controller_200 module implements an object oriented interface
-to access SNMP enabled Aruba Controller 200
+The pf::Switch::Aruba::Mobility_master module implements an object oriented interface
+to access Mobility Master
 
 =cut
 
@@ -20,7 +20,7 @@ use pf::util;
 
 use NetAddr::IP;
 
-sub description { 'Aruba 200 Controller' }
+sub description { 'Aruba Mobility Master' }
 
 use pf::SwitchSupports qw(
     PushACLs
@@ -39,71 +39,70 @@ sub acl_chewer {
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $i = 0;
-    my $acl_chewed;
+    my @acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        my $new_acl;
         #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
         next if (defined($acl->{'tcp_flags'}));
         $acl->{'protocol'} =~ s/\(\d*\)//;
+        $new_acl->{'protocol'} = $acl->{'protocol'};
         my $dest;
         my $dest_port;
         if (defined($acl->{'destination'}->{'port'})) {
-            $dest_port = $acl->{'destination'}->{'port'};
-            if ($dest_port =~ /range\s+(.*)/) {
-                $dest_port = $1;
-                $dest_port =~ s/\s/-/;
+            $new_acl->{'dst_port'} = $acl->{'destination'}->{'port'};
+            if ($new_acl->{'dst_port'} =~ /range\s+(.*)/) {
+                $new_acl->{'range'} = "true";
+                $new_acl->{'dst_port'} = $1;
+                $new_acl->{'dst_port'} =~ s/\s/-/;
+                ($new_acl->{'dst_port'}, $new_acl->{'dst_port2'}) = split(/-/, $new_acl->{'dst_port'});
             } else {
-                $dest_port =~ s/\w+\s+//;
+                $new_acl->{'range'} = "false";
+                $new_acl->{'dst_port'} =~ s/\w+\s+//;
+            }
+        } else {
+            if ($new_acl->{'protocol'} =~ /^(tcp|udp)$/) {
+                $new_acl->{'range'} = "true";
+                $new_acl->{'dst_port'} = "0";
+                $new_acl->{'dst_port2'} = "65535";
             }
         }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $dest = "any";
+           $new_acl->{'dst'} = "any";
+           $new_acl->{'dst_object'} = "dany";
         } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
-                my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
-                my $cidr = "network ".$net_addr->cidr();
-                $dest = $cidr;
+                $new_acl->{'dst_network'} = $acl->{'destination'}->{'ipv4_addr'};
+                $new_acl->{'dst_netmask'} = norm_net_mask($acl->{'destination'}->{'wildcard'});
+                $new_acl->{'dst_object'} = "dnetwork";
             } else {
-                $dest = "host ".$acl->{'destination'}->{'ipv4_addr'};
+                $new_acl->{'dst_object'} = "dhost";
+                $new_acl->{'dst_ipaddr'} = $acl->{'destination'}->{'ipv4_addr'};
             }
         }
         my $src;
         if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $src = "user";
+            $new_acl->{'src'} = "suser";
+            $new_acl->{'suser'} = "true";
         } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
                 my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
                 my $cidr = $net_addr->cidr();
-                $src = $cidr;
+                $new_acl->{'src'} = $cidr;
             } else {
-                $src = $acl->{'source'}->{'ipv4_addr'};
+                $new_acl->{'src'} = $acl->{'source'}->{'ipv4_addr'};
             }
         }
         my $j = $i + 1;
         if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
-            my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
-            my $src_val    = ($self->usePushACLs) ? $src : "any";
-            my $dest_port_val = defined($dest_port) ? $dest_port : '';
-            my $line = sprintf("%s %s %s %s %s %s\n",
-                $dir_prefix,
-                $src_val,
-                $dest,
-                $acl->{'protocol'},
-                $dest_port_val,
-                $acl->{'action'}
-            );
-            $acl_chewed .= $line;
-        } else {
-            my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
-            my $action     = $acl->{'action'};
-            my $dir        = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in";
-            my $protocol   = $acl->{'protocol'};
-            my $dest_str   = $dest;
-            my $port_str   = defined($dest_port) ? $dest_port : '';
-            $acl_chewed .= "${dir_prefix}${action} ${dir} ${protocol} from any to ${dest_str} ${port_str}\n";
+            $new_acl->{'dir_prefix'} = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
+            $new_acl->{'src'}    = ($self->usePushACLs) ? $new_acl->{'src'} : "any";
+            $new_acl->{'dst_port'} = defined($new_acl->{'dst_port'}) ? $new_acl->{'dst_port'} : '';
+            $new_acl->{'action'} = $acl->{'action'};
+            push @acl_chewed , $new_acl;
         }
         $i++;
     }
-    return $acl_chewed;
+    return \@acl_chewed;
 }
 
 =head2 implicit_acl
@@ -123,7 +122,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2026 Inverse inc.
+Copyright (C) 2005-2025 Inverse inc.
 
 =head1 LICENSE
 

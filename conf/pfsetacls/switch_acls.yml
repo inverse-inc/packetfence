@@ -2,6 +2,12 @@
   hosts: switches
   gather_facts: no
 
+[% IF type.match('Aruba::Mobility_Master') %]
+  roles:
+   - role: arubanetworks.aos_wlan_role
+
+[% END %]
+
   tasks:
 
     - name: Parse the IOS acls configuration file
@@ -46,6 +52,175 @@
         state: deleted[% ELSE %]
         state: replaced[% END %]
       when: ansible_network_os == 'arista.eos.eos'
+
+    - name: Delete acl into Aruba Controller
+      community.network.aruba_config:
+        src: "{{ acl_deconfig }}"
+      when: ansible_network_os == 'aruba'
+
+[% FOREACH role IN acls.keys %]
+    - name: Load new acl [% role %] into Aruba Controller
+      community.network.aruba_config:
+        src: "{{ [% role %]acl_config }}"
+      when: ansible_network_os == 'aruba'
+
+[% END %]
+
+[% IF type.match('Aruba::Mobility_Master') %]
+
+    - name: Fetch roles
+      aos_api_config:
+        method: GET
+        api_object: role
+        config_path: [% wsPath %]
+        filter: [ {'OBJECT': { '$eq': [ 'role.rname' ] } } ]
+      register: roles_output
+
+    - name: Extract rname with json_query
+      set_fact:
+        rname_list: "{{ roles_output.response._data.role | json_query('[].rname') }}"
+
+    - name: Show roles
+      debug:
+        var: rname_list
+
+
+    - name: Fetch policies
+      aos_api_config:
+        method: GET
+        api_object: acl_sess
+        config_path: [% wsPath %]
+        filter: [ {'OBJECT': { '$eq': [ 'acl_sess.accname' ] } } ]
+      register: policies_output
+
+    - name: Extract accname with json_query
+      set_fact:
+        accname_list: "{{ policies_output.response._data.acl_sess | json_query('[].accname') }}"
+
+    - name: Show policies
+      debug:
+        var: accname_list
+
+
+[% FOREACH role IN AccessListEnabled.keys %]
+[% cleankey = role.replace('[^a-zA-Z0-9\s]', '', 'g') %]
+
+    - name: Boolean variable if pf-role-[% role %] exists
+      set_fact:
+        contains_pf_role_[% cleankey %]_delete: "{{ 'pf-role-[% role %]' in rname_list }}"
+
+    - name: Delete unused role pf-role-[% role %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - role:
+              rname: pf-role-[% cleankey %]
+              _action: delete
+        commit: True
+      when: contains_pf_role_[% cleankey %]_delete
+
+    - name: Boolean variable if pf-policy-[% key %] exists
+      set_fact:
+        contains_pf_policy_[% cleankey %]_delete: "{{ 'pf-policy-[% key %]' in accname_list }}"
+
+    - name: Delete unused acl pf-policy-[% key %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - acl_sess:
+              accname: pf-policy-[% role %]
+              _action: delete
+        commit: True
+      when: contains_pf_policy_[% cleankey %]_delete
+
+[% END %]
+
+[% FOREACH key IN acls_array.keys %]
+[% cleankey = key.replace('[^a-zA-Z0-9\s]', '', 'g') %]
+
+    - name: Boolean variable if pf-role-[% key %]
+      set_fact:
+        contains_pf_role_[% cleankey %]: "{{ 'pf-role-[% key %]' in rname_list }}"
+
+    - name: Delete previous role pf-role-[% key %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - role:
+              rname: pf-role-[% key %]
+              _action: delete
+        commit: True
+      when: contains_pf_role_[% cleankey %]
+
+    - name: Boolean variable if pf-policy-[% key %]
+      set_fact:
+        contains_pf_policy_[% cleankey %]: "{{ 'pf-policy-[% key %]' in accname_list }}"
+
+    - name: Delete previous acl pf-policy-[% key %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - acl_sess:
+              accname: pf-policy-[% key %]
+              _action: delete
+        commit: True
+      when: contains_pf_policy_[% cleankey %]
+
+[% END %]
+
+[% FOREACH key IN acls_array.keys %]
+    - name: Load new acl pf-policy-[% key %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - acl_sess:
+              accname: pf-policy-[% key %]
+              acl_sess__desc:
+                description: PacketFence managed policy for [% key %]
+              acl_sess__v4policy:[% FOREACH acl IN acls_array.$key %]
+                - suser: true
+                  src: suser
+                  dst: [% acl.dst_object %][% IF acl.dst_object == "dnetwork" %]
+                  dnetaddr: [% acl.dst_network %]
+                  dnetmask: [% acl.dst_netmask %][% ELSIF acl.dst_object == "dhost"%]
+                  dipaddr: [% acl.dst_ipaddr %][% ELSE %]
+                  dany: true[% END %]
+                  service_app: service[% IF acl.action == "permit" %]
+                  permit: true
+                  action: permit[% ELSE %]
+                  deny: true
+                  action: deny_opt[% END %][% IF acl.protocol == "ip" %]
+                  svc: service-any
+                  service-any: true[% ELSE %]
+                  proto: [% acl.protocol %]
+                  svc: tcp_udp
+                  port: range
+                  port1: [% acl.dst_port %][% IF acl.range == "true" %]
+                  port2: [% acl.dst_port2 %][% END %][% END %][% END %]
+        commit: True
+      when: ansible_network_os == 'aos'
+[% END %]
+
+[% FOREACH key IN acls_array.keys %]
+    - name: Load new roles pf-role-[% key %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - role:
+              rname: pf-role-[% key %]
+              role__acl:
+                - pname: pf-policy-[% key %]
+                  acl_type: session
+        commit: True
+      when: ansible_network_os == 'aos'
+[% END %]
+[% END %]
 
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]

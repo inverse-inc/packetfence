@@ -445,7 +445,11 @@ has_field 'wsPwd' =>
    type => 'ObfuscatedText',
    label => 'Password',
   );
-
+has_field 'wsPath' =>
+  (
+   type => 'Text',
+   label => 'Api Path',
+  );
 has_field controllerIp =>
   (
     type => 'IPAddress',
@@ -519,6 +523,77 @@ addRoleMapping("VpnMapping", "vpn");
 addRoleMapping("NetworkMapping", "network");
 addRoleMapping("NetworkFromMapping", "networkfrom");
 addRoleMapping("InterfaceMapping", "interface");
+
+# Add mappings for Enabled parameters
+addRoleMapping("VlanEnabledMapping", "vlan_enabled");
+addRoleMapping("RoleEnabledMapping", "role_enabled");
+addRoleMapping("AccessListEnabledMapping", "accesslist_enabled");
+addRoleMapping("UrlEnabledMapping", "url_enabled");
+addRoleMapping("VpnEnabledMapping", "vpn_enabled");
+addRoleMapping("InterfaceEnabledMapping", "interface_enabled");
+
+# Define static fields for base roles and all roles from %ConfigRoles and their Enabled parameters
+# Include both base roles from @ROLES and custom roles from %ConfigRoles
+my @all_roles = (@ROLES, keys %ConfigRoles);
+my %seen;
+@all_roles = grep { !$seen{$_}++ } @all_roles; # Remove duplicates
+
+foreach my $role (@all_roles) {
+    # Define the mapping fields
+    foreach my $type (qw(Vlan Role AccessList Url Vpn Network NetworkFrom Interface)) {
+        my $field_name = "${role}${type}";
+        has_field $field_name => (
+            type => 'Text',
+            required => 0,
+        );
+    }
+    
+    # Define the Enabled fields
+    foreach my $type (qw(VlanEnabled RoleEnabled AccessListEnabled UrlEnabled VpnEnabled InterfaceEnabled)) {
+        my $field_name = "${role}${type}";
+        has_field $field_name => (
+            type => 'Text',
+            required => 0,
+        );
+    }
+}
+
+=head2 after BUILD
+
+Handle dynamic role fields after form construction
+
+=cut
+
+after 'BUILD' => sub {
+    my $self = shift;
+    
+    my $init_object = $self->item || {};
+    
+    # Handle dynamic fields for custom roles
+    if (ref($init_object) eq 'HASH') {
+        # Find all role-specific fields in the init data
+        foreach my $key (keys %$init_object) {
+            # Check for role mapping fields including Enabled parameters
+            if ($key =~ /^(.+?)(Vlan|Role|AccessList|Url|Vpn|Network|NetworkFrom|Interface|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
+                my $role = $1;
+                my $type = $2;
+                
+                # Skip if it's already a defined field or if it's in ConfigRoles or @ROLES
+                next if $self->has_field($key);
+                next if exists $ConfigRoles{$role};
+                next if grep { $_ eq $role } @ROLES;
+                
+                # Create the field dynamically for custom roles not in @ROLES or %ConfigRoles
+                $self->add_field(
+                    $key => {
+                        type => 'Text',
+                        required => 0,
+                    }
+                );
+            }
+        }
+    }
+};
 
 sub _validate_acl_switch {
     my ($field) = @_;

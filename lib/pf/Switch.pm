@@ -161,6 +161,7 @@ sub new {
         '_cliTransport'                 => undef,
         '_wsPwd'                        => undef,
         '_wsUser'                       => undef,
+        '_wsPath'                       => undef,
         '_wsTransport'                  => undef,
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
@@ -638,6 +639,12 @@ sub getRoleByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
+    # Check if RoleEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $roleName . 'RoleEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $logger->debug("Role mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_roles'}) || !defined($self->{'_roles'}{$roleName})) {
         my $parent = _parentRoleForRole($roleName);
@@ -681,6 +688,13 @@ Input: VLAN name (as in switches.conf)
 sub getVlanByName {
     my ($self, $vlanName) = @_;
     my $logger = $self->logger;
+
+    # Check if VlanEnabled parameter exists and is disabled for this role
+    my $enabled_param = $vlanName . 'VlanEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("VLAN mapping for role $vlanName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}{$vlanName})) {
         my $parent = _parentRoleForVlan($vlanName);
@@ -731,6 +745,14 @@ sub _parentRoleForVlan {
 sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+    
+    # Check if AccessListEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $access_list_name . 'AccessListEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $logger->debug("AccessList mapping for role $access_list_name is disabled");
+        return;
+    }
+    
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
@@ -767,6 +789,13 @@ sub getRoleAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
 
+    # Check if AccessListEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $access_list_name . 'AccessListEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $logger->debug("AccessList mapping for role $access_list_name is disabled");
+        return;
+    }
+
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
     return if !exists $role->{acls};
@@ -794,6 +823,13 @@ Get the switch-specific url of a given global role in switches.conf
 sub getUrlByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
+
+    # Check if UrlEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $roleName . 'UrlEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $logger->debug("URL mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_urls'}) || !defined($self->{'_urls'}{$roleName})) {
         my $parent = _parentRoleForWebAuthUrl($roleName);
@@ -838,6 +874,12 @@ sub getVpnByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
+    # Check if VpnEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $roleName . 'VpnEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $logger->debug("VPN mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_vpn'}) || !defined($self->{'_vpn'}{$roleName})) {
         my $parent = _parentRoleForVpn($roleName);
@@ -874,7 +916,6 @@ sub getNetworkByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
-
     if (!defined($self->{'_networks'}) || !defined($self->{'_networks'}{$roleName})) {
         my $parent = _parentRoleForNetwork($roleName);
         if (defined $parent && length($parent)) {
@@ -910,6 +951,12 @@ sub getInterfaceByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
+    # Check if InterfaceEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $roleName . 'InterfaceEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $logger->debug("Interface mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_interfaces'}) || !defined($self->{'_interfaces'}{$roleName})) {
         my $parent = _parentRoleForInterface($roleName);
@@ -4345,7 +4392,6 @@ sub compute_action {
     $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
     $$args->{'compute_dpsk'} = (exists($$args->{'compute_dpsk'}) ? $$args->{'compute_dpsk'} : $TRUE );
 }
-
 =head2
 
 Generate Ansible configuration to push ACLs
@@ -4354,6 +4400,8 @@ Generate Ansible configuration to push ACLs
 
 sub generateAnsibleConfiguration {
     my ($self,$oldSwitchConfig, $delete) = @_;
+    my $logger = $self->logger;
+    # $delete is set when when the switch is deleted
     $delete //= $FALSE;
     my %vars;
     umask(0002);
@@ -4363,7 +4411,7 @@ sub generateAnsibleConfiguration {
 
     return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
     my $switch_id = $self->{_id};
-    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_UsePushACLs'}));
+    return unless ((defined($self->{'_cliUser'}) || defined($self->{'_wsUser'})) && isenabled($self->{'_UsePushACLs'}));
 
     my $switch_ip = $switch_id;
     $switch_id =~ s/\./_/g;
@@ -4377,10 +4425,17 @@ sub generateAnsibleConfiguration {
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
     }
+    if (! -e "$var_dir/conf/pfsetacls/$switch_id/roles") {
+        mkdir("$var_dir/conf/pfsetacls/$switch_id/roles") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/roles:$!";
+    }
+
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
     $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
     $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
+    $vars{'switches'}{$switch_id}{'wsUser'} = $self->{'_wsUser'};
+    $vars{'switches'}{$switch_id}{'wsPwd'} = $self->{'_wsPwd'};
+    $vars{'switches'}{$switch_id}{'wsPath'} = $self->{'_wsPath'} || "/mm";
     $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
     $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
     $vars{'switches'}{$switch_id}{'delete'} = $delete;
@@ -4390,10 +4445,29 @@ sub generateAnsibleConfiguration {
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
             case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
+            case /Aruba::Controller_200/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aruba" }
+            case /Aruba::Mobility_Master/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aos" }
     }
 
+    # Track which role features went from enabled to disabled
+    my @disabled_params;
+
     foreach my $role (keys %ConfigRoles) {
-        my $acls = $self->getRoleAccessListByName($role);
+        # Check each type of enabled parameter
+        my @param_types = ('InterfaceEnabled', 'VpnEnabled', 'RoleEnabled', 'UrlEnabled', 'AccessListEnabled');
+
+        foreach my $param_type (@param_types) {
+            my $param_name = $role . $param_type;
+
+            # Check if parameter went from enabled to disabled
+            my $was_enabled = exists $oldSwitchConfig->{$param_name} && !isdisabled($oldSwitchConfig->{$param_name});
+            my $is_disabled = exists $self->{"_".$param_name} && isdisabled($self->{"_".$param_name});
+            if ($was_enabled && $is_disabled) {
+                $vars{'switches'}{$switch_id}{$param_type}{$role} = $TRUE;
+                push @disabled_params, "$role $param_type";
+            }
+        }
+
         my $interfaces = $self->getInterfaceByName($role);
         if ($interfaces) {
             my @interfaces = split(',',$interfaces);
@@ -4404,6 +4478,12 @@ sub generateAnsibleConfiguration {
             }
         }
     }
+
+    # Log the disabled parameters if any were found
+    if (@disabled_params) {
+        $logger->info("Parameters that went from enabled to disabled: " . join(", ", @disabled_params));
+    }
+
     if (!$delete) {
         # Remove useless acl on old interfaces
         my %diff;
@@ -4426,7 +4506,10 @@ sub generateAnsibleConfiguration {
 
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getRoleAccessListByName($role);
-        if (defined($acls)) {
+        if (ref($acls) eq 'ARRAY') {
+           $vars{'switches'}{$switch_id}{'acls_array'}{$role} = $acls;
+        }
+        elsif (defined($acls)) {
             my $out_acls;
             my $in_acls;
             while($acls =~ /([^\n]+)\n?/g) {
@@ -4445,20 +4528,27 @@ sub generateAnsibleConfiguration {
             } elsif (defined($in_acls)) {
                 $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
             }
-            if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
-            } elsif (defined($out_acls)) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+            if ($self->supportsOutAcl) {
+                if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
+                    $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
+                } elsif (defined($out_acls)) {
+                    $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+                }
             }
+            my %roleacls;
+            $roleacls{'acls'}{$role} = $vars{'switches'}{$switch_id}{'acls'}{$role};
+            $roleacls{'type'} = $vars{'switches'}{$switch_id}{'type'};
+            $tt->process("$conf_dir/pfsetacls/acl.cfg", \%roleacls, "$var_dir/conf/pfsetacls/$switch_id/$role-$switch_id.cfg") or die $tt->error();
         }
     }
 
     $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/$switch_id.cfg") or die $tt->error();
-
+    $tt->process("$conf_dir/pfsetacls/del-acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/del-$switch_id.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/roles/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/roles/requirements.yml") or die $tt->error();
     find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
     if (-e "$var_dir/conf/pfsetacls/$switch_id/ansible.log") { unlink "$var_dir/conf/pfsetacls/$switch_id/ansible.log" };
     my %args;

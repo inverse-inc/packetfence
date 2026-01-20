@@ -20,7 +20,6 @@ inlineTrigger =
 normalRole =
 registrationRole =
 isolationRole =
-macDetectionRole =
 voiceRole = voice
 inlineRole = inline
 VoIPEnabled = N
@@ -80,6 +79,7 @@ SNMPCommunityTrap = public
 wsTransport = http
 wsUser =
 wsPwd =
+wsPath =
 #
 # RADIUS NAS Client config
 #

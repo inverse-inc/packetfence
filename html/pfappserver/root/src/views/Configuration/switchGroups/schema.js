@@ -74,6 +74,7 @@ export const schema = (props, roles) => {
     wsTransport: yup.string().nullable().label(i18n.t('Transport')),
     wsUser: yup.string().nullable().label(i18n.t('Username')),
     wsPwd: yup.string().nullable().label(i18n.t('Password')),
+    wsPath: yup.string().nullable().label(i18n.t('Api Path')),
     uplink: yup.string().nullable(),
     controllerIp: yup.string().nullable(),
     disconnectPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),

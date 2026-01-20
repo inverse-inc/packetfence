@@ -17,6 +17,7 @@ import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
 import BaseInputToggleNetworkFrom from './BaseInputToggleNetworkFrom'
+import BaseInputToggleEnableDisable from './BaseInputToggleEnableDisable'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -94,9 +95,11 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+  BaseFormGroupInput                      as FormGroupWebServicesPath,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
+  BaseInputToggleEnableDisable            as InputToggleEnableDisable,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,

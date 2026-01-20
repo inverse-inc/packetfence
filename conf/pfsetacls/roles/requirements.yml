@@ -1,0 +1,3 @@
+roles:
+    - name: arubanetworks.aos_wlan_role
+      version: v0.2.0

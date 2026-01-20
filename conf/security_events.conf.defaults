@@ -17,7 +17,7 @@ delay_by=0s
 button_text=Enable Network
 snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emerging-exploit.rules,emerging-malware.rules,emerging-p2p.rules,emerging-scan.rules,emerging-shellcode.rules,emerging-trojan.rules,emerging-worm.rules
 # vlan: The vlan parameter allows you to define in what vlan a node with a security event will be put in.
-# Accepted values are the vlan names: isolation, normal, registration, macDetection, inline, voice
+# Accepted values are the vlan names: isolation, normal, registration, inline, voice
 # and all the roles names you defined in the node_category table. (see switches.conf)
 vlan=isolation
 # if you add a role/category here, nodes in these roles/categories will be immune to the security event

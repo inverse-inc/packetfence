@@ -73,11 +73,50 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     return api.item(id).then(item => {
-      commit('ITEM_REPLACED', item)
-      api.itemMembers(id).then(members => { // Fetch members
-        commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+      // Initialize role mapping enabled defaults
+      return Promise.all([
+        store.dispatch('$_roles/all'),
+        Promise.resolve(item)
+      ]).then(([roles, item]) => {
+        const baseRoles = ['registration', 'isolation', 'inline', 'voice', 'guest']
+        roles = [
+          ...baseRoles,
+          ...roles.map(role => role.id)
+        ]
+        roles.forEach(role => {
+          // Set defaults for mapping fields
+          const defaults = {
+            [`${role}Vlan`]: null,
+            [`${role}Role`]: null,
+            [`${role}AccessList`]: null,
+            [`${role}Url`]: null,
+            [`${role}Vpn`]: null,
+            [`${role}Interface`]: null,
+            [`${role}VlanEnabled`]: 'enabled',
+            [`${role}RoleEnabled`]: 'enabled',
+            [`${role}AccessListEnabled`]: 'enabled',
+            [`${role}UrlEnabled`]: 'enabled',
+            [`${role}VpnEnabled`]: 'enabled',
+            [`${role}InterfaceEnabled`]: 'enabled'
+          }
+          // Merge with existing item, but use defaults for null/undefined Enabled fields
+          item = {
+            ...defaults,
+            ...item
+          }
+          // Ensure Enabled fields default to 'enabled' if null/undefined
+          Object.keys(defaults).forEach(key => {
+            if (key.endsWith('Enabled') && (item[key] === null || item[key] === undefined)) {
+              item[key] = 'enabled'
+            }
+          })
+        })
+        commit('ITEM_REPLACED', item)
+        api.itemMembers(id).then(members => { // Fetch members
+          commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+        })
+        return JSON.parse(JSON.stringify(state.cache[id]))
       })
-      return JSON.parse(JSON.stringify(state.cache[id]))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

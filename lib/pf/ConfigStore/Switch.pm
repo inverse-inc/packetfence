@@ -108,6 +108,7 @@ sub _expandMapping {
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
     my $toset = {};
+    my $enabled = {};
     while (my ($attr, $val) = each %$switch) {
         if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/) {
             my $type = $2;
@@ -126,11 +127,23 @@ sub _expandMapping {
             }
 
             push @{$toset->{"${type}Mapping"}}, { role => $role, $key => $val };
+        } elsif ($attr =~ /(.*)(VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
+            # Store the enabled state for later use
+            my $type = $2;
+            my $role = $1;
+            $enabled->{$type}{$role} = $val;
         }
     }
 
     while(my ($attr, $val) = each %$toset) {
         $switch->{$attr} = $val;
+    }
+    
+    # Store enabled states in switch for UI
+    while(my ($type, $roles) = each %$enabled) {
+        while(my ($role, $val) = each %$roles) {
+            $switch->{"${role}${type}"} = $val;
+        }
     }
 
     for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
@@ -162,6 +175,7 @@ sub cleanupBeforeCommit {
 
 sub _flattenRoleMappings {
     my ( $switch ) = @_;
+    
     for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
         my $list = $switch->{$namespace} // [];
         for my $mapping (@$list) {
@@ -169,6 +183,9 @@ sub _flattenRoleMappings {
             $switch->{"${role}$MappingKey2{$namespace}"} = $mapping->{$MappingKey{$namespace}};
         }
     }
+    
+    # Don't delete Enabled parameters - they should be preserved
+    # They are separate from the mapping values and should always be kept
 }
 
 sub _deleteRoleMappings {
