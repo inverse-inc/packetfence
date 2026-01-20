@@ -42,6 +42,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -665,26 +666,54 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 }
 
 func (c CA) FindSerial(p Profile) (*big.Int, error) {
+	var serialNumber int
 
-	ca := &CA{}
+	err := c.DB.Transaction(func(tx *gorm.DB) error {
+		ca := &CA{}
 
-	if CaDB := c.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
-		c.DB.First(&ca)
+		// Lock the row for update to prevent race conditions
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca, p.CaID).Error; err != nil {
+			// Fallback to first CA if not found
+			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca).Error; err != nil {
+				return err
+			}
+		}
+
+		serialNumber = ca.SerialNumber
+		ca.SerialNumber = ca.SerialNumber + 1
+		return tx.Save(ca).Error
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	var certdb Cert
+	return big.NewInt(int64(serialNumber)), nil
+}
 
-	var SerialNumber *big.Int
+// getNextSerialNumber atomically increments and returns the next serial number for a CA
+// Uses database transaction with row-level locking to prevent race conditions
+func getNextSerialNumber(db gorm.DB, caID uint) (*big.Int, error) {
+	var serialNumber int
 
-	err := c.DB.Last(&certdb).Where(&ca)
-	if err.Error != nil {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(int64(certdb.ID + 1))
+	err := db.Transaction(func(tx *gorm.DB) error {
+		ca := &CA{}
+
+		// Lock the row for update to prevent race conditions
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca, caID).Error; err != nil {
+			return err
+		}
+
+		serialNumber = ca.SerialNumber
+		ca.SerialNumber = ca.SerialNumber + 1
+		return tx.Save(ca).Error
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	return SerialNumber, nil
-
+	return big.NewInt(int64(serialNumber)), nil
 }
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
@@ -1221,10 +1250,12 @@ func (c Cert) New() (types.Info, error) {
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	SerialNumber = big.NewInt(int64(prof.Ca.SerialNumber))
-	prof.Ca.SerialNumber = prof.Ca.SerialNumber + 1
-	prof.Ca.DB = c.DB
-	prof.Ca.DB.Save(prof.Ca)
+	// Get serial number atomically using transaction with row-level locking
+	SerialNumber, err = getNextSerialNumber(c.DB, prof.Ca.ID)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 	keyOut, pub, _, err := certutils.GenerateKey(*prof.KeyType, prof.KeySize)
 
 	if err != nil {
@@ -1595,16 +1626,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	}
 
 	// keyOut contain the private key
-	var certdbprevious Cert
 	var newcertdb []Cert
 
-	//Calculate the serial number to assign
-	var SerialNumber *big.Int
-
-	if CertDB := c.DB.Last(&certdbprevious); CertDB.Error != nil {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
+	// Get serial number atomically using transaction with row-level locking
+	SerialNumber, err := getNextSerialNumber(c.DB, certdb[0].Ca.ID)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
 	}
 
 	Subject := certdb[0].MakeSubject()
