@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/go-radius"
-	"github.com/inverse-inc/go-radius/rfc2865"
-	"github.com/inverse-inc/go-radius/rfc2866"
-	"github.com/inverse-inc/go-radius/vendors/cisco"
 	"net"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2866"
+	"github.com/inverse-inc/go-radius/vendors/cisco"
 )
 
 type SecretSourceFunc func(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, context.Context, error)
@@ -37,7 +38,7 @@ func TestPacketServer_reject(t *testing.T) {
 				return secret, context.WithValue(ctx, switchInfoKey, &SwitchInfo{}), nil
 			},
 		),
-		Handler: NewPfAcct(),
+		Handler: NewPfAcct("INFO"),
 	}
 
 	var clientErr error
@@ -103,7 +104,7 @@ func packetServerTestStatusCode(t *testing.T, statusType rfc2866.AcctStatusType)
 				return secret, context.WithValue(ctx, switchInfoKey, &SwitchInfo{}), nil
 			},
 		),
-		Handler: NewPfAcct(),
+		Handler: NewPfAcct("INFO"),
 	}
 
 	var clientErr error
