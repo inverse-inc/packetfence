@@ -6,7 +6,7 @@
 # - compressed mysqldump to $BACKUP_DIRECTORY
 # - prepare files for backup and exportation, rotate and clean
 #
-# Copyright (C) 2005-2025 Inverse inc.
+# Copyright (C) 2005-2026 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #
