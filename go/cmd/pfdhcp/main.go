@@ -207,7 +207,12 @@ func (I *Interface) runUnicast(ctx context.Context, jobs chan job) {
 func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr, srvIP net.IP, db *sql.DB) (answer Answer) {
 	options := p.ParseOptions()
 	answer.MAC = p.CHAddr()
-	answer.SrcIP = I.Ipv4
+	// Use the destination IP from the request as source IP (to support VIP)
+	if !srvIP.Equal(net.IPv4zero) && !srvIP.Equal(net.IPv4bcast) {
+		answer.SrcIP = srvIP
+	} else {
+		answer.SrcIP = I.Ipv4
+	}
 
 	// ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 	clientMac := answer.MAC.String()
@@ -647,7 +652,6 @@ reply:
 	var err error
 
 	answer.IP = dhcp.IPAdd(handler.start, free)
-	answer.SrcIP = I.Ipv4
 	// Add options on the fly
 	var GlobalOptions dhcp.Options
 	var options = make(map[dhcp.OptionCode][]byte)
