@@ -31,6 +31,7 @@ use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
 use pf::ConfigStore::Switch();
+use pf::SwitchFactory;
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -1959,6 +1960,41 @@ sub push_acls : Public {
     return $pf::config::TRUE;
 }
 
+=head2 generate_ansible_configuration_all_switches
+
+Generate Ansible configuration for all switches as a background job.
+This is called after role configuration changes to avoid blocking the API.
+
+=cut
+
+sub generate_ansible_configuration_all_switches : Public : Fork {
+    my ($class, %postdata) = @_;
+    my $logger = get_logger();
+
+    $logger->info("Starting Ansible configuration generation for all switches");
+
+    tie my %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($pf::config::cluster::host_id)";
+
+    foreach my $switch_id (keys(%SwitchConfig)) {
+        next if ($switch_id =~ /^group / or $switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
+
+        my $switch = pf::SwitchFactory->instantiate($switch_id);
+        next unless $switch;
+
+        $logger->debug("Generating Ansible configuration for switch $switch_id");
+        $switch->generateAnsibleConfiguration();
+
+        # Throttle Ansible job creation: when many switches are processed in rapid
+        # succession, Ansible Semaphore can hit its rate/concurrency limits and
+        # start rejecting requests (e.g. HTTP 429 / "too many concurrent jobs").
+        # Sleeping one second between switches keeps job submissions under that
+        # limit and avoids those intermittent errors.
+        sleep(1);
+    }
+
+    $logger->info("Completed Ansible configuration generation for all switches");
+    return $pf::config::TRUE;
+}
 
 =head2 update_switch_role_network
 

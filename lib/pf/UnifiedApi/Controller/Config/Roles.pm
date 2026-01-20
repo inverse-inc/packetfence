@@ -40,20 +40,15 @@ use pf::ConfigStore::Firewall_SSO;
 use pf::ConfigStore::Switch;
 use pf::ConfigStore::Source;
 use pf::ConfigStore::PortalModule;
+use pf::api::queue;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
-tie my %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
 
 sub post_update {
     my ($self, $id) = @_;
-    foreach my $switch_id (keys(%SwitchConfig)) {
-        next if ($switch_id =~ /^group / or $switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
-        my $switch = pf::SwitchFactory->instantiate($switch_id);
-        next unless $switch;
-        $switch->generateAnsibleConfiguration();
-        # Need to wait between each switch to avoid error on semaphore
-        sleep(1);
-    }
+    # Submit to background queue - API returns immediately
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify('generate_ansible_configuration_all_switches');
 }
 
 sub post_create {
