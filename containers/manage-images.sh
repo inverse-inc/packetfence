@@ -112,16 +112,24 @@ configure_and_check() {
 pull_images() {
     RETRY_LIMIT=2
     for img in ${CONTAINERS_IMAGES}; do
+        FULL_IMAGE="${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+
+        # Skip pull if image already exists locally (for offline installation)
+        if docker image inspect "${FULL_IMAGE}" &>/dev/null; then
+            echo "Image already exists locally: ${FULL_IMAGE}"
+            continue
+        fi
+
         for attempt in $(seq 1 $RETRY_LIMIT); do
-            docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
+            docker pull -q ${FULL_IMAGE}
             if [ $? -eq 0 ]; then
                 break
             else
                 if [ $attempt -le $RETRY_LIMIT ]; then
                     sleep 3
-                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+                    echo "Retry downloading image: ${FULL_IMAGE}"
                 else
-                    echo "Failed downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+                    echo "Failed downloading image: ${FULL_IMAGE}"
                 fi
             fi
         done
