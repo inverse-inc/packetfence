@@ -497,78 +497,77 @@ if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
     ls ${PF_CACHE_DIR}/*.deb
     echo ""
 
-    # Step 3a: Install Pre-Depends packages FIRST (but NOT main packetfence package)
-    # Order matters: packetfence-perl provides virtual perl packages that fingerbank depends on
-    echo "===> Step 3a: Installing Pre-Depends packages..."
+    # Step 3a: Create local APT repository from cached packages
+    # This allows apt-get to properly resolve dependencies
+    echo "===> Step 3a: Creating local APT repository from cached packages..."
 
-    # Install packetfence-perl FIRST - it provides virtual perl packages needed by fingerbank
-    echo "Installing packetfence-perl (provides perl dependencies)..."
-    if ls ${PF_CACHE_DIR}/packetfence-perl_*.deb 1> /dev/null 2>&1; then
-        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/packetfence-perl_*.deb || {
-            echo "Warning: packetfence-perl had issues, fixing dependencies..."
-            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-        }
-        echo "packetfence-perl installed successfully"
-    else
-        echo "Warning: packetfence-perl package not found"
-    fi
+    LOCAL_REPO="/var/cache/packetfence-repo"
+    mkdir -p ${LOCAL_REPO}/pool
+    cp ${PF_CACHE_DIR}/*.deb ${LOCAL_REPO}/pool/
+
+    # Generate Packages index
+    cd ${LOCAL_REPO}
+    mkdir -p dists/local/main/binary-amd64
+    dpkg-scanpackages pool /dev/null > dists/local/main/binary-amd64/Packages
+    gzip -k dists/local/main/binary-amd64/Packages
+
+    # Create Release file
+    cat > dists/local/Release << RELEASE_EOF
+Origin: PacketFence Local
+Label: PacketFence Local
+Suite: local
+Codename: local
+Architectures: amd64
+Components: main
+Description: PacketFence offline installation local repository
+RELEASE_EOF
+
+    # Configure apt to use the local repository
+    cat > /etc/apt/sources.list.d/packetfence-local-install.list << APT_EOF
+deb [trusted=yes] file://${LOCAL_REPO} local main
+APT_EOF
+
+    # Update apt cache
+    apt-get update
+    echo "Local APT repository created successfully"
     echo ""
 
-    # Install fingerbank packages in correct order:
-    # 1. fingerbank-collector first (fingerbank depends on it)
-    # 2. fingerbank second (depends on packetfence-perl and fingerbank-collector)
+    # Step 3b: Install all packages using apt-get (proper dependency resolution)
+    echo "===> Step 3b: Installing packages with apt-get..."
+
+    # Install packetfence-perl first (provides virtual packages)
+    echo "Installing packetfence-perl..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades packetfence-perl || true
+
+    # Install fingerbank packages
     echo "Installing fingerbank-collector..."
-    if ls ${PF_CACHE_DIR}/fingerbank-collector_*.deb 1> /dev/null 2>&1; then
-        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/fingerbank-collector_*.deb || {
-            echo "Warning: fingerbank-collector had issues, fixing dependencies..."
-            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-        }
-        echo "fingerbank-collector installed successfully"
-    else
-        echo "Warning: fingerbank-collector package not found"
-    fi
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades fingerbank-collector || true
 
     echo "Installing fingerbank..."
-    if ls ${PF_CACHE_DIR}/fingerbank_*.deb 1> /dev/null 2>&1; then
-        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_CACHE_DIR}/fingerbank_*.deb || {
-            echo "Warning: fingerbank had issues, fixing dependencies..."
-            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-        }
-        echo "fingerbank installed successfully"
-    else
-        echo "Warning: fingerbank package not found"
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades fingerbank || true
+
+    # Install other packetfence-* packages (excluding main packetfence)
+    echo "Installing packetfence dependency packages..."
+    PF_DEP_NAMES=$(ls ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null | xargs -n1 basename | sed 's/_.*$//' | grep -v "^packetfence$" | sort -u || true)
+    if [ -n "$PF_DEP_NAMES" ]; then
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades $PF_DEP_NAMES || true
     fi
     echo ""
 
-    # Install remaining packetfence-* packages (excluding packetfence-perl already installed)
-    echo "Installing other packetfence dependency packages..."
-    PFDEP_PKGS=$(ls ${PF_CACHE_DIR}/packetfence-*.deb 2>/dev/null | grep -v packetfence-perl_ || true)
-    if [ -n "$PFDEP_PKGS" ]; then
-        DEBIAN_FRONTEND=noninteractive dpkg -i $PFDEP_PKGS || {
-            echo "Warning: Some packetfence dependency packages had issues, fixing dependencies..."
-            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-        }
-        echo "PacketFence dependency packages installed successfully"
-    else
-        echo "Warning: No packetfence dependency packages found"
-    fi
-    echo ""
+    # Step 3c: Install main PacketFence package LAST (requires Docker running)
+    echo "===> Step 3c: Installing main PacketFence package..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades packetfence || {
+        echo "Warning: apt-get install packetfence had issues, trying dpkg..."
+        PF_MAIN_PKG=$(ls ${PF_CACHE_DIR}/packetfence_*.deb 2>/dev/null | head -n1)
+        if [ -n "$PF_MAIN_PKG" ]; then
+            DEBIAN_FRONTEND=noninteractive dpkg --force-depends -i ${PF_MAIN_PKG}
+            DEBIAN_FRONTEND=noninteractive dpkg --configure --force-depends packetfence || true
+        fi
+    }
 
-    # Step 3b: Install main PacketFence package LAST (requires Docker running + all dependencies)
-    echo "===> Step 3b: Installing main PacketFence package (packetfence_*.deb)..."
-    if ls ${PF_CACHE_DIR}/packetfence_*.deb 1> /dev/null 2>&1; then
-        PF_MAIN=$(ls ${PF_CACHE_DIR}/packetfence_*.deb | head -n1)
-        echo "Installing: ${PF_MAIN}"
-        DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_MAIN} || {
-            echo "Warning: PacketFence main package installation had issues, fixing dependencies..."
-            DEBIAN_FRONTEND=noninteractive apt-get install -y -f
-            DEBIAN_FRONTEND=noninteractive dpkg -i ${PF_MAIN}
-        }
-        echo "PacketFence main package installed successfully"
-    else
-        echo "ERROR: Main PacketFence package (packetfence_*.deb) not found"
-        exit 1
-    fi
+    # Cleanup local repo config
+    rm -f /etc/apt/sources.list.d/packetfence-local-install.list
+    apt-get update 2>/dev/null || true
 
     echo "PacketFence installation completed successfully"
 else

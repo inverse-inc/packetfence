@@ -142,6 +142,8 @@ PACKAGES="
     libconfig-inifiles-perl
     liburi-perl
     libregexp-ipv6-perl
+    libnet-ssleay-perl
+    libio-socket-ssl-perl
     acl
 "
 # Note: Many perl packages (liblog-fast-perl, libcatalyst-perl, libreadonly-perl, etc.)
@@ -151,6 +153,7 @@ PACKAGES="
 # - liblog-log4perl-perl, libconfig-inifiles-perl: fingerbank has versioned dependencies
 #   (>= 1.43 and >= 2.88) that packetfence-perl's unversioned virtual packages cannot satisfy
 # - liburi-perl, libregexp-ipv6-perl: required by HTTP::Request/LWP bundled in packetfence-perl
+# - libnet-ssleay-perl, libio-socket-ssl-perl: required for SSL/TLS support (XS modules not in packetfence-perl)
 # - acl: required by packetfence preinst script (setfacl command)
 
 # Add Docker repository for docker-ce packages
