@@ -39,7 +39,7 @@ func newPfconfigRefreshableConfig(ctx context.Context) *pfdnsRefreshableConfig {
 	pfconfigdriver.FetchDecodeSocket(ctx, &rc.PfConfDns)
 	rc.PassthroughsInit(ctx)
 	rc.PassthroughsIsolationInit(ctx)
-	rc.recordDNS = rc.PfConfDns.RecordDNS == "enabled"
+	rc.recordDNS = sharedutils.IsEnabled(rc.PfConfDns.RecordDNS)
 	return rc
 }
 
@@ -86,7 +86,7 @@ func (rc *pfdnsRefreshableConfig) Refresh(ctx context.Context) {
 	rc.PassthroughsInit(ctx)
 	rc.PassthroughsIsolationInit(ctx)
 
-	rc.recordDNS = rc.PfConfDns.RecordDNS == "enabled"
+	rc.recordDNS = sharedutils.IsEnabled(rc.PfConfDns.RecordDNS)
 }
 
 func (rc *pfdnsRefreshableConfig) Clone() pfconfigdriver.Refresh {

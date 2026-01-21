@@ -111,25 +111,25 @@ func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 
 // Check whether or not the cached updates are enabled for this firewall
 func (fw *FirewallSSO) ShouldCacheUpdates(ctx context.Context) bool {
-	return fw.CacheUpdates == "enabled"
+	return sharedutils.IsEnabled(fw.CacheUpdates)
 }
 
 // Check if sso needs to be triggered on accounting stop
 func (fw *FirewallSSO) SendOnAcctStop(ctx context.Context) bool {
-	return fw.ActOnAccountingStop == "1"
+	return sharedutils.IsEnabled(fw.ActOnAccountingStop)
 }
 
 // Check if sso needs to be triggered on accounting
 func (fw *FirewallSSO) SendOnAcct(ctx context.Context) bool {
-	return fw.SsoOnAccounting == "1"
+	return sharedutils.IsEnabled(fw.SsoOnAccounting)
 }
 
 // Check if sso needs to be triggered on Access Reevaluation
 func (fw *FirewallSSO) SendOnAccessReevaluation(ctx context.Context) bool {
-	return fw.SsoOnAccessReevaluation == "1"
+	return sharedutils.IsEnabled(fw.SsoOnAccessReevaluation)
 }
 func (fw *FirewallSSO) SendOnDhcp(ctx context.Context) bool {
-	return fw.SsoOnDhcp == "1"
+	return sharedutils.IsEnabled(fw.SsoOnDhcp)
 }
 
 // Get the cache_timeout configured in the firewall as an int

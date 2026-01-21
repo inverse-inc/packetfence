@@ -736,10 +736,7 @@ func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
 
-	pf.detectionBypass = false
-	if portal.DetectionMecanismBypass == "enabled" {
-		pf.detectionBypass = true
-	}
+	pf.detectionBypass = sharedutils.IsEnabled(portal.DetectionMecanismBypass)
 
 	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error

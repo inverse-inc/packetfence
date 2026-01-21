@@ -145,7 +145,7 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	keyConfAdvanced.PfconfigNS = "config::Pf"
 	keyConfAdvanced.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
-	pfAcct.AllNetworks = keyConfAdvanced.NetFlowOnAllNetworks == "enabled"
+	pfAcct.AllNetworks = sharedutils.IsEnabled(keyConfAdvanced.NetFlowOnAllNetworks)
 	var ports pfconfigdriver.PfConfPorts
 	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
 	pfAcct.TimeDuration = time.Duration(keyConfAdvanced.AccountingTimebucketSize) * time.Second

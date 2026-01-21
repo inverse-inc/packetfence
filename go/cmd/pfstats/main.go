@@ -304,7 +304,7 @@ func main() {
 				source.PfconfigNS = "resource::authentication_sources_ldap"
 				source.PfconfigHashNS = src
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				if source.Monitor == "1" {
+				if sharedutils.IsEnabled(source.Monitor) {
 					var Source = TestSource{LDAP}
 					go Source.SourceType.Test(source, ctx)
 				}
@@ -324,7 +324,7 @@ func main() {
 				source.PfconfigNS = "resource::authentication_sources_radius"
 				source.PfconfigHashNS = src
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				if source.Monitor == "1" {
+				if sharedutils.IsEnabled(source.Monitor) {
 					var Source = TestSource{RADIUS}
 					go Source.SourceType.Test(source, ctx)
 				}
