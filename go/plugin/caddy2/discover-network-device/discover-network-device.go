@@ -110,9 +110,14 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 	taskid := pfqueueclient.NewApiTaskID()
 	task := Task{TaskId: taskid, Status: 202}
 	go func(taskid string) {
-		statusUpdater := pfqueueclient.NewStatusUpdater(taskid, time.Hour, m.redis)
-		defer pfqueueclient.PutStatusUpdater(statusUpdater)
 		ctx := context.Background()
+		statusUpdater := pfqueueclient.NewStatusUpdater(taskid, time.Hour, m.redis)
+		defer func() {
+			if r := recover(); r != nil {
+				statusUpdater.Failed(ctx, r)
+			}
+			pfqueueclient.PutStatusUpdater(statusUpdater)
+		}()
 		statusUpdater.Start(ctx)
 		data, err := fetchData(ctx, body, func(progress int) {
 			statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
