@@ -153,8 +153,8 @@ case "$OS_TYPE" in
         ;;
 esac
 
-## Check and install Node.js if needed
-log_section "Checking Node.js installation"
+## Install Node.js
+log_section "Installing Node.js"
 
 # Get required Node.js version from debian/control, default to 20 if not found
 NODEJS_VERSION="20"
@@ -173,30 +173,23 @@ else
     echo "debian/control not found, using default Node.js version: $NODEJS_VERSION"
 fi
 
-if ! type node 2>/dev/null || ! type npm 2>/dev/null; then
-    echo "Node.js or npm is not installed. Installing Node.js $NODEJS_VERSION..."
-    case "$OS_TYPE" in
-        debian)
-            curl -fsSL "https://deb.nodesource.com/setup_${NODEJS_VERSION}.x" | bash -
-            apt install -y nodejs
-            ;;
-        rhel)
-            dnf module install "nodejs:${NODEJS_VERSION}" -y
-            ;;
-    esac
+echo "Installing Node.js $NODEJS_VERSION..."
+case "$OS_TYPE" in
+    debian)
+        curl -fsSL "https://deb.nodesource.com/setup_${NODEJS_VERSION}.x" | bash -
+        apt install -y nodejs
+        ;;
+    rhel)
+        dnf module reset nodejs -y
+        dnf module install "nodejs:${NODEJS_VERSION}" -y
+        ;;
+esac
 
-    # Verify installation
-    if ! type node 2>/dev/null || ! type npm 2>/dev/null; then
-        die "Failed to install Node.js. Please install it manually."
-    fi
-    echo "Node.js installed successfully."
-else
-    INSTALLED_NODE_VERSION=$(node --version | grep -oP 'v\K[0-9]+')
-    echo "Node.js is already installed (version: $(node --version))"
-    if [ "$INSTALLED_NODE_VERSION" -lt "$NODEJS_VERSION" ]; then
-        echo "Warning: Installed Node.js version is older than required ($NODEJS_VERSION). Consider upgrading."
-    fi
+# Verify installation
+if ! type node 2>/dev/null || ! type npm 2>/dev/null; then
+    die "Failed to install Node.js. Please install it manually."
 fi
+echo "Node.js $NODEJS_VERSION installed successfully."
 
 log_section "Cleanup previous dev setup directories"
 rm -fr /usr/local/go
