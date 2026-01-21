@@ -1,6 +1,23 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
+#
+# setup-dev-env.sh - Set up a PacketFence development environment
+#
+# This script prepares a PacketFence installation for development by:
+# - Replacing /usr/local/pf with a git clone of the PacketFence repository
+# - Installing build dependencies (Node.js, Ruby, Go, etc.)
+# - Building the web admin, captive portal, and documentation
+# - Setting up container files for local development
+#
+# Prerequisites:
+# - PacketFence must be installed
+# - The configuration wizard must be completed (management interface configured)
+#
+
+# Default values
+LOCAL_DEV=false
+
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
 }
@@ -9,6 +26,53 @@ log_section() {
    printf '=%.0s' {1..72} ; printf "\n"
    printf "=\t%s\n" "" "$@" ""
 }
+
+show_help() {
+    cat << EOF
+Usage: $(basename $0) [OPTIONS]
+
+Set up a PacketFence development environment.
+
+This script transforms a PacketFence installation into a development environment
+by cloning the git repository, installing build tools, and compiling all components.
+
+OPTIONS:
+    -h, --help          Show this help message and exit
+    --local-dev         Enable local development mode (sets LOCAL_DEV=true in
+                        containers/.local_env). This configures containers to use
+                        local builds instead of pulling from the registry.
+
+ENVIRONMENT VARIABLES:
+    BRANCH              Git branch to checkout (default: devel)
+
+PREREQUISITES:
+    - PacketFence must be installed (package: packetfence)
+    - Configuration wizard must be completed (management interface configured)
+
+EXAMPLES:
+    $(basename $0)                  # Standard setup with LOCAL_DEV=false
+    $(basename $0) --local-dev      # Setup with local development mode enabled
+    BRANCH=feature/xyz $(basename $0)   # Setup using a specific branch
+
+EOF
+    exit 0
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            ;;
+        --local-dev)
+            LOCAL_DEV=true
+            shift
+            ;;
+        *)
+            die "Unknown option: $1. Use --help for usage information."
+            ;;
+    esac
+done
 
 # Detect OS type
 detect_os() {
@@ -253,7 +317,7 @@ log_section "Setup container files"
 cd /usr/local/pf
 TAG_OR_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD | sed 's#[/|.]#-#g'`
 echo -n TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME > conf/build_id
-echo LOCAL_DEV=true > containers/.local_env
+echo LOCAL_DEV=$LOCAL_DEV > containers/.local_env
 
 for img in pfbuild-debian-bookworm pfdebian radiusd; do
   docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME
