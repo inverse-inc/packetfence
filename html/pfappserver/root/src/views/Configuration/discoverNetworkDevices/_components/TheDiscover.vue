@@ -8,39 +8,49 @@
 
       <the-form
         :is-scanning="isScanning"
-        :scan-status="currentScanStatus"
         @scan="onScan"
       />
 
-      <b-progress
-        v-if="isScanning && currentScanProgress < 100"
-        :value="currentScanProgress"
-        :max="100"
-        class="mb-3"
-        animated
-        striped
-      />
-
-      <the-results
-        :devices="devices"
-        :is-loading="isScanning"
-        @remove="onRemoveDevice"
-        @clear="onClearDevices"
-      />
-
       <b-alert
-        v-if="snmpReport && snmpReport.length > 0"
-        variant="warning"
+        v-if="isScanning || (snmpReport && snmpReport.length > 0)"
+        :variant="isScanning ? 'info' : 'warning'"
         show
         class="mt-3"
       >
-        <h5 class="alert-heading">{{ $t('SNMP Errors') }}</h5>
-        <ul class="mb-0">
-          <li v-for="(error, index) in snmpReport" :key="index">
-            <code>{{ error.address }}</code>: {{ error.error }}
-          </li>
-        </ul>
+        <div v-if="isScanning">
+          <h5 class="alert-heading">{{ $t('Scanning {network}...', { network: scanningNetwork }) }}</h5>
+          <b-progress
+            :value="currentScanProgress"
+            :max="100"
+            class="mb-3"
+            animated
+            striped
+          />
+          <b-button
+            variant="outline-danger"
+            size="sm"
+            @click="onCancelScan"
+          >{{ $t('Cancel Scan') }}</b-button>
+        </div>
+        <div v-else>
+          <h5 class="alert-heading">{{ $t('SNMP Errors') }}</h5>
+          <ul class="mb-0">
+            <li v-for="(error, index) in snmpReport" :key="index">
+              <code>{{ error.address }}</code>: {{ error.error }}
+            </li>
+          </ul>
+        </div>
       </b-alert>
+
+      <the-results
+        :devices="devices"
+        :switch-ids="switchIds"
+        :is-loading="isScanning"
+        @view-switch="onViewSwitch"
+        @create-switch="onCreateSwitch"
+        @remove="onRemoveDevice"
+        @clear="onClearDevices"
+      />
     </b-card-body>
   </b-card>
 </template>
@@ -54,11 +64,18 @@ const components = {
   TheResults
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, onMounted, ref } from '@vue/composition-api'
 import { useStore } from '../_store'
 
+// Map discover credential type to switch SNMPVersion format
+const snmpVersionMap = {
+  'snmp_v1': '1',
+  'snmp_v2c': '2c',
+  'snmp_v3': '3'
+}
+
 const setup = (props, context) => {
-  const { root: { $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
   const store = useStore($store)
   const {
@@ -67,27 +84,55 @@ const setup = (props, context) => {
     scans,
     snmpReport,
     discoverNetwork,
+    cancelScan,
     removeDevice,
     clearDevices
   } = store
 
-  const lastScannedNetwork = ref(null)
+  const switchIds = ref([])
 
-  const currentScanStatus = computed(() => {
-    if (!lastScannedNetwork.value) return ''
-    const scan = scans.value[lastScannedNetwork.value]
-    return scan?.status || ''
+  // Derive scanning network from store state (persists across navigation)
+  const scanningNetwork = computed(() => {
+    const scanEntries = Object.entries(scans.value || {})
+    const active = scanEntries.find(([, scan]) => scan.status === 'loading')
+    return active ? active[0] : null
   })
 
   const currentScanProgress = computed(() => {
-    if (!lastScannedNetwork.value) return 0
-    const scan = scans.value[lastScannedNetwork.value]
+    if (!scanningNetwork.value) return 0
+    const scan = scans.value[scanningNetwork.value]
     return scan?.progress || 0
   })
 
+  const fetchSwitches = () => {
+    $store.dispatch('$_switches/all').then(switches => {
+      switchIds.value = switches.map(s => s.id)
+    }).catch(() => {
+      switchIds.value = []
+    })
+  }
+
+  onMounted(() => {
+    fetchSwitches()
+  })
+
   const onScan = (payload) => {
-    lastScannedNetwork.value = payload.network
     discoverNetwork(payload)
+  }
+
+  const onViewSwitch = (id) => {
+    $router.push({ name: 'switch', params: { id } })
+  }
+
+  const onCreateSwitch = (device) => {
+    const { ip, network, credential = {}, type } = device
+    const query = {
+      id: ip,
+      network,
+      SNMPVersion: snmpVersionMap[credential.type] || '',
+      type: type || ''
+    }
+    $router.push({ name: 'newSwitch', params: { switchGroup: 'default' }, query })
   }
 
   const onRemoveDevice = (ip) => {
@@ -98,15 +143,25 @@ const setup = (props, context) => {
     clearDevices()
   }
 
+  const onCancelScan = () => {
+    if (scanningNetwork.value) {
+      cancelScan(scanningNetwork.value)
+    }
+  }
+
   return {
     isScanning,
     devices,
+    switchIds,
     snmpReport,
-    currentScanStatus,
+    scanningNetwork,
     currentScanProgress,
     onScan,
+    onViewSwitch,
+    onCreateSwitch,
     onRemoveDevice,
-    onClearDevices
+    onClearDevices,
+    onCancelScan
   }
 }
 

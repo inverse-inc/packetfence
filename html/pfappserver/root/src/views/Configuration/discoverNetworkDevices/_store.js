@@ -19,6 +19,7 @@ export const useStore = $store => {
       return scan?.progress || 0
     }),
     discoverNetwork: params => $store.dispatch('$_discover_network_devices/discoverNetwork', params),
+    cancelScan: network => $store.dispatch('$_discover_network_devices/cancelScan', network),
     removeDevice: ip => $store.dispatch('$_discover_network_devices/removeDevice', ip),
     clearDevices: () => $store.dispatch('$_discover_network_devices/clearDevices'),
     clearDevicesFromNetwork: network => $store.dispatch('$_discover_network_devices/clearDevicesFromNetwork', network)
@@ -71,8 +72,16 @@ const actions = {
     })
   },
 
-  pollScanResults: ({ commit, dispatch }, { network, task_id }) => {
+  pollScanResults: ({ state, commit, dispatch }, { network, task_id }) => {
+    // Check if scan was cancelled
+    if (!state.scans[network] || state.scans[network].status !== types.LOADING) {
+      return Promise.resolve()
+    }
     return api.pollTaskStatus({ task_id }).then(data => {
+      // Check again if scan was cancelled during API call
+      if (!state.scans[network] || state.scans[network].status !== types.LOADING) {
+        return Promise.resolve()
+      }
       // Check if task is still in progress (status 202)
       if ('status' in data && data.status.toString() === '202') {
         // Update progress if available
@@ -90,6 +99,10 @@ const actions = {
       commit('SCAN_SUCCESS', { network, response: data.item })
       return data.item
     }).catch(err => {
+      // Don't report error if scan was cancelled
+      if (!state.scans[network] || state.scans[network].status !== types.LOADING) {
+        return Promise.resolve()
+      }
       commit('SCAN_ERROR', { network, error: err.response || err })
       throw err
     })
@@ -105,6 +118,10 @@ const actions = {
 
   clearDevicesFromNetwork: ({ commit }, network) => {
     commit('DEVICES_CLEARED_FROM_NETWORK', network)
+  },
+
+  cancelScan: ({ commit }, network) => {
+    commit('SCAN_CANCELLED', network)
   }
 }
 
@@ -179,6 +196,11 @@ const mutations = {
       status: types.ERROR,
       error: error?.data?.message || error?.message || error
     })
+  },
+
+  SCAN_CANCELLED: (state, network) => {
+    state.itemStatus = ''
+    Vue.delete(state.scans, network)
   },
 
   DEVICE_DESTROYED: (state, ip) => {

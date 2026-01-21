@@ -1,74 +1,58 @@
 <template>
   <b-form @submit.prevent="onSubmit" ref="formRef">
-    <!-- Network Selection -->
-    <b-form-group
-      :label="$t('Network to Scan')"
-      :description="$t('Select a network interface or enter a custom CIDR address')"
-      label-class="text-left"
-    >
-      <multiselect
-        v-model="selectedNetwork"
-        :options="networkOptions"
-        :disabled="isScanning"
-        :placeholder="$t('Choose a network...')"
-        :show-labels="false"
-        :allow-empty="true"
-        :searchable="true"
-        track-by="value"
-        label="text"
-        class="base-input-chosen"
-        @select="onNetworkSelect"
-        @remove="onNetworkRemove"
-      />
-    </b-form-group>
+    <b-form-row>
+      <b-col sm="12" md="4">
+        <b-form-group
+          :label="$t('CIDR Address')"
+          :state="customAddressState"
+          :invalid-feedback="customAddressError"
+          label-class="text-left"
+        >
+          <b-form-input
+            v-model="form.customAddress"
+            :disabled="isScanning"
+            :state="customAddressState"
+            :placeholder="$t('e.g., 10.0.0.0/24')"
+          />
+        </b-form-group>
+      </b-col>
 
-    <b-form-group
-      :label="$t('Custom CIDR Address')"
-      :description="$t('Override network selection with a custom CIDR (e.g., 10.0.0.0/24)')"
-      :state="customAddressState"
-      :invalid-feedback="customAddressError"
-      label-class="text-left"
-    >
-      <b-form-input
-        v-model="form.customAddress"
-        :disabled="isScanning"
-        :state="customAddressState"
-        @input="onCustomAddressInput"
-      />
-    </b-form-group>
+      <b-col sm="12" md="4">
+        <b-form-group
+          :label="$t('SNMP Version')"
+          label-class="text-left"
+        >
+          <multiselect
+            v-model="selectedSnmpVersion"
+            :options="snmpVersionOptions"
+            :disabled="isScanning"
+            :placeholder="$t('Select version...')"
+            :show-labels="false"
+            :allow-empty="false"
+            track-by="value"
+            label="text"
+            class="base-input-chosen"
+            @select="onSnmpVersionSelect"
+          />
+        </b-form-group>
+      </b-col>
 
-    <!-- SNMP Settings -->
-    <b-form-group
-      :label="$t('SNMP Version')"
-      label-class="text-left"
-    >
-      <multiselect
-        v-model="selectedSnmpVersion"
-        :options="snmpVersionOptions"
-        :disabled="isScanning"
-        :placeholder="$t('Select version...')"
-        :show-labels="false"
-        :allow-empty="false"
-        track-by="value"
-        label="text"
-        class="base-input-chosen"
-        @select="onSnmpVersionSelect"
-      />
-    </b-form-group>
-
-    <b-form-group
-      :label="$t('Community String')"
-      :description="$t('SNMP community string for read access (RFC 1157). Leave empty to skip SNMP.')"
-      :state="snmpCommunityState"
-      :invalid-feedback="snmpCommunityError"
-      label-class="text-left"
-    >
-      <b-form-input
-        v-model="form.snmpCommunity"
-        :disabled="isScanning"
-        :state="snmpCommunityState"
-      />
-    </b-form-group>
+      <b-col sm="12" md="4">
+        <b-form-group
+          :label="$t('Community String')"
+          :state="snmpCommunityState"
+          :invalid-feedback="snmpCommunityError"
+          label-class="text-left"
+        >
+          <b-form-input
+            v-model="form.snmpCommunity"
+            :disabled="isScanning"
+            :state="snmpCommunityState"
+            :placeholder="$t('e.g., public')"
+          />
+        </b-form-group>
+      </b-col>
+    </b-form-row>
 
     <!-- Advanced Options (Collapsible) -->
     <b-card class="mb-3" no-body>
@@ -142,40 +126,24 @@
     </b-card>
 
     <!-- Submit Button -->
-    <div class="d-flex align-items-center">
-      <b-button
-        type="submit"
-        variant="primary"
-        :disabled="isScanning || !isValid"
-      >
-        <icon v-if="isScanning" name="circle-notch" spin class="mr-1" />
-        <icon v-else name="search" class="mr-1" />
-        {{ isScanning ? $t('Scanning...') : $t('Start Discovery') }}
-      </b-button>
-
-      <div v-if="scanStatus" class="ml-3">
-        <b-badge v-if="scanStatus === 'loading'" variant="info">
-          <icon name="circle-notch" spin class="mr-1" />
-          {{ $t('Scanning') }}
-        </b-badge>
-        <b-badge v-else-if="scanStatus === 'success'" variant="success">
-          <icon name="check" class="mr-1" />
-          {{ $t('Complete') }}
-        </b-badge>
-        <b-badge v-else-if="scanStatus === 'error'" variant="danger">
-          <icon name="exclamation-triangle" class="mr-1" />
-          {{ $t('Error') }}
-        </b-badge>
-      </div>
-    </div>
+    <b-button
+      v-if="!isScanning"
+      type="submit"
+      variant="primary"
+      :disabled="!isValid"
+    >
+      <icon name="search" class="mr-1" />
+      {{ $t('Start Discovery') }}
+    </b-button>
   </b-form>
 </template>
 
 <script>
-import { computed, onMounted, ref } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
 import i18n from '@/utils/locale'
-import { reCidr, reSnmpCommunity } from '../schema'
+import { reCidr } from '@/utils/regex'
+import { reSnmpCommunity } from '../schema'
 
 const components = {
   Multiselect
@@ -185,19 +153,12 @@ const props = {
   isScanning: {
     type: Boolean,
     default: false
-  },
-  scanStatus: {
-    type: String,
-    default: ''
   }
 }
 
 const setup = (props, context) => {
-  const { root: { $store } = {} } = context
-
   const formRef = ref(null)
   const form = ref({
-    network: null,
     customAddress: '',
     snmpVersion: 'snmp_v2c',
     snmpCommunity: '',
@@ -206,64 +167,25 @@ const setup = (props, context) => {
     snmpRetry: 1
   })
 
-  const interfaces = ref([])
-
   const snmpVersionOptions = [
     { value: 'snmp_v1', text: 'SNMP v1' },
     { value: 'snmp_v2c', text: 'SNMP v2c' }
   ]
 
-  // Selected objects for multiselect components
-  const selectedNetwork = ref(null)
   const selectedSnmpVersion = ref(snmpVersionOptions[1]) // default to v2c
-
-  const networkOptions = computed(() => {
-    return interfaces.value
-      .filter(iface => iface.network)
-      .map(iface => ({
-        value: iface.network,
-        text: `${iface.id} - ${iface.network}`
-      }))
-  })
-
-  // Multiselect handlers
-  const onNetworkSelect = (option) => {
-    form.value.network = option ? option.value : null
-    // Clear custom address when selecting from dropdown
-    if (option) {
-      form.value.customAddress = ''
-    }
-  }
-
-  const onNetworkRemove = () => {
-    form.value.network = null
-    selectedNetwork.value = null
-  }
 
   const onSnmpVersionSelect = (option) => {
     form.value.snmpVersion = option ? option.value : 'snmp_v2c'
   }
 
-  const hasCustomAddress = computed(() => {
-    return form.value.customAddress && form.value.customAddress.trim() !== ''
-  })
-
-  const hasNetworkSelected = computed(() => {
-    return form.value.network !== null
-  })
-
   const hasAddress = computed(() => {
-    return hasCustomAddress.value || hasNetworkSelected.value
-  })
-
-  const effectiveAddress = computed(() => {
-    return form.value.customAddress || form.value.network
+    return form.value.customAddress && form.value.customAddress.trim() !== ''
   })
 
   // Validate custom address field
   const customAddressState = computed(() => {
     if (!form.value.customAddress || form.value.customAddress.trim() === '') return null
-    return reCidr.test(form.value.customAddress)
+    return reCidr(form.value.customAddress)
   })
 
   const customAddressError = computed(() => {
@@ -345,24 +267,10 @@ const setup = (props, context) => {
     return hasValidAddress && hasValidCommunity && hasValidOptions
   })
 
-  // Clear network selection when typing custom address
-  const onCustomAddressInput = () => {
-    if (form.value.customAddress && form.value.customAddress.trim() !== '') {
-      form.value.network = null
-      selectedNetwork.value = null
-    }
-  }
-
-  onMounted(() => {
-    $store.dispatch('config/getInterfaces').then(data => {
-      interfaces.value = data || []
-    })
-  })
-
   const onSubmit = () => {
     if (!isValid.value) return
 
-    const address = effectiveAddress.value
+    const address = form.value.customAddress
     const payload = {
       network: address,
       addresses: [address],
@@ -385,9 +293,7 @@ const setup = (props, context) => {
   return {
     formRef,
     form,
-    networkOptions,
     snmpVersionOptions,
-    selectedNetwork,
     selectedSnmpVersion,
     customAddressState,
     customAddressError,
@@ -400,10 +306,7 @@ const setup = (props, context) => {
     snmpRetryState,
     snmpRetryError,
     isValid,
-    onNetworkSelect,
-    onNetworkRemove,
     onSnmpVersionSelect,
-    onCustomAddressInput,
     onSubmit
   }
 }

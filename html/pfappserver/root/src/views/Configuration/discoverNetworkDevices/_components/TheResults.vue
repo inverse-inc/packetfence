@@ -96,6 +96,22 @@
       <template #cell(buttons)="{ item }">
         <span class="float-right text-nowrap">
           <b-button
+            v-if="switchIds.includes(item.ip)"
+            size="sm"
+            variant="outline-primary"
+            class="mr-1"
+            :disabled="isLoading"
+            @click.stop="$emit('view-switch', item.ip)"
+          >{{ $t('View Switch') }}</b-button>
+          <b-button
+            v-else
+            size="sm"
+            variant="outline-success"
+            class="mr-1"
+            :disabled="isLoading"
+            @click.stop="$emit('create-switch', item)"
+          >{{ $t('Create Switch') }}</b-button>
+          <b-button
             size="sm"
             variant="outline-danger"
             :disabled="isLoading"
@@ -123,6 +139,10 @@ const props = {
     type: Array,
     default: () => ([])
   },
+  switchIds: {
+    type: Array,
+    default: () => ([])
+  },
   isLoading: {
     type: Boolean,
     default: false
@@ -135,22 +155,22 @@ const setup = () => {
 
   const columns = ref([
     {
-      key: 'ip',
-      label: i18n.t('IP Address'),
+      key: 'network',
+      label: i18n.t('Network'),
       sortable: true,
-      class: 'text-nowrap',
       visible: true,
       locked: true
     },
     {
-      key: 'vendor',
-      label: i18n.t('Vendor'),
+      key: 'ip',
+      label: i18n.t('IP Address'),
       sortable: true,
+      class: 'text-nowrap',
       visible: true
     },
     {
-      key: 'driver',
-      label: i18n.t('Driver'),
+      key: 'vendor',
+      label: i18n.t('Vendor'),
       sortable: true,
       visible: true
     },
@@ -182,13 +202,13 @@ const setup = () => {
       key: 'credential',
       label: i18n.t('Credential'),
       sortable: false,
-      visible: false // hidden by default
+      visible: true
     },
     {
-      key: 'network',
-      label: i18n.t('Network'),
+      key: 'driver',
+      label: i18n.t('Driver'),
       sortable: true,
-      visible: true
+      visible: false
     },
     {
       key: 'buttons',
