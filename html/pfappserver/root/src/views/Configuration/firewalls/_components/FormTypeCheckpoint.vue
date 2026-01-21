@@ -10,6 +10,10 @@
                            namespace="id"
     />
 
+    <form-group-description :column-label="$i18n.t('Description')"
+                           namespace="description"
+    />
+
     <form-group-password :column-label="$i18n.t('Secret or Key')"
                          namespace="password"
     />
@@ -71,7 +75,7 @@
                                   disabled-value="0"
                                   enabled-value="1"
     />
-    
+
     <form-group-act-on-accounting-stop namespace="act_on_accounting_stop"
                                        :column-label="$i18n.t('SSO on accounting stop')"
                                        :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on accounting stop.')"
@@ -95,6 +99,7 @@ import {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,
@@ -117,6 +122,7 @@ const components = {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,

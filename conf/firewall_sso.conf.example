@@ -3,9 +3,11 @@
 #type=FortiGate
 #password=s3cr3t
 #port=1813
+#description=Production FortiGate firewall
 
 #[192.168.1.253]
 #type=PaloAlto
 #key=
+#description=Demo PaloAlto firewall
 
 # Specific to the PaloAlto firewall , you must use a username and password to fetch the key to use (see PaloAlto documentation).

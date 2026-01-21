@@ -10,6 +10,10 @@
                            namespace="id"
     />
 
+    <form-group-description :column-label="$i18n.t('Description')"
+                           namespace="description"
+    />
+
     <form-group-username :column-label="$i18n.t('Username')"
                          namespace="username"
     />
@@ -99,6 +103,7 @@ import {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,
@@ -120,6 +125,7 @@ const components = {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,

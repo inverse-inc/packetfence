@@ -10,6 +10,10 @@
                            namespace="id"
     />
 
+    <form-group-description :column-label="$i18n.t('Description')"
+                           namespace="description"
+    />
+
     <form-group-vsys :column-label="$i18n.t('Vsys')"
                      :text="$i18n.t('Please define the Virtual System number. This only has an effect when used with the HTTP transport.')"
                      namespace="vsys"
@@ -105,6 +109,7 @@ import {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,
@@ -127,6 +132,7 @@ const components = {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,

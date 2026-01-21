@@ -29,6 +29,7 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Hostname or IP Address required.'))
       .firewallIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Hostname or IP Address exists.')),
+    description: yup.string().nullable().label(i18n.t('Description')),
     password: yup.string().nullable().label(i18n.t('Secret or Key')),
     username: yup.string().nullable().label(i18n.t('Username')),
     port: yup.string().nullable().label(i18n.t('Port')),

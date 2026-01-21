@@ -71,6 +71,13 @@ export const useSearch = makeSearch('firewalls', {
       visible: true
     },
     {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'type',
       label: 'Type', // i18n defer
       required: true,
@@ -96,6 +103,11 @@ export const useSearch = makeSearch('firewalls', {
     {
       value: 'id',
       text: i18n.t('Hostname or IP'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
       types: [conditionType.SUBSTRING]
     },
     {

@@ -9,6 +9,10 @@
                            :disabled="!isNew && !isClone"
                            :text="$i18n.t('Include the region in the FQDN when using the cloud version (ex: login.myregion.linewize.net).')"
                            namespace="id"
+
+    <form-group-description :column-label="$i18n.t('Description')"
+                           namespace="description"
+    />
     />
 
     <form-group-username :column-label="$i18n.t('Username')"
@@ -100,6 +104,7 @@ import {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupDeviceIdentifier,
   FormGroupIdentifier,
   FormGroupNetworks,
@@ -121,6 +126,7 @@ const components = {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupDeviceIdentifier,
   FormGroupIdentifier,
   FormGroupNetworks,

@@ -8,6 +8,10 @@
     <form-group-identifier :column-label="$i18n.t('Hostname or IP Address')"
                            :disabled="!isNew && !isClone"
                            namespace="id"
+
+    <form-group-description :column-label="$i18n.t('Description')"
+                           namespace="description"
+    />
     />
 
     <form-group-port :column-label="$i18n.t('Port of the service')"
@@ -91,6 +95,7 @@ import {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPort,
@@ -110,6 +115,7 @@ const components = {
   FormGroupCacheUpdates,
   FormGroupCategories,
   FormGroupDefaultRealm,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPort,

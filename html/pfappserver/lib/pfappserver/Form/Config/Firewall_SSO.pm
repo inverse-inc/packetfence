@@ -30,6 +30,11 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the hostname or IP of the Firewall' },
   );
+has_field 'description' =>
+  (
+   type => 'Text',
+   label => 'Description',
+  );
 has_field 'password' =>
   (
    type => 'ObfuscatedText',
@@ -153,7 +158,7 @@ has_field 'sso_on_access_reevaluation',
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_accounting sso_on_dhcp) ],
+   render_list => [ qw(id description type password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_accounting sso_on_dhcp) ],
   );
 
 =head2 Methods

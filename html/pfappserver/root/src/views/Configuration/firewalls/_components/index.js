@@ -20,6 +20,7 @@ export {
   BaseFormGroupSwitch as FormGroupCacheUpdates,
   BaseFormGroupChosenMultiple as FormGroupCategories,
   BaseFormGroupInput as FormGroupDefaultRealm,
+  BaseFormGroupInput as FormGroupDescription,
   BaseFormGroupInput as FormGroupDeviceIdentifier,
   BaseFormGroupInput as FormGroupIdentifier,
   BaseFormGroupInput as FormGroupNacName,
