@@ -311,14 +311,31 @@ make html
 
 log_section "Setup container files"
 cd /usr/local/pf
-TAG_OR_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD | sed 's#[/|.]#-#g'`
-echo -n TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME > conf/build_id
-echo LOCAL_DEV=$LOCAL_DEV > containers/.local_env
 
-for img in pfbuild-debian-bookworm pfdebian radiusd; do
-  docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME
-  docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME packetfence/$img:$TAG_OR_BRANCH_NAME
-done
+if [ "$LOCAL_DEV" = true ]; then
+    # Use current branch for local development (containers will be built locally)
+    TAG_OR_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD | sed 's#[/|.]#-#g')
+    echo "LOCAL_DEV enabled: using branch tag $TAG_OR_BRANCH_NAME"
+    echo -n "TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME" > conf/build_id
+    echo "LOCAL_DEV=$LOCAL_DEV" > containers/.local_env
+
+    # Pull base images for local builds
+    for img in pfbuild-debian-bookworm pfdebian radiusd; do
+        docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME || \
+            docker pull ghcr.io/inverse-inc/packetfence/$img:devel
+        docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME packetfence/$img:$TAG_OR_BRANCH_NAME 2>/dev/null || \
+            docker tag ghcr.io/inverse-inc/packetfence/$img:devel packetfence/$img:$TAG_OR_BRANCH_NAME
+    done
+else
+    # Use devel images from registry
+    TAG_OR_BRANCH_NAME="devel"
+    echo "LOCAL_DEV disabled: using devel images from registry"
+    echo -n "TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME" > conf/build_id
+    echo "LOCAL_DEV=$LOCAL_DEV" > containers/.local_env
+
+    # Use manage-images.sh to pull and tag all images from devel
+    /usr/local/pf/containers/manage-images.sh
+fi
 
 log_section "Fix permissions and start unmanaged services"
 cd /usr/local/pf
