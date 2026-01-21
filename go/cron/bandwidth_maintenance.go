@@ -92,14 +92,10 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Con
 }
 
 func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.Context, tx *sql.Tx) (int64, error) {
-	now := time.Now()
 	window := 300
-	_, err := tx.ExecContext(ctx, "SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);", now, window)
-	if err != nil {
-		return 0, err
-	}
+	endBucket := time.Now().Add(-time.Duration(window) * time.Second)
 
-	_, err = tx.ExecContext(
+	_, err := tx.ExecContext(
 		ctx,
 		`UPDATE
          node INNER JOIN
@@ -107,11 +103,12 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
                 SELECT
                     mac, SUM(total_bytes) AS total_bytes
                     FROM (
-                        SELECT node_id, mac, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                        SELECT node_id, mac, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
                     ) AS to_process_bandwidth_accounting_netflow GROUP BY node_id
             ) AS summarization
             SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
             WHERE node.bandwidth_balance IS NOT NULL;`,
+		endBucket,
 		j.Batch,
 	)
 
@@ -130,13 +127,14 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
              sum(in_bytes) AS in_bytes,
              sum(out_bytes) AS out_bytes
             FROM (
-                SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
             ) AS to_process_bandwidth_accounting_netflow
             GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
                 out_bytes = out_bytes + VALUES(out_bytes)
             ;`,
+		endBucket,
 		j.Batch,
 	)
 
@@ -148,8 +146,9 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
 		ctx,
 		`DELETE bandwidth_accounting
         FROM bandwidth_accounting RIGHT JOIN (
-                SELECT node_id, time_bucket, unique_session_id FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                SELECT node_id, time_bucket, unique_session_id FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
         ) as to_process_bandwidth_accounting_netflow USING (node_id, time_bucket, unique_session_id);`,
+		endBucket,
 		j.Batch,
 	)
 
@@ -183,11 +182,6 @@ func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, roundin
 }
 
 func (j *BandwidthMaintenance) BandwidthAggregationTx(rounding_func, unit string, interval int) TxRunner {
-	sql1 := fmt.Sprintf(
-		"SET @end_bucket = DATE_SUB(?, INTERVAL ? %s);",
-		unit,
-	)
-
 	sql2 := fmt.Sprintf(
 		`
         INSERT INTO bandwidth_accounting
@@ -210,7 +204,7 @@ func (j *BandwidthMaintenance) BandwidthAggregationTx(rounding_func, unit string
                     in_bytes,
                     out_bytes,
                     last_updated FROM bandwidth_accounting
-                WHERE time_bucket <=  @end_bucket AND source_type = "radius" AND time_bucket != %s(time_bucket)
+                WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != %s(time_bucket)
                 ORDER BY node_id, unique_session_id, time_bucket
                 LIMIT ? FOR UPDATE
             ) AS to_delete_bandwidth_aggregation
@@ -234,7 +228,7 @@ func (j *BandwidthMaintenance) BandwidthAggregationTx(rounding_func, unit string
                     unique_session_id,
                     time_bucket
                 FROM bandwidth_accounting
-                WHERE time_bucket <=  @end_bucket AND source_type = "radius" AND time_bucket != %s(time_bucket)
+                WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != %s(time_bucket)
                 ORDER BY node_id, unique_session_id, time_bucket
                 LIMIT ? FOR UPDATE
             ) AS to_delete_bandwidth_aggregation USING(node_id, unique_session_id, time_bucket);
@@ -244,17 +238,24 @@ func (j *BandwidthMaintenance) BandwidthAggregationTx(rounding_func, unit string
 
 	return TxRunner(func(ctx context.Context, tx *sql.Tx) (int64, error) {
 		now := time.Now()
-		_, err := tx.ExecContext(ctx, sql1, now, interval)
+		var endBucket time.Time
+		switch unit {
+		case "HOUR":
+			endBucket = now.Add(-time.Duration(interval) * time.Hour)
+		case "DAY":
+			endBucket = now.AddDate(0, 0, -interval)
+		case "MONTH":
+			endBucket = now.AddDate(0, -interval, 0)
+		default:
+			endBucket = now.Add(-time.Duration(interval) * time.Second)
+		}
+
+		_, err := tx.ExecContext(ctx, sql2, endBucket, j.Batch)
 		if err != nil {
 			return 0, err
 		}
 
-		_, err = tx.ExecContext(ctx, sql2, j.Batch)
-		if err != nil {
-			return 0, err
-		}
-
-		res, err := tx.ExecContext(ctx, sql3, j.Batch)
+		res, err := tx.ExecContext(ctx, sql3, endBucket, j.Batch)
 		if err != nil {
 			return 0, err
 		}
@@ -285,18 +286,9 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistory(ctx context.Co
 }
 
 func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.Context, tx *sql.Tx) (int64, error) {
+	endBucket := time.Now().Add(-time.Duration(bandwidthAccountingRadiusToHistoryWindow) * time.Second)
+
 	_, err := tx.ExecContext(
-		ctx,
-		"SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);",
-		time.Now(),
-		bandwidthAccountingRadiusToHistoryWindow,
-	)
-
-	if err != nil {
-		return 0, err
-	}
-
-	_, err = tx.ExecContext(
 		ctx,
 		`
         INSERT INTO bandwidth_accounting_history
@@ -308,13 +300,14 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.
                  sum(in_bytes) AS in_bytes,
                  sum(out_bytes) AS out_bytes
                 FROM (
-                    SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE ) as to_delete_bandwidth_accounting_radius_to_history
+                    SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE ) as to_delete_bandwidth_accounting_radius_to_history
                 GROUP BY node_id, new_time_bucket
                 HAVING SUM(in_bytes) != 0 OR sum(out_bytes) != 0
                 ON DUPLICATE KEY UPDATE
                     in_bytes = in_bytes + VALUES(in_bytes),
                     out_bytes = out_bytes + VALUES(out_bytes)
                 ;`,
+		endBucket,
 		j.Batch,
 	)
 
@@ -327,8 +320,9 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.
 		`
         DELETE bandwidth_accounting
                     FROM bandwidth_accounting RIGHT JOIN (
-                        SELECT node_id, unique_session_id, mac, time_bucket FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                        SELECT node_id, unique_session_id, mac, time_bucket FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
                     ) AS to_delete_bandwidth_accounting_radius_to_history USING (node_id, time_bucket, unique_session_id);`,
+		endBucket,
 		j.Batch,
 	)
 
@@ -361,11 +355,6 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregation(ctx context.Context, 
 }
 
 func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit string, interval int) TxRunner {
-	sql1 := fmt.Sprintf(
-		`SET @end_bucket = DATE_SUB(?, INTERVAL ? %s);`,
-		unit,
-	)
-
 	sql2 := fmt.Sprintf(
 		`
     INSERT INTO bandwidth_accounting_history
@@ -377,7 +366,7 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit
          sum(in_bytes) AS in_bytes,
          sum(out_bytes) AS out_bytes
         FROM (
-        SELECT node_id, %s(time_bucket) as new_time_bucket, mac, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= @end_bucket AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history
+        SELECT node_id, %s(time_bucket) as new_time_bucket, mac, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history
         GROUP BY node_id, new_time_bucket
         ON DUPLICATE KEY UPDATE
             in_bytes = in_bytes + VALUES(in_bytes),
@@ -389,35 +378,30 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit
 	sql3 := fmt.Sprintf(
 		`
     DELETE bandwidth_accounting_history
-        FROM bandwidth_accounting_history RIGHT JOIN (SELECT node_id, time_bucket FROM bandwidth_accounting_history WHERE time_bucket <= @end_bucket AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history USING (node_id, time_bucket);`,
+        FROM bandwidth_accounting_history RIGHT JOIN (SELECT node_id, time_bucket FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history USING (node_id, time_bucket);`,
 		rounding_func,
 	)
 
 	return TxRunner(func(ctx context.Context, tx *sql.Tx) (int64, error) {
-		_, err := tx.ExecContext(
-			ctx,
-			sql1,
-			time.Now(),
-			interval,
-		)
+		now := time.Now()
+		var endBucket time.Time
+		switch unit {
+		case "HOUR":
+			endBucket = now.Add(-time.Duration(interval) * time.Hour)
+		case "DAY":
+			endBucket = now.AddDate(0, 0, -interval)
+		case "MONTH":
+			endBucket = now.AddDate(0, -interval, 0)
+		default:
+			endBucket = now.Add(-time.Duration(interval) * time.Second)
+		}
+
+		_, err := tx.ExecContext(ctx, sql2, endBucket, j.Batch)
 		if err != nil {
 			return 0, err
 		}
 
-		_, err = tx.ExecContext(
-			ctx,
-			sql2,
-			j.Batch,
-		)
-		if err != nil {
-			return 0, err
-		}
-
-		res, err := tx.ExecContext(
-			ctx,
-			sql3,
-			j.Batch,
-		)
+		res, err := tx.ExecContext(ctx, sql3, endBucket, j.Batch)
 		if err != nil {
 			return 0, err
 		}
