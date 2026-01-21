@@ -103,14 +103,31 @@
             :disabled="isLoading"
             @click.stop="$emit('view-switch', item.ip)"
           >{{ $t('View Switch') }}</b-button>
-          <b-button
-            v-else
-            size="sm"
-            variant="outline-success"
-            class="mr-1"
-            :disabled="isLoading"
-            @click.stop="$emit('create-switch', item)"
-          >{{ $t('Create Switch') }}</b-button>
+          <template v-else>
+            <b-dropdown
+              v-if="getMatchingTypes(item.driver).length > 1"
+              size="sm"
+              variant="outline-success"
+              class="mr-1"
+              :disabled="isLoading"
+              :text="$t('Create Switch')"
+              right
+            >
+              <b-dropdown-item
+                v-for="switchType in getMatchingTypes(item.driver)"
+                :key="switchType"
+                @click.stop="$emit('create-switch', { ...item, type: switchType })"
+              >{{ switchType }}</b-dropdown-item>
+            </b-dropdown>
+            <b-button
+              v-else
+              size="sm"
+              variant="outline-success"
+              class="mr-1"
+              :disabled="isLoading"
+              @click.stop="$emit('create-switch', { ...item, type: getMatchingTypes(item.driver)[0] || '' })"
+            >{{ $t('Create Switch') }}</b-button>
+          </template>
           <b-button
             size="sm"
             variant="outline-danger"
@@ -124,7 +141,7 @@
 </template>
 
 <script>
-import { computed, ref } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import {
   BaseSearchInputColumns
@@ -143,15 +160,45 @@ const props = {
     type: Array,
     default: () => ([])
   },
+  switchTypes: {
+    type: Array,
+    default: () => ([])
+  },
   isLoading: {
     type: Boolean,
     default: false
   }
 }
 
-const setup = () => {
+// Normalize string for comparison: lowercase and remove separators
+const normalizeForMatch = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().replace(/[_:-]/g, '')
+}
+
+// Find matching switch types for a driver
+// e.g., driver "cisco_catalyst" should match "Cisco::Catalyst_2900", "Cisco::Catalyst_2950", etc.
+const findMatchingTypes = (driver, switchTypes) => {
+  if (!driver || !switchTypes.length) return []
+  // Split driver into parts for flexible matching (e.g., "cisco_catalyst" -> ["cisco", "catalyst"])
+  const driverParts = driver.toLowerCase().split(/[_:-]/).filter(Boolean)
+
+  return switchTypes.filter(type => {
+    const normalizedFullType = normalizeForMatch(type)
+    // Check if all driver parts are present in the type
+    return driverParts.every(part => normalizedFullType.includes(part))
+  })
+}
+
+const setup = (props) => {
+  const { switchTypes } = toRefs(props)
   const sortBy = ref('ip')
   const sortDesc = ref(false)
+
+  // Get matching switch types for a device's driver
+  const getMatchingTypes = (driver) => {
+    return findMatchingTypes(driver, switchTypes.value || [])
+  }
 
   const columns = ref([
     {
@@ -233,7 +280,8 @@ const setup = () => {
     visibleColumns,
     setColumns,
     sortBy,
-    sortDesc
+    sortDesc,
+    getMatchingTypes
   }
 }
 

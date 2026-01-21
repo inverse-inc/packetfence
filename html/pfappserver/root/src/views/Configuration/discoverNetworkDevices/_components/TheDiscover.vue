@@ -45,6 +45,7 @@
       <the-results
         :devices="devices"
         :switch-ids="switchIds"
+        :switch-types="switchTypes"
         :is-loading="isScanning"
         @view-switch="onViewSwitch"
         @create-switch="onCreateSwitch"
@@ -90,6 +91,7 @@ const setup = (props, context) => {
   } = store
 
   const switchIds = ref([])
+  const switchTypes = ref([]) // All available switch types from OPTIONS
 
   // Derive scanning network from store state (persists across navigation)
   const scanningNetwork = computed(() => {
@@ -112,8 +114,28 @@ const setup = (props, context) => {
     })
   }
 
+  const fetchSwitchTypes = () => {
+    $store.dispatch('$_switches/optionsBySwitchGroup', 'default').then(options => {
+      const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = options
+      // Extract all switch type values from grouped options
+      const types = []
+      switchGroups.forEach(group => {
+        const { options: groupOptions = [] } = group
+        groupOptions.forEach(opt => {
+          if (opt.value) {
+            types.push(opt.value)
+          }
+        })
+      })
+      switchTypes.value = types
+    }).catch(() => {
+      switchTypes.value = []
+    })
+  }
+
   onMounted(() => {
     fetchSwitches()
+    fetchSwitchTypes()
   })
 
   const onScan = (payload) => {
@@ -153,6 +175,7 @@ const setup = (props, context) => {
     isScanning,
     devices,
     switchIds,
+    switchTypes,
     snmpReport,
     scanningNetwork,
     currentScanProgress,
