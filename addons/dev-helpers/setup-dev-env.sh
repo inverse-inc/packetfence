@@ -41,6 +41,9 @@ OPTIONS:
     --local-dev         Enable local development mode (sets LOCAL_DEV=true in
                         containers/.local_env). This configures containers to use
                         local builds instead of pulling from the registry.
+                        WARNING: When enabled, starting any dockerized service will
+                        rebuild it from scratch, including pfdebian (~3.5GB).
+                        This requires significant disk space and CPU resources.
 
 ENVIRONMENT VARIABLES:
     BRANCH              Git branch to checkout (default: devel)
