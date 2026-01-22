@@ -143,6 +143,9 @@ func generateIpCidrList(cidrStr string) ([]string, error) {
 
 // resolveAddresses expand CIDR if needed, and construct an array containing all addresses to scan
 func resolveAddresses(addresses []string) ([]string, error) {
+	if len(addresses) == 0 {
+		return nil, fmt.Errorf("At least 1 address required")
+	}
 	lst := make(map[string]bool, 0)
 	for _, addr := range addresses {
 		if !checkIp(addr) {

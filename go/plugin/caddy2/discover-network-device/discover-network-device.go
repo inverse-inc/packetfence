@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"sync"
 	"time"
@@ -72,32 +73,39 @@ type DiscoverNetworkDeviceResponse struct {
 	Scan    *ScanResponse   `json:"scan"`
 }
 
-func fetchData(ctx context.Context, payload Payload, progressCb func(int)) (any, error) {
+func FetchData(ctx context.Context, payload Payload, progressCb func(int)) (any, error) {
 	var wg sync.WaitGroup
-	chanSwitch := make(chan []SwitchModules, 1)
-	chanScan := make(chan *ScanResponse, 1)
+	modules := make([]SwitchModules, 0)
+	var scanResponse *ScanResponse = nil
+	chanErr := make(chan error, 2)
 	wg.Go(func() {
 		resp, err := SnmpScan(payload, progressCb)
 		if err != nil {
-
+			chanErr <- err
 		} else {
-			chanScan <- resp
+			scanResponse = resp
 		}
 	})
 	wg.Go(func() {
 		resp, err := GetSwitchModules(ctx)
 		if err != nil {
-
+			chanErr <- err
 		} else {
-			chanSwitch <- resp
+			modules = append(modules, resp...)
 		}
 	})
 	wg.Wait()
-	scanResp := <-chanScan
-	modulesResp := <-chanSwitch
+	close(chanErr)
+	if len(chanErr) > 0 {
+		var errJoin error
+		for err := range chanErr {
+			errJoin = errors.Join(errJoin, err)
+		}
+		return nil, errJoin
+	}
 	data := DiscoverNetworkDeviceResponse{
-		Modules: modulesResp,
-		Scan:    scanResp,
+		Modules: modules,
+		Scan:    scanResponse,
 	}
 	return data, nil
 }
@@ -119,11 +127,10 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 			pfqueueclient.PutStatusUpdater(statusUpdater)
 		}()
 		statusUpdater.Start(ctx)
-		data, err := fetchData(ctx, body, func(progress int) {
-			statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
+		data, err := FetchData(ctx, body, func(progress int) {
+			//statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
 		})
 		if err != nil {
-			// TODO: return err?
 			statusUpdater.Failed(ctx, err)
 		} else {
 			statusUpdater.Complete(ctx, data)
