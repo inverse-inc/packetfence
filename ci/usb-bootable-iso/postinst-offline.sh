@@ -732,7 +732,13 @@ StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+# Use basic.target instead of multi-user.target to avoid deadlock:
+# first-boot runs postinst -> postinst calls "systemctl isolate packetfence-base.target"
+# packetfence-base.target depends on multi-user.target
+# If first-boot is WantedBy multi-user.target, multi-user.target waits for first-boot to complete -> deadlock
+# Using basic.target, the service is queued early but After=docker.service ensures it waits for Docker.
+# By the time first-boot runs, multi-user.target is already active, breaking the cycle.
+WantedBy=basic.target
 SERVICE_EOF
 
 systemctl enable packetfence-first-boot.service
