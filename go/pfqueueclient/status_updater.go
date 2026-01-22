@@ -2,6 +2,7 @@ package pfqueueclient
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 	"time"
 
@@ -103,7 +104,12 @@ func (u *StatusUpdater) Failed(ctx context.Context, results interface{}) error {
 }
 
 func (u *StatusUpdater) Complete(ctx context.Context, results interface{}) error {
-	if err := u.saveResults(ctx, "item", results, 200, "Complete"); err != nil {
+	data, err := json.Marshal(results)
+	if err != nil {
+		return nil
+	}
+
+	if err := u.saveResults(ctx, "item", data, 200, "Complete"); err != nil {
 		return err
 	}
 	u.finalized = true
