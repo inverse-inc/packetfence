@@ -156,7 +156,7 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 					}
 
 					// IP per role
-					if ConfNet.SplitNetwork == "enabled" {
+					if sharedutils.IsEnabled(ConfNet.SplitNetwork) {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
 						keyConfRoles.PfconfigNS = "config::Roles"
 
@@ -284,7 +284,7 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 							options[dhcp.OptionDomainNameServer] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-							if portal.SecureRedirect == "enabled" {
+							if sharedutils.IsEnabled(portal.SecureRedirect) {
 								options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
 							}
 							DHCPScope.options = options
@@ -365,7 +365,7 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ctx, ConfNet)
 						options[dhcp.OptionRouter] = ShuffleGateway(ctx, ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-						if portal.SecureRedirect == "enabled" {
+						if sharedutils.IsEnabled(portal.SecureRedirect) {
 							options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
 						}
 						DHCPScope.options = options

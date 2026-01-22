@@ -76,7 +76,7 @@ func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
 	jobs := []JobSetupConfig{}
 	for name, config := range maintConfig {
 		data := config.(map[string]interface{})
-		if data["status"].(string) == "enabled" {
+		if sharedutils.IsEnabled(data["status"].(string)) {
 			if job := BuildJob(name, data); job != nil {
 				jobs = append(jobs, job)
 			}
