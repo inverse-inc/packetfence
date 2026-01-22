@@ -57,6 +57,7 @@ echo "===> Step 2: Installing packages from DVD (needed for first boot)"
 # - liblog-log4perl-perl (>= 1.43): fingerbank requires specific version
 # - libconfig-inifiles-perl (>= 2.88): fingerbank requires specific version
 # - liburi-perl, libregexp-ipv6-perl: needed by HTTP::Request/LWP in packetfence-perl
+# - libnet-ssleay-perl, libio-socket-ssl-perl: SSL/TLS support (XS modules)
 # - acl: needed by packetfence preinst script (setfacl command)
 # - libdbd-sqlite3-perl, sqlite3, libdata-powerset-perl: fingerbank dependencies
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -64,6 +65,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libconfig-inifiles-perl \
     liburi-perl \
     libregexp-ipv6-perl \
+    libnet-ssleay-perl \
+    libio-socket-ssl-perl \
     acl \
     libdbd-sqlite3-perl \
     sqlite3 \
@@ -554,10 +557,21 @@ APT_EOF
     echo "Local APT repository created successfully"
     echo ""
 
-    # Step 3b: Install all packages using apt-get (proper dependency resolution)
-    echo "===> Step 3b: Installing packages with apt-get..."
+    # Step 3b: Install all dependency packages first (before major applications)
+    echo "===> Step 3b: Installing dependency packages..."
 
-    # Install packetfence-perl first (provides virtual packages)
+    # Get list of all non-packetfence/non-fingerbank packages from the local repo
+    DEP_PKGS=$(ls ${PF_CACHE_DIR}/*.deb 2>/dev/null | xargs -n1 basename | sed 's/_.*$//' | grep -v -E '^(packetfence|fingerbank)' | sort -u || true)
+    if [ -n "$DEP_PKGS" ]; then
+        echo "Installing dependencies: $DEP_PKGS"
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades $DEP_PKGS || true
+    fi
+    echo ""
+
+    # Step 3c: Install PacketFence ecosystem packages
+    echo "===> Step 3c: Installing PacketFence packages..."
+
+    # Install packetfence-perl (provides virtual packages)
     echo "Installing packetfence-perl..."
     DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades packetfence-perl || true
 
@@ -576,8 +590,8 @@ APT_EOF
     fi
     echo ""
 
-    # Step 3c: Install main PacketFence package LAST (requires Docker running)
-    echo "===> Step 3c: Installing main PacketFence package..."
+    # Step 3d: Install main PacketFence package LAST (requires Docker running)
+    echo "===> Step 3d: Installing main PacketFence package..."
     DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades packetfence || {
         echo "Warning: apt-get install packetfence had issues, trying dpkg..."
         PF_MAIN_PKG=$(ls ${PF_CACHE_DIR}/packetfence_*.deb 2>/dev/null | head -n1)
