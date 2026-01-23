@@ -33,7 +33,7 @@ sub build {
     my ($self) = @_;
     my %ConfigDomains = %{$self->{domains}};
     my %Config = %{$self->{config}};
-    while (my ($id, $cfg) = each(%ConfigDomains)){
+    while (my ($id, $cfg) = each(%ConfigDomains)) {
         if (exists($cfg->{use_connector}) && isenabled($cfg->{use_connector})) {
             $ConfigDomains{$id}{ntlm_auth_host} = $Config{'services_host'}{'pfconnector_service_host'};
         }

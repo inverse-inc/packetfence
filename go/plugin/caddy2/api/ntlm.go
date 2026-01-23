@@ -13,6 +13,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// ConnectorPortOffset is the port offset added when using a connector for NTLM auth
+const ConnectorPortOffset = 100
+
 type PasswordChangeEvent struct {
 	RecordID          int    `json:"RecordID"`
 	TargetUserName    string `json:"TargetUserName"`
@@ -108,7 +111,7 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 			return
 		}
 		// Use connector for NTLM auth
-		ntlmAuthPort = strconv.Itoa(AuthPort + 100)
+		ntlmAuthPort = strconv.Itoa(AuthPort + ConnectorPortOffset)
 	}
 	ntlmAuthHostPort := ntlmAuthHost + ":" + ntlmAuthPort
 
@@ -215,7 +218,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 			return
 		}
 		// Use connector for NTLM auth
-		ntlmAuthPort = strconv.Itoa(AuthPort + 100)
+		ntlmAuthPort = strconv.Itoa(AuthPort + ConnectorPortOffset)
 	}
 	ntlmAuthHostPort := ntlmAuthHost + ":" + ntlmAuthPort
 	passed, err := ntlm.CheckMachineAccountWithGivenPassword(ctx, ntlmAuthHostPort, req.Password)

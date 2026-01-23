@@ -16,6 +16,9 @@ use base 'pfconfig::namespaces::resource';
 use NetAddr::IP;
 use pf::util qw(listify isenabled);
 
+# Port offset added when using a connector for NTLM auth
+use constant CONNECTOR_PORT_OFFSET => 100;
+
 sub init {
     my ($self) = @_;
     $self->{_authentication_config} =
@@ -88,7 +91,7 @@ sub build {
         next unless isenabled($data->{'use_connector'});
         my $port = $data->{'ntlm_auth_port'};
         next unless defined $port;
-        $port += 100;
+        $port += CONNECTOR_PORT_OFFSET;
         my $connector = $self->find_connector( $data->{ad_server} );
         my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
         push @{ $hash{$connector} }, $r;

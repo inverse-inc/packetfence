@@ -10,13 +10,20 @@ if [ -z "$CONNECTOR_ID" ]; then
     exit 0
 fi
 
-curl --fail "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-env?CONNECTOR_ID=$CONNECTOR_ID" > /usr/local/ntlm-auth-api/conf/ntlm_auth_api.env
-
-
-# JSON File
 INPUT_FILE="/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env"
-if [ ! -f "$INPUT_FILE" ]; then
-    echo "Error: File $INPUT_FILE doesn't exists"
+
+if ! curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-env?CONNECTOR_ID=$CONNECTOR_ID" -o "$INPUT_FILE"; then
+    echo "Error: Failed to fetch ntlm_auth_api.env from API"
+    exit 1
+fi
+
+if [ ! -s "$INPUT_FILE" ]; then
+    echo "Error: File $INPUT_FILE is empty or doesn't exist"
+    exit 1
+fi
+
+if ! jq empty "$INPUT_FILE" 2>/dev/null; then
+    echo "Error: File $INPUT_FILE contains invalid JSON"
     exit 1
 fi
 
@@ -50,13 +57,20 @@ jq -r --arg hostname "$hostname"  'to_entries[] |
 
 # Generate db.ini
 
-curl --fail "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-db" > /usr/local/ntlm-auth-api/conf/db.env
-
-
-# JSON File
 DB_FILE="/usr/local/ntlm-auth-api/conf/db.env"
-if [ ! -f "$DB_FILE" ]; then
-    echo "Error: File $DB_FILE doesn't exists"
+
+if ! curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-db" -o "$DB_FILE"; then
+    echo "Error: Failed to fetch db.env from API"
+    exit 1
+fi
+
+if [ ! -s "$DB_FILE" ]; then
+    echo "Error: File $DB_FILE is empty or doesn't exist"
+    exit 1
+fi
+
+if ! jq empty "$DB_FILE" 2>/dev/null; then
+    echo "Error: File $DB_FILE contains invalid JSON"
     exit 1
 fi
 

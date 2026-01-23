@@ -23,13 +23,19 @@ while true; do
         host=$(cat $full_path | grep 'HOST' | awk -F '=' '{print $2}')
         port=$(cat $full_path | grep 'LISTEN' | awk -F '=' '{print $2}')
 
-        res=$(curl -X GET http://"$host:$port"/ping 2>/dev/null)
+        curl_err=$(mktemp)
+        res=$(curl -X GET --silent --show-error http://"$host:$port"/ping 2>"$curl_err")
+        curl_exit=$?
 
         if [ $max_failures -gt 5 ]; then
             echo -n "Checking sub service for domain [$iden]: http://$host:$port/ping, response = [$res]. "
             if [ "$res" != "pong" ]; then
                 check_passed=0
+                if [ $curl_exit -ne 0 ] && [ -s "$curl_err" ]; then
+                    echo -n "Curl error: $(cat "$curl_err"). "
+                fi
                 echo "Not ready. Skipped checking for other domains."
+                rm -f "$curl_err"
                 break
             else
                 echo "Ready."
@@ -38,10 +44,15 @@ while true; do
             if [ "$res" != "pong" ]; then
                 check_passed=0
                 echo -n "Checking sub service for domain [$iden]: http://$host:$port/ping, response = [$res]. "
+                if [ $curl_exit -ne 0 ] && [ -s "$curl_err" ]; then
+                    echo -n "Curl error: $(cat "$curl_err"). "
+                fi
                 echo "Not ready. Skipped checking for other domains."
+                rm -f "$curl_err"
                 break
             fi
         fi
+        rm -f "$curl_err"
     done
 
     if [ $check_passed -eq 0 ]; then
