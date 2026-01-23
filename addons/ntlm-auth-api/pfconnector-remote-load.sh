@@ -54,7 +54,6 @@ jq -r --arg hostname "$hostname"  'to_entries[] |
        (.value | to_entries[] | "\(.key)=\(.value)"),
        ""' "$INPUT_FILE" >> "$output_ini"
 
-
 # Generate db.ini
 
 DB_FILE="/usr/local/ntlm-auth-api/conf/db.env"
