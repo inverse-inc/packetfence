@@ -90,9 +90,20 @@ EOT
         my @backends = split(/\s*,\s*/, $database_proxysql->{backends});
         $single_server = 1 if (scalar(@backends) == 1);
         my $ssl = $cacert ? 1 : 0;
+
+        # Master-slave configuration with failover:
+        # - hostgroup 10 (writes): all backends with decreasing weights (master preferred, failover to slaves)
+        # - hostgroup 30 (reads): all backends with decreasing weights
         foreach my $backend (@backends) {
             $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
+EOT
+            $i--;
+        }
+        $i = 100;
+        foreach my $backend (@backends) {
+            $tags{mysql_servers} .= << "EOT";
+    { address="$backend" , port=$port , hostgroup=30, max_connections=1000, weight=$i, use_ssl=$ssl },
 EOT
             $i--;
         }

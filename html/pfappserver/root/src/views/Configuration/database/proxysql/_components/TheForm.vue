@@ -19,7 +19,7 @@
 
     <form-group-backends namespace="backends"
                          :column-label="$i18n.t('Backends')"
-                         :text="$i18n.t('Comma-delimited IPv4 addresses of MySQL backend servers')"
+                         :text="$i18n.t('Comma-delimited IPv4 addresses for master-slave setup. First server is preferred for writes with failover to others. All servers handle reads.')"
     />
     <form-group-scheduler namespace="scheduler"
                        :column-label="$i18n.t('Use PXC Scheduler')"
