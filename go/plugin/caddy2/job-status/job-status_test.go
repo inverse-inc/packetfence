@@ -3,7 +3,6 @@ package jobstatus
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -133,7 +132,6 @@ func TestStatusUpdater(t *testing.T) {
 	go func() {
 		time.Sleep(2 * time.Second)
 		err = sq.Complete(ctx, struct{}{})
-		fmt.Printf("Done")
 	}()
 	recorder = httptest.NewRecorder()
 	jobStatus.handleStatusPoll(recorder, req, httprouter.Params{httprouter.Param{Key: "job_id", Value: taskId}})
