@@ -87,12 +87,15 @@ EOT
 EOT
         }
 
-        $single_server = 1;
-        my $backend = $database_proxysql->{backend};
+        my @backends = split(/\s*,\s*/, $database_proxysql->{backends});
+        $single_server = 1 if (scalar(@backends) == 1);
         my $ssl = $cacert ? 1 : 0;
-        $tags{mysql_servers} .= << "EOT";
+        foreach my $backend (@backends) {
+            $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
 EOT
+            $i--;
+        }
     } elsif (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
         my @mysql_write_backend = pf::cluster::getWriteDB();

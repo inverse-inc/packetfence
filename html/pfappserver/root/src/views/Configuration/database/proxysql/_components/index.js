@@ -13,7 +13,7 @@ export {
 
   BaseFormGroupSwitch                 as FormGroupStatus,
   BaseFormGroupFileUpload             as FormGroupCacert,
-  BaseFormGroupInput                  as FormGroupBackend,
+  BaseFormGroupInput                  as FormGroupBackends,
   BaseFormGroupSwitch                 as FormGroupScheduler,
   BaseFormGroupInput                  as FormGroupPort,
   BaseViewResource                    as BaseView,
