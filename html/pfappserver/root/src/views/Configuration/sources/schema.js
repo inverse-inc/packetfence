@@ -2,6 +2,7 @@ import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { connectThroughPortMin, connectThroughPortMax } from './config'
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
