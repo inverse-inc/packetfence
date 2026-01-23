@@ -68,6 +68,7 @@ type SnmpResult struct {
 	Error   string `json:"error"`
 }
 
+// ScanResponse is the scan response
 type ScanResponse struct {
 	SnmpResult []SnmpResult `json:"snmp_result"`
 	Devices    []Device     `json:"devices"`
@@ -88,7 +89,7 @@ const (
 	snmpTransport = "udp"
 	sysDescrOid   = ".1.3.6.1.2.1.1.1.0"
 	sysOidOid     = ".1.3.6.1.2.1.1.2.0"
-	driverFile    = "/usr/local/pf/go/plugin/caddy2/discover-network-device/drivers.json"
+	driverFile    = "/usr/local/pf/conf/discover-network-device/drivers.json"
 )
 
 var credTypeList = []string{"snmp_v1", "snmp_v2c"}
@@ -321,7 +322,6 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 	if err := checkOptions(&payload.Options); err != nil {
 		return nil, fmt.Errorf("Bad options: %v", err)
 	}
-	fmt.Printf("Start analyzing %d addresses...\n", len(addresses))
 	var wgOut sync.WaitGroup
 	deviceFoundChan := make(chan Device)
 	snmpErrChan := make(chan SnmpResult)

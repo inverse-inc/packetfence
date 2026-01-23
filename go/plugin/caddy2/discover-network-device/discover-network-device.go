@@ -68,12 +68,14 @@ type Task struct {
 	Status int    `json:"status"`
 }
 
+// DiscoverNetworkDeviceResponse is returned by the endpoint
 type DiscoverNetworkDeviceResponse struct {
 	Modules []SwitchModules `json:"modules"`
-	Scan    *ScanResponse   `json:"scan"`
+	Scan    ScanResponse    `json:"scan"`
 }
 
-func FetchData(ctx context.Context, payload Payload, progressCb func(int)) (any, error) {
+// FetchData does two things: get PF modules from Perl backend, and scan the network with SNMP
+func FetchData(ctx context.Context, payload Payload, progressCb func(int)) (*DiscoverNetworkDeviceResponse, error) {
 	var wg sync.WaitGroup
 	modules := make([]SwitchModules, 0)
 	var scanResponse *ScanResponse = nil
@@ -103,9 +105,9 @@ func FetchData(ctx context.Context, payload Payload, progressCb func(int)) (any,
 		}
 		return nil, errJoin
 	}
-	data := DiscoverNetworkDeviceResponse{
+	data := &DiscoverNetworkDeviceResponse{
 		Modules: modules,
-		Scan:    scanResponse,
+		Scan:    *scanResponse,
 	}
 	return data, nil
 }
@@ -128,10 +130,10 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 		}()
 		statusUpdater.Start(ctx)
 		data, err := FetchData(ctx, body, func(progress int) {
-			//statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
+			statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
 		})
 		if err != nil {
-			statusUpdater.Failed(ctx, err)
+			statusUpdater.Failed(ctx, err.Error())
 		} else {
 			statusUpdater.Complete(ctx, data)
 		}

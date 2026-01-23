@@ -6,6 +6,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
+// ModuleOption
 type ModuleOption struct {
 	Supports []string `json:"supports"`
 	Text     string   `json:"text"`
@@ -15,7 +16,7 @@ type ModuleOption struct {
 
 // SwitchModules contains the list of all modules available for a specific vendor (Group)
 // Use "Group", Value" and "DriverId" to match a switch with a module.
-// "Supports" and "Text" are not used.
+// "Supports" and "Text" are not used in this case.
 type SwitchModules struct {
 	Group   string         `json:"group"`
 	Options []ModuleOption `json:"options"`
@@ -42,7 +43,9 @@ func GetSwitchModules(ctx context.Context) ([]SwitchModules, error) {
 	return data.Meta.Type.Allowed, nil
 }
 
-func FilterSwitchModules(modules []SwitchModules, vendor, os, driver string) any {
+// FilterSwitchModules filter the response of GetSwitchModules with given vendor and driver.
+// It tries to filter the best it can to limit user choices.
+func FilterSwitchModules(modules []SwitchModules, vendor, driver string) any {
 	for _, mod := range modules {
 		// find the vendor group
 		if mod.Group == vendor && len(driver) > 0 {
@@ -50,11 +53,10 @@ func FilterSwitchModules(modules []SwitchModules, vendor, os, driver string) any
 			for _, opt := range mod.Options {
 				if opt.DriverId == driver {
 					// only one to be returned
-					return []SwitchModules{
-						SwitchModules{
-							Group:   mod.Group,
-							Options: []ModuleOption{opt},
-						},
+					return []SwitchModules{{
+						Group:   mod.Group,
+						Options: []ModuleOption{opt},
+					},
 					}
 				}
 			}
