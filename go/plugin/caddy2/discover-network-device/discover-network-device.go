@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -68,48 +66,12 @@ type Task struct {
 	Status int    `json:"status"`
 }
 
-// DiscoverNetworkDeviceResponse is returned by the endpoint
-type DiscoverNetworkDeviceResponse struct {
-	Modules []SwitchModules `json:"modules"`
-	Scan    ScanResponse    `json:"scan"`
-}
-
-// FetchData does two things: get PF modules from Perl backend, and scan the network with SNMP
-func FetchData(ctx context.Context, payload Payload, progressCb func(int)) (*DiscoverNetworkDeviceResponse, error) {
-	var wg sync.WaitGroup
-	modules := make([]SwitchModules, 0)
-	var scanResponse *ScanResponse = nil
-	chanErr := make(chan error, 2)
-	wg.Go(func() {
-		resp, err := SnmpScan(payload, progressCb)
-		if err != nil {
-			chanErr <- err
-		} else {
-			scanResponse = resp
-		}
-	})
-	wg.Go(func() {
-		resp, err := GetSwitchModules(ctx)
-		if err != nil {
-			chanErr <- err
-		} else {
-			modules = append(modules, resp...)
-		}
-	})
-	wg.Wait()
-	close(chanErr)
-	if len(chanErr) > 0 {
-		var errJoin error
-		for err := range chanErr {
-			errJoin = errors.Join(errJoin, err)
-		}
-		return nil, errJoin
+func ScanTask(payload Payload, progressCb func(int)) (*ScanResponse, error) {
+	resp, err := SnmpScan(payload, progressCb)
+	if err != nil {
+		return nil, err
 	}
-	data := &DiscoverNetworkDeviceResponse{
-		Modules: modules,
-		Scan:    *scanResponse,
-	}
-	return data, nil
+	return resp, nil
 }
 
 func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -129,7 +91,7 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 			pfqueueclient.PutStatusUpdater(statusUpdater)
 		}()
 		statusUpdater.Start(ctx)
-		data, err := FetchData(ctx, body, func(progress int) {
+		data, err := ScanTask(body, func(progress int) {
 			statusUpdater.UpdateProgress(ctx, progress, "Scanning...")
 		})
 		if err != nil {

@@ -48,7 +48,7 @@ SnmpOptions:
       description: The scan use multiple threads to speed up the SNMP scan. The higher the better. 0 = use default
       type: integer
       minimum: 0
-      maximum: 128
+      maximum: 256
       default: 32
     snmp_timeout:
       description: Timeout in seconds for a SNMP request. 0 = use default.
@@ -60,7 +60,7 @@ SnmpOptions:
       description: Number of retry if the SNMP request timeout. 0 = use default.
       type: integer
       minimum: 0
-      maximum: 3
+      maximum: 10
       default: 1
     snmp_port:
       description: Port used by the SNMP request.

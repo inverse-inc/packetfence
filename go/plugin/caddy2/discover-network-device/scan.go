@@ -106,7 +106,29 @@ func readDriverFile(filename string) (*Drivers, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: validate driver file here
+	for _, device := range data.Devices {
+		if len(device.Name) < 2 {
+			return nil, fmt.Errorf("Device %s has an invalid name", device.Name)
+		}
+		if len(device.Vendor) < 2 {
+			return nil, fmt.Errorf("Device %s has an invalid vendor", device.Name)
+		}
+		if len(device.Os) < 2 {
+			return nil, fmt.Errorf("Device %s has an invalid os", device.Name)
+		}
+		if len(device.Driver) == 1 { // 0 = not set, 2+ = ok, so 1=invalid
+			return nil, fmt.Errorf("Device %s has an invalid driver", device.Name)
+		}
+		if _, err := regexp.Compile(device.SysOidReg); err != nil {
+			return nil, fmt.Errorf("Device %s has an invalid sysOID (%s)", device.Name, err.Error())
+		}
+		if _, err := regexp.Compile(device.SysOsReg); err != nil {
+			return nil, fmt.Errorf("Device %s has an invalid sysOS (%s)", device.Name, err.Error())
+		}
+		if _, err := regexp.Compile(device.SysVerReg); err != nil {
+			return nil, fmt.Errorf("Device %s has an invalid sysVersion (%s)", device.Name, err.Error())
+		}
+	}
 	return &data, nil
 }
 
@@ -190,8 +212,8 @@ func checkCredentials(creds []Credential) error {
 func checkOptions(opts *Options) error {
 	if opts.MaxThreads == 0 { // default or auto value
 		opts.MaxThreads = max(runtime.NumCPU()*4, maxThreads)
-	} else if opts.MaxThreads < 0 || opts.MaxThreads > 128 {
-		return fmt.Errorf("MaxThread must be in range [0-128]")
+	} else if opts.MaxThreads < 0 || opts.MaxThreads > 256 {
+		return fmt.Errorf("MaxThread must be in range [0-256]")
 	}
 	if opts.SnmpPort == 0 { // default port
 		opts.SnmpPort = snmpPort
@@ -200,13 +222,13 @@ func checkOptions(opts *Options) error {
 	}
 	if opts.SnmpRetry == 0 { // default 1 retry
 		opts.SnmpRetry = snmpRetries
-	} else if opts.SnmpRetry < 0 || opts.SnmpRetry > 8 {
-		return fmt.Errorf("SnmpRetry must be in range [0-8]")
+	} else if opts.SnmpRetry < 0 || opts.SnmpRetry > 10 {
+		return fmt.Errorf("SnmpRetry must be in range [0-10]")
 	}
 	if opts.SnmpTimeout == 0 { // default timeout
 		opts.SnmpTimeout = snmpTimeout
-	} else if opts.SnmpTimeout < 0 || opts.SnmpTimeout > 8 {
-		return fmt.Errorf("SnmpTimeout must be in range [0-8] secondes")
+	} else if opts.SnmpTimeout < 0 || opts.SnmpTimeout > 10 {
+		return fmt.Errorf("SnmpTimeout must be in range [0-10] secondes")
 	}
 	return nil
 }
@@ -307,6 +329,7 @@ func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, prog
 
 // Scan is the main entry of the network scan
 func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
+	progressCb(1)
 	var resp ScanResponse
 	drivers, err := readDriverFile(driverFile)
 	if err != nil {
@@ -337,9 +360,10 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 		}
 	})
 	wgOut.Go(func() {
+		// dont send duplicate %, send only a 5 step increase
 		n := 0
 		alreadySeen := make(map[int]bool)
-		for _ = range progressChan {
+		for range progressChan {
 			n += 1
 			percentDone := int(float32(n)/float32(len(addresses))*99.0 + 1.0)
 			if percentDone%5 == 0 {
@@ -362,12 +386,10 @@ func SnmpScan(payload Payload, progressCb func(int)) (*ScanResponse, error) {
 		wg.Add(1)
 		go scanPart(&wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, payload.Credentials, payload.Options, addresses[lid:rid])
 	}
-	progressCb(1)
 	wg.Wait()
 	close(deviceFoundChan)
 	close(snmpErrChan)
 	close(progressChan)
-	progressCb(99)
 	wgOut.Wait()
 	progressCb(100)
 	return &resp, nil
