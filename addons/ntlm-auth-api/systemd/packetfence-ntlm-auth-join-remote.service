@@ -3,13 +3,15 @@
 Description=PacketFence NTLM Auth join remote
 
 [Service]
-StartLimitBurst=3
-StartLimitInterval=60
-Type=notify
-WatchdogSec=30s
-Environment=LOG_LEVEL=INFO
-ExecStart=/usr/local/ntlm-auth-api/sbin/ntlm-join-remote
+Type=forking
+TimeoutStopSec=60
+NotifyAccess=all
+LimitNOFILE=8192
+ExecStart=/usr/local/ntlm-auth-api/sbin/ntlm-join-remote-docker-wrapper start
+ExecStop=/usr/local/ntlm-auth-api/sbin/ntlm-join-remote-docker-wrapper stop
 Restart=on-failure
+PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-join-remote.pid
+PartOf=packetfence-pfconnector-remote.service
 
 [Install]
 WantedBy=multi-user.target
