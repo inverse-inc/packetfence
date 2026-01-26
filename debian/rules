@@ -82,6 +82,9 @@ install: build
 	# packetfence-ntlm-auth-api remote package
 	make DESTDIR=$(CURDIR)/debian/packetfence-ntlm-auth-api-remote ntlm_auth_api_remote_install
 
+	# packetfence-ntlm-auth-join-remote package
+	make DESTDIR=$(CURDIR)/debian/packetfence-ntlm-auth-join-remote ntlm_auth_join_remote_install
+
 	# packetfence-ci-lib package
 	make DESTDIR=$(CURDIR)/debian/packetfence-ci-lib ci_lib_install
 
