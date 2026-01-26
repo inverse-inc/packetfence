@@ -26,7 +26,7 @@ case "$1" in
     # get containers image and tag them locally
     /usr/local/ntlm-auth-api/containers/manage-images.sh
     /bin/systemctl daemon-reload
-    #/bin/systemctl enable packetfence-ntlm-auth-api-remote.service
+    /bin/systemctl enable packetfence-ntlm-auth-api-remote.service
     if [ -n "$2" ]; then
         if systemctl is-active --quiet "packetfence-ntlm-auth-api-remote.service"; then
             echo "Upgrade detected, restarting packetfence-ntlm-auth-api-remote service"
