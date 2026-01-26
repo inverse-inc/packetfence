@@ -12,46 +12,76 @@
       />
 
       <b-alert
-        v-if="isScanning || (snmpReport && snmpReport.length > 0)"
-        :variant="isScanning ? 'info' : 'warning'"
+        v-if="isScanning"
+        variant="info"
         show
         class="mt-3"
       >
-        <div v-if="isScanning">
-          <h5 class="alert-heading">{{ $t('Scanning {network}...', { network: scanningNetwork }) }}</h5>
-          <b-progress
-            :value="currentScanProgress"
-            :max="100"
-            class="mb-3"
-            animated
-            striped
-          />
-          <b-button
-            variant="outline-danger"
-            size="sm"
-            @click="onCancelScan"
-          >{{ $t('Cancel Scan') }}</b-button>
-        </div>
-        <div v-else>
-          <h5 class="alert-heading">{{ $t('SNMP Errors') }}</h5>
-          <ul class="mb-0">
-            <li v-for="(error, index) in snmpReport" :key="index">
-              <code>{{ error.address }}</code>: {{ error.error }}
-            </li>
-          </ul>
-        </div>
+        <h5 class="alert-heading">{{ $t('Scanning {network}...', { network: scanningNetwork }) }}</h5>
+        <b-progress
+          :value="currentScanProgress"
+          :max="100"
+          class="mb-3"
+          animated
+          striped
+        />
+        <b-button
+          variant="outline-danger"
+          size="sm"
+          @click="onCancelScan"
+        >{{ $t('Cancel Scan') }}</b-button>
       </b-alert>
 
-      <the-results
-        :devices="devices"
-        :switch-ids="switchIds"
-        :switch-types="switchTypes"
-        :is-loading="isScanning"
-        @view-switch="onViewSwitch"
-        @create-switch="onCreateSwitch"
-        @remove="onRemoveDevice"
-        @clear="onClearDevices"
-      />
+      <b-tabs class="mt-3" content-class="mt-3">
+        <b-tab active>
+          <template #title>
+            {{ $t('Devices') }}
+            <b-badge pill variant="danger" class="ml-1">{{ devices.length }}</b-badge>
+          </template>
+          <the-results
+            :devices="devices"
+            :switch-ids="switchIds"
+            :switch-types="switchTypes"
+            :is-loading="isScanning"
+            @view-switch="onViewSwitch"
+            @create-switch="onCreateSwitch"
+            @remove="onRemoveDevice"
+            @clear="onClearDevices"
+          />
+        </b-tab>
+        <b-tab>
+          <template #title>
+            {{ $t('Errors') }}
+            <b-badge pill variant="danger" class="ml-1">{{ snmpErrors.length }}</b-badge>
+          </template>
+          <b-table
+            :items="snmpErrors"
+            :fields="errorFields"
+            :busy="isScanning"
+            class="mb-0"
+            show-empty
+            striped
+            hover
+          >
+            <template #empty>
+              <div class="text-center text-muted py-5">
+                <icon name="check-circle" scale="3" class="mb-3" />
+                <p class="mb-0">{{ $t('No errors encountered during scan.') }}</p>
+              </div>
+            </template>
+            <template #cell(network)="{ value }">
+              <code v-if="value">{{ value }}</code>
+              <span v-else class="text-muted">-</span>
+            </template>
+            <template #cell(address)="{ value }">
+              <code>{{ value }}</code>
+            </template>
+            <template #cell(error)="{ value }">
+              <span class="text-danger">{{ value }}</span>
+            </template>
+          </b-table>
+        </b-tab>
+      </b-tabs>
     </b-card-body>
   </b-card>
 </template>
@@ -66,6 +96,7 @@ const components = {
 }
 
 import { computed, onMounted, ref } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import { useStore } from '../_store'
 
 // Map discover credential type to switch SNMPVersion format
@@ -83,7 +114,7 @@ const setup = (props, context) => {
     isScanning,
     devices,
     scans,
-    snmpReport,
+    snmpErrors,
     discoverNetwork,
     cancelScan,
     removeDevice,
@@ -171,12 +202,31 @@ const setup = (props, context) => {
     }
   }
 
+  const errorFields = [
+    {
+      key: 'network',
+      label: i18n.t('Network'),
+      sortable: true
+    },
+    {
+      key: 'address',
+      label: i18n.t('IP Address'),
+      sortable: true
+    },
+    {
+      key: 'error',
+      label: i18n.t('Error'),
+      sortable: true
+    }
+  ]
+
   return {
     isScanning,
     devices,
     switchIds,
     switchTypes,
-    snmpReport,
+    snmpErrors,
+    errorFields,
     scanningNetwork,
     currentScanProgress,
     onScan,

@@ -12,8 +12,7 @@ export const useStore = $store => {
     isScanning: computed(() => $store.getters['$_discover_network_devices/isScanning']),
     devices: computed(() => $store.getters['$_discover_network_devices/devices']),
     scans: computed(() => $store.state.$_discover_network_devices.scans),
-    modules: computed(() => $store.state.$_discover_network_devices.modules),
-    snmpReport: computed(() => $store.state.$_discover_network_devices.snmpReport),
+    snmpErrors: computed(() => $store.getters['$_discover_network_devices/snmpErrors']),
     scanProgress: network => computed(() => {
       const scan = $store.state.$_discover_network_devices.scans[network]
       return scan?.progress || 0
@@ -31,8 +30,7 @@ const state = () => {
   return {
     // Persisted data
     cache: {},              // { [ip]: { ...device, network, discoveredAt } }
-    modules: [],            // Switch modules from API
-    snmpReport: [],         // Errors from scan
+    snmpErrors: {},         // { [address]: { address, error, network } }
 
     // Background scan tracking (per-network)
     scans: {},              // { [network]: { task_id, status, progress, error, startedAt } }
@@ -51,6 +49,12 @@ const getters = {
     // Sort by IP address numerically
     const aNum = a.ip.split('.').map(n => parseInt(n, 10).toString().padStart(3, '0')).join('')
     const bNum = b.ip.split('.').map(n => parseInt(n, 10).toString().padStart(3, '0')).join('')
+    return aNum.localeCompare(bNum)
+  }),
+  snmpErrors: state => Object.values(state.snmpErrors).sort((a, b) => {
+    // Sort by IP address numerically
+    const aNum = a.address.split('.').map(n => parseInt(n, 10).toString().padStart(3, '0')).join('')
+    const bNum = b.address.split('.').map(n => parseInt(n, 10).toString().padStart(3, '0')).join('')
     return aNum.localeCompare(bNum)
   }),
   scanStatus: state => network => state.scans[network]?.status || ''
@@ -157,7 +161,7 @@ const mutations = {
   },
 
   SCAN_SUCCESS: (state, { network, response }) => {
-    const { modules = [], scan: { devices = [], snmp_report = [] } = {} } = response
+    const { devices = [], snmp_result = [] } = response
 
     // Remove existing devices from this network only (merge logic)
     Object.keys(state.cache).forEach(ip => {
@@ -175,8 +179,21 @@ const mutations = {
       })
     })
 
-    state.modules = modules
-    state.snmpReport = snmp_report
+    // Remove existing errors from this network only (merge logic)
+    Object.keys(state.snmpErrors).forEach(address => {
+      if (state.snmpErrors[address].network === network) {
+        Vue.delete(state.snmpErrors, address)
+      }
+    })
+
+    // Add new errors keyed by address
+    snmp_result.forEach(err => {
+      Vue.set(state.snmpErrors, err.address, {
+        ...err,
+        network
+      })
+    })
+
     state.itemStatus = types.SUCCESS
     state.message = ''
     Vue.set(state.scans, network, {
@@ -209,13 +226,18 @@ const mutations = {
 
   DEVICES_CLEARED: (state) => {
     state.cache = {}
-    state.snmpReport = []
+    state.snmpErrors = {}
   },
 
   DEVICES_CLEARED_FROM_NETWORK: (state, network) => {
     Object.keys(state.cache).forEach(ip => {
       if (state.cache[ip].network === network) {
         Vue.delete(state.cache, ip)
+      }
+    })
+    Object.keys(state.snmpErrors).forEach(address => {
+      if (state.snmpErrors[address].network === network) {
+        Vue.delete(state.snmpErrors, address)
       }
     })
   },
