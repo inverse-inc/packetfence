@@ -1009,7 +1009,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-monitor
-%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-join-remote
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
