@@ -14,7 +14,6 @@ function exit_usage() {
 
 dst_dir="$1"
 pf_ref="$2"
-fb_ref="$3"
 
 if [ -z "$dst_dir" ]; then
   echo "!!! - Missing destination directory"
@@ -26,17 +25,11 @@ if [ -z "$pf_ref" ]; then
   exit_usage
 fi
 
-if [ -z "$fb_ref" ]; then
-  echo "!!! - Missing Fingerbank perl client repo branch or tag name"
-  exit_usage
-fi
-
 mkdir -p $dst_dir
 
 tmpdir=`mktemp -d`
 
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
-git clone -b $fb_ref https://github.com/fingerbank/perl-client $tmpdir/fingerbank
 
 ## Happens in the PF dir (chdir)
 cd $tmpdir/packetfence
@@ -63,7 +56,7 @@ EOF
 cd -
 ## End of the commands in the PF dir
 
-cd $tmpdir/fingerbank
+cd  $tmpdir/packetfence/addons/perl-client/
 perl db/upgrade.pl --database=db/fingerbank_Local.db
 cp db/fingerbank_Local.db db/fingerbank_Upstream.db
 cd -
@@ -75,10 +68,9 @@ mkdir -p $dst_dir/html/captive-portal/profile-templates/
 touch $dst_dir/html/captive-portal/profile-templates/.empty
 
 mkdir -p $dst_dir/fingerbank
-cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
+cp -a $tmpdir/packetfence/addons/perl-client/conf  $dst_dir/fingerbank/
 touch $dst_dir/fingerbank/conf/fingerbank.conf
 
 find $dst_dir -name .gitignore -delete
 
 chmod a+r -R $dst_dir
-
