@@ -382,7 +382,7 @@ sub buildForms {
         @form_classes = ( $form_class );
     }
 
-    # Get form_parameters from controller if available (for active/inactive field handling)
+    # Get additional form parameters from controller if available and pass them to form constructors
     my @form_params = ();
     if ($controller->can("form_parameters")) {
         my $params = $controller->form_parameters();
