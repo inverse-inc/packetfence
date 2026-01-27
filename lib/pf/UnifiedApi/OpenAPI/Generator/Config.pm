@@ -382,7 +382,14 @@ sub buildForms {
         @form_classes = ( $form_class );
     }
 
-    return map { $_->new() } @form_classes;
+    # Get additional form parameters from controller if available and pass them to form constructors
+    my @form_params = ();
+    if ($controller->can("form_parameters")) {
+        my $params = $controller->form_parameters();
+        @form_params = @$params if $params && ref($params) eq 'ARRAY';
+    }
+
+    return map { $_->new(@form_params) } @form_classes;
 }
 
 =head2 searchRequestBody
