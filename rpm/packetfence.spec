@@ -1035,6 +1035,8 @@ fi
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
+%dir                    /usr/local/pf/conf/discover-network-device
+%config                 /usr/local/pf/conf/discover-network-device/drivers.json
 %config                 /usr/local/pf/conf/pfconfig.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
