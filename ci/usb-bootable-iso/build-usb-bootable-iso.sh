@@ -50,9 +50,9 @@ else
 fi
 
 # Version info
-PF_VERSION=${PF_VERSION:-$(cat "${PF_ROOT}/conf/pf-release" | cut -d' ' -f2)}
-PF_RELEASE=${PF_RELEASE:-$(cat "${PF_ROOT}/conf/pf-release")}
-PF_RELEASE_VERSION=${PF_RELEASE_VERSION:-$(echo $PF_RELEASE | sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g')}
+PF_VERSION=${PF_VERSION:-$(cut -d' ' -f2 < "${PF_ROOT}/conf/pf-release")}
+PF_RELEASE=${PF_RELEASE:-$(< "${PF_ROOT}/conf/pf-release")}
+PF_RELEASE_VERSION=${PF_RELEASE_VERSION:-$(sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g' <<< "$PF_RELEASE")}
 
 # Docker image tag - use CI environment or source from build_id if available
 if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then

@@ -218,7 +218,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 }
 
 # Verify kernel is still installed
-if [ ! -f /boot/vmlinuz-* ]; then
+if ! ls /boot/vmlinuz-* >/dev/null 2>&1; then
     echo "ERROR: Kernel missing! Reinstalling..."
     DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-amd64
 fi
