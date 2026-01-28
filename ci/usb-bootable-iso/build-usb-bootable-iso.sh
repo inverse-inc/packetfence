@@ -156,12 +156,13 @@ chmod 0444 ${ISOFILES_DIR}/isolinux/* || true
 
 # Step 11: Update MD5 checksums
 echo "===> Step 11: Updating MD5 checksums"
-cd ${ISOFILES_DIR}
+cd "${ISOFILES_DIR}"
 chmod +w md5sum.txt
 # Don't follow symlinks (-follow causes filesystem loops)
-find . -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt 2>/dev/null || echo "MD5 generation completed with warnings"
+# Some files may fail (symlinks, special files) - continue anyway
+find . -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt 2>&1 || true
 chmod -w md5sum.txt
-cd ${SCRIPT_DIR}
+cd "${SCRIPT_DIR}"
 
 # Step 12: Build final ISO
 echo "===> Step 12: Building final ISO"
