@@ -20,6 +20,7 @@ use pf::cluster;
 use pf::config qw(
     %Config
 );
+use pf::util qw(isenabled);
 
 extends 'pf::services::manager';
 
