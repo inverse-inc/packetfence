@@ -12,17 +12,8 @@ set -o nounset -o pipefail -o errexit
 PF_VERSION=${1:-15.1}
 
 echo "=============================================="
-echo "PacketFence Offline Post-Installation Script"
-echo "Phase A: Installing dependencies (preseed)"
-echo "=============================================="
+echo "PacketFence Offline Install - Phase A"
 echo "PF_VERSION: ${PF_VERSION}"
-echo "=============================================="
-echo "NOTE: DVD ISO is mounted at /media/cdrom"
-echo "      DVD provides all Debian packages"
-echo "      PF repo at /media/cdrom/pf-repo"
-echo ""
-echo "IMPORTANT: PacketFence will be installed on"
-echo "           first boot (Docker required)"
 echo "=============================================="
 
 # Step 1: Configure local repository from ISO
