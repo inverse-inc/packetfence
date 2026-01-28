@@ -42,9 +42,9 @@ DOCKER_IMAGES_DIR=${WORK_DIR}/docker-images
 if [ "${SKIP_CLEAN:-0}" != "1" ]; then
     echo "===> Cleaning work directory to avoid stale package conflicts"
     if [ -d "${WORK_DIR}" ]; then
-        chmod -R +w ${WORK_DIR}
+        chmod -R +w "${WORK_DIR}"
     fi
-    rm -rf ${WORK_DIR}
+    rm -rf "${WORK_DIR}"
 else
     echo "===> Skipping work directory cleanup (SKIP_CLEAN=1)"
 fi

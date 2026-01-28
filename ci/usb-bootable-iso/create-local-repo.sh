@@ -55,7 +55,7 @@ mkdir -p ${REPO_DIR}/dists/bookworm/main/binary-amd64
 
 # Create a temporary chroot for package download
 CHROOT_DIR=$(mktemp -d)
-trap "echo 'Cleaning up chroot...'; sudo rm -rf ${CHROOT_DIR}" EXIT
+trap 'echo "Cleaning up chroot..."; sudo rm -rf "${CHROOT_DIR}"' EXIT
 
 echo "===> Creating minimal chroot for package download"
 sudo debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
