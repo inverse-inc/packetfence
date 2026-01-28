@@ -997,6 +997,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfudpproxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/sdnotify-proxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/signal-proxy
