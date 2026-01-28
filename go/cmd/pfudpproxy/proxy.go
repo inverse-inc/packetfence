@@ -22,8 +22,6 @@ type UDPProxy struct {
 	config    *ProxyConfig
 	lb        *LoadBalancer
 	listeners []*net.UDPConn
-	fwdConns  map[int]*net.UDPConn // shared forwarding socket per port
-	addrCache sync.Map             // "ip:port" -> *net.UDPAddr
 	mu        sync.RWMutex
 	running   bool
 	stopChan  chan struct{}
@@ -35,7 +33,6 @@ func NewUDPProxy(config *ProxyConfig, lb *LoadBalancer) *UDPProxy {
 	return &UDPProxy{
 		config:   config,
 		lb:       lb,
-		fwdConns: make(map[int]*net.UDPConn),
 		stopChan: make(chan struct{}),
 	}
 }
@@ -72,15 +69,10 @@ func (p *UDPProxy) Stop(ctx context.Context) {
 	close(p.stopChan)
 	p.mu.Unlock()
 
-	// Close all listeners and forwarding sockets
+	// Close all listeners
 	for _, listener := range p.listeners {
 		if listener != nil {
 			listener.Close()
-		}
-	}
-	for _, conn := range p.fwdConns {
-		if conn != nil {
-			conn.Close()
 		}
 	}
 
@@ -132,17 +124,8 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
 		return
 	}
 
-	// Create a shared unconnected socket for forwarding packets on this port
-	fwdConn, err := net.ListenUDP("udp", nil)
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to create forwarding socket for port %d: %s", port, err.Error()))
-		conn.Close()
-		return
-	}
-
 	p.mu.Lock()
 	p.listeners = append(p.listeners, conn)
-	p.fwdConns[port] = fwdConn
 	p.mu.Unlock()
 
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("Listening on %s", addr))
@@ -177,46 +160,46 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
 				}
 			}
 
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Received %d bytes from %s on %s", n, srcAddr.String(), addr))
-
 			// Forward the packet to the primary healthy backend
-			p.forwardPacket(ctx, buf[:n], srcAddr, port, fwdConn)
+			p.forwardPacket(ctx, buf[:n], srcAddr, port)
 		}
 	}
 }
 
-// forwardPacket forwards a UDP packet to the primary healthy backend using the
-// shared forwarding socket and a cached resolved address.
-func (p *UDPProxy) forwardPacket(ctx context.Context, data []byte, srcAddr *net.UDPAddr, port int, fwdConn *net.UDPConn) {
+// forwardPacket forwards a UDP packet to the primary healthy backend.
+func (p *UDPProxy) forwardPacket(ctx context.Context, data []byte, srcAddr *net.UDPAddr, port int) {
 	backend := p.lb.GetPrimary()
 	if backend == nil {
-		log.LoggerWContext(ctx).Warn("No healthy backend available, dropping packet")
+		log.LoggerWContext(ctx).Debug("No healthy backend available, dropping packet")
 		return
 	}
 
-	// Look up or resolve and cache the destination address
-	cacheKey := fmt.Sprintf("%s:%d", backend.ManagementIP, port)
-	var udpDstAddr *net.UDPAddr
-	if cached, ok := p.addrCache.Load(cacheKey); ok {
-		udpDstAddr = cached.(*net.UDPAddr)
-	} else {
-		var err error
-		udpDstAddr, err = net.ResolveUDPAddr("udp", cacheKey)
-		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to resolve destination address %s: %s",
-				cacheKey, err.Error()))
-			return
-		}
-		p.addrCache.Store(cacheKey, udpDstAddr)
+	// Create destination address using backend's management IP and same port
+	dstAddr := fmt.Sprintf("%s:%d", backend.ManagementIP, port)
+	udpDstAddr, err := net.ResolveUDPAddr("udp", dstAddr)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to resolve destination address %s: %s",
+			dstAddr, err.Error()))
+		return
 	}
 
-	_, err := fwdConn.WriteToUDP(data, udpDstAddr)
+	// Create a new UDP connection for forwarding
+	// Using a new connection each time since NetFlow/sFlow are fire-and-forget
+	conn, err := net.DialUDP("udp", nil, udpDstAddr)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to backend %s: %s",
+			dstAddr, err.Error()))
+		return
+	}
+	defer conn.Close()
+
+	_, err = conn.Write(data)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to forward packet to %s: %s",
-			cacheKey, err.Error()))
+			dstAddr, err.Error()))
 		return
 	}
 
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Forwarded %d bytes from %s to %s",
-		len(data), srcAddr.String(), cacheKey))
+		len(data), srcAddr.String(), dstAddr))
 }

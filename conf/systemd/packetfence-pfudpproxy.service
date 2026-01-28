@@ -8,7 +8,8 @@ After=packetfence-keepalived.service packetfence-base.target packetfence-config.
 Type=notify
 WatchdogSec=30s
 NotifyAccess=all
-Environment=LOG_LEVEL=info
+# Fingerbank-collector health check port (default: 4723)
+#Environment=PFUDPPROXY_HEALTH_CHECK_PORT=4723
 ExecStart=/usr/local/pf/sbin/pfudpproxy
 Restart=on-failure
 StartLimitBurst=3

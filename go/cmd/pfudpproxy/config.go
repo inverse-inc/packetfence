@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -19,7 +21,6 @@ const (
 
 	PortNetFlow = 2055
 	PortSFlow   = 6343
-	PortIPFIX   = 4739
 )
 
 // ProxyConfig holds the configuration for the UDP proxy
@@ -42,11 +43,12 @@ type Backend struct {
 	LastCheck    time.Time
 }
 
-// getHealthCheckPort returns the health check port from FingerbankSettingsCollector or default
-func getHealthCheckPort(ctx context.Context) int {
-	collector := pfconfigdriver.GetType[pfconfigdriver.FingerbankSettingsCollector](ctx)
-	if port, err := collector.Port.Int64(); err == nil && port > 0 && port < 65536 {
-		return int(port)
+// getHealthCheckPort returns the health check port from environment variable or default
+func getHealthCheckPort() int {
+	if portStr := os.Getenv("PFUDPPROXY_HEALTH_CHECK_PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil && port > 0 && port < 65536 {
+			return port
+		}
 	}
 	return DefaultHealthCheckPort
 }
@@ -54,8 +56,8 @@ func getHealthCheckPort(ctx context.Context) int {
 // LoadConfig loads the proxy configuration from pfconfig
 func LoadConfig(ctx context.Context) (*ProxyConfig, error) {
 	config := &ProxyConfig{
-		Ports:               []int{PortNetFlow, PortSFlow, PortIPFIX},
-		HealthCheckPort:     getHealthCheckPort(ctx),
+		Ports:               []int{PortNetFlow, PortSFlow},
+		HealthCheckPort:     getHealthCheckPort(),
 		HealthCheckPath:     DefaultHealthCheckPath,
 		HealthCheckInterval: DefaultHealthCheckInterval,
 		HealthCheckTimeout:  DefaultHealthCheckTimeout,
@@ -79,23 +81,18 @@ func LoadConfig(ctx context.Context) (*ProxyConfig, error) {
 	return config, nil
 }
 
-// loadVIPAddress loads the VIP address from the cluster configuration
+// loadVIPAddress loads the VIP address from pfconfig
 func loadVIPAddress(ctx context.Context) (string, error) {
 	var mgmtNet pfconfigdriver.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &mgmtNet)
 
-	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
-	keyConfCluster.PfconfigHashNS = "interface " + mgmtNet.Int
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
-
-	if keyConfCluster.Ip == "" {
-		log.LoggerWContext(ctx).Warn("No VIP configured in cluster config for interface " + mgmtNet.Int)
+	if mgmtNet.Vip == "" {
+		log.LoggerWContext(ctx).Warn("No VIP configured in management network")
 		return "", nil
 	}
 
-	log.LoggerWContext(ctx).Debug("Loaded VIP address from cluster config: " + keyConfCluster.Ip)
-	return keyConfCluster.Ip, nil
+	log.LoggerWContext(ctx).Debug("Loaded VIP address: " + mgmtNet.Vip)
+	return mgmtNet.Vip, nil
 }
 
 // loadBackends loads cluster members from pfconfig

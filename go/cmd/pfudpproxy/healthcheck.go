@@ -71,11 +71,8 @@ func (hc *HealthChecker) Start(ctx context.Context) {
 func (hc *HealthChecker) checkAllBackends(ctx context.Context) {
 	backends := hc.lb.GetAllBackends()
 	if len(backends) == 0 {
-		log.LoggerWContext(ctx).Warn("No backends to check")
 		return
 	}
-
-	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Running health checks for %d backends", len(backends)))
 
 	var wg sync.WaitGroup
 	for _, backend := range backends {
@@ -86,14 +83,6 @@ func (hc *HealthChecker) checkAllBackends(ctx context.Context) {
 		}(backend)
 	}
 	wg.Wait()
-
-	// Log current primary after health checks
-	primary := hc.lb.GetPrimary()
-	if primary != nil {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Current primary backend: %s (%s)", primary.Host, primary.ManagementIP))
-	} else {
-		log.LoggerWContext(ctx).Warn("No healthy backend available after health checks")
-	}
 }
 
 // checkBackend checks the health of a single backend.
@@ -123,18 +112,16 @@ func (hc *HealthChecker) checkBackend(ctx context.Context, backend *Backend) {
 
 	// fingerbank-collector returns 404 on "/" when healthy
 	healthy := resp.StatusCode == hc.config.ExpectedStatusCode
-	wasHealthy := hc.lb.SetHealth(backend.Host, healthy)
 
-	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Health check result for %s (%s): status=%d, healthy=%v, wasHealthy=%v",
-		backend.Host, backend.ManagementIP, resp.StatusCode, healthy, wasHealthy))
-
-	if healthy && !wasHealthy {
+	if healthy && !backend.Healthy {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Backend %s (%s) is now healthy",
 			backend.Host, backend.ManagementIP))
-	} else if !healthy && wasHealthy {
+	} else if !healthy && backend.Healthy {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Backend %s (%s) is now unhealthy (status: %d, expected: %d)",
 			backend.Host, backend.ManagementIP, resp.StatusCode, hc.config.ExpectedStatusCode))
 	}
+
+	hc.lb.SetHealth(backend.Host, healthy)
 }
 
 // UpdateConfig updates the health checker configuration.
