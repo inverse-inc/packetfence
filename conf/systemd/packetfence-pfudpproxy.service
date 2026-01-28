@@ -1,0 +1,20 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence UDP Reverse Proxy for Cluster Mode
+Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service
+After=packetfence-keepalived.service packetfence-base.target packetfence-config.service
+
+[Service]
+Type=notify
+WatchdogSec=30s
+NotifyAccess=all
+# Fingerbank-collector health check port (default: 4723)
+#Environment=PFUDPPROXY_HEALTH_CHECK_PORT=4723
+ExecStart=/usr/local/pf/sbin/pfudpproxy
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence-cluster.target
