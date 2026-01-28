@@ -10,7 +10,13 @@ import (
 //InterruptContext returns a context which is
 //cancelled on OS Interrupt
 func InterruptContext() context.Context {
-	ctx, cancel := context.WithCancel(context.Background())
+	return InterruptContextFrom(context.Background())
+}
+
+//InterruptContextFrom returns a context derived from the given parent context
+//which is cancelled on OS Interrupt
+func InterruptContextFrom(parent context.Context) context.Context {
+	ctx, cancel := context.WithCancel(parent)
 	go func() {
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt) //windows compatible?

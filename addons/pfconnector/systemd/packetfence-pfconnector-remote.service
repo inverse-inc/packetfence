@@ -7,6 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 LimitNOFILE=infinity
 EnvironmentFile=/usr/local/pfconnector-remote/conf/pfconnector-client.env
+Environment=LOG_LEVEL=INFO
 ExecStart=/usr/local/pfconnector-remote/bin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226
 Restart=always
 

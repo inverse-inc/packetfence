@@ -27,6 +27,7 @@ before generateConfig => sub {
        env_dict => {
            %$service_env,
            LOG_OUTPUT => 'stdout',
+           LOG_LEVEL => 'INFO',
            PFCONFIG_PROTO => $pfconfig_config->section("general")->{proto},
            PFCONFIG_TCP_HOST => $pfconfig_config->section("general")->{tcp_host},
            PFCONFIG_TCP_PORT => $pfconfig_config->section("general")->{tcp_port},

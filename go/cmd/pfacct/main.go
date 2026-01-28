@@ -12,18 +12,26 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 const defaultNetFlowAddr = "127.0.0.1"
 
 var cliNetFlowAddr = ""
+var logLevel = ""
 
 func main() {
 	flag.Parse()
 	log.SetProcessName("pfacct")
 	increaseFileLimit()
 
-	pfacct := NewPfAcct()
+	// Determine log level: command line flag takes precedence, then env var, then default to INFO
+	effectiveLogLevel := sharedutils.EnvOrDefault("LOG_LEVEL", "INFO")
+	if logLevel != "" {
+		effectiveLogLevel = logLevel
+	}
+
+	pfacct := NewPfAcct(effectiveLogLevel)
 	w := sync.WaitGroup{}
 	rs := pfacct.radiusListen(&w)
 	/*
@@ -66,6 +74,7 @@ func main() {
 
 func init() {
 	flag.StringVar(&cliNetFlowAddr, "netflow-ipaddress", "", "IP Address netflow processor listens on")
+	flag.StringVar(&logLevel, "log-level", "", "Log level (DEBUG, INFO, WARN, ERROR). Defaults to INFO. Can also be set via LOG_LEVEL env var.")
 }
 
 func NotifySystemd(msg string) {

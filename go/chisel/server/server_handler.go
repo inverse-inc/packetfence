@@ -38,9 +38,14 @@ const (
 
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
-	log.LoggerWContext(r.Context()).Info(fmt.Sprintf("Handling %s %s", r.Method, r.URL.Path))
+	// Transfer the logger from baseCtx to the request context to preserve log level settings
+	ctx := log.TranferLogContext(s.baseCtx, r.Context())
+	// Create a new request with the modified context so all handlers use proper logging
+	r = r.WithContext(ctx)
 
-	s.connectors.Refresh(r.Context())
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("Handling %s %s", r.Method, r.URL.Path))
+
+	s.connectors.Refresh(ctx)
 
 	//websockets upgrade AND has chisel prefix
 	upgrade := strings.ToLower(r.Header.Get("Upgrade"))

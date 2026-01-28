@@ -39,6 +39,11 @@ function base_args {
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
 
+  # Pass LOG_LEVEL to container if set
+  if ! [ -z "$LOG_LEVEL" ]; then
+    args="$args -eLOG_LEVEL=$LOG_LEVEL"
+  fi
+
   echo "$args"
 }
 

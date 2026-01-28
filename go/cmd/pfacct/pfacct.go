@@ -69,9 +69,10 @@ type PfAcct struct {
 	RadiusWorkQueueSize     int
 }
 
-func NewPfAcct() *PfAcct {
+func NewPfAcct(logLevel string) *PfAcct {
 	var ctx = context.Background()
 	ctx = log.LoggerNewContext(ctx)
+	ctx = log.LoggerSetLevel(ctx, logLevel)
 
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {

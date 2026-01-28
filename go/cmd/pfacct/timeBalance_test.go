@@ -7,7 +7,7 @@ import (
 )
 
 func TestMacSesssion(t *testing.T) {
-	pfAcct := NewPfAcct()
+	pfAcct := NewPfAcct("INFO")
 	if pfAcct == nil {
 		t.Fatalf("New pfAcct")
 	}

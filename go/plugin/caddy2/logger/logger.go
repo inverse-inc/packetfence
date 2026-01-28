@@ -74,9 +74,13 @@ type Logger struct {
 	requestHistory *RequestHistoryController `json:"-"`
 }
 
+// GlobalLogLevel holds the configured log level for use by other modules (e.g., configstore)
+var GlobalLogLevel = "INFO"
+
 func (l *Logger) Provision(ctx caddy.Context) error {
 	l.HistoryLength = cmp.Or(l.HistoryLength, 100)
 	l.Level = cmp.Or(l.Level, "INFO")
+	GlobalLogLevel = l.Level
 	fmt.Println("Using configuration set log level: " + l.Level)
 	rh, err := requesthistory.NewRequestHistory(l.HistoryLength)
 	if err != nil {
