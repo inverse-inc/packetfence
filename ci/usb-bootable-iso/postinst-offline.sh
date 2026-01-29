@@ -417,6 +417,8 @@ else
     echo "Warning: Docker images not found at ${DOCKER_CACHE_DIR}"
 fi
 
+update_progress "Step 2/6" "Configuring Docker image tags..."
+
 # Re-tag Docker images to match what PacketFence expects
 # Images may have been downloaded with a different tag (e.g., devel) than what
 # the installed PacketFence package expects (e.g., feature-usb-bootable-iso2)
@@ -495,6 +497,8 @@ if [ -n "${TAG_TO_USE}" ]; then
 else
     echo "No tag available, skipping local registry aliases"
 fi
+
+update_progress "Step 2/6" "Docker images ready"
 
 # Step 3: Install PacketFence
 update_progress "Step 3/6" "Installing PacketFence dependencies..."
