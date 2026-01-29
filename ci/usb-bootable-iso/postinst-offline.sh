@@ -41,16 +41,7 @@ apt-get update
 # Step 2: Install packages from DVD needed for first boot
 echo "===> Step 2: Installing packages from DVD (needed for first boot)"
 
-# Install packages from DVD that are required during first boot when DVD is removed.
-# These are standard Debian packages ON the DVD, but won't be available after reboot.
-#
-# Packages needed by fingerbank (with versioned dependencies):
-# - liblog-log4perl-perl (>= 1.43): fingerbank requires specific version
-# - libconfig-inifiles-perl (>= 2.88): fingerbank requires specific version
-# - liburi-perl, libregexp-ipv6-perl: needed by HTTP::Request/LWP in packetfence-perl
-# - libnet-ssleay-perl, libio-socket-ssl-perl: SSL/TLS support (XS modules)
-# - acl: needed by packetfence preinst script (setfacl command)
-# - libdbd-sqlite3-perl, sqlite3, libdata-powerset-perl: fingerbank dependencies
+# Packages required during first boot when DVD is removed (fingerbank deps, SSL, acl)
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
     liblog-log4perl-perl \
     libconfig-inifiles-perl \
@@ -67,9 +58,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
 }
 
 # Step 2b: Install packages from pf-repo (not on DVD)
-echo "===> Step 2b: Installing packages from local pf-repo (not on DVD)"
+echo "===> Step 2b: Installing packages from local pf-repo"
 
-# These packages are NOT on the Debian DVD, they come from pf-repo
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
     lnav \
     cgroupfs-mount \
@@ -81,26 +71,20 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     echo "Warning: Some packages failed to install, continuing..."
 }
 
-# Step 3: Install Docker packages
+# Step 3: Install Docker packages (don't start - won't work in chroot)
 echo "===> Step 3: Installing Docker packages"
 
-# Install Docker packages from local repo
-# NOTE: Do NOT attempt to start Docker - it won't work in chroot environment
 DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io || {
     echo "Warning: Docker packages installation had issues, attempting to fix..."
     dpkg --configure -a
     DEBIAN_FRONTEND=noninteractive apt-get install -y -f
 }
 
-# Step 4: Install PacketFence dependencies (but NOT PacketFence itself)
+# Step 4: Install PacketFence dependencies (PacketFence itself installed on first boot)
 echo "===> Step 4: Installing PacketFence dependencies from DVD"
 
-# Ensure kernel is marked to not be auto-removed
 apt-mark hold linux-image-amd64 linux-image-* 2>/dev/null || true
 
-# Install ALL dependencies that PacketFence needs from the DVD
-# PacketFence package itself will be installed on first boot when Docker is running
-# These are standard Debian packages that won't be available after DVD is removed
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     linux-image-amd64 \
     linux-headers-amd64 \
@@ -237,41 +221,18 @@ echo "===> Step 5b: Copying PacketFence .deb packages to target filesystem"
 PF_CACHE_DIR="/var/cache/packetfence-install"
 mkdir -p ${PF_CACHE_DIR}
 
-# Debug: Show what's on the ISO
-echo "Checking ISO contents..."
-echo "Contents of /media/cdrom:"
-ls -la /media/cdrom/ 2>/dev/null || echo "  (cannot list /media/cdrom)"
-echo "Contents of /media/cdrom/pf-repo:"
-ls -la /media/cdrom/pf-repo/ 2>/dev/null || echo "  (cannot list /media/cdrom/pf-repo)"
-echo "Contents of /media/cdrom/pf-repo/pool:"
-ls -la /media/cdrom/pf-repo/pool/ 2>/dev/null || echo "  (cannot list /media/cdrom/pf-repo/pool)"
-echo "Contents of /media/cdrom/pf-repo/pool/main:"
-ls -la /media/cdrom/pf-repo/pool/main/ 2>/dev/null || echo "  (cannot list /media/cdrom/pf-repo/pool/main)"
-
 if [ -d /media/cdrom/pf-repo/pool/main ]; then
     echo "Copying PacketFence .deb packages from ISO to ${PF_CACHE_DIR}..."
-
-    # Find and show what we're copying
-    echo "PacketFence packages found on ISO:"
-    find /media/cdrom/pf-repo/pool/main -name "packetfence*.deb" -o -name "fingerbank*.deb" 2>/dev/null | head -20
-
-    # Copy all .deb files from the pool (simpler and more reliable)
-    cp /media/cdrom/pf-repo/pool/main/*.deb ${PF_CACHE_DIR}/ 2>/dev/null || {
-        echo "Warning: cp failed, trying find method..."
+    cp /media/cdrom/pf-repo/pool/main/*.deb ${PF_CACHE_DIR}/ 2>/dev/null || \
         find /media/cdrom/pf-repo/pool/main -name "*.deb" -exec cp {} ${PF_CACHE_DIR}/ \; 2>/dev/null || true
-    }
 
     if ls ${PF_CACHE_DIR}/*.deb 1> /dev/null 2>&1; then
-        echo "PacketFence packages copied successfully:"
-        ls -la ${PF_CACHE_DIR}/
+        echo "PacketFence packages copied: $(ls ${PF_CACHE_DIR}/*.deb | wc -l) files"
     else
-        echo "ERROR: No .deb packages found in ${PF_CACHE_DIR} after copy attempt"
-        echo "This will cause first-boot installation to fail!"
+        echo "ERROR: No .deb packages copied - first-boot installation will fail!"
     fi
 else
     echo "ERROR: PF repo not found on ISO at /media/cdrom/pf-repo/pool/main"
-    echo "Available directories on ISO:"
-    find /media/cdrom -type d 2>/dev/null | head -20
 fi
 
 # Step 6: Configure system
@@ -428,7 +389,7 @@ EXPECTED_TAG=""
 
 # Read the tag that was used when images were downloaded
 if [ -f ${DOCKER_CACHE_DIR}/image-tag.txt ]; then
-    LOADED_TAG=$(cat ${DOCKER_CACHE_DIR}/image-tag.txt | tr -d '[:space:]')
+    LOADED_TAG=$(tr -d '[:space:]' < ${DOCKER_CACHE_DIR}/image-tag.txt)
     echo "Loaded images have tag: ${LOADED_TAG}"
 fi
 
@@ -436,66 +397,37 @@ fi
 if [ -f /usr/local/pf/conf/build_id ]; then
     EXPECTED_TAG=$(grep -oP 'TAG_OR_BRANCH_NAME=\K.*' /usr/local/pf/conf/build_id 2>/dev/null | tr -d '[:space:]' || true)
 fi
-# Fallback: extract version from pf-release if build_id doesn't have TAG_OR_BRANCH_NAME
+# Fallback: extract version from pf-release
 if [ -z "${EXPECTED_TAG}" ] && [ -f /usr/local/pf/conf/pf-release ]; then
-    # For releases, use the version number (e.g., 15.1.0)
-    PF_VERSION=$(cat /usr/local/pf/conf/pf-release | awk '{print $2}')
-    if [[ "${PF_VERSION}" == *"/"* ]]; then
-        # Branch name format: feature/branch-name -> feature-branch-name
-        EXPECTED_TAG=$(echo "${PF_VERSION}" | sed 's#/#-#g')
-    else
-        EXPECTED_TAG="${PF_VERSION}"
-    fi
+    PF_VERSION=$(awk '{print $2}' /usr/local/pf/conf/pf-release)
+    EXPECTED_TAG="${PF_VERSION//\//-}"
     echo "PacketFence expects tag (from pf-release): ${EXPECTED_TAG}"
 else
     echo "PacketFence expects tag (from build_id): ${EXPECTED_TAG}"
 fi
 
-# Re-tag images if needed (for different tags)
+# Re-tag images if tags differ
 if [ -n "${LOADED_TAG}" ] && [ -n "${EXPECTED_TAG}" ] && [ "${LOADED_TAG}" != "${EXPECTED_TAG}" ]; then
-    echo "Tags differ - re-tagging images from '${LOADED_TAG}' to '${EXPECTED_TAG}'..."
-    # Get list of images with the loaded tag
+    echo "Re-tagging images from '${LOADED_TAG}' to '${EXPECTED_TAG}'..."
     IMAGES_TO_RETAG=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep ":${LOADED_TAG}$" || true)
-    if [ -n "${IMAGES_TO_RETAG}" ]; then
-        for img in ${IMAGES_TO_RETAG}; do
-            new_tag="${img%:${LOADED_TAG}}:${EXPECTED_TAG}"
-            echo "  Re-tagging: ${img} -> ${new_tag}"
-            docker tag "${img}" "${new_tag}" || echo "    Warning: Failed to re-tag ${img}"
-        done
-        echo "Docker images re-tagged successfully"
-    else
-        echo "No images found with tag '${LOADED_TAG}' to re-tag"
-    fi
-else
-    if [ -z "${LOADED_TAG}" ]; then
-        echo "No image-tag.txt found, skipping re-tag"
-    elif [ -z "${EXPECTED_TAG}" ]; then
-        echo "Could not determine expected tag, skipping re-tag"
-    else
-        echo "Tags match (${LOADED_TAG}), no re-tagging needed"
-    fi
+    for img in ${IMAGES_TO_RETAG}; do
+        new_tag="${img%:${LOADED_TAG}}:${EXPECTED_TAG}"
+        docker tag "${img}" "${new_tag}" 2>/dev/null || true
+    done
+elif [ -n "${LOADED_TAG}" ] && [ "${LOADED_TAG}" == "${EXPECTED_TAG}" ]; then
+    echo "Tags match (${LOADED_TAG}), no re-tagging needed"
 fi
 
-# Re-tag images for local registry alias (packetfence/<image>:<tag>)
-# PacketFence services expect images at packetfence/<image> not ghcr.io/inverse-inc/packetfence/<image>
+# Create local registry aliases (packetfence/<image> from ghcr.io/inverse-inc/packetfence/<image>)
 echo "===> Creating local registry aliases for Docker images..."
 TAG_TO_USE="${EXPECTED_TAG:-${LOADED_TAG}}"
 if [ -n "${TAG_TO_USE}" ]; then
     GHCR_IMAGES=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep "ghcr.io/inverse-inc/packetfence/.*:${TAG_TO_USE}$" || true)
-    if [ -n "${GHCR_IMAGES}" ]; then
-        for img in ${GHCR_IMAGES}; do
-            # Extract image name (e.g., pfconfig from ghcr.io/inverse-inc/packetfence/pfconfig:tag)
-            img_name=$(echo "${img}" | sed "s|ghcr.io/inverse-inc/packetfence/||" | sed "s|:${TAG_TO_USE}$||")
-            local_tag="packetfence/${img_name}:${TAG_TO_USE}"
-            echo "  Creating alias: ${img} -> ${local_tag}"
-            docker tag "${img}" "${local_tag}" || echo "    Warning: Failed to create alias ${local_tag}"
-        done
-        echo "Local registry aliases created successfully"
-    else
-        echo "No ghcr.io images found to alias"
-    fi
-else
-    echo "No tag available, skipping local registry aliases"
+    for img in ${GHCR_IMAGES}; do
+        img_name="${img#ghcr.io/inverse-inc/packetfence/}"
+        img_name="${img_name%:${TAG_TO_USE}}"
+        docker tag "${img}" "packetfence/${img_name}:${TAG_TO_USE}" 2>/dev/null || true
+    done
 fi
 
 update_progress "Step 2/6" "Docker images ready"

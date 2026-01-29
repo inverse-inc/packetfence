@@ -28,7 +28,6 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 # Configuration
-# DEBIAN_VERSION sourced from ../debian-version.conf
 ISO_IN=${ISO_IN:-debian-${DEBIAN_VERSION}-amd64-DVD-1.iso}
 ISO_OUT=${ISO_OUT:-packetfence-usb-installer.iso}
 WORK_DIR=${SCRIPT_DIR}/work
@@ -117,15 +116,13 @@ xorriso -osirrox on -indev ${SCRIPT_DIR}/${ISO_IN} -extract / ${ISOFILES_DIR}
 
 # Step 5: Generate preseed configuration
 echo "===> Step 5: Generating preseed configuration"
-# Generate as preseed.cfg (standard name) for auto-detection by installer
-cat ${SCRIPT_DIR}/preseed-offline.cfg.tmpl | \
-    sed "s/%%PF_VERSION%%/${PF_RELEASE_VERSION}/g" | \
-    sed "s/%%PF_RELEASE%%/${PF_RELEASE}/g" > ${SCRIPT_DIR}/preseed.cfg
+sed -e "s/%%PF_VERSION%%/${PF_RELEASE_VERSION}/g" \
+    -e "s/%%PF_RELEASE%%/${PF_RELEASE}/g" \
+    "${SCRIPT_DIR}/preseed-offline.cfg.tmpl" > "${SCRIPT_DIR}/preseed.cfg"
 
 # Step 6: Inject preseed into initrd
 echo "===> Step 6: Injecting preseed into initrd"
-# Inject as preseed.cfg (standard name) - installer will auto-detect it
-chmod +w -R ${ISOFILES_DIR}/install.amd/
+chmod +w -R "${ISOFILES_DIR}/install.amd/"
 gunzip ${ISOFILES_DIR}/install.amd/initrd.gz
 echo preseed.cfg | cpio -H newc -o -A -F ${ISOFILES_DIR}/install.amd/initrd
 gzip ${ISOFILES_DIR}/install.amd/initrd
@@ -166,19 +163,10 @@ cd "${SCRIPT_DIR}"
 
 # Step 12: Build final ISO
 echo "===> Step 12: Building final ISO"
-# ISO 9660 volume ID: max 32 chars, Joliet: max 16 chars
-# Format: PF-${short_name} (3 chars prefix + 13 chars max for Joliet compatibility)
-if [[ "${PF_VERSION}" == *"/"* ]]; then
-    VERSION_SHORT="${PF_VERSION##*/}"
-    echo "Volume ID: extracted '${VERSION_SHORT}' from '${PF_VERSION}'"
-else
-    VERSION_SHORT="${PF_VERSION}"
-    echo "Volume ID: using '${VERSION_SHORT}' (no slash found)"
-fi
-# Truncate to 13 characters to fit within 16 char Joliet limit with "PF-" prefix
+# Volume ID: max 16 chars for Joliet (PF- prefix + 13 chars)
+VERSION_SHORT="${PF_VERSION##*/}"
 VERSION_SHORT="${VERSION_SHORT:0:13}"
 VOLID="PF-${VERSION_SHORT}"
-echo "Volume ID: final value '${VOLID}' (${#VOLID} chars)"
 xorriso -as mkisofs \
     -r -J -joliet-long \
     -b isolinux/isolinux.bin \

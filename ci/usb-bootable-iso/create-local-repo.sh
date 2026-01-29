@@ -84,14 +84,7 @@ fi
 # Copy GPG key to repo for later use
 sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
-# List of PacketFence-specific packages to download
-# Note: DVD already has all standard Debian packages (systemd, mariadb, etc.)
-# We need to download what's NOT on the DVD:
-#   - PacketFence and fingerbank packages
-#   - Packages that might be missing from DVD-1
-#   - FreeRADIUS packages (specific versions needed)
-#   - Packages from preseed pkgsel/include that may not be on DVD-1
-#   - Other dependencies
+# Packages to download (not on DVD or need specific versions)
 PACKAGES="
     packetfence
     packetfence-pfcmd-suid
@@ -146,17 +139,10 @@ PACKAGES="
     libio-socket-ssl-perl
     acl
 "
-# Note: Many perl packages (liblog-fast-perl, libcatalyst-perl, libreadonly-perl, etc.)
-# are virtual packages provided by packetfence-perl and should NOT be listed here.
-# Listing them causes apt-get to fail with "no installation candidate".
-# Exceptions - these ARE real Debian packages needed for offline installation:
-# - liblog-log4perl-perl, libconfig-inifiles-perl: fingerbank has versioned dependencies
-#   (>= 1.43 and >= 2.88) that packetfence-perl's unversioned virtual packages cannot satisfy
-# - liburi-perl, libregexp-ipv6-perl: required by HTTP::Request/LWP bundled in packetfence-perl
-# - libnet-ssleay-perl, libio-socket-ssl-perl: required for SSL/TLS support (XS modules not in packetfence-perl)
-# - acl: required by packetfence preinst script (setfacl command)
+# Note: Most perl packages are virtual (provided by packetfence-perl).
+# Only list real Debian packages needed for versioned deps or XS modules.
 
-# Add Docker repository for docker-ce packages
+# Add Docker repository
 echo "===> Adding Docker repository for docker-ce packages"
 curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/docker.gpg > /dev/null
 sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/docker.list > /dev/null << EOF
@@ -227,18 +213,14 @@ EOF
 
 # Add checksums to Release file
 cd ${REPO_DIR}/dists/bookworm
-echo "MD5Sum:" >> Release
-for file in main/binary-amd64/Packages main/binary-amd64/Packages.gz; do
-    if [ -f "$file" ]; then
-        echo " $(md5sum $file | cut -d' ' -f1) $(stat -c%s $file) $file" >> Release
-    fi
-done
-
-echo "SHA256:" >> Release
-for file in main/binary-amd64/Packages main/binary-amd64/Packages.gz; do
-    if [ -f "$file" ]; then
-        echo " $(sha256sum $file | cut -d' ' -f1) $(stat -c%s $file) $file" >> Release
-    fi
+FILES="main/binary-amd64/Packages main/binary-amd64/Packages.gz"
+for algo in MD5Sum:md5sum SHA256:sha256sum; do
+    name="${algo%:*}"
+    cmd="${algo#*:}"
+    echo "${name}:" >> Release
+    for file in ${FILES}; do
+        [ -f "$file" ] && echo " $($cmd $file | cut -d' ' -f1) $(stat -c%s $file) $file" >> Release
+    done
 done
 
 # Count packages
@@ -252,34 +234,15 @@ echo "Size: ${REPO_SIZE}"
 echo "Location: ${REPO_DIR}"
 echo "=============================================="
 
-# Verify key packages are present
+# Verify key packages
 echo ""
-echo "===> Verifying key packages in repository:"
-KEY_PACKAGES="packetfence fingerbank-collector docker-ce docker-ce-cli containerd.io linux-image-amd64"
-MISSING=""
+echo "===> Verifying key packages:"
+KEY_PACKAGES="packetfence fingerbank-collector docker-ce docker-ce-cli containerd.io"
 for pkg in ${KEY_PACKAGES}; do
     if find ${REPO_DIR}/pool -name "${pkg}_*.deb" | grep -q .; then
         echo "  [OK] ${pkg}"
     else
-        echo "  [MISSING] ${pkg}"
-        MISSING="${MISSING} ${pkg}"
+        echo "  [MISSING] ${pkg} (may be on DVD or not yet published)"
     fi
 done
-
-if [ -n "${MISSING}" ]; then
-    echo ""
-    echo "WARNING: Missing packages from pf-repo:${MISSING}"
-    echo ""
-    echo "This is expected for development builds where packages are not yet published."
-    echo "The build will continue - missing packages may be:"
-    echo "  - Available on the DVD ISO"
-    echo "  - Installed from Debian repositories during preseed"
-    echo "  - Not critical for basic installation"
-    echo ""
-    # Don't fail - let the build continue
-fi
-
-echo ""
-echo "Note: DVD ISO provides most standard Debian packages."
-echo "      This repo adds PacketFence, Docker, and missing dependencies."
 echo "=============================================="

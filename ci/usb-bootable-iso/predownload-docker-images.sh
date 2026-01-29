@@ -1,18 +1,13 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-# Arguments
 DOCKER_IMAGES_DIR=${1:-./docker-images}
-
-# Get script directory
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 
-# Source configuration
-source <(grep 'KNK_REGISTRY_URL' ${PF_ROOT}/config.mk | tr -d ' ')
+# Source registry URL from config
+source <(grep 'KNK_REGISTRY_URL' "${PF_ROOT}/config.mk" | tr -d ' ') 2>/dev/null || true
 KNK_REGISTRY_URL=${KNK_REGISTRY_URL:-ghcr.io/inverse-inc/packetfence}
-
-# Get tag from environment or use devel
 TAG_OR_BRANCH_NAME=${TAG_OR_BRANCH_NAME:-devel}
 
 echo "=============================================="
@@ -23,53 +18,17 @@ echo "KNK_REGISTRY_URL: ${KNK_REGISTRY_URL}"
 echo "TAG_OR_BRANCH_NAME: ${TAG_OR_BRANCH_NAME}"
 echo "=============================================="
 
-# Create output directory
-mkdir -p ${DOCKER_IMAGES_DIR}
+mkdir -p "${DOCKER_IMAGES_DIR}"
 
-# List of Docker images to download
-# Based on containers directory (excluding build-only images)
-CONTAINERS_IMAGES="
-    pfcron
-    pfcmd
-    httpd.aaa
-    pfstats
-    pfconfig
-    haproxy-admin
-    httpd.admin_dispatcher
-    haproxy-portal
-    ntlm-auth-api
-    pfldapexplorer
-    pfdns-connector
-    radiusd-acct
-    radiusd-eduroam
-    radiusd-load-balancer
-    radiusd-cli
-    pfperl-api
-    httpd.portal
-    pfsso
-    api-frontend
-    httpd.dispatcher
-    pfacct
-    radiusd-auth
-    httpd.webservices
-    pfsetacls
-    pfpki
-    pfconnector
-    proxysql
-    pfqueue
+# Docker images to download (containers + extras)
+ALL_IMAGES="
+    pfcron pfcmd httpd.aaa pfstats pfconfig haproxy-admin httpd.admin_dispatcher
+    haproxy-portal ntlm-auth-api pfldapexplorer pfdns-connector radiusd-acct
+    radiusd-eduroam radiusd-load-balancer radiusd-cli pfperl-api httpd.portal
+    pfsso api-frontend httpd.dispatcher pfacct radiusd-auth httpd.webservices
+    pfsetacls pfpki pfconnector proxysql pfqueue fingerbank-db netdata kafka
 "
 
-# Additional images that might be needed
-EXTRA_IMAGES="
-    fingerbank-db
-    netdata
-    kafka
-"
-
-# Combine all images
-ALL_IMAGES="${CONTAINERS_IMAGES} ${EXTRA_IMAGES}"
-
-# Pull all images first, then save together to share layers
 RETRY_LIMIT=3
 FAILED_IMAGES=""
 PULLED_IMAGES=""
