@@ -228,7 +228,7 @@ func checkOptions(opts *Options) error {
 	if opts.SnmpTimeout == 0 { // default timeout
 		opts.SnmpTimeout = snmpTimeout
 	} else if opts.SnmpTimeout < 0 || opts.SnmpTimeout > 10 {
-		return fmt.Errorf("SnmpTimeout must be in range [0-10] secondes")
+		return fmt.Errorf("SnmpTimeout must be in range [0-10] seconds")
 	}
 	return nil
 }
