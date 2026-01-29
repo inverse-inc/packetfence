@@ -2,7 +2,10 @@ package discovernetworkdevice
 
 import (
 	"math"
+	"os/exec"
+	"regexp"
 	"testing"
+	"time"
 )
 
 var badAddrLst = [][]string{
@@ -66,9 +69,37 @@ func TestScanPayload(t *testing.T) {
 		})
 	}
 	t.Run("Should scan", func(t *testing.T) {
-		r, e := SnmpScan(Payload{Credentials: goodCreds, Addresses: goodAddrs, Options: goodOptions}, progressCb)
+		r, e := SnmpScan(Payload{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions}, progressCb)
 		if r == nil || e != nil {
 			t.Errorf("Scan should answer correctly: %v", e)
 		}
 	})
+}
+
+// TestScanSnmp uses tcpdump to check if a SNMP request has been sent
+// The test can fail depending of the environment, even if the feature is working
+func TestScanSnmp(t *testing.T) {
+	var err error
+	ipAddress := "192.168.42.42"
+	cmd := exec.Command("tcpdump", "-i", "any", "port", "161", "-U", "-l", "-c", "32")
+	outPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		t.Errorf("Error running exec.Command StdoutPipe: %v", err)
+	}
+	if err := cmd.Start(); err != nil {
+		t.Errorf("Error running tcpdump for test: %v", err)
+	}
+	time.Sleep(time.Second * 1) // wait for tcpdump to be ready
+	_, err = SnmpScan(Payload{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, progressCb)
+	if err != nil {
+		t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
+	}
+	cmd.Process.Kill() // Read blocks if process is not stopped
+	tmp := make([]byte, 1024*32)
+	_, err = outPipe.Read(tmp)
+	cmd.Wait()
+	reg := regexp.MustCompile(`> 192\.168\.42\.42\.snmp\:\s+GetRequest\(42\)\s+system\.sysDescr\.0 system\.sysObjectID\.0`)
+	if !reg.Match(tmp) {
+		t.Errorf("No SNMP request were send to %s", ipAddress)
+	}
 }
