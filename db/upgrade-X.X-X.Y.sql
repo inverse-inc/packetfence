@@ -55,6 +55,10 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
+\! echo "Updating locationlog";
+ALTER TABLE locationlog
+  ADD COLUMN `switch_id` VARCHAR(255) DEFAULT NULL AFTER `switch_mac`;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

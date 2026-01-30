@@ -375,6 +375,7 @@ CREATE TABLE `locationlog` (
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) STORED,
   `switch_mac` varchar(17) DEFAULT NULL,
+  `switch_id` varchar(255) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
