@@ -87,6 +87,7 @@ sub instantiate {
     my @requestedSwitches;
     my $requestedSwitch;
     my $switch_ip;
+    my $switch_id;
     my $switch_mac;
     my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
@@ -119,7 +120,7 @@ sub instantiate {
     my $switch_data;
     foreach my $search (@requestedSwitches){
         if($SwitchConfig{$search}){
-            $requestedSwitch = $search;
+            $switch_id = $requestedSwitch = $search;
             $switch_data = $SwitchConfig{$search};
             last;
         }
@@ -133,7 +134,8 @@ sub instantiate {
                 #Find the first switch that matches it's network range
                 if (my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges) {
                     $requestedSwitch = $search;
-                    $switch_data     = $SwitchConfig{$rangeConfig->[1]};
+                    $switch_id = $rangeConfig->[1];
+                    $switch_data     = $SwitchConfig{$switch_id};
                     if (!defined $switch_data) {
                         $logger->error("$search matched but it is not found");
                         next;
@@ -195,6 +197,7 @@ sub instantiate {
     my $result = $module->new({
          id => $requestedSwitch,
          ip => $switch_ip,
+         switch_id => $switch_id,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,

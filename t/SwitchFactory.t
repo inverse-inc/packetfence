@@ -10,7 +10,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 63;
+use Test::More tests => 66;
 use Test::NoWarnings;
 use_ok('pf::SwitchFactory');
 
@@ -18,6 +18,7 @@ my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 
 isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_3500XL' );
 is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1' );
+is( $switch->{_switch_id}, '192.168.0.1', 'Switch ID of 192.168.0.1' );
 is_deeply( $switch->{_uplink}, [qw(23)], 'Uplink of 192.168.0.1' );
 is( $switch->{_SNMPVersion}, '2c', 'SNMP version of 192.168.0.1' );
 is( $switch->{_SNMPCommunityTrap},
@@ -88,6 +89,7 @@ isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0',"mac address style switch id
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "01:01:01:01:01:02", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
 isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
 is($switch->{_id}, '01:01:01:01:01:02', "Proper id is set");
+is($switch->{_switch_id}, '01:01:01:01:01:02', "Proper id is set");
 is($switch->{_ip}, '192.168.1.2',       "Proper ip address is set");
 is($switch->{_controllerIp}, '1.1.1.1', "Proper controllerIp address is set");
 
@@ -104,6 +106,7 @@ $switch = pf::SwitchFactory->instantiate('172.16.3.1');
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_3750');
 is("pf::Switch::Cisco::Catalyst_3750",ref $switch, "Got the correct switch type");
 is($switch->{_id}, '172.16.3.1', "Proper id is set for 172.16.3.1");
+is($switch->{_switch_id}, '172.16.3.0/24', "Proper switch_id is set for 172.16.3.1");
 
 $switch = pf::SwitchFactory->instantiate('172.16.3.2');
 isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
