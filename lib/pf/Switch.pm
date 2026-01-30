@@ -127,6 +127,7 @@ sub new {
     my $self = bless {
         '_error'                        => undef,
         '_id'                           => undef,
+        '_switch_id'                    => undef,
         '_macSearchesMaxNb'             => undef,
         '_macSearchesSleepInterval'     => undef,
         '_mode'                         => undef,
