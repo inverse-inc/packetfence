@@ -98,7 +98,7 @@ func (u *StatusUpdater) UpdateMessage(ctx context.Context, msg string) error {
 func (u *StatusUpdater) Failed(ctx context.Context, results interface{}) error {
 	data, err := json.Marshal(results)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if err := u.saveResults(ctx, "error", data, 400, "Failed"); err != nil {
@@ -111,7 +111,7 @@ func (u *StatusUpdater) Failed(ctx context.Context, results interface{}) error {
 func (u *StatusUpdater) Complete(ctx context.Context, results interface{}) error {
 	data, err := json.Marshal(results)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if err := u.saveResults(ctx, "item", data, 200, "Complete"); err != nil {
