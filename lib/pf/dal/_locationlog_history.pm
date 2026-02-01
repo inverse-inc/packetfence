@@ -48,6 +48,7 @@ BEGIN {
         switch_ip
         switch_ip_int
         switch_mac
+        switch_id
         stripped_user_name
         realm
         session_id
@@ -70,6 +71,7 @@ BEGIN {
         switch_ip => undef,
         switch_ip_int => undef,
         switch_mac => undef,
+        switch_id => undef,
         stripped_user_name => undef,
         realm => undef,
         session_id => undef,
@@ -91,6 +93,7 @@ BEGIN {
         end_time
         switch_ip
         switch_mac
+        switch_id
         stripped_user_name
         realm
         session_id
@@ -189,6 +192,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        switch_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         stripped_user_name => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -245,6 +254,7 @@ BEGIN {
         locationlog_history.switch_ip
         locationlog_history.switch_ip_int
         locationlog_history.switch_mac
+        locationlog_history.switch_id
         locationlog_history.stripped_user_name
         locationlog_history.realm
         locationlog_history.session_id
