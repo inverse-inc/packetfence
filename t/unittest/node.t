@@ -112,6 +112,7 @@ ok (node_modify($node_mac, category_id => 4), "Not changing anything");
         "NULL",
         "default",
         "",
+        "192.168.0.1",
     );
     ($res, $msg) = pf::node::_can_delete($mac);
     ok (!$res, "Cannot remove $mac");
