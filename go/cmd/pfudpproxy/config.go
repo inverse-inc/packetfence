@@ -81,18 +81,23 @@ func LoadConfig(ctx context.Context) (*ProxyConfig, error) {
 	return config, nil
 }
 
-// loadVIPAddress loads the VIP address from pfconfig
+// loadVIPAddress loads the VIP address from the cluster configuration
 func loadVIPAddress(ctx context.Context) (string, error) {
 	var mgmtNet pfconfigdriver.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &mgmtNet)
 
-	if mgmtNet.Vip == "" {
-		log.LoggerWContext(ctx).Warn("No VIP configured in management network")
+	var keyConfCluster pfconfigdriver.NetInterface
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+	keyConfCluster.PfconfigHashNS = "interface " + mgmtNet.Int
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+
+	if keyConfCluster.Ip == "" {
+		log.LoggerWContext(ctx).Warn("No VIP configured in cluster config for interface " + mgmtNet.Int)
 		return "", nil
 	}
 
-	log.LoggerWContext(ctx).Debug("Loaded VIP address: " + mgmtNet.Vip)
-	return mgmtNet.Vip, nil
+	log.LoggerWContext(ctx).Debug("Loaded VIP address from cluster config: " + keyConfCluster.Ip)
+	return keyConfCluster.Ip, nil
 }
 
 // loadBackends loads cluster members from pfconfig

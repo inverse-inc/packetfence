@@ -160,6 +160,8 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
 				}
 			}
 
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Received %d bytes from %s on %s", n, srcAddr.String(), addr))
+
 			// Forward the packet to the primary healthy backend
 			p.forwardPacket(ctx, buf[:n], srcAddr, port)
 		}
@@ -170,7 +172,7 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
 func (p *UDPProxy) forwardPacket(ctx context.Context, data []byte, srcAddr *net.UDPAddr, port int) {
 	backend := p.lb.GetPrimary()
 	if backend == nil {
-		log.LoggerWContext(ctx).Debug("No healthy backend available, dropping packet")
+		log.LoggerWContext(ctx).Warn("No healthy backend available, dropping packet")
 		return
 	}
 
