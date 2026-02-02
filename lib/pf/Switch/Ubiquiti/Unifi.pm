@@ -268,6 +268,10 @@ sub _deauthenticateMacWithHTTP {
 
     my $response = $ua->get("$base_url/api/self/sites");
 
+    if ($response->code == 404) {
+        $response = $ua->get("$base_url/proxy/network/api/self/sites");
+    }
+
     unless($response->is_success) {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
         return;
@@ -384,12 +388,14 @@ sub populateAccessPointMACIP {
 
     my $response = $ua->get("$base_url/api/self/sites");
 
+    if ($response->code == 404) {
+        $response = $ua->get("$base_url/proxy/network/api/self/sites");
+    }
+
     unless($response->is_success) {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
         return;
     }
-
-    $response = $ua->get("$base_url/api/self/sites");
 
     my $json_data = decode_json($response->decoded_content());
 
