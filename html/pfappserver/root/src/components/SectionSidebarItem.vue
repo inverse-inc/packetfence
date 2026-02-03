@@ -91,7 +91,7 @@ const props = {
   }
 }
 
-import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
+import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import acl from '@/utils/acl'
 const setup = (props, context) => {
 
@@ -114,8 +114,17 @@ const setup = (props, context) => {
   })
   const showSavedSearches = computed(() => visible.value && saveSearchNamespace.value)
 
+  // Use a ref to track cache changes for reactivity
+  const preferencesCache = ref($store.state.preferences.cache)
+  watch(
+    () => $store.state.preferences.cache,
+    (newCache) => { preferencesCache.value = { ...newCache } },
+    { deep: true }
+  )
+
   const savedAdvancedSearches = computed(() => {
-    const { values = {} } = $store.state.preferences.cache[`${saveSearchNamespace.value}::advancedSearch`] || {}
+    const cache = preferencesCache.value
+    const { values = {} } = cache[`${saveSearchNamespace.value}::advancedSearch`] || {}
     return Object.keys(values).map(name => {
       const { query: conditionAdvanced, ...rest } = values[name]
       return { name, conditionAdvanced, ...rest }
@@ -124,12 +133,13 @@ const setup = (props, context) => {
   const deleteAdvancedSavedSearch = search => {
     const id = `${saveSearchNamespace.value}::advancedSearch`
     const { values = {} } = $store.state.preferences.cache[id] || {}
-    delete values[search.name]
-    $store.dispatch('preferences/set', { id, value: { values } })
+    const { [search.name]: _, ...newValues } = values
+    $store.dispatch('preferences/set', { id, value: { values: newValues } })
   }
 
   const savedBasicSearches = computed(() => {
-    const { values = {} } = $store.state.preferences.cache[`${saveSearchNamespace.value}::basicSearch`] || {}
+    const cache = preferencesCache.value
+    const { values = {} } = cache[`${saveSearchNamespace.value}::basicSearch`] || {}
     return Object.keys(values).map(name => {
       const { query: conditionBasic, ...rest } = values[name]
       return { name, conditionBasic, ...rest }
@@ -138,8 +148,8 @@ const setup = (props, context) => {
   const deleteBasicSavedSearch = search => {
     const id = `${saveSearchNamespace.value}::basicSearch`
     const { values = {} } = $store.state.preferences.cache[id] || {}
-    delete values[search.name]
-    $store.dispatch('preferences/set', { id, value: { values } })
+    const { [search.name]: _, ...newValues } = values
+    $store.dispatch('preferences/set', { id, value: { values: newValues } })
   }
 
   onMounted(() => {
@@ -163,11 +173,15 @@ const setup = (props, context) => {
 
   const routeFromItemSearch = (item, search) => {
     const { path } = item
-    const { name, ...rest } = search // strip name
+    const { name, ...rest } = search // strip name from spread, but include as identifier
     const query = Object.keys(rest).reduce((query, param) => {
       query[param] = JSON.stringify(rest[param])
       return query
     }, {})
+    // Include saved search name as unique identifier to differentiate routes
+    if (name) {
+      query._savedSearch = JSON.stringify(name)
+    }
     return { path, query }
   }
 

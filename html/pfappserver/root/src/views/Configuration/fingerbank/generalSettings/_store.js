@@ -39,6 +39,22 @@ export const actions = {
           }, {})
       })
       commit('GENERAL_SETTINGS_REPLACED', refactored)
+      if (getters.apiKey) {
+        api.fingerbankCollectorFlags(getters.apiKey).then(response => {
+          //eslint-disable-next-line no-unused-vars
+          const environment = Object.entries(response || {}).reduce((o, [key, flag]) => {
+             
+            const { default: _default, usage } = flag
+            //eslint-disable-next-line no-unused-vars
+            const [ env, _ ] = usage.match(/([A-Z]+_[A-Z_]+[A-Z]+)/) || []
+            if (env) {
+              o[env] = { text: usage, value: _default }
+            }
+            return o
+          }, {})
+          commit('FINGERBANK_COLLECTOR_ENV', environment)
+        })
+      }
       return refactored
     }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
