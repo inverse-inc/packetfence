@@ -10,7 +10,7 @@ SnmpScanResponse:
             type: array
             items:
               $ref: "#/components/schemas/SnmpDevice"
-          snmp_result:
+          snmp_results:
             description: Any error or warning return by an address. Used for further inspection.
             type: array
             items:

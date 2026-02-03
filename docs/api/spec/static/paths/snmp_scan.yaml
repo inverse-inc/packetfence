@@ -2,7 +2,7 @@
   post:
     tags:
       - SnmpScan
-    summary: Use SNMP requests to try to find switches and routers at the given addresses.
+    summary: Use SNMP requests to try to find switches and routers at given addresses.
     description: Depending on the number of addresses to scan and the number of threads used, the task can take some times.
     operationId: snmpScan
     requestBody:

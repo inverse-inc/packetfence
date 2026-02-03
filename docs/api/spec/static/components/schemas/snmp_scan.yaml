@@ -8,7 +8,7 @@ SnmpDevice:
       type: string
       example: "192.168.10.42"
     driver:
-      description: The driver id used by Scrapli
+      description: The driver id used internally to match PF modules and switch driver for configuration.
       type: string
       example: "cisco_iosxr"
     vendor:
@@ -20,6 +20,9 @@ SnmpDevice:
     version:
       type: string
       example: "17.0.42"
+    hostname:
+      type: string
+      example: "gcaruba-machine01"
     system:
       description: The whole SNMP system description string. Usefull if vendor/os/version cannot be matched automatically.
       type: string
@@ -32,11 +35,11 @@ SnmpCredential:
   description: Contains credential informations. Support only SNMP v1 or v2c community strings.
   type: object
   properties:
-    type:
+    version:
       type: string
       enum: [snmp_v1, snmp_v2c]
       example: "snmp_v2c"
-    snmp_read:
+    community_read:
       type: string
       example: public
       default: public
@@ -66,12 +69,12 @@ SnmpOptions:
       description: Port used by the SNMP request.
       type: integer
       default: 161
-SnmpResult:
-  description: A brief report of error if an address responded to the SNMP request, but device cannot be match
+SnmpResults:
+  description: A brief report of error/warning if an address responded to the SNMP request, but device cannot be matched
   type: object
   properties:
     address:
       description: IP address
       type: string
-    error:
+    message:
       type: string

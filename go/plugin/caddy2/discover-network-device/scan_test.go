@@ -17,11 +17,12 @@ var badAddrLst = [][]string{
 	{"192.168.0.1/15"},
 }
 
-var badCredLst = []Credential{
-	{Type: "deadbeef", SnmpRead: "public"},
-	{Type: "", SnmpRead: "public"},
-	{Type: "snmp_v2", SnmpRead: "public"},
-	{Type: "snmp_v2c", SnmpRead: ""},
+var badCredLst = []SnmpCred{
+	{Version: "deadbeef", CommunityRead: "public"},
+	{Version: "", CommunityRead: "public"},
+	{Version: "snmp_v2", CommunityRead: "public"},
+	{Version: CRED_TYPE_SNMP_V1, CommunityRead: ""},
+	{Version: CRED_TYPE_SNMP_V2C, CommunityRead: ""},
 }
 
 var badOptionsLst = []Options{
@@ -36,12 +37,12 @@ var badOptionsLst = []Options{
 }
 
 var goodAddrs = []string{"192.168.10.40", "192.168.10.41", "192.168.10.42"}
-var goodCreds = []Credential{{Type: "snmp_v2c", SnmpRead: "public"}}
+var goodCreds = []SnmpCred{{Version: CRED_TYPE_SNMP_V2C, CommunityRead: "public"}}
 var goodOptions = Options{
 	MaxThreads: 32, SnmpTimeout: 1, SnmpRetry: 1, SnmpPort: 161,
 }
 
-func progressCb(int) {}
+func progressCb(int, string) {}
 
 func TestScanPayload(t *testing.T) {
 	for _, badAddrs := range badAddrLst {
@@ -54,7 +55,7 @@ func TestScanPayload(t *testing.T) {
 	}
 	for _, badCred := range badCredLst {
 		t.Run("Should reject bad credentials", func(t *testing.T) {
-			_, e := SnmpScan(Payload{Credentials: []Credential{badCred}, Addresses: goodAddrs}, progressCb)
+			_, e := SnmpScan(Payload{Credentials: []SnmpCred{badCred}, Addresses: goodAddrs}, progressCb)
 			if e == nil {
 				t.Errorf("Credential must be rejected: %v", badCred)
 			}
