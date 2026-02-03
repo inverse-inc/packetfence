@@ -169,17 +169,20 @@ const setup = (props, context) => {
 
   const onSave = () => {
     const { values = {} } = $store.state.preferences.cache[saveSearchNamespace.value] || {}
-    values[saveSearchId.value] = {
-      columns: columns.value.filter(c => c.visible).map(c => c.key),
-      page: page.value,
-      limit: limit.value,
-      sortBy: sortBy.value,
-      sortDesc: sortDesc.value,
-      query: value.value
+    const newValues = {
+      ...values,
+      [saveSearchId.value]: {
+        columns: columns.value.filter(c => c.visible).map(c => c.key),
+        page: page.value,
+        limit: limit.value,
+        sortBy: sortBy.value,
+        sortDesc: sortDesc.value,
+        query: value.value
+      }
     }
     $store.dispatch('preferences/set', {
       id: saveSearchNamespace.value,
-      value: { values }
+      value: { values: newValues }
     }).then(() => {
       showSaveSearchModal.value = false
     })
@@ -187,10 +190,10 @@ const setup = (props, context) => {
 
   const onDelete = search => {
     const { values = {} } = $store.state.preferences.cache[saveSearchNamespace.value] || {}
-    delete values[search.id]
+    const { [search.id]: _, ...newValues } = values
     $store.dispatch('preferences/set', {
       id: saveSearchNamespace.value,
-      value: { values }
+      value: { values: newValues }
     })
   }
 

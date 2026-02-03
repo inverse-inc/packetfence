@@ -46,7 +46,7 @@ export const actions = {
         api.fingerbankCollectorFlags(getters.apiKey).then(response => {
           //eslint-disable-next-line no-unused-vars
           const environment = Object.entries(response || {}).reduce((o, [key, flag]) => {
-            // eslint-disable-next-line
+             
             const { default: _default, usage } = flag
             //eslint-disable-next-line no-unused-vars
             const [ env, _ ] = usage.match(/([A-Z]+_[A-Z_]+[A-Z]+)/) || []
