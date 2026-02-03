@@ -54,6 +54,7 @@ rm_conffile() {
 setup_system_init_key() {
     if [ ! -f /usr/local/pf/conf/system_init_key ]; then
         hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+        chmod 600 /usr/local/pf/conf/system_init_key
     fi
 }
 
