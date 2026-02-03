@@ -35,7 +35,8 @@ const setup = (props, context) => {
     {
       name: i18n.t('Monitoring'),
       path: '/status/monitoring',
-      items: monitoringHosts.value
+      items: monitoringHosts.value,
+      class: 'no-saas'
     },
     {
       name: i18n.t('Assets'),
