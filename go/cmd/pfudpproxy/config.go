@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -43,12 +41,11 @@ type Backend struct {
 	LastCheck    time.Time
 }
 
-// getHealthCheckPort returns the health check port from environment variable or default
-func getHealthCheckPort() int {
-	if portStr := os.Getenv("PFUDPPROXY_HEALTH_CHECK_PORT"); portStr != "" {
-		if port, err := strconv.Atoi(portStr); err == nil && port > 0 && port < 65536 {
-			return port
-		}
+// getHealthCheckPort returns the health check port from FingerbankSettingsCollector or default
+func getHealthCheckPort(ctx context.Context) int {
+	collector := pfconfigdriver.GetType[pfconfigdriver.FingerbankSettingsCollector](ctx)
+	if port, err := collector.Port.Int64(); err == nil && port > 0 && port < 65536 {
+		return int(port)
 	}
 	return DefaultHealthCheckPort
 }
@@ -57,7 +54,7 @@ func getHealthCheckPort() int {
 func LoadConfig(ctx context.Context) (*ProxyConfig, error) {
 	config := &ProxyConfig{
 		Ports:               []int{PortNetFlow, PortSFlow},
-		HealthCheckPort:     getHealthCheckPort(),
+		HealthCheckPort:     getHealthCheckPort(ctx),
 		HealthCheckPath:     DefaultHealthCheckPath,
 		HealthCheckInterval: DefaultHealthCheckInterval,
 		HealthCheckTimeout:  DefaultHealthCheckTimeout,
