@@ -107,7 +107,7 @@ router.beforeEach((to, from, next) => {
           next({ name: 'configurator' }) // [6]
         }).catch(() => {
           if (store.state.session.token) {
-            next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [7]
+            next({ name: 'login', params: { expire: true } }) // [7]
           } else {
             next({ name: 'login' }) // [8]
           }
@@ -120,9 +120,6 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
-  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path) && !/^\/configurator\//.test(to.path)) {
-    localStorage.setItem('last_uri', to.path)
-  }
   routeData.params = to.params
   routeData.query = to.query
   /**
