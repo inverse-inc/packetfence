@@ -149,37 +149,33 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	for {
 		rows, err := stmt.QueryContext(ctx, macCursor)
 		if err != nil {
-			// Log here
 			logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
 			return
 		}
 		defer rows.Close()
 		var (
-			IpStr  string
-			Mac    string
-			RoleId string
+			ipStr  string
+			roleId string
 		)
 		count := 0
 		for rows.Next() {
 			count++
-			err := rows.Scan(&Mac, &IpStr, &RoleId)
+			err := rows.Scan(&macCursor, &ipStr, &roleId)
 			if err != nil {
-				// Log here
 				logger.Error(err.Error())
 				return
 			}
-			macCursor = Mac
-			mac, _ := mac.NewFromString(Mac)
+			mac, _ := mac.NewFromString(macCursor)
 			for k, v := range IPSET.Network {
-				ip := net.ParseIP(IpStr)
+				ip := net.ParseIP(ipStr)
 				if k.Contains(ip) {
 					switch v {
 					case "inlinel2":
-						IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", RoleId)
-						IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), RoleId)
+						IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", roleId)
+						IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), roleId)
 					case "inlinel3":
-						IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", RoleId)
-						IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), RoleId)
+						IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", roleId)
+						IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), roleId)
 					}
 					break
 				}
