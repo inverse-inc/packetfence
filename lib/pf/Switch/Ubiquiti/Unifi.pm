@@ -206,32 +206,23 @@ sub _connect {
         # New UniFi OS controller (UDM, UDM Pro, etc.)
         $login_path = "/api/auth/login";
         $api_prefix = "/proxy/network";
-        $cookie_invalid = ($response->code == 401);
+        $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     } else {
         # Old controller on port 8443
         $base_url .= ":8443";
         # Check if cookie is still valid for old controller
         $response = $ua->get($base_url."/api/self");
-        $cookie_invalid = ($response->code == 401);
+        $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     }
-
-    my $cache = $self->cache;
-
-    # Check if we need to authenticate:
-    # - No cached auth or auth is FALSE
-    # - Or cookie is expired/invalid (even if cache says authenticated)
-    my $auth = $cache->get("Ubiquiti-" . $controllerIp ."-auth");
-    my $need_auth = (!defined($auth) || $auth == $FALSE || $cookie_invalid);
-
-    if ($need_auth) {
+    if ($cookie_invalid) {
+        # Clear old cookies before re-authenticating to avoid sending invalid session
+        $ua->cookie_jar->clear();
         $response = $ua->post($base_url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
 
         unless($response->is_success) {
             $logger->error("Can't login on the Unifi controller: ".$response->status_line);
-            $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $FALSE );
             die;
         }
-        $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $TRUE ,{ expires_in => "10m" } );
     }
     return ($ua, $base_url.$api_prefix);
 }
