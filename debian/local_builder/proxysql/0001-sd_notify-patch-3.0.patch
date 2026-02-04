@@ -1,0 +1,205 @@
+From d75fdae7362cbb54d75796e8d0ff83e4bb9d038c Mon Sep 17 00:00:00 2001
+From: Durand Fabrice <oeufdure@gmail.com>
+Date: Mon, 25 Mar 2024 16:21:14 -0400
+Subject: [PATCH] sd_notify patch
+
+---
+ Makefile                        | 24 +++++++++++++-----------
+ src/Makefile                    |  7 +++++++
+ src/main.cpp                    | 19 +++++++++++++++++++
+ systemd/system/proxysql.service |  2 +-
+ 4 files changed, 40 insertions(+), 12 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index a20498289..8f41021ec 100644
+--- a/Makefile
++++ b/Makefile
+@@ -86,6 +86,8 @@ ifeq ($(wildcard /usr/lib/systemd/system), /usr/lib/systemd/system)
+ 	SYSTEMD := 1
+ endif
+ 
++SYSTEMD := 1
++
+ ### check user/group
+ USERCHECK := $(shell getent passwd proxysql)
+ GROUPCHECK := $(shell getent group proxysql)
+@@ -163,7 +165,7 @@ build_lib_legacy: build_deps_legacy
+ 
+ .PHONY: build_src_legacy
+ build_src_legacy: build_lib_legacy
+-	cd src && OPTZ="${O2} -ggdb" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O2} -ggdb" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_deps_debug_legacy
+ build_deps_debug_legacy:
+@@ -175,16 +177,16 @@ build_lib_debug_legacy: build_deps_debug_legacy
+ 
+ .PHONY: build_src_debug_legacy
+ build_src_debug_legacy: build_lib_debug_legacy
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ #--
+ 
+ .PHONY: build_src_testaurora
+ build_src_testaurora: build_lib_testaurora
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_AURORA" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_AURORA" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_src_testaurora_random
+ build_src_testaurora_random: build_lib_testaurora_random
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_AURORA -DTEST_AURORA_RANDOM" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_AURORA -DTEST_AURORA_RANDOM" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_lib_testaurora
+ build_lib_testaurora: build_deps_debug
+@@ -196,7 +198,7 @@ build_lib_testaurora_random: build_deps_debug
+ 
+ .PHONY: build_src_testgalera
+ build_src_testgalera: build_lib_testgalera
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_GALERA" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_GALERA" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_lib_testgalera
+ build_lib_testgalera: build_deps_debug
+@@ -204,7 +206,7 @@ build_lib_testgalera: build_deps_debug
+ 
+ .PHONY: build_src_testgrouprep
+ build_src_testgrouprep: build_lib_testgrouprep
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_GROUPREP" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_GROUPREP" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_lib_testgrouprep
+ build_lib_testgrouprep: build_deps_debug
+@@ -212,7 +214,7 @@ build_lib_testgrouprep: build_deps_debug
+ 
+ .PHONY: build_src_testreadonly
+ build_src_testreadonly: build_lib_testreadonly
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_READONLY" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_READONLY" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_lib_testreadonly
+ build_lib_testreadonly: build_deps_debug
+@@ -220,7 +222,7 @@ build_lib_testreadonly: build_deps_debug
+ 
+ .PHONY: build_src_testreplicationlag
+ build_src_testreplicationlag: build_lib_testreplicationlag
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_REPLICATIONLAG" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_REPLICATIONLAG" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_lib_testreplicationlag
+ build_lib_testreplicationlag: build_deps_debug
+@@ -228,7 +230,7 @@ build_lib_testreplicationlag: build_deps_debug
+ 
+ .PHONY: build_src_testall
+ build_src_testall: build_lib_testall
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_AURORA -DTEST_GALERA -DTEST_GROUPREP -DTEST_READONLY -DTEST_REPLICATIONLAG" CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG -DTEST_AURORA -DTEST_GALERA -DTEST_GROUPREP -DTEST_READONLY -DTEST_REPLICATIONLAG" CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_lib_testall
+ build_lib_testall: build_deps_debug
+@@ -285,11 +287,11 @@ build_lib_debug_default: build_deps_debug_default
+ 
+ .PHONY: build_src_default
+ build_src_default: build_lib_default
+-	cd src && OPTZ="${O2} -ggdb" PROXYSQLCLICKHOUSE=1 CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O2} -ggdb" PROXYSQLCLICKHOUSE=1 CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ .PHONY: build_src_debug_default
+ build_src_debug_default: build_lib_debug_default
+-	cd src && OPTZ="${O0} -ggdb -DDEBUG" PROXYSQLCLICKHOUSE=1 CC=${CC} CXX=${CXX} ${MAKE}
++	cd src && OPTZ="${O0} -ggdb -DDEBUG" PROXYSQLCLICKHOUSE=1 CC=${CC} CXX=${CXX} SYSTEMD=${SYSTEMD} ${MAKE}
+ 
+ 
+ ### packaging targets
+diff --git a/src/Makefile b/src/Makefile
+index d4b3fe837..a0fcd8f3d 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -78,6 +78,9 @@ ifeq ($(CXX),clang++)
+ endif
+ MYCXXFLAGS += $(IDIRS) $(OPTZ) $(DEBUG) $(PSQLCH) -DGITVERSION=\"$(GIT_VERSION)\" $(NOJEM) $(WGCOV) $(WASAN)
+ 
++ifeq ($(SYSTEMD),1)
++	CXXFLAGS+= -DSYSTEMD
++endif
+ 
+ STATICMYLIBS := -Wl,-Bstatic \
+ 				-lconfig \
+@@ -130,6 +133,10 @@ ifeq ($(CENTOSVER),6)
+ 	MYLIBS += -lgcrypt
+ endif
+ 
++ifeq ($(SYSTEMD),1)
++	MYLIBS+= -lsystemd
++endif
++
+ LIBPROXYSQLAR := $(PROXYSQL_LDIR)/libproxysql.a
+ ifeq ($(UNAME_S),Darwin)
+ 	LIBPROXYSQLAR += $(JEMALLOC_LDIR)/libjemalloc.a
+diff --git a/src/main.cpp b/src/main.cpp
+index aa78d0f79..b57a58964 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -15,6 +15,10 @@ using json = nlohmann::json;
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ 
++#ifdef SYSTEMD
++#include <systemd/sd-daemon.h>
++#endif
++
+ //#define PROXYSQL_EXTERN
+ #include "cpp.h"
+ 
+@@ -2962,6 +2966,12 @@ int main(int argc, const char * argv[]) {
+ 
+ 		} else if (pid) { /* The parent */
+ 
++#ifdef SYSTEMD
++			proxy_info("Systemd sd_notify enabled\n");
++			sd_notifyf(0, "READY=1\n"
++			"STATUS=ProxySQL is now processing requests...");
++#endif
++
+ 			ProxySQL_daemonize_wait_daemon();
+ 
+ 		} else { /* The daemon */
+@@ -2984,6 +2994,11 @@ int main(int argc, const char * argv[]) {
+ 
+ 	} else {
+ 		GloAdmin->flush_error_log();
++#ifdef SYSTEMD
++		proxy_info("Systemd sd_notify enabled\n");
++		sd_notifyf(0, "READY=1\n"
++		"STATUS=ProxySQL is now processing requests...");
++#endif
+ 		GloVars.install_signal_handler();
+ 	}
+ 
+@@ -3018,6 +3033,10 @@ __start_label:
+ 
+ __shutdown:
+ 
++#ifdef SYSTEMD
++	sd_notify(0, "STOPPING=1");
++#endif
++
+ 	proxy_info("Starting shutdown...\n");
+ 
+ 	// First shutdown step is to unload plugins
+diff --git a/systemd/system/proxysql.service b/systemd/system/proxysql.service
+index 6506a57b1..7469fe041 100644
+--- a/systemd/system/proxysql.service
++++ b/systemd/system/proxysql.service
+@@ -3,7 +3,7 @@ Description=High Performance Advanced Proxy for MySQL
+ After=network.target
+ 
+ [Service]
+-Type=forking
++Type=notify
+ RuntimeDirectory=proxysql
+ #PermissionsStartOnly=true
+ #ExecStartPre=/usr/bin/mkdir -p /var/run/proxysql /var/run/proxysql
+-- 
+2.34.1
+
