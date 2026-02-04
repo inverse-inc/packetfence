@@ -54,6 +54,10 @@ variables:
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
   VAGRANT_FORCE_COLOR: "true"
+  # Selective test execution
+  # Run only tests matching this pattern (grep -E regex). Empty = all tests.
+  # Examples: configurator, mac_auth, configurator|pfappserver, .*_el8
+  TEST_ONLY: ""
 
 
 ################################################################################
@@ -183,11 +187,19 @@ variables:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on maintenance/X.Y branches only (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on maintenance/X.Y branches and devel with a schedule, with test variable defined or test=yes in commit message
+# - on any branch (web/api) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # don't run on tag
 .test_devel_and_maintenance_rules:
   rules:
+    # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
+    # because GitLab CI doesn't expand variables inside regex patterns
+    # Run on any branch via web/API with TEST=yes (must be first positive rule for feature branches)
+    - if: '$CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    # Run on devel branch (push, web, not schedule)
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    # Run on maintenance branches (web/api only)
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    # Run on devel/maintenance with schedule
     - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run jobs only when:
@@ -196,6 +208,8 @@ variables:
 # don't run on tag
 .test_branches_only_rules:
   rules:
+    # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
+    # because GitLab CI doesn't expand variables inside regex patterns
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
@@ -576,6 +590,20 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
+    # Check TEST_ONLY filter (shell-based since GitLab rules don't expand variables in regex)
+    - |
+      # Validate TEST_ONLY to prevent malicious patterns
+      if [ -n "$TEST_ONLY" ]; then
+        # Reject TEST_ONLY if it contains a newline or single quote (basic sanitization)
+        if printf '%s' "$TEST_ONLY" | grep -q "[\n']"; then
+          echo "Error: TEST_ONLY contains invalid characters (newline or single quote)."
+          exit 1
+        fi
+        if ! echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY"; then
+          echo "Skipping: $CI_JOB_NAME does not match TEST_ONLY pattern: $TEST_ONLY"
+          exit 0
+        fi
+      fi
     # || EXIT_CODE=$? prevents script to finish at first command
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
     - JOB_STATUS=$EXIT_CODE timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
