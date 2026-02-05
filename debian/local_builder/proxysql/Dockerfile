@@ -66,6 +66,31 @@ RUN if [ -d "docker/images/proxysql/deb-compliant/ctl" ]; then \
     fi
 RUN MAKEOPT="-j$(nproc)" docker/images/proxysql/deb-compliant/entrypoint/entrypoint.bash
 
+# Fix file paths for older versions (2.x has files at wrong locations in deb)
+RUN MAJOR=$(echo ${CURVER} | cut -d. -f1) && \
+    if [ "$MAJOR" = "2" ]; then \
+        DEB_FILE=$(ls binaries/proxysql_*.deb | head -1) && \
+        TMPDIR=$(mktemp -d) && \
+        dpkg-deb -R "$DEB_FILE" "$TMPDIR" && \
+        FIXED=0 && \
+        if [ -f "$TMPDIR/proxysql.cnf" ]; then \
+            mkdir -p "$TMPDIR/etc" && \
+            mv "$TMPDIR/proxysql.cnf" "$TMPDIR/etc/proxysql.cnf" && \
+            FIXED=1; \
+        fi && \
+        if [ -f "$TMPDIR/lib/proxysql.service" ]; then \
+            mkdir -p "$TMPDIR/lib/systemd/system" && \
+            mv "$TMPDIR/lib/proxysql.service" "$TMPDIR/lib/systemd/system/" && \
+            mv "$TMPDIR/lib/proxysql-initial.service" "$TMPDIR/lib/systemd/system/" 2>/dev/null || true && \
+            FIXED=1; \
+        fi && \
+        if [ "$FIXED" = "1" ]; then \
+            dpkg-deb -b "$TMPDIR" "$DEB_FILE" && \
+            echo "Fixed file paths in deb"; \
+        fi && \
+        rm -rf "$TMPDIR"; \
+    fi
+
 # Final stage - minimal image with artifacts
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG

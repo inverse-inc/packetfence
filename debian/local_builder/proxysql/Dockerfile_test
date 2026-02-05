@@ -1,0 +1,52 @@
+ARG OPENSSL_VERSION=3.2.3
+ARG PROXYSQL_VERSION=3.0.5
+
+# Stage 1: Build OpenSSL 3.2+ from source (only used for v3+)
+FROM debian:12 AS openssl-builder
+
+ARG OPENSSL_VERSION
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    wget \
+    ca-certificates \
+    perl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+
+RUN wget -q https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
+    && tar xzf openssl-${OPENSSL_VERSION}.tar.gz \
+    && cd openssl-${OPENSSL_VERSION} \
+    && ./config --prefix=/opt/openssl --openssldir=/opt/openssl shared \
+    && make -j$(nproc) \
+    && make install_sw \
+    && cd .. \
+    && rm -rf openssl-${OPENSSL_VERSION}*
+
+# Stage 2: Test the proxysql deb
+FROM debian:12
+
+ARG PROXYSQL_VERSION
+ARG DEB_FILE
+
+# Copy OpenSSL 3.2+ libraries from builder (only for v3+)
+COPY --from=openssl-builder /opt/openssl/lib64 /opt/openssl/lib64
+
+# Configure library path for OpenSSL 3.2+ only if v3+
+RUN MAJOR_VERSION=$(echo ${PROXYSQL_VERSION} | cut -d. -f1) && \
+    if [ "$MAJOR_VERSION" -ge 3 ]; then \
+        echo "/opt/openssl/lib64" > /etc/ld.so.conf.d/openssl.conf && ldconfig; \
+    fi
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgnutls30 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install the proxysql deb
+COPY ${DEB_FILE} /tmp/
+RUN apt-get update && apt-get install -y -f /tmp/${DEB_FILE}
+
+# Check version
+CMD ["/usr/bin/proxysql", "--version"]

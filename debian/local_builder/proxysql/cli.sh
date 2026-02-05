@@ -5,18 +5,25 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 UPSTREAM_REPO="https://github.com/sysown/proxysql.git"
 
+PROXYSQL_VERSION=""
+PROXYSQL_TAG=""
+
 usage() {
-    echo "Usage: $0 [-f|--force] <PROXYSQL_VERSION> [PROXYSQL_TAG]"
+    echo "Usage: $0 [OPTIONS] (--proxysql VERSION | --proxysql-tag TAG)"
     echo ""
-    echo "Arguments:"
-    echo "  -f, --force       Force rebuild (no cache)"
-    echo "  PROXYSQL_VERSION  Version number for the package (e.g., 3.0.5)"
-    echo "  PROXYSQL_TAG      Git tag to build from (default: v<PROXYSQL_VERSION>)"
+    echo "Required (one of):"
+    echo "  --proxysql VERSION   ProxySQL version to build (e.g., 3.0.5) -> uses tag v3.0.5"
+    echo "  --proxysql-tag TAG   ProxySQL git tag to build (e.g., v3.0.5) -> uses version 3.0.5"
     echo ""
-    echo "Example:"
-    echo "  $0 3.0.5              # Uses tag v3.0.5"
-    echo "  $0 3.0.5 v3.0.5       # Explicit tag"
-    echo "  $0 -f 3.0.5           # Force rebuild"
+    echo "Options:"
+    echo "  -f, --force          Force rebuild (no cache)"
+    echo "  -h, --help           Show this help"
+    echo ""
+    echo "Examples:"
+    echo "  $0 --proxysql 3.0.5        # Build v3.0.5"
+    echo "  $0 --proxysql-tag v3.0.5   # Same as above (using tag)"
+    echo "  $0 --proxysql 2.6.3        # Build v2.6.3"
+    echo "  $0 -f --proxysql 3.0.5     # Force rebuild (no cache)"
     exit 1
 }
 
@@ -28,23 +35,48 @@ while [[ $# -gt 0 ]]; do
             FORCE_BUILD="--no-cache"
             shift
             ;;
+        --proxysql)
+            PROXYSQL_VERSION="$2"
+            shift 2
+            ;;
+        --proxysql-tag)
+            PROXYSQL_TAG="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
         -*)
             echo "Unknown option: $1"
             usage
             ;;
         *)
-            break
+            echo "Unknown argument: $1"
+            usage
             ;;
     esac
 done
 
-# Check arguments
-if [[ $# -lt 1 || $# -gt 2 ]]; then
+# Check required arguments - need either version or tag
+if [[ -z "${PROXYSQL_VERSION}" && -z "${PROXYSQL_TAG}" ]]; then
+    echo "Error: --proxysql VERSION or --proxysql-tag TAG is required"
+    echo ""
     usage
 fi
 
-PROXYSQL_VERSION="$1"
-PROXYSQL_TAG="${2:-v${PROXYSQL_VERSION}}"
+if [[ -n "${PROXYSQL_VERSION}" && -n "${PROXYSQL_TAG}" ]]; then
+    echo "Error: Use --proxysql VERSION or --proxysql-tag TAG, not both"
+    echo ""
+    usage
+fi
+
+# Derive the missing value
+if [[ -n "${PROXYSQL_VERSION}" ]]; then
+    PROXYSQL_TAG="v${PROXYSQL_VERSION}"
+else
+    # Extract version from tag (strip leading 'v' if present)
+    PROXYSQL_VERSION="${PROXYSQL_TAG#v}"
+fi
 
 # Check if Dockerfile exists
 DOCKERFILE="${SCRIPT_DIR}/Dockerfile"
@@ -101,20 +133,36 @@ echo ""
 echo "Done! Deb file extracted to: ${SCRIPT_DIR}/"
 ls -la "${SCRIPT_DIR}"/*.deb
 
-# Verify the build by installing in a clean Ubuntu container
-TEST_IMAGE="ubuntu:24.04"
+# Verify the build by installing in a test container
 echo ""
-echo "Verifying build in ${TEST_IMAGE}..."
+echo "Verifying build..."
 DEB_FILE=$(ls "${SCRIPT_DIR}"/proxysql_${PROXYSQL_VERSION}*.deb 2>/dev/null | head -1)
+MAJOR_VERSION="${PROXYSQL_VERSION%%.*}"
+
 if [[ -n "${DEB_FILE}" ]]; then
-    echo "Testing: ${DEB_FILE}"
-    docker run --rm -v "${DEB_FILE}:/tmp/proxysql.deb:ro" "${TEST_IMAGE}" bash -c '
-        apt-get update -qq
-        apt-get install -y -qq libssl3 libgnutls30 >/dev/null 2>&1
-        dpkg-deb -x /tmp/proxysql.deb /
-        echo "ProxySQL version:"
-        /usr/bin/proxysql --version
-    '
+    DEB_FILENAME=$(basename "${DEB_FILE}")
+    echo "Testing: ${DEB_FILENAME}"
+
+    if [[ "$MAJOR_VERSION" -ge 3 ]]; then
+        # v3+ needs OpenSSL 3.2+, use Dockerfile_test with multi-stage build
+        echo "ProxySQL v3+ detected, building with OpenSSL 3.2+"
+        docker build \
+            --build-arg DEB_FILE="${DEB_FILENAME}" \
+            --build-arg PROXYSQL_VERSION="${PROXYSQL_VERSION}" \
+            -f "${SCRIPT_DIR}/Dockerfile_test" \
+            -t proxysql-test \
+            "${SCRIPT_DIR}"
+        docker run --rm proxysql-test
+    else
+        # v2.x uses system OpenSSL, simple inline test
+        echo "ProxySQL v2.x detected, using system OpenSSL"
+        docker run --rm -v "${DEB_FILE}:/tmp/proxysql.deb:ro" debian:12 bash -c '
+            apt-get update -qq
+            apt-get install -y -qq libssl3 libgnutls30 >/dev/null 2>&1
+            apt-get install -y -f /tmp/proxysql.deb
+            /usr/bin/proxysql --version
+        '
+    fi
 else
     echo "ERROR: No deb file found for version ${PROXYSQL_VERSION}"
 fi
