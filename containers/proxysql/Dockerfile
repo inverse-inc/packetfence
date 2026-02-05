@@ -56,6 +56,9 @@ RUN chmod +x /proxysql-read-only-handler.sh
 RUN mkdir -p /usr/local/pf/var/proxysql/
 
 # Set LD_LIBRARY_PATH to ensure OpenSSL 3.2+ is used
+# Set SSL_CERT_DIR to use system CA certificates
 ENV LD_LIBRARY_PATH=/opt/openssl/lib64:$LD_LIBRARY_PATH
+ENV SSL_CERT_DIR=/etc/ssl/certs
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 ENTRYPOINT ["proxysql", "-f", "-D", "/usr/local/pf/var/proxysql/", "-c", "/usr/local/pf/var/conf/proxysql.conf", "--initial", "--idle-threads"]
