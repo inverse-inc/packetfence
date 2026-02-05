@@ -32,8 +32,8 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 # Copy OpenSSL 3.2+ libraries from builder
 COPY --from=openssl-builder /opt/openssl/lib64 /opt/openssl/lib64
 
-# Configure library path so proxysql finds OpenSSL 3.2+
-RUN echo "/opt/openssl/lib64" > /etc/ld.so.conf.d/openssl.conf && ldconfig
+# Configure library path so proxysql finds OpenSSL 3.2+ (use 00 prefix for priority)
+RUN echo "/opt/openssl/lib64" > /etc/ld.so.conf.d/00-openssl.conf && ldconfig
 
 ARG PROXYSQL_VERSION
 
@@ -54,5 +54,8 @@ RUN apt-get -qq update \
 COPY bin/proxysql-read-only-handler.sh /proxysql-read-only-handler.sh
 RUN chmod +x /proxysql-read-only-handler.sh
 RUN mkdir -p /usr/local/pf/var/proxysql/
+
+# Set LD_LIBRARY_PATH to ensure OpenSSL 3.2+ is used
+ENV LD_LIBRARY_PATH=/opt/openssl/lib64:$LD_LIBRARY_PATH
 
 ENTRYPOINT ["proxysql", "-f", "-D", "/usr/local/pf/var/proxysql/", "-c", "/usr/local/pf/var/conf/proxysql.conf", "--initial", "--idle-threads"]
