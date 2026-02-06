@@ -45,7 +45,8 @@ const route = {
       props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read users',
-        isFailRoute: true
+        isFailRoute: true,
+        saveSearchNamespace: 'users'
       }
     },
     {

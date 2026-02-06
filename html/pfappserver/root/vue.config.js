@@ -7,7 +7,23 @@ module.exports = {
   devServer: {
     port: 8081,
     server: 'https',
-    proxy: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`
+    proxy: {
+      '^/static/doc': {
+        target: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`,
+        secure: false,
+        changeOrigin: true
+      },
+      '^/api': {
+        target: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`,
+        secure: false,
+        changeOrigin: true
+      },
+      '^/netdata': {
+        target: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`,
+        secure: false,
+        changeOrigin: true
+      }
+    }
   },
   css: {
     sourceMap: process.env.VUE_APP_DEBUG === 'true',

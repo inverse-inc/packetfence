@@ -2,7 +2,7 @@
   <div :class="{ 'w-saas': isSaas, 'wo-saas': !isSaas }">
     <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
-      <b-navbar-brand>
+      <b-navbar-brand to="/status/about">
         <img src="@/assets/packetfence.white.small.svg"/>
       </b-navbar-brand>
       <b-collapse is-nav id="navbar">

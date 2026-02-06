@@ -29,8 +29,18 @@ const setup = (props, context) => {
 
   const sections = computed(() => ([
     {
+      name: i18n.t('About'),
+      path: '/status/about'
+    },
+    {
       name: i18n.t('Dashboard'),
-      path: '/status/dashboard'
+      path: '/status/dashboard',
+      class: 'no-saas'
+    },
+    {
+      name: i18n.t('Dashboard'),
+      path: '/status/dashboard_saas',
+      class: 'is-saas'
     },
     {
       name: i18n.t('Monitoring'),

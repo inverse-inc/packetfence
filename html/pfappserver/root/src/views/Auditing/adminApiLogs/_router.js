@@ -28,7 +28,8 @@ export default [
     component: TheSearch,
     meta: {
       can: 'read admin_api_audit_log',
-      isFailRoute: true
+      isFailRoute: true,
+      saveSearchNamespace: 'adminApiLogs'
     },
     beforeEnter
   },

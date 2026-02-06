@@ -27,7 +27,8 @@ export default [
     component: TheSearch,
     meta: {
       can: 'read radius_log',
-      isFailRoute: true
+      isFailRoute: true,
+      saveSearchNamespace: 'radiusLogs'
     },
     beforeEnter
   },

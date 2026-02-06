@@ -7,6 +7,13 @@ const TheView = () => import(/* webpackChunkName: "Status" */ './_components/The
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_status)
     store.registerModule('$_status', StoreModule)
+
+  // Skip metrics loading for SAAS mode (netdata unavailable)
+  if (store.getters['system/isSaas']) {
+    next()
+    return
+  }
+
   if (acl.$can('read', 'users_sources'))
     store.dispatch('config/getSources')
   if (acl.$can('read', 'system')) {

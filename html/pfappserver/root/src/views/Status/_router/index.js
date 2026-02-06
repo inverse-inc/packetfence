@@ -3,8 +3,10 @@ import store from '@/store'
 import StatusView from '../'
 import StatusStore from '../_store'
 
+import AboutRoutes from '../about/_router'
 import AssetsRoutes from '../assets/_router'
 import DashboardRoutes from '../dashboard/_router'
+import DashboardSaasRoutes from '../dashboard_saas/_router'
 import MonitoringRoutes from '../monitoring/_router'
 import QueueRoutes from '../queue/_router'
 import NetworkCommunicationRoutes from '../network_communication/_router'
@@ -21,7 +23,9 @@ const beforeEnter = (to, from, next) => {
 }
 
 const children = [
+  ...AboutRoutes,
   ...DashboardRoutes,
+  ...DashboardSaasRoutes,
   ...MonitoringRoutes,
   ...AssetsRoutes,
   ...QueueRoutes,

@@ -55,6 +55,8 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
+  const isSaas = computed(() => $store.getters['system/isSaas'])
+
   const tabIndex = ref(0)
   const pingNetdataTimer = ref(false)
   const pingNetdataInterval = ref(30 * 1E3) // 30s
@@ -125,7 +127,9 @@ const setup = (props, context) => {
       })
     }
   }
-  pingNetdataTimer.value = setTimeout(pingNetdata, pingNetdataInterval.value)
+  if (!isSaas.value) {
+    pingNetdataTimer.value = setTimeout(pingNetdata, pingNetdataInterval.value)
+  }
 
   const getAlarms = () => {
     if ($store.state['$_status'].allCharts) {
@@ -173,7 +177,7 @@ const setup = (props, context) => {
   }
 
   onMounted(() => {
-    if ($store.state['$_status'].allCharts) {
+    if (!isSaas.value && $store.state['$_status'].allCharts) {
       initNetdata()
       getAlarms()
     }
