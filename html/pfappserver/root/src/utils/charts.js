@@ -11,8 +11,9 @@ chartsCall.interceptors.response.use((response) => {
   return response
 }, (error) => {
   if (error.response) {
-    if (error.response.status === 401 || // unauthorized
-        (error.response.status === 404 && /token_info/.test(error.config.url))) {
+    // Only redirect to /expire for token_info 404 (session expired)
+    // Don't redirect on 401 - netdata may simply be unavailable (e.g., SAAS mode)
+    if (error.response.status === 404 && /token_info/.test(error.config.url)) {
       router.push('/expire')
     }
   }
