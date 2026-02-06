@@ -1,6 +1,7 @@
 package discovernetworkdevice
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"maps"
@@ -87,6 +88,12 @@ type ScanResponse struct {
 // Drivers is the type of the devices.json file
 type drivers struct {
 	Devices []Driver `json:"devices"`
+}
+
+type snmpOutputData struct {
+	SysDesc     string
+	SysOid      string
+	HostnameOid string
 }
 
 const (
@@ -214,7 +221,9 @@ func resolveAddresses(addresses []string) ([]string, error) {
 			}
 		}
 	}
-	return slices.Collect(maps.Keys(lst)), nil
+	tmp := slices.Collect(maps.Keys(lst))
+	slices.Sort(tmp)
+	return tmp, nil
 }
 
 func checkCredentials(creds []SnmpCred) error {
@@ -253,20 +262,53 @@ func checkOptions(opts *Options) error {
 	return nil
 }
 
-func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, progressChan chan int,
-	drivers []Driver, creds []SnmpCred, opts Options, addresses []string) {
+func getSnmpData(snmp *gosnmp.GoSNMP, snmpData *snmpOutputData, addr string) (SnmpResult, bool) {
+	oid_reqs := []string{sysDescrOid, sysOidOid, hostnameOid}
+	err := snmp.Connect()
+	if err != nil {
+		return SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP initialization failed: %v", err)}, true
+	}
+	defer snmp.Close()
+	data, err := snmp.Get(oid_reqs)
+	if err != nil {
+		// ignore timeout events. No log for an address = timeout
+		if !strings.Contains(err.Error(), "request timeout") {
+			return SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP Get failed: %v", err)}, true
+		}
+		return SnmpResult{}, true
+	}
+	sysDesc, err := getSnmpVarAsStr(data.Variables[0]) // sysDesc
+	if err != nil {
+		return SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP SysDesc: %v", err)}, true
+	}
+	sysOid, err := getSnmpVarAsStr(data.Variables[1]) // sysOid
+	if err != nil {
+		return SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP SysOid: %v", err)}, true
+	}
+	hostnameOid, err := getSnmpVarAsStr(data.Variables[2]) // hostnameOid
+	if err != nil {
+		return SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP HostnameOid: %v", err)}, true
+	}
+	snmpData.SysDesc = sysDesc
+	snmpData.SysOid = sysOid
+	snmpData.HostnameOid = hostnameOid
+	return SnmpResult{}, false
+}
+
+func scanPart(ctx context.Context, wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, progressChan chan int,
+	drivers []Driver, payload Payload, addresses []string) {
+	opts := payload.Options
+	creds := payload.Credentials
 	snmp := gosnmp.GoSNMP{}
 	snmp.Port = uint16(opts.SnmpPort)
 	snmp.Transport = snmpTransport
 	snmp.Retries = opts.SnmpRetry
 	snmp.Timeout = time.Second * time.Duration(opts.SnmpTimeout)
 	snmp.ExponentialTimeout = false
-	oid_reqs := []string{sysDescrOid, sysOidOid, hostnameOid}
 	defer wg.Done()
 	for _, addr := range addresses {
 		progressChan <- 1
 		snmp.Target = addr
-		var sysDesc string
 		for _, cred := range creds {
 			switch cred.Version {
 			case CRED_TYPE_SNMP_V1:
@@ -277,49 +319,31 @@ func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, prog
 				continue
 			}
 			snmp.Community = cred.CommunityRead
-			err := snmp.Connect()
-			if err != nil {
-				snmpErr <- SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP initialization failed: %v", err)}
-				continue
-			}
-			defer snmp.Close()
-			data, err := snmp.Get(oid_reqs)
-			if err != nil {
-				// ignore timeout events. No log for an address = timeout
-				if !strings.Contains(err.Error(), "request timeout") {
-					snmpErr <- SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP Get failed: %v", err)}
+			snmpData := snmpOutputData{}
+			snmpResult, errorHappened := getSnmpData(&snmp, &snmpData, addr)
+			if errorHappened { // special case when we ignore error
+				select {
+				case <-ctx.Done():
+					fmt.Println("Done at start")
+					return
+				case snmpErr <- snmpResult:
+					continue
 				}
-				continue
-			}
-			sysDesc, err = getSnmpVarAsStr(data.Variables[0]) // sysDesc
-			if err != nil {
-				snmpErr <- SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP SysDesc: %v", err)}
-				continue
-			}
-			sysOid, err := getSnmpVarAsStr(data.Variables[1]) // sysOid
-			if err != nil {
-				snmpErr <- SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP SysOid: %v", err)}
-				continue
-			}
-			hostnameOid, err := getSnmpVarAsStr(data.Variables[2]) // hostnameOid
-			if err != nil {
-				snmpErr <- SnmpResult{Address: addr, Message: fmt.Sprintf("SNMP HostnameOid: %v", err)}
-				continue
 			}
 			found := -1
 			for i, driver := range drivers {
 				regOs := regexp.MustCompile(driver.SysOsReg)
 				regOid := regexp.MustCompile(driver.SysOidReg)
-				if regOs.MatchString(sysDesc) && regOid.MatchString(sysOid) {
+				if regOs.MatchString(snmpData.SysDesc) && regOid.MatchString(snmpData.SysOid) {
 					found = i
 					break
 				}
 			}
 			foundDevice := Device{
 				Ip:         addr,
-				System:     sysDesc,
-				Oid:        sysOid,
-				Hostname:   hostnameOid,
+				System:     snmpData.SysDesc,
+				Oid:        snmpData.SysOid,
+				Hostname:   snmpData.HostnameOid,
 				Credential: cred,
 			}
 			if found != -1 {
@@ -327,7 +351,7 @@ func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, prog
 				var ver string
 				if len(driver.SysVerReg) > 0 {
 					regVer := regexp.MustCompile(driver.SysVerReg)
-					ver = regVer.FindString(sysDesc)
+					ver = regVer.FindString(snmpData.SysDesc)
 					if len(ver) < 3 { // minimum of "x.y"
 						snmpErr <- SnmpResult{Address: addr, Message: "Cannot parse version"}
 						// kinda bad ver? ignore
@@ -340,13 +364,17 @@ func scanPart(wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, prog
 				foundDevice.Os = driver.Os
 				foundDevice.Version = ver
 			} // We found a device, but no match, send raw data
-			out <- foundDevice
+			select {
+			case <-ctx.Done():
+				return
+			case out <- foundDevice:
+			}
 		}
 	}
 }
 
 // Scan is the main entry of the network scan
-func SnmpScan(payload Payload, progressCb func(int, string)) (*ScanResponse, error) {
+func SnmpScan(ctx context.Context, payload Payload, progressCb func(int, string)) (*ScanResponse, error) {
 	drivers, err := readDriverFile(driverFile)
 	if err != nil {
 		return nil, fmt.Errorf("Bad drivers file: %s", err.Error())
@@ -375,16 +403,18 @@ func SnmpScan(payload Payload, progressCb func(int, string)) (*ScanResponse, err
 	})
 	wgOut.Go(func() {
 		for snmpErr := range snmpErrChan {
-			resp.SnmpResults = append(resp.SnmpResults, snmpErr)
+			if len(snmpErr.Address) > 0 { // filter unwanted errors
+				resp.SnmpResults = append(resp.SnmpResults, snmpErr)
+			}
 		}
 	})
 	wgOut.Go(func() {
-		// dont send duplicate %, send only a 5 step increase, from 1% to 99%
+		// dont send duplicate %, send only a 5 step increase, from 5% to 100%
 		n := 0
 		alreadySeen := make(map[int]bool)
 		for range progressChan {
 			n += 1
-			percentDone := int(float32(n)/float32(len(addresses))*99.0 + 1.0)
+			percentDone := max(min(int(float32(n)/float32(len(addresses))*100.0+1.0), 100), 1)
 			if percentDone%5 == 0 {
 				if _, ok := alreadySeen[percentDone]; !ok {
 					alreadySeen[percentDone] = true
@@ -405,7 +435,7 @@ func SnmpScan(payload Payload, progressCb func(int, string)) (*ScanResponse, err
 		}
 		rid := min(lid+offset, len(addresses))
 		wg.Add(1)
-		go scanPart(&wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, payload.Credentials, payload.Options, addresses[lid:rid])
+		go scanPart(ctx, &wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, payload, addresses[lid:rid])
 	}
 	wg.Wait()
 	close(deviceFoundChan)
@@ -413,5 +443,8 @@ func SnmpScan(payload Payload, progressCb func(int, string)) (*ScanResponse, err
 	close(progressChan)
 	wgOut.Wait()
 	progressCb(100, "Done!")
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
 	return &resp, nil
 }

@@ -66,8 +66,8 @@ type Task struct {
 	Status int    `json:"status"`
 }
 
-func ScanTask(payload Payload, progressCb func(int, string)) (*ScanResponse, error) {
-	resp, err := SnmpScan(payload, progressCb)
+func ScanTask(ctx context.Context, payload Payload, progressCb func(int, string)) (*ScanResponse, error) {
+	resp, err := SnmpScan(ctx, payload, progressCb)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,9 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 			pfqueueclient.PutStatusUpdater(statusUpdater)
 		}()
 		statusUpdater.Start(ctx)
-		data, err := ScanTask(body, func(progress int, message string) {
+		ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*6)
+		defer cancel()
+		data, err := ScanTask(ctxTimeout, body, func(progress int, message string) {
 			statusUpdater.UpdateProgress(ctx, progress, message)
 		})
 		if err != nil {

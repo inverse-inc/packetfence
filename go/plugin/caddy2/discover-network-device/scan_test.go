@@ -1,12 +1,16 @@
 package discovernetworkdevice
 
 import (
+	"context"
 	"math"
 	"os/exec"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 )
+
+var ctx context.Context = context.Background()
 
 var badAddrLst = [][]string{
 	{"192.168.0."},
@@ -47,7 +51,7 @@ func progressCb(int, string) {}
 func TestScanPayload(t *testing.T) {
 	for _, badAddrs := range badAddrLst {
 		t.Run("Should reject bad address", func(t *testing.T) {
-			_, e := SnmpScan(Payload{Credentials: goodCreds, Addresses: badAddrs}, progressCb)
+			_, e := SnmpScan(ctx, Payload{Credentials: goodCreds, Addresses: badAddrs}, progressCb)
 			if e == nil {
 				t.Errorf("Address must be rejected: %v", badAddrs)
 			}
@@ -55,7 +59,7 @@ func TestScanPayload(t *testing.T) {
 	}
 	for _, badCred := range badCredLst {
 		t.Run("Should reject bad credentials", func(t *testing.T) {
-			_, e := SnmpScan(Payload{Credentials: []SnmpCred{badCred}, Addresses: goodAddrs}, progressCb)
+			_, e := SnmpScan(ctx, Payload{Credentials: []SnmpCred{badCred}, Addresses: goodAddrs}, progressCb)
 			if e == nil {
 				t.Errorf("Credential must be rejected: %v", badCred)
 			}
@@ -63,14 +67,14 @@ func TestScanPayload(t *testing.T) {
 	}
 	for _, badOptions := range badOptionsLst {
 		t.Run("Should reject bad options", func(t *testing.T) {
-			_, e := SnmpScan(Payload{Options: badOptions, Credentials: goodCreds, Addresses: goodAddrs}, progressCb)
+			_, e := SnmpScan(ctx, Payload{Options: badOptions, Credentials: goodCreds, Addresses: goodAddrs}, progressCb)
 			if e == nil {
 				t.Errorf("Options must be rejected: %v", badOptions)
 			}
 		})
 	}
 	t.Run("Should scan", func(t *testing.T) {
-		r, e := SnmpScan(Payload{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions}, progressCb)
+		r, e := SnmpScan(ctx, Payload{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions}, progressCb)
 		if r == nil || e != nil {
 			t.Errorf("Scan should answer correctly: %v", e)
 		}
@@ -91,7 +95,7 @@ func TestScanSnmp(t *testing.T) {
 		t.Errorf("Error running tcpdump for test: %v", err)
 	}
 	time.Sleep(time.Second * 1) // wait for tcpdump to be ready
-	_, err = SnmpScan(Payload{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, progressCb)
+	_, err = SnmpScan(ctx, Payload{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, progressCb)
 	if err != nil {
 		t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
 	}
@@ -99,8 +103,56 @@ func TestScanSnmp(t *testing.T) {
 	tmp := make([]byte, 1024*32)
 	_, err = outPipe.Read(tmp)
 	cmd.Wait()
-	reg := regexp.MustCompile(`> 192\.168\.42\.42\.snmp\:\s+GetRequest\(42\)\s+system\.sysDescr\.0 system\.sysObjectID\.0`)
+	reg := regexp.MustCompile(`> 192\.168\.42\.42\.snmp\:\s+GetRequest\(\d+\)\s+system\.sysDescr\.0 system\.sysObjectID\.0 system\.sysName\.0`)
 	if !reg.Match(tmp) {
 		t.Errorf("No SNMP request were send to %s", ipAddress)
+	}
+}
+
+func TestScanTimeout(t *testing.T) {
+	var err error
+	ipAddress := "192.168.42.42/16"
+	subCtx, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+	timeStart := time.Now()
+	_, err = SnmpScan(subCtx, Payload{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, progressCb)
+	if err != nil {
+		if !strings.Contains(err.Error(), "context deadline exceeded") {
+			t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
+		} else {
+			t.Logf("Scan was cancelled: %s", err.Error())
+		}
+	}
+	timeElapsed := time.Since(timeStart)
+	if timeElapsed.Seconds() > 20 { // it can take some times to finish
+		t.Errorf("SnmpScan didn't timeout in time")
+	}
+}
+
+func TestCtx(t *testing.T) {
+	subCtx, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+	chanStop := make(chan bool)
+	t.Log("Start!")
+	timeStart := time.Now()
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-time.After(time.Second * 2):
+				t.Log("...Ding!")
+				chanStop <- true
+			case <-ctx.Done():
+				t.Log("Cancel!")
+				close(chanStop)
+				return
+			}
+		}
+	}(subCtx)
+	for range chanStop {
+		time.Sleep(time.Millisecond * 100)
+	}
+	timeElapsed := time.Since(timeStart)
+	if timeElapsed.Milliseconds() > 1200 {
+		t.Errorf("Func did not timeout in time")
 	}
 }
