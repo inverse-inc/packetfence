@@ -152,21 +152,23 @@ const setup = (props, context) => {
     if (items.constructor === Array) { // ignore Promises
       const { currentRoute: { name: currentName, path: currentPath, query: { query: currentQuery } = {} } = {} } = $router
       for (let { name: sectionName, path, items: _items } of items) {
-        if (_items) {
-          if(findActiveSections(_items, [sectionName, ...sections]))
-            break
-        }
-        else if (path && path instanceof Object) {
+        // Check if this section's own path matches (even if it has children)
+        if (path && path instanceof Object) {
           const { name: pathName, query: { query: pathQuery } } = path
           if (pathName === currentName && pathQuery === currentQuery) {
-            expandedSections.value = sections
+            expandedSections.value = [sectionName, ...sections]
             return true
           }
         }
         else if (path === currentPath) {
-          expandedSections.value = sections
+          expandedSections.value = [sectionName, ...sections]
           return true
-         }
+        }
+        // Recurse into children
+        if (_items) {
+          if(findActiveSections(_items, [sectionName, ...sections]))
+            return true
+        }
       }
       return false
     }
@@ -188,6 +190,12 @@ const setup = (props, context) => {
   }
 
   watch(value, () => findActiveSections(value.value, []), { immediate: true })
+
+  // Also watch route changes to expand sidebar when navigating from external links (e.g., About page)
+  watch(
+    () => $router.currentRoute.path,
+    () => findActiveSections(value.value, [])
+  )
 
   useEvent('keydown', e => {
     const { altKey = false, shiftKey = false, keyCode = false } = e
