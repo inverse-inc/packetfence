@@ -35,14 +35,30 @@
         </b-col>
       </b-row>
 
-      <!-- Documentation Guides -->
-      <h5 class="mb-3" v-t="'Documentation'"></h5>
+      <!-- Help -->
+      <h5 class="mb-3" v-t="'Help'"></h5>
       <b-row>
+        <!-- Support Inquiry -->
+        <b-col cols="6" md="4" lg="2" class="mb-3">
+          <div class="about-card-doc-wrapper">
+            <a href="https://www.packetfence.com/docs/" target="_blank" class="about-card-support-link">
+              <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center">
+                <icon name="question-circle" scale="2" class="mb-2" />
+                <div class="small">{{ $t('Support Inquiry') }}</div>
+              </b-card>
+            </a>
+          </div>
+        </b-col>
         <b-col cols="6" md="4" lg="2" v-for="doc in guides" :key="doc.name" class="mb-3">
-          <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center cursor-pointer" @click="openGuide(doc.name)">
-            <icon name="book" scale="2" class="mb-2" />
-            <div class="small">{{ doc.text }}</div>
-          </b-card>
+          <div class="about-card-doc-wrapper">
+            <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center cursor-pointer" @click="openGuideFullscreen(doc.name)">
+              <icon name="book" scale="2" class="mb-2" />
+              <div class="small">{{ doc.text }}</div>
+            </b-card>
+            <a :href="`/static/doc/${doc.name}`" target="_blank" class="about-card-doc-external" @click.stop>
+              <icon name="external-link-alt" scale="1.2" />
+            </a>
+          </div>
         </b-col>
       </b-row>
     </div>
@@ -93,9 +109,10 @@ const setup = (props, context) => {
     return [...index].sort((a, b) => a.text.localeCompare(b.text))
   })
 
-  const openGuide = (filename) => {
-    $store.dispatch('documentation/openViewer')
+  const openGuideFullscreen = (filename) => {
     $store.dispatch('documentation/setPath', filename)
+    $store.dispatch('documentation/openViewer')
+    $store.commit('documentation/FULLSCREEN_ON')
   }
 
   // Initialize preferences and load saved searches
@@ -237,7 +254,7 @@ const setup = (props, context) => {
   return {
     version,
     guides,
-    openGuide,
+    openGuideFullscreen,
     sections
   }
 }
@@ -312,5 +329,42 @@ export default {
     background-color: rgba(0, 0, 0, 0.02);
     border-top: 1px solid var(--light);
   }
+}
+
+.about-card-doc-wrapper {
+  position: relative;
+  height: 100%;
+
+  &:hover {
+    .about-card {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .about-card-doc-external {
+      opacity: 1;
+    }
+  }
+}
+
+.about-card-doc-external {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0.3;
+  color: var(--secondary);
+  transition: opacity 0.15s ease-in-out, color 0.15s ease-in-out;
+  z-index: 1;
+
+  &:hover {
+    opacity: 1;
+    color: var(--primary);
+  }
+}
+
+.about-card-support-link {
+  text-decoration: none;
+  display: block;
+  height: 100%;
 }
 </style>

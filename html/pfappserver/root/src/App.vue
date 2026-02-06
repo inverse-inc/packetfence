@@ -2,7 +2,7 @@
   <div :class="{ 'w-saas': isSaas, 'wo-saas': !isSaas }">
     <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
-      <b-navbar-brand to="/status/about">
+      <b-navbar-brand to="/status/about" @click.native="closeFullscreenDocs">
         <img src="@/assets/packetfence.white.small.svg"/>
       </b-navbar-brand>
       <b-collapse is-nav id="navbar">
@@ -119,6 +119,12 @@ const setup = (props, context) => {
   })
   const toggleDocumentationViewer = () => {
     $store.dispatch('documentation/toggleViewer')
+  }
+
+  const closeFullscreenDocs = () => {
+    if ($store.getters['documentation/fullscreen']) {
+      $store.dispatch('documentation/closeViewer')
+    }
   }
 
   const isAuthenticated = computed(() => $store.getters['session/isAuthenticated'])
@@ -261,6 +267,7 @@ const setup = (props, context) => {
     documentationViewerClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
+    closeFullscreenDocs,
   }
 }
 
