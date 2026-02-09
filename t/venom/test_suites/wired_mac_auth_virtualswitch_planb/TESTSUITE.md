@@ -49,7 +49,6 @@ This test suite validates MAC authentication using VirtualSwitch running on a **
 | `16_plug_device_mab.yml` | Plug device via virtualswitch REST API with MAB |
 | `18_check_radius_audit_log.yml` | Verify RADIUS Accept in audit log |
 | `20_check_virtualswitch_device_status.yml` | Verify device AUTHORIZED via virtualswitch API |
-| `21_check_internet_access.yml` | Verify internet access from virtualswitch01 VM |
 | `22_create_printer_role.yml` | Create printer role with dedicated VLAN |
 | `24_create_vlan_filter_printer.yml` | Create VLAN filter for printer auto-assignment |
 | `26_clear_fingerbank_cache.yml` | Clear Fingerbank cache |
@@ -73,6 +72,8 @@ This test suite validates MAC authentication using VirtualSwitch running on a **
 | `10_delete_printer_node.yml` | Delete printer node |
 | `12_delete_connection_profile.yml` | Delete connection profile |
 | `14_delete_vlan_filter_printer.yml` | Delete printer VLAN filter |
+| `15_delete_printer_role.yml` | Delete printer role |
+| `15b_delete_headless_device_role.yml` | Delete headless_device role |
 | `16_delete_switch.yml` | Delete switch |
 | `18_delete_switch_group.yml` | Delete switch group |
 | `20_unplug_all_interfaces.yml` | Cleanup all virtualswitch interfaces |

@@ -1,2 +1,5 @@
 roles/
 ansible_collections/
+# Plan documentation files (local planning only)
+PLAN_A.md
+PLAN_B.md
