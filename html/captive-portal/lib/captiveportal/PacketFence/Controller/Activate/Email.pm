@@ -102,10 +102,8 @@ sub code : Path : Args(2) {
         $c->forward('doSponsorRegistration', [$code]);
 
     } else {
-
-        $logger->info( "User has nothing to do here, redirecting to "
-              . $c->portalSession->destinationUrl );
-        $c->response->redirect( $c->portalSession->destinationUrl );
+        $self->showError($c, "The activation code provided is not valid for this page.");
+        $c->detach;
     }
 }
 

@@ -501,11 +501,13 @@ sub send_email_now {
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
     $info{'subject'} = i18n($info{'subject'});
 
-    if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
-    } else {
-        $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
+    if (!defined($info{'activation_uri'})) {
+        if (defined($info{'activation_domain'})) {
+            $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
+        } else {
+            $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+                ."$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
+        }
     }
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($type, $activation_code)});
