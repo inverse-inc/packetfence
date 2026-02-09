@@ -324,7 +324,6 @@ func scanPart(ctx context.Context, wg *sync.WaitGroup, out chan Device, snmpErr 
 			if errorHappened { // special case when we ignore error
 				select {
 				case <-ctx.Done():
-					fmt.Println("Done at start")
 					return
 				case snmpErr <- snmpResult:
 					continue

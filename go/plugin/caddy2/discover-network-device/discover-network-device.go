@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -19,6 +20,15 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/redis/go-redis/v9"
 )
+
+var rootCtx = context.Background()
+
+type CtxCancel struct {
+	Ctx    context.Context
+	Cancel context.CancelFunc
+}
+
+var tasksCtxs sync.Map
 
 // Register the plugin in caddy
 func init() {
@@ -50,7 +60,6 @@ func (m *Module) Provision(ctx caddy.Context) error {
 	} else {
 		network = "tcp"
 	}
-
 	m.redis = redis.NewClient(&redis.Options{
 		Addr:    redisConfig.RedisArgs.Server,
 		Network: network,
@@ -58,6 +67,7 @@ func (m *Module) Provision(ctx caddy.Context) error {
 
 	m.router = httprouter.New()
 	m.router.POST("/api/v1/discovernetworkdevice/discover", m.handleDiscover)
+	m.router.POST("/api/v1/discovernetworkdevice/discover/:id/cancel", m.cancelDiscover)
 	return nil
 }
 
@@ -78,34 +88,57 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 	b := bytes.NewBuffer(nil)
 	b.ReadFrom(r.Body)
 	body := Payload{}
-	json.Unmarshal(b.Bytes(), &body)
+	if err := json.Unmarshal(b.Bytes(), &body); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	taskid := pfqueueclient.NewApiTaskID()
 	task := Task{TaskId: taskid, Status: 202}
 	go func(taskid string) {
-		ctx := context.Background()
+		ctx, cancel := context.WithCancel(rootCtx)
+		defer cancel()
 		statusUpdater := pfqueueclient.NewStatusUpdater(taskid, time.Hour, m.redis)
+		tasksCtxs.Store(task.TaskId, &CtxCancel{ctx, func() {
+			cancel()
+			statusUpdater.Failed(rootCtx, "Task cancelled")
+		}})
 		defer func() {
 			if r := recover(); r != nil {
-				statusUpdater.Failed(ctx, r)
+				statusUpdater.Failed(rootCtx, r)
 			}
 			pfqueueclient.PutStatusUpdater(statusUpdater)
 		}()
 		statusUpdater.Start(ctx)
-		ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*6)
-		defer cancel()
-		data, err := ScanTask(ctxTimeout, body, func(progress int, message string) {
+		data, err := ScanTask(ctx, body, func(progress int, message string) {
 			statusUpdater.UpdateProgress(ctx, progress, message)
 		})
-		if err != nil {
-			statusUpdater.Failed(ctx, err.Error())
-		} else {
-			statusUpdater.Complete(ctx, data)
+		if ctx.Err() != nil {
+			if err != nil {
+				statusUpdater.Failed(rootCtx, err.Error())
+			} else {
+				statusUpdater.Complete(ctx, data)
+			}
 		}
 	}(taskid)
-
 	res, _ := json.Marshal(&task)
 	w.WriteHeader(http.StatusAccepted)
 	w.Write(res)
+}
+
+func (m *Module) cancelDiscover(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	taskId := p.ByName("id")
+	if len(taskId) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	_ctx, ok := tasksCtxs.LoadAndDelete(taskId)
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	ctx := _ctx.(*CtxCancel)
+	ctx.Cancel()
+	w.WriteHeader(http.StatusOK)
 }
 
 func (m *Module) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {

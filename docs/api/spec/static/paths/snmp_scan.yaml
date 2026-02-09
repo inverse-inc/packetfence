@@ -12,3 +12,22 @@
         $ref: "#/components/responses/Async"
       "400":
         $ref: "#/components/responses/BadRequest"
+/discovernetworkdevice/discover/{id}/cancel:
+  post:
+    tags:
+      - SnmpScan
+    summary: Cancel the scan
+    description: Cancel the scan with id
+    operationId: snmpScanCancelWithId
+  parameters:
+  - name: id
+    description: The id of the async task return by /discovernetworkdevice/discover
+    in: path
+    required: true
+    schema:
+      type: string
+  responses:
+      "200":
+        $ref: "#/components/responses/Async"
+      "400":
+        $ref: "#/components/responses/BadRequest"
