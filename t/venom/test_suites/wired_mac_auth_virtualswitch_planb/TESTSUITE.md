@@ -72,10 +72,10 @@ This test suite validates MAC authentication using VirtualSwitch running on a **
 | `10_delete_printer_node.yml` | Delete printer node |
 | `12_delete_connection_profile.yml` | Delete connection profile |
 | `14_delete_vlan_filter_printer.yml` | Delete printer VLAN filter |
-| `15_delete_printer_role.yml` | Delete printer role |
-| `15b_delete_headless_device_role.yml` | Delete headless_device role |
 | `16_delete_switch.yml` | Delete switch |
 | `18_delete_switch_group.yml` | Delete switch group |
+| `19_delete_printer_role.yml` | Delete printer role (after switch group) |
+| `19b_delete_headless_device_role.yml` | Delete headless_device role (after switch group) |
 | `20_unplug_all_interfaces.yml` | Cleanup all virtualswitch interfaces |
 | `22_disable_node_cleanup_task.yml` | Disable cleanup task |
 | `24_restart_pfcron_service.yml` | Restart pfcron |
