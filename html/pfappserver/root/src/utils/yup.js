@@ -15,6 +15,7 @@ import {
   reMac,
   reNumeric,
   reStaticRoute,
+  reUUID,
 } from './regex'
 
 yup.setLocale({ // default validators
@@ -139,6 +140,14 @@ yup.addMethod(yup.string, 'isAlphaNumeric', function (message) {
     name: 'isAlphaNumeric',
     message: message || i18n.t('Invalid character, only letters (A-Z) or numbers (0-9).'),
     test: value => ['', null, undefined].includes(value) || reAlphaNumeric(value)
+  })
+})
+
+yup.addMethod(yup.string, 'isUUID', function (message) {
+  return this.test({
+    name: 'isUUID',
+    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), or hyphens (-).'),
+    test: value => ['', null, undefined].includes(value) || reUUID(value)
   })
 })
 

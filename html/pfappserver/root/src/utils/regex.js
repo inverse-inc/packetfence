@@ -26,3 +26,5 @@ export const reNumeric = value => /^-?[0-9]*$/.test(value)
 
 // eslint-disable-next-line no-useless-escape
 export const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?(via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?)?dev\s+[a-z,0-9\.]+$/i.test(value)
+
+export const reUUID = value => /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(value)
