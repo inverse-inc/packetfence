@@ -6,9 +6,14 @@ import (
 	"sync"
 	"time"
 
-	uuid "github.com/nu7hatch/gouuid"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
+
+type Task struct {
+	TaskId string `json:"task_id"`
+	Status int    `json:"status"`
+}
 
 type StatusUpdater struct {
 	id          string
@@ -19,11 +24,16 @@ type StatusUpdater struct {
 	redisClient *redis.Client
 }
 
-func (u *StatusUpdater) updateStatus(ctx context.Context, data map[string]interface{}) error {
+var statusUpdaterPool = sync.Pool{
+	New: func() any {
+		return &StatusUpdater{}
+	},
+}
+
+func (u *StatusUpdater) updateStatus(ctx context.Context, data map[string]any) error {
 	if u.finalized {
 		return nil
 	}
-
 	_, err := u.redisClient.Pipelined(
 		ctx,
 		func(pipe redis.Pipeliner) error {
@@ -34,73 +44,61 @@ func (u *StatusUpdater) updateStatus(ctx context.Context, data map[string]interf
 			return nil
 		},
 	)
-
 	return err
 }
 
-func (u *StatusUpdater) saveResults(ctx context.Context, resultKey string, results interface{}, status int, message string) error {
-	data := map[string]interface{}{
+func (u *StatusUpdater) saveResults(ctx context.Context, resultKey string, results any, status int, message string) error {
+	data := map[string]any{
 		"status":     status,
 		"status_msg": message,
 		resultKey:    results,
 		"progress":   100,
 	}
-
 	return u.updateStatus(ctx, data)
 }
 
 func (u *StatusUpdater) Start(ctx context.Context) error {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"status":     202,
 		"status_msg": "In Progress",
 		"progress":   0,
 	}
-
 	return u.updateStatus(ctx, data)
 }
 
 func (u *StatusUpdater) UpdateProgress(ctx context.Context, progress int, msg string) error {
-
-	if progress > 99 {
-		progress = 99
+	if progress > 100 {
+		progress = 100
 	} else if progress < 0 {
 		progress = 0
 	}
-
-	data := map[string]interface{}{
+	data := map[string]any{
 		"progress": progress,
 	}
-
 	if msg != "" {
 		data["status_msg"] = msg
 	}
-
 	return u.updateStatus(ctx, data)
 }
 
 func (u *StatusUpdater) UpdateMessage(ctx context.Context, msg string) error {
-
 	if msg == "" {
 		return nil
 	}
-
-	data := map[string]interface{}{
+	data := map[string]any{
 		"status_msg": msg,
 	}
-
 	if msg != "" {
 		data["status_msg"] = msg
 	}
-
 	return u.updateStatus(ctx, data)
 }
 
-func (u *StatusUpdater) Failed(ctx context.Context, results interface{}) error {
+func (u *StatusUpdater) Failed(ctx context.Context, results any) error {
 	data, err := json.Marshal(results)
 	if err != nil {
 		return err
 	}
-
 	if err := u.saveResults(ctx, "error", data, 400, "Failed"); err != nil {
 		return err
 	}
@@ -108,12 +106,11 @@ func (u *StatusUpdater) Failed(ctx context.Context, results interface{}) error {
 	return nil
 }
 
-func (u *StatusUpdater) Complete(ctx context.Context, results interface{}) error {
+func (u *StatusUpdater) Complete(ctx context.Context, results any) error {
 	data, err := json.Marshal(results)
 	if err != nil {
 		return err
 	}
-
 	if err := u.saveResults(ctx, "item", data, 200, "Complete"); err != nil {
 		return err
 	}
@@ -121,10 +118,8 @@ func (u *StatusUpdater) Complete(ctx context.Context, results interface{}) error
 	return nil
 }
 
-var statusUpdaterPool = sync.Pool{
-	New: func() interface{} {
-		return &StatusUpdater{}
-	},
+func (u *StatusUpdater) Cancel(ctx context.Context) error {
+	return nil
 }
 
 func (u *StatusUpdater) reset(id string, ttl time.Duration, client *redis.Client) {
@@ -142,9 +137,9 @@ func NewStatusUpdater(id string, ttl time.Duration, redis *redis.Client) *Status
 	return u
 }
 
-func NewApiTaskID() string {
-	uuid, _ := uuid.NewV4()
-	return "ApiTask:" + uuid.String()
+func NewApiTask() Task {
+	uuid, _ := uuid.NewV7()
+	return Task{Status: 202, TaskId: "ApiTask:" + uuid.String()}
 }
 
 func PutStatusUpdater(u *StatusUpdater) {

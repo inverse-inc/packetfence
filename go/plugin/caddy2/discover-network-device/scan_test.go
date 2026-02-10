@@ -128,31 +128,3 @@ func TestScanTimeout(t *testing.T) {
 		t.Errorf("SnmpScan didn't timeout in time")
 	}
 }
-
-func TestCtx(t *testing.T) {
-	subCtx, cancel := context.WithTimeout(ctx, time.Second*1)
-	defer cancel()
-	chanStop := make(chan bool)
-	t.Log("Start!")
-	timeStart := time.Now()
-	go func(ctx context.Context) {
-		for {
-			select {
-			case <-time.After(time.Second * 2):
-				t.Log("...Ding!")
-				chanStop <- true
-			case <-ctx.Done():
-				t.Log("Cancel!")
-				close(chanStop)
-				return
-			}
-		}
-	}(subCtx)
-	for range chanStop {
-		time.Sleep(time.Millisecond * 100)
-	}
-	timeElapsed := time.Since(timeStart)
-	if timeElapsed.Milliseconds() > 1200 {
-		t.Errorf("Func did not timeout in time")
-	}
-}
