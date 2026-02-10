@@ -31,6 +31,7 @@ const types = {
 const initialState = () => {
   return {
     services: false,
+    restarting: {},
     message: '',
     status: '',
     ts: 0
@@ -129,6 +130,20 @@ const mutations = {
       return merged
     }, {})
     state.message = ''
+    // clear restarting flags for services that have completed
+    const now = Date.now()
+    const restarting = { ...state.restarting }
+    let changed = false
+    for (const [name, ts] of Object.entries(restarting)) {
+      const svc = services[name]
+      if (!svc || (now > ts + grace && svc.updated_replicas === svc.total_replicas && svc.available)) {
+        delete restarting[name]
+        changed = true
+      }
+    }
+    if (changed) {
+      state.restarting = restarting
+    }
   },
   K8S_SERVICES_ERROR: (state, error) => {
     state.status = types.ERROR
@@ -143,9 +158,13 @@ const mutations = {
     state.services[service] = { ...state.services[service], ...response }
     state.message = ''
   },
-  K8S_SERVICE_ERROR: (state, { error }) => {
+  K8S_SERVICE_ERROR: (state, { service, error }) => {
     state.status = types.ERROR
     state.message = error
+    if (service && state.restarting[service]) {
+      const { [service]: _, ...rest } = state.restarting
+      state.restarting = rest
+    }
   },
   K8S_POLL_START: (state) => {
     state.ts = Date.now()
@@ -160,6 +179,7 @@ const mutations = {
       state.services = {}
     }
     state.services[service].status = types.LOADING
+    state.restarting = { ...state.restarting, [service]: Date.now() }
   },
   K8S_RESTARTED: (state, { service }) => {
     state.status = types.SUCCESS

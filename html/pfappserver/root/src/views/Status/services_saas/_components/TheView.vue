@@ -61,7 +61,11 @@
         </template>
         <template v-slot:cell(actions)="{ item }">
           <b-button
-            class="m-1" variant="outline-primary" @click="doRestart(item)" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart') }}</b-button>
+            class="m-1" variant="outline-primary" @click="doRestart(item)" :disabled="isLoading || !!restarting[item.service]">
+            <icon v-if="restarting[item.service]" name="circle-notch" spin class="mr-1" />
+            <icon v-else name="redo" class="mr-1" />
+            {{ restarting[item.service] ? $i18n.t('Restarting') : $i18n.t('Restart') }}
+          </b-button>
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
@@ -95,6 +99,7 @@ const setup = (props, context) => {
 
   onMounted(() => $store.dispatch('k8s/getServices'))
   const isLoading = computed(() => $store.getters['k8s/isLoading'])
+  const restarting = computed(() => $store.state.k8s.restarting)
   const services = computed(() => $store.state.k8s.services)
   const serviceFields = computed(() => {
     return [
@@ -130,7 +135,7 @@ const setup = (props, context) => {
       {
         key: 'actions',
         label: null,
-        class: 'col-no-overflow text-right p-0',
+        class: 'col-no-overflow text-left p-0',
         locked: true
       }
     ]
@@ -149,6 +154,7 @@ const setup = (props, context) => {
     serviceFields,
     servicesDecorated,
     isLoading,
+    restarting,
 
     tableRef,
     ...selected,
