@@ -39,6 +39,7 @@ This test suite validates MAC authentication using VirtualSwitch running on a **
 | File | Description |
 |------|-------------|
 | `00_check_virtualswitch_api.yml` | Verify virtualswitch API is accessible |
+| `01_configure_virtualswitch.yml` | Configure virtualswitch via API (RADIUS settings) |
 | `02_enable_node_cleanup_task.yml` | Enable node cleanup maintenance task |
 | `04_restart_pfcron_service.yml` | Restart pfcron |
 | `06_create_switch_group.yml` | Create switch group for virtualswitch |

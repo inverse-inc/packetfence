@@ -1,0 +1,32 @@
+name: Configure virtualswitch via API on virtualswitch01 VM
+testcases:
+
+  - name: configure_virtualswitch_via_api
+    steps:
+    - type: virtualswitch_config_api
+      api_url: '{{.virtualswitch_planb.api.url}}'
+      interfaces: "5"
+      switch_type: "cisco"
+      network_mapping: "10.99.0.0"
+      radius_ip: '{{.virtualswitch_planb.radius.ip}}'
+      radius_port: '{{.virtualswitch_planb.radius.port}}'
+      radius_secret: '{{.virtualswitch_planb.radius.secret}}'
+      radius_accounting_interval: "60"
+      radius_reauth_interval: "0"
+      radius_auth_retry_interval: "30"
+      dhcp_enabled: "false"
+      ipfix_enabled: "false"
+      scep_enabled: "false"
+      wireless_ssid: "TestWiFi"
+      wireless_switch_mac: "aa:bb:cc:dd:ee:ff"
+      device_state_auto_save: "false"
+
+  - name: verify_virtualswitch_api_responding_after_config
+    steps:
+    - type: http
+      method: GET
+      url: '{{.virtualswitch_planb.api.url}}/api/v1/status'
+      retry: 3
+      delay: 2
+      assertions:
+        - result.statuscode ShouldEqual 200
