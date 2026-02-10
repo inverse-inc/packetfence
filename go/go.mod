@@ -54,7 +54,6 @@ require (
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
 	github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253
 	github.com/miekg/dns v1.1.63
-	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/nxadm/tail v1.4.8
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.5.0 // indirect
@@ -223,6 +222,7 @@ require (
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
 	github.com/fatih/structtag v1.2.0
 	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
+	github.com/gosnmp/gosnmp v1.43.1
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
@@ -279,7 +279,6 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-tpm v0.9.7 // indirect
 	github.com/google/go-tspi v0.3.0 // indirect
-	github.com/gosnmp/gosnmp v1.43.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
