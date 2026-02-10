@@ -15,6 +15,7 @@ pf::rate_limiter
 use strict;
 use warnings;
 use pf::Redis;
+use pf::CHI;
 
 our $LUA_INCR_RATE_LIMITER_SHA1;
 
@@ -46,7 +47,8 @@ get_redis
 =cut
 
 sub get_redis {
-    pf::Redis->new(on_connect => \&on_connect);
+    my $config = pf::CHI::get_redis_config();
+    pf::Redis->new(%$config, on_connect => \&on_connect);
 }
 
 =head2 on_connect
