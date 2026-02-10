@@ -103,6 +103,10 @@ router.beforeEach((to, from, next) => {
         if (currentPath === '/') {
           currentPath = document.location.hash.substring(1)
         }
+        if (currentPath && !['/', '/login', '/logout', '/expire'].includes(currentPath)
+            && !/^\/configurator\//.test(currentPath)) {
+          localStorage.setItem('last_uri', currentPath)
+        }
         axios.get('/api/v1/configurator/config/system/hostname').then(() => {
           next({ name: 'configurator' }) // [6]
         }).catch(() => {
@@ -120,6 +124,10 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
+  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)
+      && !/^\/configurator\//.test(to.path)) {
+    localStorage.setItem('last_uri', to.fullPath)
+  }
   routeData.params = to.params
   routeData.query = to.query
   /**

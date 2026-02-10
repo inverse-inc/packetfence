@@ -24,9 +24,10 @@ const setup = (props, context) => {
   const onLogin = () => {
     loginSuccessful.value = true
     const uri = localStorage.getItem('last_uri')
-    if (uri) {
+    localStorage.removeItem('last_uri')
+    if (uri && !['/', '/login', '/logout', '/expire'].includes(uri)
+        && !/^\/configurator\//.test(uri)) {
       $router.replace(uri)
-      localStorage.removeItem('last_uri')
     } else {
       $router.replace('/') // Go to the default/catch-all route
     }
