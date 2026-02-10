@@ -1,0 +1,9 @@
+---
+# Environment variables for virtualswitch VM
+# These are passed to the virtualswitch playbook for authenticated package download
+inventory__group_environment:
+  CI_VIRTUALSWITCH_USER: '{{ lookup("env", "CI_VIRTUALSWITCH_USER") }}'
+  CI_VIRTUALSWITCH_PASSWORD: '{{ lookup("env", "CI_VIRTUALSWITCH_PASSWORD") }}'
+  CI_VIRTUALSWITCH_BASE_URL: 'https://support.inverse.ca/~jgoimard/virtualswitch'
+  CI_VIRTUALSWITCH_DEB_VERSION: '2.5.2-1'
+  CI_VIRTUALSWITCH_RPM_VERSION: '2.5.2-1.el8'
