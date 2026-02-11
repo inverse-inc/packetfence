@@ -19,6 +19,10 @@ use pf::util qw(listify isenabled);
 # Port offset added when using a connector for NTLM auth
 use constant CONNECTOR_PORT_OFFSET => 100;
 
+# Port offset and target port for the ntlm-join-remote service
+use constant JOIN_REMOTE_PORT_OFFSET => 200;
+use constant JOIN_REMOTE_TARGET_PORT => 23000;
+
 sub init {
     my ($self) = @_;
     $self->{_authentication_config} =
@@ -94,6 +98,21 @@ sub build {
         $port += CONNECTOR_PORT_OFFSET;
         my $connector = $self->find_connector( $data->{ad_server} );
         my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
+        push @{ $hash{$connector} }, $r;
+    }
+    # One join-remote tunnel per connector to reach ntlm-join-remote on port 23000
+    my %join_remote_connectors;
+    while ( my ( $id, $data ) =
+        each %{ $self->{_domain_config} } )
+    {
+        next unless isenabled($data->{'use_connector'});
+        my $port = $data->{'ntlm_auth_port'};
+        next unless defined $port;
+        my $connector = $self->find_connector( $data->{ad_server} );
+        next if $join_remote_connectors{$connector};
+        $join_remote_connectors{$connector} = 1;
+        my $local_port = $port + JOIN_REMOTE_PORT_OFFSET;
+        my $r = "${local_port}:127.0.0.1:" . JOIN_REMOTE_TARGET_PORT . "/tcp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;

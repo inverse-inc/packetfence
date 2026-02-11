@@ -36,6 +36,9 @@ use Net::DNS;
 use JSON;
 use pf::constants qw($TRUE $FALSE);
 use pf::config::crypt;
+use pf::config qw(%Config);
+
+use constant JOIN_REMOTE_PORT_OFFSET => 200;
 
 my $host_id = hostname();
 
@@ -205,6 +208,10 @@ sub create {
     }
 
     if (!is_nt_hash_pattern($computer_password)) {
+        my $use_connector = isenabled($item->{use_connector});
+        my $api_host = $Config{'services_host'}{'pfconnector_service_host'};
+        my $api_port = $max_port + JOIN_REMOTE_PORT_OFFSET;
+
         my @real_computer_names = ($real_computer_name);
         if ($additional_machine_accounts + 0 > 0) {
             for my $i (0 .. $additional_machine_accounts - 1) {
@@ -217,15 +224,15 @@ sub create {
         for (my $i = 0; $i < @real_computer_names; $i++) {
             $real_computer_name = $real_computer_names[$i];
 
-            my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
+            my ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, " ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
             if ($add_status == $FALSE) {
                 if ($add_result =~ /already exists(.+)use \-no\-add/) {
-                    ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
+                    ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, "-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
                     if ($add_status == $FALSE) {
                         $self->render_error(422, "Unable to add machine account: removing existing machine account failed with following error: $add_result");
                         return 0;
                     }
-                    ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
+                    ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, " ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
                     if ($add_status == $FALSE) {
                         $self->render_error(422, "Unable to add machine account: recreating machine account with following error: $add_result");
                         return 0;
@@ -337,6 +344,10 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
+    my $use_connector = isenabled($new_item->{use_connector} // $old_item->{use_connector});
+    my $api_host = $Config{'services_host'}{'pfconnector_service_host'};
+    my $api_port = $old_item->{ntlm_auth_port} + JOIN_REMOTE_PORT_OFFSET;
+
     my @real_computer_names = ($real_computer_name);
 
     if ($additional_machine_accounts + 0 > 0) {
@@ -350,7 +361,7 @@ sub update {
     for (my $i = 0; $i < @real_computer_names; $i++) {
         $real_computer_name = $real_computer_names[$i];
         if (!is_nt_hash_pattern($new_data->{machine_account_password})) {
-            my ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
+            my ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, "-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
             if ($add_status == $FALSE) {
                 unless ($add_result =~ /Account (.+) not found in/) {
                     $self->render_error(422, "Unable to update - remove existing machine account with following error: $add_result");
@@ -358,7 +369,7 @@ sub update {
                 }
             }
 
-            ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
+            ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, " ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
             if ($add_status == $FALSE) {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
