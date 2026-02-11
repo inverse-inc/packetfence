@@ -18,10 +18,10 @@
 
     - name: Download virtualswitch package (Debian)
       ansible.builtin.get_url:
-        url: "{{ lookup('env', 'CI_VIRTUALSWITCH_BASE_URL') | default('https://support.inverse.ca/~jgoimard/virtualswitch', true) }}/virtualswitch_{{ lookup('env', 'CI_VIRTUALSWITCH_DEB_VERSION') | default('2.5.2-1', true) }}_amd64.deb"
+        url: "{{ virtualswitch__base_url }}/virtualswitch_{{ virtualswitch__deb_version }}_amd64.deb"
         dest: "/tmp/virtualswitch.deb"
-        url_username: "{{ lookup('env', 'CI_VIRTUALSWITCH_USER') }}"
-        url_password: "{{ lookup('env', 'CI_VIRTUALSWITCH_PASSWORD') }}"
+        url_username: "{{ virtualswitch__user }}"
+        url_password: "{{ virtualswitch__password }}"
         mode: '0644'
         force_basic_auth: yes
       when: ansible_facts['os_family'] == "Debian"
@@ -34,10 +34,10 @@
 
     - name: Download virtualswitch package (RHEL)
       ansible.builtin.get_url:
-        url: "{{ lookup('env', 'CI_VIRTUALSWITCH_BASE_URL') | default('https://support.inverse.ca/~jgoimard/virtualswitch', true) }}/virtualswitch-{{ lookup('env', 'CI_VIRTUALSWITCH_RPM_VERSION') | default('2.5.2-1.el8', true) }}.x86_64.rpm"
+        url: "{{ virtualswitch__base_url }}/virtualswitch-{{ virtualswitch__rpm_version }}.x86_64.rpm"
         dest: "/tmp/virtualswitch.rpm"
-        url_username: "{{ lookup('env', 'CI_VIRTUALSWITCH_USER') }}"
-        url_password: "{{ lookup('env', 'CI_VIRTUALSWITCH_PASSWORD') }}"
+        url_username: "{{ virtualswitch__user }}"
+        url_password: "{{ virtualswitch__password }}"
         mode: '0644'
         force_basic_auth: yes
       when: ansible_facts['os_family'] == "RedHat"
