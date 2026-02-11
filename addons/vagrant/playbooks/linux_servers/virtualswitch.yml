@@ -5,6 +5,17 @@
   gather_facts: True
 
   tasks:
+    - name: Configure APT retries and IPv4 forcing
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/80-custom
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          Acquire::Retries "5";
+          Acquire::ForceIPv4 "true";
+      when: ansible_facts['os_family'] == "Debian"
+
     - name: Download virtualswitch package (Debian)
       ansible.builtin.get_url:
         url: "{{ lookup('env', 'CI_VIRTUALSWITCH_BASE_URL') | default('https://support.inverse.ca/~jgoimard/virtualswitch', true) }}/virtualswitch_{{ lookup('env', 'CI_VIRTUALSWITCH_DEB_VERSION') | default('2.5.2-1', true) }}_amd64.deb"

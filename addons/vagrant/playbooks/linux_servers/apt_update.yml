@@ -27,6 +27,17 @@
     - inventory_hostname == 'ad'
 
   tasks:
+    - name: Configure APT retries and IPv4 forcing
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/80-custom
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          Acquire::Retries "5";
+          Acquire::ForceIPv4 "true";
+      when: ansible_os_family == 'Debian'
+
     - name: Update APT repository cache
       apt:  # noqa no-handler
         update_cache: True

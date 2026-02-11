@@ -66,6 +66,16 @@
         regexp: 'security\.debian\.org'
         replace: 'deb.debian.org'
 
+    - name: Configure APT retries and IPv4 forcing
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/80-custom
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          Acquire::Retries "5";
+          Acquire::ForceIPv4 "true";
+
     - name: update and upgrade
       ansible.builtin.apt:
         upgrade: yes
