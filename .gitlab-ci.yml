@@ -592,10 +592,6 @@ variables:
     - |
       # Validate TEST_ONLY to prevent malicious patterns
       if [ -n "$TEST_ONLY" ]; then
-        # Debug: show TEST_ONLY value (escaped and hex)
-        echo "DEBUG TEST_ONLY (escaped): $(printf '%q' "$TEST_ONLY")"
-        echo "DEBUG TEST_ONLY (hex):"
-        printf '%s' "$TEST_ONLY" | xxd
         # Reject TEST_ONLY if it contains a newline or single quote (basic sanitization)
         if printf '%s' "$TEST_ONLY" | grep -q "[\n']"; then
           echo "Error: TEST_ONLY contains invalid characters (newline or single quote)."
