@@ -4,10 +4,11 @@
   gather_facts: False
 
   pre_tasks:
-  #  - name: Gather min only
-  #    ansible.builtin.setup:
-  #      gather_subset:
-  #        - "!all"
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+
   - name: AD Pretasks
     block:
     - name: AD => Populate service facts
