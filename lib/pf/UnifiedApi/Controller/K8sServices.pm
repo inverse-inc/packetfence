@@ -103,11 +103,14 @@ sub restart {
 sub _service_status {
     my ($self, $deployment) = @_;
     my $status = $deployment->{status};
+    my $replicas = $status->{replicas} // 0;
+    my $updated_replicas = $status->{updatedReplicas} // 0;
+    my $available_replicas = $status->{availableReplicas} // 0;
     return {
-        available => (($status->{availableReplicas} >= 1) ? $self->json_true : $self->json_false),
-        total_replicas => $status->{replicas},
-        updated_replicas => $status->{updatedReplicas},
-        is_fully_updated => (($status->{updatedReplicas} == $status->{replicas}) ? $self->json_true : $self->json_false),
+        available => (($available_replicas >= 1) ? $self->json_true : $self->json_false),
+        total_replicas => $replicas,
+        updated_replicas => $updated_replicas,
+        is_fully_updated => (($updated_replicas == $replicas) ? $self->json_true : $self->json_false),
     };
 }
 
