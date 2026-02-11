@@ -127,6 +127,7 @@ sub new {
     my $self = bless {
         '_error'                        => undef,
         '_id'                           => undef,
+        '_switch_id'                    => undef,
         '_macSearchesMaxNb'             => undef,
         '_macSearchesSleepInterval'     => undef,
         '_mode'                         => undef,
@@ -3180,7 +3181,7 @@ sub wiredeauthTechniques {
 
 sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $self->{_switch_id});
 }
 
 

@@ -375,9 +375,25 @@ sub handleMacTrap {
         #do nothing if it's a phone
         if ($isPhone) {
             $logger->info("MAC $mac is a VoIP phone -> Do nothing besides updating locationlog");
-            locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $switch_port,
+        #16
+            locationlog_synchronize(
+                $switch->{_id},
+                $switch->{_ip},
+                $switch->{_switchMac},
+                $switch_port,
                 $switch->getVoiceVlan($switch_port),
-                $mac, $VOIP, $WIRED_SNMP_TRAPS);
+                $mac,
+                $VOIP,
+                $WIRED_SNMP_TRAPS,
+                undef,
+                undef,
+                undef,
+                undef,
+                undef,
+                undef,
+                undef,
+                $switch->{_switch_id},
+            );
             return;
         }
 
@@ -475,7 +491,7 @@ handle a down roaming sent by a switch
 
 sub handleRoamingTrap {
     my ($self, $switch, $trap) = @_;
-    locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trap->{trapIfIndex}, $trap->{trapVlan}, $trap->{trapMac}, $NO_VOIP, $trap->{trapConnectionType}, undef, $trap->{trapClientUserName}, $trap->{trapSSID} );
+    locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trap->{trapIfIndex}, $trap->{trapVlan}, $trap->{trapMac}, $NO_VOIP, $trap->{trapConnectionType}, undef, $trap->{trapClientUserName}, $trap->{trapSSID}, undef, undef, undef, undef, $switch->{_switch_id} );
 }
 
 
@@ -621,8 +637,24 @@ sub handleSecureMacAddrViolationTrap {
             $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $voiceVlan);
         }
 
-        locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $switch_port, $voiceVlan,
-            $trapMac, $VOIP, $WIRED_SNMP_TRAPS);
+        locationlog_synchronize(
+            $switch->{_id},
+            $switch->{_ip},
+            $switch->{_switchMac},
+            $switch_port,
+            $voiceVlan,
+            $trapMac,
+            $VOIP,
+            $WIRED_SNMP_TRAPS,
+            undef,
+            undef,
+            undef,
+            undef,
+            undef,
+            undef,
+            undef,
+            $switch->{_switch_id},
+        );
 
         # if trap came from a PC
     }
