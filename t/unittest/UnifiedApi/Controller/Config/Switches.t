@@ -289,14 +289,14 @@ $t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => undef})
 
 $t->get_ok("$base_url/172.16.8.24")
   ->status_is(200)
-  ->json_is('/item/RoleMap', 'N');
+  ->json_is('/item/RoleMap', $false);
 
-$t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => 'Y'})
+$t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => $true})
   ->status_is(200);
 
 $t->get_ok("$base_url/172.16.8.24")
   ->status_is(200)
-  ->json_is('/item/RoleMap', 'Y');
+  ->json_is('/item/RoleMap', $true);
 
 $t->get_ok("$base_url/172.16.8.37")
   ->status_is(200)->json_is(
