@@ -22,11 +22,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 17;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
+use pf::constants;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $collection_base_url = '/api/v1/config/billing_tiers';
@@ -38,6 +39,83 @@ $t->get_ok($collection_base_url)
 
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
+
+my $id = "id_$$";
+
+$t->post_ok($collection_base_url => json => {
+        id => $id,
+        name => "bhasas",
+        description => "bhasas",
+        price => "10.0",
+        role => 'default',
+        access_duration => {
+            interval => 1,
+            unit => 'D',
+        },
+        use_time_balance => $JSON_TRUE,
+
+    })
+  ->status_is(201);
+
+$t->get_ok("$base_url/$id")
+  ->status_is(200)
+  ->json_is(
+    {
+        'item' => {
+            'not_deletable' => $JSON_FALSE,
+            'access_duration' => {
+                'unit' => 'D',
+                'interval' => 1
+            },
+            'name' => 'bhasas',
+            'id' => $id,
+            'price' => '10.00',
+            'use_time_balance' => $JSON_TRUE,
+            'not_sortable' => $JSON_FALSE,
+            'role' => 'default',
+            'description' => 'bhasas'
+        },
+        'status' => 200
+    }
+  );
+
+my $id2 = "id2_$$";
+$t->post_ok($collection_base_url => json => {
+        id => $id2,
+        name => "bhasas",
+        description => "bhasas",
+        price => "10.0",
+        role => 'default',
+        access_duration => {
+            interval => 1,
+            unit => 'D',
+        },
+        use_time_balance => "false",
+
+    })
+  ->status_is(201);
+
+$t->get_ok("$base_url/$id2")
+  ->status_is(200)
+  ->json_is(
+    {
+        'item' => {
+            'not_deletable' => $JSON_FALSE,
+            'access_duration' => {
+                'unit' => 'D',
+                'interval' => 1
+            },
+            'name' => 'bhasas',
+            'id' => $id2,
+            'price' => '10.00',
+            'use_time_balance' => $JSON_FALSE,
+            'not_sortable' => $JSON_FALSE,
+            'role' => 'default',
+            'description' => 'bhasas'
+        },
+        'status' => 200
+    }
+  );
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);

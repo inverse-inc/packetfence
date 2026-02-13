@@ -15,32 +15,36 @@ use Moose;
 extends 'HTML::FormHandler::Field::Checkbox';
 use pf::util qw(isenabled) ;
 use namespace::autoclean;
+use pf::constants qw($JSON_TRUE $JSON_FALSE);
 
-has '+checkbox_value' => ( default => 'Y' );
-has 'unchecked_value' => ( is => 'ro', default => 'N' );
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
 has '+input_without_param' => ( default => undef );
 
 sub inflate {
     my ($self, $value) = @_;
-    return isenabled($value) ? $self->checkbox_value : $self->unchecked_value;
+    return isenabled($value) ? $JSON_TRUE : $JSON_FALSE;
+}
+
+sub to_text {
+    my ($self, $value) = @_;
+    return isenabled($value) ? "true" : "false";
 }
 
 sub deflate {
     my ($self, $value) = @_;
     if ($self->required) {
-        return $self->inflate($value);
+        return $self->to_text($value);
     }
 
-    return !defined $value ? undef : $self->inflate($value)
+    return !defined $value ? undef : $self->to_text($value)
 }
 
 sub value {
     my $field = shift;
     return $field->next::method(@_) if @_;
     my $v = HTML::FormHandler::Field::value($field);
-    return defined $v ? $v : ($field->required ? $field->unchecked_value : undef);
+    return defined $v ? $v : ($field->required ? "false" : undef);
 }
 
 =head1 COPYRIGHT

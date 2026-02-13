@@ -14,15 +14,19 @@ pf::constants
 use strict;
 use warnings;
 use Readonly;
+use JSON::PP::Boolean;
 use base qw(Exporter);
 our @EXPORT = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR $CYAN_COLOR $MAGENTA_COLOR
     $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $SPACE $SPACE_NUMBERS $DIR_MODE $PFCMD_MODE $FAKE_MAC
+    $JSON_TRUE $JSON_FALSE
 );
 
 # some global constants
 Readonly::Scalar our $FALSE => 0;
 Readonly::Scalar our $TRUE => 1;
+our $JSON_TRUE = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+our $JSON_FALSE = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 Readonly::Scalar our $default_pid => 'default';
