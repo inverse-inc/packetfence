@@ -585,10 +585,9 @@ sub item {
             push @host_config, { name => $k, value => $v};
         }
 
-        @host_configs = { config => \@host_config, host => $id };
+        push @host_configs, { config => \@host_config, host => $id };
     }
 
-    @host_configs = sort { $a->{host} <=> $b->{host} } @host_configs;
     return \%item;
 }
 
