@@ -100,8 +100,10 @@ sub build {
         my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
         push @{ $hash{$connector} }, $r;
     }
-    # One join-remote tunnel per connector to reach ntlm-join-remote on port 23000
-    my %join_remote_connectors;
+    # Join-remote tunnels to reach ntlm-join-remote on port 23000
+    # Deduplicate by connector + local_port to avoid duplicate tunnels
+    # while still allowing multiple domains behind the same connector
+    my %join_remote_seen;
     while ( my ( $id, $data ) =
         each %{ $self->{_domain_config} } )
     {
@@ -109,9 +111,10 @@ sub build {
         my $port = $data->{'ntlm_auth_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ad_server} );
-        next if $join_remote_connectors{$connector};
-        $join_remote_connectors{$connector} = 1;
         my $local_port = $port + JOIN_REMOTE_PORT_OFFSET;
+        my $key = "${connector}:${local_port}";
+        next if $join_remote_seen{$key};
+        $join_remote_seen{$key} = 1;
         my $r = "${local_port}:127.0.0.1:" . JOIN_REMOTE_TARGET_PORT . "/tcp";
         push @{ $hash{$connector} }, $r;
     }
