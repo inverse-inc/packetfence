@@ -302,7 +302,7 @@ sub security_event_view {
     return _db_data({
         -where => {
             'security_event.mac' => {-ident => 'node.mac'},
-            'security_event.id' => $id, 
+            'security_event.id' => $id,
         },
         -columns => [qw(security_event.id security_event.mac node.computername security_event.security_event_id security_event.start_date security_event.release_date security_event.status security_event.ticket_ref security_event.notes)],
         -from => [qw(security_event node)],
@@ -724,7 +724,7 @@ sub security_event_scaning {
     my $test_query = security_event_exist_open($mac,$security_event_id);
 
     return (1) if(defined($test_query) && $test_query->{notes} eq 'scaning');
-    
+
     my ($status, $rows) = pf::dal::security_event->update_items(
         -set => {
             notes => 'scaning',
@@ -748,7 +748,7 @@ sub security_event_close {
     my $class_info = pf::class::class_view($security_event_id);
 
     # check auto_enable = 'N'
-    if ( $class_info->{'auto_enable'} =~ /^N$/i ) {
+    if ( $class_info->{'auto_enable'} =~ /^false$/i ) {
         return (-1);
     }
 
@@ -822,7 +822,7 @@ sub security_event_exist_acct {
     } else {
        $ceil = 0;
     }
-    
+
     return _db_item({
         -where => {
             mac => $mac,

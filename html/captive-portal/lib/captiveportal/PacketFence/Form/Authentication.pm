@@ -40,17 +40,17 @@ foreach my $field (@pf::person::FIELDS){
 
 has '+is_html5' => (default => 1);
 
-has_field 'fields[username]' => (type => 'Text', label => 'Username', element_attr => { autocorrect => "off", autocapitalize => "off" });
+has_field 'fields[username]' => (type => 'Text', label => 'Username', element_attr => { autocorrect => "false", autocapitalize => "false" });
 
 has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
 
 has_field 'fields[telephone]' => (
-    type => "Text", 
-    label => "Telephone", 
-    html5_type_attr => "tel", 
-    validate_method => \&check_telephone, 
+    type => "Text",
+    label => "Telephone",
+    html5_type_attr => "tel",
+    validate_method => \&check_telephone,
     apply => [{transform => sub{ $_[0] =~ s/(-|\s|\(|\))//g; return $_[0] }}],
 );
 
@@ -147,7 +147,7 @@ sub check_telephone {
 
 =head2 get_field
 
-Get a field following the standard field[$name] by its name 
+Get a field following the standard field[$name] by its name
 
 =cut
 

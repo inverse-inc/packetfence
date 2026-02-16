@@ -62,8 +62,6 @@ has_field 'sponsorship_bcc' => (
 has_field 'validate_sponsor' =>
   (
    type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
    label => 'Sponsor Validation',
    default => $META->get_attribute('validate_sponsor')->default,
    tags => { after_element => \&help,
@@ -82,8 +80,6 @@ has_field 'lang' =>
 
 has_field 'register_on_activation' => (
     type            => 'Toggle',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
     default => $META->get_attribute('register_on_activation')->default,
 );
 

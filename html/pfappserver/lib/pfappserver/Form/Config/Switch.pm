@@ -244,7 +244,7 @@ has_field 'inlineTrigger.value' =>
 has_field "${ALWAYS}_trigger" =>
   (
    type => 'Hidden',
-   default => 1,
+   default => 'true',
   );
 has_field "${PORT}_trigger" =>
   (

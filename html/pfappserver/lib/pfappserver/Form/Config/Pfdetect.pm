@@ -39,9 +39,7 @@ status
 has_field 'status' => (
     type            => 'Toggle',
     label           => 'Enabled',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'enabled',
+    default => 'true',
 );
 
 has_field 'path' =>

@@ -71,40 +71,31 @@ has_field 'dns' =>
 has_field 'dhcpd_enabled' =>
    (
     type => 'Toggle',
-    checkbox_value => 1,
-    default => 1,
+    default => 'true',
     label => 'Enable DHCP Server',
    );
 
 has_field 'high_availability' =>
    (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 0,
+    default => 'false',
    );
 
 has_field 'nat_enabled' => (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
+    default => 'true',
     label => 'Enable NATting',
 );
 
 has_field 'nat_dns' => (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
+    default => 'true',
     label => 'Enable DNS NATting',
 );
 
 has_field 'split_network' => (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 0,
+    default => 'false',
     label => 'Split network by role',
     tags => { after_element => \&help,
              help => 'This will create a small network for each roles.' },
@@ -120,18 +111,14 @@ has_field 'reg_network' =>
 
 has_field 'coa' => (
     type => 'Toggle',
-    checkbox_value => "enabled",
-    unchecked_value => "disabled",
-    default => "disabled",
+    default => "false",
     label => 'Enable CoA',
 );
 
 has_field 'netflow_accounting_enabled' =>
   (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
    label => 'Enable Net Flow Accounting'
    );
 

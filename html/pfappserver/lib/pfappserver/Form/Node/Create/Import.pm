@@ -59,7 +59,6 @@ has_field 'default_voip' =>
   (
    type => 'Checkbox',
    label => 'Default Voice Over IP',
-   checkbox_value => 'yes',
    default => $Config{node_import}{voip},
   );
 

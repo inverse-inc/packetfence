@@ -2,7 +2,7 @@ package pfappserver::Form::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::Form::Config::SelfService - Web form for the self service portal 
+pfappserver::Form::Config::SelfService - Web form for the self service portal
 
 =head1 DESCRIPTION
 
@@ -84,9 +84,7 @@ has_field 'device_registration_allowed_devices' =>
 has_field 'dynamic_pre_shared_key',
   (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
   );
 
 has_block definition =>

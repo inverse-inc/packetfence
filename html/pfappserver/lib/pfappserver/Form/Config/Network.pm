@@ -142,9 +142,7 @@ has_field 'portal_fqdn' =>
 has_field 'netflow_accounting_enabled' =>
   (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
    label => 'Enable Net Flow Accounting'
    );
 

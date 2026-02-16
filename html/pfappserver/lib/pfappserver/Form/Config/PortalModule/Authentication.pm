@@ -16,7 +16,7 @@ with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::WithSource';
 with 'pfappserver::Base::Form::Role::WithCustomFields';
 
-use pf::log; 
+use pf::log;
 use List::MoreUtils qw(uniq);
 use captiveportal::DynamicRouting::Module::Authentication;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication'}
@@ -35,8 +35,7 @@ has_field 'with_aup' =>
   (
    type => 'Checkbox',
    label => 'Require AUP',
-   checkbox_value => 1,
-   input_without_param => 0,
+   input_without_param => 'false',
    tags => { after_element => \&help,
              help => 'Require the user to accept the AUP' },
   );

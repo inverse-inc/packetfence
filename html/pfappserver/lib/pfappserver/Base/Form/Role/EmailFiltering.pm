@@ -18,10 +18,8 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'allow_localdomain' =>
   (
    type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
    label => 'Allow Local Domain',
-   default => 'yes',
+   default => 'true',
    tags => { after_element => \&help,
              help => 'Accept self-registration with email address from the local domain' },
   );

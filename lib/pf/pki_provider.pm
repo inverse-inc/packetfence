@@ -31,9 +31,9 @@ has cn_attribute => (is => 'rw');
 
 has cn_format => (is => 'rw', default => '%s');
 
-has revoke_on_unregistration => (is => 'rw', default => 'N');
+has revoke_on_unregistration => (is => 'rw', default => 'false');
 
-has certificate_validity_time_from_unreg_date => (is => 'rw', default => 'N');
+has certificate_validity_time_from_unreg_date => (is => 'rw', default => 'false');
 
 =head2 country
 

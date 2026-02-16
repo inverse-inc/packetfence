@@ -51,7 +51,6 @@ has_field 'trunkPort' =>
   (
    type => 'Checkbox',
    label => 'Trunk Port',
-   checkbox_value => 'yes',
    tags => { after_element => \&help,
              help => 'The port must be configured as a muti-vlan port' },
   );

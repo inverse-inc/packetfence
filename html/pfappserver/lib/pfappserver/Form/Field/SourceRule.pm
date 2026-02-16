@@ -54,9 +54,7 @@ The status of the rule if it is enabled or disabled
 has_field 'status' => (
     type            => 'Toggle',
     label           => 'Enable rule',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default         => 'enabled'
+    default         => 'true'
 );
 
 has_field 'match' => (

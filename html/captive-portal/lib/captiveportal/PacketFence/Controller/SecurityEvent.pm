@@ -73,7 +73,7 @@ sub index : Path('/security_event') : Args(0) {
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
         $logger->info("Showing the $subTemplate  remediation page.");
         $c->stash(
-            'auto_enable'  => ($class->{'auto_enable'} eq 'Y'),
+            'auto_enable'  => ($class->{'auto_enable'} eq 'true'),
             'enable_text'  => $class->{button_text},
             'title'        => 'security event: quarantine established',
             'template'     => 'remediation.html',

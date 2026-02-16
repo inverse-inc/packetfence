@@ -49,44 +49,36 @@ has_field 'sync_pid',
   (
    type => 'Toggle',
    label => 'Sync PID',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.' },
-   default => 'disabled',
+   default => 'false',
   );
 
 has_field 'enforce',
   (
    type => 'Toggle',
    label => 'Enforce',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.' },
-   default => 'enabled',
+   default => 'true',
   );
 
 has_field 'autoregister',
   (
    type => 'Toggle',
    label => 'Auto register',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.' },
-   default => 'disabled',
+   default => 'false',
   );
 
 has_field 'apply_role',
   (
    type => 'Toggle',
    label => 'Apply role',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.' },
-   default => 'disabled',
+   default => 'false',
   );
 
 

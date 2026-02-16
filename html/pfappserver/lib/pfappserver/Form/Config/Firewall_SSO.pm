@@ -73,7 +73,6 @@ has_field 'cache_updates' =>
   (
    type => 'Checkbox',
    label => 'Cache updates',
-   checkbox_value => 'enabled',
    tags => { after_element => \&help,
              help => 'Enable this to debounce updates to the Firewall.<br/>By default, PacketFence will send a SSO on every DHCP request for every device. Enabling this enables "sleep" periods during which the update is not sent if the informations stay the same.' },
   );
@@ -82,7 +81,6 @@ has_field 'cache_timeout' =>
   (
    type => 'PosInteger',
    label => 'Cache timeout',
-   checkbox_value => 'enabled',
    tags => { after_element => \&help,
              help => 'Adjust the "Cache timeout" to half the expiration delay in your firewall.<br/>Your DHCP renewal interval should match this value.' },
   );
@@ -114,25 +112,19 @@ has_field 'default_realm' =>
 has_field 'use_connector',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => '1',
+   default => 'true',
   );
 
 has_field 'act_on_accounting_stop',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => '1',
+   default => 'true',
   );
 
 has_field 'sso_on_access_reevaluation',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => '1',
+   default => 'true',
   );
 
 has_field 'sso_on_role_change',
@@ -148,17 +140,13 @@ has_field 'sso_on_role_change',
   has_field 'sso_on_accounting',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => '1',
+   default => 'true',
   );
 
   has_field 'sso_on_dhcp',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => '1',
+   default => 'true',
   );
 
 has_block 'definition' =>

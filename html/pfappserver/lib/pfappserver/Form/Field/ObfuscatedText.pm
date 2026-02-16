@@ -41,7 +41,7 @@ sub element_attributes {
         $attr->{placeholder} =~ s/./\*/g;
     }
 
-    $attr->{autocomplete} = 'off';
+    $attr->{autocomplete} = 'false';
     return $attr;
 }
 

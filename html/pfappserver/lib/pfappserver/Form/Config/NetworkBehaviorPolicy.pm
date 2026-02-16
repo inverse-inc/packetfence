@@ -2,7 +2,7 @@ package pfappserver::Form::Config::NetworkBehaviorPolicy;
 
 =head1 NAME
 
-pfappserver::Form::Config::NetworkBehaviorPolicy - Web form for the Network Behavior Policy portal 
+pfappserver::Form::Config::NetworkBehaviorPolicy - Web form for the Network Behavior Policy portal
 
 =head1 DESCRIPTION
 
@@ -34,9 +34,7 @@ has_field 'description' =>
 
 has_field 'status' => (
    type            => 'Toggle',
-   checkbox_value  => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled',
+   default => 'true',
    required => 1,
 );
 
@@ -62,9 +60,7 @@ has_field 'devices_excluded' =>
 
 has_field 'watch_blacklisted_ips' => (
    type            => 'Toggle',
-   checkbox_value  => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled',
+   default => 'true',
    required => 1,
 );
 
@@ -99,7 +95,6 @@ has_field 'blacklisted_ports_window' => (
 has_field 'blacklisted_ip_hosts_threshold' =>
   (
    type => 'PosInteger',
-   checkbox_value => 'enabled',
    default => 1,
    required => 1,
   );
@@ -116,7 +111,6 @@ has_field 'watched_device_attributes' =>
 has_field 'device_attributes_diff_score' =>
   (
    type => 'PosInteger',
-   checkbox_value => 'enabled',
    required => 1,
    default => 0,
   );
@@ -126,8 +120,8 @@ has_field 'device_attributes_diff_threshold_overrides' =>
     'type' => 'DynamicTable',
     'sortable' => 1,
     'do_label' => 0,
-     tags => { 
-       when_empty => 'If none are specified, the default ones of the module will be used.' 
+     tags => {
+       when_empty => 'If none are specified, the default ones of the module will be used.'
      },
   );
 

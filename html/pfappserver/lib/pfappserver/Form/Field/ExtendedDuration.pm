@@ -101,7 +101,7 @@ sub duration_inflate {
         if ($value =~ /^(\d+$TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+]\d+$TIME_MODIFIER_RE)$/i) {
             $hash = {'duration' => $1,
                      'day_base' => 'Y',
-                     'period_base' => ($2 eq 'R')? 'Y':'N',
+                     'period_base' => ($2 eq 'R')? 'true':'false',
                      'extended_duration' => $3};
         }
         elsif ($value =~ m/(\d+)($TIME_MODIFIER_RE)/) {

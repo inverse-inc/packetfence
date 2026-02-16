@@ -33,8 +33,6 @@ has_field 'delete_window' => (
 
 has_field 'voip' =>  (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    default_method => \&default_field_method,
     tags => { after_element => \&help,
              help => 'Enable voip device cleanup' },

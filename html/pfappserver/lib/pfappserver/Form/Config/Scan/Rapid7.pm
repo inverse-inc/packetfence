@@ -84,9 +84,7 @@ has_field 'engine_id' =>
    label => 'Verify Hostname',
    tags => { after_element => \&help,
              help => 'Verify hostname of server when connecting to the API' },
-   checkbox_value  => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled',
+   default => 'true',
   );
 
 has_block definition =>

@@ -97,9 +97,7 @@ has_field 'radius_auth_proxy_type' =>
   has_field 'radius_auth_compute_in_pf' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
+   default => "true",
    label => 'Authorize from PacketFence',
    tags => { after_element => \&help,
              help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
@@ -177,9 +175,7 @@ has_field 'eduroam_radius_auth_proxy_type' =>
   has_field 'eduroam_radius_auth_compute_in_pf' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
+   default => "true",
    label => 'Authorize from PacketFence',
    tags => { after_element => \&help,
              help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
@@ -218,9 +214,7 @@ has_field 'eduroam_radius_acct_proxy_type' =>
 has_field 'radius_strip_username' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
+   default => "true",
    label => 'Strip in RADIUS authorization',
    tags => { after_element => \&help,
              help => 'Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.' },
@@ -229,9 +223,7 @@ has_field 'radius_strip_username' =>
 has_field 'portal_strip_username' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
+   default => "true",
    label => 'Strip on the portal',
    tags => { after_element => \&help,
              help => 'Should the usernames matching this realm be stripped when used on the captive portal' },
@@ -240,9 +232,7 @@ has_field 'portal_strip_username' =>
 has_field 'admin_strip_username' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
+   default => "true",
    label => 'Strip on the admin',
    tags => { after_element => \&help,
              help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
@@ -251,9 +241,7 @@ has_field 'admin_strip_username' =>
 has_field 'permit_custom_attributes' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "disabled",
+   default => "false",
    label => 'Custom attributes',
    tags => { after_element => \&help,
              help => 'Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source)' },

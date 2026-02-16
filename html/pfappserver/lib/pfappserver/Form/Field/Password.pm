@@ -17,7 +17,7 @@ use namespace::autoclean;
 has '+password' => ( default => 0 );
 
 sub build_element_attr {
-    return { autocomplete => 'off', readonly => 1 , 'data-pf-toggle' => 'password' };
+    return { autocomplete => 'false', readonly => 1 , 'data-pf-toggle' => 'password' };
 }
 =head1 COPYRIGHT
 

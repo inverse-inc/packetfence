@@ -76,8 +76,6 @@ last if match
 has_field 'last_if_match' => (
     type            => 'Toggle',
     label           => 'Last If match',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
     tags => { after_element => \&help, help => 'Stop processing rules if this rule matches'},
 );
 
@@ -90,9 +88,7 @@ If enabled then do ip to mac and mac to ip translation
 has_field 'ip_mac_translation' => (
     type            => 'Toggle',
     label           => 'IP <i class="icon-exchange"></i> MAC',
-    default         => 'enabled',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
+    default         => 'true',
     tags => {
         after_element => \&help,
         help => 'Perform automatic translation of IPs to MACs and the other way around',

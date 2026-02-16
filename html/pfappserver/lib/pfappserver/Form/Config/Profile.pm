@@ -75,9 +75,7 @@ has_field 'status' =>
   (
    type => 'Toggle',
    label => 'Enable profile',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
+   default => 'true'
   );
 
 sub options_filter_match_style {

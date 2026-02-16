@@ -20,10 +20,8 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'process_switchranges' => (
     type            => 'Toggle',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
     default_method  => \&default_field_method,
-    tags => { 
+    tags => {
         after_element   => \&help,
         help            => "Whether or not a switch range should be expanded to process each of its IPs",
     },

@@ -43,7 +43,7 @@ our %FIELD_MAP = (
     },
     "Checkbox" => {
         type => "varchar(1)",
-        default => "N",
+        default => "false",
     },
 );
 
@@ -95,7 +95,7 @@ sub create_or_update_field {
     my $table_name = $self->table_name;
 
     my $wants_type = defined($config_field->{type}) ? $FIELD_MAP{$config_field->{type}}{type} : undef;
-    
+
     unless(defined($wants_type)) {
         $wants_type = "varchar(255)";
     }
@@ -170,14 +170,14 @@ sub reload_from_config {
                 next;
             }
         }
-        
+
         @desc = pf::Survey->_db_data("DESC $table_name");
         if($desc[0] == $FALSE) {
             $logger->error("Unable to get table description even after creating it. Bailing out.");
             return $FALSE;
         }
 
-        my $db_fields = { map { $_->{Field} => $_ } @desc }; 
+        my $db_fields = { map { $_->{Field} => $_ } @desc };
 
         my %merge = ( %{$survey->fields}, %{$survey->data_fields} );
         while(my ($field_id, $field_config) = each(%merge)) {

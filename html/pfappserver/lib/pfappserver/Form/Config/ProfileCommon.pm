@@ -165,8 +165,6 @@ has_field 'always_use_redirecturl' =>
   (
    type => 'Toggle',
    label => 'Force redirection URL',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
   );
@@ -181,8 +179,6 @@ has_field 'preregistration' =>
   (
    type => 'Toggle',
    label => 'Activate preregistration',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have "Create local account" enabled.' },
   );
@@ -198,8 +194,6 @@ has_field 'autoregister' =>
   (
    type => 'Toggle',
    label => 'Automatically register devices',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
   );
@@ -213,9 +207,7 @@ Controls whether or not this connection profile to enabled Dynamic Unbound PSK
 has_field 'unbound_dpsk' =>
   (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
   );
 
 =head2 dpsk
@@ -228,9 +220,7 @@ has_field 'dpsk' =>
   (
    type => 'Toggle',
    label => 'Enable DPSK',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
    tags => { after_element => \&help,
              help => 'This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'},
   );
@@ -260,9 +250,7 @@ has_field 'unreg_on_acct_stop' =>
   (
    type => 'Toggle',
    label => 'Automatically deregister devices on accounting stop',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
    tags => { after_element => \&help,
              help => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.' },
   );
@@ -353,8 +341,6 @@ has_field 'provisioners.contains' =>
 has_field 'reuse_dot1x_credentials' =>
   (
     type => 'Checkbox',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
     tags => {
         after_element   =>    \&help,
         help            => 'This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.'
@@ -368,9 +354,7 @@ has_field 'reuse_dot1x_credentials' =>
 has_field 'dot1x_recompute_role_from_portal' =>
   (
     type => 'Checkbox',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'enabled',
+    default => 'true',
     tags => { after_element => \&help,
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
   );
@@ -382,13 +366,11 @@ has_field 'dot1x_recompute_role_from_portal' =>
 has_field 'mac_auth_recompute_role_from_portal' =>
   (
     type => 'Checkbox',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
     tags => { after_element => \&help,
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.' },
   );
-  
+
 =head2 dot1x_unset_on_unmatch
 
 =cut
@@ -396,9 +378,7 @@ has_field 'mac_auth_recompute_role_from_portal' =>
 has_field 'dot1x_unset_on_unmatch' =>
   (
     type => 'Checkbox',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
     tags => { after_element => \&help,
              help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one.' },
   );
@@ -410,9 +390,7 @@ has_field 'dot1x_unset_on_unmatch' =>
 has_field 'show_manage_devices_on_max_nodes' =>
   (
     type => 'Checkbox',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
   );
 
 =head2 block_interval
@@ -530,8 +508,6 @@ has_field 'network_logoff' =>
   (
    type => 'Toggle',
    label => 'Network Logoff',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => "This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)" },
   );
@@ -546,8 +522,6 @@ has_field 'network_logoff_popup' =>
   (
    type => 'Toggle',
    label => 'Network Logoff Popup',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.' },
   );
@@ -562,8 +536,6 @@ has_field 'access_registration_when_registered' =>
   (
    type => 'Toggle',
    label => 'Allow access to registration portal when registered',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
   );
@@ -744,4 +716,3 @@ USA.
 =cut
 
 1;
-

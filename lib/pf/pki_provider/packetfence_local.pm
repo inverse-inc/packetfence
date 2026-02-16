@@ -33,7 +33,7 @@ Overrided to disable this feature
 
 =cut
 
-has '+revoke_on_unregistration' => ( is => 'ro', default => 'N' );
+has '+revoke_on_unregistration' => ( is => 'ro', default => 'false' );
 
 =head2 client_cert_path
 

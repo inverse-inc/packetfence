@@ -29,8 +29,6 @@ has_field 'psk_size' =>
 
 has_field 'dpsk_use_local_password' => (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
 );
 
 has_block definition =>

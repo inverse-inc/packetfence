@@ -138,8 +138,7 @@ has_field 'voip' =>
   (
    type => 'Checkbox',
    label => 'Voice Over IP',
-   checkbox_value => 'yes',
-   input_without_param => 'no',
+   input_without_param => 'false',
   );
 has_field 'last_dot1x_username' =>
   (
@@ -219,7 +218,7 @@ has_field 'fingerbank_info.mobile' =>
    element_attr => {disabled => 1},
  );
 #/ END fingerprinting related fields
- 
+
 =head2 options_status
 
 =cut
@@ -320,7 +319,7 @@ sub _get_role_options {
         @roles = map {{value => $_->{category_id}, label => $_->{name}}} @all_roles;
     }
     return ({
-        label => '', 
+        label => '',
         value => ''
         }, @roles);
 }

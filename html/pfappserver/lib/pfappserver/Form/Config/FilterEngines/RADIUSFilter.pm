@@ -78,9 +78,7 @@ has_field 'answers.contains' => (
 
 has_field merge_answer => (
     type            => 'Toggle',
-    checkbox_value  => 'yes',
-    unchecked_value => 'no',
-    default => 'no',
+    default => 'false',
 );
 
 my %ADDITIONAL_FIELD_OPTIONS = (

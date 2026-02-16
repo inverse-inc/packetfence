@@ -36,9 +36,8 @@ has_field type => (
 
 has_field all_logs => (
     type => 'Checkbox',
-    input_without_param => 'disabled',
-    checkbox_value => 'enabled',
-    default => 'enabled',
+    input_without_param => 'false',
+    default => 'true',
 );
 
 has_field 'logs' =>
