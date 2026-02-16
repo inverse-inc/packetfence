@@ -46,7 +46,10 @@ docs/%.html: docs/%.asciidoc
 		$<
 
 docs/index.js: $(HTML)
-	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+	html_json=$$(find $$(dirname "$@") -type f -iname '*.html' -not -iname '*template*' -printf '{"name":"%f","size":%s,"last_modifed":%T@}\n' | jq -s '[.[] | {name, size, last_modifed: (.last_modifed*1000 | floor)}]'); \
+	pdf_json=$$(find $$(dirname "$@") -type f -iname '*.pdf' -printf '{"name":"%f","size":%s}\n' | jq -s '.'); \
+	jq -n --argjson html "$$html_json" --argjson pdfs "$$pdf_json" \
+		'{ items: [$$html[] | . as $$h | ($$h.name | sub("\\.html$$"; ".pdf")) as $$pn | ($$pdfs | map(select(.name == $$pn)) | .[0]) as $$pdf | if $$pdf then . + {pdf_size: $$pdf.size} else . end] }' > $@
 
 .PHONY: images
 

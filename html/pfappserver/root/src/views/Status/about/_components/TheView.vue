@@ -51,13 +51,22 @@
         </b-col>
         <b-col cols="6" md="4" lg="2" v-for="doc in guides" :key="doc.name" class="mb-3">
           <div class="about-card-doc-wrapper">
-            <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center cursor-pointer" @click="openGuideFullscreen(doc.name)">
-              <icon name="book" scale="2" class="mb-2" />
-              <div class="small">{{ doc.text }}</div>
+            <b-card no-body class="about-card h-100 text-center d-flex flex-column">
+              <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-3">
+                <icon name="book" scale="2" class="mb-2" />
+                <div class="small">{{ doc.text }}</div>
+              </div>
+              <hr class="m-0">
+              <div class="d-flex about-card-doc-actions">
+                <a href="#" class="about-card-doc-link" @click.prevent="openGuideFullscreen(doc.name)">
+                  HTML <small class="text-muted">({{ formatFileSize(doc.size) }})</small>
+                </a>
+                <a v-if="doc.pdf_size" :href="`/static/doc/${doc.name.replace('.html', '.pdf')}`" target="_blank"
+                  class="about-card-doc-link">
+                  PDF <small class="text-muted">({{ formatFileSize(doc.pdf_size) }})</small>
+                </a>
+              </div>
             </b-card>
-            <a :href="`/static/doc/${doc.name}`" target="_blank" class="about-card-doc-external" @click.stop>
-              <icon name="external-link-alt" scale="1.2" />
-            </a>
           </div>
         </b-col>
       </b-row>
@@ -67,6 +76,7 @@
 
 <script>
 import { computed, onMounted, ref, watch } from '@vue/composition-api'
+import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
@@ -109,6 +119,10 @@ const setup = (props, context) => {
     const index = $store.getters['documentation/index'] || []
     return [...index].sort((a, b) => a.text.localeCompare(b.text))
   })
+
+  const formatFileSize = (value) => {
+    return bytes.toHuman(value, 2, true) + 'B'
+  }
 
   const openGuideFullscreen = (filename) => {
     $store.dispatch('documentation/setPath', filename)
@@ -255,6 +269,7 @@ const setup = (props, context) => {
   return {
     version,
     isSaas,
+    formatFileSize,
     guides,
     openGuideFullscreen,
     sections
@@ -342,25 +357,29 @@ export default {
       color: var(--primary);
       border-color: var(--primary);
     }
-
-    .about-card-doc-external {
-      opacity: 1;
-    }
   }
 }
 
-.about-card-doc-external {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  opacity: 0.3;
+.about-card-doc-actions {
+  display: flex;
+}
+
+.about-card-doc-link {
+  flex: 1 1 50%;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-decoration: none;
   color: var(--secondary);
-  transition: opacity 0.15s ease-in-out, color 0.15s ease-in-out;
-  z-index: 1;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+
+  & + & {
+    border-left: 1px solid rgba(0, 0, 0, 0.125);
+  }
 
   &:hover {
-    opacity: 1;
     color: var(--primary);
+    background-color: var(--light);
   }
 }
 
