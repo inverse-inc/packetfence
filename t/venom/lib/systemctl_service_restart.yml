@@ -15,6 +15,6 @@ steps:
   time_to_sleep: "{{.input.time_to_sleep}}"
 
 # check service status
-- type: systemctl_service_status
+- type: systemctl_service_is_active
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
