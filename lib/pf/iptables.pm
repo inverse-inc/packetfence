@@ -1563,7 +1563,7 @@ sub iptables_fingerbank_collector_rules {
 
 =item iptables_pfudpproxy_rules
 
-Iptable rules for pfudpproxy service (UDP proxy for NetFlow/sFlow in cluster mode)
+Iptable rules for pfudpproxy service (UDP proxy for NetFlow/sFlow/IPFIX in cluster mode)
 
 =cut
 
@@ -1582,6 +1582,8 @@ sub iptables_pfudpproxy_rules {
         util_safe_push( "-i $tint -p udp -m udp --dport 2055 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Port 6343 - sFlow (UDP)
         util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Port 4739 - IPFIX (UDP)
+        util_safe_push( "-i $tint -p udp -m udp --dport 4739 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {

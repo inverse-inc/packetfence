@@ -78,12 +78,12 @@ func (hc *HealthChecker) checkAllBackends(ctx context.Context) {
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Running health checks for %d backends", len(backends)))
 
 	var wg sync.WaitGroup
-	for _, backend := range backends {
+	for i := range backends {
 		wg.Add(1)
-		go func(b *Backend) {
+		go func(b Backend) {
 			defer wg.Done()
 			hc.checkBackend(ctx, b)
-		}(backend)
+		}(backends[i])
 	}
 	wg.Wait()
 
@@ -97,7 +97,9 @@ func (hc *HealthChecker) checkAllBackends(ctx context.Context) {
 }
 
 // checkBackend checks the health of a single backend.
-func (hc *HealthChecker) checkBackend(ctx context.Context, backend *Backend) {
+// backend is received by value (a snapshot from GetAllBackends) so reads
+// of its fields are safe without holding the load balancer lock.
+func (hc *HealthChecker) checkBackend(ctx context.Context, backend Backend) {
 	url := fmt.Sprintf("https://%s:%d%s",
 		backend.ManagementIP,
 		hc.config.HealthCheckPort,

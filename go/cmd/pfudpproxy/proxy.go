@@ -26,14 +26,25 @@ type UDPProxy struct {
 	running   bool
 	stopChan  chan struct{}
 	wg        sync.WaitGroup
+
+	// fwdConn is a shared unbound UDP connection used by all forwarders.
+	// Because it is not bound to a specific destination, WriteToUDP can
+	// send to any backend without opening a new socket per packet.
+	fwdConn *net.UDPConn
+
+	// addrCache maps "ip:port" to a resolved *net.UDPAddr so we don't
+	// call ResolveUDPAddr on every packet.
+	addrCache   map[string]*net.UDPAddr
+	addrCacheMu sync.RWMutex
 }
 
 // NewUDPProxy creates a new UDP proxy.
 func NewUDPProxy(config *ProxyConfig, lb *LoadBalancer) *UDPProxy {
 	return &UDPProxy{
-		config:   config,
-		lb:       lb,
-		stopChan: make(chan struct{}),
+		config:    config,
+		lb:        lb,
+		stopChan:  make(chan struct{}),
+		addrCache: make(map[string]*net.UDPAddr),
 	}
 }
 
@@ -48,6 +59,14 @@ func (p *UDPProxy) Start(ctx context.Context) {
 	p.mu.Unlock()
 
 	log.LoggerWContext(ctx).Info("Starting UDP proxy")
+
+	// Open a single unbound UDP socket for all outbound forwarding.
+	fwd, err := net.ListenUDP("udp", nil)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to open forwarding socket: %s", err.Error()))
+		return
+	}
+	p.fwdConn = fwd
 
 	for _, port := range p.config.Ports {
 		p.wg.Add(1)
@@ -74,6 +93,11 @@ func (p *UDPProxy) Stop(ctx context.Context) {
 		if listener != nil {
 			listener.Close()
 		}
+	}
+
+	// Close the shared forwarding socket
+	if p.fwdConn != nil {
+		p.fwdConn.Close()
 	}
 
 	// Wait for all goroutines to finish
@@ -106,6 +130,11 @@ func (p *UDPProxy) UpdateConfig(ctx context.Context, newConfig *ProxyConfig) {
 	}
 
 	p.config = newConfig
+
+	// Flush the address cache so stale entries don't survive a backend change.
+	p.addrCacheMu.Lock()
+	p.addrCache = make(map[string]*net.UDPAddr)
+	p.addrCacheMu.Unlock()
 }
 
 // listenAndForward listens on VIP:port and forwards packets to healthy backends.
@@ -168,6 +197,27 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
 	}
 }
 
+// resolveAddr returns a cached *net.UDPAddr for the given key (ip:port),
+// resolving and caching it on the first call.
+func (p *UDPProxy) resolveAddr(key string) (*net.UDPAddr, error) {
+	p.addrCacheMu.RLock()
+	addr, ok := p.addrCache[key]
+	p.addrCacheMu.RUnlock()
+	if ok {
+		return addr, nil
+	}
+
+	addr, err := net.ResolveUDPAddr("udp", key)
+	if err != nil {
+		return nil, err
+	}
+
+	p.addrCacheMu.Lock()
+	p.addrCache[key] = addr
+	p.addrCacheMu.Unlock()
+	return addr, nil
+}
+
 // forwardPacket forwards a UDP packet to the primary healthy backend.
 func (p *UDPProxy) forwardPacket(ctx context.Context, data []byte, srcAddr *net.UDPAddr, port int) {
 	backend := p.lb.GetPrimary()
@@ -176,32 +226,23 @@ func (p *UDPProxy) forwardPacket(ctx context.Context, data []byte, srcAddr *net.
 		return
 	}
 
-	// Create destination address using backend's management IP and same port
-	dstAddr := fmt.Sprintf("%s:%d", backend.ManagementIP, port)
-	udpDstAddr, err := net.ResolveUDPAddr("udp", dstAddr)
+	// Resolve (or retrieve from cache) the destination address
+	dstKey := fmt.Sprintf("%s:%d", backend.ManagementIP, port)
+	udpDstAddr, err := p.resolveAddr(dstKey)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to resolve destination address %s: %s",
-			dstAddr, err.Error()))
+			dstKey, err.Error()))
 		return
 	}
 
-	// Create a new UDP connection for forwarding
-	// Using a new connection each time since NetFlow/sFlow are fire-and-forget
-	conn, err := net.DialUDP("udp", nil, udpDstAddr)
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to backend %s: %s",
-			dstAddr, err.Error()))
-		return
-	}
-	defer conn.Close()
-
-	_, err = conn.Write(data)
+	// Use the shared unbound socket to send to the backend
+	_, err = p.fwdConn.WriteToUDP(data, udpDstAddr)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to forward packet to %s: %s",
-			dstAddr, err.Error()))
+			dstKey, err.Error()))
 		return
 	}
 
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Forwarded %d bytes from %s to %s",
-		len(data), srcAddr.String(), dstAddr))
+		len(data), srcAddr.String(), dstKey))
 }

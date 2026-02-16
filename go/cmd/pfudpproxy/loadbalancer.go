@@ -21,27 +21,33 @@ func NewLoadBalancer(backends []*Backend) *LoadBalancer {
 	}
 }
 
-// GetPrimary returns the first healthy backend (failover mode).
+// GetPrimary returns a snapshot of the first healthy backend (failover mode).
 // Returns nil if no healthy backend is available.
+// The returned value is a copy; mutating it does not affect the load balancer.
 func (lb *LoadBalancer) GetPrimary() *Backend {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
 
 	for _, backend := range lb.backends {
 		if backend.Healthy {
-			return backend
+			copy := *backend
+			return &copy
 		}
 	}
 	return nil
 }
 
-// GetAllBackends returns a copy of all backends for health checking.
-func (lb *LoadBalancer) GetAllBackends() []*Backend {
+// GetAllBackends returns a snapshot of all backends for health checking.
+// Each element is a struct copy; callers can read fields safely without
+// the load balancer lock.
+func (lb *LoadBalancer) GetAllBackends() []Backend {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
 
-	backends := make([]*Backend, len(lb.backends))
-	copy(backends, lb.backends)
+	backends := make([]Backend, len(lb.backends))
+	for i, b := range lb.backends {
+		backends[i] = *b
+	}
 	return backends
 }
 
