@@ -63,7 +63,7 @@
 
     - name: Deploy virtualswitch configuration
       ansible.builtin.template:
-        src: templates/virtualswitch_config.yaml.j2
+        src: ../templates/virtualswitch_config.yaml.j2
         dest: /etc/virtualswitch/config.yaml
         owner: root
         group: root
