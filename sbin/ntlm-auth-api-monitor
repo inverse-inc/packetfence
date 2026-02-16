@@ -2,6 +2,9 @@
 
 source /usr/local/pf/containers/systemd-service
 
+# Handle shutdown signals gracefully
+trap 'echo "Monitor received shutdown signal"; exit 0' SIGTERM SIGINT
+
 name=ntlm-auth-api
 pid=$$
 
@@ -23,7 +26,7 @@ while true; do
         host=$(cat $full_path | grep 'HOST' | awk -F '=' '{print $2}')
         port=$(cat $full_path | grep 'LISTEN' | awk -F '=' '{print $2}')
 
-        res=$(curl -X GET http://"$host:$port"/ping 2>/dev/null)
+        res=$(curl --max-time 5 -X GET http://"$host:$port"/ping 2>/dev/null)
 
         if [ $max_failures -gt 5 ]; then
             echo -n "Checking sub service for domain [$iden]: http://$host:$port/ping, response = [$res]. "

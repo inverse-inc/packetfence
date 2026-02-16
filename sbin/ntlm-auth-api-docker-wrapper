@@ -32,13 +32,34 @@ if [ "$option" = "start" ]; then
     done
     /usr/local/pf/sbin/ntlm-auth-api-monitor &
 elif [ "$option" = "stop" ]; then
+    # Step 1: Stop the monitor first and wait for it to die
     pids=$(pgrep -f "ntlm-auth-api-monitor")
 
     if [ -n "$pids" ]; then
+        echo "Stopping ntlm-auth-api-monitor..."
         echo "$pids" | xargs kill
+
+        # Wait up to 5 seconds for graceful shutdown
+        for i in {1..5}; do
+            pids=$(pgrep -f "ntlm-auth-api-monitor")
+            if [ -z "$pids" ]; then
+                echo "ntlm-auth-api-monitor stopped."
+                break
+            fi
+            sleep 1
+        done
+
+        # Force kill if still alive
+        pids=$(pgrep -f "ntlm-auth-api-monitor")
+        if [ -n "$pids" ]; then
+            echo "Force killing ntlm-auth-api-monitor..."
+            echo "$pids" | xargs kill -9
+        fi
+
         echo '' >/usr/local/pf/var/run/ntlm-auth-api.pid
     fi
 
+    # Step 2: Now safe to stop domain services
     for env_file in $env_files; do
         iden=$(echo $env_file | awk -F '.' '{print $1}')
         echo "Stopping ntlm auth api domain service for: $iden"
