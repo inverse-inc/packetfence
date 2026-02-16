@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsConnectors')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheTabsConnectors')
 import ConnectorsRoutes from './connectors/_router'
 import ConnectorsDnsRoutes from './dns/_router'
 import ConnectorsDomainsRoutes from './domains/_router'

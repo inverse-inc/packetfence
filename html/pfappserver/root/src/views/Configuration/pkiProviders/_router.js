@@ -3,8 +3,8 @@ import PkiProvidersStoreModule from './_store'
 import PkisStoreModule from '../pki/_store'
 import { analytics } from './config'
 
-const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

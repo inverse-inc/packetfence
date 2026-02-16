@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import trim from 'lodash/trim';
 import {
   extractAttributeFromFilter,
   isAttributeDn,
@@ -14,7 +15,7 @@ function useAdLdap(form) {
     let server = { ...form.value }
     return sendLdapSearchRequest(server, filter, scope, attributes, base_dn)
       .then((result) => {
-          if (_.isEmpty(result)) {
+          if (isEmpty(result)) {
             return isAttributeDn(server, filter, scope, attributes, base_dn).then((isDn) => {
               if (isDn) {
                 // In case there are a lot of results we can't know for sure if all DNs were found
@@ -93,7 +94,7 @@ function useAdLdap(form) {
 function extractAttributeNames(attributes) {
   return attributes.map((attribute) => {
     const properties = attribute.split(' ')
-    return _.trim(properties[properties.indexOf('NAME') + 1], '\'')
+    return trim(properties[properties.indexOf('NAME') + 1], '\'')
   })
 }
 

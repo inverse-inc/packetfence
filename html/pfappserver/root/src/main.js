@@ -155,7 +155,6 @@ import { pfTemplatePlugin } from './utils/plugins'
 import App from './App'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import 'vue2vis/dist/vue2vis.css'
 
 // Ignore custom elements defined outside of Vue
 Vue.config.ignoredElements = [

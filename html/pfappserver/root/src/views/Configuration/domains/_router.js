@@ -19,8 +19,8 @@ export const useRouter = $router => {
   }
 }
 
-export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsDomains')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+export const TheTabs = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ '../_components/TheTabsDomains')
+const TheView = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_domains)

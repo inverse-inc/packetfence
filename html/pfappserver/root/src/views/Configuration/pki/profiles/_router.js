@@ -1,9 +1,9 @@
 import store from '@/store'
 import StoreModule from '../_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsPkis')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
-const TheCsr = () => import(/* webpackChunkName: "Configuration" */ './_components/TheCsr')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationIntegration" */ '../../_components/TheTabsPkis')
+const TheView = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheView')
+const TheCsr = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheCsr')
 
 const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_pkis)

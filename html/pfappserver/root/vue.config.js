@@ -60,6 +60,46 @@ module.exports = {
       config.optimization.minimize(false)
       config.optimization.delete('minimizer')
     }
+    config.optimization.splitChunks({
+      chunks: 'all',
+      maxInitialRequests: 10,
+      maxAsyncRequests: 15,
+      cacheGroups: {
+        plotly: {
+          test: /[\\/]node_modules[\\/](plotly\.js|plotly\.js-locales)[\\/]/,
+          name: 'vendor-plotly',
+          chunks: 'all',
+          priority: 30,
+          enforce: true
+        },
+        bootstrapVue: {
+          test: /[\\/]node_modules[\\/]bootstrap-vue[\\/]/,
+          name: 'vendor-bootstrap-vue',
+          chunks: 'all',
+          priority: 20
+        },
+        aceEditor: {
+          test: /[\\/]node_modules[\\/](ace-builds|vue2-ace-editor|brace)[\\/]/,
+          name: 'vendor-ace',
+          chunks: 'async',
+          priority: 20
+        },
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'chunk-vendors',
+          chunks: 'initial',
+          priority: -10,
+          reuseExistingChunk: true
+        },
+        common: {
+          minChunks: 2,
+          priority: -20,
+          chunks: 'async',
+          name: 'common',
+          reuseExistingChunk: true
+        }
+      }
+    })
   },
   configureWebpack: config => {
     if (process.env.VUE_APP_DEBUG === 'true') {
@@ -76,6 +116,11 @@ module.exports = {
             test: /\.mjs$/,
             include: /node_modules/,
             type: "javascript/auto"
+          },
+          {
+            test: /\.js$/,
+            include: /node_modules[\\/]plotly\.js/,
+            use: ['ify-loader']
           }
         ]
       }

@@ -12,8 +12,8 @@ export const useRouter = $router => {
   }
 }
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ './_components/TheTabs')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ './_components/TheTabs')
+const TheView = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_filter_engines) {

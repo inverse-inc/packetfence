@@ -1,4 +1,6 @@
-import _ from 'lodash'
+import transform from 'lodash/transform'
+import isPlainObject from 'lodash/isPlainObject'
+import isInteger from 'lodash/isInteger'
 
 const convert = {
   statusToVariant(params) {
@@ -25,11 +27,11 @@ export function valueToSelectValue(value) {
 }
 
 export function intsToStrings(obj) {
-  return _.transform(obj, (result, value, key) => {
-    if (_.isPlainObject(value)) {
+  return transform(obj, (result, value, key) => {
+    if (isPlainObject(value)) {
       result[key] = intsToStrings(value);
     } else {
-      result[key] = _.isInteger(value) ? value.toString() : value;
+      result[key] = isInteger(value) ? value.toString() : value;
     }
   });
 }

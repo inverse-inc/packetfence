@@ -1,8 +1,8 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

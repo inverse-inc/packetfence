@@ -16,6 +16,7 @@
   </b-tab>
 </template>
 <script>
+import 'vue2vis/dist/vue2vis.css'
 import { DataSet, Timeline } from 'vue2vis'
 
 const components = {

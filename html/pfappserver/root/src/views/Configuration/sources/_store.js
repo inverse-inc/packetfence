@@ -8,7 +8,9 @@ import {fileUploadPaths} from '@/utils/api'
 import i18n from '@/utils/locale'
 import api from './_api'
 import {analytics, decomposeSource, recomposeSource} from './config'
-import _ from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
+import get from 'lodash/get'
+import set from 'lodash/set'
 import {ldapFormsSupported} from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 export const useStore = $store => {
@@ -67,13 +69,13 @@ const actions = {
     return api.itemOptions(id).then(async response => {
       commit('ITEM_SUCCESS')
       if (state.cache[id]) {
-        const item = await Promise.resolve(state.cache[id]).then(cache => _.cloneDeep(cache))
+        const item = await Promise.resolve(state.cache[id]).then(cache => cloneDeep(cache))
         const meta = filterOutLdapOptions(response, item.type)
         return removeLdapAttributeValidation(meta)
       } else {
         const item = await api.item(id).then(item => {
           commit('ITEM_REPLACED', item)
-          return _.cloneDeep(item)
+          return cloneDeep(item)
         }).catch((err) => {
           commit('ITEM_ERROR', err.response)
           throw err
@@ -220,11 +222,11 @@ function filterOutLdapOptions(meta, sourceType) {
   if (ldapFormsSupported.includes(sourceType)) {
     const ldapConditionAttributePath = 'meta.authentication_rules.item.properties.conditions' +
       '.item.properties.attribute.allowed'
-    let ldapAttributes = _.get(meta, ldapConditionAttributePath,)
+    let ldapAttributes = get(meta, ldapConditionAttributePath,)
     ldapAttributes = ldapAttributes.filter(
       item => !['ldapfilter', 'ldapattribute'].includes(item['attributes']['data-type'])
     )
-    _.set(meta, ldapConditionAttributePath, ldapAttributes)
+    set(meta, ldapConditionAttributePath, ldapAttributes)
   }
   return meta
 }
@@ -232,7 +234,7 @@ function filterOutLdapOptions(meta, sourceType) {
 function removeLdapAttributeValidation(meta) {
   const allowCustopAttributePath = 'meta.authentication_rules.item.properties.conditions' +
     '.item.properties.attribute.allow_custom'
-  _.set(meta, allowCustopAttributePath, true)
+  set(meta, allowCustopAttributePath, true)
   return meta
 }
 

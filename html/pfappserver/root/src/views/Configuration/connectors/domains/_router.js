@@ -1,8 +1,8 @@
 import store from '@/store'
 import StoreModule from '../_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsConnectors')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../../_components/TheTabsConnectors')
+const TheView = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_connectors)

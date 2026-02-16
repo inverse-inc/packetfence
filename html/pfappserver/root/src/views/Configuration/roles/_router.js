@@ -1,8 +1,8 @@
 import store from '@/store'
 import RolesStoreModule from './_store'
 
-const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

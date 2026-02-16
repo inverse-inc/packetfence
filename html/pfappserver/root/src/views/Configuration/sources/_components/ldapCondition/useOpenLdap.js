@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import trim from 'lodash/trim';
 import {
   extractAttributeFromFilter,
   parseLdapResponseToAttributeArray,
@@ -80,7 +80,7 @@ function extractAttributeNames(attributes) {
     if (attributeName === '(') {
       attributeNames.push(...extractAttributeNameAliases(properties))
     } else {
-      attributeNames.push(_.trim(attributeName, '\''))
+      attributeNames.push(trim(attributeName, '\''))
     }
   })
   return attributeNames
@@ -92,7 +92,7 @@ function extractAttributeNameAliases(attributeProperties) {
   attributeProperties = attributeProperties.slice(0, attributeProperties.indexOf(')') + 1)
   const attributeString = attributeProperties.join(' ')
 
-  return parseLdapStringToArray(attributeString).map((item) => _.trim(item, '\''))
+  return parseLdapStringToArray(attributeString).map((item) => trim(item, '\''))
 }
 
 export default useOpenLdap
