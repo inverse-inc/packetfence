@@ -16,6 +16,10 @@
           Acquire::ForceIPv4 "true";
       when: ansible_facts['os_family'] == "Debian"
 
+    - name: Display all variables/facts known for a host
+      ansible.builtin.debug:
+        msg: User {{ virtualswitch__user }}
+
     - name: Download virtualswitch package (Debian)
       ansible.builtin.get_url:
         url: "{{ virtualswitch__base_url }}/virtualswitch_{{ virtualswitch__deb_version }}_amd64.deb"
