@@ -14,7 +14,8 @@ const state = () => {
     allChartsStatus: '',
     charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
     alarmsStatus: '',
-    alarms: {}
+    alarms: {},
+    aboutFilter: ''
   }
 }
 
@@ -110,6 +111,9 @@ const mutations = {
   ALARMS_ERROR: (state) => {
     state.alarmsStatus = types.ERROR
     state.alarms = {}
+  },
+  ABOUT_FILTER_UPDATED: (state, filter) => {
+    state.aboutFilter = filter
   }
 }
 

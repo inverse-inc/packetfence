@@ -5,23 +5,18 @@
     </b-card-header>
     <div class="card-body">
       <!-- Filter -->
-      <b-input-group class="about-filter mb-4">
-        <b-input-group-prepend is-tag>
-          <b-input-group-text>
-            <icon name="search" />
-          </b-input-group-text>
-        </b-input-group-prepend>
-        <b-form-input
-          v-model="filter"
-          :placeholder="$t('Filter...')"
-          type="text"
-        />
-        <b-input-group-append v-if="filter" is-tag>
-          <b-button variant="outline-secondary" @click="filter = ''">
-            <icon name="times" />
-          </b-button>
-        </b-input-group-append>
-      </b-input-group>
+      <div class="section-sidebar-filter px-0 mb-4">
+        <b-input-group>
+          <b-input-group-prepend>
+            <icon class="h-auto" name="search" scale=".75" />
+          </b-input-group-prepend>
+          <b-form-input v-model="filter" v-focus
+            class="border-0" type="text" :placeholder="$t('Filter')" />
+          <b-input-group-append v-if="filter">
+            <b-btn @click="filter = ''"><icon name="times-circle" /></b-btn>
+          </b-input-group-append>
+        </b-input-group>
+      </div>
 
       <!-- Quick Links -->
       <template v-if="filteredSections.length">
@@ -92,11 +87,11 @@
       </template>
 
       <!-- Help -->
-      <template v-if="showSupportInquiry || filteredGuides.length">
+      <template v-if="isSaas || guides.length">
         <h5 class="mb-3" v-t="'Help'"></h5>
         <b-row>
           <!-- Support Inquiry -->
-          <b-col v-if="showSupportInquiry" cols="6" md="4" lg="2" class="mb-3">
+          <b-col v-if="isSaas" cols="6" md="4" lg="2" class="mb-3">
             <div class="about-card-doc-wrapper">
               <a href="https://www.packetfence.com/docs/" target="_blank" class="about-card-support-link">
                 <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center">
@@ -106,7 +101,7 @@
               </a>
             </div>
           </b-col>
-          <b-col cols="6" md="4" lg="2" v-for="doc in filteredGuides" :key="doc.name" class="mb-3">
+          <b-col cols="6" md="4" lg="2" v-for="doc in guides" :key="doc.name" class="mb-3">
             <div class="about-card-doc-wrapper">
               <b-card no-body class="about-card h-100 text-center d-flex flex-column">
                 <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-3">
@@ -135,8 +130,13 @@
 <script>
 import { computed, onMounted, ref, watch } from '@vue/composition-api'
 import bytes from '@/utils/bytes'
+import { focus } from '@/directives'
 import i18n from '@/utils/locale'
 import { useSections as useConfigSections } from '@/views/Configuration/_composables/useSections'
+
+const directives = {
+  focus
+}
 
 const setup = (props, context) => {
   const { root: { $store, $router } = {} } = context
@@ -314,8 +314,11 @@ const setup = (props, context) => {
 
   const { sections: configSections } = useConfigSections()
 
-  // Keyword filter
-  const filter = ref('')
+  // Keyword filter (persisted in Vuex store)
+  const filter = computed({
+    get: () => $store.state.$_status.aboutFilter,
+    set: val => $store.commit('$_status/ABOUT_FILTER_UPDATED', val)
+  })
 
   const matchesFilter = (text, keyword) => {
     return text.toLowerCase().includes(keyword)
@@ -381,18 +384,6 @@ const setup = (props, context) => {
     return filterSections(configSections.value, keyword)
   })
 
-  const showSupportInquiry = computed(() => {
-    const keyword = filter.value.trim().toLowerCase()
-    if (!keyword) return true
-    return matchesFilter(i18n.t('Support Inquiry'), keyword)
-      || matchesFilter(i18n.t('Help'), keyword)
-  })
-
-  const filteredGuides = computed(() => {
-    const keyword = filter.value.trim().toLowerCase()
-    if (!keyword) return guides.value
-    return guides.value.filter(doc => matchesFilter(doc.text, keyword) || matchesFilter(doc.name, keyword))
-  })
 
   return {
     version,
@@ -400,8 +391,6 @@ const setup = (props, context) => {
     filter,
     filteredSections,
     filteredConfigSections,
-    showSupportInquiry,
-    filteredGuides,
     formatFileSize,
     guides,
     openGuideFullscreen,
@@ -413,28 +402,12 @@ const setup = (props, context) => {
 // @vue/component
 export default {
   name: 'the-view',
+  directives,
   setup
 }
 </script>
 
 <style lang="scss" scoped>
-.about-filter {
-  .input-group-text {
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  }
-
-  .form-control:focus ~ .input-group-append .btn {
-    border-color: #80bdff;
-  }
-}
-
-.about-filter:focus-within {
-  .input-group-text {
-    border-color: #80bdff;
-    box-shadow: -3px 0 6px -2px rgba(0, 123, 255, 0.25);
-  }
-}
-
 .about-card-wrapper {
   position: relative;
 
