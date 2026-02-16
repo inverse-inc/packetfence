@@ -90,7 +90,7 @@ export const actions = {
       throw err
     }).finally(() => {
       commit('ACCOUNT_INFO_RESET')
-      dispatch('getAccountInfo')
+      dispatch('getAccountInfo').catch(() => {})
     })
   }
 }
