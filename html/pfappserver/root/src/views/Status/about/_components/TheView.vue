@@ -4,10 +4,30 @@
       <h4 class="d-inline mb-0">{{ isSaas ? 'PacketFence Cloud' : 'PacketFence' }} {{ version }}</h4>
     </b-card-header>
     <div class="card-body">
+      <!-- Filter -->
+      <b-input-group class="about-filter mb-4">
+        <b-input-group-prepend is-tag>
+          <b-input-group-text>
+            <icon name="search" />
+          </b-input-group-text>
+        </b-input-group-prepend>
+        <b-form-input
+          v-model="filter"
+          :placeholder="$t('Filter...')"
+          type="text"
+        />
+        <b-input-group-append v-if="filter" is-tag>
+          <b-button variant="outline-secondary" @click="filter = ''">
+            <icon name="times" />
+          </b-button>
+        </b-input-group-append>
+      </b-input-group>
+
       <!-- Quick Links -->
-      <h5 class="mb-3" v-t="'Quick Links'"></h5>
-      <b-row class="mb-4">
-        <b-col cols="6" md="4" lg="2" v-for="section in sections" :key="section.path" class="mb-3">
+      <template v-if="filteredSections.length">
+        <h5 class="mb-3" v-t="'Quick Links'"></h5>
+        <b-row class="mb-4">
+          <b-col cols="6" md="4" lg="2" v-for="section in filteredSections" :key="section.path" class="mb-3">
           <div class="about-card-wrapper">
             <b-card class="about-card h-100 text-center" :to="section.path" tag="router-link">
               <icon :name="section.icon" scale="2" class="mb-2" />
@@ -33,43 +53,81 @@
             </div>
           </div>
         </b-col>
-      </b-row>
+        </b-row>
+      </template>
+
+      <!-- Configuration -->
+      <template v-if="filteredConfigSections.length">
+        <h5 class="mb-3" v-t="'Configuration'"></h5>
+        <b-row class="mb-4">
+          <b-col cols="6" md="4" lg="2" v-for="section in filteredConfigSections" :key="section.path" class="mb-3">
+          <div class="about-card-wrapper">
+            <b-card class="about-card h-100 text-center" :to="section.path" tag="router-link">
+              <icon :name="section.icon" scale="2" class="mb-2" />
+              <div class="small">{{ section.name }}</div>
+            </b-card>
+            <div class="about-card-dropdown" v-if="section.items && section.items.length">
+              <div v-for="item in section.items" :key="item.path || item.name" class="about-card-dropdown-group">
+                <template v-if="item.path">
+                  <router-link :to="item.path" class="about-card-dropdown-item">
+                    {{ item.name }}
+                  </router-link>
+                </template>
+                <template v-else-if="item.items">
+                  <div class="about-card-dropdown-header">{{ item.name }}</div>
+                  <router-link
+                    v-for="subitem in item.items"
+                    :key="subitem.path"
+                    :to="subitem.path"
+                    class="about-card-dropdown-item about-card-dropdown-item-nested"
+                  >
+                    {{ subitem.name }}
+                  </router-link>
+                </template>
+              </div>
+            </div>
+          </div>
+          </b-col>
+        </b-row>
+      </template>
 
       <!-- Help -->
-      <h5 class="mb-3" v-t="'Help'"></h5>
-      <b-row>
-        <!-- Support Inquiry -->
-        <b-col cols="6" md="4" lg="2" class="mb-3">
-          <div class="about-card-doc-wrapper">
-            <a href="https://www.packetfence.com/docs/" target="_blank" class="about-card-support-link">
-              <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center">
-                <icon name="question-circle" scale="2" class="mb-2" />
-                <div class="small">{{ $t('Support Inquiry') }}</div>
+      <template v-if="showSupportInquiry || filteredGuides.length">
+        <h5 class="mb-3" v-t="'Help'"></h5>
+        <b-row>
+          <!-- Support Inquiry -->
+          <b-col v-if="showSupportInquiry" cols="6" md="4" lg="2" class="mb-3">
+            <div class="about-card-doc-wrapper">
+              <a href="https://www.packetfence.com/docs/" target="_blank" class="about-card-support-link">
+                <b-card class="about-card h-100 text-center d-flex align-items-center justify-content-center">
+                  <icon name="question-circle" scale="2" class="mb-2" />
+                  <div class="small">{{ $t('Support Inquiry') }}</div>
+                </b-card>
+              </a>
+            </div>
+          </b-col>
+          <b-col cols="6" md="4" lg="2" v-for="doc in filteredGuides" :key="doc.name" class="mb-3">
+            <div class="about-card-doc-wrapper">
+              <b-card no-body class="about-card h-100 text-center d-flex flex-column">
+                <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-3">
+                  <icon name="book" scale="2" class="mb-2" />
+                  <div class="small">{{ doc.text }}</div>
+                </div>
+                <hr class="m-0">
+                <div class="d-flex about-card-doc-actions">
+                  <a href="#" class="about-card-doc-link" @click.prevent="openGuideFullscreen(doc.name)">
+                    HTML <small class="text-muted">({{ formatFileSize(doc.size) }})</small>
+                  </a>
+                  <a v-if="doc.pdf_size" :href="`/static/doc/${doc.name.replace('.html', '.pdf')}`" target="_blank"
+                    class="about-card-doc-link">
+                    PDF <small class="text-muted">({{ formatFileSize(doc.pdf_size) }})</small>
+                  </a>
+                </div>
               </b-card>
-            </a>
-          </div>
-        </b-col>
-        <b-col cols="6" md="4" lg="2" v-for="doc in guides" :key="doc.name" class="mb-3">
-          <div class="about-card-doc-wrapper">
-            <b-card no-body class="about-card h-100 text-center d-flex flex-column">
-              <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-3">
-                <icon name="book" scale="2" class="mb-2" />
-                <div class="small">{{ doc.text }}</div>
-              </div>
-              <hr class="m-0">
-              <div class="d-flex about-card-doc-actions">
-                <a href="#" class="about-card-doc-link" @click.prevent="openGuideFullscreen(doc.name)">
-                  HTML <small class="text-muted">({{ formatFileSize(doc.size) }})</small>
-                </a>
-                <a v-if="doc.pdf_size" :href="`/static/doc/${doc.name.replace('.html', '.pdf')}`" target="_blank"
-                  class="about-card-doc-link">
-                  PDF <small class="text-muted">({{ formatFileSize(doc.pdf_size) }})</small>
-                </a>
-              </div>
-            </b-card>
-          </div>
-        </b-col>
-      </b-row>
+            </div>
+          </b-col>
+        </b-row>
+      </template>
     </div>
   </b-card>
 </template>
@@ -78,6 +136,7 @@
 import { computed, onMounted, ref, watch } from '@vue/composition-api'
 import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
+import { useSections as useConfigSections } from '@/views/Configuration/_composables/useSections'
 
 const setup = (props, context) => {
   const { root: { $store, $router } = {} } = context
@@ -236,19 +295,6 @@ const setup = (props, context) => {
           { name: i18n.t('Create'), path: '/users/create' },
           { name: i18n.t('Import'), path: '/users/import' }
         ]
-      },
-      {
-        name: i18n.t('Configuration'),
-        path: '/configuration',
-        icon: 'cogs',
-        items: [
-          { name: i18n.t('Policies and Access Control'), path: '/configuration/policies_access_control' },
-          { name: i18n.t('Compliance'), path: '/configuration/compliance' },
-          { name: i18n.t('Integration'), path: '/configuration/integration' },
-          { name: i18n.t('Advanced Access Configuration'), path: '/configuration/advanced_access_configuration' },
-          { name: i18n.t('Network Configuration'), path: '/configuration/network_configuration' },
-          { name: i18n.t('System Configuration'), path: '/configuration/system_configuration' }
-        ]
       }
     ]
 
@@ -266,13 +312,101 @@ const setup = (props, context) => {
     }))
   })
 
+  const { sections: configSections } = useConfigSections()
+
+  // Keyword filter
+  const filter = ref('')
+
+  const matchesFilter = (text, keyword) => {
+    return text.toLowerCase().includes(keyword)
+  }
+
+  // Filter items within a section, keeping only those that match.
+  // Handles flat items (with path), grouped items (with nested items),
+  // and saved searches.
+  const filterItems = (items, keyword) => {
+    return items.reduce((acc, item) => {
+      // Flat item with path
+      if (item.path) {
+        if (matchesFilter(item.name, keyword)) {
+          acc.push(item)
+        } else {
+          // Check saved searches
+          const matchingSearches = (item.savedSearches || []).filter(s => matchesFilter(s.name, keyword))
+          if (matchingSearches.length) {
+            acc.push({ ...item, savedSearches: matchingSearches })
+          }
+        }
+      }
+      // Grouped item with nested sub-items (no path)
+      else if (item.items) {
+        if (matchesFilter(item.name, keyword)) {
+          acc.push(item) // group header matches, keep all sub-items
+        } else {
+          const filteredSubs = item.items.filter(sub => matchesFilter(sub.name, keyword))
+          if (filteredSubs.length) {
+            acc.push({ ...item, items: filteredSubs })
+          }
+        }
+      }
+      return acc
+    }, [])
+  }
+
+  // Filter sections, pruning dropdown items to only those matching.
+  // If the section name itself matches, keep all its items.
+  const filterSections = (allSections, keyword) => {
+    return allSections.reduce((acc, section) => {
+      if (matchesFilter(section.name, keyword)) {
+        acc.push(section)
+      } else {
+        const items = filterItems(section.items || [], keyword)
+        if (items.length) {
+          acc.push({ ...section, items })
+        }
+      }
+      return acc
+    }, [])
+  }
+
+  const filteredSections = computed(() => {
+    const keyword = filter.value.trim().toLowerCase()
+    if (!keyword) return sections.value
+    return filterSections(sections.value, keyword)
+  })
+
+  const filteredConfigSections = computed(() => {
+    const keyword = filter.value.trim().toLowerCase()
+    if (!keyword) return configSections.value
+    return filterSections(configSections.value, keyword)
+  })
+
+  const showSupportInquiry = computed(() => {
+    const keyword = filter.value.trim().toLowerCase()
+    if (!keyword) return true
+    return matchesFilter(i18n.t('Support Inquiry'), keyword)
+      || matchesFilter(i18n.t('Help'), keyword)
+  })
+
+  const filteredGuides = computed(() => {
+    const keyword = filter.value.trim().toLowerCase()
+    if (!keyword) return guides.value
+    return guides.value.filter(doc => matchesFilter(doc.text, keyword) || matchesFilter(doc.name, keyword))
+  })
+
   return {
     version,
     isSaas,
+    filter,
+    filteredSections,
+    filteredConfigSections,
+    showSupportInquiry,
+    filteredGuides,
     formatFileSize,
     guides,
     openGuideFullscreen,
-    sections
+    sections,
+    configSections
   }
 }
 
@@ -284,6 +418,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.about-filter {
+  .input-group-text {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .form-control:focus ~ .input-group-append .btn {
+    border-color: #80bdff;
+  }
+}
+
+.about-filter:focus-within {
+  .input-group-text {
+    border-color: #80bdff;
+    box-shadow: -3px 0 6px -2px rgba(0, 123, 255, 0.25);
+  }
+}
+
 .about-card-wrapper {
   position: relative;
 
@@ -346,6 +497,16 @@ export default {
     background-color: rgba(0, 0, 0, 0.02);
     border-top: 1px solid var(--light);
   }
+}
+
+.about-card-dropdown-header {
+  display: block;
+  padding: 0.4rem 0.75rem 0.1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .about-card-doc-wrapper {
