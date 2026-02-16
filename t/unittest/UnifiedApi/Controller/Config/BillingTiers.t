@@ -22,9 +22,13 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::ConfigStore::BillingTiers;
 use Test::More tests => 17;
 use Test::Mojo;
 
+use Utils;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::BillingTiers");
 #This test will running last
 use Test::NoWarnings;
 use pf::constants;
