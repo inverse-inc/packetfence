@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header class="pl-4">
-      <h4 class="d-inline mb-0">PacketFence {{ version }}</h4>
+      <h4 class="d-inline mb-0">{{ isSaas ? 'PacketFence Cloud' : 'PacketFence' }} {{ version }}</h4>
     </b-card-header>
     <div class="card-body">
       <!-- Quick Links -->
@@ -101,6 +101,7 @@ const setup = (props, context) => {
 
   // System info from store
   const version = computed(() => $store.getters['system/version'])
+  const isSaas = computed(() => $store.getters['system/isSaas'])
 
   // Documentation guides
   onMounted(() => $store.dispatch('documentation/getIndex'))
@@ -176,11 +177,11 @@ const setup = (props, context) => {
         path: '/status',
         icon: 'tachometer-alt',
         items: [
-          { name: i18n.t('Dashboard'), path: '/status/dashboard' },
+          { name: i18n.t('Dashboard'), path: isSaas.value ? '/status/dashboard_saas' : '/status/dashboard' },
           { name: i18n.t('Assets'), path: '/status/assets' },
           { name: i18n.t('Network Threats'), path: '/status/network_threats' },
           { name: i18n.t('Network Communication'), path: '/status/network_communication' },
-          { name: i18n.t('Services'), path: '/status/services' },
+          { name: i18n.t('Services'), path: isSaas.value ? '/status/services_saas' : '/status/services' },
           { name: i18n.t('Queue'), path: '/status/queue' }
         ]
       },
@@ -253,6 +254,7 @@ const setup = (props, context) => {
 
   return {
     version,
+    isSaas,
     guides,
     openGuideFullscreen,
     sections
