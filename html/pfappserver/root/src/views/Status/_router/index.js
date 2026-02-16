@@ -19,6 +19,9 @@ const beforeEnter = (to, from, next) => {
     // Register store module only once
     store.registerModule('$_status', StatusStore)
   }
+  if (!store.getters['system/isSaas']) {
+    store.dispatch('cluster/getConfig')
+  }
   next()
 }
 
