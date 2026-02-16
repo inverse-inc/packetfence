@@ -594,7 +594,7 @@ variables:
       if [ -n "$TEST_ONLY" ]; then
         # Reject TEST_ONLY if it contains a newline or single quote (basic sanitization)
         if printf '%s' "$TEST_ONLY" | grep -q "[\n']"; then
-          echo "Error: TEST_ONLY contains invalid characters (newline or single quote)."
+          echo "Error: TEST_ONLY contains invalid characters (newline or single quote). The pattern is: >>$TEST_ONLY<<."
           exit 1
         fi
         if echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY"; then
