@@ -44,7 +44,10 @@ const getters = {
     state.cache.forEach((request) => { // calculate maximum time from requests in queue
       const { time = 0, num = 0 } = getters.getBenchmark(request)
       if (time && num) {
-        maxEta = Math.max(maxEta, ((new Date()).getTime() + (time / num)))
+        maxEta = Math.max(maxEta, (request.time + (time / num)))
+      } else {
+        // default ETA for unknown endpoints (no benchmark data yet)
+        maxEta = Math.max(maxEta, (request.time + 1000))
       }
     })
     return maxEta
@@ -73,7 +76,7 @@ const getters = {
           }
         })
         if (_time && _num) {
-          return { _time, _num }
+          return { time: _time, num: _num }
         }
       }
       // TODO search siblings, parent
@@ -92,34 +95,42 @@ const getters = {
 }
 
 const actions = {
-  startRequest: ({ commit }, request) => {
+  startRequest: ({ state, commit }, request) => {
     commit('START_BENCHMARK', request)
     commit('ADD_CACHE', request)
-    commit('START_HEARTBEAT')
+    if (!state.heartbeatInterval) {
+      const intervalId = setInterval(() => commit('TICK'), 50)
+      commit('START_HEARTBEAT', intervalId)
+    }
   },
-  stopRequest: ({ commit }, request) => {
+  stopRequest: ({ state, commit }, request) => {
     commit('STOP_BENCHMARK', request)
     commit('PRUNE_CACHE', request)
-    commit('STOP_HEARTBEAT')
+    if (state.cache.length === 0 && state.heartbeatInterval) {
+      clearInterval(state.heartbeatInterval)
+      commit('STOP_HEARTBEAT')
+    }
   },
-  dropRequest: ({ commit }, request) => {
+  dropRequest: ({ state, commit }, request) => {
     commit('DROP_BENCHMARK', request)
     commit('PRUNE_CACHE', request)
-    commit('STOP_HEARTBEAT')
+    if (state.cache.length === 0 && state.heartbeatInterval) {
+      clearInterval(state.heartbeatInterval)
+      commit('STOP_HEARTBEAT')
+    }
   }
 }
 
 const mutations = {
-  START_HEARTBEAT: (state) => {
-    if (!state.heartbeatInterval && state.cache.length > 0) {
-      state.now = (new Date()).getTime()
-    }
+  TICK: (state) => {
+    state.now = (new Date()).getTime()
+  },
+  START_HEARTBEAT: (state, intervalId) => {
+    state.heartbeatInterval = intervalId
     state.now = (new Date()).getTime()
   },
   STOP_HEARTBEAT: (state) => {
-    if (state.heartbeatInterval && state.cache.length === 0) {
-      state.heartbeatInterval = false
-    }
+    state.heartbeatInterval = false
   },
   ADD_CACHE: (state, request) => {
     const { method = 'get', url = '/', params = {} } = request
