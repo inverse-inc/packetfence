@@ -187,14 +187,12 @@ variables:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on maintenance/X.Y branches only (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on maintenance/X.Y branches and devel with a schedule, with test variable defined or test=yes in commit message
-# - on any branch (web/api) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # don't run on tag
+# NOTE: feature branches should use *_branches jobs (see .test_branches_only_rules)
 .test_devel_and_maintenance_rules:
   rules:
     # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
     # because GitLab CI doesn't expand variables inside regex patterns
-    # Run on any branch via web/API with TEST=yes (must be first positive rule for feature branches)
-    - if: '$CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     # Run on devel branch (push, web, not schedule)
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     # Run on maintenance branches (web/api only)
@@ -599,7 +597,9 @@ variables:
           echo "Error: TEST_ONLY contains invalid characters (newline or single quote)."
           exit 1
         fi
-        if ! echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY"; then
+        if echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY"; then
+          echo "Running: $CI_JOB_NAME matches TEST_ONLY pattern: $TEST_ONLY"
+        else
           echo "Skipping: $CI_JOB_NAME does not match TEST_ONLY pattern: $TEST_ONLY"
           exit 0
         fi
