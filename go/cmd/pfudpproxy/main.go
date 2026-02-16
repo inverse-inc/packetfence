@@ -78,7 +78,7 @@ func main() {
 	go setupSystemdWatchdog(ctx)
 
 	// Periodically refresh configuration
-	go refreshConfigLoop(ctx, proxy, lb)
+	go refreshConfigLoop(ctx, proxy, lb, healthChecker)
 
 	// Wait for shutdown signal
 	<-rootCtx.Done()
@@ -115,7 +115,7 @@ func setupSystemdWatchdog(ctx context.Context) {
 }
 
 // refreshConfigLoop periodically refreshes the configuration
-func refreshConfigLoop(ctx context.Context, proxy *UDPProxy, lb *LoadBalancer) {
+func refreshConfigLoop(ctx context.Context, proxy *UDPProxy, lb *LoadBalancer, hc *HealthChecker) {
 	ticker := time.NewTicker(configRefreshInterval)
 	defer ticker.Stop()
 
@@ -138,6 +138,9 @@ func refreshConfigLoop(ctx context.Context, proxy *UDPProxy, lb *LoadBalancer) {
 
 			// Update proxy configuration if VIP changed
 			proxy.UpdateConfig(ctx, config)
+
+			// Update health checker (port, timeout, interval, etc.)
+			hc.UpdateConfig(config)
 		}
 	}
 }

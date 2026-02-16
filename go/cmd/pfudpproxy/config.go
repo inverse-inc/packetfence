@@ -19,6 +19,7 @@ const (
 
 	PortNetFlow = 2055
 	PortSFlow   = 6343
+	PortIPFIX   = 4739
 )
 
 // ProxyConfig holds the configuration for the UDP proxy
@@ -53,7 +54,7 @@ func getHealthCheckPort(ctx context.Context) int {
 // LoadConfig loads the proxy configuration from pfconfig
 func LoadConfig(ctx context.Context) (*ProxyConfig, error) {
 	config := &ProxyConfig{
-		Ports:               []int{PortNetFlow, PortSFlow},
+		Ports:               []int{PortNetFlow, PortSFlow, PortIPFIX},
 		HealthCheckPort:     getHealthCheckPort(ctx),
 		HealthCheckPath:     DefaultHealthCheckPath,
 		HealthCheckInterval: DefaultHealthCheckInterval,

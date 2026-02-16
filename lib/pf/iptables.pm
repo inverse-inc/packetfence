@@ -1582,6 +1582,8 @@ sub iptables_pfudpproxy_rules {
         util_safe_push( "-i $tint -p udp -m udp --dport 2055 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Port 6343 - sFlow (UDP)
         util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Port 4739 - IPFIX (UDP)
+        util_safe_push( "-i $tint -p udp -m udp --dport 4739 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {

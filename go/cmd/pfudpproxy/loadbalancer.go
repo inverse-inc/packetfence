@@ -45,18 +45,20 @@ func (lb *LoadBalancer) GetAllBackends() []*Backend {
 	return backends
 }
 
-// SetHealth updates the health status of a backend.
-func (lb *LoadBalancer) SetHealth(host string, healthy bool) {
+// SetHealth updates the health status of a backend and returns the previous value.
+func (lb *LoadBalancer) SetHealth(host string, healthy bool) (wasHealthy bool) {
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
 
 	for _, backend := range lb.backends {
 		if backend.Host == host {
+			wasHealthy = backend.Healthy
 			backend.Healthy = healthy
 			backend.LastCheck = time.Now()
-			return
+			return wasHealthy
 		}
 	}
+	return false
 }
 
 // UpdateBackends updates the list of backends, preserving health status

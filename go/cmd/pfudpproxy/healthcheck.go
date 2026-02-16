@@ -123,19 +123,18 @@ func (hc *HealthChecker) checkBackend(ctx context.Context, backend *Backend) {
 
 	// fingerbank-collector returns 404 on "/" when healthy
 	healthy := resp.StatusCode == hc.config.ExpectedStatusCode
+	wasHealthy := hc.lb.SetHealth(backend.Host, healthy)
 
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Health check result for %s (%s): status=%d, healthy=%v, wasHealthy=%v",
-		backend.Host, backend.ManagementIP, resp.StatusCode, healthy, backend.Healthy))
+		backend.Host, backend.ManagementIP, resp.StatusCode, healthy, wasHealthy))
 
-	if healthy && !backend.Healthy {
+	if healthy && !wasHealthy {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Backend %s (%s) is now healthy",
 			backend.Host, backend.ManagementIP))
-	} else if !healthy && backend.Healthy {
+	} else if !healthy && wasHealthy {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Backend %s (%s) is now unhealthy (status: %d, expected: %d)",
 			backend.Host, backend.ManagementIP, resp.StatusCode, hc.config.ExpectedStatusCode))
 	}
-
-	hc.lb.SetHealth(backend.Host, healthy)
 }
 
 // UpdateConfig updates the health checker configuration.
