@@ -64,6 +64,10 @@
       ansible.builtin.apt:
         upgrade: yes
         update_cache: yes
+      register: apt_result
+      retries: 3
+      delay: 10
+      until: apt_result is success
   
     - name: Install Samba packages
       ansible.builtin.package:
