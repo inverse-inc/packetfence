@@ -82,6 +82,12 @@ type Response struct {
 }
 
 func main() {
+	log.SetProcessName("ntlm-join-remote")
+	ctx = log.LoggerNewContext(ctx)
+
+	effectiveLogLevel := sharedutils.EnvOrDefault("LOG_LEVEL", "INFO")
+	ctx = log.LoggerSetLevel(ctx, effectiveLogLevel)
+
 	listenAddr := sharedutils.EnvOrDefault("NTLM_JOIN_REMOTE_LISTEN", defaultListenAddr)
 
 	router := mux.NewRouter()
