@@ -15,6 +15,7 @@ if [ "$option" = "start" ]; then
     echo "Starting ntlm-join-remote"
 
     args=$(base_args "${name}")
+    args="$args -eLOG_OUTPUT=stdout"
     args="$args -v /usr/local/ntlm-auth-api/conf:/usr/local/pf/conf"
     args="$args -v /usr/local/ntlm-auth-api/logs:/usr/local/pf/logs"
     args="$args -v /usr/local/ntlm-auth-api/var/conf:/usr/local/pf/var/conf"
