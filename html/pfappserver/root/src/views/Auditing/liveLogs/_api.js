@@ -1,7 +1,10 @@
 import apiCall from '@/utils/api'
 import store from '@/store'
 
-const prefix = () => store.getters['system/isSaas'] ? 'eslogs' : 'logs'
+const prefix = () => {
+  const { state: { system: { summary: { saas } = {} } = {} } = {} } = store
+  return saas ? 'eslogs' : 'logs'
+}
 
 export default {
   create: body => {
