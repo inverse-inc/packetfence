@@ -378,10 +378,34 @@ const setup = (props, context) => {
     return filterSections(sections.value, keyword)
   })
 
+  const filterSaas = (sections) => {
+    if (!isSaas.value) return sections
+    return sections.reduce((acc, section) => {
+      if (section.class === 'no-saas') return acc
+      const items = (section.items || []).reduce((itemAcc, item) => {
+        if (item.class === 'no-saas') return itemAcc
+        if (item.items) {
+          const subItems = item.items.filter(sub => sub.class !== 'no-saas')
+          if (subItems.length) {
+            itemAcc.push({ ...item, items: subItems })
+          }
+        } else {
+          itemAcc.push(item)
+        }
+        return itemAcc
+      }, [])
+      if (items.length || !section.items?.length) {
+        acc.push({ ...section, items })
+      }
+      return acc
+    }, [])
+  }
+
   const filteredConfigSections = computed(() => {
+    const sections = filterSaas(configSections.value)
     const keyword = filter.value.trim().toLowerCase()
-    if (!keyword) return configSections.value
-    return filterSections(configSections.value, keyword)
+    if (!keyword) return sections
+    return filterSections(sections, keyword)
   })
 
 
