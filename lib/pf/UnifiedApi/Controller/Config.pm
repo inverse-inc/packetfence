@@ -381,7 +381,7 @@ Handles both simple fields and compound fields (like Duration with interval subf
 
 =cut
 
-my %INTEGER_FIELD_TYPES = map { $_ => 1 } qw(PosInteger Integer Port);
+my %INTEGER_FIELD_TYPES = map { $_ => 1 } qw(PosInteger Integer Port IntRange);
 
 sub ensure_integer_fields {
     my ($self, $item, $form) = @_;

@@ -105,7 +105,7 @@ sub duration_inflate {
                      'extended_duration' => $3};
         }
         elsif ($value =~ m/(\d+)($TIME_MODIFIER_RE)/) {
-            $hash = {'duration.interval' => $1,
+            $hash = {'duration.interval' => int($1),
                      'duration.unit' => $2};
         }
     }

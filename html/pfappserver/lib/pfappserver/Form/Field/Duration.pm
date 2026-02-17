@@ -174,7 +174,7 @@ sub duration_inflate {
 
     return {} unless (defined $value && $value =~ m/([+\-])?(\d+)($TIME_MODIFIER_RE)/);
     my $hash = {operator => (defined $1 && $1 eq '-')? 'subtract':'add',
-                interval => $2,
+                interval => int($2),
                 unit => $3};
 
     return $hash;
