@@ -59,6 +59,8 @@
 
 		log-tailer
 
+		es-log-tailer
+
 		# Job status access
 		job-status
 
