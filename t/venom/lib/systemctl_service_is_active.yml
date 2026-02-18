@@ -1,0 +1,17 @@
+executor: systemctl_service_is_active
+input:
+  unit_command: "is-active"
+  service: ""
+  sudo: ""
+  substring: "active"
+  i_retry: 40
+  i_delay: 3
+steps:
+- type: exec
+  script: '{{.input.sudo}} systemctl {{.input.unit_command}} {{.input.service}}'
+  retry: "{{.input.i_retry}}"
+  delay: "{{.input.i_delay}}"
+  assertions:
+    - result.systemout ShouldContainSubstring '{{.input.substring}}'
+output:
+  service_is_active_systemout: "{{.result.systemout}}"
