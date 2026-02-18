@@ -3,8 +3,10 @@ package eslogtailer
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -103,7 +105,12 @@ func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
 		filterRe = regexp.MustCompile(`(?i).*` + regexp.QuoteMeta(params.Filter) + `.*`)
 	}
 
-	h.sessions[sessionId] = NewESTailingSession(params.Files, filterRe, h.fieldMapping, h.indexPattern, h.aggField)
+	// Normalize file paths to container names: "/usr/local/pf/logs/api-frontend.log" → "api-frontend"
+	sources := normalizeSourceNames(params.Files)
+
+	session := NewESTailingSession(sources, filterRe, h.fieldMapping, h.indexPattern, h.aggField)
+	session.SeekToEnd(c.Request.Context(), h.esClient)
+	h.sessions[sessionId] = session
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tailing session started", "session_id": sessionId})
 }
@@ -154,6 +161,26 @@ func (h *ESLogTailerHandler) deleteSession(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find this session"})
 	}
+}
+
+// normalizeSourceNames converts file paths to container names.
+// If a source looks like a path (contains "/"), the base name is extracted
+// and common log extensions are stripped:
+//
+//	"/usr/local/pf/logs/api-frontend.log" → "api-frontend"
+//	"api-frontend" → "api-frontend" (unchanged)
+func normalizeSourceNames(sources []string) []string {
+	out := make([]string, 0, len(sources))
+	for _, s := range sources {
+		if strings.Contains(s, "/") {
+			s = filepath.Base(s)
+			s = strings.TrimSuffix(s, ".log")
+		}
+		if s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 // newTestHandler creates a minimal handler for testing with the given client

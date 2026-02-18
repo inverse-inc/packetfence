@@ -49,9 +49,13 @@ func NewESClient() *ESClient {
 	if port == "" {
 		port = "9200"
 	}
+	scheme := os.Getenv("KIBANA_SCHEME")
+	if scheme == "" {
+		scheme = "https"
+	}
 
 	return &ESClient{
-		baseURL:  fmt.Sprintf("https://%s:%s", host, port),
+		baseURL:  fmt.Sprintf("%s://%s:%s", scheme, host, port),
 		username: os.Getenv("KIBANA_USER"),
 		password: os.Getenv("KIBANA_PASS"),
 		httpClient: &http.Client{

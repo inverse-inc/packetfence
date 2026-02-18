@@ -59,12 +59,12 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 
 	m.indexPattern = os.Getenv("ES_INDEX_PATTERN")
 	if m.indexPattern == "" {
-		m.indexPattern = "filebeat-*"
+		m.indexPattern = "prod-*"
 	}
 
 	m.aggField = os.Getenv("ES_AGG_FIELD")
 	if m.aggField == "" {
-		m.aggField = "log.syslog.identifier"
+		m.aggField = "kubernetes.container_name"
 	}
 
 	m.sessions = map[string]*ESTailingSession{}

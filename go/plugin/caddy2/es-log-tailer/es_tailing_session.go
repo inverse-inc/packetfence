@@ -15,7 +15,6 @@ type ESTailingSession struct {
 	sources        []string
 	filter         *regexp.Regexp
 	lastSortValues []interface{}
-	lastTimestamp  string
 	fieldMapping   *ESFieldMapping
 	indexPattern   string
 	aggField       string
@@ -25,14 +24,53 @@ type ESTailingSession struct {
 
 func NewESTailingSession(sources []string, filter *regexp.Regexp, fieldMapping *ESFieldMapping, indexPattern, aggField string) *ESTailingSession {
 	return &ESTailingSession{
-		sources:       sources,
-		filter:        filter,
-		lastTimestamp: time.Now().UTC().Format(time.RFC3339Nano),
-		fieldMapping:  fieldMapping,
-		indexPattern:  indexPattern,
-		aggField:      aggField,
-		lastUsedAt:    time.Now(),
+		sources:      sources,
+		filter:       filter,
+		fieldMapping: fieldMapping,
+		indexPattern: indexPattern,
+		aggField:     aggField,
+		lastUsedAt:   time.Now(),
 	}
+}
+
+// SeekToEnd queries ES for the latest document matching the session's sources
+// and positions the cursor after it, like SEEK_END for file tailing.
+func (s *ESTailingSession) SeekToEnd(ctx context.Context, client *ESClient) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	must := []interface{}{}
+	if len(s.sources) > 0 {
+		must = append(must, map[string]interface{}{
+			"terms": map[string]interface{}{
+				s.aggField: s.sources,
+			},
+		})
+	}
+
+	query := map[string]interface{}{
+		"size": 1,
+		"sort": []interface{}{
+			map[string]interface{}{s.fieldMapping.Timestamp: "desc"},
+			map[string]interface{}{"_id": "desc"},
+		},
+	}
+	if len(must) > 0 {
+		query["query"] = map[string]interface{}{
+			"bool": map[string]interface{}{"must": must},
+		}
+	}
+
+	resp, err := client.Search(ctx, s.indexPattern, query)
+	if err != nil || len(resp.Hits.Hits) == 0 {
+		// Empty index or error — start from the beginning, search_after=nil
+		return
+	}
+
+	// Position cursor at the latest doc so subsequent polls only return new docs.
+	// search_after values are field values (not direction-dependent), so the desc
+	// sort values work with the asc sort in buildQuery.
+	s.lastSortValues = resp.Hits.Hits[0].Sort
 }
 
 func (s *ESTailingSession) Touch() {
@@ -81,35 +119,26 @@ func (s *ESTailingSession) Poll(ctx context.Context, client *ESClient, sessionId
 }
 
 func (s *ESTailingSession) buildQuery() map[string]interface{} {
-	must := []interface{}{
-		map[string]interface{}{
-			"range": map[string]interface{}{
-				s.fieldMapping.Timestamp: map[string]interface{}{
-					"gte": s.lastTimestamp,
-				},
-			},
-		},
-	}
-
-	if len(s.sources) > 0 {
-		must = append(must, map[string]interface{}{
-			"terms": map[string]interface{}{
-				s.aggField: s.sources,
-			},
-		})
-	}
-
 	query := map[string]interface{}{
 		"size": 100,
-		"query": map[string]interface{}{
-			"bool": map[string]interface{}{
-				"must": must,
-			},
-		},
 		"sort": []interface{}{
 			map[string]interface{}{s.fieldMapping.Timestamp: "asc"},
 			map[string]interface{}{"_id": "asc"},
 		},
+	}
+
+	if len(s.sources) > 0 {
+		query["query"] = map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": []interface{}{
+					map[string]interface{}{
+						"terms": map[string]interface{}{
+							s.aggField: s.sources,
+						},
+					},
+				},
+			},
+		}
 	}
 
 	if s.lastSortValues != nil {
@@ -123,8 +152,7 @@ func (s *ESTailingSession) processHits(hits []ESHit, sessionId string) []gin.H {
 	var events []gin.H
 
 	for _, hit := range hits {
-		// Always advance cursor, even for filtered-out hits,
-		// to keep lastSortValues in sync with lastTimestamp.
+		// Always advance cursor, even for filtered-out hits.
 		if len(hit.Sort) > 0 {
 			s.lastSortValues = hit.Sort
 		}
@@ -146,14 +174,6 @@ func (s *ESTailingSession) processHits(hits []ESHit, sessionId string) []gin.H {
 			},
 		}
 		events = append(events, event)
-	}
-
-	// Update lastTimestamp from the last hit
-	if len(hits) > 0 {
-		lastHit := hits[len(hits)-1]
-		if ts := getNestedFieldString(lastHit.Source, s.fieldMapping.Timestamp); ts != "" {
-			s.lastTimestamp = ts
-		}
 	}
 
 	return events

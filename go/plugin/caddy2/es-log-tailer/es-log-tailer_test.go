@@ -17,26 +17,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// sampleESDoc returns a sample ECS-formatted ES document
-func sampleESDoc(id, timestamp, hostname, syslogName, message, logLevel, process, filename string) map[string]interface{} {
+// sampleESDoc returns a sample ES document matching production kubernetes field structure
+func sampleESDoc(id, timestamp, host, containerName, message string) map[string]interface{} {
 	return map[string]interface{}{
-		"@timestamp": timestamp,
-		"host": map[string]interface{}{
-			"name": hostname,
+		"timestamp": timestamp,
+		"stream":    "stdout",
+		"message":   message,
+		"kubernetes": map[string]interface{}{
+			"container_name": containerName,
+			"host":           host,
+			"namespace_name": "pfk8s-test",
+			"pod_name":       containerName + "-abc123",
+			"pod_id":         "00000000-0000-0000-0000-000000000000",
 		},
-		"log": map[string]interface{}{
-			"level": logLevel,
-			"syslog": map[string]interface{}{
-				"identifier": syslogName,
-			},
-			"file": map[string]interface{}{
-				"path": filename,
-			},
-		},
-		"process": map[string]interface{}{
-			"name": process,
-		},
-		"message": message,
 	}
 }
 
@@ -47,13 +40,13 @@ func newMockESServer(handler http.HandlerFunc) *httptest.Server {
 
 func defaultFieldMapping() *ESFieldMapping {
 	return &ESFieldMapping{
-		Timestamp:        "@timestamp",
-		Hostname:         "host.name",
-		LogLevel:         "log.level",
-		Process:          "process.name",
-		SyslogName:       "log.syslog.identifier",
+		Timestamp:        "timestamp",
+		Hostname:         "kubernetes.host",
+		LogLevel:         "",
+		Process:          "kubernetes.container_name",
+		SyslogName:       "kubernetes.container_name",
 		LogWithoutPrefix: "message",
-		Filename:         "log.file.path",
+		Filename:         "",
 		RawMessage:       "message",
 	}
 }
@@ -63,15 +56,12 @@ func TestESClient_Search(t *testing.T) {
 	var receivedAuth string
 
 	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		// Verify auth
 		receivedAuth = r.Header.Get("Authorization")
 
-		// Verify content type
 		if ct := r.Header.Get("Content-Type"); ct != "application/json" {
 			t.Errorf("expected Content-Type application/json, got %s", ct)
 		}
 
-		// Verify method and path
 		if r.Method != http.MethodPost {
 			t.Errorf("expected POST, got %s", r.Method)
 		}
@@ -86,8 +76,8 @@ func TestESClient_Search(t *testing.T) {
 			Hits: ESHits{
 				Hits: []ESHit{
 					{
-						ID: "doc1",
-						Source: sampleESDoc("doc1", "2024-01-01T00:00:00Z", "host1", "packetfence", "test message", "info", "pfhttpd", "/var/log/messages"),
+						ID:     "doc1",
+						Source: sampleESDoc("doc1", "2024-01-01T00:00:00Z", "worker-01", "packetfence", "t=2024-01-01T00:00:00+0000 lvl=info msg=\"test message\""),
 						Sort:   []interface{}{"2024-01-01T00:00:00Z", "doc1"},
 					},
 				},
@@ -105,17 +95,15 @@ func TestESClient_Search(t *testing.T) {
 		},
 	}
 
-	resp, err := client.Search(context.Background(), "filebeat-*", query)
+	resp, err := client.Search(context.Background(), "prod-*", query)
 	if err != nil {
 		t.Fatalf("Search returned error: %v", err)
 	}
 
-	// Verify auth header was sent
 	if receivedAuth == "" {
 		t.Error("expected Authorization header to be set")
 	}
 
-	// Verify response parsing
 	if len(resp.Hits.Hits) != 1 {
 		t.Fatalf("expected 1 hit, got %d", len(resp.Hits.Hits))
 	}
@@ -125,7 +113,6 @@ func TestESClient_Search(t *testing.T) {
 		t.Errorf("expected hit ID 'doc1', got '%s'", hit.ID)
 	}
 
-	// Verify request body was correct
 	if size, ok := receivedBody["size"].(float64); !ok || size != 10 {
 		t.Errorf("expected size 10 in request body, got %v", receivedBody["size"])
 	}
@@ -134,47 +121,78 @@ func TestESClient_Search(t *testing.T) {
 func TestESFieldMapping_ExtractLogMeta(t *testing.T) {
 	fm := defaultFieldMapping()
 
-	source := sampleESDoc("doc1", "2024-01-15T10:30:00.123Z", "pf-server-01", "packetfence", "Processing request for MAC 00:11:22:33:44:55", "warn", "pfhttpd", "/var/log/packetfence/packetfence.log")
+	source := sampleESDoc("doc1", "2024-01-15T10:30:00.123Z", "worker-01", "api-frontend", "t=2024-01-15T10:30:00+0000 lvl=warn msg=\"401 POST /api/v1/login\"")
 
 	meta := fm.ExtractLogMeta(source)
 
-	if meta.Hostname != "pf-server-01" {
-		t.Errorf("expected hostname 'pf-server-01', got '%s'", meta.Hostname)
+	if meta.Hostname != "worker-01" {
+		t.Errorf("expected hostname 'worker-01', got '%s'", meta.Hostname)
 	}
+	// Log level extracted from message (no log.level field in production)
 	if meta.LogLevel != "warn" {
-		t.Errorf("expected log_level 'warn', got '%s'", meta.LogLevel)
+		t.Errorf("expected log_level 'warn' (extracted from message), got '%s'", meta.LogLevel)
 	}
-	if meta.Process != "pfhttpd" {
-		t.Errorf("expected process 'pfhttpd', got '%s'", meta.Process)
+	if meta.Process != "api-frontend" {
+		t.Errorf("expected process 'api-frontend', got '%s'", meta.Process)
 	}
-	if meta.SyslogName != "packetfence" {
-		t.Errorf("expected syslog_name 'packetfence', got '%s'", meta.SyslogName)
+	if meta.SyslogName != "api-frontend" {
+		t.Errorf("expected syslog_name 'api-frontend', got '%s'", meta.SyslogName)
 	}
-	if meta.LogWithoutPrefix != "Processing request for MAC 00:11:22:33:44:55" {
-		t.Errorf("expected log_without_prefix to match, got '%s'", meta.LogWithoutPrefix)
-	}
-	if meta.Filename != "/var/log/packetfence/packetfence.log" {
-		t.Errorf("expected filename '/var/log/packetfence/packetfence.log', got '%s'", meta.Filename)
+	// Filename falls back to SyslogName when ES_FIELD_FILENAME is empty
+	if meta.Filename != "api-frontend" {
+		t.Errorf("expected filename to fallback to syslog_name 'api-frontend', got '%s'", meta.Filename)
 	}
 	if meta.Timestamp.IsZero() {
 		t.Error("expected non-zero timestamp")
 	}
 
 	raw := fm.GetRawMessage(source)
-	if raw != "Processing request for MAC 00:11:22:33:44:55" {
-		t.Errorf("expected raw message to match, got '%s'", raw)
+	if !strings.Contains(raw, "lvl=warn") {
+		t.Errorf("expected raw message to contain 'lvl=warn', got '%s'", raw)
+	}
+}
+
+func TestExtractLogLevelFromMessage(t *testing.T) {
+	tests := []struct {
+		name     string
+		message  string
+		expected string
+	}{
+		// Go log format
+		{"Go info", "t=2024-01-15T10:30:00+0000 lvl=info msg=\"test\"", "info"},
+		{"Go warn", "t=2024-01-15T10:30:00+0000 lvl=warn msg=\"warning\"", "warn"},
+		{"Go error", "t=2024-01-15T10:30:00+0000 lvl=eror msg=\"error\"", "error"},
+		{"Go debug", "t=2024-01-15T10:30:00+0000 lvl=dbug msg=\"debug\"", "debug"},
+		{"Go trace", "t=2024-01-15T10:30:00+0000 lvl=trce msg=\"trace\"", "trace"},
+
+		// Perl log format
+		{"Perl WARN", "-e(12345) WARN: something went wrong", "warn"},
+		{"Perl ERROR", "-e(99) ERROR: failed to do thing", "error"},
+		{"Perl INFO", "-e(1) INFO: starting up", "info"},
+		{"Perl FATAL", "-e(42) FATAL: cannot continue", "fatal"},
+
+		// No log level
+		{"No level - plain text", "some random log message", ""},
+		{"No level - radius", "(0) Login OK: [bob] (from client nas01)", ""},
+		{"Empty message", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractLogLevelFromMessage(tt.message)
+			if result != tt.expected {
+				t.Errorf("extractLogLevelFromMessage(%q) = %q, want %q", tt.message, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestGetNestedField(t *testing.T) {
 	source := map[string]interface{}{
-		"host": map[string]interface{}{
-			"name": "myhost",
-		},
-		"log": map[string]interface{}{
-			"syslog": map[string]interface{}{
-				"identifier": "packetfence",
-			},
+		"kubernetes": map[string]interface{}{
+			"container_name": "api-frontend",
+			"host":           "worker-01",
+			"namespace_name": "pfk8s-test",
 		},
 		"message": "hello world",
 	}
@@ -183,11 +201,13 @@ func TestGetNestedField(t *testing.T) {
 		path     string
 		expected string
 	}{
-		{"host.name", "myhost"},
-		{"log.syslog.identifier", "packetfence"},
+		{"kubernetes.host", "worker-01"},
+		{"kubernetes.container_name", "api-frontend"},
+		{"kubernetes.namespace_name", "pfk8s-test"},
 		{"message", "hello world"},
 		{"nonexistent.field", ""},
-		{"host.nonexistent", ""},
+		{"kubernetes.nonexistent", ""},
+		{"", ""},
 	}
 
 	for _, tt := range tests {
@@ -209,12 +229,12 @@ func TestESTailingSession_Poll(t *testing.T) {
 				Hits: []ESHit{
 					{
 						ID:     "hit1",
-						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "host1", "packetfence", "first log line", "info", "pfhttpd", "/var/log/messages"),
+						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"first log line\""),
 						Sort:   []interface{}{"2024-01-15T10:30:01Z", "hit1"},
 					},
 					{
 						ID:     "hit2",
-						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "host1", "packetfence", "second log line", "warn", "pfhttpd", "/var/log/messages"),
+						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "t=2024-01-15T10:30:02+0000 lvl=warn msg=\"second log line\""),
 						Sort:   []interface{}{"2024-01-15T10:30:02Z", "hit2"},
 					},
 				},
@@ -231,11 +251,9 @@ func TestESTailingSession_Poll(t *testing.T) {
 		[]string{"packetfence"},
 		regexp.MustCompile(`.*`),
 		fm,
-		"filebeat-*",
-		"log.syslog.identifier",
+		"prod-*",
+		"kubernetes.container_name",
 	)
-	// Set lastTimestamp in the past so the query matches
-	session.lastTimestamp = "2024-01-15T10:00:00Z"
 
 	events := session.Poll(context.Background(), client, "test-session", 5*time.Second)
 
@@ -243,7 +261,6 @@ func TestESTailingSession_Poll(t *testing.T) {
 		t.Fatalf("expected 2 events, got %d", len(events))
 	}
 
-	// Verify event structure
 	event := events[0]
 	if event["category"] != "test-session" {
 		t.Errorf("expected category 'test-session', got '%v'", event["category"])
@@ -253,19 +270,23 @@ func TestESTailingSession_Poll(t *testing.T) {
 	if !ok {
 		t.Fatal("expected data to be gin.H")
 	}
-	if data["raw"] != "first log line" {
-		t.Errorf("expected raw 'first log line', got '%v'", data["raw"])
+	if !strings.Contains(data["raw"].(string), "first log line") {
+		t.Errorf("expected raw to contain 'first log line', got '%v'", data["raw"])
 	}
 
-	// Verify cursor was advanced
-	if session.lastTimestamp != "2024-01-15T10:30:02Z" {
-		t.Errorf("expected lastTimestamp to be '2024-01-15T10:30:02Z', got '%s'", session.lastTimestamp)
+	// Verify log level was extracted from message
+	meta, ok := data["meta"].(LogMeta)
+	if !ok {
+		t.Fatal("expected meta to be LogMeta")
 	}
+	if meta.LogLevel != "info" {
+		t.Errorf("expected log level 'info' (from message), got '%s'", meta.LogLevel)
+	}
+
 	if session.lastSortValues == nil {
 		t.Error("expected lastSortValues to be set")
 	}
 
-	// Verify ES was only called once (got results on first try)
 	if callCount != 1 {
 		t.Errorf("expected 1 ES call, got %d", callCount)
 	}
@@ -278,12 +299,12 @@ func TestESTailingSession_Poll_WithFilter(t *testing.T) {
 				Hits: []ESHit{
 					{
 						ID:     "hit1",
-						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "host1", "packetfence", "this matches filter", "info", "pfhttpd", "/var/log/messages"),
+						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "this matches filter"),
 						Sort:   []interface{}{"2024-01-15T10:30:01Z", "hit1"},
 					},
 					{
 						ID:     "hit2",
-						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "host1", "packetfence", "this does not", "info", "pfhttpd", "/var/log/messages"),
+						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "this does not"),
 						Sort:   []interface{}{"2024-01-15T10:30:02Z", "hit2"},
 					},
 				},
@@ -300,10 +321,9 @@ func TestESTailingSession_Poll_WithFilter(t *testing.T) {
 		[]string{"packetfence"},
 		regexp.MustCompile(`(?i).*filter.*`),
 		fm,
-		"filebeat-*",
-		"log.syslog.identifier",
+		"prod-*",
+		"kubernetes.container_name",
 	)
-	session.lastTimestamp = "2024-01-15T10:00:00Z"
 
 	events := session.Poll(context.Background(), client, "test-session", 5*time.Second)
 
@@ -316,10 +336,6 @@ func TestESTailingSession_Poll_WithFilter(t *testing.T) {
 		t.Errorf("expected filtered event, got '%v'", data["raw"])
 	}
 
-	// Verify cursor advanced past ALL hits (including filtered-out hit2)
-	if session.lastTimestamp != "2024-01-15T10:30:02Z" {
-		t.Errorf("expected lastTimestamp to advance past filtered hit, got '%s'", session.lastTimestamp)
-	}
 	if session.lastSortValues == nil {
 		t.Error("expected lastSortValues to be set from filtered hit")
 	}
@@ -327,7 +343,6 @@ func TestESTailingSession_Poll_WithFilter(t *testing.T) {
 
 func TestESTailingSession_Poll_Timeout(t *testing.T) {
 	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		// Return empty results
 		resp := ESSearchResponse{
 			Hits: ESHits{
 				Hits: []ESHit{},
@@ -344,10 +359,9 @@ func TestESTailingSession_Poll_Timeout(t *testing.T) {
 		[]string{"packetfence"},
 		regexp.MustCompile(`.*`),
 		fm,
-		"filebeat-*",
-		"log.syslog.identifier",
+		"prod-*",
+		"kubernetes.container_name",
 	)
-	session.lastTimestamp = "2024-01-15T10:00:00Z"
 
 	start := time.Now()
 	events := session.Poll(context.Background(), client, "test-session", 3*time.Second)
@@ -357,7 +371,6 @@ func TestESTailingSession_Poll_Timeout(t *testing.T) {
 		t.Fatalf("expected 0 events on timeout, got %d", len(events))
 	}
 
-	// Should have waited approximately the timeout duration
 	if elapsed < 2*time.Second {
 		t.Errorf("expected poll to take at least 2s, took %v", elapsed)
 	}
@@ -388,7 +401,7 @@ func TestHandlers_Options(t *testing.T) {
 	client := NewESClientWithURL(server.URL, "", "")
 	fm := defaultFieldMapping()
 
-	h := newTestHandler(client, fm, "filebeat-*", "log.syslog.identifier")
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
 
 	router := gin.New()
 	router.OPTIONS("/api/v1/eslogs/tail", h.optionsSessions)
@@ -428,7 +441,6 @@ func TestHandlers_Options(t *testing.T) {
 		t.Fatalf("expected 3 allowed values, got %d", len(allowed))
 	}
 
-	// Verify sorted alphabetically
 	first := allowed[0].(map[string]interface{})
 	if first["value"] != "api-frontend" {
 		t.Errorf("expected first value 'api-frontend' (sorted), got '%v'", first["value"])
@@ -438,20 +450,43 @@ func TestHandlers_Options(t *testing.T) {
 func TestHandlers_CreateAndGet(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	// Mock ES that returns results on search
+	callCount := 0
 	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		resp := ESSearchResponse{
-			Hits: ESHits{
-				Hits: []ESHit{
-					{
-						ID:     "doc1",
-						Source: sampleESDoc("doc1", "2024-01-15T10:30:01Z", "host1", "packetfence", "test log message", "info", "pfhttpd", "/var/log/messages"),
-						Sort:   []interface{}{"2024-01-15T10:30:01Z", "doc1"},
+		callCount++
+		body, _ := io.ReadAll(r.Body)
+		var query map[string]interface{}
+		json.Unmarshal(body, &query)
+
+		size, _ := query["size"].(float64)
+		if size == 1 {
+			// SeekToEnd: return the "latest" existing doc
+			resp := ESSearchResponse{
+				Hits: ESHits{
+					Hits: []ESHit{
+						{
+							ID:     "old-doc",
+							Source: sampleESDoc("old-doc", "2024-01-15T10:00:00Z", "worker-01", "packetfence", "t=2024-01-15T10:00:00+0000 lvl=info msg=\"old message\""),
+							Sort:   []interface{}{"2024-01-15T10:00:00Z", "old-doc"},
+						},
 					},
 				},
-			},
+			}
+			json.NewEncoder(w).Encode(resp)
+		} else {
+			// Poll: return a "new" doc
+			resp := ESSearchResponse{
+				Hits: ESHits{
+					Hits: []ESHit{
+						{
+							ID:     "new-doc",
+							Source: sampleESDoc("new-doc", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"test log message\""),
+							Sort:   []interface{}{"2024-01-15T10:30:01Z", "new-doc"},
+						},
+					},
+				},
+			}
+			json.NewEncoder(w).Encode(resp)
 		}
-		json.NewEncoder(w).Encode(resp)
 	})
 	defer server.Close()
 
@@ -461,8 +496,8 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 	h := &ESLogTailerHandler{
 		esClient:     client,
 		fieldMapping: fm,
-		indexPattern: "filebeat-*",
-		aggField:     "log.syslog.identifier",
+		indexPattern: "prod-*",
+		aggField:     "kubernetes.container_name",
 		sessions:     map[string]*ESTailingSession{},
 		sessionsLock: &sync.RWMutex{},
 	}
@@ -474,7 +509,7 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 	api.POST("/:id/touch", h.touchSession)
 	api.DELETE("/:id", h.deleteSession)
 
-	// Step 1: Create session
+	// Step 1: Create session (triggers SeekToEnd)
 	createBody := `{"files":["packetfence"],"filter":"","filter_is_regexp":false}`
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(createBody))
 	req.Header.Set("Content-Type", "application/json")
@@ -496,20 +531,14 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 		t.Errorf("expected message 'Tailing session started', got '%v'", createResp["message"])
 	}
 
-	// Step 2: Get events (long-poll) — use short timeout for test
-	// We need to set lastTimestamp in the past so our mock hits match
-	h.sessionsLock.Lock()
-	if session, ok := h.sessions[sessionId]; ok {
-		session.mu.Lock()
-		session.lastTimestamp = "2024-01-15T10:00:00Z"
-		session.mu.Unlock()
+	if callCount != 1 {
+		t.Errorf("expected 1 ES call after create (SeekToEnd), got %d", callCount)
 	}
-	h.sessionsLock.Unlock()
 
+	// Step 2: Get events (long-poll)
 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/eslogs/tail/%s", sessionId), nil)
 	w = httptest.NewRecorder()
 
-	// Run in goroutine since Poll blocks
 	done := make(chan struct{})
 	go func() {
 		router.ServeHTTP(w, req)
@@ -543,13 +572,20 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 	}
 
 	data := event["data"].(map[string]interface{})
-	if data["raw"] != "test log message" {
-		t.Errorf("expected raw 'test log message', got '%v'", data["raw"])
+	if !strings.Contains(data["raw"].(string), "test log message") {
+		t.Errorf("expected raw to contain 'test log message', got '%v'", data["raw"])
 	}
 
 	meta := data["meta"].(map[string]interface{})
-	if meta["hostname"] != "host1" {
-		t.Errorf("expected hostname 'host1', got '%v'", meta["hostname"])
+	if meta["hostname"] != "worker-01" {
+		t.Errorf("expected hostname 'worker-01', got '%v'", meta["hostname"])
+	}
+	if meta["syslog_name"] != "packetfence" {
+		t.Errorf("expected syslog_name 'packetfence', got '%v'", meta["syslog_name"])
+	}
+	// Log level should be extracted from message
+	if meta["log_level"] != "info" {
+		t.Errorf("expected log_level 'info' (extracted from message), got '%v'", meta["log_level"])
 	}
 
 	// Step 3: Touch session
