@@ -3,7 +3,7 @@ api:
   listen: "0.0.0.0:8080"
 interfaces: 5
 switch_type: cisco
-network_mapping: "{{ users_vars[dict_name]['networks'][1]['subnet'].split('/')[0].rsplit('.', 1)[0] }}"
+network_mapping: "{{ users_vars[dict_name]['networks'][1]['subnet'].split('/')[0] }}"
 radius:
   ip: "{{ users_vars[dict_name]['networks'][1]['subnet'].split('/')[0].rsplit('.', 1)[0] }}.2"
   port: 1812
