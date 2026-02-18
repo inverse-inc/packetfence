@@ -53,6 +53,17 @@ Vagrant.configure("2") do |config|
         v.cpus = details['cpus']
         v.memory = details['memory']
       end
+
+      # For virtualswitch01, allow SSH as root with insecure_private_key
+      if server == 'virtualswitch01'
+        srv.vm.provision "shell", type: "shell" do |s|
+          s.inline = <<-SHELL
+                mkdir -p /root/.ssh
+                cp /home/vagrant/.ssh/authorized_keys /root/.ssh/
+                chown -R root:root /root/.ssh/
+            SHELL
+        end
+      end
     end
   end
 end
