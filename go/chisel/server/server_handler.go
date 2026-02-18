@@ -579,7 +579,7 @@ func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Requ
 
 	appConfig := AppConfig{
 		DB: DatabaseConfig{
-			Host:       "127.0.0.1",
+			Host:       "containers-gateway.internal",
 			Port:       "3306",
 			User:       dbConfig.User,
 			Password:   dbConfig.Pass.String(),
@@ -587,7 +587,7 @@ func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Requ
 			UnixSocket: "",
 		},
 		Cache: CacheConfig{
-			Host: "127.0.0.1",
+			Host: "containers-gateway.internal",
 			Port: "6379",
 		},
 	}
