@@ -97,7 +97,9 @@ router.beforeEach((to, from, next) => {
     store.commit('session/CONFIGURATOR_INACTIVE')
     if (to.name !== 'login') { // [4]
       store.dispatch('session/load').then(() => {
-        next() // [5]
+        return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before navigation
+      }).then(() => {
+        next() // [5b]
       }).catch(() => {
         let currentPath = router.currentRoute.fullPath
         if (currentPath === '/') {
@@ -143,14 +145,6 @@ router.afterEach((to, from) => {
     window.scrollTo(0, 0) // [3]
     hideLoader()
   }, transitionDelay || 300)
-  /**
-   * Fetch data required for ALL authenticated pages
-   */
-  if (store.state.session.username) {
-    if (store.state.system.summary === false) {
-      store.dispatch('system/getSummary')
-    }
-  }
   store.dispatch('analytics/trackRoute', { to, from })
 })
 
