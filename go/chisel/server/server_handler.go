@@ -579,7 +579,7 @@ func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Requ
 
 	appConfig := AppConfig{
 		DB: DatabaseConfig{
-			Host:       "127.0.0.1̈́",
+			Host:       "127.0.0.1",
 			Port:       "3306",
 			User:       dbConfig.User,
 			Password:   dbConfig.Pass.String(),
