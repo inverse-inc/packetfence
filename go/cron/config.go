@@ -18,6 +18,7 @@ type JobSetupConfig interface {
 	Name() string
 	ForceLocal() bool
 	JobOptions() []cron.JobOption
+	Enabled() bool
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
@@ -77,10 +78,8 @@ func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
 	jobs := []JobSetupConfig{}
 	for name, config := range maintConfig {
 		data := config.(map[string]interface{})
-		if sharedutils.IsEnabled(data["status"].(string)) {
-			if job := BuildJob(name, data); job != nil {
-				jobs = append(jobs, job)
-			}
+		if job := BuildJob(name, data); job != nil {
+			jobs = append(jobs, job)
 		}
 	}
 
@@ -132,13 +131,23 @@ func (t *Task) ScheduleSpec() string {
 }
 
 func (t *Task) JobOptions() []cron.JobOption {
-	return []cron.JobOption{
+	options := []cron.JobOption{
 		cron.WithName(t.Name()),
 	}
+
+	if !t.Enabled() {
+		options = append(options, cron.WithPaused())
+	}
+
+	return options
 }
 
 func (t *Task) Name() string {
 	return t.Type
+}
+
+func (t *Task) Enabled() bool {
+	return sharedutils.IsEnabled(t.Status)
 }
 
 func (t *Task) ForceLocal() bool {

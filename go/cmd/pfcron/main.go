@@ -165,16 +165,24 @@ func main() {
 		cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor,
 	)))
 
+	triggeredJobs := []string{}
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
+		name := job.Name()
+		schedule := job.Schedule()
 		id, err := c.ScheduleJob(
-			job.Schedule(),
-			wrapJob(logger, job.Name(), job.ForceLocal()),
+			schedule,
+			wrapJob(logger, name, job.ForceLocal()),
 			job.JobOptions()...,
 		)
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error creating cron job %s: %v", job.Name(), err))
 			continue
 		}
+
+		if _, ok := schedule.(*cron.TriggeredSchedule); ok && job.Enabled() {
+			triggeredJobs = append(triggeredJobs, name)
+		}
+
 		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))
 	}
 
@@ -189,6 +197,9 @@ func main() {
 	}()
 	go setProcessing()
 	c.Start()
+	for _, j := range triggeredJobs {
+		c.TriggerEntryByName(j)
+	}
 	w.Wait()
 	doneCtx := c.Stop()
 	<-doneCtx.Done()
