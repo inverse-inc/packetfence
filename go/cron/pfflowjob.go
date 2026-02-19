@@ -98,7 +98,7 @@ func (j *PfFlowJob) kafkaDialer() *kafka.Dialer {
 }
 
 // WaitForTopic polls the broker until the topic appears or the context times out
-func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, topic string) error {
+func WaitForTopic(ctx context.Context, dialer *kafka.Dialer, brokerAddr string, topic string) error {
 	// 1. Establish a connection to the broker
 	// We dial inside the function, but in a real app you might reuse an existing connection.
 	conn, err := dialer.Dial("tcp", brokerAddr)
@@ -165,7 +165,7 @@ func (j *PfFlowJob) RunWithContext(ctx context.Context) {
 	}()
 
 	dialer := j.kafkaDialer()
-	WaitForTopic(dialer, ctx, j.Brokers[0], j.ReadTopic)
+	WaitForTopic(ctx, dialer, j.Brokers[0], j.ReadTopic)
 
 	for {
 		select {
