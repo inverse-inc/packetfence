@@ -1121,7 +1121,7 @@ description=Pfflow processing job
 # schedule
 #
 # The schedule of task
-schedule=@every 1m
+schedule=@none
 #
 # kafka_brokers
 #
