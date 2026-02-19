@@ -165,6 +165,7 @@ func (j *PfFlowJob) JobOptions() []cron.JobOption {
 	return append(
 		j.Task.JobOptions(),
 		cron.WithRunImmediately(),
+		cron.WithRunOnce(),
 	)
 }
 
