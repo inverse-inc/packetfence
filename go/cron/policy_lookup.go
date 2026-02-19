@@ -196,8 +196,8 @@ const RolesPoliciesMapKey = "RolesPoliciesMap"
 
 const RolesPoliciesMapSql = "SELECT value, expires_at FROM chi_cache WHERE `key` = ? AND expires_at != ?"
 
-func UpdatePolicyMap(ctx context.Context, db *sql.DB) {
-	ticker := time.NewTicker(time.Second)
+func UpdatePolicyMap(ctx context.Context, tick time.Duration, db *sql.DB) {
+	ticker := time.NewTicker(tick)
 	expires_at := float64(0)
 	var stmt *sql.Stmt
 	var err error
