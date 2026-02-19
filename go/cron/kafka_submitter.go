@@ -217,7 +217,7 @@ func SetupKafka(config map[string]interface{}) {
 		time.Sleep(5 * time.Second)
 	}
 
-	go UpdatePolicyMap(ctx, db)
+	go UpdatePolicyMap(ctx, time.Second, db)
 	submitter, err := NewKafkaSubmiter(&options)
 	if err != nil {
 		log.LogErrorf(ctx, "SetupKafka: failed to create Kafka submitter: %s", err.Error())
