@@ -46,7 +46,7 @@
   
     - name: Download file with check (sha256)
       ansible.builtin.get_url:
-        url: http://samba.tranquil.it/tissamba-pubkey.gpg
+        url: http://samba.tranquil.it/tissamba-pubkey-2017.gpg
         dest: /root/tissamba-pubkey.gpg
         checksum: sha256:bd0f7140edd098031fcb36106b24a6837b067f1c847f72cf262fa012f14ce2dd
   
