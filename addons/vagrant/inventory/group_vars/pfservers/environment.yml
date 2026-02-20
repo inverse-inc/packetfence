@@ -14,7 +14,7 @@ inventory__group_environment:
   CI_VIRTUALSWITCH_USER: '{{ lookup("env", "CI_VIRTUALSWITCH_USER") }}'
   CI_VIRTUALSWITCH_PASSWORD: '{{ lookup("env", "CI_VIRTUALSWITCH_PASSWORD") }}'
   CI_VIRTUALSWITCH_BASE_URL: 'https://support.inverse.ca/~jgoimard/virtualswitch'
-  CI_VIRTUALSWITCH_DEB_VERSION: '2.5.2-1'
-  CI_VIRTUALSWITCH_RPM_VERSION: '2.5.2-1.el8'
+  CI_VIRTUALSWITCH_DEB_VERSION: '2.6.4-1'
+  CI_VIRTUALSWITCH_RPM_VERSION: '2.6.4-1.el8'
   PATH: '/usr/local/go/bin:{{ ansible_env.PATH }}'
   CI: "{{ 'True ' if lookup('env', 'CI') else 'False ' }}"
