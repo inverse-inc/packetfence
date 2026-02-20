@@ -697,6 +697,10 @@ sub ldap_filter_for_conditions {
               $str = "${attribute}=${value}*";
           } elsif ($operator eq $Conditions::ENDS) {
               $str = "${attribute}=*${value}";
+          } elsif ($operator eq $Conditions::HAS_BIT) {
+              $str = "${attribute}:1.2.840.113556.1.4.803:=${value}";
+          } elsif ($operator eq $Conditions::NOT_HAS_BIT) {
+              $str = "!(${attribute}:1.2.840.113556.1.4.803:=${value})";
           }
 
           if ($str) {
@@ -801,7 +805,7 @@ sub _makefilter {
         return '(' . "$self->{'usernameattribute'}=$username" . ')';
     }
 
-    return $append_search;
+    return "(&($self->{'usernameattribute'}=$username)" . $append_search . ")";
 }
 
 sub lookupRole {

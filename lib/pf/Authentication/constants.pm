@@ -97,6 +97,8 @@ Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 Readonly::Scalar our $IS_MEMBER => 'is member of';
 Readonly::Scalar our $MATCH_FILTER => 'match filter';
+Readonly::Scalar our $HAS_BIT => 'has bit';
+Readonly::Scalar our $NOT_HAS_BIT => 'not has bit';
 
 =item SUBSTRING, NUMBER, DATE, TIME
 
@@ -138,7 +140,7 @@ Readonly::Hash our %OPERATORS =>
    $TIME => [$IS_BEFORE, $IS_AFTER],
    $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
-   $LDAP_ATTRIBUTE => [$IS, $STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $NOT_CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
+   $LDAP_ATTRIBUTE => [$IS, $STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $NOT_CONTAINS, $ENDS, $MATCHES, $IS_MEMBER, $HAS_BIT, $NOT_HAS_BIT],
    $LDAP_FILTER => [$MATCH_FILTER],
   );
 

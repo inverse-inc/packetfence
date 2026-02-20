@@ -199,6 +199,44 @@ Validate with Ok and provide the account that will run this task (usually _DOMAI
 
 ==== Disabled Account
 
+===== Preventing Authentication of Disabled Accounts via LDAP Filter
+
+You can prevent disabled Active Directory accounts from authenticating through PacketFence by adding an LDAP filter that excludes accounts with the `ACCOUNTDISABLE` flag set.
+
+In Active Directory, the `userAccountControl` attribute contains bitwise flags that indicate account properties. Bit 2 (`0x2`) corresponds to `ACCOUNTDISABLE`. The following LDAP filter uses the bitwise AND matching rule (`1.2.840.113556.1.4.803`) to check whether this bit is set, and excludes those accounts from search results:
+
+----
+(!(userAccountControl:1.2.840.113556.1.4.803:=2))
+----
+
+To configure this in PacketFence:
+
+. Go to _Configuration -> Policies and Access Control -> Authentication Sources_.
+. Edit your Active Directory authentication source.
+. In the _Append search attributes LDAP filter_ field, paste the filter above.
+. Save the configuration.
+
+With this filter in place, any LDAP search performed during authentication will automatically exclude disabled accounts, preventing them from authenticating.
+
+NOTE: This is a *preventive* approach that blocks authentication at LDAP search time. It applies globally to all searches performed by this authentication source. To apply the check at the level of individual authentication rules instead, see the next section.
+
+===== Filtering Disabled Accounts in Authentication Rules
+
+You can also check the `userAccountControl` attribute directly in authentication rule conditions using the *has bit* and *not has bit* operators. These operators perform a bitwise AND check against the attribute value, which is the correct way to test individual flags in a bitmask attribute like `userAccountControl`.
+
+To create a rule that rejects disabled accounts:
+
+. Go to _Configuration -> Policies and Access Control -> Authentication Sources_.
+. Edit your Active Directory authentication source and open an authentication rule.
+. Add a condition: `userAccountControl` -> *not has bit* -> `2`.
+. Save the rule.
+
+This condition excludes accounts that have the `ACCOUNTDISABLE` bit set (bit 2), regardless of what other flags are present in `userAccountControl`.
+
+NOTE: Standard operators like _equals_ or _not equals_ perform a simple string comparison on the full `userAccountControl` value and are not suitable for bitmask attributes. Always use _has bit_ or _not has bit_ when checking individual flags.
+
+===== Unregistering Nodes When an Account is Disabled (Event-Based)
+
 Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content:
 
 ----
