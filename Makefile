@@ -375,11 +375,18 @@ dist-packetfence-upgrade: distclean-packetfence-upgrade
 website:
 	$(SRC_CIDIR)/lib/release/publish-to-website.sh
 
+# generate switches to html table
 .PHONY: material
 material: DESTDIR=result
 material:
 	mkdir -p $(CURDIR)/$(DESTDIR)
 	perl $(SRC_ADDONSDIR)/dev-helpers/bin/switch_options_table.pl > $(CURDIR)/$(DESTDIR)/material.html
+# generate switches to json
+.PHONY: material-json
+material-json: DESTDIR=result
+material-json:
+	mkdir -p $(CURDIR)/$(DESTDIR)
+	perl $(SRC_ADDONSDIR)/dev-helpers/bin/switch_options_json.pl > $(CURDIR)/$(DESTDIR)/switches.json
 
 html/captive-portal/profile-templates/default/logo.png:
 	mkdir -p html/captive-portal/profile-templates/default

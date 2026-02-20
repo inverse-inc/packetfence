@@ -58,6 +58,8 @@ update_git_repository() {
     local src_file=$1
     local dst_file=$2
     cp -v ${src_file} ${dst_file}
+
+    git -C ${GIT_LOCAL_PATH} add ${dst_file}
     git -C ${GIT_LOCAL_PATH} commit -am "Automatic update by pipeline ${CI_PIPELINE_ID}"
     # will use credential helper, no need to specify again credentials
     git -C ${GIT_LOCAL_PATH} push
