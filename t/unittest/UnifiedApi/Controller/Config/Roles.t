@@ -22,13 +22,16 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 70;
 use Test::Mojo;
+use Mojo::JSON;
 use Utils;
 use pf::dal::node;
 use pf::ConfigStore::Roles;
+use pf::ConfigStore::RolesReadonly;
 
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Roles");
+my ($fh_ro, $filename_ro) = Utils::tempfileForConfigStore("pf::ConfigStore::RolesReadonly");
 
 #This test will running last
 use Test::NoWarnings;
@@ -130,6 +133,65 @@ $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => {  })
 $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => { async => \1 })
   ->status_is(202);
 
+# Read-only role enforcement tests
+
+# 1. Set read-only on role 'bob'
+$t->put_ok("$base_url/bob/set_readonly" => json => { readonly => \1 })
+  ->status_is(200);
+
+# 2. GET bob shows readonly metadata
+$t->get_ok("$base_url/bob")
+  ->status_is(200)
+  ->json_is("/item/not_updatable", Mojo::JSON->true)
+  ->json_is("/item/readonly", Mojo::JSON->true);
+
+# 3. PATCH bob is blocked
+$t->patch_ok("$base_url/bob" => json => { notes => 'test' })
+  ->status_is(403);
+
+# 4. PUT bob is blocked
+$t->put_ok("$base_url/bob" => json => { id => 'bob' })
+  ->status_is(403);
+
+# 5. DELETE bob is blocked
+$t->delete_ok("$base_url/bob")
+  ->status_is(403);
+
+# 6. bulk_update with bob returns per-item 403
+$t->patch_ok("$collection_base_url/bulk_update" => json => { items => [ { id => 'bob', notes => 'test' } ] })
+  ->status_is(200)
+  ->json_is("/items/0/status", 403);
+
+# 7. bulk_delete with bob returns per-item 403
+$t->post_ok("$collection_base_url/bulk_delete" => json => { items => ['bob'] })
+  ->status_is(200)
+  ->json_is("/items/0/status", 403);
+
+# 8. reassign on bob is blocked
+$t->patch_ok("$base_url/bob/reassign" => json => { id => 'default' })
+  ->status_is(403);
+
+# 9. bulk_import updating bob returns per-item 403
+$t->post_ok("$collection_base_url/bulk_import" => json => { items => [ { id => 'bob' } ] })
+  ->status_is(200)
+  ->json_is("/items/0/status", 403);
+
+# 10. Unset read-only on bob
+$t->put_ok("$base_url/bob/set_readonly" => json => { readonly => \0 })
+  ->status_is(200);
+
+# 11. PATCH bob succeeds again
+$t->patch_ok("$base_url/bob" => json => { notes => 'updated' })
+  ->status_is(200);
+
+# 12. GET readonly list endpoint
+$t->get_ok("$collection_base_url/list_readonly")
+  ->status_is(200)
+  ->json_has("/items");
+
+# 13. Set readonly on nonexistent role returns 404
+$t->put_ok("$base_url/nonexistent_role_xyz/set_readonly" => json => { readonly => \1 })
+  ->status_is(404);
 
 =head1 AUTHOR
 

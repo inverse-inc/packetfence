@@ -24,6 +24,7 @@ has 'form_class' => 'pfappserver::Form::Config::Roles';
 has 'primary_key' => 'role_id';
 
 use pf::ConfigStore::Roles;
+use pf::ConfigStore::RolesReadonly;
 use pfappserver::Form::Config::Roles;
 use pf::config qw(%ConfigRoles);
 use pfconfig::cached_hash;
@@ -43,6 +44,7 @@ use pf::ConfigStore::PortalModule;
 use pf::api::queue;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
+tie our %RolesReadonly, 'pfconfig::cached_hash', 'config::RolesReadonly';
 
 sub post_update {
     my ($self, $id) = @_;
@@ -52,8 +54,37 @@ sub post_update {
 }
 
 
+sub is_role_readonly {
+    my ($self, $id) = @_;
+    $id //= $self->id;
+    return exists $RolesReadonly{$id};
+}
+
+sub update {
+    my ($self) = @_;
+    my $id = $self->id;
+    if ($self->is_role_readonly($id)) {
+        return $self->render_error(403, "Role '$id' is read-only and cannot be updated");
+    }
+    return $self->SUPER::update();
+}
+
+sub replace {
+    my ($self) = @_;
+    my $id = $self->id;
+    if ($self->is_role_readonly($id)) {
+        return $self->render_error(403, "Role '$id' is read-only and cannot be updated");
+    }
+    return $self->SUPER::replace();
+}
+
 sub can_delete {
     my ($self) = @_;
+    my $id = $self->id;
+    if ($self->is_role_readonly($id)) {
+        return (403, "Role '$id' is read-only and cannot be deleted");
+    }
+
     my ($db_status, $db_msg, $db_errors) = $self->can_delete_from_db();
     if (is_error($db_status) && !defined $db_errors) {
         return ($db_status, $db_msg);
@@ -73,6 +104,14 @@ sub cleanup_item {
     my $id = $item->{id};
     if (exists $ConfigRoles{$id}) {
         $item->{children} = $ConfigRoles{$id}{children};
+    }
+
+    if ($self->is_role_readonly($id)) {
+        $item->{not_updatable} = $self->json_true;
+        $item->{not_deletable} = $self->json_true;
+        $item->{readonly} = $self->json_true;
+    } else {
+        $item->{readonly} = $self->json_false;
     }
 
     return $item;
@@ -190,6 +229,11 @@ SQL
 
 sub reassign {
     my ($self) = @_;
+    my $id = $self->id;
+    if ($self->is_role_readonly($id)) {
+        return $self->render_error(403, "Role '$id' is read-only and cannot be updated");
+    }
+
     my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
@@ -406,6 +450,73 @@ sub get_nodes_for_role {
     $sth->finish;
     my $n = [map {$_->[0]} @{$nodes}];
     return ($status, $n);
+}
+
+sub bulk_update_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    if ($self->is_role_readonly($id)) {
+        $results->{message} = "Role '$id' is read-only and cannot be updated";
+        return 403;
+    }
+    return $self->SUPER::bulk_update_callback($cs, $id, $item, $results);
+}
+
+sub bulk_delete_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    if ($self->is_role_readonly($id)) {
+        $results->{message} = "Role '$id' is read-only and cannot be deleted";
+        return 403;
+    }
+    return $self->SUPER::bulk_delete_callback($cs, $id, $item, $results);
+}
+
+sub import_item {
+    my ($self, $request, $item, $cs) = @_;
+    my $id = $item->{id};
+    if (defined $id && $self->is_role_readonly($id)) {
+        my $old_item = $self->item_from_store($id);
+        if ($old_item) {
+            return { item => $item, status => 403, message => "Role '$id' is read-only and cannot be updated" };
+        }
+    }
+    return $self->SUPER::import_item($request, $item, $cs);
+}
+
+sub list_readonly {
+    my ($self) = @_;
+    my $cs = pf::ConfigStore::RolesReadonly->new;
+    my @items;
+    for my $section ($cs->_Sections()) {
+        my $data = $cs->read($section, 'id');
+        push @items, { id => $section, readonly => ($data->{readonly} // '') eq 'enabled' ? $self->json_true : $self->json_false };
+    }
+    return $self->render(json => { items => \@items });
+}
+
+sub set_readonly {
+    my ($self) = @_;
+    my $id = $self->id;
+
+    my $roles_cs = $self->config_store;
+    if (!$roles_cs->hasId($id)) {
+        return $self->render_error(404, "Role '$id' not found");
+    }
+
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $readonly = $data->{readonly};
+    my $cs = pf::ConfigStore::RolesReadonly->new;
+    if ($readonly) {
+        $cs->update_or_create($id, { readonly => 'enabled' });
+    } else {
+        $cs->remove($id);
+    }
+    $cs->commit();
+
+    return $self->render(json => { message => "Role '$id' readonly set to " . ($readonly ? 'true' : 'false') });
 }
 
 =head1 AUTHOR
