@@ -24,4 +24,3 @@ vrrp_script haproxy_portal {
 
 %%vrrp%%
 
-%%lvs%%

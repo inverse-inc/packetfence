@@ -8,7 +8,7 @@ After=packetfence-keepalived.service packetfence-base.target packetfence-config.
 Type=notify
 WatchdogSec=30s
 NotifyAccess=all
-Environment=LOG_LEVEL=info
+Environment=LOG_LEVEL=INFO
 ExecStart=/usr/local/pf/sbin/pfudpproxy
 Restart=on-failure
 StartLimitBurst=3

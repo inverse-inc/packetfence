@@ -64,6 +64,9 @@ func (p *UDPProxy) Start(ctx context.Context) {
 	fwd, err := net.ListenUDP("udp", nil)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to open forwarding socket: %s", err.Error()))
+		p.mu.Lock()
+		p.running = false
+		p.mu.Unlock()
 		return
 	}
 	p.fwdConn = fwd
@@ -86,10 +89,12 @@ func (p *UDPProxy) Stop(ctx context.Context) {
 	}
 	p.running = false
 	close(p.stopChan)
+	listeners := p.listeners
+	p.listeners = nil
 	p.mu.Unlock()
 
 	// Close all listeners
-	for _, listener := range p.listeners {
+	for _, listener := range listeners {
 		if listener != nil {
 			listener.Close()
 		}

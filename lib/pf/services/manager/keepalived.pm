@@ -78,6 +78,7 @@ sub generateConfig {
 
     $tags{'vrrp'} = '';
 
+
     my ($routes,$ips) = $self->generateRoutes();
     $tags{'vrrp'} .= <<"EOT";
 
