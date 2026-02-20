@@ -20,6 +20,7 @@ configure_and_check() {
     GIT_REPO=${GIT_REPO:-git.example.com/user/repo.git}
     GIT_CLONE_METHOD=${GIT_CLONE_METHOD:-https://}
     GIT_LOCAL_PATH=$(mktemp -d)
+    GIT_ORIGIN_BRANCH=${GIT_ORIGIN_BRANCH:-main}
 
     GIT_REPO_URL=${GIT_CLONE_METHOD}${GIT_USER_NAME}:${GIT_USER_PASSWORD}@${GIT_REPO}
     
@@ -36,7 +37,7 @@ generate_git_config() {
 
 clone_git_repository() {
     log_subsection "Clone git repository"
-    git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH}
+    git clone -b ${GIT_ORIGIN_BRANCH} ${GIT_REPO_URL} ${GIT_LOCAL_PATH}
 }
 
 compare_files() {
