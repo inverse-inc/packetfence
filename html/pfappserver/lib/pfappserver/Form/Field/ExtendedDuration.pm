@@ -65,7 +65,7 @@ has_field 'period_base' =>
    label => 'Relative to the beginning of the period',
    do_label => 0,
    do_wrapper => 0,
-   element_attr => { 'disabled' => 'disabled' },
+   element_attr => { 'disabled' => 'false' },
   );
 
 has_field 'extended_duration' =>
@@ -73,7 +73,7 @@ has_field 'extended_duration' =>
    type => 'Duration',
    label => 'and',
    do_wrapper => 0,
-   element_attr => { 'disabled' => 'disabled' },
+   element_attr => { 'disabled' => 'false' },
    with_operator => 1,
    with_time => 0,
   );
