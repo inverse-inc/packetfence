@@ -97,6 +97,10 @@ include::networkdevice/extreme_networks.asciidoc[]
 
 include::networkdevice/fortinet_switches.asciidoc[]
 
+=== Fortinet FortiGate with Managed FortiSwitch
+
+include::networkdevice/fortinet_fortigate_fortiswitch.asciidoc[]
+
 === Foundry
 
 include::networkdevice/foundry.asciidoc[]

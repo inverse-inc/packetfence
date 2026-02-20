@@ -1,0 +1,234 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Fortinet FortiGate with Managed FortiSwitch
+
+This section shows how to configure a FortiGate that manages FortiSwitch devices
+via FortiLink while also handling wireless. In this deployment, all RADIUS requests
+(wired and wireless) originate from the same FortiGate IP address.
+
+Use the *FortiGate with managed FortiSwitch* module type in PacketFence.
+
+This module supports:
+
+[options="compact"]
+* Wireless 802.1X and MAC Authentication (via FortiGate)
+* Wired 802.1X and MAC Authentication (via managed FortiSwitch)
+* Dynamic VLAN assignment
+* Role-based enforcement (Fortinet-Group-Name for wireless, Filter-Id for wired)
+* Dynamic ACLs via NAS-Filter-Rule (for wired)
+* RADIUS Change of Authorization (CoA) / Disconnect
+
+CLI access to the FortiGate is required for this configuration.
+
+==== RADIUS Server
+
+Define a RADIUS server on the FortiGate, with CoA enabled and RADIUS accounting:
+
+ config user radius
+   edit "packetfence"
+     set server 192.168.1.5
+     set secret useStrongerSecret
+     set nas-ip 192.168.1.1
+     set radius-coa enable
+     set switch-controller-nas-ip-dynamic enable
+     config accounting-server
+       edit 1
+         set status enable
+         set server 192.168.1.5
+         set secret useStrongerSecret
+       next
+     end
+   next
+ end
+
+NOTE: Replace `192.168.1.5` with your PacketFence server IP address, and
+`192.168.1.1` with the FortiGate IP that PacketFence will see as NAS-IP-Address.
+
+==== User Group
+
+Create a user group that references the RADIUS server:
+
+ config user group
+   edit "PF-RADIUS-Group"
+     set member "packetfence"
+   next
+ end
+
+==== Wireless Configuration (802.1X SSID)
+
+Configure a WPA2-Enterprise SSID for wireless 802.1X authentication:
+
+ config wireless-controller vap
+   edit "PF-Secure"
+     set vdom "root"
+     set ssid "PF-Secure"
+     set security wpa2-only-enterprise
+     set auth radius
+     set radius-server "packetfence"
+     set schedule "always"
+     set local-bridging enable
+     set dynamic-vlan enable
+   next
+ end
+
+==== 802.1X Security Policy for Managed FortiSwitch
+
+Create an 802.1X security policy that will be applied to FortiSwitch ports. This
+controls how the FortiGate handles 802.1X and MAC Authentication Bypass on the
+wired side.
+
+===== MAC-Based 802.1X with MAC Auth Bypass
+
+This is the recommended configuration for most deployments. It enables MAC-based
+802.1X authentication with MAB fallback:
+
+ config switch-controller security-policy 802-1X
+   edit "pf-dot1x-mab"
+     set security-mode 802.1X-mac-based
+     set user-group "PF-RADIUS-Group"
+     set mac-auth-bypass enable
+     set eap-passthru enable
+     set framevid-apply enable
+     set radius-timeout-overwrite disable
+     set auth-fail-vlan disable
+     set guest-vlan disable
+     set open-auth disable
+   next
+ end
+
+===== Port-Based 802.1X Only
+
+For strict 802.1X authentication without MAB fallback (e.g., secure environments
+where all devices must support 802.1X):
+
+ config switch-controller security-policy 802-1X
+   edit "pf-dot1x-only"
+     set security-mode 802.1X
+     set user-group "PF-RADIUS-Group"
+     set mac-auth-bypass disable
+     set eap-passthru enable
+     set framevid-apply enable
+     set radius-timeout-overwrite disable
+     set auth-fail-vlan disable
+     set guest-vlan disable
+     set open-auth disable
+   next
+ end
+
+===== MAC Authentication Only
+
+For ports where only MAB is desired (e.g., printers, IP phones, IoT devices):
+
+ config switch-controller security-policy 802-1X
+   edit "pf-mab-only"
+     set security-mode 802.1X-mac-based
+     set user-group "PF-RADIUS-Group"
+     set mac-auth-bypass enable
+     set eap-passthru disable
+     set framevid-apply enable
+     set radius-timeout-overwrite disable
+     set auth-fail-vlan disable
+     set guest-vlan disable
+     set open-auth disable
+   next
+ end
+
+==== Applying the Policy to Managed FortiSwitch Ports
+
+Apply the security policy to specific ports on a managed FortiSwitch:
+
+ config switch-controller managed-switch
+   edit <FortiSwitch_serial_number>
+     config ports
+       edit "port1"
+         set port-security-policy "pf-dot1x-mab"
+       next
+       edit "port2"
+         set port-security-policy "pf-dot1x-mab"
+       next
+     end
+   next
+ end
+
+NOTE: Replace `<FortiSwitch_serial_number>` with the serial number of your
+managed FortiSwitch (e.g., `S124EP5918001444`). You can find it with
+`get switch-controller managed-switch`.
+
+==== Global 802.1X Settings
+
+Configure global 802.1X parameters that apply to all managed FortiSwitch ports:
+
+ config switch-controller 802-1X-settings
+   set link-down-auth set-unauth
+   set reauth-period 60
+   set max-reauth-attempt 3
+   set mab-reauth enable
+ end
+
+==== PacketFence Configuration
+
+On the PacketFence side:
+
+1. Navigate to *Configuration -> Policies and Access Control -> Switches*
+2. Add a new switch with the FortiGate IP address
+3. Set *Type* to `Fortinet::FortiGate_FortiSwitch`
+4. Under the *RADIUS* tab:
+   ** Set the *Secret Passphrase* to match the FortiGate RADIUS configuration
+5. Under the *Roles* tab:
+   ** Enable *Role by Switch Role* for wireless (uses `Fortinet-Group-Name`)
+   ** Enable *Role by Access List* for wired ACL enforcement (uses `NAS-Filter-Rule`)
+   ** Define roles and ACLs for each user role
+
+===== ACL Configuration Example
+
+Example ACL for a registration role (restricts wired clients to the captive portal).
+ACLs must use the FortiSwitch NAS-Filter-Rule format:
+
+ permit in udp from any to any 53
+ permit in udp from any to any 67
+ permit in tcp from any to 192.168.1.5/32 80
+ permit in tcp from any to 192.168.1.5/32 443
+ deny in ip from any to any
+
+NOTE: Replace `192.168.1.5/32` with your PacketFence server IP address.
+
+==== Diagnostics
+
+===== Viewing FortiSwitch 802.1X Status from FortiGate
+
+Show 802.1X status for a managed FortiSwitch port:
+
+ diagnose switch-controller switch-info 802.1X <FortiSwitch_serial_number> <port>
+
+===== Verifying RADIUS Connectivity
+
+Test RADIUS server reachability:
+
+ diagnose test authserver radius packetfence mab <mac_address>
+
+===== Clearing Authorized Sessions
+
+Clear all 802.1X sessions on a FortiSwitch port (from FortiGate CLI):
+
+ execute switch-controller switch-action 802-1x clear-all <FortiSwitch_serial_number> <port>
+
+Clear a specific session by MAC address:
+
+ execute switch-controller switch-action 802-1x clear-mac <FortiSwitch_serial_number> <mac_address>
