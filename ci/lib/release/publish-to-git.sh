@@ -20,7 +20,6 @@ configure_and_check() {
     GIT_REPO=${GIT_REPO:-git.example.com/user/repo.git}
     GIT_CLONE_METHOD=${GIT_CLONE_METHOD:-https://}
     GIT_LOCAL_PATH=$(mktemp -d)
-    GIT_BRANCH=${GIT_BRANCH:-main}
 
     GIT_REPO_URL=${GIT_CLONE_METHOD}${GIT_USER_NAME}:${GIT_USER_PASSWORD}@${GIT_REPO}
     
@@ -33,11 +32,13 @@ generate_git_config() {
     git config --global user.email "${GIT_USER_MAIL}"
     # to store credentials in memory for a short period of time
     git config --global credential.helper cache
+    # set 'autoSetupRemote' in order to automatically set an upstream tracking branch
+    git config --global push.autoSetupRemote true
 }
 
 clone_git_repository() {
     log_subsection "Clone git repository"
-    git clone -b ${GIT_BRANCH} ${GIT_REPO_URL} ${GIT_LOCAL_PATH}
+    git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH}
 }
 
 compare_files() {
@@ -58,15 +59,24 @@ update_git_repository() {
     log_subsection "Commit and push changes"
     local src_file=$1
     local dst_file=$2
+    local git_ci_branch="ci-release-${CI_PIPELINE_ID}"
     local date_now=$(date +"%Y-%m-%d %H:%M:%S")
     local commit_message="Automatic update by pipeline ${CI_PIPELINE_ID} ${date_now}"
 
     cp -v ${src_file} ${dst_file}
 
-    git -C ${GIT_LOCAL_PATH} add ${dst_file}
-    git -C ${GIT_LOCAL_PATH} commit -am "${commit_message}"
-    # will use credential helper, no need to specify again credentials
-    git -C ${GIT_LOCAL_PATH} push
+    # Check the branch exists ot not.
+    if git -C ${GIT_LOCAL_PATH} ls-remote --exit-code --heads origin "$git_ci_branch" > /dev/null 2>&1; then
+        # Skip commit
+        echo "Skip commit, branch '$git_ci_branch' already exists."
+    else
+        git -C ${GIT_LOCAL_PATH} checkout -b "$git_ci_branch"
+
+        git -C ${GIT_LOCAL_PATH} add ${dst_file}
+        git -C ${GIT_LOCAL_PATH} commit -am "${commit_message}"
+        # will use credential helper, no need to specify again credentials
+        git -C ${GIT_LOCAL_PATH} push
+    fi
 }
 
 log_section "Configure and check"

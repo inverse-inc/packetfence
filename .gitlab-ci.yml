@@ -397,7 +397,6 @@ variables:
     GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
     #GIT_USER_PASSWORD: provided through environment
     GIT_REPO: github.com/akainverse/website-pfcom
-    GIT_BRANCH: ci-release
     SRC_FILE: result/switches.json
     DST_FILE: data/switches.json
   script:

@@ -47,7 +47,6 @@ generate_material() {
            -e GIT_USER_MAIL \
            -e GIT_USER_PASSWORD \
            -e GIT_REPO \
-           -e GIT_BRANCH \
            -e CI_PIPELINE_ID \
            -v ${PF_SRC_DIR}/conf:/usr/local/pf/conf \
            -v ${PF_SRC_DIR}/addons/dev-helpers/bin:/usr/local/pf/addons/dev-helpers/bin \
