@@ -393,12 +393,14 @@ variables:
   stage: build_artifacts
   dependencies: []
   variables:
-    GIT_USER_NAME: packetfence-bot
+    # Git credentials (GIT_USER_NAME, GIT_USER_PASSWORD) fetched from Psono
     GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
-    #GIT_USER_PASSWORD: provided through environment
     GIT_REPO: github.com/akainverse/website-pfcom
     SRC_FILE: result/switches.json
     DST_FILE: data/switches.json
+    # Git credentials fetched from Psono (secret IDs hardcoded in script)
+    # PSONO_WEBSITE_PFCOM_API_KEY_ID: provided through CI/CD variables
+    # PSONO_WEBSITE_PFCOM_API_SECRET_KEY: provided through CI/CD variables
   script:
     - ${BUILDDIR}/generate-material.sh
   artifacts:

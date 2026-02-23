@@ -19,6 +19,14 @@ configure_and_check() {
     DST_FILE=${DST_FILE:-}
     CONTAINER_NAME=pfconfig_material
 
+    # Psono configuration for website-pfcom credentials
+    PSONO_WEBSITE_PFCOM_API_KEY_ID=${PSONO_WEBSITE_PFCOM_API_KEY_ID:-}
+    PSONO_WEBSITE_PFCOM_API_SECRET_KEY=${PSONO_WEBSITE_PFCOM_API_SECRET_KEY:-}
+    # Psono secret IDs (hardcoded - these are not secrets, just references)
+    PSONO_WEBSITE_PFCOM_TOKEN_USER="241e0074-e48f-4964-8994-e08de5e19016"
+    PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD="772cfb2e-4ef9-461b-9984-7a3ebe5694f9"
+    PSONO_SCRIPT=${PF_SRC_DIR}/addons/packetfence-perl/psono.py
+
     if [ -n "${CI_COMMIT_TAG}" ]; then
         # release
         IMAGE_TAG=${CI_COMMIT_TAG}
@@ -31,6 +39,37 @@ configure_and_check() {
 
     declare -p CI_COMMIT_TAG CI_COMMIT_REF_SLUG
     declare -p IMAGE_TAG
+}
+
+fetch_git_credentials_from_psono() {
+    log_subsection "Fetch git credentials from Psono"
+    if [ -z "${PSONO_WEBSITE_PFCOM_API_KEY_ID}" ] || [ -z "${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" ]; then
+        echo "Error: Psono API keys are required"
+        echo "Please set PSONO_WEBSITE_PFCOM_API_KEY_ID and PSONO_WEBSITE_PFCOM_API_SECRET_KEY in GitLab CI/CD variables"
+        exit 1
+    fi
+
+    if [ ! -f "${PSONO_SCRIPT}" ]; then
+        echo "Error: Psono script not found at ${PSONO_SCRIPT}"
+        exit 1
+    fi
+
+    # Install pynacl dependency for psono.py
+    pip install -q pynacl
+
+    export GIT_USER_NAME=$(python3 "${PSONO_SCRIPT}" \
+        --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
+        --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
+        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN_USER}" \
+        --return_value=username)
+
+    export GIT_USER_PASSWORD=$(python3 "${PSONO_SCRIPT}" \
+        --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
+        --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
+        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD}" \
+        --return_value=password)
+
+    echo "Git credentials fetched from Psono"
 }
 
 generate_material() {
@@ -48,6 +87,8 @@ generate_material() {
            -e GIT_USER_PASSWORD \
            -e GIT_REPO \
            -e CI_PIPELINE_ID \
+           -e PSONO_WEBSITE_PFCOM_TOKEN_USER \
+           -e PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD \
            -v ${PF_SRC_DIR}/conf:/usr/local/pf/conf \
            -v ${PF_SRC_DIR}/addons/dev-helpers/bin:/usr/local/pf/addons/dev-helpers/bin \
            -v ${PF_SRC_DIR}/ci/lib:/usr/local/pf/ci/lib \
@@ -74,6 +115,9 @@ trap cleanup EXIT
 
 log_section "Configure and check"
 configure_and_check
+
+log_section "Fetch credentials"
+fetch_git_credentials_from_psono
 
 log_section "Generate material"
 generate_material

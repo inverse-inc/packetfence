@@ -14,31 +14,72 @@ source ${FUNCTIONS_FILE}
 
 configure_and_check() {
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
-    GIT_USER_NAME=${GIT_USER_NAME:-John Doe}
-    GIT_USER_MAIL=${GIT_USER_MAIL:-johndoe@example.com}
-    GIT_USER_PASSWORD=${GIT_USER_PASSWORD:-secret}
-    GIT_REPO=${GIT_REPO:-git.example.com/user/repo.git}
+    GIT_USER_NAME=${GIT_USER_NAME:-}
+    GIT_USER_MAIL=${GIT_USER_MAIL:-}
+    GIT_USER_PASSWORD=${GIT_USER_PASSWORD:-}
+    GIT_REPO=${GIT_REPO:-}
     GIT_CLONE_METHOD=${GIT_CLONE_METHOD:-https://}
     GIT_LOCAL_PATH=$(mktemp -d)
+    NETRC_FILE="${HOME}/.netrc"
 
-    GIT_REPO_URL=${GIT_CLONE_METHOD}${GIT_USER_NAME}:${GIT_USER_PASSWORD}@${GIT_REPO}
-    
+    # Psono secret IDs (for error messages)
+    PSONO_WEBSITE_PFCOM_TOKEN_USER=${PSONO_WEBSITE_PFCOM_TOKEN_USER:-}
+    PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD=${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD:-}
+
+    # Validate required variables
+    if [ -z "${GIT_USER_NAME}" ]; then
+        echo "Error: GIT_USER_NAME is required"
+        exit 1
+    fi
+    if [ -z "${GIT_USER_PASSWORD}" ]; then
+        echo "Error: GIT_USER_PASSWORD is required"
+        exit 1
+    fi
+    if [ -z "${GIT_REPO}" ]; then
+        echo "Error: GIT_REPO is required"
+        exit 1
+    fi
+
+    # Extract hostname from GIT_REPO (e.g., github.com from github.com/user/repo)
+    GIT_HOST=$(echo "${GIT_REPO}" | cut -d'/' -f1)
+    # Clean URL without credentials
+    GIT_REPO_URL=${GIT_CLONE_METHOD}${GIT_REPO}
+
     generate_git_config
+    generate_netrc
     declare -p GIT_REPO
 }
 
 generate_git_config() {
     git config --global user.name "${GIT_USER_NAME}"
     git config --global user.email "${GIT_USER_MAIL}"
-    # to store credentials in memory for a short period of time
-    git config --global credential.helper cache
     # set 'autoSetupRemote' in order to automatically set an upstream tracking branch
     git config --global push.autoSetupRemote true
 }
 
+generate_netrc() {
+    log_subsection "Generate .netrc for git authentication"
+    cat > "${NETRC_FILE}" <<EOF
+machine ${GIT_HOST}
+login ${GIT_USER_NAME}
+password ${GIT_USER_PASSWORD}
+EOF
+    chmod 600 "${NETRC_FILE}"
+
+    # Set GH_TOKEN for gh CLI authentication
+    export GH_TOKEN="${GIT_USER_PASSWORD}"
+}
+
 clone_git_repository() {
     log_subsection "Clone git repository"
-    git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH}
+    if ! git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH} 2>&1; then
+        echo "Error: Git authentication failed."
+        echo "Please verify credentials in Psono:"
+        echo "  - Double check Username Psono secret ID: ${PSONO_WEBSITE_PFCOM_TOKEN_USER}"
+        echo "  - Double check Token Psono secret ID: ${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD}"
+        echo "Possible causes: expired token, invalid token, revoked token, or insufficient permissions."
+        exit 1
+    fi
 }
 
 compare_files() {
@@ -86,6 +127,7 @@ update_git_repository() {
 
 cleanup() {
     rm -rf "${GIT_LOCAL_PATH:-}"
+    rm -f "${NETRC_FILE:-}"
 }
 trap cleanup EXIT
 
