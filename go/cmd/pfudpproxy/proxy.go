@@ -56,6 +56,8 @@ func (p *UDPProxy) Start(ctx context.Context) {
 		return
 	}
 	p.running = true
+	p.stopChan = make(chan struct{})
+	config := p.config
 	p.mu.Unlock()
 
 	log.LoggerWContext(ctx).Info("Starting UDP proxy")
@@ -71,11 +73,11 @@ func (p *UDPProxy) Start(ctx context.Context) {
 	}
 	p.fwdConn = fwd
 
-	for _, port := range p.config.Ports {
+	for _, port := range config.Ports {
 		p.wg.Add(1)
 		go func(port int) {
 			defer p.wg.Done()
-			p.listenAndForward(ctx, port)
+			p.listenAndForward(ctx, config.VIPAddress, port)
 		}(port)
 	}
 }
@@ -142,9 +144,9 @@ func (p *UDPProxy) UpdateConfig(ctx context.Context, newConfig *ProxyConfig) {
 	p.addrCacheMu.Unlock()
 }
 
-// listenAndForward listens on VIP:port and forwards packets to healthy backends.
-func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
-	addr := fmt.Sprintf("%s:%d", p.config.VIPAddress, port)
+// listenAndForward listens on vip:port and forwards packets to healthy backends.
+func (p *UDPProxy) listenAndForward(ctx context.Context, vip string, port int) {
+	addr := fmt.Sprintf("%s:%d", vip, port)
 
 	udpAddr, err := net.ResolveUDPAddr("udp", addr)
 	if err != nil {
@@ -159,6 +161,11 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, port int) {
 	}
 
 	p.mu.Lock()
+	if !p.running {
+		p.mu.Unlock()
+		conn.Close()
+		return
+	}
 	p.listeners = append(p.listeners, conn)
 	p.mu.Unlock()
 

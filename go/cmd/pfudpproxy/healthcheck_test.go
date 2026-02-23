@@ -232,3 +232,48 @@ func TestCheckAllBackends_MultipleBackends(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckAllBackends_EmptyBackends(t *testing.T) {
+	lb := NewLoadBalancer(nil)
+
+	config := &ProxyConfig{
+		HealthCheckPort:     4723,
+		HealthCheckPath:     "/",
+		HealthCheckInterval: 1 * time.Second,
+		HealthCheckTimeout:  2 * time.Second,
+		ExpectedStatusCode:  http.StatusNotFound,
+	}
+	hc := NewHealthChecker(config, lb)
+
+	// Should not panic with zero backends.
+	hc.checkAllBackends(context.Background())
+
+	if primary := lb.GetPrimary(); primary != nil {
+		t.Errorf("expected nil primary with no backends, got %v", primary)
+	}
+}
+
+func TestHealthCheckerUpdateConfig(t *testing.T) {
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer server.Close()
+
+	hc, _ := setupSingleBackend(t, server, http.StatusNotFound)
+
+	newConfig := &ProxyConfig{
+		HealthCheckPort:     4723,
+		HealthCheckPath:     "/",
+		HealthCheckInterval: 10 * time.Second,
+		HealthCheckTimeout:  30 * time.Second,
+		ExpectedStatusCode:  http.StatusNotFound,
+	}
+	hc.UpdateConfig(newConfig)
+
+	if hc.config.HealthCheckInterval != 10*time.Second {
+		t.Errorf("expected interval 10s, got %v", hc.config.HealthCheckInterval)
+	}
+	if hc.httpClient.Timeout != 30*time.Second {
+		t.Errorf("expected timeout 30s, got %v", hc.httpClient.Timeout)
+	}
+}
