@@ -22,10 +22,6 @@ configure_and_check() {
     GIT_LOCAL_PATH=$(mktemp -d)
     NETRC_FILE="${HOME}/.netrc"
 
-    # Psono secret IDs (for error messages)
-    PSONO_WEBSITE_PFCOM_TOKEN_USER=${PSONO_WEBSITE_PFCOM_TOKEN_USER:-}
-    PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD=${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD:-}
-
     # Validate required variables
     if [ -z "${GIT_USER_NAME}" ]; then
         echo "Error: GIT_USER_NAME is required"
@@ -73,11 +69,9 @@ EOF
 clone_git_repository() {
     log_subsection "Clone git repository"
     if ! git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH} 2>&1; then
-        echo "Error: Git authentication failed."
-        echo "Please verify credentials in Psono:"
-        echo "  - Double check Username Psono secret ID: ${PSONO_WEBSITE_PFCOM_TOKEN_USER}"
-        echo "  - Double check Token Psono secret ID: ${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD}"
-        echo "Possible causes: expired token, invalid token, revoked token, or insufficient permissions."
+        echo "Error: Git clone failed for ${GIT_REPO}"
+        echo "Please verify GIT_USER_NAME and GIT_USER_PASSWORD credentials in Psono."
+        echo "Possible causes: expired token, revoked token, or insufficient permissions."
         exit 1
     fi
 }

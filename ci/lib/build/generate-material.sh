@@ -23,8 +23,8 @@ configure_and_check() {
     PSONO_WEBSITE_PFCOM_API_KEY_ID=${PSONO_WEBSITE_PFCOM_API_KEY_ID:-}
     PSONO_WEBSITE_PFCOM_API_SECRET_KEY=${PSONO_WEBSITE_PFCOM_API_SECRET_KEY:-}
     # Psono secret IDs (hardcoded - these are not secrets, just references)
-    PSONO_WEBSITE_PFCOM_TOKEN_USER="241e0074-e48f-4964-8994-e08de5e19016"
-    PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD="772cfb2e-4ef9-461b-9984-7a3ebe5694f9"
+    export PSONO_WEBSITE_PFCOM_TOKEN_USER="241e0074-e48f-4964-8994-e08de5e19016"
+    export PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD="772cfb2e-4ef9-461b-9984-7a3ebe5694f9"
     PSONO_SCRIPT=${PF_SRC_DIR}/addons/packetfence-perl/psono.py
 
     if [ -n "${CI_COMMIT_TAG}" ]; then
@@ -69,6 +69,12 @@ fetch_git_credentials_from_psono() {
         --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD}" \
         --return_value=password)
 
+    export GIT_USER_MAIL=$(python3 "${PSONO_SCRIPT}" \
+        --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
+        --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
+        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN_USER}" \
+        --return_value=email)
+
     echo "Git credentials fetched from Psono"
 }
 
@@ -87,8 +93,6 @@ generate_material() {
            -e GIT_USER_PASSWORD \
            -e GIT_REPO \
            -e CI_PIPELINE_ID \
-           -e PSONO_WEBSITE_PFCOM_TOKEN_USER \
-           -e PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD \
            -v ${PF_SRC_DIR}/conf:/usr/local/pf/conf \
            -v ${PF_SRC_DIR}/addons/dev-helpers/bin:/usr/local/pf/addons/dev-helpers/bin \
            -v ${PF_SRC_DIR}/ci/lib:/usr/local/pf/ci/lib \

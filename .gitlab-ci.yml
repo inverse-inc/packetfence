@@ -393,8 +393,7 @@ variables:
   stage: build_artifacts
   dependencies: []
   variables:
-    # Git credentials (GIT_USER_NAME, GIT_USER_PASSWORD) fetched from Psono
-    GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
+    # Git credentials (GIT_USER_NAME, GIT_USER_PASSWORD, GIT_USER_MAIL) set in generate-material.sh from Psono
     GIT_REPO: github.com/akainverse/website-pfcom
     SRC_FILE: result/switches.json
     DST_FILE: data/switches.json
