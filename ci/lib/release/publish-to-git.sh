@@ -56,28 +56,38 @@ compare_files() {
 }
 
 update_git_repository() {
-    log_subsection "Commit and push changes"
+    # Chech the parameters.
+    if [[ $# -lt 2 ]]; then
+      echo "Usage: $0 <src_file> <dst_file>"
+      exit 1
+    fi
+
     local src_file=$1
     local dst_file=$2
     local git_ci_branch="ci-release-${CI_PIPELINE_ID}"
     local date_now=$(date +"%Y-%m-%d %H:%M:%S")
     local commit_message="Automatic update by pipeline ${CI_PIPELINE_ID} ${date_now}"
 
-    cp -v ${src_file} ${dst_file}
-
-    # Check the branch exists ot not.
+    # Check the branch exists or not.
     if git -C ${GIT_LOCAL_PATH} ls-remote --exit-code --heads origin "$git_ci_branch" > /dev/null 2>&1; then
         # Skip commit
         echo "Skip commit, branch '$git_ci_branch' already exists."
     else
-        git -C ${GIT_LOCAL_PATH} checkout -b "$git_ci_branch"
+        log_subsection "Commit and push changes"
+        cp -v ${src_file} ${dst_file}
 
+        git -C ${GIT_LOCAL_PATH} checkout -b "$git_ci_branch"
         git -C ${GIT_LOCAL_PATH} add ${dst_file}
         git -C ${GIT_LOCAL_PATH} commit -am "${commit_message}"
         # will use credential helper, no need to specify again credentials
         git -C ${GIT_LOCAL_PATH} push
     fi
 }
+
+cleanup() {
+    rm -rf "${GIT_LOCAL_PATH:-}"
+}
+trap cleanup EXIT
 
 log_section "Configure and check"
 configure_and_check
