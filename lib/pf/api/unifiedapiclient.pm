@@ -213,6 +213,12 @@ sub call {
             $self->login();
             return $self->call($method,$path,$args,1);
         }
+        elsif(!$retrying && $response_code == 403 && $path ne $pf::constants::api::LOGIN_PATH) {
+            get_logger->info("Request to $path is forbidden, will perform a login and retry");
+            $self->connection($self->curl);
+            $self->login();
+            return $self->call($method,$path,$args,1);
+        }
         else {
             $response = decode_json($response_body);
             die $response_code . " " . $response->{message};
