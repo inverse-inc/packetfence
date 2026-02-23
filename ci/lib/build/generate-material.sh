@@ -60,14 +60,8 @@ generate_material() {
     echo "Let some time to container to start"
     sleep 20
 
-    # echo "Generating material.html file"
-    # docker exec ${CONTAINER_NAME} /usr/bin/make material
-
-    # echo "Publishing material.html to git if necessary"
-    # docker exec ${CONTAINER_NAME} /usr/local/pf/ci/lib/release/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
-
     echo "Generating switches.json file"
-    docker exec ${CONTAINER_NAME} /usr/bin/make material-json
+    docker exec ${CONTAINER_NAME} /usr/bin/make material
 
     echo "Publishing switches.json to packetfence site git repo ( https://github.com/akainverse/website-pfcom )"
     docker exec ${CONTAINER_NAME} /usr/local/pf/ci/lib/release/publish-to-git.sh ${SRC_FILE} ${DST_FILE} 

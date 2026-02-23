@@ -396,11 +396,8 @@ variables:
     GIT_USER_NAME: packetfence-bot
     GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
     #GIT_USER_PASSWORD: provided through environment
-    # The old env variables which were used to deliver HTML table to old site.
-    # GIT_REPO: git.inverse.ca/inverse/website-packetfence.git
-    # SRC_FILE: result/material.html
-    # DST_FILE: layouts/partials/about/material.html
     GIT_REPO: github.com/akainverse/website-pfcom
+    GIT_BRANCH: ci-release
     SRC_FILE: result/switches.json
     DST_FILE: data/switches.json
   script:

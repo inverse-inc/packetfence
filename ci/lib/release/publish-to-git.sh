@@ -58,10 +58,13 @@ update_git_repository() {
     log_subsection "Commit and push changes"
     local src_file=$1
     local dst_file=$2
+    local date_now=$(date +"%Y-%m-%d %H:%M:%S")
+    local commit_message="Automatic update by pipeline ${CI_PIPELINE_ID} ${date_now}"
+
     cp -v ${src_file} ${dst_file}
 
     git -C ${GIT_LOCAL_PATH} add ${dst_file}
-    git -C ${GIT_LOCAL_PATH} commit -am "Automatic update by pipeline ${CI_PIPELINE_ID}"
+    git -C ${GIT_LOCAL_PATH} commit -am "${commit_message}"
     # will use credential helper, no need to specify again credentials
     git -C ${GIT_LOCAL_PATH} push
 }
