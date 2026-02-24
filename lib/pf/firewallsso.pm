@@ -69,7 +69,7 @@ sub do_sso {
         mac               => $mac,
         # All values must be string for pfsso
         timeout           => ($postdata{timeout} // "" ) ."",
-        role              => $node->{category},
+        role              => $postdata{role} // $node->{category},
         username          => $username,
         stripped_username => $stripped_username,
         realm             => $realm,

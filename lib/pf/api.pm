@@ -1567,6 +1567,9 @@ sub firewallsso_accounting : Public {
         my $timeout = '3600'; #Default to 1 hour
         my $client = pf::client::getClient();
         my $username = $RAD_REQUEST{'User-Name'} // undef;
+        my $session_id = $RAD_REQUEST{'Acct-Session-Id'};
+        my $cache = pf::CHI->new(namespace => 'accounting');
+        my $is_stop = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP);
 
         if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
             $firewallsso_method = "Update";
@@ -1582,10 +1585,33 @@ sub firewallsso_accounting : Public {
             }
         }
 
-        $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
+        $firewallsso_method = $is_stop ? "Stop" : "Update";
+
+        # Cache the node role at session start so that accounting Stop sends the correct role
+        # even if the node has re-authenticated with a different role in the meantime.
+        my $role = $node->{category};
+        if ($session_id) {
+            my $cache_key = "sso_role:$mac:$session_id";
+            if ($is_stop) {
+                my $cached_role = $cache->get($cache_key);
+                if ($cached_role) {
+                    $logger->info("Using cached role '$cached_role' for SSO Stop (session $session_id)");
+                    $role = $cached_role;
+                } else {
+                    $logger->info("No cached role for SSO Stop (session $session_id), using current role '$role'");
+                }
+                $cache->remove($cache_key);
+            } else {
+                # Only cache on first event (Start) so re-auth during the session doesn't overwrite it
+                if (!$cache->get($cache_key)) {
+                    $cache->set($cache_key, $role, "24 hours");
+                    $logger->debug("Cached role '$role' for session $session_id");
+                }
+            }
+        }
 
         $logger->warn("Firewall SSO Notify");
-        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username, source => $ACCOUNTING) );
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username, role => $role, source => $ACCOUNTING) );
     }
 }
 
