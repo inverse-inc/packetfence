@@ -39,8 +39,7 @@ fetch_git_credentials_from_psono() {
     PSONO_WEBSITE_PFCOM_API_KEY_ID=${PSONO_WEBSITE_PFCOM_API_KEY_ID:-}
     PSONO_WEBSITE_PFCOM_API_SECRET_KEY=${PSONO_WEBSITE_PFCOM_API_SECRET_KEY:-}
     # Psono secret IDs (hardcoded - these are not secrets, just references)
-    PSONO_WEBSITE_PFCOM_TOKEN_USER="241e0074-e48f-4964-8994-e08de5e19016"
-    PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD="772cfb2e-4ef9-461b-9984-7a3ebe5694f9"
+    PSONO_WEBSITE_PFCOM_TOKEN="772cfb2e-4ef9-461b-9984-7a3ebe5694f9"
     PSONO_SCRIPT=${PF_SRC_DIR}/addons/packetfence-perl/psono.py
 
     if [ -z "${PSONO_WEBSITE_PFCOM_API_KEY_ID}" ] || [ -z "${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" ]; then
@@ -60,13 +59,13 @@ fetch_git_credentials_from_psono() {
     export GIT_USER_NAME=$(python3 "${PSONO_SCRIPT}" \
         --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
         --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
-        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN_USER}" \
+        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN}" \
         --return_value=username)
 
     export GIT_USER_PASSWORD=$(python3 "${PSONO_SCRIPT}" \
         --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
         --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
-        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN_PASSWORD}" \
+        --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN}" \
         --return_value=password)
 
     export GIT_USER_MAIL="${GIT_USER_NAME}@inverse.ca"
