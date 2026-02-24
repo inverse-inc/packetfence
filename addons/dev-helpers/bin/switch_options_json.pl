@@ -51,6 +51,8 @@ use Pod::Select;
 use Pod::Find qw(pod_where);
 use pf::SwitchFactory;
 use DateTime;
+use Tie::IxHash;
+
 
 #
 # Extract and prepare the data
@@ -122,25 +124,24 @@ my @list_of_types = qw(
     RadiusVoip MABFloatingDevices FloatingDevice
 );
 
-my %list_of_types_trans = (
-    'SNMP'                        => 'SNMP',
-    'WiredMacAuth'                => 'Wired MAC Auth',
-    'WiredDot1x'                  => 'Wired 802.1x',
-    'WirelessMacAuth'             => 'Wireless MAC Auth',
-    'WirelessDot1x'               => 'Wireless 802.1x',
-    'ExternalPortal'              => 'Web Auth',
-    'PushACLs'                    => 'ACL Precreation',
-    'AccessListBasedEnforcement'  => 'RADIUS Dynamic ACL',
-    'RoleBasedEnforcement'        => 'RADIUS Dynamic Role',
-    'RadiusVoip'                  => 'RADIUS VOIP',
-    'MABFloatingDevices'          => 'MAB Floating Device',
-    'FloatingDevice'              => 'Floating Device',
-    'WebFormRegistration'         => 'Web Form',
-    'Cdp'                         => 'CDP',
-    'Lldp'                        => 'LLDP',
-    'RoamingAccounting'           => 'Roaming Accounting',
-    'SaveConfig'                  => 'Save Config',
-);
+tie my %list_of_types_trans, 'Tie::IxHash',
+    'SNMP'                       => 'SNMP',
+    'WiredMacAuth'               => 'Wired MAC Auth',
+    'WiredDot1x'                 => 'Wired 802.1x',
+    'WirelessMacAuth'            => 'Wireless MAC Auth',
+    'WirelessDot1x'              => 'Wireless 802.1x',
+    'ExternalPortal'             => 'Web Auth',
+    'PushACLs'                   => 'ACL Precreation',
+    'AccessListBasedEnforcement' => 'RADIUS Dynamic ACL',
+    'RoleBasedEnforcement'       => 'RADIUS Dynamic Role',
+    'RadiusVoip'                 => 'RADIUS VOIP',
+    'MABFloatingDevices'         => 'MAB Floating Device',
+    'FloatingDevice'             => 'Floating Device',
+    'WebFormRegistration'        => 'Web Form',
+    'Cdp'                        => 'CDP',
+    'Lldp'                       => 'LLDP',
+    'RoamingAccounting'          => 'Roaming Accounting',
+    'SaveConfig'                 => 'Save Config';
 
 my @list_of_wlc = qw(
     Bluesocket Cambium Cisco::WLC Cisco::WiSM
@@ -153,13 +154,15 @@ my %wlc_lookup = map { $_ => 1 } @list_of_wlc;
 # Build clean device list — avoids serialising raw $switch_info objects
 #
 my @devices;
-for my $name (sort { lc($dict_name_infos{$a}{label}) cmp lc($dict_name_infos{$b}{label}) }
-              @list_name_infos)
+
+for my $name (@list_name_infos)
 {
     my $info = $dict_name_infos{$name};
 
     my $category;
-    if ($info->{vpn}) {
+    if ($info->{is_template}) {
+        $category = 'Template';
+    } elsif ($info->{vpn}) {
         $category = 'VPN';
     } elsif ($info->{wired_wireless} && $wlc_lookup{$name}) {
         $category = 'Wireless Controller';
@@ -169,22 +172,28 @@ for my $name (sort { lc($dict_name_infos{$a}{label}) cmp lc($dict_name_infos{$b}
         $category = 'Wired';
     }
 
-    # Build {supported, tested} per feature — matches data/switches.json schema
     my %features;
     for my $feat (@list_of_types) {
         my $val = $info->{$feat} // '';
-        $features{$feat} = {
+        tie my %feat_hash, 'Tie::IxHash',
             supported => ($val ne '')     ? JSON::true : JSON::false,
-            tested    => ($val eq 'true') ? JSON::true : JSON::false,
-        };
+            tested    => ($val eq 'true') ? JSON::true : JSON::false;
+        $features{$feat} = \%feat_hash;
     }
 
-    push @devices, {
-        name     => $info->{label},
-        package  => "pf::Switch::$name",
-        category => $category,
-        features => \%features,
-    };
+    my ($vendor) = split /::/, $name;
+    my $is_tpl = ($category eq 'Template') ? JSON::true : JSON::false;
+
+    my %device;
+    tie %device, 'Tie::IxHash',
+        name       => $info->{label},
+        package    => "pf::Switch::$name",
+        vendor     => $vendor,
+        category   => $category,
+        isTemplate => \$is_tpl,
+        features   => \%features;
+
+    push @devices, \%device;
 }
 
 #
@@ -192,17 +201,17 @@ for my $name (sort { lc($dict_name_infos{$a}{label}) cmp lc($dict_name_infos{$b}
 #
 my $generatedAt = DateTime->now->strftime('%Y-%m-%dT%H:%M:%SZ');
 
-my $json_data = {
+my %json_data;
+tie %json_data, 'Tie::IxHash',
     generated     => $generatedAt,
     source        => 'local:/usr/local/pf/lib/pf/Switch',
     featureNames  => \%list_of_types_trans,
     tableFeatures => \@list_of_types,
-    categories    => [qw(Wired Wireless), 'Wireless Controller', 'VPN', 'Template'],
+    categories    => [qw(Wired Wireless), 'Wireless Controller', 'VPN'],
     deviceCount   => scalar(@devices),
-    devices       => \@devices,
-};
+    devices       => \@devices;
 
-print JSON->new->utf8->pretty->encode($json_data);
+print JSON->new->utf8->pretty->encode(\%json_data);
 
 =head1 AUTHOR
 
