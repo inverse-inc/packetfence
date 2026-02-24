@@ -94,7 +94,6 @@ our (
     $dhcp_filters_config_file,
     $roles_config_file,
     $roles_default_config_file,
-    $roles_readonly_config_file,
     $dns_filters_config_file, $dns_filters_default_config_file,
     $portal_modules_config_file, $portal_modules_default_config_file,
     $captiveportal_templates_path,
@@ -205,7 +204,6 @@ BEGIN {
         $dhcp_filters_config_file
         $roles_config_file
         $roles_default_config_file
-        $roles_readonly_config_file
         $dns_filters_config_file $dns_filters_default_config_file
         $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
@@ -363,7 +361,6 @@ $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 $dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
 $roles_config_file = catfile($conf_dir,"roles.conf");
 $roles_default_config_file = catfile($conf_dir,"roles.conf.defaults");
-$roles_readonly_config_file = catfile($conf_dir,"roles_readonly.conf");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
 $dns_filters_default_config_file = catfile($conf_dir,"dns_filters.conf.defaults");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
@@ -432,7 +429,6 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $radius_filters_config_file, $radius_filters_config_default_file,
     $dhcp_filters_config_file,
     $roles_config_file,
-    $roles_readonly_config_file,
     $dns_filters_config_file,
     $switch_filters_config_file,
     $stats_config_file,
