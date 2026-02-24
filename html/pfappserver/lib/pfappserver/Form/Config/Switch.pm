@@ -296,6 +296,12 @@ has_field 'SNMPUseConnector' =>
    default => undef,
   );
 
+has_field 'useSNMP' =>
+  (
+   type => 'Toggle',
+   default => undef,
+  );
+
   has_field 'SNMPVersion' =>
   (
    type => 'Select',
