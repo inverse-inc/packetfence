@@ -12,15 +12,22 @@ FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 
 source ${FUNCTIONS_FILE}
 
+install_gh_cli() {
+    log_subsection "Install GitHub CLI"
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    apt-get update -qq
+    apt-get install -qq -y gh
+}
+
 configure_and_check() {
-    CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     GIT_USER_NAME=${GIT_USER_NAME:-}
     GIT_USER_MAIL=${GIT_USER_MAIL:-}
     GIT_USER_PASSWORD=${GIT_USER_PASSWORD:-}
     GIT_REPO=${GIT_REPO:-}
-    GIT_CLONE_METHOD=${GIT_CLONE_METHOD:-https://}
+    GIT_CI_BRANCH=${GIT_CI_BRANCH:-}
     GIT_LOCAL_PATH=$(mktemp -d)
-    NETRC_FILE="${HOME}/.netrc"
 
     # Validate required variables
     if [ -z "${GIT_USER_NAME}" ]; then
@@ -35,43 +42,39 @@ configure_and_check() {
         echo "Error: GIT_REPO is required"
         exit 1
     fi
+    if [ -z "${GIT_CI_BRANCH}" ]; then
+        echo "Error: GIT_CI_BRANCH is required"
+        exit 1
+    fi
 
-    # Extract hostname from GIT_REPO (e.g., github.com from github.com/user/repo)
-    GIT_HOST=$(echo "${GIT_REPO}" | cut -d'/' -f1)
-    # Clean URL without credentials
-    GIT_REPO_URL=${GIT_CLONE_METHOD}${GIT_REPO}
+    # Extract repo path without hostname (e.g., akainverse/website-pfcom from github.com/akainverse/website-pfcom)
+    GIT_REPO_PATH=$(echo "${GIT_REPO}" | cut -d'/' -f2-)
 
-    generate_git_config
-    generate_netrc
-    declare -p GIT_REPO
+    setup_gh_auth
+    declare -p GIT_REPO GIT_REPO_PATH
 }
 
-generate_git_config() {
-    git config --global user.name "${GIT_USER_NAME}"
-    git config --global user.email "${GIT_USER_MAIL}"
-    # set 'autoSetupRemote' in order to automatically set an upstream tracking branch
-    git config --global push.autoSetupRemote true
-}
-
-generate_netrc() {
-    log_subsection "Generate .netrc for git authentication"
-    cat > "${NETRC_FILE}" <<EOF
-machine ${GIT_HOST}
-login ${GIT_USER_NAME}
-password ${GIT_USER_PASSWORD}
-EOF
-    chmod 600 "${NETRC_FILE}"
-
+setup_gh_auth() {
+    log_subsection "Setup GitHub CLI authentication"
     # Set GH_TOKEN for gh CLI authentication
     export GH_TOKEN="${GIT_USER_PASSWORD}"
+
+    # Configure git to use gh as credential helper
+    gh auth setup-git
+
+    # Configure git user for commits
+    git config --global user.name "${GIT_USER_NAME}"
+    git config --global user.email "${GIT_USER_MAIL}"
+    git config --global push.autoSetupRemote true
 }
 
 clone_git_repository() {
     log_subsection "Clone git repository"
-    if ! git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH} 2>&1; then
+    if ! gh repo clone "${GIT_REPO_PATH}" "${GIT_LOCAL_PATH}" > /dev/null 2>&1; then
         echo "Error: Git clone failed for ${GIT_REPO}"
-        echo "Please verify GIT_USER_NAME and GIT_USER_PASSWORD credentials in Psono."
+        echo "Please verify GIT_USER_PASSWORD (GitHub PAT) in Psono."
         echo "Possible causes: expired token, revoked token, or insufficient permissions."
+        echo "Required PAT scopes: 'repo' for full repository access."
         exit 1
     fi
 }
@@ -99,31 +102,34 @@ update_git_repository() {
 
     local src_file=$1
     local dst_file=$2
-    local git_ci_branch="ci-release-${CI_PIPELINE_ID}"
     local date_now=$(date +"%Y-%m-%d %H:%M:%S")
-    local commit_message="Automatic update by pipeline ${CI_PIPELINE_ID} ${date_now}"
+    local commit_message="Automatic update ${date_now}"
 
     # Check the branch exists or not.
-    if git -C ${GIT_LOCAL_PATH} ls-remote --exit-code --heads origin "$git_ci_branch" > /dev/null 2>&1; then
+    if git -C ${GIT_LOCAL_PATH} ls-remote --exit-code --heads origin "${GIT_CI_BRANCH}" > /dev/null 2>&1; then
         # Skip commit
-        echo "Skip commit, branch '$git_ci_branch' already exists."
+        echo "Skip commit, branch '${GIT_CI_BRANCH}' already exists."
     else
         log_subsection "Commit and push changes"
         cp -v ${src_file} ${dst_file}
 
-        git -C ${GIT_LOCAL_PATH} checkout -b "$git_ci_branch"
+        git -C ${GIT_LOCAL_PATH} checkout -b "${GIT_CI_BRANCH}"
         git -C ${GIT_LOCAL_PATH} add ${dst_file}
         git -C ${GIT_LOCAL_PATH} commit -am "${commit_message}"
-        # will use credential helper, no need to specify again credentials
-        git -C ${GIT_LOCAL_PATH} push
+
+        log_subsection "Push branch"
+        git -C ${GIT_LOCAL_PATH} push --set-upstream origin "${GIT_CI_BRANCH}"
+        echo "Branch '${GIT_CI_BRANCH}' pushed successfully."
     fi
 }
 
 cleanup() {
     rm -rf "${GIT_LOCAL_PATH:-}"
-    rm -f "${NETRC_FILE:-}"
 }
 trap cleanup EXIT
+
+log_section "Install dependencies"
+install_gh_cli
 
 log_section "Configure and check"
 configure_and_check
