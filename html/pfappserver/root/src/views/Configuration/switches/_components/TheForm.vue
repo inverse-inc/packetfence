@@ -613,6 +613,7 @@ const components = {
   FormGroupSnmpUserNameRead,
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
+  FormGroupUseSnmp,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
