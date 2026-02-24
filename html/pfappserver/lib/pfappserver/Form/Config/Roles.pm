@@ -79,6 +79,13 @@ has_field 'fingerbank_dynamic_access_list' => (
     label => 'Enabled Fingerbank Dynamic AccessList',
 );
 
+has_field 'acls_enabled' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Enable ACLs',
+);
+
 has_field 'acls' => (
     type => 'TextArea',
     label => 'ACLs',

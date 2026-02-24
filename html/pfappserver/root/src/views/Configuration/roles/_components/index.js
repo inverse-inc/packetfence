@@ -18,6 +18,7 @@ export {
   BaseFormGroupRolesSearchable        as FormGroupParentIdentifier,
   BaseFormGroupSwitch                 as FormGroupIncludeParentAcls,
   BaseFormGroupSwitch                 as FormGroupFingerbankDynamicAccessList,
+  BaseFormGroupSwitch                 as FormGroupAclsEnabled,
   BaseFormGroupTextarea               as FormGroupAcls,
   BaseFormGroupSwitch                 as FormGroupInheritVlan,
   BaseFormGroupSwitch                 as FormGroupInheritRole,

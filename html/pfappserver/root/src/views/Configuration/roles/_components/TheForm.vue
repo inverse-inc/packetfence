@@ -37,6 +37,13 @@
                                                disabled-value="disabled"
     />
 
+    <form-group-acls-enabled namespace="acls_enabled"
+                             :column-label="$i18n.t('Enable ACLs')"
+                             :text="$i18n.t('Enable the use of ACLs defined below')"
+                             enabled-value="enabled"
+                             disabled-value="disabled"
+    />
+
     <form-group-acls namespace="acls"
                      :column-label="$i18n.t('ACLs')"
                      :text="$i18n.t('Access Control Lists')"
@@ -78,6 +85,7 @@ import {
   FormGroupParentIdentifier,
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
+  FormGroupAclsEnabled,
   FormGroupAcls,
   FormGroupInheritVlan,
   FormGroupInheritRole,
@@ -93,6 +101,7 @@ const components = {
   FormGroupParentIdentifier,
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
+  FormGroupAclsEnabled,
   FormGroupAcls,
   FormGroupInheritVlan,
   FormGroupInheritRole,
