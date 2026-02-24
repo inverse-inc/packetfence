@@ -89,6 +89,18 @@ mysql_replication_hostgroups =
   }
 )
 
+  [% ELSIF replication %]
+
+mysql_replication_hostgroups =
+(
+  {
+    writer_hostgroup=10
+    reader_hostgroup=30
+    check_type="read_only"
+    comment="Replication RW Split"
+  }
+)
+
   [% ELSE %]
 
     [% IF scheduler %]
@@ -161,6 +173,7 @@ mysql_users =
 )
 
 [% UNLESS single_server %]
+[% UNLESS replication %]
 
 scheduler =
 (
@@ -184,4 +197,5 @@ scheduler =
   [% END %]
   }
 )
+[% END %]
 [% END %]

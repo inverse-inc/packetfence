@@ -63,6 +63,7 @@ sub generateConfig {
     my $single_server = 0;
     $tags{'template'} = $self->proxysql_config_template;
     $tags{'geoDB'} = $FALSE;
+    $tags{'replication'} = $FALSE;
     $tags{'mysql_servers'} = "";
     $tags{'database'} = $DB_Config->{db};
 
@@ -87,25 +88,25 @@ EOT
 EOT
         }
 
-        my @backends = split(/\s*,\s*/, $database_proxysql->{backends});
-        $single_server = 1 if (scalar(@backends) == 1);
+        my $backends_str = $database_proxysql->{backends} || '';
+        my @backends = grep { $_ ne '' } map { s/^\s+|\s+$//gr } split(/,/, $backends_str);
         my $ssl = $cacert ? 1 : 0;
 
-        # Master-slave configuration with failover:
-        # - hostgroup 10 (writes): all backends with decreasing weights (master preferred, failover to slaves)
-        # - hostgroup 30 (reads): all backends with decreasing weights
-        foreach my $backend (@backends) {
+        if (scalar(@backends) <= 1) {
+            $single_server = 1;
+            my $backend = $backends[0] // '';
             $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
 EOT
-            $i--;
-        }
-        $i = 100;
-        foreach my $backend (@backends) {
-            $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=$port , hostgroup=30, max_connections=1000, weight=$i, use_ssl=$ssl },
+        } else {
+            $single_server = 0;
+            $tags{'replication'} = $TRUE;
+            foreach my $backend (@backends) {
+                $tags{mysql_servers} .= << "EOT";
+    { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
 EOT
-            $i--;
+                $i--;
+            }
         }
     } elsif (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
@@ -178,6 +179,7 @@ EOT
     }
     $tags{'scheduler'} = $TRUE;
     $tags{'scheduler'} = $FALSE if ($database_proxysql->{scheduler} ne 'default');
+    $tags{'scheduler'} = $FALSE if ($tags{'replication'});
 
     my @mysql_servers = pf::cluster::mysql_servers();
 
