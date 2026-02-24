@@ -84,7 +84,8 @@ EOT
         my $cacert = $database_proxysql->{cacert};
         if ($cacert) {
             $tags{'mysql_ssl_p2s_capath'} = << "EOT";
-    mysql-ssl_p2s_capath = "$cacert";
+    mysql-ssl_p2s_capath = "$conf_dir/";
+    mysql-ssl_p2s_ca = "$cacert";
 EOT
         }
 
