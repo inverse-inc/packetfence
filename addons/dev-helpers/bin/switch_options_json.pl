@@ -47,6 +47,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use JSON;
+use JSON::PP ();
 use Pod::Select;
 use Pod::Find qw(pod_where);
 use pf::SwitchFactory;
@@ -155,7 +156,7 @@ my %wlc_lookup = map { $_ => 1 } @list_of_wlc;
 #
 my @devices;
 
-for my $name (@list_name_infos)
+for my $name (sort { $dict_name_infos{$a}{label} cmp $dict_name_infos{$b}{label} } @list_name_infos)
 {
     my $info = $dict_name_infos{$name};
 
@@ -190,7 +191,7 @@ for my $name (@list_name_infos)
         package    => "pf::Switch::$name",
         vendor     => $vendor,
         category   => $category,
-        isTemplate => \$is_tpl,
+        isTemplate => $is_tpl,
         features   => \%features;
 
     push @devices, \%device;
@@ -201,17 +202,23 @@ for my $name (@list_name_infos)
 #
 my $generatedAt = DateTime->now->strftime('%Y-%m-%dT%H:%M:%SZ');
 
+# Build ordered featureNames subset matching @list_of_types
+tie my %featureNames, 'Tie::IxHash';
+for my $feat (@list_of_types) {
+    $featureNames{$feat} = $list_of_types_trans{$feat};
+}
+
 my %json_data;
 tie %json_data, 'Tie::IxHash',
     generated     => $generatedAt,
     source        => 'local:/usr/local/pf/lib/pf/Switch',
-    featureNames  => \%list_of_types_trans,
+    featureNames  => \%featureNames,
     tableFeatures => \@list_of_types,
     categories    => [qw(Wired Wireless), 'Wireless Controller', 'VPN'],
     deviceCount   => scalar(@devices),
     devices       => \@devices;
 
-print JSON->new->utf8->pretty->encode(\%json_data);
+print JSON::PP->new->utf8->pretty->indent_length(2)->space_before(0)->encode(\%json_data);
 
 =head1 AUTHOR
 
