@@ -65,7 +65,7 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 
 	m.aggField = os.Getenv("ES_AGG_FIELD")
 	if m.aggField == "" {
-		m.aggField = "kubernetes.container_name"
+		m.aggField = "kubernetes.container_name.keyword"
 	}
 
 	m.sessions = map[string]*ESTailingSession{}
