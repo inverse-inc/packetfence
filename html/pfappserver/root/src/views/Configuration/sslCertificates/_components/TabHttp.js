@@ -8,7 +8,8 @@ const props = {
     default: 'http'
   },
   titleItemClass: {
-    type: String
+    type: String,
+    default: 'no-saas'
   }
 }
 

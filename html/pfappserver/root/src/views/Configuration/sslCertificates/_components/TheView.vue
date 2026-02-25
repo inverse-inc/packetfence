@@ -4,7 +4,7 @@
       <h4 class="mb-0" v-html="'SSL Certificates'" />
     </template>
     <b-tabs v-model="tabIndex" card>
-      <tab-http :active="tabIndex === 0" />
+      <tab-http :active="tabIndex === 0" class="no-saas" />
       <tab-radius :active="tabIndex === 1" />
     </b-tabs>
   </base-view>
