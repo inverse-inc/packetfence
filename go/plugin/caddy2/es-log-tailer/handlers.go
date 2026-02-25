@@ -31,7 +31,7 @@ func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
 	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: OPTIONS query failed against %s/%s: %s", h.esClient.baseURL, h.indexPattern, err))
-		c.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Failed to query Elasticsearch: %s", err)})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to query Elasticsearch"})
 		return
 	}
 
@@ -78,16 +78,11 @@ func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
 }
 
 func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
-	h.sessionsLock.Lock()
-	defer h.sessionsLock.Unlock()
-
 	params := struct {
 		Files          []string `json:"files"`
 		Filter         string   `json:"filter"`
 		FilterIsRegexp bool     `json:"filter_is_regexp"`
 	}{}
-
-	sessionId := uuid.New().String()
 
 	if err := c.ShouldBindJSON(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Unable to parse JSON payload"})
@@ -116,12 +111,18 @@ func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
 	// Normalize file paths to container names: "/usr/local/pf/logs/api-frontend.log" → "api-frontend"
 	sources := normalizeSourceNames(params.Files)
 
+	sessionId := uuid.New().String()
 	ctx := c.Request.Context()
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("es-log-tailer: creating session %s, sources=%v, filter=%q, regexp=%v", sessionId, sources, params.Filter, params.FilterIsRegexp))
 
+	// Create session and seek to end before acquiring lock — SeekToEnd does an ES
+	// HTTP call that may be slow, and the session isn't shared yet.
 	session := NewESTailingSession(sources, filterRe, h.fieldMapping, h.indexPattern, h.aggField)
 	session.SeekToEnd(ctx, h.esClient)
+
+	h.sessionsLock.Lock()
 	h.sessions[sessionId] = session
+	h.sessionsLock.Unlock()
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tailing session started", "session_id": sessionId})
 }

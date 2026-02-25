@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -58,12 +59,23 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 	m.esClient = NewESClient()
 	m.fieldMapping = NewESFieldMappingFromEnv()
 
-	esIndex := os.Getenv("ES_INDEX")
-	if esIndex == "" {
-		log.LoggerWContext(ctx).Warn("es-log-tailer: ES_INDEX not set, plugin disabled")
+	k8sNamespace := os.Getenv("K8S_NAMESPACE")
+	if k8sNamespace == "" {
+		nsPath := os.Getenv("K8S_NAMESPACE_PATH")
+		if nsPath != "" {
+			data, err := os.ReadFile(nsPath)
+			if err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("es-log-tailer: failed to read K8S_NAMESPACE_PATH (%s): %s, plugin disabled", nsPath, err))
+				return nil
+			}
+			k8sNamespace = strings.TrimSpace(string(data))
+		}
+	}
+	if k8sNamespace == "" {
+		log.LoggerWContext(ctx).Warn("es-log-tailer: K8S_NAMESPACE/K8S_NAMESPACE_PATH not set, plugin disabled")
 		return nil
 	}
-	m.indexPattern = esIndex + "-*"
+	m.indexPattern = "prod-" + k8sNamespace + "-*"
 
 	m.aggField = os.Getenv("ES_AGG_FIELD")
 	if m.aggField == "" {

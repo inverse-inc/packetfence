@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,33 +15,40 @@ import (
 const pollSleepInterval = 2 * time.Second
 
 type ESTailingSession struct {
-	sources        []string
-	filter         *regexp.Regexp
+	// Immutable after construction
+	sources      []string
+	filter       *regexp.Regexp
+	fieldMapping *ESFieldMapping
+	indexPattern  string
+	aggField     string
+
+	// Mutable — protected by mu
 	lastSortValues []interface{}
-	fieldMapping   *ESFieldMapping
-	indexPattern   string
-	aggField       string
-	lastUsedAt     time.Time
 	mu             sync.Mutex
+
+	// Atomic — no lock needed
+	lastUsedAt atomic.Int64 // Unix nanoseconds
+
+	// Semaphore — prevents concurrent polls on the same session
+	pollSem chan struct{}
 }
 
 func NewESTailingSession(sources []string, filter *regexp.Regexp, fieldMapping *ESFieldMapping, indexPattern, aggField string) *ESTailingSession {
-	return &ESTailingSession{
+	s := &ESTailingSession{
 		sources:      sources,
 		filter:       filter,
 		fieldMapping: fieldMapping,
 		indexPattern: indexPattern,
 		aggField:     aggField,
-		lastUsedAt:   time.Now(),
+		pollSem:      make(chan struct{}, 1),
 	}
+	s.lastUsedAt.Store(time.Now().UnixNano())
+	return s
 }
 
 // SeekToEnd queries ES for the latest document matching the session's sources
 // and positions the cursor after it, like SEEK_END for file tailing.
 func (s *ESTailingSession) SeekToEnd(ctx context.Context, client *ESClient) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	must := []interface{}{}
 	if len(s.sources) > 0 {
 		must = append(must, map[string]interface{}{
@@ -73,32 +81,38 @@ func (s *ESTailingSession) SeekToEnd(ctx context.Context, client *ESClient) {
 	}
 
 	// Position cursor at the latest doc so subsequent polls only return new docs.
-	// search_after values are field values (not direction-dependent), so the desc
-	// sort values work with the asc sort in buildQuery.
+	s.mu.Lock()
 	s.lastSortValues = resp.Hits.Hits[0].Sort
+	s.mu.Unlock()
 }
 
 func (s *ESTailingSession) Touch() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.lastUsedAt = time.Now()
+	s.lastUsedAt.Store(time.Now().UnixNano())
 }
 
 func (s *ESTailingSession) LastUsedAt() time.Time {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.lastUsedAt
+	return time.Unix(0, s.lastUsedAt.Load())
 }
 
 func (s *ESTailingSession) Poll(ctx context.Context, client *ESClient, sessionId string, timeout time.Duration) []gin.H {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	// Only one poll at a time per session
+	select {
+	case s.pollSem <- struct{}{}:
+		defer func() { <-s.pollSem }()
+	default:
+		return []gin.H{}
+	}
 
-	s.lastUsedAt = time.Now()
+	s.Touch()
 	deadline := time.Now().Add(timeout)
 
 	for time.Now().Before(deadline) {
+		// Read cursor under lock
+		s.mu.Lock()
 		query := s.buildQuery()
+		s.mu.Unlock()
+
+		// ES query outside lock
 		resp, err := client.Search(ctx, s.indexPattern, query)
 		if err != nil {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: poll query failed for session %s: %s", sessionId, err))
@@ -109,7 +123,10 @@ func (s *ESTailingSession) Poll(ctx context.Context, client *ESClient, sessionId
 		}
 
 		if len(resp.Hits.Hits) > 0 {
+			// Update cursor under lock
+			s.mu.Lock()
 			events := s.processHits(resp.Hits.Hits, sessionId)
+			s.mu.Unlock()
 			if len(events) > 0 {
 				return events
 			}
