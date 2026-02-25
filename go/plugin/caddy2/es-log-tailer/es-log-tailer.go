@@ -59,20 +59,19 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 	m.esClient = NewESClient()
 	m.fieldMapping = NewESFieldMappingFromEnv()
 
-	k8sNamespace := os.Getenv("K8S_NAMESPACE")
-	if k8sNamespace == "" {
-		nsPath := os.Getenv("K8S_NAMESPACE_PATH")
-		if nsPath != "" {
-			data, err := os.ReadFile(nsPath)
-			if err != nil {
-				log.LoggerWContext(ctx).Warn(fmt.Sprintf("es-log-tailer: failed to read K8S_NAMESPACE_PATH (%s): %s, plugin disabled", nsPath, err))
-				return nil
-			}
-			k8sNamespace = strings.TrimSpace(string(data))
-		}
+	nsPath := os.Getenv("K8S_NAMESPACE_PATH")
+	if nsPath == "" {
+		log.LoggerWContext(ctx).Warn("es-log-tailer: K8S_NAMESPACE_PATH not set, plugin disabled")
+		return nil
 	}
+	nsData, err := os.ReadFile(nsPath)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("es-log-tailer: failed to read K8S_NAMESPACE_PATH (%s): %s, plugin disabled", nsPath, err))
+		return nil
+	}
+	k8sNamespace := strings.TrimSpace(string(nsData))
 	if k8sNamespace == "" {
-		log.LoggerWContext(ctx).Warn("es-log-tailer: K8S_NAMESPACE/K8S_NAMESPACE_PATH not set, plugin disabled")
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("es-log-tailer: K8S_NAMESPACE_PATH (%s) was empty, plugin disabled", nsPath))
 		return nil
 	}
 	m.indexPattern = "prod-" + k8sNamespace + "-*"

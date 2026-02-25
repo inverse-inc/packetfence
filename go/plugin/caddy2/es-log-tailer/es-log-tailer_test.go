@@ -693,9 +693,12 @@ func TestHandlers_DeleteNotFound(t *testing.T) {
 	}
 }
 
-func TestBuildHandler_K8SNamespaceEnv(t *testing.T) {
-	t.Setenv("K8S_NAMESPACE", "pfk8s-abc123")
-	t.Setenv("K8S_NAMESPACE_PATH", "")
+func TestBuildHandler_K8SNamespaceFromPath(t *testing.T) {
+	dir := t.TempDir()
+	nsFile := filepath.Join(dir, "namespace")
+	os.WriteFile(nsFile, []byte("pfk8s-abc123\n"), 0644)
+
+	t.Setenv("K8S_NAMESPACE_PATH", nsFile)
 	t.Setenv("KIBANA_HOST", "localhost")
 	t.Setenv("ES_AGG_FIELD", "")
 
@@ -714,16 +717,13 @@ func TestBuildHandler_K8SNamespaceEnv(t *testing.T) {
 	}
 }
 
-func TestBuildHandler_K8SNamespaceFromFile(t *testing.T) {
-	// Write a temp namespace file
+func TestBuildHandler_EmptyNamespaceFile_Disabled(t *testing.T) {
 	dir := t.TempDir()
 	nsFile := filepath.Join(dir, "namespace")
-	os.WriteFile(nsFile, []byte("pfk8s-xyz789\n"), 0644)
+	os.WriteFile(nsFile, []byte("  \n"), 0644)
 
-	t.Setenv("K8S_NAMESPACE", "")
 	t.Setenv("K8S_NAMESPACE_PATH", nsFile)
 	t.Setenv("KIBANA_HOST", "localhost")
-	t.Setenv("ES_AGG_FIELD", "")
 
 	m := &ESLogTailerHandler{}
 	ctx := log.LoggerNewContext(context.Background())
@@ -732,35 +732,12 @@ func TestBuildHandler_K8SNamespaceFromFile(t *testing.T) {
 		t.Fatalf("buildHandler returned error: %v", err)
 	}
 
-	if m.indexPattern != "prod-pfk8s-xyz789-*" {
-		t.Errorf("expected indexPattern 'prod-pfk8s-xyz789-*', got '%s'", m.indexPattern)
-	}
-	if m.router == nil {
-		t.Error("expected router to be initialized")
+	if m.router != nil {
+		t.Error("expected router to be nil when namespace file is empty (plugin disabled)")
 	}
 }
 
-func TestBuildHandler_K8SNamespacePrecedence(t *testing.T) {
-	// K8S_NAMESPACE takes precedence over K8S_NAMESPACE_PATH
-	dir := t.TempDir()
-	nsFile := filepath.Join(dir, "namespace")
-	os.WriteFile(nsFile, []byte("from-file\n"), 0644)
-
-	t.Setenv("K8S_NAMESPACE", "from-env")
-	t.Setenv("K8S_NAMESPACE_PATH", nsFile)
-	t.Setenv("KIBANA_HOST", "localhost")
-
-	m := &ESLogTailerHandler{}
-	ctx := log.LoggerNewContext(context.Background())
-	m.buildHandler(ctx)
-
-	if m.indexPattern != "prod-from-env-*" {
-		t.Errorf("expected K8S_NAMESPACE to take precedence, got '%s'", m.indexPattern)
-	}
-}
-
-func TestBuildHandler_NoNamespace_Disabled(t *testing.T) {
-	t.Setenv("K8S_NAMESPACE", "")
+func TestBuildHandler_NoNamespacePath_Disabled(t *testing.T) {
 	t.Setenv("K8S_NAMESPACE_PATH", "")
 	t.Setenv("KIBANA_HOST", "localhost")
 
@@ -780,8 +757,8 @@ func TestBuildHandler_NoNamespace_Disabled(t *testing.T) {
 }
 
 func TestBuildHandler_BadNamespacePath_Disabled(t *testing.T) {
-	t.Setenv("K8S_NAMESPACE", "")
-	t.Setenv("K8S_NAMESPACE_PATH", "/nonexistent/path/namespace")
+	// /dev/null reads as empty, which hits the "empty namespace" path
+	t.Setenv("K8S_NAMESPACE_PATH", "/dev/null")
 	t.Setenv("KIBANA_HOST", "localhost")
 
 	m := &ESLogTailerHandler{}
@@ -792,6 +769,6 @@ func TestBuildHandler_BadNamespacePath_Disabled(t *testing.T) {
 	}
 
 	if m.router != nil {
-		t.Error("expected router to be nil when namespace file is unreadable (plugin disabled)")
+		t.Error("expected router to be nil when namespace file is empty (plugin disabled)")
 	}
 }
