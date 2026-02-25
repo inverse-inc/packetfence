@@ -52,8 +52,8 @@ func setup(c *caddy.Controller) error {
 		})
 		c.OnStartup(func() error {
 			if taph := dnsserver.GetConfig(c).Handler("dnstap"); taph != nil {
-				if tapPlugin, ok := taph.(dnstap.Dnstap); ok {
-					f.tapPlugin = &tapPlugin
+				if tapPlugin, ok := taph.(*dnstap.Dnstap); ok {
+					f.tapPlugin = tapPlugin
 				}
 			}
 			return nil
