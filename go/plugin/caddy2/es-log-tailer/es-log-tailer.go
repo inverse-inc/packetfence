@@ -58,10 +58,12 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 	m.esClient = NewESClient()
 	m.fieldMapping = NewESFieldMappingFromEnv()
 
-	m.indexPattern = os.Getenv("ES_INDEX_PATTERN")
-	if m.indexPattern == "" {
-		m.indexPattern = "prod-*"
+	esIndex := os.Getenv("ES_INDEX")
+	if esIndex == "" {
+		log.LoggerWContext(ctx).Warn("es-log-tailer: ES_INDEX not set, plugin disabled")
+		return nil
 	}
+	m.indexPattern = esIndex + "-*"
 
 	m.aggField = os.Getenv("ES_AGG_FIELD")
 	if m.aggField == "" {
@@ -93,13 +95,17 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 }
 
 func (h *ESLogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	if h.router == nil {
+		return next.ServeHTTP(w, r)
+	}
+
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
 
 	h.maintenanceLauncher.Do(func() {
 		go func() {
-			ctx := r.Context()
+			ctx := log.LoggerNewContext(context.Background())
 			for {
 				func() {
 					h.sessionsLock.Lock()

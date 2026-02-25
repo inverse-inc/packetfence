@@ -103,7 +103,12 @@ func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
 	if params.Filter == "" {
 		filterRe = regexp.MustCompile(`.*`)
 	} else if params.FilterIsRegexp {
-		filterRe = regexp.MustCompile(`(?i)` + params.Filter)
+		var err error
+		filterRe, err = regexp.Compile(`(?i)` + params.Filter)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf("Invalid regexp: %s", err)})
+			return
+		}
 	} else {
 		filterRe = regexp.MustCompile(`(?i).*` + regexp.QuoteMeta(params.Filter) + `.*`)
 	}

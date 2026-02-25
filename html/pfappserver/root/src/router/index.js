@@ -97,7 +97,9 @@ router.beforeEach((to, from, next) => {
     store.commit('session/CONFIGURATOR_INACTIVE')
     if (to.name !== 'login') { // [4]
       store.dispatch('session/load').then(() => {
-        return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before navigation
+        if (store.state.system.summary === false) {
+          return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before first navigation
+        }
       }).then(() => {
         next() // [5b]
       }).catch(() => {

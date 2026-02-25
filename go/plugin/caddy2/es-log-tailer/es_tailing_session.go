@@ -54,7 +54,6 @@ func (s *ESTailingSession) SeekToEnd(ctx context.Context, client *ESClient) {
 		"size": 1,
 		"sort": []interface{}{
 			map[string]interface{}{s.fieldMapping.Timestamp: "desc"},
-			map[string]interface{}{"_id": "desc"},
 		},
 	}
 	if len(must) > 0 {
@@ -129,7 +128,6 @@ func (s *ESTailingSession) buildQuery() map[string]interface{} {
 		"size": 100,
 		"sort": []interface{}{
 			map[string]interface{}{s.fieldMapping.Timestamp: "asc"},
-			map[string]interface{}{"_id": "asc"},
 		},
 	}
 
