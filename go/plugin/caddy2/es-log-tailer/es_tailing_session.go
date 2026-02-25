@@ -2,11 +2,13 @@ package eslogtailer
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 const pollSleepInterval = 2 * time.Second
@@ -62,8 +64,12 @@ func (s *ESTailingSession) SeekToEnd(ctx context.Context, client *ESClient) {
 	}
 
 	resp, err := client.Search(ctx, s.indexPattern, query)
-	if err != nil || len(resp.Hits.Hits) == 0 {
-		// Empty index or error — start from the beginning, search_after=nil
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: SeekToEnd failed for sources=%v: %s", s.sources, err))
+		return
+	}
+	if len(resp.Hits.Hits) == 0 {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("es-log-tailer: SeekToEnd found no documents for sources=%v in index %s", s.sources, s.indexPattern))
 		return
 	}
 
@@ -96,7 +102,7 @@ func (s *ESTailingSession) Poll(ctx context.Context, client *ESClient, sessionId
 		query := s.buildQuery()
 		resp, err := client.Search(ctx, s.indexPattern, query)
 		if err != nil {
-			// On error, sleep and retry until timeout
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: poll query failed for session %s: %s", sessionId, err))
 			if !sleepUntil(ctx, pollSleepInterval, deadline) {
 				break
 			}

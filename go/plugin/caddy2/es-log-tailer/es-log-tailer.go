@@ -2,6 +2,7 @@ package eslogtailer
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -86,7 +87,7 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 
 	m.router = router
 
-	log.LoggerWContext(ctx).Info("es-log-tailer plugin initialized")
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("es-log-tailer plugin initialized, ES at %s, index_pattern=%s, agg_field=%s", m.esClient.baseURL, m.indexPattern, m.aggField))
 
 	return nil
 }

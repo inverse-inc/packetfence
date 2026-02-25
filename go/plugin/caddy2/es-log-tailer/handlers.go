@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
@@ -26,8 +27,10 @@ func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
 		},
 	}
 
-	resp, err := h.esClient.Search(c.Request.Context(), h.indexPattern, query)
+	ctx := c.Request.Context()
+	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
 	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: OPTIONS query failed against %s/%s: %s", h.esClient.baseURL, h.indexPattern, err))
 		c.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Failed to query Elasticsearch: %s", err)})
 		return
 	}
@@ -108,8 +111,11 @@ func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
 	// Normalize file paths to container names: "/usr/local/pf/logs/api-frontend.log" → "api-frontend"
 	sources := normalizeSourceNames(params.Files)
 
+	ctx := c.Request.Context()
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("es-log-tailer: creating session %s, sources=%v, filter=%q, regexp=%v", sessionId, sources, params.Filter, params.FilterIsRegexp))
+
 	session := NewESTailingSession(sources, filterRe, h.fieldMapping, h.indexPattern, h.aggField)
-	session.SeekToEnd(c.Request.Context(), h.esClient)
+	session.SeekToEnd(ctx, h.esClient)
 	h.sessions[sessionId] = session
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tailing session started", "session_id": sessionId})
@@ -154,9 +160,11 @@ func (h *ESLogTailerHandler) deleteSession(c *gin.Context) {
 	h.sessionsLock.Lock()
 	defer h.sessionsLock.Unlock()
 
+	ctx := c.Request.Context()
 	sessionId := c.Param("id")
 	if _, ok := h.sessions[sessionId]; ok {
 		delete(h.sessions, sessionId)
+		log.LoggerWContext(ctx).Info("es-log-tailer: deleted session " + sessionId)
 		c.JSON(http.StatusOK, gin.H{"message": "Deleted the session"})
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find this session"})
