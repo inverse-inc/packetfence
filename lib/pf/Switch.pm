@@ -217,7 +217,7 @@ sub isUpLink {
 sub connectRead {
     my $self   = shift;
     my $logger = $self->logger;
-    if (isdisabled($self->{_useSNMP}) {
+    if (isdisabled($self->{_useSNMP})) {
         return 0;
     }
 
