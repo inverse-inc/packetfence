@@ -45,17 +45,13 @@ type ESBucket struct {
 
 func NewESClient() *ESClient {
 	host := os.Getenv("KIBANA_HOST")
-	port := os.Getenv("KIBANA_PORT")
-	if port == "" {
-		port = "9200"
-	}
 	scheme := os.Getenv("KIBANA_SCHEME")
 	if scheme == "" {
 		scheme = "https"
 	}
 
 	return &ESClient{
-		baseURL:  fmt.Sprintf("%s://%s:%s", scheme, host, port),
+		baseURL:  fmt.Sprintf("%s://%s:9200", scheme, host),
 		username: os.Getenv("KIBANA_USER"),
 		password: os.Getenv("KIBANA_PASS"),
 		httpClient: &http.Client{
