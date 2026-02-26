@@ -198,7 +198,7 @@ sub field_list {
                 last;
             };
             $type eq 'toggle' && do {
-                if ($doc_section->{options}->[0] eq 'true' {
+                if ($doc_section->{options}->[0] eq 'true') {
                     $field->{type} = 'Toggle';
                     $field->{checkbox_value} = $doc_section->{options}->[0];
                     $field->{unchecked_value} = $doc_section->{options}->[1];

@@ -450,6 +450,7 @@ and enabled are all positive values for PacketFence.
 
 sub isenabled {
     my ($enabled) = @_;
+    my $logger = pf::log::get_logger();
     if ( $enabled && $enabled =~ /^\s*(y|yes|enable|enabled|1|n|no|disable|disabled|0)\s*$/i ) {
         # DEBUG, old value used
         $logger->warn("BOOL: isenabled old value used -> $enabled");
@@ -470,9 +471,10 @@ disable and disabled are all negative values for PacketFence.
 
 sub isdisabled {
     my ($disabled) = @_;
+    my $logger = pf::log::get_logger();
     if ( defined ($disabled) && $disabled =~ /^\s*(y|yes|enable|enabled|1|n|no|disable|disabled|0)\s*$/i ) {
         # DEBUG, old value used
-        $logger->warn("BOOL: isdisabled old value used -> $enabled");
+        $logger->warn("BOOL: isdisabled old value used -> $disabled");
     }
     if ( !defined ($disabled) || $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
         return (1);
