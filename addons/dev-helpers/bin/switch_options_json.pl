@@ -69,8 +69,6 @@ for my $g (@groups) {
         my $name   = $switch_info->{value};
         my $module = "pf::Switch::${name}";
 	
-	print "Switch Name: ", $name, " module: ", $module, "\n";
-
         if (not $switch_info->{is_template}) {
             my $file = pod_where({-inc => 1}, $module);
             my $snmp = '';
