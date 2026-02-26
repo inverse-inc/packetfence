@@ -19,7 +19,7 @@ type ESTailingSession struct {
 	sources      []string
 	filter       *regexp.Regexp
 	fieldMapping *ESFieldMapping
-	indexPattern  string
+	indexPattern string
 	aggField     string
 
 	// Mutable — protected by mu
@@ -46,44 +46,39 @@ func NewESTailingSession(sources []string, filter *regexp.Regexp, fieldMapping *
 	return s
 }
 
-// SeekToEnd queries ES for the latest document matching the session's sources
-// and positions the cursor after it, like SEEK_END for file tailing.
+// SeekToEnd positions the cursor at the latest document across all selected
+// sources, capped at "now" so that future-dated docs (clock skew) don't push
+// the cursor past real-time.
 func (s *ESTailingSession) SeekToEnd(ctx context.Context, client *ESClient) {
-	must := []interface{}{}
-	if len(s.sources) > 0 {
-		must = append(must, map[string]interface{}{
-			"terms": map[string]interface{}{
-				s.aggField: s.sources,
-			},
-		})
-	}
-
 	query := map[string]interface{}{
 		"size": 1,
 		"sort": []interface{}{
 			map[string]interface{}{s.fieldMapping.Timestamp: "desc"},
 		},
-	}
-	if len(must) > 0 {
-		query["query"] = map[string]interface{}{
-			"bool": map[string]interface{}{"must": must},
-		}
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": []interface{}{
+					map[string]interface{}{
+						"terms": map[string]interface{}{
+							s.aggField: s.sources,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	resp, err := client.Search(ctx, s.indexPattern, query)
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: SeekToEnd failed for sources=%v: %s", s.sources, err))
-		return
-	}
-	if len(resp.Hits.Hits) == 0 {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("es-log-tailer: SeekToEnd found no documents for sources=%v in index %s", s.sources, s.indexPattern))
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: SeekToEnd failed: %s", err))
 		return
 	}
 
-	// Position cursor at the latest doc so subsequent polls only return new docs.
 	s.mu.Lock()
-	s.lastSortValues = resp.Hits.Hits[0].Sort
-	s.mu.Unlock()
+	defer s.mu.Unlock()
+	if len(resp.Hits.Hits) > 0 && len(resp.Hits.Hits[0].Sort) > 0 {
+		s.lastSortValues = resp.Hits.Hits[0].Sort
+	}
 }
 
 func (s *ESTailingSession) Touch() {
@@ -123,7 +118,6 @@ func (s *ESTailingSession) Poll(ctx context.Context, client *ESClient, sessionId
 		}
 
 		if len(resp.Hits.Hits) > 0 {
-			// Update cursor under lock
 			s.mu.Lock()
 			events := s.processHits(resp.Hits.Hits, sessionId)
 			s.mu.Unlock()
@@ -173,7 +167,7 @@ func (s *ESTailingSession) processHits(hits []ESHit, sessionId string) []gin.H {
 	var events []gin.H
 
 	for _, hit := range hits {
-		// Always advance cursor, even for filtered-out hits.
+		// Advance cursor
 		if len(hit.Sort) > 0 {
 			s.lastSortValues = hit.Sort
 		}

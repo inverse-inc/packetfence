@@ -81,7 +81,7 @@ func TestESClient_Search(t *testing.T) {
 					{
 						ID:     "doc1",
 						Source: sampleESDoc("doc1", "2024-01-01T00:00:00Z", "worker-01", "packetfence", "t=2024-01-01T00:00:00+0000 lvl=info msg=\"test message\""),
-						Sort:   []interface{}{"2024-01-01T00:00:00Z", "doc1"},
+						Sort:   []interface{}{float64(1704067200000)},
 					},
 				},
 			},
@@ -233,12 +233,12 @@ func TestESTailingSession_Poll(t *testing.T) {
 					{
 						ID:     "hit1",
 						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"first log line\""),
-						Sort:   []interface{}{"2024-01-15T10:30:01Z", "hit1"},
+						Sort:   []interface{}{float64(1705312201000)},
 					},
 					{
 						ID:     "hit2",
 						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "t=2024-01-15T10:30:02+0000 lvl=warn msg=\"second log line\""),
-						Sort:   []interface{}{"2024-01-15T10:30:02Z", "hit2"},
+						Sort:   []interface{}{float64(1705312202000)},
 					},
 				},
 			},
@@ -303,12 +303,12 @@ func TestESTailingSession_Poll_WithFilter(t *testing.T) {
 					{
 						ID:     "hit1",
 						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "this matches filter"),
-						Sort:   []interface{}{"2024-01-15T10:30:01Z", "hit1"},
+						Sort:   []interface{}{float64(1705312201000)},
 					},
 					{
 						ID:     "hit2",
 						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "this does not"),
-						Sort:   []interface{}{"2024-01-15T10:30:02Z", "hit2"},
+						Sort:   []interface{}{float64(1705312202000)},
 					},
 				},
 			},
@@ -469,7 +469,7 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 						{
 							ID:     "old-doc",
 							Source: sampleESDoc("old-doc", "2024-01-15T10:00:00Z", "worker-01", "packetfence", "t=2024-01-15T10:00:00+0000 lvl=info msg=\"old message\""),
-							Sort:   []interface{}{"2024-01-15T10:00:00Z", "old-doc"},
+							Sort:   []interface{}{float64(1705311600000)},
 						},
 					},
 				},
@@ -483,7 +483,7 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 						{
 							ID:     "new-doc",
 							Source: sampleESDoc("new-doc", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"test log message\""),
-							Sort:   []interface{}{"2024-01-15T10:30:01Z", "new-doc"},
+							Sort:   []interface{}{float64(1705312201000)},
 						},
 					},
 				},
