@@ -4,17 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/log"
@@ -223,165 +219,6 @@ func TestGetNestedField(t *testing.T) {
 	}
 }
 
-func TestESTailingSession_Poll(t *testing.T) {
-	callCount := 0
-	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		callCount++
-		resp := ESSearchResponse{
-			Hits: ESHits{
-				Hits: []ESHit{
-					{
-						ID:     "hit1",
-						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"first log line\""),
-						Sort:   []interface{}{float64(1705312201000)},
-					},
-					{
-						ID:     "hit2",
-						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "t=2024-01-15T10:30:02+0000 lvl=warn msg=\"second log line\""),
-						Sort:   []interface{}{float64(1705312202000)},
-					},
-				},
-			},
-		}
-		json.NewEncoder(w).Encode(resp)
-	})
-	defer server.Close()
-
-	client := NewESClientWithURL(server.URL, "", "")
-	fm := defaultFieldMapping()
-
-	session := NewESTailingSession(
-		[]string{"packetfence"},
-		regexp.MustCompile(`.*`),
-		fm,
-		"prod-*",
-		"kubernetes.container_name",
-	)
-
-	events := session.Poll(context.Background(), client, "test-session", 5*time.Second)
-
-	if len(events) != 2 {
-		t.Fatalf("expected 2 events, got %d", len(events))
-	}
-
-	event := events[0]
-	if event["category"] != "test-session" {
-		t.Errorf("expected category 'test-session', got '%v'", event["category"])
-	}
-
-	data, ok := event["data"].(gin.H)
-	if !ok {
-		t.Fatal("expected data to be gin.H")
-	}
-	if !strings.Contains(data["raw"].(string), "first log line") {
-		t.Errorf("expected raw to contain 'first log line', got '%v'", data["raw"])
-	}
-
-	// Verify log level was extracted from message
-	meta, ok := data["meta"].(LogMeta)
-	if !ok {
-		t.Fatal("expected meta to be LogMeta")
-	}
-	if meta.LogLevel != "info" {
-		t.Errorf("expected log level 'info' (from message), got '%s'", meta.LogLevel)
-	}
-
-	if session.lastSortValues == nil {
-		t.Error("expected lastSortValues to be set")
-	}
-
-	if callCount != 1 {
-		t.Errorf("expected 1 ES call, got %d", callCount)
-	}
-}
-
-func TestESTailingSession_Poll_WithFilter(t *testing.T) {
-	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		resp := ESSearchResponse{
-			Hits: ESHits{
-				Hits: []ESHit{
-					{
-						ID:     "hit1",
-						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "this matches filter"),
-						Sort:   []interface{}{float64(1705312201000)},
-					},
-					{
-						ID:     "hit2",
-						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "this does not"),
-						Sort:   []interface{}{float64(1705312202000)},
-					},
-				},
-			},
-		}
-		json.NewEncoder(w).Encode(resp)
-	})
-	defer server.Close()
-
-	client := NewESClientWithURL(server.URL, "", "")
-	fm := defaultFieldMapping()
-
-	session := NewESTailingSession(
-		[]string{"packetfence"},
-		regexp.MustCompile(`(?i).*filter.*`),
-		fm,
-		"prod-*",
-		"kubernetes.container_name",
-	)
-
-	events := session.Poll(context.Background(), client, "test-session", 5*time.Second)
-
-	if len(events) != 1 {
-		t.Fatalf("expected 1 event (filtered), got %d", len(events))
-	}
-
-	data := events[0]["data"].(gin.H)
-	if data["raw"] != "this matches filter" {
-		t.Errorf("expected filtered event, got '%v'", data["raw"])
-	}
-
-	if session.lastSortValues == nil {
-		t.Error("expected lastSortValues to be set from filtered hit")
-	}
-}
-
-func TestESTailingSession_Poll_Timeout(t *testing.T) {
-	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		resp := ESSearchResponse{
-			Hits: ESHits{
-				Hits: []ESHit{},
-			},
-		}
-		json.NewEncoder(w).Encode(resp)
-	})
-	defer server.Close()
-
-	client := NewESClientWithURL(server.URL, "", "")
-	fm := defaultFieldMapping()
-
-	session := NewESTailingSession(
-		[]string{"packetfence"},
-		regexp.MustCompile(`.*`),
-		fm,
-		"prod-*",
-		"kubernetes.container_name",
-	)
-
-	start := time.Now()
-	events := session.Poll(context.Background(), client, "test-session", 3*time.Second)
-	elapsed := time.Since(start)
-
-	if len(events) != 0 {
-		t.Fatalf("expected 0 events on timeout, got %d", len(events))
-	}
-
-	if elapsed < 2*time.Second {
-		t.Errorf("expected poll to take at least 2s, took %v", elapsed)
-	}
-	if elapsed > 5*time.Second {
-		t.Errorf("expected poll to take less than 5s, took %v", elapsed)
-	}
-}
-
 func TestHandlers_Options(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -450,7 +287,71 @@ func TestHandlers_Options(t *testing.T) {
 	}
 }
 
-func TestHandlers_CreateAndGet(t *testing.T) {
+func TestPoll_NoCursor_SeekToEnd(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		var query map[string]interface{}
+		json.Unmarshal(body, &query)
+
+		// SeekToEnd: size=1, sort desc
+		resp := ESSearchResponse{
+			Hits: ESHits{
+				Hits: []ESHit{
+					{
+						ID:     "latest-doc",
+						Source: sampleESDoc("latest-doc", "2024-01-15T10:00:00Z", "worker-01", "packetfence", "latest message"),
+						Sort:   []interface{}{float64(1705311600000)},
+					},
+				},
+			},
+		}
+		json.NewEncoder(w).Encode(resp)
+	})
+	defer server.Close()
+
+	client := NewESClientWithURL(server.URL, "", "")
+	fm := defaultFieldMapping()
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
+
+	router := gin.New()
+	router.POST("/api/v1/eslogs/tail", h.pollHandler)
+
+	body := `{"files":["packetfence"],"filter":"","filter_is_regexp":false}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+
+	events, ok := resp["events"].([]interface{})
+	if !ok {
+		t.Fatal("expected events array")
+	}
+	if len(events) != 0 {
+		t.Errorf("expected 0 events on SeekToEnd, got %d", len(events))
+	}
+
+	cursor, ok := resp["cursor"].([]interface{})
+	if !ok {
+		t.Fatal("expected cursor array")
+	}
+	if len(cursor) != 1 {
+		t.Fatalf("expected cursor with 1 element, got %d", len(cursor))
+	}
+	if cursor[0].(float64) != float64(1705311600000) {
+		t.Errorf("expected cursor [1705311600000], got %v", cursor)
+	}
+}
+
+func TestPoll_WithCursor_ReturnsEvents(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	callCount := 0
@@ -460,120 +361,55 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 		var query map[string]interface{}
 		json.Unmarshal(body, &query)
 
-		size, _ := query["size"].(float64)
-		if size == 1 {
-			// SeekToEnd: return the "latest" existing doc
-			resp := ESSearchResponse{
-				Hits: ESHits{
-					Hits: []ESHit{
-						{
-							ID:     "old-doc",
-							Source: sampleESDoc("old-doc", "2024-01-15T10:00:00Z", "worker-01", "packetfence", "t=2024-01-15T10:00:00+0000 lvl=info msg=\"old message\""),
-							Sort:   []interface{}{float64(1705311600000)},
-						},
-					},
-				},
-			}
-			json.NewEncoder(w).Encode(resp)
-		} else {
-			// Poll: return a "new" doc
-			resp := ESSearchResponse{
-				Hits: ESHits{
-					Hits: []ESHit{
-						{
-							ID:     "new-doc",
-							Source: sampleESDoc("new-doc", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"test log message\""),
-							Sort:   []interface{}{float64(1705312201000)},
-						},
-					},
-				},
-			}
-			json.NewEncoder(w).Encode(resp)
+		// Verify search_after is present
+		if _, ok := query["search_after"]; !ok {
+			t.Error("expected search_after in query")
 		}
+
+		resp := ESSearchResponse{
+			Hits: ESHits{
+				Hits: []ESHit{
+					{
+						ID:     "new-doc",
+						Source: sampleESDoc("new-doc", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "t=2024-01-15T10:30:01+0000 lvl=info msg=\"test log message\""),
+						Sort:   []interface{}{float64(1705312201000)},
+					},
+				},
+			},
+		}
+		json.NewEncoder(w).Encode(resp)
 	})
 	defer server.Close()
 
 	client := NewESClientWithURL(server.URL, "", "")
 	fm := defaultFieldMapping()
-
-	h := &ESLogTailerHandler{
-		esClient:     client,
-		fieldMapping: fm,
-		indexPattern: "prod-*",
-		aggField:     "kubernetes.container_name",
-		sessions:     map[string]*ESTailingSession{},
-		sessionsLock: &sync.RWMutex{},
-	}
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
 
 	router := gin.New()
-	api := router.Group("/api/v1/eslogs/tail")
-	api.POST("", h.createNewSession)
-	api.GET("/:id", h.getSession)
-	api.POST("/:id/touch", h.touchSession)
-	api.DELETE("/:id", h.deleteSession)
+	router.POST("/api/v1/eslogs/tail", h.pollHandler)
 
-	// Step 1: Create session (triggers SeekToEnd)
-	createBody := `{"files":["packetfence"],"filter":"","filter_is_regexp":false}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(createBody))
+	body := `{"files":["packetfence"],"filter":"","filter_is_regexp":false,"cursor":[1705311600000]}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("create: expected status 200, got %d: %s", w.Code, w.Body.String())
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
 	}
 
-	var createResp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &createResp)
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
 
-	sessionId, ok := createResp["session_id"].(string)
-	if !ok || sessionId == "" {
-		t.Fatal("expected session_id in create response")
-	}
-	if createResp["message"] != "Tailing session started" {
-		t.Errorf("expected message 'Tailing session started', got '%v'", createResp["message"])
-	}
-
-	if callCount != 1 {
-		t.Errorf("expected 1 ES call after create (SeekToEnd), got %d", callCount)
-	}
-
-	// Step 2: Get events (long-poll)
-	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/eslogs/tail/%s", sessionId), nil)
-	w = httptest.NewRecorder()
-
-	done := make(chan struct{})
-	go func() {
-		router.ServeHTTP(w, req)
-		close(done)
-	}()
-
-	select {
-	case <-done:
-	case <-time.After(35 * time.Second):
-		t.Fatal("getSession timed out")
-	}
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("get: expected status 200, got %d: %s", w.Code, w.Body.String())
-	}
-
-	var getResp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &getResp)
-
-	events, ok := getResp["events"].([]interface{})
+	events, ok := resp["events"].([]interface{})
 	if !ok {
-		t.Fatal("expected events array in get response")
+		t.Fatal("expected events array")
 	}
 	if len(events) != 1 {
 		t.Fatalf("expected 1 event, got %d", len(events))
 	}
 
 	event := events[0].(map[string]interface{})
-	if event["category"] != sessionId {
-		t.Errorf("expected category '%s', got '%v'", sessionId, event["category"])
-	}
-
 	data := event["data"].(map[string]interface{})
 	if !strings.Contains(data["raw"].(string), "test log message") {
 		t.Errorf("expected raw to contain 'test log message', got '%v'", data["raw"])
@@ -583,67 +419,93 @@ func TestHandlers_CreateAndGet(t *testing.T) {
 	if meta["hostname"] != "worker-01" {
 		t.Errorf("expected hostname 'worker-01', got '%v'", meta["hostname"])
 	}
-	if meta["syslog_name"] != "packetfence" {
-		t.Errorf("expected syslog_name 'packetfence', got '%v'", meta["syslog_name"])
-	}
-	// Log level should be extracted from message
 	if meta["log_level"] != "info" {
-		t.Errorf("expected log_level 'info' (extracted from message), got '%v'", meta["log_level"])
+		t.Errorf("expected log_level 'info', got '%v'", meta["log_level"])
 	}
 
-	// Step 3: Touch session
-	req = httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/eslogs/tail/%s/touch", sessionId), nil)
-	w = httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("touch: expected status 200, got %d", w.Code)
+	// Verify cursor advanced
+	cursor := resp["cursor"].([]interface{})
+	if cursor[0].(float64) != float64(1705312201000) {
+		t.Errorf("expected cursor to advance to 1705312201000, got %v", cursor[0])
 	}
 
-	var touchResp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &touchResp)
-	if touchResp["message"] != "Touched session" {
-		t.Errorf("expected message 'Touched session', got '%v'", touchResp["message"])
-	}
-
-	// Step 4: Delete session
-	req = httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/eslogs/tail/%s", sessionId), nil)
-	w = httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("delete: expected status 200, got %d", w.Code)
-	}
-
-	var deleteResp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &deleteResp)
-	if deleteResp["message"] != "Deleted the session" {
-		t.Errorf("expected message 'Deleted the session', got '%v'", deleteResp["message"])
-	}
-
-	// Step 5: Verify session is gone
-	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/eslogs/tail/%s", sessionId), nil)
-	w = httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusNotFound {
-		t.Errorf("expected 404 after delete, got %d", w.Code)
+	if callCount != 1 {
+		t.Errorf("expected 1 ES call, got %d", callCount)
 	}
 }
 
-func TestHandlers_CreateNoFiles(t *testing.T) {
+func TestPoll_WithFilter(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	h := &ESLogTailerHandler{
-		sessions:     map[string]*ESTailingSession{},
-		sessionsLock: &sync.RWMutex{},
-	}
+	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
+		resp := ESSearchResponse{
+			Hits: ESHits{
+				Hits: []ESHit{
+					{
+						ID:     "hit1",
+						Source: sampleESDoc("hit1", "2024-01-15T10:30:01Z", "worker-01", "packetfence", "this matches filter"),
+						Sort:   []interface{}{float64(1705312201000)},
+					},
+					{
+						ID:     "hit2",
+						Source: sampleESDoc("hit2", "2024-01-15T10:30:02Z", "worker-01", "packetfence", "this does not"),
+						Sort:   []interface{}{float64(1705312202000)},
+					},
+				},
+			},
+		}
+		json.NewEncoder(w).Encode(resp)
+	})
+	defer server.Close()
+
+	client := NewESClientWithURL(server.URL, "", "")
+	fm := defaultFieldMapping()
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
 
 	router := gin.New()
-	router.POST("/api/v1/eslogs/tail", h.createNewSession)
+	router.POST("/api/v1/eslogs/tail", h.pollHandler)
 
-	createBody := `{"files":[],"filter":"","filter_is_regexp":false}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(createBody))
+	body := `{"files":["packetfence"],"filter":"filter","filter_is_regexp":false,"cursor":[1705311600000]}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+
+	events := resp["events"].([]interface{})
+	if len(events) != 1 {
+		t.Fatalf("expected 1 event (filtered), got %d", len(events))
+	}
+
+	event := events[0].(map[string]interface{})
+	data := event["data"].(map[string]interface{})
+	if data["raw"] != "this matches filter" {
+		t.Errorf("expected filtered event, got '%v'", data["raw"])
+	}
+
+	// Cursor should advance past both hits (including filtered-out one)
+	cursor := resp["cursor"].([]interface{})
+	if cursor[0].(float64) != float64(1705312202000) {
+		t.Errorf("expected cursor to advance past all hits to 1705312202000, got %v", cursor[0])
+	}
+}
+
+func TestPoll_NoFiles_Returns422(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	h := newTestHandler(nil, nil, "prod-*", "kubernetes.container_name")
+
+	router := gin.New()
+	router.POST("/api/v1/eslogs/tail", h.pollHandler)
+
+	body := `{"files":[],"filter":"","filter_is_regexp":false}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -653,43 +515,96 @@ func TestHandlers_CreateNoFiles(t *testing.T) {
 	}
 }
 
-func TestHandlers_TouchNotFound(t *testing.T) {
+func TestPoll_NoCursor_EmptyIndex(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	h := &ESLogTailerHandler{
-		sessions:     map[string]*ESTailingSession{},
-		sessionsLock: &sync.RWMutex{},
-	}
+	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
+		// Empty index — no hits
+		resp := ESSearchResponse{
+			Hits: ESHits{
+				Hits: []ESHit{},
+			},
+		}
+		json.NewEncoder(w).Encode(resp)
+	})
+	defer server.Close()
+
+	client := NewESClientWithURL(server.URL, "", "")
+	fm := defaultFieldMapping()
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
 
 	router := gin.New()
-	router.POST("/api/v1/eslogs/tail/:id/touch", h.touchSession)
+	router.POST("/api/v1/eslogs/tail", h.pollHandler)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail/nonexistent/touch", nil)
+	body := `{"files":["packetfence"],"filter":"","filter_is_regexp":false}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusNotFound {
-		t.Fatalf("expected status 404, got %d", w.Code)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+
+	events := resp["events"].([]interface{})
+	if len(events) != 0 {
+		t.Errorf("expected 0 events on empty index, got %d", len(events))
+	}
+
+	// Cursor must be non-null even with no docs — prevents infinite SeekToEnd loop
+	cursor, ok := resp["cursor"].([]interface{})
+	if !ok || cursor == nil {
+		t.Fatal("expected non-null cursor even for empty index")
+	}
+	if len(cursor) != 1 {
+		t.Fatalf("expected cursor with 1 element, got %d", len(cursor))
+	}
+	ts, ok := cursor[0].(float64)
+	if !ok || ts <= 0 {
+		t.Errorf("expected positive timestamp in cursor, got %v", cursor[0])
 	}
 }
 
-func TestHandlers_DeleteNotFound(t *testing.T) {
+func TestPoll_NoCursor_ESError(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	h := &ESLogTailerHandler{
-		sessions:     map[string]*ESTailingSession{},
-		sessionsLock: &sync.RWMutex{},
-	}
+	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		w.Write([]byte(`{"error":"cluster unavailable"}`))
+	})
+	defer server.Close()
+
+	client := NewESClientWithURL(server.URL, "", "")
+	fm := defaultFieldMapping()
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
 
 	router := gin.New()
-	router.DELETE("/api/v1/eslogs/tail/:id", h.deleteSession)
+	router.POST("/api/v1/eslogs/tail", h.pollHandler)
 
-	req := httptest.NewRequest(http.MethodDelete, "/api/v1/eslogs/tail/nonexistent", nil)
+	body := `{"files":["packetfence"],"filter":"","filter_is_regexp":false}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusNotFound {
-		t.Fatalf("expected status 404, got %d", w.Code)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+
+	// Even on ES error, cursor must be non-null so client doesn't loop
+	cursor, ok := resp["cursor"].([]interface{})
+	if !ok || cursor == nil {
+		t.Fatal("expected non-null cursor even on ES error")
+	}
+	ts, ok := cursor[0].(float64)
+	if !ok || ts <= 0 {
+		t.Errorf("expected positive timestamp in cursor, got %v", cursor[0])
 	}
 }
 

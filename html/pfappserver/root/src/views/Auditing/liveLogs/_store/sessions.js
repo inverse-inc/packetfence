@@ -2,6 +2,7 @@
 * "$_live_logs" store module
 */
 import store from '@/store'
+import { v4 as uuidv4 } from 'uuid'
 import api from '../_api'
 import SessionStore from './session'
 import i18n from '@/utils/locale'
@@ -39,9 +40,17 @@ const actions = {
   },
   createSession: ({ commit }, form) => {
     commit('LOG_SESSION_REQUEST')
+    const saas = store.getters['system/isSaas']
     return api.create(form).then(response => {
-      commit('LOG_SESSION_START', { form, response })
-      return response
+      let session_id
+      if (saas) {
+        session_id = uuidv4()
+        commit('LOG_SESSION_START', { form, response: { session_id }, cursor: response.cursor })
+      } else {
+        session_id = response.session_id
+        commit('LOG_SESSION_START', { form, response })
+      }
+      return { ...response, session_id }
     }).catch(err => {
       commit('LOG_SESSION_ERROR', err.response)
       return err
@@ -70,7 +79,7 @@ const mutations = {
     state.status = 'loading'
     state.message = ''
   },
-  LOG_SESSION_START: (state, { form, response }) => {
+  LOG_SESSION_START: (state, { form, response, cursor }) => {
     state.status = 'success'
     const { session_id } = response
     if (session_id) {
@@ -82,7 +91,7 @@ const mutations = {
         return name
       }
       store.registerModule(['$_live_logs', session_id], SessionStore)
-      store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id, name: nameFromFiles(form.files) })
+      store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id, name: nameFromFiles(form.files), ...(cursor != null ? { cursor } : {}) })
     }
   },
   LOG_SESSION_STOP: (state, id) => {

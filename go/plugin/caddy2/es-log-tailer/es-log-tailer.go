@@ -7,8 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"sync"
-	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -19,9 +17,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
-
-const maxSessionIdleTime = 5 * time.Minute
-const defaultPollTimeout = 30 * time.Second
 
 var handledPath = regexp.MustCompile(`^/api/v1/eslogs/tail`)
 
@@ -40,14 +35,11 @@ func (ESLogTailerHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type ESLogTailerHandler struct {
-	router              *gin.Engine
-	sessions            map[string]*ESTailingSession
-	sessionsLock        *sync.RWMutex
-	maintenanceLauncher *sync.Once
-	esClient            *ESClient
-	fieldMapping        *ESFieldMapping
-	indexPattern        string
-	aggField            string
+	router       *gin.Engine
+	esClient     *ESClient
+	fieldMapping *ESFieldMapping
+	indexPattern  string
+	aggField     string
 }
 
 func (m *ESLogTailerHandler) Provision(_ caddy.Context) error {
@@ -95,22 +87,11 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 		m.aggField = "kubernetes.container_name.keyword"
 	}
 
-	m.sessions = map[string]*ESTailingSession{}
-	if m.sessionsLock == nil {
-		m.sessionsLock = &sync.RWMutex{}
-	}
-	if m.maintenanceLauncher == nil {
-		m.maintenanceLauncher = &sync.Once{}
-	}
-
 	router := gin.Default()
 	esLogTailerApi := router.Group("/api/v1/eslogs/tail")
 
 	esLogTailerApi.OPTIONS("", m.optionsSessions)
-	esLogTailerApi.POST("", m.createNewSession)
-	esLogTailerApi.GET("/:id", m.getSession)
-	esLogTailerApi.POST("/:id/touch", m.touchSession)
-	esLogTailerApi.DELETE("/:id", m.deleteSession)
+	esLogTailerApi.POST("", m.pollHandler)
 
 	m.router = router
 
@@ -127,26 +108,6 @@ func (h *ESLogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
-
-	h.maintenanceLauncher.Do(func() {
-		go func() {
-			ctx := log.LoggerNewContext(context.Background())
-			for {
-				func() {
-					h.sessionsLock.Lock()
-					defer h.sessionsLock.Unlock()
-					expireAt := time.Now().Add(-maxSessionIdleTime)
-					for sessionId, session := range h.sessions {
-						if session.LastUsedAt().Before(expireAt) {
-							log.LoggerWContext(ctx).Info("Deleting inactive ES tailing session " + sessionId)
-							delete(h.sessions, sessionId)
-						}
-					}
-				}()
-				time.Sleep(1 * time.Second)
-			}
-		}()
-	})
 
 	if handledPath.MatchString(r.URL.Path) {
 		h.router.ServeHTTP(w, r)

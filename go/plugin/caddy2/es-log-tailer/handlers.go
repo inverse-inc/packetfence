@@ -1,16 +1,16 @@
 package eslogtailer
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/inverse-inc/go-utils/log"
 )
 
@@ -77,11 +77,12 @@ func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
 	})
 }
 
-func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
+func (h *ESLogTailerHandler) pollHandler(c *gin.Context) {
 	params := struct {
-		Files          []string `json:"files"`
-		Filter         string   `json:"filter"`
-		FilterIsRegexp bool     `json:"filter_is_regexp"`
+		Files          []string      `json:"files"`
+		Filter         string        `json:"filter"`
+		FilterIsRegexp bool          `json:"filter_is_regexp"`
+		Cursor         []interface{} `json:"cursor"`
 	}{}
 
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -108,73 +109,113 @@ func (h *ESLogTailerHandler) createNewSession(c *gin.Context) {
 		filterRe = regexp.MustCompile(`(?i).*` + regexp.QuoteMeta(params.Filter) + `.*`)
 	}
 
-	// Normalize file paths to container names: "/usr/local/pf/logs/api-frontend.log" → "api-frontend"
 	sources := normalizeSourceNames(params.Files)
-
-	sessionId := uuid.New().String()
 	ctx := c.Request.Context()
-	log.LoggerWContext(ctx).Info(fmt.Sprintf("es-log-tailer: creating session %s, sources=%v, filter=%q, regexp=%v", sessionId, sources, params.Filter, params.FilterIsRegexp))
 
-	// Create session and seek to end before acquiring lock — SeekToEnd does an ES
-	// HTTP call that may be slow, and the session isn't shared yet.
-	session := NewESTailingSession(sources, filterRe, h.fieldMapping, h.indexPattern, h.aggField)
-	session.SeekToEnd(ctx, h.esClient)
-
-	h.sessionsLock.Lock()
-	h.sessions[sessionId] = session
-	h.sessionsLock.Unlock()
-
-	c.JSON(http.StatusOK, gin.H{"message": "Tailing session started", "session_id": sessionId})
-}
-
-func (h *ESLogTailerHandler) getSession(c *gin.Context) {
-	sessionId := c.Param("id")
-
-	h.sessionsLock.RLock()
-	session, ok := h.sessions[sessionId]
-	h.sessionsLock.RUnlock()
-
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
+	if params.Cursor == nil {
+		// No cursor → SeekToEnd
+		cursor := h.seekToEnd(ctx, sources)
+		c.JSON(http.StatusOK, gin.H{"events": []gin.H{}, "cursor": cursor})
 		return
 	}
 
-	ctx := c.Request.Context()
-	events := session.Poll(ctx, h.esClient, sessionId, defaultPollTimeout)
-
-	c.JSON(http.StatusOK, gin.H{"events": events})
+	// With cursor → query for new events
+	events, newCursor := h.queryEvents(ctx, sources, filterRe, params.Cursor)
+	c.JSON(http.StatusOK, gin.H{"events": events, "cursor": newCursor})
 }
 
-func (h *ESLogTailerHandler) touchSession(c *gin.Context) {
-	h.sessionsLock.RLock()
-	defer h.sessionsLock.RUnlock()
-
-	sessionId := c.Param("id")
-
-	session, ok := h.sessions[sessionId]
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
-		return
+// seekToEnd returns the sort values of the latest document for the given sources,
+// which serves as the initial cursor for subsequent polls.
+func (h *ESLogTailerHandler) seekToEnd(ctx context.Context, sources []string) []interface{} {
+	query := map[string]interface{}{
+		"size": 1,
+		"sort": []interface{}{
+			map[string]interface{}{h.fieldMapping.Timestamp: "desc"},
+		},
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": []interface{}{
+					map[string]interface{}{
+						"terms": map[string]interface{}{
+							h.aggField: sources,
+						},
+					},
+				},
+			},
+		},
 	}
 
-	session.Touch()
+	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: SeekToEnd failed: %s", err))
+		// Return current time so the client can start polling forward
+		return []interface{}{float64(time.Now().UnixMilli())}
+	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Touched session"})
+	if len(resp.Hits.Hits) > 0 && len(resp.Hits.Hits[0].Sort) > 0 {
+		return resp.Hits.Hits[0].Sort
+	}
+
+	// Empty index — use current time so the client has a valid cursor
+	return []interface{}{float64(time.Now().UnixMilli())}
 }
 
-func (h *ESLogTailerHandler) deleteSession(c *gin.Context) {
-	h.sessionsLock.Lock()
-	defer h.sessionsLock.Unlock()
-
-	ctx := c.Request.Context()
-	sessionId := c.Param("id")
-	if _, ok := h.sessions[sessionId]; ok {
-		delete(h.sessions, sessionId)
-		log.LoggerWContext(ctx).Info("es-log-tailer: deleted session " + sessionId)
-		c.JSON(http.StatusOK, gin.H{"message": "Deleted the session"})
-	} else {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find this session"})
+// queryEvents runs a search_after query and returns matching events plus the new cursor.
+func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, filter *regexp.Regexp, cursor []interface{}) ([]gin.H, []interface{}) {
+	query := map[string]interface{}{
+		"size": 100,
+		"sort": []interface{}{
+			map[string]interface{}{h.fieldMapping.Timestamp: "asc"},
+		},
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": []interface{}{
+					map[string]interface{}{
+						"terms": map[string]interface{}{
+							h.aggField: sources,
+						},
+					},
+				},
+			},
+		},
+		"search_after": cursor,
 	}
+
+	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: poll query failed: %s", err))
+		return []gin.H{}, cursor
+	}
+
+	newCursor := cursor
+	var events []gin.H
+
+	for _, hit := range resp.Hits.Hits {
+		if len(hit.Sort) > 0 {
+			newCursor = hit.Sort
+		}
+
+		raw := h.fieldMapping.GetRawMessage(hit.Source)
+
+		if filter != nil && !filter.MatchString(raw) {
+			continue
+		}
+
+		meta := h.fieldMapping.ExtractLogMeta(hit.Source)
+		events = append(events, gin.H{
+			"timestamp": meta.Timestamp.UnixMilli(),
+			"data": gin.H{
+				"raw":  raw,
+				"meta": meta,
+			},
+		})
+	}
+
+	if events == nil {
+		events = []gin.H{}
+	}
+
+	return events, newCursor
 }
 
 // normalizeSourceNames converts file paths to container names.
@@ -204,9 +245,6 @@ func newTestHandler(client *ESClient, fieldMapping *ESFieldMapping, indexPattern
 		fieldMapping: fieldMapping,
 		indexPattern: indexPattern,
 		aggField:     aggField,
-		sessions:     map[string]*ESTailingSession{},
-		sessionsLock: &sync.RWMutex{},
 	}
 	return h
 }
-
