@@ -68,6 +68,8 @@ for my $g (@groups) {
     for my $switch_info (@{$g->{options}}) {
         my $name   = $switch_info->{value};
         my $module = "pf::Switch::${name}";
+	
+	print "Switch Name: ", $name, " module: ", $module, "\n";
 
         if (not $switch_info->{is_template}) {
             my $file = pod_where({-inc => 1}, $module);
@@ -115,6 +117,12 @@ for my $g (@groups) {
         push @list_name_infos, $name;
     }
 }
+
+# # Exclude modules removed from the devel branch that may still exist locally.
+# # "Trapeze" and "Trapeze:WCL" has same name. Uncomment the code in order to filter them out.
+
+# my %excluded = map { $_ => 1 } qw(Trapeze::WLC);
+# @list_name_infos = grep { !$excluded{$_} } @list_name_infos;
 
 #
 # Table feature definitions
@@ -214,7 +222,7 @@ tie %json_data, 'Tie::IxHash',
     source        => 'local:/usr/local/pf/lib/pf/Switch',
     featureNames  => \%featureNames,
     tableFeatures => \@list_of_types,
-    categories    => [qw(Wired Wireless), 'Wireless Controller', 'VPN'],
+    categories    => [qw(Wired Wireless), 'Wireless Controller', qw(VPN Template)],
     deviceCount   => scalar(@devices),
     devices       => \@devices;
 
