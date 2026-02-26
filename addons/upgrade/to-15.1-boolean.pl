@@ -27,6 +27,7 @@ use YAML::XS qw(Dump);;
 use File::Slurp qw(write_file);
 use File::Path qw(make_path);
 use Getopt::Long;
+use List::Util qw(uniq);
 $YAML::XS::Boolean = 'boolean';
 my $delete = 0;
 GetOptions ("delete" => \$delete);
@@ -111,10 +112,63 @@ sub updateConfigFromControllers {
     my %temp;
     while (my ($sub_class, $actions) = each %$sub_classes) {
         if ($sub_class =~ /Config::/) {
-            print "$sub_class\n";
             my $controller = createController($sub_class, $app);
+            next if !$controller->can("config_store");
+            my $config_store = $controller->config_store;
+            next if !defined $config_store;
+            my @forms = buildForms($controller);      
+            my @fields;
+            for my $form ( @forms ) {
+                push @fields, toogleFields($form);
+            }
+            @fields = uniq @fields;
+            next if !scalar @fields;
+            print "$sub_class " . $config_store->configFile . "\n";
+            for my $f (@fields) {
+                print "\t$f\n";
+            }
         }
     }
+}
+
+sub buildForms {
+    my ($controller, $child) = @_;
+    my @form_classes;
+    if ( $controller->can("type_lookup") ) {
+        @form_classes = values %{ $controller->type_lookup };
+    } else {
+        my $form_class = $controller->form_class;
+        if (!defined $form_class) {
+            return;
+        }
+
+        if ($form_class eq 'pfappserver::Form::Config::Pf') {
+            return map { $form_class->new( section => $_ ) } keys %pf::constants::pfconf::ALLOWED_SECTIONS;
+        }
+
+        @form_classes = ( $form_class );
+    }
+
+    # Get additional form parameters from controller if available and pass them to form constructors
+    my @form_params = ();
+    if ($controller->can("form_parameters")) {
+        my $params = $controller->form_parameters();
+        @form_params = @$params if $params && ref($params) eq 'ARRAY';
+    }
+
+    return map { $_->new(@form_params) } @form_classes;
+}
+
+sub toogleFields {
+    my ($form) = @_;
+    my @fields;
+    for my $f ($form->fields) {
+        if ($f->isa("pfappserver::Form::Field::Toggle")) {
+            #print Dumper($f);
+            push @fields, $f->name;
+        }
+    }
+    return uniq @fields;
 }
 
 =head2 walkRootRoutes
