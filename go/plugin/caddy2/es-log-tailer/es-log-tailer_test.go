@@ -772,3 +772,39 @@ func TestBuildHandler_BadNamespacePath_Disabled(t *testing.T) {
 		t.Error("expected router to be nil when namespace file is empty (plugin disabled)")
 	}
 }
+
+func TestBuildHandler_NoKibanaHost_Disabled(t *testing.T) {
+	dir := t.TempDir()
+	nsFile := filepath.Join(dir, "namespace")
+	os.WriteFile(nsFile, []byte("pfk8s-test\n"), 0644)
+
+	t.Setenv("K8S_NAMESPACE_PATH", nsFile)
+	t.Setenv("KIBANA_HOST", "")
+
+	m := &ESLogTailerHandler{}
+	ctx := log.LoggerNewContext(context.Background())
+	err := m.buildHandler(ctx)
+	if err != nil {
+		t.Fatalf("buildHandler returned error: %v", err)
+	}
+
+	if m.router != nil {
+		t.Error("expected router to be nil when KIBANA_HOST is missing (plugin disabled)")
+	}
+}
+
+func TestBuildHandler_NothingSet_Disabled(t *testing.T) {
+	t.Setenv("K8S_NAMESPACE_PATH", "")
+	t.Setenv("KIBANA_HOST", "")
+
+	m := &ESLogTailerHandler{}
+	ctx := log.LoggerNewContext(context.Background())
+	err := m.buildHandler(ctx)
+	if err != nil {
+		t.Fatalf("buildHandler returned error: %v", err)
+	}
+
+	if m.router != nil {
+		t.Error("expected router to be nil when no env vars set (plugin disabled)")
+	}
+}
