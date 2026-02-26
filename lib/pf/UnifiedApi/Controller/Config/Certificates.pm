@@ -372,7 +372,7 @@ sub lets_encrypt_replace {
     get_logger->info("Performing Let's Encrypt configuration for domain $data->{common_name} using key $config->{key_file}");
 
     # Explicitely enable Let's Encrypt if using this API call
-    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "enabled");
+    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "true");
 
     my @cas;
     if($data->{ca}) {

@@ -61,14 +61,13 @@ sub dynreverse {
     #Override the host value if this is a container so that it always goes through the local containers interface
     #Otherwise the UDP packets don't get an answer because the docker proxy doesn't get them back on the containers network
     #This shouldn't apply to K8S containers, only when running containers on a 'Classic PF'
-    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && $ENV{PF_SAAS} ne 'yes') ) {
+    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && $ENV{PF_SAAS} ne 'true') ) {
         $connector_conn->{host} = "containers-gateway.internal";
     }
-    
+
     get_logger->debug("Using pfconnector dynreverse ".$connector_conn->{host}.":".$connector_conn->{port}." via ".$self->id);
 
     return $connector_conn;
 }
 
 1;
-

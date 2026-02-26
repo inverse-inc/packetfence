@@ -29,7 +29,7 @@ has_field 'gateway' =>
   (
    type => 'IPAddress',
    label => 'Client Gateway',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => 'Please specify the gateway.' },
   );
 has_field '+netmask' =>

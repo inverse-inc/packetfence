@@ -88,7 +88,7 @@ sub _get_local_dhcp_servers {
     # Look for local DHCP servers by IP if not already existent in local cache and fill it up
     unless ( @local_dhcp_servers_ip ) {
         foreach my $network ( keys %NetworkConfig ) {
-            if ($NetworkConfig{$network}{'dhcpd'} eq 'enabled') {
+            if ($NetworkConfig{$network}{'dhcpd'} eq 'true') {
                 push @local_dhcp_servers_ip, $NetworkConfig{$network}{'gateway'};
                 push @local_dhcp_servers_ip, $NetworkConfig{$network}{'vip'} if ($NetworkConfig{$network}{'vip'});
                 push @local_dhcp_servers_ip, split(',',$NetworkConfig{$network}{'cluster_ips'}) if ($NetworkConfig{$network}{'cluster_ips'});

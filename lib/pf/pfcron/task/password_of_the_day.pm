@@ -46,7 +46,7 @@ sub run {
     foreach my $source (@{$sources}) {
         unless (person_exist($source->{id})) {
             $logger->info("Create Person $source->{id}");
-            my $return = person_add($source->{id}, (potd => 'yes'));
+            my $return = person_add($source->{id}, (potd => 'true'));
             if ($return == 2 ) {
                 next;
             }

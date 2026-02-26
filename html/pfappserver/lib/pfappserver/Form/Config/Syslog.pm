@@ -101,7 +101,7 @@ sub html_attributes {
     my ( $self, $obj, $type, $attrs, $result ) = @_;
     $attrs = $self->SUPER::html_attributes($obj, $type, $attrs, $result);
     if ($type eq 'wrapper' && $obj->name eq 'logs') {
-        if ($self->field('all_logs')->value eq 'enabled') {
+        if ($self->field('all_logs')->value eq 'true') {
             push @{$attrs->{class}}, 'hidden';
         }
     }

@@ -20,7 +20,7 @@ use List::MoreUtils qw(any);
 
 has 'allowed_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
 has 'banned_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
-has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'true');
 
 =head2 BUILDARGS
 
@@ -175,4 +175,3 @@ USA.
 =cut
 
 1;
-

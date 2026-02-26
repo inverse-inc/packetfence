@@ -63,7 +63,7 @@ sub new {
             '_format'      => 'csv',
             '_oses'        => undef,
             '_categories'  => undef,
-            '_verify_hostname' => 'enabled',
+            '_verify_hostname' => 'true',
     }, $class;
 
     foreach my $value ( keys %data ) {

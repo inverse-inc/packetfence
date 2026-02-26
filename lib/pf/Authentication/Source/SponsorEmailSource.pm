@@ -28,7 +28,7 @@ has '+type' => (default => 'SponsorEmail');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
-has 'validate_sponsor' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'validate_sponsor' => (isa => 'Str', is => 'rw', default => 'true');
 has 'lang' => (isa => 'Maybe[Str]', is => 'rw', default => '');
 has 'sources' => (isa => 'ArrayRef[Str]', is => 'rw', default => sub{[]});
 has 'register_on_activation' => (isa => 'Maybe[Str]', is => 'rw', default => 'false');

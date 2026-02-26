@@ -112,7 +112,7 @@ If the provisioner has to be enforced on each connection
 
 =cut
 
-has enforce => (is => 'rw', default => sub { 'enabled' });
+has enforce => (is => 'rw', default => sub { 'true' });
 
 =head2 autoregister
 

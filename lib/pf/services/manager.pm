@@ -172,7 +172,7 @@ Stub method to be implemented in services if needed.
 sub postStartCleanup {
     my ($self,$quick) = @_;
     my $logger = get_logger();
-    unless ($self->pid) { 
+    unless ($self->pid) {
         $logger->error($self->name . " died or has failed to start");
         return $FALSE;
     }
@@ -184,7 +184,7 @@ sub postStartCleanup {
 
 Build the command to lauch the service.
 
-=cut 
+=cut
 sub _build_launcher {
     my ($self) = @_;
     my $name = $self->{name};
@@ -303,7 +303,7 @@ Stub. Implement in subclasses if needed.
 sub preStopSetup {
     my ($self) = @_;
     return 1;
-    
+
 }
 
 =head2 stopService
@@ -345,7 +345,7 @@ Override in subclasses to perform additonal cleanup actions.
 sub postStopCleanup {
     my ($self,$quick) = @_;
     my $logger = get_logger();
-    if ($self->pid) { 
+    if ($self->pid) {
         $logger->error($self->name . " failed to stop");
         return $FALSE;
     }
@@ -444,7 +444,7 @@ sub isManaged {
 
 Return true if systemd consider the service as enabled
 
-=cut 
+=cut
 
 sub isEnabled {
     my ($self) = @_;
@@ -489,7 +489,7 @@ sub _unitFileExists {
     return defined $load_state && $load_state ne 'not-found';
 }
 
-=head2 sysdEnable 
+=head2 sysdEnable
 
 Enable the service in systemd.
 

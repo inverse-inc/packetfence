@@ -37,7 +37,7 @@ sub cleanupAfterRead {
     my $logs = $data->{logs};
     if (defined $logs && $logs eq 'ALL') {
         $data->{logs} = $pf::constants::syslog::ALL_LOGS;
-        $data->{all_logs} = 'enabled';
+        $data->{all_logs} = 'true';
     } else {
         $data->{all_logs} = 'false';
     }
