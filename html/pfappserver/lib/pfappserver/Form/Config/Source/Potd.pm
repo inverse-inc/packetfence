@@ -37,7 +37,7 @@ has_field 'id' =>
            return;
        } else {
            my $person = pf::person::person_view($name);
-           if ($person->{potd} eq 'no') {
+           if ($person->{potd} eq 'false') {
                $field->add_error("This user is not permitted to access Password Of The Day");
            }
        }

@@ -21,7 +21,7 @@ use pf::util;
 use pf::provisioner;
 use pf::node;
 
-has 'skipable' => (is => 'rw', default => sub {'disabled'});
+has 'skipable' => (is => 'rw', default => sub {'false'});
 
 =head2 allowed_urls
 
@@ -56,7 +56,7 @@ Get the provisioner from the session or the connection profile
 
 sub get_provisioner {
     my ($self) = @_;
-    my $provisioner = defined($self->session->{provisioner_id}) ? 
+    my $provisioner = defined($self->session->{provisioner_id}) ?
         pf::factory::provisioner->new($self->session->{provisioner_id}) :
         $self->app->profile->findProvisioner($self->current_mac, $self->node_info);
     if(defined($provisioner)){
@@ -127,13 +127,13 @@ sub execute_child {
 
     # Save the new node attributes since the provisioning workflow may bring the user outside of the portal (DPSK, WPA2 provisioning, etc)
     node_modify($mac, %{$self->new_node_info});
-    
+
     unless($provisioner){
         get_logger->info("No provisioner found for $mac. Continuing.");
         $self->done();
         return;
     }
-    
+
     get_logger->info("Found provisioner " . $provisioner->id . " for $mac");
     if( $self->is_eap_tls && !$self->session->{tls_enrollment_completed} ) {
         my $tls_module = captiveportal::DynamicRouting::Module::TLSEnrollment->new(id => $self->id."_pki_module", parent => $self, app => $self->app, pki_provider_id => $provisioner->getPkiProvider()->id);
@@ -193,4 +193,3 @@ USA.
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
-

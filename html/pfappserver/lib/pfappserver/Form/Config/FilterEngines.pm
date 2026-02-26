@@ -76,7 +76,7 @@ our %ADDITIONAL_FIELD_OPTIONS = (
         siblings => {
             value => {
                 allowed_values =>
-                  [ map { { text => $_, value => $_ } } ( "yes", "no" ) ],
+                  [ map { { text => $_, value => $_ } } ( "true", "false" ) ],
             },
         },
     },

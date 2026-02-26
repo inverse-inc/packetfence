@@ -163,7 +163,7 @@ sub new {
         '_SNMPUserNameWrite'            => undef,
         '_SNMPVersion'                  => 1,
         '_SNMPVersionTrap'              => 1,
-        '_SNMPUseConnector'             => 'enabled',
+        '_SNMPUseConnector'             => 'true',
         '_cliEnablePwd'                 => undef,
         '_cliPwd'                       => undef,
         '_cliUser'                      => undef,
@@ -177,26 +177,26 @@ sub new {
         '_coaPort'                      => undef,
         '_uplink'                       => undef,
         '_vlans'                        => undef,
-        '_ExternalPortalEnforcement'    => 'disabled',
+        '_ExternalPortalEnforcement'    => 'false',
         '_VoIPEnabled'                  => undef,
         '_VoIPFullAuthorization'        => 'disabled',
         '_roles'                        => undef,
         '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,
-        '_useCoA'                       => 'enabled',
-        '_radiusDeauthUseConnector'     => 'enabled',
+        '_useCoA'                       => 'true',
+        '_radiusDeauthUseConnector'     => 'true',
         '_switchIp'                     => undef,
         '_ip'                           => undef,
         '_switchMac'                    => undef,
-        '_VlanMap'                      => 'enabled',
-        '_RoleMap'                      => 'enabled',
-        '_UrlMap'                       => 'enabled',
-        '_VpnMap'                       => 'enabled',
-        '_NetworkMap'                   => 'enabled',
-        '_NetworkFromMap'               => 'disabled',
-        '_InterfaceMap'                 => 'enabled',
-        '_UsePushACLs'                  => 'disabled',
-        '_UseDownloadableACLs'          => 'disabled',
+        '_VlanMap'                      => 'true',
+        '_RoleMap'                      => 'true',
+        '_UrlMap'                       => 'true',
+        '_VpnMap'                       => 'true',
+        '_NetworkMap'                   => 'true',
+        '_NetworkFromMap'               => 'false',
+        '_InterfaceMap'                 => 'true',
+        '_UsePushACLs'                  => 'false',
+        '_UseDownloadableACLs'          => 'false',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
         '_ACLsType'                     => undef,
@@ -683,7 +683,7 @@ sub _parentRoleForRole {
     }
 
     my $role = $ConfigRoles{$name};
-    if (isdisabled($role->{inherit_role} // 'disabled')) {
+    if (isdisabled($role->{inherit_role} // 'false')) {
         return undef;
     }
 
@@ -739,7 +739,7 @@ sub _parentRoleForVlan {
     }
 
     my $role = $ConfigRoles{$name};
-    if (isdisabled($role->{inherit_vlan} // 'disabled')) {
+    if (isdisabled($role->{inherit_vlan} // 'false')) {
         return undef;
     }
 
@@ -901,7 +901,7 @@ sub _parentRoleForWebAuthUrl {
     }
 
     my $role = $ConfigRoles{$name};
-    if (isdisabled($role->{inherit_web_auth_url} // 'disabled')) {
+    if (isdisabled($role->{inherit_web_auth_url} // 'false')) {
         return undef;
     }
 

@@ -199,7 +199,7 @@ sub record_coa {
         $radius_audit_log{'node_status'} = $node->{'status'};
         $radius_audit_log{'user_name'} = $node->{'pid'};
         $radius_audit_log{'computer_name'} = $node->{'computername'};
-        $radius_audit_log{'is_phone'} = ( (($node->{'voip'} // 'no') eq 'no') ? '0' : '1');
+        $radius_audit_log{'is_phone'} = ( (($node->{'voip'} // 'false') eq 'false') ? 'false' : 'true');
     }
 
     $radius_audit_log{'event_type'} = $radius_code;

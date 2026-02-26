@@ -120,8 +120,8 @@ BEGIN {
         cloud_enabled => undef,
         cloud_service => undef,
         scep_server_id => undef,
-        scep_server_enabled => '0',
-        allow_duplicated_cn => '0',
+        scep_server_enabled => 'false',
+        allow_duplicated_cn => 'false',
         maximum_duplicated_cn => '0',
     );
 

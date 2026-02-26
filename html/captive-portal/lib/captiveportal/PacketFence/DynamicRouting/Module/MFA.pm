@@ -20,7 +20,7 @@ use pf::mfa;
 use pf::node;
 use pf::factory::mfa;
 
-has 'skipable' => (is => 'rw', default => sub {'disabled'});
+has 'skipable' => (is => 'rw', default => sub {'false'});
 
 has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_request_fields', lazy => 1);
 
@@ -94,13 +94,13 @@ sub execute_child {
     my $mfa = $self->get_mfa();
     my $mac = $self->current_mac;
     my $args;
-    
+
     unless($mfa){
         get_logger->info("No mfa found for $mac. Continuing.");
         $self->done();
         return;
     }
-    
+
     get_logger->info("Found mfa " . $mfa->id . " for $mac");
     if ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();
@@ -109,7 +109,7 @@ sub execute_child {
         if(!$mfa->verify_response($self->app->hashed_params(), $self->username)) {
             $self->app->flash->{error} = "Unable to validate the multi-factor response. Please contact your local support staff.";
             $self->app->redirect("/logout");
-        } 
+        }
         else {
             get_logger->info("MFA response validated, moving to the next step");
             $self->done();
@@ -152,4 +152,3 @@ USA.
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
-

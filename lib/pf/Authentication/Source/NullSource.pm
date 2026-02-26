@@ -25,7 +25,7 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
-has 'email_required' => (is => 'rw', default => 'no');
+has 'email_required' => (is => 'rw', default => 'false');
 
 =head2 authenticate
 
@@ -137,4 +137,3 @@ USA.
 =cut
 
 1;
-

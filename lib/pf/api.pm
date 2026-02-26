@@ -1068,10 +1068,10 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
         $current_scan = pop @scanners;
 
-        while(defined($current_scan)){ 
+        while(defined($current_scan)){
 
             if(pf::util::isenabled($current_scan->{'_pre_registration'})){
-                
+
                 $logger->info("Pre Registration Scan - Current Scan Engine is : $current_scan");
 
                 sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
@@ -1082,7 +1082,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
             $current_scan = pop @scanners;
         }
     }
-    
+
     return;
 }
 
@@ -1170,7 +1170,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         my %info = (
             'unregdate' => $unregdate,
             'category' => $role,
-            'autoreg' => 'no',
+            'autoreg' => 'false',
             'pid' => $postdata{'username'},
             'source'  => $source,
             'portal'  => $profile->getName,
@@ -1304,7 +1304,7 @@ sub detect_connection_type_transport_change : Public {
         else {
             $logger->debug("Device transport hasn't changed ($old_transport)");
         }
-    } 
+    }
     else {
         $logger->debug("Not performing connection type change detection for this device since there is no previously opened locationlog entry");
     }

@@ -32,9 +32,9 @@ has cursor_field => ( is => 'rw', isa => 'Str|ArrayRef[Str]');
 
 has cursor_default => ( is => 'rw', isa => 'Str|ArrayRef[Str]');
 
-has has_limit => ( is => 'rw', isa => 'Str', default => 'enabled');
+has has_limit => ( is => 'rw', isa => 'Str', default => 'true');
 
-has has_date_range => ( is => 'rw', isa => 'Str', default => 'disabled');
+has has_date_range => ( is => 'rw', isa => 'Str', default => 'false');
 
 has bindings => (is => 'rw', isa => 'ArrayRef[Str]');
 

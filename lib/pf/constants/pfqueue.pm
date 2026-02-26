@@ -42,7 +42,7 @@ our @EXPORT_OK = qw(
     $FAILED_MSG
     $COMPLETED_MSG
     $IN_PROGRESS_MSG
-    
+
     $STATUS_COMPLETED
     $STATUS_FAILED
     $STATUS_IN_PROGRESS
@@ -58,7 +58,7 @@ our $PFQUEUE_EXPIRED_COUNTER = "ExpiredCounters";
 
 our $PFQUEUE_QUEUE_PREFIX = "Queue:";
 
-our $PFQUEUE_HASHED_DEFAULT = 'disabled';
+our $PFQUEUE_HASHED_DEFAULT = 'false';
 
 our $PFQUEUE_WORKERS_DEFAULT = 0;
 

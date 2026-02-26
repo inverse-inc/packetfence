@@ -48,7 +48,7 @@ sub parseArgs {
         'columns'           => "mac",
         'default-role'      => "default",
         'default-unregdate' => "2038-01-01 00:00:00",
-        'default-voip'      => "no",
+        'default-voip'      => "false",
         'default-owner'     => "default",
         'delimiter'         => "comma",
     );
@@ -88,7 +88,7 @@ sub _run {
     my ($self) = @_;
     require pf::nodecategory;
     require pf::import;
-    
+
     my $params = $self->{params};
     my ($status, $info) = pf::import::nodes(
         $params->{filename},
@@ -101,7 +101,7 @@ sub _run {
             default_unregdate => $params->{"default-unregdate"},
         },
     );
-    
+
     print "Import process complete. Imported $info->{count} and skipped $info->{skipped}\n";
     return is_success($status) ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
@@ -136,4 +136,3 @@ USA.
 =cut
 
 1;
-

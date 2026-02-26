@@ -75,7 +75,7 @@ BEGIN {
         realm => undef,
         session_id => undef,
         ifDesc => undef,
-        voip => 'no',
+        voip => 'false',
     );
 
     @INSERTABLE_FIELDS = qw(
