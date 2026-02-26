@@ -452,7 +452,7 @@ sub isenabled {
     my ($enabled) = @_;
     if ( $enabled && $enabled =~ /^\s*(y|yes|enable|enabled|1|n|no|disable|disabled|0)\s*$/i ) {
         # DEBUG, old value used
-        $logger->warn("BOOL: old value used -> $enabled");
+        $logger->warn("BOOL: isenabled old value used -> $enabled");
     }
     if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
         return (1);
@@ -470,9 +470,9 @@ disable and disabled are all negative values for PacketFence.
 
 sub isdisabled {
     my ($disabled) = @_;
-    if ( defined ($disabled) && $disabled =~ /^\s*(y|yes|enable|enabled|1|n|no|disable|disabled|0)\s*$/i ) { old value used in isdisabled too)
+    if ( defined ($disabled) && $disabled =~ /^\s*(y|yes|enable|enabled|1|n|no|disable|disabled|0)\s*$/i ) {
         # DEBUG, old value used
-        $logger->warn("BOOL: old value used -> $enabled");
+        $logger->warn("BOOL: isdisabled old value used -> $enabled");
     }
     if ( !defined ($disabled) || $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
         return (1);
