@@ -450,6 +450,10 @@ and enabled are all positive values for PacketFence.
 
 sub isenabled {
     my ($enabled) = @_;
+    if ( $enabled && $enabled =~ /^\s*(y|yes|enable|enabled|1|n|no|disable|disabled|0)\s*$/i ) {
+        # DEBUG, old value used
+        $logger->warn("BOOL: old value used -> $enabled");
+    }
     if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
         return (1);
     } else {
@@ -1113,7 +1117,7 @@ sub safe_pf_run {
             "Problem trying to run command: $loggable_command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
-        return 
+        return
     }
     my $exit_status = $status >> 8;
     # user specified that this error code is ok
@@ -1130,7 +1134,7 @@ sub safe_pf_run {
         . "Child exited with non-zero value $exit_status"
     );
 
-    return 
+    return
 }
 
 =item generate_id
