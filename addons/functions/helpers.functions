@@ -23,7 +23,7 @@ function prompt() {
     echo -n "$msg (y/n): "
     read answer
   done
-  
+
   if [ "$answer" == "y" ]; then
     return 0
   else
@@ -57,7 +57,7 @@ function is_deb_based() {
 }
 
 function is_enabled() {
-  [ "$1" = "yes" ] || [ "$1" = "enabled" ]
+  [ "$1" = "yes" ] || [ "$1" = "enabled" ] || [ "$1" = "true" ]
 }
 
 function configreload() {
@@ -97,7 +97,7 @@ function output_all_container_images {
     # remove /Dockerfile suffix
     CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
   done
-  
+
   for img in ${CONTAINERS_IMAGES}; do
     echo "- $img"
   done
