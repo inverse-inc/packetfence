@@ -80,7 +80,7 @@ is(
    "password with potd failed"
 );
 
-person_modify($test_pid, potd => 'yes');
+person_modify($test_pid, potd => 'true');
 
 is(
    pf::password::validate_password($test_pid, $new_password),

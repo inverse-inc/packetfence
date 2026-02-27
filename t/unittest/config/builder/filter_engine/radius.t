@@ -60,7 +60,7 @@ CONF
                                     'description'  => 'test',
                                     'params'       => [],
                                     'scopes'       => [ 'preProcess' ],
-                                    'merge_answer' => 'yes',
+                                    'merge_answer' => 'true',
                                     'answers'      => [
                                         {
                                             'tmpl' => bless(
@@ -133,7 +133,7 @@ CONF
                                     'description'  => 'test',
                                     'params'       => [],
                                     'scopes'       => [ 'preProcess' ],
-                                    'merge_answer' => 'yes',
+                                    'merge_answer' => 'true',
                                     'answers'      => [
                                         {
                                             'tmpl' => bless(
