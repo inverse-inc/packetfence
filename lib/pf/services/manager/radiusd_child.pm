@@ -68,7 +68,7 @@ sub _build_executable {
 }
 
 
-sub _cmdLine { 
+sub _cmdLine {
     my $self = shift;
     $self->executable . " -d $install_dir/raddb";
 }
@@ -1401,7 +1401,7 @@ EOT
         }
         $tt->process("$conf_dir/radiusd/load_balancer.conf", \%tags, "$install_dir/raddb/load_balancer.conf") or die $tt->error();
 
-        
+
         push @radius_backend, $cluster_ip;
         push @radius_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
 
@@ -1619,7 +1619,7 @@ sub generate_radiusd_certificates {
     my %cert;
     foreach my $key (keys %ConfigEAP) {
         foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
-            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
+            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'true' ) {
                 $cert{$key}{$tls}{cert} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{cert};
                 $cert{$key}{$tls}{key} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{key};
                 $cert{$key}{$tls}{ca} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{ca};
@@ -1635,7 +1635,7 @@ sub generate_radiusd_certificates {
     }
     foreach my $key (keys %ConfigEAP) {
         foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
-            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
+            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'true' ) {
                 symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
                 symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
                 symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
@@ -1791,4 +1791,3 @@ USA.
 =cut
 
 1;
-

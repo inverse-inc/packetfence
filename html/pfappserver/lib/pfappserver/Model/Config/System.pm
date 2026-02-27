@@ -340,7 +340,7 @@ sub writeNetworkConfigs {
     while (my ($interface, $interface_values) = each %$interfaces_ref) {
         next if ( !$interface_values->{is_running} );
         if ($gateway_interface eq $interface) {
-            $interface_defroute = "yes";
+            $interface_defroute = "true";
             $interface_gateway = $gateway;
         } else {
             $interface_defroute = "false";
