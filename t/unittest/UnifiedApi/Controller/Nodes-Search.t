@@ -114,7 +114,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
               values => [
                   map {{ field => 'mac', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
               ]
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -129,11 +129,11 @@ Test2::Tools::Compare::is(
                 };
                 item hash {
                     field mac => $mac2;
-                    field online => "on"
+                    field online => "true"
                 };
                 item hash {
                     field mac => $mac3;
-                    field online => "off"
+                    field online => "false"
                 };
                 end();
             },
@@ -152,7 +152,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                   {
                       field => 'online',
                       op => 'not_equals',
-                      value => 'on',
+                      value => 'true',
                   },
                   {
                       op => 'or',
@@ -161,7 +161,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                       ]
                   }
               ]
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -176,7 +176,7 @@ Test2::Tools::Compare::is(
                 };
                 item hash {
                     field mac => $mac3;
-                    field online => "off";
+                    field online => "false";
                 };
                 end();
             },
@@ -195,7 +195,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                   {
                       field => 'online',
                       op => 'equals',
-                      value => 'on',
+                      value => 'true',
                   },
                   {
                       op => 'or',
@@ -204,7 +204,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                       ]
                   }
               ]
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -215,7 +215,7 @@ Test2::Tools::Compare::is(
             items => array {
                 item hash {
                     field mac => $mac2;
-                    field online => "on";
+                    field online => "true";
                 };
                 end();
             },
@@ -234,7 +234,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                   {
                       field => 'online',
                       op => 'equals',
-                      value => 'off',
+                      value => 'false',
                   },
                   {
                       op => 'or',
@@ -243,7 +243,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                       ]
                   }
               ]
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -254,7 +254,7 @@ Test2::Tools::Compare::is(
             items => array {
                 item hash {
                     field mac => $mac3;
-                    field online => "off"
+                    field online => "false"
                 };
                 end();
             },
@@ -274,7 +274,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                   {
                       field => 'online',
                       op => 'not_equals',
-                      value => 'off',
+                      value => 'false',
                   },
                   {
                       op => 'or',
@@ -283,7 +283,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                       ]
                   }
               ]
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -298,7 +298,7 @@ Test2::Tools::Compare::is(
                 };
                 item hash {
                     field mac => $mac2;
-                    field online => "on"
+                    field online => "true"
                 };
                 end();
             },
@@ -326,7 +326,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                       ]
                   }
               ],
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -365,7 +365,7 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
                       ]
                   }
               ],
-          } 
+          }
       }
   )
   ->status_is(200);
@@ -376,11 +376,11 @@ Test2::Tools::Compare::is(
             items => bag {
                 item hash {
                     field mac => $mac2;
-                    field online => "on"
+                    field online => "true"
                 };
                 item hash {
                     field mac => $mac3;
-                    field online => "off"
+                    field online => "false"
                 };
                 end();
             },
