@@ -212,7 +212,7 @@ $node2->voip("true");
 
 ok(is_success($node->save), "Save node with computername = zams-computer");
 
-ok(is_success($node2->save), "Save node2 with voip = yes");
+ok(is_success($node2->save), "Save node2 with voip = true");
 
 $node = pf::dal::node->find({mac => $test_mac});
 

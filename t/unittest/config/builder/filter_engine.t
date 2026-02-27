@@ -100,7 +100,7 @@ CONF
 status=enabled
 condition=bob == "bob"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -137,7 +137,7 @@ CONF
                                     actions => [
                                         {
                                             api_method => 'modify_node',
-                                            api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                            api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                         },
                                     ],
                                 },
@@ -229,7 +229,7 @@ CONF
                                         {
                                             api_method => 'modify_node',
                                             api_parameters =>
-'mac, $mac, status = unreg, autoreg = no'
+'mac, $mac, status = unreg, autoreg = false'
                                         },
                                     ],
                                 },
@@ -250,7 +250,7 @@ CONF
 status=enabled
 condition=bob.jones == "bob"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -286,7 +286,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -306,7 +306,7 @@ CONF
 status=enabled
 condition=not_date_is_before(bob.jones, "bob")
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -341,7 +341,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -361,7 +361,7 @@ CONF
 status=enabled
 condition=contains(bob.jones, "bob")
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -397,7 +397,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -417,7 +417,7 @@ CONF
 status=enabled
 condition=a =~ "^bob"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -450,7 +450,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
