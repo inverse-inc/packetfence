@@ -5,7 +5,7 @@ testcases:
   - type: pf_api_action
     method: PATCH
     url: 'config/security_event/{{.security_event_random_mac.event.id}}'
-    body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"Y","quiet":true}'
+    body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"true","quiet":true}'
 
 # restart pfqueue et pf detect
 - name: restart_service_pfqueue

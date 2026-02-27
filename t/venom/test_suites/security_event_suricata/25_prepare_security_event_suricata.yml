@@ -34,7 +34,7 @@ testcases:
         "isNew": true,
         "access_duration": "{{.security_event_suricata.event.access_duration}}",
         "actions": ["reevaluate_access"],
-        "auto_enable": "Y",
+        "auto_enable": "true",
         "button_text": null,
         "delay_by": {
             "interval": null,
@@ -42,7 +42,7 @@ testcases:
         },
         "desc": "{{.security_event_suricata.event.desc}}",
         "email_recipient_message": null,
-        "enabled": "Y",
+        "enabled": "true",
         "external_command": null,
         "grace": {
             "interval": "5",
