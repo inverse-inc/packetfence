@@ -316,7 +316,7 @@ footer:
   recto: &shared_footer
     #columns: "<50% =0% >50%"
     left:
-      content: 'Copyright © Inverse inc.'
+      content: 'Copyright © Packetfence by Akamai'
     center:
       content: '{chapter-title}'
     right:

@@ -291,10 +291,10 @@ a| kbd:[Ctrl+Alt+Del]
 
 a|
 ....
-link:https://www.packetfence.org[PacketFence]
+link:https://www.packetfence.com[PacketFence]
 ....
 
-a| link:https://www.packetfence.org[PacketFence]
+a| link:https://www.packetfence.com[PacketFence]
 
 |===
 

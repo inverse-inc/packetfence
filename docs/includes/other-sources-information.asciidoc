@@ -55,7 +55,7 @@ endif::current_guide_upgrade[]
 
 === Other sources of information 
 
-https://packetfence.org/news.html[PacketFence News]::
+https://www.packetfence.com/news::
   Release announcements with detailed feature descriptions, performance
   improvements, security updates, and comprehensive bug fix listings organized
   by PacketFence version.

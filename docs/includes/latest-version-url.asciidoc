@@ -11,6 +11,6 @@
 
 ////
 
-Find the latest version at https://packetfence.org/documentation/
+Find the latest version at https://www.packetfence.com/docs/
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

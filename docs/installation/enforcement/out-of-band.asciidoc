@@ -258,7 +258,7 @@ On the computer:
 
 [options="compact"]
  * open a web browser
- * try to connect to a HTTP site (Not HTTPS, eg. https://www.packetfence.org)
+ * try to connect to a HTTP site (Not HTTPS, eg. https://www.packetfence.com)
  * make sure that whatever site you want to connect to, you have only access to the registration page.
 
 Register the computer using the Null authentication source.

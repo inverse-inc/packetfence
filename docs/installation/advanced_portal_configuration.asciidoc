@@ -178,7 +178,7 @@ Add the following text in the _"Message"_ field, then click Create:
 [source,bash]
 ----
   Hello World !
-  <a href="www.packetfence.org">Click here to access the PacketFence
+  <a href="https://www.packetfence.com">Click here to access the PacketFence
   website!</a>
 ----
 

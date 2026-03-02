@@ -20,7 +20,7 @@ endif::[]
 
 PacketFence supports numerous wireless and wired network equipment from various
 vendors running different versions. For accurate information without
-duplication, refer to our website https://packetfence.org/about.html#/material
+duplication, refer to our website https://www.packetfence.com/self-host/compatible-switches/
 
 This page lists enforcement modes supported by all tested equipment. 
 
