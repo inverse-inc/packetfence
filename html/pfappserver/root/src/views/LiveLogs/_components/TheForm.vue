@@ -1,37 +1,39 @@
 <template>
-  <b-card no-body>
-    <b-card-header>
+  <div class="live-logs-page">
+    <div class="live-logs-header px-3 py-2 border-bottom">
       <h4 v-t="'Live Logs'" class="mb-0" />
-    </b-card-header>
-    <the-tabs />
-    <b-card-body>
-      <b-form @submit.prevent="onCreate" ref="formRef">
-        <base-form
-          :form="form"
-          :schema="schema"
-          :isLoading="isLoading"
-        >
-          <b-form-row align-v="center">
-            <b-col sm="12">
-              <base-form-group-chosen-multiple namespace="files"
-                :column-label="$t('Log Files')"
-                :placeholder="$t('Choose log file(s)')"
-                :options="files" />
-              <base-form-group-input namespace="filter"
-                :column-label="$t('Filter')" />
-              <base-form-group-toggle-false-true namespace="filter_is_regexp"
-                :column-label="$t('Regular Expression')" />
-            </b-col>
-          </b-form-row>
-        </base-form>
-      </b-form>
-    </b-card-body>
-    <b-card-footer>
-      <b-button variant="primary" :disabled="isLoading || !isValid" @click="onCreate">
-        <icon name="circle-notch" spin v-show="isLoading" /> {{ $t('Start Session') }}
-      </b-button>
-    </b-card-footer>
-  </b-card>
+    </div>
+    <b-card no-body class="border-top-0 rounded-0">
+      <the-tabs />
+      <b-card-body>
+        <b-form @submit.prevent="onCreate" ref="formRef">
+          <base-form
+            :form="form"
+            :schema="schema"
+            :isLoading="isLoading"
+          >
+            <b-form-row align-v="center">
+              <b-col sm="12">
+                <base-form-group-chosen-multiple namespace="files"
+                  :column-label="$t('Log Files')"
+                  :placeholder="$t('Choose log file(s)')"
+                  :options="files" />
+                <base-form-group-input namespace="filter"
+                  :column-label="$t('Filter')" />
+                <base-form-group-toggle-false-true namespace="filter_is_regexp"
+                  :column-label="$t('Regular Expression')" />
+              </b-col>
+            </b-form-row>
+          </base-form>
+        </b-form>
+      </b-card-body>
+      <b-card-footer>
+        <b-button variant="primary" :disabled="isLoading || !isValid" @click="onCreate">
+          <icon name="circle-notch" spin v-show="isLoading" /> {{ $t('Start Session') }}
+        </b-button>
+      </b-card-footer>
+    </b-card>
+  </div>
 </template>
 
 <script>

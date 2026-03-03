@@ -1,8 +1,8 @@
 import store from '@/store'
 import StoreModule from './_store/sessions'
 
-const TheForm = () => import(/* webpackChunkName: "Auditing" */ './_components/TheForm')
-const TheView = () => import(/* webpackChunkName: "Auditing" */ './_components/TheView')
+const TheForm = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheForm')
+const TheView = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_live_logs) {
@@ -13,7 +13,7 @@ export const beforeEnter = (to, from, next = () => {}) => {
 
 export default [
   {
-    path: 'live/',
+    path: '/live-logs',
     name: 'live_logs',
     component: TheForm,
     meta: {
@@ -23,14 +23,14 @@ export default [
     beforeEnter
   },
   {
-    path: 'live/:id',
+    path: '/live-logs/:id',
     name: 'live_log',
     component: TheView,
     props: route => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       if (!(to.params.id in store.state.$_live_logs))
-        next('/auditing/live')
+        next('/live-logs')
       else
         next()
     },

@@ -272,9 +272,14 @@ const setup = (props, context) => {
           { name: i18n.t('RADIUS Logs'), path: '/auditing/radiuslogs/search' },
           { name: i18n.t('DHCP Option 82'), path: '/auditing/dhcpoption82s/search' },
           { name: i18n.t('DNS Logs'), path: '/auditing/dnslogs/search' },
-          { name: i18n.t('Admin API Logs'), path: '/auditing/admin_api_audit_logs/search' },
-          { name: i18n.t('Live Logs'), path: '/auditing/live' }
+          { name: i18n.t('Admin API Logs'), path: '/auditing/admin_api_audit_logs/search' }
         ]
+      },
+      {
+        name: i18n.t('Live Logs'),
+        path: '/live-logs',
+        icon: 'scroll',
+        items: []
       },
       {
         name: i18n.t('Nodes'),

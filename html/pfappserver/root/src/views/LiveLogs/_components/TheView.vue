@@ -1,12 +1,12 @@
 <template>
-  <b-card no-body>
-    <b-card-header>
-      <h4 v-t="'Live Logs'" />
-    </b-card-header>
-    <the-tabs />
-    <b-card-body>
-      <b-row>
-        <b-col sm="3">
+  <div class="live-logs-page">
+    <div class="live-logs-header px-3 py-2 border-bottom">
+      <h4 class="mb-0" v-t="'Live Logs'" />
+    </div>
+    <b-card no-body class="live-logs-body border-top-0 rounded-0">
+      <the-tabs />
+      <b-row class="no-gutters flex-grow-1 min-h-0">
+        <b-col sm="3" class="d-flex flex-column min-h-0 pl-3 pr-0 bg-light border-right">
           <div class="scopes pr-3">
             <small class="ml-1">{{ $i18n.t('Session Options') }}</small>
             <b-list-group class="mt-1 mb-3">
@@ -88,25 +88,47 @@
           </div>
         </b-col>
         <b-col v-if="options"
-          sm="9" class="pl-0" :class="`direction-${options.order}`">
-          <b-row align-v="center" :class="(options.order === 'forward') ? 'pt-3 border-top' : 'pb-3 border-bottom'">
-            <b-col cols="auto" class="mr-auto d-inline">
+          sm="9" class="d-flex flex-column min-h-0 pl-0">
+          <div class="live-logs-toolbar d-flex align-items-center flex-nowrap px-2 py-1"
+            :class="(options.order === 'forward') ? 'border-top order-2' : 'border-bottom order-0'"
+          >
+            <b-input-group class="mx-1 live-logs-search flex-grow-1" size="sm">
+              <b-form-input v-model="searchQuery" :placeholder="$t('Find...')"
+                :class="{ 'is-invalid': searchError }"
+                @keydown.enter.exact.prevent="onSearchNext"
+                @keydown.enter.shift.prevent="onSearchPrev" />
+              <b-input-group-append>
+                <b-button :variant="searchIsRegex ? 'secondary' : 'outline-secondary'" @click="searchIsRegex = !searchIsRegex"
+                  :title="$i18n.t('Regular Expression')" v-b-tooltip.hover.top.d300>.*</b-button>
+                <b-button variant="outline-secondary" @click="onSearchPrev" :disabled="searchMatchCount === 0">
+                  <icon name="chevron-up" />
+                </b-button>
+                <b-button variant="outline-secondary" @click="onSearchNext" :disabled="searchMatchCount === 0">
+                  <icon name="chevron-down" />
+                </b-button>
+                <b-button variant="outline-secondary" @click="onSearchClear" :disabled="!searchQuery">
+                  <icon name="times" />
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+            <small v-if="searchQuery && !searchError" class="mx-1 text-nowrap text-muted">{{ searchCurrentDisplay }} / {{ searchMatchCount }}</small>
+            <div class="d-flex align-items-center flex-shrink-0">
               <b-button v-if="isRunning && !isPaused"
-                variant="primary" class="ml-3" size="sm" @click="onPauseSession">
+                variant="primary" class="mx-1" size="sm" @click="onPauseSession">
                 <icon name="pause" class="mx-1" />
                 {{ $i18n.t('Pause') }}
               </b-button>
               <b-button v-if="isRunning && isPaused"
-                variant="primary" class="ml-3" size="sm" @click="onUnpauseSession">
+                variant="primary" class="mx-1" size="sm" @click="onUnpauseSession">
                 <icon name="play" class="mx-1" />
                 {{ $i18n.t('Unpause') }}
               </b-button>
-              <b-button-group class="mx-1 ml-3" size="sm" :disabled="!events || !events.length">
+              <b-button-group class="mx-1" size="sm" :disabled="!events || !events.length">
                 <b-button @click="onCopyEvents" variant="outline-primary">{{ $t('Copy') }}</b-button>
                 <b-button @click="onSaveEvents" variant="outline-primary">{{ $t('Save') }}</b-button>
                 <b-button @click="onClearEvents" variant="outline-danger">{{ $t('Clear') }}</b-button>
               </b-button-group>
-              <b-button-group class="mx-1 ml-3" size="sm" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1" size="sm" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.background = 'white'" :active="options.background === 'white'" variant="outline-dark">
                   <icon name="sun" class="text-dark" />
                 </b-button>
@@ -114,7 +136,7 @@
                   <icon name="moon" class="text-white" />
                 </b-button>
               </b-button-group>
-              <b-button-group class="mx-1 ml-3" size="sm" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1" size="sm" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.size = 'small'" :active="options.size === 'small'" :variant="(options.size === 'small') ? 'secondary' : 'outline-secondary'">
                   <icon name="font" scale="0.75" />
                 </b-button>
@@ -125,7 +147,7 @@
                   <icon name="font" scale="1.25" />
                 </b-button>
               </b-button-group>
-              <small class="btn-group mx-1 ml-3">
+              <small class="btn-group mx-1">
               <base-input-toggle v-model="options.output"
                 :options="[
                   { value: 'color', label: $i18n.t('Color'), color: 'var(--primary)' },
@@ -133,9 +155,7 @@
                 ]"
                 :labelRight="true" />
               </small>
-            </b-col>
-            <b-col cols="auto text-right">
-              <b-button-group class="mx-1 mr-3" size="sm" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1" size="sm" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.order = 'reverse'" :active="options.order === 'reverse'" :variant="(options.order === 'reverse') ? 'secondary' : 'outline-secondary'">
                   <icon name="sort-numeric-up-alt" />
                 </b-button>
@@ -143,9 +163,9 @@
                   <icon name="sort-numeric-down" />
                 </b-button>
               </b-button-group>
-            </b-col>
-          </b-row>
-          <div editable="true" readonly="true" class="log" :class="{
+            </div>
+          </div>
+          <div ref="logRef" editable="true" readonly="true" class="log" :class="{
             'scroll-forward': options.order === 'forward',
             'scroll-reverse': options.order === 'reverse',
             'background-white': options.background === 'white',
@@ -155,10 +175,14 @@
             'size-large': options.size === 'large'
           }">
             <div class="scroll-only-child">
-              <div v-if="events && options.output === 'raw'"
-                class="text-raw px-3 py-1" v-html="events.map(event => event.data.raw).join('<br/>')" />
+              <div v-if="events && options.output === 'raw'" class="text-raw px-3 py-1">
+                <div v-for="(event, idx) in events" :key="idx"
+                  :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }"
+                  v-html="highlightRaw(event.data.raw)" />
+              </div>
               <div v-else-if="events && options.output === 'color'" class="text-raw px-2 py-1">
-                <div v-for="event in events" :key="event.data.raw">
+                <div v-for="(event, idx) in events" :key="idx"
+                  :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
                   <span class="log-timestamp" v-if="event.data.meta.timestamp"
                   :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
                   <span class="log-hostname" v-if="event.data.meta.hostname"
@@ -169,15 +193,15 @@
                   :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.process }}</span>
                   <span class="log-level" v-if="event.data.meta.log_level"
                   :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.log_level }}</span>
-                  {{ event.data.meta.log_without_prefix }}
+                  <span v-html="highlightEscaped(event.data.meta.log_without_prefix)" />
                 </div>
               </div>
             </div>
           </div>
         </b-col>
       </b-row>
-    </b-card-body>
-  </b-card>
+    </b-card>
+  </div>
 </template>
 
 <script>
@@ -216,7 +240,7 @@ const sizes = [
   { text: '5000', value: 5000 }
 ]
 
-import { computed, customRef, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
@@ -335,6 +359,84 @@ const setup = (props, context) => {
     }
   }
 
+  // search
+  const logRef = ref(null)
+  const searchQuery = ref('')
+  const searchIsRegex = ref(false)
+  const searchError = ref(false)
+  const searchCurrentIdx = ref(0)
+
+  const searchRegex = computed(() => {
+    if (!searchQuery.value) return null
+    searchError.value = false
+    try {
+      const pattern = searchIsRegex.value
+        ? searchQuery.value
+        : searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return new RegExp(pattern, 'gi')
+    } catch (e) {
+      searchError.value = true
+      return null
+    }
+  })
+
+  const searchMatchIndices = computed(() => {
+    const re = searchRegex.value
+    if (!re || !events.value) return []
+    return events.value.reduce((acc, event, idx) => {
+      re.lastIndex = 0
+      if (re.test(event.data.raw)) acc.push(idx)
+      return acc
+    }, [])
+  })
+
+  const searchMatchCount = computed(() => searchMatchIndices.value.length)
+  const searchCurrentDisplay = computed(() => searchMatchCount.value === 0 ? 0 : searchCurrentIdx.value + 1)
+
+  watch(searchMatchIndices, () => {
+    searchCurrentIdx.value = 0
+  })
+
+  const scrollToCurrentMatch = () => {
+    nextTick(() => {
+      if (!logRef.value) return
+      const el = logRef.value.querySelector('.search-current')
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    })
+  }
+
+  const onSearchNext = () => {
+    if (searchMatchCount.value === 0) return
+    searchCurrentIdx.value = (searchCurrentIdx.value + 1) % searchMatchCount.value
+    scrollToCurrentMatch()
+  }
+  const onSearchPrev = () => {
+    if (searchMatchCount.value === 0) return
+    searchCurrentIdx.value = (searchCurrentIdx.value - 1 + searchMatchCount.value) % searchMatchCount.value
+    scrollToCurrentMatch()
+  }
+  const onSearchClear = () => {
+    searchQuery.value = ''
+    searchCurrentIdx.value = 0
+  }
+
+  const escapeHtml = (text) => String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  const applyHighlight = (str) => {
+    const re = searchRegex.value
+    if (!re) return str
+    re.lastIndex = 0
+    return str.replace(re, match => `<mark>${match}</mark>`)
+  }
+  const highlightRaw = (text) => applyHighlight(String(text || ''))
+  const highlightEscaped = (text) => applyHighlight(escapeHtml(text))
+
+  const isSearchMatch = (idx) => searchMatchIndices.value.includes(idx)
+  const isSearchCurrent = (idx) => searchMatchIndices.value[searchCurrentIdx.value] === idx
+
   // immediate
   $store.dispatch(`$_live_logs/optionsSession`).then(response => {
     const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
@@ -376,7 +478,21 @@ const setup = (props, context) => {
     onUnpauseSession,
     onClearEvents,
     onCopyEvents,
-    onSaveEvents
+    onSaveEvents,
+
+    logRef,
+    searchQuery,
+    searchIsRegex,
+    searchError,
+    searchMatchCount,
+    searchCurrentDisplay,
+    onSearchNext,
+    onSearchPrev,
+    onSearchClear,
+    highlightRaw,
+    highlightEscaped,
+    isSearchMatch,
+    isSearchCurrent
   }
 }
 
@@ -391,8 +507,49 @@ export default {
 </script>
 
 <style lang="scss">
+.live-logs-page {
+  margin-left: -15px;
+  margin-right: -15px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 4rem);
+  background: var(--white);
+}
+.live-logs-header {
+  background: var(--light);
+  flex-shrink: 0;
+}
+.live-logs-body {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+}
+.live-logs-toolbar {
+  flex-shrink: 0;
+}
+.live-logs-search {
+  min-width: 10rem;
+  .form-control {
+    height: auto;
+  }
+  .input-group-append .btn {
+    border-color: #ced4da;
+    color: var(--secondary);
+  }
+}
+.search-match {
+  background: rgba(255, 235, 59, 0.15);
+}
+.search-current {
+  background: rgba(255, 235, 59, 0.4);
+}
+.min-h-0 {
+  min-height: 0;
+}
 .log, .scopes {
-  height: 65vh;
+  flex: 1 1 0;
+  min-height: 0;
   overflow-y: scroll;
   overflow-x: auto;
 }
@@ -475,11 +632,6 @@ export default {
 .scroll-reverse {
   flex-direction: column;
 }
-.direction-forward {
-  display: flex;
-  flex-direction: column-reverse;
-}
-
 /*
   placeholder, only immediate children are reversed
 */
