@@ -480,7 +480,13 @@ Check if a systemd unit file exists for the given target.
 sub _unitFileExists {
     my ($self, $target) = @_;
     $target //= $self->systemdTarget;
-    return system("sudo systemctl cat $target >/dev/null 2>&1") == 0;
+    # Use 'systemctl show' instead of 'systemctl cat' because
+    # 'systemctl cat' fails inside Docker containers while
+    # 'systemctl show' works via the D-Bus socket.
+    my $output = `sudo systemctl show -p LoadState $target 2>/dev/null`;
+    chomp $output;
+    my $load_state = (split(/=/, $output))[1];
+    return defined $load_state && $load_state ne 'not-found';
 }
 
 =head2 sysdEnable 
