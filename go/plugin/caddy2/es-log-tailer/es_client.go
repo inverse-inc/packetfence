@@ -41,8 +41,13 @@ type ESAggregation struct {
 }
 
 type ESBucket struct {
-	Key      string `json:"key"`
-	DocCount int    `json:"doc_count"`
+	Key      string        `json:"key"`
+	DocCount int           `json:"doc_count"`
+	Latest   *ESTopHitsAgg `json:"latest,omitempty"`
+}
+
+type ESTopHitsAgg struct {
+	Hits ESHits `json:"hits"`
 }
 
 func NewESClient() *ESClient {

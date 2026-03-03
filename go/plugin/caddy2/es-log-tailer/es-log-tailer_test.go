@@ -314,14 +314,33 @@ func TestPoll_NoCursor_SeekToEnd(t *testing.T) {
 		var query map[string]interface{}
 		json.Unmarshal(body, &query)
 
-		// SeekToEnd: size=1, sort desc
+		// Verify top_hits aggregation query
+		if aggs, ok := query["aggs"]; !ok {
+			t.Error("expected aggs in seekToEnd query")
+		} else {
+			aggsMap := aggs.(map[string]interface{})
+			if _, ok := aggsMap["per_source"]; !ok {
+				t.Error("expected per_source aggregation")
+			}
+		}
+
+		// SeekToEnd: return top_hits aggregation response
 		resp := ESSearchResponse{
-			Hits: ESHits{
-				Hits: []ESHit{
-					{
-						ID:     "latest-doc",
-						Source: sampleESDoc("latest-doc", "2024-01-15T10:00:00Z", "worker-01", "packetfence", "latest message"),
-						Sort:   []interface{}{float64(1705311600000)},
+			Hits: ESHits{Hits: []ESHit{}},
+			Aggregations: map[string]ESAggregation{
+				"per_source": {
+					Buckets: []ESBucket{
+						{
+							Key:      "packetfence",
+							DocCount: 100,
+							Latest: &ESTopHitsAgg{
+								Hits: ESHits{
+									Hits: []ESHit{
+										{Sort: []interface{}{float64(1705311600000)}},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -358,15 +377,16 @@ func TestPoll_NoCursor_SeekToEnd(t *testing.T) {
 		t.Errorf("expected 0 events on SeekToEnd, got %d", len(events))
 	}
 
-	cursor, ok := resp["cursor"].([]interface{})
+	cursor, ok := resp["cursor"].(map[string]interface{})
 	if !ok {
-		t.Fatal("expected cursor array")
+		t.Fatalf("expected cursor to be a map, got %T", resp["cursor"])
 	}
-	if len(cursor) != 1 {
-		t.Fatalf("expected cursor with 1 element, got %d", len(cursor))
+	ts, ok := cursor["packetfence"].(float64)
+	if !ok {
+		t.Fatalf("expected cursor[packetfence] to be float64, got %T", cursor["packetfence"])
 	}
-	if cursor[0].(float64) != float64(1705311600000) {
-		t.Errorf("expected cursor [1705311600000], got %v", cursor)
+	if ts != float64(1705311600000) {
+		t.Errorf("expected cursor[packetfence]=1705311600000, got %v", ts)
 	}
 }
 
@@ -380,9 +400,14 @@ func TestPoll_WithCursor_ReturnsEvents(t *testing.T) {
 		var query map[string]interface{}
 		json.Unmarshal(body, &query)
 
-		// Verify search_after is present
-		if _, ok := query["search_after"]; !ok {
-			t.Error("expected search_after in query")
+		// Verify per-source range query (should clauses, no search_after)
+		if _, ok := query["search_after"]; ok {
+			t.Error("search_after should not be present in per-source query")
+		}
+		q := query["query"].(map[string]interface{})
+		boolQ := q["bool"].(map[string]interface{})
+		if _, ok := boolQ["should"]; !ok {
+			t.Error("expected should clauses in per-source query")
 		}
 
 		resp := ESSearchResponse{
@@ -407,7 +432,7 @@ func TestPoll_WithCursor_ReturnsEvents(t *testing.T) {
 	router := gin.New()
 	router.POST("/api/v1/eslogs/tail", h.pollHandler)
 
-	body := `{"files":["packetfence"],"filter":"","filter_is_regexp":false,"cursor":[1705311600000]}`
+	body := `{"files":["packetfence"],"filter":"","filter_is_regexp":false,"cursor":{"packetfence":1705311600000}}`
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -442,10 +467,10 @@ func TestPoll_WithCursor_ReturnsEvents(t *testing.T) {
 		t.Errorf("expected log_level 'info', got '%v'", meta["log_level"])
 	}
 
-	// Verify cursor advanced
-	cursor := resp["cursor"].([]interface{})
-	if cursor[0].(float64) != float64(1705312201000) {
-		t.Errorf("expected cursor to advance to 1705312201000, got %v", cursor[0])
+	// Verify per-source cursor advanced
+	cursor := resp["cursor"].(map[string]interface{})
+	if cursor["packetfence"].(float64) != float64(1705312201000) {
+		t.Errorf("expected cursor[packetfence] to advance to 1705312201000, got %v", cursor["packetfence"])
 	}
 
 	if callCount != 1 {
@@ -484,7 +509,7 @@ func TestPoll_WithFilter(t *testing.T) {
 	router := gin.New()
 	router.POST("/api/v1/eslogs/tail", h.pollHandler)
 
-	body := `{"files":["packetfence"],"filter":"filter","filter_is_regexp":false,"cursor":[1705311600000]}`
+	body := `{"files":["packetfence"],"filter":"filter","filter_is_regexp":false,"cursor":{"packetfence":1705311600000}}`
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/eslogs/tail", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -509,9 +534,9 @@ func TestPoll_WithFilter(t *testing.T) {
 	}
 
 	// Cursor should advance past both hits (including filtered-out one)
-	cursor := resp["cursor"].([]interface{})
-	if cursor[0].(float64) != float64(1705312202000) {
-		t.Errorf("expected cursor to advance past all hits to 1705312202000, got %v", cursor[0])
+	cursor := resp["cursor"].(map[string]interface{})
+	if cursor["packetfence"].(float64) != float64(1705312202000) {
+		t.Errorf("expected cursor[packetfence] to advance past all hits to 1705312202000, got %v", cursor["packetfence"])
 	}
 }
 
@@ -538,10 +563,11 @@ func TestPoll_NoCursor_EmptyIndex(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
-		// Empty index — no hits
+		// Empty index — no hits, empty aggregation buckets
 		resp := ESSearchResponse{
-			Hits: ESHits{
-				Hits: []ESHit{},
+			Hits: ESHits{Hits: []ESHit{}},
+			Aggregations: map[string]ESAggregation{
+				"per_source": {Buckets: []ESBucket{}},
 			},
 		}
 		json.NewEncoder(w).Encode(resp)
@@ -573,17 +599,14 @@ func TestPoll_NoCursor_EmptyIndex(t *testing.T) {
 		t.Errorf("expected 0 events on empty index, got %d", len(events))
 	}
 
-	// Cursor must be non-null even with no docs — prevents infinite SeekToEnd loop
-	cursor, ok := resp["cursor"].([]interface{})
+	// Cursor must be non-null per-source map even with no docs — prevents infinite SeekToEnd loop
+	cursor, ok := resp["cursor"].(map[string]interface{})
 	if !ok || cursor == nil {
-		t.Fatal("expected non-null cursor even for empty index")
+		t.Fatalf("expected non-null cursor map even for empty index, got %T", resp["cursor"])
 	}
-	if len(cursor) != 1 {
-		t.Fatalf("expected cursor with 1 element, got %d", len(cursor))
-	}
-	ts, ok := cursor[0].(float64)
+	ts, ok := cursor["packetfence"].(float64)
 	if !ok || ts <= 0 {
-		t.Errorf("expected positive timestamp in cursor, got %v", cursor[0])
+		t.Errorf("expected positive timestamp in cursor[packetfence], got %v", cursor["packetfence"])
 	}
 }
 
@@ -616,14 +639,14 @@ func TestPoll_NoCursor_ESError(t *testing.T) {
 	var resp map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &resp)
 
-	// Even on ES error, cursor must be non-null so client doesn't loop
-	cursor, ok := resp["cursor"].([]interface{})
+	// Even on ES error, cursor must be non-null per-source map so client doesn't loop
+	cursor, ok := resp["cursor"].(map[string]interface{})
 	if !ok || cursor == nil {
-		t.Fatal("expected non-null cursor even on ES error")
+		t.Fatalf("expected non-null cursor map even on ES error, got %T", resp["cursor"])
 	}
-	ts, ok := cursor[0].(float64)
+	ts, ok := cursor["packetfence"].(float64)
 	if !ok || ts <= 0 {
-		t.Errorf("expected positive timestamp in cursor, got %v", cursor[0])
+		t.Errorf("expected positive timestamp in cursor[packetfence], got %v", cursor["packetfence"])
 	}
 }
 
