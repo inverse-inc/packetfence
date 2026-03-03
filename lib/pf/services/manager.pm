@@ -173,7 +173,7 @@ sub postStartCleanup {
     my ($self,$quick) = @_;
     my $logger = get_logger();
     unless ($self->pid) { 
-        $logger->error("$self->name died or has failed to start");
+        $logger->error($self->name . " died or has failed to start");
         return $FALSE;
     }
     return $TRUE;
@@ -346,7 +346,7 @@ sub postStopCleanup {
     my ($self,$quick) = @_;
     my $logger = get_logger();
     if ($self->pid) { 
-        $logger->error("$self->name failed to stop");
+        $logger->error($self->name . " failed to stop");
         return $FALSE;
     }
     return $TRUE;
