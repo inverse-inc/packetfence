@@ -164,16 +164,35 @@ func TestExtractLogLevelFromMessage(t *testing.T) {
 		{"Go debug", "t=2024-01-15T10:30:00+0000 lvl=dbug msg=\"debug\"", "debug"},
 		{"Go trace", "t=2024-01-15T10:30:00+0000 lvl=trce msg=\"trace\"", "trace"},
 
-		// Perl log format
+		// Perl -e format
 		{"Perl WARN", "-e(12345) WARN: something went wrong", "warn"},
 		{"Perl ERROR", "-e(99) ERROR: failed to do thing", "error"},
 		{"Perl INFO", "-e(1) INFO: starting up", "info"},
 		{"Perl FATAL", "-e(42) FATAL: cannot continue", "fatal"},
 
-		// No log level
-		{"No level - plain text", "some random log message", ""},
-		{"No level - radius", "(0) Login OK: [bob] (from client nas01)", ""},
-		{"Empty message", "", ""},
+		// PF httpd format: httpd.<name>(<pid>) LEVEL: message
+		{"httpd.portal WARN", "httpd.portal(120) WARN: [mac:unknown] Unable to match MAC address to IP '10.48.9.51' (pf::ip4log::ip2mac)", "warn"},
+		{"httpd.aaa INFO", "httpd.aaa(7) INFO: [mac:[undef]] handling radius autz request", "info"},
+		{"httpd.portal WARN 2", "httpd.portal(48) WARN: [mac:unknown] Unable to match MAC address", "warn"},
+		{"httpd.portal ERROR", "httpd.portal(61) ERROR: something failed", "error"},
+
+		// FreeRADIUS format: <Day Mon DD HH:MM:SS YYYY> : <Level>: <message>
+		{"FreeRADIUS Error", "Sun Mar  1 02:02:19 2026 : Error: !!!!!!!!!!!!!!!!!", "error"},
+		{"FreeRADIUS Error 2", "Mon Mar  2 14:03:39 2026 : Error: BlastRADIUS check: Received packet without Proxy-State.", "error"},
+		{"FreeRADIUS Warning", "Tue Jan  7 08:15:30 2025 : Warning: something is degraded", "warning"},
+		{"FreeRADIUS Info", "Wed Feb 12 10:00:00 2025 : Info: server started", "info"},
+
+		// Plain prefix: message starts with level keyword
+		{"pfconfig error", "error reading from socket", "error"},
+		{"pfconfig error2", "error from client at 10.48.0.1:44240", "error"},
+		{"warn prefix", "warning: disk space low", "warn"},
+
+		// Default to info when no structured level is found
+		{"default - plain text", "some random log message", "info"},
+		{"default - radius login", "(0) Login OK: [bob] (from client nas01)", "info"},
+		{"default - apache access", `- - - [02/Mar/2026:22:58:56 +0000] "GET /captive-portal HTTP/1.0" 200 4999`, "info"},
+		{"default - erroreous not a prefix", "erroreous should not match", "info"},
+		{"Empty message", "", "info"},
 	}
 
 	for _, tt := range tests {

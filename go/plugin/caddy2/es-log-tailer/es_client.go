@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type ESClient struct {
@@ -94,24 +96,26 @@ func (c *ESClient) Search(ctx context.Context, index string, body interface{}) (
 		req.SetBasicAuth(c.username, c.password)
 	}
 
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("es-log-tailer ES request: POST %s body=%s", url, string(jsonBody)))
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("ES request failed: %w", err)
+		return nil, fmt.Errorf("ES request POST %s failed: %w", url, err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+		return nil, fmt.Errorf("failed to read response body from %s: %w", url, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("ES returned status %d: %s", resp.StatusCode, string(respBody))
+		return nil, fmt.Errorf("ES returned status %d from POST %s: %s", resp.StatusCode, url, string(respBody))
 	}
 
 	var result ESSearchResponse
 	if err := json.Unmarshal(respBody, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal ES response from %s: %w (body: %.500s)", url, err, string(respBody))
 	}
 
 	return &result, nil

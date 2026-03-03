@@ -28,9 +28,11 @@ func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
+	l := log.LoggerWContext(ctx)
+
 	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: OPTIONS query failed against %s/%s: %s", h.esClient.baseURL, h.indexPattern, err))
+		l.Error(fmt.Sprintf("es-log-tailer OPTIONS: query failed against %s/%s: %s", h.esClient.baseURL, h.indexPattern, err))
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to query Elasticsearch"})
 		return
 	}
@@ -44,6 +46,18 @@ func (h *ESLogTailerHandler) optionsSessions(c *gin.Context) {
 		for _, bucket := range buckets {
 			files = append(files, gin.H{"text": bucket.Key, "value": bucket.Key})
 		}
+	} else {
+		l.Warn(fmt.Sprintf("es-log-tailer OPTIONS: aggregation response missing 'sources' key — check that agg_field=%s exists in index_pattern=%s", h.aggField, h.indexPattern))
+	}
+
+	if len(files) == 0 {
+		l.Warn(fmt.Sprintf("es-log-tailer OPTIONS: 0 sources found — the UI will have no log files to select. Check that index_pattern=%s has documents with agg_field=%s", h.indexPattern, h.aggField))
+	} else {
+		names := make([]string, 0, len(files))
+		for _, f := range files {
+			names = append(names, f["value"].(string))
+		}
+		l.Info(fmt.Sprintf("es-log-tailer OPTIONS: %d sources found: %s", len(files), strings.Join(names, ", ")))
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -111,9 +125,11 @@ func (h *ESLogTailerHandler) pollHandler(c *gin.Context) {
 
 	sources := normalizeSourceNames(params.Files)
 	ctx := c.Request.Context()
+	l := log.LoggerWContext(ctx)
 
 	if params.Cursor == nil {
 		// No cursor → SeekToEnd
+		l.Info(fmt.Sprintf("es-log-tailer POST: SeekToEnd for sources=%v (raw files=%v)", sources, params.Files))
 		cursor := h.seekToEnd(ctx, sources)
 		c.JSON(http.StatusOK, gin.H{"events": []gin.H{}, "cursor": cursor})
 		return
@@ -127,6 +143,8 @@ func (h *ESLogTailerHandler) pollHandler(c *gin.Context) {
 // seekToEnd returns the sort values of the latest document for the given sources,
 // which serves as the initial cursor for subsequent polls.
 func (h *ESLogTailerHandler) seekToEnd(ctx context.Context, sources []string) []interface{} {
+	l := log.LoggerWContext(ctx)
+
 	query := map[string]interface{}{
 		"size": 1,
 		"sort": []interface{}{
@@ -147,21 +165,28 @@ func (h *ESLogTailerHandler) seekToEnd(ctx context.Context, sources []string) []
 
 	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: SeekToEnd failed: %s", err))
-		// Return current time so the client can start polling forward
-		return []interface{}{float64(time.Now().UnixMilli())}
+		cursor := []interface{}{float64(time.Now().UnixMilli())}
+		l.Error(fmt.Sprintf("es-log-tailer SeekToEnd: ES query failed for sources=%v index_pattern=%s: %s — falling back to cursor=%v",
+			sources, h.indexPattern, err, cursor))
+		return cursor
 	}
 
 	if len(resp.Hits.Hits) > 0 && len(resp.Hits.Hits[0].Sort) > 0 {
-		return resp.Hits.Hits[0].Sort
+		cursor := resp.Hits.Hits[0].Sort
+		l.Info(fmt.Sprintf("es-log-tailer SeekToEnd: found latest doc for sources=%v, cursor=%v", sources, cursor))
+		return cursor
 	}
 
-	// Empty index — use current time so the client has a valid cursor
-	return []interface{}{float64(time.Now().UnixMilli())}
+	cursor := []interface{}{float64(time.Now().UnixMilli())}
+	l.Warn(fmt.Sprintf("es-log-tailer SeekToEnd: 0 documents found for sources=%v in index_pattern=%s (agg_field=%s) — no logs exist for these sources, or the field names are wrong. Falling back to cursor=%v",
+		sources, h.indexPattern, h.aggField, cursor))
+	return cursor
 }
 
 // queryEvents runs a search_after query and returns matching events plus the new cursor.
 func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, filter *regexp.Regexp, cursor []interface{}) ([]gin.H, []interface{}) {
+	l := log.LoggerWContext(ctx)
+
 	query := map[string]interface{}{
 		"size": 100,
 		"sort": []interface{}{
@@ -183,12 +208,14 @@ func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, 
 
 	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("es-log-tailer: poll query failed: %s", err))
+		l.Error(fmt.Sprintf("es-log-tailer poll: ES query failed for sources=%v cursor=%v: %s", sources, cursor, err))
 		return []gin.H{}, cursor
 	}
 
 	newCursor := cursor
 	var events []gin.H
+	emptyRawCount := 0
+	filteredOutCount := 0
 
 	for _, hit := range resp.Hits.Hits {
 		if len(hit.Sort) > 0 {
@@ -197,7 +224,12 @@ func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, 
 
 		raw := h.fieldMapping.GetRawMessage(hit.Source)
 
+		if raw == "" {
+			emptyRawCount++
+		}
+
 		if filter != nil && !filter.MatchString(raw) {
+			filteredOutCount++
 			continue
 		}
 
@@ -213,6 +245,16 @@ func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, 
 
 	if events == nil {
 		events = []gin.H{}
+	}
+
+	esHits := len(resp.Hits.Hits)
+	if emptyRawCount > 0 {
+		l.Warn(fmt.Sprintf("es-log-tailer poll: %d/%d ES hits had empty raw message — check that field '%s' exists in the documents",
+			emptyRawCount, esHits, h.fieldMapping.RawMessage))
+	}
+	if esHits > 0 && len(events) == 0 && filteredOutCount > 0 {
+		l.Warn(fmt.Sprintf("es-log-tailer poll: all %d ES hits were filtered out by filter=%q for sources=%v",
+			esHits, filter.String(), sources))
 	}
 
 	return events, newCursor

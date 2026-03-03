@@ -95,7 +95,16 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 
 	m.router = router
 
-	l.Info(fmt.Sprintf("es-log-tailer plugin initialized, ES at %s, index_pattern=%s, agg_field=%s", m.esClient.baseURL, m.indexPattern, m.aggField))
+	l.Info(fmt.Sprintf("es-log-tailer plugin initialized, ES at %s, index_pattern=%s, agg_field=%s, namespace=%s",
+		m.esClient.baseURL, m.indexPattern, m.aggField, k8sNamespace))
+	l.Info(fmt.Sprintf("es-log-tailer field mapping: timestamp=%s, hostname=%s, process=%s, raw_message=%s, syslog_name=%s, filename=%s",
+		m.fieldMapping.Timestamp, m.fieldMapping.Hostname, m.fieldMapping.Process,
+		m.fieldMapping.RawMessage, m.fieldMapping.SyslogName, m.fieldMapping.Filename))
+	if m.esClient.username != "" {
+		l.Info("es-log-tailer: ES auth configured (basic auth)")
+	} else {
+		l.Info("es-log-tailer: ES auth not configured (anonymous access)")
+	}
 
 	return nil
 }

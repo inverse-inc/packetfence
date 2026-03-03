@@ -78,8 +78,11 @@ func (fm *ESFieldMapping) ExtractLogMeta(source map[string]interface{}) LogMeta 
 }
 
 // extractLogLevelFromMessage parses the log level from the raw message body.
-// Handles Go log format (lvl=info/warn/eror/dbug/trce) and
-// Perl log format (-e(pid) LEVEL: ...).
+// Handles these formats:
+//   - Go:         t=... lvl=info msg="..."
+//   - PF httpd:   httpd.portal(120) WARN: ..., httpd.aaa(7) INFO: ...
+//   - Perl -e:    -e(pid) LEVEL: ...
+//   - FreeRADIUS: Sun Mar  1 02:02:19 2026 : Error: ...
 func extractLogLevelFromMessage(message string) string {
 	// Go log format: lvl=info, lvl=warn, lvl=eror, lvl=dbug, lvl=trce
 	idx := strings.Index(message, "lvl=")
@@ -106,29 +109,77 @@ func extractLogLevelFromMessage(message string) string {
 		}
 	}
 
-	// Perl log format: -e(pid) LEVEL: message
-	if strings.HasPrefix(message, "-e(") {
-		parenEnd := strings.IndexByte(message, ')')
-		if parenEnd > 0 && parenEnd+2 < len(message) {
-			rest := message[parenEnd+2:]
-			colonIdx := strings.IndexByte(rest, ':')
-			if colonIdx > 0 {
-				level := rest[:colonIdx]
-				valid := true
-				for _, c := range level {
-					if c < 'A' || c > 'Z' {
-						valid = false
-						break
-					}
+	// PF httpd / Perl format: <name>(<digits>) <LEVEL>: <message>
+	// Matches: httpd.portal(120) WARN:, httpd.aaa(7) INFO:, -e(pid) ERROR:
+	if parenOpen := strings.IndexByte(message, '('); parenOpen >= 0 && parenOpen < 40 {
+		parenClose := strings.IndexByte(message[parenOpen+1:], ')')
+		if parenClose > 0 {
+			digits := message[parenOpen+1 : parenOpen+1+parenClose]
+			allDigits := true
+			for _, c := range digits {
+				if c < '0' || c > '9' {
+					allDigits = false
+					break
 				}
-				if valid && len(level) <= 10 {
-					return strings.ToLower(level)
+			}
+			absClose := parenOpen + 1 + parenClose
+			if allDigits && absClose+2 < len(message) && message[absClose+1] == ' ' {
+				rest := message[absClose+2:]
+				colonIdx := strings.IndexByte(rest, ':')
+				if colonIdx > 0 && colonIdx <= 10 {
+					level := rest[:colonIdx]
+					valid := len(level) > 0
+					for _, c := range level {
+						if c < 'A' || c > 'Z' {
+							valid = false
+							break
+						}
+					}
+					if valid {
+						return strings.ToLower(level)
+					}
 				}
 			}
 		}
 	}
 
-	return ""
+	// FreeRADIUS format: <Day Mon DD HH:MM:SS YYYY> : <Level>: <message>
+	// The " : " separator appears after the timestamp, followed by a title-case level word.
+	if idx := strings.Index(message, " : "); idx >= 0 && idx < 40 {
+		rest := message[idx+3:]
+		colonIdx := strings.IndexByte(rest, ':')
+		if colonIdx >= 3 && colonIdx <= 10 {
+			candidate := rest[:colonIdx]
+			if candidate[0] >= 'A' && candidate[0] <= 'Z' {
+				allAlpha := true
+				for _, c := range candidate {
+					if (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') {
+						allAlpha = false
+						break
+					}
+				}
+				if allAlpha {
+					return strings.ToLower(candidate)
+				}
+			}
+		}
+	}
+
+	// Plain prefix: messages starting with a known level keyword followed by a
+	// non-letter (e.g. "error reading from socket", "error from client at ...").
+	lower := strings.ToLower(message)
+	for _, prefix := range []string{"error", "warning", "warn", "info", "debug"} {
+		if strings.HasPrefix(lower, prefix) && (len(message) == len(prefix) || message[len(prefix)] < 'a' || message[len(prefix)] > 'z') {
+			if prefix == "warning" {
+				return "warn"
+			}
+			return prefix
+		}
+	}
+
+	// Default: every log line is at least informational.  Returning "" would
+	// create a blank entry in the frontend's log-level scope filter.
+	return "info"
 }
 
 func (fm *ESFieldMapping) GetRawMessage(source map[string]interface{}) string {
