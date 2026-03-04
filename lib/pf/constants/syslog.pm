@@ -24,7 +24,6 @@ our @SyslogInfo = (
         'name'       => 'fingerbank.log',
         'conditions' => [
             '$syslogtag contains "fingerbank"',
-            '$msg contains "[GIN]"',
         ]
     },
     {
