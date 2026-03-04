@@ -8,7 +8,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_live_logs) {
     store.registerModule('$_live_logs', StoreModule)
   }
-  if (to && to.name === 'live_logs') {
+  const isFromLiveLogs = from && from.path && from.path.startsWith('/live-logs')
+  if (to && to.name === 'live_logs' && !isFromLiveLogs) {
     const liveLogsState = store.state.$_live_logs
     if (liveLogsState && liveLogsState._lastSessionId && liveLogsState._lastSessionId in liveLogsState) {
       next({ name: 'live_log', params: { id: liveLogsState._lastSessionId } })
