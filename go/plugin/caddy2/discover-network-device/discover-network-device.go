@@ -88,30 +88,28 @@ func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httpro
 		return
 	}
 	task := pfqueueclient.NewApiTask()
+	ctx, cancel := context.WithCancel(rootCtx)
+	tasksCtxs.Store(task.TaskId, &CtxCancel{ctx, cancel})
 	go func() {
 		statusUpdater := pfqueueclient.NewStatusUpdater(task.TaskId, time.Hour, m.redis)
 		defer func() {
+			tasksCtxs.Delete(task.TaskId)
 			if r := recover(); r != nil {
 				statusUpdater.Failed(rootCtx, r)
 			}
 			pfqueueclient.PutStatusUpdater(statusUpdater)
 		}()
-		ctx, cancel := context.WithCancel(rootCtx)
 		defer cancel()
-		tasksCtxs.Store(task.TaskId, &CtxCancel{ctx, func() {
-			cancel()
-			statusUpdater.Failed(rootCtx, "Task cancelled by caller")
-		}})
 		statusUpdater.Start(ctx)
 		data, err := ScanTask(ctx, body, func(progress int, message string) {
 			statusUpdater.UpdateProgress(ctx, progress, message)
 		})
-		if ctx.Err() != nil { // we already updated the status to "cancelled"
-			if err != nil {
-				statusUpdater.Failed(rootCtx, err.Error())
-			} else {
-				statusUpdater.Complete(ctx, data)
-			}
+		if ctx.Err() != nil {
+			statusUpdater.Failed(rootCtx, "Task cancelled")
+		} else if err != nil {
+			statusUpdater.Failed(rootCtx, err.Error())
+		} else {
+			statusUpdater.Complete(rootCtx, data)
 		}
 	}()
 	res, _ := json.Marshal(&task)

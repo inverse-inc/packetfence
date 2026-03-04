@@ -124,7 +124,11 @@ const actions = {
     commit('DEVICES_CLEARED_FROM_NETWORK', network)
   },
 
-  cancelScan: ({ commit }, network) => {
+  cancelScan: ({ state, commit }, network) => {
+    const scan = state.scans[network]
+    if (scan && scan.task_id) {
+      api.cancelDiscover(scan.task_id).catch(() => {})
+    }
     commit('SCAN_CANCELLED', network)
   }
 }
