@@ -5,7 +5,7 @@ testcases:
   steps:
   - type: pf_api_action
     method: POST
-    url: 'config/filter_engines/vlan/vlan_filters'
+    url: 'config/filter_engines/vlan_filters'
     status_code: 201
     body: >-
       {
@@ -13,7 +13,21 @@ testcases:
         "description": "{{.wired_mac_auth_virtualswitch_planb.vlan_filter.printer.description}}",
         "status": "enabled",
         "run_actions": "enabled",
-        "scopes": ["{{.wired_mac_auth_virtualswitch_planb.vlan_filter.printer.scopes}}"],
-        "condition": "{{.wired_mac_auth_virtualswitch_planb.vlan_filter.printer.condition}}",
+        "scopes": ["RegisteredRole"],
+        "condition": {
+          "op": "or",
+          "values": [
+            {
+              "field": "node_info.device_class",
+              "op": "equals",
+              "value": "Printers"
+            },
+            {
+              "field": "node_info.device_class",
+              "op": "equals",
+              "value": "Printers/Scanners"
+            }
+          ]
+        },
         "role": "{{.wired_mac_auth_virtualswitch_planb.vlan_filter.printer.role}}"
       }
