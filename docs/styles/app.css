@@ -1,0 +1,757 @@
+/* app.css — PacketFence / Akamai brand theme for AsciiDoctor-generated HTML */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   0. Bootstrap 4 — provides grid, utilities, and responsive helpers
+      (must come first; all @imports must precede other rules)
+   ═══════════════════════════════════════════════════════════════════════════ */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css");
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. Google Fonts
+   ═══════════════════════════════════════════════════════════════════════════ */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. Brand tokens (inlined from globals.css — @import breaks inside <style>)
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Primary palette ─────────────────────────────── */
+  --color-primary:  #00A4EB;   /* brand-blue   */
+  --color-navy:     #002F6C;   /* brand-navy   */
+  --color-violet:   #201547;   /* brand-violet */
+  --color-orange:   #FF8B00;   /* brand-orange */
+  --color-green:    #00CD63;   /* brand-green  */
+  --color-red:      #F02B1F;   /* brand-red    */
+  --color-electric: #0050FF;   /* brand-electric */
+
+  /* ── Neutral greys ───────────────────────────────── */
+  --color-grey1:    #2A2A2B;
+  --color-grey2:    #4B4A4D;
+  --color-grey3:    #7C7B7F;
+  --color-grey4:    #A9A7AD;
+  --color-grey5:    #CECECE;
+  --color-grey6:    #F5F5F5;
+
+  /* ── Semantic aliases ────────────────────────────── */
+  --color-error:    #F02B1F;
+  --color-success:  #00CD63;
+  --color-warn:     #FF8B00;
+
+  /* ── Typography ──────────────────────────────────── */
+  --font-sans: "Instrument Sans", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --color-orange-opacity: rgba(255,139,0,0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. Bootstrap 4 class overrides
+      Bootstrap 4 is Sass-compiled — its colors are hardcoded hex values that
+      CSS custom properties cannot reach. These rules explicitly re-declare the
+      Bootstrap utility/component classes using our brand tokens.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Light utilities → orange */
+.bg-light     { background-color: var(--color-orange) !important; }
+.border-light { border-color:     var(--color-orange) !important; }
+
+/* Badges */
+.badge-primary { background-color: var(--color-primary) !important; }
+
+/* Alerts */
+.alert-primary {
+  background-color: rgba(0, 164, 235, 0.1) !important;
+  border-color:     var(--color-primary) !important;
+  color:            var(--color-navy)    !important;
+}
+
+/* Links (Bootstrap resets these; our body rule below also handles it) */
+a { color: var(--color-primary); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. Base / Reset
+   ═══════════════════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-grey1);
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. Typography
+   ═══════════════════════════════════════════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  color: var(--color-navy);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+h1 { font-size: 2.25rem; font-weight: 700; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.375rem; }
+h4 { font-size: 1.125rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; color: var(--color-grey2); }
+
+p { margin-top: 0; margin-bottom: 1rem; }
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-navy);
+  text-decoration: underline;
+}
+
+strong, b { font-weight: 700; }
+em, i     { font-style: italic; }
+
+code, kbd, samp, tt {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--color-grey6);
+  border: 1px solid var(--color-grey5);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  color: var(--color-navy);
+}
+
+pre code,
+pre kbd,
+pre samp {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1em;
+  color: inherit;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. AsciiDoctor page layout
+      The generated HTML uses a Bootstrap 4 grid — NOT a flex body:
+      <body class="h-100 book toc2 toc-left">
+        <div class="container-fluid h-100">
+          <div class="row h-100">
+            <div id="header" class="col-3 ...">   ← SIDEBAR (not a title bar)
+              <div id="toc" class="toc2">...</div>
+            </div>
+            <div id="guide" class="col-9 ...">    ← MAIN CONTENT
+              <div class="container">
+                <div id="content">...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar (#header = the col-3 sidebar column) ────────────────────────── */
+#header {
+  background: linear-gradient(160deg, var(--color-navy) 0%, var(--color-violet) 100%);
+  color: #ffffff;
+  padding: 1.5rem 1rem;
+}
+
+/* Document title shown at top of sidebar */
+#header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.75rem;
+  line-height: 1.3;
+}
+
+/* Author / revision details */
+#header .details {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#header .details br { display: none; }
+#header .details span + span::before { content: " · "; }
+
+/* ── TOC container (#toc = list inside the sidebar) ──────────────────────── */
+#toctitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+#toc ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#toc ul li {
+  margin: 0;
+}
+
+#toc ul li a {
+  display: block;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+  transition: background 0.15s, color 0.15s;
+  white-space: normal;
+  word-break: break-word;
+}
+
+#toc ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Level 1 TOC items */
+.sectlevel1 > li > a {
+  font-weight: 600;
+  color: #ffffff !important;
+  padding: 0.4rem 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* Level 2+ TOC items: indent */
+.sectlevel2 {
+  padding-left: 0.75rem !important;
+}
+.sectlevel3 {
+  padding-left: 1.5rem !important;
+}
+.sectlevel4 {
+  padding-left: 2.25rem !important;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+#footer {
+  background-color: var(--color-grey6);
+  border-top: 1px solid var(--color-grey5);
+  padding: 1rem 3rem;
+  font-size: 0.8rem;
+  color: var(--color-grey3);
+  text-align: center;
+}
+
+#footer-text { margin: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. Content blocks
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Section headings */
+.sect1 h2 {
+  font-size: 1.625rem;
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.4rem;
+  margin-top: 2.5rem;
+}
+.sect2 h3 { font-size: 1.25rem; margin-top: 2rem; }
+.sect3 h4 { font-size: 1.0625rem; margin-top: 1.75rem; }
+.sect4 h5 { font-size: 0.9375rem; }
+.sect5 h6 { font-size: 0.875rem; }
+
+.sectionbody { margin-bottom: 1.5rem; }
+
+/* ── Paragraph ───────────────────────────────────────────────────────────── */
+.paragraph p { margin-bottom: 1rem; }
+
+/* ── Code / listing blocks ───────────────────────────────────────────────── */
+.listingblock,
+.literalblock {
+  margin: 1.25rem 0;
+}
+
+.listingblock .content,
+.literalblock .content {
+  position: relative;
+}
+
+/* Override Bootstrap's bg-secondary/text-white classes applied by the converter */
+.listingblock pre,
+.literalblock pre {
+  background-color: #1e1e1e !important;
+  color: #d4d4d4 !important;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre;
+  border: none;
+}
+
+.listingblock .title,
+.literalblock .title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-grey3);
+  margin-bottom: 0.3rem;
+  font-style: normal;
+}
+
+/* ── Admonition blocks ───────────────────────────────────────────────────── */
+.admonitionblock {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.375rem;
+  border-left: 4px solid;
+  background-color: var(--color-grey6);
+}
+
+.admonitionblock td.icon {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 5rem;
+  padding-top: 0.1rem;
+}
+
+.admonitionblock td.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.admonitionblock td.content .title {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+/* Per-type colors */
+.admonitionblock.note {
+  border-color: var(--color-primary);
+  background-color: rgba(0, 164, 235, 0.05);
+}
+.admonitionblock.note td.icon { color: var(--color-primary); }
+
+.admonitionblock.tip {
+  border-color: var(--color-green);
+  background-color: rgba(0, 205, 99, 0.05);
+}
+.admonitionblock.tip td.icon { color: var(--color-green); }
+
+.admonitionblock.warning {
+  border-color: var(--color-orange);
+  background-color: rgba(255, 139, 0, 0.05);
+}
+.admonitionblock.warning td.icon { color: var(--color-orange); }
+
+.admonitionblock.caution {
+  border-color: var(--color-red);
+  background-color: rgba(240, 43, 31, 0.05);
+}
+.admonitionblock.caution td.icon { color: var(--color-red); }
+
+.admonitionblock.important {
+  border-color: var(--color-violet);
+  background-color: rgba(32, 21, 71, 0.05);
+}
+.admonitionblock.important td.icon { color: var(--color-violet); }
+
+/* ── Quote / example blocks ──────────────────────────────────────────────── */
+.quoteblock,
+.exampleblock {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  background-color: var(--color-grey6);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 0.375rem;
+}
+
+.quoteblock blockquote {
+  margin: 0;
+  font-style: italic;
+  color: var(--color-grey2);
+}
+
+.quoteblock .attribution {
+  font-size: 0.875rem;
+  color: var(--color-grey3);
+  margin-top: 0.5rem;
+}
+
+.exampleblock .title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-grey2);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Sidebar block ───────────────────────────────────────────────────────── */
+.sidebarblock {
+  background-color: var(--color-grey6);
+  border: 1px solid var(--color-grey5);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.sidebarblock .title {
+  font-weight: 700;
+  color: var(--color-navy);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Lists ───────────────────────────────────────────────────────────────── */
+.ulist ul,
+.olist ol,
+.dlist dl {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.75rem;
+}
+
+.ulist li,
+.olist li {
+  margin-bottom: 0.3rem;
+}
+
+.dlist dt {
+  font-weight: 600;
+  color: var(--color-navy);
+  margin-top: 0.5rem;
+}
+.dlist dd {
+  margin-left: 1.5rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-grey2);
+}
+
+/* ── Colist (callout list) ───────────────────────────────────────────────── */
+.colist ol {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.colist td:first-child {
+  padding-right: 0.5rem;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8. Tables
+   ═══════════════════════════════════════════════════════════════════════════ */
+table.tableblock,
+table.frame-all {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+table.tableblock caption {
+  font-weight: 600;
+  text-align: left;
+  padding-bottom: 0.5rem;
+  color: var(--color-grey2);
+}
+
+table.tableblock th,
+table.tableblock td {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--color-grey5);
+  vertical-align: top;
+  text-align: left;
+}
+
+table.tableblock thead th,
+table.tableblock .thead-light th {
+  background-color: var(--color-navy);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-color: var(--color-navy);
+}
+
+/* Striped rows */
+table.tableblock tbody tr:nth-child(even) td {
+  background-color: var(--color-grey6);
+}
+
+table.tableblock tbody tr:hover td {
+  background-color: rgba(0, 164, 235, 0.05);
+}
+
+/* Halign / valign helpers generated by AsciiDoctor */
+.halign-left   { text-align: left; }
+.halign-center { text-align: center; }
+.halign-right  { text-align: right; }
+.valign-top    { vertical-align: top; }
+.valign-middle { vertical-align: middle; }
+.valign-bottom { vertical-align: bottom; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. Syntax highlighting (Rouge / Highlight.js tokens)
+      Classes generated by AsciiDoctor's built-in syntax highlighter
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base — all tokens sit inside a dark pre block */
+.listingblock pre .token,
+.listingblock pre span[class] {
+  /* tokens inherit #d4d4d4 by default */
+}
+
+/* Comments */
+.listingblock pre .c,
+.listingblock pre .c1,
+.listingblock pre .cm,
+.listingblock pre .cs,
+.listingblock pre .cp {
+  color: var(--color-grey3);
+  font-style: italic;
+}
+
+/* Keywords */
+.listingblock pre .k,
+.listingblock pre .kd,
+.listingblock pre .kn,
+.listingblock pre .kr,
+.listingblock pre .kt {
+  color: #569cd6;
+  font-weight: 700;
+}
+
+/* Strings */
+.listingblock pre .s,
+.listingblock pre .s1,
+.listingblock pre .s2,
+.listingblock pre .sb,
+.listingblock pre .se,
+.listingblock pre .si,
+.listingblock pre .sr,
+.listingblock pre .ss {
+  color: #ce9178;
+}
+
+/* Builtins / built-in names */
+.listingblock pre .nb,
+.listingblock pre .bp {
+  color: #4ec9b0;
+}
+
+/* Namespaces / class names */
+.listingblock pre .nn,
+.listingblock pre .nc,
+.listingblock pre .nx {
+  color: #4ec9b0;
+}
+
+/* Variables / attributes */
+.listingblock pre .nv,
+.listingblock pre .na,
+.listingblock pre .vc,
+.listingblock pre .vg,
+.listingblock pre .vi {
+  color: #9cdcfe;
+}
+
+/* Numbers */
+.listingblock pre .m,
+.listingblock pre .mi,
+.listingblock pre .mf,
+.listingblock pre .mh,
+.listingblock pre .mo {
+  color: #b5cea8;
+}
+
+/* Operators */
+.listingblock pre .o,
+.listingblock pre .ow {
+  color: #d4d4d4;
+}
+
+/* Punctuation */
+.listingblock pre .p,
+.listingblock pre .pi {
+  color: #d4d4d4;
+}
+
+/* Functions / methods */
+.listingblock pre .nf,
+.listingblock pre .fm {
+  color: #dcdcaa;
+}
+
+/* Tags (HTML/XML) */
+.listingblock pre .nt {
+  color: #4ec9b0;
+}
+
+/* Decorator / annotation */
+.listingblock pre .nd {
+  color: var(--color-orange);
+}
+
+/* Error token */
+.listingblock pre .err {
+  color: var(--color-red);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10. Utilities
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Copy button (AsciiDoctor source-highlighter generated) */
+.copy-button,
+.listingblock .source-toolbox button {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.copy-button:hover,
+.listingblock .source-toolbox button:hover {
+  background-color: var(--color-primary);
+  opacity: 1;
+}
+
+/* Anchor links (section permalinks — hidden by default) */
+.anchor {
+  display: none;
+  font-size: 0.75em;
+  color: var(--color-grey4);
+  text-decoration: none;
+  margin-left: 0.4rem;
+}
+
+/* Images */
+.imageblock {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.imageblock img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.imageblock .title {
+  font-size: 0.8rem;
+  color: var(--color-grey3);
+  margin-top: 0.4rem;
+  font-style: italic;
+}
+
+/* Stretch: make block elements fill container */
+.stretch {
+  width: 100%;
+}
+
+/* Discrete headings (not numbered, not in TOC) */
+.discrete {
+  border-bottom: none !important;
+  margin-top: 1rem;
+}
+
+/* Abstract / lead text */
+.abstract p,
+.paragraph.lead p {
+  font-size: 1.1rem;
+  color: var(--color-grey2);
+  line-height: 1.7;
+}
+
+/* ── Callout bullets ──────────────────────────────────────────────────────── */
+b.conum {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-radius: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1.25rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+
+/* ── Pagination / breadcrumb generated by some AsciiDoctor plugins ─────────── */
+.pagination-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-grey5);
+  font-size: 0.875rem;
+}
+
+/* ── Responsive: stack sidebar above content on small screens ─────────────── */
+@media (max-width: 768px) {
+  .col-3,
+  .col-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  #header {
+    padding: 1rem;
+  }
+
+  #guide > .container {
+    padding: 1rem 1.25rem;
+  }
+}
+/* --- PF logo ---- */
+.header_logo {
+  width: 60%;
+  height: auto;
+  text-align: center;
+}
+
+.header_logo img {
+  filter: grayscale(100%) brightness(1000%);
+}
+
+/* --- Footer  --- */
+#footer {
+  margin-top: 1rem;
+  margin-left: -15px;
+  margin-right: -15px
+}

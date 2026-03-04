@@ -189,8 +189,11 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     result << '  <div class="row h-100">'
 
     unless node.noheader
-      result << '<div id="header" class="col-3 h-100 overflow-auto py-4">'
-
+      result << '<div id="header" class="col-3 h-100 overflow-auto">'
+      # Add PF icon
+      result << '<div class="header_logo ml-3 mb-4">'
+      result << %(<img src="#{node.image_uri("PF.svg")}" alt="icon"/>)
+      result << '</div>'
       if sectioned && (node.attr? 'toc') && (node.attr? 'toc-placement', 'auto')
         result << %(<div id="toc" class="#{node.attr 'toc-class', 'toc'}">
   #{convert_outline node}
@@ -199,10 +202,10 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       result << '</div><!-- /#header -->'
     end
 
-    result << %(<div id="guide" class="h-100 bg-white overflow-auto py-4 #{node.noheader ? 'col' : 'col-9'}"><div class="container">)
+    result << %(<div id="guide" class="h-100 bg-white overflow-auto pt-4 pb-0 #{node.noheader ? 'col' : 'col-9'}"><div class="container">)
 
     if node.header?
-      result << %(<h1 class="pb-6">#{node.header.title}</h1>) unless node.notitle
+      result << %(<h1 class="pb-6 mt-4.5">#{node.header.title}</h1>) unless node.notitle
       details = []
       idx = 1
       node.authors.each do |author|
@@ -231,8 +234,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   </div>)
 
     if node.footnotes? && !(node.attr? 'nofootnotes')
-      result << %(<div id="footnotes">
-  <hr#{slash}>)
+      result << %(<div id="footnotes" class="mt-3" >)
       node.footnotes.each do |footnote|
         result << %(<div class="footnote" id="_footnotedef_#{footnote.index}">
   <a href="#_footnoteref_#{footnote.index}">#{footnote.index}</a>. #{footnote.text}
@@ -241,16 +243,15 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       result << '</div>'
     end
 
+    result << '</div><!-- /#guide -->'
     unless node.nofooter
       result << '<div id="footer" class="text-black-50">'
       result << '<div id="footer-text">'
       result << %(#{node.attr 'version-label'} #{node.attr 'revnumber'}#{br}) if node.attr? 'revnumber'
       result << %(#{node.attr 'last-update-label'} #{node.attr 'docdatetime'}) if (node.attr? 'last-update-label') && !(node.attr? 'reproducible')
       result << '</div>'
-      result << '</div>'
+      result << '</div><!-- /.footer -->'
     end
-
-    result << '</div><!-- /#guide -->'
     result << '</div><!-- /.col -->'
     result << '</div><!-- /.row -->'
     result << '</div><!-- .container-fluid -->'
@@ -447,7 +448,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     end
     stitle = stitle.gsub DropAnchorRx, '' if stitle.include? '<a'
     if slevel < toclevels && (child_toc_level = convert_outline section, toclevels: toclevels, sectnumlevels: sectnumlevels)
-      result << %(<li#{sections[0].level == 1 ? ' class="mb-3" style="text-indent: -1rem"' : ''}><a href="##{section.id}">#{stitle}</a>)
+      result << %(<li#{sections[0].level == 1 ? ' class="mb-3"' : ''}><a href="##{section.id}">#{stitle}</a>)
       result << child_toc_level
       result << '</li>'
     else
@@ -676,10 +677,10 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     if (name == 'caution')
       color = 'f77d05'
     end
-    %(<div#{id_attr} class="alert bg-light" style="border-left: 3px solid ##{color}">
+    %(<div#{id_attr} class="alert" style="background-color:var(--color-orange-opacity);border-left:3px solid var(--color-orange)">
   <div class="media pt-2 pb-2">
-    <div class="mr-3 align-self-start">
-      <svg preserveAspectRatio="xMidYMid meet" height="1.5em" width="1.5em" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke="none" style="color:##{color}"><g><path d="M12.2 8.98c.06-.01.12-.03.18-.06.06-.02.12-.05.18-.09l.15-.12c.18-.19.29-.45.29-.71 0-.06-.01-.13-.02-.19a.603.603 0 0 0-.06-.19.757.757 0 0 0-.09-.18c-.03-.05-.08-.1-.12-.15-.28-.27-.72-.37-1.09-.21-.13.05-.23.12-.33.21-.04.05-.09.1-.12.15-.04.06-.07.12-.09.18-.03.06-.05.12-.06.19-.01.06-.02.13-.02.19 0 .26.11.52.29.71.1.09.2.16.33.21.12.05.25.08.38.08.06 0 .13-.01.2-.02M13 16v-4a1 1 0 1 0-2 0v4a1 1 0 1 0 2 0M12 3c-4.962 0-9 4.038-9 9 0 4.963 4.038 9 9 9 4.963 0 9-4.037 9-9 0-4.962-4.037-9-9-9m0 20C5.935 23 1 18.065 1 12S5.935 1 12 1c6.066 0 11 4.935 11 11s-4.934 11-11 11" fill-rule="evenodd"></path></g></svg>
+    <div class="mr-3 align-self-start" style="color:var(--color-orange)">
+      <svg preserveAspectRatio="xMidYMid meet" height="1.5em" width="1.5em" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke="none"><g><path d="M12.2 8.98c.06-.01.12-.03.18-.06.06-.02.12-.05.18-.09l.15-.12c.18-.19.29-.45.29-.71 0-.06-.01-.13-.02-.19a.603.603 0 0 0-.06-.19.757.757 0 0 0-.09-.18c-.03-.05-.08-.1-.12-.15-.28-.27-.72-.37-1.09-.21-.13.05-.23.12-.33.21-.04.05-.09.1-.12.15-.04.06-.07.12-.09.18-.03.06-.05.12-.06.19-.01.06-.02.13-.02.19 0 .26.11.52.29.71.1.09.2.16.33.21.12.05.25.08.38.08.06 0 .13-.01.2-.02M13 16v-4a1 1 0 1 0-2 0v4a1 1 0 1 0 2 0M12 3c-4.962 0-9 4.038-9 9 0 4.963 4.038 9 9 9 4.963 0 9-4.037 9-9 0-4.962-4.037-9-9-9m0 20C5.935 23 1 18.065 1 12S5.935 1 12 1c6.066 0 11 4.935 11 11s-4.934 11-11 11" fill-rule="evenodd"></path></g></svg>
     </div>
     <div class="media-body">#{node.content}</div>
   </div>
