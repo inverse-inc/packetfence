@@ -8,6 +8,13 @@ export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_live_logs) {
     store.registerModule('$_live_logs', StoreModule)
   }
+  if (to && to.name === 'live_logs') {
+    const liveLogsState = store.state.$_live_logs
+    if (liveLogsState && liveLogsState._lastSessionId && liveLogsState._lastSessionId in liveLogsState) {
+      next({ name: 'live_log', params: { id: liveLogsState._lastSessionId } })
+      return
+    }
+  }
   next()
 }
 
@@ -31,8 +38,10 @@ export default [
       beforeEnter()
       if (!(to.params.id in store.state.$_live_logs))
         next('/live-logs')
-      else
+      else {
+        store.commit('$_live_logs/SET_LAST_SESSION', to.params.id)
         next()
+      }
     },
     meta: {
       can: 'read system'

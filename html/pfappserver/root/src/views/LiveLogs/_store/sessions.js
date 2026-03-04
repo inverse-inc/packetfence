@@ -10,6 +10,7 @@ import i18n from '@/utils/locale'
 // Default values
 const state = () => {
   return {
+    _lastSessionId: null,
     message: '',
     status: ''
   }
@@ -94,8 +95,14 @@ const mutations = {
       store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id, name: nameFromFiles(form.files), ...(cursor != null ? { cursor } : {}) })
     }
   },
+  SET_LAST_SESSION: (state, id) => {
+    state._lastSessionId = id
+  },
   LOG_SESSION_STOP: (state, id) => {
     state.status = 'success'
+    if (state._lastSessionId === id) {
+      state._lastSessionId = null
+    }
     setTimeout(() => { // delay to avoid pulling the rug out from under $router
       store.unregisterModule(['$_live_logs', id])
     }, 300)

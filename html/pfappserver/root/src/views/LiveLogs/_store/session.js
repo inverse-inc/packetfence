@@ -55,6 +55,8 @@ const state = () => {
     debouncerSlowMs: 2000, // 2s idle poll for SaaS
     touch: false,
     touchMs: 15000, // 15s
+    searchQuery: '',
+    searchIsRegex: false,
     message: '',
     status: ''
   }
@@ -92,7 +94,9 @@ const getters = {
   },
   size: state => state.size,
   lines: state => state.lines,
-  options: state => state.options
+  options: state => state.options,
+  searchQuery: state => state.searchQuery,
+  searchIsRegex: state => state.searchIsRegex
 }
 
 const actions = {
@@ -220,6 +224,12 @@ const delMeta = (scopes, event) => {
 }
 
 const mutations = {
+  SET_SEARCH_QUERY: (state, query) => {
+    state.searchQuery = query
+  },
+  SET_SEARCH_IS_REGEX: (state, isRegex) => {
+    state.searchIsRegex = isRegex
+  },
   SET_SESSION: (state, session) => {
     state.session = session
     if (session.cursor != null) {

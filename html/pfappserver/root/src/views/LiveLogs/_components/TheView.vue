@@ -361,8 +361,14 @@ const setup = (props, context) => {
 
   // search
   const logRef = ref(null)
-  const searchQuery = ref('')
-  const searchIsRegex = ref(false)
+  const searchQuery = computed({
+    get: () => $store.getters[`$_live_logs/${id.value}/searchQuery`],
+    set: val => $store.commit(`$_live_logs/${id.value}/SET_SEARCH_QUERY`, val)
+  })
+  const searchIsRegex = computed({
+    get: () => $store.getters[`$_live_logs/${id.value}/searchIsRegex`],
+    set: val => $store.commit(`$_live_logs/${id.value}/SET_SEARCH_IS_REGEX`, val)
+  })
   const searchError = ref(false)
   const searchCurrentIdx = ref(0)
 
