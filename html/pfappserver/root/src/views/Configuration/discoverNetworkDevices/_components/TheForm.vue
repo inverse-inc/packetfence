@@ -161,7 +161,7 @@ const setup = (props, context) => {
   const form = ref({
     customAddress: '',
     snmpVersion: 'snmp_v2c',
-    snmpCommunity: '',
+    snmpCommunity: 'public',
     maxThreads: 32,
     snmpTimeout: 1,
     snmpRetry: 1
@@ -198,7 +198,7 @@ const setup = (props, context) => {
   // Validate SNMP community string (optional, but must be valid if provided)
   const snmpCommunityState = computed(() => {
     const value = form.value.snmpCommunity
-    if (!value || value.trim() === '') return null // empty is valid
+    if (!value || value.trim() === '') return false // required
     if (value.length > 255) return false
     return reSnmpCommunity.test(value)
   })
@@ -206,7 +206,7 @@ const setup = (props, context) => {
   const snmpCommunityError = computed(() => {
     const value = form.value.snmpCommunity
     if (!value || value.trim() === '') {
-      return '' // empty is allowed
+      return i18n.t('Community string is required.')
     }
     if (value.length > 255) {
       return i18n.t('Community string must be 255 characters or less.')
@@ -276,8 +276,8 @@ const setup = (props, context) => {
       addresses: [address],
       credentials: [
         {
-          type: form.value.snmpVersion,
-          snmp_read: form.value.snmpCommunity
+          version: form.value.snmpVersion,
+          community_read: form.value.snmpCommunity
         }
       ],
       options: {
