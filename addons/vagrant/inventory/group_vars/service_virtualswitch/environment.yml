@@ -3,5 +3,5 @@
 virtualswitch__user: '{{ lookup("env", "CI_VIRTUALSWITCH_USER") }}'
 virtualswitch__password: '{{ lookup("env", "CI_VIRTUALSWITCH_PASSWORD") }}'
 virtualswitch__base_url: 'https://support.inverse.ca/~jgoimard/virtualswitch'
-virtualswitch__deb_version: '2.6.4-1'
-virtualswitch__rpm_version: '2.6.4-1.el8'
+virtualswitch__deb_version: '2.6.5-1'
+virtualswitch__rpm_version: '2.6.5-1.el8'
