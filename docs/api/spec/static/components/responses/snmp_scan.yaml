@@ -1,0 +1,17 @@
+SnmpScanResponse:
+  description: Async request successful response.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          devices:
+            description: All devices found in given addresses.
+            type: array
+            items:
+              $ref: "#/components/schemas/SnmpDevice"
+          snmp_results:
+            description: Any error or warning return by an address. Used for further inspection.
+            type: array
+            items:
+              $ref: "#/components/schemas/SnmpResult"

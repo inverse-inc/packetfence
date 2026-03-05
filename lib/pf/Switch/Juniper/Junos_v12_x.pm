@@ -33,6 +33,7 @@ use base ('pf::Switch::Juniper::Junos');
 
 use pf::constants;
 sub description { 'Junos v12.x' }
+sub switchDriverId { 'juniper_junos' }
 
 use pf::SwitchSupports qw(
     WiredMacAuth

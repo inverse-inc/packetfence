@@ -87,6 +87,7 @@ CONF
                         label    => 'Standard Switch',
                         supports => $supports,
                         is_template => 1,
+                        driver_id => "unknown",
                     },
                 ]
             },
@@ -136,6 +137,7 @@ CONF
                         label    => 'Standard Switch',
                         supports => $supports,
                         is_template => 1,
+                        driver_id => "unknown",
                     },
                 ]
             },
@@ -211,6 +213,7 @@ ${disconnectIp
                         label    => 'Standard Switch',
                         supports => $supports,
                         is_template => 1,
+                        driver_id => "unknown",
                     },
                 ]
             },

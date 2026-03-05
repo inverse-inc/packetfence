@@ -27,6 +27,7 @@ use pf::log;
 use base ('pf::Switch::Cisco::Cisco_WLC_AireOS');
 
 sub description { 'Cisco WLC (IOS XE)' }
+sub switchDriverId   { 'cisco_iosxe' }
 
 use pf::SwitchSupports qw(
     AccessListBasedEnforcement

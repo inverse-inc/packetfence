@@ -55,6 +55,8 @@
 
 		api
 
+		discover-network-device
+
 		log-tailer
 
 		# Job status access

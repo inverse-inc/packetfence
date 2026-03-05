@@ -28,3 +28,6 @@ export const reNumeric = value => /^-?[0-9]*$/.test(value)
 export const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?(via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?)?dev\s+[a-z,0-9\.]+$/i.test(value)
 
 export const reUUID = value => /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(value)
+
+// CIDR address validation regex (IPv4 with optional /16-32 prefix)
+export const reCidr = value => /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:1[6-9]|2[0-9]|3[0-2]))?$/.test(value)

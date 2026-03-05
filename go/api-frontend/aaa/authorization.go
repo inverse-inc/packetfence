@@ -36,6 +36,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/auth_logs", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/class/", role: "SECURITY_EVENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/classes", role: "SECURITY_EVENTS"},
+	adminRoleMapping{prefix: apiPrefix + "/discovernetworkdevice/", role: "SYSTEM"},
 	adminRoleMapping{prefix: apiPrefix + "/ip4log/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/ip4logs", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/ip6log/", role: "NODES"},
@@ -138,6 +139,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_forwarders", role: "SYSLOG"},
 	adminRoleMapping{prefix: configApiPrefix + "/event_handler/", role: "PFDETECT"},
 	adminRoleMapping{prefix: configApiPrefix + "/event_handlers", role: "PFDETECT"},
+	adminRoleMapping{prefix: configApiPrefix + "/discovernetworkdevice", role: "SYSTEM"},
 }
 
 var methodSuffixMap = map[string]string{

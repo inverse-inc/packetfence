@@ -37,6 +37,7 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 sub description { 'Junos' }
+sub switchDriverId { 'juniper_junos' }
 
 # importing switch constants
 use pf::Switch::constants;

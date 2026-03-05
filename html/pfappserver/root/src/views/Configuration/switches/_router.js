@@ -46,7 +46,14 @@ export default [
     path: 'switches/new/:switchGroup',
     name: 'newSwitch',
     component: TheView,
-    props: (route) => ({ isNew: true, switchGroup: route.params.switchGroup }),
+    props: (route) => ({
+      isNew: true,
+      switchGroup: route.params.switchGroup,
+      id: route.query.id,
+      network: route.query.network,
+      SNMPVersion: route.query.SNMPVersion,
+      type: route.query.type
+    }),
     beforeEnter
   },
   {

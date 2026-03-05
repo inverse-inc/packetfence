@@ -1,0 +1,80 @@
+SnmpDevice:
+  description: Contains informations found on a device at a given address.
+  type: object
+  properties:
+    credential:
+      $ref: "#/components/schemas/SnmpCredential"
+    ip:
+      type: string
+      example: "192.168.10.42"
+    driver:
+      description: The driver id used internally to match PF modules and switch driver for configuration.
+      type: string
+      example: "cisco_iosxr"
+    vendor:
+      type: string
+      example: "CISCO"
+    os:
+      type: string
+      example: "CISCO IOS-XR"
+    version:
+      type: string
+      example: "17.0.42"
+    hostname:
+      type: string
+      example: "gcaruba-machine01"
+    system:
+      description: The whole SNMP system description string. Usefull if vendor/os/version cannot be matched automatically.
+      type: string
+      example: "Aruba R8N88A 6000 24G 4SFP Swch PL.10.14.1010"
+    oid:
+      description: The OID string return by the SNMP request
+      type: string
+      example: ".1.3.6.1.4.1.9.1"
+SnmpCredential:
+  description: Contains credential informations. Support only SNMP v1 or v2c community strings.
+  type: object
+  properties:
+    version:
+      type: string
+      enum: [snmp_v1, snmp_v2c]
+      example: "snmp_v2c"
+    community_read:
+      type: string
+      example: public
+      default: public
+SnmpOptions:
+  description: Optionnal property to manage the SNMP scan. In general, a 0 value means use default value.
+  type: object
+  properties:
+    max_threads:
+      description: The scan use multiple threads to speed up the SNMP scan. The higher the better. 0 = use default
+      type: integer
+      minimum: 0
+      maximum: 256
+      default: 32
+    snmp_timeout:
+      description: Timeout in seconds for a SNMP request. 0 = use default.
+      type: integer
+      minimum: 0
+      maximum: 10
+      default: 1
+    snmp_retry:
+      description: Number of retry if the SNMP request timeout. 0 = use default.
+      type: integer
+      minimum: 0
+      maximum: 10
+      default: 1
+    snmp_port:
+      description: Port used by the SNMP request.
+      type: integer
+      default: 161
+SnmpResults:
+  description: A brief report of error/warning if an address responded to the SNMP request, but device cannot be matched
+  type: object
+  properties:
+    address:
+      description: IP address
+      type: string
+    message:
+      type: string
