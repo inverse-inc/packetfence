@@ -100,6 +100,29 @@ BEGIN
 END /
 DELIMITER ;
 
+--
+-- Create switch_observability
+--
+
+CREATE TABLE IF NOT EXISTS switch_observability (
+  `switch_id` varchar(255) PRIMARY KEY NOT NULL,
+  `visibility_timestamp` DATETIME default NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Create switch_observability_acls
+--
+
+CREATE TABLE IF NOT EXISTS switch_observability_acls (
+  `switch_id` varchar(255) NOT NULL,
+  `port` varchar(255) NOT NULL,
+  `role_id` varchar(255) NOT NULL,
+  `acls` MEDIUMTEXT NOT NULL,
+  `enforcement_timestamp` DATETIME default NULL,
+   PRIMARY KEY(`switch_id`, `port`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
