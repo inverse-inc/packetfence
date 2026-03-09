@@ -129,11 +129,11 @@ Test2::Tools::Compare::is(
                 };
                 item hash {
                     field mac => $mac2;
-                    field online => "true"
+                    field online => "online"
                 };
                 item hash {
                     field mac => $mac3;
-                    field online => "false"
+                    field online => "offline"
                 };
                 end();
             },
@@ -176,7 +176,7 @@ Test2::Tools::Compare::is(
                 };
                 item hash {
                     field mac => $mac3;
-                    field online => "false";
+                    field online => "offline";
                 };
                 end();
             },
@@ -215,7 +215,7 @@ Test2::Tools::Compare::is(
             items => array {
                 item hash {
                     field mac => $mac2;
-                    field online => "true";
+                    field online => "online";
                 };
                 end();
             },
@@ -254,7 +254,7 @@ Test2::Tools::Compare::is(
             items => array {
                 item hash {
                     field mac => $mac3;
-                    field online => "false"
+                    field online => "offline"
                 };
                 end();
             },
@@ -298,7 +298,7 @@ Test2::Tools::Compare::is(
                 };
                 item hash {
                     field mac => $mac2;
-                    field online => "true"
+                    field online => "online"
                 };
                 end();
             },
@@ -376,11 +376,11 @@ Test2::Tools::Compare::is(
             items => bag {
                 item hash {
                     field mac => $mac2;
-                    field online => "true"
+                    field online => "online"
                 };
                 item hash {
                     field mac => $mac3;
-                    field online => "false"
+                    field online => "offline"
                 };
                 end();
             },
