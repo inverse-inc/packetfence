@@ -55,7 +55,7 @@ sub postStartCleanup {
     my $logger = get_logger();
     sleep 40;
     unless ($self->pid) {
-        $logger->error("$self->name died or has failed to start");
+        $logger->error($self->name . " died or has failed to start");
         return $FALSE;
     }
     return $TRUE;
