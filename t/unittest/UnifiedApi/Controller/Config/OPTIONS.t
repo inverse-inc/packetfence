@@ -400,15 +400,15 @@ meta => {
                     type => "array"
                 },
                 ip_mac_translation => {
-                    default     => "enabled",
+                    default     => "true",
                     placeholder => undef,
                     required => $false,
                     implied  => undef,
                     type => "string",
                     allow_custom => $false,
                     allowed => [
-                        {text => 'enabled', value => 'enabled'},
-                        {text => 'disabled', value => 'disabled'},
+                        {text => 'enabled', value => 'true'},
+                        {text => 'disabled', value => 'false'},
                     ],
                 },
                 last_if_match => {
@@ -418,8 +418,8 @@ meta => {
                     implied  => undef,
                     type => "string",
                     allowed => [
-                        {text => 'enabled', value => 'enabled'},
-                        {text => 'disabled', value => 'disabled'},
+                        {text => 'enabled', value => 'true'},
+                        {text => 'disabled', value => 'false'},
                     ],
                     allow_custom => $false,
                 },

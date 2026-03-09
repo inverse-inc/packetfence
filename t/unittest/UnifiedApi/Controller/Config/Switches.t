@@ -157,7 +157,7 @@ $t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco
   ->status_is(201)
   ->json_is( '/warnings/0/code', 10002);
 
-$t->post_ok($collection_base_url => json => { id => "172.16.9.2", type => 'Cisco::ASA', description => "ss", UseDownloadableACLs => 'enabled'})
+$t->post_ok($collection_base_url => json => { id => "172.16.9.2", type => 'Cisco::ASA', description => "ss", UseDownloadableACLs => 'false'})
   ->status_is(201)
   ->json_is( '/warnings/0/code', 10001);
 
@@ -342,4 +342,3 @@ USA.
 =cut
 
 1;
-

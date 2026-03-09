@@ -37,7 +37,7 @@ use Test::NoWarnings;
         $data,
         {
             logs     => [ split( ',', $pf::constants::syslog::ALL_LOGS ) ],
-            all_logs => 'enabled',
+            all_logs => 'true',
             type     => 'server'
         },
         "Expand the virtual field all_logs"
@@ -46,7 +46,7 @@ use Test::NoWarnings;
 
 {
     my $config = pf::ConfigStore::Syslog->new;
-    my $data = { logs => [], all_logs => 'enabled', type => 'server' };
+    my $data = { logs => [], all_logs => 'true', type => 'server' };
     $config->cleanupBeforeCommit( "id", $data );
     is_deeply(
         $data,
@@ -86,4 +86,3 @@ USA.
 =cut
 
 1;
-

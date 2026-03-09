@@ -56,7 +56,7 @@ use pf::Switch;
             id       => 'test',
             interval => 0,
             type     => 'switch_cache_lldpLocalPort_description',
-            process_switchranges => 'enabled',
+            process_switchranges => 'true',
         }
     );
 
@@ -100,4 +100,3 @@ USA.
 =cut
 
 1;
-

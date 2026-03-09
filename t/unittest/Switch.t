@@ -113,7 +113,7 @@ is_deeply(
 }
 
 {
-    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'enabled'});
+    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'true'});
     is_deeply(
         $switch->checkRolesACLs({
             r1 => {
@@ -125,7 +125,7 @@ is_deeply(
 }
 
 {
-    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'enabled'});
+    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'true'});
     is_deeply(
         $switch->checkRolesACLs({
             r1 => {
@@ -179,4 +179,3 @@ USA.
 =cut
 
 1;
-

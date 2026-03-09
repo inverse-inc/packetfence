@@ -36,14 +36,14 @@ $result = pf::fingerbank::device_class_transition_allowed($non_existing_device, 
 ok(!defined($result), "Invalid device name provides undefined result");
 
 # Disable the device class transition check for all device classes to test the manual trigger
-$Config{fingerbank_device_change}{trigger_on_device_class_change} = "disabled";
+$Config{fingerbank_device_change}{trigger_on_device_class_change} = "false";
 
 # test manual transition trigger
 $result = pf::fingerbank::device_class_transition_allowed("Windows OS", "Windows OS", "Medical Device", "Abbott Medical");
 ok(!$result, "Manual trigger provides not allowed result");
 
-# Re-enable the device class transition check for all device classes 
-$Config{fingerbank_device_change}{trigger_on_device_class_change} = "enabled";
+# Re-enable the device class transition check for all device classes
+$Config{fingerbank_device_change}{trigger_on_device_class_change} = "true";
 
 # test valid transition
 $result = pf::fingerbank::device_class_transition_allowed("Windows OS", "Windows OS", "Windows OS", "Microsoft Windows Kernel 10.0");
@@ -89,4 +89,3 @@ USA.
 =cut
 
 1;
-
