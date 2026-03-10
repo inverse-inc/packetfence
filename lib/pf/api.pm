@@ -1969,7 +1969,6 @@ This is called after role configuration changes to avoid blocking the API.
 
 sub generate_ansible_configuration_all_switches : Public : Fork {
     my ($class, %postdata) = @_;
-    my $logger = get_logger();
 
     $logger->info("Starting Ansible configuration generation for all switches");
 
