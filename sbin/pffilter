@@ -74,6 +74,10 @@ our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
+# Maximum RSS in KB before a worker recycles itself (1 GB)
+our $MAX_RSS_KB = 1024 * 1024;
+our $MAX_REQUESTS = 2000;
+our $REQUEST_JITTER = 500;
 
 my $logger = get_logger('pffilter');
 $SIG{INT}  = \&normal_sighandler;
@@ -373,11 +377,6 @@ sub handle_dispath {
 is_running
 
 =cut
-
-# Maximum RSS in KB before a worker recycles itself (1 GB)
-our $MAX_RSS_KB = 1024 * 1024;
-our $MAX_REQUESTS = 2000;
-our $REQUEST_JITTER = 500;
 
 sub is_running {
     return $running && is_parent_alive() && rss_kb() <= $MAX_RSS_KB;
