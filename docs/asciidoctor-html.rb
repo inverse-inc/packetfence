@@ -192,7 +192,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       result << '<div id="header" class="col-3 h-100 overflow-auto">'
       # Add PF icon
       result << '<div class="header_logo ml-3 mb-4">'
-      result << %(<img src="#{node.image_uri("PF.svg")}" alt="icon"/>)
+      result << %(<img src="#{node.image_uri("pf-logo.svg")}" alt="icon"/>)
       result << '</div>'
       if sectioned && (node.attr? 'toc') && (node.attr? 'toc-placement', 'auto')
         result << %(<div id="toc" class="#{node.attr 'toc-class', 'toc'}">

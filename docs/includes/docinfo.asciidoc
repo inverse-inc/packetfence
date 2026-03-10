@@ -1,6 +1,6 @@
 Version {release_version} - {release_month} {docyear}
 
-Copyright © {docyear} Packetfence by Akamai
+Copyright © {docyear} Akamai Technologies Canada Inc.
 
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.2 or any later version
@@ -11,10 +11,10 @@ the section entitled "GNU Free Documentation License".
 The fonts used in this guide are licensed under the SIL Open Font License,
 Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
 
-// Copyright © Łukasz Dziedzic, http://www.latofonts.com/, with Reserved Font Name:
-// "Lato".
+Copyright © Łukasz Dziedzic, http://www.latofonts.com/, with Reserved Font Name:
+"Lato".
 
-// Copyright © Raph Levien, http://levien.com/, with Reserved Font Name:
-// "Inconsolata".
+Copyright © Raph Levien, http://levien.com/, with Reserved Font Name:
+"Inconsolata".
 
-image::PFbyAkamai.png[width="25%",pdfwidth="50%",align="right"]
+image::pf-akamai-logo.svg[width="25%",pdfwidth="50%",align="right"]

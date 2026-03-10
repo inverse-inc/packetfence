@@ -316,7 +316,7 @@ footer:
   recto: &shared_footer
     #columns: "<50% =0% >50%"
     left:
-      content: 'Copyright © Packetfence by Akamai'
+      content: 'Copyright © Akamai Technologies Canada Inc.'
     center:
       content: '{chapter-title}'
     right:
