@@ -82,26 +82,38 @@ sub nodecategory_populate_from_config {
         return;
     }
 
-    my @keep;
-    my @entries = _order_nodecategory_config($config);
-    for my $args (@entries) {
-        my $id = $args->[0];
-        nodecategory_upsert($id, %{$args->[1]});
-        push @keep, $id;
+    my @names;
+    my @bind;
+    while (my ($id, $role) = each(%$config)) {
+        push @names, $id;
+        push @bind,
+            $id,
+            $role->{max_nodes_per_pid},
+            $role->{notes},
+            $role->{include_parent_acls} // "disabled",
+            $role->{fingerbank_dynamic_access_list} // "disabled",
+            join("\n", @{$role->{acls} // []});
     }
-    _nodecategory_bulk_delete(\@keep);
-}
 
-sub _nodecategory_bulk_delete {
-    my ($keep) = @_;
-    pf::dal::node_category->remove_items(
-        -ignore => 1,
-        -where => {
-            name => {
-                -not_in => $keep,
-            },
+    if (@names) {
+        my $placeholders = join(", ", ("(?, ?, ?, ?, ?, ?)") x scalar @names);
+        my $sql = "INSERT INTO node_category (name, max_nodes_per_pid, notes, include_parent_acls, fingerbank_dynamic_access_list, acls) "
+            . "VALUES $placeholders "
+            . "ON DUPLICATE KEY UPDATE "
+            . "max_nodes_per_pid = VALUES(max_nodes_per_pid), "
+            . "notes = VALUES(notes), "
+            . "include_parent_acls = VALUES(include_parent_acls), "
+            . "fingerbank_dynamic_access_list = VALUES(fingerbank_dynamic_access_list), "
+            . "acls = VALUES(acls)";
+        my ($status, $sth) = pf::dal::node_category->db_execute($sql, @bind);
+        if (is_error($status)) {
+            $logger->error("Failed to bulk upsert roles into node_category");
+        } else {
+            $sth->finish;
         }
-    );
+    }
+
+    _nodecategory_bulk_delete(\@names);
 }
 
 sub _order_nodecategory_config {
@@ -120,6 +132,18 @@ sub _flatten_nodecategory {
     return @$parents,
       map { _flatten_nodecategory( $h->{$_}, $h ) }
       grep { exists $h->{$_} } map { $_->[0] } @$parents;
+}
+
+sub _nodecategory_bulk_delete {
+    my ($keep) = @_;
+    pf::dal::node_category->remove_items(
+        -ignore => 1,
+        -where => {
+            name => {
+                -not_in => $keep,
+            },
+        }
+    );
 }
 
 =item nodecategory_upsert
