@@ -634,7 +634,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     target = node.attr 'target'
     width_attr = (node.attr? 'width') ? %( width="#{node.attr 'width'}") : ''
     height_attr = (node.attr? 'height') ? %( height="#{node.attr 'height'}") : ''
-    if ((node.attr? 'format', 'svg') || (target.include? '.svg')) && node.document.safe < SafeMode::SECURE &&
+    if ((node.attr? 'format', 'svg') || (target.include? '.svg')) && node.document.safe < Asciidoctor::SafeMode::SECURE &&
         ((svg = (node.option? 'inline')) || (obj = (node.option? 'interactive')))
       if svg
         img = (read_svg_contents node, target) || %(<span class="alt">#{node.alt}</span>)

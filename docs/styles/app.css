@@ -7,9 +7,37 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css");
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   1. Google Fonts
+   1. Local fonts — Instrument Sans (docs/fonts/instrument-sans/)
+      Paths are relative to the HTML output file location.
    ═══════════════════════════════════════════════════════════════════════════ */
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("fonts/instrument-sans/InstrumentSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("fonts/instrument-sans/InstrumentSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("fonts/instrument-sans/InstrumentSans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("fonts/instrument-sans/InstrumentSans-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    2. Brand tokens (inlined from globals.css — @import breaks inside <style>)

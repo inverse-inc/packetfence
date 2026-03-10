@@ -6,23 +6,12 @@
 
 font:
   catalog:
-    # Noto Serif supports Latin, Latin-1 Supplement, Latin Extended-A, Greek, Cyrillic, Vietnamese & an assortment of symbols
-    #Noto Serif:
-    #  normal: notoserif-regular-subset.ttf
-    #  bold: notoserif-bold-subset.ttf
-    #  italic: notoserif-italic-subset.ttf
-    #  bold_italic: notoserif-bold_italic-subset.ttf
-    Lato-Light:
-      normal: lato/Lato-Light.ttf
-      bold: lato/Lato-Regular.ttf
-      italic: lato/Lato-LightItalic.ttf
-      bold_italic: lato/Lato-Italic.ttf
-    # M+ 1mn supports ASCII and the circled numbers used for conums
-    #M+ 1mn:
-    #  normal: mplus1mn-regular-subset.ttf
-    #  bold: mplus1mn-bold-subset.ttf
-    #  italic: mplus1mn-italic-subset.ttf
-    #  bold_italic: mplus1mn-bold_italic-subset.ttf
+    # Instrument Sans — same font used by the HTML output (docs/styles/app.css)
+    Instrument Sans:
+      normal: instrument-sans/InstrumentSans-Regular.ttf
+      bold: instrument-sans/InstrumentSans-Bold.ttf
+      italic: instrument-sans/InstrumentSans-Italic.ttf
+      bold_italic: instrument-sans/InstrumentSans-BoldItalic.ttf
     Inconsolata:
       normal: inconsolata.ttf
       bold: inconsolata.ttf
@@ -47,7 +36,7 @@ base:
   # color as CMYK array (approximated)
   #font_color: [0, 0, 0, 0.92]
   #font_color: [0, 0, 0, 92%]
-  font_family: Lato-Light
+  font_family: Instrument Sans
   # choose one of these font_size/line_height_length combinations
   #font_size: 14
   #line_height_length: 20

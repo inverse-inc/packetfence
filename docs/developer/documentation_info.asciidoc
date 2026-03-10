@@ -239,19 +239,19 @@ a|Navigate to _Configuration -> Policies and Access Control_
 
 a|
 ....
-image::pf-logo.png[width=25px]
+image::pf-logo.svg[width=25px]
 ....
 
-a| image::pf-logo.png[width=25px]
+a| image::pf-logo.svg[width=25px]
 
 | Block Image
 a|
 ....
 .PacketFence
-image::pf-logo.png[width=25px]
+image::pf-logo.svg[width=25px]
 ....
 a| .PacketFence
-image::pf-logo.png[width=25px]
+image::pf-logo.svg[width=25px]
 
 |Inline operations and user input
 
