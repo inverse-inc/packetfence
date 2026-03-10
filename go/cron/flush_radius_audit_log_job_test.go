@@ -502,15 +502,6 @@ func TestFlushRadiusAuditLogFromRedisBad(t *testing.T) {
 	compareCheck(t, "Flush count logs expect", 1, count)
 }
 
-func MapKeys[K comparable, V any](m map[K]V) []K {
-	keys := make([]K, 0, len(m))
-	for k, _ := range m {
-		keys = append(keys, k)
-	}
-
-	return keys
-}
-
 const RADIUS_ENTRY2 = `
 [
   "Accept",
