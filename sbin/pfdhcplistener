@@ -354,7 +354,7 @@ sub process_pkt {
                     $logger->trace("Rate limit key : $rate_limit_key");
                 }
 
-                my $rate_limiting = $Config{network}->{dhcp_rate_limiting};
+                my $rate_limiting = $Config{network}->{dhcp_rate_limiting} // 300;
                 # We send the packet to be processed if:
                 #  - there is no rate limit key (packet doesn't contain info to be rate-limited)
                 #  - there is no rate limiting configured
