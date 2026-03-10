@@ -49,8 +49,12 @@ Repopulate the node_category table after commiting
 sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
-    pf::log::get_logger->info("commiting via Roles configstore");
-    nodecategory_populate_from_config(pfconfig::manager->new->get_namespace("config::Roles")->build());
+    if ($result) {
+        pf::log::get_logger->info("commiting via Roles configstore");
+        my $manager = pfconfig::manager->new;
+        my $config = $manager->get_cache("config::Roles");
+        nodecategory_populate_from_config($config);
+    }
     return ($result, $error);
 }
 

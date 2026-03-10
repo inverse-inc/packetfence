@@ -470,13 +470,13 @@ sub expire {
             next if $namespace eq $what;
 
             $logger->info("Expiring overlayed resource from base resource $what.");
-            $self->expire($namespace, $light);
+            $self->expire($namespace, 1);
         }
 
         if ( $namespace->{child_resources} ) {
             foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
                 $logger->info("Expiring child resource $child_resource. Master resource is $what");
-                $self->expire($child_resource, $light);
+                $self->expire($child_resource, 1);
             }
         }
     }
