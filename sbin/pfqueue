@@ -34,7 +34,7 @@ use Scalar::Util qw(blessed);
 use Time::HiRes qw(usleep);
 
 use pf::file_paths qw($var_dir);;
-use pf::util;
+use pf::util qw(add_jitter rss_kb);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT $PFQUEUE_TASK_JITTER_DEFAULT);
 use pf::config::pfqueue;
@@ -179,8 +179,11 @@ worker_should_run
 
 =cut
 
+# Maximum RSS in KB before a worker recycles itself (1 GB)
+our $MAX_RSS_KB = 1024 * 1024;
+
 sub worker_should_run {
-    $running && $TASKS && is_parent_alive()
+    $running && $TASKS && is_parent_alive() && rss_kb() <= $MAX_RSS_KB
 }
 
 =head2 cleanup

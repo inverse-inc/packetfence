@@ -38,6 +38,7 @@ use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
 use JSON::MaybeXS;
 use pf::SwitchFactory;
 use pf::file_paths qw($var_dir $pffilter_socket_path);
+use pf::util qw(add_jitter rss_kb);
 use pf::config qw(%Config);
 use pf::services::util;
 use pf::filter_engine::profile;
@@ -277,8 +278,10 @@ sub _runtask {
     my ($task_id) = @_;
     $0 = "$0 - $task_id";
     my $time_taken = 0;
+    my $max_requests = add_jitter($MAX_REQUESTS, $REQUEST_JITTER);
+    my $requests_handled = 0;
     #local $^F = 2;
-    while (is_running()) {
+    while (is_running() && $requests_handled < $max_requests) {
         my $line;
         eval {
             my $paddr = accept(my $socket, $listener);
@@ -287,6 +290,7 @@ sub _runtask {
                 die("Can't accept connection: $!\n");
             }
             if ($paddr) {
+                $requests_handled++;
                 my $line = <$socket>;
                 next unless defined $line;
                 chomp($line);
@@ -370,8 +374,13 @@ is_running
 
 =cut
 
+# Maximum RSS in KB before a worker recycles itself (1 GB)
+our $MAX_RSS_KB = 1024 * 1024;
+our $MAX_REQUESTS = 2000;
+our $REQUEST_JITTER = 500;
+
 sub is_running {
-    return $running && is_parent_alive();
+    return $running && is_parent_alive() && rss_kb() <= $MAX_RSS_KB;
 }
 
 =head2 send_answer

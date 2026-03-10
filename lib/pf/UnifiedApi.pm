@@ -28,7 +28,7 @@ use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
 
 use Mojo::Base 'Mojolicious';
-use pf::util qw(add_jitter);
+use pf::util qw(add_jitter rss_kb);
 use pf::file_paths qw($log_conf_dir $pfperl_api_restart_task);
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
@@ -186,25 +186,12 @@ sub after_dispatch_cb {
 
     my $app = $c->app;
     my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
-    if (++$app->{requests_handled} >= $max || _rss_exceeds_limit()) {
+    if (++$app->{requests_handled} >= $max || rss_kb() > $MAX_RSS_KB) {
         kill 'QUIT', $$;
     }
 
     $c->after_dispatch;
     return;
-}
-
-sub _rss_exceeds_limit {
-    if (open(my $fh, '<', "/proc/$$/statm")) {
-        my $line = <$fh>;
-        close($fh);
-        # statm fields: size resident shared text lib data dt (in pages)
-        my $resident_pages = (split(' ', $line))[1];
-        # Convert pages to KB (page size is typically 4KB)
-        my $rss_kb = $resident_pages * 4;
-        return $rss_kb > $MAX_RSS_KB;
-    }
-    return 0;
 }
 
 =head2 before_dispatch_cb

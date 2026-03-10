@@ -126,6 +126,7 @@ BEGIN {
         safe_pf_run
         starts_with
         splitr2
+        rss_kb
     );
 }
 
@@ -1691,6 +1692,24 @@ Add a random number from (-$jitter to $jitter) to $number
 sub add_jitter {
     my ($number, $jitter) = @_;
     return $number + int(rand(2 * $jitter + 1)) - $jitter;
+}
+
+=head2 rss_kb
+
+Returns the current process RSS in KB by reading /proc/$$/statm.
+Returns 0 if the file cannot be read.
+
+=cut
+
+sub rss_kb {
+    if (open(my $fh, '<', "/proc/$$/statm")) {
+        my $line = <$fh>;
+        close($fh);
+        # statm fields: size resident shared text lib data dt (in pages)
+        my $resident_pages = (split(' ', $line))[1];
+        return $resident_pages * 4;
+    }
+    return 0;
 }
 
 =head2 str_to_connection_type
