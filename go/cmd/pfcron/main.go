@@ -86,7 +86,7 @@ func (p *pfCronJob) Run() {
 	p.RunWithContext(context.Background())
 }
 
-func runJob(j cron.Job, ctx context.Context) {
+func runJob(ctx context.Context, j cron.Job) {
 	if jc, ok := j.(cron.JobWithContext); ok {
 		jc.RunWithContext(ctx)
 	} else {
@@ -115,7 +115,7 @@ func (p *pfCronJob) RunWithContext(ctx context.Context) {
 	case v := <-p.ch:
 		defer func() { p.ch <- v }()
 		p.logger.Info("Running " + name)
-		runJob(p.job, ctx)
+		runJob(ctx, p.job)
 
 	default:
 		p.logger.Info(" Skipped " + name)
