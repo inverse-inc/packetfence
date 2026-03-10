@@ -61,6 +61,40 @@ func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
 	return nil
 }
 
+type MapDiff struct {
+	Added   map[string]interface{}
+	Removed map[string]interface{}
+	Changed map[string][2]interface{}
+}
+
+func (d MapDiff) HasDiff() bool {
+	return len(d.Added) > 0 || len(d.Removed) > 0 || len(d.Changed) > 0
+}
+
+func DiffMaps(old, new map[string]interface{}) MapDiff {
+	d := MapDiff{
+		Added:   make(map[string]interface{}),
+		Removed: make(map[string]interface{}),
+		Changed: make(map[string][2]interface{}),
+	}
+
+	for k, v := range old {
+		if newV, ok := new[k]; !ok {
+			d.Removed[k] = v
+		} else if !reflect.DeepEqual(v, newV) {
+			d.Changed[k] = [2]interface{}{v, newV}
+		}
+	}
+
+	for k, v := range new {
+		if _, ok := old[k]; !ok {
+			d.Added[k] = v
+		}
+	}
+
+	return d
+}
+
 func MergeArgs(a, b map[string]interface{}) map[string]interface{} {
 	newArgs := make(map[string]interface{})
 	for k, v := range a {
