@@ -425,8 +425,6 @@ sub iptables_haproxy_portal_rules {
     if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         $chains->{'name'} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         if ($cluster_enabled) {
             push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
@@ -495,12 +493,6 @@ sub iptables_radiusd_lb_rules {
 
     my $logger = get_logger();
     my $chains = util_create_chains();
-
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{'name'} = $service_name;
-        util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
 
     if ( @radius_ints ) {
         # 'radius' interfaces handling
@@ -748,12 +740,6 @@ sub iptables_httpd_dispatcher_rules {
     my $logger = get_logger();
     my $chains = util_create_chains();
 
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
-
     if ( @vlan_enforcement_nets ) {
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
@@ -985,12 +971,6 @@ sub iptables_pfdns_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
     if ( @dns_ints ) {
         $chains->{name} = $service_name;
         foreach my $network ( @dns_ints ) {
@@ -1200,11 +1180,6 @@ sub iptables_pfdhcp_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
 
     if ( @dhcp_ints ) {
         $chains->{name} = $service_name;
