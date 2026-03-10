@@ -64,34 +64,62 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 var processJobs uint32 = 1
 
-func wrapJob(logger log.PfLogger, j string, l bool) cron.JobWithContext {
-	var ch = make(chan struct{}, 1)
-	ch <- struct{}{}
-	return cron.FuncJobWithContext(func(ctx context.Context) {
-		defer func() {
-			if r := recover(); r != nil {
-				logger.Error(fmt.Sprintf("Job %s panic: %s", j, r))
-			}
-		}()
+type pfCronJob struct {
+	logger log.PfLogger
+	job    cron.Job
+	ch     chan struct{}
+}
 
-		if atomic.LoadUint32(&processJobs) == 0 && l == false {
-			logger.Info("Not processing " + j)
-			return
-		}
+func (p *pfCronJob) Run() {
+	p.RunWithContext(context.Background())
+}
 
-		select {
-		case v := <-ch:
-			defer func() { ch <- v }()
-			if job := maint.GetJob(j, maint.GetMaintenanceConfig(ctx)); job != nil {
-				logger.Info("Running " + j)
-				job.RunWithContext(ctx)
-			} else {
-				logger.Error("Cannot create job " + j)
-			}
-		default:
-			logger.Info(" Skipped " + j)
+func runJob(j cron.Job, ctx context.Context) {
+	if jc, ok := j.(cron.JobWithContext); ok {
+		jc.RunWithContext(ctx)
+	} else {
+		j.Run()
+	}
+}
+
+func (p *pfCronJob) RunWithContext(ctx context.Context) {
+	name, local := "unnamed job", false
+	if j, ok := p.job.(maint.JobSetupConfig); ok {
+		name, local = j.Name(), j.ForceLocal()
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			p.logger.Error(fmt.Sprintf("Job %s panic: %s", name, r))
 		}
-	})
+	}()
+
+	if local == false && atomic.LoadUint32(&processJobs) == 0 {
+		p.logger.Info("Not processing " + name)
+		return
+	}
+
+	select {
+	case v := <-p.ch:
+		defer func() { p.ch <- v }()
+		p.logger.Info("Running " + name)
+		runJob(p.job, ctx)
+
+	default:
+		p.logger.Info(" Skipped " + name)
+	}
+}
+
+func pfCronWrapper(logger log.PfLogger) cron.JobWrapper {
+	return func(j cron.Job) cron.Job {
+		ch := make(chan struct{}, 1)
+		ch <- struct{}{}
+		return &pfCronJob{
+			job:    j,
+			ch:     ch,
+			logger: logger,
+		}
+	}
 }
 
 func runJobNow(name string, additionalArgs map[string]interface{}) int {
@@ -161,9 +189,12 @@ func main() {
 
 	ctx := context.Background()
 	logger := log.LoggerWContext(ctx)
-	c := cron.New(cron.WithParser(cron.NewParser(
-		cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor,
-	)))
+	c := cron.New(cron.WithParser(
+		cron.NewParser(
+			cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor,
+		)),
+		cron.WithChain(pfCronWrapper(logger)),
+	)
 
 	triggeredJobs := []string{}
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
@@ -171,7 +202,7 @@ func main() {
 		schedule := job.Schedule()
 		id, err := c.ScheduleJob(
 			schedule,
-			wrapJob(logger, name, job.ForceLocal()),
+			job,
 			job.JobOptions()...,
 		)
 		if err != nil {
