@@ -89,9 +89,6 @@ sub commit {
         # Single build: rebuilds from disk, caches in L2, and notifies pfconfig
         my $config = $manager->cache_resource("config::Roles");
         nodecategory_populate_from_config($config);
-        # Release cached config from memory so Perl can reuse it
-        $manager->init_cache();
-        $config = undef;
     }
     return ($result, $error);
 }

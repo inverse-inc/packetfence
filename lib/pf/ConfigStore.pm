@@ -680,7 +680,7 @@ sub commitPfconfig {
             my $manager = pfconfig::manager->new;
             $manager->expire($self->pfconfigNamespace);
             if(pfconfig::git_storage->is_enabled) {
-                return $self->commitGitStorage(); 
+                return $self->commitGitStorage();
             }
         }
     }

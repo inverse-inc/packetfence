@@ -40,6 +40,8 @@ use pfconfig::refresh_last_touch_cache;
 use File::Slurp;
 our $MAX_REQUEST_HANDLED = 2000;
 our $REQUEST_HANDLED_JITTER = 500;
+# Maximum RSS in KB before a worker recycles itself (1 GB)
+our $MAX_RSS_KB = 1024 * 1024;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
@@ -184,12 +186,25 @@ sub after_dispatch_cb {
 
     my $app = $c->app;
     my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
-    if (++$app->{requests_handled} >= $max) {
+    if (++$app->{requests_handled} >= $max || _rss_exceeds_limit()) {
         kill 'QUIT', $$;
     }
 
     $c->after_dispatch;
     return;
+}
+
+sub _rss_exceeds_limit {
+    if (open(my $fh, '<', "/proc/$$/statm")) {
+        my $line = <$fh>;
+        close($fh);
+        # statm fields: size resident shared text lib data dt (in pages)
+        my $resident_pages = (split(' ', $line))[1];
+        # Convert pages to KB (page size is typically 4KB)
+        my $rss_kb = $resident_pages * 4;
+        return $rss_kb > $MAX_RSS_KB;
+    }
+    return 0;
 }
 
 =head2 before_dispatch_cb
