@@ -14,8 +14,10 @@ d-i netcfg/choose_interface select auto
 d-i netcfg/get_hostname string packetfence
 d-i netcfg/get_domain string localdomain
 
-# If DHCP fails, allow manual configuration
+# If DHCP fails, force manual configuration (do not allow skipping network setup)
+# PacketFence requires at least one configured network interface
 d-i netcfg/dhcp_failed note
+d-i netcfg/dhcp_options select Configure network manually
 d-i netcfg/dhcp_timeout string 60
 
 # Disable that annoying WEP key dialog.
