@@ -117,10 +117,8 @@ for my $g (@groups) {
 }
 
 # # Exclude modules removed from the devel branch that may still exist locally.
-# # "Trapeze" and "Trapeze:WCL" has same name. Uncomment the code in order to filter them out.
-
-# my %excluded = map { $_ => 1 } qw(Trapeze::WLC);
-# @list_name_infos = grep { !$excluded{$_} } @list_name_infos;
+my %excluded = map { $_ => 1 } qw(Trapeze::WLC);
+@list_name_infos = grep { !$excluded{$_} } @list_name_infos;
 
 #
 # Table feature definitions
@@ -166,14 +164,14 @@ for my $name (sort { $dict_name_infos{$a}{label} cmp $dict_name_infos{$b}{label}
 {
     my $info = $dict_name_infos{$name};
 
+    my $is_wlc = grep { $name =~ /\Q$_\E/ } @list_of_wlc;
+
     my $category;
-    if ($info->{is_template}) {
-        $category = 'Template';
-    } elsif ($info->{vpn}) {
+    if ($info->{vpn}) {
         $category = 'VPN';
-    } elsif ($info->{wired_wireless} && $wlc_lookup{$name}) {
+    } elsif ($is_wlc) {
         $category = 'Wireless Controller';
-    } elsif ($info->{wireless} && !$info->{wired_wireless}) {
+    } elsif ($info->{wireless} || $info->{wired_wireless}) {
         $category = 'Wireless';
     } else {
         $category = 'Wired';
@@ -189,7 +187,7 @@ for my $name (sort { $dict_name_infos{$a}{label} cmp $dict_name_infos{$b}{label}
     }
 
     my ($vendor) = split /::/, $name;
-    my $is_tpl = ($category eq 'Template') ? JSON::true : JSON::false;
+    my $is_tpl = $info->{is_template} ? JSON::true : JSON::false;
 
     my %device;
     tie %device, 'Tie::IxHash',
@@ -220,7 +218,7 @@ tie %json_data, 'Tie::IxHash',
     source        => 'local:/usr/local/pf/lib/pf/Switch',
     featureNames  => \%featureNames,
     tableFeatures => \@list_of_types,
-    categories    => [qw(Wired Wireless), 'Wireless Controller', qw(VPN Template)],
+    categories    => [qw(Wired Wireless), 'Wireless Controller', qw(VPN)],
     deviceCount   => scalar(@devices),
     devices       => \@devices;
 
