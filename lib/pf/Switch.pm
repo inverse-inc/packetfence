@@ -98,6 +98,10 @@ use pf::api::queue_cluster;
 use pf::util::wpa;
 use File::Find;
 use Digest::SHA qw(sha512_hex);
+use CHI;
+use pf::dal::switch_observability;
+
+our $cache_switch_observability =  CHI->new(driver => 'RawMemory', datastore => {});
 
 #
 # %TRAP_NORMALIZERS
@@ -741,24 +745,31 @@ sub _parentRoleForVlan {
 
 sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
+    my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
+    return if !defined $type;
+    return $acls;
+}
+
+sub _getAccessListByName {
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
         chomp($acls) if defined $acls;
         if (defined $acls && $acls ne '') {
-            return $acls;
+            return "asset", $acls;
         }
     }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
-        return $self->{'_access_lists'}->{$access_list_name};
+        return "role", $self->{'_access_lists'}->{$access_list_name};
     }
 
-    return if !exists $ConfigRoles{$access_list_name};
+    return undef, undef if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
-    return if !exists $role->{acls};
+    return undef, undef if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 
     # Change to a check for FB ACL enabled
@@ -767,11 +778,11 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+    return "role", $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
-    return;
+    return undef, undef;
 }
 
 sub getRoleAccessListByName {
@@ -4554,6 +4565,22 @@ sub check_if_radius_request_psk_matches {
         $snonce,
       ),
       $eapol_key_frame,
+    );
+}
+
+sub mark_as_seen {
+    my ($self) = @_;
+    my $id = $self->{_id};
+    $cache_switch_observability->compute(
+        $id,
+        {expires_in => '1m'},
+        sub {
+            my $dal = pf::dal::switch_observability->new({
+                switch_id => $id,
+                visibility_timestamp => \"NOW()",
+            });
+            return $dal->upsert();
+        }
     );
 }
 
