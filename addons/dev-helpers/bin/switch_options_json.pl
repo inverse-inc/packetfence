@@ -66,17 +66,20 @@ my @list_name_infos = ();
 
 for my $g (@groups) {
     for my $switch_info (@{$g->{options}}) {
+        # Skip Templates since they don't support ACL.
+        if ($switch_info->{is_template}) {
+            next;
+        }
+ 
         my $name   = $switch_info->{value};
         my $module = "pf::Switch::${name}";
 	
-        if (not $switch_info->{is_template}) {
-            my $file = pod_where({-inc => 1}, $module);
-            my $snmp = '';
-            open(my $fh, '>', \$snmp);
-            podselect({-sections => ['SNMP'], -output => $fh}, $file);
-            close($fh);
-            $switch_info->{'SNMP'} = 'true' if $snmp ne '';
-        }
+        my $file = pod_where({-inc => 1}, $module);
+        my $snmp = '';
+        open(my $fh, '>', \$snmp);
+        podselect({-sections => ['SNMP'], -output => $fh}, $file);
+        close($fh);
+        $switch_info->{'SNMP'} = 'true' if $snmp ne '';
 
         my $aSupports     = $switch_info->{supports};
         my %supportsLookup = map { $_ => 1 } @$aSupports;
@@ -94,6 +97,7 @@ for my $g (@groups) {
             print("<!-- SWITCH WITH ISSUE: $name \t$supports -->\n");
         }
 
+        # Iterate over expected switch compatibilities.
         for my $supportedItem (qw(
             WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x
             PushACLs ExternalPortal MABFloatingDevices WebFormRegistration
@@ -101,10 +105,7 @@ for my $g (@groups) {
             Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement
         )) {
             next unless $supportsLookup{$supportedItem};
-            if ($switch_info->{is_template}) {
-                $switch_info->{$supportedItem} = 'true';
-                next;
-            }
+ 
             my $supports_method = "supports${supportedItem}";
             my $tested_method   = "supports${supportedItem}Tested";
             next unless $module->$supports_method;
@@ -187,7 +188,6 @@ for my $name (sort { $dict_name_infos{$a}{label} cmp $dict_name_infos{$b}{label}
     }
 
     my ($vendor) = split /::/, $name;
-    my $is_tpl = $info->{is_template} ? JSON::true : JSON::false;
 
     my %device;
     tie %device, 'Tie::IxHash',
@@ -195,7 +195,6 @@ for my $name (sort { $dict_name_infos{$a}{label} cmp $dict_name_infos{$b}{label}
         package    => "pf::Switch::$name",
         vendor     => $vendor,
         category   => $category,
-        isTemplate => $is_tpl,
         features   => \%features;
 
     push @devices, \%device;
