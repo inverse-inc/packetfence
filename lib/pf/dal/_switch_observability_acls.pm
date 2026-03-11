@@ -34,24 +34,30 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         switch_id
+        mac
         port
         role_id
+        acl_type
         acls
         enforcement_timestamp
     );
 
     %DEFAULTS = (
         switch_id => '',
+        mac => '',
         port => '',
         role_id => '',
+        acl_type => '',
         acls => '',
         enforcement_timestamp => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
         switch_id
+        mac
         port
         role_id
+        acl_type
         acls
         enforcement_timestamp
     );
@@ -63,13 +69,25 @@ BEGIN {
             is_primary_key => 1,
             is_nullable => 0,
         },
-        port => {
+        mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
+        port => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         role_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        acl_type => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -91,13 +109,15 @@ BEGIN {
 
     @PRIMARY_KEYS = qw(
         switch_id
-        port
+        mac
     );
 
     @COLUMN_NAMES = qw(
         switch_observability_acls.switch_id
+        switch_observability_acls.mac
         switch_observability_acls.port
         switch_observability_acls.role_id
+        switch_observability_acls.acl_type
         switch_observability_acls.acls
         switch_observability_acls.enforcement_timestamp
     );
