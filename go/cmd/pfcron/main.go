@@ -14,10 +14,74 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	maint "github.com/inverse-inc/packetfence/go/cron"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/netresearch/go-cron"
 )
+
+func watchConfigChanges(ctx context.Context, c *cron.Cron, logger log.PfLogger) {
+	lastStatus := make(map[string]bool)
+
+	// Initialize with current config
+	if config := maint.GetMaintenanceConfig(ctx); config != nil {
+		for name, v := range config {
+			data, ok := v.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			status, ok := data["status"].(string)
+			if !ok {
+				continue
+			}
+			lastStatus[name] = sharedutils.IsEnabled(status)
+		}
+	}
+
+	ticker := time.NewTicker(time.Minute)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			config := maint.GetMaintenanceConfig(ctx)
+			if config == nil {
+				continue
+			}
+
+			for name, v := range config {
+				data, ok := v.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				status, ok := data["status"].(string)
+				if !ok {
+					continue
+				}
+
+				enabled := sharedutils.IsEnabled(status)
+				prev, existed := lastStatus[name]
+				lastStatus[name] = enabled
+
+				if !existed {
+					continue
+				}
+
+				if prev && !enabled {
+					logger.Info(fmt.Sprintf("Job '%s' status changed to disabled, pausing", name))
+					if err := c.PauseEntryByName(name); err != nil {
+						logger.Error(fmt.Sprintf("Error pausing job '%s': %v", name, err))
+					}
+				} else if !prev && enabled {
+					logger.Info(fmt.Sprintf("Job '%s' status changed to enabled, resuming", name))
+					if err := c.ResumeEntryByName(name); err != nil {
+						logger.Error(fmt.Sprintf("Error resuming job '%s': %v", name, err))
+					}
+				}
+			}
+		}
+	}
+}
 
 func setProcessing() {
 	var Management pfconfigdriver.ManagementNetwork
@@ -226,12 +290,15 @@ func main() {
 		<-ch
 		w.Done()
 	}()
+	watchCtx, cancel := context.WithCancel(context.Background())
 	go setProcessing()
+	go watchConfigChanges(watchCtx, c, logger)
 	c.Start()
 	for _, j := range triggeredJobs {
 		c.TriggerEntryByName(j)
 	}
 	w.Wait()
+	cancel()
 	doneCtx := c.Stop()
 	<-doneCtx.Done()
 	NotifySystemd("STOPPING=1")
