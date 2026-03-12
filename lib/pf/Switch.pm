@@ -100,6 +100,7 @@ use File::Find;
 use Digest::SHA qw(sha512_hex);
 use CHI;
 use pf::dal::switch_observability;
+use pf::dal::switch_observability_acls;
 
 our $cache_switch_observability =  CHI->new(driver => 'RawMemory', datastore => {});
 
@@ -747,6 +748,7 @@ sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
     return if !defined $type;
+
     return $acls;
 }
 
