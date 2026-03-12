@@ -128,7 +128,7 @@ func (s *KafkaSubmiter) send(events []*NetworkEvent) {
 	ctx := context.Background()
 	messages := make([]kafka.Message, 0, len(filteredEvents))
 	for i := 0; i < len(filteredEvents); i++ {
-		data, err := json.Marshal(events[i])
+		data, err := json.Marshal(filteredEvents[i])
 		if err != nil {
 			log.LogErrorf(ctx, "Failed to marshal network event: %v", err)
 			continue
