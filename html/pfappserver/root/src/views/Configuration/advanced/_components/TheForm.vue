@@ -88,6 +88,21 @@
                                    :text="$i18n.t('The timeout in seconds for an API request.')"
     />
 
+    <form-group-pfperl-api-max-rss namespace="pfperl_api_max_rss"
+                                    :column-label="$i18n.t('PfPerl API Max RSS')"
+                                    :text="$i18n.t('Maximum RSS in MB before a pfperl-api worker recycles itself. Set to 0 to disable.')"
+    />
+
+    <form-group-pffilter-max-rss namespace="pffilter_max_rss"
+                                  :column-label="$i18n.t('PfFilter Max RSS')"
+                                  :text="$i18n.t('Maximum RSS in MB before a pffilter worker recycles itself. Set to 0 to disable.')"
+    />
+
+    <form-group-pfqueue-max-rss namespace="pfqueue_max_rss"
+                                 :column-label="$i18n.t('PfQueue Max RSS')"
+                                 :text="$i18n.t('Maximum RSS in MB before a pfqueue worker recycles itself. Set to 0 to disable.')"
+    />
+
     <form-group-update-iplog-with-accounting namespace="update_iplog_with_accounting"
                                              :column-label="$i18n.t('Update the iplog using the accounting')"
                                              :text="$i18n.t('Use the information included in the accounting to update the iplog.')"
@@ -194,9 +209,12 @@ import {
   FormGroupMultihost,
   FormGroupNetflowOnAllNetworks,
   FormGroupOpenidAttributes,
+  FormGroupPffilterMaxRss,
   FormGroupPffilterProcesses,
+  FormGroupPfperlApiMaxRss,
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
+  FormGroupPfqueueMaxRss,
   FormGroupPfupdateCustomScriptPath,
   FormGroupPortalCspSecurityHeaders,
   FormGroupScanOnAccounting,
@@ -226,9 +244,12 @@ const components = {
   FormGroupMultihost,
   FormGroupNetflowOnAllNetworks,
   FormGroupOpenidAttributes,
+  FormGroupPffilterMaxRss,
   FormGroupPffilterProcesses,
+  FormGroupPfperlApiMaxRss,
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
+  FormGroupPfqueueMaxRss,
   FormGroupPortalCspSecurityHeaders,
   FormGroupPfupdateCustomScriptPath,
   FormGroupScanOnAccounting,

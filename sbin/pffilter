@@ -74,8 +74,6 @@ our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
-# Maximum RSS in KB before a worker recycles itself (1 GB)
-our $MAX_RSS_KB = 1024 * 1024;
 our $MAX_REQUESTS = 2000;
 our $REQUEST_JITTER = 500;
 
@@ -379,7 +377,8 @@ is_running
 =cut
 
 sub is_running {
-    return $running && is_parent_alive() && rss_kb() <= $MAX_RSS_KB;
+    my $max_rss_kb = ($Config{advanced}{pffilter_max_rss} // 1024) * 1024;
+    return $running && is_parent_alive() && ($max_rss_kb == 0 || rss_kb() <= $max_rss_kb);
 }
 
 =head2 send_answer

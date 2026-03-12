@@ -1083,6 +1083,27 @@ statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "containers-gat
 # Execution timeout for pfperl-api
 pfperl_api_timeout = 600
 
+# advanced.pfperl_api_max_rss
+#
+# Maximum RSS in MB before a pfperl-api worker recycles itself.
+# Set to 0 to disable the RSS check.
+# Requires to restart the pfperl-api service to be fully effective.
+pfperl_api_max_rss = 1024
+
+# advanced.pffilter_max_rss
+#
+# Maximum RSS in MB before a pffilter worker recycles itself.
+# Set to 0 to disable the RSS check.
+# Requires to restart the pffilter service to be fully effective.
+pffilter_max_rss = 1024
+
+# advanced.pfqueue_max_rss
+#
+# Maximum RSS in MB before a pfqueue worker recycles itself.
+# Set to 0 to disable the RSS check.
+# Requires to restart the pfqueue service to be fully effective.
+pfqueue_max_rss = 1024
+
 # advanced.configurator
 #
 # Enable the Configurator and the Configurator API
