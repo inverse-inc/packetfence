@@ -1667,7 +1667,6 @@ CREATE TABLE switch_observability (
 CREATE TABLE switch_observability_acls (
   `switch_id` varchar(255) NOT NULL,
   `mac` varchar(255) NOT NULL,
-  `port` varchar(255) NOT NULL,
   `role_id` varchar(255) NOT NULL,
   `acl_type` varchar(255) NOT NULL,
   `acls` MEDIUMTEXT NOT NULL,
