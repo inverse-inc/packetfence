@@ -151,8 +151,8 @@ const setup = (props, context) => {
 
   const onCopyInstallCommand = (item) => {
     api.item(item.id).then(connector => {
-      const server = window.location.hostname
-      const command = `curl -sL https://proxy.saas.packetfence.com/post-install.sh | bash -s -- --id ${connector.id} --secret ${connector.secret} --server ${server}`
+      const server = $store.getters['system/hostname'] || window.location.hostname
+      const command = `curl -sL https://proxy.saas.packetfence.com/connector-remote-install.sh | bash -s -- --id ${connector.id} --secret ${connector.secret} --server ${server}`
       try {
         navigator.clipboard.writeText(command).then(() => {
           $store.dispatch('notification/info', { message: i18n.t('Install command copied to clipboard.') })
