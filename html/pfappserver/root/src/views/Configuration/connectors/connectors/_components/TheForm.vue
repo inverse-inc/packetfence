@@ -128,7 +128,7 @@ export const setup = (props, context) => {
   const installCommand = computed(() => {
     const { id, secret } = props.form || {}
     const server = $store.getters['system/hostname'] || window.location.hostname
-    return `curl -sL https://proxy.saas.packetfence.com/connector-remote-install.sh | bash -s -- --id ${id || ''} --secret ${secret || ''} --server ${server}`
+    return `curl -sL https://proxy.saas.packetfence.com/connector-remote-install.sh | bash -s -- ${id || ''} ${secret || ''} ${server}`
   })
 
   const onCopyInstallCommand = () => {
