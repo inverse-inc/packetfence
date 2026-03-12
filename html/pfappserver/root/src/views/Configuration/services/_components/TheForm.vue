@@ -199,7 +199,7 @@
 
     <form-group-pfudpproxy namespace="pfudpproxy"
                            column-label="pfudpproxy"
-                           :text="$i18n.t('Should pfudpproxy be managed by PacketFence? This is a UDP reverse proxy for NetFlow/sFlow in cluster mode.')"
+                           :text="$i18n.t('Should pfudpproxy be managed by PacketFence? This is a UDP reverse proxy for NetFlow/sFlow/IPFIX in cluster mode.')"
                            enabled-value="enabled"
                            disabled-value="disabled"
     />
