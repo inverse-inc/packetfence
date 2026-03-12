@@ -28,7 +28,8 @@ use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
 
 use Mojo::Base 'Mojolicious';
-use pf::util qw(add_jitter);
+use pf::util qw(add_jitter rss_kb);
+use pf::config qw(%Config);
 use pf::file_paths qw($log_conf_dir $pfperl_api_restart_task);
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
@@ -184,7 +185,8 @@ sub after_dispatch_cb {
 
     my $app = $c->app;
     my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
-    if (++$app->{requests_handled} >= $max) {
+    my $max_rss_kb = ($Config{advanced}{pfperl_api_max_rss} // 1024) * 1024;
+    if (++$app->{requests_handled} >= $max || ($max_rss_kb > 0 && rss_kb() > $max_rss_kb)) {
         kill 'QUIT', $$;
     }
 

@@ -17,7 +17,10 @@ use Moo;
 use pf::file_paths qw($roles_config_file $roles_default_config_file);
 use pf::nodecategory;
 use pf::config;
+use pf::config::cluster;
+use pf::constants;
 use pfconfig::manager;
+use pfconfig::git_storage;
 extends 'pf::ConfigStore';
 
 sub configFile { $roles_config_file };
@@ -40,6 +43,37 @@ sub cleanupAfterRead {
 }
 
 
+=item commitPfconfig
+
+Override to use light expire instead of hard expire.
+The config will be rebuilt once in commit() via cache_resource,
+avoiding a redundant full rebuild from the parent's hard expire.
+
+=cut
+
+sub commitPfconfig {
+    my ($self) = @_;
+    if (!defined($self->pfconfigNamespace)) {
+        pf::log::get_logger->warn("Can't expire pfconfig in " . ref($self) . " because the pfconfig namespace is not defined.");
+        return ($TRUE, undef);
+    }
+
+    if ($cluster_enabled) {
+        return $self->SUPER::commitPfconfig();
+    }
+
+    my $manager = pfconfig::manager->new;
+    # Light expire: updates control file timestamps and cascades to
+    # children/overlayed without doing a full rebuild. The single
+    # necessary rebuild happens in commit() below.
+    $manager->expire($self->pfconfigNamespace, 1);
+    if (pfconfig::git_storage->is_enabled) {
+        return $self->commitGitStorage();
+    }
+
+    return ($TRUE, undef);
+}
+
 =item commit
 
 Repopulate the node_category table after commiting
@@ -49,8 +83,13 @@ Repopulate the node_category table after commiting
 sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
-    pf::log::get_logger->info("commiting via Roles configstore");
-    nodecategory_populate_from_config(pfconfig::manager->new->get_namespace("config::Roles")->build());
+    if ($result) {
+        pf::log::get_logger->info("commiting via Roles configstore");
+        my $manager = pfconfig::manager->new;
+        # Single build: rebuilds from disk, caches in L2, and notifies pfconfig
+        my $config = $manager->cache_resource("config::Roles");
+        nodecategory_populate_from_config($config);
+    }
     return ($result, $error);
 }
 

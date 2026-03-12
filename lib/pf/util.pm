@@ -25,7 +25,7 @@ use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
 use File::Path qw(make_path remove_tree);
-use POSIX qw(setuid setgid);
+use POSIX qw(setuid setgid sysconf _SC_PAGESIZE);
 use File::Spec::Functions;
 use Sort::Naturally qw(nsort);
 use File::Slurp qw(read_dir);
@@ -126,6 +126,7 @@ BEGIN {
         safe_pf_run
         starts_with
         splitr2
+        rss_kb
     );
 }
 
@@ -1691,6 +1692,26 @@ Add a random number from (-$jitter to $jitter) to $number
 sub add_jitter {
     my ($number, $jitter) = @_;
     return $number + int(rand(2 * $jitter + 1)) - $jitter;
+}
+
+=head2 rss_kb
+
+Returns the current process RSS in KB by reading /proc/$$/statm.
+Returns 0 if the file cannot be read.
+
+=cut
+
+my $PAGE_KB = sysconf(_SC_PAGESIZE) / 1024;
+
+sub rss_kb {
+    if (open(my $fh, '<', "/proc/$$/statm")) {
+        my $line = <$fh>;
+        close($fh);
+        # statm fields: size resident shared text lib data dt (in pages)
+        my $resident_pages = (split(' ', $line))[1];
+        return $resident_pages * $PAGE_KB;
+    }
+    return 0;
 }
 
 =head2 str_to_connection_type
