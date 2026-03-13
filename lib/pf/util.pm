@@ -1921,9 +1921,10 @@ sub dns_resolve {
 
     my $resolver = Net::DNS::Resolver->new(
         nameservers => \@dns_servers,
-        domain      => $domain,
+        searchlist  => [],
         recurse     => 1,
         timeout     => 3,
+        retry       => 2,
         # debug       => 1
     );
 
