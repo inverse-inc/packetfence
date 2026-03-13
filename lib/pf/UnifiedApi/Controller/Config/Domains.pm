@@ -37,6 +37,7 @@ use JSON;
 use pf::constants qw($TRUE $FALSE);
 use pf::config::crypt;
 use pf::config qw(%Config);
+use Time::HiRes qw(gettimeofday tv_interval);
 
 use constant JOIN_REMOTE_PORT_OFFSET => 200;
 
@@ -272,19 +273,30 @@ sub create {
 
 sub update {
     my ($self) = @_;
+    my $t0 = [gettimeofday];
+    my $logger = get_logger();
+
     my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
     }
+    $logger->info("domain update: get_json took " . tv_interval($t0) . "s");
+
     my $old_item = $self->item;
+    $logger->info("domain update: item() took " . tv_interval($t0) . "s (cumulative)");
+
     my $new_item = $self->mergeUpdate($data, $self->item);
+    $logger->info("domain update: mergeUpdate took " . tv_interval($t0) . "s (cumulative)");
+
     my ($status, $new_data, $form) = $self->validate_item($new_item);
+    $logger->info("domain update: validate_item took " . tv_interval($t0) . "s (cumulative)");
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
     }
 
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
+    $logger->info("domain update: config_store+cleanup took " . tv_interval($t0) . "s (cumulative)");
 
     my $bind_dn = $new_item->{bind_dn};
     my $bind_pass = $new_item->{bind_pass};
@@ -319,6 +331,7 @@ sub update {
     my $ad_server_host = "";
     my $ad_server_ip = "";
 
+    $logger->info("domain update: pre-DNS at " . tv_interval($t0) . "s (cumulative)");
     my $dns_servers = $new_item->{dns_servers};
     if (defined($dns_servers)) {
         my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
@@ -340,6 +353,7 @@ sub update {
         $ad_server_host = $ad_fqdn;
         $ad_server_ip = $ad_server;
     }
+    $logger->info("domain update: post-DNS at " . tv_interval($t0) . "s (cumulative)");
     if (!valid_ip($ad_server_ip)) {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
@@ -358,9 +372,11 @@ sub update {
             push(@real_computer_names, "$real_computer_name-$i");
         }
     }
+    $logger->info("domain update: pre-dispatch_add_computer at " . tv_interval($t0) . "s (cumulative)");
     for (my $i = 0; $i < @real_computer_names; $i++) {
         $real_computer_name = $real_computer_names[$i];
         if (!is_nt_hash_pattern($new_data->{machine_account_password})) {
+            $logger->info("domain update: calling dispatch_add_computer(-delete) for '$real_computer_name' at " . tv_interval($t0) . "s");
             my ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, "-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
             if ($add_status == $FALSE) {
                 unless ($add_result =~ /Account (.+) not found in/) {
@@ -369,11 +385,13 @@ sub update {
                 }
             }
 
+            $logger->info("domain update: dispatch_add_computer(-delete) done at " . tv_interval($t0) . "s, calling dispatch_add_computer(add) for '$real_computer_name'");
             ($add_status, $add_result) = pf::domain::dispatch_add_computer($use_connector, $api_host, $api_port, " ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, \%ssl_options);
             if ($add_status == $FALSE) {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
+            $logger->info("domain update: dispatch_add_computer(add) done at " . tv_interval($t0) . "s");
 
             $new_data->{ou} = $new_item->{ou}
         }
@@ -391,6 +409,7 @@ sub update {
     $cs->update($id, $new_data);
     return unless ($self->commit($cs));
     $self->post_update($id);
+    $logger->info("domain update: total time " . tv_interval($t0) . "s");
     $self->render(status => 200, json => $self->update_response($form));
 }
 
