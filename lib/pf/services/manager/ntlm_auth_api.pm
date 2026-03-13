@@ -29,7 +29,7 @@ use pf::file_paths qw(
     $var_dir
     $captiveportal_templates_path
 );
-use pf::util;
+use pf::util qw(isenabled);
 use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
@@ -73,6 +73,7 @@ sub generateConfig {
     my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
+        next if (exists($conf{use_connector}) && isenabled($conf{use_connector}));
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
@@ -88,7 +89,12 @@ sub generateConfig {
 sub isManaged {
     my ($self) = @_;
     if ($self->SUPER::isManaged && keys(%ConfigDomain) > 0) {
-        return $TRUE;
+        for my $identifier (keys(%ConfigDomain)) {
+            my %conf = %{$ConfigDomain{$identifier}};
+            if (!exists($conf{use_connector}) || !isenabled($conf{use_connector})) {
+                return $TRUE;
+            }
+        }
     }
     return $FALSE;
 }
