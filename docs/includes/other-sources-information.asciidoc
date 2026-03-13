@@ -4,9 +4,9 @@
 
     This file is part of the PacketFence project.
     Authors:
-      - Inverse inc. <info@inverse.ca>
+      - Akamai Technologies Canada Inc. <info@inverse.ca>
 
-    Copyright (C) 2005-2026 Inverse inc.
+    Copyright (C) 2005-2026 Akamai Technologies Canada Inc.
     License: GFDL 1.2 or later. https://www.gnu.org/licenses/fdl.html
 
 ////
