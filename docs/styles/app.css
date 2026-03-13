@@ -70,6 +70,7 @@
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 
   --color-orange-opacity: rgba(255,139,0,0.08);
+  --color-primary-opacity: rgba(0, 165, 235, 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

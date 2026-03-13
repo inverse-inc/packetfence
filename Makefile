@@ -36,7 +36,7 @@ HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
 
 docs/styles/%.min.css: docs/styles/%.css
 	@echo "Minify CSS styles for html docs: $<"
-	cd html/app && npx --package clean-css-cli cleancss --inline remote ../../$< -o ../../$@
+	npx --package clean-css-cli cleancss --inline remote $< -o $@
 
 docs/%.html: docs/%.asciidoc
 	asciidoctor \
