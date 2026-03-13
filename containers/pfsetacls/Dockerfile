@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM golang:1.24.1-bookworm AS build
+FROM golang:1.25.1-bookworm AS build
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
