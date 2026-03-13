@@ -37,6 +37,7 @@ use JSON;
 use pf::constants qw($TRUE $FALSE);
 use pf::config::crypt;
 use pf::config qw(%Config);
+use pf::log;
 use Time::HiRes qw(gettimeofday tv_interval);
 
 use constant JOIN_REMOTE_PORT_OFFSET => 200;
