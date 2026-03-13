@@ -34,10 +34,10 @@ def find_dc(lp):
             error_message = str(e)
 
     if global_vars.c_server_name.strip() != "" and global_vars.c_ad_server.strip() != "":
-        log.debug(f"find_dc using AD FQDN: {global_vars.c_ad_server}")
+        log.debug(f"find_dc using AD FQDN: {global_vars.c_server_name} (ad_server: {global_vars.c_ad_server})")
         try:
             net = Net(Credentials(), lp)
-            dc = net.finddc(address=global_vars.c_ad_server, flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
+            dc = net.finddc(address=global_vars.c_server_name, flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
             return 0, "", dc.pdc_dns_name
         except NTSTATUSError as e:
             error_code = e.args[0]
