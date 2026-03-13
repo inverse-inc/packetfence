@@ -36,6 +36,10 @@ The documentation build system is controlled by Makefile targets in `/usr/local/
 - `docs/*.html` - HTML versions of each guide
 - `docs/*.pdf` - PDF versions of each guide
 - `docs/index.js` - JSON metadata index of HTML files
+- `docs/styles/app.min.css` - Minified CSS for html files.
+
+#### Geenerate CSS Files
+- `make docs/styles/app.min.css` - Create minified CSS file based on app.css in folder docs/styles/*.css
 
 ## Dependencies
 

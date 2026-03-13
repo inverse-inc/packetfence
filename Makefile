@@ -17,7 +17,7 @@ ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 clean:
-	rm -f docs/*.html docs/index.js docs/*.pdf
+	rm -f docs/*.html docs/index.js docs/*.pdf docs/styles/*.min.css
 
 docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \
@@ -34,11 +34,15 @@ pdf: $(PDFS)
 
 HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
 
+docs/styles/%.min.css: docs/styles/%.css
+	@echo "Minify CSS styles for html docs: $<"
+	cd html/app && npx --package clean-css-cli cleancss --inline remote ../../$< -o ../../$@
+
 docs/%.html: docs/%.asciidoc
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
-		-a stylesheet=styles/app.css \
+		-a stylesheet=styles/app.min.css \
 		-a release_version=$(PF_PATCH_RELEASE) \
 		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
