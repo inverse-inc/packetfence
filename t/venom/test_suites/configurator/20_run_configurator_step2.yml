@@ -126,7 +126,7 @@ testcases:
         "fromaddr": "{{.configurator.from_email}}",
         "smtp_encryption": "none",
         "smtp_port": "{{.smtp_port}}",
-        "smtp_verifyssl": "enabled",
+        "smtp_verifyssl": "true",
         "smtpserver": "{{.smtp_server}}",
         "test_emailaddr": "{{.configurator.email}}"
       }
@@ -148,7 +148,7 @@ testcases:
         "fromaddr": "{{.configurator.from_email}}",
         "smtp_encryption": "none",
         "smtp_port": "{{.configurator.smtp.port}}",
-        "smtp_verifyssl": "enabled",
+        "smtp_verifyssl": "true",
         "smtpserver": "{{.configurator.smtp.server}}",
         "test_emailaddr": "{{.configurator.email}}"
       }
