@@ -247,7 +247,8 @@ pre samp {
 #toc ul li a {
   display: block;
   padding: 0.3rem 0.5rem;
-  font-size: 0.8rem;
+  /* Increase font size for navigation links */
+  font-size: 1rem; 
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
@@ -769,13 +770,13 @@ b.conum {
 }
 /* --- PF logo ---- */
 .header_logo {
-  width: 60%;
-  height: auto;
-  text-align: center;
+  text-align: left;
 }
 
 .header_logo img {
   filter: grayscale(100%) brightness(1000%);
+  max-width: 18rem;
+  height: auto;
 }
 
 /* --- Footer  --- */
