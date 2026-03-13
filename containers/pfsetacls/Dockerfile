@@ -4,7 +4,7 @@ FROM golang:1.24.1-bookworm AS build
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
-    APP_ROOT="/go/src/github.com/ansible-semaphore/semaphore/"
+    APP_ROOT="/go/src/github.com/semaphoreui/semaphore/"
 
 # hadolint ignore=DL3013
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
@@ -18,7 +18,7 @@ RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+s
     pip3 install ansible && pip3 install ansible-pylibssh
 
 RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
-    mkdir -p /go/src/github.com/ansible-semaphore/semaphore && \
+    mkdir -p /go/src/github.com/semaphoreui/semaphore && \
     mkdir -p /tmp/semaphore && \
     mkdir -p /etc/semaphore && \
     mkdir -p /var/lib/semaphore && \
@@ -33,11 +33,11 @@ RUN cd $(go env GOPATH) && curl -sL https://taskfile.dev/install.sh | sh -s -- "
 
 RUN npm install --omit=dev -g npm@9.6.7
 
-RUN git config --global --add safe.directory /go/src/github.com/ansible-semaphore/semaphore
+RUN git config --global --add safe.directory /go/src/github.com/semaphoreui/semaphore
 
 # Copy in app source
 WORKDIR ${APP_ROOT}
-ARG source=https://github.com/ansible-semaphore/semaphore.git
+ARG source=https://github.com/semaphoreui/semaphore.git
 ARG release=v2.8.90
 
 RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source} ./
@@ -52,8 +52,8 @@ COPY --from=build /usr/local/lib /usr/local/lib
 COPY --from=build /usr/local/include /usr/local/include
 COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /var/lib/semaphore /var/lib/semaphore
-COPY --from=build /go/src/github.com/ansible-semaphore/semaphore/bin/semaphore /usr/local/bin/semaphore/bin/semaphore
-COPY --from=build /go/src/github.com/ansible-semaphore/semaphore/LICENSE /usr/local/bin/semaphore/LICENSE
+COPY --from=build /go/src/github.com/semaphoreui/semaphore/bin/semaphore /usr/local/bin/semaphore/bin/semaphore
+COPY --from=build /go/src/github.com/semaphoreui/semaphore/LICENSE /usr/local/bin/semaphore/LICENSE
 
 RUN apt -q update && \
     apt -q -y install curl && \
