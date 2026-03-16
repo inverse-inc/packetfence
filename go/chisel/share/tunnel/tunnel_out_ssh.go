@@ -94,7 +94,6 @@ func (t *Tunnel) handleTCP(l *cio.Logger, src io.ReadWriteCloser, hostPort strin
 		return err
 	}
 	dst, err := net.DialTCP("tcp", laddr, raddr)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
