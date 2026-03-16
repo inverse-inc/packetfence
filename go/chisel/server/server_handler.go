@@ -190,9 +190,17 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	}
 
 	localSecret := pfconfigdriver.LocalSecret{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret); err != nil {
+		l.Debugf("Failed to fetch local secret from pfconfig: %s", err)
+		failed(s.Errorf("unable to fetch local secret from pfconfig"))
+		return
+	}
 	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
+		l.Debugf("Failed to fetch pfconnector static connections from pfconfig: %s", err)
+		failed(s.Errorf("unable to fetch pfconnector static connections from pfconfig"))
+		return
+	}
 	additionalRemotes := chshare.Remotes{}
 	if remotes, found := pfconnectorStaticConnections.Element[user.Name]; found {
 		for _, remoteDef := range remotes {
@@ -532,7 +540,11 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		return
 	}
 	domains := pfconfigdriver.Domains{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &domains)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &domains); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch domains from pfconfig: %s", err)})
+		return
+	}
 	Connectors := connector.NewConnectorsContainer(req.Context())
 	var Domains map[string]pfconfigdriver.Domain
 	Domains = make(map[string]pfconfigdriver.Domain)
@@ -605,13 +617,25 @@ func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Requ
 
 func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {
 	fingerbankSettings := pfconfigdriver.FingerbankSettings{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &fingerbankSettings)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &fingerbankSettings); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch fingerbank settings from pfconfig: %s", err)})
+		return
+	}
 
 	webservices := pfconfigdriver.PfConfWebservices{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch webservices config from pfconfig: %s", err)})
+		return
+	}
 
 	connectors := pfconfigdriver.Connectors{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err)})
+		return
+	}
 
 	connectorId := req.URL.Query().Get("CONNECTOR_ID")
 

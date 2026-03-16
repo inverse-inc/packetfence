@@ -10,7 +10,7 @@ pfconfig::namespaces::resource::domains
 
 pfconfig::namespaces::resource::domains
 
-This module change the domains configuration with env variable
+This module changes the domains configuration with environment variables
 
 =cut
 

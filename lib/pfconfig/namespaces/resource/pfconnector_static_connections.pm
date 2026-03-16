@@ -71,7 +71,8 @@ sub build {
         }
     }
 
-    while ( my ( $id, $data ) = each %{ $self->{_dns_connectors_config} } ) {
+    for my $id ( keys %{ $self->{_dns_connectors_config} } ) {
+        my $data = $self->{_dns_connectors_config}{$id};
         my $port = $data->{'pfconnector_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
@@ -80,18 +81,16 @@ sub build {
         $r         = "${port}:$data->{ip}:$data->{port}";
         push @{ $hash{$connector} }, $r;
     }
-    while ( my ( $id, $data ) =
-        each %{ $self->{_dns_connectors_config} } )
-    {
-        my $port = $data->{'pfconnectorport'};
+    for my $id ( keys %{ $self->{_dns_connectors_config} } ) {
+        my $data = $self->{_dns_connectors_config}{$id};
+        my $port = $data->{'pfconnector_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
         my $r         = "100.64.0.1:${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
-    while ( my ( $id, $data ) =
-        each %{ $self->{_domain_config} } )
-    {
+    for my $id ( keys %{ $self->{_domain_config} } ) {
+        my $data = $self->{_domain_config}{$id};
         next unless isenabled($data->{'use_connector'});
         my $port = $data->{'ntlm_auth_port'};
         next unless defined $port;
@@ -104,9 +103,8 @@ sub build {
     # Deduplicate by connector + local_port to avoid duplicate tunnels
     # while still allowing multiple domains behind the same connector
     my %join_remote_seen;
-    while ( my ( $id, $data ) =
-        each %{ $self->{_domain_config} } )
-    {
+    for my $id ( keys %{ $self->{_domain_config} } ) {
+        my $data = $self->{_domain_config}{$id};
         next unless isenabled($data->{'use_connector'});
         my $port = $data->{'ntlm_auth_port'};
         next unless defined $port;

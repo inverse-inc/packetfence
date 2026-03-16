@@ -19,7 +19,7 @@ if [ "$option" = "start" ]; then
     args="$args -v /usr/local/ntlm-auth-api/conf:/usr/local/pf/conf"
     args="$args -v /usr/local/ntlm-auth-api/logs:/usr/local/pf/logs"
     args="$args -v /usr/local/ntlm-auth-api/var/conf:/usr/local/pf/var/conf"
-    args="$args -p 23000:23000"
+    args="$args -p 100.64.0.1:23000:23000"
 
     run "$name" "$args" &
     echo $! >/usr/local/ntlm-auth-api/var/run/ntlm-join-remote.pid
