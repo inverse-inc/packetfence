@@ -114,6 +114,14 @@ Right-click new template, select `Properties`. In `Subject Name` tab, select
 `Supplied in the request` over `Built from information in Active Directory` to
 prevent NDES from overwriting requested CN.
 
+IMPORTANT: In order to avoid creating an ESC1 privilege escalation vulnerability 
+in your AD domain, you must modify the enrollment rights for this template.
+Navigate to the security tab of the duplicate template, and remove the "domain users"
+group from the ACL. Next, add your NDES service account, and grant "read" and "enroll"
+rights. This ensures that NDES can request certificates for the authenticating users. 
+If you skip this step, any user in your AD domain can request an authentication certificate
+for a domain admin or domain controller, fully compromising your AD environment.
+
 Allow NDES template usage: navigate to `Server Manager->Roles->Active Directory
 Certificates Services`, expand `<ServerDNSName>`, right-click `Certificate
 template`, choose `New template to issue`, select the created template.
