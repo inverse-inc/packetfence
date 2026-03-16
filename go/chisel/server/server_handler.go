@@ -191,15 +191,11 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 
 	localSecret := pfconfigdriver.LocalSecret{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret); err != nil {
-		l.Debugf("Failed to fetch local secret from pfconfig: %s", err)
-		failed(s.Errorf("unable to fetch local secret from pfconfig"))
-		return
+		l.Infof("Failed to fetch local secret from pfconfig, continuing without it: %s", err)
 	}
 	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
-		l.Debugf("Failed to fetch pfconnector static connections from pfconfig: %s", err)
-		failed(s.Errorf("unable to fetch pfconnector static connections from pfconfig"))
-		return
+		l.Infof("Failed to fetch pfconnector static connections from pfconfig, continuing without them: %s", err)
 	}
 	additionalRemotes := chshare.Remotes{}
 	if remotes, found := pfconnectorStaticConnections.Element[user.Name]; found {
