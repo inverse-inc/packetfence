@@ -1,0 +1,5 @@
+json {
+	encode {
+		output_mode = object_simple
+	}
+}
