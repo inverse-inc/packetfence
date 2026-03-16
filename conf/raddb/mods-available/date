@@ -1,0 +1,14 @@
+#
+#  Registers xlat to convert between time formats.
+#
+#  xlat input string is an attribute name. If this attribute is of date
+#  or integer type, the date xlat will convert it to a time string in
+#  the format of the format config item.
+#
+#  If the attribute is a string type, date will attempt to parse it in
+#  the format specified by the format config item, and will expand
+#  to a Unix timestamp.
+#
+date {
+	format = "%b %e %Y %H:%M:%S %Z"
+}

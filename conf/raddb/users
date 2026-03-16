@@ -1,0 +1,1 @@
+mods-config/files/authorize

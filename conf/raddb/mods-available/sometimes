@@ -1,0 +1,12 @@
+# -*- text -*-
+#
+#  $Id: 3a96622cc938f558b023e1110769a46861716a12 $
+
+#
+# The "sometimes" module is here for debugging purposes. Each instance
+# randomly returns the configured result, or "noop".
+#
+# It is based on the "always" module.
+sometimes {
+	rcode = fail
+}
