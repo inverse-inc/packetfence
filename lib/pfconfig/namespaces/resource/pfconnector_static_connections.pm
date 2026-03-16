@@ -35,6 +35,8 @@ sub init {
       $self->{cache}->get_cache('config::DnsConnectors');
     $self->{_domain_config} =
       $self->{cache}->get_cache('config::Domain');
+    $self->{_pf_config} =
+      $self->{cache}->get_cache('config::Pf');
 }
 
 sub find_connector {
@@ -56,6 +58,8 @@ sub find_connector {
 sub build {
     my ($self) = @_;
     my %hash;
+    my $dns_host = $self->{_pf_config}{'services_host'}{'pfdns_connector_service_host'} // '100.64.0.1';
+
     while ( my ( $id, $data ) =
         each %{ $self->{_authentication_config}{authentication_config_hash} } )
     {
@@ -76,17 +80,9 @@ sub build {
         my $port = $data->{'pfconnector_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
-        my $r         = "${port}:$data->{ip}:$data->{port}/udp";
+        my $r         = "${dns_host}:${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
-        $r         = "${port}:$data->{ip}:$data->{port}";
-        push @{ $hash{$connector} }, $r;
-    }
-    for my $id ( keys %{ $self->{_dns_connectors_config} } ) {
-        my $data = $self->{_dns_connectors_config}{$id};
-        my $port = $data->{'pfconnector_port'};
-        next unless defined $port;
-        my $connector = $self->find_connector( $data->{ip} );
-        my $r         = "100.64.0.1:${port}:$data->{ip}:$data->{port}/udp";
+        $r         = "${dns_host}:${port}:$data->{ip}:$data->{port}";
         push @{ $hash{$connector} }, $r;
     }
     for my $id ( keys %{ $self->{_domain_config} } ) {
