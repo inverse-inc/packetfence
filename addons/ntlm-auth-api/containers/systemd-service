@@ -17,7 +17,7 @@ function base_args {
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
   args="$args -eTZ=`timedatectl | grep Time | awk '{print $3}'`"
 
-  if [ -f /usr/local/pf/containers/.local_env ]; then
+  if [ -f /usr/local/ntlm-auth-api/containers/.local_env ]; then
     args="$args --env-file /usr/local/ntlm-auth-api/containers/.local_env"
   fi
 

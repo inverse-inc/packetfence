@@ -23,7 +23,6 @@ use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($domain_config_file);
 use Sys::Hostname;
-use pf::util qw(isenabled);
 
 use base 'pfconfig::namespaces::config';
 

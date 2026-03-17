@@ -81,7 +81,7 @@ sub add_computer {
         $method = "SAMR"
     }
 
-    $computer_name = $computer_name . "\$";
+    $computer_name .= "\$" unless $computer_name =~ /\$$/;
     my $domain_auth = "$dns_name/$bind_dn:$bind_pass";
     my $baseDN = generate_base_dn($dns_name);
     my $computer_group = generate_computer_group($dns_name, $ou);
@@ -275,7 +275,7 @@ sub add_computer_via_api {
         $method = "SAMR";
     }
 
-    $computer_name = $computer_name . "\$";
+    $computer_name .= "\$" unless $computer_name =~ /\$$/;
     my $account = "$dns_name/$bind_dn:$bind_pass";
     my $baseDN = generate_base_dn($dns_name);
     my $computer_group = generate_computer_group($dns_name, $ou);

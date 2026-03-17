@@ -88,12 +88,14 @@ sub authorize {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
         my $domain_cfg = $multi_domain_constants::ConfigDomain{$realm_config->{domain}};
-        if (defined($domain_cfg->{use_connector}) && $domain_cfg->{use_connector} eq '1') {
-            $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $domain_cfg->{ntlm_auth_port} + 100;
-        } else {
-            $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $domain_cfg->{ntlm_auth_port};
+        if (defined($domain_cfg)) {
+            if (defined($domain_cfg->{use_connector}) && $domain_cfg->{use_connector} eq '1') {
+                $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $domain_cfg->{ntlm_auth_port} + 100;
+            } else {
+                $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $domain_cfg->{ntlm_auth_port};
+            }
+            $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = $domain_cfg->{ntlm_auth_host};
         }
-        $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_host};
     }
 
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
