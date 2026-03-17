@@ -23,6 +23,7 @@ use pf::log;
 use Try::Tiny;
 use Switch;
 use Template;
+use pf::error qw(is_success);
 
 our $VERSION = 2.10;
 
@@ -4570,6 +4571,13 @@ sub check_if_radius_request_psk_matches {
     );
 }
 
+my $sql_mark_as_seen = <<"SQL";
+INSERT INTO switch_observability (switch_id, visibility_timestamp)
+WITH cte AS (SELECT ? as switch_id)
+SELECT switch_id, NOW() FROM cte LEFT JOIN switch_observability USING (switch_id) WHERE visibility_timestamp IS NULL OR DATE_SUB(NOW(), INTERVAL ? MINUTE) > visibility_timestamp
+ON DUPLICATE KEY UPDATE visibility_timestamp = VALUES(visibility_timestamp);
+SQL
+
 sub mark_as_seen {
     my ($self) = @_;
     my $id = $self->{_id};
@@ -4577,11 +4585,16 @@ sub mark_as_seen {
         $id,
         {expires_in => '1m'},
         sub {
-            my $dal = pf::dal::switch_observability->new({
-                switch_id => $id,
-                visibility_timestamp => \"NOW()",
-            });
-            return $dal->upsert();
+            my ($status, $sth, $info) = pf::dal::switch_observability->db_execute(
+                    $sql_mark_as_seen,
+                    $id,
+                    1,
+            );
+            if (is_success($status) && $sth->rows) {
+                return 1;
+            }
+
+            return undef;
         }
     );
 }
