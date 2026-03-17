@@ -323,17 +323,17 @@ pfconnector_remote_install:
 	# FreeRADIUS
 	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/radiusd-auth/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/radiusd-auth/Dockerfile
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/radiusd-auth-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/radiusd-auth-docker-wrapper
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-radiusd-auth.service $(DESTDIR)/etc/systemd/system/packetfence-radiusd-auth.service
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-radiusd-auth.service $(DESTDIR)/etc/systemd/system/packetfence-radiusd-auth.service
 	# pfconnector-remote
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-docker-wrapper
 	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-client/Dockerfile
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/containers/systemd-service $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/systemd-service
-	install -v -m 0755 $(SRC_PFCONNECTORDIR)/containers/manage-images.sh $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/manage-images.sh
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/containers/systemd-service $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/systemd-service
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/containers/manage-images.sh $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/manage-images.sh
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
 	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/remove-unpackaged-pfconnector.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/remove-unpackaged-pfconnector.sh
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
 	make -C $(SRC_GODIR) pfconnector
