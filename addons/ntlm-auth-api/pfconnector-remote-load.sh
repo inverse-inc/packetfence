@@ -7,7 +7,7 @@ CONNECTOR_ID=$(grep '^AUTH=' /usr/local/pfconnector-remote/conf/pfconnector-clie
 
 if [ -z "$CONNECTOR_ID" ]; then
     echo "Error: no CONNECTOR_ID found in /usr/local/pfconnector-remote/conf/pfconnector-client.env"
-    exit 0
+    exit 1
 fi
 
 INPUT_FILE="/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env"
