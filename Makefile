@@ -343,8 +343,13 @@ pfconnector_remote_install:
 	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/remove-unpackaged-pfconnector.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/remove-unpackaged-pfconnector.sh
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
+	install -v -d -m0755 $(DESTDIR)/etc/docker
+	install -v -m 0600 $(SRC_ROOT_DIR)/containers/daemon.json $(DESTDIR)/etc/docker/daemon.json
+	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)$(PFCONNECTOR_PREFIX)/config.mk
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
+	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(PFCONNECTOR_CONFDIR)/build_id
+	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pf-release
 
 .PHONY: ntlm_auth_api_remote_install
 ntlm_auth_api_remote_install:
