@@ -46,6 +46,7 @@ type FirewallSSOInt interface {
 	SendOnAcctStop(ctx context.Context) bool
 	SendOnAcct(ctx context.Context) bool
 	SendOnAccessReevaluation(ctx context.Context) bool
+	SendOnRoleChange(ctx context.Context) bool
 	SendOnDhcp(ctx context.Context) bool
 }
 
@@ -65,6 +66,7 @@ type FirewallSSO struct {
 	UseConnector            string                `json:"use_connector"`
 	ActOnAccountingStop     string                `json:"act_on_accounting_stop"`
 	SsoOnAccessReevaluation string                `json:"sso_on_access_reevaluation"`
+	SsoOnRoleChange         string                `json:"sso_on_role_change"`
 	SsoOnAccounting         string                `json:"sso_on_accounting"`
 	SsoOnDhcp               string                `json:"sso_on_dhcp"`
 }
@@ -128,6 +130,12 @@ func (fw *FirewallSSO) SendOnAcct(ctx context.Context) bool {
 func (fw *FirewallSSO) SendOnAccessReevaluation(ctx context.Context) bool {
 	return sharedutils.IsEnabled(fw.SsoOnAccessReevaluation)
 }
+
+// Check if sso needs to be triggered on Role Change
+func (fw *FirewallSSO) SendOnRoleChange(ctx context.Context) bool {
+	return sharedutils.IsEnabled(fw.SsoOnRoleChange)
+}
+
 func (fw *FirewallSSO) SendOnDhcp(ctx context.Context) bool {
 	return sharedutils.IsEnabled(fw.SsoOnDhcp)
 }
@@ -302,6 +310,10 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		return false, nil
 	}
 
+	if !fw.SendOnRoleChange(ctx) && info["source"] == "role_change" {
+		return false, nil
+	}
+
 	if !fw.CheckStatus(ctx, info) {
 		return false, nil
 	}
@@ -343,6 +355,10 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 	}
 
 	if !fw.SendOnDhcp(ctx) && info["source"] == "DHCP" {
+		return false, nil
+	}
+
+	if !fw.SendOnRoleChange(ctx) && info["source"] == "role_change" {
 		return false, nil
 	}
 

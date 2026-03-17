@@ -17,7 +17,7 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 
-our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT $UNKNOWN $API $REEVALUATE $DHCP $ACCOUNTING);
+our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT $UNKNOWN $API $REEVALUATE $DHCP $ACCOUNTING $ROLE_CHANGE);
 
 Readonly::Scalar our $SYSLOG_TRANSPORT => "syslog";
 Readonly::Scalar our $HTTP_TRANSPORT => "http";
@@ -26,6 +26,7 @@ Readonly::Scalar our $API => "api";
 Readonly::Scalar our $REEVALUATE => "reevaluate";
 Readonly::Scalar our $DHCP => "DHCP";
 Readonly::Scalar our $ACCOUNTING => "accounting";
+Readonly::Scalar our $ROLE_CHANGE => "role_change";
 
 Readonly::Scalar our $FIREWALL_TYPES => [
     "BarracudaNG",

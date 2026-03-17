@@ -22,6 +22,7 @@ use Scalar::Util qw(blessed);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config qw(
     %ConfigFloatingDevices
+    %ConfigFirewallSSO
     $WIRELESS_MAC_AUTH
     %Config
     $WIRED_MAC_AUTH
@@ -49,6 +50,11 @@ use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::constants::realm;
 use pf::factory::provisioner;
+use pf::client;
+use pf::ip4log;
+use pf::constants::firewallsso qw($ROLE_CHANGE);
+use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use List::MoreUtils qw(any);
 
 our $VERSION = 1.04;
 
@@ -669,6 +675,26 @@ sub getNodeInfoForAutoReg {
                 get_logger->info("Applying role $role based on provisioner $id");
                 $node_info{category} = $role;
                 last;
+            }
+        }
+    }
+
+    # Trigger SSO on role change if enabled
+    my $old_role = $args->{node_info}->{category} // '';
+    my $new_role = $node_info{'category'} // '';
+    if ($old_role ne $new_role && $new_role ne '') {
+        if (any { pf::util::isenabled($_->{'sso_on_role_change'}) } values %ConfigFirewallSSO) {
+            my $mac = $args->{mac};
+            my $ip = pf::ip4log::mac2ip($mac);
+            if ($ip) {
+                my $client = pf::client::getClient();
+                $client->notify('firewallsso',
+                    method => 'Start',
+                    mac => $mac,
+                    ip => $ip,
+                    timeout => $DEFAULT_LEASE_LENGTH,
+                    source => $ROLE_CHANGE
+                );
             }
         }
     }
