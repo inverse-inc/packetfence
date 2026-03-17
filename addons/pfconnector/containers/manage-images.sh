@@ -89,7 +89,6 @@ configure_and_check() {
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
                            -not -path "*/pfdebian/*" \
                            -not -path "*/radiusd/*" \
-                           -not -path "*/pfconnector-*/*" \
                            -not -path "*/kaniko-build/*" \
                            -not -path "*/packetfence-perl/*" \
                            -printf "%P\n")
