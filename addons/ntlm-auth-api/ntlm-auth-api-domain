@@ -9,8 +9,13 @@ conf_dir="/usr/local/ntlm-auth-api/var/conf/"
 env_file="$1.env"
 IDENTIFIER=$1
 
-if [ -z "$env_file" ]; then
-    echo "Env file for domain $1 not found."
+if [ -z "$IDENTIFIER" ]; then
+    echo "Domain identifier not provided."
+    exit 1
+fi
+
+if [ ! -f "$conf_dir$env_file" ]; then
+    echo "Env file '$conf_dir$env_file' for domain '$IDENTIFIER' not found."
     exit 1
 fi
 
