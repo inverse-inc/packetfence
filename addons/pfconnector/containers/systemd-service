@@ -1,0 +1,119 @@
+#!/bin/bash
+
+LOCAL_REGISTRY=packetfence
+source /usr/local/pfconnector-remote/conf/build_id
+
+if [ -f /usr/local/pfconnector-remote/containers/.local_env ]; then
+  source /usr/local/pfconnector-remote/containers/.local_env
+fi
+
+function base_args {
+  name="$1"
+  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
+
+  args="$args -v /etc/sudoers:/etc/sudoers -v /etc/sudoers.d/:/etc/sudoers.d/"
+  args="$args -v /usr/local/pfconnector-remote/var/run:/usr/local/pfconnector-remote/var/run"
+  args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
+  args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
+  args="$args -eTZ=`timedatectl | grep Time | awk '{print $3}'`"
+
+  if [ -f /usr/local/pfconnector-remote/containers/.local_env ]; then
+    args="$args --env-file /usr/local/pfconnector-remote/containers/.local_env"
+  fi
+
+  if ! [ -z "$K8S_MASTER_CA_FILE" ]; then
+    args="$args -v$K8S_MASTER_CA_FILE:$K8S_MASTER_CA_FILE"
+  fi
+
+  # Check to mount /tmp dir
+  if [ "${PF_MOUNT_TMP}" == "yes" ]; then
+    args="$args -v /tmp:/tmp"
+  fi
+
+  # check to add env file
+  if [ -f /usr/local/pfconnector-remote/var/conf/$name.env ]; then
+    args="$args --env-file /usr/local/pfconnector-remote/var/conf/$name.env"
+  fi
+
+  echo "$args"
+}
+
+function build_img {
+  img="$1"
+  PF_VERSION=$(sed 's/PacketFence \([0-9]*\.[0-9]*\)\.[0-9]*/\1/g' /usr/local/pfconnector-remote/conf/pf-release)
+  BUILD_PFAPPSERVER_VUE=yes
+  if ! [ -z "$HTML_MOUNT" ]; then
+    BUILD_PFAPPSERVER_VUE=no
+  fi
+  docker build --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME --build-arg=BUILD_PFAPPSERVER_VUE=$BUILD_PFAPPSERVER_VUE -q -f containers/$img/Dockerfile .
+}
+
+function build_base_images {
+  local name=""
+  for name in pfdebian; do
+    echo "Building $name"
+    docker tag $(build_img $name) $LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  done
+}
+
+function build_run {
+  name="$1"
+  args="$2"
+  cmd="$3"
+  cd /usr/local/pfconnector-remote/
+
+  # In build_run, we don't wait for the service to start to tell systemd notify we've started since the build process can be long
+  systemd-notify --ready
+
+  img=$(build_img $name)
+  run_img $img $name "$args" "$cmd"
+}
+
+function run {
+  name="$1"
+  args="$2"
+  cmd="$3"
+  img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  if [ "$LOCAL_DEV" = "true" ]; then
+    build_run $name "$args" "$cmd"
+  else
+    run_img $img $name "$args" "$cmd"
+  fi
+}
+
+function run_multi() {
+  local name="$1"
+  local suffix="$2"
+  local args="$3"
+  local cmd="$4"
+  local img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  if [ "$LOCAL_DEV" = "true" ]; then
+    cd /usr/local/pfconnector-remote/
+    systemd-notify --ready
+    img=$(build_img $name)
+    run_img $img "$name-$suffix" "$args" "$cmd"
+  else
+    run_img $img "$name-$suffix" "$args" "$cmd"
+  fi
+}
+function sdproxy() {
+  SD_NOTIFY_PROXY=/usr/local/pfconnector-remote/sbin/sdnotify-proxy
+  SD_SOCK=/usr/local/pfconnector-remote/var/run/$1-systemd-notify.sock
+  WATCHDOG_USEC_D=10000000
+  $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
+}
+
+function run_img {
+  img="$1"
+  name="$2"
+  args="$3"
+  cmd="$4"
+  cd /usr/local/pfconnector-remote/
+  docker container rm -f $name &> /dev/null
+  echo "Running with args $args"
+  if ! [ -z $NOTIFY_SOCKET ]; then
+    sdproxy $name $args --name=$name $img $cmd
+  else
+   /usr/bin/docker run $args --name=$name $img $cmd
+  fi
+}

@@ -316,9 +316,19 @@ test_install:
 # -D to create target directories if they don't exist
 .PHONY: pfconnector_remote_install
 pfconnector_remote_install:
-	# logrotate config is installed through dh_installlogrotate
-	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.logrotate-drop-in.service -D $(DESTDIR)/etc/systemd/system/logrotate.service.d/override.conf
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_BINDIR)
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-docker-wrapper
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-client/Dockerfile
+	# FreeRADIUS
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/radiusd-auth/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/radiusd-auth/Dockerfile
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/radiusd-auth-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/radiusd-auth-docker-wrapper
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-radiusd-auth.service $(DESTDIR)/etc/systemd/system/packetfence-radiusd-auth.service
+	# pfconnector-remote
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-docker-wrapper
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-client/Dockerfile
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/containers/systemd-service $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/systemd-service
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/containers/manage-images.sh $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/manage-images.sh
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
