@@ -1,14 +1,13 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Connector Client (Remote)
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=network.service
+After=network.service
 
 [Service]
 LimitNOFILE=infinity
-EnvironmentFile=/usr/local/pfconnector-remote/conf/pfconnector-client.env
-Environment=LOG_LEVEL=INFO
-ExecStart=/usr/local/pfconnector-remote/bin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226
+ExecStart=/usr/local/pfconnector-remote/bin/pfconnector-remote-docker-wrapper
+ExecStop=/bin/bash -c "docker stop pfconnector-remote ; echo Stopped"
 Restart=always
 
 [Install]
