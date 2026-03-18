@@ -57,7 +57,7 @@ use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::error::switch;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
+use pf::util::radius qw(perform_disconnect perform_coa perform_rsso);
 use List::MoreUtils qw(any all uniq);
 use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
@@ -2967,7 +2967,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -4599,6 +4599,53 @@ sub mark_as_seen {
     );
 }
 
+
+=item handleRadiusDisconnect
+
+Wrapper around perform_disconnect to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusDisconnect {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_disconnect($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item handleRadiusCoa
+
+Wrapper around perform_coa to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusCoa {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_coa($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item handleRadiusRsso
+
+Wrapper around perform_rsso to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusRsso {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_rsso($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item _handleRadiusResponse
+
+Common handler for RADIUS dynauth responses. Override in subclasses to wrap or modify the response.
+
+=cut
+
+sub _handleRadiusResponse {
+    my ($self, $response) = @_;
+    return $response;
+}
 
 =back
 

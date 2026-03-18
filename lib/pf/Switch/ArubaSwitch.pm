@@ -45,7 +45,6 @@ use pf::config qw(
 );
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -255,11 +254,11 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
 
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;

@@ -46,7 +46,6 @@ use pf::constants;
 use pf::node;
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch');
@@ -243,7 +242,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect( $connection_info,
+        $response = $self->handleRadiusDisconnect( $connection_info,
             {
                 'Calling-Station-Id' => $mac,
             },

@@ -17,7 +17,6 @@ use warnings;
 use base ('pf::Switch::Aruba');
 use pf::constants qw($TRUE);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 
 sub description { 'Aruba Instant Access' };
@@ -75,11 +74,11 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
 
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;

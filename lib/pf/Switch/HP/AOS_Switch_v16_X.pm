@@ -41,7 +41,6 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::constants;
 use NetAddr::IP;
 
@@ -365,7 +364,7 @@ sub radiusDisconnect {
 
             $attributes_ref = { %$attributes_ref, 'Filter-Id' => $role, };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
+            $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
 
         } else {
             $vsa = [
@@ -375,7 +374,7 @@ sub radiusDisconnect {
                     'value'     => '12'
                 }
             ];
-            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
+            $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
         }
     } catch {
         chomp;

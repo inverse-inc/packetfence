@@ -14,7 +14,6 @@ use strict;
 use warnings;
 use base ('pf::Switch');
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
 use pf::constants;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
@@ -275,7 +274,7 @@ sub handleDisconnect {
     my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusDisconnect, \%args);
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
-    return perform_disconnect($connection_info, $attributes_ref, $vsa);
+    return $self->handleRadiusDisconnect($connection_info, $attributes_ref, $vsa);
 }
 
 =head2 disconnectAddress
@@ -327,7 +326,7 @@ sub handleCoa {
     my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusDisconnect, \%args);
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
-    return perform_coa($connection_info, $attributes_ref, $vsa);
+    return $self->handleRadiusCoa($connection_info, $attributes_ref, $vsa);
 }
 
 =head2 handleCoaOrDisconnect
@@ -533,7 +532,7 @@ sub _bouncePortCoa {
     $self->updateArgsVariablesForSet(\%args, $radiusBounce);
     my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusBounce, \%args);
     # Standard Attributes
-    return perform_coa($connection_info, {@$attrs}, $vsa);
+    return $self->handleRadiusCoa($connection_info, {@$attrs}, $vsa);
 }
 
 sub NasPortToIfIndex {

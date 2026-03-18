@@ -33,7 +33,6 @@ sub description { 'Huawei AC6605' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 use pf::accounting qw(node_accounting_current_sessionid);
 
 =head1 SUBROUTINES
@@ -160,7 +159,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$add_attributes_ref };
         #$attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");

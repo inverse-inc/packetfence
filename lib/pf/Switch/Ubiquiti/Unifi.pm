@@ -30,7 +30,6 @@ use pf::file_paths qw($var_dir);
 use pf::constants;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_disconnect);
 use pf::config qw(
     %connection_type_to_str
     $MAC
@@ -484,7 +483,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");

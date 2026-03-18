@@ -29,7 +29,6 @@ use pf::config qw(
      $WIRED_MAC_AUTH
 );
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 sub description {'ArubaOS-Switch 16.x'}
 
 use pf::SwitchSupports qw(
@@ -222,12 +221,12 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
 
         }
         else {
             $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
         }
     } catch {
         chomp;

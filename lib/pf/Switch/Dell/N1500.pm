@@ -35,7 +35,6 @@ sub description { 'N1500 Series' }
 
 # importing switch constants
 use pf::Switch::constants;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::util;
 
 # CAPABILITIES
@@ -306,7 +305,7 @@ sub radiusDisconnect {
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");

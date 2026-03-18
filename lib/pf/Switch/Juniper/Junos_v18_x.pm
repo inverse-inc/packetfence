@@ -37,7 +37,6 @@ sub switchDriverId { 'juniper_junos' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 use pf::util;
 
@@ -102,7 +101,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref, []);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref, []);
 
     } catch {
         chomp;
@@ -167,7 +166,7 @@ sub setAdminStatus {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
-        $response = perform_coa( $connection_info,
+        $response = $self->handleRadiusCoa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
                 'NAS-IP-Address' => $self->{'_switchIp'},
