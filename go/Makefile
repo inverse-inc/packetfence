@@ -1,6 +1,7 @@
 include ../config.mk
 GO ?= go
-build_cmd = $(GO) build $(ARGS)
+CGO_ENABLED=1
+build_cmd = CGO_ENABLED=$(CGO_ENABLED) $(GO) build $(ARGS)
 
 .PHONY: all
 all: $(PF_BINARIES) $(PF_GO_CMDS)
@@ -17,6 +18,9 @@ test:
 CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
+
+pfconnector: CGO_ENABLED=0
+
 $(ALL_BINARIES):
 	$(build_cmd) -C cmd/$@ -o ../../$@
 
