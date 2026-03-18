@@ -749,10 +749,12 @@ sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
     return if !defined $type;
-    my $dal = pf::dal::switch_observability_acls->remove_items({
-        switch_id => $self->{_id},
-        mac => $mac,
-    });
+    my $dal = pf::dal::switch_observability_acls->remove_items(
+        -where => {
+            switch_id => $self->{_id},
+            mac => $mac,
+        }
+    );
     my $dal = pf::dal::switch_observability_acls->new({
         switch_id => $self->{_id},
         mac => $mac,
@@ -761,7 +763,7 @@ sub getAccessListByName {
         acls => $acls,
         enforcement_timestamp => \"NOW()",
     });
-    $acls->upsert();
+    $dal->upsert();
     return $acls;
 }
 
