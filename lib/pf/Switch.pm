@@ -757,7 +757,7 @@ sub getAccessListByName {
         switch_id => $self->{_id},
         mac => $mac,
         role_id => $access_list_name,
-        type => $type,
+        acl_type => $type,
         acls => $acls,
         enforcement_timestamp => \"NOW()",
     });
