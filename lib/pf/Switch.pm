@@ -4656,6 +4656,7 @@ Common handler for RADIUS dynauth responses. Override in subclasses to wrap or m
 
 sub _handleRadiusResponse {
     my ($self, $response) = @_;
+    $self->mark_as_seen();
     return $response;
 }
 
