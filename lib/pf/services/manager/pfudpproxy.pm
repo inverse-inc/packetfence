@@ -9,7 +9,7 @@ pf::services::manager::pfudpproxy
 
 pf::services::manager::pfudpproxy
 
-UDP reverse proxy for NetFlow/sFlow in cluster mode
+UDP reverse proxy for NetFlow, sFlow, and IPFIX (e.g. port 4739) in cluster mode
 
 =cut
 
