@@ -264,8 +264,10 @@ export const setup = (props, context) => {
       return trackedValue
     }))
   }
-  const canSelectNone = computed(() => !!value.value)
-  const onSelectNone = () => onInput(null)
+  const canSelectNone = computed(() =>
+    Array.isArray(value.value) ? value.value.length > 0 : !!value.value
+  )
+  const onSelectNone = () => onInput(multiple.value ? [] : null)
 
   const onTag = newValue => onInput(newValue)
 
