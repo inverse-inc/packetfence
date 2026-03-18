@@ -749,7 +749,7 @@ sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
     return if !defined $type;
-    my $dal = pf::dal::switch_observability_acls->remove_items(
+    my $status = pf::dal::switch_observability_acls->remove_items(
         -where => {
             switch_id => $self->{_id},
             mac => $mac,
@@ -803,6 +803,31 @@ sub _getAccessListByName {
 }
 
 sub getRoleAccessListByName {
+    my ($self, $access_list_name) = @_;
+    my $acls = $self->_getRoleAccessListByName($access_list_name);
+    if (defined $acls) {
+        my $status = pf::dal::switch_observability_acls->remove_items(
+            -where => {
+                switch_id => $self->{_id},
+                role_id => $access_list_name,
+                mac => "",
+            }
+        );
+        my $dal = pf::dal::switch_observability_acls->new({
+            switch_id => $self->{_id},
+            mac => "",
+            role_id => $access_list_name,
+            acl_type => 'role',
+            acls => $acls,
+            enforcement_timestamp => \"NOW()",
+        });
+        $dal->upsert();
+    }
+
+    return $acls;
+}
+
+sub _getRoleAccessListByName {
     my ($self, $access_list_name) = @_;
     my $logger = $self->logger;
 
