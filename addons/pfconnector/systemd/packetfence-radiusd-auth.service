@@ -2,15 +2,14 @@
 [Unit]
 Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
 Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
-PartOf=packetfence-pfconnector-remote.service
+Wants=network.service
+After=network.service
 
 [Service]
-Type=notify
-WatchdogSec=10
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
+ExecStart=/usr/local/pfconnector-remote/bin/radiusd-auth-docker-wrapper
+ExecStop=/bin/bash -c "docker stop radiusd-auth ; echo Stopped"
 Restart=on-failure
 
 [Install]
