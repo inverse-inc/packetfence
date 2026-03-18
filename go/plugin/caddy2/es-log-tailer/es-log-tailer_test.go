@@ -650,6 +650,186 @@ func TestPoll_NoCursor_ESError(t *testing.T) {
 	}
 }
 
+func TestMaxCursorTs(t *testing.T) {
+	tests := []struct {
+		name     string
+		cursor   map[string]interface{}
+		wantMax  float64
+		wantFound bool
+	}{
+		{"empty map", map[string]interface{}{}, 0, false},
+		{"single entry", map[string]interface{}{"a": float64(100)}, 100, true},
+		{"multiple entries", map[string]interface{}{"a": float64(100), "b": float64(200), "c": float64(50)}, 200, true},
+		{"non-float values ignored", map[string]interface{}{"a": "not-a-number", "b": float64(150)}, 150, true},
+		{"all non-float", map[string]interface{}{"a": "str", "b": int(42)}, 0, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, found := maxCursorTs(tt.cursor)
+			if found != tt.wantFound {
+				t.Errorf("maxCursorTs() found = %v, want %v", found, tt.wantFound)
+			}
+			if found && got != tt.wantMax {
+				t.Errorf("maxCursorTs() = %v, want %v", got, tt.wantMax)
+			}
+		})
+	}
+}
+
+func TestNormalizeSourceNames(t *testing.T) {
+	tests := []struct {
+		input    []string
+		expected []string
+	}{
+		{[]string{"/usr/local/pf/logs/api-frontend.log"}, []string{"api-frontend"}},
+		{[]string{"api-frontend"}, []string{"api-frontend"}},
+		{[]string{"/var/log/test.log", "plain-name"}, []string{"test", "plain-name"}},
+		{[]string{""}, []string{}},
+	}
+	for _, tt := range tests {
+		result := normalizeSourceNames(tt.input)
+		if len(result) != len(tt.expected) {
+			t.Errorf("normalizeSourceNames(%v) = %v, want %v", tt.input, result, tt.expected)
+			continue
+		}
+		for i := range result {
+			if result[i] != tt.expected[i] {
+				t.Errorf("normalizeSourceNames(%v)[%d] = %q, want %q", tt.input, i, result[i], tt.expected[i])
+			}
+		}
+	}
+}
+
+// TestSeekToEnd_MissingSources verifies that when some sources have no ES documents,
+// their cursor values are derived from found sources (not time.Now()), preventing
+// clock-skew issues in K8s deployments.
+func TestSeekToEnd_MissingSources(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		var query map[string]interface{}
+		json.Unmarshal(body, &query)
+
+		// Check if this is the aggregation query (seekToEnd) or the fallback query
+		if aggs, ok := query["aggs"]; ok {
+			_ = aggs
+			// Return aggregation with only "api-frontend" found, not "generate-config"
+			resp := ESSearchResponse{
+				Hits: ESHits{Hits: []ESHit{}},
+				Aggregations: map[string]ESAggregation{
+					"per_source": {
+						Buckets: []ESBucket{
+							{
+								Key:      "api-frontend",
+								DocCount: 500,
+								Latest: &ESTopHitsAgg{
+									Hits: ESHits{
+										Hits: []ESHit{
+											{Sort: []interface{}{float64(1710000000000)}},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+			json.NewEncoder(w).Encode(resp)
+		} else {
+			// Fallback getLatestTimestamp query
+			resp := ESSearchResponse{
+				Hits: ESHits{
+					Hits: []ESHit{
+						{Sort: []interface{}{float64(1710000000000)}},
+					},
+				},
+			}
+			json.NewEncoder(w).Encode(resp)
+		}
+	})
+	defer server.Close()
+
+	client := NewESClientWithURL(server.URL, "", "")
+	fm := defaultFieldMapping()
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
+
+	ctx := log.LoggerNewContext(context.Background())
+	cursor := h.seekToEnd(ctx, []string{"api-frontend", "generate-config"})
+
+	// api-frontend should have its actual ES timestamp
+	apiFrontendTs, ok := cursor["api-frontend"].(float64)
+	if !ok {
+		t.Fatalf("expected cursor[api-frontend] to be float64, got %T", cursor["api-frontend"])
+	}
+	if apiFrontendTs != float64(1710000000000) {
+		t.Errorf("expected cursor[api-frontend]=1710000000000, got %v", apiFrontendTs)
+	}
+
+	// generate-config should use api-frontend's timestamp (max of found sources),
+	// NOT time.Now() which could be skewed
+	genConfigTs, ok := cursor["generate-config"].(float64)
+	if !ok {
+		t.Fatalf("expected cursor[generate-config] to be float64, got %T", cursor["generate-config"])
+	}
+	if genConfigTs != float64(1710000000000) {
+		t.Errorf("expected cursor[generate-config] to use max found cursor (1710000000000), got %v", genConfigTs)
+	}
+}
+
+// TestQueryEvents_MissingCursorEntry verifies that when queryEvents encounters a source
+// without a cursor entry, it uses the max of existing cursor values (ES-derived)
+// instead of time.Now() (which may be clock-skewed).
+func TestQueryEvents_MissingCursorEntry(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	var receivedQuery map[string]interface{}
+	server := newMockESServer(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		json.Unmarshal(body, &receivedQuery)
+
+		resp := ESSearchResponse{
+			Hits: ESHits{Hits: []ESHit{}},
+		}
+		json.NewEncoder(w).Encode(resp)
+	})
+	defer server.Close()
+
+	client := NewESClientWithURL(server.URL, "", "")
+	fm := defaultFieldMapping()
+	h := newTestHandler(client, fm, "prod-*", "kubernetes.container_name")
+
+	ctx := log.LoggerNewContext(context.Background())
+
+	// Cursor only has api-frontend, not generate-config
+	cursor := map[string]interface{}{
+		"api-frontend": float64(1710000000000),
+	}
+
+	_, _ = h.queryEvents(ctx, []string{"api-frontend", "generate-config"}, nil, cursor)
+
+	// Extract the should clauses from the query sent to ES
+	q := receivedQuery["query"].(map[string]interface{})
+	boolQ := q["bool"].(map[string]interface{})
+	shouldClauses := boolQ["should"].([]interface{})
+
+	if len(shouldClauses) != 2 {
+		t.Fatalf("expected 2 should clauses, got %d", len(shouldClauses))
+	}
+
+	// Check both clauses use the same timestamp (max of cursor = 1710000000000)
+	for _, clause := range shouldClauses {
+		boolClause := clause.(map[string]interface{})["bool"].(map[string]interface{})
+		musts := boolClause["must"].([]interface{})
+		rangeClause := musts[1].(map[string]interface{})["range"].(map[string]interface{})
+		tsRange := rangeClause["timestamp"].(map[string]interface{})
+		gt := tsRange["gt"].(float64)
+		if gt != float64(1710000000000) {
+			t.Errorf("expected range gt=1710000000000 (from cursor, not time.Now()), got %v", gt)
+		}
+	}
+}
+
 func TestBuildHandler_K8SNamespaceFromPath(t *testing.T) {
 	dir := t.TempDir()
 	nsFile := filepath.Join(dir, "namespace")

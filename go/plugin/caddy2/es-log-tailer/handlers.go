@@ -171,13 +171,21 @@ func (h *ESLogTailerHandler) seekToEnd(ctx context.Context, sources []string) ma
 
 	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
 	if err != nil {
-		cursor := make(map[string]interface{}, len(sources))
-		nowMs := float64(time.Now().UnixMilli())
-		for _, src := range sources {
-			cursor[src] = nowMs
-		}
-		l.Error(fmt.Sprintf("es-log-tailer SeekToEnd: ES query failed for sources=%v index_pattern=%s: %s — falling back to now for all sources",
+		// Aggregation failed — try a simpler query to get an ES-derived timestamp
+		// instead of using time.Now() which may be affected by local clock skew.
+		l.Error(fmt.Sprintf("es-log-tailer SeekToEnd: ES agg query failed for sources=%v index_pattern=%s: %s — trying fallback",
 			sources, h.indexPattern, err))
+		cursor := make(map[string]interface{}, len(sources))
+		var fallback interface{}
+		if ts, ok := h.getLatestTimestamp(ctx); ok {
+			fallback = ts
+		} else {
+			l.Warn("es-log-tailer SeekToEnd: fallback timestamp query also failed — using local time (may be skewed)")
+			fallback = float64(time.Now().UnixMilli())
+		}
+		for _, src := range sources {
+			cursor[src] = fallback
+		}
 		return cursor
 	}
 
@@ -190,12 +198,30 @@ func (h *ESLogTailerHandler) seekToEnd(ctx context.Context, sources []string) ma
 		}
 	}
 
-	// For sources not found in aggregation results, use now as fallback
-	nowMs := float64(time.Now().UnixMilli())
+	// For sources not found in aggregation results, use the max cursor from
+	// found sources as a proxy for "ES current time". This avoids using
+	// time.Now() which may be skewed on the api-frontend pod.
+	unfound := 0
 	for _, src := range sources {
 		if _, ok := cursor[src]; !ok {
-			cursor[src] = nowMs
-			l.Warn(fmt.Sprintf("es-log-tailer SeekToEnd: no documents found for source=%s, using now as cursor", src))
+			unfound++
+		}
+	}
+	if unfound > 0 {
+		var fallback interface{}
+		if maxTs, ok := maxCursorTs(cursor); ok {
+			fallback = maxTs
+		} else if ts, ok := h.getLatestTimestamp(ctx); ok {
+			fallback = ts
+		} else {
+			l.Warn("es-log-tailer SeekToEnd: no ES-derived timestamp available — using local time (may be skewed)")
+			fallback = float64(time.Now().UnixMilli())
+		}
+		for _, src := range sources {
+			if _, ok := cursor[src]; !ok {
+				cursor[src] = fallback
+				l.Warn(fmt.Sprintf("es-log-tailer SeekToEnd: no documents found for source=%s, using ES-derived cursor", src))
+			}
 		}
 	}
 
@@ -208,10 +234,22 @@ func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, 
 
 	// Build per-source should clauses with individual range filters
 	shouldClauses := make([]interface{}, 0, len(sources))
+	// Pre-compute a fallback timestamp from the cursor map so we never
+	// depend on the local clock (which may be skewed in K8s).
+	var fallbackTs interface{}
+	if maxTs, ok := maxCursorTs(cursor); ok {
+		fallbackTs = maxTs
+	} else if ts, ok := h.getLatestTimestamp(ctx); ok {
+		fallbackTs = ts
+	} else {
+		l.Warn("es-log-tailer queryEvents: no ES-derived timestamp available — using local time (may be skewed)")
+		fallbackTs = float64(time.Now().UnixMilli())
+	}
+
 	for _, src := range sources {
 		ts, ok := cursor[src]
 		if !ok {
-			ts = float64(time.Now().UnixMilli())
+			ts = fallbackTs
 		}
 		shouldClauses = append(shouldClauses, map[string]interface{}{
 			"bool": map[string]interface{}{
@@ -326,6 +364,40 @@ func normalizeSourceNames(sources []string) []string {
 		}
 	}
 	return out
+}
+
+// maxCursorTs returns the maximum float64 timestamp found in the cursor map.
+// This serves as a proxy for "ES current time" and avoids depending on the
+// local system clock which may be skewed.
+func maxCursorTs(cursor map[string]interface{}) (float64, bool) {
+	var max float64
+	found := false
+	for _, v := range cursor {
+		if ts, ok := v.(float64); ok {
+			if !found || ts > max {
+				max = ts
+				found = true
+			}
+		}
+	}
+	return max, found
+}
+
+// getLatestTimestamp queries ES for the most recent document's sort value
+// across the entire index pattern (not filtered to specific sources).
+// This provides an ES-derived timestamp independent of the local system clock.
+func (h *ESLogTailerHandler) getLatestTimestamp(ctx context.Context) (interface{}, bool) {
+	query := map[string]interface{}{
+		"size": 1,
+		"sort": []interface{}{
+			map[string]interface{}{h.fieldMapping.Timestamp: "desc"},
+		},
+	}
+	resp, err := h.esClient.Search(ctx, h.indexPattern, query)
+	if err == nil && len(resp.Hits.Hits) > 0 && len(resp.Hits.Hits[0].Sort) > 0 {
+		return resp.Hits.Hits[0].Sort[0], true
+	}
+	return nil, false
 }
 
 // newTestHandler creates a minimal handler for testing with the given client

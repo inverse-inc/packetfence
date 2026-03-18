@@ -3,9 +3,11 @@
     <div class="live-logs-header px-3 py-2 border-bottom">
       <h4 class="mb-0" v-t="'Live Logs'" />
     </div>
+    <the-create-bar />
+    <the-tabs />
     <b-card no-body class="live-logs-body border-top-0 rounded-0">
-      <the-tabs />
-      <b-row class="no-gutters flex-grow-1 min-h-0">
+      <base-table-empty v-if="!session" icon="scroll" :text="$i18n.t('Start a session using the form above.')" class="flex-fill">{{ $i18n.t('No active sessions') }}</base-table-empty>
+      <b-row v-else class="no-gutters flex-grow-1 min-h-0">
         <b-col sm="3" class="d-flex flex-column min-h-0 pl-3 pr-0 bg-light border-right">
           <div class="scopes pr-3">
             <small class="ml-1">{{ $i18n.t('Session Options') }}</small>
@@ -211,8 +213,10 @@ import {
   BaseInputChosenMultiple,
   BaseInputChosenOne,
   BaseInputToggle,
-  BaseInputToggleFalseTrue
+  BaseInputToggleFalseTrue,
+  BaseTableEmpty
 } from '@/components/new/'
+import TheCreateBar from './TheCreateBar'
 import TheTabs from './TheTabs'
 
 const components = {
@@ -222,6 +226,8 @@ const components = {
   BaseInputChosenOne,
   BaseInputToggle,
   BaseInputToggleFalseTrue,
+  BaseTableEmpty,
+  TheCreateBar,
   TheTabs
 }
 
