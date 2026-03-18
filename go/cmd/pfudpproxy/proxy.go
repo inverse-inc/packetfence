@@ -234,7 +234,7 @@ func (p *UDPProxy) resolveAddr(key string) (*net.UDPAddr, error) {
 func (p *UDPProxy) forwardPacket(ctx context.Context, data []byte, srcAddr *net.UDPAddr, port int) {
 	backend := p.lb.GetPrimary()
 	if backend == nil {
-		log.LoggerWContext(ctx).Warn("No healthy backend available, dropping packet")
+		log.LoggerWContext(ctx).Debug("No healthy backend available, dropping packet")
 		return
 	}
 
