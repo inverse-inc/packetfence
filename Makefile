@@ -333,7 +333,7 @@ pfconnector_remote_install:
 	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-radiusd-auth.service $(DESTDIR)/etc/systemd/system/packetfence-radiusd-auth.service
 	# pfconnector-remote
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-docker-wrapper
-	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-client/Dockerfile
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector/Dockerfile
 	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/containers/systemd-service $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/systemd-service
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/containers/manage-images.sh $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/manage-images.sh
 	TMPDIR=$(shell mktemp -d)
