@@ -15,6 +15,9 @@ type ShardedCache[V any] struct {
 }
 
 func NewShardedCache[V any](numShards int) *ShardedCache[V] {
+	if numShards <= 0 {
+		numShards = 1
+	}
 	sc := &ShardedCache[V]{
 		shards: make([]ShardedCacheShard[V], numShards),
 	}
