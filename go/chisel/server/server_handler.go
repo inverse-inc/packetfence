@@ -96,6 +96,8 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-ntlm-auth-api-db":
 		s.handleRemoteNtlmAuthAPIDB(w, r)
+	case apiPrefix + "/remote-radius-conf":
+		s.handleRemoteRadiusConf(w, r)
 		return
 	}
 	//missing :O
@@ -453,9 +455,9 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(gin.H{"binds": []string{
 			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
 			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
-			fmt.Sprintf("100.64.0.1:18122:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
-			fmt.Sprintf("100.64.0.1:18123:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
-			fmt.Sprintf("100.64.0.1:18125:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
+			fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
+			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
+			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
 			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
 			fmt.Sprintf("containers-gateway.internal:3306:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_3306", fmt.Sprintf("%s:3306", managementIP))),
 			fmt.Sprintf("containers-gateway.internal:6379:%s", sharedutils.EnvOrDefault("REDIS_CACHE_HOST_PORT", fmt.Sprintf("%s:6379", "127.0.0.1"))),
@@ -692,4 +694,30 @@ func (s *Server) handleRemoteFingerbankCollectorNbaConf(w http.ResponseWriter, r
 		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error while reading Fingerbank NBA config: %s", err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+type RadiusCerts struct {
+	LetsEncrypt     bool     `json:"lets_encrypt"`
+	PrivateKey      string   `json:"private_key"`
+	Ca              string   `json:"ca"`
+	Certificate     string   `json:"certificate"`
+	IntermediateCas []string `json:"intermediate_cas"`
+}
+
+func (s *Server) handleRemoteRadiusConf(w http.ResponseWriter, req *http.Request) {
+	var data RadiusCerts
+	apiClient := unifiedapiclient.NewFromConfig(req.Context())
+	errApi := apiClient.Call(req.Context(), "GET", "/api/v1/config/certificate/radius", &data)
+	if errApi != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(errApi.Error()))
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	body, err := json.Marshal(&data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
