@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS switch_observability_acls (
   `acl_type` varchar(255) NOT NULL,
   `acls` MEDIUMTEXT NOT NULL,
   `enforcement_timestamp` DATETIME default NULL,
-  PRIMARY KEY (`switch_id`, `mac`)
+  PRIMARY KEY (`switch_id`, `mac`, `role_id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 

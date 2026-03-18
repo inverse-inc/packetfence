@@ -75,7 +75,7 @@ BEGIN {
         role_id => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         acl_type => {
@@ -101,6 +101,7 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         switch_id
         mac
+        role_id
     );
 
     @COLUMN_NAMES = qw(
