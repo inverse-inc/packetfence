@@ -81,8 +81,12 @@ const setup = (props, context) => {
   const onCreate = () => {
     $store.dispatch('$_live_logs/createSession', form.value).then(response => {
       const { session_id } = response
-      if (session_id)
+      if (session_id) {
+        form.value.files = []
+        form.value.filter = null
+        form.value.filter_is_regexp = false
         $router.push({ name: 'live_log', params: { id: session_id } })
+      }
     })
   }
 

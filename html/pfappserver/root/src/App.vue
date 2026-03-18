@@ -159,16 +159,13 @@ const setup = (props, context) => {
   const username = computed(() => $store.state.session.username)
   const version = computed(() => $store.getters['system/version'])
 
+  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
   const hasRunningSessions = computed(() => {
     const liveLogsState = $store.state.$_live_logs
     if (!liveLogsState) return false
-    return Object.keys(liveLogsState).some(id => {
-      try {
-        return $store.getters[`$_live_logs/${id}/isRunning`]
-      } catch (e) {
-        return false
-      }
-    })
+    return Object.keys(liveLogsState)
+      .filter(id => uuidRe.test(id))
+      .some(id => $store.getters[`$_live_logs/${id}/isRunning`])
   })
 
   // show nav links conditionally,
