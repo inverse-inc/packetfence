@@ -262,6 +262,7 @@ binary-arch: build install
 	dh_installinit --no-start --name=packetfence-tracking-config
 	dh_installinit --no-start --name=packetfence-kafka
 	dh_installinit --name=packetfence-netdata
+	dh_installinit --name=packetfence-pfudpproxy
 
 	dh_installcron
 #	dh_installinfo

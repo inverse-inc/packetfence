@@ -40,6 +40,7 @@ export {
   BaseFormGroupSwitch                 as FormGroupPfqueueGo,
   BaseFormGroupSwitch                 as FormGroupPfsso,
   BaseFormGroupSwitch                 as FormGroupPfstats,
+  BaseFormGroupSwitch                 as FormGroupPfudpproxy,
   BaseFormGroupSwitch                 as FormGroupProxysql,
   BaseFormGroupSwitch                 as FormGroupRadiusd,
   BaseFormGroupSwitch                 as FormGroupRadiusdAcct,

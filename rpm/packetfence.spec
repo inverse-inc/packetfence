@@ -441,6 +441,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 %{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfudpproxy.service %{buildroot}%{_unitdir}/packetfence-pfudpproxy.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -996,6 +997,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfudpproxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/sdnotify-proxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/signal-proxy

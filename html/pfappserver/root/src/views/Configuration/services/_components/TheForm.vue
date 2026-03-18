@@ -197,6 +197,13 @@
                         disabled-value="disabled"
     />
 
+    <form-group-pfudpproxy namespace="pfudpproxy"
+                           column-label="pfudpproxy"
+                           :text="$i18n.t('Should pfudpproxy be managed by PacketFence? This is a UDP reverse proxy for NetFlow/sFlow/IPFIX in cluster mode.')"
+                           enabled-value="enabled"
+                           disabled-value="disabled"
+    />
+
     <form-group-proxysql namespace="proxysql"
                          column-label="proxysql"
                          :text="$i18n.t('Should proxysql be managed by PacketFence?')"
@@ -324,6 +331,7 @@ import {
   FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
+  FormGroupPfudpproxy,
   FormGroupProxysql,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,
@@ -370,6 +378,7 @@ const components = {
   FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
+  FormGroupPfudpproxy,
   FormGroupProxysql,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,

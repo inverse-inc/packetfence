@@ -736,6 +736,16 @@ pfstats=enabled
 # Location of the pfstats binary.
 pfstats_binary=/usr/local/pf/sbin/pfstats
 
+# services.pfudpproxy
+#
+# Should pfudpproxy be managed by PacketFence?
+pfudpproxy=enabled
+#
+# services.pfudpproxy_binary
+#
+# Location of the pfudpproxy binary.
+pfudpproxy_binary=/usr/local/pf/sbin/pfudpproxy
+
 # services.tracking-config
 #
 # Should tracking-config be managed by PacketFence?

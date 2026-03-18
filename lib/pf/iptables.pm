@@ -356,6 +356,7 @@ sub iptables_services_rules {
       packetfence-pfdhcp.service
       packetfence-pfdns.service
       packetfence-pfipset.service
+      packetfence-pfudpproxy.service
       packetfence-proxysql.service
       packetfence-radiusd-acct.service
       packetfence-radiusd-auth.service
@@ -390,6 +391,7 @@ sub iptables_services_rules {
         case "packetfence-pfdhcp.service"                { iptables_pfdhcp_rules($action); }
         case "packetfence-pfdns.service"                 { iptables_pfdns_rules($action); }
         case "packetfence-pfipset.service"               { iptables_pfipset_rules($action); }
+        case "packetfence-pfudpproxy.service"            { iptables_pfudpproxy_rules($action); }
         case "packetfence-proxysql.service"              { iptables_proxysql_rules($action); }
         case "packetfence-radiusd-acct.service"          { iptables_radiusd_acct_rules($action); }
         case "packetfence-radiusd-auth.service"          { iptables_radiusd_auth_rules($action); }
@@ -1552,6 +1554,36 @@ sub iptables_fingerbank_collector_rules {
             util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
             util_safe_push( "-i $tint -p udp -m udp --dport 4739 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
+        # Convert to JSON and save to file
+        util_create_service_rules($chains);
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_pfudpproxy_rules
+
+Iptable rules for pfudpproxy service (UDP proxy for NetFlow/sFlow/IPFIX in cluster mode)
+
+=cut
+
+sub iptables_pfudpproxy_rules {
+    my $service_name = "pfudpproxy_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       return util_remove_service_rules($service_name);
+    }
+    my $logger = get_logger();
+    if ( util_management_network_is_set($service_name) ){
+        my $chains = util_create_chains();
+        $chains->{name} = $service_name;
+        my $tint = $management_network->{Tint};
+        # Port 2055 - NetFlow (UDP)
+        util_safe_push( "-i $tint -p udp -m udp --dport 2055 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Port 6343 - sFlow (UDP)
+        util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Port 4739 - IPFIX (UDP)
+        util_safe_push( "-i $tint -p udp -m udp --dport 4739 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {

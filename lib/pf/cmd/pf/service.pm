@@ -50,6 +50,7 @@ Services managed by PacketFence:
   pfsetacls              | ACL service daemon
   pfsso                  | Firewall SSO daemon
   pfstats                | PF statistics daemon
+  pfudpproxy             | UDP reverse proxy for cluster mode
   proxysql               | proxysql daemon
   radiusd                | FreeRADIUS daemon
   radsniff               | radsniff daemon
