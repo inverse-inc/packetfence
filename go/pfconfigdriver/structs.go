@@ -1150,3 +1150,16 @@ type PfConfDnsConnectors struct {
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
 }
+
+type PfRadiusCert struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Ssl"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]struct {
+		Default string `json:"default,omitempty"`
+		Cert    string `json:"cert,omitempty"`
+		Ca      string `json:"ca,omitempty"`
+		Key     string `json:"key,omitempty"`
+	}
+}
