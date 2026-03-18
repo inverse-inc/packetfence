@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"testing"
 	"time"
@@ -81,50 +82,45 @@ func TestUpdateConfig_FlushesAddrCache(t *testing.T) {
 }
 
 func TestStart_ResetsRunningOnFwdSocketError(t *testing.T) {
-	// Bind a UDP socket so that the same address is already taken.
-	blocker, err := net.ListenPacket("udp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatalf("failed to create blocker socket: %v", err)
-	}
-	defer blocker.Close()
-
-	// Create a proxy that will try to listen on the same VIP:port.
-	// Start opens an unbound fwdConn first (which will succeed), then
-	// listens on VIP:port. To make the fwdConn open itself fail we
-	// would need to exhaust file descriptors, which is impractical.
-	// Instead, verify the invariant directly: after a failed Start
-	// the proxy must not remain in the "running" state.
-
 	config := &ProxyConfig{
 		VIPAddress: "127.0.0.1",
 		Ports:      []int{12345},
 	}
 	p := NewUDPProxy(config, NewLoadBalancer(nil))
 
-	// Manually simulate the failure path: set running = true (as Start does),
-	// then confirm that calling Start again is a no-op while running is true,
-	// and after resetting running to false a second Start is not blocked.
-	p.mu.Lock()
-	p.running = true
-	p.mu.Unlock()
+	// Inject a listenUDPFunc that fails on the first call (the unbound
+	// forwarding socket), then succeeds on subsequent calls.
+	calls := 0
+	p.listenUDPFunc = func(network string, laddr *net.UDPAddr) (*net.UDPConn, error) {
+		calls++
+		if calls == 1 {
+			return nil, fmt.Errorf("injected socket error")
+		}
+		return net.ListenUDP(network, laddr)
+	}
 
-	// A second Start should return immediately because running == true.
+	// Start should fail because the forwarding socket cannot be opened.
 	p.Start(context.Background())
 
-	// Now reset, as the fix does on the error path.
-	p.mu.Lock()
-	p.running = false
-	p.mu.Unlock()
+	p.mu.RLock()
+	if p.running {
+		p.mu.RUnlock()
+		t.Fatal("expected running to be false after forwarding socket failure")
+	}
+	p.mu.RUnlock()
 
-	// After the reset, the proxy should accept a new Start call.
-	// We can verify by checking that running becomes true again.
-	// We use a real Start here; the fwdConn open will succeed.
+	if p.fwdConn != nil {
+		t.Fatal("expected fwdConn to be nil after forwarding socket failure")
+	}
+
+	// A subsequent Start should succeed now that the injected error is past.
 	p.Start(context.Background())
 	defer p.Stop(context.Background())
 
 	p.mu.RLock()
 	if !p.running {
-		t.Error("expected proxy to be running after successful Start following reset")
+		p.mu.RUnlock()
+		t.Fatal("expected proxy to be running after successful Start following failure")
 	}
 	p.mu.RUnlock()
 }

@@ -32,6 +32,10 @@ type UDPProxy struct {
 	// send to any backend without opening a new socket per packet.
 	fwdConn *net.UDPConn
 
+	// listenUDPFunc is the function used to create UDP sockets.
+	// Defaults to net.ListenUDP; override in tests to inject failures.
+	listenUDPFunc func(network string, laddr *net.UDPAddr) (*net.UDPConn, error)
+
 	// addrCache maps "ip:port" to a resolved *net.UDPAddr so we don't
 	// call ResolveUDPAddr on every packet.
 	addrCache   map[string]*net.UDPAddr
@@ -41,10 +45,11 @@ type UDPProxy struct {
 // NewUDPProxy creates a new UDP proxy.
 func NewUDPProxy(config *ProxyConfig, lb *LoadBalancer) *UDPProxy {
 	return &UDPProxy{
-		config:    config,
-		lb:        lb,
-		stopChan:  make(chan struct{}),
-		addrCache: make(map[string]*net.UDPAddr),
+		config:        config,
+		lb:            lb,
+		stopChan:      make(chan struct{}),
+		addrCache:     make(map[string]*net.UDPAddr),
+		listenUDPFunc: net.ListenUDP,
 	}
 }
 
@@ -63,7 +68,7 @@ func (p *UDPProxy) Start(ctx context.Context) {
 	log.LoggerWContext(ctx).Info("Starting UDP proxy")
 
 	// Open a single unbound UDP socket for all outbound forwarding.
-	fwd, err := net.ListenUDP("udp", nil)
+	fwd, err := p.listenUDPFunc("udp", nil)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to open forwarding socket: %s", err.Error()))
 		p.mu.Lock()
@@ -154,7 +159,7 @@ func (p *UDPProxy) listenAndForward(ctx context.Context, vip string, port int) {
 		return
 	}
 
-	conn, err := net.ListenUDP("udp", udpAddr)
+	conn, err := p.listenUDPFunc("udp", udpAddr)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to listen on %s: %s", addr, err.Error()))
 		return
