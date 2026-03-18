@@ -342,7 +342,7 @@ pfconnector_remote_install:
 	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(PFCONNECTOR_CONFDIR)/build_id
 	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pf-release
 	# raddb
-	cp -rv $(SRC_PFCONNECTORDIR)/raddb $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb
+	cp -rv $(SRC_ROOT_DIR)/raddb $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb
 
 .PHONY: ntlm_auth_api_remote_install
 ntlm_auth_api_remote_install:
