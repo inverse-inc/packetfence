@@ -4,56 +4,12 @@ source /usr/local/pfconnector-remote/containers/systemd-service
 
 name=pfconnector-remote
 
-option=$1
+args=$(base_args "${name}")
+args="$args --env-file /usr/local/pfconnector-remote/conf/pfconnector-client.env"
+args="$args -eLOG_OUTPUT=stdout"
+args="$args -v /usr/local/pfconnector-remote/conf:/usr/local/pf/conf"
+args="$args -v /usr/local/pfconnector-remote/logs:/usr/local/pf/logs"
+args="$args -v /usr/local/pfconnector-remote/var/conf:/usr/local/pf/var/conf"
+args="$args --network host"
 
-if [ "$option" == "" ]; then
-    echo "No option given, terminated"
-    exit 1
-fi
-
-if [ "$option" = "start" ]; then
-    echo "Starting pfconnector-remote"
-
-    args=$(base_args "${name}")
-    args="$args -eLOG_OUTPUT=stdout"
-    args="$args -v /usr/local/pfconnector-remote/conf:/usr/local/pf/conf"
-    args="$args -v /usr/local/pfconnector-remote/logs:/usr/local/pf/logs"
-    args="$args -v /usr/local/pfconnector-remote/var/conf:/usr/local/pf/var/conf"
-    args="$args --network host"
-
-    run "$name" "$args" &
-    echo $! >/usr/local/pfconnector-remote/var/run/pfconnector-remote.pid
-
-    echo "pfconnector-remote started"
-elif [ "$option" = "stop" ]; then
-    echo "Stopping pfconnector-remote"
-
-    pid=$(cat /usr/local/pfconnector-remote/var/run/pfconnector-remote.pid 2>/dev/null)
-    if [ -n "$pid" ]; then
-        kill "$pid" 2>/dev/null
-        echo '' >/usr/local/pfconnector-remote/var/run/pfconnector-remote.pid
-    fi
-
-    docker stop pfconnector-remote 2>/dev/null
-
-    failures=0
-    while true; do
-        svcs=$(docker ps | grep "pfconnector-remote")
-        if [ -n "$svcs" ]; then
-            failures=$((failures + 1))
-        else
-            echo "Stopped."
-            break
-        fi
-
-        if [ $failures -gt 30 ]; then
-            echo "pfconnector-remote failed to stop after 30s."
-            exit 1
-        fi
-
-        sleep 1
-    done
-
-    echo "stopped"
-    sleep 1
-fi
+run "$name" "$args" "/usr/local/pf/sbin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226"
