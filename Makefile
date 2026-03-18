@@ -318,8 +318,6 @@ test_install:
 pfconnector_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_BINDIR)
-	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-docker-wrapper
-	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-client/Dockerfile
 	# FreeRADIUS
 	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/radiusd-auth/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/radiusd-auth/Dockerfile
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/radiusd-auth-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/radiusd-auth-docker-wrapper
