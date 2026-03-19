@@ -63,7 +63,8 @@ my @whitelist = (
     '_parentRoleForVlan','_parentRoleForWebAuthUrl','_parentRoleForRole',
     'find_user_by_psk', 'returnAuthorizeProbe', 'returnVpnRoleAttributes', 'shouldUseConnectorForRadiusDeauth', 'radius_deauth_connection_info', 'getVpnByName', '_parentRoleForVpn', 'radius_cache_distributed', 'setRadiusSession', 'useDownloadableACLs', 'defaultACLsLimit', 'defaultDownloadableACLsLimit', 'DownloadableACLsLimit', 'ACLsLimit', 'checkRoleACLs', 'checkRolesACLs', 'acl_chewer', 'makeACLsError',
     'returnAccessListAttribute', 'returnInAccessListAttribute', 'returnOutAccessListAttribute', 'compute_action', 'getNetworkByName', '_parentRoleForNetwork', 'getInterfaceByName',
-    '_parentRoleForInterface', 'getNetworkFromByName', '_parentRoleForNetworkFrom', 'switchDriverId', '_getAccessListByName', 'mark_as_seen'
+    '_parentRoleForInterface', 'getNetworkFromByName', '_parentRoleForNetworkFrom', 'switchDriverId', '_getAccessListByName', 'mark_as_seen', 'handleRadiusDisconnect', 'handleRadiusCoa',
+    '_getRoleAccessListByName', 'handleRadiusRsso', '_handleRadiusResponse'
 );
 
 my @missing_subs;
