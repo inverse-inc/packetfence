@@ -696,16 +696,8 @@ func (s *Server) handleRemoteFingerbankCollectorNbaConf(w http.ResponseWriter, r
 	}
 }
 
-type RadiusCerts struct {
-	LetsEncrypt     bool     `json:"lets_encrypt"`
-	PrivateKey      string   `json:"private_key"`
-	Ca              string   `json:"ca"`
-	Certificate     string   `json:"certificate"`
-	IntermediateCas []string `json:"intermediate_cas"`
-}
-
 func (s *Server) handleRemoteRadiusConf(w http.ResponseWriter, req *http.Request) {
-	var data RadiusCerts
+	var data chshare.RadiusCerts
 	apiClient := unifiedapiclient.NewFromConfig(req.Context())
 	errApi := apiClient.Call(req.Context(), "GET", "/api/v1/config/certificate/radius", &data)
 	if errApi != nil {
