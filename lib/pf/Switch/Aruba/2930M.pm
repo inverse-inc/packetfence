@@ -67,16 +67,13 @@ sub returnRadiusAccessAccept {
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
-            if ($access_list) {
-                while($access_list =~ /([^\n]+)\n?/g){
-                    push(@acls, $1);
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
-                }
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            while($access_list =~ /([^\n]+)\n?/g){
+                push(@acls, $1);
+                $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
             }
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+        } else {
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
         }
     }
 
