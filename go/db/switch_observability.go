@@ -41,10 +41,14 @@ func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
 	}
 
 	rows, err := results.RowsAffected()
-	if err == nil && rows > 0 {
+	if err == nil {
+		now := time.Now()
+		if rows == 0 {
+			now = now.Add(-1 * switchObservabilityCacheTTL / 2)
+		}
 		shard.Lock()
 		defer shard.Unlock()
-		shard.Set(switchID, time.Now())
+		shard.Set(switchID, now)
 		return nil
 	}
 

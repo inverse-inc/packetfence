@@ -4620,20 +4620,26 @@ SQL
 sub mark_as_seen {
     my ($self) = @_;
     my $id = $self->{_id};
+    my %options = (expires_in => '1m');
     $cache_switch_observability->compute(
         $id,
-        {expires_in => '1m'},
+        \%options,
         sub {
             my ($status, $sth, $info) = pf::dal::switch_observability->db_execute(
                     $sql_mark_as_seen,
                     $id,
                     1,
             );
-            if (is_success($status) && $sth->rows) {
-                return 1;
+
+            if (!is_success($status)) {
+                return undef;
             }
 
-            return undef;
+            if (!$sth->rows) {
+                $options{expires_in} = '30s';
+            }
+
+            return 1;
         }
     );
 }
