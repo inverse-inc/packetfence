@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -14,12 +15,17 @@ var (
 // MarkSwitchAsSeen upserts the switch_observability table setting visibility_timestamp to NOW().
 // It uses an in-memory cache to skip the DB update if the switch was already updated within the last minute.
 func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
+	if len(switchID) > 255 {
+		return fmt.Errorf("%s: Is to large to be a switch id", switchID)
+	}
+
 	shard := switchObservabilityCache.Shard(switchID)
 	shard.Lock()
-	defer shard.Unlock()
 	if lastSeen, ok := shard.Get(switchID); ok && time.Since(lastSeen) < switchObservabilityCacheTTL {
+		shard.Unlock()
 		return nil
 	}
+	shard.Unlock()
 
 	results, err := db.Exec(
 		`INSERT INTO switch_observability (switch_id, visibility_timestamp)
@@ -36,6 +42,8 @@ func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
 
 	rows, err := results.RowsAffected()
 	if err == nil && rows > 0 {
+		shard.Lock()
+		defer shard.Unlock()
 		shard.Set(switchID, time.Now())
 		return nil
 	}
