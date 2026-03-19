@@ -16,7 +16,7 @@ var (
 // It uses an in-memory cache to skip the DB update if the switch was already updated within the last minute.
 func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
 	if len(switchID) > 255 {
-		return fmt.Errorf("%s: Is to large to be a switch id", switchID)
+		return fmt.Errorf("%s: is too large to be a switch ID", switchID)
 	}
 
 	shard := switchObservabilityCache.Shard(switchID)
