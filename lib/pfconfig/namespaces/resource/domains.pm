@@ -16,7 +16,6 @@ This module changes the domains configuration with environment variables
 
 use strict;
 use warnings;
-use pf::util;
 use pf::util qw(isenabled);
 
 use base 'pfconfig::namespaces::resource';

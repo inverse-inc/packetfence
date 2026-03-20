@@ -548,7 +548,7 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		ServerIp := Elements.AdServer
 
 		Connector := Connectors.ForIP(req.Context(), net.ParseIP(ServerIp))
-		if Connector.PfconfigHashNS == connectorId {
+		if sharedutils.IsEnabled(Elements.UseConnector) && Connector.PfconfigHashNS == connectorId {
 			Domains[domain] = Elements
 		}
 	}
