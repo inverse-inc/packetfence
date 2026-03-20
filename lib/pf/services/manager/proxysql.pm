@@ -33,7 +33,6 @@ use pf::file_paths qw(
 
 use Template;
 
-use Moo;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'proxysql' } );
@@ -65,7 +64,44 @@ sub generateConfig {
     $tags{'geoDB'} = $FALSE;
     $tags{'replication'} = $FALSE;
     $tags{'mysql_servers'} = "";
+    $tags{'mysql_replication_hostgroups'} = "";
+    $tags{'mysql_query_rules'} = "";
+    $tags{'mysql_monitor_variables'} = "";
+    $tags{'mysql_ssl_p2s_capath'} = "";  # initialized empty; set below only when SSL cacert is configured
     $tags{'database'} = $DB_Config->{db};
+
+    # Standardized hostgroups used everywhere:
+    #   HG 10 = writer
+    #   HG 30 = reader
+    my $writer_hostgroup  = 10;
+    my $reader_hostgroup  = 30;
+    my $has_reader_split  = 0;  # flag: only generate query rules / replication hostgroups when we actually have a reader HG
+
+    # Monitor and shunning variables — ensure reliable auto-detection of dead servers:
+    #   monitor_ping_max_failures=3  → SHUNNED after 3 missed pings (~6 sec with 2s interval)
+    #   shun_recovery_time_sec=60    → stays shunned 60s before retry
+    #   shun_on_failures=3           → app connection failures before shunning
+    #   timeouts raised to 3000ms    → avoids false positives from tight timeouts
+    # NOTE: proxysql.conf mysql_variables block does NOT use the 'mysql-' prefix.
+    # These variable names are used as-is inside mysql_variables = { } in the template.
+    # The [% mysql_monitor_variables %] tag should be placed INSIDE the mysql_variables
+    # block in proxysql.conf, alongside [% monitor %] (username/password).
+    $tags{'mysql_monitor_variables'} = << "EOT";
+    monitor_enabled=1
+    monitor_connect_timeout=3000
+    monitor_ping_timeout=3000
+    monitor_read_only_timeout=2000
+    monitor_ping_interval=2000
+    monitor_connect_interval=3000
+    monitor_read_only_interval=1000
+    monitor_ping_max_failures=3
+    monitor_read_only_max_timeout_count=3
+    shun_on_failures=3
+    shun_recovery_time_sec=60
+    connect_retries_on_failure=5
+    connect_timeout_server=3000
+    connect_timeout_server_max=10000
+EOT
 
     $tags{'monitor'} = << "EOT";
     monitor_username="$DB_Config->{user}"
@@ -73,12 +109,12 @@ sub generateConfig {
 EOT
 
     $tags{'mysql_users'} = << "EOT";
-        { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = 10, transaction_persistent = 0, active = 1 },
+        { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = $writer_hostgroup, transaction_persistent = 0, active = 1 },
 EOT
 
     my $i = 100;
     my $database_proxysql = $pf::config::Config{database_proxysql};
-    my $port = $database_proxysql->{port} || 3306;  # Use configured port or default to 3306
+    my $port = $database_proxysql->{port} || 3306;
 
     if (isenabled($database_proxysql->{status})) {
         my $cacert = $database_proxysql->{cacert};
@@ -96,95 +132,175 @@ EOT
         if (scalar(@backends) <= 1) {
             $single_server = 1;
             my $backend = $backends[0] // '';
+            # Single server: only HG 10 needed, no reader split
             $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
+    { address="$backend" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
 EOT
         } else {
             $single_server = 0;
             $tags{'replication'} = $TRUE;
-            foreach my $backend (@backends) {
-                $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
+            $has_reader_split = 1;
+
+            # First backend = READ/WRITE
+            #   → HG 10 (writer) weight=100
+            #   → HG 30 (reader) weight=100, preferred for reads
+            #   → also in HG 30 so if all pure readers go down, writer handles reads ✅
+            my $writer = $backends[0];
+            $tags{mysql_servers} .= << "EOT";
+    { address="$writer" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
+    { address="$writer" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
 EOT
-                $i--;
+
+            # Remaining backends = READ ONLY → HG 30 only
+            # weight=99,98... so first server is preferred for reads
+            # On failover: promoted replica sets read_only=0
+            # → ProxySQL auto-moves it to HG 10 via mysql_replication_hostgroups
+            my $r = 99;
+            foreach my $backend (@backends[1..$#backends]) {
+                $tags{mysql_servers} .= << "EOT";
+    { address="$backend" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=$r, use_ssl=$ssl },
+EOT
+                $r--;
             }
         }
     } elsif (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
         my @mysql_write_backend = pf::cluster::getWriteDB();
         my @mysql_read_backend = pf::cluster::getReadDB();
-        
-        # Get port from database_proxysql config or default to 3306
+        $has_reader_split = 1;
 
         foreach my $mysql_back (@mysql_write_backend) {
+            # Writers go to HG 10 AND HG 30 as fallback if all readers go down
+            # weight=50 in HG 30 so readers (weight=100) are always preferred for reads
             $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
-
+    { address="$mysql_back" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=$i },
+    { address="$mysql_back" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=50 },
 EOT
-        $i--;
+            $i--;
         }
         $i = 100;
+        # HG 30 (reader)
         foreach my $mysql_back (@mysql_read_backend) {
             $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=$port , hostgroup=30, max_connections=1000, weight=$i },
-
+    { address="$mysql_back" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=$i },
 EOT
-        $i--;
+            $i--;
         }
-    } elsif ($database_proxysql->{scheduler} eq 'default') {
+    } elsif (($database_proxysql->{scheduler} // '') eq 'default') {
         my @mysql_backend;
 
         @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
-        
-        # Get port from database_proxysql config or default to 3306
 
         foreach my $mysql_back (@mysql_backend) {
-        $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
+            $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=$i },
 EOT
-        $i--;
+            $i--;
         }
     } else {
         my @mysql_backend;
 
         @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
-        
+        $has_reader_split = 1;
+
         foreach my $mysql_back (@mysql_backend) {
-        $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
+            $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=$i },
 EOT
-        $i--;
+            $i--;
         }
         my $j = 101 - @mysql_backend;
+        # HG 30 (reader)
+        # FIX: was "next if ($j = ...)" which is always true — $j++ was never reached
         foreach my $mysql_back (@mysql_backend) {
-        $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=$port , hostgroup=30, max_connections=1000, weight=$j },
+            $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=$j },
 EOT
-        next if ($j = (102 - @mysql_backend));
-        $j++;
+            $j++;
         }
         $i = 100;
         foreach my $mysql_back (@mysql_backend) {
-        $tags{'mysql_servers'} .= << "EOT";
+            $tags{'mysql_servers'} .= << "EOT";
     { address="$mysql_back" , port=$port , hostgroup=810, max_connections=1000, weight=$i },
 EOT
-        $i--;
+            $i--;
         }
         $j = 101 - @mysql_backend;
         foreach my $mysql_back (@mysql_backend) {
-        $tags{'mysql_servers'} .= << "EOT";
+            $tags{'mysql_servers'} .= << "EOT";
     { address="$mysql_back" , port=$port , hostgroup=830, max_connections=1000, weight=$j },
 EOT
-        $j++;
+            $j++;
         }
     }
+
     $tags{'scheduler'} = $TRUE;
-    $tags{'scheduler'} = $FALSE if ($database_proxysql->{scheduler} ne 'default');
+    $tags{'scheduler'} = $FALSE if (($database_proxysql->{scheduler} // '') ne 'default');
     $tags{'scheduler'} = $FALSE if ($tags{'replication'});
 
     my @mysql_servers = pf::cluster::mysql_servers();
 
     $tags{'single_server'} = $single_server || (scalar(@mysql_servers) == 1);
+
+    # Generate mysql_replication_hostgroups using standardized HG 10/30
+    # read_only=0 → server auto-moved to HG 10 (writer)
+    # read_only=1 → server auto-moved to HG 30 (reader)
+    # Only generated when we actually have a reader split
+    #
+    # IMPORTANT: the proxysql.conf template MUST reference [% mysql_replication_hostgroups %]
+    # instead of a hardcoded mysql_replication_hostgroups block, otherwise this tag is ignored.
+    if ($has_reader_split) {
+        # mysql_replication_hostgroups tells ProxySQL to monitor read_only on ALL servers
+        # in both writer_hostgroup and reader_hostgroup.
+        # Automatic failover works as follows:
+        #   - ProxySQL checks read_only every monitor_read_only_interval ms
+        #   - If a server in HG 30 becomes read_only=0 (promoted by Cloud SQL or DBA):
+        #       → ProxySQL automatically moves it to HG 10 (writer) ✅
+        #   - If the current writer becomes read_only=1 (demoted):
+        #       → ProxySQL automatically moves it to HG 30 (reader) ✅
+        #   - active=1 ensures the monitor thread is running for this hostgroup pair
+        $tags{'mysql_replication_hostgroups'} = << "EOT";
+mysql_replication_hostgroups =
+(
+    { writer_hostgroup=$writer_hostgroup, reader_hostgroup=$reader_hostgroup, check_type="read_only", active=1, comment="Replication RW Split - auto failover via read_only check" }
+)
+EOT
+    }
+
+    # Generate mysql_query_rules:
+    #   rule 1 — SELECT FOR UPDATE → HG 10 (writer always, locks rows)
+    #   rule 2 — SELECT            → HG 30 (readers preferred)
+    #            writer is also in HG 30 (weight=100) so if all pure
+    #            readers go down, the writer handles reads automatically ✅
+    #   default — INSERT/UPDATE/DELETE/etc → HG 10 (via default_hostgroup)
+    # Only generated when we actually have a reader split
+    #
+    # IMPORTANT: the proxysql.conf template MUST reference [% mysql_query_rules %]
+    # instead of a hardcoded mysql_query_rules block, otherwise this tag is ignored.
+    # Also ensure rule_ids here do not conflict with any remaining rules in the template.
+    if ($has_reader_split) {
+        $tags{'mysql_query_rules'} = << "EOT";
+mysql_query_rules =
+(
+    {
+        rule_id=1,
+        active=1,
+        match_pattern="^SELECT.*FOR UPDATE",
+        destination_hostgroup=$writer_hostgroup,
+        apply=1,
+        comment="SELECT FOR UPDATE goes to writer"
+    },
+    {
+        rule_id=2,
+        active=1,
+        match_pattern="^SELECT",
+        destination_hostgroup=$reader_hostgroup,
+        apply=1,
+        comment="SELECT goes to readers — writer is also in HG $reader_hostgroup as fallback"
+    }
+)
+EOT
+    }
 
     $tags{'mysql_pf_user'} = $DB_Config->{user};
     $tags{'mysql_pf_user'} =~ s/"/\\"/g;
