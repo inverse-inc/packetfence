@@ -126,7 +126,6 @@ use pf::config qw(
 );
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_coa);
 use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);

@@ -29,7 +29,6 @@ use pf::constants;
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features
@@ -1561,7 +1560,7 @@ sub _radiusBounceMac {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
-        $response = perform_coa( $connection_info,
+        $response = $self->handleRadiusCoa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
                 'NAS-IP-Address' => $self->{'_switchIp'},

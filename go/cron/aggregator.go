@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/db"
 )
 
 type EventKey struct {
@@ -434,6 +435,9 @@ loop:
 		case pfflowsArray := <-ChanPfFlow:
 			for _, pfflows := range pfflowsArray {
 				log.LogInfof(ctx, "Received %d flows of FlowType %s", len(*pfflows.Flows), flowType(pfflows.Header.FlowType))
+				if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
+					log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
+				}
 				for _, f := range *pfflows.Flows {
 					if stmt != nil {
 						updateMacs(ctx, &f, stmt)

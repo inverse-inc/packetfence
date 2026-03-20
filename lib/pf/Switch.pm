@@ -23,6 +23,7 @@ use pf::log;
 use Try::Tiny;
 use Switch;
 use Template;
+use pf::error qw(is_success);
 
 our $VERSION = 2.10;
 
@@ -56,7 +57,7 @@ use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::error::switch;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
+use pf::util::radius qw(perform_disconnect perform_coa perform_rsso);
 use List::MoreUtils qw(any all uniq);
 use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
@@ -98,6 +99,11 @@ use pf::api::queue_cluster;
 use pf::util::wpa;
 use File::Find;
 use Digest::SHA qw(sha512_hex);
+use CHI;
+use pf::dal::switch_observability;
+use pf::dal::switch_observability_acls;
+
+our $cache_switch_observability =  CHI->new(driver => 'RawMemory', datastore => {});
 
 #
 # %TRAP_NORMALIZERS
@@ -741,24 +747,46 @@ sub _parentRoleForVlan {
 
 sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
+    my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
+    return if !defined $type;
+    my $status = pf::dal::switch_observability_acls->remove_items(
+        -where => {
+            switch_id => $self->{_id},
+            mac => $mac,
+        }
+    );
+    my $dal = pf::dal::switch_observability_acls->new({
+        switch_id => $self->{_id},
+        mac => $mac,
+        role_id => $access_list_name,
+        acl_type => $type,
+        acls => $acls,
+        enforcement_timestamp => \"NOW()",
+    });
+    $dal->upsert();
+    return $acls;
+}
+
+sub _getAccessListByName {
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
         chomp($acls) if defined $acls;
         if (defined $acls && $acls ne '') {
-            return $acls;
+            return "asset", $acls;
         }
     }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
-        return $self->{'_access_lists'}->{$access_list_name};
+        return "role", $self->{'_access_lists'}->{$access_list_name};
     }
 
-    return if !exists $ConfigRoles{$access_list_name};
+    return undef, undef if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
-    return if !exists $role->{acls};
+    return undef, undef if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 
     # Change to a check for FB ACL enabled
@@ -767,15 +795,40 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+    return "role", $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
-    return;
+    return undef, undef;
 }
 
 sub getRoleAccessListByName {
-    my ($self, $access_list_name, $mac) = @_;
+    my ($self, $access_list_name) = @_;
+    my $acls = $self->_getRoleAccessListByName($access_list_name);
+    if (defined $acls) {
+        my $status = pf::dal::switch_observability_acls->remove_items(
+            -where => {
+                switch_id => $self->{_id},
+                role_id => $access_list_name,
+                mac => "",
+            }
+        );
+        my $dal = pf::dal::switch_observability_acls->new({
+            switch_id => $self->{_id},
+            mac => "",
+            role_id => $access_list_name,
+            acl_type => 'role',
+            acls => $acls,
+            enforcement_timestamp => \"NOW()",
+        });
+        $dal->upsert();
+    }
+
+    return $acls;
+}
+
+sub _getRoleAccessListByName {
+    my ($self, $access_list_name) = @_;
     my $logger = $self->logger;
 
     return if !exists $ConfigRoles{$access_list_name};
@@ -783,13 +836,8 @@ sub getRoleAccessListByName {
     return if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 
-    # Change to a check for FB ACL enabled
-    my $fb_acl = [];
-    if( isenabled($role->{fingerbank_dynamic_access_list})) {
-        $fb_acl = $self->fingerbank_dynamic_acl($mac);
-    }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+    return $self->acl_chewer(join("\n", @$acls ), $access_list_name) if @$acls;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -2958,7 +3006,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -4562,6 +4610,88 @@ sub check_if_radius_request_psk_matches {
     );
 }
 
+my $sql_mark_as_seen = <<"SQL";
+INSERT INTO switch_observability (switch_id, visibility_timestamp)
+WITH cte AS (SELECT ? as switch_id)
+SELECT switch_id, NOW() FROM cte LEFT JOIN switch_observability USING (switch_id) WHERE visibility_timestamp IS NULL OR DATE_SUB(NOW(), INTERVAL ? MINUTE) > visibility_timestamp
+ON DUPLICATE KEY UPDATE visibility_timestamp = VALUES(visibility_timestamp);
+SQL
+
+sub mark_as_seen {
+    my ($self) = @_;
+    my $id = $self->{_id};
+    my %options = (expires_in => '1m');
+    $cache_switch_observability->compute(
+        $id,
+        \%options,
+        sub {
+            my ($status, $sth, $info) = pf::dal::switch_observability->db_execute(
+                    $sql_mark_as_seen,
+                    $id,
+                    1,
+            );
+
+            if (!is_success($status)) {
+                return undef;
+            }
+
+            if (!$sth->rows) {
+                $options{expires_in} = '30s';
+            }
+
+            return 1;
+        }
+    );
+}
+
+
+=item handleRadiusDisconnect
+
+Wrapper around perform_disconnect to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusDisconnect {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_disconnect($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item handleRadiusCoa
+
+Wrapper around perform_coa to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusCoa {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_coa($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item handleRadiusRsso
+
+Wrapper around perform_rsso to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusRsso {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_rsso($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item _handleRadiusResponse
+
+Common handler for RADIUS dynauth responses. Override in subclasses to wrap or modify the response.
+
+=cut
+
+sub _handleRadiusResponse {
+    my ($self, $response) = @_;
+    $self->mark_as_seen();
+    return $response;
+}
 
 =back
 

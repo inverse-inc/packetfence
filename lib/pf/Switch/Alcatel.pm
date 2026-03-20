@@ -48,7 +48,6 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use pf::node;
-use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -209,7 +208,7 @@ sub radiusDisconnect {
         $attributes_ref = {
             %$attributes_ref,
         };
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request: $_");

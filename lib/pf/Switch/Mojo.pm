@@ -42,7 +42,6 @@ use base ('pf::Switch');
 use pf::constants;
 use pf::constants::role qw($REJECT_ROLE);
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 use pf::radius::constants;
 use pf::locationlog;
 use Try::Tiny;
@@ -159,7 +158,7 @@ sub radiusDisconnect {
             'NAS-Identifier' => uc($locationlog->{switch_mac})."-".$locationlog->{ssid} ,
         };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}."): $_");

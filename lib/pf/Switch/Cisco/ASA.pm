@@ -44,7 +44,6 @@ use pf::web::util;
 use pf::util;
 use pf::node;
 use pf::constants;
-use pf::util::radius qw(perform_coa);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
@@ -430,7 +429,7 @@ sub radiusDisconnect {
         # to ensure the VLAN is actually changed to the isolation VLAN.
         $logger->info("Returning ACCEPT with Role: $role");
 
-        $response = perform_coa($connection_info, $attributes_ref, $vsa);
+        $response = $self->handleRadiusCoa($connection_info, $attributes_ref, $vsa);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");

@@ -118,7 +118,6 @@ use pf::config qw(
 use pf::web::util;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
@@ -550,13 +549,13 @@ sub radiusDisconnect {
                 value => "subscriber:reauthenticate-type=last",
                 }
             ];
-            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref, $vsa);
 
         }
         else {
             my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
             $connection_info->{nas_port} = $nas_port;
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;

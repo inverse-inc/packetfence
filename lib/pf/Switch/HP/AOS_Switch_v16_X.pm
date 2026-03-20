@@ -41,7 +41,6 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::constants;
 use NetAddr::IP;
 
@@ -165,20 +164,17 @@ sub returnRadiusAccessAccept {
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
-            if ($access_list) {
-                while($access_list =~ /([^\n]+)\n?/g){
-                    my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);
-                    if ($test) {
-                        push(@acls, $formated_acl);
-                        $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
-                    }
+            while ($access_list =~ /([^\n]+)\n?/g) {
+                my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);
+                if ($test) {
+                    push(@acls, $formated_acl);
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
                 }
-                $radius_reply_ref->{'HP-NAS-Filter-Rule'} = \@acls;
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
+            $radius_reply_ref->{'HP-NAS-Filter-Rule'} = \@acls;
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+        } else {
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
         }
     }
 
@@ -365,7 +361,7 @@ sub radiusDisconnect {
 
             $attributes_ref = { %$attributes_ref, 'Filter-Id' => $role, };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
+            $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
 
         } else {
             $vsa = [
@@ -375,7 +371,7 @@ sub radiusDisconnect {
                     'value'     => '12'
                 }
             ];
-            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
+            $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
         }
     } catch {
         chomp;

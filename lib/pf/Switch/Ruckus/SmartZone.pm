@@ -38,7 +38,6 @@ use pf::config qw (
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
-use pf::util::radius qw(perform_disconnect);
 use pf::log;
 use pf::util::wpa;
 use Crypt::PBKDF2;
@@ -179,7 +178,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");

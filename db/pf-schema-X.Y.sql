@@ -1652,6 +1652,29 @@ CREATE TABLE node_tls (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Create switch_observability
+--
+
+CREATE TABLE switch_observability (
+  `switch_id` varchar(255) PRIMARY KEY NOT NULL,
+  `visibility_timestamp` DATETIME default NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Create switch_observability_acls
+--
+
+CREATE TABLE switch_observability_acls (
+  `switch_id` varchar(255) NOT NULL,
+  `mac` varchar(255) NOT NULL,
+  `role_id` varchar(255) NOT NULL,
+  `acl_type` varchar(255) NOT NULL,
+  `acls` MEDIUMTEXT NOT NULL,
+  `enforcement_timestamp` DATETIME default NULL,
+  PRIMARY KEY (`switch_id`, `mac`, `role_id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
 -- Updating to current version
 --
 

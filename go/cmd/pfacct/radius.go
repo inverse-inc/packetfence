@@ -138,6 +138,11 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	timing := h.NewTiming()
 	defer timing.Send("pfacct.accounting." + rr.status.String())
 	ctx := r.Context()
+
+	if err := db.MarkSwitchAsSeen(h.Db, switchInfo.Nasname); err != nil {
+		logError(ctx, "MarkSwitchAsSeen: "+err.Error())
+	}
+
 	in_bytes := int64(rfc2866.AcctInputOctets_Get(r.Packet))
 	out_bytes := int64(rfc2866.AcctOutputOctets_Get(r.Packet))
 	giga_in_bytes := int64(rfc2869.AcctInputGigawords_Get(r.Packet))

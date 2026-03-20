@@ -29,7 +29,6 @@ use pf::config qw(
      $WIRED_MAC_AUTH
 );
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 sub description {'ArubaOS-Switch 16.x'}
 
 use pf::SwitchSupports qw(
@@ -71,17 +70,14 @@ sub returnRadiusAccessAccept {
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
-            if ($access_list) {
-                while($access_list =~ /([^\n]+)\n?/g){
-                    push(@acls, $1);
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
-                }
-                $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            while($access_list =~ /([^\n]+)\n?/g){
+                push(@acls, $1);
+                $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
             }
+            $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+        } else {
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
         }
     }
 
@@ -222,12 +218,12 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
 
         }
         else {
             $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
         }
     } catch {
         chomp;
