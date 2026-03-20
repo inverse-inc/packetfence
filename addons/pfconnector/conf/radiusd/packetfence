@@ -30,7 +30,7 @@ home_server_pool pf_acct_pool {
 }
 
 realm remote {
-auth_pool = pf_auth_pool
+	auth_pool = pf_auth_pool
 	acct_pool = pf_acct_pool
 }
 
@@ -46,14 +46,14 @@ server pf-remote {
 		update control {
 			PacketFence-Proxied-To := "%{home_server:ipaddr}"
 		}
-		if (&proxy-reply:Packet-Type == Access-Accept) {
-			%{sql_degraded:DELETE FROM radreply where username="%{Calling-Station-Id}"}
-			reply_in_db
-			%{sql_degraded:%{control:PacketFence-reply-insert}}
-		}
-		else {
-			noop
-		}
+#		if (&proxy-reply:Packet-Type == Access-Accept) {
+#			%{sql_degraded:DELETE FROM radreply where username="%{Calling-Station-Id}"}
+#			reply_in_db
+#			%{sql_degraded:%{control:PacketFence-reply-insert}}
+#		}
+#		else {
+#			noop
+#		}
 		attr_filter.packetfence_post_auth
 	}
 
@@ -102,8 +102,9 @@ server pf.degraded {
 
 		ntdomain
 
-[% authorize_eap_choice_degraded %]
-
+		eap-degraded {
+			ok = return
+		}
 		if ( !EAP-Message ) {
 			update {
 				&control:Auth-Type := Accept
@@ -133,9 +134,9 @@ server pf.degraded {
 
 		#
 		#  Allow EAP authentication.
-
-[% authentication_auth_type_degraded %]
-
+		Auth-Type eap-degraded {
+			eap-degraded
+		}
 	}
 
 
@@ -197,8 +198,8 @@ server packetfence-degraded-tunnel {
 		mschap
 		suffix
 		ntdomain
-		packetfence-multi-domain
-
+#		packetfence-multi-domain
+#
 #		if(User-Name =~ /^host\//) {
 #			update {
 #				&control:NT-Password := "%{redis_ntlm:GET NTHASH:%{%{PacketFence-Domain}:-''}:%{tolower:%{%{mschap:User-Name}:-None}}}"
@@ -233,7 +234,7 @@ server packetfence-degraded-tunnel {
 			chap
 		}
 		Auth-Type MS-CHAP {
-			packetfence     # increment the StatsD counter
+#			packetfence     # increment the StatsD counter
 			# If there is already an NT-Password populated in the control, we'll try it
 			# In the event it fails, it will fallback to an ntlm_auth call below
 #			if(&control:NT-Password && &control:NT-Password != "") {
@@ -260,7 +261,7 @@ server packetfence-degraded-tunnel {
 #			else {
 #				packetfence-mschap-authenticate
 #			}
-#		}
+		}
 
 
 	}

@@ -354,6 +354,12 @@ pfconnector_remote_install:
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/clients.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/clients.conf
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/proxy.conf.inc $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/proxy.conf.inc
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/radiusd.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/radiusd.conf
+	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/rest.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/rest
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/mschap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/mschap
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/eap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/eap
+	rm -f $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/perl
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence-pre-proxy $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-config/attr_filter/packetfence-pre-proxy
 	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled/packetfence
 
