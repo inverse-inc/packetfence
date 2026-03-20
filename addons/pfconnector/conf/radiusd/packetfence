@@ -1,0 +1,299 @@
+
+home_server pf.remote {
+        type = auth+acct
+        ipaddr = 8.7.6.5
+        src_ipaddr = 192.168.1.1
+        port = 1812
+        secret = 'password_super_secret'
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
+
+
+home_server degraded {
+	virtual_server = pf.degraded
+}
+
+#  Put all of the servers into a pool.
+home_server_pool pf_auth_pool {
+	type = fail-over
+	home_server =  pf.remote
+	home_server =  degraded
+}
+
+home_server_pool pf_acct_pool {
+	type = fail-over
+	home_server =  pf.remote
+}
+
+realm remote {
+auth_pool = pf_auth_pool
+	acct_pool = pf_acct_pool
+}
+
+
+server pf-remote {
+	pre-proxy {
+		#  Insert pre-proxy rules here
+	}
+
+	post-proxy {
+		rewrite_calling_station_id
+		rewrite_called_station_id
+		update control {
+			PacketFence-Proxied-To := "%{home_server:ipaddr}"
+		}
+		if (&proxy-reply:Packet-Type == Access-Accept) {
+			%{sql_degraded:DELETE FROM radreply where username="%{Calling-Station-Id}"}
+			reply_in_db
+			%{sql_degraded:%{control:PacketFence-reply-insert}}
+		}
+		else {
+			noop
+		}
+		attr_filter.packetfence_post_auth
+	}
+
+	authorize {
+		update control {
+			Load-Balance-Key := "%{Calling-Station-Id}"
+			Proxy-To-Realm := "remote"
+		}
+		if(!NAS-IP-Address){
+			update request {
+				NAS-IP-Address := "%{Packet-Src-IP-Address}"
+			}
+		}
+	}
+
+
+	authenticate {
+	}
+	accounting {
+		update control {
+			Proxy-To-Realm := "remote"
+		}
+		if(!NAS-IP-Address){
+			update request {
+				NAS-IP-Address := "%{Packet-Src-IP-Address}"
+			}
+		}
+	}
+
+}
+
+
+
+server pf.degraded {
+	authorize {
+		rewrite_calling_station_id
+		rewrite_called_station_id
+
+		filter_username
+
+		filter_password
+
+		preprocess
+
+		suffix
+
+		ntdomain
+
+[% authorize_eap_choice_degraded %]
+
+		if ( !EAP-Message ) {
+			update {
+				&control:Auth-Type := Accept
+			}
+		}
+		-sql_degraded
+		pap
+
+	}
+
+	authenticate {
+		Auth-Type PAP {
+			pap
+		}
+
+		Auth-Type CHAP {
+			chap
+		}
+
+		Auth-Type MS-CHAP {
+			mschap
+		}
+
+	#	Auth-Type LDAP {
+	#		ldap
+	#	}
+
+		#
+		#  Allow EAP authentication.
+
+[% authentication_auth_type_degraded %]
+
+	}
+
+
+	#
+	#  Pre-accounting.  Decide which accounting type to use.
+	#
+	preacct {
+		preprocess
+
+	}
+
+	#
+	#  Accounting.  Log the accounting data.
+	#
+	accounting {
+		if (noop) {
+			ok
+		}
+
+		attr_filter.accounting_response
+	}
+
+
+	session {
+	}
+
+
+	post-auth {
+		attr_filter.packetfence_post_auth
+		linelog
+		Post-Auth-Type REJECT {
+			attr_filter.access_reject
+			attr_filter.packetfence_post_auth
+
+			# Insert EAP-Failure message if the request was
+			# rejected by policy instead of because of an
+			# authentication failure
+			eap-degraded
+
+			#  Remove reply message if the response contains an EAP-Message
+			remove_reply_message_if_eap
+			linelog
+		}
+	}
+
+	pre-proxy {
+	}
+
+	post-proxy {
+
+		eap-degraded
+	}
+}
+
+server packetfence-degraded-tunnel {
+
+	authorize {
+		filter_username
+		mschap
+		suffix
+		ntdomain
+		packetfence-multi-domain
+
+#		if(User-Name =~ /^host\//) {
+#			update {
+#				&control:NT-Password := "%{redis_ntlm:GET NTHASH:%{%{PacketFence-Domain}:-''}:%{tolower:%{%{mschap:User-Name}:-None}}}"
+#			}
+#		}
+#		else {
+#			update {
+#				&control:NT-Password := "%{redis_ntlm:GET NTHASH:%{%{PacketFence-Domain}:-''}:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
+#			}
+#		}
+
+		update control {
+			&Proxy-To-Realm := LOCAL
+		}
+
+		rewrite_called_station_id
+
+		# Uncomment the following line to enable local PEAP authentication
+		#packetfence-degraded-auth
+#		-sql_degraded
+
+
+		pap
+	}
+
+
+	authenticate {
+		Auth-Type PAP {
+			pap
+		}
+		Auth-Type CHAP {
+			chap
+		}
+		Auth-Type MS-CHAP {
+			packetfence     # increment the StatsD counter
+			# If there is already an NT-Password populated in the control, we'll try it
+			# In the event it fails, it will fallback to an ntlm_auth call below
+#			if(&control:NT-Password && &control:NT-Password != "") {
+#				update {
+#					&control:PacketFence-NTCacheHash := 1
+#				}
+#				mschap_local {
+#					reject = 2
+#				}
+#				if (reject || fail) {
+#					packetfence-mschap-authenticate
+#					update {
+#						&control:PacketFence-NTCacheHash := 0
+#					}
+#				}
+#				update control {
+#					Cache-Status-Only = 'yes'
+#				}
+#				PacketFence-NTCacheHash
+#				if (notfound) {
+#					PacketFence-NTCacheHash
+#				}
+#			}
+#			else {
+#				packetfence-mschap-authenticate
+#			}
+#		}
+
+
+	}
+
+	session {
+		radutmp
+	}
+
+
+	post-auth {
+		update outer.session-state {
+			&MS-MPPE-Encryption-Policy !* ANY
+			&MS-MPPE-Encryption-Types !* ANY
+			&MS-MPPE-Send-Key !* ANY
+			&MS-MPPE-Recv-Key !* ANY
+			&Message-Authenticator !* ANY
+			&EAP-Message !* ANY
+			&Proxy-State !* ANY
+		}
+
+		Post-Auth-Type REJECT {
+			attr_filter.access_reject
+			update outer.session-state {
+				&Module-Failure-Message := &request:Module-Failure-Message
+			}
+		}
+	}
+
+	pre-proxy {
+	}
+
+	post-proxy {
+		eap-degraded
+	}
+
+}

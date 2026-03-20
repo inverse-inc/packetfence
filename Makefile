@@ -343,6 +343,12 @@ pfconnector_remote_install:
 	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pf-release
 	# raddb
 	cp -rv $(SRC_ROOT_DIR)/raddb $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/auth.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/auth.conf
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/clients.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/clients.conf
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/proxy.conf.inc $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/proxy.conf.inc
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/radiusd.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/radiusd.conf
+	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled/packetfence
 
 .PHONY: ntlm_auth_api_remote_install
 ntlm_auth_api_remote_install:
