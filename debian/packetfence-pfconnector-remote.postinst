@@ -26,7 +26,9 @@ case "$1" in
     if ! grep -q "containers-gateway.internal" /etc/hosts; then
         echo "127.0.0.1 containers-gateway.internal" >> /etc/hosts
     fi
-    make -C /usr/local/pfconnector-remote/raddb/certs
+    if [ ! -f /usr/local/pfconnector-remote/raddb/certs/server.pem ]; then
+        make -C /usr/local/pfconnector-remote/raddb/certs
+    fi
     cp /usr/local/pfconnector-remote/raddb/sites-available/status /usr/local/pfconnector-remote/raddb/sites-enabled/status
     /usr/local/pfconnector-remote/upgrade/remove-unpackaged-pfconnector.sh
     # get containers image and tag them locally
