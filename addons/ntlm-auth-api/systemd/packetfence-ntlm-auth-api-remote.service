@@ -1,0 +1,20 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence NTLM auth Backend API Controller Remote
+PartOf=packetfence-pfconnector-remote.service
+
+[Service]
+Type=forking
+TimeoutStopSec=60
+NotifyAccess=all
+LimitNOFILE=8192
+ExecStartPre=/usr/local/ntlm-auth-api/bin/pfconnector-remote-load.sh
+EnvironmentFile=/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env
+ExecStart=/usr/local/ntlm-auth-api/sbin/ntlm-auth-api-docker-wrapper start
+ExecStop=/usr/local/ntlm-auth-api/sbin/ntlm-auth-api-docker-wrapper stop
+Restart=on-failure
+PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-auth-api.pid
+
+[Install]
+WantedBy=multi-user.target
+

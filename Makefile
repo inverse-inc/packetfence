@@ -329,6 +329,58 @@ pfconnector_remote_install:
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
 
+.PHONY: ntlm_auth_api_remote_install
+ntlm_auth_api_remote_install:
+	# logrotate config is installed through dh_installlogrotate
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_LOGDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_BINDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_UPGRADEDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf/ntlm-auth-api.d
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/run
+
+	@echo "install $(SRC_NTLM_AUTH_APIDIR) files"
+	cd $(SRC_NTLM_AUTH_APIDIR) && for file in $$(find . -type f); do \
+		install -v -m 0644 $$file -D $(DESTDIR)$(NTLM_AUTH_API_BINDIR)/$$file ; \
+	done
+
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-domain $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-domain
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-monitor $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-monitor
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-docker-wrapper $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-docker-wrapper
+
+	install -v -D -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api-domain-remote@.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain-remote@.service
+	install -v -D -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api-remote.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-remote.service
+	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/systemd-service
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/containers/manage-images.sh $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/manage-images.sh
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/ntlm-auth-api/Dockerfile $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/ntlm-auth-api/Dockerfile
+	install -v -d -m0755 $(DESTDIR)/etc/docker
+	install -v -m 0600 $(SRC_ROOT_DIR)/containers/daemon.json $(DESTDIR)/etc/docker/daemon.json
+	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)$(NTLM_AUTH_API_PREFIX)/config.mk
+
+	install -v -D -m 0644 ${SRC_CONFDIR}/log.conf.d/ntlm-auth-api.conf.example $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/log.conf.d/ntlm-auth-api.conf
+
+	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/build_id
+	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/pf-release
+	make -C $(SRC_GODIR) sdnotify-proxy
+	install -v -m 0755 $(SRC_GODIR)/sdnotify-proxy $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/sdnotify-proxy
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/pfconnector-remote-load.sh $(DESTDIR)$(NTLM_AUTH_API_BINDIR)/pfconnector-remote-load.sh
+
+	TMPDIR=$(shell mktemp -d)
+	touch $(TMPDIR)/ntlm_auth_api.env
+	install -v -m 0600 $(TMPDIR)/ntlm_auth_api.env $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/ntlm_auth_api.env
+
+.PHONY: ntlm_auth_join_remote_install
+ntlm_auth_join_remote_install:
+	# ntlm-auth-join shares the same prefix as ntlm-auth-api, so directories and shared files
+	# are installed by ntlm_auth_api_remote_install (dependency: packetfence-ntlm-auth-api-remote)
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-join-remote-docker-wrapper $(DESTDIR)$(NTLM_AUTH_JOIN_SBINDIR)/ntlm-join-remote-docker-wrapper
+	install -v -D -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-join-remote.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-join-remote.service
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/ntlm-join-remote/Dockerfile $(DESTDIR)$(NTLM_AUTH_JOIN_CONTAINERSDIR)/ntlm-join-remote/Dockerfile
+
 # install -D will automatically create target directories
 # SRC_RELATIVE_CILIBDIR is used to only get relative paths from PF source tree
 # $$file in destination of install command contain relative path

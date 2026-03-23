@@ -210,6 +210,20 @@ Depends: fingerbank-collector-remote (>= 1.4.1), freeradius-common
 Description: PacketFence Connector
  PacketFence Connector files. This package contains all files related to PacketFence Connector.
 
+Package: packetfence-ntlm-auth-api-remote
+Architecture: all
+Depends: packetfence-pfconnector-remote,
+# Docker runtime
+ docker-ce, docker-ce-cli, containerd.io, jq
+Description: PacketFence NTLM Auth API remote
+ PacketFence NTLM Auth API files. This package contains all files related to PacketFence NTLM Auth API remote.
+
+Package: packetfence-ntlm-auth-join-remote
+Architecture: all
+Depends: packetfence-ntlm-auth-api-remote
+Description: PacketFence NTLM Auth Join remote
+ PacketFence NTLM Auth Join service. This package provides the ntlm-join-remote service for managing AD computer accounts remotely.
+
 Package: packetfence-ci-lib
 Architecture: all
 Description: CI librairies used by PacketFence

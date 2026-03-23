@@ -676,11 +676,12 @@ pfdeb_based_dev:
           - "pfldapexplorer"
           - "kafka"
           - "ntlm-auth-api"
+          - "ntlm-join-remote"
           - "netdata"
           - "git-sync"
           - "github-apps-token"
-          - "caddy-l4"
           - "pfstats"
+          - "caddy-l4"
           - "pfdns-connector"
 
 img_dev:
@@ -777,6 +778,7 @@ pfdeb_based_br_maint:
           - "pfldapexplorer"
           - "kafka"
           - "ntlm-auth-api"
+          - "ntlm-join-remote"
           - "netdata"
           - "git-sync"
           - "github-apps-token"
@@ -878,6 +880,7 @@ pfdeb_based_cloud_nac:
           - "pfldapexplorer"
           - "kafka"
           - "ntlm-auth-api"
+          - "ntlm-join-remote"
           - "netdata"
           - "pfstats"
           - "pfdns-connector"
@@ -976,6 +979,7 @@ pfdeb_based_rel:
           - "pfldapexplorer"
           - "kafka"
           - "ntlm-auth-api"
+          - "ntlm-join-remote"
           - "netdata"
           - "pfdns-connector"
 

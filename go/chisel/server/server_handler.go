@@ -21,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/cluster"
+	connector "github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
@@ -89,6 +90,12 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-fingerbank-collector-nba-conf":
 		s.handleRemoteFingerbankCollectorNbaConf(w, r)
+		return
+	case apiPrefix + "/remote-ntlm-auth-api-env":
+		s.handleRemoteNtlmAuthAPIEnv(w, r)
+		return
+	case apiPrefix + "/remote-ntlm-auth-api-db":
+		s.handleRemoteNtlmAuthAPIDB(w, r)
 		return
 	}
 	//missing :O
@@ -183,9 +190,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	}
 
 	localSecret := pfconfigdriver.LocalSecret{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret); err != nil {
+		l.Infof("Failed to fetch local secret from pfconfig, continuing without it: %s", err)
+	}
 	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
+		l.Infof("Failed to fetch pfconnector static connections from pfconfig, continuing without them: %s", err)
+	}
 	additionalRemotes := chshare.Remotes{}
 	if remotes, found := pfconnectorStaticConnections.Element[user.Name]; found {
 		for _, remoteDef := range remotes {
@@ -382,7 +393,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		}
 		// If we're here, then we failed multiple times at creating the remote. There must be something terribly wrong
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to create dynreverse remote")})
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: "Unable to create dynreverse remote"})
 		return
 	} else {
 		w.WriteHeader(http.StatusNotFound)
@@ -446,6 +457,8 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
 			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
 			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
+			fmt.Sprintf("containers-gateway.internal:3306:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_3306", fmt.Sprintf("%s:3306", managementIP))),
+			fmt.Sprintf("containers-gateway.internal:6379:%s", sharedutils.EnvOrDefault("REDIS_CACHE_HOST_PORT", fmt.Sprintf("%s:6379", "127.0.0.1"))),
 		}})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
@@ -515,15 +528,110 @@ func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, 
 	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
 }
 
+func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("CONNECTOR_ID")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing CONNECTOR_ID query parameter"})
+		return
+	}
+	domains := pfconfigdriver.Domains{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &domains); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch domains from pfconfig: %s", err)})
+		return
+	}
+	Connectors := connector.NewConnectorsContainer(req.Context())
+	var Domains map[string]pfconfigdriver.Domain
+	Domains = make(map[string]pfconfigdriver.Domain)
+	for domain, Elements := range domains.Element {
+		ServerIp := Elements.AdServer
+
+		Connector := Connectors.ForIP(req.Context(), net.ParseIP(ServerIp))
+		if sharedutils.IsEnabled(Elements.UseConnector) && Connector.PfconfigHashNS == connectorId {
+			Domains[domain] = Elements
+		}
+	}
+	jsonData, err := json.Marshal(Domains)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Error while marshalling domains: %s", err)})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Request) {
+	type DatabaseConfig struct {
+		Host       string `json:"DB_HOST"`
+		Port       string `json:"DB_PORT"`
+		User       string `json:"DB_USER"`
+		Password   string `json:"DB_PASS"`
+		Name       string `json:"DB"`
+		UnixSocket string `json:"DB_UNIX_SOCKET"`
+	}
+
+	type CacheConfig struct {
+		Host string `json:"CACHE_HOST"`
+		Port string `json:"CACHE_PORT"`
+	}
+
+	type AppConfig struct {
+		DB    DatabaseConfig `json:"DB"`
+		Cache CacheConfig    `json:"CACHE"`
+	}
+
+	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](req.Context())
+
+	appConfig := AppConfig{
+		DB: DatabaseConfig{
+			Host:       "containers-gateway.internal",
+			Port:       "3306",
+			User:       dbConfig.User,
+			Password:   dbConfig.Pass.String(),
+			Name:       dbConfig.Db,
+			UnixSocket: "",
+		},
+		Cache: CacheConfig{
+			Host: "containers-gateway.internal",
+			Port: "6379",
+		},
+	}
+	jsonData, err := json.Marshal(appConfig)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Error while marshalling appConfig: %s", err)})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+
+}
+
 func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {
 	fingerbankSettings := pfconfigdriver.FingerbankSettings{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &fingerbankSettings)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &fingerbankSettings); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch fingerbank settings from pfconfig: %s", err)})
+		return
+	}
 
 	webservices := pfconfigdriver.PfConfWebservices{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch webservices config from pfconfig: %s", err)})
+		return
+	}
 
 	connectors := pfconfigdriver.Connectors{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors)
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err)})
+		return
+	}
 
 	connectorId := req.URL.Query().Get("CONNECTOR_ID")
 

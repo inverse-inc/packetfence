@@ -1,0 +1,17 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence NTLM Auth join remote
+PartOf=packetfence-pfconnector-remote.service
+
+[Service]
+Type=forking
+TimeoutStopSec=60
+NotifyAccess=all
+LimitNOFILE=8192
+ExecStart=/usr/local/ntlm-auth-api/sbin/ntlm-join-remote-docker-wrapper start
+ExecStop=/usr/local/ntlm-auth-api/sbin/ntlm-join-remote-docker-wrapper stop
+Restart=on-failure
+PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-join-remote.pid
+
+[Install]
+WantedBy=multi-user.target

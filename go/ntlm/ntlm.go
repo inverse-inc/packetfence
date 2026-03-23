@@ -6,23 +6,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-func GetDomainConfig(ctx context.Context) (pfconfigdriver.Domain, error) {
-	var domain pfconfigdriver.Domain
+func GetDomainConfig(ctx context.Context) (pfconfigdriver.ResourceDomains, error) {
+	var domain pfconfigdriver.ResourceDomains
 	err := pfconfigdriver.FetchDecodeSocket(ctx, &domain)
 	if err != nil {
-		return domain, nil
+		return domain, err
 	}
-	return domain, err
+	return domain, nil
 }
 
-func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool, error) {
-	url := "http://containers-gateway.internal:" + backendPort + "/ntlm/connect"
+func CheckMachineAccountPassword(ctx context.Context, backendHostPort string) (bool, error) {
+	url := "http://" + backendHostPort + "/ntlm/connect"
 
 	client := &http.Client{
 		Timeout: 16 * time.Second,
@@ -34,7 +35,7 @@ func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool,
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, err
 	}
@@ -44,8 +45,8 @@ func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool,
 	return true, nil
 }
 
-func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort string, password string) (bool, error) {
-	url := "http://containers-gateway.internal:" + backendPort + "/ntlm/connect"
+func CheckMachineAccountWithGivenPassword(ctx context.Context, backendHostPort string, password string) (bool, error) {
+	url := "http://" + backendHostPort + "/ntlm/connect"
 
 	client := &http.Client{
 		Timeout: 16 * time.Second,
@@ -64,7 +65,7 @@ func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort strin
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, err
 	}
@@ -74,8 +75,8 @@ func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort strin
 	return true, nil
 }
 
-func ReportMSEvent(ctx context.Context, backendPort string, jsonData any) error {
-	url := "http://containers-gateway.internal:" + backendPort + "/event/report"
+func ReportMSEvent(ctx context.Context, backendHostPort string, jsonData any) error {
+	url := "http://" + backendHostPort + "/event/report"
 
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -91,7 +92,7 @@ func ReportMSEvent(ctx context.Context, backendPort string, jsonData any) error 
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
 	}

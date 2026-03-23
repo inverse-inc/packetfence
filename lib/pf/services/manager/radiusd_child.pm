@@ -1598,7 +1598,7 @@ our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
         local $Data::Dumper::Terse = 0;
         local $Data::Dumper::Indent = 2;
         $content .= Data::Dumper->Dump(
-            [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
+            [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomains],
             ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
         );
     }

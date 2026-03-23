@@ -24,6 +24,8 @@ use pf::constants::domain qw($SAMBA_CONF_PATH);
 use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
 use File::Slurp;
+use HTTP::Tiny;
+use JSON;
 
 # This is to create the templates for the domain info
 our $TT_OPTIONS = { ABSOLUTE => 1 };
@@ -46,7 +48,7 @@ sub run {
     return ($code, $result);
 }
 
-=head2 test_join
+=head2 add_computer
 
 Executes the command in the OS to test the domain join
 
@@ -79,7 +81,7 @@ sub add_computer {
         $method = "SAMR"
     }
 
-    $computer_name = $computer_name . "\$";
+    $computer_name .= "\$" unless $computer_name =~ /\$$/;
     my $domain_auth = "$dns_name/$bind_dn:$bind_pass";
     my $baseDN = generate_base_dn($dns_name);
     my $computer_group = generate_computer_group($dns_name, $ou);
@@ -232,6 +234,147 @@ sub generate_computer_group {
 
 
 
+
+=head2 add_computer_via_api
+
+Calls the ntlm-join-remote API to add/delete/set-password on a computer account
+instead of running the local impacket binary.
+
+=cut
+
+sub add_computer_via_api {
+    my ($api_host, $api_port, $option, @args) = @_;
+    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, $ssl_options) = @args;
+    $ssl_options //= {};
+
+    if (!defined($ou)) {
+        $ou = "";
+    }
+
+    # Determine the API endpoint based on $option
+    my $endpoint;
+    if ($option =~ /^\s+$/) {
+        $endpoint = "/api/v1/computer/add";
+    }
+    elsif ($option eq "-delete") {
+        $endpoint = "/api/v1/computer/delete";
+    }
+    elsif ($option eq "-no-add") {
+        $endpoint = "/api/v1/computer/set-password";
+    }
+    else {
+        $endpoint = "/api/v1/computer/run";
+    }
+
+    # Compute method, baseDN, computer_group same as add_computer
+    $ou =~ s/^\s+|\s+$//g;
+    $ou =~ s/^['"]|['"]$//g;
+
+    my $method = "LDAPS";
+    if (!$force_ldap && (uc($ou) eq "COMPUTERS" || $ou eq "")) {
+        $method = "SAMR";
+    }
+
+    $computer_name .= "\$" unless $computer_name =~ /\$$/;
+    my $account = "$dns_name/$bind_dn:$bind_pass";
+    my $baseDN = generate_base_dn($dns_name);
+    my $computer_group = generate_computer_group($dns_name, $ou);
+
+    # Build the JSON request body matching the Go AddComputerRequest struct
+    my %request_body = (
+        account         => $account,
+        computer_name   => $computer_name,
+        computer_pass   => $computer_password,
+        method          => $method,
+        dc_host         => $domain_controller_host,
+        dc_ip           => $domain_controller_ip,
+        base_dn         => $baseDN,
+        computer_group  => $computer_group,
+    );
+
+    # Optional fields
+    $request_body{domain_netbios} = $workgroup if defined $workgroup && length($workgroup);
+    $request_body{start_tls} = JSON::true if ($ssl_options->{encryption} // "") eq "TLS";
+    $request_body{client_cert} = $ssl_options->{client_cert_file} if defined $ssl_options->{client_cert_file};
+    $request_body{client_key} = $ssl_options->{client_key_file} if defined $ssl_options->{client_key_file};
+    $request_body{ca_cert} = $ssl_options->{ca_file} if defined $ssl_options->{ca_file};
+    $request_body{channel_binding} = JSON::true if $ssl_options->{channel_binding};
+
+    my $json_body = JSON::encode_json(\%request_body);
+    my $url = "http://${api_host}:${api_port}${endpoint}";
+
+    get_logger->info("Calling ntlm-join-remote API: POST $endpoint on ${api_host}:${api_port}");
+
+    my $http = HTTP::Tiny->new(timeout => 120);
+    my $response = $http->post($url, {
+        content => $json_body,
+        headers => { 'Content-Type' => 'application/json' },
+    });
+
+    if (!$response->{success}) {
+        my $error_msg = "API call to ntlm-join-remote failed: HTTP $response->{status} $response->{reason}";
+        if ($response->{content}) {
+            eval {
+                my $resp_data = JSON::decode_json($response->{content});
+                if ($resp_data->{message}) {
+                    $error_msg = $resp_data->{message};
+                    $error_msg .= ": $resp_data->{error}" if $resp_data->{error};
+                }
+            };
+        }
+        get_logger->error($error_msg);
+        return $FALSE, $error_msg;
+    }
+
+    my $resp_data;
+    eval {
+        $resp_data = JSON::decode_json($response->{content});
+    };
+    if ($@) {
+        return $FALSE, "Failed to parse API response: $@";
+    }
+
+    if ($resp_data->{success}) {
+        # Parse the output the same way add_computer does
+        my $output = $resp_data->{output} // $resp_data->{message};
+        $output =~ s/Impacket v.*Corporation//g;
+        $output =~ s/^\s+|\s+$//g;
+
+        if ($output =~ /\[\*\] (.+)$/) {
+            return $TRUE, $1;
+        }
+        return $TRUE, $output;
+    }
+
+    my $error_msg = $resp_data->{message} // "Unknown error";
+    # Parse impacket-style error from output if present
+    my $output = $resp_data->{output} // "";
+    $output =~ s/Impacket v.*Corporation//g;
+    $output =~ s/^\s+|\s+$//g;
+    if ($output =~ /\[\-\] (.+)$/) {
+        $error_msg = $1;
+    }
+    elsif (length($output)) {
+        $error_msg = $output;
+    }
+
+    return $FALSE, $error_msg;
+}
+
+=head2 dispatch_add_computer
+
+Wrapper that dispatches to add_computer (local) or add_computer_via_api (remote)
+based on the use_connector flag.
+
+=cut
+
+sub dispatch_add_computer {
+    my ($use_connector, $api_host, $api_port, $option, @args) = @_;
+    if ($use_connector) {
+        return add_computer_via_api($api_host, $api_port, $option, @args);
+    }
+    return add_computer($option, @args);
+}
 
 =head1 AUTHOR
 

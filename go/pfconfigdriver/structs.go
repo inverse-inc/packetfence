@@ -834,12 +834,46 @@ type NtlmRedisCachedDomains struct {
 	Element                 []string
 }
 
-type Domain struct {
+type Domains struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Domain"`
 	PfconfigDecodeInElement string `val:"yes"`
-	Element                 map[string]interface{}
+	Element                 map[string]Domain
+}
+
+type ResourceDomains struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::domains"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]Domain
+}
+
+type Domain struct {
+	NtKeyCacheEnabled                   string `json:"nt_key_cache_enabled"`
+	AdaccountLockoutDuration            string `json:"ad_account_lockout_duration"`
+	MachineAccountPassword              string `json:"machine_account_password"`
+	Status                              string `json:"status"`
+	NtKeyCacheExpire                    string `json:"nt_key_cache_expire"`
+	MaxAllowedPasswordAttemptsPerDevice string `json:"max_allowed_password_attempts_per_device"`
+	Workgroup                           string `json:"workgroup"`
+	AdditionalMachineAccounts           string `json:"additional_machine_accounts"`
+	StickyDc                            string `json:"sticky_dc"`
+	AdFqdn                              string `json:"ad_fqdn"`
+	DnsName                             string `json:"dns_name"`
+	PasswordIsNtHash                    string `json:"password_is_nt_hash"`
+	AdServer                            string `json:"ad_server"`
+	Ou                                  string `json:"ou"`
+	AdOldPasswordAllowedPeriod          string `json:"ad_old_password_allowed_period"`
+	NtlmAuthHost                        string `json:"ntlm_auth_host"`
+	DnsServers                          string `json:"dns_servers"`
+	NtlmAuthPort                        string `json:"ntlm_auth_port"`
+	NtlmCacheExpiry                     string `json:"ntlm_cache_expiry"`
+	ServerName                          string `json:"server_name"`
+	AdResetAccountLockoutCounterAfter   string `json:"ad_reset_account_lockout_counter_after"`
+	AdAccountLockoutThreshold           string `json:"ad_account_lockout_threshold"`
+	UseConnector                        string `json:"use_connector"`
 }
 
 type FleetDM struct {

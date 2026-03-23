@@ -14,7 +14,14 @@ use strict;
 use warnings;
 use base 'pfconfig::namespaces::resource';
 use NetAddr::IP;
-use pf::util qw(listify);
+use pf::util qw(listify isenabled);
+
+# Port offset added when using a connector for NTLM auth
+use constant CONNECTOR_PORT_OFFSET => 100;
+
+# Port offset and target port for the ntlm-join-remote service
+use constant JOIN_REMOTE_PORT_OFFSET => 200;
+use constant JOIN_REMOTE_TARGET_PORT => 23000;
 
 sub init {
     my ($self) = @_;
@@ -26,6 +33,10 @@ sub init {
       $self->{cache}->get_cache('resource::connectors_ordered');
     $self->{_dns_connectors_config} =
       $self->{cache}->get_cache('config::DnsConnectors');
+    $self->{_domain_config} =
+      $self->{cache}->get_cache('config::Domain');
+    $self->{_pf_config} =
+      $self->{cache}->get_cache('config::Pf');
 }
 
 sub find_connector {
@@ -47,6 +58,8 @@ sub find_connector {
 sub build {
     my ($self) = @_;
     my %hash;
+    my $dns_host = $self->{_pf_config}{'services_host'}{'pfdns_connector_service_host'} // '100.64.0.1';
+
     while ( my ( $id, $data ) =
         each %{ $self->{_authentication_config}{authentication_config_hash} } )
     {
@@ -62,13 +75,41 @@ sub build {
         }
     }
 
-    while ( my ( $id, $data ) = each %{ $self->{_dns_connectors_config} } ) {
+    for my $id ( keys %{ $self->{_dns_connectors_config} } ) {
+        my $data = $self->{_dns_connectors_config}{$id};
         my $port = $data->{'pfconnector_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
-        my $r         = "${port}:$data->{ip}:$data->{port}/udp";
+        my $r         = "${dns_host}:${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
-        $r         = "${port}:$data->{ip}:$data->{port}";
+        $r         = "${dns_host}:${port}:$data->{ip}:$data->{port}";
+        push @{ $hash{$connector} }, $r;
+    }
+    for my $id ( keys %{ $self->{_domain_config} } ) {
+        my $data = $self->{_domain_config}{$id};
+        next unless isenabled($data->{'use_connector'});
+        my $port = $data->{'ntlm_auth_port'};
+        next unless defined $port;
+        $port += CONNECTOR_PORT_OFFSET;
+        my $connector = $self->find_connector( $data->{ad_server} );
+        my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
+        push @{ $hash{$connector} }, $r;
+    }
+    # Join-remote tunnels to reach ntlm-join-remote on port 23000
+    # Deduplicate by connector + local_port to avoid duplicate tunnels
+    # while still allowing multiple domains behind the same connector
+    my %join_remote_seen;
+    for my $id ( keys %{ $self->{_domain_config} } ) {
+        my $data = $self->{_domain_config}{$id};
+        next unless isenabled($data->{'use_connector'});
+        my $port = $data->{'ntlm_auth_port'};
+        next unless defined $port;
+        my $connector = $self->find_connector( $data->{ad_server} );
+        my $local_port = $port + JOIN_REMOTE_PORT_OFFSET;
+        my $key = "${connector}:${local_port}";
+        next if $join_remote_seen{$key};
+        $join_remote_seen{$key} = 1;
+        my $r = "${local_port}:127.0.0.1:" . JOIN_REMOTE_TARGET_PORT . "/tcp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;
