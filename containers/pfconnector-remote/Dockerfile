@@ -27,9 +27,13 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     rm -f /tmp/s6-overlay-*.tar.xz
 
 # Install packages needed by radiusd-auth and fingerbank-collector
-RUN apt-get update && \
+# fingerbank-collector-remote postinst tries to talk to systemd, so we
+# temporarily provide a no-op systemctl to let the install succeed.
+RUN ln -sf /bin/true /usr/local/bin/systemctl && \
+    apt-get update && \
     apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    rm -f /usr/local/bin/systemctl
 
 # Copy pfconnector binary from build stage
 COPY --from=go-builder /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnector
