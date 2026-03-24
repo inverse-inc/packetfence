@@ -145,45 +145,53 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 		return
 	}
 
+	defer stmt.Close()
 	IPSET.ListALL, _ = listAll()
 	for {
-		rows, err := stmt.QueryContext(ctx, macCursor)
-		if err != nil {
-			logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
-			return
-		}
-		defer rows.Close()
-		var (
-			ipStr  string
-			roleId string
-		)
-		count := 0
-		for rows.Next() {
-			count++
-			err := rows.Scan(&macCursor, &ipStr, &roleId)
+		count, err := func() (int, error) {
+			rows, err := stmt.QueryContext(ctx, macCursor)
 			if err != nil {
-				logger.Error(err.Error())
-				return
+				return 0, err
 			}
-			mac, _ := mac.NewFromString(macCursor)
-			for k, v := range IPSET.Network {
-				ip := net.ParseIP(ipStr)
-				if k.Contains(ip) {
-					switch v {
-					case "inlinel2":
-						IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", roleId)
-						IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), roleId)
-					case "inlinel3":
-						IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", roleId)
-						IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), roleId)
+			defer rows.Close()
+			var (
+				ipStr  string
+				roleId string
+			)
+			count := 0
+			for rows.Next() {
+				count++
+				err := rows.Scan(&macCursor, &ipStr, &roleId)
+				if err != nil {
+					logger.Error(err.Error())
+					return 0, err
+				}
+				mac, _ := mac.NewFromString(macCursor)
+				for k, v := range IPSET.Network {
+					ip := net.ParseIP(ipStr)
+					if k.Contains(ip) {
+						switch v {
+						case "inlinel2":
+							IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", roleId)
+							IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), roleId)
+						case "inlinel3":
+							IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", roleId)
+							IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), roleId)
+						}
+						break
 					}
-					break
 				}
 			}
-		}
 
-		if err = rows.Err(); err != nil {
-			logger.Error("Error looping through rows:" + err.Error())
+			if err = rows.Err(); err != nil {
+				return count, err
+			}
+
+			return count, nil
+		}()
+
+		if err != nil {
+			logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
 			return
 		}
 
