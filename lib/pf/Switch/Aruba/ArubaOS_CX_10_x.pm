@@ -136,7 +136,7 @@ sub returnRadiusAccessAccept {
     my @acls = defined($radius_reply_ref->{'Aruba-NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'Aruba-NAS-Filter-Rule'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
             if ($access_list) {
                 while($access_list =~ /([^\n]+)\n?/g){
                     my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);

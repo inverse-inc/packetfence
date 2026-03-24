@@ -253,7 +253,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Arista-AVPair'}) ? @{$radius_reply_ref->{'Arista-AVPair'}} : ();
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
             if ($access_list) {
                 my $acl_num = 101;
                 my @acls;
