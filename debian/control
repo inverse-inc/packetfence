@@ -207,7 +207,7 @@ Description: GPG keys provided by PacketFence project
 Package: packetfence-pfconnector-remote
 Architecture: all
 Depends: fingerbank-collector-remote (>= 1.4.1), freeradius-common,
- docker-ce, docker-ce-cli, containerd.io, jq, make
+ docker-ce, docker-ce-cli, containerd.io, iproute2, jq, make
 Description: PacketFence Connector
  PacketFence Connector files. This package contains all files related to PacketFence Connector.
 
