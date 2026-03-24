@@ -59,8 +59,8 @@ SRC_FULL_IMPORTDIR = $(SRC_ADDONSDIR)/full-import
 SRC_FULL_UPGRADEDIR = $(SRC_ADDONSDIR)/full-upgrade
 SRC_FUNCTIONSDIR = $(SRC_ADDONSDIR)/functions
 SRC_PFCONNECTORDIR = $(SRC_ADDONSDIR)/pfconnector
-SRC_DOCKERDIR = $(SRC_ROOTDIR)/docker
-SRC_NTLM_AUTH_APIDIR = $(SRC_ROOTDIR)/bin/pyntlm_auth
+SRC_DOCKERDIR = $(SRC_ROOT_DIR)/docker
+SRC_NTLM_AUTH_APIDIR = $(SRC_ROOT_DIR)/bin/pyntlm_auth
 SRC_NTLM_AUTH_API_ADDONSDIR = $(SRC_ADDONSDIR)/ntlm-auth-api
 
 # specific directory to build website artifacts
