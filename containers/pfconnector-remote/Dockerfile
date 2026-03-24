@@ -27,15 +27,18 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     rm -f /tmp/s6-overlay-*.tar.xz
 
 # Install packages needed by radiusd-auth and fingerbank-collector
-# fingerbank-collector-remote postinst (via dh_systemd_enable) tries to talk
-# to systemd which is unavailable during docker build. Use policy-rc.d to
-# prevent any service actions during package installation.
-RUN printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d && \
+# fingerbank-collector-remote postinst (via dh_systemd_enable) calls systemctl
+# directly, which fails without systemd. Replace systemctl with a no-op during
+# install, then restore it.
+RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.real; fi && \
+    ln -sf /bin/true /usr/bin/systemctl && \
+    printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d && \
     chmod +x /usr/sbin/policy-rc.d && \
     apt-get update && \
     apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    rm -f /usr/sbin/policy-rc.d
+    rm -f /usr/sbin/policy-rc.d /usr/bin/systemctl && \
+    if [ -f /usr/bin/systemctl.real ]; then mv /usr/bin/systemctl.real /usr/bin/systemctl; fi
 
 # Copy pfconnector binary from build stage
 COPY --from=go-builder /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnector
