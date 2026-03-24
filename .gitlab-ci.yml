@@ -726,6 +726,7 @@ rad_extend_dev:
           - "radiusd-cli"
           - "radiusd-load-balancer"
           - "radiusd-eduroam"
+          - "pfconnector-remote"
 
 # branches and maintenance
 kaniko_br_maint:
@@ -828,6 +829,7 @@ rad_extend_br_maint:
           - "radiusd-cli"
           - "radiusd-load-balancer"
           - "radiusd-eduroam"
+          - "pfconnector-remote"
 
 # cloud nac
 kaniko_cloud_nac:
@@ -927,6 +929,7 @@ rad_extend_cloud_nac:
           - "radiusd-cli"
           - "radiusd-load-balancer"
           - "radiusd-eduroam"
+          - "pfconnector-remote"
 
 # release
 kaniko_rel:
@@ -1025,6 +1028,7 @@ rad_extend_rel:
           - "radiusd-cli"
           - "radiusd-load-balancer"
           - "radiusd-eduroam"
+          - "pfconnector-remote"
 
 ########################################
 # BUILD_IMG JOBS

@@ -318,20 +318,16 @@ test_install:
 pfconnector_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_BINDIR)
-	# FreeRADIUS
-	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/radiusd-auth/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/radiusd-auth/Dockerfile
-	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/radiusd-auth-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/radiusd-auth-docker-wrapper
-	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-radiusd-auth.service $(DESTDIR)/etc/systemd/system/packetfence-radiusd-auth.service
-	# pfconnector-remote
-	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-docker-wrapper
-	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-client/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector/Dockerfile
+	# pfconnector-remote combined container
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-remote/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-remote/Dockerfile
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-combined-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-combined-docker-wrapper
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote-combined.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote-combined.service
 	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/containers/systemd-service $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/systemd-service
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/containers/manage-images.sh $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/manage-images.sh
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
 	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
-	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/sync-radius-certs.sh $(DESTDIR)$(PFCONNECTOR_BINDIR)/sync-radius-certs.sh
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/configure-raddb.sh $(DESTDIR)$(PFCONNECTOR_BINDIR)/configure-raddb.sh
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/remove-unpackaged-pfconnector.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/remove-unpackaged-pfconnector.sh

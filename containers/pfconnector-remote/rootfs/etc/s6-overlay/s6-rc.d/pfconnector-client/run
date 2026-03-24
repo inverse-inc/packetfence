@@ -1,0 +1,2 @@
+#!/command/execlineb -P
+/usr/local/pf/sbin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226
