@@ -102,7 +102,7 @@ for my $g (@groups) {
             WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x
             PushACLs ExternalPortal MABFloatingDevices WebFormRegistration
             AccessListBasedEnforcement RadiusVoip FloatingDevice
-            Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement
+            Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement IPFIX sFlow Netflow
         )) {
             next unless $supportsLookup{$supportedItem};
  
@@ -147,7 +147,11 @@ tie my %list_of_types_trans, 'Tie::IxHash',
     'Cdp'                        => 'CDP',
     'Lldp'                       => 'LLDP',
     'RoamingAccounting'          => 'Roaming Accounting',
-    'SaveConfig'                 => 'Save Config';
+    'SaveConfig'                 => 'Save Config',
+    'IPFIX'                      => 'IPFIX',
+    'sFlow'                      => 'sFlow',
+    'Netflow'                    => 'Netflow',
+    ;
 
 my @list_of_wlc = qw(
     Bluesocket Cambium Cisco::WLC Cisco::WiSM
