@@ -248,7 +248,7 @@ pre samp {
   display: block;
   padding: 0.3rem 0.5rem;
   /* Increase font size for navigation links */
-  font-size: 1rem; 
+  font-size: .8rem; 
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;

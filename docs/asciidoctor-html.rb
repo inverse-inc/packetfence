@@ -452,7 +452,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       result << child_toc_level
       result << '</li>'
     else
-      result << %(<li class="#{sections[0].level == 1 ? 'mb-3" style="text-indent: -1rem' : 'list-unstyled'}"><a href="##{section.id}">#{stitle}</a></li>)
+      result << %(<li class="#{sections[0].level == 1 ? 'mb-3"' : 'list-unstyled'}"><a href="##{section.id}">#{stitle}</a></li>)
     end
   end
   result << '</ul>'
