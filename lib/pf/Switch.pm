@@ -746,7 +746,7 @@ sub _parentRoleForVlan {
 }
 
 sub getAccessListByName {
-    my ($self, $access_list_name, $mac) = @_;
+    my ($self, $access_list_name, $mac, $port) = @_;
     my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
     return if !defined $type;
     my $status = pf::dal::switch_observability_acls->remove_items(
@@ -758,6 +758,7 @@ sub getAccessListByName {
     my $dal = pf::dal::switch_observability_acls->new({
         switch_id => $self->{_id},
         mac => $mac,
+        port => (defined $port && $port ne '') ? $port : undef,
         role_id => $access_list_name,
         acl_type => $type,
         acls => $acls,
@@ -816,6 +817,7 @@ sub getRoleAccessListByName {
         my $dal = pf::dal::switch_observability_acls->new({
             switch_id => $self->{_id},
             mac => "",
+            port => undef,
             role_id => $access_list_name,
             acl_type => 'role',
             acls => $acls,

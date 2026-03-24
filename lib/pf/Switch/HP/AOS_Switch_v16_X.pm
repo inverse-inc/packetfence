@@ -163,7 +163,7 @@ sub returnRadiusAccessAccept {
     }
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))) {
             while ($access_list =~ /([^\n]+)\n?/g) {
                 my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);
                 if ($test) {

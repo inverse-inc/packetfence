@@ -35,6 +35,7 @@ BEGIN {
     @FIELD_NAMES = qw(
         switch_id
         mac
+        port
         role_id
         acl_type
         acls
@@ -44,6 +45,7 @@ BEGIN {
     %DEFAULTS = (
         switch_id => '',
         mac => '',
+        port => undef,
         role_id => '',
         acl_type => '',
         acls => '',
@@ -53,6 +55,7 @@ BEGIN {
     @INSERTABLE_FIELDS = qw(
         switch_id
         mac
+        port
         role_id
         acl_type
         acls
@@ -71,6 +74,12 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
+        },
+        port => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
         role_id => {
             type => 'VARCHAR',
@@ -107,6 +116,7 @@ BEGIN {
     @COLUMN_NAMES = qw(
         switch_observability_acls.switch_id
         switch_observability_acls.mac
+        switch_observability_acls.port
         switch_observability_acls.role_id
         switch_observability_acls.acl_type
         switch_observability_acls.acls
