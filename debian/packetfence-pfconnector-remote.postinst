@@ -31,20 +31,14 @@ case "$1" in
     # get containers image and tag them locally
     /usr/local/pfconnector-remote/containers/manage-images.sh
     /bin/systemctl daemon-reload
-    /bin/systemctl enable packetfence-pfconnector-remote.service
-    /bin/systemctl enable packetfence-radiusd-auth.service
+    /bin/systemctl enable packetfence-pfconnector-remote-combined.service
     if [ -n "$2" ]; then
-        if systemctl is-active --quiet "packetfence-pfconnector-remote.service"; then
-            echo "Upgrade detected, restarting packetfence-pfconnector-remote service"
-            /bin/systemctl restart packetfence-pfconnector-remote.service
-        fi
-        if systemctl is-active --quiet "packetfence-radiusd-auth.service"; then
-            echo "Upgrade detected, restarting packetfence-radiusd-auth service"
-            /bin/systemctl restart packetfence-radiusd-auth.service
+        if systemctl is-active --quiet "packetfence-pfconnector-remote-combined.service"; then
+            echo "Upgrade detected, restarting packetfence-pfconnector-remote-combined service"
+            /bin/systemctl restart packetfence-pfconnector-remote-combined.service
         fi
     else
-        /bin/systemctl stop packetfence-pfconnector-remote.service
-	/bin/systemctl stop packetfence-radiusd-auth.service
+        /bin/systemctl stop packetfence-pfconnector-remote-combined.service
     fi
 
     if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
@@ -52,7 +46,11 @@ case "$1" in
         echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
     fi
     
+    echo ""
     echo "Connector installation completed"
+    echo ""
+    echo "Run /usr/local/pfconnector-remote/bin/pfconnector-configure to setup the pfconnector-remote"
+    echo ""
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
