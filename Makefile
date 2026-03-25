@@ -325,6 +325,7 @@ test_install:
 pfconnector_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_BINDIR)
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_PREFIX)/db
 	# pfconnector-remote combined container
 	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-remote/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-remote/Dockerfile
 	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-combined-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-combined-docker-wrapper
