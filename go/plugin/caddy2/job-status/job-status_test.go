@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
@@ -111,7 +112,8 @@ func TestStatusUpdater(t *testing.T) {
 	_, err := jobStatus.redis.FlushAll(ctx).Result()
 	sharedutils.CheckError(err)
 
-	taskId := pfqueueclient.NewApiTaskID()
+	uuid, _ := uuid.NewV7()
+	taskId := uuid.String()
 	recorder := httptest.NewRecorder()
 	jobStatus.handleStatus(recorder, req, httprouter.Params{httprouter.Param{Key: "job_id", Value: taskId}})
 	if recorder.Code != http.StatusNotFound {
