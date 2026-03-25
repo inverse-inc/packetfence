@@ -105,6 +105,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-radius-conf":
 		s.handleRemoteRadiusConf(w, r)
 		return
+	case apiPrefix + "/remote-radius-nas":
+		s.handleRemoteRadiusNas(w, r)
+		return
 	}
 	//missing :O
 	w.WriteHeader(404)
@@ -810,4 +813,44 @@ func (s *Server) handleRemoteRadiusConf(w http.ResponseWriter, req *http.Request
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
+}
+
+func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
+	// Get all switch keys from pfconfig
+	switches := pfconfigdriver.GetType[pfconfigdriver.PfSwitches](ctx)
+	if switches == nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to fetch switches from pfconfig"))
+		return
+	}
+
+	type NasEntry struct {
+		Nasname string `json:"nasname"`
+		Secret  string `json:"secret"`
+		Type    string `json:"type"`
+	}
+
+	var entries []NasEntry
+	for _, key := range switches.Keys {
+		if key == "default" {
+			continue
+		}
+		sw := pfconfigdriver.PfConfSwitch{}
+		sw.PfconfigHashNS = key
+		pfconfigdriver.FetchDecodeSocket(ctx, &sw)
+		secret := sw.RadiusSecret.String()
+		if secret == "" {
+			continue
+		}
+		entries = append(entries, NasEntry{
+			Nasname: key,
+			Secret:  secret,
+			Type:    sw.Type,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(entries)
 }
