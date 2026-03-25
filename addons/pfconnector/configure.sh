@@ -42,3 +42,9 @@ fi
 
 echo "FETCH_REMOTES_VIA_API=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 echo "PFCONNECTOR_REMOTE=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+
+# Create a dummy system_init_key file to prevent Docker from creating it as a directory
+if [ ! -f /usr/local/pfconnector-remote/conf/system_init_key ]; then
+  rm -rf /usr/local/pfconnector-remote/conf/system_init_key
+  head -c 32 /dev/urandom | base64 > /usr/local/pfconnector-remote/conf/system_init_key
+fi
