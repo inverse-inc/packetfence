@@ -625,7 +625,7 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 
 	id := req.URL.Query().Get("id")
 	connectorID := req.URL.Query().Get("connectorid")
-	timeOut := req.URL.Query().Get("timeout")
+
 	log.LoggerWContext(s.baseCtx).Info("Id:", id, " ConnectorID:", connectorID)
 
 	resolvedConnectorID := s.redis.Get(s.baseCtx, "terminal:"+id)
