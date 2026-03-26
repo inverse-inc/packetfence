@@ -205,6 +205,7 @@ require (
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
 	github.com/fatih/structtag v1.2.0
 	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
+	github.com/godbus/dbus/v5 v5.2.2
 	github.com/gosnmp/gosnmp v1.43.1
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.27.2
