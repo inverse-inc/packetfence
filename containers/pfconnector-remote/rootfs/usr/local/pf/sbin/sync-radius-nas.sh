@@ -3,7 +3,17 @@
 set -e
 
 CLIENTS_DIR=/usr/local/pf/raddb/dynamic-clients
-PFCONNECTOR_API="localhost:22226/api/v1/pfconnector/remote-radius-nas"
+ENV_FILE="/usr/local/pf/conf/pfconnector-client.env"
+
+# Extract connector_id
+CONNECTOR_ID=$(grep '^AUTH=' "$ENV_FILE" | cut -d'=' -f2 | cut -d':' -f1)
+
+if [ -z "$CONNECTOR_ID" ]; then
+    echo "Error: no CONNECTOR_ID found in $ENV_FILE"
+    exit 1
+fi
+
+PFCONNECTOR_API="localhost:22226/api/v1/pfconnector/remote-radius-nas?CONNECTOR_ID=$CONNECTOR_ID"
 
 mkdir -p "$CLIENTS_DIR"
 

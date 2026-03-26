@@ -720,6 +720,21 @@ func (s *Server) handleRemoteRadiusConf(w http.ResponseWriter, req *http.Request
 func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
+	connectorId := req.URL.Query().Get("CONNECTOR_ID")
+	if connectorId == "" {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		json.NewEncoder(w).Encode([]struct{}{})
+		return
+	}
+
+	// Get connector networks for filtering
+	var connectorNetworks []*net.IPNet
+	Connectors := connector.NewConnectorsContainer(ctx)
+	c := Connectors.Get(ctx, connectorId)
+	if c != nil {
+		connectorNetworks = c.NetworksObjects
+	}
+
 	// Get all switch keys from pfconfig
 	switches := pfconfigdriver.GetType[pfconfigdriver.PfSwitches](ctx)
 	if switches == nil {
@@ -739,6 +754,25 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 		if key == "default" || key == "100.64.0.1" || key == "127.127.127.127" {
 			continue
 		}
+
+		// Filter by connector networks if a connector_id was provided
+		if len(connectorNetworks) > 0 {
+			switchIP := net.ParseIP(key)
+			if switchIP == nil {
+				continue
+			}
+			inNetwork := false
+			for _, network := range connectorNetworks {
+				if network.Contains(switchIP) {
+					inNetwork = true
+					break
+				}
+			}
+			if !inNetwork {
+				continue
+			}
+		}
+
 		sw := pfconfigdriver.PfConfSwitch{}
 		sw.PfconfigHashNS = key
 		pfconfigdriver.FetchDecodeSocket(ctx, &sw)
