@@ -736,7 +736,7 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 
 	var entries []NasEntry
 	for _, key := range switches.PfconfigKeys.Keys {
-		if key == "default" {
+		if key == "default" || key == "100.64.0.1" || key == "127.127.127.127" {
 			continue
 		}
 		sw := pfconfigdriver.PfConfSwitch{}
