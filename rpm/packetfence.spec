@@ -958,6 +958,7 @@ fi
                         /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/get_pf_conf
+%attr(0755, pf, pf)     /usr/local/pf/bin/pf-check-requirements
 %attr(0755, pf, pf)     /usr/local/pf/bin/proxysql-read-only-handler.sh
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
@@ -1374,6 +1375,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
+%dir                    /usr/local/pf/lib/pf/cmd
+                        /usr/local/pf/lib/pf/cmd/*
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
 %dir                    /usr/local/pf/lib/pf/Portal
