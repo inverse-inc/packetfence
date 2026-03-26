@@ -271,7 +271,6 @@ func (c *Client) Start(ctx context.Context) error {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
 						return
 					}
-					*Ready = true
 					defer res.Body.Close()
 					if res.StatusCode != http.StatusOK {
 						fmt.Printf("Invalid status code %d received for remote binds\n", res.StatusCode)
