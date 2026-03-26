@@ -833,7 +833,7 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 	}
 
 	var entries []NasEntry
-	for _, key := range switches.Keys {
+	for _, key := range switches.PfconfigKeys.Keys {
 		if key == "default" {
 			continue
 		}
@@ -847,7 +847,7 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 		entries = append(entries, NasEntry{
 			Nasname: key,
 			Secret:  secret,
-			Type:    sw.Type,
+			Type:    "other",
 		})
 	}
 
