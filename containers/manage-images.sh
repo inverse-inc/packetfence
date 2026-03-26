@@ -95,6 +95,7 @@ configure_and_check() {
                            -not -path "*/git-sync/*" \
                            -not -path "*/caddy-l4/*" \
                            -not -path "*/github-apps-token/*" \
+                           -not -path "*/ntlm-join-remote/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
