@@ -69,6 +69,7 @@ mysql_variables=
 [% mysql_ssl_p2s_capath %]
 
 [% monitor %]
+[% mysql_monitor_variables %]
 
 [% IF scheduler %]
     monitor_galera_healthcheck_interval=2000
@@ -77,48 +78,7 @@ mysql_variables=
 }
 
 [% UNLESS single_server %]
-  [% IF geoDB -%]
-
-mysql_replication_hostgroups =
-(
-  {
-    writer_hostgroup=10
-    reader_hostgroup=20
-    check_type="read_only"
-    comment="RW Split"
-  }
-)
-
-  [% ELSIF replication %]
-
-mysql_replication_hostgroups =
-(
-  {
-    writer_hostgroup=10
-    reader_hostgroup=30
-    check_type="read_only"
-    comment="Replication RW Split"
-  }
-)
-
-  [% ELSE %]
-
-    [% IF scheduler %]
-mysql_galera_hostgroups =
-(
-    {
-        writer_hostgroup=10
-        backup_writer_hostgroup=20
-        reader_hostgroup=30
-        offline_hostgroup=9999
-        max_writers=1
-        writer_is_also_reader=1
-        max_transactions_behind=30
-        active=1
-    }
-)
-    [% END %]
-  [% END %]
+[% mysql_replication_hostgroups %]
 [% END %]
 
 mysql_servers =
@@ -127,44 +87,7 @@ mysql_servers =
 )
 
 [% UNLESS single_server %]
-mysql_query_rules =
-(
-    {
-        rule_id=100
-        active=1
-        match_pattern="^\s*SELECT .* FOR UPDATE"
-        destination_hostgroup=10
-        apply=1
-    },
-    {
-        rule_id=200
-        active=1
-        match_pattern="SELECT @@global.read_only"
-        destination_hostgroup=30
-        apply=1
-    },
-    {
-        rule_id=201
-        active=1
-        match_pattern="show status like.*"
-        destination_hostgroup=30
-        apply=1
-    },
-    {
-        rule_id=300
-        active=1
-        match_pattern="^\s*SELECT .*"
-        destination_hostgroup=30
-        apply=1
-    },
-    {
-        rule_id=400
-        active=1
-        match_pattern=".*"
-        destination_hostgroup=10
-        apply=1
-    }
-)
+[% mysql_query_rules %]
 [% END %]
 
 mysql_users =
