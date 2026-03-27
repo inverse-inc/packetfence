@@ -33,12 +33,16 @@ docs/%.pdf: docs/%.asciidoc
 pdf: $(PDFS)
 
 HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
+MINCSS = docs/styles/app.min.css
 
 docs/styles/%.min.css: docs/styles/%.css
 	@echo "Minify CSS styles for html docs: $<"
 	npx --package clean-css-cli cleancss --inline remote $< -o $@
 
-docs/%.html: docs/%.asciidoc
+.PHONY: css
+css: $(MINCSS)
+
+docs/%.html: docs/%.asciidoc $(MINCSS)
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
