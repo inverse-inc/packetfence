@@ -25,7 +25,7 @@ control (NAC) system. It features a captive portal for registration and
 remediation, centralized wired and wireless management, 802.1X support, layer-2
 isolation of problematic devices, and integration with IDS, vulnerability
 scanners and firewalls. PacketFence effectively secures networks from small to
-very large heterogeneous environments. Visit https://packetfence.org for more
+very large heterogeneous environments. Visit https://www.packetfence.com for more
 details.
 
 == System Requirements

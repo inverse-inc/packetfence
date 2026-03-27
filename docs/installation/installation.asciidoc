@@ -28,7 +28,7 @@ installed, preconfigured virtual appliance compatible with VMware ESX/ESXi,
 Microsoft Hyper-V and other products. This section covers VMware-based
 deployment. Xen-based hypervisors are not supported.
 
-Download the ZEN here: https://www.packetfence.org/download.html#/zen
+Download the ZEN here: https://www.packetfence.com/download/#zen
 
 ==== Virtual Machine
 
@@ -70,7 +70,7 @@ PacketFence after, this will perform both tasks and select the optimal
 parameters and best practices for installing the operating system.
 
 Download the ISO here:
-https://www.packetfence.org/download.html#/releases
+https://www.packetfence.com/download/#packages
 
 ==== Machine specifications
 

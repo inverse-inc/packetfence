@@ -435,6 +435,7 @@ variables:
       - docs/*.html
       - docs/*.pdf
       - docs/images/*
+      - docs/styles/*.min.css
   tags:
     - docker
 

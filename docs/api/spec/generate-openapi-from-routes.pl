@@ -246,11 +246,11 @@ sub routeController {
 
 =head1 AUTHOR
 
-Inverse inc. <info@inverse.ca>
+Akamai Technologies Canada Inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2026 Inverse inc.
+Copyright (C) 2005-2026 Akamai Technologies Canada Inc.
 
 =head1 LICENSE
 

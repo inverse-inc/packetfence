@@ -10,7 +10,7 @@ The PacketFence documentation uses:
 - **[Asciidoctor-PDF](https://asciidoctor.org/docs/asciidoctor-pdf/)** for PDF generation (.asciidoc to .pdf)
 - **[Rouge](https://github.com/rouge-ruby/rouge)** syntax highlighter
 - **Custom Ruby processor** for HTML styling integration
-- **Custom PDF theme** with Lato and Inconsolata fonts
+- **Custom PDF theme** with Instrument Sans and Inconsolata fonts
 - **JSON index generation** for HTML file metadata
 
 ## Build System
@@ -36,6 +36,10 @@ The documentation build system is controlled by Makefile targets in `/usr/local/
 - `docs/*.html` - HTML versions of each guide
 - `docs/*.pdf` - PDF versions of each guide
 - `docs/index.js` - JSON metadata index of HTML files
+- `docs/styles/app.min.css` - Minified CSS for html files.
+
+#### Geenerate CSS Files
+- `make docs/styles/app.min.css` - Create minified CSS file based on app.css in folder docs/styles/*.css
 
 ## Dependencies
 
@@ -73,7 +77,7 @@ sudo gem install asciidoctor-pdf rouge
 
 ### PDF Generation
 - **Custom Theme**: `asciidoctor-pdf-theme.yml` - PacketFence branding and typography
-- **Fonts**: Custom Lato and Inconsolata fonts in `docs/fonts/`
+- **Fonts**: Custom Instrument Sans and Inconsolata fonts in `docs/fonts/`
 - **Theme Features**: Consistent branding, code syntax highlighting, proper typography
 
 ## Build Process
@@ -86,7 +90,7 @@ sudo gem install asciidoctor-pdf rouge
 
 ### PDF Build Process
 1. Uses `asciidoctor-pdf` with custom theme
-2. Applies Lato fonts for body text, Inconsolata for code
+2. Applies Instrument Sans fonts for body text, Inconsolata for code
 3. Generates branded PDF files in `docs/`
 
 ## Usage Examples
@@ -155,7 +159,7 @@ docs/
 ├── asciidoctor-pdf-theme.yml         # Custom PDF theme
 ├── fonts/                            # Custom fonts for PDF
 │   ├── inconsolata.ttf              # Monospace font
-│   └── lato/                        # Sans-serif font family
+│   └── instrument-sans/             # Sans-serif font family
 ├── images/                          # Documentation images
 ├── includes/                        # Shared AsciiDoc includes
 ├── PacketFence_*.asciidoc          # Main guide sources

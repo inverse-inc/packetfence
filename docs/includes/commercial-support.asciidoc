@@ -4,9 +4,9 @@
 
     This file is part of the PacketFence project.
     Authors:
-      - Inverse inc. <info@inverse.ca>
+      - Akamai Technologies Canada Inc. <info@inverse.ca>
 
-    Copyright (C) 2005-2026 Inverse inc.
+    Copyright (C) 2005-2026 Akamai Technologies Canada Inc.
     License: GFDL 1.2 or later. https://www.gnu.org/licenses/fdl.html
 
 ////
@@ -16,12 +16,12 @@
 For any questions or comments, do not hesitate to contact us by writing an
 email to: support@inverse.ca.
 
-Inverse (https://inverse.ca) offers professional services around PacketFence
+Akamai - Inverse team (https://www.packetfence.com) offers professional services around PacketFence
 to help organizations deploy the solution, customize, migrate versions or
 from another system, performance tuning or aligning with best practices.
 
 Hourly rates or support packages are offered to best suit your needs.
 
-Please visit https://inverse.ca/ for details.
+Please visit https://www.packetfence.com for details.
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
