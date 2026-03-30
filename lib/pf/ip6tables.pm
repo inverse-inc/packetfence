@@ -241,13 +241,6 @@ sub ip6tables_haproxy_portal_rules {
 
     my $logger = get_logger();
     my $chains = util_create_ip6_chains();
-    if ( util_management_network_is_set($service_name) ) {
-        my $tint = $management_network->{Tint};
-        $chains->{'name'} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
-
     if ( @portal_ints ) {
         # 'portal' interfaces handling
         $chains->{'name'} = $service_name;

@@ -72,7 +72,6 @@ BEGIN {
     iptables_radiusd_auth_rules
     iptables_radiusd_cli_rules
     iptables_radiusd_eduroam_rules
-    iptables_radiusd_lb_rules
     iptables_restore
     iptables_restore_noflush
     iptables_save
@@ -362,7 +361,6 @@ sub iptables_services_rules {
       packetfence-radiusd-auth.service
       packetfence-radiusd-cli.service
       packetfence-radiusd-eduroam.service
-      packetfence-radiusd-load_balancer.service
       packetfence-snmptrapd.service
     )];
   my $states = util_getServiveState($services,[qw(Id ActiveState)]);
@@ -397,7 +395,6 @@ sub iptables_services_rules {
         case "packetfence-radiusd-auth.service"          { iptables_radiusd_auth_rules($action); }
         case "packetfence-radiusd-cli.service"           { iptables_radiusd_cli_rules($action); }
         case "packetfence-radiusd-eduroam.service"       { iptables_radiusd_eduroam_rules($action); }
-        case "packetfence-radiusd-load_balancer.service" { iptables_radiusd_lb_rules($action); }
         case "packetfence-snmptrapd.service"             { iptables_snmptrapd_rules($action); }
         else { $logger->info( "The service $state->{'Id'} is not using Firewalld for its configuration" ) }
       }
@@ -425,8 +422,6 @@ sub iptables_haproxy_portal_rules {
     if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         $chains->{'name'} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         if ($cluster_enabled) {
             push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
@@ -471,46 +466,6 @@ sub iptables_haproxy_portal_rules {
         }
     } else {
         $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
-    }
-
-    if ($chains->{'name'} ne "") {
-        # Convert to JSON and save to file
-        util_create_service_rules($chains);
-    }
-}
-
-=item iptables_radiusd_lb_rules
-
-iptables rules for radius lb service
-
-=cut
-
-sub iptables_radiusd_lb_rules {
-    my $service_name = "radiusd_lb_rules";
-    my $action = shift;
-
-    if ( $action eq "REMOVE" ) {
-       return util_remove_service_rules($service_name);
-    }
-
-    my $logger = get_logger();
-    my $chains = util_create_chains();
-
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{'name'} = $service_name;
-        util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
-
-    if ( @radius_ints ) {
-        # 'radius' interfaces handling
-        $chains->{'name'} = $service_name;
-        foreach my $network ( @radius_ints ) {
-            my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        }
-    } else {
-        $logger->warn("Service $service_name: Radius Ints are not set.");
     }
 
     if ($chains->{'name'} ne "") {
@@ -748,12 +703,6 @@ sub iptables_httpd_dispatcher_rules {
     my $logger = get_logger();
     my $chains = util_create_chains();
 
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
-
     if ( @vlan_enforcement_nets ) {
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
@@ -985,12 +934,6 @@ sub iptables_pfdns_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
     if ( @dns_ints ) {
         $chains->{name} = $service_name;
         foreach my $network ( @dns_ints ) {
@@ -1200,11 +1143,6 @@ sub iptables_pfdhcp_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if ( util_management_network_is_set($service_name) ){
-        my $tint = $management_network->{Tint};
-        $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    }
 
     if ( @dhcp_ints ) {
         $chains->{name} = $service_name;
