@@ -1,4 +1,4 @@
-package discovernetworkdevice
+package netscan_test
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/netscan"
 )
 
 var ctx context.Context = context.Background()
@@ -21,15 +23,15 @@ var badAddrLst = [][]string{
 	{"192.168.0.1/15"},
 }
 
-var badCredLst = []SnmpCred{
+var badCredLst = []netscan.SnmpCred{
 	{Version: "deadbeef", CommunityRead: "public"},
 	{Version: "", CommunityRead: "public"},
 	{Version: "snmp_v2", CommunityRead: "public"},
-	{Version: CRED_TYPE_SNMP_V1, CommunityRead: ""},
-	{Version: CRED_TYPE_SNMP_V2C, CommunityRead: ""},
+	{Version: netscan.CRED_TYPE_SNMP_V1, CommunityRead: ""},
+	{Version: netscan.CRED_TYPE_SNMP_V2C, CommunityRead: ""},
 }
 
-var badOptionsLst = []Options{
+var badOptionsLst = []netscan.Options{
 	{MaxThreads: -1, SnmpTimeout: 1, SnmpRetry: 1, SnmpPort: 161},
 	{MaxThreads: 257, SnmpTimeout: 1, SnmpRetry: 1, SnmpPort: 161},
 	{MaxThreads: 32, SnmpTimeout: 11, SnmpRetry: 1, SnmpPort: 161},
@@ -41,17 +43,17 @@ var badOptionsLst = []Options{
 }
 
 var goodAddrs = []string{"192.168.10.40", "192.168.10.41", "192.168.10.42"}
-var goodCreds = []SnmpCred{{Version: CRED_TYPE_SNMP_V2C, CommunityRead: "public"}}
-var goodOptions = Options{
+var goodCreds = []netscan.SnmpCred{{Version: netscan.CRED_TYPE_SNMP_V2C, CommunityRead: "public"}}
+var goodOptions = netscan.Options{
 	MaxThreads: 32, SnmpTimeout: 1, SnmpRetry: 1, SnmpPort: 161,
 }
 
 func progressCb(int, string) {}
 
-func TestScanPayload(t *testing.T) {
+func TestScanSnmpScanRequest(t *testing.T) {
 	for _, badAddrs := range badAddrLst {
 		t.Run("Should reject bad address", func(t *testing.T) {
-			_, e := SnmpScan(ctx, Payload{Credentials: goodCreds, Addresses: badAddrs}, progressCb)
+			_, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: badAddrs})
 			if e == nil {
 				t.Errorf("Address must be rejected: %v", badAddrs)
 			}
@@ -59,7 +61,7 @@ func TestScanPayload(t *testing.T) {
 	}
 	for _, badCred := range badCredLst {
 		t.Run("Should reject bad credentials", func(t *testing.T) {
-			_, e := SnmpScan(ctx, Payload{Credentials: []SnmpCred{badCred}, Addresses: goodAddrs}, progressCb)
+			_, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: []netscan.SnmpCred{badCred}, Addresses: goodAddrs})
 			if e == nil {
 				t.Errorf("Credential must be rejected: %v", badCred)
 			}
@@ -67,14 +69,14 @@ func TestScanPayload(t *testing.T) {
 	}
 	for _, badOptions := range badOptionsLst {
 		t.Run("Should reject bad options", func(t *testing.T) {
-			_, e := SnmpScan(ctx, Payload{Options: badOptions, Credentials: goodCreds, Addresses: goodAddrs}, progressCb)
+			_, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Options: badOptions, Credentials: goodCreds, Addresses: goodAddrs})
 			if e == nil {
 				t.Errorf("Options must be rejected: %v", badOptions)
 			}
 		})
 	}
 	t.Run("Should scan", func(t *testing.T) {
-		r, e := SnmpScan(ctx, Payload{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions}, progressCb)
+		r, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions})
 		if r == nil || e != nil {
 			t.Errorf("Scan should answer correctly: %v", e)
 		}
@@ -95,7 +97,7 @@ func TestScanSnmp(t *testing.T) {
 		t.Errorf("Error running tcpdump for test: %v", err)
 	}
 	time.Sleep(time.Second * 1) // wait for tcpdump to be ready
-	_, err = SnmpScan(ctx, Payload{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, progressCb)
+	_, err = netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions})
 	if err != nil {
 		t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
 	}
@@ -115,12 +117,10 @@ func TestScanTimeout(t *testing.T) {
 	subCtx, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 	timeStart := time.Now()
-	_, err = SnmpScan(subCtx, Payload{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, progressCb)
+	_, err = netscan.SnmpScan(subCtx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, netscan.WithProgress(progressCb))
 	if err != nil {
 		if !strings.Contains(err.Error(), "context deadline exceeded") {
 			t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
-		} else {
-			t.Logf("Scan was cancelled: %s", err.Error())
 		}
 	}
 	timeElapsed := time.Since(timeStart)

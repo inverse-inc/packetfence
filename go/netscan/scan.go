@@ -1,11 +1,10 @@
-package discovernetworkdevice
+package netscan
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"maps"
-	"math"
 	"net/netip"
 	"os"
 	"regexp"
@@ -42,8 +41,8 @@ type Options struct {
 	SnmpPort    int `json:"snmp_port,omitempty"`
 }
 
-// Payload is the payload sent by the client
-type Payload struct {
+// SnmpScanRequest is the payload sent by the client
+type SnmpScanRequest struct {
 	Credentials []SnmpCred `json:"credentials"`
 	Addresses   []string   `json:"addresses"`
 	Options     Options    `json:"options"`
@@ -79,10 +78,23 @@ type SnmpResult struct {
 	Message string `json:"message"`
 }
 
-// ScanResponse is the scan response
-type ScanResponse struct {
+// SnmpScanResponse is the scan response
+type SnmpScanResponse struct {
 	SnmpResults []SnmpResult `json:"snmp_results"` // possible device but we were not able to reach them
 	Devices     []Device     `json:"devices"`      // devices found
+}
+
+type config struct {
+	progressCb func(percent int, msg string)
+}
+
+type option func(*config)
+
+// WithProgress provides an option to use a live progress callback.
+func WithProgress(progressCb func(percent int, msg string)) option {
+	return func(c *config) {
+		c.progressCb = progressCb
+	}
 }
 
 // Drivers is the type of the devices.json file
@@ -102,13 +114,14 @@ const (
 	snmpRetry   = 1 // 0 = no retry, 1 = 1 retry
 	snmpTimeout = 1 // in seconds
 	snmpPort    = 161
+	maxPort     = 65535
 	// fixed
 	snmpTransport = "udp"
 	sysDescrOid   = ".1.3.6.1.2.1.1.1.0"
 	sysOidOid     = ".1.3.6.1.2.1.1.2.0"
 	// uptimeOid     = ".1.3.6.1.2.1.1.3.0"
 	hostnameOid = ".1.3.6.1.2.1.1.5.0"
-	driverFile  = "/usr/local/pf/conf/discover-network-device/drivers.json"
+	driverFile  = "drivers.json" // in same module
 )
 
 // Macth a CIDR iPv4 like 192.168.40.0/28
@@ -246,8 +259,8 @@ func checkOptions(opts *Options) error {
 	}
 	if opts.SnmpPort == 0 { // default port
 		opts.SnmpPort = snmpPort
-	} else if opts.SnmpPort < 0 || opts.SnmpPort > math.MaxUint16 {
-		return fmt.Errorf("SnmpPort must be in range [0-%d]", math.MaxUint16)
+	} else if opts.SnmpPort < 0 || opts.SnmpPort > maxPort {
+		return fmt.Errorf("SnmpPort must be in range [0-%d]", maxPort)
 	}
 	if opts.SnmpRetry == 0 { // default 1 retry
 		opts.SnmpRetry = snmpRetry
@@ -296,7 +309,7 @@ func getSnmpData(snmp *gosnmp.GoSNMP, snmpData *snmpOutputData, addr string) (Sn
 }
 
 func scanPart(ctx context.Context, wg *sync.WaitGroup, out chan Device, snmpErr chan SnmpResult, progressChan chan int,
-	drivers []Driver, payload Payload, addresses []string) {
+	drivers []Driver, payload SnmpScanRequest, addresses []string) {
 	opts := payload.Options
 	creds := payload.Credentials
 	snmp := gosnmp.GoSNMP{}
@@ -372,26 +385,55 @@ func scanPart(ctx context.Context, wg *sync.WaitGroup, out chan Device, snmpErr 
 	}
 }
 
-// Scan is the main entry of the network scan
-func SnmpScan(ctx context.Context, payload Payload, progressCb func(int, string)) (*ScanResponse, error) {
+func getConfig(opts ...option) *config {
+	c := &config{
+		progressCb: func(int, string) {},
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
+}
+
+// SnmpScan tries to find switches on the network with SNMP.
+// You must prodivdes all the SNMP read community strings used in your network,
+// else the scan won't be able to get informations of your switches.
+// For each IP address provided, a SNMP request PER credential will be performed
+// until it found (or not) a match.
+// So if you ask a scan on 100 adresses with 20 credentials, at most 2000 requests
+// will be sent (and at least 100).
+// To reduce the amount of request, scan multiple times with a limited amount of
+// credentials and ip adresses.
+//
+// Parameters:
+//
+//	ctx:		Cancellable context
+//	request:	IPv4 adresses to scan, SNMP credentials and options
+//	opts:		Any netscan.WithXXX option. Functional options pattern
+//
+// Returns:
+//
+//	Any device found and addresses that responded an error.
+func SnmpScan(ctx context.Context, request SnmpScanRequest, opts ...option) (*SnmpScanResponse, error) {
+	c := getConfig(opts...)
 	drivers, err := readDriverFile(driverFile)
 	if err != nil {
 		return nil, fmt.Errorf("Bad drivers file: %s", err.Error())
 	}
-	addresses, err := resolveAddresses(payload.Addresses)
+	addresses, err := resolveAddresses(request.Addresses)
 	if err != nil {
 		return nil, fmt.Errorf("Bad addresses: %s", err.Error())
 	}
-	if err := checkCredentials(payload.Credentials); err != nil {
+	if err := checkCredentials(request.Credentials); err != nil {
 		return nil, fmt.Errorf("Bad credentials: %s", err.Error())
 	}
-	if err := checkOptions(&payload.Options); err != nil {
+	if err := checkOptions(&request.Options); err != nil {
 		return nil, fmt.Errorf("Bad options: %s", err.Error())
 	}
-	estimatedTimeOfScan := estimateTimeOfScan(len(addresses), payload.Options)
-	progressCb(1, fmt.Sprintf("%d addresses to scan. Estimated time: %dm%ds", len(addresses), estimatedTimeOfScan/60, estimatedTimeOfScan%60))
+	estimatedTimeOfScan := estimateTimeOfScan(len(addresses), request.Options)
+	c.progressCb(1, fmt.Sprintf("%d addresses to scan. Estimated time: %dm%ds", len(addresses), estimatedTimeOfScan/60, estimatedTimeOfScan%60))
 	var wgOut sync.WaitGroup
-	var resp ScanResponse
+	var resp SnmpScanResponse
 	deviceFoundChan := make(chan Device)
 	snmpErrChan := make(chan SnmpResult)
 	progressChan := make(chan int)
@@ -418,13 +460,13 @@ func SnmpScan(ctx context.Context, payload Payload, progressCb func(int, string)
 				if _, ok := alreadySeen[percentDone]; !ok {
 					alreadySeen[percentDone] = true
 					addressesRemaining := len(addresses) - n
-					estimatedTimeOfScan := estimateTimeOfScan(addressesRemaining, payload.Options)
-					progressCb(int(percentDone), fmt.Sprintf("%d addresses remaining. Estimated time: %dm%ds", addressesRemaining, estimatedTimeOfScan/60, estimatedTimeOfScan%60))
+					estimatedTimeOfScan := estimateTimeOfScan(addressesRemaining, request.Options)
+					c.progressCb(int(percentDone), fmt.Sprintf("%d addresses remaining. Estimated time: %dm%ds", addressesRemaining, estimatedTimeOfScan/60, estimatedTimeOfScan%60))
 				}
 			}
 		}
 	})
-	nThreads := payload.Options.MaxThreads
+	nThreads := request.Options.MaxThreads
 	offset := len(addresses)/nThreads + 1
 	var wg sync.WaitGroup
 	for i := range nThreads {
@@ -434,14 +476,14 @@ func SnmpScan(ctx context.Context, payload Payload, progressCb func(int, string)
 		}
 		rid := min(lid+offset, len(addresses))
 		wg.Add(1)
-		go scanPart(ctx, &wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, payload, addresses[lid:rid])
+		go scanPart(ctx, &wg, deviceFoundChan, snmpErrChan, progressChan, drivers.Devices, request, addresses[lid:rid])
 	}
 	wg.Wait()
 	close(deviceFoundChan)
 	close(snmpErrChan)
 	close(progressChan)
 	wgOut.Wait()
-	progressCb(100, "Done!")
+	c.progressCb(100, "Done!")
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
