@@ -16,7 +16,7 @@ use Data::Dumper();
 
 our $OLD_TERSE = $Data::Dumper::Terse;
 our $OLD_INDENT = $Data::Dumper::Indent;
-$Data::Dumper::Indent = 0;
+
 sub import {
     @_= ("Data::Dumper");
     goto &Exporter::import;
