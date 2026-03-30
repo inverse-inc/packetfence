@@ -33,6 +33,7 @@ func (pab *PortalAuthenticationBackend) Authenticate(ctx context.Context, userna
 
 	req, err := http.NewRequestWithContext(ctx, "GET", pab.url.String()+"?token="+password, nil)
 	sharedutils.CheckError(err)
+	req.Header.Set("X-Forwarded-For-PacketFence", "127.0.0.1")
 	resp, err := pab.httpClient.Do(req)
 	if err != nil {
 		return false, nil, err

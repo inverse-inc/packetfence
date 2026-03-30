@@ -182,7 +182,7 @@ func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 
 	// Backend for SSO
 	if sharedutils.IsEnabled(adminLogin.SSOStatus) {
-		url, err := url.Parse(fmt.Sprintf("%s%s", adminLogin.SSOBaseUrl, adminLogin.SSOAuthorizePath))
+		url, err := url.Parse(fmt.Sprintf("%s%s", servicesURL.HttpdPortal, adminLogin.SSOAuthorizePath))
 		sharedutils.CheckError(err)
 		h.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
 	}
