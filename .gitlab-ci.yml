@@ -618,7 +618,7 @@ variables:
       # Validate TEST_ONLY to prevent malicious patterns
       if [ -n "$TEST_ONLY" ]; then
         # Reject TEST_ONLY if it contains a newline or single quote (basic sanitization)
-        if printf '%s' "$TEST_ONLY" | grep -q "[\n']"; then
+        if printf '%s' "$TEST_ONLY" | grep -qP "[\n']"; then
           echo "Error: TEST_ONLY contains invalid characters (newline or single quote)."
           exit 1
         fi
