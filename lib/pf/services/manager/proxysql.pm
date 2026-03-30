@@ -293,6 +293,14 @@ mysql_query_rules =
     {
         rule_id=2,
         active=1,
+        match_pattern="^SELECT \@\@global.read_only",
+        destination_hostgroup=$writer_hostgroup,
+        apply=1,
+        comment="SELECT global.read_only goes to writer"
+    },
+    {
+        rule_id=3,
+        active=1,
         match_pattern="^SELECT",
         destination_hostgroup=$reader_hostgroup,
         apply=1,
