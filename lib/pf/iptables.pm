@@ -866,6 +866,14 @@ sub generate_dnat_from_docker {
     $$nat_if_src_to_chain .= "-A PREROUTING --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1\n";
 }
 
+=item iptables_fingerbank_collector_rules
+
+stub to avoid error
+
+=cut
+
+sub iptables_fingerbank_collector_rules {}
+
 =back
 
 =head1 AUTHOR
