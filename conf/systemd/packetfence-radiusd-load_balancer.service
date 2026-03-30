@@ -20,9 +20,6 @@ ExecStopPost=rm -rf /usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.p
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid
-# iptables rules
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence-cluster.target
