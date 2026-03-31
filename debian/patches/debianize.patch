@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 31d1d96976..e5c61d5ec1 100644
+index f32d4110b2..873bb5160b 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -489,7 +489,7 @@ radiusd=enabled
@@ -727,21 +727,6 @@ index 2a6c6be96e..9af37a29cb 100644
  
  [Install]
  WantedBy=packetfence.target
-diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index ca68be80cf..7b0c114619 100644
---- a/conf/systemd/packetfence-radiusd-load_balancer.service
-+++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -21,8 +21,8 @@ Restart=on-failure
- Slice=packetfence.slice
- PIDFile=/usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid
- # iptables rules
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("add")'
--ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("REMOVE")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("add")'
-+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("REMOVE")'
- 
- [Install]
- WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-redis_ntlm_cache.service b/conf/systemd/packetfence-redis_ntlm_cache.service
 index 04bcced7b5..8e735efcb0 100644
 --- a/conf/systemd/packetfence-redis_ntlm_cache.service
