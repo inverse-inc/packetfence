@@ -165,7 +165,7 @@ const mutations = {
   },
 
   SCAN_SUCCESS: (state, { network, response }) => {
-    const { devices = [], snmp_result = [] } = response
+    const { devices = [], scan_results = [] } = response
 
     // Remove existing devices from this network only (merge logic)
     Object.keys(state.cache).forEach(ip => {
@@ -191,7 +191,7 @@ const mutations = {
     })
 
     // Add new errors keyed by address
-    snmp_result.forEach(err => {
+    scan_results.forEach(err => {
       Vue.set(state.snmpErrors, err.address, {
         ...err,
         network
