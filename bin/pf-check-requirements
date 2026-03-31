@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl 
 =head1 NAME
 
 pf-check-requirements - Check system hardware requirements for PacketFence

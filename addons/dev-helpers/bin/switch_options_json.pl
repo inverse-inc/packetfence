@@ -73,7 +73,7 @@ for my $g (@groups) {
  
         my $name   = $switch_info->{value};
         my $module = "pf::Switch::${name}";
-	
+
         my $file = pod_where({-inc => 1}, $module);
         my $snmp = '';
         open(my $fh, '>', \$snmp);

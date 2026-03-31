@@ -5,6 +5,13 @@
   collections:
     - inverse_inc.packetfence
 
+  tasks:
+    - name: Install tcpdump on EL8
+      yum:
+        name: tcpdump
+        state: present
+      when: ansible_distribution_major_version == "8"
+
   roles:
     - role: packetfence_go
       tags: go
