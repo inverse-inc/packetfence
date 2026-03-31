@@ -199,26 +199,29 @@ sub _connect {
     my $api_prefix = "";
 
     my $response = $ua->get($base_url."/proxy/network/status");
+    my $cookie_invalid = $FALSE;
 
-    if ($response->code == 401) {
+    if ($response->code == 401 || $response->is_success) {
+        # New UniFi OS controller (UDM, UDM Pro, etc.)
         $login_path = "/api/auth/login";
         $api_prefix = "/proxy/network";
+        $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     } else {
+        # Old controller on port 8443
         $base_url .= ":8443";
+        # Check if cookie is still valid for old controller
+        $response = $ua->get($base_url."/api/self");
+        $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     }
-
-    my $cache = $self->cache;
-
-    my $auth = $cache->get("Ubiquiti-" . $controllerIp ."-auth");
-    if (!defined($auth) || $auth == $FALSE) {
+    if ($cookie_invalid) {
+        # Clear old cookies before re-authenticating to avoid sending invalid session
+        $ua->cookie_jar->clear();
         $response = $ua->post($base_url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
 
         unless($response->is_success) {
             $logger->error("Can't login on the Unifi controller: ".$response->status_line);
-            $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $FALSE );
             die;
         }
-        $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $TRUE ,{ expires_in => "10m" } );
     }
     return ($ua, $base_url.$api_prefix);
 }
@@ -266,6 +269,10 @@ sub _deauthenticateMacWithHTTP {
     my ($ua, $base_url)  = $self->_connect();
 
     my $response = $ua->get("$base_url/api/self/sites");
+
+    if ($response->code == 404) {
+        $response = $ua->get("$base_url/proxy/network/api/self/sites");
+    }
 
     unless($response->is_success) {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
@@ -383,12 +390,14 @@ sub populateAccessPointMACIP {
 
     my $response = $ua->get("$base_url/api/self/sites");
 
+    if ($response->code == 404) {
+        $response = $ua->get("$base_url/proxy/network/api/self/sites");
+    }
+
     unless($response->is_success) {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
         return;
     }
-
-    $response = $ua->get("$base_url/api/self/sites");
 
     my $json_data = decode_json($response->decoded_content());
 
