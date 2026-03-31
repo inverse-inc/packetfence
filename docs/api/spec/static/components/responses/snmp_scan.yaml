@@ -9,8 +9,8 @@ SnmpScanResponse:
             description: All devices found in given addresses.
             type: array
             items:
-              $ref: "#/components/schemas/SnmpDevice"
-          snmp_results:
+              $ref: "#/components/schemas/Snmpevice"
+          scan_results:
             description: Any error or warning return by an address. Used for further inspection.
             type: array
             items:

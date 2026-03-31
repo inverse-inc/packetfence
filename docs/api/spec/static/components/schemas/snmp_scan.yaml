@@ -35,11 +35,11 @@ SnmpCredential:
   description: Contains credential informations. Support only SNMP v1 or v2c community strings.
   type: object
   properties:
-    version:
+    type:
       type: string
       enum: [snmp_v1, snmp_v2c]
       example: "snmp_v2c"
-    community_read:
+    value:
       type: string
       example: public
       default: public
