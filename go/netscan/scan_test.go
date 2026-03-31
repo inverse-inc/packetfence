@@ -23,12 +23,12 @@ var badAddrLst = [][]string{
 	{"192.168.0.1/15"},
 }
 
-var badCredLst = []netscan.SnmpCred{
-	{Version: "deadbeef", CommunityRead: "public"},
-	{Version: "", CommunityRead: "public"},
-	{Version: "snmp_v2", CommunityRead: "public"},
-	{Version: netscan.CRED_TYPE_SNMP_V1, CommunityRead: ""},
-	{Version: netscan.CRED_TYPE_SNMP_V2C, CommunityRead: ""},
+var badCredLst = []netscan.Credential{
+	{Type: "deadbeef", Value: "public"},
+	{Type: "", Value: "public"},
+	{Type: "snmp_v2", Value: "public"},
+	{Type: netscan.CRED_TYPE_SNMP_V1, Value: ""},
+	{Type: netscan.CRED_TYPE_SNMP_V2C, Value: ""},
 }
 
 var badOptionsLst = []netscan.Options{
@@ -43,17 +43,17 @@ var badOptionsLst = []netscan.Options{
 }
 
 var goodAddrs = []string{"192.168.10.40", "192.168.10.41", "192.168.10.42"}
-var goodCreds = []netscan.SnmpCred{{Version: netscan.CRED_TYPE_SNMP_V2C, CommunityRead: "public"}}
+var goodCreds = []netscan.Credential{{Type: netscan.CRED_TYPE_SNMP_V2C, Value: "public"}}
 var goodOptions = netscan.Options{
 	MaxThreads: 32, SnmpTimeout: 1, SnmpRetry: 1, SnmpPort: 161,
 }
 
 func progressCb(int, string) {}
 
-func TestScanSnmpScanRequest(t *testing.T) {
+func TestScanScanRequest(t *testing.T) {
 	for _, badAddrs := range badAddrLst {
 		t.Run("Should reject bad address", func(t *testing.T) {
-			_, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: badAddrs})
+			_, e := netscan.SnmpScan(ctx, netscan.ScanRequest{Credentials: goodCreds, Addresses: badAddrs})
 			if e == nil {
 				t.Errorf("Address must be rejected: %v", badAddrs)
 			}
@@ -61,7 +61,7 @@ func TestScanSnmpScanRequest(t *testing.T) {
 	}
 	for _, badCred := range badCredLst {
 		t.Run("Should reject bad credentials", func(t *testing.T) {
-			_, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: []netscan.SnmpCred{badCred}, Addresses: goodAddrs})
+			_, e := netscan.SnmpScan(ctx, netscan.ScanRequest{Credentials: []netscan.Credential{badCred}, Addresses: goodAddrs})
 			if e == nil {
 				t.Errorf("Credential must be rejected: %v", badCred)
 			}
@@ -69,14 +69,14 @@ func TestScanSnmpScanRequest(t *testing.T) {
 	}
 	for _, badOptions := range badOptionsLst {
 		t.Run("Should reject bad options", func(t *testing.T) {
-			_, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Options: badOptions, Credentials: goodCreds, Addresses: goodAddrs})
+			_, e := netscan.SnmpScan(ctx, netscan.ScanRequest{Options: badOptions, Credentials: goodCreds, Addresses: goodAddrs})
 			if e == nil {
 				t.Errorf("Options must be rejected: %v", badOptions)
 			}
 		})
 	}
 	t.Run("Should scan", func(t *testing.T) {
-		r, e := netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions})
+		r, e := netscan.SnmpScan(ctx, netscan.ScanRequest{Credentials: goodCreds, Addresses: []string{"192.168.42.42"}, Options: goodOptions})
 		if r == nil || e != nil {
 			t.Errorf("Scan should answer correctly: %v", e)
 		}
@@ -97,7 +97,7 @@ func TestScanSnmp(t *testing.T) {
 		t.Errorf("Error running tcpdump for test: %v", err)
 	}
 	time.Sleep(time.Second * 1) // wait for tcpdump to be ready
-	_, err = netscan.SnmpScan(ctx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions})
+	_, err = netscan.SnmpScan(ctx, netscan.ScanRequest{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions})
 	if err != nil {
 		t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
 	}
@@ -117,7 +117,7 @@ func TestScanTimeout(t *testing.T) {
 	subCtx, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 	timeStart := time.Now()
-	_, err = netscan.SnmpScan(subCtx, netscan.SnmpScanRequest{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, netscan.WithProgress(progressCb))
+	_, err = netscan.SnmpScan(subCtx, netscan.ScanRequest{Credentials: goodCreds, Addresses: []string{ipAddress}, Options: goodOptions}, netscan.WithProgress(progressCb))
 	if err != nil {
 		if !strings.Contains(err.Error(), "context deadline exceeded") {
 			t.Errorf("Error while SnmpScan (not the actual test): %v", err) // that's not what we test
