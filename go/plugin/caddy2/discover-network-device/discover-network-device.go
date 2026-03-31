@@ -72,8 +72,8 @@ func (m *Module) Provision(ctx caddy.Context) error {
 	return nil
 }
 
-func ScanTask(ctx context.Context, payload netscan.SnmpScanRequest,
-	progressCb func(int, string)) (*netscan.SnmpScanResponse, error) {
+func ScanTask(ctx context.Context, payload netscan.ScanRequest,
+	progressCb func(int, string)) (*netscan.ScanResponse, error) {
 	resp, err := netscan.SnmpScan(ctx, payload, netscan.WithProgress(progressCb))
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func ScanTask(ctx context.Context, payload netscan.SnmpScanRequest,
 func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	b := bytes.NewBuffer(nil)
 	b.ReadFrom(r.Body)
-	body := netscan.SnmpScanRequest{}
+	body := netscan.ScanRequest{}
 	if err := json.Unmarshal(b.Bytes(), &body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
