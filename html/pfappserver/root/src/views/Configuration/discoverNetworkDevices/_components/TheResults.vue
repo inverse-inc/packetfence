@@ -77,8 +77,8 @@
       <template #cell(credential)="{ item }">
         <span v-if="item.credential">
           {{ item.credential.type }}
-          <small v-if="item.credential.snmp_read" class="text-muted">
-            ({{ item.credential.snmp_read }})
+          <small v-if="item.credential.value" class="text-muted">
+            ({{ item.credential.value }})
           </small>
         </span>
         <span v-else class="text-muted">-</span>

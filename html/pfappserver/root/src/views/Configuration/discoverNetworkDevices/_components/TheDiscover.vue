@@ -76,7 +76,7 @@
             <template #cell(address)="{ value }">
               <code>{{ value }}</code>
             </template>
-            <template #cell(error)="{ value }">
+            <template #cell(message)="{ value }">
               <span class="text-danger">{{ value }}</span>
             </template>
           </b-table>
@@ -214,7 +214,7 @@ const setup = (props, context) => {
       sortable: true
     },
     {
-      key: 'error',
+      key: 'message',
       label: i18n.t('Error'),
       sortable: true
     }
