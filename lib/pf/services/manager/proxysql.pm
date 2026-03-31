@@ -305,6 +305,14 @@ mysql_query_rules =
         destination_hostgroup=$reader_hostgroup,
         apply=1,
         comment="SELECT goes to readers — writer is also in HG $reader_hostgroup as fallback"
+    },
+    {
+        rule_id=4,
+        active=0,
+        match_pattern=".*",
+        destination_hostgroup=$reader_hostgroup,
+        apply=1,
+        comment="DEGRADED MODE: All traffic to readers when master is down (activated by failover script)"
     }
 )
 EOT
