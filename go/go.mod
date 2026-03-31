@@ -71,7 +71,7 @@ require (
 	golang.org/x/sys v0.41.0
 	golang.org/x/text v0.34.0
 	google.golang.org/api v0.266.0 // indirect
-	google.golang.org/grpc v1.79.1 // indirect
+	google.golang.org/grpc v1.79.3 // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
