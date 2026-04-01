@@ -1,0 +1,37 @@
+executor: virtualswitch_api
+input:
+  api_url: "http://10.255.255.2:8080"
+  method: "GET"
+  endpoint: "/api/v1/status"
+  body: ""
+  expected_code: "200"
+  retry: 1
+  delay: 2
+steps:
+- type: exec
+  script: |
+    BODY='{{.input.body}}'
+    if [ -n "$BODY" ]; then
+      curl -s -w "\n%{http_code}" -X {{.input.method}} {{.input.api_url}}{{.input.endpoint}} \
+        -H "Content-Type: application/json" \
+        -d "$BODY"
+    else
+      curl -s -w "\n%{http_code}" -X {{.input.method}} {{.input.api_url}}{{.input.endpoint}}
+    fi
+  assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring {{.input.expected_code}}
+  retry: {{.input.retry}}
+  delay: {{.input.delay}}
+  vars:
+    full_response:
+      from: result.systemout
+    response_body:
+      from: result.systemout
+      regex: '(?s)^(.*)\n\d{3}$'
+    http_code:
+      from: result.systemout
+      regex: '(\d{3})$'
+output:
+  virtualswitch_response: "{{.response_body}}"
+  virtualswitch_http_code: "{{.http_code}}"

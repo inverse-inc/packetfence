@@ -1,0 +1,12 @@
+executor: pf_api_close_security_event
+input:
+  mac: ""
+  security_event_id: ""
+steps:
+- type: pf_api_node_action
+  id: "{{.input.mac}}"
+  method: POST
+  url_extra: "/close_security_event/{{.input.security_event_id}}"
+  status_code: 200
+output:
+  pf_api_close_security_event_: "{{.result.pf_api_node_action_}}"

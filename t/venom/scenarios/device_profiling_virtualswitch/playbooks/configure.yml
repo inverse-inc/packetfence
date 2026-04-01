@@ -1,0 +1,12 @@
+---
+# Pre-configuration for device_profiling_virtualswitch scenario
+# This playbook runs before the venom tests
+
+- hosts: pfservers
+  name: Configure device profiling virtualswitch environment
+  become: True
+
+  tasks:
+    - name: Ensure virtualswitch package is available
+      debug:
+        msg: "VirtualSwitch will be installed by the global_config_virtualswitch test suite"

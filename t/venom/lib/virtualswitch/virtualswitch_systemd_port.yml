@@ -1,0 +1,17 @@
+executor: virtualswitch_systemd_port
+input:
+  service_file: "/lib/systemd/system/virtualswitch-namespace.service"
+  api_port: "18080"
+steps:
+- type: exec
+  script: |
+    sed -i 's/-api-addr :[0-9]*/-api-addr :{{.input.api_port}}/' {{.input.service_file}}
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: systemctl daemon-reload
+  assertions:
+    - result.code ShouldEqual 0
+output:
+  virtualswitch_systemd_port_result: "{{.result.systemout}}"

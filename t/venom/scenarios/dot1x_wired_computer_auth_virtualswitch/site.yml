@@ -1,0 +1,18 @@
+---
+# 802.1X Wired Computer-Auth tests using VirtualSwitch
+# Validates EAP-PEAP authentication with AD integration
+#
+# Preconditions:
+# - VLAN configured on the switch
+# - RADIUS configured on the switch
+# - PF configured to handle 802.1x
+# - Active Directory source with ServicePrincipalName configured in PF
+# - PF server joined to the domain
+# - Supplicant configured on the testing device (simulated by VirtualSwitch)
+
+- import_playbook: ../common/dev.yml
+  when: lookup("env", "CI") != 'true'
+
+- import_playbook: playbooks/configure.yml
+
+- import_playbook: playbooks/run_tests.yml

@@ -1,0 +1,18 @@
+executor: pf_api_check_bandwidth_accounting
+input:
+  mac: ""
+steps:
+- type: exec
+  script: |
+    mysql -u{{.configurator.db.users.pf.id}} -p{{.configurator.db.users.pf.password}} -h 127.0.0.1 {{.configurator.db.name}} -N -e \
+      "SELECT COALESCE(SUM(in_bytes),0) as total_in, COALESCE(SUM(out_bytes),0) as total_out FROM bandwidth_accounting WHERE mac = '{{.input.mac}}'"
+  retry: 10
+  delay: 3
+  assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldNotBeEmpty
+  vars:
+    bandwidth_row:
+      from: result.systemout
+output:
+  pf_api_check_bandwidth_accounting_row: "{{.bandwidth_row}}"

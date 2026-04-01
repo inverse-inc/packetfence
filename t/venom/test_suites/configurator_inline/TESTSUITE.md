@@ -79,6 +79,7 @@ Can certainly be done during step4
 ### Validation step
 1. Check if the configurator is disabled
 1. Check if all services are running
+1. Check admin account
 
 ## Teardown steps
 1. Cleanup mail in MailHog Inbox
