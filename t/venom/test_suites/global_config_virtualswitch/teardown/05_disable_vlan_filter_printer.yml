@@ -1,0 +1,13 @@
+name: Disable printer VLAN filter before deletion
+testcases:
+
+- name: disable_printer_vlan_filter
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/filter_engines/vlan_filter/{{.wired_mac_auth_virtualswitch.vlan_filter.printer.id}}'
+    status_code: 200
+    body: >-
+      {
+        "status": "disabled"
+      }
