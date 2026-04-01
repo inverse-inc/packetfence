@@ -1,0 +1,9 @@
+name: Verify node is unregistered after accounting stop
+testcases:
+
+- name: check_node_unreg
+  steps:
+  - type: pf_api_node_is_unregistered
+    id: '{{.pfacct_bandwidth_virtualswitch.device.mac_address}}'
+    retry: 10
+    delay: 3

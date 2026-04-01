@@ -1,0 +1,69 @@
+name: Check RADIUS audit log for Accept
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: flush_radius_audit_log_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
+- name: search_radius_audit_log_for_accept
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
+    ignore_verify_ssl: true
+    retry: 35
+    delay: 3
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id"],
+        "sort": ["created_at DESC"],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.pfacct_bandwidth_virtualswitch.device.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "auth_status",
+                  "op": "equals",
+                  "value": "Accept"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.pfacct_bandwidth_virtualswitch.profiles.wired.filters.connection_type}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey id
+    vars:
+      radius_log_id:
+        from: result.bodyjson.items.items0.id
