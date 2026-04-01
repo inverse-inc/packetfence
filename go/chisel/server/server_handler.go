@@ -102,6 +102,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-radius-nas":
 		s.handleRemoteRadiusNas(w, r)
 		return
+	case apiPrefix + "/local-secret":
+		s.handleLocalSecret(w, r)
+		return
 	}
 	//missing :O
 	w.WriteHeader(404)
@@ -789,4 +792,15 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	json.NewEncoder(w).Encode(entries)
+}
+
+func (s *Server) handleLocalSecret(w http.ResponseWriter, req *http.Request) {
+	localSecret := pfconfigdriver.LocalSecret{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Failed to fetch local secret"))
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte(localSecret.Element))
 }

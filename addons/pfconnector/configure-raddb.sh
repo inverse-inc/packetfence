@@ -3,17 +3,11 @@
 PFCONNECTOR_CONF="/usr/local/pfconnector-remote/conf/pfconnector-client.env"
 RADDB_PACKETFENCE="/usr/local/pfconnector-remote/raddb/sites-enabled/packetfence"
 
-# Extract the connector ID from AUTH=<id>:<secret>
-if [ -f "$PFCONNECTOR_CONF" ]; then
-    AUTH_LINE=$(grep '^AUTH=' "$PFCONNECTOR_CONF")
-    CONNECTOR_ID=$(echo "$AUTH_LINE" | sed 's/^AUTH=\([^:]*\):.*/\1/')
-else
-    echo "ERROR: $PFCONNECTOR_CONF not found" >&2
-    exit 1
-fi
+# Fetch the local secret from the pfconnector server API
+LOCAL_SECRET=$(curl -s http://localhost:22226/api/v1/pfconnector/local-secret)
 
-if [ -z "$CONNECTOR_ID" ]; then
-    echo "ERROR: Could not extract connector ID from $PFCONNECTOR_CONF" >&2
+if [ -z "$LOCAL_SECRET" ]; then
+    echo "ERROR: Could not fetch local secret from pfconnector API" >&2
     exit 1
 fi
 
@@ -27,9 +21,9 @@ fi
 
 # Replace placeholders in the raddb config
 if [ -f "$RADDB_PACKETFENCE" ]; then
-    sed -i "s/%password%/$CONNECTOR_ID/g" "$RADDB_PACKETFENCE"
+    sed -i "s/%password%/$LOCAL_SECRET/g" "$RADDB_PACKETFENCE"
     sed -i "s/%mgmt_ip%/$MGMT_IP/g" "$RADDB_PACKETFENCE"
-    echo "Configured raddb: connector_id=$CONNECTOR_ID, mgmt_ip=$MGMT_IP"
+    echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP"
 else
     echo "ERROR: $RADDB_PACKETFENCE not found" >&2
     exit 1
