@@ -134,15 +134,12 @@ sub returnRadiusAccessAccept {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $redirect_url .= '/' unless $redirect_url =~ m(\/$);
             $redirect_url .= $args->{'session_id'};
-            # Cisco and Meraki started adding "&redirect_url=http://example.com" unconditionnaly to the redirect URL.
-            # This means that since we don't have any query parameters that generated paths like "/Huawei::S6700/sid123456&redirect_url=http://example.com" which extracts the SID as sid123456&redirect_url=http://example.com
-            # We add empty query parameters to our path as a workaround
             $redirect_url .= "?";
             $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
             $radius_reply_ref = {
                 'Huawei-Redirect-ACL' => $role,
-                'Huawei-DHCPv4-Option43' => $redirect_url,
-                'Huawei-DHCPv4-Option121' => 1,
+                'Huawei-Portal-UR' => $redirect_url,
+                'Huawei-URL-Flag' => 1,
             };
         }
     }
