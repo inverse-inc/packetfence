@@ -1,0 +1,9 @@
+name: Delete Android test node
+testcases:
+
+- name: delete_android_node
+  steps:
+  - type: pf_api_node_action
+    method: DELETE
+    id: '{{.virtualswitch.android.mac_address}}'
+    status_code: 200

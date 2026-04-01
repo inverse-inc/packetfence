@@ -1,0 +1,21 @@
+name: Plug iOS device via virtualswitch API (iphone profile)
+testcases:
+
+- name: plug_ios_with_mab
+  steps:
+  - type: virtualswitch_plug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.ios.interface.id}}'
+    mac_address: '{{.virtualswitch.ios.mac_address}}'
+    auth_method: mab
+    profile: '{{.virtualswitch.ios.profile}}'
+
+- name: wait_for_ios_radius_auth
+  retry: 12
+  delay: 10
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.ios.interface.id}}'
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated
