@@ -1,0 +1,9 @@
+name: Delete 802.1X Wired Computer-Auth test node
+testcases:
+
+- name: delete_computer_node
+  steps:
+  - type: pf_api_node_action
+    method: DELETE
+    id: '{{.virtualswitch.dot1x.computer.mac_address}}'
+    status_code: 200

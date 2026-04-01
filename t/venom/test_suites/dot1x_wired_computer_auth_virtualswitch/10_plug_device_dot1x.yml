@@ -1,0 +1,18 @@
+name: Plug computer via virtualswitch API with 802.1X EAP-PEAP
+testcases:
+
+- name: plug_device_with_dot1x
+  steps:
+  - type: virtualswitch_plug_device_dot1x
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.dot1x.computer.interface.id}}'
+    mac_address: '{{.virtualswitch.dot1x.computer.mac_address}}'
+    profile: '{{.virtualswitch.dot1x.computer.profile}}'
+    eap_type: '{{.virtualswitch.dot1x.computer.eap_type}}'
+    user: '{{.virtualswitch.dot1x.computer.username}}'
+    password: '{{.virtualswitch.dot1x.computer.password}}'
+
+- name: wait_for_dot1x_auth
+  steps:
+  - type: sleep
+    time_to_sleep: 15

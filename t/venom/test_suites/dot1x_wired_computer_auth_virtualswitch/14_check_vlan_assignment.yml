@@ -1,0 +1,10 @@
+name: Verify VLAN assignment after 802.1X authentication
+testcases:
+
+- name: check_device_vlan
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.dot1x.computer.interface.id}}'
+    assertions:
+      - result.virtualswitch_device_status__vlan_assigned ShouldNotBeEmpty
