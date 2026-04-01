@@ -1,0 +1,12 @@
+name: Trigger security event evaluation for Fingerbank device
+testcases:
+
+- name: trigger_device_security_event
+  steps:
+  - type: exec
+    script: "{{.pfserver_pfcmd}} security_event trigger {{.security_event_detect_fingerbank_virtualswitch.device.mac_address}} device {{.security_event_detect_fingerbank_virtualswitch.event.trigger_value}}"
+
+- name: wait_for_security_event_processing
+  steps:
+  - type: sleep
+    time_to_sleep: 10

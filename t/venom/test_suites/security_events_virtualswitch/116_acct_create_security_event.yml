@@ -1,0 +1,33 @@
+name: Create security event with bandwidth trigger and grace period
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.security_event_acct_virtualswitch.event.id}}",
+        "desc": "{{.security_event_acct_virtualswitch.event.desc}}",
+        "enabled": "Y",
+        "actions": ["reevaluate_access"],
+        "vlan": "{{.security_event_acct_virtualswitch.event.vlan}}",
+        "triggers": [{"{{.security_event_acct_virtualswitch.event.trigger_type}}": "{{.security_event_acct_virtualswitch.event.trigger_value}}"}],
+        "grace": {
+          "interval": "{{.security_event_acct_virtualswitch.event.grace_interval}}",
+          "unit": "{{.security_event_acct_virtualswitch.event.grace_unit}}"
+        },
+        "max_enable": "{{.security_event_acct_virtualswitch.event.max_enable}}",
+        "auto_enable": "Y",
+        "priority": 1
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
