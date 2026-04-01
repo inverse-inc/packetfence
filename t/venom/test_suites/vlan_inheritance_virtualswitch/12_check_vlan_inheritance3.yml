@@ -1,0 +1,13 @@
+name: Verify Inheritance3 gets VLAN 5 (inherited from Inheritance2)
+testcases:
+
+- name: check_device_vlan_is_5
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.vlan_inheritance_virtualswitch.device.interface.id}}'
+    retry: 5
+    delay: 3
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated
+      - result.virtualswitch_device_status__vlan_assigned ShouldEqual {{.vlan_inheritance_virtualswitch.vlan.inheritance2}}
