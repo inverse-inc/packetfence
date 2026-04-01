@@ -1,0 +1,39 @@
+name: Clean stale RADIUS audit log entries before wireless tests
+testcases:
+
+- name: set_short_cleanup_window
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/maintenance_task/radius_audit_log_cleanup'
+    status_code: 200
+    body: >-
+      {
+        "status": "enabled",
+        "window": {
+          "interval": "1",
+          "unit": "s"
+        }
+      }
+
+- name: run_radius_audit_log_cleanup
+  steps:
+  - type: pfcron_command_line
+    unit_command: radius_audit_log_cleanup
+    assertions:
+      - result.pfcron_command_line_systemout ShouldContainSubstring "task radius_audit_log_cleanup finished"
+
+- name: restore_default_cleanup_window
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/maintenance_task/radius_audit_log_cleanup'
+    status_code: 200
+    body: >-
+      {
+        "status": "enabled",
+        "window": {
+          "interval": "1",
+          "unit": "D"
+        }
+      }

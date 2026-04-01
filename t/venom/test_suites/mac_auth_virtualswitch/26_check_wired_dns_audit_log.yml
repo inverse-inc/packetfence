@@ -1,0 +1,41 @@
+name: Check DNS audit log for device queries
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: flush_dns_audit_log_to_db
+  steps:
+  - type: pfcron_flush_dns_audit_log
+
+- name: search_dns_audit_log
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/dns_audit_logs/search'
+    ignore_verify_ssl: true
+    retry: 10
+    delay: 5
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id", "mac", "qname", "qtype"],
+        "sort": ["created_at DESC"],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "field": "mac",
+              "op": "equals",
+              "value": "{{.virtualswitch.device.mac_address}}"
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey qname
