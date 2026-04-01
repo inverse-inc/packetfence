@@ -175,8 +175,9 @@ sub additional_switches {
                 }
             } (@$entries);
         }
+    } else {
+        push @switches, { id => $management_network->tag('ip'), radiusSecret => $local_secret, type => 'PacketFence'};
     }
-
 
     return @switches;
 }
