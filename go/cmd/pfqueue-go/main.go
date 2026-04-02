@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"os"
+	"os/exec"
 	"os/signal"
 	"sort"
 	"sync"
@@ -14,6 +16,7 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/file_paths"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
 	"github.com/redis/go-redis/v9"
@@ -23,6 +26,13 @@ const PFQUEUE_WEIGHTS = "QueueWeights"
 
 func main() {
 	log.SetProcessName("pfqueue")
+	ctx := log.LoggerNewContext(context.Background())
+	backend := NewBackendManager(ctx)
+	if err := backend.Start(); err != nil {
+		logErrorf(ctx, "Failed to start pfqueue-backend: %s", err.Error())
+		os.Exit(1)
+	}
+
 	systemdStart()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
@@ -31,7 +41,120 @@ func main() {
 	go qw.Run()
 	<-c
 	qw.Stop()
+	backend.Stop()
 	defer NotifySystemd("STOPPING=1")
+}
+
+type BackendManager struct {
+	ctx      context.Context
+	cmd      *exec.Cmd
+	mu       sync.Mutex
+	stopping atomic.Bool
+}
+
+func NewBackendManager(ctx context.Context) *BackendManager {
+	return &BackendManager{ctx: ctx}
+}
+
+func (bm *BackendManager) Start() error {
+	cmd, err := bm.startProcess()
+	if err != nil {
+		return err
+	}
+
+	bm.mu.Lock()
+	bm.cmd = cmd
+	bm.mu.Unlock()
+
+	go bm.monitor()
+	return nil
+}
+
+func (bm *BackendManager) startProcess() (*exec.Cmd, error) {
+	backendPath := file_paths.PF_DIR + "/sbin/pfqueue-backend"
+	cmd := exec.Command(backendPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	// Set the child in its own process group so we can signal it cleanly
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("starting pfqueue-backend: %w", err)
+	}
+
+	logInfof(bm.ctx, "Started pfqueue-backend (pid %d)", cmd.Process.Pid)
+
+	// Wait for the backend socket to become available
+	socketPath := file_paths.PFQUEUE_BACKEND_SOCKET
+	deadline := time.Now().Add(10 * time.Second)
+	for time.Now().Before(deadline) {
+		conn, err := net.DialTimeout("unix", socketPath, 100*time.Millisecond)
+		if err == nil {
+			conn.Close()
+			logInfof(bm.ctx, "pfqueue-backend socket is ready")
+			return cmd, nil
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	// Timeout waiting for socket - kill the process and report error
+	cmd.Process.Kill()
+	cmd.Wait()
+	return nil, fmt.Errorf("timed out waiting for pfqueue-backend socket at %s", socketPath)
+}
+
+func (bm *BackendManager) monitor() {
+	for {
+		bm.mu.Lock()
+		cmd := bm.cmd
+		bm.mu.Unlock()
+
+		err := cmd.Wait()
+		if bm.stopping.Load() {
+			return
+		}
+
+		logWarnf(bm.ctx, "pfqueue-backend (pid %d) exited unexpectedly: %v, restarting", cmd.Process.Pid, err)
+		time.Sleep(time.Second)
+
+		newCmd, err := bm.startProcess()
+		if err != nil {
+			logErrorf(bm.ctx, "Failed to restart pfqueue-backend: %s", err.Error())
+			continue
+		}
+
+		bm.mu.Lock()
+		bm.cmd = newCmd
+		bm.mu.Unlock()
+	}
+}
+
+func (bm *BackendManager) Stop() {
+	bm.stopping.Store(true)
+	bm.mu.Lock()
+	cmd := bm.cmd
+	bm.mu.Unlock()
+
+	if cmd == nil || cmd.Process == nil {
+		return
+	}
+
+	logInfof(bm.ctx, "Stopping pfqueue-backend (pid %d)", cmd.Process.Pid)
+	cmd.Process.Signal(syscall.SIGTERM)
+
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+	case <-done:
+		logInfof(bm.ctx, "pfqueue-backend stopped")
+	case <-time.After(30 * time.Second):
+		logWarnf(bm.ctx, "pfqueue-backend did not stop gracefully, killing")
+		cmd.Process.Kill()
+		<-done
+	}
 }
 
 type QueueWeight struct {
