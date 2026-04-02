@@ -413,7 +413,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfqueue-backend.service %{buildroot}%{_unitdir}/packetfence-pfqueue-backend.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-perl.service %{buildroot}%{_unitdir}/packetfence-pfqueue-perl.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
@@ -608,6 +607,10 @@ if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-tc.service
     /usr/bin/systemctl disable packetfence-httpd.proxy.service
     /usr/bin/systemctl disable packetfence-httpd.collector.service
+    /usr/bin/systemctl stop packetfence-pfqueue-backend.service || true
+    /usr/bin/systemctl disable packetfence-pfqueue-backend.service || true
+    rm -f %{_unitdir}/packetfence-pfqueue-backend.service
+    /usr/bin/systemctl daemon-reload
     /usr/bin/systemctl isolate packetfence-base.target
 fi
 

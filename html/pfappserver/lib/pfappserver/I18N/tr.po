@@ -4943,12 +4943,6 @@ msgid ""
 "Should pfqueue be started? Keep enabled unless you know what you're doing."
 msgstr "pfqueue başlatılmalı mı? Ne yaptığınızı bilmiyorsanız etkin tutun."
 
-# conf/documentation.conf (services.pfqueue-backend)
-msgid ""
-"Should pfqueue-backend be started? Keep enabled unless you know what you're "
-"doing."
-msgstr "pfqueue-backend başlatılmalı mı? Ne yaptığınızı bilmiyorsanız etkin tutun."
-
 # conf/documentation.conf (services.pfqueue-go)
 msgid ""
 "Should pfqueue-go be started? Keep enabled unless you know what you're "
@@ -7699,7 +7693,6 @@ msgstr "dhcpdinleyicisi"
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfpki options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfqueue-backend options)
 # conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
@@ -7922,7 +7915,6 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfpki options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfqueue-backend options)
 # conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
@@ -9457,10 +9449,6 @@ msgstr "hizmetler.pfpki_dizini"
 # conf/documentation.conf
 msgid "services.pfqueue"
 msgstr "hizmetler.pfqueue"
-
-# conf/documentation.conf
-msgid "services.pfqueue-backend"
-msgstr "hizmetler.pfqueue-backend"
 
 # conf/documentation.conf
 msgid "services.pfqueue-go"

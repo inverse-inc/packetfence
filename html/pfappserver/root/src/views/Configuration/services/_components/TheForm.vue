@@ -169,13 +169,6 @@
                       disabled-value="disabled"
     />
 
-    <form-group-pfqueue-backend namespace="pfqueue-backend"
-                               column-label="pfqueue-backend"
-                               :text="$i18n.t(`Should pfqueue-backend be started?`)"
-                               enabled-value="enabled"
-                               disabled-value="disabled"
-    />
-
     <form-group-pfqueue-go namespace="pfqueue-go"
                            column-label="pfqueue-go"
                            :text="$i18n.t(`Should pfqueue-go be started?`)"
@@ -327,7 +320,6 @@ import {
   FormGroupPfipset,
   FormGroupPfperlApi,
   FormGroupPfpki,
-  FormGroupPfqueueBackend,
   FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
@@ -374,7 +366,6 @@ const components = {
   FormGroupPfipset,
   FormGroupPfperlApi,
   FormGroupPfpki,
-  FormGroupPfqueueBackend,
   FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,

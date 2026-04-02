@@ -277,8 +277,5 @@ testcases:
 - name: restart_pfqueue_service
   steps:
   - type: pf_api_system_service_restart_async
-    service: "pfqueue-backend"
-
-  - type: pf_api_system_service_restart_async
     service: "pfqueue-go"
 

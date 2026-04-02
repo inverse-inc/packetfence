@@ -4953,12 +4953,6 @@ msgid ""
 "Should pfqueue be started? Keep enabled unless you know what you're doing."
 msgstr "Est-ce que pfqueue doit être démarré ? Gardez le activé sauf si vous savez ce que vous faites."
 
-# conf/documentation.conf (services.pfqueue-backend)
-msgid ""
-"Should pfqueue-backend be started? Keep enabled unless you know what you're "
-"doing."
-msgstr "Faut-il démarrer pfqueue-backend ? Gardez-le activé à moins que vous ne sachiez ce que vous faites."
-
 # conf/documentation.conf (services.pfqueue-go)
 msgid ""
 "Should pfqueue-go be started? Keep enabled unless you know what you're "
@@ -7709,7 +7703,6 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfpki options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfqueue-backend options)
 # conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
@@ -7932,7 +7925,6 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfpki options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfqueue-backend options)
 # conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
@@ -9471,10 +9463,6 @@ msgstr "services.pfpki_binary"
 # conf/documentation.conf
 msgid "services.pfqueue"
 msgstr "pfqueue"
-
-# conf/documentation.conf
-msgid "services.pfqueue-backend"
-msgstr "services.pfqueue-backend"
 
 # conf/documentation.conf
 msgid "services.pfqueue-go"

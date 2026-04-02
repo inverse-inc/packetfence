@@ -240,7 +240,6 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfcron
 	dh_installinit --name=packetfence-pfperl-api
 	dh_installinit --name=packetfence-pfpki
-	dh_installinit --name=packetfence-pfqueue-backend
 	dh_installinit --name=packetfence-pfqueue-go
 	dh_installinit --name=packetfence-pfqueue-perl
 	dh_installinit --name=packetfence-pfsso

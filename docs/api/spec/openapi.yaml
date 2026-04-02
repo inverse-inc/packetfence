@@ -174,7 +174,6 @@ components:
         - pfldapexplorer
         - pfperl-api
         - pfpki
-        - pfqueue-backend
         - pfqueue-go
         - pfqueue-perl
         - pfsetacls

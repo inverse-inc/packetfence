@@ -116,9 +116,6 @@ testcases:
 # restart pfqueue et pf detect
 - name: restart_service_pfqueue
   steps:
-  - type: systemctl_service_restart 
-    service: packetfence-pfqueue-backend
-
   - type: systemctl_service_restart
     service: packetfence-pfqueue-go
 

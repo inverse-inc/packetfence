@@ -195,7 +195,6 @@
                   "pfldapexplorer",
                   "pfperl-api",
                   "pfpki",
-                  "pfqueue-backend",
                   "pfqueue-go",
                   "pfqueue-perl",
                   "pfsetacls",
@@ -5079,9 +5078,6 @@
                      "pfqueue" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
-                     "pfqueue-backend" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
                      "pfqueue-go" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -6397,10 +6393,6 @@
                },
                "pfqueue" : {
                   "description" : "Should pfqueue be started? Keep enabled unless you know what you're doing.",
-                  "type" : "string"
-               },
-               "pfqueue-backend" : {
-                  "description" : "Should pfqueue-backend be started? Keep enabled unless you know what you're doing.",
                   "type" : "string"
                },
                "pfqueue-go" : {
