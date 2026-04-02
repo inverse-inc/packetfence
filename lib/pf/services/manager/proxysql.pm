@@ -143,12 +143,13 @@ EOT
 
             # First backend = READ/WRITE
             #   → HG 10 (writer) weight=100
-            #   → HG 30 (reader) weight=100, preferred for reads
-            #   → also in HG 30 so if all pure readers go down, writer handles reads ✅
+            #   → HG 30 (reader) weight=50 as fallback only
+            #      (replicas have higher weight and are preferred for reads)
+            #   → if all pure readers go down, writer can still serve reads ✅
             my $writer = $backends[0];
             $tags{mysql_servers} .= << "EOT";
     { address="$writer" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
-    { address="$writer" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
+    { address="$writer" , port=$port , hostgroup=$reader_hostgroup, max_connections=1000, weight=50, use_ssl=$ssl },
 EOT
 
             # Remaining backends = READ ONLY → HG 30 only
@@ -270,9 +271,10 @@ EOT
     # Generate mysql_query_rules:
     #   rule 1 — SELECT FOR UPDATE → HG 10 (writer always, locks rows)
     #   rule 2 — SELECT            → HG 30 (readers preferred)
-    #            writer is also in HG 30 (weight=100) so if all pure
-    #            readers go down, the writer handles reads automatically ✅
-    #   default — INSERT/UPDATE/DELETE/etc → HG 10 (via default_hostgroup)
+    #            writer is also in HG 30 (weight=50) only as fallback
+    #            if all pure readers go down ✅
+    #   rule 4 — catch-all                 → HG 10 in normal mode
+    #            scheduler rewrites 1,2,4 during degraded mode
     # Only generated when we actually have a reader split
     #
     # IMPORTANT: the proxysql.conf template MUST reference [% mysql_query_rules %]
@@ -308,11 +310,11 @@ mysql_query_rules =
     },
     {
         rule_id=4,
-        active=0,
+        active=1,
         match_pattern=".*",
-        destination_hostgroup=$reader_hostgroup,
+        destination_hostgroup=$writer_hostgroup,
         apply=1,
-        comment="DEGRADED MODE: All traffic to readers when master is down (activated by failover script)"
+        comment="Catch-all traffic goes to writer in normal mode; scheduler rewrites in degraded mode"
     }
 )
 EOT
