@@ -57,6 +57,8 @@ my $defer = pf::defer::defer(
 
 
 my $switch = pf::SwitchFactory->instantiate('172.16.8.32');
+my $cache = $switch->cache_distributed;
+$cache->clear;
 ok($switch, 'Switch created');
 for my $m (keys %macIp) {
     is( $switch->getAccessPointMACIP($m), 0, "Mac $m is not defined");
