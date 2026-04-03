@@ -113,7 +113,7 @@ sub allowed_node_bypass_roles {
         return $self->render(json => {items => \@roles});
     }
 
-    return $self->_allowed_roles('allowed_node_roles', 'disallowed_node_roles', 'allowed_node_bypass_roles');
+    return $self->_allowed_roles('allowed_node_roles', 'disallowed_node_roles', 'disallowed_node_bypass_roles');
 }
 
 sub allowed_node_bypass_vlans {

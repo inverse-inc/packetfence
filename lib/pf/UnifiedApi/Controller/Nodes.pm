@@ -1115,12 +1115,12 @@ sub validate {
         my $nc = nodecategory_view($cat_id);
         next if !$nc;
         my $name = $nc->{name};
-        if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
+        if (!check_allowed_options($roles, 'allowed_node_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
             push @errors, { field => $f, message => "$name is not allowed" };
         }
 
         if ($f eq 'bypass_role_id') {
-            if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $name)) {
+            if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $name) || check_disallowed_options($roles, 'disallowed_node_bypass_roles', $name)) {
                 push @errors, { field => $f, message => "$name is not allowed" };
             }
         }

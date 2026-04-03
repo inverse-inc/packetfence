@@ -24,7 +24,7 @@ use pf::constants::admin_roles qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 use DateTime::Format::Strptime;
 use pf::util qw(isenabled);
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options check_allowed_all_options admin_isdisabled_option);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options check_disallowed_options check_allowed_all_options admin_isdisabled_option);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 
@@ -151,6 +151,24 @@ sub check_allowed_options {
     my @options = admin_allowed_options($roles, $option);
     if (@options == 0) {
         return 1;
+    }
+
+    my %valid = map { $_ => undef } @options;
+    return all { exists $valid{$_} } @check;
+}
+
+=head2 check_disallowed_options
+
+check_disallowed_options
+
+=cut
+
+sub check_disallowed_options {
+    my ($roles, $option, @check) = @_;
+    return 0 if any { $_ eq 'ALL' } $roles;
+    my @options = admin_allowed_options($roles, $option);
+    if (@options == 0) {
+        return 0;
     }
 
     my %valid = map { $_ => undef } @options;

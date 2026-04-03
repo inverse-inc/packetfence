@@ -75,7 +75,7 @@ has_field 'disallowed_roles' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role' },
    tags => { after_element => \&help,
-             help => 'List of roles not available to the admin user to assign to a node. If none are provided then all roles are available' },
+             help => 'List of roles not available to the admin user to assign to a user. If none are provided then all roles are available' },
   );
 
 has_field 'allowed_node_roles' =>
@@ -132,7 +132,7 @@ has_field 'allowed_node_bypass_vlans' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a vlan' },
    tags => { after_element => \&help,
-             help => 'Allowed list of' },
+             help => 'Allowed list of bypass vlans' },
   );
 
 has_field 'allowed_node_bypass_vlans.contains' =>
@@ -140,7 +140,7 @@ has_field 'allowed_node_bypass_vlans.contains' =>
    type => 'Text',
    element_class => ['chzn-select'],
    tags => { after_element => \&help,
-             help => 'Allow' },
+             help => 'Allowed list of bypass vlans' },
   );
 
 has_field 'allowed_access_levels' =>

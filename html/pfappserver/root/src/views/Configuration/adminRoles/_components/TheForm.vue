@@ -81,8 +81,8 @@
         />
 
         <form-group-disable-bypass-vlan namespace="disable_bypass_vlan"
-          :column-label="$i18n.t('Allowed node bypass vlan')"
-          :text="$i18n.t('List of bypass vlans available to the admin user to assign to as the node bypass vlan. If none are provided then any vlan can be placed.')"
+          :column-label="$i18n.t('Disable bypass vlan')"
+          :text="$i18n.t('Don\'t allow user to set or modify the bypass vlan')"
           taggable
         />
 
