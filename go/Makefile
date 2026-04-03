@@ -28,11 +28,11 @@ $(ALL_BINARIES_RACE):
 copy: copy-sbin copy-bin
 
 .PHONY: copy-sbin
-copy-sbin:
+copy-sbin: $(PF_BINARIES)
 	cp -f $(PF_BINARIES) $(DESTDIR)$(SBINDIR)
 
 .PHONY: copy-bin
-copy-bin:
+copy-bin: $(PF_GO_CMDS)
 	cp -f $(PF_GO_CMDS) $(DESTDIR)$(BINDIR)
 
 .PHONY: clean
