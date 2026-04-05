@@ -20,7 +20,8 @@ import (
 	"github.com/netresearch/go-cron"
 )
 
-func watchConfigChanges(ctx context.Context, c *cron.Cron, logger log.PfLogger) {
+func watchConfigChanges(ctx context.Context, c *cron.Cron, logger log.PfLogger, waiter *sync.WaitGroup) {
+	defer waiter.Done()
 	lastStatus := make(map[string]bool)
 
 	// Initialize with current config
@@ -128,13 +129,13 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 var processJobs uint32 = 1
 
-type pfCronJob struct {
+type pfCronJobWrapper struct {
 	logger log.PfLogger
 	job    cron.Job
 	ch     chan struct{}
 }
 
-func (p *pfCronJob) Run() {
+func (p *pfCronJobWrapper) Run() {
 	p.RunWithContext(context.Background())
 }
 
@@ -146,7 +147,7 @@ func runJob(ctx context.Context, j cron.Job) {
 	}
 }
 
-func (p *pfCronJob) RunWithContext(ctx context.Context) {
+func (p *pfCronJobWrapper) RunWithContext(ctx context.Context) {
 	name, local := "unnamed job", false
 	if j, ok := p.job.(maint.JobSetupConfig); ok {
 		name, local = j.Name(), j.ForceLocal()
@@ -158,7 +159,7 @@ func (p *pfCronJob) RunWithContext(ctx context.Context) {
 		}
 	}()
 
-	if local == false && atomic.LoadUint32(&processJobs) == 0 {
+	if !local && atomic.LoadUint32(&processJobs) == 0 {
 		p.logger.Info("Not processing " + name)
 		return
 	}
@@ -178,7 +179,7 @@ func pfCronWrapper(logger log.PfLogger) cron.JobWrapper {
 	return func(j cron.Job) cron.Job {
 		ch := make(chan struct{}, 1)
 		ch <- struct{}{}
-		return &pfCronJob{
+		return &pfCronJobWrapper{
 			job:    j,
 			ch:     ch,
 			logger: logger,
@@ -282,23 +283,23 @@ func main() {
 	}
 
 	w := sync.WaitGroup{}
-	w.Add(1)
+	w.Add(2)
 	NotifySystemd("READY=1")
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	watchCtx, cancel := context.WithCancel(context.Background())
 	go func() {
 		<-ch
+		cancel()
 		w.Done()
 	}()
-	watchCtx, cancel := context.WithCancel(context.Background())
 	go setProcessing()
-	go watchConfigChanges(watchCtx, c, logger)
+	go watchConfigChanges(watchCtx, c, logger, &w)
 	c.Start()
 	for _, j := range triggeredJobs {
 		c.TriggerEntryByName(j)
 	}
 	w.Wait()
-	cancel()
 	doneCtx := c.Stop()
 	<-doneCtx.Done()
 	NotifySystemd("STOPPING=1")
