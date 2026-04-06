@@ -8,9 +8,7 @@ After=network.service
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStartPre=/usr/local/pfconnector-remote/bin/configure-raddb.sh
 ExecStart=/usr/local/pfconnector-remote/bin/radiusd-auth-docker-wrapper
-ExecStartPre=/usr/local/pfconnector-remote/bin/sync-radius-certs.sh
 ExecStop=/bin/bash -c "docker stop radiusd-auth ; echo Stopped"
 Restart=on-failure
 

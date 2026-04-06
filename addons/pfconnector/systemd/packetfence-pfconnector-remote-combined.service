@@ -6,7 +6,6 @@ After=network.service
 
 [Service]
 LimitNOFILE=infinity
-ExecStartPre=/usr/local/pfconnector-remote/bin/configure-raddb.sh
 ExecStart=/usr/local/pfconnector-remote/bin/pfconnector-remote-combined-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-remote-combined ; echo Stopped"
 Restart=always
