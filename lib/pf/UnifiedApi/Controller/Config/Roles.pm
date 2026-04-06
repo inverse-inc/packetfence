@@ -51,10 +51,6 @@ sub post_update {
     $client->notify('generate_ansible_configuration_all_switches');
 }
 
-sub post_create {
-    my ($self, $id) = @_;
-    $self->post_update($id);
-}
 
 sub can_delete {
     my ($self) = @_;
