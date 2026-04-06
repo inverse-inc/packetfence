@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
+use pf::db;
 use pf::error qw(is_error is_success);
 use JSON::MaybeXS qw();
 use pf::admin_roles;
@@ -138,7 +139,7 @@ sub audit_request {
 
 sub is_auditable {
     my ($self) = @_;
-    return is_success($self->res->code) && $self->stash->{auditable};
+    return is_success($self->res->code) && $self->stash->{auditable} && !db_readonly_mode();
 }
 
 =head2 make_audit_record
