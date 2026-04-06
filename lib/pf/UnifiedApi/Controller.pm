@@ -139,7 +139,7 @@ sub audit_request {
 
 sub is_auditable {
     my ($self) = @_;
-    return is_success($self->res->code) && $self->stash->{auditable} && !db_readonly_mode();
+    return is_success($self->res->code) && $self->stash->{auditable} && !db_check_readonly();
 }
 
 =head2 make_audit_record
