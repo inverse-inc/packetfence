@@ -44,6 +44,10 @@
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
+          <b-nav-item to="/live-logs" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + L"
+            :active="$route.path.startsWith('/live-logs')">
+            <icon name="scroll" :class="{ 'text-success': hasRunningSessions }" />
+          </b-nav-item>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
@@ -155,6 +159,15 @@ const setup = (props, context) => {
   const username = computed(() => $store.state.session.username)
   const version = computed(() => $store.getters['system/version'])
 
+  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+  const hasRunningSessions = computed(() => {
+    const liveLogsState = $store.state.$_live_logs
+    if (!liveLogsState) return false
+    return Object.keys(liveLogsState)
+      .filter(id => uuidRe.test(id))
+      .some(id => $store.getters[`$_live_logs/${id}/isRunning`])
+  })
+
   // show nav links conditionally,
   //  instead of using redundant "v-can"
   //  we utilize the routes meta can instead.
@@ -213,6 +226,11 @@ const setup = (props, context) => {
           $router.push('/configuration')
             .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
           break
+        case keyCode === 76: // L
+          e.preventDefault()
+          $router.push('/live-logs')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
         case keyCode === 72: // H
           e.preventDefault()
           $store.dispatch('documentation/toggleViewer')
@@ -262,6 +280,9 @@ const setup = (props, context) => {
     settings,
     setLanguage,
     languages,
+
+    // live logs
+    hasRunningSessions,
 
     // documentation
     documentationViewerClass,

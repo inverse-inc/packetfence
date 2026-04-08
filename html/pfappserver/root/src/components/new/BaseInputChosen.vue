@@ -77,8 +77,15 @@
         </span>
       </template>
       <template v-slot:beforeList>
-        <li v-if="!internalSearch" class="multiselect__element">
-          <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
+        <li class="multiselect__element" v-if="!internalSearch || multiple">
+          <div class="text-right" v-if="multiple && internalSearch">
+            <b-button v-if="canSelectAll"
+              variant="link" size="sm" @click="onSelectAll">{{ $t('Select All') }}</b-button>
+            <b-button v-if="canSelectNone"
+              variant="link" size="sm" @click="onSelectNone">{{ $t('Select None') }}</b-button>
+          </div>
+          <div v-if="!internalSearch"
+            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
         </li>
       </template>
       <template v-slot:noOptions>
@@ -243,6 +250,25 @@ export const setup = (props, context) => {
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
 
+  const canSelectAll = computed(() => multiple.value && options.value.length > 0)
+  const onSelectAll = () => {
+    let _options = options.value
+    if (inputGroupLabel.value) {
+      _options = options.value.reduce((options, group) => {
+        const { [inputGroupValues.value]: groupValues } = group
+        return [ ...options, ...groupValues ]
+      }, [])
+    }
+    onInput(_options.map(option => {
+      const { [trackBy.value]: trackedValue } = option
+      return trackedValue
+    }))
+  }
+  const canSelectNone = computed(() =>
+    Array.isArray(value.value) ? value.value.length > 0 : !!value.value
+  )
+  const onSelectNone = () => onInput(multiple.value ? [] : null)
+
   const onTag = newValue => onInput(newValue)
 
   const {
@@ -264,8 +290,12 @@ export const setup = (props, context) => {
     inputType: type,
     isFocus,
     isLocked,
+    canSelectAll,
+    canSelectNone,
     onFocus,
     onBlur,
+    onSelectAll,
+    onSelectNone,
 
     // useInputValue
     inputValue: value,

@@ -1,11 +1,11 @@
 <template>
-  <b-tabs v-model="tabIndex" card>
-    <b-tab v-for="(tab, index) in tabs" :key="tab.session_id" :title="tab.name" no-body>
+  <b-tabs v-if="tabs.length > 0" v-model="tabIndex" card>
+    <b-tab v-for="tab in tabs" :key="tab.session_id" :title="tab.name" no-body>
       <template v-slot:title>
-        <span v-if="index > 0 && isLoading" class="float-right text-secondary ml-2">
+        <span v-if="isLoading" class="float-right text-secondary ml-2">
           <icon name="circle-notch" scale="1.5" spin />
         </span>
-        <span v-else-if="index > 0" class="float-right text-secondary ml-2" @click.prevent.stop="destroy(tab.session_id)"
+        <span v-else class="float-right text-secondary ml-2" @click.prevent.stop="destroy(tab.session_id)"
           v-b-tooltip.hover.top.d300 :title="$t('Close Session')"
         >
           <icon name="times" scale="1.5" />
@@ -19,7 +19,6 @@
 
 <script>
 import { computed, customRef } from '@vue/composition-api'
-import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -27,12 +26,8 @@ const setup = (props, context) => {
 
   const isLoading = computed(() => $store.getters['$_live_logs/isLoading'])
   const sessions = computed(() => $store.getters['$_live_logs/sessions'])
-  const tabs = computed(() => ([
-    {
-      name: i18n.t('Create Session'),
-      route: { name: 'live_logs' }
-    },
-    ...sessions.value.map(session => {
+  const tabs = computed(() => (
+    sessions.value.map(session => {
       const { name, session_id } = session
       return {
         session_id,
@@ -40,35 +35,32 @@ const setup = (props, context) => {
         route: { name: 'live_log', params: { id: session_id } }
       }
     })
-  ]))
+  ))
   const tabIndex = customRef((track, trigger) => ({
     get() {
       track()
       const { params: { id } = {} } = $router.currentRoute
       if (id) {
-        let sessionIndex = sessions.value.findIndex(s => {
-          return s.session_id === id
-        })
-        if (sessionIndex > -1) {
-          return sessionIndex + 1
-        }
+        const sessionIndex = sessions.value.findIndex(s => s.session_id === id)
+        if (sessionIndex > -1) return sessionIndex
       }
-      return 0
+      return -1
     },
     set(tabIndex) {
-      $router.push(tabs.value[tabIndex].route)
-        .catch(() => {}) // suppress Error, NavigationError
-      trigger()
+      if (tabIndex >= 0 && tabs.value[tabIndex]) {
+        $router.push(tabs.value[tabIndex].route)
+          .then(() => trigger())
+          .catch(() => {})
+      }
     }
   }))
 
   const destroy = (session_id) => {
-    $store.dispatch('$_live_logs/destroySession', session_id).then(() => {
-        const { params: { id } = {} } = $router.currentRoute
-        if (session_id === id) { // tab is currently selected
-          $router.push({ name: 'live_logs' })
-        }
-      })
+    const { params: { id } = {} } = $router.currentRoute
+    if (session_id === id) {
+      $router.push({ name: 'live_logs' })
+    }
+    $store.dispatch('$_live_logs/destroySession', session_id)
   }
 
   return {

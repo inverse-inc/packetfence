@@ -2,6 +2,7 @@
 * "$_live_log" store module
 */
 import Vue from 'vue'
+import store from '@/store'
 import api from '../_api'
 import { createDebouncer } from 'promised-debounce'
 import i18n from '@/utils/locale'
@@ -16,6 +17,7 @@ const state = () => {
       filter: null,
       filter_is_regexp: false
     },
+    cursor: null,
     options: {
       background: 'white',
       size: 'normal',
@@ -50,8 +52,11 @@ const state = () => {
     lines: 0,
     debouncer: false,
     debouncerMs: 300, // 300ms
+    debouncerSlowMs: 2000, // 2s idle poll for SaaS
     touch: false,
     touchMs: 15000, // 15s
+    searchQuery: '',
+    searchIsRegex: false,
     message: '',
     status: ''
   }
@@ -89,7 +94,9 @@ const getters = {
   },
   size: state => state.size,
   lines: state => state.lines,
-  options: state => state.options
+  options: state => state.options,
+  searchQuery: state => state.searchQuery,
+  searchIsRegex: state => state.searchIsRegex
 }
 
 const actions = {
@@ -112,11 +119,27 @@ const actions = {
   },
   getSession: ({ state, commit, dispatch }) => {
     if (state.running) {
+      const saas = store.getters['system/isSaas']
       commit('LOG_SESSION_REQUEST')
-      return api.item(state.session.session_id).then(response => {
+      let promise
+      if (saas) {
+        const pollBody = {
+          files: state.session.files,
+          filter: state.session.filter || '',
+          filter_is_regexp: state.session.filter_is_regexp || false,
+          cursor: state.cursor
+        }
+        promise = api.item(state.session.session_id, pollBody)
+      } else {
+        promise = api.item(state.session.session_id)
+      }
+      return promise.then(response => {
         commit('LOG_SESSION_RESPONSE', response)
         if (!state.paused) {
-          commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+          const delayMs = (saas && (!response.events || response.events.length === 0))
+            ? state.debouncerSlowMs
+            : state.debouncerMs
+          commit('LOG_SESSION_QUEUE', { dispatch, delayMs })
         }
         return response
       }).catch(err => {
@@ -134,7 +157,7 @@ const actions = {
     if (state.paused) {
       commit('LOG_SESSION_UNPAUSE')
       if (state.running) {
-        commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+        commit('LOG_SESSION_QUEUE', { dispatch, delayMs: state.debouncerMs })
       }
     }
   },
@@ -201,13 +224,22 @@ const delMeta = (scopes, event) => {
 }
 
 const mutations = {
+  SET_SEARCH_QUERY: (state, query) => {
+    state.searchQuery = query
+  },
+  SET_SEARCH_IS_REGEX: (state, isRegex) => {
+    state.searchIsRegex = isRegex
+  },
   SET_SESSION: (state, session) => {
     state.session = session
+    if (session.cursor != null) {
+      state.cursor = session.cursor
+    }
   },
   SET_OPTIONS: (state, options) => {
     state.options = options
   },
-  LOG_SESSION_QUEUE: (state, dispatch) => {
+  LOG_SESSION_QUEUE: (state, { dispatch, delayMs }) => {
     if (!state.debouncer) {
       state.debouncer = createDebouncer()
     }
@@ -215,7 +247,7 @@ const mutations = {
       handler: () => {
         dispatch('getSession')
       },
-      time: state.debouncerMs
+      time: delayMs || state.debouncerMs
     })
   },
   LOG_SESSION_REQUEST: (state) => {
@@ -224,6 +256,9 @@ const mutations = {
   },
   LOG_SESSION_RESPONSE: (state, response) => {
     state.status = 'success'
+    if (response.cursor != null) {
+      state.cursor = response.cursor
+    }
     const { events } = response
     if (events) {
       state.events = [ ...state.events, ...events ]
@@ -321,4 +356,3 @@ export default {
   actions,
   mutations
 }
-
