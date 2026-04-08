@@ -36,7 +36,8 @@
 <script>
 import { computed } from '@vue/composition-api'
 import {
-  BaseForm
+  BaseForm,
+  BaseFormTab
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
@@ -49,6 +50,7 @@ import {
 
 const components = {
   BaseForm,
+  BaseFormTab,
 
   FormGroupIdentifier,
   FormGroupDescription,

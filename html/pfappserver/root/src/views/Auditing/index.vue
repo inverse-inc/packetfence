@@ -42,11 +42,6 @@ const setup = () => {
       path: '/auditing/admin_api_audit_logs/search',
       saveSearchNamespace: 'adminApiLogs',
       can: 'read admin_api_audit_log'
-    },
-    {
-      name: i18n.t('Live Logs'),
-      path: '/auditing/live/',
-      can: 'read system'
     }
   ]))
 

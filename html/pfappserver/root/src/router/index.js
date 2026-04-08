@@ -16,6 +16,7 @@ import ConfigurationRoute from '@/views/Configuration/_router'
 import ConfiguratorRoute from '@/views/Configurator/_router'
 import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
+import LiveLogsRoutes from '@/views/LiveLogs/_router'
 
 Vue.use(Loading)
 
@@ -64,12 +65,14 @@ let router = new Router({
     ConfiguratorRoute,
     PreferencesRoute,
     ResetRoute,
+    ...LiveLogsRoutes,
     DefaultRoute
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)) {
+  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)
+      && !to.path.startsWith('/live-logs')) {
     showLoader()
   }
   /**
@@ -97,7 +100,11 @@ router.beforeEach((to, from, next) => {
     store.commit('session/CONFIGURATOR_INACTIVE')
     if (to.name !== 'login') { // [4]
       store.dispatch('session/load').then(() => {
-        next() // [5]
+        if (store.state.system.summary === false) {
+          return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before first navigation
+        }
+      }).then(() => {
+        next() // [5b]
       }).catch(() => {
         let currentPath = router.currentRoute.fullPath
         if (currentPath === '/') {
@@ -143,14 +150,6 @@ router.afterEach((to, from) => {
     window.scrollTo(0, 0) // [3]
     hideLoader()
   }, transitionDelay || 300)
-  /**
-   * Fetch data required for ALL authenticated pages
-   */
-  if (store.state.session.username) {
-    if (store.state.system.summary === false) {
-      store.dispatch('system/getSummary')
-    }
-  }
   store.dispatch('analytics/trackRoute', { to, from })
 })
 
