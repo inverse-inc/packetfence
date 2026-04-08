@@ -23,7 +23,10 @@ export const pfFormatters = {
     if (acl.$can('read', 'nodes')) {
       store.dispatch('config/getRoles')
       if (store.state.config.roles) {
-        return store.state.config.roles.filter(role => role.category_id.toString() === item.category_id.toString()).map(role => role.name)[0]
+        const match = store.state.config.roles.find(role => role.category_id.toString() === item.category_id.toString())
+        if (match) return match.name
+        store.dispatch('config/getRoleByCategoryId', item.category_id)
+        return item.category_id
       }
     } else {
       return item.category_id
@@ -47,7 +50,10 @@ export const pfFormatters = {
     if (acl.$can('read', 'nodes')) {
       store.dispatch('config/getRoles')
       if (store.state.config.roles) {
-        return store.state.config.roles.filter(role => role.category_id.toString() === item.bypass_role_id.toString()).map(role => role.name)[0]
+        const match = store.state.config.roles.find(role => role.category_id.toString() === item.bypass_role_id.toString())
+        if (match) return match.name
+        store.dispatch('config/getRoleByCategoryId', item.bypass_role_id)
+        return item.bypass_role_id
       }
     } else {
       return item.bypass_role_id

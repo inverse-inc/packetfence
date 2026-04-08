@@ -188,6 +188,9 @@ const api = {
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
   },
+  getRoleByCategoryId (categoryId) {
+    return apiCall({ url: `node_category/${categoryId}`, method: 'get' })
+  },
   getRoutedNetworks () {
     return apiCall({ url: 'config/routed_networks', method: 'get', params: { limit: 1000 } })
   },
@@ -1562,6 +1565,18 @@ const actions = {
       return Promise.resolve(state.roles)
     }
   },
+  getRoleByCategoryId: ({ state, commit }, categoryId) => {
+    if (state.roles) {
+      const existing = state.roles.find(role => role.category_id.toString() === categoryId.toString())
+      if (existing) {
+        return Promise.resolve(existing)
+      }
+    }
+    return api.getRoleByCategoryId(categoryId).then(response => {
+      commit('ROLE_APPENDED', response.data.item)
+      return response.data.item
+    }).catch(() => null)
+  },
   getRoutedNetworks: ({ state, getters, commit }) => {
     if (getters.isLoadingRoutedNetworks) {
       return Promise.resolve(state.routedNetworks)
@@ -2187,6 +2202,14 @@ const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
     state.rolesStatus = types.SUCCESS
+  },
+  ROLE_APPENDED: (state, role) => {
+    if (state.roles && role) {
+      const exists = state.roles.some(r => r.category_id.toString() === role.category_id.toString())
+      if (!exists) {
+        state.roles.push(role)
+      }
+    }
   },
   ROUTED_NETWORKS_REQUEST: (state) => {
     state.routedNetworksStatus = types.LOADING

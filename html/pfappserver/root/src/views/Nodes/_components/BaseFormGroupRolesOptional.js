@@ -10,15 +10,24 @@ export const props = {
   lookup: {
     type: Function,
     default: (value, isKeyLookup) => {
-      const values = (isKeyLookup)
-        ? [{ field: 'category_id', op: 'equals', value }]
-        : [
-            { field: 'id', op: 'contains', value },
-            { field: 'notes', op: 'contains', value }
-          ]
-      const limit = (isKeyLookup) ? 1 : 100
+      if (isKeyLookup) {
+        // Use node_category (DB-backed) for key lookup since
+        // config/roles/search (file-backed) does not have category_id
+        return apiCall.request({
+          url: `node_category/${value}`,
+          method: 'get',
+          baseURL
+        }).then(response => {
+          const { data: { item } = {} } = response
+          if (!item) return []
+          return [{
+            value: item.category_id,
+            text: item.notes ? `${item.name} - ${item.notes}` : item.name
+          }]
+        })
+      }
       return apiCall.request({
-        url: 'config/roles/search',
+        url: 'node_categories/search',
         method: 'post',
         baseURL,
         data: {
@@ -26,23 +35,24 @@ export const props = {
             op: 'and',
             values: [{
               op: 'or',
-              values
+              values: [
+                { field: 'name', op: 'contains', value },
+                { field: 'notes', op: 'contains', value }
+              ]
             }]
           },
-          fields: ['id', 'notes', 'category_id'],
-          sort: ['id'],
+          fields: ['name', 'notes', 'category_id'],
+          sort: ['name'],
           cursor: 0,
-          limit
+          limit: 100
         }
       }).then(response => {
         const { data: { items = [] } = {} } = response
         const roles = items.map(item => ({
           value: item.category_id,
-          text: item.notes ? `${item.id} - ${item.notes}` : item.id
+          text: item.notes ? `${item.name} - ${item.notes}` : item.name
         }))
-        return (isKeyLookup)
-          ? roles
-          : [{ value: null, text: i18n.t('No Role') }, ...roles]
+        return [{ value: null, text: i18n.t('No Role') }, ...roles]
       })
     }
   },
@@ -50,14 +60,14 @@ export const props = {
   options: {
     type: Promise,
     default: () => {
-      return apiCall.get('config/roles', { params: { limit: 100, sort: 'id' } })
+      return apiCall.get('node_categories', { params: { limit: 100, sort: 'name' } })
         .then(response => {
           const { data: { items = [] } = {} } = response
           return [
             { value: null, text: i18n.t('No Role') },
             ...items.map(item => ({
               value: item.category_id,
-              text: item.notes ? `${item.id} - ${item.notes}` : item.id
+              text: item.notes ? `${item.name} - ${item.notes}` : item.name
             }))
           ]
         })
