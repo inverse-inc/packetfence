@@ -77,7 +77,7 @@ func (fm *ESFieldMapping) ExtractLogMeta(source map[string]interface{}) LogMeta 
 	return lm
 }
 
-// extractLogLevelFromMessage parses the log level from the raw message body.
+// extractLogLevelFromMessage extracts the log level from the raw message body.
 // Handles these formats:
 //   - Go:         t=... lvl=info msg="..."
 //   - PF httpd:   httpd.portal(120) WARN: ..., httpd.aaa(7) INFO: ...
