@@ -359,8 +359,9 @@ pfconnector_remote_install:
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/eap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/eap
 	rm -f $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/perl
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence-pre-proxy $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-config/attr_filter/packetfence-pre-proxy
+	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available/packetfence
 	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled/packetfence
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/dynamic-clients $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled/dynamic-clients
 
 .PHONY: ntlm_auth_api_remote_install

@@ -2,6 +2,7 @@
 
 set -e
 
+RADDB_TEMPLATE="/usr/local/pf/raddb/sites-available/packetfence"
 RADDB_PACKETFENCE="/usr/local/pf/raddb/sites-enabled/packetfence"
 
 # Fetch the local secret from the pfconnector server API
@@ -20,12 +21,13 @@ if [ -z "$MGMT_IP" ]; then
     exit 1
 fi
 
-# Replace placeholders in the raddb config
-if [ -f "$RADDB_PACKETFENCE" ]; then
-    sed -i "s/%password%/$LOCAL_SECRET/g" "$RADDB_PACKETFENCE"
-    sed -i "s/%mgmt_ip%/$MGMT_IP/g" "$RADDB_PACKETFENCE"
+# Generate raddb config from template
+if [ -f "$RADDB_TEMPLATE" ]; then
+    sed -e "s/%password%/$LOCAL_SECRET/g" \
+        -e "s/%mgmt_ip%/$MGMT_IP/g" \
+        "$RADDB_TEMPLATE" > "$RADDB_PACKETFENCE"
     echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP"
 else
-    echo "ERROR: $RADDB_PACKETFENCE not found" >&2
+    echo "ERROR: $RADDB_TEMPLATE not found" >&2
     exit 1
 fi

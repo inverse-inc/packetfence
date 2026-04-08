@@ -5,11 +5,14 @@ home_server pf.remote {
         src_ipaddr = %mgmt_ip%
         port = 18122
         secret = '%password%'
-        response_window = 6
+        response_window = 3                  # seconds to wait for ANY reply
+        zombie_period = 10                   # mark server dead after this
+        revive_interval = 60                 # auto revive if it’s been dead that long
+
+        # Status‑server checks every check_interval, if supported
         status_check = status-server
-        revive_interval = 120
-        check_interval = 30
-        num_answers_to_alive = 3
+        check_interval = 10                  # probe every 10 sec
+        num_answers_to_alive = 1             # 1 good reply → mark alive
 }
 
 
