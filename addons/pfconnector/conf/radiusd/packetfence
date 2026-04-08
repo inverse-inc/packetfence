@@ -15,7 +15,6 @@ home_server pf.remote {
         num_answers_to_alive = 1             # 1 good reply → mark alive
 }
 
-
 home_server degraded {
 	virtual_server = pf.degraded
 }
@@ -111,7 +110,6 @@ server pf.degraded {
 				&control:Auth-Type := Accept
 			}
 		}
-		rest
 		pap
 
 	}
@@ -168,6 +166,9 @@ server pf.degraded {
 	post-auth {
 		attr_filter.packetfence_post_auth
 		linelog
+		if (reply:Packet-Type != Access-Challenge) {
+			rest
+		}
 		Post-Auth-Type REJECT {
 			attr_filter.access_reject
 			attr_filter.packetfence_post_auth
