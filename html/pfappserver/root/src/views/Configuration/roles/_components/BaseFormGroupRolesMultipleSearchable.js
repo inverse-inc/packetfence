@@ -1,6 +1,5 @@
 import { BaseFormGroupChosenMultipleSearchable, BaseFormGroupChosenMultipleSearchableProps } from '@/components/new/'
 import apiCall from '@/utils/api'
-import i18n from '@/utils/locale'
 
 export const props = {
   ...BaseFormGroupChosenMultipleSearchableProps,
