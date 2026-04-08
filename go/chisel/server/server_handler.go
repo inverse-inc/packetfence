@@ -96,6 +96,7 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-ntlm-auth-api-db":
 		s.handleRemoteNtlmAuthAPIDB(w, r)
+		return
 	case apiPrefix + "/remote-radius-conf":
 		s.handleRemoteRadiusConf(w, r)
 		return
