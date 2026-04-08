@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -17,7 +18,7 @@ type RedisTokenBackend struct {
 func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
 	return &RedisTokenBackend{
 		redis: redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379",
+			Addr:     sharedutils.EnvOrDefault("REDIS_CACHE_HOST_PORT", "localhost:6379"),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		}),
