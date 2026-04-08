@@ -1,11 +1,11 @@
 import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupSwitch,
   BaseFormGroupTextarea
 } from '@/components/new/'
+import BaseFormGroupRolesSearchable from './BaseFormGroupRolesSearchable'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -15,7 +15,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupNotes,
   BaseFormGroupInput                  as FormGroupMaxNodesPerPid,
-  BaseFormGroupChosenOne              as FormGroupParentIdentifier,
+  BaseFormGroupRolesSearchable        as FormGroupParentIdentifier,
   BaseFormGroupSwitch                 as FormGroupIncludeParentAcls,
   BaseFormGroupSwitch                 as FormGroupFingerbankDynamicAccessList,
   BaseFormGroupTextarea               as FormGroupAcls,

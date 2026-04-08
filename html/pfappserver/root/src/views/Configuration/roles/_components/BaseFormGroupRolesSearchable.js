@@ -1,17 +1,16 @@
-import BaseFormGroupRolesSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesSearchable'
+import { BaseFormGroupChosenOneSearchable, BaseFormGroupChosenOneSearchableProps } from '@/components/new/'
 import apiCall, { baseURL } from '@/utils/api'
 import i18n from '@/utils/locale'
 
 export const props = {
-  // inherit lookup/options from BaseFormGroupRolesSearchable,
-  // override to map role id (name) to category_id for node forms
-  ...BaseFormGroupRolesSearchable.props,
+  ...BaseFormGroupChosenOneSearchableProps,
 
+  // overload :lookup — Function-based to control display format
   lookup: {
     type: Function,
     default: (value, isKeyLookup) => {
       const values = (isKeyLookup)
-        ? [{ field: 'category_id', op: 'equals', value }]
+        ? [{ field: 'id', op: 'equals', value }]
         : [
             { field: 'id', op: 'contains', value },
             { field: 'notes', op: 'contains', value }
@@ -29,7 +28,7 @@ export const props = {
               values
             }]
           },
-          fields: ['id', 'notes', 'category_id'],
+          fields: ['id', 'notes'],
           sort: ['id'],
           cursor: 0,
           limit
@@ -37,7 +36,7 @@ export const props = {
       }).then(response => {
         const { data: { items = [] } = {} } = response
         const roles = items.map(item => ({
-          value: item.category_id,
+          value: item.id,
           text: item.notes ? `${item.id} - ${item.notes}` : item.id
         }))
         return (isKeyLookup)
@@ -47,6 +46,7 @@ export const props = {
     }
   },
 
+  // overload :options — prime dropdown with first 100 results via GET
   options: {
     type: Promise,
     default: () => {
@@ -56,7 +56,7 @@ export const props = {
           return [
             { value: null, text: i18n.t('No Role') },
             ...items.map(item => ({
-              value: item.category_id,
+              value: item.id,
               text: item.notes ? `${item.id} - ${item.notes}` : item.id
             }))
           ]
@@ -66,7 +66,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-roles-optional',
-  extends: BaseFormGroupRolesSearchable,
+  name: 'base-form-group-roles-searchable',
+  extends: BaseFormGroupChosenOneSearchable,
   props
 }

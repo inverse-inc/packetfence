@@ -10,6 +10,8 @@ import {
   BaseFormGroupSwitch,
   BaseFormGroupTextareaUpload,
 } from '@/components/new/'
+import BaseFormGroupRolesSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesSearchable'
+import BaseFormGroupRolesMultipleSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesMultipleSearchable'
 import {BaseFormGroupOses} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -32,7 +34,7 @@ export {
   BaseFormGroupSwitch                       as FormGroupBroadcast,
   BaseFormGroupFileUpload                   as FormGroupCaCertPath,
   BaseFormGroupSwitch                       as FormGroupCanSignProfile,
-  BaseFormGroupChosenMultiple               as FormGroupCategory,
+  BaseFormGroupRolesMultipleSearchable      as FormGroupCategory,
   BaseFormGroupTextareaUpload               as FormGroupCertChain,
   BaseFormGroupTextareaUpload               as FormGroupCertificate,
   BaseFormGroupInputPassword                as FormGroupClientSecret,
@@ -65,7 +67,7 @@ export {
   BaseFormGroupSwitch                       as FormGroupQueryComputers,
   BaseFormGroupSwitch                       as FormGroupQueryMobileDevices,
   BaseFormGroupChosenMultiple               as FormGroupRules,
-  BaseFormGroupChosenOne                    as FormGroupRoleToApply,
+  BaseFormGroupRolesSearchable              as FormGroupRoleToApply,
   BaseFormGroupChosenOne                    as FormGroupSecurityType,
   BaseFormGroupFileUpload                   as FormGroupServerCertificatePath,
   BaseFormGroupTextareaUpload               as FormGroupServiceAccount,
