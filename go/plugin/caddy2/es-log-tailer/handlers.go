@@ -347,15 +347,15 @@ func (h *ESLogTailerHandler) queryEvents(ctx context.Context, sources []string, 
 }
 
 // normalizeSourceNames converts file paths to container names.
-// If a source looks like a path (contains "/"), the base name is extracted
-// and common log extensions are stripped:
+// If a source looks like an absolute path (starts with "/"), the base name
+// is extracted and common log extensions are stripped:
 //
 //	"/usr/local/pf/logs/api-frontend.log" → "api-frontend"
 //	"api-frontend" → "api-frontend" (unchanged)
 func normalizeSourceNames(sources []string) []string {
 	out := make([]string, 0, len(sources))
 	for _, s := range sources {
-		if strings.Contains(s, "/") {
+		if strings.HasPrefix(s, "/") {
 			s = filepath.Base(s)
 			s = strings.TrimSuffix(s, ".log")
 		}
@@ -400,13 +400,3 @@ func (h *ESLogTailerHandler) getLatestTimestamp(ctx context.Context) (interface{
 	return nil, false
 }
 
-// newTestHandler creates a minimal handler for testing with the given client
-func newTestHandler(client *ESClient, fieldMapping *ESFieldMapping, indexPattern, aggField string) *ESLogTailerHandler {
-	h := &ESLogTailerHandler{
-		esClient:     client,
-		fieldMapping: fieldMapping,
-		indexPattern: indexPattern,
-		aggField:     aggField,
-	}
-	return h
-}

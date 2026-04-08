@@ -945,3 +945,14 @@ func TestBuildHandler_NothingSet_Disabled(t *testing.T) {
 		t.Error("expected router to be nil when no env vars set (plugin disabled)")
 	}
 }
+
+// newTestHandler creates a minimal handler for testing with the given client
+func newTestHandler(client *ESClient, fieldMapping *ESFieldMapping, indexPattern, aggField string) *ESLogTailerHandler {
+	h := &ESLogTailerHandler{
+		esClient:     client,
+		fieldMapping: fieldMapping,
+		indexPattern: indexPattern,
+		aggField:     aggField,
+	}
+	return h
+}

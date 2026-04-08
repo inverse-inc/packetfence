@@ -443,7 +443,7 @@ const setup = (props, context) => {
     re.lastIndex = 0
     return str.replace(re, match => `<mark>${match}</mark>`)
   }
-  const highlightRaw = (text) => applyHighlight(String(text || ''))
+  const highlightRaw = (text) => applyHighlight(escapeHtml(text))
   const highlightEscaped = (text) => applyHighlight(escapeHtml(text))
 
   const isSearchMatch = (idx) => searchMatchIndices.value.includes(idx)

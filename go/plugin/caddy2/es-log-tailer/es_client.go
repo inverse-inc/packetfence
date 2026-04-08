@@ -57,6 +57,8 @@ func NewESClient() *ESClient {
 		scheme = "https"
 	}
 
+	skipVerify := os.Getenv("KIBANA_TLS_SKIP_VERIFY") != "false"
+
 	return &ESClient{
 		baseURL:  fmt.Sprintf("%s://%s:9200", scheme, host),
 		username: os.Getenv("KIBANA_USER"),
@@ -64,7 +66,7 @@ func NewESClient() *ESClient {
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: skipVerify},
 			},
 		},
 	}
