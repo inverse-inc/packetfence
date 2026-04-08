@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
 
@@ -19,17 +20,19 @@ type API struct {
 	ConnectorId string
 	ctx         context.Context
 	cancel      context.CancelFunc
+	tunnel      *tunnel.Tunnel
 }
 
 type Service struct {
 	Name string `json:"service"`
 }
 
-func NewApi(ctx context.Context, ConnectorID string) API {
+func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	var Api = API{}
 	Api.Router = chi.NewRouter()
 	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
+	Api.tunnel = tun
 
 	Api.setupRoutes()
 
@@ -72,6 +75,7 @@ func (api *API) setupRoutes() {
 			r.Route("/status", func(r chi.Router) {
 				r.Get("/", connectorStatus(api))
 			})
+			r.Post("/radius/authorize", radiusAuthorize(api))
 		})
 	})
 }
@@ -262,6 +266,28 @@ func ntlmAuth(api *API) http.HandlerFunc {
 func connectorStatus(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
+	})
+}
+
+// radiusAuthorize returns control:Proxy-To-Realm based on tunnel connectivity.
+// Used by rlm_rest in the FreeRADIUS authorize section.
+func radiusAuthorize(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		realm := "degraded"
+		if api.tunnel != nil && api.tunnel.IsActive() {
+			realm = "remote"
+		}
+
+		response := map[string]interface{}{
+			"control:Proxy-To-Realm": map[string]interface{}{
+				"op":    ":=",
+				"value": []string{realm},
+			},
+		}
+		json.NewEncoder(w).Encode(response)
 	})
 }
 

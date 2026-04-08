@@ -472,7 +472,7 @@ func client(args []string) {
 		log.Fatal(err)
 	}
 	go func(ctx context.Context) {
-		api := clientapi.NewApi(ctx, config.Auth)
+		api := clientapi.NewApi(ctx, config.Auth, c.GetTunnel())
 		if err := api.Start(ctx, ":8081"); err != nil {
 			log.Fatal(err)
 		}

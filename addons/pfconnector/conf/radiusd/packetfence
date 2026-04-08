@@ -36,6 +36,14 @@ realm remote {
 	acct_pool = pf_acct_pool
 }
 
+home_server_pool degraded_pool {
+	home_server = degraded
+}
+
+realm degraded {
+	auth_pool = degraded_pool
+}
+
 
 server pf-remote {
 	pre-proxy {
