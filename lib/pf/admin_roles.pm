@@ -165,7 +165,7 @@ check_disallowed_options
 
 sub check_disallowed_options {
     my ($roles, $option, @check) = @_;
-    return 0 if any { $_ eq 'ALL' } $roles;
+    return 0 if any { $_ eq 'ALL' } @$roles;
     my @options = admin_allowed_options($roles, $option);
     if (@options == 0) {
         return 0;
