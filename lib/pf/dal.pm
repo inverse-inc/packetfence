@@ -117,7 +117,7 @@ sub db_execute {
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
-            if ($err < 2000 || $err == 9001) {
+            if ($err < 2000 || $err == $PROXY_SQL_TIME_ERROR) {
                 if ($err == $MYSQL_READONLY_ERROR) {
                     $logger->warn("Attempting to update a readonly database");
                 } else {
