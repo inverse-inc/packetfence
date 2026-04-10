@@ -66,9 +66,9 @@ server pf-remote {
 	}
 
 	authorize {
+		rest-remote
 		update control {
 			Load-Balance-Key := "%{Calling-Station-Id}"
-			Proxy-To-Realm := "remote"
 		}
 		if(!NAS-IP-Address){
 			update request {
@@ -81,9 +81,7 @@ server pf-remote {
 	authenticate {
 	}
 	accounting {
-		update control {
-			Proxy-To-Realm := "remote"
-		}
+		rest-remote
 		if(!NAS-IP-Address){
 			update request {
 				NAS-IP-Address := "%{Packet-Src-IP-Address}"
