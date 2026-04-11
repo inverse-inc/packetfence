@@ -1,381 +1,236 @@
 # PacketFence USB Bootable ISO
 
-This directory contains scripts to build a **bootable Debian 12 ISO** with PacketFence pre-installed. Unlike the net-install ISO in `ci/debian-installer/`, this creates a complete live system that can run directly from USB or be installed to disk with all dependencies included offline.
+Build a self-contained, offline USB installer for PacketFence on Debian 12 (Bookworm).
 
-## Features
+The ISO bundles the Debian DVD, all PacketFence packages, dependencies, and pre-downloaded Docker images so that no internet connection is required during installation.
 
-### Boot Options
-The ISO provides multiple boot modes via GRUB menu:
+## Requirements
 
-1. **Live System** - Run PacketFence directly from USB/DVD without installation
-2. **Live System with Persistence** - Run from USB with ability to save changes
-3. **Install to Hard Drive** - Full installation wizard (graphical)
-4. **Install to Hard Drive (Text Mode)** - Text-based installation
-5. **Recovery Mode** - Debug mode for troubleshooting
+### Build machine
 
-### System Features
-- ✅ **PacketFence pre-installed** with all dependencies
-- ✅ **Offline installation** - No internet required
-- ✅ **Persistence support** - Save changes on USB stick
-- ✅ **System requirements check** - Validates RAM, CPU, and disk
-- ✅ **Auto-configured** - Ready to use after boot
-- ✅ **Admin GUI notification** - Shows URL on first login
+- **OS:** Debian 12 / Ubuntu 22.04+ (amd64)
+- **Disk space:** ~30 GB free (base ISO ~3.8 GB + work directories + final ISO)
+- **RAM:** 4 GB minimum
+- **Internet:** Required during build to download packages and Docker images
+- **Root/sudo:** Required for `debootstrap` and package operations
 
-## System Requirements
+#### Required packages
 
-### Recommended (Production)
-- **RAM**: 8 GB minimum
-- **CPU**: 8 cores minimum  
-- **Disk**: 50 GB minimum
-- **Network**: 2+ NICs recommended
+Installed automatically by the build script if missing:
 
-### Minimum (Testing)
-- **RAM**: 4 GB
-- **CPU**: 2 cores
-- **Disk**: 20 GB
+- `debootstrap`
+- `xorriso`
+- `dpkg-dev`
+- `cpio`
+- `gnupg`
+- `docker` (Docker Engine, from docker.com or `docker.io`)
 
-The system will display warnings if requirements are not met.
+### Target server (installation)
+
+- **Architecture:** x86_64 / amd64
+- **RAM:** 8 GB minimum (16 GB recommended)
+- **Disk:** 100 GB minimum
+- **Boot:** BIOS (Legacy) or UEFI (Secure Boot must be disabled)
+- **USB port:** USB 2.0 or higher
+
+### USB key
+
+- **Capacity:** 16 GB minimum (the ISO is typically 6-8 GB)
 
 ## Building the ISO
 
-### Prerequisites
-- Linux system (Debian/Ubuntu preferred)
-- Docker installed
-- 10+ GB free disk space
-- Root/sudo access
+### From a local checkout
 
-### Build Methods
-
-#### Method 1: Using Docker (Recommended)
 ```bash
 cd ci/usb-bootable-iso
 make iso
 ```
 
-This builds the ISO in a clean Debian 12 container and uploads it to storage.
+The output file is `PacketFence-USB-ISO-<version>.iso`.
 
-#### Method 2: Local Build (For Testing)
-```bash
-cd ci/usb-bootable-iso
-make local
-```
-
-This builds locally without Docker. Requires Debian 12 or similar system.
-
-#### Method 3: Manual Build
-```bash
-cd ci/usb-bootable-iso
-sudo PF_RELEASE="12.0" PF_VERSION="devel" ./build-usb-bootable-iso.sh
-```
-
-### Build Output
-- **ISO File**: `PacketFence-USB-Bootable-<version>.iso`
-- **Checksums**: `.sha256` and `.md5` files
-- **Size**: ~2-4 GB (includes all dependencies)
-
-## Using the ISO
-
-### 1. Write to USB Drive
-
-**Linux:**
-```bash
-sudo dd if=PacketFence-USB-Bootable.iso of=/dev/sdX bs=4M status=progress
-sudo sync
-```
-
-**Windows:** Use [Rufus](https://rufus.ie/) or [Etcher](https://www.balena.io/etcher/)
-
-**macOS:**
-```bash
-sudo dd if=PacketFence-USB-Bootable.iso of=/dev/diskX bs=4m
-```
-
-⚠️ Replace `/dev/sdX` or `/dev/diskX` with your actual USB device!
-
-### 2. Boot from USB/DVD
-
-1. Insert USB drive or DVD
-2. Boot system and select boot device (usually F12, F2, or DEL)
-3. Select USB/DVD from boot menu
-4. Choose boot option from GRUB menu
-
-### 3. First Boot
-
-After booting (live or installed), you'll see:
-
-```
-==========================================
-  PacketFence Administration
-==========================================
-
-PacketFence has been installed successfully!
-
-The administration GUI is available at:
-  https://192.168.1.10:1443/
-
-You will need to complete the initial configuration
-through the web setup wizard.
-
-To check system requirements:
-  /usr/local/pf/bin/pfcmd checkrequirements
-
-==========================================
-```
-
-### 4. Check System Requirements
+### Override version or output name
 
 ```bash
-/usr/local/pf/bin/pfcmd checkrequirements
+make iso PF_VERSION=15.1.0 ISO_OUT=packetfence-custom.iso
 ```
 
-This will display:
-```
-==========================================
-PacketFence System Requirements Check
-==========================================
+### Skip work directory cleanup (faster rebuilds while debugging)
 
-System Specifications:
-  RAM:  8 GB (Recommended: 8 GB)
-  CPU:  8 cores (Recommended: 8 cores)
-  Disk: 50 GB (Recommended: 50 GB)
-
-✓ All requirements met!
-==========================================
-```
-
-## Live System Usage
-
-### Running Without Installation
-1. Select "**PacketFence - Live System**" from boot menu
-2. Wait for system to boot (2-3 minutes)
-3. Login as `root` with password `packetfence`
-4. Access admin GUI at `https://<IP>:1443/`
-
-### Running With Persistence (USB Only)
-1. Select "**PacketFence - Live System with Persistence**"
-2. Changes are saved to USB drive
-3. Configuration persists across reboots
-
-**Creating Persistence Partition:**
-After first boot with persistence option:
 ```bash
-# Create persistence partition on USB
-sudo fdisk /dev/sdX  # Create new partition
-sudo mkfs.ext4 -L persistence /dev/sdX3
-sudo mkdir -p /mnt/persistence
-sudo mount /dev/sdX3 /mnt/persistence
-echo "/ union" | sudo tee /mnt/persistence/persistence.conf
-sudo umount /mnt/persistence
+SKIP_CLEAN=1 make iso
 ```
 
-## Installation to Hard Drive
+### Clean all build artifacts
 
-### Graphical Installation
-1. Select "**PacketFence - Install to Hard Drive**"
-2. Follow Debian installer wizard
-3. PacketFence is already pre-installed
-4. Reboot after installation completes
-
-### Text Mode Installation
-1. Select "**PacketFence - Install to Hard Drive (Text Mode)**"
-2. Follow text-based installer
-3. Useful for remote installations via serial console
-
-## Recovery Mode
-
-For troubleshooting:
-1. Select "**PacketFence - Recovery Mode**"
-2. Boot with verbose logging and debug options
-3. Useful for system repair or investigation
-
-## Architecture Details
-
-### Build Process
-1. **live-build** configuration for Debian 12
-2. **Hooks** install PacketFence from Inverse repository
-3. **Packages** include all dependencies offline
-4. **Bootloader** GRUB2 with custom menu
-5. **Hybrid ISO** supports USB and DVD
-
-### Included Components
-- Debian 12 (Bookworm) base system
-- PacketFence latest stable release
-- MariaDB database server
-- Redis cache server
-- All network tools (tcpdump, nmap, etc.)
-- System utilities (vim, tmux, htop)
-- Development tools (gcc, make, perl)
-
-### File Structure
-```
-ci/usb-bootable-iso/
-├── build-usb-bootable-iso.sh       # Main build script
-├── build-usb-bootable-iso-docker.sh # Docker wrapper
-├── build-and-upload.sh              # Build & upload orchestrator
-├── Makefile                         # Build automation
-├── README.md                        # This file
-├── .gitignore                       # Git ignore patterns
-└── config/                          # Live-build configuration
-    ├── bootloaders/                 # GRUB menu configs
-    ├── hooks/                       # Installation hooks
-    │   └── normal/
-    │       ├── 0100-install-packetfence.hook.chroot
-    │       └── 0200-system-configuration.hook.chroot
-    └── includes.chroot/             # Files to include
-        └── usr/local/pf/bin/
-            ├── pf-check-requirements    # System requirements checker
-            └── pf-first-boot-message    # First boot message script
-```
-
-## Differences from Net-Install ISO
-
-| Feature | Net-Install ISO | USB Bootable ISO |
-|---------|----------------|------------------|
-| **Size** | ~400 MB | ~2-4 GB |
-| **Internet Required** | Yes | No |
-| **Live Boot** | No | Yes |
-| **Persistence** | No | Yes (USB) |
-| **Installation Time** | 15-30 min | 5-10 min |
-| **Use Case** | Server deployment | Demo, testing, quick deploy |
-
-## Troubleshooting
-
-### Build Issues
-
-**Error: Not enough disk space**
 ```bash
-# Check available space
-df -h
-# Clean previous builds
 make clean
 ```
 
-**Error: Permission denied**
+### From GitLab CI
+
+Trigger a pipeline with the variable `BUILD_PF_IMG_USB_ISO=yes`, or include `build_pf_img_usb_iso=yes` in the commit message. The PPA must be published first.
+
+## Writing the ISO to a USB key
+
+**Warning:** This will erase all data on the USB device.
+
+### 1. Identify the USB device
+
+Plug in the USB key, then find its device name:
+
 ```bash
-# Run with sudo (for local builds)
-sudo make local
+lsblk
 ```
 
-**Error: Docker not found**
+Look for the USB device (e.g., `/dev/sdb`). Make sure you identify the correct device — **not** your system disk.
+
+### 2. Write the ISO
+
+Use `dd` to write a raw copy of the ISO to the USB device. The ISO is built as a hybrid image (isohybrid), so it is directly bootable when written this way:
+
 ```bash
-# Install Docker
-sudo apt-get install docker.io
-sudo systemctl start docker
+sudo dd if=PacketFence-USB-ISO-<version>.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
-### Boot Issues
+Replace `/dev/sdX` with your actual USB device (e.g., `/dev/sdb`).
 
-**USB not bootable**
-- Verify BIOS/UEFI boot mode
-- Try different USB port
-- Rewrite ISO with different tool
+**Important:**
+- Write to the **device** (`/dev/sdX`), not a partition (`/dev/sdX1`).
+- Do **not** simply copy the ISO file onto a FAT/NTFS formatted USB key — it will not boot.
 
-**Kernel panic on boot**
-- Verify ISO checksum
-- Try "Recovery Mode" option
-- Check hardware compatibility
+#### Alternative tools
 
-### Runtime Issues
+- **[balenaEtcher](https://etcher.balena.io/)** — graphical, works on Linux/macOS/Windows
+- **[Ventoy](https://www.ventoy.net/)** — multi-ISO USB tool, copy the `.iso` file onto a Ventoy-prepared USB key
 
-**Can't access admin GUI**
+## Installing PacketFence from the USB key
+
+1. Plug the USB key into the target server.
+2. Boot from the USB key (press F2/F10/F11/F12/Del during POST to access the boot menu, depending on hardware).
+3. Select **Install PacketFence (USB Offline)** from the boot menu.
+4. Follow the Debian installer prompts:
+   - Choose language, keyboard layout, and timezone.
+   - Configure the network (DHCP or manual).
+   - Set the root password.
+   - Partition the disk (guided or manual).
+   - Select the boot loader disk.
+5. The installer runs the post-installation script automatically (Phase A: installs all dependencies from the ISO).
+6. **Remove the USB key** when prompted to reboot.
+7. On first boot, a systemd service completes the installation (Phase B: starts Docker, loads container images, installs PacketFence). This takes 10–40 minutes depending on hardware. Progress is shown on the login screen.
+8. Once complete, log in as root and run:
+   ```bash
+   /usr/local/pf/bin/pfcmd configreload hard
+   ```
+9. Access the web interface at `https://<server-ip>:1443`.
+
+## Testing with QEMU/KVM
+
+You can test the ISO in a virtual machine without a physical server or USB key.
+
+### Requirements
+
 ```bash
-# Check PacketFence status
-sudo systemctl status packetfence
-
-# Check network configuration
-ip addr show
-
-# Check firewall
-sudo iptables -L
+sudo apt install qemu-system-x86 ovmf
 ```
 
-**Low performance warnings**
+### Create a virtual disk
+
 ```bash
-# Run requirements check
-/usr/local/pf/bin/pfcmd checkrequirements
-
-# Upgrade hardware or use full installation
+qemu-img create -f qcow2 /tmp/pf-test.qcow2 40G
 ```
 
-## CI/CD Integration
+### Boot in UEFI mode
 
-### GitLab CI
-
-The USB bootable ISO is integrated into the GitLab CI pipeline with its own trigger variable.
-
-**Trigger Variable**: `BUILD_PF_IMG_USB_ISO=yes`
-
-**Automatic builds on**:
-- `devel` branch (when `BUILD_PF_IMG_USB_ISO=yes` variable is set or commit message contains `build_pf_img_usb_iso=yes`)
-- `maintenance/X.Y` branches (schedule, web, or API triggers with variable set)
-- Release tags (manual trigger)
-
-**Example - Trigger via commit message**:
 ```bash
-git commit -m "Update USB ISO configuration
-
-build_pf_img_usb_iso=yes"
+qemu-system-x86_64 \
+  -m 4096 \
+  -smp 2 \
+  -enable-kvm \
+  -bios /usr/share/ovmf/OVMF.fd \
+  -cdrom PacketFence-USB-ISO-<version>.iso \
+  -drive file=/tmp/pf-test.qcow2,format=qcow2 \
+  -boot d \
+  -net nic -net user
 ```
 
-**Example - Trigger via GitLab Web UI**:
-1. Go to CI/CD → Pipelines → Run Pipeline
-2. Add variable: `BUILD_PF_IMG_USB_ISO` = `yes`
-3. Run pipeline
+### Boot in BIOS (Legacy) mode
 
-**CI Configuration**:
-Add to `.gitlab-ci.yml`:
-```yaml
-build:usb-iso:
-  stage: build
-  script:
-    - cd ci/usb-bootable-iso
-    - make iso
-  artifacts:
-    paths:
-      - ci/usb-bootable-iso/results/
-  rules:
-    - if: '$BUILD_PF_IMG_USB_ISO == "yes"'
-```
-
-### Manual Upload
 ```bash
-# Build
-make iso
-
-# Find ISO
-ls -lh results/sf/*/PacketFence-USB-Bootable-*.iso
-
-# Upload manually
-scp results/sf/v12.0.0/PacketFence-USB-Bootable-v12.0.0.iso user@server:/path/
+qemu-system-x86_64 \
+  -m 4096 \
+  -smp 2 \
+  -enable-kvm \
+  -cdrom PacketFence-USB-ISO-<version>.iso \
+  -drive file=/tmp/pf-test.qcow2,format=qcow2 \
+  -boot d \
+  -net nic -net user
 ```
 
-## Security Notes
+### Simulate USB boot
 
-- **Default root password**: `packetfence` - CHANGE THIS!
-- SSH root login enabled for initial setup
-- Complete the PacketFence setup wizard to configure admin credentials
-- Firewall rules should be configured post-installation
-- Use persistence with caution on shared systems
+Since the ISO is a hybrid image, you can also boot it as a raw disk to simulate what happens when it is `dd`'d onto a USB key:
 
-## Contributing
+```bash
+qemu-system-x86_64 \
+  -m 4096 \
+  -smp 2 \
+  -enable-kvm \
+  -bios /usr/share/ovmf/OVMF.fd \
+  -drive file=PacketFence-USB-ISO-<version>.iso,format=raw,if=virtio,readonly=on \
+  -drive file=/tmp/pf-test.qcow2,format=qcow2,if=virtio \
+  -boot c \
+  -net nic -net user
+```
 
-To improve the USB bootable ISO:
+## Troubleshooting
 
-1. Edit build scripts in `ci/usb-bootable-iso/`
-2. Test locally: `make local`
-3. Commit changes to feature branch
-4. Submit pull request
+### USB key does not boot
 
-## Support
+- **Secure Boot:** Disable Secure Boot in the server BIOS/UEFI settings.
+- **Boot mode mismatch:** Ensure the server boot mode (BIOS or UEFI) is compatible. The ISO supports both.
+- **Wrong write method:** The ISO must be written as a raw image (`dd` or Etcher), not copied as a file.
+- **Wrong device:** Verify you wrote to the device (`/dev/sdX`), not a partition (`/dev/sdX1`).
 
-- **Documentation**: https://packetfence.org/doc/
-- **Community**: https://packetfence.org/support/community.html
-- **Commercial**: https://inverse.ca/
+### First boot takes a long time
 
-## License
+This is expected. Phase B loads all Docker images and installs PacketFence. Monitor progress:
 
-Same license as PacketFence project.
+```bash
+tail -f /var/log/packetfence-first-boot.log
+```
 
----
+### First boot failed
 
-**Built with ❤️ by Inverse Inc.**
+Check the log and retry:
+
+```bash
+cat /var/log/packetfence-first-boot.log
+/usr/local/bin/packetfence-first-boot.sh
+```
+
+## Build process overview
+
+1. Download base Debian 12 DVD ISO (~3.8 GB)
+2. Create local APT repository with PacketFence packages and dependencies
+3. Pre-download all PacketFence Docker images (~30 containers)
+4. Extract the base Debian ISO
+5. Generate and inject the preseed configuration into the installer initrd
+6. Add the local APT repository and Docker images to the ISO
+7. Update boot menu configurations (ISOLINUX for BIOS, GRUB for UEFI)
+8. Build the final hybrid ISO with `xorriso`
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `Makefile` | Build targets: `iso`, `upload`, `clean` |
+| `build-usb-bootable-iso.sh` | Main build orchestration script |
+| `create-local-repo.sh` | Downloads and assembles the offline APT repository |
+| `predownload-docker-images.sh` | Pulls and archives all Docker images |
+| `preseed-offline.cfg.tmpl` | Debian preseed template for unattended installation |
+| `postinst-offline.sh` | Post-installation script (Phase A + Phase B first-boot) |
+| `grub.cfg` | GRUB boot menu (UEFI) |
+| `menu.cfg` | ISOLINUX boot menu (BIOS) |
+| `gtk.cfg` | ISOLINUX graphical installer menu |
+| `drkgtk.cfg` | ISOLINUX dark contrast menu |
+| `build-and-upload.sh` | Build and upload to Linode S3 |
