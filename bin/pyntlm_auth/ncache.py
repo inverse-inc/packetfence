@@ -123,7 +123,13 @@ def update_cache_entry(key, value, expires_at):
     query = "INSERT INTO `chi_cache` (`key`, `value`, `expires_at`) VALUES (%s, %s, %s) " \
             "ON DUPLICATE KEY UPDATE `value` = %s"
     if hasattr(g, 'db'):
-        g.db.execute(query, (key, value, expires_at, value))
+        try:
+            g.db.execute(query, (key, value, expires_at, value))
+        except Exception as e:
+            log.warning(f"chi_cache write failed for key={key} (offline?): {e}")
+    # Mirror nt_key_cache:* writes to pfconnector-remote credcache when enabled
+    # (CREDCACHE_URL set). Fire-and-forget; no-op in non-remote installs.
+    credcache_push.push_async(key, value, expires_at)
 
 
 def get_cache_entry(key):
@@ -211,12 +217,39 @@ def cached_login(domain, account_username, mac, challenge, nt_response):
     cache_key_root = build_cache_key(domain, account_username, '')
     cache_key_device = build_cache_key(domain, account_username, mac)
 
-    cache_entries = get_cache_entries(cache_key_root, cache_key_device)
-    for cache_entry in cache_entries:
-        if cache_entry['key'] == cache_key_root:
-            cache_entry_root = cache_entry
-        if cache_entry['key'] == cache_key_device:
-            cache_entry_device = cache_entry
+    try:
+        cache_entries = get_cache_entries(cache_key_root, cache_key_device)
+    except Exception as e:
+        log.warning(f"chi_cache read failed (offline?), falling back to credcache: {e}")
+        cache_entries = None
+
+    if cache_entries:
+        for cache_entry in cache_entries:
+            if cache_entry['key'] == cache_key_root:
+                cache_entry_root = cache_entry
+            if cache_entry['key'] == cache_key_device:
+                cache_entry_device = cache_entry
+
+    # Offline/remote fallback: when local MariaDB had nothing (or errored),
+    # ask pfconnector-remote's credcache. On a usable hit we short-circuit
+    # with the cached NT key -- the caller verifies challenge/response itself,
+    # so a stale key simply fails that check and the user retries.
+    if cache_entry_root is None and cache_entry_device is None:
+        credcache_row = credcache_push.fetch(domain, account_username)
+        if credcache_row is not None:
+            try:
+                cache_v = json.loads(credcache_row['value'])
+            except Exception as e:
+                log.warning(f"credcache returned invalid JSON for {domain}/{account_username}: {e}")
+                cache_v = None
+            if cache_v is not None:
+                cached_status = cache_v.get('nt_status', 0)
+                if is_ndl(cached_status):
+                    return '', cached_status, None
+                cached_key = cache_v.get('nt_key', '')
+                if cached_key:
+                    log.debug(f"credcache offline fast-path for {domain}/{account_username}")
+                    return cached_key, cached_status, None
 
     nt_key = "",
     error_code = -1
@@ -276,7 +309,6 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
         exp = determine_cache_expire_time(info.base.last_password_change)
         update_cache_entry(cache_key_device, cache_v_json, exp)
         update_cache_entry(cache_key_root, cache_v_json, exp)
-        credcache_push.push_async(account_username, nt_key)
 
     return nt_key, error_code, info
 
@@ -348,7 +380,6 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         cache_v_json_root = json.dumps(cache_v_root)
         update_cache_entry(cache_key_device, cache_v_json_device, exp)
         update_cache_entry(cache_key_root, cache_v_json_root, exp)
-        credcache_push.push_async(account_username, nt_key)
 
     return nt_key, error_code, info
 
@@ -438,7 +469,6 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
         cache_v_json_root = json.dumps(cache_v_root)
         update_cache_entry(cache_key_device, cache_v_json_device, exp)
         update_cache_entry(cache_key_root, cache_v_json_root, exp)
-        credcache_push.push_async(account_username, nt_key)
 
     return nt_key, error_code, info
 
