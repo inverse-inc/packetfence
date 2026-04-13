@@ -387,11 +387,13 @@ sub populateAccessPointMACIP {
     my $password = $self->{_wsPwd};
 
     my ($ua, $base_url)  = $self->_connect();
+    my $url = "$base_url/api/self/sites";
 
-    my $response = $ua->get("$base_url/api/self/sites");
+    my $response = $ua->get($url);
 
     if ($response->code == 404) {
-        $response = $ua->get("$base_url/proxy/network/api/self/sites");
+        $url = "$base_url/proxy/network/api/self/sites";
+        $response = $ua->get($url);
     }
 
     unless($response->is_success) {
@@ -399,7 +401,13 @@ sub populateAccessPointMACIP {
         return;
     }
 
-    my $json_data = decode_json($response->decoded_content());
+    local $@;
+    my $content = $response->decoded_content();
+    my $json_data = eval { decode_json($content)};
+    if ($@) {
+        $logger->error("Error parsing response from $url: $content");
+        return
+    }
 
     foreach my $entry (@{$json_data->{'data'}}) {
         $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/device/");
