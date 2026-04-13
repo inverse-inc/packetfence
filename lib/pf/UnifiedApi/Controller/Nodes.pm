@@ -505,8 +505,10 @@ sub validate_bypass_vlan {
         return (422,  "bypass_vlan $value not allowed" );
     }
 
-    if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
-        return (422,  "bypass_vlan is not allowed to be set" );
+    if (defined $value && length($value)) {
+        if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
+            return (422,  "bypass_vlan is not allowed to be set" );
+        }
     }
 
     return (200, undef);
