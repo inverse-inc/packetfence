@@ -121,19 +121,15 @@ sub admin_allowed_options {
 sub admin_isdisabled_option {
     my ($roles, $option) = @_;
     return $FALSE unless defined $option;
-    #return an empty value if any of the roles are all
     return $FALSE unless all { $_ ne 'ALL' } @$roles;
     my $found = 0;
-    my @options;
     foreach my $role (@$roles) {
         next unless exists $ADMIN_ROLES{$role};
         my $options = $ADMIN_ROLES{$role};
-        #If no option is defined then all are allowed
-        return $FALSE unless exists $options->{$option};
+        next unless exists $options->{$option};
 
         my $allowed_options = $options->{$option};
-        #If the allowed options is empty the all are allowed
-        return $FALSE unless defined $allowed_options && length $allowed_options;
+        next unless defined $allowed_options && length $allowed_options;
         $found |= 1 if isenabled($allowed_options);
     }
 
@@ -166,7 +162,7 @@ check_disallowed_options
 sub check_disallowed_options {
     my ($roles, $option, @check) = @_;
     return 0 if any { $_ eq 'ALL' } @$roles;
-    my @options = admin_allowed_options($roles, $option);
+    my @options = admin_allowed_options_all($roles, $option);
     if (@options == 0) {
         return 0;
     }

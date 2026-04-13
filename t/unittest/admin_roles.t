@@ -69,7 +69,7 @@ ok(
 );
 
 ok(admin_isdisabled_option(["User Manager"], "disable_bypass_vlan"), "disable_bypass_vlan is set");
-ok(!admin_isdisabled_option(["User Manager", "Alt User Manager"], "disable_bypass_vlan"), "disable_bypass_vlan is set for only one role");
+ok(admin_isdisabled_option(["User Manager", "Alt User Manager"], "disable_bypass_vlan"), "disable_bypass_vlan is set for at least one role");
  
 =head1 AUTHOR
 
