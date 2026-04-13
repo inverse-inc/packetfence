@@ -152,3 +152,24 @@ __DATA__
     }
   ]
 }
+
+@@ GET/api/proxy/network/api/self/sites.json.ep
+{
+  "meta": {
+    "rc": "ok"
+  },
+  "data": [
+    {
+      "anonymous_id": "45187dde-4107-442c-97e0-5ac517097af3",
+      "name": "default",
+      "external_id": "88f7af54-98f8-306a-a1c7-c9349722b1f6",
+      "_id": "58949c38f69b8a3bf14bfc2b",
+      "attr_no_delete": true,
+      "attr_hidden_id": "default",
+      "desc": "AMV",
+      "role": "admin",
+      "role_hotspot": false,
+      "device_count": 9
+    }
+  ]
+}
