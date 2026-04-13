@@ -51,6 +51,7 @@ c_ad_server_port = None
 c_encryption = None
 c_listen_port = None
 c_domain_identifier = None
+c_cache_domain = None
 c_dns_servers = None
 
 # config for domain.conf - db

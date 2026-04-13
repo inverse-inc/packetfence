@@ -300,7 +300,7 @@ def ntlm_auth_handler():
         mac = ""
 
     if global_vars.c_nt_key_cache_enabled and hasattr(g, 'db') and mac != "":
-        domain = global_vars.c_domain_identifier
+        domain = global_vars.c_cache_domain
         nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response, )
     else:
         nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
