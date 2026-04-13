@@ -32,3 +32,5 @@ testcases:
   steps:
   - type: exec
     script: "{{.pfserver_pfcmd}} configreload hard"
+    assertions:
+      - result.code ShouldEqual 0
