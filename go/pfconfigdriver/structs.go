@@ -877,6 +877,27 @@ type Domain struct {
 	UseConnector                        string `json:"use_connector"`
 }
 
+type Realms struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Realm"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]Realm
+}
+
+type OrderedRealms struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::OrderedRealm"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 []string
+}
+
+type Realm struct {
+	Regex  string `json:"regex"`
+	Domain string `json:"domain"`
+}
+
 type FleetDM struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`

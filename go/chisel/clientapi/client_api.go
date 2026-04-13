@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -21,6 +23,7 @@ type API struct {
 	ctx         context.Context
 	cancel      context.CancelFunc
 	tunnel      *tunnel.Tunnel
+	mdCache     *multiDomainCache
 }
 
 type Service struct {
@@ -33,6 +36,8 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
 	Api.tunnel = tun
+	Api.mdCache = newMultiDomainCache("")
+	Api.mdCache.startRefresher(ctx)
 
 	Api.setupRoutes()
 
@@ -76,6 +81,7 @@ func (api *API) setupRoutes() {
 				r.Get("/", connectorStatus(api))
 			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
+			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 		})
 	})
 }
@@ -266,6 +272,138 @@ func ntlmAuth(api *API) http.HandlerFunc {
 func connectorStatus(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
+	})
+}
+
+// hostUserNameRegex matches the host-style user name
+// "host/<shortname>.<realm>" used by machine auth. Compiled once.
+var hostUserNameRegex = regexp.MustCompile(`^host/([0-9a-zA-Z-_]+)\.(.*)$`)
+
+// rlmRestAttr models a single attribute in an rlm_rest request/response body.
+// rlm_rest encodes attributes as objects with at least a "value" array.
+type rlmRestAttr struct {
+	Type  string   `json:"type,omitempty"`
+	Value []string `json:"value"`
+}
+
+// firstValue returns the first element of the attribute's value array, or "".
+func (a *rlmRestAttr) firstValue() string {
+	if a == nil || len(a.Value) == 0 {
+		return ""
+	}
+	return a.Value[0]
+}
+
+// multiDomainAuthorize is a Go port of
+// raddb/mods-config/perl/packetfence-multi-domain.pm::authorize.
+//
+// It reads User-Name / TLS-Client-Cert-Common-Name / Realm from an rlm_rest
+// JSON request, resolves the configured realm and domain using the cached
+// multi-domain config, and returns an rlm_rest response setting
+// PacketFence-Domain, PacketFence-NTLM-Auth-Host and PacketFence-NTLM-Auth-Port
+// on the request list (same list the Perl %RAD_REQUEST writes to).
+//
+// If no realm maps, returns an empty JSON object so FreeRADIUS proceeds
+// without multi-domain attributes (mirrors the Perl fall-through behavior).
+func multiDomainAuthorize(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		reply := map[string]interface{}{}
+
+		cfg, regexes := api.mdCache.get()
+		if cfg == nil {
+			// Cache is empty (first fetch hasn't succeeded yet or tunnel is down).
+			// Fall through without setting any attributes.
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(reply)
+			return
+		}
+
+		req := map[string]*rlmRestAttr{}
+		if r.Body != nil {
+			_ = json.NewDecoder(r.Body).Decode(&req)
+		}
+
+		userName := req["TLS-Client-Cert-Common-Name"].firstValue()
+		if userName == "" {
+			userName = req["User-Name"].firstValue()
+		}
+		realmAttr := req["Realm"].firstValue()
+
+		// Step 1: host/<name>.<realm> takes precedence.
+		var realmKey string
+		if matches := hostUserNameRegex.FindStringSubmatch(userName); matches != nil {
+			candidate := strings.ToLower(matches[2])
+			if _, ok := cfg.Realms[candidate]; ok {
+				realmKey = candidate
+			}
+		}
+
+		// Step 2: explicit Realm attribute.
+		if realmKey == "" && realmAttr != "" {
+			if _, ok := cfg.Realms[realmAttr]; ok {
+				realmKey = realmAttr
+			}
+		}
+
+		// Step 3: fallback via ordered regex match, then "default".
+		if realmKey == "" {
+			if _, hasDefault := cfg.Realms["default"]; hasDefault {
+				for _, key := range cfg.OrderedRealms {
+					re, ok := regexes[key]
+					if !ok {
+						continue
+					}
+					if re.MatchString(userName) {
+						realmKey = key
+						break
+					}
+				}
+				if realmKey == "" {
+					realmKey = "default"
+				}
+			}
+		}
+
+		if realmKey == "" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(reply)
+			return
+		}
+
+		realmCfg := cfg.Realms[realmKey]
+		if realmCfg.Domain == "" {
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(reply)
+			return
+		}
+
+		reply["request:PacketFence-Domain"] = map[string]interface{}{
+			"op":    ":=",
+			"value": []string{realmCfg.Domain},
+		}
+
+		if domainCfg, ok := cfg.Domains[realmCfg.Domain]; ok {
+			reply["request:PacketFence-NTLM-Auth-Host"] = map[string]interface{}{
+				"op":    ":=",
+				"value": []string{domainCfg.NtlmAuthHost},
+			}
+			port := domainCfg.NtlmAuthPort
+			if portNum, err := strconv.Atoi(domainCfg.NtlmAuthPort); err == nil {
+				if domainCfg.UseConnector == "1" {
+					portNum += 100
+				}
+				port = strconv.Itoa(portNum)
+			}
+			reply["request:PacketFence-NTLM-Auth-Port"] = map[string]interface{}{
+				"op":    ":=",
+				"value": []string{port},
+			}
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(reply)
 	})
 }
 

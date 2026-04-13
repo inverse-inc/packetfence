@@ -106,6 +106,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/local-secret":
 		s.handleLocalSecret(w, r)
 		return
+	case apiPrefix + "/multi-domain-config":
+		s.handleRemoteMultiDomainConfig(w, r)
+		return
 	}
 	//missing :O
 	w.WriteHeader(404)
@@ -804,4 +807,39 @@ func (s *Server) handleLocalSecret(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte(localSecret.Element))
+}
+
+// handleRemoteMultiDomainConfig returns ConfigRealm / ConfigOrderedRealm /
+// ConfigDomain in a single JSON payload so pfconnector-remote can port the
+// logic of raddb/mods-config/perl/packetfence-multi-domain.pm::authorize to
+// Go locally.
+func (s *Server) handleRemoteMultiDomainConfig(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
+	realms := pfconfigdriver.Realms{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &realms); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch realms from pfconfig: %s", err)})
+		return
+	}
+	ordered := pfconfigdriver.OrderedRealms{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &ordered); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch ordered realms from pfconfig: %s", err)})
+		return
+	}
+	domains := pfconfigdriver.Domains{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &domains); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch domains from pfconfig: %s", err)})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"realms":         realms.Element,
+		"ordered_realms": ordered.Element,
+		"domains":        domains.Element,
+	})
 }
