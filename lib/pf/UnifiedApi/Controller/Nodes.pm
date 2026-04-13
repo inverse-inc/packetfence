@@ -1139,7 +1139,7 @@ sub validate {
         push @errors, $self->validate_bypass_acls($json->{bypass_acls});
     }
 
-    if ($json->{bypass_vlan}) {
+    if (exists $json->{bypass_vlan} && defined $json->{bypass_vlan} && length($json->{bypass_vlan})) {
         my $bypass_vlan = $json->{bypass_vlan};
         if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
             push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed to be set" };
