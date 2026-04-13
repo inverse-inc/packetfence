@@ -1,7 +1,6 @@
 executor: pf_api_check_radacct
 input:
   mac: ""
-  check_stop: "false"
 steps:
 - type: exec
   script: |
