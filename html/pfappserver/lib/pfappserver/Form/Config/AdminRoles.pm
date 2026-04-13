@@ -106,7 +106,7 @@ has_field 'allowed_node_bypass_roles' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Allowed user roles',
+   label => 'Allowed node bypass roles',
    options_method => \&options_roles,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role' },
