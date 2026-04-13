@@ -1127,7 +1127,7 @@ sub validate {
 
         if ($f eq 'bypass_role_id') {
             if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $name) || check_disallowed_options($roles, 'disallowed_node_bypass_roles', $name)) {
-                push @errors, { field => $f, message => "$name is not allowed" };
+                push @errors, { field => $f, message => "$name is not allowed as bypass role" };
             }
         }
     }
