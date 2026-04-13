@@ -1,7 +1,21 @@
 name: Restart pfacct service to apply bandwidth accounting config
 testcases:
 
+- name: stop_pfacct
+  steps:
+  - type: pf_api_service_stop
+    service: pfacct
+
+- name: clean_bandwidth_accounting
+  steps:
+  - type: exec
+    script: |
+      mysql -u{{.configurator.db.users.pf.id}} -p{{.configurator.db.users.pf.password}} {{.configurator.db.name}} -N -e \
+        "DELETE FROM bandwidth_accounting WHERE mac = '{{.security_event_acct_virtualswitch.device.mac_address}}'; DELETE FROM bandwidth_accounting_history WHERE mac = '{{.security_event_acct_virtualswitch.device.mac_address}}'"
+    assertions:
+      - result.code ShouldEqual 0
+
 - name: restart_pfacct
   steps:
-  - type: pf_api_service_restart
+  - type: pf_api_service_restart_async
     service: pfacct
