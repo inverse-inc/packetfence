@@ -1,6 +1,7 @@
 import json
 import os
 import threading
+import urllib.parse
 import urllib.request
 
 import log
@@ -56,7 +57,12 @@ def fetch(domain, username):
     """
     if not CREDCACHE_URL or not domain or not username:
         return None
-    url = CREDCACHE_URL.rstrip("/") + f"/{domain}/{username}"
+    # Path components may contain spaces or other reserved characters
+    # (e.g. domain identifiers like "pfconnectorOnboarding InverseINC"),
+    # so percent-encode them before assembling the URL.
+    safe_domain = urllib.parse.quote(domain, safe="")
+    safe_username = urllib.parse.quote(username, safe="")
+    url = CREDCACHE_URL.rstrip("/") + f"/{safe_domain}/{safe_username}"
     try:
         with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as resp:
             data = json.loads(resp.read())
