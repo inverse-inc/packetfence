@@ -1,0 +1,7 @@
+name: Wait for bandwidth to exceed 500KB threshold
+testcases:
+
+- name: wait_for_bandwidth_accumulation
+  steps:
+  - type: sleep
+    time_to_sleep: 45

@@ -1,0 +1,32 @@
+name: Close security event and verify device returns to normal VLAN
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: close_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_delayed_virtualswitch.device.mac_address_url_encoded}}/close_security_event'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "security_event_id": {{.check_security_event_open.security_event_row_id}}
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: check_device_on_normal_vlan
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_delayed_virtualswitch.device.interface.id}}'
+    retry: 15
+    delay: 5
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated
+      - result.virtualswitch_device_status__vlan_assigned ShouldEqual {{.security_event_delayed_virtualswitch.vlan.normal}}
