@@ -1141,6 +1141,10 @@ sub validate {
 
     if ($json->{bypass_vlan}) {
         my $bypass_vlan = $json->{bypass_vlan};
+        if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
+            push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed to be set" };
+        }
+
         if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $bypass_vlan)) {
             push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed" };
         }

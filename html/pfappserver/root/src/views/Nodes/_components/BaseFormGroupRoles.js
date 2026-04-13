@@ -9,7 +9,7 @@ export const props = {
   options: {
     type: Promise,
     default: () => {
-      return store.dispatch('session/getAllowedNodeBypassRoles')
+      return store.dispatch('session/getAllowedNodeRoles')
         .then(roles => ([
           { value: null, text: i18n.t('No Role') }, // prepend a null (optional) value to roles
           ...roles.map(role => ({ value: role.category_id, text: `${role.name} - ${role.notes}` }))
