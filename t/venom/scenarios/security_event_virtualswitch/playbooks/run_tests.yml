@@ -28,7 +28,7 @@
       vars:
         venom_wrapper_args:
           # temp, overcome Venom issue:
-          # - when running test suite one by one, previous logs and results are overriden
+          # - when running test suite one by one, previous logs and results are overridden
           # Venom will create one directory per test suite to store results
           VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}'
 
