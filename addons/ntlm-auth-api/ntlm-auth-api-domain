@@ -32,6 +32,7 @@ args="$args -v /var/log:/var/log:ro"
 args="$args -p $LISTEN:$LISTEN"
 args="$args -e LISTEN=$LISTEN"
 args="$args -e IDENTIFIER=$IDENTIFIER"
+args="$args -e CREDCACHE_PUSH_URL=${CREDCACHE_PUSH_URL}"
 
 run_multi "$name" "$IDENTIFIER" "$args"
 echo "Done with ntlm auth api for domain $1"

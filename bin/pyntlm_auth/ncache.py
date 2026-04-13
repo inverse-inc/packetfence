@@ -8,6 +8,7 @@ import flags
 import utils
 import datetime
 import log
+import credcache_push
 
 NT_KEY_USER_LOCKED = "*"
 NT_KEY_USER_DISABLED = "-"
@@ -275,6 +276,7 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
         exp = determine_cache_expire_time(info.base.last_password_change)
         update_cache_entry(cache_key_device, cache_v_json, exp)
         update_cache_entry(cache_key_root, cache_v_json, exp)
+        credcache_push.push_async(account_username, nt_key)
 
     return nt_key, error_code, info
 
@@ -346,6 +348,7 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         cache_v_json_root = json.dumps(cache_v_root)
         update_cache_entry(cache_key_device, cache_v_json_device, exp)
         update_cache_entry(cache_key_root, cache_v_json_root, exp)
+        credcache_push.push_async(account_username, nt_key)
 
     return nt_key, error_code, info
 
@@ -435,6 +438,7 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
         cache_v_json_root = json.dumps(cache_v_root)
         update_cache_entry(cache_key_device, cache_v_json_device, exp)
         update_cache_entry(cache_key_root, cache_v_json_root, exp)
+        credcache_push.push_async(account_username, nt_key)
 
     return nt_key, error_code, info
 

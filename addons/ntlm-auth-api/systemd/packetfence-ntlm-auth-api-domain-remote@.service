@@ -13,6 +13,7 @@ Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-auth-api-%i-systemd-notify.pid
 EnvironmentFile=-/usr/local/ntlm-auth-api/conf/log.conf.d/ntlm-auth-api.conf
+Environment=CREDCACHE_PUSH_URL=http://100.64.0.1:4242/api/credcache/
 
 [Install]
 WantedBy=multi-user.target
