@@ -35,7 +35,7 @@
 
         <form-group-disallowed-roles namespace="disallowed_roles"
           :column-label="$i18n.t('Disallowed user roles')"
-          :text="$i18n.t('List of disallowed roles available to the admin user to assign to a user. If none are provided then all roles are available.')"
+          :text="$i18n.t('List of disallowed roles available to the admin user to assign to a user. If none are provided then no roles are disallowed.')"
         />
 
         <form-group-allowed-access-durations namespace="allowed_access_durations"
@@ -61,7 +61,7 @@
 
         <form-group-disallowed-node-roles namespace="disallowed_node_roles"
           :column-label="$i18n.t('Disallowed node roles')"
-          :text="$i18n.t('List of roles not available to the admin user to assign to a node. If none are provided then all roles are available.')"
+          :text="$i18n.t('List of roles not available to the admin user to assign to a node. If none are provided then no roles are disallowed.')"
         />
 
         <form-group-allowed-node-bypass-roles namespace="allowed_node_bypass_roles"
@@ -71,7 +71,7 @@
 
         <form-group-disallowed-node-bypass-roles namespace="disallowed_node_bypass_roles"
           :column-label="$i18n.t('Disallowed node bypass roles')"
-          :text="$i18n.t('List of bypass roles not available to the admin user to assign to a node. If none are provided then all bypass roles are available.')"
+          :text="$i18n.t('List of bypass roles not available to the admin user to assign to a node. If none are provided then no roles are disallowed.')"
         />
 
         <form-group-allowed-node-bypass-vlans namespace="allowed_node_bypass_vlans"
@@ -82,7 +82,7 @@
 
         <form-group-disable-bypass-vlan namespace="disable_bypass_vlan"
           :column-label="$i18n.t('Disable bypass vlan')"
-          :text="$i18n.t('Don\'t allow user to set or modify the bypass vlan')"
+          :text="$i18n.t('Don\\'t allow user to set or modify the bypass vlan')"
           taggable
         />
 
