@@ -52,6 +52,23 @@ sub build_child {
         }
     }
     _flatten_nodecategory($parents{''}, \%parents);
+
+    # Apply default_role fallback values AFTER parent_id inheritance
+    # Priority: own value > parent_id value > default_role value
+    my $default_role_data = $tmp_cfg{'default_role'};
+    if ($default_role_data) {
+        for my $name (keys %tmp_cfg) {
+            next if $name eq 'default_role';
+            my $data = $tmp_cfg{$name};
+            for my $k (keys %$default_role_data) {
+                next if $k eq 'parent_id' || $k eq 'children';
+                if (!exists $data->{$k} || !defined $data->{$k}) {
+                    $data->{$k} = $default_role_data->{$k};
+                }
+            }
+        }
+    }
+
     for my $top (@{$parents{''}}) {
         my $data = $top->[1];
         next if !exists $data->{children} || @{$data->{children}} == 0;

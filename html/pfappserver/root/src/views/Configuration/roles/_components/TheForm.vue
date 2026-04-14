@@ -14,7 +14,7 @@
                       :column-label="$i18n.t('Description')"
     />
 
-    <form-group-parent-identifier namespace="parent_id"
+    <form-group-parent-identifier v-if="!isDefaultRole" namespace="parent_id"
                                   :column-label="$i18n.t('Parent role')"
     />
 
@@ -125,9 +125,11 @@ export const props = {
 
 export const setup = (props) => {
   const schema = computed(() => schemaFn(props))
+  const isDefaultRole = computed(() => props.id === 'default_role')
 
   return {
-    schema
+    schema,
+    isDefaultRole
   }
 }
 

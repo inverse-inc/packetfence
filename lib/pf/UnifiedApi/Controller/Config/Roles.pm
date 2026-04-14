@@ -75,6 +75,11 @@ sub cleanup_item {
         $item->{children} = $ConfigRoles{$id}{children};
     }
 
+    # Ensure default_role is never deletable
+    if ($id eq 'default_role') {
+        $item->{not_deletable} = $self->json_true;
+    }
+
     return $item;
 }
 

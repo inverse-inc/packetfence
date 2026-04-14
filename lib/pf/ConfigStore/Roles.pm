@@ -25,8 +25,37 @@ extends 'pf::ConfigStore';
 
 sub configFile { $roles_config_file };
 sub importConfigFile { $roles_default_config_file }
+sub default_section { 'default_role' }
 
 sub pfconfigNamespace {'config::Roles'}
+
+=head2 parentSections
+
+Chain inheritance: parent_id -> default_role
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $default_section = $self->default_section;
+    return if defined $default_section && $id eq $default_section;
+
+    my @parents;
+    my $parent_id = $item->{parent_id} // $self->cachedConfig->val($id, 'parent_id');
+    if (defined $parent_id && $parent_id ne ''
+        && (!defined $default_section || $default_section ne $parent_id)
+        && $id ne $parent_id) {
+        push @parents, $parent_id;
+        # If parent IS default_role, don't add default_section again
+        return @parents if defined $default_section && $parent_id eq $default_section;
+    }
+
+    if (defined $default_section && length($default_section) && $default_section ne $id) {
+        push @parents, $default_section;
+    }
+
+    return @parents;
+}
 
 =head2 cleanupAfterRead
 

@@ -1,4 +1,8 @@
 # Copyright (C) Inverse inc.
+[default_role]
+max_nodes_per_pid=0
+notes=Default values for all roles
+
 [default]
 max_nodes_per_pid=0
 notes=Placeholder role/category, feel free to edit

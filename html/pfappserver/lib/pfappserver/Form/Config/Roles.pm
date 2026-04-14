@@ -126,6 +126,9 @@ sub validate {
     }
 
     my $parent_id = $value->{parent_id};
+    if ($id eq 'default_role' && defined $parent_id && $parent_id ne '') {
+        $self->field('parent_id')->add_error('The default role cannot have a parent.');
+    }
     if (defined $parent_id) {
         if ( $id eq $parent_id) {
             $self->field('parent_id')->add_error('Cannot be your own parent.');
@@ -170,7 +173,7 @@ sub options_parent_id {
     my $form = $self->form;
     my $id = $form->value->{id} // $form->fif->{id};
     my $no_id = !defined $id || $id eq '';
-    my @roles = map { { value => $_->{name}, label => $_->{name} } } grep { $no_id || $_->{name} ne $id }  @{$form->roles} if ($form->roles);
+    my @roles = map { { value => $_->{name}, label => $_->{name} } } grep { ($no_id || $_->{name} ne $id) && $_->{name} ne 'default_role' }  @{$form->roles} if ($form->roles);
     return @roles;
 }
 
