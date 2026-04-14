@@ -267,7 +267,7 @@ case "$1" in
         rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
         # pfqueue-backend is now managed by pfqueue-go, remove old systemd service
-        if systemctl list-unit-files packetfence-pfqueue-backend.service > /dev/null 2>&1; then
+        if systemctl list-unit-files packetfence-pfqueue-backend.service 2>/dev/null | grep -q packetfence-pfqueue-backend; then
             systemctl stop packetfence-pfqueue-backend.service || true
             systemctl disable packetfence-pfqueue-backend.service || true
             rm -f /lib/systemd/system/packetfence-pfqueue-backend.service
