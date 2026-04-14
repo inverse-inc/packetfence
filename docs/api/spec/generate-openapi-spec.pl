@@ -59,7 +59,7 @@ $spec->{components}->{parameters}->{service} = {
 
 YAML::XS::DumpFile("$base_path/openapi.yaml", $spec);
 
-write_file("$base_path/openapi.json", JSON::MaybeXS->new->pretty(1)->canonical(1)->encode($spec));
+write_file("$base_path/openapi.json", {binmode => ':utf8'}, JSON::MaybeXS->new->pretty(1)->canonical(1)->encode($spec));
 
 sub dir_yaml_files {
     my ($dir) = @_;
