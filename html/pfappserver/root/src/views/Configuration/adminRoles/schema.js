@@ -70,7 +70,7 @@ export default (props) => {
     allowed_node_bypass_vlans: schemaAllowedNodeBypassVlans,
     disallowed_roles: schemaDisallowedRoles,
     disallowed_node_roles: schemaDisallowedNodeRoles,
-    allowed_node_bypass_roles: schemaAllowedActions,
+    allowed_node_bypass_roles: schemaAllowedRoles,
     disallowed_node_bypass_roles: schemaDisallowedNodeRoles,
     disable_bypass_vlan: yup.string().nullable()
   })
