@@ -1,0 +1,75 @@
+/api/v1/configurator/config/base/advanced:
+  get:
+    description: Get the advanced configuration section.
+    operationId: api.v1.Configurator.Config.Bases.advanced.get
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigBaseWrapped'
+        description: Request successful. Response contains the advanced configuration.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+    - Configurator/Config/Bases
+  options:
+    description: Get meta for the advanced configuration section.
+    operationId: api.v1.Configurator.Config.Bases.advanced.resource_options
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigBaseMeta'
+        description: Request successful. Response contains meta for the advanced configuration.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+    - Configurator/Config/Bases
+  patch:
+    description: Update the advanced configuration section.
+    operationId: api.v1.Configurator.Config.Bases.advanced.update
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigBaseSubTypeAdvanced'
+    responses:
+      '201':
+        $ref: '#/components/responses/Updated'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Configurator/Config/Bases
+  put:
+    description: Replace the advanced configuration section.
+    operationId: api.v1.Configurator.Config.Bases.advanced.replace
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigBaseSubTypeAdvanced'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Configurator/Config/Bases

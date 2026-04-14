@@ -1,27 +1,3 @@
-UsersList:
-  allOf:
-    - $ref: "#/components/schemas/Iterable"
-    - type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/UserWithLinks"
-User:
-  type: object
-  properties:
-    pid:
-      type: string
-      description: Unique user identifier.
-    email:
-      type: string
-      description: Email of the user.
-    firstname:
-      type: string
-      description: First name of the user.
-    lastname:
-      type: string
-      description: Last name of the user.
 UserWithLinks:
   allOf:
     - $ref: "#/components/schemas/User"

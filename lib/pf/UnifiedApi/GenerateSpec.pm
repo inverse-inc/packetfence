@@ -60,8 +60,8 @@ sub formsToMetaSchemas {
         my $found = 0;
         for my $field (grep { isSubTypeField($_) } $form->fields) {
             $found = 1;
-            my $subTypeMetaPath = subTypePath($meta_path, $field->value);
-            $mapping{$field->value} = '#'  . $subTypeMetaPath;
+            my $subTypeMetaPath = subTypePath($meta_path, fieldSubTypeValue($field));
+            $mapping{fieldSubTypeValue($field)} = '#'  . $subTypeMetaPath;
             push @$oneOf, { '$ref' => '#'  . $subTypeMetaPath };
             $paths{$subTypeMetaPath} = {
                 type => 'object',
@@ -82,10 +82,17 @@ sub formsToMetaSchemas {
     # Otherwise, create inline schemas for forms without subtypes
     if (keys %mapping) {
         # We have discriminator mappings, only use schemas with refs
+        my $propertyName = 'type';
+        OUTER: for my $form (@$forms) {
+            for my $field (grep { isSubTypeField($_) } $form->fields) {
+                $propertyName = $field->name;
+                last OUTER;
+            }
+        }
         $paths{$meta_path} = {
             discriminator => {
                 mapping => \%mapping,
-                propertyName => 'type'
+                propertyName => $propertyName
             },
             oneOf => [@$oneOf]
         };
@@ -115,7 +122,7 @@ sub formsToSubTypeSchemas {
     if (@$forms > 1) {
         while (my ($k, $form) = each @$forms) {
             for my $field (grep { isSubTypeField($_) } $form->fields) {
-                my $subTypePath = subTypePath($item_path, $field->value);
+                my $subTypePath = subTypePath($item_path, fieldSubTypeValue($field));
                 $schemas->{$subTypePath} = objectSchema($form, 1);
             };
         };
@@ -144,19 +151,21 @@ sub objectSchema {
 sub subTypesSchema {
     my ($item_path, @forms) = @_;
     my %mapping;
+    my $propertyName = 'type';
     while (my ($k, $form) = each @forms) {
         for my $field (grep { isSubTypeField($_) } $form->fields) {
-            my $subTypePath = subTypePath($item_path, $field->value);
-            $mapping{$field->value} = '#' . $subTypePath;
+            my $subTypePath = subTypePath($item_path, fieldSubTypeValue($field));
+            $mapping{fieldSubTypeValue($field)} = '#' . $subTypePath;
+            $propertyName = $field->name;
         };
     };
     return {
-        description => 'Choose one of the request bodies by discriminator (`type`). ',
+        description => 'Choose one of the request bodies by discriminator (`' . $propertyName . '`). ',
         oneOf => [
             sort { $a->{'$ref'} cmp $b->{'$ref'} } map { subTypeSchemaRef($item_path, $_, 1) } @forms
         ],
         discriminator => {
-            propertyName => 'type',
+            propertyName => $propertyName,
             mapping => \%mapping
         }
     }
@@ -165,7 +174,7 @@ sub subTypesSchema {
 sub subTypeSchemaRef {
     my ($item_path, $form) = @_;
     for my $field (grep { isSubTypeField($_) } $form->fields) {
-        my $subTypePath = subTypePath($item_path, $field->value);
+        my $subTypePath = subTypePath($item_path, fieldSubTypeValue($field));
         return {
             '$ref' => '#' . $subTypePath
         };
@@ -318,9 +327,14 @@ sub isRequiredField {
     return isAllowedField($field) && $field->required;
 }
 
+sub fieldSubTypeValue {
+    my ($field) = @_;
+    return $field->get_tag('subTypeValue') // $field->value;
+}
+
 sub isSubTypeField {
     my ($field) = @_;
-    return isAllowedField($field) && $field->value && ($field->get_tag('isSubType') || $field->name eq 'type');
+    return isAllowedField($field) && fieldSubTypeValue($field) && ($field->get_tag('isSubType') || $field->name eq 'type');
 }
 
 =head1 AUTHOR
