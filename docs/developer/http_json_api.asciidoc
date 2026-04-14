@@ -25,7 +25,7 @@ The full API specification for:
 
 [options="compact"]
 * the latest stable release is available from: https://packetfence.org/doc/api/
-* the latest devel release is available from: https://packetfence.org/doc/api-devel/
+* the latest devel release is available from: https://packetfence.org/doc/api/
 
 The API is exposed on 127.0.0.1 (localhost) as well as the management interface
 of the server for remote calls.
