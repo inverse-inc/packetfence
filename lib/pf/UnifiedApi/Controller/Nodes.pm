@@ -501,14 +501,17 @@ sub validate_bulk_bypass_acls {
 sub validate_bypass_vlan {
     my ($self, $value) = @_;
     my $roles = $self->stash->{admin_roles};
-    if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $value)) {
-        return (422,  "bypass_vlan $value not allowed" );
+
+    if (admin_isdisabled_option($roles, 'disable_bypass_vlan')) {
+        return (422,  "bypass_vlan is not allowed to be set" );
     }
 
-    if (defined $value && length($value)) {
-        if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
-            return (422,  "bypass_vlan is not allowed to be set" );
-        }
+    if (!defined $value || $value eq '') {
+        return (200, undef);
+    }
+
+    if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $value)) {
+        return (422,  "bypass_vlan $value not allowed" );
     }
 
     return (200, undef);
