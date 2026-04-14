@@ -468,7 +468,33 @@ bulk_apply_role
 
 sub bulk_apply_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('category_id');
+    return $self->do_bulk_update_field('category_id', \&validate_bulk_category_id);
+}
+
+=head2 validate_bulk_category_id
+
+validate_bulk_category_id
+
+=cut
+
+sub validate_bulk_category_id {
+    my ($self, $cat_id) = @_;
+    if (!defined $cat_id) {
+        return (200, undef);
+    }
+
+    my $nc = nodecategory_view($cat_id);   # resolve ID → name
+    if (!$nc) {
+        return (422, "category_id $cat_id does not exist");
+    }
+
+    my $value = $nc->{name}; 
+    my $roles = $self->stash->{admin_roles};
+    if (!check_allowed_options($roles, 'allowed_node_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    return (200, undef);
 }
 
 =head2 bulk_apply_bypass_role
@@ -479,8 +505,40 @@ bulk_apply_bypass_role
 
 sub bulk_apply_bypass_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_role_id');
+    return $self->do_bulk_update_field('bypass_role_id', \&validate_bulk_bypass_role_id);
 }
+
+=head2 validate_bulk_bypass_role_id
+
+validate_bulk_bypass_role_id
+
+=cut
+
+sub validate_bulk_bypass_role_id {
+    my ($self, $cat_id) = @_;
+    if (!defined $cat_id) {
+        return (200, undef);
+    }
+
+    my $nc = nodecategory_view($cat_id);   # resolve ID → name
+    if (!$nc) {
+        return (422, "category_id $cat_id does not exist");
+    }
+
+    my $value = $nc->{name}; 
+
+    my $roles = $self->stash->{admin_roles};
+    if (!check_allowed_options($roles, 'allowed_node_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $value) || check_disallowed_options($roles, 'disallowed_node_bypass_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    return (200, undef);
+}
+
 
 sub validate_bulk_bypass_acls {
     my ($self, $value) = @_;
