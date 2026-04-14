@@ -78,6 +78,7 @@ sbin/pfstats
 sbin/pfacct
 sbin/pfcron
 sbin/pfqueue-go
+sbin/pfudpproxy
 sbin/galera-autofix
 sbin/mysql-probe
 sbin/pfconnector
