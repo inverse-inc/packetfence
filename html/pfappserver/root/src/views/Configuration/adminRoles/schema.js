@@ -26,6 +26,9 @@ const schemaAllowedAccessLevels = yup.array().ensure().of(schemaAllowedAccessLev
 const schemaAllowedRole = yup.string().nullable().required(i18n.t('Role required.'))
 const schemaAllowedRoles = yup.array().ensure().of(schemaAllowedRole)
 
+const schemaDisallowedRole = yup.string().nullable().required(i18n.t('Role required.'))
+const schemaDisallowedRoles = yup.array().ensure().of(schemaAllowedRole)
+
 const schemaAllowedAccessDuration = yup.string().nullable().required(i18n.t('Duration required.'))
 const schemaAllowedAccessDurations = yup.array().ensure().of(schemaAllowedAccessDuration)
 
@@ -34,6 +37,9 @@ const schemaAllowedActions = yup.array().ensure().of(schemaAllowedAction)
 
 const schemaAllowedNodeRole = yup.string().nullable().required(i18n.t('Role required.'))
 const schemaAllowedNodeRoles = yup.array().ensure().of(schemaAllowedNodeRole)
+
+const schemaDisallowedNodeRole = yup.string().nullable().required(i18n.t('Role required.'))
+const schemaDisallowedNodeRoles = yup.array().ensure().of(schemaAllowedNodeRole)
 
 const schemaAllowedNodeBypassVlan = yup.string().nullable().required(i18n.t('VLAN required.'))
 const schemaAllowedNodeBypassVlans = yup.array().ensure().unique(i18n.t('Duplicate VLAN.')).of(schemaAllowedNodeBypassVlan)
@@ -61,6 +67,11 @@ export default (props) => {
     allowed_unreg_date: yup.string().nullable().label(i18n.t('Date/time')),
     allowed_actions: schemaAllowedActions,
     allowed_node_roles: schemaAllowedNodeRoles,
-    allowed_node_bypass_vlans: schemaAllowedNodeBypassVlans
+    allowed_node_bypass_vlans: schemaAllowedNodeBypassVlans,
+    disallowed_roles: schemaDisallowedRoles,
+    disallowed_node_roles: schemaDisallowedNodeRoles,
+    allowed_node_bypass_roles: schemaAllowedActions,
+    disallowed_node_bypass_roles: schemaDisallowedNodeRoles,
+    disable_bypass_vlan: yup.string().nullable()
   })
 }
