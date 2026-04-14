@@ -287,6 +287,7 @@ sub isObjectType {
 sub fieldDescription {
     my ($field) = @_;
     my $description = $field->get_tag('help') || $field->label;
+    $description =~ s/'([^']*)'/\x{2018}$1\x{2019}/g;
     return $description;
 }
 

@@ -23,7 +23,7 @@ components:
       in: query
       name: cursor
       schema:
-        example: 0
+        example: 42 or "1970-01-01 10:12:00"
         type: string
     fields:
       description: Comma delimited fields that should be added to the resource by
@@ -66,7 +66,8 @@ components:
       schema:
         type: string
     limit:
-      description: The maximum amount of entries to get.
+      description: The maximum amount of entries in a page.
+      in: query
       name: limit
       schema:
         default: 25
@@ -179,6 +180,7 @@ components:
         - pfsetacls
         - pfsso
         - pfstats
+        - pfudpproxy
         - proxysql
         - radiusd-auth
         - radiusd-load_balancer
@@ -897,6 +899,33 @@ components:
             type: object
       required: true
       x-go-name: SecurityEventsSearchRequest
+    SnmpScanBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              addresses:
+                description: Ipv4 addresses in CIDR format (16-32 supported)
+                example:
+                - 192.168.10.42
+                - 192.168.10.0/24
+                - 192.165.0.0/16
+                - 192.168.0.0/27
+                items:
+                  type: string
+              credentials:
+                description: SNMP community strings with Read access to be used for
+                  scanning. Each address will be test for each credential until a
+                  match is found
+                items:
+                  $ref: '#/components/schemas/SnmpCredential'
+                type: array
+              options:
+                $ref: '#/components/schemas/SnmpOptions'
+      description: Parameters needed for the scan.
+      required:
+      - addresses
+      - credentials
     UsersBulk:
       content:
         application/json:
@@ -1174,12 +1203,6 @@ components:
             $ref: '#/components/schemas/ErrorsWithMessage'
       description: An attempt to add a duplicate entry was stopped. Entry already
         exists and should be modified instead of created.
-    DynamicReportMeta:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/DynamicReportMeta'
-      description: A response that contains the report meta
     EmailMailer:
       content:
         application/json:
@@ -2034,6 +2057,24 @@ components:
                 $ref: '#/components/schemas/Status'
             type: object
       description: List of services on cluster server.
+    SnmpScanResponse:
+      content:
+        application/json:
+          schema:
+            properties:
+              devices:
+                description: All devices found in given addresses.
+                items:
+                  $ref: '#/components/schemas/SnmpDevice'
+                type: array
+              snmp_results:
+                description: Any error or warning return by an address. Used for further
+                  inspection.
+                items:
+                  $ref: '#/components/schemas/SnmpResult'
+                type: array
+            type: object
+      description: Async request successful response.
     SsoStatus:
       content:
         application/json:
@@ -2213,6 +2254,81 @@ components:
               $ref: '#/components/schemas/AdminApiAuditLog'
             type: array
         type: object
+    ApiError:
+      description: An error object used to define an error in API calls.
+      properties:
+        code:
+          description: A numeric code representing the error type, if applicable.
+            0 is never used.
+          type: integer
+        field:
+          description: The field associated with the error, if applicable.
+          type: string
+        message:
+          description: A descriptive message about the error.
+          type: string
+        op:
+          description: The operation during which the error occurred, if applicable.
+          type: string
+      type: object
+    ApiPagination:
+      description: A common pagination object used across multiple endpoints.
+      properties:
+        count:
+          description: Total number of items in current page.
+          type: integer
+        limit:
+          description: Number of items per page.
+          type: integer
+        nextCursor:
+          description: The next page cursor(s). Arrays can contain multiple type.
+          type:
+          - array
+          - number
+          - string
+          - boolean
+          - ~
+        prevCursor:
+          description: The current page cursor(s). Arrays can contain multiple type.
+          type:
+          - array
+          - number
+          - string
+          - boolean
+          - ~
+        total:
+          description: Total number of items.
+          type: integer
+      type: object
+    ApiResponse:
+      description: A common response object used across multiple endpoints.
+      properties:
+        message:
+          description: A message describing the response, mostly used for errors.
+          type: string
+        status:
+          description: The HTTP status of the response.
+          type: integer
+      type: object
+    ApiResponseError:
+      description: Common HTTP errors returned by the API.
+      properties:
+        errors:
+          items:
+            $ref: '#/components/schemas/ApiError'
+          type: array
+        message:
+          description: A message describing the response, mostly used for errors.
+          type: string
+        status:
+          description: The HTTP status of the response.
+          type: integer
+      type: object
+    ApiResponsePaginated:
+      allOf:
+      - $ref: '#/components/schemas/ApiResponse'
+      - $ref: '#/components/schemas/ApiPagination'
+      description: A common response object used across multiple endpoints, with pagination.
     Async:
       properties:
         async:
@@ -2228,6 +2344,7 @@ components:
         attempted_at:
           type: string
         completed_at:
+          nullable: true
           type: string
         id:
           description: '`PRIMARY KEY`'
@@ -2239,6 +2356,7 @@ components:
         process_name:
           type: string
         profile:
+          nullable: true
           type: string
         source:
           type: string
@@ -2295,6 +2413,7 @@ components:
         auto_enable:
           type: string
         button_text:
+          nullable: true
           type: string
         delay_by:
           type: integer
@@ -2303,27 +2422,34 @@ components:
         enabled:
           type: string
         external_command:
+          nullable: true
           type: string
         grace_period:
           type: integer
         max_enable_url:
+          nullable: true
           type: string
         max_enables:
           type: integer
         priority:
           type: integer
         redirect_url:
+          nullable: true
           type: string
         security_event_id:
           description: '`PRIMARY KEY`'
           type: integer
         target_category:
+          nullable: true
           type: string
         template:
+          nullable: true
           type: string
         vclose:
+          nullable: true
           type: integer
         vlan:
+          nullable: true
           type: string
         window:
           type: string
@@ -2478,23 +2604,656 @@ components:
       description: 'Choose one of the request bodies by discriminator (`type`). '
       oneOf: []
     ConfigBaseMeta:
-      properties:
-        meta:
-          properties:
-            dhcpservers:
-              $ref: '#/components/schemas/Meta'
-            domain:
-              $ref: '#/components/schemas/Meta'
-            hostname:
-              $ref: '#/components/schemas/Meta'
-            id:
-              $ref: '#/components/schemas/Meta'
-            send_anonymous_stats:
-              $ref: '#/components/schemas/Meta'
-            timezone:
-              $ref: '#/components/schemas/Meta'
-          type: object
-      type: object
+      oneOf:
+      - properties:
+          meta:
+            properties:
+              access_duration_choices:
+                $ref: '#/components/schemas/Meta'
+              default_access_duration:
+                $ref: '#/components/schemas/Meta'
+              default_access_duration_add:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              dhcpservers:
+                $ref: '#/components/schemas/Meta'
+              domain:
+                $ref: '#/components/schemas/Meta'
+              hostname:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              send_anonymous_stats:
+                $ref: '#/components/schemas/Meta'
+              timezone:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              api-frontend:
+                $ref: '#/components/schemas/Meta'
+              fingerbank-collector:
+                $ref: '#/components/schemas/Meta'
+              galera-autofix:
+                $ref: '#/components/schemas/Meta'
+              haproxy-admin:
+                $ref: '#/components/schemas/Meta'
+              haproxy-db:
+                $ref: '#/components/schemas/Meta'
+              haproxy-portal:
+                $ref: '#/components/schemas/Meta'
+              httpd_aaa:
+                $ref: '#/components/schemas/Meta'
+              httpd_admin_dispatcher:
+                $ref: '#/components/schemas/Meta'
+              httpd_dispatcher:
+                $ref: '#/components/schemas/Meta'
+              httpd_portal:
+                $ref: '#/components/schemas/Meta'
+              httpd_webservices:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              ip6tables:
+                $ref: '#/components/schemas/Meta'
+              iptables:
+                $ref: '#/components/schemas/Meta'
+              kafka:
+                $ref: '#/components/schemas/Meta'
+              keepalived:
+                $ref: '#/components/schemas/Meta'
+              mysql-probe:
+                $ref: '#/components/schemas/Meta'
+              netdata:
+                $ref: '#/components/schemas/Meta'
+              netflow_address:
+                $ref: '#/components/schemas/Meta'
+              netflow_target_host_port:
+                $ref: '#/components/schemas/Meta'
+              ntlm-auth-api:
+                $ref: '#/components/schemas/Meta'
+              pfacct:
+                $ref: '#/components/schemas/Meta'
+              pfconnector-client:
+                $ref: '#/components/schemas/Meta'
+              pfconnector-server:
+                $ref: '#/components/schemas/Meta'
+              pfcron:
+                $ref: '#/components/schemas/Meta'
+              pfdetect:
+                $ref: '#/components/schemas/Meta'
+              pfdhcp:
+                $ref: '#/components/schemas/Meta'
+              pfdhcplistener:
+                $ref: '#/components/schemas/Meta'
+              pfdhcplistener_packet_size:
+                $ref: '#/components/schemas/Meta'
+              pfdns:
+                $ref: '#/components/schemas/Meta'
+              pfdns-connector:
+                $ref: '#/components/schemas/Meta'
+              pfdns-connector_binary:
+                $ref: '#/components/schemas/Meta'
+              pffilter:
+                $ref: '#/components/schemas/Meta'
+              pfipset:
+                $ref: '#/components/schemas/Meta'
+              pfldapexplorer:
+                $ref: '#/components/schemas/Meta'
+              pfperl-api:
+                $ref: '#/components/schemas/Meta'
+              pfpki:
+                $ref: '#/components/schemas/Meta'
+              pfqueue:
+                $ref: '#/components/schemas/Meta'
+              pfqueue-backend:
+                $ref: '#/components/schemas/Meta'
+              pfqueue-go:
+                $ref: '#/components/schemas/Meta'
+              pfsetacls:
+                $ref: '#/components/schemas/Meta'
+              pfsso:
+                $ref: '#/components/schemas/Meta'
+              pfstats:
+                $ref: '#/components/schemas/Meta'
+              pfudpproxy:
+                $ref: '#/components/schemas/Meta'
+              pfudpproxy_binary:
+                $ref: '#/components/schemas/Meta'
+              proxysql:
+                $ref: '#/components/schemas/Meta'
+              radiusd:
+                $ref: '#/components/schemas/Meta'
+              radiusd_acct:
+                $ref: '#/components/schemas/Meta'
+              radiusd_auth:
+                $ref: '#/components/schemas/Meta'
+              radsniff:
+                $ref: '#/components/schemas/Meta'
+              redis_cache:
+                $ref: '#/components/schemas/Meta'
+              redis_cache_host:
+                $ref: '#/components/schemas/Meta'
+              redis_cache_port:
+                $ref: '#/components/schemas/Meta'
+              redis_ntlm_cache:
+                $ref: '#/components/schemas/Meta'
+              redis_ntlm_cache_host:
+                $ref: '#/components/schemas/Meta'
+              redis_ntlm_cache_port:
+                $ref: '#/components/schemas/Meta'
+              redis_queue:
+                $ref: '#/components/schemas/Meta'
+              redis_queue_host:
+                $ref: '#/components/schemas/Meta'
+              redis_queue_port:
+                $ref: '#/components/schemas/Meta'
+              snmptrapd:
+                $ref: '#/components/schemas/Meta'
+              tracking-config:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              lease_length:
+                $ref: '#/components/schemas/Meta'
+              place_in_dhcp_parking_group:
+                $ref: '#/components/schemas/Meta'
+              show_parking_portal:
+                $ref: '#/components/schemas/Meta'
+              threshold:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              interception_proxy:
+                $ref: '#/components/schemas/Meta'
+              interception_proxy_port:
+                $ref: '#/components/schemas/Meta'
+              isolation_passthrough:
+                $ref: '#/components/schemas/Meta'
+              isolation_passthroughs:
+                $ref: '#/components/schemas/Meta'
+              passthrough:
+                $ref: '#/components/schemas/Meta'
+              passthroughs:
+                $ref: '#/components/schemas/Meta'
+              proxy_passthroughs:
+                $ref: '#/components/schemas/Meta'
+              range:
+                $ref: '#/components/schemas/Meta'
+              wait_for_redirect:
+                $ref: '#/components/schemas/Meta'
+              whitelist:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              interfaceSNAT:
+                $ref: '#/components/schemas/Meta'
+              ports_redirect:
+                $ref: '#/components/schemas/Meta'
+              should_reauth_on_vlan_change:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              pass:
+                $ref: '#/components/schemas/Meta'
+              user:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              filter_in_eduroam_authorize:
+                $ref: '#/components/schemas/Meta'
+              filter_in_eduroam_post_proxy:
+                $ref: '#/components/schemas/Meta'
+              filter_in_eduroam_pre_proxy:
+                $ref: '#/components/schemas/Meta'
+              filter_in_eduroam_preacct:
+                $ref: '#/components/schemas/Meta'
+              filter_in_packetfence-tunnel_authorize:
+                $ref: '#/components/schemas/Meta'
+              filter_in_packetfence_accounting:
+                $ref: '#/components/schemas/Meta'
+              filter_in_packetfence_authorize:
+                $ref: '#/components/schemas/Meta'
+              filter_in_packetfence_post_proxy:
+                $ref: '#/components/schemas/Meta'
+              filter_in_packetfence_pre_proxy:
+                $ref: '#/components/schemas/Meta'
+              filter_in_packetfence_preacct:
+                $ref: '#/components/schemas/Meta'
+              forward_key_balanced:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              local_auth:
+                $ref: '#/components/schemas/Meta'
+              normalize_radius_machine_auth_username:
+                $ref: '#/components/schemas/Meta'
+              ntlm_redis_cache:
+                $ref: '#/components/schemas/Meta'
+              pfacct_rate_limit:
+                $ref: '#/components/schemas/Meta'
+              pfacct_rate_limit_cache_ttl:
+                $ref: '#/components/schemas/Meta'
+              pfacct_work_queue_size:
+                $ref: '#/components/schemas/Meta'
+              pfacct_workers:
+                $ref: '#/components/schemas/Meta'
+              process_bandwidth_accounting:
+                $ref: '#/components/schemas/Meta'
+              radius_attributes:
+                $ref: '#/components/schemas/Meta'
+              record_accounting_in_sql:
+                $ref: '#/components/schemas/Meta'
+              username_attributes:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              connection_type_change_detection:
+                $ref: '#/components/schemas/Meta'
+              dhcp_process_ipv6:
+                $ref: '#/components/schemas/Meta'
+              dhcp_rate_limiting:
+                $ref: '#/components/schemas/Meta'
+              dhcpdetector:
+                $ref: '#/components/schemas/Meta'
+              dhcpoption82logger:
+                $ref: '#/components/schemas/Meta'
+              force_listener_update_on_ack:
+                $ref: '#/components/schemas/Meta'
+              hostname_change_detection:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              interfaceSNAT:
+                $ref: '#/components/schemas/Meta'
+              learn_network_cidr_by_role:
+                $ref: '#/components/schemas/Meta'
+              rogue_dhcp_detection:
+                $ref: '#/components/schemas/Meta'
+              rogueinterval:
+                $ref: '#/components/schemas/Meta'
+              staticroutes:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              innodb_buffer_pool_size:
+                $ref: '#/components/schemas/Meta'
+              key_buffer_size:
+                $ref: '#/components/schemas/Meta'
+              masterslave:
+                $ref: '#/components/schemas/Meta'
+              max_allowed_packet:
+                $ref: '#/components/schemas/Meta'
+              max_connect_errors:
+                $ref: '#/components/schemas/Meta'
+              max_connections:
+                $ref: '#/components/schemas/Meta'
+              net_read_timeout:
+                $ref: '#/components/schemas/Meta'
+              net_write_timeout:
+                $ref: '#/components/schemas/Meta'
+              other_members:
+                $ref: '#/components/schemas/Meta'
+              performance_schema:
+                $ref: '#/components/schemas/Meta'
+              query_cache_size:
+                $ref: '#/components/schemas/Meta'
+              table_cache:
+                $ref: '#/components/schemas/Meta'
+              thread_cache_size:
+                $ref: '#/components/schemas/Meta'
+              thread_concurrency:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              auth_on_management:
+                $ref: '#/components/schemas/Meta'
+              centralize_vips:
+                $ref: '#/components/schemas/Meta'
+              centralized_deauth:
+                $ref: '#/components/schemas/Meta'
+              conflict_resolution_threshold:
+                $ref: '#/components/schemas/Meta'
+              dns_on_vip_only:
+                $ref: '#/components/schemas/Meta'
+              firewall_sso_on_management:
+                $ref: '#/components/schemas/Meta'
+              galera_replication:
+                $ref: '#/components/schemas/Meta'
+              galera_replication_password:
+                $ref: '#/components/schemas/Meta'
+              galera_replication_username:
+                $ref: '#/components/schemas/Meta'
+              gateway_on_vip_only:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              portal_on_management:
+                $ref: '#/components/schemas/Meta'
+              probe_mysql_from_haproxy_db:
+                $ref: '#/components/schemas/Meta'
+              radius_proxy_with_vip:
+                $ref: '#/components/schemas/Meta'
+              use_vip_for_deauth:
+                $ref: '#/components/schemas/Meta'
+              virtual_router_id:
+                $ref: '#/components/schemas/Meta'
+              vrrp_unicast:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              aaa:
+                $ref: '#/components/schemas/Meta'
+              admin:
+                $ref: '#/components/schemas/Meta'
+              collector:
+                $ref: '#/components/schemas/Meta'
+              httpd_portal_modstatus:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pfacct_netflow:
+                $ref: '#/components/schemas/Meta'
+              soap:
+                $ref: '#/components/schemas/Meta'
+              unifiedapi:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              bounce_duration:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              trap_limit:
+                $ref: '#/components/schemas/Meta'
+              trap_limit_action:
+                $ref: '#/components/schemas/Meta'
+              trap_limit_threshold:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              autoconfig:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              certificate:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              ssid:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              emailaddr:
+                $ref: '#/components/schemas/Meta'
+              fromaddr:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              smtp_encryption:
+                $ref: '#/components/schemas/Meta'
+              smtp_name:
+                $ref: '#/components/schemas/Meta'
+              smtp_password:
+                $ref: '#/components/schemas/Meta'
+              smtp_port:
+                $ref: '#/components/schemas/Meta'
+              smtp_timeout:
+                $ref: '#/components/schemas/Meta'
+              smtp_username:
+                $ref: '#/components/schemas/Meta'
+              smtp_verifyssl:
+                $ref: '#/components/schemas/Meta'
+              smtpserver:
+                $ref: '#/components/schemas/Meta'
+              subjectprefix:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              accounting_timebucket_size:
+                $ref: '#/components/schemas/Meta'
+              active_directory_os_join_check_bypass:
+                $ref: '#/components/schemas/Meta'
+              admin_csp_security_headers:
+                $ref: '#/components/schemas/Meta'
+              api_inactivity_timeout:
+                $ref: '#/components/schemas/Meta'
+              api_max_expiration:
+                $ref: '#/components/schemas/Meta'
+              configurator:
+                $ref: '#/components/schemas/Meta'
+              disable_pf_domain_auth:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
+                $ref: '#/components/schemas/Meta'
+              hashing_cost:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              language:
+                $ref: '#/components/schemas/Meta'
+              ldap_attributes:
+                $ref: '#/components/schemas/Meta'
+              locationlog_close_on_accounting_stop:
+                $ref: '#/components/schemas/Meta'
+              multihost:
+                $ref: '#/components/schemas/Meta'
+              netflow_on_all_networks:
+                $ref: '#/components/schemas/Meta'
+              openid_attributes:
+                $ref: '#/components/schemas/Meta'
+              pffilter_max_rss:
+                $ref: '#/components/schemas/Meta'
+              pffilter_processes:
+                $ref: '#/components/schemas/Meta'
+              pfperl_api_max_rss:
+                $ref: '#/components/schemas/Meta'
+              pfperl_api_processes:
+                $ref: '#/components/schemas/Meta'
+              pfperl_api_timeout:
+                $ref: '#/components/schemas/Meta'
+              pfqueue_max_rss:
+                $ref: '#/components/schemas/Meta'
+              pfupdate_custom_script_path:
+                $ref: '#/components/schemas/Meta'
+              portal_csp_security_headers:
+                $ref: '#/components/schemas/Meta'
+              scan_on_accounting:
+                $ref: '#/components/schemas/Meta'
+              source_to_send_sms_when_creating_users:
+                $ref: '#/components/schemas/Meta'
+              statsd_listen_host:
+                $ref: '#/components/schemas/Meta'
+              statsd_listen_port:
+                $ref: '#/components/schemas/Meta'
+              timing_stats_level:
+                $ref: '#/components/schemas/Meta'
+              update_iplog_with_accounting:
+                $ref: '#/components/schemas/Meta'
+              update_iplog_with_authentication:
+                $ref: '#/components/schemas/Meta'
+              update_iplog_with_external_portal_requests:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              detection_mecanism_bypass:
+                $ref: '#/components/schemas/Meta'
+              detection_mecanism_urls:
+                $ref: '#/components/schemas/Meta'
+              expose_fingerbank_info_all_templates:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              image_path:
+                $ref: '#/components/schemas/Meta'
+              ip_address:
+                $ref: '#/components/schemas/Meta'
+              loadbalancers_ip:
+                $ref: '#/components/schemas/Meta'
+              network_detection:
+                $ref: '#/components/schemas/Meta'
+              network_detection_initial_delay:
+                $ref: '#/components/schemas/Meta'
+              network_detection_ip:
+                $ref: '#/components/schemas/Meta'
+              network_detection_retry_delay:
+                $ref: '#/components/schemas/Meta'
+              network_redirect_delay:
+                $ref: '#/components/schemas/Meta'
+              other_domain_names:
+                $ref: '#/components/schemas/Meta'
+              rate_limiting:
+                $ref: '#/components/schemas/Meta'
+              rate_limiting_threshold:
+                $ref: '#/components/schemas/Meta'
+              request_timeout:
+                $ref: '#/components/schemas/Meta'
+              secure_redirect:
+                $ref: '#/components/schemas/Meta'
+              status_only_on_production:
+                $ref: '#/components/schemas/Meta'
+              wispr_redirection:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              category:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pid:
+                $ref: '#/components/schemas/Meta'
+              voip:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              email:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              token:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              device_class_whitelist:
+                $ref: '#/components/schemas/Meta'
+              enable:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              trigger_on_device_class_change:
+                $ref: '#/components/schemas/Meta'
+              triggers:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              db:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pass:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              unix_socket:
+                $ref: '#/components/schemas/Meta'
+              user:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
     ConfigBaseWrapped:
       properties:
         item:
@@ -2890,7 +3649,7 @@ components:
             the role.
           type: string
         network_logoff:
-          description: This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff)
+          description: This allows users to access the network logoff page (http://192-53-123-126.ip.linodeusercontent.com/networklogoff)
             in order to terminate their network access (switch their device back to
             unregistered)
           type: string
@@ -3342,7 +4101,7 @@ components:
           type: string
         ca_file_upload:
           description: Ca file upload
-          type: string
+          type: file
         channel_binding:
           description: Enabled
           type: string
@@ -3351,13 +4110,13 @@ components:
           type: string
         client_cert_file_upload:
           description: Client cert file upload
-          type: string
+          type: file
         client_key_file:
           description: Client key file
           type: string
         client_key_file_upload:
           description: Client key file upload
-          type: string
+          type: file
         dns_name:
           description: The DNS name (FQDN) of the domain.
           type: string
@@ -3402,7 +4161,7 @@ components:
           type: string
         ou:
           description: Use a specific OU for the PacketFence account. The OU string
-            read from top to bottom without RDNs and delimited by a '/'. E.g. "Computers/Servers/Unix".
+            read from top to bottom without RDNs and delimited by a ‘/’. E.g. "Computers/Servers/Unix".
           type: string
         password_is_nt_hash:
           description: Password stored in the config file is NT hash.
@@ -3412,18 +4171,21 @@ components:
             the Active Directory from the registration VLAN.
           type: string
         server_name:
-          description: 'This server''s name (account name) in your Active Directory.
-            ''%h'' is a placeholder for this server hostname. In a cluster, you must
+          description: 'This server‘s name (account name) in your Active Directory.
+            ’%h‘ is a placeholder for this server hostname. In a cluster, you must
             use %h and ensure your hostnames are less than 14 characters. You can
-            mix ''%h'' with a prefix or suffix (ex: ''pf-%h'') '
+            mix ’%h‘ with a prefix or suffix (ex: ’pf-%h'') '
           type: string
         status:
           description: Enabled
           type: string
         sticky_dc:
           description: This is used to specify a sticky domain controller to connect
-            to. If not specified, default '*' will be used to connect to any available
+            to. If not specified, default ‘*’ will be used to connect to any available
             domain controller
+          type: string
+        use_connector:
+          description: Use connector
           type: string
         workgroup:
           description: Workgroup
@@ -3529,6 +4291,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sticky_dc:
               $ref: '#/components/schemas/Meta'
+            use_connector:
+              $ref: '#/components/schemas/Meta'
             workgroup:
               $ref: '#/components/schemas/Meta'
           type: object
@@ -3587,14 +4351,14 @@ components:
           suricata_md5: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSnort'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSnort'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeRegex'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortigateDhcp'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser'
-      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion'
+      - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose'
       - $ref: '#/components/schemas/ConfigEventHandlerMetaSubTypeDhcp'
     ConfigEventHandlerMetaSubTypeDhcp:
       properties:
@@ -4388,20 +5152,20 @@ components:
           windows: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid'
-      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileconfig'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAirwatch'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune'
     ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept:
       properties:
         meta:
@@ -6125,56 +6889,18 @@ components:
           WatchGuard: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJsonrpc'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeIboss'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypePaloalto'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeBarracudang'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeWatchguard'
-      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypePaloalto'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJsonrpc'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeBarracudang'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFortigate'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper'
+      - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeIboss'
       - $ref: '#/components/schemas/ConfigFirewallMetaSubTypeLightspeedrocket'
-    ConfigFirewallMeta:
-      properties:
-        meta:
-          properties:
-            act_on_accounting_stop:
-              $ref: '#/components/schemas/Meta'
-            cache_timeout:
-              $ref: '#/components/schemas/Meta'
-            cache_updates:
-              $ref: '#/components/schemas/Meta'
-            categories:
-              $ref: '#/components/schemas/Meta'
-            default_realm:
-              $ref: '#/components/schemas/Meta'
-            id:
-              $ref: '#/components/schemas/Meta'
-            networks:
-              $ref: '#/components/schemas/Meta'
-            password:
-              $ref: '#/components/schemas/Meta'
-            port:
-              $ref: '#/components/schemas/Meta'
-            sso_on_access_reevaluation:
-              $ref: '#/components/schemas/Meta'
-            sso_on_accounting:
-              $ref: '#/components/schemas/Meta'
-            sso_on_dhcp:
-              $ref: '#/components/schemas/Meta'
-            type:
-              $ref: '#/components/schemas/Meta'
-            uid:
-              $ref: '#/components/schemas/Meta'
-            use_connector:
-              $ref: '#/components/schemas/Meta'
-            username_format:
-              $ref: '#/components/schemas/Meta'
-          type: object
-      type: object
     ConfigFirewallMetaSubTypeBarracudang:
       properties:
         meta:
@@ -6202,6 +6928,8 @@ components:
             sso_on_accounting:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -6243,6 +6971,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
               $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
             uid:
@@ -6280,6 +7010,8 @@ components:
             sso_on_accounting:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -6321,6 +7053,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
               $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
             uid:
@@ -6358,6 +7092,8 @@ components:
             sso_on_accounting:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -6399,6 +7135,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
               $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
             uid:
@@ -6436,6 +7174,8 @@ components:
             sso_on_accounting:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -6477,6 +7217,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
               $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
             uid:
@@ -6517,6 +7259,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
               $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
             uid:
@@ -6554,6 +7298,8 @@ components:
             sso_on_accounting:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
               $ref: '#/components/schemas/Meta'
             transport:
               $ref: '#/components/schemas/Meta'
@@ -6597,6 +7343,8 @@ components:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
               $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
             uid:
@@ -6634,6 +7382,8 @@ components:
             sso_on_accounting:
               $ref: '#/components/schemas/Meta'
             sso_on_dhcp:
+              $ref: '#/components/schemas/Meta'
+            sso_on_role_change:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -6691,6 +7441,12 @@ components:
           type: string
         sso_on_dhcp:
           description: Sso on dhcp
+          type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
           type: string
         type:
           default: BarracudaNG
@@ -6764,6 +7520,12 @@ components:
         sso_on_dhcp:
           description: Sso on dhcp
           type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
+          type: string
         type:
           default: Checkpoint
           description: Discriminator `Checkpoint`
@@ -6831,6 +7593,12 @@ components:
           type: string
         sso_on_dhcp:
           description: Sso on dhcp
+          type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
           type: string
         type:
           default: ContentKeeper
@@ -6903,6 +7671,12 @@ components:
         sso_on_dhcp:
           description: Sso on dhcp
           type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
+          type: string
         type:
           default: FamilyZone
           description: Discriminator `FamilyZone`
@@ -6969,6 +7743,12 @@ components:
           type: string
         sso_on_dhcp:
           description: Sso on dhcp
+          type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
           type: string
         type:
           default: FortiGate
@@ -7041,6 +7821,12 @@ components:
         sso_on_dhcp:
           description: Sso on dhcp
           type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
+          type: string
         type:
           default: Iboss
           description: Discriminator `Iboss`
@@ -7108,6 +7894,12 @@ components:
           type: string
         sso_on_dhcp:
           description: Sso on dhcp
+          type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
           type: string
         type:
           default: JSONRPC
@@ -7181,6 +7973,12 @@ components:
         sso_on_dhcp:
           description: Sso on dhcp
           type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
+          type: string
         type:
           default: JuniperSRX
           description: Discriminator `JuniperSRX`
@@ -7253,6 +8051,12 @@ components:
         sso_on_dhcp:
           description: Sso on dhcp
           type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
+          type: string
         type:
           default: LightSpeedRocket
           description: Discriminator `LightSpeedRocket`
@@ -7322,6 +8126,12 @@ components:
           type: string
         sso_on_dhcp:
           description: Sso on dhcp
+          type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
           type: string
         transport:
           description: Transport
@@ -7397,6 +8207,12 @@ components:
         sso_on_dhcp:
           description: Sso on dhcp
           type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
+          type: string
         type:
           default: SmoothWall
           description: Discriminator `SmoothWall`
@@ -7464,6 +8280,12 @@ components:
           type: string
         sso_on_dhcp:
           description: Sso on dhcp
+          type: string
+        sso_on_role_change:
+          description: 'Note: This only triggers during autoregistration. Warning:
+            If the VLAN changes when the role changes, an incorrect SSO update may
+            occur until PacketFence receives a DHCP packet that updates the IP of
+            the device and triggers a new SSO request.'
           type: string
         type:
           default: WatchGuard
@@ -7998,36 +8820,36 @@ components:
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp6logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeOption82Query'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp6logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog'
     ConfigMaintenanceTaskMetaSubTypeAcctCleanup:
       properties:
         meta:
@@ -10132,9 +10954,9 @@ components:
           scep: '#/components/schemas/ConfigPkiProviderMetaSubTypeScep'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypePacketfenceLocal'
-      - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypeScep'
       - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypePacketfencePki'
+      - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypeScep'
+      - $ref: '#/components/schemas/ConfigPkiProviderMetaSubTypePacketfenceLocal'
     ConfigPkiProviderMetaSubTypePacketfenceLocal:
       properties:
         meta:
@@ -10257,19 +11079,19 @@ components:
           type: string
         ca_cert_path_upload:
           description: Ca cert path upload
-          type: string
+          type: file
         client_cert_path:
           description: Path of the client cert that will be used to generate the p12
           type: string
         client_cert_path_upload:
           description: Client cert path upload
-          type: string
+          type: file
         client_key_path:
           description: Path of the client key that will be used to generate the p12
           type: string
         client_key_path_upload:
           description: Client key path upload
-          type: string
+          type: file
         id:
           description: Id
           type: string
@@ -10278,7 +11100,7 @@ components:
           type: string
         server_cert_path_upload:
           description: Server cert path upload
-          type: string
+          type: file
         type:
           default: packetfence_local
           description: Discriminator `packetfence_local`
@@ -10294,7 +11116,7 @@ components:
           type: string
         ca_cert_path_upload:
           description: Ca cert path upload
-          type: string
+          type: file
         certificate_validity_time_from_unreg_date:
           description: Enable to apply the same expiration date of the certificate
             as the unregistration date of the node.
@@ -10347,7 +11169,7 @@ components:
           type: string
         server_cert_path_upload:
           description: Server cert path upload
-          type: string
+          type: file
         state:
           description: State for the certificate
           type: string
@@ -10372,7 +11194,7 @@ components:
           type: string
         ca_cert_path_upload:
           description: Ca cert path upload
-          type: string
+          type: file
         cn_attribute:
           description: Defines what attribute of the node to use as the common name
             during the certificate generation.
@@ -10404,7 +11226,7 @@ components:
           type: string
         server_cert_path_upload:
           description: Server cert path upload
-          type: string
+          type: file
         state:
           description: State for the certificate
           type: string
@@ -10543,38 +11365,36 @@ components:
         propertyName: type
       oneOf:
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSms'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSslInspection'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationLogin'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGoogle'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMessage'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMfa'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBilling'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRoot'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning'
-      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationPassword'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeUrl'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml'
       - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMfa'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChained'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationLogin'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGoogle'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeSslInspection'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeRoot'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeMessage'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBilling'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive'
+      - $ref: '#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor'
     ConfigPortalModuleMetaSubTypeAuthentication:
       properties:
         meta:
@@ -12910,20 +13730,20 @@ components:
           windows: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAccept'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAndroid'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeWindows'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDeny'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamf'
-      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAndroid'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeIntune'
       - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook'
     ConfigProvisioningMetaSubTypeAccept:
       properties:
         meta:
@@ -13766,7 +14586,7 @@ components:
           type: string
         ca_cert_path_upload:
           description: Ca cert path upload
-          type: string
+          type: file
         can_sign_profile:
           description: Check this box if you want the profiles signed
           type: string
@@ -13846,7 +14666,7 @@ components:
           type: string
         server_certificate_path_upload:
           description: Server certificate path upload
-          type: string
+          type: file
         ssid:
           description: Ssid
           type: string
@@ -14465,7 +15285,7 @@ components:
           type: string
         ca_cert_path_upload:
           description: Ca cert path upload
-          type: string
+          type: file
         can_sign_profile:
           description: Check this box if you want the profiles signed
           type: string
@@ -14545,7 +15365,7 @@ components:
           type: string
         server_certificate_path_upload:
           description: Server certificate path upload
-          type: string
+          type: file
         ssid:
           description: Ssid
           type: string
@@ -14762,7 +15582,7 @@ components:
           type: string
         ca_cert_path_upload:
           description: Ca cert path upload
-          type: string
+          type: file
         can_sign_profile:
           description: Check this box if you want the profiles signed
           type: string
@@ -14842,7 +15662,7 @@ components:
           type: string
         server_certificate_path_upload:
           description: Server certificate path upload
-          type: string
+          type: file
         ssid:
           description: Ssid
           type: string
@@ -15628,10 +16448,10 @@ components:
           pfappserver::Form::Config::Scan::Rapid7: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
       - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus'
-      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7'
       - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanOpenvas'
+      - $ref: '#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6'
     ConfigScanMetaSubTypePfappserverFormConfigScanNessus:
       properties:
         meta:
@@ -16147,7 +16967,7 @@ components:
           description: Range 1-10, with 1 the higest priority and 10 the lowest. Higher
             priority security events will be addressed first if a host has more than
             one.
-          type: string
+          type: integer
         recipient_email:
           description: Recipient email addresses that will receive the security event
             email.
@@ -16169,9 +16989,100 @@ components:
             event. You can create new templates from the <em>Connection Profiles</em>
             configuration section.
           type: string
-        trigger:
-          description: Trigger
-          type: string
+        triggers:
+          description: Triggers
+          items:
+            description: Trigger
+            properties:
+              accounting:
+                description: Accounting
+                type: string
+              custom:
+                description: Custom
+                type: string
+              detect:
+                description: Detect
+                type: string
+              device:
+                description: OS
+                type: string
+              device_is_not:
+                description: OS
+                type: string
+              dhcp6_enterprise:
+                description: DHCP6 Enterprise
+                type: string
+              dhcp6_fingerprint:
+                description: DHCP6 Fingerprint
+                type: string
+              dhcp_fingerprint:
+                description: DHCP Fingerprint
+                type: string
+              dhcp_vendor:
+                description: DHCP Vendor
+                type: string
+              fleetdm_cve:
+                description: Fleetdm cve
+                type: string
+              fleetdm_cve_severity_gte:
+                description: Fleetdm cve severity gte
+                type: string
+              fleetdm_policy:
+                description: Fleetdm policy
+                type: string
+              internal:
+                description: Internal
+                type: string
+              mac:
+                description: Mac
+                type: string
+              mac_vendor:
+                description: MAC Vendor
+                type: string
+              nessus:
+                description: Nessus
+                type: string
+              nessus6:
+                description: Nessus6
+                type: string
+              network:
+                description: Network
+                type: string
+              nexpose_event_contains:
+                description: Nexpose event contains
+                type: string
+              nexpose_event_starts_with:
+                description: Nexpose event starts with
+                type: string
+              openvas:
+                description: Openvas
+                type: string
+              provisioner:
+                description: Provisioner
+                type: string
+              recorded_accounting:
+                description: Recorded accounting
+                type: string
+              role:
+                description: Role
+                type: string
+              suricata_event:
+                description: Suricata event
+                type: string
+              suricata_md5:
+                description: Suricata md5
+                type: string
+              switch:
+                description: Switch
+                type: string
+              switch_group:
+                description: Switch group
+                type: string
+              vlan:
+                description: Vlan
+                type: string
+            type: object
+          type: array
         user_mail_message:
           description: A message that will be added to the e-mail sent to the user
             regarding this security event.
@@ -16256,7 +17167,7 @@ components:
               $ref: '#/components/schemas/Meta'
             template:
               $ref: '#/components/schemas/Meta'
-            trigger:
+            triggers:
               $ref: '#/components/schemas/Meta'
             user_mail_message:
               $ref: '#/components/schemas/Meta'
@@ -16485,38 +17396,38 @@ components:
           WindowsLive: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEmail'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHtpasswd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeClickatell'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEduroam'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeBlackhole'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAuthorization'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeNull'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeTwilio'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAdminproxy'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLinkedin'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEaptls'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeOpenid'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEdir'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeTwilio'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogle'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHttp'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKerberos'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeFacebook'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKickbox'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSql'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAzuread'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePotd'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLdap'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGithub'
-      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePaypal'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEdir'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeWindowslive'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAzuread'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePaypal'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGithub'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeFacebook'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAdminproxy'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEmail'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHtpasswd'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSql'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeClickatell'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeBlackhole'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeOpenid'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEduroam'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeAuthorization'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLdap'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKerberos'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeKickbox'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeEaptls'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeHttp'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypePotd'
     ConfigSourceMetaSubTypeAd:
       properties:
         meta:
@@ -17833,7 +18744,7 @@ components:
           type: string
         ca_file_upload:
           description: Ca file upload
-          type: string
+          type: file
         cache_match:
           description: Will cache results of matching a rule
           type: string
@@ -17842,13 +18753,13 @@ components:
           type: string
         client_cert_file_upload:
           description: Client cert file upload
-          type: string
+          type: file
         client_key_file:
           description: Client key file
           type: string
         client_key_file_upload:
           description: Client key file upload
-          type: string
+          type: file
         connection_timeout:
           description: LDAP connection Timeout
           type: string
@@ -18497,7 +19408,7 @@ components:
           type: string
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         pin_code_length:
           description: The length of the PIN code to be sent over sms
           type: integer
@@ -18758,7 +19669,7 @@ components:
           type: string
         ca_file_upload:
           description: Ca file upload
-          type: string
+          type: file
         cache_match:
           description: Will cache results of matching a rule
           type: string
@@ -18767,13 +19678,13 @@ components:
           type: string
         client_cert_file_upload:
           description: Client cert file upload
-          type: string
+          type: file
         client_key_file:
           description: Client key file
           type: string
         client_key_file_upload:
           description: Client key file upload
-          type: string
+          type: file
         connection_timeout:
           description: LDAP connection Timeout
           type: string
@@ -19170,7 +20081,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         type:
           default: Email
           description: Discriminator `Email`
@@ -19332,7 +20243,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         protected_resource_url:
           description: Graph API URL of logged user
           type: string
@@ -19517,7 +20428,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -19703,7 +20614,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -19856,7 +20767,7 @@ components:
           type: string
         ca_file_upload:
           description: Ca file upload
-          type: string
+          type: file
         cache_match:
           description: Will cache results of matching a rule
           type: string
@@ -19865,13 +20776,13 @@ components:
           type: string
         client_cert_file_upload:
           description: Client cert file upload
-          type: string
+          type: file
         client_key_file:
           description: Client key file
           type: string
         client_key_file_upload:
           description: Client key file upload
-          type: string
+          type: file
         connection_timeout:
           description: LDAP connection Timeout
           type: string
@@ -20073,7 +20984,7 @@ components:
           type: string
         path_upload:
           description: Path upload
-          type: string
+          type: file
         realms:
           description: Realms that will be associated with this source (For the Portal/Admin
             GUI/RADIUS post-auth, not for FreeRADIUS proxy)
@@ -20517,7 +21428,7 @@ components:
           type: string
         ca_file_upload:
           description: Ca file upload
-          type: string
+          type: file
         cache_match:
           description: Will cache results of matching a rule
           type: string
@@ -20526,13 +21437,13 @@ components:
           type: string
         client_cert_file_upload:
           description: Client cert file upload
-          type: string
+          type: file
         client_key_file:
           description: Client key file
           type: string
         client_key_file_upload:
           description: Client key file upload
-          type: string
+          type: file
         connection_timeout:
           description: LDAP connection Timeout
           type: string
@@ -20770,7 +21681,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -20940,7 +21851,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         type:
           default: Null
           description: Discriminator `Null`
@@ -21101,7 +22012,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         person_mappings:
           description: Person mappings
           items:
@@ -21158,7 +22069,7 @@ components:
           type: string
         cert_file_upload:
           description: Cert file upload
-          type: string
+          type: file
         cert_id:
           description: Cert id
           type: string
@@ -21195,7 +22106,7 @@ components:
           type: string
         key_file_upload:
           description: Key file upload
-          type: string
+          type: file
         local_account_expiration:
           description: Local account expiration
           properties:
@@ -21212,7 +22123,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         payment_type:
           description: The type of transactions this source will do (donations or
             sales).
@@ -21222,7 +22133,7 @@ components:
           type: string
         paypal_cert_file_upload:
           description: Paypal cert file upload
-          type: string
+          type: file
         send_email_confirmation:
           description: Send billing confirmation
           type: string
@@ -21359,7 +22270,7 @@ components:
           type: string
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         password_rotation:
           description: Period of time after the password must be rotated.
           type: string
@@ -21557,13 +22468,13 @@ components:
           type: string
         idp_ca_cert_path_upload:
           description: Idp ca cert path upload
-          type: string
+          type: file
         idp_cert_path:
           description: Idp cert path
           type: string
         idp_cert_path_upload:
           description: Idp cert path upload
-          type: string
+          type: file
         idp_entity_id:
           description: Idp entity id
           type: string
@@ -21572,13 +22483,13 @@ components:
           type: string
         idp_metadata_path_upload:
           description: Idp metadata path upload
-          type: string
+          type: file
         sp_cert_path:
           description: Sp cert path
           type: string
         sp_cert_path_upload:
           description: Sp cert path upload
-          type: string
+          type: file
         sp_entity_id:
           description: Sp entity id
           type: string
@@ -21587,7 +22498,7 @@ components:
           type: string
         sp_key_path_upload:
           description: Sp key path upload
-          type: string
+          type: file
         type:
           default: SAML
           description: Discriminator `SAML`
@@ -21739,7 +22650,7 @@ components:
           type: string
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         pin_code_length:
           description: The amount of digits of the PIN number.
           type: integer
@@ -21937,7 +22848,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         register_on_activation:
           description: Register on activation
           type: string
@@ -22126,7 +23037,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         publishable_key:
           description: Publishable key
           type: string
@@ -22299,7 +23210,7 @@ components:
           type: string
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         pin_code_length:
           description: The length of the PIN code to be sent over SMS
           type: integer
@@ -22472,7 +23383,7 @@ components:
           type: integer
         password_length:
           description: The length of the password to generate.
-          type: string
+          type: integer
         protected_resource_url:
           description: API URL of logged user
           type: string
@@ -22744,9 +23655,6 @@ components:
                 type: string
             type: object
           type: array
-        always_trigger:
-          description: Always trigger
-          type: string
         cliAccess:
           description: Allow this switch to use PacketFence as a radius server for
             CLI access
@@ -22838,6 +23746,9 @@ components:
         useCoA:
           description: Use CoA when available to deauthenticate the user. When disabled,
             RADIUS Disconnect will be used instead if it is available.
+          type: string
+        useSNMP:
+          description: UseSNMP
           type: string
         wsPwd:
           description: Password
@@ -23074,9 +23985,6 @@ components:
                 type: string
             type: object
           type: array
-        always_trigger:
-          description: Always trigger
-          type: string
         cliAccess:
           description: Allow this switch to use PacketFence as a radius server for
             CLI access
@@ -23164,6 +24072,9 @@ components:
         useCoA:
           description: Use CoA when available to deauthenticate the user. When disabled,
             RADIUS Disconnect will be used instead if it is available.
+          type: string
+        useSNMP:
+          description: UseSNMP
           type: string
         wsPwd:
           description: Password
@@ -23284,8 +24195,6 @@ components:
               $ref: '#/components/schemas/Meta'
             VpnMapping:
               $ref: '#/components/schemas/Meta'
-            always_trigger:
-              $ref: '#/components/schemas/Meta'
             cliAccess:
               $ref: '#/components/schemas/Meta'
             cliEnablePwd:
@@ -23335,6 +24244,8 @@ components:
             uplink_dynamic:
               $ref: '#/components/schemas/Meta'
             useCoA:
+              $ref: '#/components/schemas/Meta'
+            useSNMP:
               $ref: '#/components/schemas/Meta'
             wsPwd:
               $ref: '#/components/schemas/Meta'
@@ -23458,8 +24369,6 @@ components:
               $ref: '#/components/schemas/Meta'
             VpnMapping:
               $ref: '#/components/schemas/Meta'
-            always_trigger:
-              $ref: '#/components/schemas/Meta'
             cliAccess:
               $ref: '#/components/schemas/Meta'
             cliEnablePwd:
@@ -23512,6 +24421,8 @@ components:
               $ref: '#/components/schemas/Meta'
             useCoA:
               $ref: '#/components/schemas/Meta'
+            useSNMP:
+              $ref: '#/components/schemas/Meta'
             wsPwd:
               $ref: '#/components/schemas/Meta'
             wsTransport:
@@ -23553,8 +24464,8 @@ components:
           server: '#/components/schemas/ConfigSyslogForwarderMetaSubTypeServer'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSyslogForwarderMetaSubTypeServer'
       - $ref: '#/components/schemas/ConfigSyslogForwarderMetaSubTypeFile'
+      - $ref: '#/components/schemas/ConfigSyslogForwarderMetaSubTypeServer'
     ConfigSyslogForwarderMetaSubTypeFile:
       properties:
         meta:
@@ -24773,25 +25684,29 @@ components:
     DhcpOption82:
       properties:
         circuit_id_string:
+          nullable: true
           type: string
-        charts:
-          description: Comma separated list of chart
+        created_at:
           type: string
         host:
+          nullable: true
           type: string
-        cursor_default:
-          description: Comma separated list of default cursor
+        mac:
+          description: '`PRIMARY KEY`'
           type: string
         module:
+          nullable: true
           type: string
         option82_switch:
+          nullable: true
           type: string
-        date_limit:
-          description: Date limit for report
+        port:
           type: string
         switch_id:
+          nullable: true
           type: string
         vlan:
+          nullable: true
           type: string
       type: object
     DhcpOption82sList:
@@ -24807,24 +25722,25 @@ components:
     DnsAuditLog:
       properties:
         answer:
+          nullable: true
           type: string
-        has_date_range:
-          $ref: '#/components/schemas/EnableValue'
-          description: Enable/disable date range for report
-        has_limit:
-          $ref: '#/components/schemas/EnableValue'
-          description: Enable/disable limit for report
+        created_at:
+          type: string
         id:
-          description: Report ID
+          description: '`PRIMARY KEY`'
+          type: integer
+        ip:
           type: string
-        node_fields:
-          description: Comma separated list of nodes
+        mac:
           type: string
         qname:
+          nullable: true
           type: string
         qtype:
+          nullable: true
           type: string
         scope:
+          nullable: true
           type: string
       type: object
     DnsAuditLogsList:
@@ -24837,102 +25753,24 @@ components:
               $ref: '#/components/schemas/DnsAuditLog'
             type: array
         type: object
-    DynamicReportMeta:
-      description: Report Meta
-      properties:
-        report_meta:
-          description: Meta for each item
-          properties:
-            charts:
-              description: Array of charts
-              type: array
-            columns:
-              description: Array of columns
-              items:
-                description: Column meta
-                properties:
-                  is_cursor:
-                    description: Column is used in cursor, can be used as PK
-                    type: boolean
-                  is_node:
-                    description: Column is a node, can be used as PK
-                    type: boolean
-                  is_person:
-                    description: Column is a person, can be used as PK
-                    type: boolean
-                  is_role:
-                    description: Column is a role, can be used as PK
-                    type: boolean
-                  name:
-                    description: Name of the column
-                    type: string
-                  text:
-                    description: Text of the column
-                    type: string
-                type: object
-              type: array
-            date_limit:
-              description: Enforce maximum date range to prevent database full table
-                scans
-              type: string
-            default_end_date:
-              description: Default end datetime if no end_date is defined
-              example: 1970-01-01 00:00:00
-              format: date-time
-              type: string
-            default_limit:
-              description: Default query limit
-              type: string
-            default_start_data:
-              description: Default start datetime if no end_date is defined
-              example: 1970-01-01 00:00:00
-              format: date-time
-              type: string
-            description:
-              description: Descriptive text
-              type: string
-            has_cursor:
-              description: Pagination is available
-              type: boolean
-            has_date_range:
-              description: Date range is available
-              type: boolean
-            has_limit:
-              description: Query limits enforced
-              type: boolean
-            id:
-              description: Unique identifier
-              type: string
-            query_fields:
-              description: Fields available for query
-              items:
-                description: Field available for query
-                type: string
-              type: array
-          type: object
-      type: object
     DynamicReportSearchRequest:
       additionalProperties: true
       properties:
         cursor:
-          description: Cursor for pagination. Support multi-cursor.
-          type:
-          - array
-          - string
-          - integer
-          - boolean
-          - ~
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
         end_date:
-          description: End date filter. Required if report has date range enabled
           example: 1970-01-01 00:00:00
           format: date-time
           type: string
         limit:
-          description: The maximum number of items to return (SQL limit). Enable if
-            report has limit enabled
           type: integer
+        query:
+          $ref: '#/components/schemas/Query'
         start_date:
-          description: Start date filter. Required if report has date range enabled
           example: 1970-01-01 00:00:00
           format: date-time
           type: string
@@ -24954,6 +25792,23 @@ components:
       x-go-name: EmailPreviewSchema
     EmailSend:
       type: object
+      x-go-name: EmailSendSchema
+    EnableValue:
+      description: Enable/disable boolean value as string.
+      enum:
+      - enabled
+      - enable
+      - yes
+      - y
+      - true
+      - 1
+      - disabled
+      - disable
+      - no
+      - n
+      - false
+      - 0
+      type: string
     ErrorsWithMessage:
       properties:
         errors:
@@ -26504,6 +27359,7 @@ components:
     Ip4log:
       properties:
         end_time:
+          nullable: true
           type: string
         ip:
           description: '`PRIMARY KEY`'
@@ -26526,6 +27382,7 @@ components:
     Ip6log:
       properties:
         end_time:
+          nullable: true
           type: string
         ip:
           description: '`PRIMARY KEY`'
@@ -26535,6 +27392,7 @@ components:
         start_time:
           type: string
         type:
+          nullable: true
           type: string
       type: object
     Ip6logsList:
@@ -26650,6 +27508,7 @@ components:
     Locationlog:
       properties:
         connection_sub_type:
+          nullable: true
           type: string
         connection_type:
           type: string
@@ -26658,6 +27517,7 @@ components:
         end_time:
           type: string
         ifDesc:
+          nullable: true
           type: string
         mac:
           description: '`PRIMARY KEY`'
@@ -26665,26 +27525,37 @@ components:
         port:
           type: string
         realm:
+          nullable: true
           type: string
         role:
+          nullable: true
           type: string
         session_id:
+          nullable: true
           type: string
         ssid:
           type: string
         start_time:
           type: string
         stripped_user_name:
+          nullable: true
           type: string
         switch:
           type: string
+        switch_id:
+          nullable: true
+          type: string
         switch_ip:
+          nullable: true
           type: string
         switch_ip_int:
+          nullable: true
           type: integer
         switch_mac:
+          nullable: true
           type: string
         vlan:
+          nullable: true
           type: string
         voip:
           enum:
@@ -26923,36 +27794,51 @@ components:
           - yes
           type: string
         bandwidth_balance:
+          nullable: true
           type: integer
         bypass_acls:
+          nullable: true
           type: string
         bypass_role_id:
+          nullable: true
           type: integer
         bypass_vlan:
+          nullable: true
           type: string
         category_id:
+          nullable: true
           type: integer
         computername:
+          nullable: true
           type: string
         detect_date:
           type: string
         device_class:
+          nullable: true
           type: string
         device_manufacturer:
+          nullable: true
           type: string
         device_score:
+          nullable: true
           type: integer
         device_type:
+          nullable: true
           type: string
         device_version:
+          nullable: true
           type: string
         dhcp6_enterprise:
+          nullable: true
           type: string
         dhcp6_fingerprint:
+          nullable: true
           type: string
         dhcp_fingerprint:
+          nullable: true
           type: string
         dhcp_vendor:
+          nullable: true
           type: string
         last_arp:
           type: string
@@ -26964,22 +27850,27 @@ components:
           description: '`PRIMARY KEY`'
           type: string
         machine_account:
+          nullable: true
           type: string
         notes:
+          nullable: true
           type: string
         pid:
           type: string
         regdate:
           type: string
         sessionid:
+          nullable: true
           type: string
         status:
           type: string
         time_balance:
+          nullable: true
           type: integer
         unregdate:
           type: string
         user_agent:
+          nullable: true
           type: string
         voip:
           enum:
@@ -27005,20 +27896,27 @@ components:
           description: '`PRIMARY KEY`'
           type: integer
         fingerbank_dynamic_access_list:
+          nullable: true
           type: string
         include_parent_acls:
+          nullable: true
           type: string
         inherit_role:
+          nullable: true
           type: string
         inherit_vlan:
+          nullable: true
           type: string
         inherit_web_auth_url:
+          nullable: true
           type: string
         max_nodes_per_pid:
+          nullable: true
           type: integer
         name:
           type: string
         notes:
+          nullable: true
           type: string
       type: object
     NodesList:
@@ -28349,83 +29247,119 @@ components:
     RadiusAuditLog:
       properties:
         auth_status:
+          nullable: true
           type: string
         auth_type:
+          nullable: true
           type: string
         auto_reg:
+          nullable: true
           type: string
         called_station_id:
+          nullable: true
           type: string
         calling_station_id:
+          nullable: true
           type: string
         computer_name:
+          nullable: true
           type: string
         connection_type:
+          nullable: true
           type: string
         created_at:
           type: string
         eap_type:
+          nullable: true
           type: string
         event_type:
+          nullable: true
           type: string
         id:
           description: '`PRIMARY KEY`'
           type: integer
         ifindex:
+          nullable: true
           type: string
         ip:
+          nullable: true
           type: string
         is_phone:
+          nullable: true
           type: string
         mac:
           type: string
         nas_identifier:
+          nullable: true
           type: string
         nas_ip_address:
+          nullable: true
           type: string
         nas_port:
+          nullable: true
           type: string
         nas_port_id:
+          nullable: true
           type: string
         nas_port_type:
+          nullable: true
           type: string
         node_status:
+          nullable: true
           type: string
         pf_domain:
+          nullable: true
           type: string
         profile:
+          nullable: true
           type: string
         radius_ip:
+          nullable: true
           type: string
         radius_reply:
+          nullable: true
           type: string
         radius_request:
+          nullable: true
           type: string
         radius_source_ip_address:
+          nullable: true
           type: string
         realm:
+          nullable: true
           type: string
         reason:
+          nullable: true
           type: string
         request_time:
+          nullable: true
           type: integer
         role:
+          nullable: true
           type: string
         source:
+          nullable: true
           type: string
         ssid:
+          nullable: true
           type: string
         stripped_user_name:
+          nullable: true
           type: string
         switch_id:
+          nullable: true
           type: string
         switch_ip_address:
+          nullable: true
           type: string
         switch_mac:
+          nullable: true
           type: string
         user_name:
+          nullable: true
           type: string
         uuid:
+          nullable: true
           type: string
       type: object
     RadiusAuditLogsList:
@@ -28610,6 +29544,7 @@ components:
         modified:
           type: string
         name:
+          nullable: true
           type: string
       type: object
     SMSCarriersList:
@@ -28655,6 +29590,7 @@ components:
           nullable: true
           type: string
         release_date:
+          nullable: true
           type: string
         security_event_id:
           type: integer
@@ -28853,6 +29789,94 @@ components:
         status:
           $ref: '#/components/schemas/Status'
       type: object
+    SnmpCredential:
+      description: Contains credential informations. Support only SNMP v1 or v2c community
+        strings.
+      properties:
+        community_read:
+          default: public
+          example: public
+          type: string
+        version:
+          enum:
+          - snmp_v1
+          - snmp_v2c
+          example: snmp_v2c
+          type: string
+      type: object
+    SnmpDevice:
+      description: Contains informations found on a device at a given address.
+      properties:
+        credential:
+          $ref: '#/components/schemas/SnmpCredential'
+        driver:
+          description: The driver id used internally to match PF modules and switch
+            driver for configuration.
+          example: cisco_iosxr
+          type: string
+        hostname:
+          example: gcaruba-machine01
+          type: string
+        ip:
+          example: 192.168.10.42
+          type: string
+        oid:
+          description: The OID string return by the SNMP request
+          example: .1.3.6.1.4.1.9.1
+          type: string
+        os:
+          example: CISCO IOS-XR
+          type: string
+        system:
+          description: The whole SNMP system description string. Usefull if vendor/os/version
+            cannot be matched automatically.
+          example: Aruba R8N88A 6000 24G 4SFP Swch PL.10.14.1010
+          type: string
+        vendor:
+          example: CISCO
+          type: string
+        version:
+          example: 17.0.42
+          type: string
+      type: object
+    SnmpOptions:
+      description: Optionnal property to manage the SNMP scan. In general, a 0 value
+        means use default value.
+      properties:
+        max_threads:
+          default: 32
+          description: The scan use multiple threads to speed up the SNMP scan. The
+            higher the better. 0 = use default
+          maximum: 256
+          minimum: 0
+          type: integer
+        snmp_port:
+          default: 161
+          description: Port used by the SNMP request.
+          type: integer
+        snmp_retry:
+          default: 1
+          description: Number of retry if the SNMP request timeout. 0 = use default.
+          maximum: 10
+          minimum: 0
+          type: integer
+        snmp_timeout:
+          default: 1
+          description: Timeout in seconds for a SNMP request. 0 = use default.
+          maximum: 10
+          minimum: 0
+          type: integer
+      type: object
+    SnmpResults:
+      description: A brief report of error/warning if an address responded to the
+        SNMP request, but device cannot be matched
+      properties:
+        address:
+          description: IP address
+          type: string
+        message:
+          type: string
+      type: object
     SsoStatus:
       properties:
         is_enabled:
@@ -28935,36 +29959,52 @@ components:
     User:
       properties:
         address:
+          nullable: true
           type: string
         anniversary:
+          nullable: true
           type: string
         apartment_number:
+          nullable: true
           type: string
         birthday:
+          nullable: true
           type: string
         building_number:
+          nullable: true
           type: string
         cell_phone:
+          nullable: true
           type: string
         company:
+          nullable: true
           type: string
         custom_field_1:
+          nullable: true
           type: string
         custom_field_2:
+          nullable: true
           type: string
         custom_field_3:
+          nullable: true
           type: string
         custom_field_4:
+          nullable: true
           type: string
         custom_field_5:
+          nullable: true
           type: string
         custom_field_6:
+          nullable: true
           type: string
         custom_field_7:
+          nullable: true
           type: string
         custom_field_8:
+          nullable: true
           type: string
         custom_field_9:
+          nullable: true
           type: string
         email:
           description: Email of the user.
@@ -28980,10 +30020,6 @@ components:
         lang:
           nullable: true
           type: string
-        gender:
-          type: string
-        lang:
-          type: string
         lastname:
           description: Last name of the user.
           nullable: true
@@ -28997,16 +30033,11 @@ components:
         otp:
           nullable: true
           type: string
-        nickname:
-          type: string
-        notes:
-          type: string
-        otp:
-          type: string
         pid:
           description: '`PRIMARY KEY`'
           type: string
         portal:
+          nullable: true
           type: string
         potd:
           enum:
@@ -29014,20 +30045,28 @@ components:
           - yes
           type: string
         psk:
+          nullable: true
           type: string
         room_number:
+          nullable: true
           type: string
         source:
+          nullable: true
           type: string
         sponsor:
+          nullable: true
           type: string
         sponsored_date:
+          nullable: true
           type: string
         telephone:
+          nullable: true
           type: string
         title:
+          nullable: true
           type: string
         work_phone:
+          nullable: true
           type: string
       type: object
     UserWithLinks:
@@ -29067,36 +30106,51 @@ components:
           - yes
           type: string
         bandwidth_balance:
+          nullable: true
           type: integer
         bypass_acls:
+          nullable: true
           type: string
         bypass_role_id:
+          nullable: true
           type: integer
         bypass_vlan:
+          nullable: true
           type: string
         category_id:
+          nullable: true
           type: integer
         computername:
+          nullable: true
           type: string
         detect_date:
           type: string
         device_class:
+          nullable: true
           type: string
         device_manufacturer:
+          nullable: true
           type: string
         device_score:
+          nullable: true
           type: integer
         device_type:
+          nullable: true
           type: string
         device_version:
+          nullable: true
           type: string
         dhcp6_enterprise:
+          nullable: true
           type: string
         dhcp6_fingerprint:
+          nullable: true
           type: string
         dhcp_fingerprint:
+          nullable: true
           type: string
         dhcp_vendor:
+          nullable: true
           type: string
         last_arp:
           type: string
@@ -29108,22 +30162,27 @@ components:
           description: '`PRIMARY KEY`'
           type: string
         machine_account:
+          nullable: true
           type: string
         notes:
+          nullable: true
           type: string
         pid:
           type: string
         regdate:
           type: string
         sessionid:
+          nullable: true
           type: string
         status:
           type: string
         time_balance:
+          nullable: true
           type: integer
         unregdate:
           type: string
         user_agent:
+          nullable: true
           type: string
         voip:
           enum:
@@ -29193,14 +30252,18 @@ components:
     UsersPassword:
       properties:
         access_duration:
+          nullable: true
           type: string
         access_level:
+          nullable: true
           type: string
         category:
+          nullable: true
           type: integer
         expiration:
           type: string
         login_remaining:
+          nullable: true
           type: integer
         password:
           type: string
@@ -29210,8 +30273,10 @@ components:
         sponsor:
           type: integer
         trigger_portal_mfa:
+          nullable: true
           type: string
         trigger_radius_mfa:
+          nullable: true
           type: string
         unregdate:
           type: string
@@ -29231,76 +30296,112 @@ components:
     WrixLocation:
       properties:
         Client_Support:
+          nullable: true
           type: string
         Coverage_Area:
+          nullable: true
           type: string
         English_Location_City:
+          nullable: true
           type: string
         English_Location_Name:
+          nullable: true
           type: string
         Latitude:
+          nullable: true
           type: string
         Location_Address1:
+          nullable: true
           type: string
         Location_Address2:
+          nullable: true
           type: string
         Location_Country_Name:
+          nullable: true
           type: string
         Location_Identifier:
+          nullable: true
           type: string
         Location_Phone_Number:
+          nullable: true
           type: string
         Location_State_Province_Name:
+          nullable: true
           type: string
         Location_Type:
+          nullable: true
           type: string
         Location_URL:
+          nullable: true
           type: string
         Location_Zip_Postal_Code:
+          nullable: true
           type: string
         Longitude:
+          nullable: true
           type: string
         MAC_Address:
+          nullable: true
           type: string
         Open_Friday:
+          nullable: true
           type: string
         Open_Monday:
+          nullable: true
           type: string
         Open_Saturday:
+          nullable: true
           type: string
         Open_Sunday:
+          nullable: true
           type: string
         Open_Thursday:
+          nullable: true
           type: string
         Open_Tuesday:
+          nullable: true
           type: string
         Open_Wednesday:
+          nullable: true
           type: string
         Provider_Identifier:
+          nullable: true
           type: string
         Restricted_Access:
+          nullable: true
           type: string
         SSID_1X:
+          nullable: true
           type: string
         SSID_1X_Broadcasted:
+          nullable: true
           type: string
         SSID_Broadcasted:
+          nullable: true
           type: string
         SSID_Open_Auth:
+          nullable: true
           type: string
         Security_Protocol_1X:
+          nullable: true
           type: string
         Service_Provider_Brand:
+          nullable: true
           type: string
         Sub_Location_Type:
+          nullable: true
           type: string
         UTC_Timezone:
+          nullable: true
           type: string
         WEP_Key:
+          nullable: true
           type: string
         WEP_Key_Entry_Method:
+          nullable: true
           type: string
         WEP_Key_Size:
+          nullable: true
           type: string
         id:
           description: '`PRIMARY KEY`'
@@ -29324,7 +30425,7 @@ components:
 info:
   contact:
     name: PacketFence
-    url: https://packetfence.org
+    url: https://www.packetfence.com
   description: A JSON HTTP API to access and manage PacketFence resources.
   license:
     name: GNU General Public License v2.0
@@ -29332,30 +30433,10 @@ info:
   version: 1.2.0
 openapi: 3.1.0
 paths:
-  /api/v1.1/report/{report_id}:
-    description: |-
-      pf::UnifiedApi::Controller::DynamicReports
-
-        configStore
-          Get the dynamic reports config store
-
-        search
-          Execute a search on a specific dynamic report
-
-        list
-          List all the dynamic reports
-
-        resource
-          Get a dynamic report
-
-        resource
-          Get a dynamic report
-
-        options
-          options
+  /api/v1.1/report/{id}:
     get:
-      description: Get a report
-      operationId: api.v1.1.DynamicReports.resource.get
+      description: Get a single report
+      operationId: GetReportById
       parameters:
       - description: Report ID
         in: path
@@ -29391,65 +30472,7 @@ paths:
         in: path
         name: id
         required: true
-        schema:
-          example:
-          - action
-          - created_at
-          - id
-          - method
-          - object_id
-          - request
-          - status
-          - url
-          - user_name
-          items:
-            enum:
-            - action
-            - created_at
-            - id
-            - method
-            - object_id
-            - request
-            - status
-            - url
-            - user_name
-            type: string
-          type: array
-        style: simple
-      - description: 'Comma delimited list of fields and respective order to sort
-          items (`default: [ id ASC ]`).'
-        explode: false
-        in: query
-        name: sort
-        required: true
-        schema:
-          example:
-          - id ASC
-          items:
-            enum:
-            - action ASC
-            - action DESC
-            - created_at ASC
-            - created_at DESC
-            - id ASC
-            - id DESC
-            - method ASC
-            - method DESC
-            - object_id ASC
-            - object_id DESC
-            - request ASC
-            - request DESC
-            - status ASC
-            - status DESC
-            - url ASC
-            - url DESC
-            - user_name ASC
-            - user_name DESC
-            type: string
-          type: array
-        style: simple
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/cursor'
+        type: string
       responses:
         '200':
           content:
@@ -29488,25 +30511,30 @@ paths:
               $ref: '#/components/schemas/ReportSearchBody'
         description: Search request data
         required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthLog'
       responses:
         '200':
-          $ref: '#/components/responses/Message'
-        '401':
-          $ref: '#/components/responses/Forbidden'
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ApiResponsePaginated'
+                - properties:
+                    items:
+                      description: Columns value, can be any type
+                      items:
+                        type: object
+                      type: array
+                  type: object
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/APIBadRequest'
         '404':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
+          $ref: '#/components/responses/APINotFound'
+        '500':
+          $ref: '#/components/responses/APIInternalServerError'
       tags:
-      - DynamicReports
-  /api/v1.1/reports:
+      - Report
+  /api/v1.1/report/{report_id}:
     description: |-
       pf::UnifiedApi::Controller::DynamicReports
 
@@ -29528,9 +30556,70 @@ paths:
         options
           options
     get:
-      description: List reports
-      operationId: api.v1.1.DynamicReports.list
-      parameters: []
+      description: Get a report
+      operationId: api.v1.1.DynamicReports.resource.get
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: report_id
+        required: true
+        schema:
+          enum:
+          - Accounting::Bandwidth
+          - Accounting::Node
+          - Accounting::Operating System Class
+          - Accounting::User
+          - Authentication::All
+          - Authentication::All Failures
+          - Authentication::All Successes
+          - Authentication::Top Failures::Connection Profile to Source
+          - Authentication::Top Failures::By Connection Profile
+          - Authentication::Top Failures::By Source
+          - Authentication::Top Successes::By Connection Profile
+          - Authentication::Top Successes::By Source
+          - Authentication::Top Successes::Connection Profile to Source
+          - Connection Types::Active
+          - Connection Types::All
+          - Connection Types::Date Range
+          - Connection Types::Registered Active
+          - Connection Types::Registered All
+          - Fingerbank::Unknown Fingerprints::Active
+          - Fingerbank::Unknown Fingerprints::All
+          - Ip4Log::Archive
+          - Ip4Log::History
+          - Node::Active
+          - Node::Inactive
+          - Node::Registered::Active
+          - Node::Registered::All
+          - Node::Unregistered::Active
+          - Node::Unregistered::All
+          - Operating System Class::Active
+          - Operating System Class::All
+          - Operating Systems::Active
+          - Operating Systems::All
+          - RADIUS Authentication::Top Failures::By MAC
+          - RADIUS Authentication::Top Failures::By SSID
+          - RADIUS Authentication::Top Failures::By Username
+          - RADIUS Authentication::Top Successes::By Computername
+          - RADIUS Authentication::Top Successes::By MAC
+          - RADIUS Authentication::Top Successes::By SSID
+          - RADIUS Authentication::Top Successes::By Username
+          - Roles::Active
+          - Roles::Active per device class
+          - Roles::Active per device manufacturer
+          - Roles::Active per device type
+          - Roles::All
+          - Security Events::Closed
+          - Security Events::Open
+          - Security Events::Open Active
+          - Security Events::Open All
+          - SSID::Active
+          - SSID::All
+          - Top Sponsors::All
+          - User::Registration::Email
+          - User::Registration::SMS
+          - User::Registration::Sponsor
+          type: string
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -29538,6 +30627,202 @@ paths:
           $ref: '#/components/responses/Forbidden'
       tags:
       - DynamicReports
+    options:
+      description: Get meta of a report
+      operationId: api.v1.1.DynamicReports.resource.options
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: report_id
+        required: true
+        schema:
+          enum:
+          - Accounting::Bandwidth
+          - Accounting::Node
+          - Accounting::Operating System Class
+          - Accounting::User
+          - Authentication::All
+          - Authentication::All Failures
+          - Authentication::All Successes
+          - Authentication::Top Failures::Connection Profile to Source
+          - Authentication::Top Failures::By Connection Profile
+          - Authentication::Top Failures::By Source
+          - Authentication::Top Successes::By Connection Profile
+          - Authentication::Top Successes::By Source
+          - Authentication::Top Successes::Connection Profile to Source
+          - Connection Types::Active
+          - Connection Types::All
+          - Connection Types::Date Range
+          - Connection Types::Registered Active
+          - Connection Types::Registered All
+          - Fingerbank::Unknown Fingerprints::Active
+          - Fingerbank::Unknown Fingerprints::All
+          - Ip4Log::Archive
+          - Ip4Log::History
+          - Node::Active
+          - Node::Inactive
+          - Node::Registered::Active
+          - Node::Registered::All
+          - Node::Unregistered::Active
+          - Node::Unregistered::All
+          - Operating System Class::Active
+          - Operating System Class::All
+          - Operating Systems::Active
+          - Operating Systems::All
+          - RADIUS Authentication::Top Failures::By MAC
+          - RADIUS Authentication::Top Failures::By SSID
+          - RADIUS Authentication::Top Failures::By Username
+          - RADIUS Authentication::Top Successes::By Computername
+          - RADIUS Authentication::Top Successes::By MAC
+          - RADIUS Authentication::Top Successes::By SSID
+          - RADIUS Authentication::Top Successes::By Username
+          - Roles::Active
+          - Roles::Active per device class
+          - Roles::Active per device manufacturer
+          - Roles::Active per device type
+          - Roles::All
+          - Security Events::Closed
+          - Security Events::Open
+          - Security Events::Open Active
+          - Security Events::Open All
+          - SSID::Active
+          - SSID::All
+          - Top Sponsors::All
+          - User::Registration::Email
+          - User::Registration::SMS
+          - User::Registration::Sponsor
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/DynamicReportMeta'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - DynamicReports
+  /api/v1.1/report/{report_id}/search:
+    description: |-
+      pf::UnifiedApi::Controller::DynamicReports
+
+        configStore
+          Get the dynamic reports config store
+
+        search
+          Execute a search on a specific dynamic report
+
+        list
+          List all the dynamic reports
+
+        resource
+          Get a dynamic report
+
+        resource
+          Get a dynamic report
+
+        options
+          options
+    post:
+      description: Search a report
+      operationId: api.v1.1.DynamicReports.resource.search
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: report_id
+        required: true
+        schema:
+          enum:
+          - Accounting::Bandwidth
+          - Accounting::Node
+          - Accounting::Operating System Class
+          - Accounting::User
+          - Authentication::All
+          - Authentication::All Failures
+          - Authentication::All Successes
+          - Authentication::Top Failures::Connection Profile to Source
+          - Authentication::Top Failures::By Connection Profile
+          - Authentication::Top Failures::By Source
+          - Authentication::Top Successes::By Connection Profile
+          - Authentication::Top Successes::By Source
+          - Authentication::Top Successes::Connection Profile to Source
+          - Connection Types::Active
+          - Connection Types::All
+          - Connection Types::Date Range
+          - Connection Types::Registered Active
+          - Connection Types::Registered All
+          - Fingerbank::Unknown Fingerprints::Active
+          - Fingerbank::Unknown Fingerprints::All
+          - Ip4Log::Archive
+          - Ip4Log::History
+          - Node::Active
+          - Node::Inactive
+          - Node::Registered::Active
+          - Node::Registered::All
+          - Node::Unregistered::Active
+          - Node::Unregistered::All
+          - Operating System Class::Active
+          - Operating System Class::All
+          - Operating Systems::Active
+          - Operating Systems::All
+          - RADIUS Authentication::Top Failures::By MAC
+          - RADIUS Authentication::Top Failures::By SSID
+          - RADIUS Authentication::Top Failures::By Username
+          - RADIUS Authentication::Top Successes::By Computername
+          - RADIUS Authentication::Top Successes::By MAC
+          - RADIUS Authentication::Top Successes::By SSID
+          - RADIUS Authentication::Top Successes::By Username
+          - Roles::Active
+          - Roles::Active per device class
+          - Roles::Active per device manufacturer
+          - Roles::Active per device type
+          - Roles::All
+          - Security Events::Closed
+          - Security Events::Open
+          - Security Events::Open Active
+          - Security Events::Open All
+          - SSID::Active
+          - SSID::All
+          - Top Sponsors::All
+          - User::Registration::Email
+          - User::Registration::SMS
+          - User::Registration::Sponsor
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicReportSearchRequest'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - DynamicReports
+  /api/v1.1/reports:
+    get:
+      description: Get all reports
+      operationId: GetReports
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ApiResponsePaginated'
+                - properties:
+                    items:
+                      items:
+                        $ref: '#/components/schemas/Report'
+                      type: array
+                  type: object
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/APIBadRequest'
+        '500':
+          $ref: '#/components/responses/APIInternalServerError'
+      tags:
+      - Report
   /api/v1/admin_api_audit_log/{admin_api_audit_log_id}:
     description: pf::UnifiedApi::Controller::AdminApiAuditLogs
     get:
@@ -30839,6 +32124,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -30894,6 +32180,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -30948,6 +32235,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -31002,6 +32290,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -31061,6 +32350,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -47338,6 +48628,8 @@ paths:
           - HP::Switch
           - Hostapd_template
           - Huawei::S5720
+          - Intelbras::AP
+          - Intelbras::Switch
           - Juniper::Mist
           - Meru::MC_v2
           - PacketFence::SNMP
@@ -47374,6 +48666,8 @@ paths:
           - HP::Switch
           - Hostapd_template
           - Huawei::S5720
+          - Intelbras::AP
+          - Intelbras::Switch
           - Juniper::Mist
           - Meru::MC_v2
           - PacketFence::SNMP
@@ -47413,6 +48707,8 @@ paths:
           - HP::Switch
           - Hostapd_template
           - Huawei::S5720
+          - Intelbras::AP
+          - Intelbras::Switch
           - Juniper::Mist
           - Meru::MC_v2
           - PacketFence::SNMP
@@ -47452,6 +48748,8 @@ paths:
           - HP::Switch
           - Hostapd_template
           - Huawei::S5720
+          - Intelbras::AP
+          - Intelbras::Switch
           - Juniper::Mist
           - Meru::MC_v2
           - PacketFence::SNMP
@@ -47496,6 +48794,8 @@ paths:
           - HP::Switch
           - Hostapd_template
           - Huawei::S5720
+          - Intelbras::AP
+          - Intelbras::Switch
           - Juniper::Mist
           - Meru::MC_v2
           - PacketFence::SNMP
@@ -47768,6 +49068,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -47823,6 +49124,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -47877,6 +49179,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -47931,6 +49234,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -47990,6 +49294,7 @@ paths:
           - provisioning
           - radius_configuration
           - services
+          - services_host
           - services_url
           - snmp_traps
           - webservices
@@ -48697,6 +50002,12 @@ paths:
 
         bulk_import
           bulk_import
+
+        password_reset
+          Send password reset email to a single user
+
+        bulk_password_reset
+          Send password reset emails to multiple users
     get:
       description: Get an item.
       operationId: api.v1.Configurator.Users.resource.get
@@ -49055,7 +50366,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       - description: '`PRIMARY KEY`'
         in: path
         name: user_id
@@ -49573,6 +50886,12 @@ paths:
 
         bulk_import
           bulk_import
+
+        password_reset
+          Send password reset email to a single user
+
+        bulk_password_reset
+          Send password reset emails to multiple users
     get:
       description: List all items.
       operationId: api.v1.Configurator.Users.list
@@ -49744,7 +51063,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -49836,6 +51157,12 @@ paths:
 
         bulk_import
           bulk_import
+
+        password_reset
+          Send password reset email to a single user
+
+        bulk_password_reset
+          Send password reset emails to multiple users
     post:
       description: Search all items.
       operationId: api.v1.Configurator.Users.search
@@ -50483,7 +51810,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -50807,7 +52136,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -50962,6 +52293,303 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
       - DnsAuditLogs
+  /api/v1/dynamic_report/{report_id}:
+    description: |-
+      pf::UnifiedApi::Controller::DynamicReports
+
+        configStore
+          Get the dynamic reports config store
+
+        search
+          Execute a search on a specific dynamic report
+
+        list
+          List all the dynamic reports
+
+        resource
+          Get a dynamic report
+
+        resource
+          Get a dynamic report
+
+        options
+          options
+    get:
+      description: Get a report
+      operationId: api.v1.DynamicReports.resource.get
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: report_id
+        required: true
+        schema:
+          enum:
+          - Accounting::Bandwidth
+          - Accounting::Node
+          - Accounting::Operating System Class
+          - Accounting::User
+          - Authentication::All
+          - Authentication::All Failures
+          - Authentication::All Successes
+          - Authentication::Top Failures::Connection Profile to Source
+          - Authentication::Top Failures::By Connection Profile
+          - Authentication::Top Failures::By Source
+          - Authentication::Top Successes::By Connection Profile
+          - Authentication::Top Successes::By Source
+          - Authentication::Top Successes::Connection Profile to Source
+          - Connection Types::Active
+          - Connection Types::All
+          - Connection Types::Date Range
+          - Connection Types::Registered Active
+          - Connection Types::Registered All
+          - Fingerbank::Unknown Fingerprints::Active
+          - Fingerbank::Unknown Fingerprints::All
+          - Ip4Log::Archive
+          - Ip4Log::History
+          - Node::Active
+          - Node::Inactive
+          - Node::Registered::Active
+          - Node::Registered::All
+          - Node::Unregistered::Active
+          - Node::Unregistered::All
+          - Operating System Class::Active
+          - Operating System Class::All
+          - Operating Systems::Active
+          - Operating Systems::All
+          - RADIUS Authentication::Top Failures::By MAC
+          - RADIUS Authentication::Top Failures::By SSID
+          - RADIUS Authentication::Top Failures::By Username
+          - RADIUS Authentication::Top Successes::By Computername
+          - RADIUS Authentication::Top Successes::By MAC
+          - RADIUS Authentication::Top Successes::By SSID
+          - RADIUS Authentication::Top Successes::By Username
+          - Roles::Active
+          - Roles::Active per device class
+          - Roles::Active per device manufacturer
+          - Roles::Active per device type
+          - Roles::All
+          - Security Events::Closed
+          - Security Events::Open
+          - Security Events::Open Active
+          - Security Events::Open All
+          - SSID::Active
+          - SSID::All
+          - Top Sponsors::All
+          - User::Registration::Email
+          - User::Registration::SMS
+          - User::Registration::Sponsor
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - DynamicReports
+    options:
+      description: Get meta of a report
+      operationId: api.v1.DynamicReports.resource.options
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: report_id
+        required: true
+        schema:
+          enum:
+          - Accounting::Bandwidth
+          - Accounting::Node
+          - Accounting::Operating System Class
+          - Accounting::User
+          - Authentication::All
+          - Authentication::All Failures
+          - Authentication::All Successes
+          - Authentication::Top Failures::Connection Profile to Source
+          - Authentication::Top Failures::By Connection Profile
+          - Authentication::Top Failures::By Source
+          - Authentication::Top Successes::By Connection Profile
+          - Authentication::Top Successes::By Source
+          - Authentication::Top Successes::Connection Profile to Source
+          - Connection Types::Active
+          - Connection Types::All
+          - Connection Types::Date Range
+          - Connection Types::Registered Active
+          - Connection Types::Registered All
+          - Fingerbank::Unknown Fingerprints::Active
+          - Fingerbank::Unknown Fingerprints::All
+          - Ip4Log::Archive
+          - Ip4Log::History
+          - Node::Active
+          - Node::Inactive
+          - Node::Registered::Active
+          - Node::Registered::All
+          - Node::Unregistered::Active
+          - Node::Unregistered::All
+          - Operating System Class::Active
+          - Operating System Class::All
+          - Operating Systems::Active
+          - Operating Systems::All
+          - RADIUS Authentication::Top Failures::By MAC
+          - RADIUS Authentication::Top Failures::By SSID
+          - RADIUS Authentication::Top Failures::By Username
+          - RADIUS Authentication::Top Successes::By Computername
+          - RADIUS Authentication::Top Successes::By MAC
+          - RADIUS Authentication::Top Successes::By SSID
+          - RADIUS Authentication::Top Successes::By Username
+          - Roles::Active
+          - Roles::Active per device class
+          - Roles::Active per device manufacturer
+          - Roles::Active per device type
+          - Roles::All
+          - Security Events::Closed
+          - Security Events::Open
+          - Security Events::Open Active
+          - Security Events::Open All
+          - SSID::Active
+          - SSID::All
+          - Top Sponsors::All
+          - User::Registration::Email
+          - User::Registration::SMS
+          - User::Registration::Sponsor
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/DynamicReportMeta'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - DynamicReports
+  /api/v1/dynamic_report/{report_id}/search:
+    description: |-
+      pf::UnifiedApi::Controller::DynamicReports
+
+        configStore
+          Get the dynamic reports config store
+
+        search
+          Execute a search on a specific dynamic report
+
+        list
+          List all the dynamic reports
+
+        resource
+          Get a dynamic report
+
+        resource
+          Get a dynamic report
+
+        options
+          options
+    post:
+      description: Search a report
+      operationId: api.v1.DynamicReports.resource.search
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: report_id
+        required: true
+        schema:
+          enum:
+          - Accounting::Bandwidth
+          - Accounting::Node
+          - Accounting::Operating System Class
+          - Accounting::User
+          - Authentication::All
+          - Authentication::All Failures
+          - Authentication::All Successes
+          - Authentication::Top Failures::Connection Profile to Source
+          - Authentication::Top Failures::By Connection Profile
+          - Authentication::Top Failures::By Source
+          - Authentication::Top Successes::By Connection Profile
+          - Authentication::Top Successes::By Source
+          - Authentication::Top Successes::Connection Profile to Source
+          - Connection Types::Active
+          - Connection Types::All
+          - Connection Types::Date Range
+          - Connection Types::Registered Active
+          - Connection Types::Registered All
+          - Fingerbank::Unknown Fingerprints::Active
+          - Fingerbank::Unknown Fingerprints::All
+          - Ip4Log::Archive
+          - Ip4Log::History
+          - Node::Active
+          - Node::Inactive
+          - Node::Registered::Active
+          - Node::Registered::All
+          - Node::Unregistered::Active
+          - Node::Unregistered::All
+          - Operating System Class::Active
+          - Operating System Class::All
+          - Operating Systems::Active
+          - Operating Systems::All
+          - RADIUS Authentication::Top Failures::By MAC
+          - RADIUS Authentication::Top Failures::By SSID
+          - RADIUS Authentication::Top Failures::By Username
+          - RADIUS Authentication::Top Successes::By Computername
+          - RADIUS Authentication::Top Successes::By MAC
+          - RADIUS Authentication::Top Successes::By SSID
+          - RADIUS Authentication::Top Successes::By Username
+          - Roles::Active
+          - Roles::Active per device class
+          - Roles::Active per device manufacturer
+          - Roles::Active per device type
+          - Roles::All
+          - Security Events::Closed
+          - Security Events::Open
+          - Security Events::Open Active
+          - Security Events::Open All
+          - SSID::Active
+          - SSID::All
+          - Top Sponsors::All
+          - User::Registration::Email
+          - User::Registration::SMS
+          - User::Registration::Sponsor
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicReportSearchRequest'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - DynamicReports
+  /api/v1/dynamic_reports:
+    description: |-
+      pf::UnifiedApi::Controller::DynamicReports
+
+        configStore
+          Get the dynamic reports config store
+
+        search
+          Execute a search on a specific dynamic report
+
+        list
+          List all the dynamic reports
+
+        resource
+          Get a dynamic report
+
+        resource
+          Get a dynamic report
+
+        options
+          options
+    get:
+      description: List reports
+      operationId: api.v1.DynamicReports.list
+      parameters: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - DynamicReports
   /api/v1/email/pfmailer:
     post:
       requestBody:
@@ -52077,7 +53705,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -52382,7 +54012,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -52890,6 +54522,7 @@ paths:
           - start_time
           - stripped_user_name
           - switch
+          - switch_id
           - switch_ip
           - switch_ip_int
           - switch_mac
@@ -52911,6 +54544,7 @@ paths:
             - start_time
             - stripped_user_name
             - switch
+            - switch_id
             - switch_ip
             - switch_ip_int
             - switch_mac
@@ -52958,6 +54592,8 @@ paths:
             - stripped_user_name DESC
             - switch ASC
             - switch DESC
+            - switch_id ASC
+            - switch_id DESC
             - switch_ip ASC
             - switch_ip DESC
             - switch_ip_int ASC
@@ -52972,7 +54608,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -53016,6 +54654,7 @@ paths:
               - start_time
               - stripped_user_name
               - switch
+              - switch_id
               - switch_ip
               - switch_ip_int
               - switch_mac
@@ -53069,6 +54708,9 @@ paths:
                   - field: switch
                     op: contains
                     value: foo
+                  - field: switch_id
+                    op: contains
+                    value: foo
                   - field: switch_ip
                     op: contains
                     value: foo
@@ -53109,6 +54751,7 @@ paths:
                       - start_time
                       - stripped_user_name
                       - switch
+                      - switch_id
                       - switch_ip
                       - switch_ip_int
                       - switch_mac
@@ -53151,6 +54794,8 @@ paths:
                       - stripped_user_name DESC
                       - switch ASC
                       - switch DESC
+                      - switch_id ASC
+                      - switch_id DESC
                       - switch_ip ASC
                       - switch_ip DESC
                       - switch_ip_int ASC
@@ -53755,7 +55400,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -54218,7 +55865,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -55866,7 +57515,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -56412,7 +58063,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -56912,7 +58565,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -57189,6 +58844,12 @@ paths:
 
         bulk_import
           bulk_import
+
+        password_reset
+          Send password reset email to a single user
+
+        bulk_password_reset
+          Send password reset emails to multiple users
     get:
       description: Get an item.
       operationId: api.v1.Users.resource.get
@@ -58056,6 +59717,12 @@ paths:
 
         bulk_import
           bulk_import
+
+        password_reset
+          Send password reset email to a single user
+
+        bulk_password_reset
+          Send password reset emails to multiple users
     get:
       description: List all items.
       operationId: api.v1.Users.list
@@ -58227,7 +59894,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -58479,6 +60148,12 @@ paths:
 
         bulk_import
           bulk_import
+
+        password_reset
+          Send password reset email to a single user
+
+        bulk_password_reset
+          Send password reset emails to multiple users
     post:
       description: Search all items.
       operationId: api.v1.Users.search
@@ -59061,7 +60736,9 @@ paths:
           type: array
         style: simple
       - $ref: '#/components/parameters/limit'
+        in: query
       - $ref: '#/components/parameters/cursor'
+        in: query
       responses:
         '200':
           content:
@@ -59611,6 +61288,40 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+  /discovernetworkdevice/discover:
+    post:
+      description: Depending on the number of addresses to scan and the number of
+        threads used, the task can take some times.
+      operationId: snmpScan
+      requestBody:
+        $ref: '#/components/requestBodies/SnmpScanBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/Async'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      summary: Use SNMP requests to try to find switches and routers at given addresses.
+      tags:
+      - SnmpScan
+  /discovernetworkdevice/discover/{id}/cancel:
+    parameters:
+    - description: The id of the async task return by /discovernetworkdevice/discover
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+    post:
+      description: Cancel the scan with id
+      operationId: snmpScanCancelWithId
+      summary: Cancel the scan
+      tags:
+      - SnmpScan
+    responses:
+      '200':
+        $ref: '#/components/responses/Async'
+      '400':
+        $ref: '#/components/responses/BadRequest'
   /tenant/{tenant_id}:
     delete:
       deprecated: true
@@ -59772,3 +61483,5 @@ tags:
   name: System
 - description: Manage PacketFence users/persons.
   name: Users
+- description: Scan the network to discover switches and routers.
+  name: SnmpScan
