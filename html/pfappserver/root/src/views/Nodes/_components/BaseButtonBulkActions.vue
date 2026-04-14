@@ -86,7 +86,7 @@
       size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')">
       <b-form-group v-if="bypassVlanOptions.length === 0">
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')" />
-        <b-form-text v-t="$t('Leave empty to clear bypass VLAN.')" />
+        <b-form-text v-t="'Leave empty to clear bypass VLAN.'" />
       </b-form-group>
       <b-form-group v-else>
         <base-input-chosen-one
