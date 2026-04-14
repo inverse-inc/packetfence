@@ -109,7 +109,12 @@ sub allowed_node_bypass_roles {
     my $admin_roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($admin_roles, 'allowed_node_bypass_roles');
     if (@options) {
-        my @roles = nodecategory_view_by_names(@options);
+        my %disallowed = map { $_ => 1 } admin_allowed_options_all($admin_roles, 'disallowed_node_bypass_roles');
+        my @roles;
+        @options = grep { !exists $disallowed{$_} } @options;
+        if (@options) {
+            @roles = nodecategory_view_by_names(@options);
+        }
         return $self->render(json => {items => \@roles});
     }
 
