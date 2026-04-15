@@ -63,7 +63,7 @@ sub put_dns_servers {
         }
         my $tmpfile = File::Temp->new()->filename;
         write_file($tmpfile, $content);
-        pf_run("cat $tmpfile | sudo tee /etc/resolv.conf");
+        safe_pf_run(qw(sudo tee /etc/resolv.conf), {stdin => $tmpfile});
         my $saved_servers = pf::util::dns::get_resolv_dns_servers();
         
         if(scalar(@$servers) != scalar(@$saved_servers)) {
