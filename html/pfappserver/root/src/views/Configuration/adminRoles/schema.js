@@ -26,7 +26,7 @@ const schemaAllowedAccessLevels = yup.array().ensure().of(schemaAllowedAccessLev
 const schemaAllowedRole = yup.string().nullable().required(i18n.t('Role required.'))
 const schemaAllowedRoles = yup.array().ensure().of(schemaAllowedRole)
 
-const schemaDisallowedRole = yup.string().nullable().required(i18n.t('Role required.'))
+//const schemaDisallowedRole = yup.string().nullable().required(i18n.t('Role required.'))
 const schemaDisallowedRoles = yup.array().ensure().of(schemaAllowedRole)
 
 const schemaAllowedAccessDuration = yup.string().nullable().required(i18n.t('Duration required.'))
@@ -38,7 +38,7 @@ const schemaAllowedActions = yup.array().ensure().of(schemaAllowedAction)
 const schemaAllowedNodeRole = yup.string().nullable().required(i18n.t('Role required.'))
 const schemaAllowedNodeRoles = yup.array().ensure().of(schemaAllowedNodeRole)
 
-const schemaDisallowedNodeRole = yup.string().nullable().required(i18n.t('Role required.'))
+//const schemaDisallowedNodeRole = yup.string().nullable().required(i18n.t('Role required.'))
 const schemaDisallowedNodeRoles = yup.array().ensure().of(schemaAllowedNodeRole)
 
 const schemaAllowedNodeBypassVlan = yup.string().nullable().required(i18n.t('VLAN required.'))

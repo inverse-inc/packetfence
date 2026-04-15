@@ -82,7 +82,7 @@
 
         <form-group-disable-bypass-vlan namespace="disable_bypass_vlan"
           :column-label="$i18n.t('Disable bypass vlan')"
-          :text="$i18n.t('Don\\'t allow user to set or modify the bypass vlan')"
+          :text="$i18n.t(`Don't allow user to set or modify the bypass vlan`)"
           taggable
         />
 

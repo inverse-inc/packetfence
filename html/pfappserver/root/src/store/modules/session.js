@@ -134,6 +134,7 @@ const getters = {
   allowedNodeBypassRolesList: state => (state.allowedNodeBypassRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedNodeBypassVlans: state => state.allowedNodeBypassVlans || [],
   allowedNodeBypassVlansList: state => (state.allowedNodeBypassVlans || []).map(vlan => { return { value: vlan.vlan, text: `${vlan.vlan}` } }),
+  allowedNodeBypassVlansDisabledForUser: state => state.allowedNodeBypassVlansDisabledForUser,
   allowedUserAccessDurations: state => state.allowedUserAccessDurations || [],
   allowedUserAccessDurationsList: state => (state.allowedUserAccessDurations || []).map(_accessDuration => {
     const { access_duration: accessDuration } = _accessDuration

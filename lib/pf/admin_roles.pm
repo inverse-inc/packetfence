@@ -105,14 +105,14 @@ sub admin_allowed_options {
     my @options;
     foreach my $role (@$roles) {
         next unless exists $ADMIN_ROLES{$role};
-        #If no option is defined then all are allowed
-        return unless exists $ADMIN_ROLES{$role}{$option};
+        #If no option is defined for this role, skip it
+        next unless exists $ADMIN_ROLES{$role}{$option};
 
         my $allowed_options = $ADMIN_ROLES{$role}{$option};
-        #If the allowed options is empty the all are allowed
-        return unless defined $allowed_options && length $allowed_options;
+        #If the allowed options is empty for this role, skip it
+        next unless defined $allowed_options && length $allowed_options;
 
-        push @options, split /\s*,\s*/, $allowed_options;
+        push @options, split /\s*[,\n]\s*/, $allowed_options;
     }
 
     return uniq @options;
@@ -235,7 +235,7 @@ Get all the allowed values for a given role
 
 sub admin_allowed_options_all {
     my ($roles, $option) = @_;
-    return uniq map {split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '')} grep { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$option} }  @$roles;
+    return uniq map {split /\s*[,\n]\s*/, ($ADMIN_ROLES{$_}{$option} || '')} grep { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$option} }  @$roles;
 }
 
 =head1 AUTHOR

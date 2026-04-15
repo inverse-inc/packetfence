@@ -62,7 +62,7 @@ export const importFields = [
   {
     value: 'bypass_role_id',
     text: i18n.t('Bypass Role'),
-    types: [fieldType.ROLE],
+    types: [fieldType.BYPASS_ROLE_BY_ACL_NODE],
     required: false,
     formatter: formatter.categoryIdFromIntOrString,
     validator: yupRoles.string().nullable()

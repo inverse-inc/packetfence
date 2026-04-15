@@ -9,6 +9,7 @@ import {
   BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupBypassRoles from './BaseFormGroupBypassRoles'
+import BaseFormGroupBypassVlan from './BaseFormGroupBypassVlan'
 import BaseFormGroupRoles from './BaseFormGroupRoles'
 import BaseFormGroupStatus from './BaseFormGroupStatus'
 import BaseFormGroupPersonSearchable from '@/views/Users/_components/BaseFormGroupPersonSearchable'
@@ -24,7 +25,7 @@ export {
   BaseFormGroupInputNumber      as FormGroupTimeBalance,
   BaseFormGroupInputMultiplier  as FormGroupBandwidthBalance,
   BaseFormGroupSwitch           as FormGroupVoip,
-  BaseFormGroupInput            as FormGroupBypassVlan,
+  BaseFormGroupBypassVlan       as FormGroupBypassVlan,
   BaseFormGroupBypassRoles      as FormGroupBypassRole,
   BaseFormGroupTextarea         as FormGroupNotes,
   BaseFormGroupTextarea         as FormGroupBypassAcls,

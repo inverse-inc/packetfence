@@ -33,7 +33,8 @@
                        disabled-value="no"
 
       />
-      <form-group-bypass-vlan namespace="bypass_vlan"
+      <form-group-bypass-vlan v-show="!bypassVlanDisabledForUser"
+                              namespace="bypass_vlan"
                               :column-label="$i18n.t('Bypass VLAN')"
       />
       <form-group-bypass-role namespace="bypass_role_id"
@@ -165,6 +166,8 @@ const setup = (props, context) => {
     reevaluateAccess
   } = _useStore($store)
 
+  const bypassVlanDisabledForUser = computed(() => $store.getters['session/allowedNodeBypassVlansDisabledForUser'])
+
   const canReevaluateAccess = computed(() => {
     const {locations = []} = $store.state.$_nodes.nodes[id.value] || {}
     return locations.length > 0
@@ -230,6 +233,7 @@ const setup = (props, context) => {
     isDeletable,
     isValid,
     isLoading,
+    bypassVlanDisabledForUser,
     canReevaluateAccess,
 
     onRefresh,
