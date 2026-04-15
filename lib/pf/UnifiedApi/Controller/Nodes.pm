@@ -488,9 +488,9 @@ sub validate_bulk_category_id {
         return (422, "category_id $cat_id does not exist");
     }
 
-    my $value = $nc->{name}; 
+    my $value = $nc->{name};
     my $roles = $self->stash->{admin_roles};
-    if (!check_allowed_options($roles, 'allowed_node_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
+    if (check_disallowed_options($roles, 'disallowed_node_roles', $value) || !check_allowed_options($roles, 'allowed_node_roles', $value)) {
         return (422, "role $value not allowed");
     }
 
@@ -525,7 +525,7 @@ sub validate_bulk_bypass_role_id {
         return (422, "category_id $cat_id does not exist");
     }
 
-    my $value = $nc->{name}; 
+    my $value = $nc->{name};
     my $roles = $self->stash->{admin_roles};
     if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
         return (422, "role $value not allowed");
@@ -1185,7 +1185,7 @@ sub validate {
     if (exists $json->{category_id}) {
         my $name = _get_role_name($json->{category_id});
         if (defined $name) {
-            if (!check_allowed_options($roles, 'allowed_node_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
+            if (check_disallowed_options($roles, 'disallowed_node_roles', $name) || !check_allowed_options($roles, 'allowed_node_roles', $name)) {
                 push @errors, { field => 'category_id', message => "$name is not allowed" };
             }
         }
