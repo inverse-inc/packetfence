@@ -29,7 +29,7 @@ use pf::file_paths qw(
     $var_dir
     $captiveportal_templates_path
 );
-use pf::util qw(isenabled safe_pf_run pf_run);
+use pf::util qw(isenabled safe_pf_run);
 use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
@@ -57,18 +57,19 @@ sub generateConfig {
         print("Warning: Some of the database settings are missing while generating db.ini, ntlm-auth-api might not able to start properly\n")
     }
 
-    pf_run("sudo echo '[DB]' > $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_PORT=$db_port' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    my $db_ini = "$generated_conf_dir/" . $self->name . '.d/' . "db.ini";
+    safe_pf_run("sudo", "echo", "[DB]", {stdout => $db_ini});
+    safe_pf_run("sudo", "echo", "DB_HOST=$db_host", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_PORT=$db_port", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_USER=$db_user", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_PASS=$db_pass", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB=$db", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_UNIX_SOCKET=$db_unix_socket", {stdout => $db_ini, stdout_append => 1});
 
-    pf_run("sudo echo '[CACHE]' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    safe_pf_run("sudo", "echo", "[CACHE]", {stdout => $db_ini, stdout_append => 1});
 
-    pf_run("sudo echo 'CACHE_HOST=$redis_cache_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'CACHE_PORT=$redis_cache_port' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    safe_pf_run("sudo", "echo", "CACHE_HOST=$redis_cache_host", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "CACHE_PORT=$redis_cache_port", {stdout => $db_ini, stdout_append => 1});
 
     my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
@@ -79,9 +80,10 @@ sub generateConfig {
             my $ntlm_auth_port = $conf{ntlm_auth_port};
 
             $identifier =~ s/$host_id //i;
-            pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            my $env_file = "$generated_conf_dir/" . $self->name . '.d/' . "$identifier.env";
+            safe_pf_run("sudo", "echo", "HOST=$ntlm_auth_host", {stdout => $env_file});
+            safe_pf_run("sudo", "echo", "LISTEN=$ntlm_auth_port", {stdout => $env_file, stdout_append => 1});
+            safe_pf_run("sudo", "echo", "IDENTIFIER=$identifier", {stdout => $env_file, stdout_append => 1});
         }
     }
 }
