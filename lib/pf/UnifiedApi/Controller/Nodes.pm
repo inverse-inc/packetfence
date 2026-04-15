@@ -1105,6 +1105,10 @@ sub validate {
         my $nc = nodecategory_view($cat_id);
         next if !$nc;
         my $name = $nc->{name};
+        if ($name eq 'default_role') {
+            push @errors, { field => $f, message => "'default_role' cannot be assigned to a node" };
+            next;
+        }
         if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
             push @errors, { field => 'category_id', message => "$name is not allowed" };
         }

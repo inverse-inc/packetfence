@@ -85,6 +85,10 @@ sub nodecategory_populate_from_config {
     my @names;
     my @bind;
     while (my ($id, $role) = each(%$config)) {
+        # default_role is a meta-role that holds fallback values for other
+        # roles; it must never be assignable to nodes, so keep it out of
+        # the node_category DB table entirely.
+        next if $id eq 'default_role';
         push @names, $id;
         push @bind,
             $id,
