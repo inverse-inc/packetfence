@@ -46,10 +46,20 @@ const schemaAllowedNodeBypassVlans = yup.array().ensure().unique(i18n.t('Duplica
 
 export default (props) => {
   const {
+    form,
     id,
     isNew,
     isClone
   } = props
+
+  const {
+    allowed_roles = [],
+    disallowed_roles = [],
+    allowed_node_roles = [],
+    disallowed_node_roles = [],
+    allowed_node_bypass_roles = [],
+    disallowed_node_bypass_roles = []
+  } = form || {}
 
   return yup.object().shape({
     id: yup.string()
@@ -62,16 +72,28 @@ export default (props) => {
       .label(i18n.t('Description')),
     actions: schemaActions.required(i18n.t('Actions required.')),
     allowed_access_levels: schemaAllowedAccessLevels,
-    allowed_roles: schemaAllowedRoles,
+    allowed_roles: (disallowed_roles.length > 0)
+      ? yup.array().ensure().max(0, i18n.t('Cannot combine with Disallowed user roles.'))
+      : schemaAllowedRoles,
+    disallowed_roles: (allowed_roles.length > 0)
+      ? yup.array().ensure().max(0, i18n.t('Cannot combine with Allowed user roles.'))
+      : schemaDisallowedRoles,
     allowed_access_durations: schemaAllowedAccessDurations,
     allowed_unreg_date: yup.string().nullable().label(i18n.t('Date/time')),
     allowed_actions: schemaAllowedActions,
-    allowed_node_roles: schemaAllowedNodeRoles,
+    allowed_node_roles: (disallowed_node_roles.length > 0)
+      ? yup.array().ensure().max(0, i18n.t('Cannot combine with Disallowed node roles.'))
+      : schemaAllowedNodeRoles,
+    disallowed_node_roles: (allowed_node_roles.length > 0)
+      ? yup.array().ensure().max(0, i18n.t('Cannot combine with Allowed node roles.'))
+      : schemaDisallowedNodeRoles,
     allowed_node_bypass_vlans: schemaAllowedNodeBypassVlans,
-    disallowed_roles: schemaDisallowedRoles,
-    disallowed_node_roles: schemaDisallowedNodeRoles,
-    allowed_node_bypass_roles: schemaAllowedRoles,
-    disallowed_node_bypass_roles: schemaDisallowedNodeRoles,
+    allowed_node_bypass_roles: (disallowed_node_bypass_roles.length > 0)
+      ? yup.array().ensure().max(0, i18n.t('Cannot combine with Disallowed node bypass roles.'))
+      : schemaAllowedRoles,
+    disallowed_node_bypass_roles: (allowed_node_bypass_roles.length > 0)
+      ? yup.array().ensure().max(0, i18n.t('Cannot combine with Allowed node bypass roles.'))
+      : schemaDisallowedNodeRoles,
     disable_bypass_vlan: yup.string().nullable()
   })
 }
