@@ -130,10 +130,10 @@ sub admin_isdisabled_option {
 
         my $allowed_options = $options->{$option};
         next unless defined $allowed_options && length $allowed_options;
-        $found |= 1 if isenabled($allowed_options);
+        return $TRUE if isenabled($allowed_options);
     }
 
-    return $found ? $TRUE : $FALSE;
+    return $FALSE;
 }
 
 =head2 check_allowed_options

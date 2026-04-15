@@ -526,13 +526,12 @@ sub validate_bulk_bypass_role_id {
     }
 
     my $value = $nc->{name}; 
-
     my $roles = $self->stash->{admin_roles};
-    if (!check_allowed_options($roles, 'allowed_node_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
+    if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
         return (422, "role $value not allowed");
     }
 
-    if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $value) || check_disallowed_options($roles, 'disallowed_node_bypass_roles', $value)) {
+    if (!check_allowed_options($roles, 'allowed_node_roles', $value) && !check_allowed_options($roles, 'allowed_node_bypass_roles', $value)) {
         return (422, "role $value not allowed");
     }
 
@@ -1163,6 +1162,14 @@ sub import_item_check_for_errors {
     return @errors;
 }
 
+sub _get_role_name {
+    my ($cat_id) = @_;
+    return undef if !defined $cat_id;
+    my $nc = nodecategory_view($cat_id);
+    return undef if !defined $nc;
+    return $nc->{name};
+}
+
 =head2 validate
 
 validate
@@ -1175,20 +1182,24 @@ sub validate {
     my ($status, $err) = (200, undef);
     my @errors;
 
-    for my $f (qw(category_id bypass_role_id)) {
-        next if !exists $json->{$f};
-        my $cat_id = $json->{$f};
-        next if !defined $cat_id;
-        my $nc = nodecategory_view($cat_id);
-        next if !$nc;
-        my $name = $nc->{name};
-        if (!check_allowed_options($roles, 'allowed_node_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
-            push @errors, { field => $f, message => "$name is not allowed" };
+    if (exists $json->{category_id}) {
+        my $name = _get_role_name($json->{category_id});
+        if (defined $name) {
+            if (!check_allowed_options($roles, 'allowed_node_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
+                push @errors, { field => 'category_id', message => "$name is not allowed" };
+            }
         }
+    }
 
-        if ($f eq 'bypass_role_id') {
-            if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $name) || check_disallowed_options($roles, 'disallowed_node_bypass_roles', $name)) {
-                push @errors, { field => $f, message => "$name is not allowed as bypass role" };
+    if (exists $json->{bypass_role_id}) {
+        my $name = _get_role_name($json->{bypass_role_id});
+        if (defined $name) {
+            if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
+                push @errors, { field => 'bypass_role_id', message => "$name is not allowed as bypass role" };
+            }
+
+            if (!check_allowed_options($roles, 'allowed_node_roles', $name) && !check_allowed_options($roles, 'allowed_node_bypass_roles', $name)) {
+                push @errors, { field => 'bypass_role_id', message => "$name is not allowed as bypass role" };
             }
         }
     }
