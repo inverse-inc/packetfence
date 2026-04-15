@@ -10,7 +10,7 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 
 use Getopt::Long;
-use pf::util;
+use pf::util qw(safe_pf_run);
 use pf::config qw(
     %Config
 );
@@ -28,9 +28,9 @@ if (! ($mode =~ /^master|slave$/)) {
     exit;
 }
 
-pf_run("pkill -1 pfdhcplistener");
+safe_pf_run("pkill", "-1", "pfdhcplistener");
 
 if (-e "$custom_script_path" && -x "$custom_script_path") {
     print "Running $custom_script_path\n";
-    pf_run("$custom_script_path $mode $vip");
+    safe_pf_run($custom_script_path, $mode, $vip);
 }
