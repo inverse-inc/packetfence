@@ -48,7 +48,7 @@ sub getDefaultGateway {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my $default_gateway = (split(" ", `LANG=C sudo ip route show to 0/0`))[2];
+    my $default_gateway = (split(" ", safe_pf_run(qw(sudo ip route show to), '0/0')))[2];
     $logger->debug("Default gateway: " . $default_gateway);
 
     return $default_gateway if defined($default_gateway);
@@ -373,8 +373,8 @@ sub writeNetworkConfigs {
         }
         my $interface_config_file = "$_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface";
         my $filter = variableExcludeRegex("$var_dir$outfile");
-        my $cmd = "grep --no-filename -Pv '$filter' $interface_config_file >> $var_dir$outfile;cat $var_dir$outfile | sudo tee $interface_config_file 2>&1";
-        my $status = pf_run($cmd);
+        safe_pf_run('grep', '--no-filename', '-Pv', $filter, $interface_config_file, {stdout => "$var_dir$outfile", stdout_append => 1, accepted_exit_status => [1]});
+        my $status = safe_pf_run('sudo', 'tee', $interface_config_file, {stdin => "$var_dir$outfile", redirect_stderr_to_stdout => 1});
         # Something went wrong
         if ( !(defined($status) ) ) {
             $status_msg = "Something went wrong while writing the network interface file";
@@ -470,8 +470,7 @@ sub writeNetworkConfigs {
         $logger->error("$status_msg");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-    my $cmd = "cat $var_dir$_network_conf_file | sudo tee $_network_conf_dir$_network_conf_file 2>&1";
-    my $status = pf_run($cmd);
+    my $status = safe_pf_run('sudo', 'tee', "$_network_conf_dir$_network_conf_file", {stdin => "$var_dir$_network_conf_file", redirect_stderr_to_stdout => 1});
     # Everything goes as expected
     if ( defined($status) ) {
         $status_msg = "Interface creation successfull";
