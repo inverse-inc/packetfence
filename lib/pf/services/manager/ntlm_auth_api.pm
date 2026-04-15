@@ -29,7 +29,7 @@ use pf::file_paths qw(
     $var_dir
     $captiveportal_templates_path
 );
-use pf::util qw(isenabled);
+use pf::util qw(isenabled safe_pf_run pf_run);
 use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
