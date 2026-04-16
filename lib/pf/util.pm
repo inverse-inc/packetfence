@@ -957,20 +957,54 @@ sub pf_run {
     return;
 }
 
-=item safe_pf_run ( BINARY, @ARGS ,\%OPTIONS )
+=item safe_pf_run ( BINARY, @ARGS, \%OPTIONS )
 
-Execute a system command but check the return status and log anything not normal.
+Execute a system command safely using open3 (no shell interpolation) and check
+the return status, logging anything abnormal.
 
-Returns output in list or string based on context (like backticks does ``)
-but returns undef on a failure. Non-zero exit codes are considered failures.
+safe_pf_run takes the binary and arguments as a list, avoiding shell expansion 
+and injection risks.
 
-Does not enforce any security. Callers should take care of string sanitization.
+Return value depends on calling context:
 
-Takes an optional hash that offers additional options. For now,
-accepted_exit_status => arrayref allows the command to succeed and a proper
-value being returned if the exit status is mentionned in the arrayref. For
-example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
-with code 1, 2 or 3 without reporting it as an error.
+  scalar context: returns the command's stdout as a single string, or undef on failure
+  list context:   returns stdout split into lines (preserving newlines), or empty list on failure
+  void context:   returns nothing (useful when output is redirected to a file via the stdout option)
+
+Non-zero exit codes are considered failures unless listed in accepted_exit_status.
+On failure, a warning is logged and undef/empty is returned.
+
+Sets LANG=C in the environment for the duration of the command to ensure
+consistent, locale-independent output.
+
+Takes an optional hashref as the last argument with the following options:
+
+* accepted_exit_status => arrayref of exit codes that should be treated as
+  success. For example: accepted_exit_status => [1, 2, 3] will allow the
+  process to exit with code 1, 2 or 3 without reporting it as an error.
+
+* stdin => path to a file whose contents will be fed to the command's stdin.
+
+* stdout => path to a file where the command's stdout will be written. When
+  set, the return value in scalar/list context is undef/empty (output goes to
+  the file, not the caller).
+
+* stdout_append => when true and stdout is set, append to the file instead of
+  overwriting it.
+
+* redirect_stderr_to_stdout => when true, merge stderr into stdout. If stdout
+  is redirected to a file, stderr goes there too; otherwise both are captured
+  together in the return value.
+
+* working_directory => temporarily chdir to this directory before running the
+  command, then chdir back afterward.
+
+* status_ref => reference to a scalar that will be set to the raw waitpid
+  status ($?) of the child process. Set to -1 if open3 fails to launch.
+
+* log_strip => a string or pattern to redact from both log messages and error
+  output (replaced with *obfuscated-information*). Useful for commands that
+  include passwords or secrets in their arguments.
 
 =cut
 
@@ -1016,8 +1050,13 @@ sub safe_pf_run {
     local $?;
     local $!;
     local $ENV{LANG} = 'C';
+    my $status_ref = $options->{status_ref};
     my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
     if ($@) {
+        if (defined $status_ref) {
+            $$status_ref = -1;
+        }
+
         chdir $switch_back_wd if defined($switch_back_wd);
         if (defined($options->{log_strip})) {
             $@ =~ s/$options->{log_strip}/*obfuscated-information*/g;
@@ -1032,6 +1071,10 @@ sub safe_pf_run {
 
     waitpid($pid, 0);
     my $status = $?;
+    if (defined $status_ref) {
+        $$status_ref = $status;
+    }
+
     my $out;
     if (!$stdout) {
         $out = do {
