@@ -26,7 +26,6 @@ use JSON::MaybeXS qw();
 use pf::services;
 use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
-use Scalar::Util qw(weaken);
 
 use Mojo::Base 'Mojolicious';
 use pf::util qw(add_jitter rss_kb);
@@ -176,17 +175,15 @@ after_dispatch_cb
 
 sub after_dispatch_cb {
     my ($c) = @_;
-    weaken(my $weak_c = $c);  # break the cycle
     $c->tx->on(finish => sub {
-        return unless $weak_c;  # guard: check it wasn't garbage collected
-        my $app = $weak_c->app;
+        my $app = $c->app;
 
         eval {
-            $weak_c->audit_request if $weak_c->can("audit_request");
+            $c->audit_request if $c->can("audit_request");
         };
 
         if($@) {
-            $weak_c->log->error("Failed to audit request: $@");
+            $c->log->error("Failed to audit request: $@");
         }
 
         my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
