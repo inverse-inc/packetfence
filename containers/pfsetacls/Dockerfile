@@ -1,4 +1,28 @@
-FROM golang:1.25.1-bookworm
+FROM debian:11
+
+# Install Go 1.24.6 - equivalent of golang:1.24.6-bullseye
+# Based on how official golang images are built (docker-library/golang)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl ca-certificates wget gnupg git openssh-client \
+        g++ gcc libc6-dev make pkg-config \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sL -o /tmp/go.tar.gz https://go.dev/dl/go1.24.6.linux-amd64.tar.gz \
+    && echo 'bbca37cc395c974ffa4893ee35819ad23ebb27426df87af92e93a9ec66ef8712 /tmp/go.tar.gz' | sha256sum -c - \
+    && curl -sL -o /tmp/go.tar.gz.asc https://go.dev/dl/go1.24.6.linux-amd64.tar.gz.asc \
+    && GNUPGHOME="$(mktemp -d)" \
+    && export GNUPGHOME \
+    && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796' \
+    && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys '2F52 8D36 D67B 69ED F998  D857 78BD 6547 3CB3 BD13' \
+    && gpg --batch --verify /tmp/go.tar.gz.asc /tmp/go.tar.gz \
+    && gpgconf --kill all \
+    && rm -rf "$GNUPGHOME" /tmp/go.tar.gz.asc \
+    && tar -C /usr/local -xzf /tmp/go.tar.gz \
+    && rm /tmp/go.tar.gz
+
+ENV GOTOOLCHAIN=local
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 1777 "$GOPATH"
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
