@@ -64,6 +64,10 @@ ARG release=v2.8.90
 
 RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source} ./
 
+# Generate version.go before the build since the compile:fe2 task (vue-cli-service)
+# may fail and it would prevent compile:be from generating it
+RUN go run util/version_gen/generator.go ${release}
+
 RUN deployment/docker/ci/bin/install
 
 USER semaphore
