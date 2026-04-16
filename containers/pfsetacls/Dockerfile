@@ -1,14 +1,16 @@
 FROM debian:11
 
-# Install Go 1.24.6 - equivalent of golang:1.24.6-bullseye
-# Based on how official golang images are built (docker-library/golang)
+# Install Go 1.25.9 on debian:11 (bullseye)
+# golang:*-bullseye images no longer exist on Docker Hub, so we install Go
+# from the official tarball with SHA256 + GPG verification (same as docker-library/golang)
+# Go 1.25+ is required because packr's dependency golang.org/x/sync@v0.20.0 needs it
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates wget gnupg git openssh-client \
         g++ gcc libc6-dev make pkg-config \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -sL -o /tmp/go.tar.gz https://go.dev/dl/go1.24.6.linux-amd64.tar.gz \
-    && echo 'bbca37cc395c974ffa4893ee35819ad23ebb27426df87af92e93a9ec66ef8712 /tmp/go.tar.gz' | sha256sum -c - \
-    && curl -sL -o /tmp/go.tar.gz.asc https://go.dev/dl/go1.24.6.linux-amd64.tar.gz.asc \
+    && curl -sL -o /tmp/go.tar.gz https://go.dev/dl/go1.25.9.linux-amd64.tar.gz \
+    && echo '00859d7bd6defe8bf84d9db9e57b9a4467b2887c18cd93ae7460e713db774bc1 /tmp/go.tar.gz' | sha256sum -c - \
+    && curl -sL -o /tmp/go.tar.gz.asc https://go.dev/dl/go1.25.9.linux-amd64.tar.gz.asc \
     && GNUPGHOME="$(mktemp -d)" \
     && export GNUPGHOME \
     && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796' \
