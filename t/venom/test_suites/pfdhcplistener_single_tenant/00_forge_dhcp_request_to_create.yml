@@ -9,12 +9,6 @@ testcases:
     - type: exec
       script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener_single_tenant.nodes.node10.mac}} --ip={{.pfdhcplistener_single_tenant.nodes.node10.first_ip}} --hostname={{.pfdhcplistener_single_tenant.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_server}}"
 
-  # let node be created in DB
-  - name: sleep_some_time
-    steps:
-    - type: exec
-      script: sleep 5
-  
   - name: check_node10_creation
     steps:
     - type: http
@@ -24,6 +18,8 @@ testcases:
       headers:
         "Authorization": "{{.get_login_token.result.token}}"
         "Content-Type": "application/json"
+      retry: 5
+      delay: 2
       assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.item.computername ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.hostname}}"

@@ -48,11 +48,6 @@ testcases:
     - type: pf_api_service_start_async
       service: 'ntlm-auth-api'
 
-- name: sleep_some_time
-  steps:
-    - type: exec
-      script: sleep 10
-
 - name: test_machine_account
   steps:
     - type: http
@@ -69,3 +64,5 @@ testcases:
         "Content-Type": "application/json"
       assertions:
         - result.statuscode ShouldEqual 200
+      retry: 5
+      delay: 5
