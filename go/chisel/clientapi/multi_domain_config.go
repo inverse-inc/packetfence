@@ -26,6 +26,19 @@ const defaultMultiDomainRefreshInterval = 300 * time.Second
 
 const multiDomainFetchTimeout = 5 * time.Second
 
+// multiDomainTunnelPollInterval is how often the refresher observes tunnel
+// state to detect down→up transitions. Kept short and not env-gated — the
+// check itself is cheap (a mutex-guarded pointer read). Declared as a var
+// so tests can lower it for deterministic timing.
+var multiDomainTunnelPollInterval = 5 * time.Second
+
+// tunnelState is the subset of *tunnel.Tunnel the refresher needs. Declared
+// locally so this file doesn't import the tunnel package and so tests can
+// substitute a fake.
+type tunnelState interface {
+	IsActive() bool
+}
+
 // multiDomainConfig mirrors the JSON returned by
 // GET /api/v1/pfconnector/multi-domain-config on pfconnector-server.
 type multiDomainConfig struct {
@@ -118,9 +131,14 @@ func (c *multiDomainCache) fetch(ctx context.Context) error {
 	return nil
 }
 
-// startRefresher kicks off a best-effort first fetch and then refreshes on a
-// fixed interval until ctx is cancelled.
-func (c *multiDomainCache) startRefresher(ctx context.Context) {
+// startRefresher polls tunnel state on a short interval and fetches the
+// multi-domain config (a) immediately on a down→up transition, and (b) every
+// `interval` while the tunnel stays up. While the tunnel is down it skips
+// fetches entirely to avoid noisy logs and wasted HTTP timeouts.
+//
+// A nil `tun` is treated as "always up" so callers that don't care about
+// tunnel state (e.g. tests) keep the old refresh-on-cadence behavior.
+func (c *multiDomainCache) startRefresher(ctx context.Context, tun tunnelState) {
 	interval := defaultMultiDomainRefreshInterval
 	if v := os.Getenv("PFCONNECTOR_MULTI_DOMAIN_REFRESH_INTERVAL"); v != "" {
 		if secs, err := strconv.Atoi(v); err == nil && secs > 0 {
@@ -129,19 +147,37 @@ func (c *multiDomainCache) startRefresher(ctx context.Context) {
 	}
 
 	go func() {
-		if err := c.fetch(ctx); err != nil {
-			log.Logger().Info(fmt.Sprintf("multi-domain: initial fetch failed (will retry): %s", err))
-		}
-		ticker := time.NewTicker(interval)
+		ticker := time.NewTicker(multiDomainTunnelPollInterval)
 		defer ticker.Stop()
+
+		var wasUp bool
+		var lastFetch time.Time
+
+		tick := func() {
+			up := tun == nil || tun.IsActive()
+			if !up {
+				wasUp = false
+				return
+			}
+			transitionedUp := !wasUp
+			wasUp = true
+			if !transitionedUp && !lastFetch.IsZero() && time.Since(lastFetch) < interval {
+				return
+			}
+			if err := c.fetch(ctx); err != nil {
+				log.Logger().Info(fmt.Sprintf("multi-domain: fetch failed: %s", err))
+				return
+			}
+			lastFetch = time.Now()
+		}
+
+		tick()
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				if err := c.fetch(ctx); err != nil {
-					log.Logger().Info(fmt.Sprintf("multi-domain: refresh failed: %s", err))
-				}
+				tick()
 			}
 		}
 	}()

@@ -37,7 +37,11 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
 	Api.tunnel = tun
 	Api.mdCache = newMultiDomainCache("")
-	Api.mdCache.startRefresher(ctx)
+	var tunState tunnelState
+	if Api.tunnel != nil {
+		tunState = Api.tunnel
+	}
+	Api.mdCache.startRefresher(ctx, tunState)
 
 	Api.setupRoutes()
 
