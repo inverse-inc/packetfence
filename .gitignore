@@ -275,6 +275,8 @@ docs/*.html
 docs/index.js
 docs/api/spec/components/
 docs/api/spec/paths/
+docs/api/spec/openapi.json
+docs/api/spec/openapi.yaml
 
 # trap stats graphs
 # TODO we should move them under var/
