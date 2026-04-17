@@ -18,6 +18,7 @@ PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 clean:
 	rm -f docs/*.html docs/index.js docs/*.pdf docs/styles/*.min.css
+	rm -rf docs/node_modules docs/package-lock.json
 
 docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \
@@ -34,10 +35,14 @@ pdf: $(PDFS)
 
 HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
 MINCSS = docs/styles/app.min.css
+DOCS_CLEANCSS = docs/node_modules/.bin/cleancss
 
-docs/styles/%.min.css: docs/styles/%.css
+$(DOCS_CLEANCSS): docs/package.json
+	cd docs && npm install --no-audit --no-fund --silent
+
+docs/styles/%.min.css: docs/styles/%.css $(DOCS_CLEANCSS)
 	@echo "Minify CSS styles for html docs: $<"
-	npx --package clean-css-cli cleancss --inline remote $< -o $@
+	$(DOCS_CLEANCSS) --inline remote $< -o $@
 
 .PHONY: css
 css: $(MINCSS)
