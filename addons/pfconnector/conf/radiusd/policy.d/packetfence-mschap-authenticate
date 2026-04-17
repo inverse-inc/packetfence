@@ -1,0 +1,18 @@
+packetfence-mschap-authenticate {
+    if(PacketFence-Domain) {
+      if ( "%{User-Name}" =~ /^host\/.*/) {
+        chrooted_mschap_machine
+      }
+      else {
+        chrooted_mschap
+      }
+    }
+    else {
+      if ( "%{User-Name}" =~ /^host\/.*/) {
+        mschap_machine
+      }
+      else {
+        mschap
+      }
+    }
+}

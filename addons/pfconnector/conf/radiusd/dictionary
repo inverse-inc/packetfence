@@ -1,0 +1,13 @@
+#
+#	Local dictionary for the pfconnector-remote radiusd.
+#
+#	FreeRADIUS auto-loads the main dictionaries from
+#		${prefix}/share/freeradius/dictionary
+#	so the $INCLUDE below is defensive but harmless.
+#
+#	Any PacketFence-specific VSAs must come from dictionary.inverse,
+#	which is shipped alongside this file.
+#
+
+$INCLUDE    /usr/share/freeradius/dictionary
+$INCLUDE    dictionary.inverse

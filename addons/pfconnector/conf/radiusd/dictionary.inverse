@@ -1,0 +1,70 @@
+# -*- text -*-
+# Copyright (C) 2005-2026 Inverse inc.
+##############################################################################
+#
+#       Inverse Inc.
+#
+##############################################################################
+
+VENDOR          Inverse                        29464
+
+BEGIN-VENDOR    Inverse
+
+# PF RPC config attributes
+ATTRIBUTE       PacketFence-RPC-Server                 1       string
+ATTRIBUTE       PacketFence-RPC-Port                   2       string
+ATTRIBUTE       PacketFence-RPC-User                   3       string
+ATTRIBUTE       PacketFence-RPC-Pass                   4       string
+ATTRIBUTE       PacketFence-RPC-Proto                  5       string
+# PF Audit attributes
+ATTRIBUTE       PacketFence-Mac                        6       string
+ATTRIBUTE       PacketFence-UserName                   7       string
+ATTRIBUTE       PacketFence-Switch-Id                  8       string
+ATTRIBUTE       PacketFence-Switch-Mac                 9       string
+ATTRIBUTE       PacketFence-Switch-Ip-Address         10       string
+ATTRIBUTE       PacketFence-Eap-Type                  11       string
+ATTRIBUTE       PacketFence-Connection-Type           12       string
+ATTRIBUTE       PacketFence-Source                    13       string
+ATTRIBUTE       PacketFence-SSID                      14       string
+ATTRIBUTE       PacketFence-IsPhone                   15       string
+ATTRIBUTE       PacketFence-AutoReg                   16       string
+ATTRIBUTE       PacketFence-Role                      17       string
+ATTRIBUTE       PacketFence-Status                    18       string
+ATTRIBUTE       PacketFence-IfIndex                   19       string
+ATTRIBUTE       PacketFence-Profile                   20       string       
+ATTRIBUTE       PacketFence-Domain                    21       string
+ATTRIBUTE       PacketFence-Computer-Name             22       string
+# Next attribute is set if the inner tunnel has handled a request
+ATTRIBUTE       PacketFence-Handled                   23       string   
+ATTRIBUTE       PacketFence-Request-Time              24       integer
+ATTRIBUTE       PacketFence-NasName                   25       string
+ATTRIBUTE       PacketFence-Proxied-To                26       string
+ATTRIBUTE       PacketFence-Authorization-Status      27       string
+# ATTRIBUTE       PacketFence-Tenant-Id                 28       integer
+ATTRIBUTE       PacketFence-ShortName                 29       string
+ATTRIBUTE       PacketFence-Proxied-From              30       string 
+ATTRIBUTE       PacketFence-UserNameAttribute         31       string
+ATTRIBUTE       PacketFence-KeyBalanced               32       string
+ATTRIBUTE       PacketFence-Radius-Ip                 33       string
+ATTRIBUTE       PacketFence-NTCacheHash               34       string
+ATTRIBUTE       PacketFence-NTLMv2-Only               35       string
+ATTRIBUTE       PacketFence-Outer-User                36       string
+ATTRIBUTE       PacketFence-UserDN                    37       string
+ATTRIBUTE       PacketFence-reply-insert              38       string
+ATTRIBUTE       PacketFence-UserPassword              39       string
+ATTRIBUTE       PacketFence-ConnectorID               40       string
+ATTRIBUTE       PacketFence-NTLM-Auth-Host            41       string
+ATTRIBUTE       PacketFence-NTLM-Auth-Port            42       string
+
+END-VENDOR      Inverse
+
+VENDOR          Juniper                         2636
+
+BEGIN-VENDOR    Juniper
+#
+#       Standard attribute
+#
+
+ATTRIBUTE      Juniper-AV-Pair 52      string
+
+END-VENDOR    Juniper
