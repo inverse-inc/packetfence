@@ -19,7 +19,7 @@ with qw(
 
 use HTTP::Status qw(:constants is_success);
 
-use pf::config qw(%ConfigRoles);
+use pf::config qw(%ConfigRoles %Config);
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pfappserver::Util::ACLs qw(_validate_acl);
@@ -54,6 +54,7 @@ has_field 'parent_id' =>
    options_method => \&options_parent_id,
    label => 'Parent',
    required => 0,
+   default_method => \&default_parent_id,
   );
 
 has_field 'max_nodes_per_pid' =>
@@ -172,6 +173,10 @@ sub options_parent_id {
     my $no_id = !defined $id || $id eq '';
     my @roles = map { { value => $_->{name}, label => $_->{name} } } grep { $no_id || $_->{name} ne $id }  @{$form->roles} if ($form->roles);
     return @roles;
+}
+
+sub default_parent_id {
+    return $Config{advanced}{default_role_parent_id};
 }
 
 =head1 COPYRIGHT
