@@ -49,6 +49,13 @@ const useForm = (props, context) => {
     ]
   })
 
+  const roleFilter = ref('')
+  const filteredRoles = computed(() => {
+    const filter = roleFilter.value.toLowerCase()
+    if (!filter) return roles.value
+    return roles.value.filter(role => role.toLowerCase().includes(filter))
+  })
+
   const schema = computed(() => schemaFn(props, roles))
   const metaSchema = computed(() => useFormMetaSchema(meta, schema))
   const advancedMode = ref(false)
@@ -220,7 +227,9 @@ const useForm = (props, context) => {
 
     isUsePushACLs,
     isUseDownloadableACLs,
-    onPrecreate
+    onPrecreate,
+    roleFilter,
+    filteredRoles
   }
 }
 

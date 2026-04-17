@@ -126,41 +126,29 @@ sub cleanup_options {
     my ($self, $options, $placeholder) = @_;
     my $meta = $options->{meta};
     my $allowed_roles = $meta->{AccessListMapping}{item}{properties}{role}{allowed};
-    my $vlanMapping = $placeholder->{VlanMapping};
-    my $accessListMapping = $placeholder->{AccessListMapping};
-    my $urlMapping = $placeholder->{UrlMapping};
-    my $vpnMapping = $placeholder->{VpnMapping};
-    my $interfaceMapping = $placeholder->{InterfaceMapping};
-    my $roleMapping = $placeholder->{ControllerRoleMapping};
-    my $networkMapping = $placeholder->{NetworkMapping};
-    my $networkMappingFrom = $placeholder->{NetworkMappingFrom};
+    my $required = $self->json_false;
+
+    # Pre-build hash lookups for O(1) access per role instead of O(n) linear scans
+    my %vlan_map        = map { $_->{role} => $_->{vlan} }            @{$placeholder->{VlanMapping} // []};
+    my %acl_map         = map { $_->{role} => $_->{accesslist} }      @{$placeholder->{AccessListMapping} // []};
+    my %url_map         = map { $_->{role} => $_->{url} }             @{$placeholder->{UrlMapping} // []};
+    my %vpn_map         = map { $_->{role} => $_->{vpn} }             @{$placeholder->{VpnMapping} // []};
+    my %interface_map   = map { $_->{role} => $_->{interface} }       @{$placeholder->{InterfaceMapping} // []};
+    my %role_map        = map { $_->{role} => $_->{controller_role} } @{$placeholder->{ControllerRoleMapping} // []};
+    my %network_map     = map { $_->{role} => $_->{network} }         @{$placeholder->{NetworkMapping} // []};
+    my %networkfrom_map = map { $_->{role} => $_->{networkfrom} }     @{$placeholder->{NetworkMappingFrom} // []};
+
     for my $a (@{$allowed_roles}) {
         my $r = $a->{value};
-        $meta->{"${r}Vlan"} = mapping_meta($r, $vlanMapping, 'vlan', $self->json_false);
-        $meta->{"${r}AccessList"} = mapping_meta($r, $accessListMapping, 'accesslist', $self->json_false);
-        $meta->{"${r}Url"} = mapping_meta($r, $urlMapping, 'url', $self->json_false);
-        $meta->{"${r}Vpn"} = mapping_meta($r, $vpnMapping, 'vpn', $self->json_false);
-        $meta->{"${r}Interface"} = mapping_meta($r, $interfaceMapping, 'interface', $self->json_false);
-        $meta->{"${r}Role"} = mapping_meta($r, $roleMapping, 'controller_role', $self->json_false);
-        $meta->{"${r}Network"} = mapping_meta($r, $networkMapping, 'network', $self->json_false);
-        $meta->{"${r}NetworkFrom"} = mapping_meta($r, $networkMappingFrom, 'networkfrom', $self->json_false);
+        $meta->{"${r}Vlan"}        = { default => undef, type => "string", placeholder => $vlan_map{$r},        required => $required };
+        $meta->{"${r}AccessList"}  = { default => undef, type => "string", placeholder => $acl_map{$r},         required => $required };
+        $meta->{"${r}Url"}         = { default => undef, type => "string", placeholder => $url_map{$r},         required => $required };
+        $meta->{"${r}Vpn"}         = { default => undef, type => "string", placeholder => $vpn_map{$r},         required => $required };
+        $meta->{"${r}Interface"}   = { default => undef, type => "string", placeholder => $interface_map{$r},   required => $required };
+        $meta->{"${r}Role"}        = { default => undef, type => "string", placeholder => $role_map{$r},        required => $required };
+        $meta->{"${r}Network"}     = { default => undef, type => "string", placeholder => $network_map{$r},     required => $required };
+        $meta->{"${r}NetworkFrom"} = { default => undef, type => "string", placeholder => $networkfrom_map{$r}, required => $required };
     }
-}
-
-sub mapping_meta {
-    my ($role, $mapping, $f, $required) = @_;
-    return {
-        default => undef,
-        type => "string",
-        placeholder => mapping_placeholder($role, $mapping, $f),
-        required => $required,
-    };
-}
-
-sub mapping_placeholder {
-    my ($role, $mapping, $f) = @_;
-    my $m = first { $_->{role} eq $role  } @$mapping;
-    return defined $m ? $m->{$f} : undef;
 }
 
 sub validate_item {

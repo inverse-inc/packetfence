@@ -43,7 +43,7 @@ const actions = {
     const params = {
       sort: 'id',
       fields: ['id'].join(','),
-      limit: 1000
+      limit: 9999
     }
     return api.list(params).then(response => {
       return response.items

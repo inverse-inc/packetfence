@@ -99,16 +99,14 @@ const actions = {
           ...baseRoles,
           ...roles.map(role => role.id)
         ]
-        roles
-          .forEach(role => {
-            item = {
-              [`${role}Vlan`]: null,
-              [`${role}Role`]: null,
-              [`${role}AccessList`]: null,
-              [`${role}Url`]: null,
-              ...item
-            }
-          })
+        const roleDefaults = {}
+        roles.forEach(role => {
+          roleDefaults[`${role}Vlan`] = null
+          roleDefaults[`${role}Role`] = null
+          roleDefaults[`${role}AccessList`] = null
+          roleDefaults[`${role}Url`] = null
+        })
+        item = { ...roleDefaults, ...item }
         commit('ITEM_REPLACED', item)
         return JSON.parse(JSON.stringify(state.cache[id]))
       })
