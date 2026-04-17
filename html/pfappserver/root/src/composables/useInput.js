@@ -46,13 +46,14 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // props
-  const localPlaceholder = computed(() =>
-    (unref(placeholder) && unref(placeholder).constructor === Array)
-      ? unref(placeholder).join(', ') // join Array to String
-      : (unref(placeholder))
-        ? `${unref(placeholder)}` // cast String
-        : '' // empty String
-  )
+  const localPlaceholder = computed(() => {
+    const p = unref(placeholder)
+    if (p && p.constructor === Array)
+      return p.join(', ') // join Array to String
+    if (p === undefined || p === null || p === '')
+      return '' // empty String
+    return `${p}` // cast String (preserves 0, false, etc.)
+  })
 
   // state
   const isFocus = ref(false)

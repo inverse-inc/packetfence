@@ -60,7 +60,7 @@ export const useInputMeta = (props) => {
       ))
 
     // placeholder
-    if (metaPlaceholder)
+    if (metaPlaceholder !== undefined && metaPlaceholder !== null && metaPlaceholder !== '')
       set(localProps, 'placeholder', metaPlaceholder)
 
     // type
