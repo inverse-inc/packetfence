@@ -12,7 +12,7 @@ export default {
     })
   },
   item: id => {
-    return apiCall.get(['config', 'role', id]).then(response => {
+    return apiCall.get(['config', 'role', id], { params: { skip_inheritance: true } }).then(response => {
       return response.data.item
     })
   },
