@@ -108,7 +108,7 @@ server pf.degraded {
 
 		ntdomain
 
-		eap-degraded {
+		eap {
 			ok = return
 		}
 		if ( !EAP-Message ) {
@@ -139,9 +139,7 @@ server pf.degraded {
 
 		#
 		#  Allow EAP authentication.
-		Auth-Type eap-degraded {
-			eap-degraded
-		}
+		eap
 	}
 
 
@@ -182,7 +180,7 @@ server pf.degraded {
 			# Insert EAP-Failure message if the request was
 			# rejected by policy instead of because of an
 			# authentication failure
-			eap-degraded
+			eap
 
 			#  Remove reply message if the response contains an EAP-Message
 			remove_reply_message_if_eap
@@ -194,8 +192,7 @@ server pf.degraded {
 	}
 
 	post-proxy {
-
-		eap-degraded
+		eap
 	}
 }
 
@@ -207,10 +204,9 @@ server packetfence-degraded-tunnel {
 		suffix
 		ntdomain
 		rest-multidomain
-		update control {
-			&Proxy-To-Realm := LOCAL
+		eap {
+			ok = return
 		}
-
 		rewrite_called_station_id
 
 		# Uncomment the following line to enable local PEAP authentication
@@ -229,7 +225,7 @@ server packetfence-degraded-tunnel {
 		Auth-Type MS-CHAP {
 			packetfence-mschap-authenticate
 		}
-
+		eap
 
 	}
 
@@ -261,7 +257,7 @@ server packetfence-degraded-tunnel {
 	}
 
 	post-proxy {
-		eap-degraded
+		eap
 	}
 
 }
