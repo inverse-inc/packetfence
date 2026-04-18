@@ -433,9 +433,6 @@ func multiDomainAuthorize(api *API) http.HandlerFunc {
 			}
 			port := domainCfg.NtlmAuthPort
 			if portNum, err := strconv.Atoi(domainCfg.NtlmAuthPort); err == nil {
-				if domainCfg.UseConnector == "1" {
-					portNum += 100
-				}
 				port = strconv.Itoa(portNum)
 			}
 			reply["request:PacketFence-NTLM-Auth-Port"] = map[string]interface{}{
