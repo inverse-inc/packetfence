@@ -298,6 +298,45 @@ func (a *rlmRestAttr) firstValue() string {
 	return a.Value[0]
 }
 
+// extractRealm derives the effective realm from a FreeRADIUS request,
+// replicating the order in which FreeRADIUS realm modules and the
+// packetfence-set-realm-if-machine policy set the Realm attribute:
+//
+//  1. Explicit Realm attribute already present in the request body.
+//  2. packetfence-set-realm-if-machine: host/<name>.<realm> → <realm>
+//  3. IPASS (prefix "/"): realm/username → realm
+//  4. suffix "@" (ignore_null): username@realm → realm
+//  5. realmpercent (suffix "%"): username%realm → realm
+//  6. ntdomain (prefix "\"): domain\username → domain
+//
+// Returns an empty string when none of the rules match.
+func extractRealm(userName, realmAttr string) string {
+	if realmAttr != "" {
+		return realmAttr
+	}
+	if matches := hostUserNameRegex.FindStringSubmatch(userName); matches != nil {
+		// Machine account: host/<shortname>.<realm> → realm suffix.
+		return matches[2]
+	}
+	if idx := strings.Index(userName, "/"); idx >= 0 {
+		// IPASS prefix: realm/username
+		return userName[:idx]
+	}
+	if idx := strings.LastIndex(userName, "@"); idx >= 0 {
+		// suffix: username@realm (ignore_null handled by idx >= 0 guard)
+		return userName[idx+1:]
+	}
+	if idx := strings.LastIndex(userName, "%"); idx >= 0 {
+		// realmpercent suffix: username%realm
+		return userName[idx+1:]
+	}
+	if idx := strings.Index(userName, `\`); idx >= 0 {
+		// ntdomain prefix: domain\username
+		return userName[:idx]
+	}
+	return ""
+}
+
 // multiDomainAuthorize is a Go port of
 // raddb/mods-config/perl/packetfence-multi-domain.pm::authorize.
 //
@@ -335,19 +374,18 @@ func multiDomainAuthorize(api *API) http.HandlerFunc {
 		}
 		realmAttr := req["Realm"].firstValue()
 
-		// Step 1: host/<name>.<realm> takes precedence.
-		var realmKey string
-		if matches := hostUserNameRegex.FindStringSubmatch(userName); matches != nil {
-			candidate := strings.ToLower(matches[2])
-			if _, ok := cfg.Realms[candidate]; ok {
-				realmKey = candidate
-			}
-		}
+		effectiveRealm := extractRealm(userName, realmAttr)
 
-		// Step 2: explicit Realm attribute.
-		if realmKey == "" && realmAttr != "" {
-			if _, ok := cfg.Realms[realmAttr]; ok {
-				realmKey = realmAttr
+		// Look up the derived realm; fall back to its lowercase form since realm
+		// keys in the config are typically lowercase.
+		var realmKey string
+		if effectiveRealm != "" {
+			if _, ok := cfg.Realms[effectiveRealm]; ok {
+				realmKey = effectiveRealm
+			} else if lower := strings.ToLower(effectiveRealm); lower != effectiveRealm {
+				if _, ok := cfg.Realms[lower]; ok {
+					realmKey = lower
+				}
 			}
 		}
 
