@@ -1,5 +1,6 @@
 import binascii
 import hashlib
+import json
 import re
 import time
 from http import HTTPStatus
@@ -9,6 +10,7 @@ from flask import request, g
 from samba import ntstatus
 
 import config_loader
+import credcache_push
 import flags
 import global_vars
 import ms_event
@@ -304,6 +306,10 @@ def ntlm_auth_handler():
         nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response)
     else:
         nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
+        if error_code == 0 and nt_key:
+            cache_key = ncache.build_cache_key(domain, account_username)
+            cache_v_json = json.dumps({"nt_key": nt_key, "nt_status": 0})
+            credcache_push.push_async(cache_key, cache_v_json, 0)
     return format_response(nt_key, error_code)
 
 
