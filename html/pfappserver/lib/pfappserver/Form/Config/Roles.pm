@@ -109,6 +109,12 @@ has_field 'inherit_web_auth_url' => (
     default => 'disabled',
 );
 
+has 'skip_role_acl_check' => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 0,
+);
+
 =head2 validate
 
 Make sure none of the reserved names is used.
@@ -145,6 +151,8 @@ sub validate {
     if (!defined $acls || $acls eq '' ) {
         return;
     }
+
+    return if $self->skip_role_acl_check;
 
     $acls = [split(/\n/, $acls)];
     while (my ($switch_id, $data) = each %pf::SwitchFactory::SwitchConfig) {
