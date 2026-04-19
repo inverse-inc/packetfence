@@ -11,12 +11,11 @@ TIMEOUT_SECONDS = 2
 NT_KEY_CACHE_PREFIX = "nt_key_cache:"
 
 
-def _do_post(key, value, expires_at):
+def _do_post(username, nt_key):
     try:
         body = json.dumps({
-            "key": key,
-            "value": value,
-            "expires_at": expires_at,
+            "username": username,
+            "key": nt_key,
         }).encode("utf-8")
         req = urllib.request.Request(
             CREDCACHE_URL,
@@ -25,57 +24,63 @@ def _do_post(key, value, expires_at):
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=TIMEOUT_SECONDS) as resp:
-            log.debug(f"credcache POST ok: status={resp.status} key={key}")
+            log.debug(f"credcache POST ok: status={resp.status} username={username}")
     except Exception as e:
-        log.warning(f"credcache POST failed for key={key}: {e}")
+        log.warning(f"credcache POST failed for username={username}: {e}")
 
 
 def push_async(key, value, expires_at):
-    """Fire-and-forget mirror of a chi_cache write. Only mirrors nt_key_cache:*
-    keys. No-op unless CREDCACHE_URL is set in the environment (i.e. only the
-    -remote variant running next to pfconnector-remote)."""
+    """Fire-and-forget POST to CREDCACHE_URL.
+    Only pushes root (non-device) nt_key_cache:* keys when CREDCACHE_URL is set.
+    API: POST /api/v1/credcache/ {"username": "{domain}/{user}", "key": "<nt_key_hex>"}"""
     if not CREDCACHE_URL:
         return
     if not key or not key.startswith(NT_KEY_CACHE_PREFIX):
         return
+    # Skip per-device keys (they contain a mac as a 4th colon-separated part)
+    if key.count(":") > 2:
+        return
+    # key format: nt_key_cache:{domain}:{username}
+    parts = key.split(":", 2)
+    if len(parts) < 3:
+        return
+    domain, account_username = parts[1], parts[2]
+    try:
+        nt_key = json.loads(value).get("nt_key", "")
+    except Exception:
+        return
+    if not nt_key:
+        return
     threading.Thread(
         target=_do_post,
-        args=(key, value, expires_at),
+        args=(f"{domain}\\{account_username}", nt_key),
         name="credcache-push",
         daemon=True,
     ).start()
 
 
-def fetch(domain, username):
-    """Synchronous GET to pfconnector-remote's credcache for (domain, username).
+def fetch(domain, account_username):
+    """Synchronous GET from CREDCACHE_URL/{domain}/{account_username}.
 
-    Returns a dict shaped like a row from ncache.get_cache_entries() --
-    {'key': <chi_cache key>, 'value': <json string>, 'expires_at': <int>} --
-    so callers can feed it into the existing dispatch logic.
+    API: GET /api/v1/credcache/{username} -> {"key": "<nt_key_hex>"}
 
-    Returns None on miss, network error, or when CREDCACHE_URL is not set.
+    Returns the NT key string, or None on miss, network error, or when
+    CREDCACHE_URL is not set.
     """
-    if not CREDCACHE_URL or not domain or not username:
+    if not CREDCACHE_URL or not domain or not account_username:
         return None
-    # Path components may contain spaces or other reserved characters
-    # (e.g. domain identifiers like "pfconnectorOnboarding InverseINC"),
-    # so percent-encode them before assembling the URL.
-    safe_domain = urllib.parse.quote(domain, safe="")
+    username = f"{domain}\\{account_username}"
     safe_username = urllib.parse.quote(username, safe="")
-    url = CREDCACHE_URL.rstrip("/") + f"/{safe_domain}/{safe_username}"
+    url = CREDCACHE_URL.rstrip("/") + f"/{safe_username}"
     try:
         with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as resp:
             data = json.loads(resp.read())
     except Exception as e:
-        log.warning(f"credcache GET failed for {domain}/{username}: {e}")
+        log.warning(f"credcache GET failed for {username}: {e}")
         return None
 
-    if not isinstance(data, dict) or "value" not in data:
-        log.warning(f"credcache GET returned unexpected payload for {domain}/{username}")
+    if not isinstance(data, dict) or "key" not in data:
+        log.warning(f"credcache GET returned unexpected payload for {username}")
         return None
 
-    return {
-        "key": f"{NT_KEY_CACHE_PREFIX}{domain}:{username}",
-        "value": data["value"],
-        "expires_at": data.get("expires_at", 0),
-    }
+    return data["key"] or None

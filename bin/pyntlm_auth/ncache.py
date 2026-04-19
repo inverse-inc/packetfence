@@ -235,21 +235,10 @@ def cached_login(domain, account_username, mac, challenge, nt_response):
     # with the cached NT key -- the caller verifies challenge/response itself,
     # so a stale key simply fails that check and the user retries.
     if cache_entry_root is None and cache_entry_device is None:
-        credcache_row = credcache_push.fetch(domain, account_username)
-        if credcache_row is not None:
-            try:
-                cache_v = json.loads(credcache_row['value'])
-            except Exception as e:
-                log.warning(f"credcache returned invalid JSON for {domain}/{account_username}: {e}")
-                cache_v = None
-            if cache_v is not None:
-                cached_status = cache_v.get('nt_status', 0)
-                if is_ndl(cached_status):
-                    return '', cached_status, None
-                cached_key = cache_v.get('nt_key', '')
-                if cached_key:
-                    log.debug(f"credcache offline fast-path for {domain}/{account_username}")
-                    return cached_key, cached_status, None
+        cached_key = credcache_push.fetch(domain, account_username)
+        if cached_key:
+            log.debug(f"credcache offline fast-path for {domain}/{account_username}")
+            return cached_key, 0, None
 
     nt_key = "",
     error_code = -1
