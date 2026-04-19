@@ -31,7 +31,7 @@ def _do_post(username, nt_key):
 
 def push_async(key, value, expires_at):
     """Fire-and-forget POST to CREDCACHE_URL.
-    Only pushes root (non-device) nt_key_cache:* keys when CREDCACHE_URL is set.
+    Pushes both root and per-device nt_key_cache:* keys (domain+username extracted from key).
     API: POST /api/v1/credcache/ {"username": "{domain}\\{user}", "key": "<nt_key_hex>"}"""
     log.debug(f"credcache push_async called: key={key!r} CREDCACHE_URL={CREDCACHE_URL!r}")
     if not CREDCACHE_URL:
@@ -40,12 +40,8 @@ def push_async(key, value, expires_at):
     if not key or not key.startswith(NT_KEY_CACHE_PREFIX):
         log.debug(f"credcache push_async: key {key!r} does not start with {NT_KEY_CACHE_PREFIX!r}, skipping")
         return
-    # Skip per-device keys (they contain a mac as a 4th colon-separated part)
-    if key.count(":") > 2:
-        log.debug(f"credcache push_async: key {key!r} is a per-device key, skipping")
-        return
-    # key format: nt_key_cache:{domain}:{username}
-    parts = key.split(":", 2)
+    # key format: nt_key_cache:{domain}:{username} or nt_key_cache:{domain}:{username}:{mac}
+    parts = key.split(":", 3)
     if len(parts) < 3:
         log.debug(f"credcache push_async: key {key!r} has unexpected format, skipping")
         return
