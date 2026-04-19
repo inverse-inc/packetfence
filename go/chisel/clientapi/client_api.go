@@ -298,6 +298,37 @@ func (a *rlmRestAttr) firstValue() string {
 	return a.Value[0]
 }
 
+// stripUserName returns the user portion of userName with the realm stripped,
+// mirroring what FreeRADIUS suffix/ntdomain modules would set as
+// Stripped-User-Name. Machine accounts (host/…) are returned unchanged because
+// their realm is embedded in the FQDN and ntlm_auth expects the full name.
+//
+// Returns an empty string when no stripping applies (same as userName would
+// mean no change, so callers should check != userName before using).
+func stripUserName(userName string) string {
+	// Machine account host/<shortname>.<realm> — do not strip
+	if hostUserNameRegex.MatchString(userName) {
+		return ""
+	}
+	// IPASS prefix: realm/username → username
+	if idx := strings.Index(userName, "/"); idx >= 0 {
+		return userName[idx+1:]
+	}
+	// suffix "@": username@realm → username
+	if idx := strings.LastIndex(userName, "@"); idx >= 0 {
+		return userName[:idx]
+	}
+	// realmpercent "%": username%realm → username
+	if idx := strings.LastIndex(userName, "%"); idx >= 0 {
+		return userName[:idx]
+	}
+	// ntdomain "\": domain\username → username
+	if idx := strings.Index(userName, `\`); idx >= 0 {
+		return userName[idx+1:]
+	}
+	return ""
+}
+
 // extractRealm derives the effective realm from a FreeRADIUS request,
 // replicating the order in which FreeRADIUS realm modules and the
 // packetfence-set-realm-if-machine policy set the Realm attribute:
@@ -424,6 +455,16 @@ func multiDomainAuthorize(api *API) http.HandlerFunc {
 		reply["request:PacketFence-Domain"] = map[string]interface{}{
 			"op":    ":=",
 			"value": []string{realmCfg.Domain},
+		}
+
+		// Provide Stripped-User-Name so FreeRADIUS ntlm_auth gets just the
+		// username (e.g. "fdurand") even when no realm is configured locally
+		// and the suffix module returns noop.
+		if stripped := stripUserName(userName); stripped != "" {
+			reply["request:Stripped-User-Name"] = map[string]interface{}{
+				"op":    ":=",
+				"value": []string{stripped},
+			}
 		}
 
 		if domainCfg, ok := cfg.Domains[realmCfg.Domain]; ok {
