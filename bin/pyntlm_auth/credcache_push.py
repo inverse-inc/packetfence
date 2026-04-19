@@ -32,28 +32,37 @@ def _do_post(username, nt_key):
 def push_async(key, value, expires_at):
     """Fire-and-forget POST to CREDCACHE_URL.
     Only pushes root (non-device) nt_key_cache:* keys when CREDCACHE_URL is set.
-    API: POST /api/v1/credcache/ {"username": "{domain}/{user}", "key": "<nt_key_hex>"}"""
+    API: POST /api/v1/credcache/ {"username": "{domain}\\{user}", "key": "<nt_key_hex>"}"""
+    log.debug(f"credcache push_async called: key={key!r} CREDCACHE_URL={CREDCACHE_URL!r}")
     if not CREDCACHE_URL:
+        log.debug("credcache push_async: CREDCACHE_URL not set, skipping")
         return
     if not key or not key.startswith(NT_KEY_CACHE_PREFIX):
+        log.debug(f"credcache push_async: key {key!r} does not start with {NT_KEY_CACHE_PREFIX!r}, skipping")
         return
     # Skip per-device keys (they contain a mac as a 4th colon-separated part)
     if key.count(":") > 2:
+        log.debug(f"credcache push_async: key {key!r} is a per-device key, skipping")
         return
     # key format: nt_key_cache:{domain}:{username}
     parts = key.split(":", 2)
     if len(parts) < 3:
+        log.debug(f"credcache push_async: key {key!r} has unexpected format, skipping")
         return
     domain, account_username = parts[1], parts[2]
     try:
         nt_key = json.loads(value).get("nt_key", "")
-    except Exception:
+    except Exception as e:
+        log.debug(f"credcache push_async: failed to parse value JSON: {e}, skipping")
         return
     if not nt_key:
+        log.debug(f"credcache push_async: nt_key empty for key={key!r}, skipping")
         return
+    username = f"{domain}\\{account_username}"
+    log.debug(f"credcache push_async: firing POST for username={username!r} to {CREDCACHE_URL}")
     threading.Thread(
         target=_do_post,
-        args=(f"{domain}\\{account_username}", nt_key),
+        args=(username, nt_key),
         name="credcache-push",
         daemon=True,
     ).start()

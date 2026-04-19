@@ -302,13 +302,16 @@ def ntlm_auth_handler():
         mac = ""
 
     if global_vars.c_nt_key_cache_enabled and mac != "":
+        log.debug(f"ntlm_auth_handler: using cached_login path for user={account_username!r} mac={mac!r}")
         domain = global_vars.c_cache_domain
         nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response)
     else:
+        log.debug(f"ntlm_auth_handler: using direct RPC path for user={account_username!r} mac={mac!r} nt_key_cache_enabled={global_vars.c_nt_key_cache_enabled!r}")
         nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
         if error_code == 0 and nt_key:
             cache_key = ncache.build_cache_key(domain, account_username)
             cache_v_json = json.dumps({"nt_key": nt_key, "nt_status": 0})
+            log.debug(f"ntlm_auth_handler: direct RPC success, pushing to credcache key={cache_key!r}")
             credcache_push.push_async(cache_key, cache_v_json, 0)
     return format_response(nt_key, error_code)
 
