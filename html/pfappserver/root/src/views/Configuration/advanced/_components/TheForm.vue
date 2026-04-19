@@ -164,6 +164,11 @@
                                             :text="$i18n.t('Path to a custom script called by pfupdate if present.')"
     />
 
+    <form-group-default-role-parent-id namespace="default_role_parent_id"
+                                       :column-label="$i18n.t('Default parent role')"
+                                       :text="$i18n.t('The default parent role id to use when creating a new role.')"
+    />
+
     <form-group-netflow-on-all-networks namespace="netflow_on_all_networks"
                                         :column-label="$i18n.t('NetFlow on all networks')"
                                         :text="$i18n.t('Listen to NetFlow on all networks. Changing this requires to restart pfacct.')"
@@ -201,6 +206,7 @@ import {
   FormGroupApiInactivityTimeout,
   FormGroupApiMaxExpiration,
   FormGroupConfigurator,
+  FormGroupDefaultRoleParentId,
   FormGroupHashingCost,
   FormGroupHashPasswords,
   FormGroupLanguage,
@@ -215,8 +221,8 @@ import {
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
   FormGroupPfqueueMaxRss,
-  FormGroupPfupdateCustomScriptPath,
   FormGroupPortalCspSecurityHeaders,
+  FormGroupPfupdateCustomScriptPath,
   FormGroupScanOnAccounting,
   FormGroupSourceToSendSmsWhenCreatingUsers,
   FormGroupTimingStatsLevel,
@@ -236,6 +242,7 @@ const components = {
   FormGroupApiInactivityTimeout,
   FormGroupApiMaxExpiration,
   FormGroupConfigurator,
+  FormGroupDefaultRoleParentId,
   FormGroupHashPasswords,
   FormGroupHashingCost,
   FormGroupLanguage,

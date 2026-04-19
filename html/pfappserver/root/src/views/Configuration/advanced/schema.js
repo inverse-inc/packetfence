@@ -15,7 +15,8 @@ export const schema = () => yup.object({
   timing_stats_level: yup.string().nullable().label(i18n.t('Level')),
   source_to_send_sms_when_creating_users: yup.string().nullable().label(i18n.t('Source')),
   netflow_on_all_networks: yup.string().nullable(),
-  openid_attributes: yup.array().ensure().label(i18n.t('Attributes'))
+  openid_attributes: yup.array().ensure().label(i18n.t('Attributes')),
+  default_role_parent_id: yup.string().nullable().label(i18n.t('Default parent role'))
 })
 
 export default schema
