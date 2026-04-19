@@ -299,9 +299,9 @@ def ntlm_auth_handler():
     else:
         mac = ""
 
-    if global_vars.c_nt_key_cache_enabled and hasattr(g, 'db') and mac != "":
+    if global_vars.c_nt_key_cache_enabled and mac != "":
         domain = global_vars.c_cache_domain
-        nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response, )
+        nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response)
     else:
         nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
     return format_response(nt_key, error_code)
