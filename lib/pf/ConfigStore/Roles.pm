@@ -42,6 +42,28 @@ sub cleanupAfterRead {
     }
 }
 
+=head2 parentSections
+
+Return the parent role section so values from parent_id can be inherited.
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $parent_id = $item->{parent_id} // $self->cachedConfig->val($id, 'parent_id');
+    my $default_section = $self->default_section;
+    return if defined $default_section && $id eq $default_section;
+    my @parents;
+    my %seen = ($id => 1);
+    while (defined $parent_id && length $parent_id && !$seen{$parent_id} && (!defined $default_section || $default_section ne $parent_id)) {
+        push @parents, $parent_id;
+        $seen{$parent_id} = 1;
+        $parent_id = $self->cachedConfig->val($parent_id, 'parent_id');
+    }
+
+    return @parents, $self->SUPER::parentSections($id, $item);
+}
+
 
 =item commitPfconfig
 

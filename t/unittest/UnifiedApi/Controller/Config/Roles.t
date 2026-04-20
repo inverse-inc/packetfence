@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 41;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -129,6 +129,19 @@ $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => {  })
 
 $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => { async => \1 })
   ->status_is(202);
+
+$t->options_ok("$base_url/r5")
+  ->status_is(200)
+  ->json_is("/meta/acls",
+        {
+            "default" => undef,
+            "implied" => undef,
+            "placeholder" => "permit tcp any any",
+            "required" => 0,
+            "type" => "string"
+        }
+  );
+
 
 
 =head1 AUTHOR
