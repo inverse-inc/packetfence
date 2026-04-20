@@ -73,4 +73,7 @@ def fetch(cache_key):
     except Exception as e:
         log.warning(f"credcache GET failed for {cache_key}: {e}")
         return None
-    return body or None
+    if body:
+        log.info(f"credcache GET ok: nt_key retrieved for {cache_key}")
+        return body
+    return None
