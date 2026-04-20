@@ -50,7 +50,7 @@ Return the parent role section so values from parent_id can be inherited.
 
 sub parentSections {
     my ($self, $id, $item) = @_;
-    my $parent_id = $item->{parent_id} // $self->cachedConfig->val($id, 'parent_id') // $Config{advanced}{default_role_parent_id};
+    my $parent_id = $item->{parent_id} // $self->cachedConfig->val($id, 'parent_id') // '';
     my $default_section = $self->default_section;
     return if defined $default_section && $id eq $default_section;
     my @parents;
