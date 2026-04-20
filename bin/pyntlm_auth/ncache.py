@@ -237,11 +237,14 @@ def cached_login(domain, account_username, mac, challenge, nt_response):
     if cache_entry_root is None and cache_entry_device is None:
         cached_value = credcache_push.fetch(cache_key_root)
         if cached_value:
+            nt_key = ""
             try:
-                nt_key = json.loads(cached_value).get("nt_key", "")
+                parsed = json.loads(cached_value)
+                if isinstance(parsed, dict) and "nt_key" not in parsed and "value" in parsed:
+                    parsed = json.loads(parsed["value"])
+                nt_key = parsed.get("nt_key", "") if isinstance(parsed, dict) else ""
             except Exception as e:
                 log.warning(f"credcache offline fast-path: failed to parse value for {cache_key_root}: {e}")
-                nt_key = ""
             if nt_key:
                 log.debug(f"credcache offline fast-path for {cache_key_root}")
                 return nt_key, 0, None

@@ -75,5 +75,6 @@ def fetch(cache_key):
         return None
     if body:
         log.info(f"credcache GET ok: nt_key retrieved for {cache_key}")
+        log.debug(f"credcache GET body for {cache_key}: {body[:200]}")
         return body
     return None
