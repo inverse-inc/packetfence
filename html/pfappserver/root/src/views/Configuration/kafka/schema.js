@@ -1,5 +1,6 @@
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { reIpv4 } from '@/utils/regex'
 
 const schemaAuth = yup.object({
   user: yup.string().nullable().required().label(i18n.t('Username')),
@@ -15,10 +16,16 @@ const schemaCluster = yup.object({
 
 const schemaClusters = yup.array().ensure().unique(i18n.t('Duplicate key'), ({ name }) => name).of(schemaCluster)
 
-const schemaIpv4 = yup.string().nullable().required().label(i18n.t('IPv4'))
-  .isIpv4()
+const schemaIpv4OrMgmtip = yup.string().nullable().required().label(i18n.t('IPv4'))
+  .test({
+    name: 'isIpv4OrMgmtip',
+    message: i18n.t('Invalid IPv4 Address.'),
+    test: value => ['', null, undefined].includes(value)
+                   || value === '%mgmtip%'
+                   || reIpv4(value),
+  })
 
-const schemaIpv4s = yup.array().ensure().of(schemaIpv4)
+const schemaIpv4s = yup.array().ensure().of(schemaIpv4OrMgmtip)
 
 const schemaIptables = yup.object({
   clients: schemaIpv4s,
