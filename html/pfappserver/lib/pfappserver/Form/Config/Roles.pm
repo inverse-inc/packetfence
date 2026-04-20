@@ -84,6 +84,7 @@ has_field 'acls_enabled' => (
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     label => 'Enable ACLs',
+    default => 'enabled',
 );
 
 has_field 'acls' => (
