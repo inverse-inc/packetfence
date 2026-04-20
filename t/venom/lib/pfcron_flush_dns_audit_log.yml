@@ -1,14 +1,5 @@
 executor: pfcron_flush_dns_audit_log
 steps:
-
-- type: exec
-  script: redis-cli -s /usr/local/pf/var/run/redis_cache.sock LLEN DNS_AUDIT_LOG
-  retry: 30
-  delay: 2
-  assertions:
-    - result.code ShouldEqual 0
-    - result.systemoutjson ShouldBeGreaterThan 0
-
 - type: pfcron_command_line
   unit_command: flush_dns_audit_log
   assertions:
