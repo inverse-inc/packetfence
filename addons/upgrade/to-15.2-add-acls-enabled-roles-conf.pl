@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-addons/upgrade/to-14.2-add-acls-enabled-roles-conf.pl
+addons/upgrade/to-15.2-add-acls-enabled-roles-conf.pl
 
 =cut
 
