@@ -33,6 +33,7 @@ export const useInputMeta = (props) => {
   const namespaceArr = computed(() => unref(namespace).split('.'))
   const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
 
+  let lastMetaPlaceholder
   const consumeMeta = () => {
     let _namespaceMeta = unref(namespaceMeta)
     let { type, item } = _namespaceMeta
@@ -59,9 +60,14 @@ export const useInputMeta = (props) => {
         : metaAllowedLookup
       ))
 
-    // placeholder
-    if (metaPlaceholder)
+    // placeholder — meta wins over prop when set; when meta later clears, fall back to prop
+    if (metaPlaceholder) {
       set(localProps, 'placeholder', metaPlaceholder)
+      lastMetaPlaceholder = metaPlaceholder
+    } else if (lastMetaPlaceholder !== undefined) {
+      set(localProps, 'placeholder', props.placeholder)
+      lastMetaPlaceholder = undefined
+    }
 
     // type
     switch(metaType) {

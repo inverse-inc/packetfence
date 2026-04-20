@@ -66,7 +66,8 @@
   </base-form>
 </template>
 <script>
-import {computed} from '@vue/composition-api'
+import {computed, ref, set, watch} from '@vue/composition-api'
+import apiCall from '@/utils/api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -83,6 +84,8 @@ import {
   FormGroupInheritRole,
   FormGroupInheritWebAuthUrl
 } from './'
+
+const INHERITED_FIELDS = ['acls', 'max_nodes_per_pid']
 
 const components = {
   BaseForm,
@@ -125,6 +128,51 @@ export const props = {
 
 export const setup = (props) => {
   const schema = computed(() => schemaFn(props))
+
+  const roles = ref([])
+  const basePlaceholders = {}
+  let capturedFromMeta = null
+
+  apiCall.get('config/roles', {
+    params: {
+      fields: ['id', 'parent_id', ...INHERITED_FIELDS].join(','),
+      limit: 1000,
+      sort: 'id'
+    }
+  }).then(response => {
+    const { data: { items = [] } = {} } = response
+    roles.value = items
+  }).catch(() => {})
+
+  watch(
+    [
+      () => props.meta,
+      () => props.form && props.form.parent_id,
+      roles
+    ],
+    () => {
+      const meta = props.meta
+      if (!meta) return
+      if (capturedFromMeta !== meta && INHERITED_FIELDS.some(f => meta[f])) {
+        INHERITED_FIELDS.forEach(f => {
+          basePlaceholders[f] = (meta[f] || {}).placeholder
+        })
+        capturedFromMeta = meta
+      }
+      const parentId = (props.form || {}).parent_id
+      const parent = parentId ? roles.value.find(r => r.id === parentId) : null
+      INHERITED_FIELDS.forEach(f => {
+        if (!meta[f]) return
+        const parentValue = parent ? parent[f] : undefined
+        const nextPlaceholder = (parentValue !== undefined && parentValue !== null && parentValue !== '')
+          ? parentValue
+          : basePlaceholders[f]
+        if (meta[f].placeholder === nextPlaceholder) return
+        set(meta, f, { ...meta[f], placeholder: nextPlaceholder })
+      })
+    },
+    { immediate: true }
+  )
 
   return {
     schema
