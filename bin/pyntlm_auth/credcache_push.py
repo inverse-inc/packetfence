@@ -56,7 +56,11 @@ def fetch(cache_key):
     """
     if not CREDCACHE_URL or not cache_key:
         return None
-    safe_key = urllib.parse.quote(cache_key, safe="")
+    # The credcache server stores keys without the "nt_key_cache:" prefix
+    lookup_key = cache_key
+    if lookup_key.startswith(NT_KEY_CACHE_PREFIX):
+        lookup_key = lookup_key[len(NT_KEY_CACHE_PREFIX):]
+    safe_key = urllib.parse.quote(lookup_key, safe="")
     url = CREDCACHE_URL.rstrip("/") + f"/{safe_key}"
     try:
         with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as resp:
