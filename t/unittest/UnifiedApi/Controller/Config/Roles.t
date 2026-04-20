@@ -24,7 +24,6 @@ BEGIN {
 
 use Test::More tests => 38;
 use Test::Mojo;
-use Mojo::JSON;
 use Utils;
 use pf::dal::node;
 use pf::ConfigStore::Roles;
@@ -130,6 +129,7 @@ $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => {  })
 
 $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => { async => \1 })
   ->status_is(202);
+
 
 =head1 AUTHOR
 

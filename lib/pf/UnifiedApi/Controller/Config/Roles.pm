@@ -54,8 +54,6 @@ sub post_update {
 
 sub can_delete {
     my ($self) = @_;
-    my $id = $self->id;
-
     my ($db_status, $db_msg, $db_errors) = $self->can_delete_from_db();
     if (is_error($db_status) && !defined $db_errors) {
         return ($db_status, $db_msg);
@@ -192,7 +190,6 @@ SQL
 
 sub reassign {
     my ($self) = @_;
-    my $id = $self->id;
     my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
