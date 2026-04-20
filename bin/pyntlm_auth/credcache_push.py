@@ -48,20 +48,25 @@ def push_async(key, value, expires_at):
 
 
 def fetch(cache_key):
-    """Synchronous GET from CREDCACHE_URL/{urlencoded cache_key}.
+    """Synchronous GET from CREDCACHE_URL/{domain}/{username}[/{mac}].
 
-    API: GET /api/v1/credcache/{key} -> raw chi_cache `value` blob (JSON string
-    with nt_key / nt_status fields). Returns the value string or None on miss,
-    network error, or when CREDCACHE_URL is not set.
+    API: GET /api/v1/credcache/{domain}/{username}[/{mac}] -> raw chi_cache
+    `value` blob (JSON string with nt_key / nt_status fields). Returns the
+    value string or None on miss, network error, or when CREDCACHE_URL is not
+    set.
     """
     if not CREDCACHE_URL or not cache_key:
         return None
     # The credcache server stores keys without the "nt_key_cache:" prefix
+    # and expects the remaining colon-delimited segments as URL path parts
+    # (e.g. nt_key_cache:InverseINC:fdurand -> /InverseINC/fdurand).
     lookup_key = cache_key
     if lookup_key.startswith(NT_KEY_CACHE_PREFIX):
         lookup_key = lookup_key[len(NT_KEY_CACHE_PREFIX):]
-    safe_key = urllib.parse.quote(lookup_key, safe="")
-    url = CREDCACHE_URL.rstrip("/") + f"/{safe_key}"
+    segments = [urllib.parse.quote(p, safe="") for p in lookup_key.split(":") if p]
+    if not segments:
+        return None
+    url = CREDCACHE_URL.rstrip("/") + "/" + "/".join(segments)
     try:
         with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as resp:
             body = resp.read().decode("utf-8")
