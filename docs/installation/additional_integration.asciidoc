@@ -220,18 +220,21 @@ With this filter in place, LDAP search filters generated for authentication look
 
 NOTE: This is a *preventive* approach that blocks authentication at LDAP search time. It applies to LDAP filters generated through the authentication source's append-search-attributes mechanism, rather than globally to every search path supported by the source. To apply the check at the level of individual authentication rules instead, see the next section.
 
-===== Filtering Disabled Accounts in Authentication Rules
+===== Rejecting Disabled Accounts in Authentication Rules
 
 You can also check the `userAccountControl` attribute directly in authentication rule conditions using the *has bit* and *not has bit* operators. These operators perform a bitwise AND check against the attribute value, which is the correct way to test individual flags in a bitmask attribute like `userAccountControl`.
+
+In Active Directory, bit 2 (`0x2`) of `userAccountControl` corresponds to `ACCOUNTDISABLE`: when this bit is set, the account is disabled. A rule that matches disabled accounts and assigns the `REJECT` role is therefore the correct way to block them.
 
 To create a rule that rejects disabled accounts:
 
 . Go to _Configuration -> Policies and Access Control -> Authentication Sources_.
-. Edit your Active Directory authentication source and open an authentication rule.
-. Add a condition: `userAccountControl` -> *not has bit* -> `2`.
+. Edit your Active Directory authentication source and create a new authentication rule (place it *above* your other rules so it is evaluated first).
+. Add a condition: `userAccountControl` -> *has bit* -> `2`.
+. In the rule actions, set _Role_ to `REJECT` and set an _Access duration_ (for example, `1 hour`).
 . Save the rule.
 
-This condition excludes accounts that have the `ACCOUNTDISABLE` bit set (bit 2), regardless of what other flags are present in `userAccountControl`.
+This rule matches any account that has the `ACCOUNTDISABLE` bit set (bit 2), regardless of what other flags are present in `userAccountControl`, and rejects the authentication.
 
 NOTE: Standard operators like _equals_ or _not equals_ perform a simple string comparison on the full `userAccountControl` value and are not suitable for bitmask attributes. Always use _has bit_ or _not has bit_ when checking individual flags.
 
