@@ -216,9 +216,9 @@ To configure this in PacketFence:
 . In the _Append search attributes LDAP filter_ field, paste the filter above.
 . Save the configuration.
 
-With this filter in place, any LDAP search performed during authentication will automatically exclude disabled accounts, preventing them from authenticating.
+With this filter in place, LDAP search filters generated for authentication lookups, such as username-based authentication and matching, will exclude disabled accounts and help prevent them from authenticating.
 
-NOTE: This is a *preventive* approach that blocks authentication at LDAP search time. It applies globally to all searches performed by this authentication source. To apply the check at the level of individual authentication rules instead, see the next section.
+NOTE: This is a *preventive* approach that blocks authentication at LDAP search time. It applies to LDAP filters generated through the authentication source's append-search-attributes mechanism, rather than globally to every search path supported by the source. To apply the check at the level of individual authentication rules instead, see the next section.
 
 ===== Filtering Disabled Accounts in Authentication Rules
 
