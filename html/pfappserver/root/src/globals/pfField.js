@@ -117,6 +117,8 @@ export const operatorMap = {
   ends: 'ends',
   matches_regexp: 'matches regexp',
   is_member_of: 'is member of',
+  has_bit: 'has bit',
+  not_has_bit: 'not has bit',
 }
 
 export const pfFieldTypeOperators = {
@@ -132,7 +134,9 @@ export const pfFieldTypeOperators = {
     { text: 'contains', value: operatorMap.contains },
     { text: 'ends', value: operatorMap.ends },
     { text: 'matches regexp', value: operatorMap.matches_regexp },
-    { text: 'is member of', value: operatorMap.is_member_of }
+    { text: 'is member of', value: operatorMap.is_member_of },
+    { text: 'has bit', value: operatorMap.has_bit },
+    { text: 'not has bit', value: operatorMap.not_has_bit }
   ],
   [pfFieldType.LDAPFILTER]: [
     { text: 'match filter', value: 'match filter' }
