@@ -16,7 +16,6 @@ use warnings;
 use Moo;
 use pf::file_paths qw($roles_config_file $roles_default_config_file);
 use pf::nodecategory;
-use pf::config qw(%Config);
 use pf::config::cluster;
 use pf::constants;
 use pfconfig::manager;
@@ -40,6 +39,20 @@ sub cleanupAfterRead {
     if(ref($data->{acls}) eq 'ARRAY'){
         $data->{acls} = join("\n", @{$data->{acls}}, "");
     }
+}
+
+=head2 cleanupBeforeCommit
+
+Ensure parent_id is always persisted explicitly (as `parent_id=`) when a role
+has no parent, so roles.conf stays consistent with the upgrade script and with
+the fallback logic in parentSections.
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $assignments) = @_;
+    $assignments->{parent_id} = ''
+        unless defined $assignments->{parent_id};
 }
 
 =head2 parentSections

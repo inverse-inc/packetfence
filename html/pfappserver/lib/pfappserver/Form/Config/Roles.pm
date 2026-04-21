@@ -127,12 +127,12 @@ sub validate {
     }
 
     my $parent_id = $value->{parent_id};
-    if (defined $parent_id) {
+    if (defined $parent_id && length $parent_id) {
         if ( $id eq $parent_id) {
             $self->field('parent_id')->add_error('Cannot be your own parent.');
         }
         $parent_id = $ConfigRoles{$parent_id}{parent_id};
-        while (defined $parent_id) {
+        while (defined $parent_id && length $parent_id) {
             if ( $id eq $parent_id) {
                 $self->field('parent_id')->add_error('Cannot have a parent of your descendents.');
                 last;
