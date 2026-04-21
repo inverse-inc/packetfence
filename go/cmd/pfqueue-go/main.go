@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"slices"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -128,6 +129,14 @@ func (bm *BackendManager) monitor(cmd *exec.Cmd) {
 			if bm.isStopping() {
 				return
 			}
+			// Systemd signals the whole cgroup on shutdown, so the backend
+			// can exit from SIGTERM/SIGINT before Stop() has closed stopCh.
+			// Treat that as a normal shutdown and let Stop() finish cleanly
+			// rather than restarting a process that's meant to be stopping.
+			if terminatedBySignal(err, syscall.SIGTERM, syscall.SIGINT) {
+				logInfof(bm.ctx, "pfqueue-backend (pid %d) terminated by signal, treating as shutdown", cmd.Process.Pid)
+				return
+			}
 			logWarnf(bm.ctx, "pfqueue-backend (pid %d) exited unexpectedly: %v, restarting", cmd.Process.Pid, err)
 		case <-bm.stopCh:
 			cmd.Process.Signal(syscall.SIGTERM)
@@ -171,6 +180,19 @@ func (bm *BackendManager) Stop() {
 	close(bm.stopCh)
 	<-bm.doneCh
 	logInfof(bm.ctx, "pfqueue-backend stopped")
+}
+
+func terminatedBySignal(err error, signals ...syscall.Signal) bool {
+	var exitErr *exec.ExitError
+	if !errors.As(err, &exitErr) {
+		return false
+	}
+	status, ok := exitErr.Sys().(syscall.WaitStatus)
+	if !ok || !status.Signaled() {
+		return false
+	}
+
+	return slices.Contains(signals, status.Signal())
 }
 
 type QueueWeight struct {
