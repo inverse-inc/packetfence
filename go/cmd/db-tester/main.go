@@ -71,8 +71,8 @@ func main() {
 		mac, _ := mac.NewFromString(fmt.Sprintf("%x", startMac+i))
 		for j := 0; j < rowsPerEndpoint; j++ {
 			concurrencyChan <- 1
+			wg.Add(1)
 			go func(j int) {
-				wg.Add(1)
 				defer wg.Done()
 				_, err := insertBandwidthAccounting.Exec(mac.NodeId(1), rand.Uint64(), startAt.Add(time.Duration(j)*time.Duration(*bucketSize)*time.Second), 1, 1, mac.String())
 				sharedutils.CheckError(err)
