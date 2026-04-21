@@ -131,13 +131,21 @@ func (bm *BackendManager) monitor(cmd *exec.Cmd) {
 			}
 			// Systemd signals the whole cgroup on shutdown, so the backend
 			// can exit from SIGTERM/SIGINT before Stop() has closed stopCh.
-			// Treat that as a normal shutdown and let Stop() finish cleanly
-			// rather than restarting a process that's meant to be stopping.
+			// If that happens, wait briefly for Stop() to close stopCh and
+			// treat it as shutdown. If stopCh doesn't close in that window,
+			// the backend was killed independently (e.g. by an admin) and
+			// must be restarted.
 			if terminatedBySignal(err, syscall.SIGTERM, syscall.SIGINT) {
-				logInfof(bm.ctx, "pfqueue-backend (pid %d) terminated by signal, treating as shutdown", cmd.Process.Pid)
-				return
+				select {
+				case <-bm.stopCh:
+					logInfof(bm.ctx, "pfqueue-backend (pid %d) terminated by signal during shutdown", cmd.Process.Pid)
+					return
+				case <-time.After(5 * time.Second):
+					logWarnf(bm.ctx, "pfqueue-backend (pid %d) terminated by signal but pfqueue-go is not shutting down, restarting", cmd.Process.Pid)
+				}
+			} else {
+				logWarnf(bm.ctx, "pfqueue-backend (pid %d) exited unexpectedly: %v, restarting", cmd.Process.Pid, err)
 			}
-			logWarnf(bm.ctx, "pfqueue-backend (pid %d) exited unexpectedly: %v, restarting", cmd.Process.Pid, err)
 		case <-bm.stopCh:
 			cmd.Process.Signal(syscall.SIGTERM)
 			select {
