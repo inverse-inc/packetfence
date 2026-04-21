@@ -19,8 +19,6 @@ use lib qw(
 use Mojolicious::Lite;
 use URI::Escape qw(uri_escape);
 
-our $ACCESS_TOKEN = 123;
-
 any '/*dapath' => sub {
     my ($c) = @_;
     my $req = $c->req;
