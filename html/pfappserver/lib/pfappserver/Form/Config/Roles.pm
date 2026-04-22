@@ -19,7 +19,7 @@ with qw(
 
 use HTTP::Status qw(:constants is_success);
 
-use pf::config qw(%ConfigRoles);
+use pf::config qw(%ConfigRoles %Config);
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pfappserver::Util::ACLs qw(_validate_acl);
@@ -54,6 +54,7 @@ has_field 'parent_id' =>
    options_method => \&options_parent_id,
    label => 'Parent',
    required => 0,
+   default_method => \&default_parent_id,
   );
 
 has_field 'max_nodes_per_pid' =>
@@ -140,12 +141,12 @@ sub validate {
     }
 
     my $parent_id = $value->{parent_id};
-    if (defined $parent_id) {
+    if (defined $parent_id && length $parent_id) {
         if ( $id eq $parent_id) {
             $self->field('parent_id')->add_error('Cannot be your own parent.');
         }
         $parent_id = $ConfigRoles{$parent_id}{parent_id};
-        while (defined $parent_id) {
+        while (defined $parent_id && length $parent_id) {
             if ( $id eq $parent_id) {
                 $self->field('parent_id')->add_error('Cannot have a parent of your descendents.');
                 last;
@@ -188,6 +189,15 @@ sub options_parent_id {
     my $no_id = !defined $id || $id eq '';
     my @roles = map { { value => $_->{name}, label => $_->{name} } } grep { $no_id || $_->{name} ne $id }  @{$form->roles} if ($form->roles);
     return @roles;
+}
+
+sub default_parent_id {
+    my $self = shift;
+    my $form = $self->form;
+    my $id = $form->value->{id} // $form->fif->{id};
+    my $no_id = !defined $id || $id eq '';
+    my $default = $Config{advanced}{default_role_parent_id};
+    return $no_id || $default ne $id ? $Config{advanced}{default_role_parent_id} : '';
 }
 
 =head1 COPYRIGHT

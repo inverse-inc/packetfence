@@ -1139,6 +1139,11 @@ openid_attributes=email
 # Path to a custom script called by pfupdate
 pfupdate_custom_script_path=/usr/local/bin/pfupdate-packetfence.sh
 
+# advanced.default_role_parent_id
+#
+# The default parent role id to use when creating a new role
+default_role_parent_id=
+
 [provisioning]
 #
 # provisioning.autoconfig

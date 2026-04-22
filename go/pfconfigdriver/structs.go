@@ -604,6 +604,7 @@ type PfConfAdvanced struct {
 	ApiMaxExpiration                 int      `json:"api_max_expiration"`
 	NetFlowOnAllNetworks             string   `json:"netflow_on_all_networks"`
 	AccountingTimebucketSize         int      `json:"accounting_timebucket_size"`
+	DefaultRoleParentId              string   `json:"default_role_parent_id"`
 }
 
 type PfConfDns struct {

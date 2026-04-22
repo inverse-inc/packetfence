@@ -19,6 +19,7 @@ use pf::log;
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 use pf::authentication;
+use pf::nodecategory;
 use pf::web::util;
 use List::MoreUtils qw(any);
 use fingerbank::Model::Device;
@@ -182,8 +183,8 @@ sub field_list {
                 $field->{type} = 'Select';
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
-                my $roles = $self->ctx->model('Config::Roles')->listFromDB();
-                my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @$roles);
+                my @roles = nodecategory_view_all();
+                my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @roles);
                 $field->{options} = \@options;
                 last;
             };

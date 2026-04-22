@@ -16,9 +16,9 @@ use warnings;
 use Moo;
 use pf::file_paths qw($roles_config_file $roles_default_config_file);
 use pf::nodecategory;
-use pf::config;
 use pf::config::cluster;
 use pf::constants;
+use pf::config qw(%Config);
 use pfconfig::manager;
 use pfconfig::git_storage;
 extends 'pf::ConfigStore';
@@ -40,6 +40,63 @@ sub cleanupAfterRead {
     if(ref($data->{acls}) eq 'ARRAY'){
         $data->{acls} = join("\n", @{$data->{acls}}, "");
     }
+}
+
+=head2 cleanupBeforeCommit
+
+Ensure parent_id is always persisted explicitly (as `parent_id=`) when a role
+has no parent, so roles.conf stays consistent with the upgrade script and with
+the fallback logic in parentSections.
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $assignments) = @_;
+    $assignments->{parent_id} = ''
+        unless defined $assignments->{parent_id};
+}
+
+=head2
+
+=cut
+
+sub readDefaults {
+    my ($self) = @_;
+    my $default_section = $Config{advanced}{default_role_parent_id};
+    if (!defined $default_section || $default_section eq '' ) {
+        return undef;
+    }
+
+    my $data = $self->read($default_section, 'id');
+    if ($data) {
+        $data->{id} = undef;
+        $data->{parent_id} = '' unless defined $data->{parent_id};
+    }
+
+    return $data;
+}
+
+
+=head2 parentSections
+
+Return the parent role section so values from parent_id can be inherited.
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $parent_id = $item->{parent_id} // $self->cachedConfig->val($id, 'parent_id') // '';
+    my $default_section = $self->default_section;
+    return if defined $default_section && $id eq $default_section;
+    my @parents;
+    my %seen = ($id => 1);
+    while (defined $parent_id && length $parent_id && !$seen{$parent_id} && (!defined $default_section || $default_section ne $parent_id)) {
+        push @parents, $parent_id;
+        $seen{$parent_id} = 1;
+        $parent_id = $self->cachedConfig->val($parent_id, 'parent_id');
+    }
+
+    return @parents, $self->SUPER::parentSections($id, $item);
 }
 
 

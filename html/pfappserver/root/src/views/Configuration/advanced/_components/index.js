@@ -9,6 +9,7 @@ import {
 } from '@/components/new/'
 import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
 import BaseFormGroupOpenidAttributes from './BaseFormGroupOpenidAttributes'
+import BaseFormGroupRolesSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesSearchable'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -43,6 +44,7 @@ export {
   BaseFormGroupSwitch           as FormGroupUpdateIplogWithAccounting,
   BaseFormGroupSwitch           as FormGroupUpdateIplogWithAuthentication,
   BaseFormGroupSwitch           as FormGroupUpdateIplogWithExternalPortalRequests,
+  BaseFormGroupRolesSearchable  as FormGroupDefaultRoleParentId,
 
   BaseViewResource as BaseView,
   TheForm,
