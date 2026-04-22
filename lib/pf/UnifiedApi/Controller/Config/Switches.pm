@@ -27,7 +27,6 @@ use pf::ConfigStore::Switch;
 use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
 use pf::db;
-use List::Util qw(first);
 use pf::constants qw($TRUE $FALSE);
 
 BEGIN {
