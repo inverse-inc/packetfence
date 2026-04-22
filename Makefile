@@ -37,7 +37,7 @@ MINCSS = docs/styles/app.min.css
 
 docs/styles/%.min.css: docs/styles/%.css
 	@echo "Minify CSS styles for html docs: $<"
-	npx --package clean-css-cli cleancss --inline remote $< -o $@
+	npx --yes --package clean-css-cli cleancss --inline remote $< -o $@
 
 .PHONY: css
 css: $(MINCSS)
