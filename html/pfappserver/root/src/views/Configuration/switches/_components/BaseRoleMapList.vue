@@ -1,6 +1,6 @@
 <template>
   <div ref="scrollContainer" class="role-map-list" @scroll="onScroll"
-    :style="{ maxHeight: maxHeight + 'px', overflowY: 'auto' }">
+    :style="{ maxHeight: maxHeight + 'px', overflowY: 'auto', overflowX: 'hidden' }">
     <div :style="{ height: topSpacerHeight + 'px' }"></div>
     <div v-for="role in visibleRoles" :key="role"
       :data-role="role" class="role-map-list-row">
