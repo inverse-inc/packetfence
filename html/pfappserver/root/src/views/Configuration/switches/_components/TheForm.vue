@@ -101,6 +101,16 @@
 
         <b-tabs lazy v-else>
 
+          <template v-slot:tabs-end>
+            <b-input-group class="ml-auto mr-3 my-auto" style="max-width: 300px;">
+              <b-form-input v-model="roleFilter"
+                :placeholder="$i18n.t('Filter roles...')"
+                size="sm"
+                type="search"
+              />
+            </b-input-group>
+          </template>
+
           <base-form-tab v-if="supports(['RadiusDynamicVlanAssignment'])"
             :title="$i18n.t('VLAN ID')" active>
             <b-card class="mb-3 pb-0" no-body>
@@ -113,9 +123,11 @@
                 />
 
                 <template v-if="isVlanMap">
-                  <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`" :namespace="`${role}Vlan`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-vlan :key="`${role}Vlan`" :namespace="`${role}Vlan`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -133,9 +145,11 @@
                 />
 
                 <template v-if="isRoleMap">
-                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-role :key="`${role}Role`" :namespace="`${role}Role`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -153,9 +167,11 @@
                 />
 
                 <template v-if="isVpnMap">
-                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" :namespace="`${role}Vpn`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-vpn :key="`${role}Vpn`" :namespace="`${role}Vpn`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -174,9 +190,11 @@
                 />
 
                 <template v-if="isAccessListMap">
-                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-access-list :key="`${role}AccessList`" :namespace="`${role}AccessList`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
               <b-card-header>
@@ -189,9 +207,11 @@
                 />
 
                 <template v-if="isInterfaceMap">
-                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`" :namespace="`${role}Interface`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-interface :key="`${role}Interface`" :namespace="`${role}Interface`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -209,9 +229,11 @@
                 />
 
                 <template v-if="isUrlMap">
-                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-url :key="`${role}Url`" :namespace="`${role}Url`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -229,22 +251,24 @@
                 />
 
                 <template v-if="isNetworkMap">
-                  <b-form-group v-for="role in roles" :key="`${role}Network`"
-                    :label="role" label-cols="3"
-                    class="base-form-group"
-                  >
-                    <b-input-group>
-                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
-                        <b-col sm="6" align-self="center">
-                          <input-role-map-network :namespace="`${role}Network`"
-                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
-                        </b-col>
-                        <b-col sm="6" align-self="center" class="pl-1">
-                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
-                        </b-col>
-                      </b-row>
-                    </b-input-group>
-                  </b-form-group>
+                  <base-role-map-list :roles="filteredRoles" :item-height="57" v-slot="{ role }">
+                    <b-form-group :key="`${role}Network`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <input-role-map-network :namespace="`${role}Network`"
+                              :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -560,6 +584,7 @@ import {
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
 } from './'
+import BaseRoleMapList from './BaseRoleMapList.vue'
 
 const components = {
   BaseForm,
@@ -642,6 +667,7 @@ const components = {
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
+  BaseRoleMapList,
 }
 
 import { useForm, useFormProps as props } from '../_composables/useForm'

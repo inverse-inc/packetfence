@@ -35,9 +35,10 @@ export const schema = (props, roles) => {
     id,
   } = props
 
-  const rolesSchema = (roles.value || []).reduce((schema, role) => {
-    return { ...schema, [`${role}Network`]: yup.string().nullable().isCIDR() }
-  }, {});
+  const rolesSchema = {}
+  for (const role of (roles.value || [])) {
+    rolesSchema[`${role}Network`] = yup.string().nullable().isCIDR()
+  }
 
   return yup.object({
     id: yup.string()
