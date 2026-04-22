@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 41;
+use Test::More tests => 43;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -37,6 +37,211 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/roles';
 
 my $base_url = '/api/v1/config/role';
+
+$t->options_ok($collection_base_url)
+  ->status_is(200)
+  ->json_is({
+        meta => {
+              'parent_id' => {
+                   'implied' => undef,
+                   'type' => 'string',
+                   'allow_custom' => 0,
+                   'placeholder' => '',
+                   'allowed' => [
+                                  {
+                                    'text' => 'Machine',
+                                    'value' => 'Machine'
+                                  },
+                                  {
+                                    'text' => 'REJECT',
+                                    'value' => 'REJECT'
+                                  },
+                                  {
+                                    'text' => 'User',
+                                    'value' => 'User'
+                                  },
+                                  {
+                                    'text' => 'acls_error1',
+                                    'value' => 'acls_error1'
+                                  },
+                                  {
+                                    'value' => 'acls_error2',
+                                    'text' => 'acls_error2'
+                                  },
+                                  {
+                                    'value' => 'custom1',
+                                    'text' => 'custom1'
+                                  },
+                                  {
+                                    'text' => 'default',
+                                    'value' => 'default'
+                                  },
+                                  {
+                                    'value' => 'gaming',
+                                    'text' => 'gaming'
+                                  },
+                                  {
+                                    'text' => 'guest',
+                                    'value' => 'guest'
+                                  },
+                                  {
+                                    'value' => 'macDetection',
+                                    'text' => 'macDetection'
+                                  },
+                                  {
+                                    'text' => 'normal',
+                                    'value' => 'normal'
+                                  },
+                                  {
+                                    'text' => 'r1',
+                                    'value' => 'r1'
+                                  },
+                                  {
+                                    'value' => 'r2',
+                                    'text' => 'r2'
+                                  },
+                                  {
+                                    'value' => 'r3',
+                                    'text' => 'r3'
+                                  },
+                                  {
+                                    'value' => 'r4',
+                                    'text' => 'r4'
+                                  },
+                                  {
+                                    'value' => 'r5',
+                                    'text' => 'r5'
+                                  },
+                                  {
+                                    'value' => 'voice',
+                                    'text' => 'voice'
+                                  }
+                                ],
+                   'default' => 'r4',
+                   'required' => 0,
+             },
+          'fingerbank_dynamic_access_list' => {
+                'required' => 0,
+                'allow_custom' => 0,
+                'implied' => undef,
+                'type' => 'string',
+                'allowed' => [
+                               {
+                                 'value' => 'enabled',
+                                 'text' => 'enabled'
+                               },
+                               {
+                                 'value' => 'disabled',
+                                 'text' => 'disabled'
+                               }
+                             ],
+                'default' => undef,
+                'placeholder' => undef
+          },
+            acls => {
+                "default" => undef,
+                "implied" => undef,
+                "placeholder" => "permit tcp any any",
+                "required" => 0,
+                "type" => "string"
+            },
+          'notes' => {
+                       'placeholder' => undef,
+                       'default' => undef,
+                       'required' => 0,
+                       'type' => 'string',
+                       'implied' => undef
+                     },
+          'id' => {
+                    'required' => 1,
+                    'type' => 'string',
+                    'implied' => undef,
+                    'placeholder' => undef,
+                    'default' => undef
+                  },
+          'inherit_vlan' => {
+              'allowed' => [
+                             {
+                               'value' => 'enabled',
+                               'text' => 'enabled'
+                             },
+                             {
+                               'value' => 'disabled',
+                               'text' => 'disabled'
+                             }
+                           ],
+              'allow_custom' => 0,
+              'required' => 0,
+              'implied' => undef,
+              'type' => 'string',
+              'default' => 'disabled',
+              'placeholder' => 'enabled'
+            },
+            'inherit_web_auth_url' => {
+                  'required' => 0,
+                  'allow_custom' => 0,
+                  'implied' => undef,
+                  'type' => 'string',
+                  'allowed' => [
+                                 {
+                                   'text' => 'enabled',
+                                   'value' => 'enabled'
+                                 },
+                                 {
+                                   'text' => 'disabled',
+                                   'value' => 'disabled'
+                                 }
+                               ],
+                  'default' => 'disabled',
+                  'placeholder' => 'enabled'
+            },
+            'max_nodes_per_pid' => {
+               'implied' => undef,
+               'type' => 'integer',
+               'required' => 0,
+               'min_value' => 0,
+               'placeholder' => 0,
+               'default' => 0
+             },
+             'include_parent_acls' => {
+                 'type' => 'string',
+                 'implied' => undef,
+                 'allow_custom' => 0,
+                 'required' => 0,
+                 'allowed' => [
+                                {
+                                  'text' => 'enabled',
+                                  'value' => 'enabled'
+                                },
+                                {
+                                  'text' => 'disabled',
+                                  'value' => 'disabled'
+                                }
+                              ],
+                 'default' => undef,
+                 'placeholder' => undef
+               },
+              'inherit_role' => {
+                  'type' => 'string',
+                  'implied' => undef,
+                  'allow_custom' => 0,
+                  'required' => 0,
+                  'allowed' => [
+                                 {
+                                   'text' => 'enabled',
+                                   'value' => 'enabled'
+                                 },
+                                 {
+                                   'value' => 'disabled',
+                                   'text' => 'disabled'
+                                 }
+                               ],
+                  'placeholder' => 'enabled',
+                  'default' => 'disabled'
+            }
+        },
+        status => 200,
+  });
 
 {
     my $id = "test_role_${$}_1";
@@ -142,7 +347,8 @@ $t->options_ok("$base_url/r5")
         }
   );
 
-
+$t->post_ok($collection_base_url => json => { id => 'r6', parent_id => 'r5'})
+  ->status_is(201);
 
 =head1 AUTHOR
 
