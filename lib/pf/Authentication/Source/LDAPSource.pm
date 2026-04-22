@@ -183,7 +183,7 @@ sub authenticate {
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
-  my $filter = $self->_makefilter(escape_filter_value($username));
+  my $filter = $self->_makefilter($username);
 
   my $result = do {
     my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search", level => 7});
@@ -697,6 +697,10 @@ sub ldap_filter_for_conditions {
               $str = "${attribute}=${value}*";
           } elsif ($operator eq $Conditions::ENDS) {
               $str = "${attribute}=*${value}";
+          } elsif ($operator eq $Conditions::HAS_BIT) {
+              $str = "${attribute}:1.2.840.113556.1.4.803:=${value}";
+          } elsif ($operator eq $Conditions::NOT_HAS_BIT) {
+              $str = "!(${attribute}:1.2.840.113556.1.4.803:=${value})";
           }
 
           if ($str) {
@@ -789,19 +793,22 @@ Create the filter to search for the dn
 
 sub _makefilter {
     my ($self,$username) = @_;
+    # Escape once here so every caller is safe by construction and we never
+    # interpolate an attacker-controlled username into an LDAP filter.
+    my $escaped = escape_filter_value($username);
     my $append_search = defined($self->{'append_to_searchattributes'}) ? $self->{'append_to_searchattributes'} : '';
-    $append_search =~ s/{username}/$username/gi;
+    $append_search =~ s/{username}/$escaped/gi;
 
     if (@{$self->{'searchattributes'} // []}) {
-        my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
+        my $search = join ("", map { "($_=$escaped)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
         return "(&(|$search)".$append_search.")";
     }
 
     if($append_search eq '') {
-        return '(' . "$self->{'usernameattribute'}=$username" . ')';
+        return '(' . "$self->{'usernameattribute'}=$escaped" . ')';
     }
 
-    return $append_search;
+    return "(&($self->{'usernameattribute'}=$escaped)" . $append_search . ")";
 }
 
 sub lookupRole {

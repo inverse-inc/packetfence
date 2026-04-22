@@ -513,6 +513,17 @@ sub validate_item {
     return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) }, undef;
 }
 
+sub bulk_validate_item {
+    my ($self, $item, $form) = @_;
+    $item = $self->cleanupItemForValidate($item);
+    $self->reset_form($form, $item);
+    $form->process($self->form_process_parameters_for_validation($item));
+    if (!$form->has_errors) {
+        return 200, $form->value, $form;
+    }
+
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) }, undef;
+}
 
 sub form_process_parameters_for_validation {
     my ($self, $item) = @_;
@@ -1265,7 +1276,13 @@ sub bulk_update {
     }
 
     my $items = $data->{items} // [];
-    return $self->bulk_action($items, "bulk_update_callback");
+    my ($status, $form) = $self->form({});
+    if (is_error($status)) {
+        return $self->render_error(422, "Unable to create form");
+    }
+
+    $form->skip_role_acl_check(1) if $form->can('skip_role_acl_check');
+    return $self->bulk_action($items, "bulk_update_callback", form => $form);
 }
 
 =head2 bulk_update_callback
@@ -1275,11 +1292,18 @@ bulk_update_callback
 =cut
 
 sub bulk_update_callback {
-    my ($self, $cs, $id, $item, $results) = @_;
-    my $old_item = $self->item($id);
+    my ($self, $cs, $id, $item, $results, $ctx) = @_;
+    my $old_item = $cs->read($id, 'id');
     my $new_item = {%$old_item, %$item};
     $new_item->{id} = $id;
-    my ($status, $new_data) = $self->validate_item($new_item);
+    my $form = $ctx->{form};
+    my ($status, $new_data);
+    if ($form) {
+        ($status, $new_data) = $self->bulk_validate_item($new_item, $form);
+    } else {
+        ($status, $new_data) = $self->validate_item($new_item);
+    }
+
     if (is_error($status)) {
         %$results = (%$results, %$new_data);
         return $status;
@@ -1329,7 +1353,7 @@ sub bulk_delete_callback {
 }
 
 sub bulk_action {
-    my ($self, $items, $action) = @_;
+    my ($self, $items, $action, %ctx) = @_;
     my $cs = $self->config_store;
     my @results;
     my $i = 0;
@@ -1356,7 +1380,7 @@ sub bulk_action {
             next;
         }
 
-        my $status = $self->$action($cs, $id, $item, \%results);
+        my $status = $self->$action($cs, $id, $item, \%results, \%ctx);
         if (is_success($status)) {
             $success++;
         }

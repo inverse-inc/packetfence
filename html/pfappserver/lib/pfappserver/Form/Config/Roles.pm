@@ -79,6 +79,14 @@ has_field 'fingerbank_dynamic_access_list' => (
     label => 'Enabled Fingerbank Dynamic AccessList',
 );
 
+has_field 'acls_enabled' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Enable ACLs',
+    default => 'enabled',
+);
+
 has_field 'acls' => (
     type => 'TextArea',
     label => 'ACLs',
@@ -107,6 +115,12 @@ has_field 'inherit_web_auth_url' => (
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',
+);
+
+has 'skip_role_acl_check' => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 0,
 );
 
 =head2 validate
@@ -145,6 +159,8 @@ sub validate {
     if (!defined $acls || $acls eq '' ) {
         return;
     }
+
+    return if $self->skip_role_acl_check;
 
     $acls = [split(/\n/, $acls)];
     while (my ($switch_id, $data) = each %pf::SwitchFactory::SwitchConfig) {

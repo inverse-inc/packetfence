@@ -43,9 +43,9 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: start_ntlm_auth_api_service
+- name: restart_ntlm_auth_api_service
   steps:
-    - type: pf_api_service_start_async
+    - type: pf_api_service_restart_async
       service: 'ntlm-auth-api'
 
 - name: sleep_some_time

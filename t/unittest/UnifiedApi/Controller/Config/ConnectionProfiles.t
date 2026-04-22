@@ -24,6 +24,7 @@ BEGIN {
     use File::Temp qw();
     mkdir($pf::file_paths::captiveportal_profile_templates_path);
     $dir = File::Temp->newdir(
+        TEMPLATE => 'tempXXXXXXX',
         DIR => $pf::file_paths::captiveportal_profile_templates_path,
         CLEANUP => 0,
     );
@@ -33,7 +34,7 @@ use pf::ConfigStore::Profile;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
-use Test::More tests => 56;
+use Test::More tests => 57;
 use Test::Mojo;
 use MIME::Base64 qw(encode_base64 decode_base64);
 #This test will running last
@@ -58,7 +59,8 @@ sub test_file_patch {
 }
 
 $t->post_ok($collection_base_url => json => { id => $test_profile_name, root_module => 'default_policy', advanced_filter => undef, filter => [ {type => 'ssid', match => 'bob'}], })
-  ->status_is(201);
+  ->status_is(201)
+  ->json_is({message =>"'$test_profile_name' created", status => 201, id => $test_profile_name});
 
 $t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => encode_base64("bob"))
   ->status_is(200);

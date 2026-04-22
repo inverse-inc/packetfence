@@ -787,6 +787,10 @@ sub _getAccessListByName {
 
     return undef, undef if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
+    # Skip role ACLs if the toggle is disabled
+    if (exists $role->{acls_enabled} && !isenabled($role->{acls_enabled})) {
+        return undef, undef;
+    }
     return undef, undef if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 
@@ -835,6 +839,10 @@ sub _getRoleAccessListByName {
 
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
+    # Skip role ACLs if the toggle is disabled
+    if (exists $role->{acls_enabled} && !isenabled($role->{acls_enabled})) {
+        return;
+    }
     return if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 

@@ -25,7 +25,8 @@ has_field 'iptables.clients' => (
 );
 
 has_field 'iptables.clients.contains' => (
-   type => 'IPAddress',
+   type   => 'IPAddress',
+   accept => ['%mgmtip%'],
 );
 
 has_field 'iptables.cluster_ips' => (
@@ -33,7 +34,8 @@ has_field 'iptables.cluster_ips' => (
 );
 
 has_field 'iptables.cluster_ips.contains' => (
-   type => 'IPAddress',
+   type   => 'IPAddress',
+   accept => ['%mgmtip%'],
 );
 
 has_field 'admin' => (

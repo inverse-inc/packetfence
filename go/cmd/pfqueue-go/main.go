@@ -129,8 +129,8 @@ func (qw *QueueWorkers) Run() {
 	for _, q := range qw.SingleWorkerQueues {
 		r := &atomic.Bool{}
 		qw.runningBooleans = append(qw.runningBooleans, r)
+		qw.waiter.Add(1)
 		go func(q string, r *atomic.Bool) {
-			qw.waiter.Add(1)
 			defer qw.waiter.Done()
 			r.Store(true)
 			qw.runSingleWorkerQueue(q, r)
@@ -140,8 +140,8 @@ func (qw *QueueWorkers) Run() {
 	for i := 0; i < qw.WorkerCount; i++ {
 		r := &atomic.Bool{}
 		qw.runningBooleans = append(qw.runningBooleans, r)
+		qw.waiter.Add(1)
 		go func(r *atomic.Bool) {
-			qw.waiter.Add(1)
 			defer qw.waiter.Done()
 			r.Store(true)
 			qw.runMultiWorkerQueue(r)
@@ -151,8 +151,8 @@ func (qw *QueueWorkers) Run() {
 	for _, dq := range qw.DelayedWorkerQueues {
 		r := &atomic.Bool{}
 		qw.runningBooleans = append(qw.runningBooleans, r)
+		qw.waiter.Add(1)
 		go func(r *atomic.Bool, dq pfqueueclient.DelayedQueue) {
-			qw.waiter.Add(1)
 			defer qw.waiter.Done()
 			r.Store(true)
 			qw.runDelayedQueueWorker(dq, r)
