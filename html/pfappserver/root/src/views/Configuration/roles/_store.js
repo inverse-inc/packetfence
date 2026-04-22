@@ -39,25 +39,27 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
+  all: async () => {
     const pageSize = 1000
-    const fetchPage = (cursor, acc) => {
-      return api.list({
+    const acc = []
+    let cursor = 0
+    while (true) {
+      const response = await api.list({
         sort: 'id',
         fields: 'id',
         limit: pageSize,
         cursor
-      }).then(response => {
-        const pageItems = response.items || []
-        const combined = acc.concat(pageItems)
-        const next = response.nextCursor
-        if (next == null || next <= cursor || pageItems.length === 0) {
-          return combined
-        }
-        return fetchPage(next, combined)
       })
+      const pageItems = response.items || []
+      if (pageItems.length > 0) {
+        acc.push(...pageItems)
+      }
+      const next = response.nextCursor
+      if (next == null || next <= cursor || pageItems.length === 0) {
+        return acc
+      }
+      cursor = next
     }
-    return fetchPage(0, [])
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')

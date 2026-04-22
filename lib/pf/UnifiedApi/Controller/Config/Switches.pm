@@ -136,7 +136,7 @@ sub cleanup_options {
     my %interface_map   = map { $_->{role} => $_->{interface} }       @{$placeholder->{InterfaceMapping} // []};
     my %role_map        = map { $_->{role} => $_->{controller_role} } @{$placeholder->{ControllerRoleMapping} // []};
     my %network_map     = map { $_->{role} => $_->{network} }         @{$placeholder->{NetworkMapping} // []};
-    my %networkfrom_map = map { $_->{role} => $_->{networkfrom} }     @{$placeholder->{NetworkMappingFrom} // []};
+    my %networkfrom_map = map { $_->{role} => $_->{networkfrom} }     @{$placeholder->{NetworkFromMapping} // []};
 
     for my $a (@{$allowed_roles}) {
         my $r = $a->{value};
