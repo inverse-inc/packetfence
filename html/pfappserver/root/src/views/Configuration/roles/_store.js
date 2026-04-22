@@ -43,7 +43,8 @@ const actions = {
     const pageSize = 1000
     const acc = []
     let cursor = 0
-    while (true) {
+    let hasMore = true
+    while (hasMore) {
       const response = await api.list({
         sort: 'id',
         fields: 'id',
@@ -56,10 +57,12 @@ const actions = {
       }
       const next = response.nextCursor
       if (next == null || next <= cursor || pageItems.length === 0) {
-        return acc
+        hasMore = false
+      } else {
+        cursor = next
       }
-      cursor = next
     }
+    return acc
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
