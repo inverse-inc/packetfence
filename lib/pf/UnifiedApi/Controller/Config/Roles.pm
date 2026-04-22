@@ -71,7 +71,7 @@ sub cleanup_item {
     my ($self, $item, $form) = @_;
     $item = $self->SUPER::cleanup_item($item, $form);
     my $id = $item->{id};
-    if (exists $ConfigRoles{$id}) {
+    if (defined $id && exists $ConfigRoles{$id}) {
         $item->{children} = $ConfigRoles{$id}{children};
     }
 

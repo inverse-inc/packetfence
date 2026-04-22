@@ -176,7 +176,12 @@ sub options_parent_id {
 }
 
 sub default_parent_id {
-    return $Config{advanced}{default_role_parent_id};
+    my $self = shift;
+    my $form = $self->form;
+    my $id = $form->value->{id} // $form->fif->{id};
+    my $no_id = !defined $id || $id eq '';
+    my $default = $Config{advanced}{default_role_parent_id};
+    return $no_id || $default ne $id ? $Config{advanced}{default_role_parent_id} : '';
 }
 
 =head1 COPYRIGHT
