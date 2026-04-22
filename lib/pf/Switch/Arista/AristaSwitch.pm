@@ -95,6 +95,7 @@ use pf::SwitchSupports qw(
     RadiusVoip
     Lldp
     PushACLs
+    Flow
 );
 
 # inline capabilities

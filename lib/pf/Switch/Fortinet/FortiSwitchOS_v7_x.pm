@@ -45,6 +45,7 @@ use pf::SwitchSupports qw(
     WiredDot1x
     AccessListBasedEnforcement
     RoleBasedEnforcement
+    Flow
 );
 
 =head2 wiredeauthTechniques

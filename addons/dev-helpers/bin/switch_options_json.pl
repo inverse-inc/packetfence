@@ -148,9 +148,7 @@ tie my %list_of_types_trans, 'Tie::IxHash',
     'Lldp'                       => 'LLDP',
     'RoamingAccounting'          => 'Roaming Accounting',
     'SaveConfig'                 => 'Save Config',
-    'IPFIX'                      => 'IPFIX',
-    'sFlow'                      => 'sFlow',
-    'Netflow'                    => 'Netflow',
+    "Flow"                       => "Flow",
     ;
 
 my @list_of_wlc = qw(

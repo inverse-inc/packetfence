@@ -145,6 +145,7 @@ use pf::SwitchSupports qw(
     -DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 =head1 SUBROUTINES

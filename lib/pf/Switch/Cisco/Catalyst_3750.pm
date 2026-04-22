@@ -46,6 +46,10 @@ use pf::Switch::constants;
 
 use base ('pf::Switch::Cisco::Catalyst_3560');
 
+use pf::SwitchSupports qw(
+    Flow
+);
+
 sub description { 'Cisco Catalyst 3750' }
 
 # CAPABILITIES

@@ -35,6 +35,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 =head2 returnRadiusAccessAccept
