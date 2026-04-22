@@ -46,6 +46,7 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::SwitchSupports qw(
     WirelessDot1x
     WirelessMacAuth
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }

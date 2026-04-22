@@ -50,6 +50,7 @@ use pf::SwitchSupports qw(
     DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 =head2 isVoIPEnabled

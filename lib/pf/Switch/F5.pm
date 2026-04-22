@@ -43,6 +43,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WebFormRegistration
     VPN
+    Flow
 );
 
 =item getIfIndexByNasPortId

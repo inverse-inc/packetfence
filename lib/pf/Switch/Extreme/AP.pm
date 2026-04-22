@@ -44,6 +44,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     WirelessDot1x
     WirelessMacAuth
+    Flow
 );
 
 

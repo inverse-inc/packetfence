@@ -69,6 +69,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WebFormRegistration
     RoleBasedEnforcement
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }

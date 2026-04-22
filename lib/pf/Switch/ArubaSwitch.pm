@@ -57,6 +57,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusDynamicVlanAssignment
+    Flow
 );
 
 # inline capabilities

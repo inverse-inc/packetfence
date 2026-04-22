@@ -54,6 +54,7 @@ use pf::SwitchSupports qw(
     WebFormRegistration
     WiredMacAuth
     WiredDot1x
+    Flow
 );
 
 

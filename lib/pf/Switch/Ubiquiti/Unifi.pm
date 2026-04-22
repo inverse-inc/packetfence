@@ -53,6 +53,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WirelessDot1x
     WirelessMacAuth
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }

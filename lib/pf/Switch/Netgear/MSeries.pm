@@ -20,6 +20,7 @@ use base ('pf::Switch::Netgear');
 use pf::SwitchSupports qw(
     WiredMacAuth
     RadiusDynamicVlanAssignment
+    Flow
 );
 
 sub description { return 'Netgear M series' }

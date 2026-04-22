@@ -46,6 +46,7 @@ sub description { return "Allied Telesis GS950" }
 use pf::SwitchSupports qw(
     WiredDot1x
     WiredMacAuth
+    Flow
 );
 
 =back

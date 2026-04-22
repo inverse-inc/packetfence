@@ -143,6 +143,7 @@ use pf::SwitchSupports qw(
     -Cdp
     -Lldp
     PushACLs
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }

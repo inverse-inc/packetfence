@@ -69,6 +69,7 @@ use pf::SwitchSupports qw(
     WirelessDot1x
     WirelessMacAuth
     RoamingAccounting
+    Flow
 );
 
 # inline capabilities

@@ -62,6 +62,7 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     RadiusVoip
     ~AccessListBasedEnforcement
+    Flow
 );
 
 sub isVoIPEnabled { return $_[0]->{_VoIPEnabled} }

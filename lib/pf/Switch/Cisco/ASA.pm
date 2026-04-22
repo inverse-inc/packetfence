@@ -64,6 +64,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     RoleBasedEnforcement
     VPN
+    Flow
 );
 
 =item identifyConnectionType

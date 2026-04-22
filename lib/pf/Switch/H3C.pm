@@ -45,6 +45,7 @@ use pf::SwitchSupports qw(
     RadiusVoip
     WiredDot1x
     WiredMacAuth
+    Flow
 );
 
 # inline capabilities

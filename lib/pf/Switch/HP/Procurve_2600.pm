@@ -38,6 +38,7 @@ use pf::config qw(
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }

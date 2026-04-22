@@ -59,6 +59,7 @@ use pf::SwitchSupports qw(
     WiredDot1x
     RadiusVoip
     AccessListBasedEnforcement
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
