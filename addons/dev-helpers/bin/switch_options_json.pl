@@ -102,7 +102,7 @@ for my $g (@groups) {
             WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x
             PushACLs ExternalPortal MABFloatingDevices WebFormRegistration
             AccessListBasedEnforcement RadiusVoip FloatingDevice
-            Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement IPFIX sFlow Netflow
+            Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement Flow
         )) {
             next unless $supportsLookup{$supportedItem};
  
