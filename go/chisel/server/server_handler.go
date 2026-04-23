@@ -542,11 +542,6 @@ func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, 
 
 func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Request) {
 	connectorId := req.URL.Query().Get("CONNECTOR_ID")
-	if connectorId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing CONNECTOR_ID query parameter"})
-		return
-	}
 	domains := pfconfigdriver.Domains{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &domains); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -557,11 +552,14 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 	var Domains map[string]pfconfigdriver.Domain
 	Domains = make(map[string]pfconfigdriver.Domain)
 	for domain, Elements := range domains.Element {
-		ServerIp := Elements.AdServer
-
-		Connector := Connectors.ForIP(req.Context(), net.ParseIP(ServerIp))
-		if sharedutils.IsEnabled(Elements.UseConnector) && Connector.PfconfigHashNS == connectorId {
+		if connectorId == "" {
 			Domains[domain] = Elements
+		} else {
+			ServerIp := Elements.AdServer
+			Connector := Connectors.ForIP(req.Context(), net.ParseIP(ServerIp))
+			if sharedutils.IsEnabled(Elements.UseConnector) && Connector.PfconfigHashNS == connectorId {
+				Domains[domain] = Elements
+			}
 		}
 	}
 	jsonData, err := json.Marshal(Domains)

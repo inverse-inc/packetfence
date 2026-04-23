@@ -2,19 +2,33 @@
 
 set -o nounset -o pipefail -o errexit
 
-# Extract connector_id
-CONNECTOR_ID=$(grep '^AUTH=' /usr/local/pfconnector-remote/conf/pfconnector-client.env | cut -d'=' -f2 | cut -d':' -f1)
-
-if [ -z "$CONNECTOR_ID" ]; then
-    echo "Error: no CONNECTOR_ID found in /usr/local/pfconnector-remote/conf/pfconnector-client.env"
-    exit 1
-fi
+# Previously, the CONNECTOR_ID was extracted and used to filter domains by connector.
+# Now the API returns all domains when no CONNECTOR_ID is provided, so every
+# pfconnector-remote gets the full domain list (needed for offline credcache auth).
+#
+# CONNECTOR_ID=$(grep '^AUTH=' /usr/local/pfconnector-remote/conf/pfconnector-client.env | cut -d'=' -f2 | cut -d':' -f1)
+# if [ -z "$CONNECTOR_ID" ]; then
+#     echo "Error: no CONNECTOR_ID found in /usr/local/pfconnector-remote/conf/pfconnector-client.env"
+#     exit 1
+# fi
 
 INPUT_FILE="/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env"
+TEMP_ENV_FILE=$(mktemp)
 
-if ! curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-env?CONNECTOR_ID=$CONNECTOR_ID" -o "$INPUT_FILE"; then
-    echo "Error: Failed to fetch ntlm_auth_api.env from API"
-    exit 1
+# Previously filtered by connector: ...remote-ntlm-auth-api-env?CONNECTOR_ID=$CONNECTOR_ID
+if curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-env" -o "$TEMP_ENV_FILE"; then
+    if [ ! -s "$TEMP_ENV_FILE" ]; then
+        echo "Warning: Fetched ntlm_auth_api.env is empty, falling back to existing file"
+        rm -f "$TEMP_ENV_FILE"
+    elif ! jq empty "$TEMP_ENV_FILE" 2>/dev/null; then
+        echo "Warning: Fetched ntlm_auth_api.env contains invalid JSON, falling back to existing file"
+        rm -f "$TEMP_ENV_FILE"
+    else
+        mv "$TEMP_ENV_FILE" "$INPUT_FILE"
+    fi
+else
+    echo "Warning: Failed to fetch ntlm_auth_api.env from API, falling back to existing file"
+    rm -f "$TEMP_ENV_FILE"
 fi
 
 if [ ! -s "$INPUT_FILE" ]; then
@@ -57,10 +71,21 @@ jq -r --arg hostname "$hostname"  'to_entries[] |
 # Generate db.ini
 
 DB_FILE="/usr/local/ntlm-auth-api/conf/db.env"
+TEMP_DB_FILE=$(mktemp)
 
-if ! curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-db" -o "$DB_FILE"; then
-    echo "Error: Failed to fetch db.env from API"
-    exit 1
+if curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-db" -o "$TEMP_DB_FILE"; then
+    if [ ! -s "$TEMP_DB_FILE" ]; then
+        echo "Warning: Fetched db.env is empty, falling back to existing file"
+        rm -f "$TEMP_DB_FILE"
+    elif ! jq empty "$TEMP_DB_FILE" 2>/dev/null; then
+        echo "Warning: Fetched db.env contains invalid JSON, falling back to existing file"
+        rm -f "$TEMP_DB_FILE"
+    else
+        mv "$TEMP_DB_FILE" "$DB_FILE"
+    fi
+else
+    echo "Warning: Failed to fetch db.env from API, falling back to existing file"
+    rm -f "$TEMP_DB_FILE"
 fi
 
 if [ ! -s "$DB_FILE" ]; then
