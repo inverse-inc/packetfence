@@ -44,14 +44,34 @@ use Symbol 'gensym';
 use IPC::Open3;
 use pf::defer;
 use pf::SwitchFactory;
+use POSIX qw(WNOHANG);
 
 my $child_err = gensym;
-my $pid = open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3:80");
+local $@;
+my $pid = eval {
+    open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3:80")
+};
+
+if ($@) {
+    exit 1;
+}
+
 sleep(1);
+my $check_pid = waitpid( $pid, WNOHANG);
+if ($check_pid) {
+    local $/;
+    my $err = <$child_err>;
+    print STDERR $err;
+    exit 1;
+}
+
 my $defer = pf::defer::defer(
     sub {
         kill( 'INT', $pid );
         waitpid( $pid, 0 );
+        local $/;
+        my $err = <$child_err>;
+        print STDERR $err;
     }
 );
 
