@@ -46,7 +46,7 @@ use pf::defer;
 use pf::SwitchFactory;
 
 my $child_err = gensym;
-my $pid = open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.1:8443");
+my $pid = open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3");
 sleep(1);
 my $defer = pf::defer::defer(
     sub {

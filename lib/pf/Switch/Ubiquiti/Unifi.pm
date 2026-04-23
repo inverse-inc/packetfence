@@ -397,7 +397,7 @@ sub populateAccessPointMACIP {
     }
 
     unless($response->is_success) {
-        $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        $logger->error("Can't have the site list from the Unifi controller ($url): ".$response->status_line);
         return;
     }
 
