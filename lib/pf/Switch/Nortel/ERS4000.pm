@@ -30,6 +30,7 @@ use base ('pf::Switch::Nortel');
 use pf::SwitchSupports qw(
     RadiusVoip
     WiredMacAuth
+    Flow
 );
 
 sub description { 'Nortel ERS 4000 Series' }

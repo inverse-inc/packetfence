@@ -26,6 +26,7 @@ use base ('pf::Switch::Avaya');
 use pf::SwitchSupports qw(
     RadiusVoip
     WiredMacAuth
+    Flow
 );
 
 sub description { 'Avaya ERS 4000 Series' }

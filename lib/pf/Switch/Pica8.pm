@@ -78,6 +78,7 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     ExternalPortal
     ~AccessListBasedEnforcement
+    Flow
 );
 
 =item setAdminStatus - bounce host port with radius CoA technique

@@ -40,6 +40,7 @@ use pf::SwitchSupports qw(
     RadiusVoip
     RadiusDynamicVlanAssignment
     Lldp
+    Flow
 );
 
 =head2 isVoIPEnabled

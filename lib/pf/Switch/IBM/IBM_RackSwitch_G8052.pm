@@ -38,6 +38,7 @@ sub description { 'IBM RackSwitch G8052' }
 use pf::SwitchSupports qw(
     WiredDot1x
     RadiusDynamicVlanAssignment
+    Flow
 );
 
 =head1 SUBROUTINES

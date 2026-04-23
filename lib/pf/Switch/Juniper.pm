@@ -50,6 +50,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     -SnmpTraps
     -WiredDot1x
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }

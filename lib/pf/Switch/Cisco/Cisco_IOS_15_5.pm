@@ -146,6 +146,7 @@ use pf::SwitchSupports qw(
     DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 sub returnRadiusAccessAccept {

@@ -35,6 +35,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     ExternalPortal
     ~AccessListBasedEnforcement
+    Flow
 );
 
 sub description { "Extreme EXOS v30.x" } 

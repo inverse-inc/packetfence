@@ -65,6 +65,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusVoip
+    Flow
 );
 
 =head2 identifyConnectionType

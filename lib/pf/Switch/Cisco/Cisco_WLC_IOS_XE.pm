@@ -31,6 +31,7 @@ sub switchDriverId   { 'cisco_iosxe' }
 
 use pf::SwitchSupports qw(
     AccessListBasedEnforcement
+    Flow
 );
 
 sub returnRadiusAccessAccept {

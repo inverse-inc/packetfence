@@ -92,6 +92,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WiredMacAuth
     WiredDot1x
+    Flow
 );
 
 # inline capabilities

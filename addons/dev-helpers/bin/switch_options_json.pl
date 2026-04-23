@@ -102,7 +102,7 @@ for my $g (@groups) {
             WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x
             PushACLs ExternalPortal MABFloatingDevices WebFormRegistration
             AccessListBasedEnforcement RadiusVoip FloatingDevice
-            Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement IPFIX sFlow Netflow
+            Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement Flow
         )) {
             next unless $supportsLookup{$supportedItem};
  
@@ -127,7 +127,7 @@ my %excluded = map { $_ => 1 } qw(Trapeze::WLC);
 my @list_of_types = qw(
     SNMP WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x
     ExternalPortal PushACLs AccessListBasedEnforcement RoleBasedEnforcement
-    RadiusVoip MABFloatingDevices FloatingDevice IPFIX sFlow Netflow
+    RadiusVoip MABFloatingDevices FloatingDevice Flow
 );
 
 tie my %list_of_types_trans, 'Tie::IxHash',
@@ -148,9 +148,7 @@ tie my %list_of_types_trans, 'Tie::IxHash',
     'Lldp'                       => 'LLDP',
     'RoamingAccounting'          => 'Roaming Accounting',
     'SaveConfig'                 => 'Save Config',
-    'IPFIX'                      => 'IPFIX',
-    'sFlow'                      => 'sFlow',
-    'Netflow'                    => 'Netflow',
+    'Flow'                       => 'Flow',
     ;
 
 my @list_of_wlc = qw(

@@ -28,6 +28,10 @@ use Net::SNMP;
 
 use base ('pf::Switch::Avaya');
 
+use pf::SwitchSupports qw(
+    Flow
+);
+
 sub description { 'Avaya ERS 5000 Series w/ firmware 6.x' }
 
 =head1 METHODS

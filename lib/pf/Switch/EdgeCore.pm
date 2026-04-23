@@ -30,6 +30,7 @@ sub description { 'EdgeCore' }
 
 use pf::SwitchSupports qw(
     WiredMacAuth
+    Flow
 );
 
 =head1 AUTHOR

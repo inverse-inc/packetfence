@@ -85,6 +85,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     WiredMacAuth
     WiredDot1x
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }

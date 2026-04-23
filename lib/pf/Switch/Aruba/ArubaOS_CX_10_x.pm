@@ -67,6 +67,7 @@ use pf::SwitchSupports qw(
     WiredDot1x
     RadiusVoip
     AccessListBasedEnforcement
+    Flow
 );
 
 # inline capabilities

@@ -54,6 +54,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     VPNRoleBasedEnforcement
     VPN
+    Flow
 );
 
 =item getIfIndexByNasPortId

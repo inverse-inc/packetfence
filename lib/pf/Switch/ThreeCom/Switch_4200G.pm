@@ -115,6 +115,7 @@ use pf::SwitchSupports qw(
     WiredDot1x
     RadiusVoip
     Lldp
+    Flow
 );
 
 # inline capabilities

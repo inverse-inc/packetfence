@@ -129,6 +129,7 @@ use pf::SwitchSupports qw(
     -RadiusDynamicVlanAssignment
     RadiusVoip
     Lldp
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }

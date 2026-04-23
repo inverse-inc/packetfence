@@ -37,6 +37,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     ~AccessListBasedEnforcement
+    Flow
 );
 
 =head2 getIfType

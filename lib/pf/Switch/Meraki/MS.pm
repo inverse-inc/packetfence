@@ -48,6 +48,7 @@ use pf::SwitchSupports qw(
     WiredDot1x
     RadiusVoip
     RoleBasedEnforcement
+    Flow
 );
 
 sub isVoIPEnabled {

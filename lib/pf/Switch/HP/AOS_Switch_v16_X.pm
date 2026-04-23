@@ -54,6 +54,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 # inline capabilities

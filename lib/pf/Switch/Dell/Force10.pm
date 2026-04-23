@@ -32,6 +32,7 @@ use pf::SwitchSupports qw(
     WiredDot1x
     RadiusVoip
     RadiusDynamicVlanAssignment
+    Flow
 );
 
 sub getMinOSVersion {

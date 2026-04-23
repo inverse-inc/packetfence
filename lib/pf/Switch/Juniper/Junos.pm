@@ -54,6 +54,7 @@ use pf::SwitchSupports qw(
     FloatingDevice
     MABFloatingDevices
     ~AccessListBasedEnforcement
+    Flow
 );
 # special features
 sub isVoIPEnabled {return $TRUE; }
