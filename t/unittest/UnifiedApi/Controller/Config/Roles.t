@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 43;
+use Test::More tests => 46;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -238,6 +238,24 @@ $t->options_ok($collection_base_url)
                                ],
                   'placeholder' => 'enabled',
                   'default' => 'disabled'
+            },
+            acls_enabled => {
+                implied => undef,
+                required => 0,
+                allow_custom => 0,
+                type => 'string',
+                allowed => [
+                       {
+                         'text' => 'enabled',
+                         'value' => 'enabled'
+                       },
+                       {
+                         'value' => 'disabled',
+                         'text' => 'disabled'
+                       }
+                ],
+                placeholder => 'enabled',
+                default => 'enabled'
             }
         },
         status => 200,
