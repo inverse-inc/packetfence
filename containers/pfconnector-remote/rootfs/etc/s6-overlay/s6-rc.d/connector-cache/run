@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+with-contenv
+/usr/sbin/connector-cache -conf /etc/packetfence-connector-cache/pfcache.conf.yaml
