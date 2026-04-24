@@ -276,8 +276,8 @@ const setup = (props, context) => {
       addresses: [address],
       credentials: [
         {
-          version: form.value.snmpVersion,
-          community_read: form.value.snmpCommunity
+          type: form.value.snmpVersion,
+          value: form.value.snmpCommunity
         }
       ],
       options: {

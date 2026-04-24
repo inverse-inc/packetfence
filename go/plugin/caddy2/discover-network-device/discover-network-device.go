@@ -12,6 +12,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/inverse-inc/packetfence/go/netscan"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
@@ -71,8 +72,9 @@ func (m *Module) Provision(ctx caddy.Context) error {
 	return nil
 }
 
-func ScanTask(ctx context.Context, payload Payload, progressCb func(int, string)) (*ScanResponse, error) {
-	resp, err := SnmpScan(ctx, payload, progressCb)
+func ScanTask(ctx context.Context, payload netscan.ScanRequest,
+	progressCb func(int, string)) (*netscan.ScanResponse, error) {
+	resp, err := netscan.SnmpScan(ctx, payload, netscan.WithProgress(progressCb))
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +84,7 @@ func ScanTask(ctx context.Context, payload Payload, progressCb func(int, string)
 func (m *Module) handleDiscover(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	b := bytes.NewBuffer(nil)
 	b.ReadFrom(r.Body)
-	body := Payload{}
+	body := netscan.ScanRequest{}
 	if err := json.Unmarshal(b.Bytes(), &body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
