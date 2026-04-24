@@ -1388,7 +1388,6 @@ fi
 
 %dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
-%config                 /usr/local/pf/go/netscan/drivers.json
 
 # containers
 /usr/local/pf/containers
