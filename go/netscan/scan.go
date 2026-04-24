@@ -2,11 +2,11 @@ package netscan
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"maps"
 	"net/netip"
-	"os"
 	"regexp"
 	"runtime"
 	"slices"
@@ -17,6 +17,9 @@ import (
 
 	"github.com/gosnmp/gosnmp"
 )
+
+//go:embed drivers.json
+var driversJSON []byte
 
 type CredType string
 
@@ -122,21 +125,15 @@ const (
 	sysOidOid     = ".1.3.6.1.2.1.1.2.0"
 	// uptimeOid     = ".1.3.6.1.2.1.1.3.0"
 	hostnameOid = ".1.3.6.1.2.1.1.5.0"
-	driverFile  = "drivers.json" // in same module
 )
 
 // Macth a CIDR iPv4 like 192.168.40.0/28
 var ipReg = regexp.MustCompile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))?$`)
 
-// readDriverFile reads the json file containing drivers informations
-func readDriverFile(filename string) (*drivers, error) {
+// loadDrivers parses the embedded drivers.json content
+func loadDrivers() (*drivers, error) {
 	var data drivers
-	bytes, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(bytes, &data)
-	if err != nil {
+	if err := json.Unmarshal(driversJSON, &data); err != nil {
 		return nil, err
 	}
 	for _, device := range data.Devices {
@@ -431,7 +428,7 @@ func getConfig(opts ...option) *config {
 //	r, err := SnmpScan(ctx, req, WithProgress(progressCb))
 func SnmpScan(ctx context.Context, request ScanRequest, opts ...option) (*ScanResponse, error) {
 	c := getConfig(opts...)
-	drivers, err := readDriverFile(driverFile)
+	drivers, err := loadDrivers()
 	if err != nil {
 		return nil, fmt.Errorf("Bad drivers file: %s", err.Error())
 	}
