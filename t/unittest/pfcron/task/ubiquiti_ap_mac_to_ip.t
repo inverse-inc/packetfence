@@ -45,6 +45,7 @@ use IPC::Open3;
 use pf::defer;
 use pf::SwitchFactory;
 use POSIX qw(WNOHANG);
+$SIG{PIPE} = "IGNORE";
 
 my $child_err = gensym;
 local $@;
@@ -57,6 +58,7 @@ if ($@) {
 }
 
 sleep(1);
+
 my $check_pid = waitpid( $pid, WNOHANG);
 if ($check_pid) {
     local $/;
@@ -69,9 +71,6 @@ my $defer = pf::defer::defer(
     sub {
         kill( 'INT', $pid );
         waitpid( $pid, 0 );
-        local $/;
-        my $err = <$child_err>;
-        print STDERR $err;
     }
 );
 

@@ -18,6 +18,7 @@ use lib qw(
 );
 use Mojolicious::Lite;
 use URI::Escape qw(uri_escape);
+$SIG{PIPE} = "IGNORE";
 
 any '/*dapath' => sub {
     my ($c) = @_;
