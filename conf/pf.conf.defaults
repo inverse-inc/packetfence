@@ -326,10 +326,10 @@ status=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_STATUS", "disabled") %]
 #
 cacert=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_CACERT", "") %]
 #
-# database_proxysql.backend
+# database_proxysql.backends
 #
 #
-backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
+backends=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKENDS", "") %]
 #
 # database_proxysql.scheduler
 #

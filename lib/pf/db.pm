@@ -41,6 +41,7 @@ use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _p
 
 our $MYSQL_READONLY_ERROR = 1290;
 our $WSREP_NOT_READY_ERROR = 1047;
+our $PROXY_SQL_TIME_ERROR = 9001;
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
@@ -50,7 +51,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout $MYSQL_READONLY_ERROR);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout $MYSQL_READONLY_ERROR $PROXY_SQL_TIME_ERROR);
 
 }
 
@@ -244,7 +245,7 @@ db_handle_error
 
 sub db_handle_error {
     my ($err) = @_;
-    if ($err == $MYSQL_READONLY_ERROR || $err == $WSREP_NOT_READY_ERROR) {
+    if ($err == $MYSQL_READONLY_ERROR || $err == $WSREP_NOT_READY_ERROR || $err == $PROXY_SQL_TIME_ERROR) {
         db_set_readonly_mode(1);
     }
     return ;

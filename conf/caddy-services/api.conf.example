@@ -50,7 +50,7 @@
 			no_auth /api/v1/pfconnector/tunnel
 			no_auth /api/v1/pfconnector/health
 			no_auth /api/v1/fingerbank-collector/flags
-			session_backend db mem
+			session_backend {$PF_SESSION_BACKEND:db} mem
 		}
 
 		api

@@ -17,9 +17,9 @@
                        :text="$i18n.t('CA Certificate')"
     />
 
-    <form-group-backend namespace="backend"
-                        :column-label="$i18n.t('Backend')"
-                        :text="$i18n.t('Backend Host')"
+    <form-group-backends namespace="backends"
+                         :column-label="$i18n.t('Backends')"
+                         :text="$i18n.t('Comma-delimited IPv4 addresses for master-slave setup. First server is preferred for writes with failover to others. All servers handle reads.')"
     />
     <form-group-scheduler namespace="scheduler"
                        :column-label="$i18n.t('Use PXC Scheduler')"
@@ -39,13 +39,13 @@
 import {computed} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
-import {FormGroupBackend, FormGroupCacert, FormGroupStatus, FormGroupScheduler, FormGroupPort} from './'
+import {FormGroupBackends, FormGroupCacert, FormGroupStatus, FormGroupScheduler, FormGroupPort} from './'
 
 const components = {
   BaseForm,
 
   FormGroupCacert,
-  FormGroupBackend,
+  FormGroupBackends,
   FormGroupStatus,
   FormGroupScheduler,
   FormGroupPort,

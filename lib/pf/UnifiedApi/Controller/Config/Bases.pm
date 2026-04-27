@@ -249,7 +249,7 @@ sub database_assign {
         my $remote = $json->{remote};
         my %database_proxysql = (
             status => 'enabled',
-            backend => $remote->{host},
+            backends => $remote->{host},
         );
         if ($remote->{ca_cert}) {
             my $path = "$conf_uploads/pf/database_proxysql_cacert.crt";

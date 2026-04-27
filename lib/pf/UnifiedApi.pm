@@ -175,20 +175,23 @@ after_dispatch_cb
 
 sub after_dispatch_cb {
     my ($c) = @_;
-    eval {
-        $c->audit_request if $c->can("audit_request");
-    };
+    $c->tx->on(finish => sub {
+        my $app = $c->app;
 
-    if($@) {
-        $c->log->error("Failed to audit request: $@");
-    }
+        eval {
+            $c->audit_request if $c->can("audit_request");
+        };
 
-    my $app = $c->app;
-    my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
-    my $max_rss_kb = ($Config{advanced}{pfperl_api_max_rss} // 1024) * 1024;
-    if (++$app->{requests_handled} >= $max || ($max_rss_kb > 0 && rss_kb() > $max_rss_kb)) {
-        kill 'QUIT', $$;
-    }
+        if($@) {
+            $c->log->error("Failed to audit request: $@");
+        }
+
+        my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
+        my $max_rss_kb = ($Config{advanced}{pfperl_api_max_rss} // 1024) * 1024;
+        if (++$app->{requests_handled} >= $max || ($max_rss_kb > 0 && rss_kb() > $max_rss_kb)) {
+            kill 'QUIT', $$;
+        }
+    });
 
     $c->after_dispatch;
     return;
