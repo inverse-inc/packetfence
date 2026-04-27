@@ -1,0 +1,8 @@
+name: Restart pfcron service to apply maintenance task changes
+testcases:
+
+- name: restart_pfcron_service
+  steps:
+  - type: pf_api_service_restart
+    service: pfcron
+    time_to_sleep: 5

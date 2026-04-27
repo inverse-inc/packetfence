@@ -1,0 +1,16 @@
+name: Plug device via virtualswitch REST API with MAB
+testcases:
+
+- name: plug_device_with_mab
+  steps:
+  - type: virtualswitch_plug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_acct_virtualswitch.device.interface.id}}'
+    mac_address: '{{.security_event_acct_virtualswitch.device.mac_address}}'
+    auth_method: mab
+    profile: '{{.security_event_acct_virtualswitch.device.profile}}'
+
+- name: wait_for_radius_auth
+  steps:
+  - type: sleep
+    time_to_sleep: 10

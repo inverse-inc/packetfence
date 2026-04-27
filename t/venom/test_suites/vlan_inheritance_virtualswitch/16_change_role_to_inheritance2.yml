@@ -1,0 +1,60 @@
+name: Change node role to Inheritance2
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: get_category_id_of_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/node_categories/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "category_id"
+        ],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "name",
+                  "op": "equals",
+                  "value": "{{.vlan_inheritance_virtualswitch.roles.inheritance2.id}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      category_id:
+        from: result.bodyjson.items.items0.category_id
+
+- name: change_node_role_to_inheritance2
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.vlan_inheritance_virtualswitch.device.mac_address}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "category_id": "{{.get_category_id_of_role.category_id}}",
+        "status": "reg"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

@@ -1,0 +1,18 @@
+executor: pf_api_check_radacct
+input:
+  mac: ""
+steps:
+- type: exec
+  script: |
+    mysql -u{{.configurator.db.users.pf.id}} -p{{.configurator.db.users.pf.password}} -h 127.0.0.1 {{.configurator.db.name}} -N -e \
+      "SELECT callingstationid, acctstarttime, acctstoptime, acctsessiontime, acctinputoctets, acctoutputoctets FROM radacct WHERE callingstationid = '{{.input.mac}}' ORDER BY radacctid DESC LIMIT 1"
+  retry: 10
+  delay: 3
+  assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldNotBeEmpty
+  vars:
+    radacct_row:
+      from: result.systemout
+output:
+  pf_api_check_radacct_row: "{{.radacct_row}}"

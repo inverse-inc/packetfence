@@ -1,0 +1,26 @@
+name: Create test node for security event accounting
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_node
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/nodes'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "mac": "{{.security_event_acct_virtualswitch.device.mac_address}}",
+        "notes": "security event accounting test node",
+        "pid": null,
+        "status": "reg",
+        "unreg_date": null,
+        "unregdate": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

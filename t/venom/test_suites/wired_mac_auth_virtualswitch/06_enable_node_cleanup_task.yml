@@ -1,0 +1,20 @@
+name: Enable node_cleanup maintenance task
+testcases:
+
+- name: enable_node_cleanup_task
+  steps:
+  - type: pf_api_node_cleanup_enable
+
+- name: change_delete_window
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/maintenance_task/node_cleanup'
+    status_code: 200
+    body: >-
+      {
+        "delete_window": {
+          "interval": "{{.node_cleanup.delete_window.interval}}",
+          "unit": "{{.node_cleanup.delete_window.unit}}"
+        }
+      }

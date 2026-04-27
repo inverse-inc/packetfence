@@ -1,0 +1,13 @@
+name: Disable inherit_vlan on Inheritance2 role
+testcases:
+
+- name: disable_inherit_vlan_on_inheritance2
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/role/{{.vlan_inheritance_virtualswitch.roles.inheritance2.id}}'
+    status_code: 200
+    body: >-
+      {
+        "inherit_vlan": "disabled"
+      }

@@ -1,0 +1,14 @@
+name: Verify Android device is detected correctly by Fingerbank
+testcases:
+
+- name: check_android_node_device_class
+  retry: 12
+  delay: 10
+  steps:
+  - type: pf_api_node_action
+    method: GET
+    id: '{{.virtualswitch.android.mac_address}}'
+    status_code: 200
+    assertions:
+      - result.pf_api_node_action_json.item.device_class ShouldNotBeEmpty
+      - result.pf_api_node_action_json.item.device_manufacturer ShouldEqual Samsung

@@ -1,0 +1,29 @@
+name: Reconfigure virtualswitch with shorter accounting interval
+testcases:
+
+- name: deploy_virtualswitch_config
+  steps:
+  - type: virtualswitch_config_deploy
+    config_dir: "/etc/virtualswitch"
+    interfaces: "{{.virtualswitch.interfaces}}"
+    switch_type: "cisco"
+    network_mapping: "10.0.0.0"
+    radius_ip: '{{.virtualswitch.radius.ip}}'
+    radius_port: '{{.virtualswitch.radius.port}}'
+    radius_secret: '{{.virtualswitch.radius.secret}}'
+    accounting_interval: "{{.pfacct_bandwidth_virtualswitch.accounting_interval}}"
+    reauth_interval: "0"
+    auth_retry_interval: "30"
+
+- name: restart_virtualswitch
+  steps:
+  - type: exec
+    script: systemctl restart virtualswitch-namespace
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: wait_for_virtualswitch
+  steps:
+  - type: virtualswitch_service_status
+    service_name: virtualswitch-namespace
+    expected_status: active

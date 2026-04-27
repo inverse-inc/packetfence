@@ -1,0 +1,8 @@
+name: Safety unplug Fingerbank device via virtualswitch API
+testcases:
+
+- name: unplug_device
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_detect_fingerbank_virtualswitch.device.interface.id}}'

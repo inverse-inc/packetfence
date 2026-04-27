@@ -1,0 +1,14 @@
+name: Add Inheritance1 and Inheritance2 VLANs to switch group
+testcases:
+
+- name: add_inheritance_vlans_to_switch_group
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/switch_group/{{.virtualswitch_switch_group.id}}'
+    status_code: 200
+    body: >-
+      {
+        "{{.vlan_inheritance_virtualswitch.roles.inheritance1.id}}Vlan": "{{.vlan_inheritance_virtualswitch.vlan.inheritance1}}",
+        "{{.vlan_inheritance_virtualswitch.roles.inheritance2.id}}Vlan": "{{.vlan_inheritance_virtualswitch.vlan.inheritance2}}"
+      }

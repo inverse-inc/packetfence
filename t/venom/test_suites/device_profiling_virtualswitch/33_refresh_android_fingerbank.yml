@@ -1,0 +1,12 @@
+name: Trigger Fingerbank refresh for Android device
+testcases:
+
+- name: refresh_android_fingerbank
+  retry: 6
+  delay: 10
+  steps:
+  - type: pf_api_node_action
+    method: POST
+    id: '{{.virtualswitch.android.mac_address}}'
+    url_extra: '/fingerbank_refresh'
+    status_code: 200

@@ -1,0 +1,7 @@
+name: Restart pfacct after disabling bandwidth accounting
+testcases:
+
+- name: restart_pfacct
+  steps:
+  - type: pf_api_service_restart
+    service: pfacct

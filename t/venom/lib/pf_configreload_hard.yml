@@ -1,0 +1,9 @@
+executor: pf_configreload_hard
+input:
+  time_to_sleep: 0
+steps:
+- type: exec
+  script: "{{.pfserver_pfcmd}} configreload hard"
+
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep}}"

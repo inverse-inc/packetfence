@@ -1,0 +1,16 @@
+name: Disable standard virtualswitch service
+testcases:
+
+- name: stop_standard_virtualswitch_service
+  steps:
+  - type: exec
+    script: systemctl stop virtualswitch || true
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: disable_standard_virtualswitch_service
+  steps:
+  - type: exec
+    script: systemctl disable virtualswitch || true
+    assertions:
+      - result.code ShouldEqual 0

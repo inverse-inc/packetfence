@@ -1,0 +1,69 @@
+name: Create local test user for 802.1X authentication
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_local_user
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/users'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "valid_from": "2021-01-01 00:00:00",
+        "expiration": null,
+        "actions": [
+          {
+            "type": "set_role",
+            "value": "default"
+          },
+          {
+            "type": "set_access_duration",
+            "value": "1D"
+          }
+        ],
+        "pid_overwrite": 0,
+        "pid": "{{.virtualswitch.dot1x.computer.username}}",
+        "email": "{{.virtualswitch.dot1x.computer.username}}@test.local",
+        "password": "{{.virtualswitch.dot1x.computer.password}}",
+        "login_remaining": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: set_user_password
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/{{.virtualswitch.dot1x.computer.username}}/password'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "quiet": true,
+        "valid_from": "2021-01-01 00:00:00",
+        "expiration": null,
+        "actions": [
+          {
+            "type": "set_role",
+            "value": "default"
+          },
+          {
+            "type": "set_access_duration",
+            "value": "1D"
+          }
+        ],
+        "pid_overwrite": 0,
+        "pid": "{{.virtualswitch.dot1x.computer.username}}",
+        "password": "{{.virtualswitch.dot1x.computer.password}}",
+        "login_remaining": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

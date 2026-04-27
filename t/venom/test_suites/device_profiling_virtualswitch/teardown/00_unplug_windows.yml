@@ -1,0 +1,8 @@
+name: Unplug Windows device via virtualswitch API
+testcases:
+
+- name: unplug_windows_device
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.windows.interface.id}}'

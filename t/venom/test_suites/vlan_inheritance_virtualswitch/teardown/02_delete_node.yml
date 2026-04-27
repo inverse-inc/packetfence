@@ -1,0 +1,7 @@
+name: Delete VLAN inheritance test node
+testcases:
+
+- name: delete_node
+  steps:
+  - type: pf_api_node_delete
+    id: '{{.vlan_inheritance_virtualswitch.device.mac_address}}'

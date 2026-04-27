@@ -283,6 +283,66 @@ cluster_el8:
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
 
+mac_auth_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+mac_auth_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+device_profiling_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=device_profiling_virtualswitch \
+	$(MAKE_TARGET)
+
+device_profiling_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=device_profiling_virtualswitch \
+	$(MAKE_TARGET)
+
+dot1x_wired_computer_auth_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=dot1x_wired_computer_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+dot1x_wired_computer_auth_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=dot1x_wired_computer_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+pfacct_bandwidth_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfacct_bandwidth_virtualswitch \
+	$(MAKE_TARGET)
+
+pfacct_bandwidth_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfacct_bandwidth_virtualswitch \
+	$(MAKE_TARGET)
+
+security_event_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=security_event_virtualswitch \
+	$(MAKE_TARGET)
+
+security_event_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=security_event_virtualswitch \
+	$(MAKE_TARGET)
+
 ### alias to run tests on other branches
 # it's a hack to simplify definition of jobs in .gitlab-ci.yml
 captive_portal_deb12_branches: captive_portal_deb12
@@ -305,3 +365,13 @@ security_events_deb12_branches: security_events_deb12
 unit_tests_el8_branches: unit_tests_el8
 pfappserver_el8_branches: pfappserver_el8
 pfappserver_deb12_branches: pfappserver_deb12
+mac_auth_virtualswitch_el8_branches: mac_auth_virtualswitch_el8
+mac_auth_virtualswitch_deb12_branches: mac_auth_virtualswitch_deb12
+device_profiling_virtualswitch_el8_branches: device_profiling_virtualswitch_el8
+device_profiling_virtualswitch_deb12_branches: device_profiling_virtualswitch_deb12
+dot1x_wired_computer_auth_virtualswitch_el8_branches: dot1x_wired_computer_auth_virtualswitch_el8
+dot1x_wired_computer_auth_virtualswitch_deb12_branches: dot1x_wired_computer_auth_virtualswitch_deb12
+pfacct_bandwidth_virtualswitch_el8_branches: pfacct_bandwidth_virtualswitch_el8
+pfacct_bandwidth_virtualswitch_deb12_branches: pfacct_bandwidth_virtualswitch_deb12
+security_event_virtualswitch_el8_branches: security_event_virtualswitch_el8
+security_event_virtualswitch_deb12_branches: security_event_virtualswitch_deb12

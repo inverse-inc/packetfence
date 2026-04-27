@@ -1,0 +1,19 @@
+name: Verify printer was classified and assigned to printer VLAN ({{.wired_mac_auth_virtualswitch.roles.printer.vlan_id}})
+testcases:
+
+- name: check_printer_node_category
+  steps:
+  - type: pf_api_node_action
+    method: GET
+    id: '{{.virtualswitch.printer.mac_address}}'
+    status_code: 200
+    assertions:
+      - result.pf_api_node_action_json.item.category ShouldEqual {{.wired_mac_auth_virtualswitch.roles.printer.id}}
+
+- name: check_printer_vlan_assigned
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.printer.interface.id}}'
+    assertions:
+      - result.virtualswitch_device_status__vlan_assigned ShouldEqual {{.wired_mac_auth_virtualswitch.roles.printer.vlan_id}}

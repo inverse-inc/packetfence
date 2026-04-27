@@ -1,0 +1,27 @@
+name: Collect VirtualSwitch logs for CI artifacts
+testcases:
+
+- name: collect_virtualswitch_service_logs
+  steps:
+  - type: exec
+    script: |
+      # Create logs directory for virtualswitch
+      mkdir -p /usr/local/pf/logs/virtualswitch
+
+      # Collect virtualswitch service logs (systemd journal)
+      journalctl -u virtualswitch-namespace --no-pager > /usr/local/pf/logs/virtualswitch/virtualswitch-namespace.log 2>&1 || true
+
+      # Collect virtualswitch config
+      cp /etc/virtualswitch/config.yaml /usr/local/pf/logs/virtualswitch/config.yaml 2>/dev/null || true
+
+      # Collect namespace network info
+      ip netns exec vswitch-ns ip addr > /usr/local/pf/logs/virtualswitch/namespace-ip-addr.log 2>&1 || true
+      ip netns exec vswitch-ns ip route > /usr/local/pf/logs/virtualswitch/namespace-ip-route.log 2>&1 || true
+
+      # Collect bridge and veth info from host
+      ip link show {{.virtualswitch.bridge}} > /usr/local/pf/logs/virtualswitch/bridge.log 2>&1 || true
+      ip link show {{.virtualswitch.veth.host}} > /usr/local/pf/logs/virtualswitch/veth-host.log 2>&1 || true
+
+      echo "VirtualSwitch logs collected"
+    assertions:
+      - result.code ShouldEqual 0

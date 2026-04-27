@@ -1,0 +1,21 @@
+name: Plug Android device via virtualswitch API (android_samsung profile)
+testcases:
+
+- name: plug_android_with_mab
+  steps:
+  - type: virtualswitch_plug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.android.interface.id}}'
+    mac_address: '{{.virtualswitch.android.mac_address}}'
+    auth_method: mab
+    profile: '{{.virtualswitch.android.profile}}'
+
+- name: wait_for_android_radius_auth
+  retry: 12
+  delay: 10
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.android.interface.id}}'
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated

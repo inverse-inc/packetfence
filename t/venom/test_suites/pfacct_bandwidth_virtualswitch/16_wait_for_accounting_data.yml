@@ -1,0 +1,7 @@
+name: Wait for accounting Start and at least one Interim-Update
+testcases:
+
+- name: wait_for_accounting
+  steps:
+  - type: sleep
+    time_to_sleep: 20

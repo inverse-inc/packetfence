@@ -1,0 +1,7 @@
+name: Wait for delay_by period to expire (45s delay + buffer)
+testcases:
+
+- name: wait_for_delay
+  steps:
+  - type: sleep
+    time_to_sleep: 60

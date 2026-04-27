@@ -1,0 +1,27 @@
+name: Delete security event configuration (if still present)
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: delete_security_event
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_event/{{.security_event_delayed_virtualswitch.event.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+
+- name: verify_deletion
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_event/{{.security_event_delayed_virtualswitch.event.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 404

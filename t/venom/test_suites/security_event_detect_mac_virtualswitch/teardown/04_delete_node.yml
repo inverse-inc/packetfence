@@ -1,0 +1,14 @@
+name: Delete test node
+testcases:
+
+- name: wait_for_processing
+  steps:
+  - type: sleep
+    time_to_sleep: 5
+
+- name: delete_node
+  steps:
+  - type: pf_api_node_delete
+    id: '{{.security_event_detect_mac_virtualswitch.device.mac_address}}'
+    retry: 3
+    delay: 5

@@ -1,0 +1,7 @@
+name: Wait for grace period to expire
+testcases:
+
+- name: wait_for_grace_expiry
+  steps:
+  - type: sleep
+    time_to_sleep: 60

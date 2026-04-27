@@ -1,0 +1,8 @@
+name: Unplug iOS device via virtualswitch API
+testcases:
+
+- name: unplug_ios_device
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.ios.interface.id}}'

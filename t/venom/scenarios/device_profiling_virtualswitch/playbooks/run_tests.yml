@@ -1,0 +1,25 @@
+---
+- hosts: pfservers
+  name: Run device profiling virtualswitch tests
+  become: True
+
+  vars:
+    test_suites:
+      - configurator
+      - global_config_virtualswitch
+      - device_profiling_virtualswitch
+      - device_profiling_virtualswitch/teardown
+      - global_config_virtualswitch/teardown
+
+  tasks:
+    - name: Run Venom testsuites
+      command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
+      args:
+        chdir: '{{ venom_dir }}'
+      loop: '{{ test_suites }}'
+      vars:
+        venom_wrapper_args:
+          VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}'
+
+      environment: '{{ inventory__group_environment | d({})
+                       | combine(venom_wrapper_args | d({})) }}'

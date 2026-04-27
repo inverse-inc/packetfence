@@ -316,3 +316,7 @@ html/pfappserver/root/admin/v-index.tt
 lib_perl/
 
 containers/.local_env
+
+# venom test planning files (for local use only)
+t/venom/scenarios/*/PLAN_A.md
+t/venom/scenarios/*/PLAN_B.md

@@ -1,0 +1,18 @@
+executor: virtualswitch_unplug_device
+input:
+  api_url: "http://10.255.255.2:8080"
+  interface_id: "1"
+  expected_code: "200"
+steps:
+- type: virtualswitch_api
+  api_url: "{{.input.api_url}}"
+  method: POST
+  endpoint: /api/v1/interfaces/{{.input.interface_id}}/unplug
+  expected_code: "{{.input.expected_code}}"
+  vars:
+    virtualswitch_json:
+      from: result.virtualswitch_responsejson
+output:
+  virtualswitch_unplug_device_: "{{.virtualswitch_json}}"
+  virtualswitch_unplug_device__success: "{{.virtualswitch_json.success}}"
+  virtualswitch_unplug_device__message: "{{.virtualswitch_json.message}}"

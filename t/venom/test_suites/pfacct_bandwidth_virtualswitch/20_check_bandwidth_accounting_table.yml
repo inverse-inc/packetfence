@@ -1,0 +1,14 @@
+name: Verify bandwidth_accounting has data for test device
+testcases:
+
+- name: check_bandwidth_accounting
+  steps:
+  - type: exec
+    script: |
+      mysql -u{{.configurator.db.users.pf.id}} -p{{.configurator.db.users.pf.password}} {{.configurator.db.name}} -N -e \
+        "SELECT COALESCE(SUM(in_bytes),0) + COALESCE(SUM(out_bytes),0) as total_bytes FROM bandwidth_accounting WHERE mac = '{{.pfacct_bandwidth_virtualswitch.device.mac_address}}'"
+    retry: 10
+    delay: 3
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldNotEqual 0

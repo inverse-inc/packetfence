@@ -1,0 +1,23 @@
+name: Disable DNS recording and restart services
+testcases:
+- name: disable_record_dns_in_sql
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/base/dns_configuration'
+    status_code: 200
+    body: >-
+      {
+        "record_dns_in_sql": "disabled"
+      }
+
+- name: restart_pfcron_service
+  steps:
+  - type: pf_api_service_restart_async
+    service: 'pfcron'
+
+- name: restart_pfdns_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdns
+    time_to_sleep: 5

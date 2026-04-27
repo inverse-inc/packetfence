@@ -1,0 +1,83 @@
+name: Check RADIUS audit log for Accept
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: flush_radius_audit_log_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
+- name: search_radius_audit_log_for_accept
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
+    ignore_verify_ssl: true
+    retry: 35
+    delay: 3
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id"],
+        "sort": ["created_at DESC"],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.virtualswitch.device.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "auth_status",
+                  "op": "equals",
+                  "value": "Accept"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.wired_mac_auth_virtualswitch.profiles.wired.filters.connection_type}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey id
+    vars:
+      radius_log_id:
+        from: result.bodyjson.items.items0.id
+
+- name: verify_radius_reply_vlan
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.search_radius_audit_log_for_accept.radius_log_id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_mac_auth_virtualswitch.roles.headless_device.vlan_id}}"'
+      - result.bodyjson.item.profile ShouldEqual "{{.wired_mac_auth_virtualswitch.profiles.wired.id}}"

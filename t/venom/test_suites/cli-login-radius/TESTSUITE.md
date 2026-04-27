@@ -15,7 +15,8 @@ Radius server running
 ## Scenario steps
 1. Create Admin Roles 
 1. Create RADIUS server source 
-1. Create REALMS for the proxy 
+1. Create REALMS for the proxy
+1. Change switch config
 1. Start Services (RADIUS TEST)
 1. Start Services request (direct and with proxy) 
 

@@ -84,7 +84,7 @@ access_level_user_and_node.description: Users and Nodes management
 
 # Default VLAN id for all switches
 roles.registration.vlan_id: 2
-roles.isolation.vlan_id: 3
+roles.isolation.vlan_id: 6
 
 ### Maintenance tasks
 # Node cleanup
@@ -678,3 +678,407 @@ firewall_sso.radius.type: FortiGate
 #################################################################################
 html.pfappserver_baseurl: 'https://{{.pfserver_mgmt_ip}}:1443'
 html.pfappserver_dir: '{{.pfserver_root_dir}}/t/html/pfappserver'
+
+################################################################################
+## wired_mac_auth_virtualswitch test suite specific variables
+#################################################################################
+# VirtualSwitch package download (requires authentication via GitLab env vars)
+# CI_VIRTUALSWITCH_USER and CI_VIRTUALSWITCH_PASSWORD must be set in GitLab CI/CD variables
+virtualswitch.package.deb_version: "2.6.5-1"
+virtualswitch.package.rpm_version: "2.6.5-1.el8"
+
+# VirtualSwitch network setup (created by virtualswitch-namespace service)
+# The namespace service creates: bridge vswitchbr, veth-host, veth-ns
+virtualswitch.bridge: vswitchbr
+virtualswitch.veth.host: veth-host
+virtualswitch.veth.ns: veth-ns
+
+# Registration interface configuration (on vswitchbr bridge)
+# Using 10.255.255.0/30 as configured by virtualswitch-namespace service
+virtualswitch.registration.ip: "10.255.255.1"
+virtualswitch.registration.netmask: "255.255.255.252"
+virtualswitch.registration.network: "10.255.255.0"
+virtualswitch.registration.type: "vlan-registration"
+virtualswitch.registration.dhcpd_enabled: "enabled"
+virtualswitch.registration.additional_listening_daemons: '["radius", "dhcp"]'
+
+# VirtualSwitch namespace IP (source IP for RADIUS)
+virtualswitch.namespace.ip: "10.255.255.2"
+virtualswitch.namespace.netmask: "255.255.255.252"
+
+# VirtualSwitch API (accessed via namespace IP, no conflict with PF)
+virtualswitch.api.port: "8080"
+virtualswitch.api.url: "http://{{.virtualswitch.namespace.ip}}:8080"
+virtualswitch.interfaces: 7
+virtualswitch.interface.id: 1
+virtualswitch.wireless_interface.id: 7
+
+# VirtualSwitch RADIUS config (points to PF registration interface)
+virtualswitch.radius.ip: '{{.virtualswitch.registration.ip}}'
+virtualswitch.radius.port: 1812
+virtualswitch.radius.secret: testing123
+
+# Device profile and MAC
+virtualswitch.profile.name: "linux"
+virtualswitch.device.mac_address: "00:0c:29:aa:bb:01"
+virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A01"
+
+# Roles (reuse from mac_auth)
+wired_mac_auth_virtualswitch.roles.headless_device.id: '{{.mac_auth.roles.headless_device.id}}'
+wired_mac_auth_virtualswitch.roles.headless_device.notes: '{{.mac_auth.roles.headless_device.notes}}'
+wired_mac_auth_virtualswitch.roles.headless_device.vlan_id: 4
+
+# Guest role
+wired_mac_auth_virtualswitch.roles.guest.id: guest
+wired_mac_auth_virtualswitch.roles.guest.notes: Guest device role
+wired_mac_auth_virtualswitch.roles.guest.vlan_id: 1
+
+# User role
+wired_mac_auth_virtualswitch.roles.user.id: user
+wired_mac_auth_virtualswitch.roles.user.notes: User device role
+wired_mac_auth_virtualswitch.roles.user.vlan_id: 4
+
+# Printer role
+wired_mac_auth_virtualswitch.roles.printer.id: printer
+wired_mac_auth_virtualswitch.roles.printer.notes: Printer device role
+wired_mac_auth_virtualswitch.roles.printer.vlan_id: 2
+
+# Isolation role
+wired_mac_auth_virtualswitch.roles.isolation.id: isolation
+wired_mac_auth_virtualswitch.roles.isolation.notes: Isolation device role
+wired_mac_auth_virtualswitch.roles.isolation.vlan_id: 6
+
+# Routed networks for virtualswitch VLANs (L3 - DHCP served via namespace)
+# Guest network (VLAN 1)
+virtualswitch.networks.guest.id: "10.0.1.0"
+virtualswitch.networks.guest.netmask: "255.255.255.0"
+virtualswitch.networks.guest.gateway: "10.0.1.1"
+virtualswitch.networks.guest.dhcp_start: "10.0.1.10"
+virtualswitch.networks.guest.dhcp_end: "10.0.1.14"
+virtualswitch.networks.guest.dhcp_default_lease_time: "3600"
+virtualswitch.networks.guest.dhcp_max_lease_time: "7200"
+
+# Registration/Printer network (VLAN 2) - short lease
+virtualswitch.networks.registration.id: "10.0.2.0"
+virtualswitch.networks.registration.netmask: "255.255.255.0"
+virtualswitch.networks.registration.gateway: "10.0.2.1"
+virtualswitch.networks.registration.dhcp_start: "10.0.2.10"
+virtualswitch.networks.registration.dhcp_end: "10.0.2.14"
+virtualswitch.networks.registration.dhcp_default_lease_time: "300"
+virtualswitch.networks.registration.dhcp_max_lease_time: "600"
+
+# Windows network (VLAN 3)
+virtualswitch.networks.windows.id: "10.0.3.0"
+virtualswitch.networks.windows.netmask: "255.255.255.0"
+virtualswitch.networks.windows.gateway: "10.0.3.1"
+virtualswitch.networks.windows.dhcp_start: "10.0.3.10"
+virtualswitch.networks.windows.dhcp_end: "10.0.3.14"
+virtualswitch.networks.windows.dhcp_default_lease_time: "3600"
+virtualswitch.networks.windows.dhcp_max_lease_time: "7200"
+
+# User/Headless network (VLAN 4)
+virtualswitch.networks.user.id: "10.0.4.0"
+virtualswitch.networks.user.netmask: "255.255.255.0"
+virtualswitch.networks.user.gateway: "10.0.4.1"
+virtualswitch.networks.user.dhcp_start: "10.0.4.10"
+virtualswitch.networks.user.dhcp_end: "10.0.4.14"
+virtualswitch.networks.user.dhcp_default_lease_time: "3600"
+virtualswitch.networks.user.dhcp_max_lease_time: "7200"
+
+# Android network (VLAN 5)
+virtualswitch.networks.android.id: "10.0.5.0"
+virtualswitch.networks.android.netmask: "255.255.255.0"
+virtualswitch.networks.android.gateway: "10.0.5.1"
+virtualswitch.networks.android.dhcp_start: "10.0.5.10"
+virtualswitch.networks.android.dhcp_end: "10.0.5.14"
+virtualswitch.networks.android.dhcp_default_lease_time: "3600"
+virtualswitch.networks.android.dhcp_max_lease_time: "7200"
+
+# Isolation network (VLAN 6)
+virtualswitch.networks.isolation.id: "10.0.6.0"
+virtualswitch.networks.isolation.netmask: "255.255.255.0"
+virtualswitch.networks.isolation.gateway: "10.0.6.1"
+virtualswitch.networks.isolation.dhcp_start: "10.0.6.10"
+virtualswitch.networks.isolation.dhcp_end: "10.0.6.14"
+virtualswitch.networks.isolation.dhcp_default_lease_time: "3600"
+virtualswitch.networks.isolation.dhcp_max_lease_time: "7200"
+
+# Printer device configuration
+virtualswitch.printer.mac_address: "00:0c:29:aa:bb:02"
+virtualswitch.printer.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A02"
+virtualswitch.printer.profile: "hp-printer"
+virtualswitch.printer.interface.id: 2
+
+# =============================================================================
+# Device Profiling Test Devices (Windows, iOS, Android)
+# =============================================================================
+
+# Windows device configuration
+virtualswitch.windows.mac_address: "00:15:5d:aa:bb:03"
+virtualswitch.windows.mac_address_url_encoded: "00%3A15%3A5d%3Aaa%3Abb%3A03"
+virtualswitch.windows.profile: "windows11"
+virtualswitch.windows.interface.id: 3
+virtualswitch.windows.expected_device_class: "Windows OS"
+
+# iOS device configuration (iPhone)
+virtualswitch.ios.mac_address: "a8:20:66:aa:bb:04"
+virtualswitch.ios.mac_address_url_encoded: "a8%3A20%3A66%3Aaa%3Abb%3A04"
+virtualswitch.ios.profile: "iphone"
+virtualswitch.ios.interface.id: 4
+virtualswitch.ios.expected_device_class: "Apple iPod, iPhone or iPad"
+
+# Android device configuration (Samsung)
+virtualswitch.android.mac_address: "28:39:5e:aa:bb:05"
+virtualswitch.android.mac_address_url_encoded: "28%3A39%3A5e%3Aaa%3Abb%3A05"
+virtualswitch.android.profile: "android_samsung"
+virtualswitch.android.interface.id: 5
+virtualswitch.android.expected_device_class: "Android OS"
+
+# Device profiling roles (VLAN = port number)
+device_profiling_virtualswitch.roles.windows.id: windows
+device_profiling_virtualswitch.roles.windows.notes: Windows device profiling role
+device_profiling_virtualswitch.roles.windows.vlan_id: 3
+
+device_profiling_virtualswitch.roles.ios.id: ios
+device_profiling_virtualswitch.roles.ios.notes: iOS device profiling role
+device_profiling_virtualswitch.roles.ios.vlan_id: 4
+
+device_profiling_virtualswitch.roles.android.id: android
+device_profiling_virtualswitch.roles.android.notes: Android device profiling role
+device_profiling_virtualswitch.roles.android.vlan_id: 5
+
+# Device profiling connection profile
+device_profiling_virtualswitch.profiles.wired.id: catch_device_profiling_vs
+device_profiling_virtualswitch.profiles.wired.description: Device profiling test (virtualswitch)
+device_profiling_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+device_profiling_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+# =============================================================================
+# 802.1X Wired Computer-Auth VirtualSwitch Test Configuration
+# =============================================================================
+
+# 802.1x user computer configuration (Windows computer with EAP-PEAP)
+virtualswitch.dot1x.computer.mac_address: "00:15:5d:aa:bb:10"
+virtualswitch.dot1x.computer.mac_address_url_encoded: "00%3A15%3A5d%3Aaa%3Abb%3A10"
+virtualswitch.dot1x.computer.profile: "windows11"
+virtualswitch.dot1x.computer.interface.id: 6
+virtualswitch.dot1x.computer.eap_type: "peap"
+virtualswitch.dot1x.computer.username: "testuser"
+virtualswitch.dot1x.computer.password: "testpassword"
+
+# 802.1x connection profile (catches Ethernet-EAP)
+dot1x_wired_computer_auth_virtualswitch.profiles.wired.id: catch_dot1x_computer_auth_vs
+dot1x_wired_computer_auth_virtualswitch.profiles.wired.description: 802.1X Wired Computer-Auth (virtualswitch)
+dot1x_wired_computer_auth_virtualswitch.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_wired_computer_auth_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+# Expected VLAN assignments
+dot1x_wired_computer_auth_virtualswitch.vlan.registration: 2
+dot1x_wired_computer_auth_virtualswitch.vlan.user: 4
+
+# VLAN Filter for printers (auto-assign printer role based on Fingerbank device class)
+# =============================================================================
+# pfacct Bandwidth Accounting VirtualSwitch Test Configuration
+# =============================================================================
+pfacct_bandwidth_virtualswitch.device.mac_address: "00:0c:29:aa:bb:06"
+pfacct_bandwidth_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A06"
+pfacct_bandwidth_virtualswitch.device.interface.id: 1
+pfacct_bandwidth_virtualswitch.device.profile: "linux"
+pfacct_bandwidth_virtualswitch.accounting_interval: 15
+pfacct_bandwidth_virtualswitch.profiles.wired.id: catch_pfacct_bw_vs
+pfacct_bandwidth_virtualswitch.profiles.wired.description: pfacct bandwidth accounting test (virtualswitch)
+pfacct_bandwidth_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+pfacct_bandwidth_virtualswitch.profiles.wired.unreg_on_acct_stop: enabled
+
+# =============================================================================
+# Security Event Accounting VirtualSwitch Test Configuration
+# =============================================================================
+security_event_acct_virtualswitch.device.mac_address: "00:0c:29:aa:bb:07"
+security_event_acct_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A07"
+security_event_acct_virtualswitch.device.interface.id: 1
+security_event_acct_virtualswitch.device.profile: "linux"
+security_event_acct_virtualswitch.accounting_interval: 15
+
+security_event_acct_virtualswitch.event.id: "9000001"
+security_event_acct_virtualswitch.event.desc: "Bandwidth limit test (500KB daily)"
+security_event_acct_virtualswitch.event.trigger_type: accounting
+security_event_acct_virtualswitch.event.trigger_value: TOT500KBD
+security_event_acct_virtualswitch.event.grace_interval: "45"
+security_event_acct_virtualswitch.event.grace_unit: "s"
+security_event_acct_virtualswitch.event.vlan: isolation
+security_event_acct_virtualswitch.event.max_enable: "3"
+
+security_event_acct_virtualswitch.profiles.wired.id: catch_secev_acct_vs
+security_event_acct_virtualswitch.profiles.wired.description: Security event accounting test (virtualswitch)
+security_event_acct_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+security_event_acct_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+# =============================================================================
+# Security Event Manual VirtualSwitch Test Configuration
+# =============================================================================
+security_event_manual_virtualswitch.device.mac_address: "00:0c:29:aa:bb:08"
+security_event_manual_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A08"
+security_event_manual_virtualswitch.device.interface.id: 1
+security_event_manual_virtualswitch.device.profile: "linux"
+security_event_manual_virtualswitch.device.role: '{{.wired_mac_auth_virtualswitch.roles.headless_device.id}}'
+
+security_event_manual_virtualswitch.event.id: "1300000"
+
+security_event_manual_virtualswitch.profiles.wired.id: catch_secev_manual_vs
+security_event_manual_virtualswitch.profiles.wired.description: Security event manual trigger test (virtualswitch)
+security_event_manual_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+security_event_manual_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+security_event_manual_virtualswitch.vlan.normal: 4
+security_event_manual_virtualswitch.vlan.isolation: 6
+
+# =============================================================================
+# Security Event Detect MAC VirtualSwitch Test Configuration
+# =============================================================================
+security_event_detect_mac_virtualswitch.device.mac_address: "00:0c:29:aa:bb:09"
+security_event_detect_mac_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A09"
+security_event_detect_mac_virtualswitch.device.interface.id: 1
+security_event_detect_mac_virtualswitch.device.profile: "linux"
+security_event_detect_mac_virtualswitch.device.role: '{{.wired_mac_auth_virtualswitch.roles.headless_device.id}}'
+
+security_event_detect_mac_virtualswitch.event.id: "9000002"
+security_event_detect_mac_virtualswitch.event.desc: "MAC-based auto-isolation test"
+security_event_detect_mac_virtualswitch.event.trigger_type: mac
+security_event_detect_mac_virtualswitch.event.trigger_value: "^00:0c:29:aa:bb:09"
+security_event_detect_mac_virtualswitch.event.vlan: isolation
+security_event_detect_mac_virtualswitch.event.max_enable: "3"
+
+security_event_detect_mac_virtualswitch.profiles.wired.id: catch_secev_detect_vs
+security_event_detect_mac_virtualswitch.profiles.wired.description: Security event MAC detect test (virtualswitch)
+security_event_detect_mac_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+security_event_detect_mac_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+security_event_detect_mac_virtualswitch.vlan.normal: 4
+security_event_detect_mac_virtualswitch.vlan.isolation: 6
+
+# =============================================================================
+# Security Event Detect Fingerbank VirtualSwitch Test Configuration
+# =============================================================================
+security_event_detect_fingerbank_virtualswitch.device.mac_address: "00:15:5d:aa:bb:0c"
+security_event_detect_fingerbank_virtualswitch.device.mac_address_url_encoded: "00%3A15%3A5d%3Aaa%3Abb%3A0c"
+security_event_detect_fingerbank_virtualswitch.device.interface.id: 1
+security_event_detect_fingerbank_virtualswitch.device.profile: "windows11"
+
+security_event_detect_fingerbank_virtualswitch.event.id: "9000004"
+security_event_detect_fingerbank_virtualswitch.event.desc: "Fingerbank device autoreg test"
+security_event_detect_fingerbank_virtualswitch.event.trigger_type: device
+security_event_detect_fingerbank_virtualswitch.event.trigger_value: "1"
+security_event_detect_fingerbank_virtualswitch.event.access_duration: "1D"
+security_event_detect_fingerbank_virtualswitch.event.target_category: guest
+security_event_detect_fingerbank_virtualswitch.event.max_enable: "3"
+
+security_event_detect_fingerbank_virtualswitch.profiles.wired.id: catch-secev-detect-fb-vs
+security_event_detect_fingerbank_virtualswitch.profiles.wired.description: Security event Fingerbank device detect test (virtualswitch)
+security_event_detect_fingerbank_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+security_event_detect_fingerbank_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+security_event_detect_fingerbank_virtualswitch.vlan.guest: 1
+
+# VLAN 99 routed network (default management VLAN needs DHCP for Fingerbank)
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.id: "10.0.99.0"
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.netmask: "255.255.255.0"
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.gateway: "10.0.99.1"
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_start: "10.0.99.10"
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_end: "10.0.99.14"
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_default_lease_time: "3600"
+security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_max_lease_time: "7200"
+
+# =============================================================================
+# Security Event Delayed VirtualSwitch Test Configuration
+# =============================================================================
+security_event_delayed_virtualswitch.device.mac_address: "00:0c:29:aa:bb:0a"
+security_event_delayed_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A0a"
+security_event_delayed_virtualswitch.device.interface.id: 1
+security_event_delayed_virtualswitch.device.profile: "linux"
+security_event_delayed_virtualswitch.device.role: '{{.wired_mac_auth_virtualswitch.roles.headless_device.id}}'
+
+security_event_delayed_virtualswitch.event.id: "9000003"
+security_event_delayed_virtualswitch.event.desc: "Delayed security event test (45s delay)"
+security_event_delayed_virtualswitch.event.trigger_type: mac
+security_event_delayed_virtualswitch.event.trigger_value: "^00:0c:29:aa:bb:0a"
+security_event_delayed_virtualswitch.event.delay_by_interval: "45"
+security_event_delayed_virtualswitch.event.delay_by_unit: "s"
+security_event_delayed_virtualswitch.event.vlan: isolation
+security_event_delayed_virtualswitch.event.max_enable: "3"
+
+security_event_delayed_virtualswitch.profiles.wired.id: catch_secev_delayed_vs
+security_event_delayed_virtualswitch.profiles.wired.description: Security event delayed trigger test (virtualswitch)
+security_event_delayed_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+security_event_delayed_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+security_event_delayed_virtualswitch.vlan.normal: 4
+security_event_delayed_virtualswitch.vlan.isolation: 6
+
+wired_mac_auth_virtualswitch.vlan_filter.printer.id: autoassign_printer_role
+wired_mac_auth_virtualswitch.vlan_filter.printer.description: Auto-assign printer role based on Fingerbank device class
+wired_mac_auth_virtualswitch.vlan_filter.printer.condition: 'node_info.device_class == "Printers" || node_info.device_class == "Printers/Scanners"'
+wired_mac_auth_virtualswitch.vlan_filter.printer.scopes: RegisteredRole
+wired_mac_auth_virtualswitch.vlan_filter.printer.role: '{{.wired_mac_auth_virtualswitch.roles.printer.id}}'
+
+# Connection profiles
+wired_mac_auth_virtualswitch.profiles.wired.id: catch_wired_mac_auth_vs
+wired_mac_auth_virtualswitch.profiles.wired.description: Wired MAC auth (virtualswitch)
+wired_mac_auth_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+wired_mac_auth_virtualswitch.profiles.wired.unreg_on_acct_stop: disabled
+
+# Switch group
+virtualswitch_switch_group.id: virtualswitch_group
+virtualswitch_switch_group.description: VirtualSwitch group
+virtualswitch_switch_group.radiusSecret: '{{.virtualswitch.radius.secret}}'
+
+# Switch (Cisco 15.5) - uses namespace IP as switch identifier
+virtualswitch_switch.id: '{{.virtualswitch.namespace.ip}}'
+virtualswitch_switch.description: virtualswitch
+virtualswitch_switch.type: "Cisco::Cisco_IOS_15_5"
+
+# =============================================================================
+# VLAN Inheritance VirtualSwitch Test
+# =============================================================================
+vlan_inheritance_virtualswitch.device.mac_address: "00:0c:29:aa:bb:0b"
+vlan_inheritance_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A0b"
+vlan_inheritance_virtualswitch.device.interface.id: 6
+vlan_inheritance_virtualswitch.device.profile: "linux"
+
+# Roles
+vlan_inheritance_virtualswitch.roles.inheritance1.id: Inheritance1
+vlan_inheritance_virtualswitch.roles.inheritance1.notes: Inheritance1
+
+vlan_inheritance_virtualswitch.roles.inheritance2.id: Inheritance2
+vlan_inheritance_virtualswitch.roles.inheritance2.notes: Inheritance2
+
+vlan_inheritance_virtualswitch.roles.inheritance3.id: Inheritance3
+vlan_inheritance_virtualswitch.roles.inheritance3.notes: Inheritance3
+
+# VLANs (reuse existing virtualswitch VLANs)
+vlan_inheritance_virtualswitch.vlan.inheritance1: 3
+vlan_inheritance_virtualswitch.vlan.inheritance2: 5
+vlan_inheritance_virtualswitch.vlan.native: 99
+
+# Connection profile
+vlan_inheritance_virtualswitch.profiles.wired.id: catch_vlan_inheritance_vs
+vlan_inheritance_virtualswitch.profiles.wired.description: VLAN Inheritance wired MAC auth (virtualswitch)
+vlan_inheritance_virtualswitch.profiles.wired.filters.connection_type: Ethernet-NoEAP
+
+# =============================================================================
+# Wireless MAC Auth VirtualSwitch Test
+# =============================================================================
+wireless_mac_auth_virtualswitch.device.mac_address: "00:0c:29:aa:bb:07"
+wireless_mac_auth_virtualswitch.device.mac_address_url_encoded: "00%3A0c%3A29%3Aaa%3Abb%3A07"
+wireless_mac_auth_virtualswitch.device.interface.id: '{{.virtualswitch.wireless_interface.id}}'
+wireless_mac_auth_virtualswitch.device.profile: "linux"
+
+# Roles (reuse from mac_auth)
+wireless_mac_auth_virtualswitch.roles.headless_device.id: '{{.mac_auth.roles.headless_device.id}}'
+wireless_mac_auth_virtualswitch.roles.headless_device.notes: '{{.mac_auth.roles.headless_device.notes}}'
+wireless_mac_auth_virtualswitch.roles.headless_device.vlan_id: 4
+
+# Connection profile
+wireless_mac_auth_virtualswitch.profiles.wireless.id: catch_wireless_mac_auth_vs
+wireless_mac_auth_virtualswitch.profiles.wireless.description: Wireless MAC auth (virtualswitch)
+wireless_mac_auth_virtualswitch.profiles.wireless.filters.connection_type: Wireless-802.11-NoEAP
+wireless_mac_auth_virtualswitch.profiles.wireless.unreg_on_acct_stop: disabled

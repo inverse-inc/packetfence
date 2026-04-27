@@ -1,0 +1,22 @@
+executor: virtualswitch_plug_device
+input:
+  api_url: "http://10.255.255.2:8080"
+  interface_id: "1"
+  mac_address: ""
+  auth_method: "mab"
+  profile: "Linux Workstation"
+  expected_code: "200"
+steps:
+- type: virtualswitch_api
+  api_url: "{{.input.api_url}}"
+  method: POST
+  endpoint: /api/v1/interfaces/{{.input.interface_id}}/plug
+  body: '{"mac_address": "{{.input.mac_address}}", "auth_method": "{{.input.auth_method}}", "profile": "{{.input.profile}}"}'
+  expected_code: "{{.input.expected_code}}"
+  vars:
+    virtualswitch_json:
+      from: result.virtualswitch_responsejson
+output:
+  virtualswitch_plug_device_: "{{.virtualswitch_json}}"
+  virtualswitch_plug_device__success: "{{.virtualswitch_json.success}}"
+  virtualswitch_plug_device__message: "{{.virtualswitch_json.message}}"

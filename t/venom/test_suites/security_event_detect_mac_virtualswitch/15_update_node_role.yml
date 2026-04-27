@@ -1,0 +1,60 @@
+name: Update node role to headless_device for normal VLAN assignment
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: get_category_id_of_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/node_categories/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "category_id"
+        ],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "name",
+                  "op": "equals",
+                  "value": "{{.security_event_detect_mac_virtualswitch.device.role}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      category_id:
+        from: result.bodyjson.items.items0.category_id
+
+- name: update_node_role
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_detect_mac_virtualswitch.device.mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "category_id": "{{.get_category_id_of_role.category_id}}",
+        "status": "reg"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

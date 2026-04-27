@@ -1,0 +1,13 @@
+name: Verify device authenticated on normal VLAN before security event
+testcases:
+
+- name: check_device_status_authenticated
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_manual_virtualswitch.device.interface.id}}'
+    retry: 5
+    delay: 3
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated
+      - result.virtualswitch_device_status__vlan_assigned ShouldEqual {{.security_event_manual_virtualswitch.vlan.normal}}

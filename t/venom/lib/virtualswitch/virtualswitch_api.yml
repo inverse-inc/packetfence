@@ -1,0 +1,48 @@
+executor: virtualswitch_api
+input:
+  api_url: "http://10.255.255.2:8080"
+  method: "GET"
+  endpoint: "/api/v1/status"
+  body: ""
+  expected_code: "200"
+  retry: 1
+  delay: 2
+  timeout: 30
+steps:
+- type: exec
+  script: |
+    BODY='{{.input.body}}'
+    BODY_FILE=$(mktemp)
+    trap 'rm -f "$BODY_FILE"' EXIT
+    if [ -n "$BODY" ]; then
+      HTTP_CODE=$(curl -s --max-time {{.input.timeout}} -o "$BODY_FILE" -w "%{http_code}" \
+        -X {{.input.method}} {{.input.api_url}}{{.input.endpoint}} \
+        -H "Content-Type: application/json" \
+        -d "$BODY")
+    else
+      HTTP_CODE=$(curl -s --max-time {{.input.timeout}} -o "$BODY_FILE" -w "%{http_code}" \
+        -X {{.input.method}} {{.input.api_url}}{{.input.endpoint}})
+    fi
+    cat "$BODY_FILE"
+    echo ""
+    echo "$HTTP_CODE"
+    if [ "$HTTP_CODE" != "{{.input.expected_code}}" ]; then
+      echo "ERROR: expected HTTP {{.input.expected_code}}, got '$HTTP_CODE'" >&2
+      exit 1
+    fi
+  assertions:
+    - result.code ShouldEqual 0
+  retry: {{.input.retry}}
+  delay: {{.input.delay}}
+  vars:
+    full_response:
+      from: result.systemout
+    response_body:
+      from: result.systemout
+      regex: '(?s)^(.*)\n\d{3}$'
+    http_code:
+      from: result.systemout
+      regex: '(\d{3})$'
+output:
+  virtualswitch_response: "{{.response_body}}"
+  virtualswitch_http_code: "{{.http_code}}"

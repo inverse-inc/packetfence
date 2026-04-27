@@ -1,0 +1,84 @@
+executor: virtualswitch_config_deploy
+input:
+  config_dir: "/etc/virtualswitch"
+  # Basic settings
+  interfaces: "5"
+  switch_type: "cisco"
+  network_mapping: "10.0.0.0"
+  # RADIUS
+  radius_ip: "10.255.255.1"
+  radius_port: "1812"
+  radius_secret: "testing123"
+  accounting_interval: "60"
+  reauth_interval: "0"
+  auth_retry_interval: "30"
+  coa_enabled: "true"
+  coa_port: "3799"
+  # DHCP
+  dhcp_enabled: "true"
+  dhcp_server_ip: "10.255.255.1"
+  # IPFIX
+  ipfix_enabled: "false"
+  ipfix_destination_ip: "10.255.255.1"
+  ipfix_destination_port: "2055"
+  ipfix_export_interval: "60"
+  # SCEP
+  scep_enabled: "false"
+  scep_server_url: "http://10.255.255.1/scep/User"
+  scep_shared_secret: "secret"
+  # Wireless
+  wireless_ssid: "TestWiFi"
+  wireless_switch_mac: "aa:bb:cc:dd:ee:ff"
+  # Device state
+  device_state_auto_save: "false"
+  device_state_file_path: "devices.json"
+  # Interface types (inline YAML)
+  interface_types: [{id: 1, type: ethernet}, {id: 2, type: ethernet}, {id: 3, type: ethernet}, {id: 4, type: ethernet}, {id: 5, type: ethernet}]
+  # VLANs (inline YAML)
+  vlans: [{id: 99, interfaces: [1,2,3,4,5]}]
+steps:
+- type: exec
+  script: mkdir -p {{.input.config_dir}}
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: |
+    sed 's/^    //' > {{.input.config_dir}}/config.yaml << 'EOFCONFIG'
+    interfaces: {{.input.interfaces}}
+    switch_type: {{.input.switch_type}}
+    network_mapping: "{{.input.network_mapping}}"
+    radius:
+      ip: {{.input.radius_ip}}
+      port: {{.input.radius_port}}
+      secret: {{.input.radius_secret}}
+      accounting_interval_seconds: {{.input.accounting_interval}}
+      reauth_interval_seconds: {{.input.reauth_interval}}
+      auth_retry_interval_seconds: {{.input.auth_retry_interval}}
+      coa_enabled: {{.input.coa_enabled}}
+      coa_port: {{.input.coa_port}}
+    dhcp:
+      enabled: {{.input.dhcp_enabled}}
+      server_ip: {{.input.dhcp_server_ip}}
+    ipfix:
+      enabled: {{.input.ipfix_enabled}}
+      destination_ip: {{.input.ipfix_destination_ip}}
+      destination_port: {{.input.ipfix_destination_port}}
+      export_interval: {{.input.ipfix_export_interval}}
+    scep:
+      enabled: {{.input.scep_enabled}}
+      server_url: "{{.input.scep_server_url}}"
+      shared_secret: "{{.input.scep_shared_secret}}"
+    wireless:
+      ssid: "{{.input.wireless_ssid}}"
+      switch_mac: "{{.input.wireless_switch_mac}}"
+    device_state:
+      auto_save: {{.input.device_state_auto_save}}
+      file_path: "{{.input.device_state_file_path}}"
+    interface_types: {{.input.interface_types}}
+    vlans: {{.input.vlans}}
+    EOFCONFIG
+  assertions:
+    - result.code ShouldEqual 0
+output:
+  virtualswitch_config_path: "{{.input.config_dir}}/config.yaml"

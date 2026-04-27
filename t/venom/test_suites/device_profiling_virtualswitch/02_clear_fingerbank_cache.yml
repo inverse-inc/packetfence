@@ -1,0 +1,7 @@
+name: Clear Fingerbank cache before tests
+testcases:
+
+- name: clear_fingerbank_cache
+  steps:
+  - type: exec
+    script: /usr/local/pf/bin/pfcmd cache fingerbank clear

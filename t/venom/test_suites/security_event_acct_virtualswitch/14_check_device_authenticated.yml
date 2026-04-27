@@ -1,0 +1,10 @@
+name: Verify device AUTHORIZED via virtualswitch API
+testcases:
+
+- name: check_device_status_authorized
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_acct_virtualswitch.device.interface.id}}'
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated

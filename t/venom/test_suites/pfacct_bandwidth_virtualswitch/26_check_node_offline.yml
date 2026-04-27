@@ -1,0 +1,10 @@
+name: Verify node is offline after accounting Stop
+testcases:
+- name: check_node_offline
+  steps:
+  - type: pf_api_nodes_search_mac_address_online
+    mac_address: "{{.pfacct_bandwidth_virtualswitch.device.mac_address}}"
+    retry: 5
+    delay: 3
+    assertions:
+      - result.pf_api_nodes_search_mac_address_online_json.items.items0.online ShouldEqual off

@@ -1,0 +1,12 @@
+---
+# Pre-configuration for pfacct_bandwidth_virtualswitch scenario
+# This playbook runs before the venom tests
+
+- hosts: pfservers
+  name: Configure pfacct bandwidth accounting virtualswitch environment
+  become: True
+
+  tasks:
+    - name: Ensure virtualswitch package is available
+      debug:
+        msg: "VirtualSwitch will be installed by the test suite"
