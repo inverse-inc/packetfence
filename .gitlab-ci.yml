@@ -2017,7 +2017,7 @@ build_pf_img_usb_iso:
   environment:
     url: ${SF_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}-usb
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${USB_ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${USB_ISODIR} upload
 
 ### build_pf_img_vagrant jobs
 # build_pf_img_vagrant_release_el_8:
