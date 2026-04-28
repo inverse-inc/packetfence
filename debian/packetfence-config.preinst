@@ -63,8 +63,15 @@ set_uid_gid() {
     return 0
 }
 
+setup_system_init_key() {
+    if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+    fi
+}
+
 case "$1" in
     install)
+        setup_system_init_key
         if grep -E "^pf:" /etc/passwd > /dev/null ; then
                 echo "pf user already exist"
         else
@@ -79,6 +86,7 @@ case "$1" in
         exit 0
     ;;
     upgrade)
+        setup_system_init_key
         stop_service_if_exists packetfence-config
         set +e 
         /usr/sbin/update-rc.d -f packetfence-config remove
