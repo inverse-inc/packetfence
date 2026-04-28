@@ -40,6 +40,14 @@ if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then
         # shellcheck disable=SC1091
         source "${PF_ROOT}/conf/build_id"
         export TAG_OR_BRANCH_NAME
+    elif [ -z "${CI:-}" ] && command -v git >/dev/null 2>&1 && \
+         _git_branch=$(git -C "${PF_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null) && \
+         [ -n "${_git_branch}" ] && [ "${_git_branch}" != "HEAD" ]; then
+        # Local build fallback (skipped in CI): derive the tag from the
+        # current git branch, slugified the same way GitLab's
+        # CI_COMMIT_REF_SLUG is, so 'feature/foo' becomes 'feature-foo'.
+        export TAG_OR_BRANCH_NAME=$(echo "${_git_branch}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+        unset _git_branch
     else
         export TAG_OR_BRANCH_NAME="devel"
     fi
