@@ -791,7 +791,6 @@ sub _getAccessListByName {
     if (exists $role->{acls_enabled} && !isenabled($role->{acls_enabled})) {
         return undef, undef;
     }
-    return undef, undef if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 
     # Change to a check for FB ACL enabled
@@ -801,6 +800,12 @@ sub _getAccessListByName {
     }
 
     return "role", $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+
+    # No ACLs on this role — walk up to parent_id if defined
+    my $parent_id = $role->{parent_id};
+    if (defined $parent_id && length $parent_id) {
+        return $self->_getAccessListByName($parent_id, $mac);
+    }
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -843,11 +848,16 @@ sub _getRoleAccessListByName {
     if (exists $role->{acls_enabled} && !isenabled($role->{acls_enabled})) {
         return;
     }
-    return if !exists $role->{acls};
     my $acls = $role->{acls} // [];
 
 
     return $self->acl_chewer(join("\n", @$acls ), $access_list_name) if @$acls;
+
+    # No ACLs on this role — walk up to parent_id if defined
+    my $parent_id = $role->{parent_id};
+    if (defined $parent_id && length $parent_id) {
+        return $self->_getRoleAccessListByName($parent_id);
+    }
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});

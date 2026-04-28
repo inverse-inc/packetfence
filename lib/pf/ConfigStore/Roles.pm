@@ -54,6 +54,8 @@ sub cleanupBeforeCommit {
     my ($self, $id, $assignments) = @_;
     $assignments->{parent_id} = ''
         unless defined $assignments->{parent_id};
+    $assignments->{acls} = ''
+        unless defined $assignments->{acls};
 }
 
 =head2
