@@ -4,6 +4,14 @@ set -o nounset -o pipefail -o errexit
 # Ensure /usr/sbin is in PATH (debootstrap is installed there)
 export PATH="/usr/sbin:/sbin:${PATH}"
 
+# Use sudo only when not already root (e.g., when running on the host).
+# When run inside a container as root, sudo may not be installed.
+if [ "${EUID:-$(id -u)}" -eq 0 ]; then
+    SUDO=""
+else
+    SUDO="sudo"
+fi
+
 # Arguments
 REPO_DIR=${1:-./repo}
 PF_RELEASE_VERSION=${2:-15.1}
@@ -55,16 +63,16 @@ mkdir -p ${REPO_DIR}/dists/bookworm/main/binary-amd64
 
 # Create a temporary chroot for package download
 CHROOT_DIR=$(mktemp -d)
-trap 'echo "Cleaning up chroot..."; sudo rm -rf "${CHROOT_DIR}"' EXIT
+trap 'echo "Cleaning up chroot..."; ${SUDO} rm -rf "${CHROOT_DIR}"' EXIT
 
 echo "===> Creating minimal chroot for package download"
-sudo debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
+${SUDO} debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
 
 # Add PacketFence repository only (we'll use DVD for Debian packages)
 echo "===> Configuring PacketFence repository in chroot"
-sudo mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
-sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
+${SUDO} mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
+${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
 deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_REPO_BASE_URL} bookworm ${PF_REPO_COMPONENT}
 EOF
 
@@ -75,14 +83,14 @@ echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
 # (packetfence packages are in debian-branches/VERSION or gitlab/PIPELINE_ID repos)
 if [[ "${PF_REPO_BASE_URL}" != "${PF_DEPS_BASE_URL}" ]]; then
     echo "===> Adding dependencies repository (fingerbank, freeradius, etc.)"
-    sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF
+    ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF
 deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_DEPS_BASE_URL} bookworm bookworm
 EOF
     echo "Configured dependencies repo: ${PF_DEPS_BASE_URL}"
 fi
 
 # Copy GPG key to repo for later use
-sudo cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
+${SUDO} cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg
 
 # Packages to download (not on DVD or need specific versions)
 PACKAGES="
@@ -144,8 +152,8 @@ PACKAGES="
 
 # Add Docker repository
 echo "===> Adding Docker repository for docker-ce packages"
-curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor | sudo tee ${CHROOT_DIR}/etc/apt/keyrings/docker.gpg > /dev/null
-sudo tee ${CHROOT_DIR}/etc/apt/sources.list.d/docker.list > /dev/null << EOF
+curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/docker.gpg > /dev/null
+${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/docker.list > /dev/null << EOF
 deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable
 EOF
 
@@ -171,26 +179,26 @@ fi
 
 # Update and download remaining packages from repositories
 echo "===> Updating package lists in chroot"
-sudo chroot ${CHROOT_DIR} apt-get update
+${SUDO} chroot ${CHROOT_DIR} apt-get update
 
 echo "===> Downloading PacketFence packages and dependencies from repositories"
 # Download packages and dependencies (skip if already copied locally)
 # Dependencies not on DVD will be downloaded here
-sudo chroot ${CHROOT_DIR} apt-get install -y --download-only ${PACKAGES} || true
+${SUDO} chroot ${CHROOT_DIR} apt-get install -y --download-only ${PACKAGES} || true
 
 echo "===> Downloading Docker packages"
-sudo chroot ${CHROOT_DIR} apt-get install -y --download-only ${DOCKER_PACKAGES} || true
+${SUDO} chroot ${CHROOT_DIR} apt-get install -y --download-only ${DOCKER_PACKAGES} || true
 
 # Download the packages directly as well
 echo "===> Downloading packages directly"
-sudo chroot ${CHROOT_DIR} bash -c "apt-get download ${PACKAGES} 2>/dev/null || true"
+${SUDO} chroot ${CHROOT_DIR} bash -c "apt-get download ${PACKAGES} 2>/dev/null || true"
 
 # Move all downloaded packages to repo
 echo "===> Moving downloaded packages to repository"
-sudo find ${CHROOT_DIR}/var/cache/apt/archives -name "*.deb" -exec cp {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
-sudo find ${CHROOT_DIR} -maxdepth 1 -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+${SUDO} find ${CHROOT_DIR}/var/cache/apt/archives -name "*.deb" -exec cp {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
+${SUDO} find ${CHROOT_DIR} -maxdepth 1 -name "*.deb" -exec mv {} ${REPO_DIR}/pool/main/ \; 2>/dev/null || true
 # Fix ownership of copied files
-sudo chown -R $(id -u):$(id -g) ${REPO_DIR}
+${SUDO} chown -R $(id -u):$(id -g) ${REPO_DIR}
 
 # Generate Packages file
 echo "===> Generating Packages index"
