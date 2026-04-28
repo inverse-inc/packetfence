@@ -53,6 +53,14 @@ my $pid = eval {
     open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3:80")
 };
 
+END {
+    if ($pid) {
+        local $?;
+        kill( 'KILL', $pid );
+        waitpid( $pid, 0 );
+    }
+}
+
 if ($@) {
     exit 1;
 }
@@ -66,14 +74,6 @@ if ($check_pid) {
     print STDERR $err;
     exit 1;
 }
-
-my $defer = pf::defer::defer(
-    sub {
-        kill( 'INT', $pid );
-        waitpid( $pid, 0 );
-    }
-);
-
 
 my $switch = pf::SwitchFactory->instantiate('172.16.8.32');
 my $cache = $switch->cache_distributed;
