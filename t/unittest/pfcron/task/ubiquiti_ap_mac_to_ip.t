@@ -72,6 +72,8 @@ if ($check_pid) {
     local $/;
     my $err = <$child_err>;
     print STDERR $err;
+    my $info = `lsof -V -i :8443 +c0`;
+    print STDERR "lsof -V -i :8443 +c0\n  $info\n";
     exit 1;
 }
 
