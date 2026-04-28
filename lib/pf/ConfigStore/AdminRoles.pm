@@ -18,7 +18,14 @@ use namespace::autoclean;
 use pf::file_paths qw($admin_roles_config_file);
 extends 'pf::ConfigStore';
 
-sub expandableParams { return (qw(actions allowed_roles allowed_access_levels allowed_node_roles allowed_actions)); }
+sub expandableParams {
+    return qw(
+        actions allowed_roles allowed_access_levels allowed_node_roles
+        allowed_actions disallowed_roles disallowed_node_roles
+        disallowed_node_bypass_roles allowed_node_bypass_vlans
+        allowed_node_bypass_roles
+    );
+}
 
 sub configFile { $admin_roles_config_file }
 

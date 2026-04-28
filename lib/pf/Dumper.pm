@@ -14,6 +14,9 @@ use strict;
 use warnings;
 use Data::Dumper();
 
+our $OLD_TERSE = $Data::Dumper::Terse;
+our $OLD_INDENT = $Data::Dumper::Indent;
+
 sub import {
     @_= ("Data::Dumper");
     goto &Exporter::import;
@@ -21,6 +24,11 @@ sub import {
 
 $Data::Dumper::Terse = 1;
 $Data::Dumper::Indent = 0;
+
+sub revert {
+    $Data::Dumper::Terse = $OLD_TERSE;
+    $Data::Dumper::Indent = $OLD_INDENT;
+}
 
 =head1 AUTHOR
 

@@ -33,6 +33,12 @@ const api = {
   getAllowedNodeRoles: () => {
     return apiCall.get(`current_user/allowed_node_roles`)
   },
+  getAllowedNodeBypassRoles: () => {
+    return apiCall.get(`current_user/allowed_node_bypass_roles`)
+  },
+  getAllowedNodeBypassVlans: () => {
+    return apiCall.get(`current_user/allowed_node_bypass_vlans`)
+  },
   getAllowedUserAccessDurations: () => {
     return apiCall.get(`current_user/allowed_user_access_durations`)
   },
@@ -81,6 +87,11 @@ const initialState = () => {
     adminRoles: false,
     allowedNodeRoles: false,
     allowedNodeRolesStatus: '',
+    allowedNodeBypassRoles: false,
+    allowedNodeBypassRolesStatus: '',
+    allowedNodeBypassVlans: false,
+    allowedNodeBypassVlansDisabledForUser: false,
+    allowedNodeBypassVlansStatus: '',
     allowedUserAccessDurations: false,
     allowedUserAccessDurationsStatus: '',
     allowedUserAccessLevels: false,
@@ -109,6 +120,8 @@ const getters = {
     return false
   },
   isLoadingAllowedNodeRoles: state => state.isLoadingAllowedNodeRolesStatus === types.LOADING,
+  isLoadingAllowedNodeBypassRoles: state => state.isLoadingAllowedNodeBypassRolesStatus === types.LOADING,
+  isLoadingAllowedNodeBypassVlans: state => state.isLoadingAllowedNodeBypassVlansStatus === types.LOADING,
   isLoadingAllowedUserAccessDurations: state => state.isLoadingAllowedUserAccessDurationsStatus === types.LOADING,
   isLoadingAllowedUserAccessLevels: state => state.isLoadingAllowedUserAccessDurationsStatus === types.LOADING,
   isLoadingAllowedUserActions: state => state.isLoadingAllowedUserActionsStatus === types.LOADING,
@@ -117,6 +130,11 @@ const getters = {
   adminRoles: state => state.adminRoles || [],
   allowedNodeRoles: state => state.allowedNodeRoles || [],
   allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
+  allowedNodeBypassRoles: state => state.allowedNodeBypassRoles || [],
+  allowedNodeBypassRolesList: state => (state.allowedNodeBypassRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
+  allowedNodeBypassVlans: state => state.allowedNodeBypassVlans || [],
+  allowedNodeBypassVlansList: state => (state.allowedNodeBypassVlans || []).map(vlan => { return { value: vlan.vlan, text: `${vlan.vlan}` } }),
+  allowedNodeBypassVlansDisabledForUser: state => state.allowedNodeBypassVlansDisabledForUser,
   allowedUserAccessDurations: state => state.allowedUserAccessDurations || [],
   allowedUserAccessDurationsList: state => (state.allowedUserAccessDurations || []).map(_accessDuration => {
     const { access_duration: accessDuration } = _accessDuration
@@ -173,6 +191,8 @@ const actions = {
     commit('ROLES_DELETED')
     commit('ADMIN_ROLES_DELETED')
     commit('ALLOWED_NODE_ROLES_DELETED')
+    commit('ALLOWED_NODE_BYPASS_ROLES_DELETED')
+    commit('ALLOWED_NODE_BYPASS_VLANS_DELETED')
     commit('ALLOWED_USER_ACCESS_DURATIONS_DELETED')
     commit('ALLOWED_USER_ACCESS_LEVELS_DELETED')
     commit('ALLOWED_USER_ACTIONS_DELETED')
@@ -259,6 +279,28 @@ const actions = {
     return api.getAllowedNodeRoles().then(response => {
       commit('ALLOWED_NODE_ROLES_UPDATED', response.data.items)
       return state.allowedNodeRoles
+    })
+  },
+  getAllowedNodeBypassRoles: ({ state, commit }) => {
+    if (state.allowedNodeBypassRoles) {
+      return Promise.resolve(state.allowedNodeBypassRoles)
+    }
+    commit('ALLOWED_NODE_BYPASS_ROLES_REQUEST')
+    return api.getAllowedNodeBypassRoles().then(response => {
+      commit('ALLOWED_NODE_BYPASS_ROLES_UPDATED', response.data.items)
+      return state.allowedNodeBypassRoles
+    })
+  },
+  getAllowedNodeBypassVlans: ({ state, commit }) => {
+    if (state.allowedNodeBypassVlans) {
+      return Promise.resolve(state.allowedNodeBypassVlans)
+    }
+    commit('ALLOWED_NODE_BYPASS_VLANS_REQUEST')
+    return api.getAllowedNodeBypassVlans().then(response => {
+      const { data: { items = [], disable_bypass_vlan = false } = {} } = response
+      commit('ALLOWED_NODE_BYPASS_VLANS_DISABLED', disable_bypass_vlan)
+      commit('ALLOWED_NODE_BYPASS_VLANS_UPDATED', items)
+      return state.allowedNodeBypassVlans
     })
   },
   getAllowedUserAccessDurations: ({ state, commit }) => {
@@ -423,6 +465,29 @@ const mutations = {
   },
   ALLOWED_NODE_ROLES_DELETED: (state) => {
     state.allowedNodeRoles = false
+  },
+  ALLOWED_NODE_BYPASS_ROLES_REQUEST: (state) => {
+    state.allowedNodeBypassRolesStatus = types.LOADING
+  },
+  ALLOWED_NODE_BYPASS_ROLES_UPDATED: (state, data) => {
+    state.allowedNodeBypassRolesStatus = types.SUCCESS
+    state.allowedNodeBypassRoles = data
+  },
+  ALLOWED_NODE_BYPASS_ROLES_DELETED: (state) => {
+    state.allowedNodeBypassRoles = false
+  },
+  ALLOWED_NODE_BYPASS_VLANS_REQUEST: (state) => {
+    state.allowedNodeBypassVlansStatus = types.LOADING
+  },
+  ALLOWED_NODE_BYPASS_VLANS_DISABLED: (state, data) => {
+    state.allowedNodeBypassVlansDisabledForUser = data
+  },
+  ALLOWED_NODE_BYPASS_VLANS_UPDATED: (state, data) => {
+    state.allowedNodeBypassVlansStatus = types.SUCCESS
+    state.allowedNodeBypassVlans = data
+  },
+  ALLOWED_NODE_BYPASS_VLANS_DELETED: (state) => {
+    state.allowedNodeBypassVlans = false
   },
   ALLOWED_USER_ACCESS_DURATIONS_REQUEST: (state) => {
     state.allowedUserAccessDurationsStatus = types.LOADING

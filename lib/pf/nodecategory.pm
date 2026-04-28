@@ -38,6 +38,7 @@ BEGIN {
         nodecategory_view
         nodecategory_view_by_name
         nodecategory_view_by_names
+        nodecategory_view_by_not_in_names
         nodecategory_add
         nodecategory_modify
         nodecategory_exist
@@ -249,6 +250,26 @@ sub nodecategory_view_by_names {
     my ($status, $iter) = pf::dal::node_category->search(
         -where => {
             name => {-in => \@names},
+        },
+        -with_class => undef,
+        -order_by => 'name',
+    );
+    if (is_error($status)) {
+        return ();
+    }
+
+    return map { _cleanup($_) } @{$iter->all() // []};
+}
+
+=item nodecategory_view_by_not_in_names - view a list of node categories by name. Returns an array of nodecategories
+
+=cut
+
+sub nodecategory_view_by_not_in_names {
+    my (@names) = @_;
+    my ($status, $iter) = pf::dal::node_category->search(
+        -where => {
+            name => {-not_in => \@names},
         },
         -with_class => undef,
         -order_by => 'name',

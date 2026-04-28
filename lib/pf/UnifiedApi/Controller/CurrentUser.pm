@@ -13,32 +13,52 @@ pf::UnifiedApi::Controller::CurrentUser
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
+use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES admin_allowed_options_all admin_isdisabled_option);
 use pf::Authentication::constants;
 use pf::nodecategory;
 use pf::config qw(%Config %ConfigRoles);
 use List::Util qw(maxstr);
 
 sub _allowed_options {
-    my ($self, $option, $key, $standard_options) = @_;
+    my ($self, $option, $key, $standard_options, $attributes) = @_;
     my $roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($roles, $option);
     if (@options == 0) {
         @options = $standard_options->($self, $option);
     }
 
-    return $self->render_items($key, @options);
+    return $self->render_items($key, $attributes, @options);
+}
+
+sub _allowed_options_all {
+    my ($self, $option, $key, $standard_options, $attributes) = @_;
+    my $roles = $self->stash->{admin_roles};
+    my @options = admin_allowed_options_all($roles, $option);
+    if (@options == 0) {
+        @options = $standard_options->($self, $option);
+    }
+
+    return $self->render_items($key, $attributes, @options);
 }
 
 sub _allowed_roles {
-    my ($self, $option) = @_;
+    my ($self, $option, @disallowed_options) = @_;
     my $admin_roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($admin_roles, $option);
+    my @disallowed;
+    for my $disallowed_option (@disallowed_options) {
+        push @disallowed, admin_allowed_options_all($admin_roles, $disallowed_option);
+    }
+
     my @roles;
     if (@options == 0) {
-        @roles = nodecategory_view_all();
+        @roles = @disallowed ? nodecategory_view_by_not_in_names(@disallowed): nodecategory_view_all();
     } else {
-        @roles = nodecategory_view_by_names(@options);
+        my %hash = map { $_ => 1} @disallowed;
+        @options = grep {!exists $hash{$_}} @options;
+        if (@options) {
+            @roles = nodecategory_view_by_names(@options);
+        }
     }
 
     return $self->render( json => {items => \@roles});
@@ -61,7 +81,7 @@ sub allowed_user_unreg_date {
 
 sub allowed_user_roles {
     my ($self) = @_;
-    return $self->_allowed_roles('allowed_roles');
+    return $self->_allowed_roles('allowed_roles', 'disallowed_roles');
 }
 
 sub allowed_user_access_levels {
@@ -81,13 +101,38 @@ sub allowed_user_access_durations {
 
 sub allowed_node_roles {
     my ($self) = @_;
-    return $self->_allowed_roles('allowed_node_roles');
+    return $self->_allowed_roles('allowed_node_roles', 'disallowed_node_roles');
+}
+
+sub allowed_node_bypass_roles {
+    my ($self) = @_;
+    my $admin_roles = $self->stash->{admin_roles};
+    my @options = admin_allowed_options($admin_roles, 'allowed_node_bypass_roles');
+    my @disallowed = admin_allowed_options_all($admin_roles, 'disallowed_node_bypass_roles');
+    my @roles;
+    if (@options == 0) {
+        @roles = @disallowed ? nodecategory_view_by_not_in_names(@disallowed) : nodecategory_view_all();
+    } else {
+        my %dis = map { $_ => 1 } @disallowed;
+        @options = grep { !exists $dis{$_} } @options;
+        @roles = nodecategory_view_by_names(@options) if @options;
+    }
+    return $self->render(json => {items => \@roles});
+}
+
+sub allowed_node_bypass_vlans {
+    my ($self) = @_;
+    my %attributes = (
+        disable_bypass_vlan => admin_isdisabled_option($self->stash->{admin_roles}, "disable_bypass_vlan") ? $self->json_true: $self->json_false,
+    );
+    return $self->_allowed_options_all('allowed_node_bypass_vlans', 'vlan', sub {}, \%attributes);
 }
 
 sub render_items {
-    my ($self, $key, @items) = @_;
+    my ($self, $key, $attributes, @items) = @_;
     return $self->render(
         json => {
+            %{$attributes // {}},
             items => [ map {  { $key => $_ } } @items]
         }
     );

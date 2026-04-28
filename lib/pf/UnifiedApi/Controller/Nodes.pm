@@ -468,7 +468,33 @@ bulk_apply_role
 
 sub bulk_apply_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('category_id');
+    return $self->do_bulk_update_field('category_id', \&validate_bulk_category_id);
+}
+
+=head2 validate_bulk_category_id
+
+validate_bulk_category_id
+
+=cut
+
+sub validate_bulk_category_id {
+    my ($self, $cat_id) = @_;
+    if (!defined $cat_id) {
+        return (200, undef);
+    }
+
+    my $nc = nodecategory_view($cat_id);   # resolve ID → name
+    if (!$nc) {
+        return (422, "category_id $cat_id does not exist");
+    }
+
+    my $value = $nc->{name};
+    my $roles = $self->stash->{admin_roles};
+    if (check_disallowed_options($roles, 'disallowed_node_roles', $value) || !check_allowed_options($roles, 'allowed_node_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    return (200, undef);
 }
 
 =head2 bulk_apply_bypass_role
@@ -479,8 +505,39 @@ bulk_apply_bypass_role
 
 sub bulk_apply_bypass_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_role_id');
+    return $self->do_bulk_update_field('bypass_role_id', \&validate_bulk_bypass_role_id);
 }
+
+=head2 validate_bulk_bypass_role_id
+
+validate_bulk_bypass_role_id
+
+=cut
+
+sub validate_bulk_bypass_role_id {
+    my ($self, $cat_id) = @_;
+    if (!defined $cat_id) {
+        return (200, undef);
+    }
+
+    my $nc = nodecategory_view($cat_id);   # resolve ID → name
+    if (!$nc) {
+        return (422, "category_id $cat_id does not exist");
+    }
+
+    my $value = $nc->{name};
+    my $roles = $self->stash->{admin_roles};
+    if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    if (!check_allowed_options($roles, 'allowed_node_roles', $value) && !check_allowed_options($roles, 'allowed_node_bypass_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    return (200, undef);
+}
+
 
 sub validate_bulk_bypass_acls {
     my ($self, $value) = @_;
@@ -493,6 +550,25 @@ sub validate_bulk_bypass_acls {
     my ($a, $b, $e) = $parser->parse( 'input' => $acl);
     if (@{$e // []}) {
         return (422, "Invalid bypass_acls");
+    }
+
+    return (200, undef);
+}
+
+sub validate_bypass_vlan {
+    my ($self, $value) = @_;
+    my $roles = $self->stash->{admin_roles};
+
+    if (admin_isdisabled_option($roles, 'disable_bypass_vlan')) {
+        return (422,  "bypass_vlan is not allowed to be set" );
+    }
+
+    if (!defined $value || $value eq '') {
+        return (200, undef);
+    }
+
+    if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $value)) {
+        return (422,  "bypass_vlan $value not allowed" );
     }
 
     return (200, undef);
@@ -517,7 +593,7 @@ bulk update bypass_vlan
 
 sub bulk_apply_bypass_vlan {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_vlan');
+    return $self->do_bulk_update_field('bypass_vlan', \&validate_bypass_vlan);
 }
 
 =head2 do_bulk_update_field
@@ -1086,6 +1162,14 @@ sub import_item_check_for_errors {
     return @errors;
 }
 
+sub _get_role_name {
+    my ($cat_id) = @_;
+    return undef if !defined $cat_id;
+    my $nc = nodecategory_view($cat_id);
+    return undef if !defined $nc;
+    return $nc->{name};
+}
+
 =head2 validate
 
 validate
@@ -1098,15 +1182,25 @@ sub validate {
     my ($status, $err) = (200, undef);
     my @errors;
 
-    for my $f (qw(category_id bypass_role_id)) {
-        next if !exists $json->{$f};
-        my $cat_id = $json->{$f};
-        next if !defined $cat_id;
-        my $nc = nodecategory_view($cat_id);
-        next if !$nc;
-        my $name = $nc->{name};
-        if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
-            push @errors, { field => 'category_id', message => "$name is not allowed" };
+    if (exists $json->{category_id}) {
+        my $name = _get_role_name($json->{category_id});
+        if (defined $name) {
+            if (check_disallowed_options($roles, 'disallowed_node_roles', $name) || !check_allowed_options($roles, 'allowed_node_roles', $name)) {
+                push @errors, { field => 'category_id', message => "$name is not allowed" };
+            }
+        }
+    }
+
+    if (exists $json->{bypass_role_id}) {
+        my $name = _get_role_name($json->{bypass_role_id});
+        if (defined $name) {
+            if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
+                push @errors, { field => 'bypass_role_id', message => "$name is not allowed as bypass role" };
+            }
+
+            if (!check_allowed_options($roles, 'allowed_node_roles', $name) && !check_allowed_options($roles, 'allowed_node_bypass_roles', $name)) {
+                push @errors, { field => 'bypass_role_id', message => "$name is not allowed as bypass role" };
+            }
         }
     }
 
@@ -1121,6 +1215,17 @@ sub validate {
 
     if (exists $json->{bypass_acls}) {
         push @errors, $self->validate_bypass_acls($json->{bypass_acls});
+    }
+
+    if (exists $json->{bypass_vlan} && defined $json->{bypass_vlan} && length($json->{bypass_vlan})) {
+        my $bypass_vlan = $json->{bypass_vlan};
+        if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
+            push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed to be set" };
+        }
+
+        if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $bypass_vlan)) {
+            push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed" };
+        }
     }
 
     if (@errors) {
