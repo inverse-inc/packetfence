@@ -34,6 +34,7 @@
 #
 #  Define a network where clients may be dynamically defined.
 client dynamic {
+	require_message_authenticator = no
 	#
 	#  You MUST specify a netmask!
 	#  IPv4 /32 or IPv6 /128 are NOT allowed!
