@@ -665,6 +665,20 @@ sub cleanupItemForUpdate {
     return;
 }
 
+=head2 cleanupItemForReplace
+
+Hook to normalize the raw PUT payload before validation. Default is a
+pass-through; subclasses can override to enforce semantics that the
+form would otherwise collapse (e.g. distinguishing missing keys from
+explicit nulls).
+
+=cut
+
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    return $item;
+}
+
 sub replace {
     my ($self) = @_;
     my ($error, $item) = $self->get_json;
@@ -673,6 +687,7 @@ sub replace {
     }
     my $id = $self->id;
     $item->{id} = $id;
+    $item = $self->cleanupItemForReplace($item);
     (my $status, $item) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);

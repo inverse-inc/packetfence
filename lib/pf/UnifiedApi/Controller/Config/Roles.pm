@@ -117,6 +117,16 @@ sub cleanupItemForUpdate {
     return;
 }
 
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    # PUT replaces the role with exactly this payload. Apply the same
+    # parent_id normalization as create so PUT and POST agree on the
+    # missing/null/value matrix — without this, `{"parent_id": null}`
+    # over PUT would land in storage as undef (param removed) instead
+    # of the explicit empty lock that PATCH produces.
+    return $self->cleanupItemForCreate($item);
+}
+
 sub can_delete_from_config {
     my ($self) = @_;
     my $id = $self->id;
