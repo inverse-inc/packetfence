@@ -17,7 +17,7 @@ PF_RELEASE_VERSION=$(sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g' <<< "$PF_RELEA
 
 ISO_NAME=PacketFence-USB-ISO-${PF_VERSION}.iso
 UPLOAD_DIR=${PF_VERSION}-usb
-SF_RESULT_DIR=${SCRIPT_DIR}/results/sf/${UPLOAD_DIR}
+RESULT_DIR=${SCRIPT_DIR}/results/${UPLOAD_DIR}
 
 # Common rclone options
 RCLONE_OPTS="--s3-provider=Ceph --s3-access-key-id=${RCLONE_ACCESS_KEY_ID:-} --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY:-} --s3-endpoint=${RCLONE_LINODE_URL:-} --s3-acl=public-read"
@@ -27,14 +27,14 @@ upload_to_linode() {
 
     echo "Uploading to ${bucket}/"
     rclone mkdir ${RCLONE_OPTS} "${bucket}/"
-    rclone copyto ${RCLONE_OPTS} "${SF_RESULT_DIR}/${ISO_NAME}" "${bucket}/${ISO_NAME}"
+    rclone copyto ${RCLONE_OPTS} "${RESULT_DIR}/${ISO_NAME}" "${bucket}/${ISO_NAME}"
 
-    md5sum "${SF_RESULT_DIR}/${ISO_NAME}" | cut -d' ' -f1 | xargs -I{} echo "{} ${ISO_NAME}" > "${SF_RESULT_DIR}/${ISO_NAME}.md5sums.txt"
-    rclone copyto ${RCLONE_OPTS} "${SF_RESULT_DIR}/${ISO_NAME}.md5sums.txt" "${bucket}/${ISO_NAME}.md5sums.txt"
+    md5sum "${RESULT_DIR}/${ISO_NAME}" | cut -d' ' -f1 | xargs -I{} echo "{} ${ISO_NAME}" > "${RESULT_DIR}/${ISO_NAME}.md5sums.txt"
+    rclone copyto ${RCLONE_OPTS} "${RESULT_DIR}/${ISO_NAME}.md5sums.txt" "${bucket}/${ISO_NAME}.md5sums.txt"
 }
 
 # Create results directory
-mkdir -p ${SF_RESULT_DIR}
+mkdir -p ${RESULT_DIR}
 
 echo "===> Build USB Bootable ISO for release $PF_RELEASE (version: $PF_VERSION)"
 echo "===> ISO will be uploaded to: packetfence-iso/${UPLOAD_DIR}/"
@@ -43,7 +43,7 @@ echo "===> ISO will be uploaded to: packetfence-iso/${UPLOAD_DIR}/"
 export PF_VERSION
 export PF_RELEASE
 export PF_RELEASE_VERSION
-export ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}"
+export ISO_OUT="${RESULT_DIR}/${ISO_NAME}"
 
 # Run the build script
 ${SCRIPT_DIR}/build-usb-bootable-iso.sh
