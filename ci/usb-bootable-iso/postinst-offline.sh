@@ -42,7 +42,10 @@ apt-get update
 echo "===> Step 2: Installing packages from DVD (needed for first boot)"
 
 # Packages required during first boot when DVD is removed (fingerbank deps, SSL, acl)
+# dpkg-dev is required by Phase B's dpkg-scanpackages call; pull it in explicitly
+# so we don't rely on a transitive dependency from build-essential.
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    dpkg-dev \
     liblog-log4perl-perl \
     libconfig-inifiles-perl \
     liburi-perl \
