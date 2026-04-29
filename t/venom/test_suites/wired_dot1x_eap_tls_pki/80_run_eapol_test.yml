@@ -4,4 +4,4 @@ testcases:
     steps:
       - type: exec
         script: |
-          LOG_FILE="/usr/local/pf/logs/eapol_test.log"; eapol_test -c /etc/wpa_supplicant/eap_tls_pki/eap_tls.conf -s $(cat /usr/local/pf/conf/local_secret) -a {{.pfserver_mgmt_ip}} -M {{ .node01_ens7_mac_address }} -N 30:s:44:38:39:00:00:12:UConnect -N4:x:c0a80001 -N61:d:15 > "$LOG_FILE" 2>&1
+          LOG_FILE="/usr/local/pf/logs/eapol_test.log"; eapol_test -c /etc/wpa_supplicant/eap_tls_pki/eap_tls.conf -s testing123 -a {{.pfserver_mgmt_ip}} -M {{ .node01_ens7_mac_address }} -N 30:s:44:38:39:00:00:12:UConnect -N4:x:c0a80001 -N61:d:15 > "$LOG_FILE" 2>&1
