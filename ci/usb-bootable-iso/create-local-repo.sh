@@ -179,7 +179,22 @@ fi
 
 # Update and download remaining packages from repositories
 echo "===> Updating package lists in chroot"
-${SUDO} chroot ${CHROOT_DIR} apt-get update
+# Retry apt-get update on transient network failures.
+apt_update_with_retry() {
+    local attempt=1 max=5 delay=5
+    while [ ${attempt} -le ${max} ]; do
+        if ${SUDO} chroot ${CHROOT_DIR} apt-get update; then
+            return 0
+        fi
+        echo "apt-get update failed (attempt ${attempt}/${max}); retrying in ${delay}s..." >&2
+        sleep ${delay}
+        attempt=$((attempt + 1))
+        delay=$((delay * 2))
+    done
+    echo "ERROR: apt-get update failed after ${max} attempts" >&2
+    return 1
+}
+apt_update_with_retry
 
 echo "===> Downloading PacketFence packages and dependencies from repositories"
 # Download packages and dependencies (skip if already copied locally)
