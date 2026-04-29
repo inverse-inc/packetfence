@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 46;
+use Test::More tests => 70;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -367,6 +367,84 @@ $t->options_ok("$base_url/r5")
 
 $t->post_ok($collection_base_url => json => { id => 'r6', parent_id => 'r5'})
   ->status_is(201);
+
+# parent_id missing/null/'' semantics — see cleanupItemForCreate /
+# cleanupItemForUpdate in lib/pf/UnifiedApi/Controller/Config/Roles.pm.
+# Test fixture has advanced.default_role_parent_id=r4 (see t/data/pf.conf).
+my $cs = pf::ConfigStore::Roles->new;
+my $raw_parent_id = sub { $cs->cachedConfig->val($_[0], 'parent_id') };
+
+# CREATE: omitted parent_id -> advanced.default_role_parent_id ('r4')
+{
+    my $id = "test_parent_${$}_create_omit";
+    $t->post_ok($collection_base_url => json => { id => $id })
+      ->status_is(201);
+    is($raw_parent_id->($id), 'r4',
+        "CREATE with omitted parent_id materializes default_role_parent_id");
+}
+
+# CREATE: parent_id => null -> empty lock
+{
+    my $id = "test_parent_${$}_create_null";
+    $t->post_ok($collection_base_url => json => { id => $id, parent_id => undef })
+      ->status_is(201);
+    is($raw_parent_id->($id), '',
+        "CREATE with parent_id:null persists explicit empty lock");
+}
+
+# CREATE: parent_id => '' -> empty lock
+{
+    my $id = "test_parent_${$}_create_empty";
+    $t->post_ok($collection_base_url => json => { id => $id, parent_id => '' })
+      ->status_is(201);
+    is($raw_parent_id->($id), '',
+        "CREATE with parent_id:'' persists explicit empty lock");
+}
+
+# CREATE: parent_id => '<value>' -> stored verbatim
+{
+    my $id = "test_parent_${$}_create_value";
+    $t->post_ok($collection_base_url => json => { id => $id, parent_id => 'r5' })
+      ->status_is(201);
+    is($raw_parent_id->($id), 'r5',
+        "CREATE with explicit parent_id stores the value");
+}
+
+# UPDATE: omitted parent_id -> preserved (mergeUpdate carries old value)
+{
+    my $id = "test_parent_${$}_create_value"; # currently r5
+    $t->patch_ok("$base_url/$id" => json => { notes => 'preserved' })
+      ->status_is(200);
+    is($raw_parent_id->($id), 'r5',
+        "UPDATE with omitted parent_id preserves stored value");
+}
+
+# UPDATE: parent_id => null -> empty lock
+{
+    my $id = "test_parent_${$}_create_value"; # currently r5
+    $t->patch_ok("$base_url/$id" => json => { parent_id => undef })
+      ->status_is(200);
+    is($raw_parent_id->($id), '',
+        "UPDATE with parent_id:null persists explicit empty lock");
+}
+
+# UPDATE: parent_id => '' -> empty lock
+{
+    my $id = "test_parent_${$}_create_omit"; # currently r4
+    $t->patch_ok("$base_url/$id" => json => { parent_id => '' })
+      ->status_is(200);
+    is($raw_parent_id->($id), '',
+        "UPDATE with parent_id:'' persists explicit empty lock");
+}
+
+# UPDATE: parent_id => '<value>' -> stored verbatim
+{
+    my $id = "test_parent_${$}_create_null"; # currently empty
+    $t->patch_ok("$base_url/$id" => json => { parent_id => 'r5' })
+      ->status_is(200);
+    is($raw_parent_id->($id), 'r5',
+        "UPDATE with explicit parent_id stores the new value");
+}
 
 =head1 AUTHOR
 

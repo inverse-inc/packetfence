@@ -111,7 +111,10 @@ sub cleanupItemForCreate {
 
 sub cleanupItemForUpdate {
     my ($self, $old_item, $new_data, $data) = @_;
-    if (exists $data->{parent_id} && !defined $data->{parent_id}) {
+    # null and "" both mean "user explicitly cleared parent_id" — lock
+    # as empty. Missing key is handled by mergeUpdate (preserves old).
+    if (exists $data->{parent_id}
+        && (!defined $data->{parent_id} || $data->{parent_id} eq '')) {
         $new_data->{parent_id} = '';
     }
     return;
