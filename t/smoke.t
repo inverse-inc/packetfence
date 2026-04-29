@@ -27,6 +27,25 @@ use TAP::Parser::Aggregator;
 use IO::Interactive qw(is_interactive);
 
 use TestUtils;
+use Time::HiRes qw(sleep);
+our $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
+our $PFCONFIG_TEST_SERIAL_PID_FILE = "/usr/local/pf/var/run/pfconfig-test-serial.pid";
+my $count = 0;
+for my $pid ($PFCONFIG_TEST_PID_FILE, $PFCONFIG_TEST_SERIAL_PID_FILE) {
+    if (-e $pid) {
+        local $/;
+        open(my $fh, $pid);
+        chomp(my $pid = <$fh>);
+        next unless $pid && $pid =~ /\d+/;
+        kill('INT', $pid);
+        $count++;
+    }
+}
+
+if ($count) {
+    sleep($count * 0.75);
+}
+
 `/usr/local/pf/t/pfconfig-test`;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
@@ -124,6 +143,7 @@ EOS
 END {
     foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
         next unless open(my $fh, "<", "/usr/local/pf/var/run/${test_service}.pid");
+        local $/;
         chomp(my $pid = <$fh>);
         next unless $pid && $pid =~ /\d+/;
         kill ('INT', $pid);
