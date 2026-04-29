@@ -482,6 +482,15 @@ RELEASE_EOF
 deb [trusted=yes] file://${LOCAL_REPO} local main
 APT_EOF
 
+    # First boot may run with no Internet. Move the remote PacketFence repo
+    # aside so apt-get update doesn't fail trying to reach inverse.ca; restore
+    # it once the local install completes.
+    PACKETFENCE_LIST_DISABLED=""
+    if [ -f /etc/apt/sources.list.d/packetfence.list ]; then
+        mv /etc/apt/sources.list.d/packetfence.list /etc/apt/sources.list.d/packetfence.list.disabled
+        PACKETFENCE_LIST_DISABLED=1
+    fi
+
     # Update apt cache
     apt-get update
     echo "Local APT repository created successfully"
@@ -533,6 +542,9 @@ APT_EOF
 
     # Cleanup local repo config
     rm -f /etc/apt/sources.list.d/packetfence-local-install.list
+    if [ -n "${PACKETFENCE_LIST_DISABLED}" ]; then
+        mv /etc/apt/sources.list.d/packetfence.list.disabled /etc/apt/sources.list.d/packetfence.list
+    fi
     apt-get update 2>/dev/null || true
 
     echo "PacketFence installation completed successfully"
