@@ -33,32 +33,634 @@ $t->get_ok('/api/v1/current_user/allowed_node_bypass_roles' => {$header => 'Node
     ->status_is(200)
     ->json_is({
             status => 200,
-            items => [
-                    {
-                      'name' => 'default',
-                      'inherit_web_auth_url' => undef,
-                      'fingerbank_dynamic_access_list' => 'disabled',
-                      'max_nodes_per_pid' => '0',
-                      'inherit_vlan' => undef,
-                      'inherit_role' => undef,
-                      'category_id' => '1',
-                      'notes' => 'Placeholder role/category, feel free to edit',
-                      'include_parent_acls' => 'disabled',
-                      'acls' => ''
-                    },
-                    {
-                      'acls' => '',
-                      'notes' => 'Guests',
-                      'include_parent_acls' => 'disabled',
-                      'inherit_vlan' => undef,
-                      'category_id' => '2',
-                      'inherit_role' => undef,
-                      'fingerbank_dynamic_access_list' => 'disabled',
-                      'max_nodes_per_pid' => '0',
-                      'inherit_web_auth_url' => undef,
-                      'name' => 'guest'
-                    }
-            ],
+          'items' => [
+                       {
+                         'category_id' => '8',
+                         'notes' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => 'accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any',
+                         'name' => 'acls_error1',
+                         'inherit_vlan' => undef
+                       },
+                       {
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'notes' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'category_id' => '9',
+                         'inherit_vlan' => undef,
+                         'name' => 'acls_error2',
+                         'acls' => 'accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any
+accept any any',
+                         'max_nodes_per_pid' => '0'
+                       },
+                       {
+                         'name' => 'custom1',
+                         'inherit_vlan' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => '',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'category_id' => '10',
+                         'notes' => undef,
+                         'include_parent_acls' => 'disabled'
+                       },
+                       {
+                         'inherit_vlan' => undef,
+                         'name' => 'default',
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => 'Placeholder role/category, feel free to edit',
+                         'category_id' => '1'
+                       },
+                       {
+                         'inherit_vlan' => undef,
+                         'name' => 'gaming',
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'notes' => 'Gaming devices',
+                         'include_parent_acls' => 'disabled',
+                         'category_id' => '3'
+                       },
+                       {
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_vlan' => undef,
+                         'name' => 'guest',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => 'Guests',
+                         'category_id' => '2',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'name' => 'macDetection',
+                         'inherit_vlan' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => '',
+                         'inherit_role' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'category_id' => '11',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef
+                       },
+                       {
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_vlan' => undef,
+                         'name' => 'Machine',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => 'Machine role',
+                         'category_id' => '6',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'notes' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'category_id' => '12',
+                         'inherit_vlan' => undef,
+                         'name' => 'normal',
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0'
+                       },
+                       {
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_vlan' => undef,
+                         'name' => 'r1',
+                         'notes' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'category_id' => '13',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_role' => undef,
+                         'inherit_web_auth_url' => undef
+                       },
+                       {
+                         'category_id' => '14',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'max_nodes_per_pid' => '0',
+                         'acls' => '',
+                         'name' => 'r2',
+                         'inherit_vlan' => undef
+                       },
+                       {
+                         'max_nodes_per_pid' => '0',
+                         'acls' => 'permit tcp any any',
+                         'name' => 'r3',
+                         'inherit_vlan' => undef,
+                         'category_id' => '15',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef,
+                         'category_id' => '16',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'acls' => 'permit tcp any any',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_vlan' => undef,
+                         'name' => 'r4'
+                       },
+                       {
+                         'max_nodes_per_pid' => '0',
+                         'acls' => 'permit tcp any any',
+                         'name' => 'r5',
+                         'inherit_vlan' => undef,
+                         'category_id' => '17',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef,
+                         'inherit_role' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_vlan' => undef,
+                         'name' => 'REJECT',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => 'Reject role (Used to block access)',
+                         'category_id' => '5',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_vlan' => undef,
+                         'name' => 'User',
+                         'include_parent_acls' => 'disabled',
+                         'notes' => 'User role',
+                         'category_id' => '7',
+                         'inherit_role' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'name' => 'voice',
+                         'inherit_vlan' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => '',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_role' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'category_id' => '4',
+                         'notes' => 'VoIP devices',
+                         'include_parent_acls' => 'disabled'
+                       }
+                     ]
     });
 
 
@@ -77,7 +679,6 @@ $t->get_ok('/api/v1/current_user/allowed_node_roles' => {$header => 'Node Manage
     ->json_is({
           'items' => [
                        {
-                         'inherit_role' => undef,
                          'acls' => 'accept any any
 accept any any
 accept any any
@@ -110,16 +711,18 @@ accept any any
 accept any any
 accept any any
 accept any any',
+                         'inherit_role' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'inherit_web_auth_url' => undef,
                          'category_id' => '8',
-                         'fingerbank_dynamic_access_list' => 'disabled',
-                         'notes' => undef,
-                         'inherit_web_auth_url' => undef,
-                         'max_nodes_per_pid' => '0',
-                         'include_parent_acls' => 'disabled',
                          'name' => 'acls_error1',
-                         'inherit_vlan' => undef
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef
                        },
                        {
+                         'inherit_role' => undef,
                          'acls' => 'accept any any
 accept any any
 accept any any
@@ -512,155 +1115,175 @@ accept any any
 accept any any
 accept any any
 accept any any',
-                         'inherit_role' => undef,
-                         'notes' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'inherit_web_auth_url' => undef,
                          'category_id' => '9',
-                         'fingerbank_dynamic_access_list' => 'disabled',
-                         'max_nodes_per_pid' => '0',
-                         'inherit_web_auth_url' => undef,
-                         'inherit_vlan' => undef,
                          'name' => 'acls_error2',
-                         'include_parent_acls' => 'disabled'
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef
                        },
                        {
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled',
                          'notes' => undef,
-                         'fingerbank_dynamic_access_list' => 'disabled',
-                         'category_id' => '10',
-                         'acls' => '',
                          'inherit_role' => undef,
-                         'name' => 'custom1',
-                         'inherit_vlan' => undef,
-                         'include_parent_acls' => 'disabled',
-                         'max_nodes_per_pid' => '0',
-                         'inherit_web_auth_url' => undef
-                       },
-                       {
-                         'notes' => 'Gaming devices',
-                         'category_id' => '3',
-                         'fingerbank_dynamic_access_list' => 'disabled',
                          'acls' => '',
-                         'inherit_role' => undef,
-                         'inherit_vlan' => undef,
-                         'name' => 'gaming',
-                         'include_parent_acls' => 'disabled',
-                         'max_nodes_per_pid' => '0',
-                         'inherit_web_auth_url' => undef
-                       },
-                       {
                          'max_nodes_per_pid' => '0',
                          'inherit_web_auth_url' => undef,
-                         'name' => 'macDetection',
-                         'inherit_vlan' => undef,
-                         'include_parent_acls' => 'disabled',
+                         'category_id' => '10',
+                         'name' => 'custom1'
+                       },
+                       {
+                         'category_id' => '3',
+                         'name' => 'gaming',
+                         'max_nodes_per_pid' => '0',
                          'acls' => '',
                          'inherit_role' => undef,
-                         'notes' => undef,
-                         'category_id' => '11',
+                         'inherit_web_auth_url' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'notes' => 'Gaming devices',
                          'fingerbank_dynamic_access_list' => 'disabled'
                        },
                        {
+                         'category_id' => '11',
+                         'name' => 'macDetection',
                          'acls' => '',
                          'inherit_role' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'fingerbank_dynamic_access_list' => 'disabled',
                          'notes' => 'Machine role',
-                         'fingerbank_dynamic_access_list' => 'disabled',
-                         'category_id' => '6',
-                         'max_nodes_per_pid' => '0',
+                         'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
                          'inherit_web_auth_url' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => '',
+                         'inherit_role' => undef,
                          'name' => 'Machine',
-                         'inherit_vlan' => undef,
-                         'include_parent_acls' => 'disabled'
+                         'category_id' => '6'
                        },
                        {
-                         'inherit_role' => undef,
                          'acls' => '',
-                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_role' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'inherit_web_auth_url' => undef,
                          'category_id' => '12',
-                         'notes' => undef,
-                         'inherit_web_auth_url' => undef,
-                         'max_nodes_per_pid' => '0',
-                         'include_parent_acls' => 'disabled',
+                         'name' => 'normal',
+                         'fingerbank_dynamic_access_list' => 'disabled',
                          'inherit_vlan' => undef,
-                         'name' => 'normal'
+                         'include_parent_acls' => 'disabled',
+                         'notes' => undef
                        },
                        {
-                         'inherit_role' => undef,
-                         'acls' => '',
-                         'category_id' => '13',
                          'fingerbank_dynamic_access_list' => 'disabled',
                          'notes' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
                          'inherit_web_auth_url' => undef,
                          'max_nodes_per_pid' => '0',
-                         'include_parent_acls' => 'disabled',
+                         'inherit_role' => undef,
+                         'acls' => '',
                          'name' => 'r1',
-                         'inherit_vlan' => undef
+                         'category_id' => '13'
                        },
                        {
+                         'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'notes' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled',
                          'category_id' => '14',
-                         'fingerbank_dynamic_access_list' => 'disabled',
-                         'notes' => undef,
-                         'inherit_role' => undef,
-                         'acls' => '',
-                         'include_parent_acls' => 'disabled',
                          'name' => 'r2',
-                         'inherit_vlan' => undef,
-                         'inherit_web_auth_url' => undef,
-                         'max_nodes_per_pid' => '0'
-                       },
-                       {
-                         'acls' => 'permit tcp any any',
-                         'inherit_role' => undef,
-                         'notes' => undef,
-                         'category_id' => '15',
-                         'fingerbank_dynamic_access_list' => 'disabled',
                          'max_nodes_per_pid' => '0',
-                         'inherit_web_auth_url' => undef,
-                         'inherit_vlan' => undef,
-                         'name' => 'r3',
-                         'include_parent_acls' => 'disabled'
-                       },
-                       {
-                         'inherit_role' => undef,
-                         'acls' => '',
-                         'fingerbank_dynamic_access_list' => 'disabled',
-                         'category_id' => '5',
-                         'notes' => 'Reject role (Used to block access)',
-                         'inherit_web_auth_url' => undef,
-                         'max_nodes_per_pid' => '0',
-                         'include_parent_acls' => 'disabled',
-                         'name' => 'REJECT',
-                         'inherit_vlan' => undef
-                       },
-                       {
-                         'notes' => 'User role',
-                         'category_id' => '7',
-                         'fingerbank_dynamic_access_list' => 'disabled',
                          'acls' => '',
                          'inherit_role' => undef,
-                         'name' => 'User',
-                         'inherit_vlan' => undef,
-                         'include_parent_acls' => 'disabled',
-                         'max_nodes_per_pid' => '0',
                          'inherit_web_auth_url' => undef
                        },
                        {
-                         'inherit_vlan' => undef,
-                         'name' => 'voice',
+                         'name' => 'r3',
+                         'category_id' => '15',
+                         'inherit_web_auth_url' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => 'permit tcp any any',
+                         'inherit_role' => undef,
+                         'notes' => undef,
                          'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'fingerbank_dynamic_access_list' => 'disabled'
+                       },
+                       {
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'notes' => undef,
+                         'max_nodes_per_pid' => '0',
+                         'acls' => 'permit tcp any any',
+                         'inherit_role' => undef,
+                         'inherit_web_auth_url' => undef,
+                         'category_id' => '16',
+                         'name' => 'r4'
+                       },
+                       {
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'notes' => undef,
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'acls' => 'permit tcp any any',
+                         'max_nodes_per_pid' => '0',
+                         'name' => 'r5',
+                         'category_id' => '17'
+                       },
+                       {
+                         'acls' => '',
+                         'inherit_role' => undef,
                          'max_nodes_per_pid' => '0',
                          'inherit_web_auth_url' => undef,
+                         'category_id' => '5',
+                         'name' => 'REJECT',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled',
+                         'notes' => 'Reject role (Used to block access)'
+                       },
+                       {
+                         'inherit_web_auth_url' => undef,
+                         'inherit_role' => undef,
+                         'acls' => '',
+                         'max_nodes_per_pid' => '0',
+                         'name' => 'User',
+                         'category_id' => '7',
+                         'fingerbank_dynamic_access_list' => 'disabled',
+                         'notes' => 'User role',
+                         'inherit_vlan' => undef,
+                         'include_parent_acls' => 'disabled'
+                       },
+                       {
+                         'include_parent_acls' => 'disabled',
+                         'inherit_vlan' => undef,
                          'notes' => 'VoIP devices',
                          'fingerbank_dynamic_access_list' => 'disabled',
                          'category_id' => '4',
+                         'name' => 'voice',
+                         'max_nodes_per_pid' => '0',
+                         'inherit_role' => undef,
                          'acls' => '',
-                         'inherit_role' => undef
+                         'inherit_web_auth_url' => undef
                        }
                      ],
           'status' => 200
         });
-    #use pf::Dumper;
-    #pf::Dumper::revert();
-
-    #print Dumper($t->tx->res->json());
+#use pf::Dumper;pf::Dumper::revert();print Dumper($t->tx->res->json());
 
 =head1 AUTHOR
 
