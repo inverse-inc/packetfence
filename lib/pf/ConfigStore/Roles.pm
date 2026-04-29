@@ -44,18 +44,41 @@ sub cleanupAfterRead {
 
 =head2 cleanupBeforeCommit
 
-Ensure parent_id is always persisted explicitly (as `parent_id=`) when a role
-has no parent, so roles.conf stays consistent with the upgrade script and with
-the fallback logic in parentSections.
+Default `acls` to an empty string when missing so pfconfig's generic-copy
+inheritance does not pull the parent's ACLs into the child's flattened
+node_category row (runtime walk in Switch.pm handles the ACL fallback
+instead).
+
+For `parent_id`: on CREATE (section does not yet exist) when the payload
+omits the key, always materialize the value:
+  * if `advanced.default_role_parent_id` is set (and points at an
+    existing role other than this one), use it.
+  * otherwise, write an explicit `parent_id=` (empty).
+This "locks in" a role's parent at creation time so a later change to
+`advanced.default_role_parent_id` cannot retroactively re-parent the
+already-saved role. On UPDATE, never inject — preserve whatever is in
+the existing config.
 
 =cut
 
 sub cleanupBeforeCommit {
     my ($self, $id, $assignments) = @_;
-    $assignments->{parent_id} = ''
-        unless defined $assignments->{parent_id};
     $assignments->{acls} = ''
         unless defined $assignments->{acls};
+
+    # The Roles form returns parent_id as undef (not "missing") when the
+    # API payload omits the key, so check `!defined` rather than `!exists`.
+    if (!defined $assignments->{parent_id}
+        && !$self->cachedConfig->SectionExists($id)) {
+        my $default_parent = $Config{advanced}{default_role_parent_id};
+        if (defined $default_parent && length $default_parent
+            && $default_parent ne $id
+            && $self->cachedConfig->SectionExists($default_parent)) {
+            $assignments->{parent_id} = $default_parent;
+        } else {
+            $assignments->{parent_id} = '';
+        }
+    }
 }
 
 =head2
