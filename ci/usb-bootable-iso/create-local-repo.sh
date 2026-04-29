@@ -94,6 +94,7 @@ ${SUDO} cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfenc
 
 # Packages to download (not on DVD or need specific versions)
 PACKAGES="
+    dpkg-dev
     packetfence
     packetfence-pfcmd-suid
     packetfence-config
