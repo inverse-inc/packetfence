@@ -9,11 +9,11 @@ set -o nounset -o pipefail -o errexit
 # PacketFence installation is deferred to first boot (Phase B).
 # =============================================================================
 
-PF_VERSION=${1:-15.1}
+PF_RELEASE_VERSION=${1:-15.1}
 
 echo "=============================================="
 echo "PacketFence Offline Install - Phase A"
-echo "PF_VERSION: ${PF_VERSION}"
+echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
 echo "=============================================="
 
 # Step 1: Configure local repository from ISO
@@ -249,9 +249,9 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i 's/.*inverse\.ca.*//g' /etc/apt/sources.list
 
 # Configure PacketFence repository for future updates (will be used when network is available)
-# Using debian-branches for now - change to debian/${PF_VERSION} when stable packages are published
+# Using debian-branches for now - change to debian/${PF_RELEASE_VERSION} when stable packages are published
 cat > /etc/apt/sources.list.d/packetfence.list << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian-branches/${PF_VERSION} bookworm bookworm
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian-branches/${PF_RELEASE_VERSION} bookworm bookworm
 EOF
 
 # Step 7: Create first-boot service

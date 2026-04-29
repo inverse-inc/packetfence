@@ -45,7 +45,7 @@ xorriso -osirrox on -indev "${ISO_IN}" -extract / "${ISOFILES_DIR}"
 PRESEED_STAGING=$(mktemp -d)
 trap 'rm -rf "${PRESEED_STAGING}"' EXIT
 echo "===> Step 2: Generating preseed configuration"
-sed -e "s/%%PF_VERSION%%/${PF_RELEASE_VERSION}/g" \
+sed -e "s/%%PF_RELEASE_VERSION%%/${PF_RELEASE_VERSION}/g" \
     -e "s/%%PF_RELEASE%%/${PF_RELEASE}/g" \
     "${SCRIPT_DIR}/preseed-offline.cfg.tmpl" > "${PRESEED_STAGING}/preseed.cfg"
 

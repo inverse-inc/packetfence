@@ -166,7 +166,7 @@ d-i preseed/late_command string \
   mount --bind /cdrom /target/media/cdrom ; \
   in-target cp -a /media/cdrom/postinst-offline.sh /usr/local/bin/ ; \
   in-target chmod 700 /usr/local/bin/postinst-offline.sh ; \
-  in-target /bin/bash /usr/local/bin/postinst-offline.sh %%PF_VERSION%% ; \
+  in-target /bin/bash /usr/local/bin/postinst-offline.sh %%PF_RELEASE_VERSION%% ; \
   umount /target/media/cdrom || true ; \
   umount /target/dev || true ; \
   umount /target/proc || true ; \
