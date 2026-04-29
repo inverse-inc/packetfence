@@ -12,15 +12,13 @@ input:
   accounting_interval: "60"
   reauth_interval: "0"
   auth_retry_interval: "30"
-  coa_enabled: "true"
-  coa_port: "3799"
   # DHCP
   dhcp_enabled: "true"
   dhcp_server_ip: "10.255.255.1"
   # IPFIX
   ipfix_enabled: "false"
   ipfix_destination_ip: "10.255.255.1"
-  ipfix_destination_port: "2055"
+  ipfix_destination_port: "4739"
   ipfix_export_interval: "60"
   # SCEP
   scep_enabled: "false"
@@ -55,8 +53,6 @@ steps:
       accounting_interval_seconds: {{.input.accounting_interval}}
       reauth_interval_seconds: {{.input.reauth_interval}}
       auth_retry_interval_seconds: {{.input.auth_retry_interval}}
-      coa_enabled: {{.input.coa_enabled}}
-      coa_port: {{.input.coa_port}}
     dhcp:
       enabled: {{.input.dhcp_enabled}}
       server_ip: {{.input.dhcp_server_ip}}
