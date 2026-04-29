@@ -25,7 +25,7 @@ has 'primary_key' => 'role_id';
 
 use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
-use pf::config qw(%ConfigRoles);
+use pf::config qw(%ConfigRoles %Config);
 use pfconfig::cached_hash;
 use pf::config::cluster;
 use pf::dal::node;
@@ -76,6 +76,45 @@ sub cleanup_item {
     }
 
     return $item;
+}
+
+sub standardPlaceholder {
+    my ($self) = @_;
+    my $placeholder = $self->SUPER::standardPlaceholder;
+    if (ref $placeholder eq 'HASH') {
+        # The default_role_parent_id role's own parent_id leaks into the
+        # parent_id field placeholder via the form's default_method (fired
+        # by cleanup_item's `init_object + posted=0` processing). Suppress
+        # it — the form's `default` already pre-selects the default parent
+        # for new roles, and clearing the dropdown should show nothing.
+        delete $placeholder->{parent_id};
+    }
+    return $placeholder;
+}
+
+sub cleanupItemForCreate {
+    my ($self, $item) = @_;
+    if (!exists $item->{parent_id}) {
+        my $default_parent = $Config{advanced}{default_role_parent_id};
+        if (defined $default_parent && length $default_parent
+            && $default_parent ne ($item->{id} // '')
+            && $self->config_store->hasId($default_parent)) {
+            $item->{parent_id} = $default_parent;
+        } else {
+            $item->{parent_id} = '';
+        }
+    } elsif (!defined $item->{parent_id}) {
+        $item->{parent_id} = '';
+    }
+    return $item;
+}
+
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    if (exists $data->{parent_id} && !defined $data->{parent_id}) {
+        $new_data->{parent_id} = '';
+    }
+    return;
 }
 
 sub can_delete_from_config {

@@ -27,6 +27,7 @@ use Data::UUID;
 use pf::pfqueue::status_updater::redis;
 use pf::UnifiedApi::Search::Builder::Config;
 use pf::condition_parser qw(parse_condition_string ast_to_object);
+use Scalar::Util qw(looks_like_number);
 
 has 'config_store_class';
 has 'form_class';
@@ -393,7 +394,12 @@ sub ensure_integer_fields {
 
         # Handle simple integer fields
         if ($INTEGER_FIELD_TYPES{$type} && exists $item->{$name} && defined $item->{$name}) {
-            $item->{$name} = int($item->{$name});
+            # Skip non-numeric values (e.g. Template Toolkit expressions like
+            # `[% ENV.env_or_default(...) %]`, or empty strings) — int() would
+            # silently coerce them to 0 and warn.
+            if (looks_like_number($item->{$name})) {
+                $item->{$name} = int($item->{$name});
+            }
         }
         # Handle compound fields (e.g., Duration with interval/unit subfields)
         elsif ($field->can('fields') && exists $item->{$name} && ref($item->{$name}) eq 'HASH') {
@@ -401,7 +407,9 @@ sub ensure_integer_fields {
                 my $subname = $subfield->name;
                 my $subtype = $subfield->type;
                 if ($INTEGER_FIELD_TYPES{$subtype} && exists $item->{$name}{$subname} && defined $item->{$name}{$subname}) {
-                    $item->{$name}{$subname} = int($item->{$name}{$subname});
+                    if (looks_like_number($item->{$name}{$subname})) {
+                        $item->{$name}{$subname} = int($item->{$name}{$subname});
+                    }
                 }
             }
         }

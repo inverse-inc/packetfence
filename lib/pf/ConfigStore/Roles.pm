@@ -66,18 +66,16 @@ sub cleanupBeforeCommit {
     $assignments->{acls} = ''
         unless defined $assignments->{acls};
 
-    # The Roles form returns parent_id as undef (not "missing") when the
-    # API payload omits the key, so check `!defined` rather than `!exists`.
+    # Defensive backstop only. The UnifiedApi Roles controller's
+    # cleanupItemForCreate/cleanupItemForUpdate hooks resolve the
+    # advanced.default_role_parent_id semantics from the raw payload
+    # (which still distinguishes "key missing" from "key present + null").
+    # Anything still undef here on create came from a non-API caller —
+    # persist as the explicit empty lock so the pfconfig runtime
+    # fallback won't auto-fill it.
     if (!defined $assignments->{parent_id}
         && !$self->cachedConfig->SectionExists($id)) {
-        my $default_parent = $Config{advanced}{default_role_parent_id};
-        if (defined $default_parent && length $default_parent
-            && $default_parent ne $id
-            && $self->cachedConfig->SectionExists($default_parent)) {
-            $assignments->{parent_id} = $default_parent;
-        } else {
-            $assignments->{parent_id} = '';
-        }
+        $assignments->{parent_id} = '';
     }
 }
 
