@@ -142,7 +142,6 @@ d-i grub-installer/skip boolean false
 # Auto-confirm GRUB installation after user selects device
 # This skips the "Are you sure?" type prompts after device selection
 d-i grub-installer/force-efi-extra-removable boolean false
-d-i grub-installer/password-crypted string *
 
 # Add kernel options for PacketFence
 d-i debian-installer/add-kernel-opts string net.ifnames=0 apparmor=0
