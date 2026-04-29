@@ -246,11 +246,21 @@ echo "=============================================="
 echo ""
 echo "===> Verifying key packages:"
 KEY_PACKAGES="packetfence fingerbank-collector docker-ce docker-ce-cli containerd.io"
+ALLOW_MISSING_PKGS="${ALLOW_MISSING_PKGS:-}"
+MISSING_PKGS=""
 for pkg in ${KEY_PACKAGES}; do
     if find ${REPO_DIR}/pool -name "${pkg}_*.deb" | grep -q .; then
         echo "  [OK] ${pkg}"
+    elif echo " ${ALLOW_MISSING_PKGS} " | grep -q " ${pkg} "; then
+        echo "  [SKIP] ${pkg} (allowed missing via ALLOW_MISSING_PKGS)"
     else
-        echo "  [MISSING] ${pkg} (may be on DVD or not yet published)"
+        echo "  [MISSING] ${pkg}"
+        MISSING_PKGS="${MISSING_PKGS} ${pkg}"
     fi
 done
 echo "=============================================="
+if [ -n "${MISSING_PKGS}" ]; then
+    echo "ERROR: required packages not in local repo:${MISSING_PKGS}" >&2
+    echo "Set ALLOW_MISSING_PKGS=\"pkg1 pkg2\" to bypass for known-absent packages." >&2
+    exit 1
+fi
