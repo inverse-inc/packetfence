@@ -85,7 +85,7 @@ chmod 0444 "${ISOFILES_DIR}"/isolinux/* || true
 echo "===> Step 8: Updating MD5 checksums"
 ( cd "${ISOFILES_DIR}"
   chmod +w md5sum.txt
-  find . -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt 2>&1 || true
+  find . -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt
   chmod -w md5sum.txt
 )
 
