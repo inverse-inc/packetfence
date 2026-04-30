@@ -70,6 +70,11 @@
               size="sm" variant="outline-primary" class="mr-1"
               @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
+            <b-button
+              size="sm" variant="outline-primary" class="mr-1"
+              :disabled="isLoading"
+              @click.stop.prevent="onCopyInstallCommand(item)"
+            >{{ $t('Install Command') }}</b-button>
           </span>
         </template>
       </base-table-sortable>
@@ -108,6 +113,8 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
+import i18n from '@/utils/locale'
+import api from '../_api'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 
 const setup = (props, context) => {
@@ -142,6 +149,24 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  const onCopyInstallCommand = (item) => {
+    api.item(item.id).then(connector => {
+      const server = $store.getters['system/hostname'] || window.location.hostname
+      const command = `curl -sL https://proxy.saas.packetfence.com/connector-remote-install.sh | bash -s -- ${connector.id} ${connector.secret} ${server}`
+      try {
+        navigator.clipboard.writeText(command).then(() => {
+          $store.dispatch('notification/info', { message: i18n.t('Install command copied to clipboard.') })
+        }).catch(() => {
+          $store.dispatch('notification/danger', { message: i18n.t('Could not copy install command to clipboard.') })
+        })
+      } catch (e) {
+        $store.dispatch('notification/danger', { message: i18n.t('Clipboard not supported.') })
+      }
+    }).catch(() => {
+      $store.dispatch('notification/danger', { message: i18n.t('Could not fetch connector details.') })
+    })
+  }
+
   const onRemove = id => {
     deleteItem({ id })
       .then(() => reSearch())
@@ -156,6 +181,7 @@ const setup = (props, context) => {
   return {
     useSearch,
     tableRef,
+    onCopyInstallCommand,
     onRemove,
     onSorted,
     onBulkExport,
