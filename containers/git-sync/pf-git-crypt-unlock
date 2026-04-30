@@ -1,29 +1,34 @@
 #!/bin/sh
+set -e
 
-# import the  gpg private key
+# Configure GPG for non-interactive use
+export GPG_TTY=$(tty 2>/dev/null || echo /dev/null)
+mkdir -p ~/.gnupg
+chmod 700 ~/.gnupg
+cat > ~/.gnupg/gpg.conf <<EOF
+batch
+no-tty
+pinentry-mode loopback
+EOF
+cat > ~/.gnupg/gpg-agent.conf <<EOF
+allow-loopback-pinentry
+default-cache-ttl 7200
+max-cache-ttl 7200
+EOF
+
+# Import key + cache passphrase in one shot
 echo "import the gpg private key" > /proc/1/fd/1
-gpg --no-tty --batch --allow-secret-key-import --passphrase $GPG_OWN_KEY_PASSSWORD --pinentry-mode loopback --import /var/run/git-crypt-key/git-crypt.key
+gpg --batch --pinentry-mode loopback \
+    --passphrase "$GPG_OWN_KEY_PASSSWORD" \
+    --import /var/run/git-crypt-key/git-crypt.key
 
-#search the id 
-echo "search the id" > /proc/1/fd/1
-gpg_key_id=$(gpg --no-tty --list-keys --with-colons  | awk -F: '/fpr:/ {print $10}')
-
-# trust the gpg private key
-echo "trust the gpg private key" > /proc/1/fd/1
-gpg --no-tty --command-fd 0 --expert --edit-key $gpg_key_id <<END
-5
+# Pre-cache passphrase in gpg-agent so git-crypt doesn't prompt
+gpg_key_id=$(gpg --list-keys --with-colons | awk -F: '/fpr:/ {print $10; exit}')
+echo "5
 y
+" | gpg --batch --command-fd 0 --expert --edit-key "$gpg_key_id" trust 2>/dev/null || true
 
-END
-
-#remove the passphrase 
-echo "remove the passphrase" > /proc/1/fd/1
-gpg --no-tty --command-fd 0 --pinentry-mode loopback --change-passphrase $gpg_key_id <<END
-$GPG_OWN_KEY_PASSSWORD
-
-END
-
-#decrypt repository
+# Decrypt repository (passphrase already cached)
 echo "decrypt repository" > /proc/1/fd/1
-git-crypt unlock
-
+echo "$GPG_OWN_KEY_PASSSWORD" | git-crypt unlock 2>&1 || \
+    GPG_PASSPHRASE="$GPG_OWN_KEY_PASSSWORD" git-crypt unlock
