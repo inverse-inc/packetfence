@@ -55,6 +55,11 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     Flow
 );
+
+
+our $DEFAULT_HTTP_PORT = 80;
+our $DEFAULT_HTTPS_PORT = 443;
+our $ALT_DEFAULT_PORT = 8443;
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -198,8 +203,9 @@ sub _connect {
     my $base_url = "$transport://$controllerIp";
     my $login_path = "/api/login";
     my $api_prefix = "";
+    my $url = "${base_url}:" . ($transport eq 'http' ? $DEFAULT_HTTP_PORT: $DEFAULT_HTTPS_PORT);
 
-    my $response = $ua->get($base_url."/proxy/network/status");
+    my $response = $ua->get($url."/proxy/network/status");
     my $cookie_invalid = $FALSE;
 
     if ($response->code == 401 || $response->is_success) {
@@ -209,9 +215,9 @@ sub _connect {
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     } else {
         # Old controller on port 8443
-        $base_url .= ":8443";
+        $url = "${base_url}:${ALT_DEFAULT_PORT}";
         # Check if cookie is still valid for old controller
-        $response = $ua->get($base_url."/api/self");
+        $response = $ua->get($url."/api/self");
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     }
     if ($cookie_invalid) {
@@ -224,7 +230,7 @@ sub _connect {
             die;
         }
     }
-    return ($ua, $base_url.$api_prefix);
+    return ($ua, $url.$api_prefix);
 }
 
 

@@ -46,11 +46,12 @@ use pf::defer;
 use pf::SwitchFactory;
 use POSIX qw(WNOHANG);
 $SIG{PIPE} = "IGNORE";
+$pf::Switch::Ubiquiti::Unifi::DEFAULT_HTTP_PORT = 8444;
 
 my $child_err = gensym;
 local $@;
 my $pid = eval {
-    open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3:80")
+    open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3:8444")
 };
 
 END {
