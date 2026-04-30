@@ -10,6 +10,7 @@ COPY --from=builder /usr/bin/mawk /usr/bin/awk
 COPY --from=builder /usr/bin/gpg /usr/bin/
 COPY --from=builder /usr/bin/gpg-agent /usr/bin/
 COPY --from=builder /usr/bin/git-crypt /usr/bin/
+COPY --from=builder /usr/bin/gpg-connect-agent /usr/bin/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libstdc++.so* /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libgcrypt.so* /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libsqlite3.so* /usr/lib/x86_64-linux-gnu/
