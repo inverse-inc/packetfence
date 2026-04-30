@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-# Configure GPG for non-interactive use
-export GPG_TTY=$(tty 2>/dev/null || echo /dev/null)
 mkdir -p ~/.gnupg
 chmod 700 ~/.gnupg
 cat > ~/.gnupg/gpg.conf <<EOF
@@ -12,23 +10,36 @@ pinentry-mode loopback
 EOF
 cat > ~/.gnupg/gpg-agent.conf <<EOF
 allow-loopback-pinentry
+allow-preset-passphrase
 default-cache-ttl 7200
 max-cache-ttl 7200
 EOF
 
-# Import key + cache passphrase in one shot
+# Import the gpg private key
 echo "import the gpg private key" > /proc/1/fd/1
 gpg --batch --pinentry-mode loopback \
     --passphrase "$GPG_OWN_KEY_PASSSWORD" \
     --import /var/run/git-crypt-key/git-crypt.key
 
-# Pre-cache passphrase in gpg-agent so git-crypt doesn't prompt
+# Find key ID and keygrip
+echo "search the id" > /proc/1/fd/1
 gpg_key_id=$(gpg --list-keys --with-colons | awk -F: '/fpr:/ {print $10; exit}')
-echo "5
-y
-" | gpg --batch --command-fd 0 --expert --edit-key "$gpg_key_id" trust 2>/dev/null || true
+keygrip=$(gpg --list-secret-keys --with-keygrip --with-colons | awk -F: '/grp:/ {print $10; exit}')
 
-# Decrypt repository (passphrase already cached)
+# Trust the key
+echo "trust the gpg private key" > /proc/1/fd/1
+gpg --batch --command-fd 0 --expert --edit-key "$gpg_key_id" <<END
+5
+y
+
+END
+
+# Pre-cache passphrase in gpg-agent (avoids change-passphrase which is slow)
+echo "preset passphrase in agent" > /proc/1/fd/1
+gpg-connect-agent reloadagent /bye
+hex_pass=$(echo -n "$GPG_OWN_KEY_PASSSWORD" | od -A n -t x1 | tr -d ' \n')
+echo "PRESET_PASSPHRASE $keygrip -1 $hex_pass" | gpg-connect-agent
+
+# Decrypt repository
 echo "decrypt repository" > /proc/1/fd/1
-echo "$GPG_OWN_KEY_PASSSWORD" | git-crypt unlock 2>&1 || \
-    GPG_PASSPHRASE="$GPG_OWN_KEY_PASSSWORD" git-crypt unlock
+git-crypt unlock
