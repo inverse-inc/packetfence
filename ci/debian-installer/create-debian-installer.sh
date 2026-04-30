@@ -1,6 +1,10 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
+# Get script directory and source shared config
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "${SCRIPT_DIR}/../debian-version.conf"
+
 function clean() {
   rm -fr isofiles/
   rm -f preseed.cfg
@@ -8,7 +12,6 @@ function clean() {
   chmod a+rw $ISO_OUT
 }
 
-DEBIAN_VERSION=12.12.0
 ISO_IN=${ISO_IN:-debian-$DEBIAN_VERSION-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 

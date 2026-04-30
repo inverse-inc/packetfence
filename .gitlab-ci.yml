@@ -44,14 +44,12 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   ISODIR: $CIDIR/debian-installer
-  USBISODIR: $CIDIR/usb-bootable-iso
+  USB_ISODIR: $CIDIR/usb-bootable-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   TESTDIR: t/venom
   CONTAINER_DIR: containers
   UPLOAD_DIR: $CILIBDIR/upload
   SF_ZEN_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
-  SF_ISO_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ISO
-  SF_USB_ISO_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20USB%20Bootable%20ISO
   # env variables
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -184,6 +182,7 @@ variables:
     - if: '$CI_COMMIT_TAG'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/)'
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -237,15 +236,10 @@ variables:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_iso=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_iso=yes/ )'
 
-# USB Bootable ISO Rules
-# - devel branch with BUILD_PF_IMG_USB_ISO variable defined or build_pf_img_usb_iso=yes in commit message
-# - all branches (maintenance include), except and devel (web) if variable BUILD_PF_IMG_USB_ISO sets to yes or if CI_COMMIT_MESSAGE contains "build_pf_img_usb_iso=yes".
-.build_pf_img_usb_iso_devel_branches_and_maintenance_rules:
+# run this job on any branch (web/api only) with BUILD_PF_IMG_USB_ISO variable defined or build_pf_img_usb_iso=yes in commit message
+.build_pf_img_usb_iso_any_branch_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/ )'
-
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/)'
 
 # run this job on:
 # - devel branch with BUILD_ARTIFACTS_WEBSITE variable defined or build_artifacts_website=yes in commit message
@@ -581,7 +575,7 @@ variables:
     name: sourceforge
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
-    - make -e -C ${USBISODIR} clean
+    - make -e -C ${USB_ISODIR} clean
   dependencies: []
   tags:
     - shell-sourceforge
@@ -1987,7 +1981,7 @@ build_pf_img_iso_devel_branches_and_maintenance:
     - .build_pf_img_iso_job
     - .build_pf_img_iso_devel_branches_and_maintenance_rules
   environment:
-    url: ${SF_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}
+    url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} iso
 
@@ -1997,7 +1991,7 @@ build_pf_img_iso_release:
   variables:
     PF_VERSION: ${CI_COMMIT_TAG}
   environment:
-    url: ${SF_ISO_REPO_URL}/${CI_COMMIT_TAG}
+    url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_TAG}
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} iso
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
@@ -2007,29 +2001,22 @@ build_pf_img_iso_release:
       allow_failure: true
 
 ### build_pf_img_usb_iso jobs
-build_pf_img_usb_iso_devel_branches_and_maintenance:
+# USB bootable offline installer ISO - works on any branch
+# Triggered by BUILD_PF_IMG_USB_ISO=yes variable or build_pf_img_usb_iso=yes in commit message
+# Requires PPA to be published first (like tests)
+build_pf_img_usb_iso:
   extends:
     - .build_pf_img_usb_iso_job
-    - .build_pf_img_usb_iso_devel_branches_and_maintenance_rules
-  environment:
-    url: ${SF_USB_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}
-  script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${USBISODIR} iso
-
-build_pf_img_usb_iso_release:
-  extends:
-    - .build_pf_img_usb_iso_job
+    - .build_pf_img_usb_iso_any_branch_rules
+  needs:
+    - job: "publish_ppa_devel_release_branches_and_maintenance:"
   variables:
-    PF_VERSION: ${CI_COMMIT_TAG}
+    PF_VERSION: ${CI_COMMIT_REF_SLUG}
+    PF_REPO_TYPE: gitlab/${CI_PIPELINE_ID}
   environment:
-    url: ${SF_USB_ISO_REPO_URL}/${CI_COMMIT_TAG}
+    url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}-usb
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${USBISODIR} iso
-  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: manual
-      allow_failure: true
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${USB_ISODIR} upload
 
 ### build_pf_img_vagrant jobs
 # build_pf_img_vagrant_release_el_8:

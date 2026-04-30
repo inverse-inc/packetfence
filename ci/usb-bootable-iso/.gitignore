@@ -1,21 +1,19 @@
-# Build artifacts
-build/
-results/
+# Generated files
+preseed.cfg
 *.iso
-*.iso.sha256
-*.iso.md5
-*.log
+*.md5
 
-# Live-build cache
-cache/
-chroot/
-chroot.packages.install
-chroot.packages.live
-binary/
-.build/
-*.list
+# Work directories
+work/
+results/
+isofiles/
 
-# Temporary files
-*.tmp
-*~
-.*.swp
+# Downloaded files
+debian-*.iso
+
+# Local repository
+pool/
+dists/
+
+# Docker images
+docker-images/
