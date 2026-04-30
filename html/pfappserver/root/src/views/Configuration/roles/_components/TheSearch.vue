@@ -70,7 +70,7 @@
               :confirm="$t('Delete Role?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
-            <b-button
+            <b-button v-if="item._match"
               size="sm" variant="outline-primary" class="mr-1"
               @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>

@@ -1,6 +1,51 @@
-import { computed, ref } from '@vue/composition-api'
+import { computed, ref, watch } from '@vue/composition-api'
+import api from '../_api'
 
 export const useNodeInheritance = (items, sortBy, sortDesc) => {
+
+  // items referenced by the page (as parent_id or children) but not on it —
+  // fetched lazily so ghost rows have the correct parent_id and depth instead
+  // of being pinned to whichever on-page ancestor first lists them
+  const extraItems = ref([])
+  let fetchEpoch = 0
+
+  const _resolveInheritance = async () => {
+    const myEpoch = ++fetchEpoch
+    // safety bound: a deep chain still resolves in a small number of round trips
+    for (let i = 0; i < 10; i++) {
+      if (myEpoch !== fetchEpoch) return // items changed under us
+      const all = [ ...(items.value || []), ...extraItems.value ]
+      const known = new Set(all.map(it => it.id))
+      const referenced = new Set()
+      all.forEach(it => {
+        if (it.parent_id) referenced.add(it.parent_id)
+        if (Array.isArray(it.children)) it.children.forEach(c => referenced.add(c))
+      })
+      const missing = [ ...referenced ].filter(id => id && !known.has(id))
+      if (missing.length === 0) return
+      let data
+      try {
+        data = await api.search({
+          limit: missing.length,
+          fields: [ 'id', 'parent_id', 'children' ],
+          query: {
+            op: 'or',
+            values: missing.map(id => ({ field: 'id', op: 'equals', value: id }))
+          }
+        })
+      }
+      catch (e) { return }
+      if (myEpoch !== fetchEpoch) return
+      const fetched = (data.items || []).filter(it => !known.has(it.id))
+      if (fetched.length === 0) return
+      extraItems.value = [ ...extraItems.value, ...fetched ]
+    }
+  }
+
+  watch(items, () => {
+    extraItems.value = []
+    _resolveInheritance()
+  }, { immediate: true })
 
   const collapsedNodes = ref([])
   const clearExpandedNodes = () => { collapsedNodes.value = [] }
@@ -34,77 +79,70 @@ export const useNodeInheritance = (items, sortBy, sortDesc) => {
   }  
 
   const _flattenFamilies = (_families) => {
-    return _families.reduce((families, family) => {
+    // sort + mark _last on direct siblings BEFORE flattening descendants,
+    // otherwise the deepest grandchild gets _last instead of the last sibling
+    const siblings = [ ..._families ].sort(_sortFn)
+    return siblings.reduce((families, family, idx) => {
+      const isLast = (idx === siblings.length - 1)
       let { _children, ..._family } = family
+      if (isLast)
+        _family._last = true
       if (_children) {
         const children = _flattenFamilies(_children)
-          .sort(_sortFn)
-        if (children.length > 0)
-          children[children.length - 1]._last = true // mark _last
         return [ ...families, _family, ...children ]
       }
       return [ ...families, _family ]
     }, [])
   }
 
+  // an item only seen as `parent_id` or fetched as inheritance filler — rendered
+  // greyed-out via these row props
+  const GHOST = {
+    _children: [], // post-processed
+    _match: false, // not found in search
+    _rowVariant: 'row-disabled', // CSSable
+    not_deletable: true // defer uncertainty
+  }
+
   const itemsTree = computed(() => {
-    const _items = items.value
+    const _items = items.value || []
+    const _extras = extraItems.value || []
+    const _itemIds = new Set(_items.map(it => it.id))
 
-    // build associative array for lookups
-    const associative = _items.reduce((items, item) => {
+    // build associative array for lookups; extras (fetched to fill in
+    // inheritance for off-page descendants/ancestors) carry GHOST props
+    const associative = [ ..._items, ..._extras ].reduce((map, item) => {
       const { id } = item
-      const _item = { 
-        ...item, 
-        _children: [], // post-processed
-        _match: true // found in search
-      }
-      return { ...items, [id]: _item }
+      const isExtra = !_itemIds.has(id)
+      const _item = isExtra
+        ? { ...item, _children: [], ...GHOST }
+        : { ...item, _children: [], _match: true }
+      return { ...map, [id]: _item }
     }, {})
-
-    // an item only seen as `parent_id` or `children`, not `id`
-    const GHOST = {
-      _children: [], // post-processed
-      _match: false, // not found in search
-      _rowVariant: 'row-disabled', // CSSable
-      not_deletable: true // defer uncertainty
-    }
 
     // track depth for later processing
     let maxDepth = 0
 
-    // helper: calculate inherent tree depth(s)
+    // helper: calculate inherent tree depth(s); ghost-child synthesis based
+    // on parent.children was removed because that field can list indirect
+    // descendants — extras (fetched separately) provide the real parent_id
     const _getDepth = (id) => {
-      let depth = 0 // not exists
-      if (id in associative) { // exists
-        const { parent_id, children } = associative[id]
+      let depth = 0
+      if (id in associative) {
+        const { parent_id } = associative[id]
         if (parent_id && parent_id in associative)
           depth = _getDepth(parent_id) + 1
         else if (parent_id) {
-          associative[parent_id] = { 
+          associative[parent_id] = {
             id: parent_id,
-            children: [id], 
-            _depth: 0, 
+            children: [id],
+            _depth: 0,
             ...GHOST
-          } // push ghost parent
+          } // ghost parent (parent_id missing entirely from data)
           depth = 1
         }
         else
-          depth = 0 // root
-        // opportunistic ghost children handling
-        if (children) {
-          children.forEach(child => {
-            if (!(child in associative)) {
-              associative[child] = {
-                id: child,
-                parent_id: id,
-                children: [],
-                _depth: depth + 1,
-                ...GHOST
-              } // push ghost child
-              maxDepth = Math.max(maxDepth, depth + 1) // post-process hint
-            }
-          })
-        }
+          depth = 0
       }
       return depth
     }
@@ -136,23 +174,36 @@ export const useNodeInheritance = (items, sortBy, sortDesc) => {
     // flatten families
     const flattened = _flattenFamilies(families)
 
+    // ids of items that are the last child at their depth — used to decide
+    // whether an ancestor column should keep drawing a vertical line below
+    const lastIds = new Set(flattened.filter(it => it._last).map(it => it.id))
+
     // decorate items
-    const decorated = flattened      
+    const decorated = flattened
       .map(item => {
         const { children = [], _depth, _last } = item || {}
         let _tree = []
         if (_depth > 0) {
-          _tree.push(
-            ...(
-              new Array(_depth - 1).fill(null)
-                .map(() => ({
-                  name: 'tree-pass', class: 'nav-icon'
-                }))
-            ),
-            ...((_last)
-              ? [{ name: 'tree-last', class: 'nav-icon' }]
-              : [{ name: 'tree-node', class: 'nav-icon' }]
+          // walk parent chain to collect ancestors (chain[k] = ancestor at depth k)
+          const chain = []
+          let cur = item
+          while (cur && cur.parent_id && associative[cur.parent_id] && chain.length < _depth) {
+            cur = associative[cur.parent_id]
+            chain.unshift(cur)
+          }
+          // ancestor columns: blank when that ancestor was a last-child,
+          // otherwise a vertical line continues past this row
+          for (let i = 0; i < _depth - 1; i++) {
+            const ancestor = chain[i + 1]
+            _tree.push((ancestor && lastIds.has(ancestor.id))
+              ? { name: 'tree-skip', class: 'nav-icon' }
+              : { name: 'tree-pass', class: 'nav-icon' }
             )
+          }
+          // own branch
+          _tree.push(_last
+            ? { name: 'tree-last', class: 'nav-icon' }
+            : { name: 'tree-node', class: 'nav-icon' }
           )
         }
         const _icon = ((children && children.length)
