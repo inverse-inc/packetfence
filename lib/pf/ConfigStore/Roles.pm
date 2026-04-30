@@ -49,15 +49,17 @@ inheritance does not pull the parent's ACLs into the child's flattened
 node_category row (runtime walk in Switch.pm handles the ACL fallback
 instead).
 
-For `parent_id`: on CREATE (section does not yet exist) when the payload
-omits the key, always materialize the value:
-  * if `advanced.default_role_parent_id` is set (and points at an
-    existing role other than this one), use it.
-  * otherwise, write an explicit `parent_id=` (empty).
-This "locks in" a role's parent at creation time so a later change to
-`advanced.default_role_parent_id` cannot retroactively re-parent the
-already-saved role. On UPDATE, never inject — preserve whatever is in
-the existing config.
+For `parent_id`: defensive backstop only. On CREATE (section does not
+yet exist) anything still undef at this point is persisted as an
+explicit `parent_id=` (empty) so the pfconfig runtime fallback won't
+auto-fill it. The actual `advanced.default_role_parent_id` resolution
+lives in the UnifiedApi Roles controller hooks
+(`cleanupItemForCreate` / `cleanupItemForReplace` /
+`cleanupItemForUpdate`), which see the raw payload and can distinguish
+"key missing" (apply default) from "key present + null" (lock as
+empty). The runtime fallback for legacy roles whose `parent_id` line
+predates that materialization lives in
+`pfconfig::namespaces::config::Roles::build_child`.
 
 =cut
 
@@ -66,18 +68,16 @@ sub cleanupBeforeCommit {
     $assignments->{acls} = ''
         unless defined $assignments->{acls};
 
-    # The Roles form returns parent_id as undef (not "missing") when the
-    # API payload omits the key, so check `!defined` rather than `!exists`.
+    # Defensive backstop only. The UnifiedApi Roles controller's
+    # cleanupItemForCreate/cleanupItemForUpdate hooks resolve the
+    # advanced.default_role_parent_id semantics from the raw payload
+    # (which still distinguishes "key missing" from "key present + null").
+    # Anything still undef here on create came from a non-API caller —
+    # persist as the explicit empty lock so the pfconfig runtime
+    # fallback won't auto-fill it.
     if (!defined $assignments->{parent_id}
         && !$self->cachedConfig->SectionExists($id)) {
-        my $default_parent = $Config{advanced}{default_role_parent_id};
-        if (defined $default_parent && length $default_parent
-            && $default_parent ne $id
-            && $self->cachedConfig->SectionExists($default_parent)) {
-            $assignments->{parent_id} = $default_parent;
-        } else {
-            $assignments->{parent_id} = '';
-        }
+        $assignments->{parent_id} = '';
     }
 }
 

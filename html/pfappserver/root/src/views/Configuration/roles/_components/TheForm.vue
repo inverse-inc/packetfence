@@ -169,13 +169,23 @@ export const setup = (props) => {
         capturedFromMeta = meta
       }
       const parentId = (props.form || {}).parent_id
-      const parent = parentId ? roles.value.find(r => r.id === parentId) : null
+      const hasParent = !!parentId
+      const parent = hasParent ? roles.value.find(r => r.id === parentId) : null
       INHERITED_FIELDS.forEach(f => {
         if (!meta[f]) return
         const parentValue = parent ? parent[f] : undefined
-        const nextPlaceholder = (parentValue !== undefined && parentValue !== null && parentValue !== '')
-          ? parentValue
-          : basePlaceholders[f]
+        let nextPlaceholder
+        if (parentValue !== undefined && parentValue !== null && parentValue !== '') {
+          nextPlaceholder = parentValue
+        } else if (hasParent) {
+          // parent_id is set but the role lookup didn't yield a value for
+          // this inherited field — fall back to whatever the backend
+          // initially seeded the placeholder with.
+          nextPlaceholder = basePlaceholders[f]
+        } else {
+          // user explicitly chose "no parent" — show no inherited value.
+          nextPlaceholder = ''
+        }
         if (meta[f].placeholder === nextPlaceholder) return
         set(meta, f, { ...meta[f], placeholder: nextPlaceholder })
       })

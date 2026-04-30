@@ -196,8 +196,15 @@ sub default_parent_id {
     my $form = $self->form;
     my $id = $form->value->{id} // $form->fif->{id};
     my $no_id = !defined $id || $id eq '';
+    # Only seed advanced.default_role_parent_id when creating a brand-new
+    # role. For existing roles the form must respect whatever is stored
+    # (including explicit empty / no parent) — otherwise cleanup_item's
+    # `posted => 0` processing fires this default and clobbers the read,
+    # which is what causes the default_role to reappear in the parent_id
+    # dropdown after the admin explicitly clears it.
+    return undef if !$no_id;
     my $default = $Config{advanced}{default_role_parent_id};
-    return $no_id || $default ne $id ? $Config{advanced}{default_role_parent_id} : '';
+    return defined $default && length $default ? $default : '';
 }
 
 =head1 COPYRIGHT
