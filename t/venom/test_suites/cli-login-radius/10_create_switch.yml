@@ -12,8 +12,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "cliAccess": "Y",
-        "radiusSecret":"{{.cli_login_radius.sources.secret}}"
+        "cliAccess": "Y"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
