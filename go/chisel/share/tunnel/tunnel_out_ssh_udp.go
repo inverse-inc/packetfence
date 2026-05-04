@@ -72,7 +72,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 	case "radius":
 		if h.radiusProxy != nil {
 			h.Debugf("Proxying RADIUS")
-			packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID)
+			packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID, h.hostPort)
 			if err != nil {
 				return err
 			}

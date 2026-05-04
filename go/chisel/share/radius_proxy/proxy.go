@@ -69,7 +69,7 @@ func (rp *Proxy) DeleteBackend(addr string) {
 	rp.backends.Delete(addr)
 }
 
-func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
+func (rp *Proxy) ProxyPacket(payload []byte, connectorID string, defaultHostPort string) ([]byte, string, error) {
 	rp.Debugf("Finding backend to proxy to")
 	packet, err := radius.Parse(payload, rp.secret)
 	if err != nil {
@@ -116,17 +116,19 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		return nil, "", err
 	}
 
-	be := rp.backends.getBackend(packet)
-	if be == nil {
+	hostPort := defaultHostPort
+	if be := rp.backends.getBackend(packet); be != nil {
+		hostPort = be.addr
+	} else if defaultHostPort == "" {
 		return nil, "", errors.New("No backend available")
 	}
 
-	rp.Debugf("Proxy to %s for connector %s", be.addr, connectorID)
+	rp.Debugf("Proxy to %s for connector %s", hostPort, connectorID)
 	rp.IfDebugHandle(func(l *cio.Logger) {
 		l.Printf("Payload Proxied")
 		LogPacket(l, packet)
 	})
-	return b2, be.addr, nil
+	return b2, hostPort, nil
 }
 
 func addMessageAuthenticator(p *radius.Packet, secret []byte) error {
