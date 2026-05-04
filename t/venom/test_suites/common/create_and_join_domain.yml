@@ -51,7 +51,7 @@ testcases:
 - name: sleep_some_time
   steps:
     - type: exec
-      script: sleep 10
+      script: sleep 15
 
 - name: test_machine_account
   steps:

@@ -13,7 +13,7 @@ testcases:
     body: >-
       {
         "cliAccess": "Y",
-        "radiusSecret": "testing123"
+        "radiusSecret":"{{.cli_login_radius.sources.secret}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
