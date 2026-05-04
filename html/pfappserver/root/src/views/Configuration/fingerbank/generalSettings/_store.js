@@ -77,12 +77,14 @@ export const actions = {
   },
   setGeneralSettings: ({ commit, dispatch }, data) => {
     commit('GENERAL_SETTINGS_REQUEST')
-    let promises = []
-    Object.keys(data).forEach(id => {
-      let refactored = { ...data[id], ...{ id } }
-      promises.push(api.fingerbankUpdateGeneralSetting(id, refactored))
-    })
-    return Promise.all(promises).then(response => {
+    const items = Object.keys(data).map(id => ({ ...data[id], id }))
+    return api.fingerbankBulkUpdateGeneralSettings(items).then(response => {
+      const failed = ((response && response.items) || []).find(item => item.status >= 300)
+      if (failed) {
+        const err = new Error(failed.message || `Failed to update '${failed.id}'`)
+        err.response = { data: { message: failed.message, errors: response.items } }
+        throw err
+      }
       commit('GENERAL_SETTINGS_REPLACED', data)
       return response
     }).catch(err => {
