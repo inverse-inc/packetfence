@@ -195,11 +195,11 @@ variables:
     # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
     # because GitLab CI doesn't expand variables inside regex patterns
     # Run on devel branch (push, web, not schedule)
-    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     # Run on maintenance branches (web/api only)
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     # Run on devel/maintenance with schedule
-    - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
 
 # run jobs only when:
 # - on all branches (except maintenance/X.Y branches) (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -209,8 +209,8 @@ variables:
   rules:
     # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
     # because GitLab CI doesn't expand variables inside regex patterns
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
 
 # run jobs only when:
 # - on all branches (maintenance/X.Y branches included) and devel with a schedule
@@ -616,7 +616,9 @@ variables:
           echo "Error: TEST_ONLY contains invalid characters (newline or single quote)."
           exit 1
         fi
-        if echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY"; then
+        # Accept comma-separated list (e.g. auth,virtual) by translating to regex alternation
+        TEST_ONLY_PATTERN=$(printf '%s' "$TEST_ONLY" | tr ',' '|')
+        if echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY_PATTERN"; then
           echo "Running: $CI_JOB_NAME matches TEST_ONLY pattern: $TEST_ONLY"
         else
           echo "Skipping: $CI_JOB_NAME does not match TEST_ONLY pattern: $TEST_ONLY"
