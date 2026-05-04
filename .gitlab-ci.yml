@@ -180,8 +180,8 @@ variables:
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
     - if: '$CI_COMMIT_TAG'
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 # run jobs only when:
