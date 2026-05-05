@@ -4,6 +4,7 @@ set -e
 
 RADDB_TEMPLATE="/usr/local/pf/raddb/sites-available/packetfence"
 RADDB_PACKETFENCE="/usr/local/pf/raddb/sites-enabled/packetfence"
+PFCONNECTOR_CONF="/usr/local/pf/conf/pfconnector-client.env"
 
 # Fetch the local secret from the pfconnector server API
 LOCAL_SECRET=$(curl -s http://localhost:22226/api/v1/pfconnector/local-secret)
@@ -21,12 +22,27 @@ if [ -z "$MGMT_IP" ]; then
     exit 1
 fi
 
+# Resolve connector_id: prefer $AUTH (provided via --env-file in the
+# combined wrapper), fall back to the on-disk env file for installs that
+# bind-mount it but don't load it as env.
+if [ -n "$AUTH" ]; then
+    CONNECTOR_ID="${AUTH%%:*}"
+elif [ -f "$PFCONNECTOR_CONF" ]; then
+    CONNECTOR_ID=$(grep -E '^AUTH=' "$PFCONNECTOR_CONF" | head -n1 | cut -d= -f2- | cut -d: -f1)
+fi
+
+if [ -z "$CONNECTOR_ID" ]; then
+    echo "ERROR: Could not resolve connector_id from \$AUTH or $PFCONNECTOR_CONF" >&2
+    exit 1
+fi
+
 # Generate raddb config from template
 if [ -f "$RADDB_TEMPLATE" ]; then
     sed -e "s/%password%/$LOCAL_SECRET/g" \
         -e "s/%mgmt_ip%/$MGMT_IP/g" \
+        -e "s/%connector_id%/$CONNECTOR_ID/g" \
         "$RADDB_TEMPLATE" > "$RADDB_PACKETFENCE"
-    echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP"
+    echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP, connector_id=$CONNECTOR_ID"
 else
     echo "ERROR: $RADDB_TEMPLATE not found" >&2
     exit 1
