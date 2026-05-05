@@ -31,7 +31,7 @@ type Service struct {
 }
 
 func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
-	var Api = API{}
+	Api := API{}
 	Api.Router = chi.NewRouter()
 	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
@@ -76,6 +76,7 @@ func (api *API) setupRoutes() {
 			r.Route("/service", func(r chi.Router) {
 				r.Post("/all", statusAll(api))
 				r.Post("/status", status(api))
+				r.Get("/ping", ping(api))
 				r.Post("/start", manageService(api, "start"))
 				r.Post("/stop", manageService(api, "stop"))
 				r.Post("/restart", manageService(api, "restart"))
@@ -113,10 +114,18 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	api.Router.ServeHTTP(w, r)
 }
 
+// ping to test if the connector is running
+func ping(_ *API) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, _ *http.Request) {
+		res.Header().Set("Content-Type", "plain/text")
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte("pong"))
+	})
+}
+
 // status handles the status endpoint
 func status(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
 		var srv Service
 		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
@@ -129,7 +138,6 @@ func status(api *API) http.HandlerFunc {
 		}
 
 		systemd, err := systemdmanager.NewSystemdManager()
-
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
 			return
@@ -155,9 +163,7 @@ func status(api *API) http.HandlerFunc {
 
 func statusAll(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
 		systemd, err := systemdmanager.NewSystemdManager()
-
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
 			return
@@ -165,7 +171,6 @@ func statusAll(api *API) http.HandlerFunc {
 		defer systemd.Close()
 
 		services, err := systemd.ListSystemdServices()
-
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to list services: %v", err), http.StatusInternalServerError)
 			return
@@ -206,7 +211,6 @@ func manageService(api *API, action string) http.HandlerFunc {
 		}
 
 		systemd, err := systemdmanager.NewSystemdManager()
-
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
 			return
@@ -215,7 +219,6 @@ func manageService(api *API, action string) http.HandlerFunc {
 		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
 		for _, service := range allowed {
 			if srv.Name == service {
-
 				switch action {
 				case "start":
 					if err := systemd.Start(srv.Name); err != nil {
@@ -254,28 +257,24 @@ func manageService(api *API, action string) http.HandlerFunc {
 // collector handles the collector endpoint
 func collector(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
 	})
 }
 
 // connector handles the connector endpoint
 func connector(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
 	})
 }
 
 // ntlmAuth handles the NTLM authentication endpoint
 func ntlmAuth(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
 	})
 }
 
 // connectorStatus handles the connector status endpoint
 func connectorStatus(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
 	})
 }
 

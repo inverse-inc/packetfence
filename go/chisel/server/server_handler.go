@@ -67,8 +67,10 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//no proxy defined, provide access to health/version checks
 	switch r.URL.Path {
-	case apiPrefix + "/health":
-		w.Write([]byte("OK\n"))
+	case apiPrefix + "/ping":
+		w.Header().Set("Content-Type", "plain/text")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("pong"))
 		return
 	case apiPrefix + "/version":
 		w.Write([]byte(chshare.BuildVersion))
