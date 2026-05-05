@@ -32,8 +32,8 @@ steps:
     fi
   assertions:
     - result.code ShouldEqual 0
-  retry: {{.input.retry}}
-  delay: {{.input.delay}}
+  retry: "{{.input.retry}}"
+  delay: "{{.input.delay}}"
   vars:
     full_response:
       from: result.systemout
