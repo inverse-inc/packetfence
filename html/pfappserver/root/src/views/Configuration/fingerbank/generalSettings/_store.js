@@ -77,20 +77,38 @@ export const actions = {
   },
   setGeneralSettings: ({ commit, dispatch }, data) => {
     commit('GENERAL_SETTINGS_REQUEST')
-    let promises = []
-    Object.keys(data).forEach(id => {
-      let refactored = { ...data[id], ...{ id } }
-      promises.push(api.fingerbankUpdateGeneralSetting(id, refactored))
-    })
-    return Promise.all(promises).then(response => {
+    const items = Object.keys(data).map(id => ({ ...data[id], id }))
+    return api.fingerbankBulkUpdateGeneralSettings(items).then(response => {
+      const failedItems = ((response && response.items) || []).filter(item => item.status >= 300)
+      if (failedItems.length) {
+        const apiErrors = {}
+        failedItems.forEach(item => {
+          (item.errors || []).forEach(e => {
+            const key = `${item.id}.${e.field}`
+            apiErrors[key] = e.message
+            dispatch('notification/danger', { message: `${key}: ${e.message}` }, { root: true })
+          })
+          if (!item.errors || !item.errors.length) {
+            const message = item.message || `Failed to update '${item.id}'`
+            dispatch('notification/danger', { message }, { root: true })
+          }
+        })
+        if (Object.keys(apiErrors).length) {
+          commit('session/API_ERRORS', apiErrors, { root: true })
+        }
+        const summary = failedItems.map(i => i.message || `Failed to update '${i.id}'`).join('; ')
+        commit('GENERAL_SETTINGS_ERROR', { data: { message: summary } })
+        const err = new Error(summary)
+        err.response = { status: failedItems[0].status, data: { message: summary, errors: failedItems.flatMap(i => (i.errors || []).map(e => ({ ...e, field: `${i.id}.${e.field}` }))) } }
+        throw err
+      }
       commit('GENERAL_SETTINGS_REPLACED', data)
+      commit('ACCOUNT_INFO_RESET')
+      dispatch('getAccountInfo').catch(() => {})
       return response
     }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
       throw err
-    }).finally(() => {
-      commit('ACCOUNT_INFO_RESET')
-      dispatch('getAccountInfo').catch(() => {})
     })
   }
 }
