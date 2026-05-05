@@ -21,7 +21,7 @@ use pf::error qw(is_error);
 tie our %Doc_Config, 'pfconfig::cached_hash', 'config::FingerbankDoc';
 tie our %Defaults, 'pfconfig::cached_hash', 'config::FingerbankSettingsDefaults';
 
-has 'section' => ( is => 'ro' );
+has 'section' => ( is => 'rw' );
 
 my %FIELD_VALIDATORS = (
     'upstream.api_key' => sub {
