@@ -194,6 +194,12 @@ sub options_parent_id {
 sub default_parent_id {
     my $self = shift;
     my $form = $self->form;
+    # When the form is processed with an explicit parent_id input (even
+    # null / empty), the user has spoken — return undef so Select's
+    # _result_from_input doesn't fall back to $self->default and clobber
+    # that input back to advanced.default_role_parent_id.
+    return undef
+        if $form && $form->has_params && exists $form->params->{parent_id};
     my $id = $form->value->{id} // $form->fif->{id};
     my $no_id = !defined $id || $id eq '';
     # Only seed advanced.default_role_parent_id when creating a brand-new
