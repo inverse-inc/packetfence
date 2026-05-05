@@ -47,7 +47,9 @@ realm degraded {
 
 server pf-remote {
 	pre-proxy {
-		#  Insert pre-proxy rules here
+		update proxy-request {
+			PacketFence-ConnectorID := "%connector_id%"
+		}
 	}
 
 	post-proxy {

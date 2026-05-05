@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/md5"
+	"encoding/binary"
 	"errors"
 	"net"
 	"strings"
@@ -15,6 +16,11 @@ import (
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 	"layeh.com/radius/rfc2869"
+)
+
+const (
+	packetFenceVendorID            = 29464
+	packetFenceConnectorIDAttrType = 40
 )
 
 type Proxy struct {
@@ -69,7 +75,7 @@ func (rp *Proxy) DeleteBackend(addr string) {
 	rp.backends.Delete(addr)
 }
 
-func (rp *Proxy) ProxyPacket(payload []byte, connectorID string, defaultHostPort string) ([]byte, string, error) {
+func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
 	rp.Debugf("Finding backend to proxy to")
 	packet, err := radius.Parse(payload, rp.secret)
 	if err != nil {
@@ -83,22 +89,25 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string, defaultHostPort
 
 	added := rp.addProxyState(packet)
 	_ = added
-	connectorAttr, err := radius.NewString(connectorID)
-	if err != nil {
-		return nil, "", err
+
+	if !hasPacketFenceConnectorID(packet) {
+		connectorAttr, err := radius.NewString(connectorID)
+		if err != nil {
+			return nil, "", err
+		}
+
+		vendorConnectorAttr := make(radius.Attribute, 2+len(connectorAttr))
+		vendorConnectorAttr[0] = packetFenceConnectorIDAttrType
+		vendorConnectorAttr[1] = byte(len(vendorConnectorAttr))
+		copy(vendorConnectorAttr[2:], connectorAttr)
+
+		vsa, err := radius.NewVendorSpecific(packetFenceVendorID, vendorConnectorAttr)
+		if err != nil {
+			return nil, "", err
+		}
+
+		packet.Attributes.Add(26, vsa)
 	}
-
-	vendorConnectorAttr := make(radius.Attribute, 2+len(connectorAttr))
-	vendorConnectorAttr[0] = 40
-	vendorConnectorAttr[1] = byte(len(vendorConnectorAttr))
-	copy(vendorConnectorAttr[2:], connectorAttr)
-
-	vsa, err := radius.NewVendorSpecific(29464, vendorConnectorAttr)
-	if err != nil {
-		return nil, "", err
-	}
-
-	packet.Attributes.Add(26, vsa)
 
 	secret, err := rp.foundSecret(context.Background(), packet)
 
@@ -116,19 +125,32 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string, defaultHostPort
 		return nil, "", err
 	}
 
-	hostPort := defaultHostPort
-	if be := rp.backends.getBackend(packet); be != nil {
-		hostPort = be.addr
-	} else if defaultHostPort == "" {
+	be := rp.backends.getBackend(packet)
+	if be == nil {
 		return nil, "", errors.New("No backend available")
 	}
 
-	rp.Debugf("Proxy to %s for connector %s", hostPort, connectorID)
+	rp.Debugf("Proxy to %s for connector %s", be.addr, connectorID)
 	rp.IfDebugHandle(func(l *cio.Logger) {
 		l.Printf("Payload Proxied")
 		LogPacket(l, packet)
 	})
-	return b2, hostPort, nil
+	return b2, be.addr, nil
+}
+
+func hasPacketFenceConnectorID(packet *radius.Packet) bool {
+	for _, avp := range packet.Attributes {
+		if avp.Type != 26 {
+			continue
+		}
+		attr := avp.Attribute
+		if len(attr) >= 5 &&
+			binary.BigEndian.Uint32(attr[:4]) == packetFenceVendorID &&
+			attr[4] == packetFenceConnectorIDAttrType {
+			return true
+		}
+	}
+	return false
 }
 
 func addMessageAuthenticator(p *radius.Packet, secret []byte) error {

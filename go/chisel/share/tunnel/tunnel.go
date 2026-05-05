@@ -69,12 +69,7 @@ func New(c Config) *Tunnel {
 	radiusProxy, stop, err := radius_proxy.NewRadiusProxyFromKubernetes(c.Logger, c.RadiusSecret)
 
 	if err != nil {
-		t.Infof("Not running in Kubernetes (%s); using minimal radius proxy for VSA injection", err.Error())
-		t.radiusProxy = radius_proxy.NewProxy(&radius_proxy.ProxyConfig{
-			Secret:         []byte(c.RadiusSecret),
-			SessionTimeout: 20 * time.Second,
-			Logger:         c.Logger,
-		})
+		t.Infof("Error getting pod info: %s", err.Error())
 	} else {
 		t.radiusProxy = radiusProxy
 		t.k8ControllerDrop = stop

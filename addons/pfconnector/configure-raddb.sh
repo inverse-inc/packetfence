@@ -20,12 +20,21 @@ if [ -z "$MGMT_IP" ]; then
     exit 1
 fi
 
+# Extract the connector_id from the AUTH=<connector_id>:<secret> entry
+CONNECTOR_ID=$(grep -E '^AUTH=' "$PFCONNECTOR_CONF" | head -n1 | cut -d= -f2- | cut -d: -f1)
+
+if [ -z "$CONNECTOR_ID" ]; then
+    echo "ERROR: Could not parse connector_id from $PFCONNECTOR_CONF" >&2
+    exit 1
+fi
+
 # Generate raddb config from template
 if [ -f "$RADDB_TEMPLATE" ]; then
     sed -e "s/%password%/$LOCAL_SECRET/g" \
         -e "s/%mgmt_ip%/$MGMT_IP/g" \
+        -e "s/%connector_id%/$CONNECTOR_ID/g" \
         "$RADDB_TEMPLATE" > "$RADDB_PACKETFENCE"
-    echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP"
+    echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP, connector_id=$CONNECTOR_ID"
 else
     echo "ERROR: $RADDB_TEMPLATE not found" >&2
     exit 1
