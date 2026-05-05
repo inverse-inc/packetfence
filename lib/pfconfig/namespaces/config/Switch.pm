@@ -130,7 +130,7 @@ sub build_child {
     if ($self->{management_network}) {
         my @management_ips;
         push @management_ips, "100.64.0.1";
-        if ($ENV{PF_SAAS} eq 'yes') {
+        if (($ENV{PF_SAAS} // '') eq 'yes') {
             push @management_ips, "127.127.127.127";
         } else {
             push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
