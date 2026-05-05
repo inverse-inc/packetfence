@@ -13,12 +13,11 @@ testcases:
 - name: Switch_192.168.0.1_back_to_default
   steps:
   - type: http
-    method: PATCH
+    method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cli_login_radius.switch.ip}}'
     ignore_verify_ssl: true
     body: >-
       {
-        "cliAccess": null
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

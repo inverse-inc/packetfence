@@ -7,12 +7,18 @@ testcases:
 - name: change_switch_config
   steps:
   - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cli_login_radius.switch.ip}}'
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
     ignore_verify_ssl: true
     body: >-
       {
+        "id": "{{.cli_login_radius.switch.ip}}",
         "cliAccess": "Y"
+        "description":"Test Switch",
+        "type":"Cisco::Cisco_IOS_15_0",
+        "mode":"production",
+        "uplink":"23,24",
+        "VoIPLLDPDetect":"N"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
