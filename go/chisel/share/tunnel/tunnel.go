@@ -129,6 +129,23 @@ func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Reque
 	return err
 }
 
+// OpenChisselChannel opens a new "chisel" SSH channel to the given dst
+// (host:port) on the connected client side. The caller owns the returned
+// channel and must Close it. Returns nil and an error when the tunnel is
+// not currently connected or when the channel can't be opened.
+func (t *Tunnel) OpenChisselChannel(ctx context.Context, dst string) (ssh.Channel, error) {
+	sshConn := t.getSSH(ctx)
+	if sshConn == nil {
+		return nil, errors.New("chisel tunnel: no active SSH connection")
+	}
+	ch, reqs, err := sshConn.OpenChannel("chisel", []byte(dst))
+	if err != nil {
+		return nil, err
+	}
+	go ssh.DiscardRequests(reqs)
+	return ch, nil
+}
+
 // getSSH blocks while connecting
 func (t *Tunnel) getSSH(ctx context.Context) ssh.Conn {
 	//cancelled already?

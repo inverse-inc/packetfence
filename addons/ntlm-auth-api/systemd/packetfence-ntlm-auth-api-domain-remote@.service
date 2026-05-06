@@ -14,6 +14,7 @@ Slice=packetfence.slice
 PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-auth-api-%i-systemd-notify.pid
 EnvironmentFile=-/usr/local/ntlm-auth-api/conf/log.conf.d/ntlm-auth-api.conf
 Environment=CREDCACHE_URL=http://100.64.0.1:12142/api/v1/credcache/
+Environment=CREDCACHE_FORWARD_URL=http://127.0.0.1:22226/api/v1/pfconnector/credcache/
 
 [Install]
 WantedBy=multi-user.target

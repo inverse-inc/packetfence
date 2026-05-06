@@ -293,6 +293,11 @@ def ntlm_auth_handler():
         else:
             domain = global_vars.c_domain
 
+        # Set by ntlm_auth_wrapper -c %{PacketFence-ConnectorID}; identifies
+        # the pfconnector-remote that received the RADIUS request, so the
+        # credcache push can mirror the nt_key to that connector's cache too.
+        g.request_connector_id = (data.get('connector_id') or '').strip()
+
     except Exception as e:
         return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
 

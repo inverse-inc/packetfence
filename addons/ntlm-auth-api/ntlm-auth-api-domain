@@ -33,6 +33,17 @@ args="$args -p $LISTEN:$LISTEN"
 args="$args -e LISTEN=$LISTEN"
 args="$args -e IDENTIFIER=$IDENTIFIER"
 args="$args -e CREDCACHE_URL=${CREDCACHE_URL}"
+args="$args -e CREDCACHE_FORWARD_URL=${CREDCACHE_FORWARD_URL}"
+
+# SELF_CONNECTOR_ID is the connector_id of this pfconnector-remote, taken
+# from AUTH=<connector_id>:<secret> in pfconnector-client.env. pyntlm_auth
+# uses it to skip mirroring nt_key cache rows back to ourselves when the
+# RADIUS request originated from the same connector hosting this auth-api.
+PFCONNECTOR_CONF="/usr/local/pfconnector-remote/conf/pfconnector-client.env"
+if [ -f "$PFCONNECTOR_CONF" ]; then
+    SELF_CONNECTOR_ID=$(grep -E '^AUTH=' "$PFCONNECTOR_CONF" | head -n1 | cut -d= -f2- | cut -d: -f1)
+    args="$args -e SELF_CONNECTOR_ID=${SELF_CONNECTOR_ID}"
+fi
 
 run_multi "$name" "$IDENTIFIER" "$args"
 echo "Done with ntlm auth api for domain $1"

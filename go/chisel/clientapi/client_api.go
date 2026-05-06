@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,6 +18,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
+
+const credcacheRoutePrefix = "/api/v1/credcache"
+const defaultCredcacheTarget = "http://127.0.0.1:12142/api/v1/credcache/"
 
 // Handler struct
 type API struct {
@@ -87,8 +93,63 @@ func (api *API) setupRoutes() {
 			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
+			r.Handle("/credcache/*", credcacheProxy())
+			r.Handle("/credcache", credcacheProxy())
 		})
 	})
+}
+
+// credcacheProxy forwards every request under /api/v1/credcache to the URL
+// in CREDCACHE_URL (default: local connector-cache REST endpoint).
+// Used so callers reaching the pfconnector-client API can push/fetch
+// nt_key cache rows without knowing where connector-cache actually lives.
+func credcacheProxy() http.HandlerFunc {
+	targetStr := strings.TrimSpace(os.Getenv("CREDCACHE_URL"))
+	if targetStr == "" {
+		targetStr = defaultCredcacheTarget
+	}
+	target, err := url.Parse(targetStr)
+	if err != nil || target.Scheme == "" || target.Host == "" {
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, fmt.Sprintf("invalid CREDCACHE_URL %q", targetStr), http.StatusInternalServerError)
+		}
+	}
+	proxy := &httputil.ReverseProxy{
+		Director: func(req *http.Request) {
+			suffix := strings.TrimPrefix(req.URL.Path, credcacheRoutePrefix)
+			req.URL.Scheme = target.Scheme
+			req.URL.Host = target.Host
+			req.URL.Path = singleJoiningSlash(target.Path, suffix)
+			if target.RawQuery == "" || req.URL.RawQuery == "" {
+				req.URL.RawQuery = target.RawQuery + req.URL.RawQuery
+			} else {
+				req.URL.RawQuery = target.RawQuery + "&" + req.URL.RawQuery
+			}
+			req.Host = target.Host
+			if _, ok := req.Header["User-Agent"]; !ok {
+				req.Header.Set("User-Agent", "")
+			}
+		},
+	}
+	return proxy.ServeHTTP
+}
+
+func singleJoiningSlash(a, b string) string {
+	aSlash := strings.HasSuffix(a, "/")
+	bSlash := strings.HasPrefix(b, "/")
+	switch {
+	case aSlash && bSlash:
+		return a + b[1:]
+	case !aSlash && !bSlash:
+		if a == "" {
+			return b
+		}
+		if b == "" {
+			return a
+		}
+		return a + "/" + b
+	}
+	return a + b
 }
 
 func localhostOnly(next http.Handler) http.Handler {

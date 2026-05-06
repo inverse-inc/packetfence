@@ -1,11 +1,14 @@
 package chserver
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -28,6 +31,10 @@ import (
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 )
+
+var credcachePathPrefix = apiPrefix + "/credcache/"
+
+const credcacheClientTarget = "127.0.0.1:8081"
 
 var activeTunnels = sync.Map{}
 var apiPrefix = "/api/v1/pfconnector"
@@ -112,9 +119,83 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		s.handleRemoteMultiDomainConfig(w, r)
 		return
 	}
+	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
+		s.handleCredcacheForward(w, r)
+		return
+	}
 	//missing :O
 	w.WriteHeader(404)
 	w.Write([]byte("Not found"))
+}
+
+// handleCredcacheForward routes /api/v1/pfconnector/credcache/<connector-id>/...
+// through the matching active tunnel to the chisel-client's local
+// /api/v1/credcache proxy on 127.0.0.1:8081. The connector-id is taken from
+// the first path segment after /credcache/.
+func (s *Server) handleCredcacheForward(w http.ResponseWriter, r *http.Request) {
+	rest := strings.TrimPrefix(r.URL.Path, credcachePathPrefix)
+	connectorId, suffix, _ := strings.Cut(rest, "/")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector_id in path"})
+		return
+	}
+	o, ok := activeTunnels.Load(connectorId)
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
+		return
+	}
+	tun := o.(*tunnel.Tunnel)
+	if !tun.IsActive() {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusServiceUnavailable, Message: fmt.Sprintf("Tunnel for %s is not active", connectorId)})
+		return
+	}
+
+	ch, err := tun.OpenChisselChannel(r.Context(), credcacheClientTarget)
+	if err != nil {
+		log.LoggerWContext(r.Context()).Error(fmt.Sprintf("credcache forward: open channel to %s failed: %s", connectorId, err))
+		w.WriteHeader(http.StatusBadGateway)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadGateway, Message: fmt.Sprintf("Failed to open tunnel channel: %s", err)})
+		return
+	}
+	defer ch.Close()
+
+	forwarded := r.Clone(r.Context())
+	forwarded.RequestURI = ""
+	forwarded.URL = &url.URL{
+		Scheme:   "http",
+		Host:     credcacheClientTarget,
+		Path:     "/api/v1/credcache/" + suffix,
+		RawQuery: r.URL.RawQuery,
+	}
+	forwarded.Host = credcacheClientTarget
+	forwarded.Header = r.Header.Clone()
+	forwarded.Header.Del("Connection")
+	forwarded.Close = true
+
+	if err := forwarded.Write(ch); err != nil {
+		log.LoggerWContext(r.Context()).Error(fmt.Sprintf("credcache forward: write request to %s failed: %s", connectorId, err))
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
+
+	resp, err := http.ReadResponse(bufio.NewReader(ch), forwarded)
+	if err != nil {
+		log.LoggerWContext(r.Context()).Error(fmt.Sprintf("credcache forward: read response from %s failed: %s", connectorId, err))
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	for k, vs := range resp.Header {
+		for _, v := range vs {
+			w.Header().Add(k, v)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
 }
 
 // handleWebsocket is responsible for handling the websocket connection
