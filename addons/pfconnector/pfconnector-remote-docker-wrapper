@@ -12,4 +12,4 @@ args="$args -v /usr/local/pfconnector-remote/logs:/usr/local/pf/logs"
 args="$args -v /usr/local/pfconnector-remote/var/conf:/usr/local/pf/var/conf"
 args="$args --network host"
 
-run "$name" "$args" "/usr/local/pf/sbin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226"
+run "$name" "$args" "/usr/local/pf/sbin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226 100.64.0.1:22226:127.0.0.1:22226"
