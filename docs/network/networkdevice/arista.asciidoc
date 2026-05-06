@@ -1,0 +1,137 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for
+    authors, copyright and license information.
+
+////
+
+
+//=== Arista
+
+==== Arista EOS
+
+PacketFence supports Arista EOS switches using RADIUS for MAC Authentication
+(MAB) and 802.1X. Dynamic VLAN assignment, RADIUS Change of Authorization (CoA)
+and downloadable ACLs (NAS-Filter-Rule) are supported as well as VoIP detection
+via LLDP-MED.
+
+The minimum required EOS firmware version is *4.29.1F*.
+
+===== Global RADIUS Configuration
+
+Define the PacketFence RADIUS server, the AAA group, the AAA methods used for
+802.1X and MAB and enable RADIUS Dynamic Authorization (CoA) so PacketFence can
+push role/VLAN/ACL changes back to the switch:
+
+  radius-server host 192.168.1.5 key useStrongerSecret
+  !
+  aaa group server radius PacketFence
+     server 192.168.1.5
+  !
+  aaa authentication dot1x default group PacketFence
+  aaa authorization network default group PacketFence
+  aaa accounting dot1x default start-stop group PacketFence
+  !
+  aaa server radius dynamic-authorization
+     client 192.168.1.5 server-key useStrongerSecret
+  !
+  dot1x system-auth-control
+
+===== 802.1X with MAC Authentication Bypass (MAB)
+
+Apply the following configuration on each access port that should be
+authenticated. 802.1X is attempted first; if the supplicant does not respond,
+the switch falls back to MAC authentication (MAB):
+
+  interface Ethernet1
+     switchport
+     switchport mode access
+     dot1x pae authenticator
+     dot1x port-control auto
+     dot1x host-mode multi-host
+     dot1x reauthentication
+     dot1x timeout quiet-period 10
+     dot1x timeout tx-period 5
+     dot1x mac-based authentication
+     lldp transmit
+     lldp receive
+
+To support multiple devices behind the port (for example a PC behind an IP
+phone), use `multi-auth` instead of `multi-host`:
+
+  dot1x host-mode multi-auth
+
+===== MAC Authentication only (MAB only)
+
+For ports where 802.1X is not desired (for example printers, IoT, etc.), enable
+only MAC-based authentication:
+
+  interface Ethernet2
+     switchport
+     switchport mode access
+     dot1x pae authenticator
+     dot1x port-control auto
+     dot1x host-mode multi-host
+     dot1x reauthentication
+     dot1x mac-based authentication
+     dot1x mac-based authentication mac-only
+
+===== VoIP
+
+Arista EOS uses LLDP-MED to advertise the voice VLAN to IP phones. Make sure
+LLDP is enabled on the access ports (see the 802.1X section above) and that the
+voice VLAN is allowed on the port:
+
+  interface Ethernet1
+     switchport voice vlan 100
+
+PacketFence will return the `Arista-AVPair = device-traffic-class=voice` VSA
+for nodes identified as VoIP devices.
+
+===== Uplink
+
+The uplink towards the rest of the network must not authenticate clients:
+
+  interface Ethernet48
+     switchport mode trunk
+     switchport trunk allowed vlan 1-5,100
+     dot1x port-control force-authorized
+
+===== Dynamic ACL (NAS-Filter-Rule)
+
+The Arista module supports per-role ACLs pushed in the RADIUS Access-Accept
+using the `NAS-Filter-Rule` attribute. To use it:
+
+* In _Configuration -> Policies and Access Control -> Switches_, edit your
+  Arista switch entry and enable *Role by access list*.
+* Define the ACL for each role under _Configuration -> Policies and Access
+  Control -> Roles_, for example for the registration role:
+
+  permit in tcp from any to 192.168.1.5 80
+  permit in tcp from any to 192.168.1.5 443
+  permit in udp from any to any 53
+  permit in udp from any to any 67
+  deny in ip from any to any
+
+===== PacketFence switch configuration
+
+In the PacketFence administration interface, add the switch under
+_Configuration -> Policies and Access Control -> Switches_ using the following
+parameters:
+
+* Type: `Arista EOS`
+* Mode: `production`
+* Deauthentication Method: `RADIUS`
+* RADIUS Secret: `useStrongerSecret`
+
