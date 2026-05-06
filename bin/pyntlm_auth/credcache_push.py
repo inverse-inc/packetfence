@@ -35,6 +35,53 @@ def _request_connector_id():
     return (getattr(g, "request_connector_id", "") or "").strip()
 
 
+def _build_body(key, value, expires_at):
+    return json.dumps({
+        "key": key,
+        "value": value,
+        "expires_at": expires_at,
+    }).encode("utf-8")
+
+
+def _push_primary(body, key):
+    if not CREDCACHE_URL:
+        return
+    log.debug(f"credcache push_async: firing primary POST for key={key!r} to {CREDCACHE_URL}")
+    threading.Thread(
+        target=_do_post,
+        args=(CREDCACHE_URL, body, "primary"),
+        name="credcache-push",
+        daemon=True,
+    ).start()
+
+
+def _maybe_push_forward(body, key):
+    """Fire the secondary forward push at most once per request.
+
+    Skipped when CREDCACHE_FORWARD_URL is unset, when no connector_id was
+    carried on the request, when the request connector_id matches our own
+    SELF_CONNECTOR_ID, or when an earlier call this request already fired
+    it (via the g.credcache_forward_fired guard).
+    """
+    if not CREDCACHE_FORWARD_URL:
+        return
+    target = _request_connector_id()
+    if not target or target == SELF_CONNECTOR_ID:
+        return
+    if has_request_context():
+        if getattr(g, "credcache_forward_fired", False):
+            return
+        g.credcache_forward_fired = True
+    forward = CREDCACHE_FORWARD_URL.rstrip("/") + "/" + urllib.parse.quote(target, safe="") + "/"
+    log.debug(f"credcache: firing forward POST for key={key!r} to {forward}")
+    threading.Thread(
+        target=_do_post,
+        args=(forward, body, "forward"),
+        name="credcache-forward-push",
+        daemon=True,
+    ).start()
+
+
 def push_async(key, value, expires_at):
     """Fire-and-forget POSTs mirroring an nt_key_cache:* chi_cache row.
 
@@ -52,6 +99,7 @@ def push_async(key, value, expires_at):
       - request_connector_id == SELF_CONNECTOR_ID (would push to ourselves;
         the primary push already covers this case)
       - CREDCACHE_FORWARD_URL is not configured
+      - it has already fired once for this request
 
     API: POST .../api/v1/credcache/ {"key": "nt_key_cache:...",
                                       "value": "<json>",
@@ -59,32 +107,24 @@ def push_async(key, value, expires_at):
     """
     if not key or not key.startswith(NT_KEY_CACHE_PREFIX):
         return
+    body = _build_body(key, value, expires_at)
+    _push_primary(body, key)
+    _maybe_push_forward(body, key)
 
-    body = json.dumps({
-        "key": key,
-        "value": value,
-        "expires_at": expires_at,
-    }).encode("utf-8")
 
-    if CREDCACHE_URL:
-        log.debug(f"credcache push_async: firing primary POST for key={key!r} to {CREDCACHE_URL}")
-        threading.Thread(
-            target=_do_post,
-            args=(CREDCACHE_URL, body, "primary"),
-            name="credcache-push",
-            daemon=True,
-        ).start()
+def push_forward_async(key, value, expires_at):
+    """Forward-only secondary push.
 
-    target = _request_connector_id()
-    if target and target != SELF_CONNECTOR_ID and CREDCACHE_FORWARD_URL:
-        forward = CREDCACHE_FORWARD_URL.rstrip("/") + "/" + urllib.parse.quote(target, safe="") + "/"
-        log.debug(f"credcache push_async: firing forward POST for key={key!r} to {forward}")
-        threading.Thread(
-            target=_do_post,
-            args=(forward, body, "forward"),
-            name="credcache-forward-push",
-            daemon=True,
-        ).start()
+    Used after a successful cached_login() hit, where the local
+    chi_cache/connector-cache already has the row but the connector that
+    received the original RADIUS request still needs to learn it. Without
+    this, repeat MS-CHAP from the radius-receiving site keeps round-tripping
+    to the AD-hosting site even though the nt_key is already cached locally.
+    """
+    if not key or not key.startswith(NT_KEY_CACHE_PREFIX):
+        return
+    body = _build_body(key, value, expires_at)
+    _maybe_push_forward(body, key)
 
 
 def fetch(cache_key):

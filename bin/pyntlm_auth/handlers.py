@@ -310,6 +310,15 @@ def ntlm_auth_handler():
         log.debug(f"ntlm_auth_handler: using cached_login path for user={account_username!r} mac={mac!r}")
         domain = global_vars.c_cache_domain
         nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response)
+        # On a cache hit cached_login does not call update_cache_entry, so
+        # the radius-receiving connector would never learn the nt_key. Fire
+        # the forward push here too; the request-scoped guard inside
+        # _maybe_push_forward de-duplicates against the miss-then-update
+        # path that already fired it.
+        if error_code == 0 and nt_key:
+            cache_key = ncache.build_cache_key(domain, account_username)
+            cache_v_json = json.dumps({"nt_key": nt_key, "nt_status": 0})
+            credcache_push.push_forward_async(cache_key, cache_v_json, 0)
     else:
         log.debug(f"ntlm_auth_handler: using direct RPC path for user={account_username!r} mac={mac!r} nt_key_cache_enabled={global_vars.c_nt_key_cache_enabled!r}")
         nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
