@@ -96,9 +96,11 @@ export const useNodeInheritance = (items, sortBy, sortDesc) => {
   }
 
   // an item only seen as `parent_id` or fetched as inheritance filler — rendered
-  // greyed-out via these row props
+  // greyed-out via these row props.
+  // _children is intentionally NOT here: spreading GHOST would share one array
+  // reference across every ghost row and across recomputations, so children
+  // would accumulate on each rebuild.
   const GHOST = {
-    _children: [], // post-processed
     _match: false, // not found in search
     _rowVariant: 'row-disabled', // CSSable
     not_deletable: true // defer uncertainty
@@ -137,6 +139,7 @@ export const useNodeInheritance = (items, sortBy, sortDesc) => {
             id: parent_id,
             children: [id],
             _depth: 0,
+            _children: [],
             ...GHOST
           } // ghost parent (parent_id missing entirely from data)
           depth = 1
