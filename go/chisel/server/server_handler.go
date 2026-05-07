@@ -118,6 +118,12 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/multi-domain-config":
 		s.handleRemoteMultiDomainConfig(w, r)
 		return
+	case apiPrefix + "/connector-status":
+		s.handleConnectorStatus(w, r)
+		return
+	case apiPrefix + "/health":
+		s.handleConnectorHealth(w, r)
+		return
 	}
 	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
 		s.handleCredcacheForward(w, r)
@@ -893,7 +899,8 @@ func (s *Server) handleLocalSecret(w http.ResponseWriter, req *http.Request) {
 // handleRemoteMultiDomainConfig returns ConfigRealm / ConfigOrderedRealm /
 // ConfigDomain in a single JSON payload so pfconnector-remote can port the
 // logic of raddb/mods-config/perl/packetfence-multi-domain.pm::authorize to
-// Go locally.
+// Go locally. It also includes a domain_connector map so the client can
+// resolve realm→domain→connector when deciding remote vs degraded.
 func (s *Server) handleRemoteMultiDomainConfig(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
@@ -916,11 +923,95 @@ func (s *Server) handleRemoteMultiDomainConfig(w http.ResponseWriter, req *http.
 		return
 	}
 
+	domainConnector := s.buildDomainConnectorMap(ctx, domains.Element)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"realms":         realms.Element,
-		"ordered_realms": ordered.Element,
-		"domains":        domains.Element,
+		"realms":           realms.Element,
+		"ordered_realms":   ordered.Element,
+		"domains":          domains.Element,
+		"domain_connector": domainConnector,
+	})
+}
+
+// buildDomainConnectorMap mirrors find_connector() in
+// pfconfig::namespaces::resource::pfconnector_static_connections: for each
+// domain with use_connector enabled, look up which connector owns the AD
+// server's IP by walking connectors.conf network CIDRs. Domains whose
+// AdServer doesn't parse as an IP (e.g. plain hostnames) are skipped — we
+// can't pick a connector without resolving DNS, and DNS at this point would
+// be racy. The Perl side has the same limitation today.
+func (s *Server) buildDomainConnectorMap(ctx context.Context, domains map[string]pfconfigdriver.Domain) map[string]string {
+	out := map[string]string{}
+	if s.connectors == nil {
+		return out
+	}
+	for id, d := range domains {
+		if !sharedutils.IsEnabled(d.UseConnector) {
+			continue
+		}
+		if d.AdServer == "" {
+			continue
+		}
+		ip := net.ParseIP(d.AdServer)
+		if ip == nil {
+			continue
+		}
+		c := s.connectors.ForIP(ctx, ip)
+		if c == nil {
+			continue
+		}
+		out[id] = c.PfconfigHashNS
+	}
+	return out
+}
+
+// handleConnectorStatus exposes the current connector_id -> up/down map
+// maintained by the prober. Refreshed on a fast cadence (default 2s); the
+// pfconnector-client polls it to short-circuit FreeRADIUS authorize to
+// degraded when the connector serving a realm's AD is unreachable.
+func (s *Server) handleConnectorStatus(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	status := map[string]bool{}
+	if s.connectorStatus != nil {
+		status = s.connectorStatus.Snapshot()
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"connector_status": status,
+	})
+}
+
+// handleConnectorHealth is the no-auth probe endpoint declared in
+// conf/caddy-services/api.conf.example. Returns the same per-connector map
+// as /connector-status plus an "overall" rollup so external monitors and
+// k8s-style liveness probes can act on a single field.
+//
+// Status code is 200 when overall is "ok", 503 when "degraded" — that's
+// what most probes expect for unhealthy. "ok" means: every connector the
+// prober has observed is currently up. Empty map (no connectors connected
+// yet, or prober hasn't run) is treated as "ok" — we have nothing to flag.
+func (s *Server) handleConnectorHealth(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	status := map[string]bool{}
+	if s.connectorStatus != nil {
+		status = s.connectorStatus.Snapshot()
+	}
+	overall := "ok"
+	for _, up := range status {
+		if !up {
+			overall = "degraded"
+			break
+		}
+	}
+	if overall == "degraded" {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"overall":    overall,
+		"connectors": status,
 	})
 }

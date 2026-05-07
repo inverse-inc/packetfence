@@ -24,12 +24,13 @@ const defaultCredcacheTarget = "http://127.0.0.1:12142/api/v1/credcache/"
 
 // Handler struct
 type API struct {
-	Router      *chi.Mux
-	ConnectorId string
-	ctx         context.Context
-	cancel      context.CancelFunc
-	tunnel      *tunnel.Tunnel
-	mdCache     *multiDomainCache
+	Router        *chi.Mux
+	ConnectorId   string
+	ctx           context.Context
+	cancel        context.CancelFunc
+	tunnel        *tunnel.Tunnel
+	mdCache       *multiDomainCache
+	statusCache   *connectorStatusCache
 }
 
 type Service struct {
@@ -43,11 +44,13 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
 	Api.tunnel = tun
 	Api.mdCache = newMultiDomainCache("")
+	Api.statusCache = newConnectorStatusCache("")
 	var tunState tunnelState
 	if Api.tunnel != nil {
 		tunState = Api.tunnel
 	}
 	Api.mdCache.startRefresher(ctx, tunState)
+	Api.statusCache.startRefresher(ctx, tunState)
 
 	Api.setupRoutes()
 
@@ -428,6 +431,76 @@ func extractRealm(userName, realmAttr string) string {
 	return ""
 }
 
+// lookupRealmKey resolves the request's User-Name / Realm to a realm key
+// from cfg.Realms, mirroring the order FreeRADIUS realm modules apply:
+// exact match, lowercase match, ordered regex fallback, then "default" if
+// configured. Returns "" when nothing matches. Shared by multiDomainAuthorize
+// and radiusAuthorize so they reach the same realm decision.
+func lookupRealmKey(cfg *multiDomainConfig, regexes map[string]*regexp.Regexp, userName, realmAttr string) string {
+	effectiveRealm := extractRealm(userName, realmAttr)
+	if effectiveRealm != "" {
+		if _, ok := cfg.Realms[effectiveRealm]; ok {
+			return effectiveRealm
+		}
+		if lower := strings.ToLower(effectiveRealm); lower != effectiveRealm {
+			if _, ok := cfg.Realms[lower]; ok {
+				return lower
+			}
+		}
+	}
+	if _, hasDefault := cfg.Realms["default"]; !hasDefault {
+		return ""
+	}
+	for _, key := range cfg.OrderedRealms {
+		re, ok := regexes[key]
+		if !ok {
+			continue
+		}
+		if re.MatchString(userName) {
+			return key
+		}
+	}
+	return "default"
+}
+
+// connectorForRequest derives the connector_id that owns the AD for the
+// realm carried by the rlm_rest body. Returns ("", false) when the request
+// has no body, the realm doesn't map to a domain, or the domain has no
+// configured connector. Used by radiusAuthorize to short-circuit to
+// degraded when that connector is unreachable.
+func connectorForRequest(api *API, r *http.Request) (string, bool) {
+	if api == nil || api.mdCache == nil {
+		return "", false
+	}
+	cfg, regexes := api.mdCache.get()
+	if cfg == nil {
+		return "", false
+	}
+	req := map[string]*rlmRestAttr{}
+	if r.Body != nil {
+		_ = json.NewDecoder(r.Body).Decode(&req)
+	}
+	userName := req["TLS-Client-Cert-Common-Name"].firstValue()
+	if userName == "" {
+		userName = req["User-Name"].firstValue()
+	}
+	realmAttr := req["Realm"].firstValue()
+
+	realmKey := lookupRealmKey(cfg, regexes, userName, realmAttr)
+	if realmKey == "" {
+		return "", false
+	}
+	rc, ok := cfg.Realms[realmKey]
+	if !ok || rc.Domain == "" {
+		return "", false
+	}
+	connectorID, ok := cfg.DomainConnector[rc.Domain]
+	if !ok || connectorID == "" {
+		return "", false
+	}
+	return connectorID, true
+}
+
 // multiDomainAuthorize is a Go port of
 // raddb/mods-config/perl/packetfence-multi-domain.pm::authorize.
 //
@@ -465,39 +538,7 @@ func multiDomainAuthorize(api *API) http.HandlerFunc {
 		}
 		realmAttr := req["Realm"].firstValue()
 
-		effectiveRealm := extractRealm(userName, realmAttr)
-
-		// Look up the derived realm; fall back to its lowercase form since realm
-		// keys in the config are typically lowercase.
-		var realmKey string
-		if effectiveRealm != "" {
-			if _, ok := cfg.Realms[effectiveRealm]; ok {
-				realmKey = effectiveRealm
-			} else if lower := strings.ToLower(effectiveRealm); lower != effectiveRealm {
-				if _, ok := cfg.Realms[lower]; ok {
-					realmKey = lower
-				}
-			}
-		}
-
-		// Step 3: fallback via ordered regex match, then "default".
-		if realmKey == "" {
-			if _, hasDefault := cfg.Realms["default"]; hasDefault {
-				for _, key := range cfg.OrderedRealms {
-					re, ok := regexes[key]
-					if !ok {
-						continue
-					}
-					if re.MatchString(userName) {
-						realmKey = key
-						break
-					}
-				}
-				if realmKey == "" {
-					realmKey = "default"
-				}
-			}
-		}
+		realmKey := lookupRealmKey(cfg, regexes, userName, realmAttr)
 
 		if realmKey == "" {
 			w.WriteHeader(http.StatusOK)
@@ -549,16 +590,37 @@ func multiDomainAuthorize(api *API) http.HandlerFunc {
 
 // radiusAuthorize returns control:Proxy-To-Realm based on tunnel connectivity.
 // Used by rlm_rest in the FreeRADIUS authorize section.
+//
+// "remote" means forward this request to cloud RADIUS via the chisel tunnel;
+// "degraded" keeps the request local (credcache-backed PEAP/TTLS, or local
+// EAP-TLS, both of which work without reaching AD). We pick degraded when:
+//
+//  1. our own tunnel is down — cloud RADIUS is unreachable, or
+//  2. the cloud could be reached but the connector that owns the AD for
+//     this realm is unreachable on the server side. ntlm_auth_api_remote
+//     would be unavailable there, so cloud RADIUS would just time out;
+//     degraded is strictly better.
+//
+// EAP-Type isn't visible at authorize time; degraded is safe across PEAP,
+// TTLS and TLS — see go/chisel/clientapi/connector_status.go for the
+// reasoning.
 func radiusAuthorize(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 
 		realm := "degraded"
 		if api.tunnel != nil && api.tunnel.IsActive() {
 			realm = "remote"
+			if api.statusCache != nil {
+				if connectorID, ok := connectorForRequest(api, r); ok {
+					if up, known := api.statusCache.isUp(connectorID); known && !up {
+						realm = "degraded"
+					}
+				}
+			}
 		}
 
+		w.WriteHeader(http.StatusOK)
 		response := map[string]interface{}{
 			"control:Proxy-To-Realm": map[string]interface{}{
 				"op":    ":=",

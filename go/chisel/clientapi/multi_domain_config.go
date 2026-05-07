@@ -41,10 +41,17 @@ type tunnelState interface {
 
 // multiDomainConfig mirrors the JSON returned by
 // GET /api/v1/pfconnector/multi-domain-config on pfconnector-server.
+//
+// DomainConnector maps domain_id → connector_id and is computed server-side
+// from each domain's ad_server IP against connectors.conf network ranges.
+// Used by radiusAuthorize (together with the live connector_status fed by
+// connectorStatusCache) to short-circuit to "degraded" when the connector
+// owning a realm's AD is unreachable.
 type multiDomainConfig struct {
-	Realms        map[string]multiDomainRealm  `json:"realms"`
-	OrderedRealms []string                     `json:"ordered_realms"`
-	Domains       map[string]multiDomainDomain `json:"domains"`
+	Realms          map[string]multiDomainRealm  `json:"realms"`
+	OrderedRealms   []string                     `json:"ordered_realms"`
+	Domains         map[string]multiDomainDomain `json:"domains"`
+	DomainConnector map[string]string            `json:"domain_connector"`
 }
 
 type multiDomainRealm struct {
