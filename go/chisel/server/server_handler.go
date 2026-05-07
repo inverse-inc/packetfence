@@ -829,9 +829,10 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 		connectorNetworks = c.NetworksObjects
 	}
 
-	// Get all switch keys from pfconfig
-	switches := pfconfigdriver.GetType[pfconfigdriver.PfSwitches](ctx)
-	if switches == nil {
+	// Get all switch keys from pfconfig (force a fresh fetch so newly added
+	// switches show up without waiting for the pool cache to be refreshed)
+	switches := pfconfigdriver.PfSwitches{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &switches); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Unable to fetch switches from pfconfig"))
 		return
