@@ -36,6 +36,7 @@ echo "$NAS_JSON" | jq -c '.[]' | while read -r entry; do
     if [ -n "$nasname" ] && [ -n "$secret" ]; then
         cat > "$CLIENTS_DIR/$nasname" <<EOF
 client $nasname {
+    ipaddr = $nasname
     secret = $secret
     shortname = $nasname
     nastype = $nastype
