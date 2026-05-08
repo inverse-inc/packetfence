@@ -28,14 +28,28 @@ my $changed = 0;
 for my $section ($ini->Sections) {
     my $type = $ini->val($section, 'type');
     next if !defined $type || $type ne 'AzureAD';
+
     my $user_groups_url = $ini->val($section, 'user_groups_url');
-    next if !defined $user_groups_url;
+    my $token_url       = $ini->val($section, 'token_url');
+
+    next if !defined $user_groups_url && !defined $token_url;
+
     print "Updating section $section\n";
-    if ($user_groups_url ne 'https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf') {
-        $user_groups_url =~ s#/v1.0/users/%USERNAME/memberOf$##;
-        $ini->newval($section, 'graph_url', $user_groups_url);
+
+    if (defined $user_groups_url
+        && $user_groups_url ne 'https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf') {
+        (my $graph_url = $user_groups_url) =~ s#/v1\.0/users/%USERNAME/memberOf/?$##;
+        $ini->newval($section, 'graph_url', $graph_url) if length $graph_url;
     }
-    $ini->delval($section, 'user_groups_url');
+
+    if (defined $token_url
+        && $token_url ne 'https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token') {
+        (my $oauth_url = $token_url) =~ s#/%TENANT_ID/oauth2/v2\.0/token/?$##;
+        $ini->newval($section, 'oauth_url', $oauth_url) if length $oauth_url;
+    }
+
+    $ini->delval($section, 'user_groups_url') if defined $user_groups_url;
+    $ini->delval($section, 'token_url')       if defined $token_url;
     $changed |= 1;
 }
 

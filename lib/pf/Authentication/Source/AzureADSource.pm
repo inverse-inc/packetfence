@@ -120,14 +120,21 @@ sub cache {
 
 sub get_admin_token {
     my ($self) = @_;
+    my $logger = get_logger;
     my $k = $GET_ADMIN_TOKEN_KEY;
-    if(my $token = $self->cache->get($k)) {
+    if (my $token = $self->cache->get($k)) {
         return $token;
-    } else {
-        my $data = $self->_get_admin_token();
-        my $expires_in = int($data->{ext_expires_in} / 2) . "s";
-        $self->cache->set($k, $data->{access_token}, { expires_in => $expires_in });
     }
+
+    my $data = $self->_get_admin_token();
+    if (!$data || !$data->{access_token} || !$data->{ext_expires_in}) {
+        $logger->error("Failed to obtain admin token for source " . $self->id);
+        return undef;
+    }
+
+    my $expires_in = int($data->{ext_expires_in} / 2) . "s";
+    $self->cache->set($k, $data->{access_token}, { expires_in => $expires_in });
+    return $data->{access_token};
 }
 
 sub authenticate {
