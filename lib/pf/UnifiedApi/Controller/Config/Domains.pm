@@ -251,7 +251,7 @@ sub create {
         $computer_password = $hash;
     }
 
-    $item->{ntlm_auth_host} = '127.0.0.1';
+    $item->{ntlm_auth_host} = 'containers-gateway.internal';
     $item->{ntlm_auth_port} = $max_port;
     $item->{password_is_nt_hash} = '1';
     $item->{machine_account_password} = $computer_password;
