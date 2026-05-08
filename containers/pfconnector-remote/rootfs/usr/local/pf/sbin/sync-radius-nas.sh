@@ -36,10 +36,10 @@ echo "$NAS_JSON" | jq -c '.[]' | while read -r entry; do
     if [ -n "$nasname" ] && [ -n "$secret" ]; then
         cat > "$CLIENTS_DIR/$nasname" <<EOF
 client $nasname {
-    ipaddr = $nasname
+    ipaddr = $nasname/32
     secret = $secret
     shortname = $nasname
-    nastype = $nastype
+    nas_type = $nastype
 }
 EOF
         echo "Added NAS client: $nasname"
