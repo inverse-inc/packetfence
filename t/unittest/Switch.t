@@ -145,7 +145,7 @@ is_deeply(
 
 is(pf::Switch::_parentRoleForVlan("r3"), "r2", "parent role for vlan r3 is r2");
 is(pf::Switch::_parentRoleForVlan("r2"), "r1", "parent role for vlan r2 is r1");
-is(pf::Switch::_parentRoleForVlan("r1"), undef, "parent role for vlan r1 is undef");
+is(pf::Switch::_parentRoleForVlan("r1"), '', "parent role for vlan r1 is undef");
 
 is($switch->getVlanByName("r3"), "gotTwo", "Got the parent vlan");
 is($switch->getVlanByName("r2"), "gotTwo", "Got my vlan");
