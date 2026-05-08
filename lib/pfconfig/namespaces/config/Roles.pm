@@ -29,11 +29,8 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $roles_config_file;
-
     my $defaults = pf::IniFiles->new( -file => $roles_default_config_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
-    $self->{child_resources}   = [ 'resource::RolesReverseLookup'];
-    $self->{config_pf}         = $self->{cache}->get_cache('config::Pf');
 }
 
 sub build_child {
@@ -42,25 +39,9 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
     my %parents;
 
-    my $default_parent = $self->{config_pf}{advanced}{default_role_parent_id};
-    my $default_usable =
-           defined $default_parent
-        && length $default_parent
-        && exists $tmp_cfg{$default_parent};
-
     while ( my ($name, $data) = each %tmp_cfg ) {
         if (exists $data->{acls} && defined $data->{acls}) {
             $data->{acls} = [split(/\n/, $data->{acls})];
-        }
-
-        # Roles whose roles.conf section has no parent_id key at all
-        # (e.g. predate the create-time materialization) inherit
-        # advanced.default_role_parent_id at runtime. `parent_id=`
-        # (key present, empty value) stays empty — that's the lock.
-        if (!exists $data->{parent_id}
-            && $default_usable
-            && $default_parent ne $name) {
-            $data->{parent_id} = $default_parent;
         }
 
         my $parent_id = $data->{parent_id} // '';

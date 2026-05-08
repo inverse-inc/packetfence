@@ -46,7 +46,7 @@ $t->options_ok($collection_base_url)
                    'implied' => undef,
                    'type' => 'string',
                    'allow_custom' => 0,
-                   'placeholder' => '',
+                   'placeholder' => undef,
                    'allowed' => [
                                   {
                                     'text' => 'Machine',
@@ -371,8 +371,10 @@ $t->post_ok($collection_base_url => json => { id => 'r6', parent_id => 'r5'})
 # parent_id missing/null/'' semantics — see cleanupItemForCreate /
 # cleanupItemForUpdate in lib/pf/UnifiedApi/Controller/Config/Roles.pm.
 # Test fixture has advanced.default_role_parent_id=r4 (see t/data/pf.conf).
-my $cs = pf::ConfigStore::Roles->new;
-my $raw_parent_id = sub { $cs->cachedConfig->val($_[0], 'parent_id') };
+my $raw_parent_id = sub {
+    my $cs = pf::ConfigStore::Roles->new;
+    $cs->cachedConfig->val($_[0], 'parent_id');
+};
 
 # CREATE: omitted parent_id -> advanced.default_role_parent_id ('r4')
 {
