@@ -24,7 +24,6 @@ with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $domain_config_file };
 
-# seems not used anywhere
 sub canDelete {
     my ($self, $id) = @_;
     my $host_id = hostname();
