@@ -67,6 +67,46 @@ variables:
 ########################################
 # RULES
 ########################################
+# === CONTEXT DERIVATION ===
+# Single source of truth for CONTEXT and IMAGE_TAG. Rule order is
+# load-bearing — most specific first:
+#   1. $CI_COMMIT_TAG                → release     (IMAGE_TAG = tag)
+#   2. cloud-nac/X.Y branch          → cloud-nac   (IMAGE_TAG = slug-pipelineid)
+#   3. maintenance/X.Y branch        → maintenance (IMAGE_TAG = slug)
+#   4. devel branch                  → devel       (IMAGE_TAG = latest)
+#   5. (default — any other branch)  → branches    (IMAGE_TAG = slug)
+#
+# NOTE: GitLab merges rules:last-wins when a job `extends:` multiple
+# templates with rules:. Jobs that extend `.context_rules` will run on every
+# pipeline (the default case is `when: always`). Per-job feature gates
+# (BUILD_*=yes etc.) should be layered as additional rules entries within
+# the concrete job, not as a second rules template.
+#
+# step 001.4.
+.context_rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      variables:
+        CONTEXT: release
+        IMAGE_TAG: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/'
+      variables:
+        CONTEXT: cloud-nac
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
+      variables:
+        CONTEXT: maintenance
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        CONTEXT: devel
+        IMAGE_TAG: latest
+    - when: always
+      variables:
+        CONTEXT: branches
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+
+# === EXISTING RULES ===
 # run only jobs on release tag (vX.Y.Z) (push and web)
 # no schedule on tag
 .release_only_rules:
@@ -627,6 +667,101 @@ variables:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
     - JOB_STATUS=$EXIT_CODE timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
 
+########################################
+# MATRIX ANCHORS
+########################################
+# YAML anchors for the four service-image matrix lists currently duplicated
+# across pfdeb_based_dev / _br_maint / _cloud_nac / _rel. Defined as set
+# differences from .service_images_full so adding a service is one edit, not
+# four.
+.service_images_full: &service_images_full
+  - pfconfig
+  - httpd.dispatcher
+  - httpd.portal
+  - api-frontend
+  - pfacct
+  - pfcmd
+  - pfqueue
+  - httpd.aaa
+  - httpd.admin_dispatcher
+  - httpd.webservices
+  - pfsetacls
+  - pfsso
+  - pfperl-api
+  - pfconnector
+  - pfpki
+  - pfcron
+  - haproxy-portal
+  - haproxy-admin
+  - proxysql
+  - pfldapexplorer
+  - kafka
+  - ntlm-auth-api
+  - ntlm-join-remote
+  - netdata
+  - git-sync
+  - github-apps-token
+  - pfstats
+  - caddy-l4
+  - pfdns-connector
+
+# = .service_images_full minus: git-sync, github-apps-token, caddy-l4
+.service_images_cloud_nac_trim: &service_images_cloud_nac_trim
+  - pfconfig
+  - httpd.dispatcher
+  - httpd.portal
+  - api-frontend
+  - pfacct
+  - pfcmd
+  - pfqueue
+  - httpd.aaa
+  - httpd.admin_dispatcher
+  - httpd.webservices
+  - pfsetacls
+  - pfsso
+  - pfperl-api
+  - pfconnector
+  - pfpki
+  - pfcron
+  - haproxy-portal
+  - haproxy-admin
+  - proxysql
+  - pfldapexplorer
+  - kafka
+  - ntlm-auth-api
+  - ntlm-join-remote
+  - netdata
+  - pfstats
+  - pfdns-connector
+
+# = .service_images_full minus: git-sync, github-apps-token, caddy-l4, pfstats
+.service_images_release_trim: &service_images_release_trim
+  - pfconfig
+  - httpd.dispatcher
+  - httpd.portal
+  - api-frontend
+  - pfacct
+  - pfcmd
+  - pfqueue
+  - httpd.aaa
+  - httpd.admin_dispatcher
+  - httpd.webservices
+  - pfsetacls
+  - pfsso
+  - pfperl-api
+  - pfconnector
+  - pfpki
+  - pfcron
+  - haproxy-portal
+  - haproxy-admin
+  - proxysql
+  - pfldapexplorer
+  - kafka
+  - ntlm-auth-api
+  - ntlm-join-remote
+  - netdata
+  - pfdns-connector
+
 ################################################################################
 # JOBS
 ################################################################################
@@ -639,6 +774,24 @@ run_pipeline_if_necessary:
   extends:
     - .check_job
     - .check_devel_branches_and_maintenance_rules
+
+# Catches YAML regressions before any other stage runs. allow_failure: false
+# because lint errors here break every downstream job — fail fast is the point.
+# TODO: upgrade to `glab ci lint --strict` once the auth path is decided.
+lint_ci_yaml:
+  stage: check
+  image: cytopia/yamllint:latest
+  dependencies: []
+  rules:
+    - when: always
+  script:
+    - >
+      yamllint
+      -d '{extends: relaxed, rules: {line-length: disable, truthy: disable}}'
+      .gitlab-ci.yml
+  allow_failure: false
+  tags:
+    - docker
 
 ########################################
 # BUILD_IMG_CONTAINER JOBS
