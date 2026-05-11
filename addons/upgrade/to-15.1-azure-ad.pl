@@ -6,7 +6,17 @@ Azure AD Configuration Migration Script - Migrates and updates Azure AD authenti
 
 =head1 DESCRIPTION
 
-This script migrates Azure AD configurations in the authentication INI file. It updates sections where the 'type' is set to 'AzureAD' by modifying the 'user_groups_url' field and adding a new 'graph_url' field if necessary. The script ensures compatibility with updated Azure AD endpoints.
+This script migrates Azure AD configurations in the authentication INI file. It
+splits the legacy C<user_groups_url> field into the new C<graph_url> (scheme +
+host) and C<user_groups_url_path> (path with C<%USERNAME> substitution) fields.
+
+When the legacy path differs from the v15.0 default
+C</v1.0/users/%USERNAME/memberOf> (for example, customers who pointed at
+C</v1.0/devices(deviceId='%USERNAME')/memberOf> to look up device/machine
+group memberships), the customization is preserved in C<user_groups_url_path>
+so the source keeps behaving the way it did pre-upgrade.
+
+The script is idempotent: it skips sections that have already been migrated.
 
 =cut
 
@@ -20,7 +30,7 @@ use pf::file_paths qw(
     $authentication_config_file
 );
 
-
+my $DEFAULT_PATH = '/v1.0/users/%USERNAME/memberOf';
 
 my $ini = pf::IniFiles->new( -file => $authentication_config_file, -allowempty => 1);
 my $changed = 0;
@@ -31,9 +41,22 @@ for my $section ($ini->Sections) {
     my $user_groups_url = $ini->val($section, 'user_groups_url');
     next if !defined $user_groups_url;
     print "Updating section $section\n";
-    if ($user_groups_url ne 'https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf') {
-        $user_groups_url =~ s#/v1.0/users/%USERNAME/memberOf$##;
-        $ini->newval($section, 'graph_url', $user_groups_url);
+
+    my ($base, $path);
+    if ($user_groups_url =~ m{^(https?://[^/]+)(/.*)?$}) {
+        $base = $1;
+        $path = defined $2 && length $2 ? $2 : $DEFAULT_PATH;
+    } else {
+        # Unparseable URL - fall back to leaving graph_url empty so the
+        # source uses its compiled-in default, and just preserve the raw
+        # value as the path for the operator to fix up manually.
+        $base = '';
+        $path = $user_groups_url;
+    }
+
+    $ini->newval($section, 'graph_url', $base) if length $base;
+    if ($path ne $DEFAULT_PATH) {
+        $ini->newval($section, 'user_groups_url_path', $path);
     }
     $ini->delval($section, 'user_groups_url');
     $changed |= 1;
