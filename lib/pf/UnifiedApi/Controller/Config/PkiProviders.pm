@@ -24,13 +24,11 @@ has 'primary_key' => 'pki_provider_id';
 
 use pf::ConfigStore::PKI_Provider;
 use pfappserver::Form::Config::PKI_Provider::packetfence_local;
-use pfappserver::Form::Config::PKI_Provider::scep;
 use pfappserver::Form::Config::PKI_Provider::packetfence_pki;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::PKI_Provider::$_" } qw(
         packetfence_local
-        scep
         packetfence_pki
     )
 );

@@ -22,14 +22,12 @@ import { useFormProps as props } from '../_composables/useForm'
 import { BaseContainerLoading } from '@/components/new/'
 import FormTypePacketfenceLocal from './FormTypePacketfenceLocal'
 import FormTypePacketfencePki from './FormTypePacketfencePki'
-import FormTypeScep from './FormTypeScep'
 
 const components = {
   BaseContainerLoading,
 
   FormTypePacketfenceLocal,
-  FormTypePacketfencePki,
-  FormTypeScep
+  FormTypePacketfencePki
 }
 
 export const setup = (props) => {
@@ -43,7 +41,6 @@ export const setup = (props) => {
     switch(unref(type)) {
       case 'packetfence_local': return FormTypePacketfenceLocal //break
       case 'packetfence_pki': return FormTypePacketfencePki // break
-      case 'scep': return FormTypeScep // break
       default:
         return undefined
     }

@@ -36,7 +36,7 @@ and password.
 ==== Configure the feature
 
 NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before
-going any further. Two sections exists to assist you: <<pf-pki,PacketFence PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence MSPKI>> which covers Microsoft's.
+going any further. See <<pf-pki,PacketFence PKI>> for details.
 
 Configure SSID for devices after authentication.
 
