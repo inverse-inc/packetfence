@@ -5,7 +5,9 @@ const schemaIntermediateCertificateAuthority = yup.string().nullable().required(
 
 const schemaIntermediateCertificateAuthorities = yup.array().of(schemaIntermediateCertificateAuthority)
 
-export const schema = () => {
+export const schema = (props = {}) => {
+  const { id } = props || {}
+  const isRadius = id === 'radius'
   return yup.object({
     lets_encrypt: yup.boolean(),
     common_name: yup.string()
@@ -27,7 +29,10 @@ export const schema = () => {
         otherwise: yup.string().nullable(),
       }),
     intermediate_cas: schemaIntermediateCertificateAuthorities.meta({ invalidFeedback: i18n.t('Intermediate CA certificates contain one or more errors.') }),
-    subject_alt_name: yup.array().of(yup.string())
+    subject_alt_name: yup.array().of(yup.string()),
+    ca: isRadius
+      ? yup.string().nullable().required(i18n.t('Certification Authority certificate(s) required.'))
+      : yup.string().nullable(),
   })
 }
 

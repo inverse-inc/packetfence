@@ -208,16 +208,6 @@ sub objects_from_payload {
             }
         }
 
-        if($data->{ca}) {
-            my @texts = split_pem($data->{ca});
-            my @x509s;
-            for my $t (@texts) {
-                my $x509 = pf::ssl::x509_from_string($t) or die "Failed to parse CA certificate\n";
-                push @x509s, $x509;
-            }
-            push @cas, @x509s;
-            $ca = \@x509s;
-        }
     };
     if($@) {
         my $msg = $@;
@@ -225,6 +215,40 @@ sub objects_from_payload {
         $self->log->error($msg);
         $self->render_error("500", $msg);
         return (undef);
+    }
+
+    my $ca_required = exists pf::ssl::certs_map()->{$self->stash->{certificate_id}}{ca_file};
+    my $ca_payload  = $data->{ca};
+    my $ca_present  = defined($ca_payload) && $ca_payload =~ /\S/;
+
+    if ($ca_required && !$ca_present) {
+        my $msg = "A Certification Authority certificate is required.";
+        $self->log->error($msg);
+        $self->render_error(422, $msg);
+        return (undef);
+    }
+
+    if ($ca_present) {
+        my @texts = split_pem($ca_payload);
+        if ($ca_required && !@texts) {
+            my $msg = "A Certification Authority certificate is required.";
+            $self->log->error($msg);
+            $self->render_error(422, $msg);
+            return (undef);
+        }
+        my @x509s;
+        for my $t (@texts) {
+            my $x509 = pf::ssl::x509_from_string($t);
+            unless ($x509) {
+                my $msg = "Failed to parse Certification Authority certificate.";
+                $self->log->error($msg);
+                $self->render_error(422, $msg);
+                return (undef);
+            }
+            push @x509s, $x509;
+        }
+        push @cas, @x509s;
+        $ca = \@x509s;
     }
 
     return ($cert, \@intermediate_cas, \@cas, $ca, $key);
