@@ -304,7 +304,7 @@ $self_service_default_config_file = catfile($conf_dir,"self_service.conf.default
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 $syslog_config_file  = catfile($conf_dir, "syslog.conf");
 $syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
-$rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
+$rsyslog_packetfence_config_file  = "/etc/rsyslog.d/00-packetfence.conf";
 $fingerbank_collector_env_defaults_file = catfile($conf_dir, "fingerbank-collector.env.defaults");
 $network_behavior_policy_config_file = catfile($conf_dir,"network_behavior_policies.conf");
 
