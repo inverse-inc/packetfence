@@ -9,10 +9,13 @@ before_script:
 ################################################################################
 # STAGES
 ################################################################################
+# build_images covers BOTH the pfbuild base images (consumed via `image:` by
+# the build_artifacts stage) AND the service container images (built by Kaniko,
+# pushed to GHCR). Intra-stage ordering is enforced by `needs:`, not by stage
+# boundaries.
 stages:
   - check
-  - build_img
-  - build_img_container
+  - build_images
   - build_artifacts
   - sign
   - publish
@@ -347,14 +350,14 @@ variables:
     - docker
 
 .build_img_docker_job:
-  stage: build_img
+  stage: build_images
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${PACKERDIR} build_img_docker_pfbuild
   tags:
     - shell
 
 .build_img_container_job_dev:
-  stage: build_img_container
+  stage: build_images
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
   script:
@@ -363,7 +366,7 @@ variables:
     - docker
 
 .build_img_container_job_br_maint:
-  stage: build_img_container
+  stage: build_images
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
   script:
@@ -372,7 +375,7 @@ variables:
     - docker
 
 .build_img_container_job_cloud_nac:
-  stage: build_img_container
+  stage: build_images
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   script:
@@ -381,7 +384,7 @@ variables:
     - docker
 
 .build_img_container_job_rel:
-  stage: build_img_container
+  stage: build_images
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${CI_COMMIT_TAG}
   script:
@@ -390,7 +393,7 @@ variables:
     - docker
 
 .build_img_container_kanikobuild_job:
-  stage: build_img_container
+  stage: build_images
   dependencies: []
   image:
     name: ${KANIKO_DEBUG_IMG}
@@ -401,7 +404,7 @@ variables:
     - docker
 
 .build_img_vagrant_devel_and_branches_job:
-  stage: build_img
+  stage: build_images
   variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
