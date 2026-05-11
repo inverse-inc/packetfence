@@ -31,7 +31,6 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/timedlock"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
@@ -67,7 +66,6 @@ var (
 	GlobalMacCache                *cache.Cache
 	GlobalFilterCache             *cache.Cache
 	GlobalTransactionCache        *cache.Cache
-	GlobalTransactionLock         *timedlock.RWLock
 	RequestGlobalTransactionCache *cache.Cache
 
 	// VIP management
@@ -93,7 +91,6 @@ func initializeCaches() {
 	GlobalIPCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalMacCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalTransactionCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
-	GlobalTransactionLock = timedlock.NewRWLock()
 	RequestGlobalTransactionCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
 }
@@ -240,9 +237,10 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		return answer
 	}
 
-	// Lock transaction to prevent duplicates
+	// Lock transaction to prevent duplicates. Dedup drops are a normal
+	// consequence of relay/client retransmissions, so log them at Debug.
 	if !I.lockTransaction(ctx, answer.MAC, msgType) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf(
 			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (transaction lock)",
 			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
 		return answer
@@ -432,20 +430,14 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					// Requested IP is equal to what we have in the cache ?
 
 					if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-						id, err := GlobalTransactionLock.Lock()
-						if err != nil {
-							log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
-							Reply = false
-							return answer
-						}
-						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
+						// Per-transaction dedup. cache.Add atomically inserts only
+						// if no entry exists (or the existing one has expired), so
+						// duplicate REQUESTs with the same xID inside 1s are dropped.
+						if err := RequestGlobalTransactionCache.Add(cacheKey, 1, time.Duration(1)*time.Second); err != nil {
 							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
-							GlobalTransactionLock.Unlock(id)
 							Reply = false
 							return answer
 						}
-						RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
-						GlobalTransactionLock.Unlock(id)
 						Reply = true
 						Index = index.(int) // So remove the ip from the cache
 					} else {
@@ -787,21 +779,16 @@ reply:
 	return answer
 }
 
-// lockTransaction locks the transaction for a specific MAC address and message type
+// lockTransaction marks a (MAC, msgType) as in-progress so that retransmissions
+// arriving within the next second are silently deduped. Returns false if the
+// key is already present in the cache. cache.Add is atomic under the cache's
+// internal mutex, so no external locking is required.
 func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, msgType dhcp.MessageType) bool {
 	cacheKey := mac.String() + " " + msgType.String()
-	id, err := GlobalTransactionLock.Lock()
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
-		return false
-	}
-	if _, found := GlobalTransactionCache.Get(cacheKey); found {
+	if err := GlobalTransactionCache.Add(cacheKey, 3, time.Duration(1)*time.Second); err != nil {
 		log.LoggerWContext(ctx).Debug("Not answering to packet. Already in progress")
-		GlobalTransactionLock.Unlock(id)
 		return false
 	}
-	GlobalTransactionCache.Set(cacheKey, 3, time.Duration(1)*time.Second)
-	GlobalTransactionLock.Unlock(id)
 	return true
 }
 
