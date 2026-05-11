@@ -56,7 +56,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 34;
+use Test::More tests => 43;
 use Test::Mojo;
 use Test::NoWarnings;
 
@@ -346,6 +346,21 @@ $t->put_ok("/api/v1/config/certificate/radius?check_chain=true" => json => { cer
 # Provide cert from another CA with the new CA
 $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => $new_radius_ca_cert })
   ->status_is(200);
+
+# Empty CA payload should be rejected
+$t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => "" })
+  ->status_is(422)
+  ->json_is('/message', "A Certification Authority certificate is required.");
+
+# Missing CA key should be rejected
+$t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key })
+  ->status_is(422)
+  ->json_is('/message', "A Certification Authority certificate is required.");
+
+# Unparseable CA payload should be rejected
+$t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => "-----BEGIN CERTIFICATE-----\nnot a cert\n-----END CERTIFICATE-----\n" })
+  ->status_is(422)
+  ->json_is('/message', "Failed to parse Certification Authority certificate.");
 
 # test CSR with missing information
 $t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {})
