@@ -98,8 +98,14 @@ func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfig
 
 			// Calculate the position for the roaring bitmap
 			position := uint32(binary.BigEndian.Uint32(ip4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
-			// Remove the position in the roaming bitmap
-			dhcpHandler.available.ReserveIPIndex(uint64(position), mac)
+			// Reserve the IP in the pool. If it's already held by another MAC (stale
+			// overlapping ip4log rows for the same IP), skip the cache writes so we
+			// don't end up with two hwcache entries pointing at the same pool slot.
+			// The losing MAC will re-DISCOVER and get a fresh free IP from the pool.
+			if _, err := dhcpHandler.available.ReserveIPIndex(uint64(position), mac); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("initiaLease: skipping stale lease for mac=%s ip=%s: %s", mac, ipstr, err.Error()))
+				continue
+			}
 			// Add the mac in the cache
 			dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
 			GlobalIPCache.Set(ipstr, mac, leaseDuration)
@@ -414,7 +420,9 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ipRange string) []net.IP {
 			// Calculate the position for the dhcp pool
 			position := uint32(binary.BigEndian.Uint32(excludeIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
-			dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac)
+			if _, err := dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("ExcludeIP: cannot reserve ip=%s as excluded: %s", excludeIP.String(), err.Error()))
+			}
 		}
 	}
 	return excludeIPs
@@ -442,8 +450,11 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 					continue
 				}
 				position := uint32(binary.BigEndian.Uint32(parsedIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
-				// Remove the position in the roaming bitmap
-				dhcpHandler.available.ReserveIPIndex(uint64(position), result[1])
+				// Reserve the static binding in the pool
+				if _, err := dhcpHandler.available.ReserveIPIndex(uint64(position), result[1]); err != nil {
+					log.LoggerWContext(ctx).Warn(fmt.Sprintf("AssignIP: cannot reserve static binding mac=%s ip=%s: %s", result[1], parsedIP.String(), err.Error()))
+					continue
+				}
 				couple[result[1]] = position
 				iplist = append(iplist, parsedIP)
 			}

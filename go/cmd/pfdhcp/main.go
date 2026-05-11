@@ -294,7 +294,9 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 					handler.hwcache.Delete(answer.MAC.String())
 					// Assign the fakemac to reserve the ip
 					handler.available.FreeIPIndex(uint64(leaseNum))
-					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
+					if _, err := handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac); err != nil {
+						log.LoggerWContext(ctx).Warn("handleDecline: cannot reserve declined IP " + reqIP.String() + " as FakeMac: " + err.Error() + " mac=" + clientMac)
+					}
 					// Put it back into the available IPs in 30 seconds
 					go func(leaseNum int, reqIP net.IP) {
 						// Use a timer that can be interrupted by context cancellation
@@ -350,7 +352,9 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 					handler.hwcache.Delete(answer.MAC.String())
 					// Assign the fakemac to reserve the ip
 					handler.available.FreeIPIndex(uint64(leaseNum))
-					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
+					if _, err := handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac); err != nil {
+						log.LoggerWContext(ctx).Warn("handleRelease: cannot reserve released IP " + reqIP.String() + " as FakeMac: " + err.Error() + " mac=" + clientMac)
+					}
 					// Put it back into the available IPs in 30 seconds
 					go func(leaseNum int, reqIP net.IP) {
 						// Use a timer that can be interrupted by context cancellation
@@ -492,6 +496,19 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 				return answer
 			}
+			// Re-assert the pool reservation before ACKing. If the pool says this
+			// index is held by a *different* MAC, our hwcache and the pool have
+			// diverged and we must NOT ACK an IP we don't actually own in the pool.
+			if _, err := handler.available.ReserveIPIndex(uint64(Index), answer.MAC.String()); err != nil {
+				_, currentMac, _ := handler.available.GetMACIndex(uint64(Index))
+				if currentMac != FreeMac && currentMac != answer.MAC.String() {
+					log.LoggerWContext(ctx).Warn("handleRequest: pool/cache divergence — " + reqIP.String() + " is held in pool by " + currentMac + ", not " + answer.MAC.String() + "; sending NAK mac=" + clientMac)
+					handler.hwcache.Delete(answer.MAC.String())
+					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
+					return answer
+				}
+			}
+
 			answer.D = dhcp.ReplyPacket(p, dhcp.ACK, setOptionServerIdentifier(srvIP, handler.ip).To4(), reqIP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 			var cacheDuration time.Duration
@@ -511,7 +528,6 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 
 			handler.hwcache.Set(answer.MAC.String(), Index, cacheDuration)
-			handler.available.ReserveIPIndex(uint64(Index), answer.MAC.String())
 
 		} else {
 			log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac + " mac=" + clientMac)
@@ -658,14 +674,24 @@ retry:
 			// Found in the arp cache or able to ping it
 			ipaddr := dhcp.IPAdd(handler.start, free)
 			log.LoggerWContext(ctx).Info(answer.MAC.String() + " Ip " + ipaddr.String() + " already in use, trying next" + " mac=" + clientMac)
-			// Added back in the pool since it's not the dhcp server who gave it
-			handler.hwcache.Delete(answer.MAC.String())
 
 			firstTry = false
 
 			log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable" + " mac=" + clientMac)
-			// Reserve with a fake mac
-			handler.available.ReserveIPIndex(uint64(free), FakeMac)
+			// Swap the pool reservation from the requesting MAC to FakeMac so the
+			// 10-minute cool-down actually keeps the IP out of rotation. We must
+			// free then re-reserve because GetFreeIPIndex already bound the slot
+			// to answer.MAC. The hwcache eviction below is now safe because the
+			// OnEvicted callback (config.go) checks that pool.mac[index] still
+			// matches the evicted MAC before freeing.
+			if err := handler.available.FreeIPIndex(uint64(free)); err != nil {
+				log.LoggerWContext(ctx).Warn("handleDiscover: cannot free pingable IP " + ipaddr.String() + ": " + err.Error() + " mac=" + clientMac)
+			}
+			if _, err := handler.available.ReserveIPIndex(uint64(free), FakeMac); err != nil {
+				log.LoggerWContext(ctx).Warn("handleDiscover: cannot reserve pingable IP " + ipaddr.String() + " as FakeMac: " + err.Error() + " mac=" + clientMac)
+			}
+			// Added back in the pool since it's not the dhcp server who gave it
+			handler.hwcache.Delete(answer.MAC.String())
 			// Put it back into the available IPs in 10 minutes
 			go func(free int, ipaddr net.IP) {
 				// Use a timer that can be interrupted by context cancellation

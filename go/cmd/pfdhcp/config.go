@@ -263,8 +263,20 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								go func() {
+									idx := uint64(pool.(int))
+									_, currentMac, err := DHCPScope.available.GetMACIndex(idx)
+									if err != nil {
+										return
+									}
+									// Only release the slot if the pool still has it
+									// bound to the evicted MAC. Skip when it has been
+									// reassigned (e.g. FakeMac cool-down, static
+									// binding, or another MAC took over).
+									if currentMac != nic {
+										return
+									}
 									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-									DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
+									DHCPScope.available.FreeIPIndex(idx)
 								}()
 							})
 
@@ -343,8 +355,20 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							go func() {
+								idx := uint64(pool.(int))
+								_, currentMac, err := DHCPScope.available.GetMACIndex(idx)
+								if err != nil {
+									return
+								}
+								// Only release the slot if the pool still has it
+								// bound to the evicted MAC. Skip when it has been
+								// reassigned (e.g. FakeMac cool-down, static
+								// binding, or another MAC took over).
+								if currentMac != nic {
+									return
+								}
 								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-								DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
+								DHCPScope.available.FreeIPIndex(idx)
 							}()
 						})
 
