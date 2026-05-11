@@ -133,6 +133,7 @@ export {
   BaseFormGroupSwitch                       as FormGroupUseConnector,
   BaseFormGroupInputNumber                  as FormGroupUserGroupsCache,
   BaseFormGroupInput                        as FormGroupUserGroupsUrl,
+  BaseFormGroupInput                        as FormGroupUserGroupsUrlPath,
   BaseFormGroupInput                        as FormGroupUserHeader,
   BaseFormGroupChosenOne                    as FormGroupUsernameAttribute,
   BaseFormGroupInput                        as FormGroupUsernameAttributeString,

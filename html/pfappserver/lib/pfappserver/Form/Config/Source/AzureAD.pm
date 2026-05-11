@@ -80,6 +80,16 @@ has_field 'oauth_url' =>
     default => $META->get_attribute('oauth_url')->default,
   );
 
+has_field 'user_groups_url_path' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('user_groups_url_path')->default
+    },
+    default => $META->get_attribute('user_groups_url_path')->default,
+  );
+
 
 =head1 COPYRIGHT
 
