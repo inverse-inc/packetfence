@@ -943,10 +943,22 @@ func initStatsD(ctx context.Context) {
 	}
 }
 
-// initializeWorkerPool creates a worker pool for processing DHCP requests
+// initializeWorkerPool creates a worker pool for processing DHCP requests.
+// Sizes are tunable at runtime via PFDHCP_WORKERS and PFDHCP_QUEUE — the
+// defaults below are increased from the historical 100/100 because the
+// kernel UDP receive buffer is normally the first bottleneck under burst,
+// and once it is enlarged the userspace queue + worker count have to keep
+// up to actually drain it.
 func initializeWorkerPool(db *sql.DB) chan job {
-	maxQueueSize := 100
-	maxWorkers := 100
+	maxWorkers := sharedutils.EnvOrDefaultInt("PFDHCP_WORKERS", 300)
+	if maxWorkers < 1 {
+		maxWorkers = 1
+	}
+	maxQueueSize := sharedutils.EnvOrDefaultInt("PFDHCP_QUEUE", 1000)
+	if maxQueueSize < 1 {
+		maxQueueSize = 1
+	}
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("pfdhcp worker pool: workers=%d queue=%d", maxWorkers, maxQueueSize))
 
 	// Create job channel
 	jobs := make(chan job, maxQueueSize)
