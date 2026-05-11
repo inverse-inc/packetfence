@@ -716,7 +716,7 @@ retry:
 		handler.hwcache.Set(answer.MAC.String(), free, time.Duration(5)*time.Second)
 		handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
 	} else {
-		log.LoggerWContext(ctx).Info(answer.MAC.String() + " Nak No space left in the pool " + " mac=" + clientMac)
+		log.LoggerWContext(ctx).Info(answer.MAC.String() + " No space left in the pool, not offering (RFC 2131: silent on DISCOVER)" + " mac=" + clientMac)
 		return answer
 	}
 
