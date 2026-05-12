@@ -102,6 +102,9 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	Config.ParseTime = true
 	Config.Loc = location
 	Config.Params = map[string]string{"sql_mode": sqlMode}
+	Config.Apply(
+		mysql.EnableCompression(true),
+	)
 
 	return Config.FormatDSN()
 }
