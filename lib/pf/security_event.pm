@@ -519,6 +519,8 @@ sub info_for_security_event_engine {
 
     my $cache = pf::CHI->new( namespace => 'fingerbank' );
 
+    my $fb_enabled = fingerbank::Config::is_api_key_configured();
+
     $type = lc($type);
 
     my $devices = [];
@@ -526,7 +528,7 @@ sub info_for_security_event_engine {
     if($type eq "device"){
         $device_id = $tid;
     }
-    else {
+    elsif ($fb_enabled) {
         my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
         if(is_success($device_result)){
             $device_id = $device->id
@@ -540,20 +542,27 @@ sub info_for_security_event_engine {
         dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
     };
     my $results = {};
-    foreach my $attr (keys %$attr_map){
-        my $model = $attr_map->{$attr};
-        my $query = {value => $node_info->{$attr}};
-        $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
-            my ($status, $result) = $model->find([$query]);
-            return is_success($status) ? $result->id : undef;
+    if ($fb_enabled) {
+        foreach my $attr (keys %$attr_map){
+            my $model = $attr_map->{$attr};
+            my $query = {value => $node_info->{$attr}};
+            $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
+                my ($status, $result) = $model->find([$query]);
+                return is_success($status) ? $result->id : undef;
+            });
+        }
+    }
+    my $mac_vendor_id;
+    if ($fb_enabled) {
+        ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
+            my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
+            return $mac_vendor ? $mac_vendor->id : undef;
         });
     }
-    my ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
-        my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
-        return $mac_vendor ? $mac_vendor->id : undef;
-    });
 
-    my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
+    my $accounting_history = $fb_enabled
+        ? pf::accounting_events_history->new->latest_mac_history($mac)
+        : [];
 
 
     my $last_ip = pf::ip4log::mac2ip($mac) || 0;
