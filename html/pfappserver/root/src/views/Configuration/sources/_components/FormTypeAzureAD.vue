@@ -36,6 +36,11 @@
       :text="$i18n.t('What is the OAuth API Url to get the oauth token.')"
     />
 
+    <form-group-user-groups-url-path namespace="user_groups_url_path"
+      :column-label="$i18n.t('User Groups Url Path')"
+      :text="$i18n.t(`Path appended to the Graph Url to lookup group memberships. %USERNAME is replaced with the URI-escaped username. Use /v1.0/devices(deviceId='%USERNAME')/memberOf to look up device/machine group memberships instead of user groups.`)"
+    />
+
     <form-group-timeout namespace="timeout"
       :column-label="$i18n.t('Timeout')"
       :text="$i18n.t('Timeout while sending HTTP requests to Azure AD.')"
@@ -75,6 +80,7 @@ import {
   FormGroupTenantIdentifier,
   FormGroupTimeout,
   FormGroupUserGroupsCache,
+  FormGroupUserGroupsUrlPath,
 } from './'
 
 const components = {
@@ -92,6 +98,7 @@ const components = {
   FormGroupTenantIdentifier,
   FormGroupTimeout,
   FormGroupUserGroupsCache,
+  FormGroupUserGroupsUrlPath,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

@@ -27,6 +27,7 @@ has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
 has 'graph_url' => (isa => 'Str', is => 'rw', default => 'https://graph.microsoft.com');
 has 'oauth_url' => (isa => 'Str', is => 'rw', default => 'https://login.microsoftonline.com');
+has 'user_groups_url_path' => (isa => 'Str', is => 'rw', default => "/v1.0/users/%USERNAME/memberOf");
 has 'user_groups_cache' => (isa => 'Int', is => "rw", default => 0);
 has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 
@@ -85,7 +86,10 @@ sub build_user_groups_url {
     my $encoded_username = uri_escape($username);
     my $url = $self->graph_url;
     $url =~ s#/*$##;
-    return "$url/v1.0/users/$encoded_username/memberOf";
+    my $path = $self->user_groups_url_path;
+    $path = "/$path" unless $path =~ m#^/#;
+    $path =~ s/%USERNAME/$encoded_username/g;
+    return "$url$path";
 }
 
 sub build_scope_url {
