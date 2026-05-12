@@ -317,9 +317,4 @@ Here is a brief description of the fields :
  * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
  * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
 
-include::authentication_mechanisms_azuread.asciidoc[]
-
-include::authentication_mechanisms_google_workspace_ldap.asciidoc[]
-
-include::authentication_mechanisms_advanced_access_control_for_admin_login.asciidoc[]
 
