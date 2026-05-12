@@ -69,9 +69,10 @@ sub _get_db {
     $logger->info("Connecting to MySQL database");
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
+    my $compression = ($cfg->{host} // '') eq 'localhost' ? 0 : 1;
     eval {
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket}",
-            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1, mysql_compression => $compression } );
     };
     if($@) {
         $self->_set_last_failed_time();

@@ -46,10 +46,11 @@ sub db_connect {
     }
 
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
-    my ($dsn, $user, $pass) = db_data_source_info();
+    my ($dsn, $user, $pass, $config) = db_data_source_info();
     $pass = pf::config::crypt::pf_decrypt($pass);
+    my $compression = ($config->{host} // '') eq 'localhost' ? 0 : 1;
     # make sure we have a database handle
-    if ($DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 })) {
+    if ($DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_compression => $compression})) {
         $logger->debug("connected");
         return $DBH;
     }
@@ -67,7 +68,7 @@ db_data_source_info
 sub db_data_source_info {
     return (
         "dbi:mysql:dbname=$CONFIG->{db};host=$CONFIG->{host};port=$CONFIG->{port};mysql_socket=$CONFIG->{unix_socket}",
-        $CONFIG->{user}, $CONFIG->{pass}
+        $CONFIG->{user}, $CONFIG->{pass}, $CONFIG
     );
 }
 
