@@ -312,33 +312,28 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
 
 # === TEST-STAGE RULES ===
-# run jobs only when:
-# - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on maintenance/X.Y branches only (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on maintenance/X.Y branches and devel with a schedule, with test variable defined or test=yes in commit message
-# don't run on tag
-# NOTE: feature branches should use *_branches jobs (see .test_branches_only_rules)
-.test_devel_and_maintenance_rules:
+# .test_rules merges the former .test_devel_and_maintenance_rules and
+# .test_branches_only_rules into a single template. For feature-branch runs
+# (not devel, not maintenance, no tag) it emits VAGRANT_COMMON_DOTFILE_PATH
+# as a rule variable so the job uses the devel-compatible Vagrant common state.
+# NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
+# because GitLab CI doesn't expand variables inside regex patterns.
+.test_rules:
   rules:
-    # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
-    # because GitLab CI doesn't expand variables inside regex patterns
     # Run on devel branch (push, web, not schedule)
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     # Run on maintenance branches (web/api only)
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     # Run on devel/maintenance with schedule
     - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-
-# run jobs only when:
-# - on all branches (except maintenance/X.Y branches) (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches (except maintenance/X.Y branches) with a schedule, with test variable defined or test=yes in commit message
-# don't run on tag
-.test_branches_only_rules:
-  rules:
-    # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
-    # because GitLab rules don't expand variables in regex patterns
+    # Run on feature branches (web/api) — emit VAGRANT_COMMON_DOTFILE_PATH override
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+      variables:
+        VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
+    # Run on feature branches via schedule — emit VAGRANT_COMMON_DOTFILE_PATH override
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+      variables:
+        VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
 
 ########################################
 # JOBS TEMPLATES
@@ -1062,7 +1057,7 @@ unit_tests_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 configurator_el8:
   variables:
@@ -1070,7 +1065,7 @@ configurator_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 configurator_deb12:
   variables:
@@ -1078,7 +1073,7 @@ configurator_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 pfappserver_el8:
   variables:
@@ -1086,7 +1081,7 @@ pfappserver_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 pfappserver_deb12:
   variables:
@@ -1094,7 +1089,7 @@ pfappserver_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 dot1x_eap_peap_el8:
   variables:
@@ -1102,7 +1097,7 @@ dot1x_eap_peap_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 dot1x_eap_peap_deb12:
   variables:
@@ -1110,7 +1105,7 @@ dot1x_eap_peap_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 mac_auth_el8:
   variables:
@@ -1118,7 +1113,7 @@ mac_auth_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 mac_auth_deb12:
   variables:
@@ -1126,7 +1121,7 @@ mac_auth_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 dot1x_eap_tls_el8:
   variables:
@@ -1134,7 +1129,7 @@ dot1x_eap_tls_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 dot1x_eap_tls_deb12:
   variables:
@@ -1142,7 +1137,7 @@ dot1x_eap_tls_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 fingerbank_invalid_db_deb12:
   variables:
@@ -1150,7 +1145,7 @@ fingerbank_invalid_db_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 security_events_deb12:
   variables:
@@ -1158,7 +1153,7 @@ security_events_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 cli_login_deb12:
   variables:
@@ -1166,7 +1161,7 @@ cli_login_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 cli_login_el8:
   variables:
@@ -1174,7 +1169,7 @@ cli_login_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 external_integrations_deb12:
   variables:
@@ -1182,7 +1177,7 @@ external_integrations_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 captive_portal_el8:
   variables:
@@ -1190,7 +1185,7 @@ captive_portal_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 captive_portal_deb12:
   variables:
@@ -1198,7 +1193,7 @@ captive_portal_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 inline_deb12:
   variables:
@@ -1206,7 +1201,7 @@ inline_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 inline_el8:
   variables:
@@ -1214,7 +1209,7 @@ inline_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 mac_auth_virtualswitch_el8:
   variables:
@@ -1222,7 +1217,7 @@ mac_auth_virtualswitch_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 mac_auth_virtualswitch_deb12:
   variables:
@@ -1230,7 +1225,7 @@ mac_auth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 device_profiling_virtualswitch_el8:
   variables:
@@ -1238,7 +1233,7 @@ device_profiling_virtualswitch_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 device_profiling_virtualswitch_deb12:
   variables:
@@ -1246,7 +1241,7 @@ device_profiling_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 dot1x_wired_computer_auth_virtualswitch_el8:
   variables:
@@ -1254,7 +1249,7 @@ dot1x_wired_computer_auth_virtualswitch_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 dot1x_wired_computer_auth_virtualswitch_deb12:
   variables:
@@ -1262,7 +1257,7 @@ dot1x_wired_computer_auth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 pfacct_bandwidth_virtualswitch_el8:
   variables:
@@ -1270,7 +1265,7 @@ pfacct_bandwidth_virtualswitch_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 pfacct_bandwidth_virtualswitch_deb12:
   variables:
@@ -1278,7 +1273,7 @@ pfacct_bandwidth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 security_event_virtualswitch_el8:
   variables:
@@ -1286,7 +1281,7 @@ security_event_virtualswitch_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
+    - .test_rules
 
 security_event_virtualswitch_deb12:
   variables:
@@ -1294,279 +1289,7 @@ security_event_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_and_maintenance_rules
-
-### development branches **only**
-# We force VAGRANT_COMMON_DOTFILE_PATH to a specific value
-unit_tests_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-configurator_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-configurator_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-pfappserver_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-pfappserver_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-dot1x_eap_peap_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-dot1x_eap_peap_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-mac_auth_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-mac_auth_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-dot1x_eap_tls_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-dot1x_eap_tls_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-fingerbank_invalid_db_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-security_events_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-cli_login_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-cli_login_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-external_integrations_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-captive_portal_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-captive_portal_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-inline_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-inline_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-mac_auth_virtualswitch_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-mac_auth_virtualswitch_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-device_profiling_virtualswitch_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-device_profiling_virtualswitch_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-dot1x_wired_computer_auth_virtualswitch_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-dot1x_wired_computer_auth_virtualswitch_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-pfacct_bandwidth_virtualswitch_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-pfacct_bandwidth_virtualswitch_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-security_event_virtualswitch_el8_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
-
-security_event_virtualswitch_deb12_branches:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_branches_only_rules
+    - .test_rules
 
 ### release
 configurator_el8_pristine:
