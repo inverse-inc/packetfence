@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"math/rand"
-	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -192,23 +191,26 @@ func (dp *Memory) GetFreeIPIndex(mac string) (uint64, string, error) {
 	var available uint64
 
 	if dp.DHCPPool.algorithm == OldestReleased {
-		type kv struct {
-			Key   uint64
-			Value int64
-		}
-
-		var ss []kv
+		// Pick the free index with the oldest `released` timestamp. The
+		// `released` map holds an entry for every index (initialized at pool
+		// creation, refreshed on FreeIPIndex) and is NOT cleared on reserve,
+		// so it must be filtered by `free` before picking — otherwise we
+		// would hand out an IP that is currently reserved and silently
+		// overwrite its MAC binding.
+		var oldestSet bool
+		var oldestTime int64
 		for k, v := range dp.DHCPPool.released {
-			ss = append(ss, kv{k, v})
+			if _, isFree := dp.DHCPPool.free[k]; !isFree {
+				continue
+			}
+			if !oldestSet || v < oldestTime {
+				available = k
+				oldestTime = v
+				oldestSet = true
+			}
 		}
-
-		sort.Slice(ss, func(i, j int) bool {
-			return ss[i].Value < ss[j].Value
-		})
-
-		for _, kv := range ss {
-			available = kv.Key
-			break
+		if !oldestSet {
+			return 0, FreeMac, errors.New("DHCP pool is full")
 		}
 	} else {
 		index := rand.Intn(len(dp.DHCPPool.free))

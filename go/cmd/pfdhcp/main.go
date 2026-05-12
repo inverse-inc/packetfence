@@ -31,7 +31,6 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/timedlock"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
@@ -67,7 +66,6 @@ var (
 	GlobalMacCache                *cache.Cache
 	GlobalFilterCache             *cache.Cache
 	GlobalTransactionCache        *cache.Cache
-	GlobalTransactionLock         *timedlock.RWLock
 	RequestGlobalTransactionCache *cache.Cache
 
 	// VIP management
@@ -93,7 +91,6 @@ func initializeCaches() {
 	GlobalIPCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalMacCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalTransactionCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
-	GlobalTransactionLock = timedlock.NewRWLock()
 	RequestGlobalTransactionCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
 }
@@ -240,9 +237,10 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		return answer
 	}
 
-	// Lock transaction to prevent duplicates
+	// Lock transaction to prevent duplicates. Dedup drops are a normal
+	// consequence of relay/client retransmissions, so log them at Debug.
 	if !I.lockTransaction(ctx, answer.MAC, msgType) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf(
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf(
 			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (transaction lock)",
 			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
 		return answer
@@ -294,7 +292,9 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 					handler.hwcache.Delete(answer.MAC.String())
 					// Assign the fakemac to reserve the ip
 					handler.available.FreeIPIndex(uint64(leaseNum))
-					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
+					if _, err := handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac); err != nil {
+						log.LoggerWContext(ctx).Warn("handleDecline: cannot reserve declined IP " + reqIP.String() + " as FakeMac: " + err.Error() + " mac=" + clientMac)
+					}
 					// Put it back into the available IPs in 30 seconds
 					go func(leaseNum int, reqIP net.IP) {
 						// Use a timer that can be interrupted by context cancellation
@@ -350,7 +350,9 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 					handler.hwcache.Delete(answer.MAC.String())
 					// Assign the fakemac to reserve the ip
 					handler.available.FreeIPIndex(uint64(leaseNum))
-					handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac)
+					if _, err := handler.available.ReserveIPIndex(uint64(leaseNum), FakeMac); err != nil {
+						log.LoggerWContext(ctx).Warn("handleRelease: cannot reserve released IP " + reqIP.String() + " as FakeMac: " + err.Error() + " mac=" + clientMac)
+					}
 					// Put it back into the available IPs in 30 seconds
 					go func(leaseNum int, reqIP net.IP) {
 						// Use a timer that can be interrupted by context cancellation
@@ -428,20 +430,14 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					// Requested IP is equal to what we have in the cache ?
 
 					if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-						id, err := GlobalTransactionLock.Lock()
-						if err != nil {
-							log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
-							Reply = false
-							return answer
-						}
-						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
+						// Per-transaction dedup. cache.Add atomically inserts only
+						// if no entry exists (or the existing one has expired), so
+						// duplicate REQUESTs with the same xID inside 1s are dropped.
+						if err := RequestGlobalTransactionCache.Add(cacheKey, 1, time.Duration(1)*time.Second); err != nil {
 							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
-							GlobalTransactionLock.Unlock(id)
 							Reply = false
 							return answer
 						}
-						RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
-						GlobalTransactionLock.Unlock(id)
 						Reply = true
 						Index = index.(int) // So remove the ip from the cache
 					} else {
@@ -492,6 +488,19 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 				return answer
 			}
+			// Re-assert the pool reservation before ACKing. If the pool says this
+			// index is held by a *different* MAC, our hwcache and the pool have
+			// diverged and we must NOT ACK an IP we don't actually own in the pool.
+			if _, err := handler.available.ReserveIPIndex(uint64(Index), answer.MAC.String()); err != nil {
+				_, currentMac, _ := handler.available.GetMACIndex(uint64(Index))
+				if currentMac != FreeMac && currentMac != answer.MAC.String() {
+					log.LoggerWContext(ctx).Warn("handleRequest: pool/cache divergence — " + reqIP.String() + " is held in pool by " + currentMac + ", not " + answer.MAC.String() + "; sending NAK mac=" + clientMac)
+					handler.hwcache.Delete(answer.MAC.String())
+					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
+					return answer
+				}
+			}
+
 			answer.D = dhcp.ReplyPacket(p, dhcp.ACK, setOptionServerIdentifier(srvIP, handler.ip).To4(), reqIP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 			var cacheDuration time.Duration
@@ -511,7 +520,6 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 
 			handler.hwcache.Set(answer.MAC.String(), Index, cacheDuration)
-			handler.available.ReserveIPIndex(uint64(Index), answer.MAC.String())
 
 		} else {
 			log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac + " mac=" + clientMac)
@@ -658,14 +666,24 @@ retry:
 			// Found in the arp cache or able to ping it
 			ipaddr := dhcp.IPAdd(handler.start, free)
 			log.LoggerWContext(ctx).Info(answer.MAC.String() + " Ip " + ipaddr.String() + " already in use, trying next" + " mac=" + clientMac)
-			// Added back in the pool since it's not the dhcp server who gave it
-			handler.hwcache.Delete(answer.MAC.String())
 
 			firstTry = false
 
 			log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable" + " mac=" + clientMac)
-			// Reserve with a fake mac
-			handler.available.ReserveIPIndex(uint64(free), FakeMac)
+			// Swap the pool reservation from the requesting MAC to FakeMac so the
+			// 10-minute cool-down actually keeps the IP out of rotation. We must
+			// free then re-reserve because GetFreeIPIndex already bound the slot
+			// to answer.MAC. The hwcache eviction below is now safe because the
+			// OnEvicted callback (config.go) checks that pool.mac[index] still
+			// matches the evicted MAC before freeing.
+			if err := handler.available.FreeIPIndex(uint64(free)); err != nil {
+				log.LoggerWContext(ctx).Warn("handleDiscover: cannot free pingable IP " + ipaddr.String() + ": " + err.Error() + " mac=" + clientMac)
+			}
+			if _, err := handler.available.ReserveIPIndex(uint64(free), FakeMac); err != nil {
+				log.LoggerWContext(ctx).Warn("handleDiscover: cannot reserve pingable IP " + ipaddr.String() + " as FakeMac: " + err.Error() + " mac=" + clientMac)
+			}
+			// Added back in the pool since it's not the dhcp server who gave it
+			handler.hwcache.Delete(answer.MAC.String())
 			// Put it back into the available IPs in 10 minutes
 			go func(free int, ipaddr net.IP) {
 				// Use a timer that can be interrupted by context cancellation
@@ -690,7 +708,7 @@ retry:
 		handler.hwcache.Set(answer.MAC.String(), free, time.Duration(5)*time.Second)
 		handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
 	} else {
-		log.LoggerWContext(ctx).Info(answer.MAC.String() + " Nak No space left in the pool " + " mac=" + clientMac)
+		log.LoggerWContext(ctx).Info(answer.MAC.String() + " No space left in the pool, not offering (RFC 2131: silent on DISCOVER)" + " mac=" + clientMac)
 		return answer
 	}
 
@@ -761,21 +779,16 @@ reply:
 	return answer
 }
 
-// lockTransaction locks the transaction for a specific MAC address and message type
+// lockTransaction marks a (MAC, msgType) as in-progress so that retransmissions
+// arriving within the next second are silently deduped. Returns false if the
+// key is already present in the cache. cache.Add is atomic under the cache's
+// internal mutex, so no external locking is required.
 func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, msgType dhcp.MessageType) bool {
 	cacheKey := mac.String() + " " + msgType.String()
-	id, err := GlobalTransactionLock.Lock()
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Failed to acquire transaction lock: " + err.Error())
-		return false
-	}
-	if _, found := GlobalTransactionCache.Get(cacheKey); found {
+	if err := GlobalTransactionCache.Add(cacheKey, 3, time.Duration(1)*time.Second); err != nil {
 		log.LoggerWContext(ctx).Debug("Not answering to packet. Already in progress")
-		GlobalTransactionLock.Unlock(id)
 		return false
 	}
-	GlobalTransactionCache.Set(cacheKey, 3, time.Duration(1)*time.Second)
-	GlobalTransactionLock.Unlock(id)
 	return true
 }
 
@@ -930,10 +943,22 @@ func initStatsD(ctx context.Context) {
 	}
 }
 
-// initializeWorkerPool creates a worker pool for processing DHCP requests
+// initializeWorkerPool creates a worker pool for processing DHCP requests.
+// Sizes are tunable at runtime via PFDHCP_WORKERS and PFDHCP_QUEUE — the
+// defaults below are increased from the historical 100/100 because the
+// kernel UDP receive buffer is normally the first bottleneck under burst,
+// and once it is enlarged the userspace queue + worker count have to keep
+// up to actually drain it.
 func initializeWorkerPool(db *sql.DB) chan job {
-	maxQueueSize := 100
-	maxWorkers := 100
+	maxWorkers := sharedutils.EnvOrDefaultInt("PFDHCP_WORKERS", 300)
+	if maxWorkers < 1 {
+		maxWorkers = 1
+	}
+	maxQueueSize := sharedutils.EnvOrDefaultInt("PFDHCP_QUEUE", 1000)
+	if maxQueueSize < 1 {
+		maxQueueSize = 1
+	}
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("pfdhcp worker pool: workers=%d queue=%d", maxWorkers, maxQueueSize))
 
 	// Create job channel
 	jobs := make(chan job, maxQueueSize)
