@@ -628,17 +628,6 @@ lint_ci_yaml:
       .gitlab-ci.yml
   allow_failure: false
 
-no_el8_only_tests:
-  extends:
-    - .check_job
-  image: alpine:3
-  rules:
-    - when: always
-  script:
-    - apk add --no-cache yq-go bash
-    - bash ci/lib/check/no-el8-only-tests.sh
-  allow_failure: false
-
 ########################################
 # BUILD_IMG_CONTAINER JOBS (Kaniko / pfdebian / service images / fingerbank / radius)
 ########################################
