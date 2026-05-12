@@ -74,10 +74,9 @@ variables:
 # Single source of truth for $CONTEXT, $IMAGE_TAG, and per-context image-build /
 # deploy variable overrides. Rule order is load-bearing (most specific first):
 #   1. $CI_COMMIT_TAG                → release     (IMAGE_TAG = tag)
-#   2. cloud-nac/X.Y branch          → cloud-nac   (IMAGE_TAG = slug-pipelineid)
-#   3. maintenance/X.Y branch        → maintenance (IMAGE_TAG = slug)
-#   4. devel branch                  → devel       (IMAGE_TAG = latest)
-#   5. (default — any other branch)  → branches    (IMAGE_TAG = slug)
+#   2. maintenance/X.Y branch        → maintenance (IMAGE_TAG = slug)
+#   3. devel branch                  → devel       (IMAGE_TAG = latest)
+#   4. (default — any other branch)  → branches    (IMAGE_TAG = slug)
 #
 # Composed into concrete jobs via `!reference [.context_rules, rules]`
 # (GitLab ≥14.3) so they can mix context arms with per-job feature gates.
@@ -94,13 +93,6 @@ variables:
         ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
         DEPLOY_ENV_NAME: pf-stable
         DEB_DEPLOY_DIR: debian
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/'
-      variables:
-        CONTEXT: cloud-nac
-        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-        # Cloud-nac pipelines do NOT build packages and do NOT deploy.
-        # Two-tag for pfbuild-base build_img_docker:
-        DOCKER_TAGS_EXTRA: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
       variables:
         CONTEXT: maintenance
@@ -214,34 +206,20 @@ variables:
 # === SHARED CONTAINER-BUILD RULES ===
 # 5 of the 6 container-build concrete jobs (kaniko, pfdeb, img, rad_based,
 # rad_extend) share the same per-context filter + IMAGE_TAGS override
-# pattern. pfdeb_based_* use parallel-matrix anchors and have simpler rules.
+# pattern. pfdeb_based_full uses a parallel-matrix anchor and reuses this
+# same rule set (release context included — all service images are built in
+# every context).
 .build_img_container_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-      variables:
-        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
     - if: '$CI_COMMIT_TAG'
       variables:
         IMAGE_TAGS: ${CI_COMMIT_TAG}
-    - if: '$CI_COMMIT_REF_NAME == "devel"'
-
-# Same as .build_img_container_rules but with no `release` arm — used by
-# pfdeb_based_full (release uses a SEPARATE concrete job pfdeb_based_release_trim
-# because the parallel-matrix list differs).
-.build_img_container_rules_no_release:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-      variables:
-        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-      variables:
-        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
 # Same as .build_img_container_rules but without IMAGE_TAGS overrides
@@ -255,13 +233,10 @@ variables:
         ANSIBLE_CENTOS8_GROUP: stable_centos8
         ANSIBLE_DEBIAN_GROUP: common_debian
         ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-      variables:
-        DOCKER_TAGS: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
 
@@ -588,9 +563,9 @@ variables:
 ########################################
 # MATRIX ANCHORS
 ########################################
-# YAML anchors for the four service-image matrix lists. Defined as set
-# differences from .service_images_full so adding a service is one edit, not
-# four.
+# Single YAML anchor for the full service-image matrix. All contexts
+# (devel, branches, maintenance, release) build the full set — production
+# consumers can pull any image, so trimming by context is incorrect.
 .service_images_full: &service_images_full
   - pfconfig
   - httpd.dispatcher
@@ -620,63 +595,6 @@ variables:
   - github-apps-token
   - pfstats
   - caddy-l4
-  - pfdns-connector
-
-# = .service_images_full minus: git-sync, github-apps-token, caddy-l4
-.service_images_cloud_nac_trim: &service_images_cloud_nac_trim
-  - pfconfig
-  - httpd.dispatcher
-  - httpd.portal
-  - api-frontend
-  - pfacct
-  - pfcmd
-  - pfqueue
-  - httpd.aaa
-  - httpd.admin_dispatcher
-  - httpd.webservices
-  - pfsetacls
-  - pfsso
-  - pfperl-api
-  - pfconnector
-  - pfpki
-  - pfcron
-  - haproxy-portal
-  - haproxy-admin
-  - proxysql
-  - pfldapexplorer
-  - kafka
-  - ntlm-auth-api
-  - ntlm-join-remote
-  - netdata
-  - pfstats
-  - pfdns-connector
-
-# = .service_images_full minus: git-sync, github-apps-token, caddy-l4, pfstats
-.service_images_release_trim: &service_images_release_trim
-  - pfconfig
-  - httpd.dispatcher
-  - httpd.portal
-  - api-frontend
-  - pfacct
-  - pfcmd
-  - pfqueue
-  - httpd.aaa
-  - httpd.admin_dispatcher
-  - httpd.webservices
-  - pfsetacls
-  - pfsso
-  - pfperl-api
-  - pfconnector
-  - pfpki
-  - pfcron
-  - haproxy-portal
-  - haproxy-admin
-  - proxysql
-  - pfldapexplorer
-  - kafka
-  - ntlm-auth-api
-  - ntlm-join-remote
-  - netdata
   - pfdns-connector
 
 ################################################################################
@@ -745,12 +663,9 @@ pfdeb:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
 
-# pfdeb_based: parallel-matrix lists cannot be selected by $CONTEXT at lint
-# time (matrix is resolved before rules). Keep 3 concrete jobs, each
-# referencing a distinct YAML anchor for its service list.
-
 pfdeb_based_full:
-  # Uses the full service list.
+  # Builds the full service list in every context (devel, branches,
+  # maintenance, release).
   extends:
     - .build_img_container_job
   needs: ["pfdeb"]
@@ -761,36 +676,7 @@ pfdeb_based_full:
       - IMAGE_NAME: *service_images_full
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules_no_release, rules]
-
-pfdeb_based_cloud_nac_trim:
-  # Cloud-nac trimmed service list.
-  extends:
-    - .build_img_container_job
-  needs: ["pfdeb"]
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-    IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-  parallel:
-    matrix:
-      - IMAGE_NAME: *service_images_cloud_nac_trim
-  rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-pfdeb_based_release_trim:
-  # Release trimmed service list.
-  extends:
-    - .build_img_container_job
-  needs: ["pfdeb"]
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_TAG}
-    IMAGE_TAG: ${CI_COMMIT_TAG}
-  parallel:
-    matrix:
-      - IMAGE_NAME: *service_images_release_trim
-  rules:
-    - if: '$CI_COMMIT_TAG'
+    - !reference [.build_img_container_rules, rules]
 
 img:
   extends:
@@ -907,7 +793,7 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 ########################################
 #  BUILD_ARTIFACTS JOBS
 ########################################
-# Consolidated per-OS pkg-build jobs. cloud-nac is excluded.
+# Consolidated per-OS pkg-build jobs.
 build_artifacts_pkg_centos_8:
   image: ${PFBUILD_RHEL_IMG}:${IMAGE_TAG}
   extends:
@@ -915,9 +801,6 @@ build_artifacts_pkg_centos_8:
     - .rpm_script_job
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
-    # cloud-nac never builds packages.
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/'
-      when: never
     - !reference [.context_rules, rules]
     # Override: maintenance/branches need web/api/schedule, default branch rule
     # in .context_rules matches all branches — we narrow here:
@@ -933,8 +816,6 @@ build_artifacts_pkg_debian_bookworm:
     - .deb_script_job
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/'
-      when: never
     - !reference [.context_rules, rules]
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
