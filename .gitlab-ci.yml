@@ -618,7 +618,9 @@ run_pipeline_if_necessary:
 lint_ci_yaml:
   extends:
     - .check_job
-  image: cytopia/yamllint:1
+  image:
+    name: cytopia/yamllint:1
+    entrypoint: [""]
   rules:
     - when: always
   script:
