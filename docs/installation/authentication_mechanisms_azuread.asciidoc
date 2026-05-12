@@ -11,11 +11,11 @@ through Azure AD.
 ==== Creating the PacketFence app
 
 [options="compact"]
-. Open the 'Azure Active Directory' in your Azure portal
+. Open the 'Microsoft Entra ID' in your Azure portal
 . Go in 'Manage->App registrations->New registration'
 . Settings for the app
   .. Name: PacketFence
-  .. Supported account types: Accounts in this organizational directory only -
+  .. Supported account types: Single tenant only - xyz
   (Single tenant)
   .. Redirect URI must be left blank
   .. Save the app
@@ -49,7 +49,7 @@ premium, this must be disabled for all your users.
 ===== Disabling MFA using Azure AD premium
 
 [options="compact"]
-. Open the "Azure Active Directory" in your Azure portal
+. Open the "Microsoft Entra ID" in your Azure portal
 . Go in 'Manage->Properties'
  .. Click 'Manage Security defaults'
  .. Disable the toggle 'Enable Security defaults' and save
@@ -72,7 +72,7 @@ Azure AD premium is the correct way to perform this. This option is only
 suggested for testing or when its impossible to have access to Azure AD premium.
 
 [options="compact"]
-. Open the "Azure Active Directory" in your Azure portal
+. Open the "Microsoft Entra ID" in your Azure portal
 . Under 'Manage', open 'Properties'
  .. Click 'Manage Security defaults'
  .. Disable the toggle 'Enable Security defaults' and save
