@@ -41,6 +41,21 @@ testcases:
     service: 'packetfence-pfperl-api'
     time_to_sleep: 10
 
+- name: wait_for_api_ready
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/system/summary'
+    ignore_verify_ssl: true
+    retry: 60
+    retry_if:
+      - result.statuscode ShouldNotEqual 200
+    delay: 10
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
 - name: check_if_admin_is_available
   steps:
   - type: get_login_token
