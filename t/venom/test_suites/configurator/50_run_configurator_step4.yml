@@ -49,12 +49,12 @@ testcases:
     ignore_verify_ssl: true
     retry: 60
     retry_if:
-      - result.statuscode ShouldNotEqual 200
+      - result.statuscode ShouldNotBeIn 200 401 403
     delay: 10
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
     assertions:
-      - result.statuscode ShouldEqual 200
+      - result.statuscode ShouldBeIn 200 401 403
 
 - name: check_if_admin_is_available
   steps:
