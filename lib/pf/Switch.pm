@@ -4188,8 +4188,16 @@ sub radius_deauth_connection_info {
         useConnector => $using_connector,
         nas_ip => $send_disconnect_to,
         secret => $self->{'_radiusSecret'},
-        LocalAddr => $self->deauth_source_ip($send_disconnect_to, $using_connector),
     };
+
+    # When tunneling via pfconnector, the actual UDP peer is a local connector
+    # endpoint (loopback/docker bridge) on a different interface than the route
+    # to the real NAS IP. Binding LocalAddr to the route-to-NAS interface causes
+    # the connected-UDP kernel filter to drop the connector's reply. Let the
+    # kernel pick the source IP for the connector route instead.
+    unless ($using_connector) {
+        $connection_info->{LocalAddr} = $self->deauth_source_ip($send_disconnect_to, $using_connector);
+    }
 
     return $connection_info;
 }
