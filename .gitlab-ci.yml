@@ -99,7 +99,7 @@ variables:
         CONTEXT: cloud-nac
         IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
         # Cloud-nac pipelines do NOT build packages and do NOT deploy.
-        # Two-tag for pfbuild-base build_img_docker:. Two-tag for pfbuild-base build_img_docker:
+        # Two-tag for pfbuild-base build_img_docker:
         DOCKER_TAGS_EXTRA: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
       variables:
@@ -141,17 +141,11 @@ variables:
 # together with `!reference [.context_rules, rules]`.
 
 .gated_by_build_artifacts_pkg:
-  # Replaces clause shared by .maintenance_only_rules,
-  # .build_artifacts_pkg_devel_rules, .build_artifacts_pkg_branches_rules,
-  # .devel_release_branches_and_maintenance_rules (lines 128-166 of
-  # pre-consolidation .gitlab-ci.yml).
   rules:
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
 
 .gated_by_build_img_container:
-  # Replaces clause shared by .build_img_container_{devel,branches_and_maintenance,cloud_nac}_rules
-  # (lines 169-194 of pre-consolidation .gitlab-ci.yml).
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
@@ -159,24 +153,17 @@ variables:
       when: never
 
 .gated_by_build_img_docker:
-  # Replaces NEGATIVE-gate clauses shared by
-  # .build_img_docker_{branches_and_maintenance,cloud_nac}_rules
-  # (lines 202-214). The devel POSITIVE trigger lives in the concrete
-  # job's inline rules.
+  # The devel POSITIVE trigger lives in the concrete job's inline rules.
   rules:
     - if: '$BUILD_IMG_DOCKER == "no"'
       when: never
 
 .gated_by_build_img_vagrant:
-  # Replaces POSITIVE trigger in .build_img_vagrant_devel_and_branches_rules
-  # (lines 220-223 of pre-consolidation .gitlab-ci.yml).
   rules:
     - if: '$BUILD_IMG_VAGRANT != "yes" && $CI_COMMIT_MESSAGE !~ /build_img_vagrant=yes/'
       when: never
 
 .gated_by_publish_ppa:
-  # Replaces .publish_ppa_rules (lines 225-231) VERBATIM (A3-RESOLVED:
-  # preserve all 5 disjuncts).
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
     - if: '$CI_COMMIT_TAG'
@@ -190,49 +177,36 @@ variables:
       when: never
 
 .gated_by_build_pf_img_zen:
-  # Replaces POSITIVE trigger in
-  # .build_pf_img_zen_devel_branches_and_maintenance_rules (lines 270-274).
   rules:
     - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
       when: never
 
 .gated_by_build_pf_img_iso:
-  # Replaces POSITIVE trigger in
-  # .build_pf_img_iso_devel_branches_and_maintenance_rules (lines 279-283).
   rules:
     - if: '$BUILD_PF_IMG_ISO != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_iso=yes/'
       when: never
 
 .gated_by_build_pf_img_usb_iso:
-  # Replaces .build_pf_img_usb_iso_any_branch_rules (lines 286-288).
   rules:
     - if: '$BUILD_PF_IMG_USB_ISO != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_usb_iso=yes/'
       when: never
 
 .gated_by_build_artifacts_website:
-  # Replaces POSITIVE trigger in
-  # .build_artifacts_website_devel_and_branches_rules (lines 293-296).
   rules:
     - if: '$BUILD_ARTIFACTS_WEBSITE != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_website=yes/'
       when: never
 
 .gated_by_build_artifacts_material:
-  # Replaces POSITIVE trigger in
-  # .build_artifacts_material_devel_and_branches_rules (lines 301-304).
   rules:
     - if: '$BUILD_ARTIFACTS_MATERIAL != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_material=yes/'
       when: never
 
 .gated_by_build_artifacts_doc:
-  # Replaces POSITIVE trigger in
-  # .build_artifacts_doc_devel_and_branches_rules (lines 310-314).
   rules:
     - if: '$BUILD_ARTIFACTS_DOC != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_doc=yes/'
       when: never
 
 .gated_by_deploy_pkg:
-  # Replaces clause shared by .deploy_{devel,branches,maintenance}_rules
-  # (lines 318-342 of pre-consolidation .gitlab-ci.yml).
   rules:
     - if: '$DEPLOY_PKG == "no"'
       when: never
@@ -242,8 +216,6 @@ variables:
 # rad_extend) share the same per-context filter + IMAGE_TAGS override
 # pattern. pfdeb_based_* use parallel-matrix anchors and have simpler rules.
 .build_img_container_rules:
-  # Composed by `!reference [.build_img_container_rules, rules]` into each
-  # consumer's `rules:` block, after `!reference [.gated_by_build_img_container, rules]`.
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
@@ -347,8 +319,6 @@ variables:
     - docker
 
 .build_img_docker_job:
-  # Unchanged. Per-context DOCKER_TAGS / ANSIBLE_* overrides are emitted by
-  # .context_rules and consumed by the concrete jobs via $-interpolation.
   stage: build_images
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${PACKERDIR} build_img_docker_pfbuild
@@ -356,11 +326,7 @@ variables:
     - shell
 
 .build_img_container_job:
-  # Replaces: .build_img_container_job_dev (lines 362-369),
-  #           .build_img_container_job_br_maint (lines 371-378),
-  #           .build_img_container_job_cloud_nac (lines 380-387),
-  #           .build_img_container_job_rel (lines 389-396)
-  # of pre-consolidation .gitlab-ci.yml. $IMAGE_TAG comes from .context_rules.
+  # $IMAGE_TAG comes from .context_rules.
   stage: build_images
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${IMAGE_TAG}
@@ -483,8 +449,6 @@ variables:
     - test-shell-v7
 
 .deploy_deb_job:
-  # Replaces: .deploy_deb_job (lines 511-522) AND
-  #           .deploy_maintenance_deb_job (lines 524-535, byte-identical, S6).
   stage: deploy
   dependencies:
     - sign_packages
@@ -498,8 +462,6 @@ variables:
     - shell
 
 .deploy_rpm_job:
-  # Replaces: .deploy_rpm_job (lines 537-549) AND
-  #           .deploy_rpm_maintenance_job (lines 551-563, byte-identical, S6).
   stage: deploy
   dependencies:
     - sign_packages
@@ -530,8 +492,6 @@ variables:
     - shell
 
 .deploy_website_artifacts_job:
-  # `dependencies:` shrinks to single consolidated build_artifacts_website
-  # (was two: _devel_and_branches + _release).
   stage: deploy
   dependencies:
     - build_artifacts_website
@@ -727,8 +687,6 @@ variables:
 # CHECK JOBS
 ########################################
 run_pipeline_if_necessary:
-  # Replaces: run_pipeline_if_necessary (line 778) — .check_devel_branches_and_maintenance_rules
-  # inlined.
   image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .check_job
@@ -739,9 +697,9 @@ run_pipeline_if_necessary:
 # because lint errors here break every downstream job — fail fast is the point.
 # TODO: upgrade to `glab ci lint --strict` once the auth path is decided.
 lint_ci_yaml:
-  stage: check
-  image: cytopia/yamllint:latest
-  dependencies: []
+  extends:
+    - .check_job
+  image: cytopia/yamllint:1.35
   rules:
     - when: always
   script:
@@ -750,31 +708,22 @@ lint_ci_yaml:
       -d '{extends: relaxed, rules: {line-length: disable, truthy: disable}}'
       .gitlab-ci.yml
   allow_failure: false
-  tags:
-    - docker
 
 no_el8_only_tests:
-  stage: check
+  extends:
+    - .check_job
   image: alpine:3
-  dependencies: []
   rules:
     - when: always
   script:
     - apk add --no-cache yq-go bash
     - bash ci/lib/check/no-el8-only-tests.sh
   allow_failure: false
-  tags:
-    - docker
 
 ########################################
 # BUILD_IMG_CONTAINER JOBS (Kaniko / pfdebian / service images / fingerbank / radius)
 ########################################
-# All concrete jobs derive $IMAGE_TAG from .context_rules and compose
-# !reference [.context_rules, rules] with a feature-gate fragment.
-
 kaniko:
-  # Replaces: kaniko_dev (L809), kaniko_br_maint (L911), kaniko_cloud_nac (L1013),
-  # kaniko_rel (L1112) of pre-consolidation .gitlab-ci.yml.
   extends:
     - .build_img_container_kanikobuild_job
   variables:
@@ -786,8 +735,6 @@ kaniko:
     - !reference [.build_img_container_rules, rules]
 
 pfdeb:
-  # Replaces: pfdeb_dev (L817), pfdeb_br_maint (L919), pfdeb_cloud_nac (L1021),
-  # pfdeb_rel (L1120).
   extends:
     - .build_img_container_job
   needs: ["kaniko"]
@@ -803,7 +750,7 @@ pfdeb:
 # referencing a distinct YAML anchor for its service list.
 
 pfdeb_based_full:
-  # Replaces pfdeb_based_dev + pfdeb_based_br_maint (uses full service list).
+  # Uses the full service list.
   extends:
     - .build_img_container_job
   needs: ["pfdeb"]
@@ -817,7 +764,7 @@ pfdeb_based_full:
     - !reference [.build_img_container_rules_no_release, rules]
 
 pfdeb_based_cloud_nac_trim:
-  # Replaces pfdeb_based_cloud_nac (uses cloud-nac trimmed service list).
+  # Cloud-nac trimmed service list.
   extends:
     - .build_img_container_job
   needs: ["pfdeb"]
@@ -832,7 +779,7 @@ pfdeb_based_cloud_nac_trim:
     - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
 pfdeb_based_release_trim:
-  # Replaces pfdeb_based_rel (uses release trimmed service list).
+  # Release trimmed service list.
   extends:
     - .build_img_container_job
   needs: ["pfdeb"]
@@ -846,8 +793,6 @@ pfdeb_based_release_trim:
     - if: '$CI_COMMIT_TAG'
 
 img:
-  # Replaces: img_dev (L867), img_br_maint (L969), img_cloud_nac (L1068),
-  # img_rel (L1166).
   extends:
     - .build_img_container_job
   needs: ["pfdeb"]
@@ -862,8 +807,6 @@ img:
     - !reference [.build_img_container_rules, rules]
 
 rad_based:
-  # Replaces: rad_based_dev (L880), rad_based_br_maint (L982), rad_based_cloud_nac (L1081),
-  # rad_based_rel (L1179).
   extends:
     - .build_img_container_job
   needs: ["pfdeb"]
@@ -878,8 +821,6 @@ rad_based:
     - !reference [.build_img_container_rules, rules]
 
 rad_extend:
-  # Replaces: rad_extend_dev (L893), rad_extend_br_maint (L995), rad_extend_cloud_nac (L1094),
-  # rad_extend_rel (L1192).
   extends:
     - .build_img_container_job
   needs: ["rad_based"]
@@ -901,14 +842,11 @@ rad_extend:
 # BUILD_IMG JOBS (pfbuild-base & vagrant)
 ########################################
 build_img_docker_el8:
-  # Replaces: build_img_docker_el8_devel (L1214), _branches_and_maintenance (L1222),
-  # _release (L1232), _cloud_nac (L1276).
   extends:
     - .build_img_docker_job
   variables:
     ACTIVE_BUILDS: 'pfbuild-centos-8'
   rules:
-    # devel POSITIVE trigger (BUILD_IMG_DOCKER=yes OR commit-msg has it):
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
       variables:
         DOCKER_TAGS: latest,devel,maintenance-99-9
@@ -916,8 +854,6 @@ build_img_docker_el8:
     - !reference [.build_img_docker_rules, rules]
 
 build_img_docker_deb12:
-  # Replaces: build_img_docker_deb12_devel (L1245), _branches_and_maintenance (L1253),
-  # _release (L1263), _cloud_nac (L1284).
   extends:
     - .build_img_docker_job
   variables:
@@ -935,9 +871,8 @@ build_img_docker_deb12:
 # Per-distro signing images: bake gh/pynacl/dpkg-sig/rpm-sign so sign,
 # publish, upload, and perl-client build jobs install nothing at runtime.
 build_signing_debian:
-  # Builds ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}.
-  # Powers: sign_packages, publish_ppa (GitLab) and GitHub Actions Debian
-  # signing/upload/unit-test/perl-client-build jobs.
+  # Powers sign_packages, publish_ppa (GitLab) and GitHub Actions
+  # Debian signing/upload/unit-test/perl-client-build jobs.
   extends:
     - .build_img_container_job
   variables:
@@ -948,8 +883,7 @@ build_signing_debian:
     - !reference [.build_img_container_rules, rules]
 
 build_signing_rhel:
-  # Builds ghcr.io/inverse-inc/packetfence/signing-rhel:${IMAGE_TAG}.
-  # Powers: GitHub Actions RHEL signing matrix and perl-client RPM build.
+  # Powers GitHub Actions RHEL signing matrix and perl-client RPM build.
   extends:
     - .build_img_container_job
   variables:
@@ -961,7 +895,6 @@ build_signing_rhel:
 
 ### build_img_vagrant jobs
 build_img_vagrant_devel_and_branches_debian_bookworm:
-  # Replaces: build_img_vagrant_devel_and_branches_debian_bookworm (L1300).
   extends:
     - .build_img_vagrant_devel_and_branches_job
   variables:
@@ -976,8 +909,6 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 ########################################
 # Consolidated per-OS pkg-build jobs. cloud-nac is excluded.
 build_artifacts_pkg_centos_8:
-  # Replaces: build_artifacts_pkg_devel_centos_8 (L1311), _branches_centos_8 (L1326),
-  # _release_centos_8 (L1342), _maintenance_centos_8 (L1357).
   image: ${PFBUILD_RHEL_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_pkg_job
@@ -996,8 +927,6 @@ build_artifacts_pkg_centos_8:
       when: never
 
 build_artifacts_pkg_debian_bookworm:
-  # Replaces: build_artifacts_pkg_devel_debian_bookworm (L1318), _branches_* (L1333),
-  # _release_* (L1349), _maintenance_* (L1364).
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_pkg_job
@@ -1014,8 +943,6 @@ build_artifacts_pkg_debian_bookworm:
 
 # build_artifacts_website (devel/branches/release)
 build_artifacts_website:
-  # Replaces: build_artifacts_website_devel_and_branches (L1372),
-  # build_artifacts_website_release (L1380).
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_website_job
@@ -1023,10 +950,8 @@ build_artifacts_website:
     - !reference [.gated_by_build_artifacts_website, rules]
     - !reference [.devel_or_branches_or_release_rules, rules]
 
-# build_artifacts_material (devel/branches/release; no maintenance — S5)
+# build_artifacts_material (devel/branches/release; no maintenance)
 build_artifacts_material:
-  # Replaces: build_artifacts_material_devel_and_branches (L1387),
-  # build_artifacts_material_release (L1394).
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_material_job
@@ -1034,10 +959,8 @@ build_artifacts_material:
     - !reference [.gated_by_build_artifacts_material, rules]
     - !reference [.devel_or_branches_or_release_rules, rules]
 
-# build_artifacts_doc (devel/branches/maintenance/release — includes maintenance, S5)
+# build_artifacts_doc (devel/branches/maintenance/release)
 build_artifacts_doc:
-  # Replaces: build_artifacts_doc_devel_and_branches (L1401),
-  # build_artifacts_doc_release (L1408).
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_doc_job
@@ -1052,9 +975,7 @@ build_artifacts_doc:
 # SIGN JOBS
 ########################################
 sign_packages:
-  # Replaces: sign_devel_release_branches_and_maintenance (L1417).
-  # dependencies: shrinks from 8 entries (one per old context-pkg job) to 2.
-  # GPG_USER_ID see GitLab variable; only use when executor is docker.
+  # GPG_USER_ID set via GitLab variable; only used when executor is docker.
   image: ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}
   stage: sign
   script:
@@ -1080,7 +1001,6 @@ sign_packages:
 # PUBLISH JOBS
 ########################################
 publish_ppa:
-  # Replaces: publish_ppa_devel_release_branches_and_maintenance: (L1445, literal trailing colon, S11).
   image: ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}
   dependencies:
     - sign_packages
@@ -1364,8 +1284,6 @@ configurator_deb12_pristine:
 ########################################
 ### RPM jobs
 deploy_rpm:
-  # Replaces: deploy_devel_rpm (L1992), deploy_branches_rpm (L1999),
-  # deploy_release_rpm (L2008), deploy_maintenance_rpm (L2015).
   extends:
     - .deploy_rpm_job
   environment:
@@ -1376,8 +1294,6 @@ deploy_rpm:
 
 ### Debian jobs
 deploy_deb:
-  # Replaces: deploy_devel_deb (L2023), deploy_branches_deb (L2032),
-  # deploy_release_deb (L2041), deploy_maintenance_deb (L2050).
   extends:
     - .deploy_deb_job
   environment:
@@ -1387,12 +1303,8 @@ deploy_deb:
     - !reference [.deploy_pkg_rules, rules]
 
 ### Common jobs (Deb and RPM) — friendly names
-# Friendly-name overrides (PKG_DEST_NAME, PF_EXPORT_*) are emitted by
-# .context_rules's per-context arms (branches/devel get explicit values).
 deploy_pkg_friendly_names:
-  # Replaces: deploy_devel_pkg_friendly_names (L2060), deploy_branches_pkg_friendly_names (L2073),
-  # deploy_release_pkg_friendly_names (L2085). maintenance variant kept separate (A2 / S7).
-  # NOTE: maintenance arm is filtered out by inline rule below (its own job exists).
+  # Maintenance arm is filtered out by inline rule below; it has its own job.
   extends:
     - .deploy_pkg_friendly_names
   environment:
@@ -1415,8 +1327,6 @@ deploy_maintenance_pkg_friendly_names:
 
 # website artifacts
 deploy_website_artifacts:
-  # Replaces: deploy_devel_and_branches_website_artifacts (L2108),
-  # deploy_release_website_artifacts (L2113).
   extends:
     - .deploy_website_artifacts_job
   rules:
@@ -1428,27 +1338,20 @@ deploy_website_artifacts:
 ########################################
 ### build_pf_img_zen jobs
 build_pf_img_zen:
-  # Replaces: build_pf_img_zen_devel_branches_and_maintenance (L2122),
-  # build_pf_img_zen_release (L2129).
   extends:
     - .build_pf_img_zen_job
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ZENDIR} zen-deb12
   rules:
-    # Release tag: manual, allow-failure (today's release behavior).
     - if: '$CI_COMMIT_TAG'
       when: manual
       allow_failure: true
-    # devel / maintenance / feature-branch: gated by BUILD_PF_IMG_ZEN.
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
 
 ### build_pf_img_iso jobs
 build_pf_img_iso:
-  # Replaces: build_pf_img_iso_devel_branches_and_maintenance (L2141),
-  # build_pf_img_iso_release (L2150). PF_VERSION and environment.url are
-  # set per-arm; release picks ${CI_COMMIT_TAG}.
   extends:
     - .build_pf_img_iso_job
   environment:
@@ -1473,11 +1376,7 @@ build_pf_img_iso:
         ENV_URL_REF: ${CI_COMMIT_REF_SLUG}
 
 ### build_pf_img_usb_iso jobs
-# USB bootable offline installer ISO - works on any branch
-# Triggered by BUILD_PF_IMG_USB_ISO=yes variable or build_pf_img_usb_iso=yes in commit message
-# Requires PPA to be published first (like tests)
 build_pf_img_usb_iso:
-  # Replaces: build_pf_img_usb_iso (L2169). publish_ppa:: rename: needs updated.
   extends:
     - .build_pf_img_usb_iso_job
   needs:
@@ -1495,7 +1394,6 @@ build_pf_img_usb_iso:
 
 ### build_pf_img_vagrant jobs
 build_pf_img_vagrant_release_debian_bookworm:
-  # Unchanged.
   extends:
     - .build_pf_img_vagrant_release_job
   variables:
