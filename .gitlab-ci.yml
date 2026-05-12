@@ -929,6 +929,36 @@ build_img_docker_deb12:
     - !reference [.gated_by_build_img_docker, rules]
     - !reference [.build_img_docker_rules, rules]
 
+########################################
+# SIGNING IMAGE BUILD JOBS
+########################################
+# Per-distro signing images: bake gh/pynacl/dpkg-sig/rpm-sign so sign,
+# publish, upload, and perl-client build jobs install nothing at runtime.
+build_signing_debian:
+  # Builds ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}.
+  # Powers: sign_packages, publish_ppa (GitLab) and GitHub Actions Debian
+  # signing/upload/unit-test/perl-client-build jobs.
+  extends:
+    - .build_img_container_job
+  variables:
+    IMAGE_NAME: "signing-debian"
+    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.build_img_container_rules, rules]
+
+build_signing_rhel:
+  # Builds ghcr.io/inverse-inc/packetfence/signing-rhel:${IMAGE_TAG}.
+  # Powers: GitHub Actions RHEL signing matrix and perl-client RPM build.
+  extends:
+    - .build_img_container_job
+  variables:
+    IMAGE_NAME: "signing-rhel"
+    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.build_img_container_rules, rules]
+
 ### build_img_vagrant jobs
 build_img_vagrant_devel_and_branches_debian_bookworm:
   # Replaces: build_img_vagrant_devel_and_branches_debian_bookworm (L1300).
@@ -1025,7 +1055,7 @@ sign_packages:
   # Replaces: sign_devel_release_branches_and_maintenance (L1417).
   # dependencies: shrinks from 8 entries (one per old context-pkg job) to 2.
   # GPG_USER_ID see GitLab variable; only use when executor is docker.
-  image: buildpkg/debian:buster
+  image: ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}
   stage: sign
   script:
     - ci-sign-pkg
@@ -1051,8 +1081,7 @@ sign_packages:
 ########################################
 publish_ppa:
   # Replaces: publish_ppa_devel_release_branches_and_maintenance: (L1445, literal trailing colon, S11).
-  # Rules are a VERBATIM port of .publish_ppa_rules (A3-RESOLVED: preserve all 5 disjuncts).
-  image: buildpkg/debian:buster
+  image: ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}
   dependencies:
     - sign_packages
   extends:

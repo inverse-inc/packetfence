@@ -46,11 +46,13 @@ jobs:
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
-        env: 
-          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ redhat/ubi8:8.8 /bin/bash -c \
-            "set -e && cd ${{ inputs._WORKDIR }}/ && yum -y  install rpm-build > /dev/null 2>&1 && rpmspec -q --qf "%{version}"  rhel8/SPECS/packetfence-perl.spec"
-          command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ debian:11.0 /bin/bash -c \
-            "set -e && cd ${{ inputs._WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version"
+        env:
+          # rpm-build (RHEL) and build-essential/dpkg-dev (Debian) are pre-baked
+          # in the signing-* images, so no runtime install is needed.
+          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ ghcr.io/inverse-inc/packetfence/signing-rhel:latest /bin/bash -c \
+            "set -e && cd ${{ inputs._WORKDIR }}/ && rpmspec -q --qf \"%{version}\"  rhel8/SPECS/packetfence-perl.spec"
+          command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ ghcr.io/inverse-inc/packetfence/signing-debian:latest /bin/bash -c \
+            "set -e && cd ${{ inputs._WORKDIR }}/ && dpkg-parsechangelog --show-field Version"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3

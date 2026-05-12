@@ -11,10 +11,15 @@ on:
 
 jobs:
   unit-test:
-    runs-on: packetfence-perl-package-build 
+    runs-on: packetfence-perl-package-build
     container:
-      image:  ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || inputs._IMAGE_TYPE == 'debian11' && 'debian:bullseye'  || inputs._IMAGE_TYPE == 'debian12' && 'debian:bookworm'}}
-    steps:     
+      # Debian paths use the pre-baked signing-debian image (gnupg, sudo, wget,
+      # curl baked in). RHEL keeps redhat/ubi8:8.8 because it only yum-localinstalls.
+      image: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || 'ghcr.io/inverse-inc/packetfence/signing-debian:latest' }}
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+    steps:
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v4.1.7
         with:
@@ -39,7 +44,6 @@ jobs:
         if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12'
         run: |
           ls -la /mnt
-          apt update; apt  install -y gnupg sudo wget  curl
           PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
           PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
           wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -

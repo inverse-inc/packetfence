@@ -2,13 +2,23 @@
 gitlab_buildpkg_tools__deb_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
   - 'https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key'
+  # GitHub CLI apt repo key (for pre-baked gh)
+  - url: 'https://cli.github.com/packages/githubcli-archive-keyring.gpg'
+    dest: '/usr/share/keyrings/githubcli-archive-keyring.gpg'
+    dearmor: false
 
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: nodejs
     baseurl: 'https://deb.nodesource.com/node_20.x nodistro main'
+  - name: github-cli
+    baseurl: 'https://cli.github.com/packages stable main'
+    signed_by: '/usr/share/keyrings/githubcli-archive-keyring.gpg'
 
 # packages install will occur
-# during build depencies install from SPEC files
-gitlab_buildpkg_tools__deb_pkgs: []
+# during build dependencies install from SPEC files
+# gh and python3-nacl pre-baked for publish-to-git.sh + generate-material.sh.
+gitlab_buildpkg_tools__deb_pkgs:
+  - 'gh'
+  - 'python3-nacl'

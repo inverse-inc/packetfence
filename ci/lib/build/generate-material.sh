@@ -12,6 +12,9 @@ FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 
 source ${FUNCTIONS_FILE}
 
+# pynacl is pre-baked in containers/pfconfig/Dockerfile; fail fast if missing.
+python3 -c "import nacl" 2>/dev/null || { echo "pynacl missing from image"; exit 1; }
+
 configure_and_check() {
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     CI_COMMIT_REF_SLUG=${CI_COMMIT_REF_SLUG:-}
@@ -52,9 +55,6 @@ fetch_git_credentials_from_psono() {
         echo "Error: Psono script not found at ${PSONO_SCRIPT}"
         exit 1
     fi
-
-    # Install pynacl dependency for psono.py
-    pip install -q pynacl
 
     export GIT_USER_NAME=$(python3 "${PSONO_SCRIPT}" \
         --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \

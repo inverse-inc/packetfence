@@ -13,5 +13,8 @@ gitlab_buildpkg_tools__rpm_deps_repos:
 
 # packages install will occur
 # during build dependencies install from SPEC files
+# python3-pynacl pre-baked (via EPEL). gh CLI is not packaged for EL8/EPEL
+# and pfbuild-centos-8 has no script that calls gh, so it is not baked here.
 gitlab_buildpkg_tools__rpm_pkgs:
   - 'epel-release'
+  - 'python3-pynacl'
