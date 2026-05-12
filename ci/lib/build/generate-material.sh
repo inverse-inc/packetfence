@@ -12,8 +12,9 @@ FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 
 source ${FUNCTIONS_FILE}
 
-# pynacl is pre-baked in containers/pfconfig/Dockerfile; fail fast if missing.
 python3 -c "import nacl" 2>/dev/null || { echo "pynacl missing from image"; exit 1; }
+command -v gh >/dev/null || { echo "gh CLI missing from image"; exit 1; }
+command -v docker >/dev/null || { echo "docker CLI missing from image"; exit 1; }
 
 configure_and_check() {
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
@@ -74,7 +75,9 @@ fetch_git_credentials_from_psono() {
     echo "Git credentials fetched from Psono"
 }
 
-generate_material() {
+generate_switches_json() {
+    log_subsection "Generate switches.json via pfconfig sidecar"
+
     echo "Make config files available to start pfconfig container"
     make -C ${PF_SRC_DIR} configurations
     make -C ${PF_SRC_DIR} conf/unified_api_system_pass
@@ -84,12 +87,6 @@ generate_material() {
 
     echo "Starting ${CONTAINER_NAME} container"
     docker run --detach --name=${CONTAINER_NAME} --rm -e PFCONFIG_PROTO=unix \
-           -e GIT_USER_NAME \
-           -e GIT_USER_MAIL \
-           -e GIT_USER_PASSWORD \
-           -e GIT_REPO \
-           -e GIT_CI_BRANCH \
-           -e CI_PIPELINE_ID \
            -v ${PF_SRC_DIR}/conf:/usr/local/pf/conf \
            -v ${PF_SRC_DIR}/addons/dev-helpers/bin:/usr/local/pf/addons/dev-helpers/bin \
            -v ${PF_SRC_DIR}/ci/lib:/usr/local/pf/ci/lib \
@@ -98,24 +95,27 @@ generate_material() {
            -v ${PF_SRC_DIR}/result:/usr/local/pf/result \
            ghcr.io/inverse-inc/packetfence/pfconfig:${IMAGE_TAG}
 
-    echo "Let some time to container to start"
+    echo "Let some time for the pfconfig daemon to be ready"
     sleep 20
 
     echo "Generating switches.json file"
     docker exec ${CONTAINER_NAME} /usr/bin/make material
+}
 
+cleanup_on_exit() {
+    docker stop ${CONTAINER_NAME} >/dev/null 2>&1 || true
+    unset GIT_USER_PASSWORD GIT_USER_NAME GIT_USER_MAIL GIT_CI_BRANCH || true
+}
+
+publish_and_pr() {
     echo "Publishing switches.json to packetfence site git repo ( https://github.com/akainverse/website-pfcom )"
-    docker exec ${CONTAINER_NAME} /usr/local/pf/ci/lib/release/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
+    ${PF_SRC_DIR}/ci/lib/release/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
 
     echo "Creating pull request"
-    docker exec ${CONTAINER_NAME} /usr/local/pf/ci/lib/release/create-pr.sh
+    ${PF_SRC_DIR}/ci/lib/release/create-pr.sh
 }
 
-cleanup() {
-    docker stop ${CONTAINER_NAME}
-}
-
-trap cleanup EXIT
+trap cleanup_on_exit EXIT
 
 log_section "Configure and check"
 configure_and_check
@@ -124,5 +124,7 @@ log_section "Fetch credentials"
 fetch_git_credentials_from_psono
 
 log_section "Generate material"
-generate_material
+generate_switches_json
 
+log_section "Publish material"
+publish_and_pr

@@ -358,6 +358,7 @@ variables:
 
 .build_artifacts_material_job:
   stage: build_artifacts
+  image: ${KNK_REGISTRY_URL}/pfconfig-material-builder:${IMAGE_TAG}
   dependencies: []
   variables:
     # Git credentials (GIT_USER_NAME, GIT_USER_PASSWORD, GIT_USER_MAIL) set in generate-material.sh from Psono
@@ -374,7 +375,7 @@ variables:
     paths:
       - result/switches.json
   tags:
-    - shell
+    - docker
 
 .build_artifacts_doc_job:
   stage: build_artifacts
@@ -724,6 +725,23 @@ rad_extend:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
 
+# CI-only wrapper around pfconfig: adds gh + python3-nacl + git for
+# .build_artifacts_material_job. The customer-facing pfconfig image stays
+# slim; CI tooling lives here. Gated by .gated_by_build_artifacts_material
+# so the wrapper only builds when the material job is going to consume it
+# (no waste on pipelines that don't request material). needs:[pfdeb_based_full]
+# enforces that pfconfig is in GHCR before this FROM-clause resolves.
+pfconfig_material_builder:
+  extends:
+    - .build_img_container_job
+  needs: ["pfdeb_based_full"]
+  variables:
+    IMAGE_NAME: "pfconfig-material-builder"
+    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+  rules:
+    - !reference [.gated_by_build_artifacts_material, rules]
+    - !reference [.build_img_container_rules, rules]
+
 ########################################
 # BUILD_IMG JOBS (pfbuild-base & vagrant)
 ########################################
@@ -832,8 +850,8 @@ build_artifacts_website:
     - !reference [.devel_or_branches_or_release_rules, rules]
 
 # build_artifacts_material (devel/branches/release; no maintenance)
+# Image comes from .build_artifacts_material_job (pfconfig-material-builder).
 build_artifacts_material:
-  image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_material_job
   rules:

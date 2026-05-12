@@ -12,7 +12,6 @@ FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 
 source ${FUNCTIONS_FILE}
 
-# gh is pre-baked in containers/pfconfig/Dockerfile; fail fast if missing.
 command -v gh >/dev/null || { echo "gh CLI missing from image"; exit 1; }
 
 configure_and_check() {
