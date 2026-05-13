@@ -96,6 +96,9 @@ configure_and_check() {
                            -not -path "*/caddy-l4/*" \
                            -not -path "*/github-apps-token/*" \
                            -not -path "*/ntlm-join-remote/*" \
+                           -not -path "*/signing-debian/*" \
+                           -not -path "*/signing-rhel/*" \
+                           -not -path "*/pfconfig-material-builder/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
