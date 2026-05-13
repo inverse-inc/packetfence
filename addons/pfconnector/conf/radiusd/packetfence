@@ -69,6 +69,19 @@ server pf-remote {
 
 	authorize {
 		rest-remote
+		# Always rate-limit-check so a 403 hard-reject wins even when
+		# rest-remote already said degraded. Stash rest-remote's verdict
+		# so a rate-limit "remote" response can't upgrade a tunnel-down
+		# decision back to remote.
+		update control {
+			Tmp-String-0 := "%{control:Proxy-To-Realm}"
+		}
+		rest-ratelimit
+		if (&control:Tmp-String-0 == "degraded") {
+			update control {
+				Proxy-To-Realm := "degraded"
+			}
+		}
 		update control {
 			Load-Balance-Key := "%{Calling-Station-Id}"
 		}
