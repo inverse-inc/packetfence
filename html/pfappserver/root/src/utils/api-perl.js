@@ -12,6 +12,11 @@
 
 import apiCall, { _encodeURL } from './api'
 
+// Re-export everything `api.js` exports as named exports (e.g.
+// `fileUploadPaths`, `baseURL`, `documentationCall`) so callers can import
+// shared utilities from the same module they get the wrapped `apiCall` from.
+export * from './api'
+
 async function getAll (url, params = {}) {
   const { limit = 1000, ...extraParams } = params
   const items = []
