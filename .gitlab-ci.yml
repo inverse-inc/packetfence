@@ -922,11 +922,12 @@ sign_packages:
   # GPG_USER_ID set via GitLab variable; only used when executor is docker.
   image: ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}
   stage: sign
+  needs:
+    - job: build_signing_debian
+    - job: build_artifacts_pkg_centos_8
+    - job: build_artifacts_pkg_debian_bookworm
   script:
     - ci-sign-pkg
-  dependencies:
-    - build_artifacts_pkg_centos_8
-    - build_artifacts_pkg_debian_bookworm
   artifacts:
     expire_in: 1 day
     paths:
@@ -946,8 +947,9 @@ sign_packages:
 ########################################
 publish_ppa:
   image: ghcr.io/inverse-inc/packetfence/signing-debian:${IMAGE_TAG}
-  dependencies:
-    - sign_packages
+  needs:
+    - job: build_signing_debian
+    - job: sign_packages
   extends:
     - .publish_job
   rules:
