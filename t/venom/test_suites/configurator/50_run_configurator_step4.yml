@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: pf_api_system_service_restart_async
     service: 'packetfence-config'
-    time_to_sleep: 5
+    time_to_sleep: 10
 
 - name: restart_pfqueue_service
   steps:
@@ -59,6 +59,8 @@ testcases:
 - name: check_if_admin_is_available
   steps:
   - type: get_login_token
+    iretry: 10
+    idelay: 5
 
 - name: start_pf_services
   steps:
