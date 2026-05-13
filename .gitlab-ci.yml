@@ -213,14 +213,20 @@ variables:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
         IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
         IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
     - if: '$CI_COMMIT_TAG'
       variables:
+        IMAGE_TAG: ${CI_COMMIT_TAG}
         IMAGE_TAGS: ${CI_COMMIT_TAG}
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
+        IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
 
 # Same as .build_img_container_rules but without IMAGE_TAGS overrides
 # (concrete jobs that override DOCKER_TAGS instead — build_img_docker_*).
@@ -656,11 +662,12 @@ pfdeb:
     - !reference [.build_img_container_rules, rules]
 
 pfdeb_based_full:
-  # Builds the full service list in every context (devel, branches,
-  # maintenance, release).
   extends:
     - .build_img_container_job
-  needs: ["pfdeb"]
+  needs:
+    - pfdeb
+    - job: build_img_docker_deb12
+      optional: true
   variables:
     IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
   parallel:
@@ -770,6 +777,7 @@ build_signing_debian:
   # Debian signing/upload/unit-test/perl-client-build jobs.
   extends:
     - .build_img_container_job
+  needs: ["kaniko"]
   variables:
     IMAGE_NAME: "signing-debian"
     IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
@@ -781,6 +789,7 @@ build_signing_rhel:
   # Powers GitHub Actions RHEL signing matrix and perl-client RPM build.
   extends:
     - .build_img_container_job
+  needs: ["kaniko"]
   variables:
     IMAGE_NAME: "signing-rhel"
     IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
