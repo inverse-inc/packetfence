@@ -257,12 +257,21 @@ variables:
 # Shared rules for deploy_* (rpm, deb, pkg_friendly_names) — runs on
 # devel push/web/schedule, release tag, branches via web/api/schedule,
 # maintenance via web/api/schedule. Used together with .gated_by_deploy_pkg.
+# Mirror DEPLOY_ENV_NAME from .context_rules — .deploy_pkg_rules is the only rule path the deploy_* jobs traverse, and .context_rules' when:always fallback can't be composed in without breaking branch/source filtering.
 .deploy_pkg_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        DEPLOY_ENV_NAME: pf-devel
     - if: '$CI_COMMIT_TAG'
+      variables:
+        DEPLOY_ENV_NAME: pf-stable
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        DEPLOY_ENV_NAME: maintenance
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        DEPLOY_ENV_NAME: pf-branches
 
 # === TEST-STAGE RULES ===
 # .test_rules merges the former .test_devel_and_maintenance_rules and
