@@ -35,7 +35,7 @@ RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.
     printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d && \
     chmod +x /usr/sbin/policy-rc.d && \
     apt-get update && \
-    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache sqlite3 && \
+    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache=0.1.2-1 sqlite3 && \
     apt-get remove -y fingerbank-collector 2>/dev/null || true && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     rm -f /usr/sbin/policy-rc.d /usr/bin/systemctl && \
