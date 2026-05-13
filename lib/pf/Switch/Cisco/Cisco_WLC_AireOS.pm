@@ -660,6 +660,9 @@ Format ACL to match with the expected switch format.
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
+
+    return $self->SUPER::acl_chewer($acl, $role) unless $self->usePushACLs;
+
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $i = 0;
