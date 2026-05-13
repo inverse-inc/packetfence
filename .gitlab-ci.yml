@@ -341,8 +341,41 @@ variables:
     - shell
     - inverse.ca
 
+# Strict gate: build_artifacts must not start if any build_images job failed.
+# Every concrete build_images job is listed so a failure anywhere in that stage
+# skips the artifact jobs. optional: true lets gated-out jobs (those whose
+# rules evaluate to when:never in the current pipeline) be absent without
+# blocking — only jobs that actually ran and failed will skip the dependents.
+.needs_all_build_images:
+  needs:
+    - job: kaniko
+      optional: true
+    - job: pfdeb
+      optional: true
+    - job: pfdeb_based_full
+      optional: true
+    - job: img
+      optional: true
+    - job: rad_based
+      optional: true
+    - job: rad_extend
+      optional: true
+    - job: pfconfig_material_builder
+      optional: true
+    - job: build_img_docker_el8
+      optional: true
+    - job: build_img_docker_deb12
+      optional: true
+    - job: build_signing_debian
+      optional: true
+    - job: build_signing_rhel
+      optional: true
+    - job: build_img_vagrant_devel_and_branches_debian_bookworm
+      optional: true
+
 .build_artifacts_pkg_job:
   stage: build_artifacts
+  needs: !reference [.needs_all_build_images, needs]
   artifacts:
     expire_in: 1 day
     paths:
@@ -352,6 +385,7 @@ variables:
 
 .build_artifacts_website_job:
   stage: build_artifacts
+  needs: !reference [.needs_all_build_images, needs]
   dependencies: []
   script:
     - make -e website
@@ -364,6 +398,7 @@ variables:
 
 .build_artifacts_material_job:
   stage: build_artifacts
+  needs: !reference [.needs_all_build_images, needs]
   image: ${KNK_REGISTRY_URL}/pfconfig-material-builder:${IMAGE_TAG}
   dependencies: []
   variables:
@@ -385,6 +420,7 @@ variables:
 
 .build_artifacts_doc_job:
   stage: build_artifacts
+  needs: !reference [.needs_all_build_images, needs]
   dependencies: []
   script:
     - make -C html/pfappserver/root/ vendor
