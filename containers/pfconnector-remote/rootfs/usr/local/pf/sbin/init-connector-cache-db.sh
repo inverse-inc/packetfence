@@ -2,8 +2,8 @@
 
 set -e
 
-DB_DIR="/var/lib/packetfence-connector-cache"
-DB_FILE="$DB_DIR/pfcache.db"
+DB_DIR="/usr/local/packetfence-connector-cache"
+DB_FILE="$DB_DIR/pfcc.db"
 SCHEMA="/usr/share/packetfence-connector-cache/db_schema.sql"
 
 mkdir -p "$DB_DIR"
