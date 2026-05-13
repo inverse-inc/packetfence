@@ -4,6 +4,8 @@
 import Vue from 'vue'
 import { types } from '@/store'
 import apiCall from '@/utils/api'
+import apiPerl from '@/utils/api-perl'
+import apiGo from '@/utils/api-go'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
@@ -18,7 +20,7 @@ const encodeURL = (url) => {
 
 const api = {
   getAdminRoles () {
-    return apiCall({ url: 'config/admin_roles', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/admin_roles')
   },
   getBaseActiveActive () {
     return apiCall({ url: 'config/base/active_active', method: 'get' })
@@ -132,7 +134,7 @@ const api = {
     return apiCall({ url: 'config/interfaces', method: 'get' })
   },
   getLayer2Networks () {
-    return apiCall({ url: 'config/l2_networks', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/l2_networks')
   },
   getNetworkBehaviorPolicies () {
     return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
@@ -141,25 +143,25 @@ const api = {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
   getMfas () {
-    return apiCall({ url: 'config/mfas', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/mfas')
   },
   getPkiCas () {
-    return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/cas')
   },
   getPkiProfiles () {
-    return apiCall({ url: 'pki/profiles', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/profiles')
   },
   getPkiCerts () {
-    return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/certs')
   },
   getPkiScepServers () {
-    return apiCall({ url: 'pki/scepservers', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/scepservers')
   },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
   getPortalModules () {
-    return apiCall({ url: 'config/portal_modules', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/portal_modules')
   },
   getProvisionings () {
     return apiCall({ url: 'config/provisionings', method: 'get' })
@@ -186,34 +188,34 @@ const api = {
     return apiCall({ url: 'config/remote_connection_profiles', method: 'get' })
   },
   getRoles () {
-    return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('node_categories')
   },
   getRoleByCategoryId (categoryId) {
     return apiCall({ url: `node_category/${categoryId}`, method: 'get' })
   },
   getRoutedNetworks () {
-    return apiCall({ url: 'config/routed_networks', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/routed_networks')
   },
   getScans () {
     return apiCall({ url: 'config/scans', method: 'get' })
   },
   getSecurityEvents () {
-    return apiCall({ url: 'config/security_events', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/security_events')
   },
   getSelfServices () {
     return apiCall({ url: 'config/self_services', method: 'get' })
   },
   getSources () {
-    return apiCall({ url: 'config/sources', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/sources')
   },
   getSsids () {
     return apiCall({ url: 'locationlogs/ssids', method: 'get' })
   },
   getSwitches () {
-    return apiCall({ url: 'config/switches', method: 'get', params: { limit: 1000, raw: 1 } })
+    return apiPerl.getAll('config/switches', { raw: 1 })
   },
   getSwitchGroups () {
-    return apiCall({ url: 'config/switch_groups', method: 'get', params: { limit: 1000, raw: 1 } })
+    return apiPerl.getAll('config/switch_groups', { raw: 1 })
   },
   getSwitchGroupMembers (id) {
     return apiCall({ url: `config/switch_group/${id}/members`, method: 'get' })

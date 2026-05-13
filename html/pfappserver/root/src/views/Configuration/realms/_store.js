@@ -5,6 +5,7 @@ import Vue from 'vue'
 import store, { types } from '@/store'
 import i18n from '@/utils/locale'
 import { computed } from '@vue/composition-api'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 
 export const useStore = $store => {
@@ -43,11 +44,10 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(','),
-      limit: 1000
+      fields: ['id'].join(',')
     }
-    return api.list(params).then(response => {
-      return response.items
+    return apiCall.getAll('config/realms', params).then(response => {
+      return response.data.items
     })
   },
   sortRealms: ({ commit }, items) => {

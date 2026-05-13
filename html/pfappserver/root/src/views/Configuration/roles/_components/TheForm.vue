@@ -74,7 +74,7 @@
 </template>
 <script>
 import {computed, ref, set, watch} from '@vue/composition-api'
-import apiCall from '@/utils/api'
+import apiCall from '@/utils/api-perl'
 import {
   BaseForm
 } from '@/components/new/'
@@ -142,12 +142,9 @@ export const setup = (props) => {
   const basePlaceholders = {}
   let capturedFromMeta = null
 
-  apiCall.get('config/roles', {
-    params: {
-      fields: ['id', 'parent_id', ...INHERITED_FIELDS].join(','),
-      limit: 1000,
-      sort: 'id'
-    }
+  apiCall.getAll('config/roles', {
+    fields: ['id', 'parent_id', ...INHERITED_FIELDS].join(','),
+    sort: 'id'
   }).then(response => {
     const { data: { items = [] } = {} } = response
     roles.value = items

@@ -4,7 +4,7 @@
 import Vue from 'vue'
 import {computed} from '@vue/composition-api'
 import {types} from '@/store'
-import {fileUploadPaths} from '@/utils/api'
+import apiCall, {fileUploadPaths} from '@/utils/api-perl'
 import i18n from '@/utils/locale'
 import api from './_api'
 import {analytics, decomposeSource, recomposeSource} from './config'
@@ -52,13 +52,12 @@ const actions = {
   all: ({commit}) => {
     const params = {
       sort: null, // use natural ordering
-      fields: ['id', 'description', 'type', 'class'].join(','),
-      limit: 1000
+      fields: ['id', 'description', 'type', 'class'].join(',')
     }
     commit('ITEM_REQUEST')
-    return api.list(params).then(response => {
+    return apiCall.getAll('config/sources', params).then(response => {
       commit('ITEM_SUCCESS')
-      return response.items
+      return response.data.items
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -104,11 +103,10 @@ const actions = {
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(','),
-      type: type,
-      limit: 1000
+      type: type
     }
-    return api.list(params).then(response => {
-      return response.items
+    return apiCall.getAll('config/sources', params).then(response => {
+      return response.data.items
     })
   },
   getAuthenticationSource: ({state, commit}, id) => {

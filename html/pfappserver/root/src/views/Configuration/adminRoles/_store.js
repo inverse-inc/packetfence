@@ -5,6 +5,7 @@ import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import i18n from '@/utils/locale'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 
 export const useStore = $store => {
@@ -42,11 +43,10 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(','),
-      limit: 1000
+      fields: ['id'].join(',')
     }
-    return api.list(params).then(response => {
-      return response.items
+    return apiCall.getAll('config/admin_roles', params).then(response => {
+      return response.data.items.filter(({ id }) => !['NONE', 'ALL', 'ALL_PF_ONLY'].includes(id))
     })
   },
   options: ({ commit }, id) => {

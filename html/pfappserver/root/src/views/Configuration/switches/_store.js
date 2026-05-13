@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import store, { types } from '@/store'
 import { computed } from '@vue/composition-api'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 import { baseRoles } from './config'
 
@@ -40,11 +41,12 @@ const actions = {
     commit('ITEM_REQUEST')
     const params = {
       sort: 'id',
-      fields: ['id', 'description', 'class'].join(',')
+      fields: ['id', 'description', 'class'].join(','),
+      raw: 1
     }
-    return api.list(params).then(response => {
+    return apiCall.getAll(['config', 'switches'], params).then(response => {
       commit('ITEM_SUCCESS')
-      return response.items
+      return response.data.items
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

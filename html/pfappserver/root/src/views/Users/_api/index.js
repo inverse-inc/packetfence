@@ -1,4 +1,4 @@
-import apiCall from '@/utils/api'
+import apiCall from '@/utils/api-perl'
 
 export default {
   all: params => {
@@ -26,7 +26,7 @@ export default {
     })
   },
   nodes: pid => {
-    return apiCall.get(['user', pid, 'nodes'], { params: { limit: 1000 } }).then(response => {
+    return apiCall.getAll(['user', pid, 'nodes']).then(response => {
       return response.data.items
     })
   },
