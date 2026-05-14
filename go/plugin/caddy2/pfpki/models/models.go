@@ -84,6 +84,11 @@ type (
 		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
 		RenewalMail           int                     `json:"renewal_mail,omitempty,string" gorm:"default:1"`
 		DaysBeforeRenewalMail int                     `json:"days_before_renewal_mail,string" gorm:"default:14"`
+		// RenewalMailDays is an optional comma-separated list of
+		// thresholds (in days before expiry) at which a renewal email
+		// should be sent — e.g. "14,7,1". When empty, the single
+		// DaysBeforeRenewalMail value is used in legacy one-shot mode.
+		RenewalMailDays       string                  `json:"renewal_mail_days,omitempty"`
 		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty" gorm:"default:Certificate expiration"`
 		RenewalMailFrom       string                  `json:"renewal_mail_from,omitempty"`
 		RenewalMailHeader     string                  `json:"renewal_mail_header,omitempty"`
@@ -132,6 +137,11 @@ type (
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
 		Csr                *bool           `json:"csr,omitempty" gorm:"default:false"`
 		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
+		// AlertedDays tracks which renewal-mail thresholds (from the
+		// profile's RenewalMailDays list) have already triggered an
+		// email for this cert; stored as comma-separated ints. Stays
+		// empty in the legacy single-threshold path.
+		AlertedDays        string          `json:"alerted_days,omitempty"`
 		Subject            string          `json:"-"`
 	}
 
