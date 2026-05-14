@@ -1,2 +1,2 @@
-nameserver {{.configurator.dns.primary_ip}}
-nameserver {{.configurator.dns.secondary_ip}}
+nameserver {{ configurator.dns.primary_ip }}
+nameserver {{ configurator.dns.secondary_ip }}

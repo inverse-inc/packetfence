@@ -37,11 +37,12 @@
         dest: "{{ seed_dir }}/.rendered/pfqueue.conf"
         backup: yes
 
-    - name: Render fingerbank-upstream.conf template
-      template:
-        src: "{{ seed_dir }}/fingerbank-upstream.conf.tt"
-        dest: "{{ seed_dir }}/.rendered/fingerbank-upstream.conf"
-        backup: yes
+    - name: Create placeholder for fingerbank-upstream.conf
+      file:
+        path: "{{ seed_dir }}/.rendered/fingerbank-upstream.conf"
+        state: touch
+      # Note: This file will be rendered at runtime by Venom step 30
+      # because the API key is fetched dynamically from psonoci
 
     - name: Render resolv.conf template
       template:

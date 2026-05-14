@@ -1,8 +1,8 @@
 [upstream]
-api_key={{.fingerbank_api_key}}
+api_key={{ fingerbank_api_key }}
 db_path=/usr/local/fingerbank/db
 host=api.fingerbank.inverse.ca
-id={{.configurator.hostname}}
+id={{ configurator.hostname }}
 port=443
 sqlite_db_retention=7
 use_https=yes

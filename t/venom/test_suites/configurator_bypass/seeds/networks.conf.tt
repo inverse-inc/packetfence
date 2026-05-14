@@ -2,18 +2,18 @@
 type=vlan-registration
 netmask=255.255.255.0
 gateway=192.168.100.1
-dns={{.configurator.interfaces.mgmt.ip}}
+dns={{ configurator.interfaces.mgmt.ip }}
 dhcpd=enabled
 dhcp_start=192.168.100.100
 dhcp_end=192.168.100.254
-domain-name={{.configurator.domain}}
+domain-name={{ configurator.domain }}
 
 [192.168.101.0]
 type=vlan-isolation
 netmask=255.255.255.0
 gateway=192.168.101.1
-dns={{.configurator.interfaces.mgmt.ip}}
+dns={{ configurator.interfaces.mgmt.ip }}
 dhcpd=enabled
 dhcp_start=192.168.101.100
 dhcp_end=192.168.101.254
-domain-name={{.configurator.domain}}
+domain-name={{ configurator.domain }}

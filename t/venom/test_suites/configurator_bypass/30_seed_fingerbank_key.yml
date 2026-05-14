@@ -1,9 +1,27 @@
 name: Seed Fingerbank API key from psonoci
 testcases:
+- name: get_fingerbank_api_key_from_psonoci
+  steps:
+  - type: exec
+    script: |
+      psonoci secret get {{.configurator.fingerbank_api_key.secret_id}} password
+    vars:
+      fingerbank_api_key:
+        from: result.systemout
+
 - name: seed_fingerbank_config
   steps:
   - type: exec
     script: |
-      cp {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/fingerbank-upstream.conf /usr/local/fingerbank/conf/fingerbank.conf
+      cat > /usr/local/fingerbank/conf/fingerbank.conf <<'EOF'
+[upstream]
+api_key={{.get_fingerbank_api_key_from_psonoci.fingerbank_api_key}}
+db_path=/usr/local/fingerbank/db
+host=api.fingerbank.inverse.ca
+id={{.configurator.hostname}}
+port=443
+sqlite_db_retention=7
+use_https=yes
+EOF
     assertions:
       - result.code ShouldEqual 0
