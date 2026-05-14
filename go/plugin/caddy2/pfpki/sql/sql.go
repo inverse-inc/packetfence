@@ -10,7 +10,14 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
+
+// sqlFieldsCache memoises SqlFields per reflect.Type. The result is purely
+// a function of the struct's field tags, so it's safe to cache for the
+// lifetime of the process; callers (GetByID, Paginated, Search) hit this
+// once per request and previously paid for the reflection every time.
+var sqlFieldsCache sync.Map // reflect.Type -> []string
 
 type (
 	// SQL struct
@@ -67,18 +74,21 @@ func (vars Vars) Sql(class interface{}) (Sql, error) {
 }
 
 func SqlFields(class interface{}) []string {
-	jsonTags := make([]string, 0)
-	jsonTags = append(jsonTags, "id")
-	fields := reflect.TypeOf(class)
-	numFields := fields.NumField()
+	t := reflect.TypeOf(class)
+	if cached, ok := sqlFieldsCache.Load(t); ok {
+		return cached.([]string)
+	}
+	jsonTags := []string{"id"}
+	numFields := t.NumField()
 	for i := 0; i < numFields; i++ {
-		if jsonTag := fields.Field(i).Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
+		if jsonTag := t.Field(i).Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
 			if commaIdx := strings.Index(jsonTag, ","); commaIdx > 0 {
 				jsonTag = jsonTag[:commaIdx]
 			}
 			jsonTags = append(jsonTags, jsonTag)
 		}
 	}
+	sqlFieldsCache.Store(t, jsonTags)
 	return jsonTags
 }
 
