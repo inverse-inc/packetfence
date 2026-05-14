@@ -9,4 +9,7 @@
 # Add extra configuration before running venom tests
 #- import_playbook: playbooks/configure.yml
 
+# Render seed templates for configurator_bypass
+- import_playbook: playbooks/render_seeds.yml
+
 - import_playbook: playbooks/run_tests.yml

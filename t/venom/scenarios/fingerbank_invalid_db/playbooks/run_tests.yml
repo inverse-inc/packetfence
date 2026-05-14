@@ -6,7 +6,7 @@
   vars:
     # put your test suites to try here
     test_suites:
-      - configurator
+      - configurator_bypass
       - global_config
 
       # Run the captive_portal suite independently from the other ones since it it requires to keep the IP in the registration VLAN and the other test suites perform VLAN changes

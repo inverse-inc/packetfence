@@ -5,7 +5,7 @@
 
   vars:
     test_suites:
-      - configurator
+      - configurator_bypass
       - global_config_virtualswitch
       - wired_mac_auth_virtualswitch
       - wired_mac_auth_virtualswitch/teardown

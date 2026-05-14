@@ -5,7 +5,7 @@
 
   vars:
     test_suites:
-      - configurator
+      - configurator_bypass
       - global_config_virtualswitch
       - dot1x_wired_computer_auth_virtualswitch
       - dot1x_wired_computer_auth_virtualswitch/teardown

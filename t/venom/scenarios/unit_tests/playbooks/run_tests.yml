@@ -6,7 +6,7 @@
   vars:
     test_suites:
       # configurator is necessary to have Fingerbank configured
-      - configurator
+      - configurator_bypass
       - unit_tests/configure_smoke_db.yml
       - unit_tests/golang_tests.yml
       - unit_tests/perl_tests.yml

@@ -6,7 +6,7 @@
   vars:
     # put your test suites to try here
     test_suites:
-      - configurator
+      - configurator_bypass
 
       - fingerbank_proxy/setup_proxy
       - fingerbank_proxy/fingerbank_connectivity
