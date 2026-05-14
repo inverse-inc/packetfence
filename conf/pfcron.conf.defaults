@@ -770,6 +770,33 @@ window=1D
 # Local task
 local=0
 
+[pki_process_cloud_revocations]
+#
+# type
+#
+# Task type
+type=pki_process_cloud_revocations
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Polls each cloud-enabled (Intune) profile for pending CA revocation requests and applies them to the pfpki database. The same logic runs inline when a SCEP enrollment hits "Certificate with this Subject already exist"; this scheduled run is a safety net for devices that never re-enroll after Intune revokes them.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
+#
+# local
+#
+# Local task
+local=0
+
 [pki_revoked_certs_cleanup]
 #
 # type

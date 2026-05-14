@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"crypto/dsa"
 	"crypto/ecdsa"
 	"crypto/ed25519"
@@ -22,9 +23,11 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"golang.org/x/crypto/ocsp"
+	"gorm.io/gorm"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 )
 
@@ -49,6 +52,16 @@ func (c Cert) New() (types.Info, error) {
 
 	// Check if the certificate is allowed to be revoked
 	_, err := revokeNeeded(c.Cn, &prof, prof.DaysBeforeRenewal, c.DB)
+	if err != nil && isDuplicateSubjectError(err) && prof.CloudEnabled == 1 {
+		// SCEP renewal flow: Intune revokes the old cert in its own
+		// queue rather than asking us over SCEP, then immediately
+		// re-enrolls the device. Without pulling that queue we'd reject
+		// the new request as a duplicate CN. Try to drain the queue
+		// now; if it produces any local revocations, retry.
+		if applied := drainCloudRevocations(c.Ctx, prof, c.DB); applied > 0 {
+			_, err = revokeNeeded(c.Cn, &prof, prof.DaysBeforeRenewal, c.DB)
+		}
+	}
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -398,6 +411,112 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, err
 	}
 
+	return Information, nil
+}
+
+// RevokeBySerial looks up a leaf by serial number under the given CA
+// name and revokes it with the supplied reason. Returns true when a
+// matching cert was found and revoked, false when no row matched (which
+// is not an error — the cloud-side revocation may target a cert that
+// pfpki already revoked or never issued, and we want the upstream
+// acknowledgement to record that as "succeeded" rather than retrying
+// forever).
+func (c Cert) RevokeBySerial(caName, serial string, reason int) (bool, error) {
+	var cert Cert
+	q := c.DB.Where("ca_name = ? AND serial_number = ?", caName, serial).First(&cert)
+	if q.Error != nil {
+		if errors.Is(q.Error, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, q.Error
+	}
+	cert.DB = c.DB
+	cert.Ctx = c.Ctx
+	if _, err := cert.Revoke(map[string]string{
+		"id":     strconv.Itoa(int(cert.ID)),
+		"reason": strconv.Itoa(reason),
+	}); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// isDuplicateSubjectError detects the "Certificate with this Subject
+// already exist" guard rail raised by revokeNeeded. We match on prefix
+// so the wrapped error from errors.New keeps working without exporting
+// a sentinel; if revokeNeeded gets a refactor someday this matcher is
+// the one place to update.
+func isDuplicateSubjectError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.HasPrefix(err.Error(), "Certificate with this Subject already exist")
+}
+
+// drainCloudRevocations downloads any pending revocations the cloud
+// provider has queued for prof.Ca and applies them locally. Returns the
+// number of revocations that resulted in a matching pfpki cert being
+// revoked — the caller uses this to decide whether retrying revokeNeeded
+// is worthwhile.
+//
+// All error paths log and return 0; we never want a cloud-side hiccup to
+// break SCEP enrollment for unrelated certs.
+func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
+	vcloud, err := cloud.Create(ctx, "intune", prof.CloudService)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn("drainCloudRevocations: cloud.Create: " + err.Error())
+		return 0
+	}
+	rp, ok := vcloud.(cloud.RevocationProcessor)
+	if !ok {
+		return 0
+	}
+	helper := Cert{DB: db, Ctx: ctx}
+	var localApplied int
+	revoke := func(ctx context.Context, req cloud.RevocationRequest) cloud.RevocationResult {
+		issuer := req.IssuerName
+		if issuer == "" {
+			issuer = prof.Ca.Cn
+		}
+		found, err := helper.RevokeBySerial(issuer, req.SerialNumber, req.Reason)
+		switch {
+		case err != nil:
+			log.LoggerWContext(ctx).Error("drainCloudRevocations: " + err.Error())
+			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false, ErrorDescription: err.Error()}
+		case !found:
+			// Cert not in our store — count as a success for the
+			// cloud side so it stops re-sending. Locally a no-op.
+			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: true}
+		default:
+			localApplied++
+			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: true}
+		}
+	}
+	if _, err := rp.ProcessRevocations(ctx, prof.Ca.Cn, revoke); err != nil {
+		log.LoggerWContext(ctx).Warn("drainCloudRevocations: ProcessRevocations: " + err.Error())
+	}
+	return localApplied
+}
+
+// ProcessCloudRevocations iterates every cloud-enabled profile and asks
+// its provider for any pending revocation requests, applying them
+// locally. Returns the total number of local revocations applied (the
+// number reported in Information.TotalCount), so a caller / operator
+// can confirm progress on a manual trigger.
+func (c Cert) ProcessCloudRevocations() (types.Info, error) {
+	Information := types.Info{}
+
+	var profiles []Profile
+	if err := c.DB.Preload("Ca").Where("cloud_enabled = ?", 1).Find(&profiles).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	applied := 0
+	for _, prof := range profiles {
+		applied += drainCloudRevocations(c.Ctx, prof, c.DB)
+	}
+	Information.TotalCount = applied
 	return Information, nil
 }
 
