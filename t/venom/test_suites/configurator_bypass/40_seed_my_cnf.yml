@@ -1,0 +1,11 @@
+name: Seed ~/.my.cnf for unit tests
+testcases:
+- name: seed_my_cnf
+  steps:
+  - type: exec
+    script: |
+      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/my.cnf ~vagrant/.my.cnf
+      chmod 600 ~vagrant/.my.cnf
+      chown vagrant:vagrant ~vagrant/.my.cnf
+    assertions:
+      - result.code ShouldEqual 0

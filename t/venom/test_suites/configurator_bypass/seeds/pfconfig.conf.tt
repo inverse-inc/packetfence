@@ -1,0 +1,4 @@
+[mysql]
+db={{.configurator.db.name}}
+user={{.configurator.db.users.pf.id}}
+pass={{.configurator.db.users.pf.password}}

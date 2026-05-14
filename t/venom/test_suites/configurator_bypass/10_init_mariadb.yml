@@ -1,0 +1,68 @@
+name: Initialize MariaDB - start, secure, create database and user
+testcases:
+- name: start_mariadb
+  steps:
+  - type: exec
+    script: systemctl start packetfence-mariadb
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: sleep 3
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: secure_mariadb_installation
+  steps:
+  - type: exec
+    script: |
+      mysql --socket=/var/lib/mysql/mysql.sock -u root <<EOF
+      SET PASSWORD FOR root@localhost = PASSWORD('{{.configurator.db.users.root.password}}');
+      DELETE FROM mysql.user WHERE User='';
+      DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+      DROP DATABASE IF EXISTS test;
+      DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+      FLUSH PRIVILEGES;
+EOF
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: create_pf_database
+  steps:
+  - type: exec
+    script: |
+      mysql --socket=/var/lib/mysql/mysql.sock -u root -p'{{.configurator.db.users.root.password}}' <<EOF
+      CREATE DATABASE {{.configurator.db.name}} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+EOF
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: |
+      cat /usr/local/pf/db/pf-schema.sql | mysql --socket=/var/lib/mysql/mysql.sock -u root -p'{{.configurator.db.users.root.password}}' {{.configurator.db.name}}
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: |
+      find /usr/local/pf/db/custom -type f -name "*.sql" | sort | while read file; do
+        mysql --socket=/var/lib/mysql/mysql.sock -u root -p'{{.configurator.db.users.root.password}}' {{.configurator.db.name}} < "$file"
+      done
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: create_pf_database_user
+  steps:
+  - type: exec
+    script: |
+      mysql --socket=/var/lib/mysql/mysql.sock -u root -p'{{.configurator.db.users.root.password}}' <<EOF
+      DROP USER IF EXISTS '{{.configurator.db.users.pf.id}}'@'localhost';
+      DROP USER IF EXISTS '{{.configurator.db.users.pf.id}}'@'%';
+      CREATE USER '{{.configurator.db.users.pf.id}}'@'localhost' IDENTIFIED BY '{{.configurator.db.users.pf.password}}';
+      GRANT SELECT, INSERT, UPDATE, DELETE, DROP, EXECUTE, LOCK TABLES, CREATE TEMPORARY TABLES ON {{.configurator.db.name}}.* TO '{{.configurator.db.users.pf.id}}'@'localhost';
+      GRANT CREATE, DROP ON {{.configurator.db.name}}.radius_nas TO '{{.configurator.db.users.pf.id}}'@'localhost';
+      GRANT BINLOG ADMIN ON *.* TO '{{.configurator.db.users.pf.id}}'@'localhost';
+      FLUSH PRIVILEGES;
+EOF
+    assertions:
+      - result.code ShouldEqual 0

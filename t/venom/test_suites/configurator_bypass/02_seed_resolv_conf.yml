@@ -1,0 +1,23 @@
+name: Seed /etc/resolv.conf and bring up registration/isolation interfaces
+testcases:
+- name: seed_resolv_conf
+  steps:
+  - type: exec
+    script: |
+      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/resolv.conf /etc/resolv.conf
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: bring_up_reg_iso_interfaces
+  steps:
+  - type: exec
+    script: |
+      ip link set dev {{.check_interfaces_are_up.reg_interface}} up
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: |
+      ip link set dev {{.check_interfaces_are_up.iso_interface}} up
+    assertions:
+      - result.code ShouldEqual 0

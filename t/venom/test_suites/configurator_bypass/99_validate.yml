@@ -1,0 +1,46 @@
+name: Validate configurator_bypass completed successfully
+testcases:
+- name: validate_configurator_disabled
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/admin'
+    ignore_verify_ssl: true
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.config.advanced.configurator ShouldEqual 'disabled'
+
+- name: validate_admin_account
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/login'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "username": "admin",
+        "password": "{{.configurator.admin.password}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.token ShouldNotBeEmpty
+
+- name: validate_fingerbank_api_key
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/fingerbank/account_info'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "Bearer {{.validate_admin_account.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: check_pf_services_running
+  steps:
+  - type: exec
+    script: /usr/local/pf/bin/pfcmd service pf status | grep -q "is running"
+    assertions:
+      - result.code ShouldEqual 0

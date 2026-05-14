@@ -1,0 +1,2 @@
+[pfqueue]
+workers={{.pfserver_pfqueue_workers | default('4')}}

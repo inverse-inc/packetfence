@@ -1,0 +1,27 @@
+name: Perform configreload hard to apply seeded configuration
+testcases:
+- name: restart_mariadb_for_timezone
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-mariadb
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: sleep 2
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: configreload_hard
+  steps:
+  - type: exec
+    script: /usr/local/pf/bin/pfcmd configreload hard
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: validate_configreload
+  steps:
+  - type: exec
+    script: sleep 2
+    assertions:
+      - result.code ShouldEqual 0

@@ -1,0 +1,31 @@
+name: Pre-flight - stop services and prepare for bypass
+testcases:
+- name: check_interfaces_are_up
+  steps:
+  - type: exec
+    script: |
+      ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.mgmt.index}}:' | awk -F ': ' '{print $2;}'
+    vars:
+      mgmt_interface:
+        from: result.systemout
+
+  - type: exec
+    script: |
+      ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.reg.index}}:' | awk -F ': ' '{print $2;}'
+    vars:
+      reg_interface:
+        from: result.systemout
+
+  - type: exec
+    script: |
+      ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.iso.index}}:' | awk -F ': ' '{print $2;}'
+    vars:
+      iso_interface:
+        from: result.systemout
+
+- name: stop_pf_services
+  steps:
+  - type: exec
+    script: /usr/local/pf/bin/pfcmd service pf stop
+    assertions:
+      - result.code ShouldEqual 0

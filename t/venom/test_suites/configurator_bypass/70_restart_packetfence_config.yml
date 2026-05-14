@@ -1,0 +1,13 @@
+name: Restart packetfence-config to apply seeded configuration
+testcases:
+- name: restart_packetfence_config
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-config
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: sleep 3
+    assertions:
+      - result.code ShouldEqual 0

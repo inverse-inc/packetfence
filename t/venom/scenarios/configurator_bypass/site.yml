@@ -1,0 +1,15 @@
+---
+# Development environnement
+## rsync before tests when doing local development
+## preinstall vim
+## fix term
+- import_playbook: ../common/dev.yml
+  when: lookup("env", "CI") != 'true'
+
+# Render seed templates before running Venom tests
+- import_playbook: playbooks/render_seeds.yml
+
+# Add extra configuration before running venom tests
+#- import_playbook: playbooks/configure.yml
+
+- import_playbook: playbooks/run_tests.yml

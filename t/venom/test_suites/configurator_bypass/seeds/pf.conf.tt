@@ -1,0 +1,36 @@
+[general]
+hostname={{.configurator.hostname}}
+domain={{.configurator.domain}}
+timezone={{.configurator.timezone}}
+
+[database]
+db={{.configurator.db.name}}
+user={{.configurator.db.users.pf.id}}
+pass={{.configurator.db.users.pf.password}}
+
+[interface eth{{.configurator.interfaces.mgmt.index}}]
+type=management,portal
+ipaddress={{.configurator.interfaces.mgmt.ip}}
+netmask={{.configurator.interfaces.mgmt.netmask}}
+
+[interface eth{{.configurator.interfaces.reg.index}}]
+type=vlan-registration
+ipaddress=192.168.100.1
+netmask=255.255.255.0
+
+[interface eth{{.configurator.interfaces.iso.index}}]
+type=vlan-isolation
+ipaddress=192.168.101.1
+netmask=255.255.255.0
+
+[alerting]
+emailaddr={{.configurator.email}}
+fromaddr={{.configurator.from_email}}
+smtpserver={{.configurator.smtp.server}}
+smtp_port={{.configurator.smtp.port}}
+
+[advanced]
+configurator=disabled
+api_inactivity_timeout={{.pfserver_api_inactivity_timeout | default('30')}}
+pffilter_processes={{.pfserver_pffilter_processes | default('1')}}
+pfperl_api_processes={{.pfserver_pfperl_api_processes | default('2')}}
