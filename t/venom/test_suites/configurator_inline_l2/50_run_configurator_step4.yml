@@ -31,6 +31,7 @@ testcases:
   steps:
   - type: pf_api_service_restart_async
     service: 'haproxy-admin'
+    time_to_sleep: 25
 
 # to apply changes made during custom step
 # no API call usable
