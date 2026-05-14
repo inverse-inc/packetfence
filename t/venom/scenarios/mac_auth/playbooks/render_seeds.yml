@@ -4,6 +4,7 @@
   become: True
 
   vars:
+    venom_path: "{{ lookup('env', 'VENOM_ROOT_DIR') }}"
     seed_dir: "{{ venom_dir }}/test_suites/configurator_bypass/seeds"
 
   tasks:
@@ -15,25 +16,25 @@
 
     - name: Render pf.conf template
       template:
-        src: "{{ seed_dir }}/pf.conf.tt"
+        src: "{{ venom_path }}/test_suites/configurator_bypass/seeds/pf.conf.tt"
         dest: "{{ seed_dir }}/.rendered/pf.conf"
         backup: yes
 
     - name: Render pfconfig.conf template
       template:
-        src: "{{ seed_dir }}/pfconfig.conf.tt"
+        src: "{{ venom_path }}/test_suites/configurator_bypass/seeds/pfconfig.conf.tt"
         dest: "{{ seed_dir }}/.rendered/pfconfig.conf"
         backup: yes
 
     - name: Render networks.conf template
       template:
-        src: "{{ seed_dir }}/networks.conf.tt"
+        src: "{{ venom_path }}/test_suites/configurator_bypass/seeds/networks.conf.tt"
         dest: "{{ seed_dir }}/.rendered/networks.conf"
         backup: yes
 
     - name: Render pfqueue.conf template
       template:
-        src: "{{ seed_dir }}/pfqueue.conf.tt"
+        src: "{{ venom_path }}/test_suites/configurator_bypass/seeds/pfqueue.conf.tt"
         dest: "{{ seed_dir }}/.rendered/pfqueue.conf"
         backup: yes
 
@@ -46,12 +47,12 @@
 
     - name: Render resolv.conf template
       template:
-        src: "{{ seed_dir }}/resolv.conf.tt"
+        src: "{{ venom_path }}/test_suites/configurator_bypass/seeds/resolv.conf.tt"
         dest: "{{ seed_dir }}/.rendered/resolv.conf"
         backup: yes
 
     - name: Render my.cnf template
       template:
-        src: "{{ seed_dir }}/my.cnf.tt"
+        src: "{{ venom_path }}/test_suites/configurator_bypass/seeds/my.cnf.tt"
         dest: "{{ seed_dir }}/.rendered/my.cnf"
         backup: yes
