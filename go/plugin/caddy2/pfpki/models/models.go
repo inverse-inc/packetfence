@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"reflect"
-	"regexp"
 	"time"
 
 	"bytes"
@@ -19,7 +18,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -61,7 +59,7 @@ type (
 		CreatedAt            time.Time               `json:"-"`
 		UpdatedAt            time.Time               `json:"-"`
 		DeletedAt            gorm.DeletedAt          `json:"-" gorm:"index"`
-		DB                   gorm.DB                 `json:"-" gorm:"-"`
+		DB                   *gorm.DB                `json:"-" gorm:"-"`
 		Ctx                  context.Context         `json:"-" gorm:"-"`
 		Cn                   string                  `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail                 string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
@@ -94,7 +92,7 @@ type (
 		CreatedAt             time.Time               `json:"-"`
 		UpdatedAt             time.Time               `json:"-"`
 		DeletedAt             gorm.DeletedAt          `json:"-" gorm:"index"`
-		DB                    gorm.DB                 `json:"-" gorm:"-"`
+		DB                    *gorm.DB                `json:"-" gorm:"-"`
 		Ctx                   context.Context         `json:"-" gorm:"-"`
 		Name                  string                  `json:"name" gorm:"UNIQUE"`
 		Mail                  string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
@@ -146,7 +144,7 @@ type (
 		CreatedAt          time.Time       `json:"-"`
 		UpdatedAt          time.Time       `json:"-"`
 		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
-		DB                 gorm.DB         `json:"-" gorm:"-"`
+		DB                 *gorm.DB        `json:"-" gorm:"-"`
 		Ctx                context.Context `json:"-" gorm:"-"`
 		Cn                 string          `json:"cn,omitempty" gorm:"uniqueIndex:cn_serial"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
@@ -165,8 +163,8 @@ type (
 		Profile            Profile         `json:"-"`
 		ProfileID          uint            `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
 		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
-		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"INDEX:not_before" gorm:"type:time"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"index:valid_until;type:time"`
+		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"index:not_before;type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty" gorm:"uniqueIndex:cn_serial"`
 		DNSNames           string          `json:"dns_names,omitempty"`
@@ -179,7 +177,7 @@ type (
 
 	// CSR struct
 	CSR struct {
-		DB  gorm.DB         `gorm:"-"`
+		DB  *gorm.DB        `gorm:"-"`
 		Ctx context.Context `gorm:"-"`
 		Csr string          `json:"csr"`
 	}
@@ -190,7 +188,7 @@ type (
 		CreatedAt          time.Time       `json:"-"`
 		UpdatedAt          time.Time       `json:"-"`
 		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
-		DB                 gorm.DB         `gorm:"-"`
+		DB                 *gorm.DB        `gorm:"-"`
 		Ctx                context.Context `gorm:"-"`
 		Cn                 string          `json:"cn,omitempty" gorm:"INDEX:cn"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
@@ -209,8 +207,8 @@ type (
 		Profile            Profile         `json:"-"`
 		ProfileID          uint            `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
 		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
-		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"INDEX:not_before" gorm:"type:time"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"index:valid_until;type:time"`
+		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"index:not_before;type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty"`
 		DNSNames           string          `json:"dns_names,omitempty"`
@@ -225,7 +223,7 @@ type (
 		CreatedAt    time.Time       `json:"-"`
 		UpdatedAt    time.Time       `json:"-"`
 		DeletedAt    gorm.DeletedAt  `json:"-" gorm:"index"`
-		DB           gorm.DB         `json:"-" gorm:"-"`
+		DB           *gorm.DB        `json:"-" gorm:"-"`
 		Ctx          context.Context `json:"-" gorm:"-"`
 		Name         string          `json:"name,omitempty" gorm:"UNIQUE"`
 		URL          string          `json:"url,omitempty"`
@@ -310,13 +308,11 @@ const dbError = "A database error occured. See log for details."
 // 12 ExtKeyUsageMicrosoftCommercialCodeSigning
 // 13 ExtKeyUsageMicrosoftKernelCodeSigning
 
-var successDBConnect = false
-
 // NewCAModel create a CAModel
 func NewCAModel(pfpki *types.Handler) *CA {
 	CA := &CA{}
 
-	CA.DB = *pfpki.DB
+	CA.DB = pfpki.DB
 	CA.Ctx = *pfpki.Ctx
 
 	return CA
@@ -341,7 +337,6 @@ func (c CA) New() (types.Info, error) {
 	}
 
 	var cadb CA
-	var newcadb []CA
 
 	var SerialNumber *big.Int
 
@@ -406,13 +401,13 @@ func (c CA) New() (types.Info, error) {
 
 	h.Write(cacert.RawIssuer)
 
-	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl, SerialNumber: 1}).Error; err != nil {
+	newCA := CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl, SerialNumber: 1}
+	if err := c.DB.Create(&newCA).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
 
-	c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
-	Information.Entries = newcadb
+	Information.Entries = []CA{newCA}
 
 	return Information, nil
 }
@@ -559,15 +554,15 @@ func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
 	profile := &Profile{}
 	if len(options) >= 1 {
-		if ProfileDB := c.DB.Preload("ScepServer").Where("name = ? and `scep_enabled` = ?", options[0], "1").First(&profile).Find(&profile); ProfileDB.Error != nil {
+		if err := c.DB.Preload("ScepServer").Where("name = ? and `scep_enabled` = ?", options[0], "1").First(profile).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return profiledb, errors.New("Unknow profile.")
+			}
 			return profiledb, errors.New(dbError)
 		}
 		profiledb = append(profiledb, *profile)
-		if len(profiledb) == 0 {
-			return profiledb, errors.New("Unknow profile.")
-		}
 	} else {
-		c.DB.Preload("ScepServer").Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("`scep_enabled` = ?", "1").First(&profiledb)
+		c.DB.Preload("ScepServer").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
 	c.SCEPAssociateProfile = profiledb[0].Name
 
@@ -590,7 +585,7 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 
 	var ca CA
 
-	if CaDB := c.DB.First(&ca, profiledb[0].CaID).Find(&ca); CaDB.Error != nil {
+	if err := c.DB.First(&ca, profiledb[0].CaID).Error; err != nil {
 		c.DB.First(&ca)
 	}
 
@@ -603,14 +598,13 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 // CA return the CA public key based on the profile name (SCEP)
 func (c CA) CAbyProfile(pass []byte, profilename string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	profile := &Profile{}
-	// var ProfileDB Profile
-	if ProfileDB := c.DB.Where("name = ?", profilename).First(&profile).Find(&profile); ProfileDB.Error != nil {
-		return nil, nil, ProfileDB.Error
+	if err := c.DB.Where("name = ?", profilename).First(profile).Error; err != nil {
+		return nil, nil, err
 	}
 
 	var ca CA
 
-	if CaDB := c.DB.First(&ca, profile.CaID).Find(&ca); CaDB.Error != nil {
+	if err := c.DB.First(&ca, profile.CaID).Error; err != nil {
 		c.DB.First(&ca)
 	}
 
@@ -637,7 +631,7 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 
 	var ca CA
 
-	if CaDB := c.DB.First(&ca, profiledb[0].CaID).Find(&ca); CaDB.Error != nil {
+	if err := c.DB.First(&ca, profiledb[0].CaID).Error; err != nil {
 		c.DB.First(&ca)
 	}
 	notFalse := true
@@ -665,16 +659,32 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 	return c.FindSerial(profiledb[0])
 }
 
+// FindSerial atomically allocates the next serial number for a Profile's CA.
+// If the profile's CA id can't be found, falls back to the first CA row.
 func (c CA) FindSerial(p Profile) (*big.Int, error) {
+	return nextSerialNumber(c.DB, p.CaID, true)
+}
+
+// getNextSerialNumber atomically increments and returns the next serial
+// number for the given CA. Uses a row-locked transaction to prevent race
+// conditions.
+func getNextSerialNumber(db *gorm.DB, caID uint) (*big.Int, error) {
+	return nextSerialNumber(db, caID, false)
+}
+
+// nextSerialNumber holds the shared row-locked increment used by both
+// FindSerial (with a fallback to the first CA) and getNextSerialNumber.
+func nextSerialNumber(db *gorm.DB, caID uint, fallbackToFirst bool) (*big.Int, error) {
 	var serialNumber int
 
-	err := c.DB.Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		ca := &CA{}
-
-		// Lock the row for update to prevent race conditions
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca, p.CaID).Error; err != nil {
-			// Fallback to first CA if not found
-			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca).Error; err != nil {
+		locked := tx.Clauses(clause.Locking{Strength: "UPDATE"})
+		if err := locked.First(ca, caID).Error; err != nil {
+			if !fallbackToFirst {
+				return err
+			}
+			if err := locked.First(ca).Error; err != nil {
 				return err
 			}
 		}
@@ -691,34 +701,9 @@ func (c CA) FindSerial(p Profile) (*big.Int, error) {
 	return big.NewInt(int64(serialNumber)), nil
 }
 
-// getNextSerialNumber atomically increments and returns the next serial number for a CA
-// Uses database transaction with row-level locking to prevent race conditions
-func getNextSerialNumber(db gorm.DB, caID uint) (*big.Int, error) {
-	var serialNumber int
-
-	err := db.Transaction(func(tx *gorm.DB) error {
-		ca := &CA{}
-
-		// Lock the row for update to prevent race conditions
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca, caID).Error; err != nil {
-			return err
-		}
-
-		serialNumber = ca.SerialNumber
-		ca.SerialNumber = ca.SerialNumber + 1
-		return tx.Save(ca).Error
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return big.NewInt(int64(serialNumber)), nil
-}
-
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
 
-	return revokeNeeded(cn, options[0], allowTime, &c.DB)
+	return revokeNeeded(cn, options[0], allowTime, c.DB)
 
 }
 
@@ -729,7 +714,7 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 	var CertDB *gorm.DB
 
 	var profiledb []Profile
-	c.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("name = ?", profile).First(&profiledb)
+	c.Where("name = ?", profile).First(&profiledb)
 	if profiledb[0].AllowDuplicatedCN == 1 {
 		// Allow duplicated CN in the DB for this profile
 		if profiledb[0].MaximumDuplicatedCN == 0 {
@@ -739,7 +724,7 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 			// Do we have to revoke some of them ?
 			i := 0
 			for _, certificat := range certifs {
-				certificat.DB = *c
+				certificat.DB = c
 
 				store := make(map[pemutil.BlockType]interface{})
 
@@ -772,7 +757,7 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 	if CertDB.RowsAffected == 0 {
 		return true, nil
 	}
-	certif.DB = *c
+	certif.DB = c
 
 	store := make(map[pemutil.BlockType]interface{})
 	pemutil.Decode(store, []byte(certif.Cert))
@@ -827,7 +812,7 @@ func (c CA) SuccessNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message
 
 func (c CA) GetProfileByName(name string) (*Profile, error) {
 	var profiledb []Profile
-	c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("name = ?", name).First(&profiledb)
+	c.DB.Where("name = ?", name).First(&profiledb)
 
 	return &profiledb[0], nil
 }
@@ -931,7 +916,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 
-	c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
+	c.DB.Where("cn = ?", c.Cn).First(&newcadb)
 	Information.Entries = newcadb
 
 	return Information, nil
@@ -957,8 +942,30 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	Information.Entries = cadb
 
 	template := x509.CertificateRequest{
-		Subject:            c.MakeSubject(),
-		SignatureAlgorithm: x509.SignatureAlgorithm(x509.SHA256WithRSA),
+		Subject: c.MakeSubject(),
+	}
+	// Pick a signature algorithm compatible with the CA's private key. The
+	// CA Digest is intended for x509 certificate signing and may be set to
+	// values incompatible with the key type (e.g. SHA256WithRSA on an ECDSA
+	// key); leaving SignatureAlgorithm unset lets x509 pick the default for
+	// the key. Honor c.Digest only when it matches the key family.
+	switch catls.PrivateKey.(type) {
+	case *ecdsa.PrivateKey:
+		switch c.Digest {
+		case x509.ECDSAWithSHA1, x509.ECDSAWithSHA256, x509.ECDSAWithSHA384, x509.ECDSAWithSHA512:
+			template.SignatureAlgorithm = c.Digest
+		}
+	case *rsa.PrivateKey:
+		switch c.Digest {
+		case x509.SHA1WithRSA, x509.SHA256WithRSA, x509.SHA384WithRSA, x509.SHA512WithRSA,
+			x509.SHA256WithRSAPSS, x509.SHA384WithRSAPSS, x509.SHA512WithRSAPSS:
+			template.SignatureAlgorithm = c.Digest
+		}
+	case *dsa.PrivateKey:
+		switch c.Digest {
+		case x509.DSAWithSHA1, x509.DSAWithSHA256:
+			template.SignatureAlgorithm = c.Digest
+		}
 	}
 	csrBuff := new(bytes.Buffer)
 	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
@@ -1021,15 +1028,13 @@ func (c CA) CACerts(ctx context.Context, aps string, r *http.Request) ([]*x509.C
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
 
-	Profile.DB = *pfpki.DB
+	Profile.DB = pfpki.DB
 	Profile.Ctx = *pfpki.Ctx
 
 	return Profile
 }
 
 func (p Profile) New() (types.Info, error) {
-
-	var profiledb []Profile
 
 	var err error
 	Information := types.Info{}
@@ -1059,9 +1064,9 @@ func (p Profile) New() (types.Info, error) {
 
 	ca := &CA{}
 
-	if CaDB := p.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
-		return Information, CaDB.Error
+	if err := p.DB.First(ca, p.CaID).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, err
 	}
 
 	scepserver := &SCEPServer{}
@@ -1070,9 +1075,9 @@ func (p Profile) New() (types.Info, error) {
 		p.ScepServerID = 1
 	}
 
-	if ScepServerDB := p.DB.First(&scepserver, p.ScepServerID).Find(&scepserver); ScepServerDB.Error != nil {
-		Information.Error = ScepServerDB.Error.Error()
-		return Information, ScepServerDB.Error
+	if err := p.DB.First(scepserver, p.ScepServerID).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, err
 	}
 
 	profile := Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService, ScepServerEnabled: p.ScepServerEnabled, ScepServerID: p.ScepServerID, ScepServer: p.ScepServer, AllowDuplicatedCN: p.AllowDuplicatedCN, MaximumDuplicatedCN: p.MaximumDuplicatedCN}
@@ -1081,8 +1086,7 @@ func (p Profile) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("name = ?", p.Name).First(&profiledb)
-	Information.Entries = profiledb
+	Information.Entries = []Profile{profile}
 
 	return Information, nil
 }
@@ -1099,20 +1103,20 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 		p.ScepServerID = 1
 	}
 
-	if ScepServerDB := p.DB.First(&scepserver, p.ScepServerID).Find(&scepserver); ScepServerDB.Error != nil {
-		Information.Error = ScepServerDB.Error.Error()
-		return Information, ScepServerDB.Error
+	if err := p.DB.First(scepserver, p.ScepServerID).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, err
 	}
 
 	if val, ok := params["id"]; ok {
-		if ProfileDB := p.DB.First(&profile, val).Find(&profile); ProfileDB.Error != nil {
-			Information.Error = ProfileDB.Error.Error()
-			return Information, ProfileDB.Error
+		if err := p.DB.First(profile, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
 		}
 	} else {
-		if ProfileDB := p.DB.Where("name = ?", p.Name).First(&profile).Find(&profile); ProfileDB.Error != nil {
-			Information.Error = ProfileDB.Error.Error()
-			return Information, ProfileDB.Error
+		if err := p.DB.Where("name = ?", p.Name).First(profile).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
 		}
 	}
 
@@ -1212,7 +1216,7 @@ func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 func NewCertModel(pfpki *types.Handler) *Cert {
 	Cert := &Cert{}
 
-	Cert.DB = *pfpki.DB
+	Cert.DB = pfpki.DB
 	Cert.Ctx = *pfpki.Ctx
 
 	return Cert
@@ -1229,7 +1233,7 @@ func (c Cert) New() (types.Info, error) {
 	}
 
 	// Check if the certificate is allowed to be revoked
-	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
+	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, c.DB)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -1247,7 +1251,6 @@ func (c Cert) New() (types.Info, error) {
 		return Information, err
 	}
 
-	var newcertdb []Cert
 	var SerialNumber *big.Int
 
 	// Get serial number atomically using transaction with row-level locking
@@ -1331,14 +1334,14 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: strings.Join(Subject.StreetAddress, ""), Organisation: strings.Join(Subject.Organization, ""), OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""), Country: strings.Join(Subject.Country, ""), State: strings.Join(Subject.Province, ""), Locality: strings.Join(Subject.Locality, ""), PostalCode: strings.Join(Subject.PostalCode, ""), Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}).Error; err != nil {
+	newCert := Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: strings.Join(Subject.StreetAddress, ""), Organisation: strings.Join(Subject.Organization, ""), OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""), Country: strings.Join(Subject.Country, ""), State: strings.Join(Subject.Province, ""), Locality: strings.Join(Subject.Locality, ""), PostalCode: strings.Join(Subject.PostalCode, ""), Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}
+	if err := c.DB.Create(&newCert).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 	log.LoggerWContext(c.Ctx).Info("Certificate " + c.Cn + " has been generated from profile " + prof.Name + " and sign by " + prof.Ca.Cn)
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, prof.Name).First(&newcertdb)
-	Information.Entries = newcertdb
+	Information.Entries = []Cert{newCert}
 	Information.Serial = SerialNumber.String()
 
 	return Information, nil
@@ -1709,7 +1712,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		return Information, errors.New(dbError)
 	}
 
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, certdb[0].ProfileName).First(&newcertdb)
+	c.DB.Where("cn = ? AND profile_name = ?", c.Cn, certdb[0].ProfileName).First(&newcertdb)
 	Information.Entries = newcertdb
 	Information.Serial = SerialNumber.String()
 
@@ -1792,7 +1795,7 @@ func (c Cert) MakeSubject() pkix.Name {
 func NewRevokedCertModel(pfpki *types.Handler) *RevokedCert {
 	RevokedCert := &RevokedCert{}
 
-	RevokedCert.DB = *pfpki.DB
+	RevokedCert.DB = pfpki.DB
 	RevokedCert.Ctx = *pfpki.Ctx
 
 	return RevokedCert
@@ -1862,7 +1865,7 @@ func (c RevokedCert) Search(vars sql.Vars) (types.Info, error) {
 func NewCsrModel(pfpki *types.Handler) *CSR {
 	Csr := &CSR{}
 
-	Csr.DB = *pfpki.DB
+	Csr.DB = pfpki.DB
 	Csr.Ctx = *pfpki.Ctx
 
 	return Csr
@@ -1886,30 +1889,32 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	attributes := ProfileAttributes(prof)
 	// Find the CA
 	var ca CA
-	if CaDB := csr.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
+	if err := csr.DB.First(&ca, prof.CaID).Error; err != nil {
+		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
 
-	// Read the CSR here
-	var err error
-	re := regexp.MustCompile(`(\s|\n)`)
+	// Decode the CSR. Accept PEM (with BEGIN/END markers) or raw DER.
+	var (
+		err error
+		der []byte
+	)
+	if block, _ := pem.Decode([]byte(csr.Csr)); block != nil {
+		der = block.Bytes
+	} else {
+		der = []byte(csr.Csr)
+	}
 
-	stringCSR := strings.Trim(csr.Csr, "-----BEGIN CERTIFICATE REQUEST-----")
-	stringCSR = strings.Trim(stringCSR, "-----END CERTIFICATE REQUEST-----")
-	stringCSR = re.ReplaceAllString(stringCSR, "")
-
-	byteCSR := []byte(stringCSR)
-
-	d := make([]byte, base64.StdEncoding.DecodedLen(len(byteCSR)))
-	n, err := base64.StdEncoding.Decode(d, byteCSR)
-
-	d = d[:n]
-
-	certRequest, err := x509.ParseCertificateRequest(d)
+	certRequest, err := x509.ParseCertificateRequest(der)
+	if err != nil {
+		Information.Error = err.Error()
+		Information.Status = http.StatusUnprocessableEntity
+		return Information, err
+	}
 
 	id, err := cryptoutil.GenerateSubjectKeyID(certRequest.PublicKey)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -2007,14 +2012,13 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	name := certutils.CertName(certif)
 	notfalse := true
 
-	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String(), Csr: &notfalse}).Error; err != nil {
+	newCert := Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String(), Csr: &notfalse}
+	if err := c.DB.Create(&newCert).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
-	var newcertdb []Cert
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("subject = ? AND profile_name = ?", Subject.String(), prof.Name).First(&newcertdb)
-	Information.Entries = newcertdb
+	Information.Entries = []Cert{newCert}
 	Information.Serial = serial.String()
 
 	return Information, nil
@@ -2250,7 +2254,7 @@ func ProfileAttributes(prof Profile) map[string]string {
 func NewSCEPServerModel(pfpki *types.Handler) *SCEPServer {
 	SCEPServer := &SCEPServer{}
 
-	SCEPServer.DB = *pfpki.DB
+	SCEPServer.DB = pfpki.DB
 	SCEPServer.Ctx = *pfpki.Ctx
 
 	return SCEPServer
@@ -2258,14 +2262,13 @@ func NewSCEPServerModel(pfpki *types.Handler) *SCEPServer {
 
 func (s SCEPServer) New() (types.Info, error) {
 	Information := types.Info{}
-	var scepserverdb []SCEPServer
 
-	if err := s.DB.Create(&SCEPServer{Name: s.Name, URL: s.URL, SharedSecret: s.SharedSecret}).Error; err != nil {
+	newSCEP := SCEPServer{Name: s.Name, URL: s.URL, SharedSecret: s.SharedSecret}
+	if err := s.DB.Create(&newSCEP).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	s.DB.Select("id, name, url, shared_secret").Where("name = ?", s.Name).First(&scepserverdb)
-	Information.Entries = scepserverdb
+	Information.Entries = []SCEPServer{newSCEP}
 
 	return Information, nil
 }
@@ -2319,13 +2322,13 @@ func (s SCEPServer) Search(vars sql.Vars) (types.Info, error) {
 }
 
 func (s SCEPServer) Update() (types.Info, error) {
-	var scepserverdb []SCEPServer
 	Information := types.Info{}
 	if err := s.DB.Model(&SCEPServer{}).Where("name = ?", s.Name).Updates(map[string]interface{}{"url": s.URL, "shared_secret": s.SharedSecret}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	s.DB.Select("id, name, url, shared_secret").Where("name = ?", s.Name).First(&scepserverdb)
+	var scepserverdb []SCEPServer
+	s.DB.Where("name = ?", s.Name).First(&scepserverdb)
 	Information.Entries = scepserverdb
 
 	return Information, nil
