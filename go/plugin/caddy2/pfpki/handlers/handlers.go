@@ -19,6 +19,24 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
 
+// MaxRequestBody is the upper bound for request bodies on the pfpki API.
+// JSON CRUD payloads are well under 64 KiB; SCEP PKIOperation messages and
+// CSRs run a few KB at most. 1 MiB is generous and still prevents a single
+// streaming client from exhausting memory.
+const MaxRequestBody = 1 << 20
+
+// LimitRequestBody is a chi-compatible middleware that wraps req.Body with
+// http.MaxBytesReader. Reads past the limit return an error and (for HTTP/1)
+// terminate the connection.
+func LimitRequestBody(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Body != nil {
+			r.Body = http.MaxBytesReader(w, r.Body, MaxRequestBody)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func SearchCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
