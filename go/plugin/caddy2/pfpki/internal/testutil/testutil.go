@@ -111,6 +111,7 @@ func newRouter(h *types.Handler) chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
+	r.Use(handlers.LimitRequestBody)
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/pki/cas", func(r chi.Router) {

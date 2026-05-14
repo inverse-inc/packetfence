@@ -105,6 +105,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(handlers.LimitRequestBody)
 
 	PFPki := &pfpki
 
