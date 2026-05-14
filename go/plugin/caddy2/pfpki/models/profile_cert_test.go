@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -352,29 +353,94 @@ func TestCert_Resign_RotatesLeaf(t *testing.T) {
 	}
 	profile := pinfo.Entries.([]models.Profile)[0]
 
+	// Issue a leaf with non-trivial identity: SANs, IP, email. The user's
+	// "RADIUS cert with 398-day validity" use case relies on these
+	// surviving a blank-body resign.
 	leaf := models.Cert{
-		DB:        env.DB,
-		Ctx:       env.Ctx,
-		Cn:        "leaf-resign",
-		ProfileID: profile.ID,
+		DB:          env.DB,
+		Ctx:         env.Ctx,
+		Cn:          "radius.example.test",
+		Mail:        "ops@example.test",
+		DNSNames:    "radius.example.test,radius-alt.example.test",
+		IPAddresses: "10.0.0.5,10.0.0.6",
+		ProfileID:   profile.ID,
 	}
 	cinfo, err := leaf.New()
 	if err != nil {
 		t.Fatalf("Cert.New: %v", err)
 	}
-	originalSerial := cinfo.Entries.([]models.Cert)[0].SerialNumber
+	originalRow := cinfo.Entries.([]models.Cert)[0]
+	originalCert := parseFirstCertPEM(t, []byte(originalRow.Cert))
 
-	rotate := models.Cert{DB: env.DB, Ctx: env.Ctx, Cn: "leaf-resign"}
-	if _, err := rotate.Resign(map[string]string{"id": fmt.Sprintf("%d", cinfo.Entries.([]models.Cert)[0].ID)}); err != nil {
+	// Blank-body resign — only the cert id is passed. The fixed Resign
+	// must read every identity field off the existing cert PEM, not from
+	// the receiver.
+	rotate := models.Cert{DB: env.DB, Ctx: env.Ctx}
+	if _, err := rotate.Resign(map[string]string{"id": fmt.Sprintf("%d", originalRow.ID)}); err != nil {
 		t.Fatalf("Cert.Resign: %v", err)
 	}
 
 	var reloaded models.Cert
-	if err := env.DB.First(&reloaded, "cn = ?", "leaf-resign").Error; err != nil {
+	if err := env.DB.First(&reloaded, originalRow.ID).Error; err != nil {
 		t.Fatalf("reload leaf: %v", err)
 	}
-	if reloaded.SerialNumber == originalSerial {
+	if reloaded.SerialNumber == originalRow.SerialNumber {
 		t.Fatalf("resign kept the same serial %q", reloaded.SerialNumber)
+	}
+	newCert := parseFirstCertPEM(t, []byte(reloaded.Cert))
+
+	// Subject must round-trip byte-for-byte; that's the whole point of a
+	// resign vs. a fresh issuance.
+	if newCert.Subject.String() != originalCert.Subject.String() {
+		t.Errorf("Subject changed:\n old=%q\n new=%q",
+			originalCert.Subject.String(), newCert.Subject.String())
+	}
+	if !equalStrings(newCert.DNSNames, originalCert.DNSNames) {
+		t.Errorf("DNSNames changed:\n old=%v\n new=%v",
+			originalCert.DNSNames, newCert.DNSNames)
+	}
+	if !equalStrings(newCert.EmailAddresses, originalCert.EmailAddresses) {
+		t.Errorf("EmailAddresses changed:\n old=%v\n new=%v",
+			originalCert.EmailAddresses, newCert.EmailAddresses)
+	}
+	gotIPs := make([]string, len(newCert.IPAddresses))
+	oldIPs := make([]string, len(originalCert.IPAddresses))
+	for i, ip := range newCert.IPAddresses {
+		gotIPs[i] = ip.String()
+	}
+	for i, ip := range originalCert.IPAddresses {
+		oldIPs[i] = ip.String()
+	}
+	if !equalStrings(gotIPs, oldIPs) {
+		t.Errorf("IPAddresses changed:\n old=%v\n new=%v", oldIPs, gotIPs)
+	}
+	if newCert.KeyUsage != originalCert.KeyUsage {
+		t.Errorf("KeyUsage changed: old=%v new=%v",
+			originalCert.KeyUsage, newCert.KeyUsage)
+	}
+	// Public key (ergo private key on the device) must be unchanged so
+	// existing deployments don't need a key rotation alongside the renewal.
+	oldPubBytes, err := x509.MarshalPKIXPublicKey(originalCert.PublicKey)
+	if err != nil {
+		t.Fatalf("marshal old pubkey: %v", err)
+	}
+	newPubBytes, err := x509.MarshalPKIXPublicKey(newCert.PublicKey)
+	if err != nil {
+		t.Fatalf("marshal new pubkey: %v", err)
+	}
+	if !bytes.Equal(oldPubBytes, newPubBytes) {
+		t.Fatalf("public key changed across resign")
+	}
+	// The new validity window must not regress. Within a single test run
+	// (sub-second) time.Now() returns the same instant for both the
+	// original issuance and the resign, so equal dates are acceptable.
+	if newCert.NotBefore.Before(originalCert.NotBefore) {
+		t.Errorf("NotBefore went backwards: old=%v new=%v",
+			originalCert.NotBefore, newCert.NotBefore)
+	}
+	if newCert.NotAfter.Before(originalCert.NotAfter) {
+		t.Errorf("NotAfter went backwards: old=%v new=%v",
+			originalCert.NotAfter, newCert.NotAfter)
 	}
 }
 
