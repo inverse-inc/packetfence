@@ -17,7 +17,7 @@ testcases:
   - type: exec
     script: |
       mysql --socket=/var/lib/mysql/mysql.sock -u root <<EOF
-      SET PASSWORD FOR root@localhost = PASSWORD('{{.configurator.db.users.root.password}}');
+      ALTER USER root@localhost IDENTIFIED BY '{{.configurator.db.users.root.password}}';
       DELETE FROM mysql.user WHERE User='';
       DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
       DROP DATABASE IF EXISTS test;
@@ -45,8 +45,10 @@ EOF
 
   - type: exec
     script: |
+      set -e
       find /usr/local/pf/db/custom -type f -name "*.sql" | sort | while read file; do
-        mysql --socket=/var/lib/mysql/mysql.sock -u root -p'{{.configurator.db.users.root.password}}' {{.configurator.db.name}} < "$file"
+        echo "Loading custom schema: $file"
+        mysql --socket=/var/lib/mysql/mysql.sock -u root -p'{{.configurator.db.users.root.password}}' {{.configurator.db.name}} < "$file" || exit 1
       done
     assertions:
       - result.code ShouldEqual 0

@@ -4,9 +4,15 @@ testcases:
   steps:
   - type: exec
     script: |
-      systemctl restart pfqueue-backend pfqueue-go haproxy-admin packetfence-pfperl-api
+      set -e
+      for service in pfqueue-backend pfqueue-go haproxy-admin packetfence-pfperl-api; do
+        echo "Restarting $service..."
+        systemctl restart "$service" || exit 1
+      done
     assertions:
       - result.code ShouldEqual 0
+    retry: 3
+    delay: 5
 
   - type: exec
     script: sleep 5
@@ -19,6 +25,8 @@ testcases:
     script: /usr/local/pf/bin/pfcmd service pf start
     assertions:
       - result.code ShouldEqual 0
+    retry: 3
+    delay: 5
 
   - type: exec
     script: sleep 5

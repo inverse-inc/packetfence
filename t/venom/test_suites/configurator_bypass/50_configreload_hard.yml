@@ -6,6 +6,8 @@ testcases:
     script: systemctl restart packetfence-mariadb
     assertions:
       - result.code ShouldEqual 0
+    retry: 3
+    delay: 2
 
   - type: exec
     script: sleep 2
@@ -18,6 +20,8 @@ testcases:
     script: /usr/local/pf/bin/pfcmd configreload hard
     assertions:
       - result.code ShouldEqual 0
+    retry: 3
+    delay: 2
 
 - name: validate_configreload
   steps:

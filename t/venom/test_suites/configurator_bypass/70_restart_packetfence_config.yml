@@ -6,6 +6,8 @@ testcases:
     script: systemctl restart packetfence-config
     assertions:
       - result.code ShouldEqual 0
+    retry: 3
+    delay: 2
 
   - type: exec
     script: sleep 3

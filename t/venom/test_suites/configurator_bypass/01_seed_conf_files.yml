@@ -28,6 +28,6 @@ testcases:
   steps:
   - type: exec
     script: |
-      cat {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/pfqueue.conf >> /usr/local/pf/conf/pfqueue.conf
+      cat {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/pfqueue.conf > /usr/local/pf/conf/pfqueue.conf
     assertions:
       - result.code ShouldEqual 0

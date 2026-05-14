@@ -31,6 +31,6 @@ smtp_port={{ configurator.smtp.port }}
 
 [advanced]
 configurator=disabled
-api_inactivity_timeout={{ pfserver_api_inactivity_timeout | default('30') }}
-pffilter_processes={{ pfserver_pffilter_processes | default('1') }}
-pfperl_api_processes={{ pfserver_pfperl_api_processes | default('2') }}
+api_inactivity_timeout={{ pfserver_api_inactivity_timeout.interval }}{{ pfserver_api_inactivity_timeout.unit }}
+pffilter_processes={{ pfserver_pffilter_processes }}
+pfperl_api_processes={{ pfserver_pfperl_api_processes }}
