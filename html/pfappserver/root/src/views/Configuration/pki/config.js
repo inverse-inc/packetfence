@@ -3,14 +3,11 @@ import i18n from '@/utils/locale'
 
 export const digests = [
   { value: '0', text: 'UnknownSignatureAlgorithm' },
-  { value: '1', text: 'MD2WithRSA' },
   { value: '2', text: 'MD5WithRSA' },
   { value: '3', text: 'SHA1WithRSA' },
   { value: '4', text: 'SHA256WithRSA' },
   { value: '5', text: 'SHA384WithRSA' },
   { value: '6', text: 'SHA512WithRSA' },
-  { value: '7', text: 'DSAWithSHA1' },
-  { value: '8', text: 'DSAWithSHA256' },
   { value: '9', text: 'ECDSAWithSHA1' },
   { value: '10', text: 'ECDSAWithSHA256' },
   { value: '11', text: 'ECDSAWithSHA384' },
@@ -23,8 +20,8 @@ export const digests = [
 
 export const keyTypes = [
   { value: '0', text: 'KEY_ECDSA', sizes: [ '256', '384', '521' ] },
-  { value: '1', text: 'KEY_RSA', sizes: [ '2048', '4096' ] },
-  { value: '2', text: 'KEY_DSA', sizes: [ '1024', '2048', '3071' ] }
+  { value: '1', text: 'KEY_RSA', sizes: [ '2048', '3072', '4096' ] },
+  { value: '3', text: 'KEY_ED25519', sizes: [ '256' ] }
 ]
 
 export const keySizes = [...(new Set(
