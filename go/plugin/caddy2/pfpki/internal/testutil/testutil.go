@@ -158,6 +158,8 @@ func newRouter(h *types.Handler) chi.Router {
 			r.Get("/{id}", handlers.GetRevokedByID(h))
 		})
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(h))
+		r.Get("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(h))
+		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(h))
 		r.Route("/pki/ocsp", func(r chi.Router) {
 			r.Get("/", handlers.ManageOcsp(h))
 			r.Post("/", handlers.ManageOcsp(h))
