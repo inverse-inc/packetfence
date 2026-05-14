@@ -405,39 +405,166 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var certdb []Cert
 
-	if CertDB := c.DB.Where("alert <> ?", 1).Find(&certdb); CertDB.Error != nil {
+	// We can't filter `alert <> 1` here anymore: under the multi-threshold
+	// schedule a cert may have been notified at the 14d threshold but
+	// still need 7d/1d notifications. Iterate every row and let the
+	// threshold logic gate the per-cert decision.
+	if CertDB := c.DB.Find(&certdb); CertDB.Error != nil {
 		Information.Error = CertDB.Error.Error()
 		return Information, CertDB.Error
 	}
 
+	now := time.Now()
 	for _, v := range certdb {
-		// Find the profile
 		var prof Profile
 		if profDB := c.DB.First(&prof, v.ProfileID); profDB.Error != nil {
 			Information.Error = profDB.Error.Error()
 			return Information, errors.New(dbError)
 		}
-		// Revoke due certificate
-		if time.Now().Unix() > v.ValidUntil.Unix() {
-			params := make(map[string]string)
 
-			params["id"] = strconv.Itoa(int(v.ID))
-			params["reason"] = strconv.Itoa(ocsp.Superseded)
-			c.Revoke(params)
+		// Revoke due certificate
+		if now.Unix() > v.ValidUntil.Unix() {
+			c.Revoke(map[string]string{
+				"id":     strconv.Itoa(int(v.ID)),
+				"reason": strconv.Itoa(ocsp.Superseded),
+			})
+			continue
 		}
-		if prof.RenewalMail == 1 {
-			if *v.Scep == false {
-				if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewalMail)*24*time.Hour).Seconds()) < time.Now().Unix() {
-					emailRenewal(c.Ctx, v, prof)
-					notfalse := true
-					v.Alert = &notfalse
-					c.DB.Save(&v)
-				}
-			}
+
+		if prof.RenewalMail != 1 {
+			continue
+		}
+		if v.Scep != nil && *v.Scep {
+			// SCEP-issued certs renew via the device, not by email.
+			continue
+		}
+
+		due, fallbackOneShot := nextDueRenewalThreshold(now, v, prof)
+		if due < 0 {
+			continue
+		}
+
+		if _, err := emailRenewal(c.Ctx, v, prof); err != nil {
+			log.LoggerWContext(c.Ctx).Error(fmt.Sprintf("renewal mail for cert %d failed: %v", v.ID, err))
+			continue
+		}
+
+		if fallbackOneShot {
+			notfalse := true
+			v.Alert = &notfalse
+		} else {
+			v.AlertedDays = appendAlertedDay(v.AlertedDays, due)
+		}
+		if err := c.DB.Save(&v).Error; err != nil {
+			log.LoggerWContext(c.Ctx).Error(fmt.Sprintf("persist alert state for cert %d failed: %v", v.ID, err))
 		}
 	}
 
 	return Information, nil
+}
+
+// nextDueRenewalThreshold returns the smallest (most-imminent) threshold
+// in days for which a renewal email should be sent now and hasn't been
+// sent yet. -1 means nothing is due.
+//
+// fallbackOneShot tells the caller to record the decision on the legacy
+// Cert.Alert boolean rather than appending to AlertedDays — used when the
+// profile is configured with the old single-threshold field and no list.
+func nextDueRenewalThreshold(now time.Time, cert Cert, prof Profile) (threshold int, fallbackOneShot bool) {
+	thresholds, multi := parseRenewalThresholds(prof)
+	if len(thresholds) == 0 {
+		return -1, false
+	}
+
+	if !multi {
+		// Legacy: one threshold, gated by the boolean Alert flag.
+		if cert.Alert != nil && *cert.Alert {
+			return -1, true
+		}
+		T := thresholds[0]
+		if !thresholdCrossed(now, cert.ValidUntil, T) {
+			return -1, true
+		}
+		return T, true
+	}
+
+	already := parseAlertedDays(cert.AlertedDays)
+	// Send for the smallest (closest-to-expiry) unsent crossed threshold,
+	// so the operator gets one mail per cron tick — not a backlog.
+	for _, T := range thresholds {
+		if already[T] {
+			continue
+		}
+		if !thresholdCrossed(now, cert.ValidUntil, T) {
+			continue
+		}
+		return T, false
+	}
+	return -1, false
+}
+
+// thresholdCrossed reports whether `now` is within `T` days of NotAfter.
+func thresholdCrossed(now, notAfter time.Time, T int) bool {
+	return now.Add(time.Duration(T) * 24 * time.Hour).After(notAfter) ||
+		now.Add(time.Duration(T) * 24 * time.Hour).Equal(notAfter)
+}
+
+// parseRenewalThresholds returns the configured thresholds sorted in
+// ascending order (most-imminent first when iterated). multi=true means
+// the profile uses the new RenewalMailDays list; multi=false is the
+// legacy single-value path and the slice has at most one element.
+func parseRenewalThresholds(prof Profile) (thresholds []int, multi bool) {
+	if strings.TrimSpace(prof.RenewalMailDays) != "" {
+		for _, part := range strings.Split(prof.RenewalMailDays, ",") {
+			n, err := strconv.Atoi(strings.TrimSpace(part))
+			if err != nil || n < 0 {
+				continue
+			}
+			thresholds = append(thresholds, n)
+		}
+		sortAscending(thresholds)
+		return thresholds, true
+	}
+	if prof.DaysBeforeRenewalMail > 0 {
+		return []int{prof.DaysBeforeRenewalMail}, false
+	}
+	return nil, false
+}
+
+func parseAlertedDays(s string) map[int]bool {
+	out := make(map[int]bool)
+	if s == "" {
+		return out
+	}
+	for _, part := range strings.Split(s, ",") {
+		if n, err := strconv.Atoi(strings.TrimSpace(part)); err == nil {
+			out[n] = true
+		}
+	}
+	return out
+}
+
+func appendAlertedDay(s string, day int) string {
+	set := parseAlertedDays(s)
+	set[day] = true
+	days := make([]int, 0, len(set))
+	for d := range set {
+		days = append(days, d)
+	}
+	sortAscending(days)
+	parts := make([]string, len(days))
+	for i, d := range days {
+		parts[i] = strconv.Itoa(d)
+	}
+	return strings.Join(parts, ",")
+}
+
+func sortAscending(xs []int) {
+	for i := 1; i < len(xs); i++ {
+		for j := i; j > 0 && xs[j-1] > xs[j]; j-- {
+			xs[j-1], xs[j] = xs[j], xs[j-1]
+		}
+	}
 }
 
 // Resign re-issues a leaf using the same private key and Subject/SAN as

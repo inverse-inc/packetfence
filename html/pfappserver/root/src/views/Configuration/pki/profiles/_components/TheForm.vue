@@ -156,7 +156,11 @@
         />
         <form-group-days-before-renewal-mail namespace="days_before_renewal_mail"
                                              :column-label="$i18n.t('Days before sending renewal email')"
-                                             :text="$i18n.t('Number of days before certificate expiration to trigger sending email.')"
+                                             :text="$i18n.t('Number of days before certificate expiration to trigger sending email. Ignored when the schedule below is set.')"
+        />
+        <form-group-renewal-mail-days namespace="renewal_mail_days"
+                                      :column-label="$i18n.t('Renewal email schedule')"
+                                      :text="$i18n.t('Optional comma-separated thresholds in days before expiry, e.g. \'14,7,1\'. When set, the certificate owner is emailed once per threshold instead of repeatedly once the single value above is crossed.')"
         />
         <form-group-renewal-mail-subject namespace="renewal_mail_subject"
                                          :column-label="$i18n.t('Renewal mail subject')"
@@ -210,6 +214,7 @@ import {
   FormGroupCountry,
   FormGroupDaysBeforeRenewal,
   FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailDays,
   FormGroupDigest,
   FormGroupExtendedKeyUsage,
   FormGroupIdentifier,
@@ -283,6 +288,7 @@ const components = {
   FormGroupDaysBeforeRenewal,
   FormGroupRenewalMail,
   FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailDays,
   FormGroupRenewalMailSubject,
   FormGroupRenewalMailFrom,
   FormGroupRenewalMailHeader,

@@ -56,6 +56,7 @@ export {
   BaseFormGroupInputNumber                as FormGroupDaysBeforeRenewal,
   BaseFormGroupSwitch                     as FormGroupRenewalMail,
   BaseFormGroupInputNumber                as FormGroupDaysBeforeRenewalMail,
+  BaseFormGroupInput                      as FormGroupRenewalMailDays,
   BaseFormGroupInput                      as FormGroupRenewalMailSubject,
   BaseFormGroupInput                      as FormGroupRenewalMailFrom,
   BaseFormGroupTextarea                   as FormGroupRenewalMailHeader,
