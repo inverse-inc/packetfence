@@ -23,6 +23,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"fingerbank_data_update":       NewFingerbankDataUpdate,
 	"certificates_check":           NewCertificatesCheck,
 	"pki_certificates_check":       NewPkiCertificatesCheck,
+	"pki_process_cloud_revocations": NewPkiProcessCloudRevocations,
 	"file_logger":                  NewFileLogger,
 	"cleanup_chi_database_cache":   NewChiCleanup,
 	"bandwidth_maintenance":        NewBandwidthMaintenance,

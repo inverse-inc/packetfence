@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -61,14 +62,15 @@ type APIEndPoint struct {
 
 // Memory struct
 type Intune struct {
-	CloudName     string
-	AccessToken   string
-	TenantID      string
-	ClientSecret  string
-	ClientID      string
-	Endpoint      *APIEndPoint
-	TransactionID string
-	Client        *http.Client
+	CloudName         string
+	AccessToken       string
+	TenantID          string
+	ClientSecret      string
+	ClientID          string
+	Endpoint          *APIEndPoint
+	RevocationEndpoint *APIEndPoint
+	TransactionID     string
+	Client            *http.Client
 }
 
 const activeDirectoryEndpoint = "https://login.microsoftonline.com/"
@@ -80,6 +82,18 @@ const NOTIFY_SUCCESS_URL = "ScepActions/successNotification"
 const NOTIFY_FAILURE_URL = "ScepActions/failureNotification"
 const SERVICE_VERSION_PROP_NAME = VALIDATION_SERVICE_NAME + "Version"
 const PROVIDER_NAME_AND_VERSION_NAME = "PacketFence"
+
+// Revocation-feed constants. Names taken from Microsoft's reference
+// IntuneRevocationClient.java (Intune-Resource-Access repo). These do
+// NOT come from a public schema — if a future Intune release renames
+// them, both the discovery match below and the URL paths here have to
+// be updated in lockstep.
+const REVOCATION_SERVICE_NAME = "CARevocationRequestsFEService"
+const REVOCATION_DOWNLOAD_URL = "CARevocationRequests/downloadRevocationRequests"
+const REVOCATION_UPLOAD_URL = "CARevocationRequests/uploadRevocationResults"
+// Hard cap so a misbehaving tenant can't make one call run for hours;
+// MS suggests batching, and the operator can call again to drain more.
+const REVOCATION_MAX_PER_CALL = 500
 
 const intuneAppId = "0000000a-0000-0000-c000-000000000000"
 
@@ -228,12 +242,17 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		}
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
-				for a, b := range n.(map[string]interface{}) {
-					if a == "providerName" {
-						if b == VALIDATION_SERVICE_NAME {
-							apiEndpoint.Uri = n.(map[string]interface{})["uri"].(string)
-						}
-					}
+				m, _ := n.(map[string]interface{})
+				if m == nil {
+					continue
+				}
+				name, _ := m["providerName"].(string)
+				uri, _ := m["uri"].(string)
+				switch name {
+				case VALIDATION_SERVICE_NAME:
+					apiEndpoint.Uri = uri
+				case REVOCATION_SERVICE_NAME:
+					cl.RevocationEndpoint = &APIEndPoint{Uri: uri, ServiceName: name}
 				}
 			}
 		}
@@ -393,4 +412,151 @@ func contains(s []string, str string) bool {
 	}
 
 	return false
+}
+
+// --- Revocation feed (RevocationProcessor) ---
+//
+// JSON shapes follow Microsoft's IntuneRevocationClient.java reference
+// (microsoft/Intune-Resource-Access on GitHub). They are NOT covered by
+// a public schema, so this file is the integration's source of truth
+// against that reference — any future Intune-side rename has to be
+// mirrored here in one place.
+
+type revocationDownloadRequest struct {
+	MaxRequests                int    `json:"maxRequests"`
+	CertificateProviderName    string `json:"certificateProviderName"`
+	IssuerName                 string `json:"issuerName"`
+	TransactionId              string `json:"transactionId"`
+	CallerInfo                 string `json:"callerInfo"`
+}
+
+type revocationDownloadResponse struct {
+	Value []revocationItem `json:"value"`
+}
+
+type revocationItem struct {
+	RequestId            string `json:"requestContext"`
+	SerialNumber         string `json:"serialNumber"`
+	IssuerName           string `json:"issuerName"`
+	CallerInfo           string `json:"callerInfo"`
+	CertificateThumbprint string `json:"certificateThumbprint"`
+	// Reason maps to RFC 5280 CRLReason; we forward it as-is to the
+	// pfpki revoke path.
+	Reason int `json:"revocationRequestReason"`
+}
+
+type revocationUploadRequest struct {
+	TransactionId      string                  `json:"transactionId"`
+	CertificateProviderName string             `json:"certificateProviderName"`
+	IssuerName         string                  `json:"issuerName"`
+	CallerInfo         string                  `json:"callerInfo"`
+	Results            []revocationUploadResult `json:"results"`
+}
+
+type revocationUploadResult struct {
+	RequestId        string `json:"requestContext"`
+	Succeeded        bool   `json:"succeeded"`
+	ErrorDescription string `json:"errorDescription,omitempty"`
+}
+
+// ProcessRevocations implements cloud.RevocationProcessor against Intune.
+// caName is the issuing CA's Common Name; Intune matches revocation
+// requests by issuer DN, but its API takes the CN. The caller invokes
+// `revoke` for each downloaded entry; we collect the outcomes and POST
+// them back so Intune stops re-publishing the same requests.
+func (cl *Intune) ProcessRevocations(ctx context.Context, caName string, revoke RevokeFunc) (int, error) {
+	if cl.RevocationEndpoint == nil || cl.RevocationEndpoint.Uri == "" {
+		// Discovery didn't return a CARevocationRequestsFEService entry
+		// for this tenant — either the tenant has no SCEP CA configured
+		// in Intune or the service name has been renamed upstream.
+		return 0, errors.New("intune: revocation endpoint not discovered (CARevocationRequestsFEService)")
+	}
+
+	dlReq := revocationDownloadRequest{
+		MaxRequests:             REVOCATION_MAX_PER_CALL,
+		CertificateProviderName: PROVIDER_NAME_AND_VERSION_NAME,
+		IssuerName:              caName,
+		TransactionId:           cl.TransactionID,
+		CallerInfo:              PROVIDER_NAME_AND_VERSION_NAME,
+	}
+	dlBody, err := json.Marshal(dlReq)
+	if err != nil {
+		return 0, err
+	}
+
+	items, err := cl.postJSON(ctx, cl.RevocationEndpoint.Uri+"/"+REVOCATION_DOWNLOAD_URL, dlBody)
+	if err != nil {
+		return 0, err
+	}
+
+	var resp revocationDownloadResponse
+	if err := json.Unmarshal(items, &resp); err != nil {
+		return 0, fmt.Errorf("intune: parse download response: %w", err)
+	}
+	if len(resp.Value) == 0 {
+		return 0, nil
+	}
+
+	results := make([]revocationUploadResult, 0, len(resp.Value))
+	for _, it := range resp.Value {
+		out := revoke(ctx, RevocationRequest{
+			RequestID:    it.RequestId,
+			SerialNumber: it.SerialNumber,
+			Thumbprint:   it.CertificateThumbprint,
+			Reason:       it.Reason,
+			IssuerName:   it.IssuerName,
+		})
+		results = append(results, revocationUploadResult{
+			RequestId:        out.RequestID,
+			Succeeded:        out.Succeeded,
+			ErrorDescription: out.ErrorDescription,
+		})
+	}
+
+	ackBody, err := json.Marshal(revocationUploadRequest{
+		TransactionId:           cl.TransactionID,
+		CertificateProviderName: PROVIDER_NAME_AND_VERSION_NAME,
+		IssuerName:              caName,
+		CallerInfo:              PROVIDER_NAME_AND_VERSION_NAME,
+		Results:                 results,
+	})
+	if err != nil {
+		return len(results), err
+	}
+	if _, err := cl.postJSON(ctx, cl.RevocationEndpoint.Uri+"/"+REVOCATION_UPLOAD_URL, ackBody); err != nil {
+		// Failed to acknowledge; Intune will re-send next time, which
+		// is acceptable as long as the caller's revoke step was
+		// idempotent. Return the count so the caller still knows
+		// progress was made locally.
+		return len(results), fmt.Errorf("intune: ack failed: %w", err)
+	}
+	return len(results), nil
+}
+
+// postJSON is the shared "auth + headers + read body" wrapper that the
+// two revocation calls use. Returns the response body on 2xx.
+func (cl *Intune) postJSON(ctx context.Context, url string, body []byte) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("authorization", cl.AccessToken)
+	req.Header.Set("api-version", serviceVersion)
+	req.Header.Set("client-request-id", cl.TransactionID)
+	req.Header.Set("useragent", PROVIDER_NAME_AND_VERSION_NAME)
+	resp, err := cl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode/100 != 2 {
+		return nil, fmt.Errorf("intune: %s -> %d: %s", url, resp.StatusCode, string(raw))
+	}
+	return raw, nil
 }

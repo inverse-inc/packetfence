@@ -28,6 +28,7 @@ use pfappserver::Form::Config::Pfcron::acct_maintenance;
 use pfappserver::Form::Config::Pfcron::auth_log_cleanup;
 use pfappserver::Form::Config::Pfcron::certificates_check;
 use pfappserver::Form::Config::Pfcron::pki_certificates_check;
+use pfappserver::Form::Config::Pfcron::pki_process_cloud_revocations;
 use pfappserver::Form::Config::Pfcron::pki_revoked_certs_cleanup;
 use pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache;
 use pfappserver::Form::Config::Pfcron::cluster_check;
@@ -62,6 +63,7 @@ our %TYPES_TO_FORMS = (
       auth_log_cleanup
       certificates_check
       pki_certificates_check
+      pki_process_cloud_revocations
       pki_revoked_certs_cleanup
       cleanup_chi_database_cache
       cluster_check

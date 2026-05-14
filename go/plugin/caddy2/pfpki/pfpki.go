@@ -163,6 +163,9 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 		})
 		// Check renewal api endpoint
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
+		// Drain pending cloud-side (Intune) revocations and apply them.
+		r.Get("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
+		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
 		// OCSP api endpoint
 		r.Route("/pki/ocsp", func(r chi.Router) {
 			r.Get("/", handlers.ManageOcsp(PFPki))
