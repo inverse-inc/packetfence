@@ -117,6 +117,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	// JSON errors like the rest of the API, set before the routes so the mounted sub-routers get them too
 	r.NotFound(unifiedapierrors.UnknownPath)
 	r.MethodNotAllowed(unifiedapierrors.MethodNotAllowed)
+	r.Use(handlers.LimitRequestBody)
 
 	PFPki := &pfpki
 

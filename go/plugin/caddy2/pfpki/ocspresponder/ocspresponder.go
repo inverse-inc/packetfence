@@ -3,23 +3,88 @@ package ocspresponder
 import (
 	"bytes"
 	"crypto"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/pem"
 	"errors"
 	"log"
 	"math/big"
 	"net/http"
+	"sync"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ocsp"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
+
+// parsedCA is a cached, decoded representation of pki_cas.{cert,key}. We
+// keep it keyed by row ID and re-parse when the row's UpdatedAt changes.
+// The OCSP responder is constructed per request (see handlers.Responder),
+// so caching has to live at package scope to survive.
+type parsedCA struct {
+	cert      *x509.Certificate
+	key       crypto.Signer
+	updatedAt time.Time
+}
+
+var caCache sync.Map // key: models.CA.ID (uint) → *parsedCA
+
+// loadCAMaterial returns a parsed cert + signer for ca, using a cached copy
+// whenever the row's UpdatedAt hasn't moved. PEM parsing is the dominant
+// CPU cost on the OCSP path (≈5 parses per request before this cache).
+func loadCAMaterial(ca models.CA) (*x509.Certificate, crypto.Signer, error) {
+	if v, ok := caCache.Load(ca.ID); ok {
+		p := v.(*parsedCA)
+		if p.updatedAt.Equal(ca.UpdatedAt) {
+			return p.cert, p.key, nil
+		}
+	}
+
+	certBlock, _ := pem.Decode([]byte(ca.Cert))
+	if certBlock == nil {
+		return nil, nil, errors.New("ocsp: CA cert PEM decode failed")
+	}
+	cert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	keyBlock, _ := pem.Decode([]byte(ca.Key))
+	if keyBlock == nil {
+		return nil, nil, errors.New("ocsp: CA key PEM decode failed")
+	}
+	signer, err := parseSigner(keyBlock)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	p := &parsedCA{cert: cert, key: signer, updatedAt: ca.UpdatedAt}
+	caCache.Store(ca.ID, p)
+	return cert, signer, nil
+}
+
+// parseSigner accepts PKCS#1 ("RSA PRIVATE KEY") and PKCS#8 ("PRIVATE KEY")
+// blocks; the cert types pfpki signs (RSA, ECDSA, Ed25519) all satisfy
+// crypto.Signer.
+func parseSigner(block *pem.Block) (crypto.Signer, error) {
+	if rsaKey, err := x509.ParsePKCS1PrivateKey(block.Bytes); err == nil {
+		return rsaKey, nil
+	}
+	if pkcs8Key, err := x509.ParsePKCS8PrivateKey(block.Bytes); err == nil {
+		if s, ok := pkcs8Key.(crypto.Signer); ok {
+			return s, nil
+		}
+		return nil, errors.New("ocsp: PKCS8 key does not implement crypto.Signer")
+	}
+	if ecKey, err := x509.ParseECPrivateKey(block.Bytes); err == nil {
+		return ecKey, nil
+	}
+	return nil, errors.New("ocsp: unsupported CA key encoding")
+}
 
 // OCSPResponder struct
 type OCSPResponder struct {
@@ -162,63 +227,41 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 		}
 	}
 
-	//Assign the good ca to the reply
-	cacert, err := certutils.ParseCertFile(ca.Cert)
-
+	// Look up the (cert, signer) pair once. The cache avoids 3 cert parses
+	// and 2 key parses per OCSP request on the previous code path.
+	cacert, key, err := loadCAMaterial(ca)
 	if err != nil {
 		return nil, err
 	}
 	ocspr.CaCert = cacert
 
-	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
-	if err != nil {
-		return nil, err
-	}
-	keyi, err := x509.ParseCertificate(catls.Certificate[0])
-	if err != nil {
-		return nil, err
-	}
-
-	pkey, err := certutils.ParseRsaPrivateKeyFromPemStr(ca.Key)
-
-	key, ok := pkey.(crypto.Signer)
-	if !ok {
-		return nil, errors.New("Could not make key a signer")
-	}
-
+	// Echo back the client's nonce extension if present. We intentionally
+	// do NOT track seen nonces across requests: this responder is
+	// reconstructed per HTTP request (see handlers.Responder), so any
+	// per-instance list never sees a second request — the previous code
+	// path was both a bug (zero-initialised slice of 10 nils) and an
+	// unbounded-growth foot-gun if it ever did survive.
 	var responseExtensions []pkix.Extension
-	nonce := checkForNonceExtension(exts)
-
-	if ocspr.NonceList == nil {
-		ocspr.NonceList = make([][]byte, 10)
-	}
-
-	if nonce != nil {
-		for _, n := range ocspr.NonceList {
-			if bytes.Compare(n, nonce.Value) == 0 {
-				return nil, errors.New("This nonce has already been used")
-			}
-		}
-
-		ocspr.NonceList = append(ocspr.NonceList, nonce.Value)
+	if nonce := checkForNonceExtension(exts); nonce != nil {
 		responseExtensions = append(responseExtensions, *nonce)
 	}
 
 	// construct response template
+	now := time.Now().UTC()
 	rtemplate := ocsp.Response{
 		Status:           status,
 		SerialNumber:     req.SerialNumber,
-		Certificate:      keyi,
+		Certificate:      cacert,
 		RevocationReason: reason,
 		IssuerHash:       req.HashAlgorithm,
 		RevokedAt:        revokedAt,
-		ThisUpdate:       time.Now().AddDate(0, 0, -1).UTC(),
-		NextUpdate:       time.Now().AddDate(0, 0, 1).UTC(),
-		Extensions:       exts,
+		ThisUpdate:       now.AddDate(0, 0, -1),
+		NextUpdate:       now.AddDate(0, 0, 1),
+		Extensions:       responseExtensions,
 	}
 
 	// make a response to return
-	resp, err := ocsp.CreateResponse(ocspr.CaCert, ocspr.CaCert, rtemplate, key)
+	resp, err := ocsp.CreateResponse(cacert, cacert, rtemplate, key)
 	if err != nil {
 		return nil, err
 	}
