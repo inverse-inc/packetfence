@@ -811,6 +811,39 @@ func GetRevokedByID(pfpki *types.Handler) http.HandlerFunc {
 	})
 }
 
+// ProcessCloudRevocations triggers a sweep of every cloud-enabled
+// profile's revocation queue (currently only Intune's
+// CARevocationRequests). Safe to call manually after a SCEP enrollment
+// fails with "Certificate with this Subject already exist", or on a
+// schedule (e.g. via a pfcron job).
+func ProcessCloudRevocations(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewCertModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
+
+		Error := types.Errors{Status: 0}
+		switch req.Method {
+		case "GET", "POST":
+			Information.Status = http.StatusOK
+			Information, err = o.ProcessCloudRevocations()
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, nil, "pfpki.ProcessCloudRevocations")
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
 func CheckRenewal(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
