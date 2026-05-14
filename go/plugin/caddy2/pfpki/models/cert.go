@@ -2,13 +2,11 @@ package models
 
 import (
 	"bytes"
-	"crypto"
 	"crypto/dsa"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha1"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -442,138 +440,157 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
+// Resign re-issues a leaf using the same private key and Subject/SAN as
+// the existing row, updating only the serial number and validity window.
+// The intent is "the deployed cert keeps working without touching its
+// private key, but the device sees a freshly-dated certificate".
+//
+// Identity fields (Subject, DNSNames, IPAddresses, EmailAddresses,
+// OCSPServer, KeyUsage, ExtKeyUsage) are read from the original cert's
+// parsed PEM, so they survive even an empty request body. Non-empty
+// fields on the receiver (Mail, DNSNames, IPAddresses, Profile.OCSPUrl)
+// still override, preserving the existing "edit during resign" UX.
 func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
-	var certdb []Cert
-	var err error
-	//Search the existing cert in the db
-	if val, ok := params["id"]; ok {
-		if err = c.DB.Preload("Ca").Preload("Profile").First(&certdb, val).Error; err != nil {
-			Information.Error = err.Error()
-			return Information, err
-		}
+
+	id, ok := params["id"]
+	if !ok {
+		return Information, errors.New("missing cert id")
 	}
 
-	catls, err := tls.X509KeyPair([]byte(certdb[0].Ca.Cert), []byte(certdb[0].Ca.Key))
-	if err != nil {
+	var existing Cert
+	if err := c.DB.Preload("Ca").Preload("Profile").First(&existing, id).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 
+	catls, err := tls.X509KeyPair([]byte(existing.Ca.Cert), []byte(existing.Ca.Key))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 
-	Information.Entries = certdb
-
-	// Decode the private key
-	block, _ := pem.Decode([]byte(certdb[0].Key))
-	if block == nil {
-		log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
+	// Parse the existing leaf so we can copy its Subject + SANs verbatim.
+	// This is the anchor that makes "identical except dates" possible.
+	leafBlock, _ := pem.Decode([]byte(existing.Cert))
+	if leafBlock == nil {
+		return Information, errors.New("existing cert PEM did not decode")
 	}
-
-	var skid []byte
-	var keyOut *bytes.Buffer
-	keyOut = new(bytes.Buffer)
-	var pub crypto.PublicKey
-
-	keyOut, skid, pub, _, Information, err = certutils.ExtractPrivateKey(certdb[0].Profile.KeyType, block, &Information)
-	if err != nil {
-		return Information, err
-	}
-
-	// keyOut contain the private key
-	var newcertdb []Cert
-
-	// Get serial number atomically using transaction with row-level locking
-	SerialNumber, err := getNextSerialNumber(c.DB, certdb[0].Ca.ID)
+	oldLeaf, err := x509.ParseCertificate(leafBlock.Bytes)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 
-	Subject := certdb[0].MakeSubject()
+	// Re-encode the existing private key so the row's Key column stays
+	// in a known PEM shape; the key material is unchanged.
+	keyBlock, _ := pem.Decode([]byte(existing.Key))
+	if keyBlock == nil {
+		log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing private key")
+		return Information, errors.New("existing key PEM did not decode")
+	}
+	keyOut, _, pub, _, Information, err := certutils.ExtractPrivateKey(existing.Profile.KeyType, keyBlock, &Information)
+	if err != nil {
+		return Information, err
+	}
 
-	cert := &x509.Certificate{
+	SerialNumber, err := getNextSerialNumber(c.DB, existing.Ca.ID)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	// Build the template from the parsed old cert, then apply any
+	// caller-supplied overrides on top.
+	tmpl := &x509.Certificate{
 		SerialNumber:       SerialNumber,
-		Subject:            Subject,
+		Subject:            oldLeaf.Subject,
 		NotBefore:          time.Now(),
-		NotAfter:           time.Now().AddDate(0, 0, certdb[0].Profile.Validity),
-		SignatureAlgorithm: certutils.CompatibleSigAlgo(*certdb[0].Ca.KeyType, certdb[0].Profile.Digest),
-		ExtKeyUsage:        certutils.Extkeyusage(strings.Split(*certdb[0].Profile.ExtendedKeyUsage, "|")),
-		KeyUsage:           x509.KeyUsage(certutils.Keyusage(strings.Split(*certdb[0].Profile.KeyUsage, "|"))),
-		SubjectKeyId:       skid,
-	}
-	//Overload certificate attributes
-	if len(c.Profile.OCSPUrl) > 0 {
-		cert.OCSPServer = []string{c.Profile.OCSPUrl}
+		NotAfter:           time.Now().AddDate(0, 0, existing.Profile.Validity),
+		SignatureAlgorithm: certutils.CompatibleSigAlgo(*existing.Ca.KeyType, existing.Profile.Digest),
+		KeyUsage:           oldLeaf.KeyUsage,
+		ExtKeyUsage:        oldLeaf.ExtKeyUsage,
+		SubjectKeyId:       oldLeaf.SubjectKeyId,
+		DNSNames:           oldLeaf.DNSNames,
+		IPAddresses:        oldLeaf.IPAddresses,
+		EmailAddresses:     oldLeaf.EmailAddresses,
+		URIs:               oldLeaf.URIs,
+		OCSPServer:         oldLeaf.OCSPServer,
 	}
 
-	Email := ""
-	if len(certdb[0].Profile.Mail) > 0 {
-		Email = certdb[0].Profile.Mail
+	// Optional overrides from the request body. Non-empty values replace
+	// the parsed-cert defaults; empty leaves the original behavior.
+	if len(c.Profile.OCSPUrl) > 0 {
+		tmpl.OCSPServer = []string{c.Profile.OCSPUrl}
 	}
 	if len(c.Mail) > 0 {
-		Email = c.Mail
+		tmpl.EmailAddresses = strings.Split(c.Mail, ",")
 	}
-	if len(Email) > 0 {
-		for _, mail := range strings.Split(Email, ",") {
-			cert.EmailAddresses = append(cert.EmailAddresses, mail)
-		}
-	}
-
 	if len(c.DNSNames) > 0 {
-		for _, dns := range strings.Split(c.DNSNames, ",") {
-			cert.DNSNames = append(cert.DNSNames, dns)
-		}
+		tmpl.DNSNames = strings.Split(c.DNSNames, ",")
 	}
-	var IPAddresses []string
+	var ipStrings []string
 	if len(c.IPAddresses) > 0 {
+		tmpl.IPAddresses = tmpl.IPAddresses[:0]
 		for _, ip := range strings.Split(c.IPAddresses, ",") {
-			if net.ParseIP(ip) == nil {
-				fmt.Printf("IP Address: %s - Invalid\n", ip)
-			} else {
-				IPAddresses = append(IPAddresses, ip)
-				cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			parsed := net.ParseIP(ip)
+			if parsed == nil {
+				log.LoggerWContext(c.Ctx).Warn(fmt.Sprintf("Resign: ignoring invalid IP %q", ip))
+				continue
 			}
+			ipStrings = append(ipStrings, ip)
+			tmpl.IPAddresses = append(tmpl.IPAddresses, parsed)
+		}
+	} else {
+		for _, ip := range oldLeaf.IPAddresses {
+			ipStrings = append(ipStrings, ip.String())
 		}
 	}
 
 	var certBytes []byte
-
-	switch *certdb[0].Profile.KeyType {
+	switch *existing.Profile.KeyType {
 	case certutils.KEY_RSA:
-		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*rsa.PrivateKey))
+		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(*rsa.PrivateKey))
 	case certutils.KEY_ECDSA:
-		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*ecdsa.PrivateKey))
+		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(*ecdsa.PrivateKey))
 	case certutils.KEY_DSA:
-		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*dsa.PrivateKey))
+		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(*dsa.PrivateKey))
 	case certutils.KEY_ED25519:
-		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(ed25519.PrivateKey))
+		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(ed25519.PrivateKey))
 	}
 	if err != nil {
 		return Information, err
 	}
 
 	certBuff := new(bytes.Buffer)
-	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certBytes})
 
-	h := sha1.New()
-
-	h.Write(cacert.RawIssuer)
-	if err := c.DB.Model(&Cert{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Ca": certdb[0].Ca, "CaName": certdb[0].Ca.Cn, "ProfileName": certdb[0].Profile.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": Email, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
+	// Update the existing row by primary key — the previous WHERE cn = ?
+	// match was fragile when the request body omitted Cn (a "click and
+	// renew" with no edits) and could silently update nothing.
+	existing.SerialNumber = SerialNumber.String()
+	existing.NotBefore = tmpl.NotBefore
+	existing.ValidUntil = tmpl.NotAfter
+	existing.Cert = certBuff.String()
+	existing.Key = keyOut.String()
+	existing.DNSNames = strings.Join(tmpl.DNSNames, ",")
+	existing.IPAddresses = strings.Join(ipStrings, ",")
+	if len(c.Mail) > 0 {
+		existing.Mail = c.Mail
+	}
+	if err := c.DB.Save(&existing).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 
-	c.DB.Where("cn = ? AND profile_name = ?", c.Cn, certdb[0].ProfileName).First(&newcertdb)
-	Information.Entries = newcertdb
+	Information.Entries = []Cert{existing}
 	Information.Serial = SerialNumber.String()
-
 	return Information, nil
 }
 
