@@ -38,6 +38,9 @@ variables:
   KNK_REGISTRY: ghcr.io
   KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc/packetfence
   PFBUILD_DEFAULT_DEV_TAG: latest
+  # Default IMAGE_TAG for jobs whose rules don't set it explicitly.
+  # Overridden per-context by .context_rules, .build_img_container_rules, etc.
+  IMAGE_TAG: $CI_COMMIT_REF_SLUG
   CIDIR: ci
   CILIBDIR: ci/lib
   CHECKDIR: ${CILIBDIR}/check
@@ -248,11 +251,19 @@ variables:
 
 # Shared rules for devel-or-branches-or-release jobs (no maintenance):
 # build_artifacts_website, build_artifacts_material, deploy_website_artifacts.
+# Each arm mirrors the IMAGE_TAG value from .context_rules so that
+# `image: …:${IMAGE_TAG}` resolves correctly in consuming jobs.
 .devel_or_branches_or_release_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
     - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_TAG
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 # Shared rules for deploy_* (rpm, deb, pkg_friendly_names) — runs on
 # devel push/web/schedule, release tag, branches via web/api/schedule,
@@ -864,13 +875,13 @@ build_artifacts_pkg_centos_8:
     - .rpm_script_job
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
-    - !reference [.context_rules, rules]
     # Override: maintenance/branches need web/api/schedule, default branch rule
     # in .context_rules matches all branches — we narrow here:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
+    - !reference [.context_rules, rules]
 
 build_artifacts_pkg_debian_bookworm:
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
@@ -879,11 +890,11 @@ build_artifacts_pkg_debian_bookworm:
     - .deb_script_job
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
-    - !reference [.context_rules, rules]
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
+    - !reference [.context_rules, rules]
 
 # build_artifacts_website (devel/branches/release)
 build_artifacts_website:
@@ -911,9 +922,17 @@ build_artifacts_doc:
   rules:
     - !reference [.gated_by_build_artifacts_doc, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
     - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_TAG
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 ########################################
 # SIGN JOBS
@@ -937,10 +956,20 @@ sign_packages:
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
     - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_TAG
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 ########################################
 # PUBLISH JOBS
@@ -954,6 +983,18 @@ publish_ppa:
     - .publish_job
   rules:
     - !reference [.gated_by_publish_ppa, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
+    - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 ########################################
 # TEST JOBS
