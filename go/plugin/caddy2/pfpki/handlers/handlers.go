@@ -637,13 +637,19 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		// POST, as it returns the password of the PKCS#12 it emails
 		case "POST":
-			vars := types.Params(req, "id")
+			vars := types.Params(req, "id", "profile", "cn")
 			if !numericID.MatchString(vars["id"]) {
 				Error.Message = "Invalid certificate id"
 				Error.Status = http.StatusBadRequest
 				break
 			}
 			Information.Status = http.StatusOK
+			// Optional admin-supplied password from query string. It is
+			// renamed to "mail_password" so Cert.Download doesn't confuse
+			// it with the binary-download trigger.
+			if pw := req.URL.Query().Get("password"); pw != "" {
+				vars["mail_password"] = pw
+			}
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()

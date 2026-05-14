@@ -110,8 +110,23 @@ func email(ctx context.Context, email EmailType) (types.Info, error) {
 	lang := language.MustParse(advanced.Language)
 
 	emailContent, err := parseTemplate(email.Template, lang, email)
+	if err != nil {
+		// Previously this error was swallowed, sending a message with the
+		// .p12 attached but an empty HTML body (so the recipient could not
+		// see the unlock password). Surface it instead.
+		Information.Error = err.Error()
+		return Information, err
+	}
 
-	m.SetBody("text/html", emailContent)
+	// Always include a plain-text alternative that carries the password
+	// directly. Some mail clients strip HTML, and we want the unlock code
+	// to survive template breakage on the HTML side.
+	if len(email.Password) > 0 {
+		m.SetBody("text/plain", "Password: "+email.Password)
+		m.AddAlternative("text/html", emailContent)
+	} else {
+		m.SetBody("text/html", emailContent)
+	}
 	if len(email.File) > 0 {
 		m.Attach(email.FileName+".p12", gomail.SetCopyFunc(func(w io.Writer) error {
 			_, err := w.Write(email.File)
