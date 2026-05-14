@@ -309,8 +309,16 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 
 	CaCert = append(CaCert, cacert)
 
+	// Convention on this endpoint:
+	//   - params["password"] present  → "download" flow: return the binary
+	//     .p12, encrypted with that exact password.
+	//   - params["password"] absent   → "email" flow: encrypt with either
+	//     params["mail_password"] (if the admin supplied one) or a freshly
+	//     generated password, then mail the .p12 + that password.
 	var password string
 	if val, ok := params["password"]; ok {
+		password = val
+	} else if val, ok := params["mail_password"]; ok && val != "" {
 		password = val
 	} else {
 		password = certutils.GeneratePassword()
@@ -322,10 +330,19 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	if _, ok := params["password"]; ok {
 		Information.Raw = pkcs12
 		Information.ContentType = "application/x-pkcs12"
-	} else {
-		Information, err = emailcert(c.Ctx, cert, prof, pkcs12, password)
+		return Information, err
 	}
 
+	mailInfo, err := emailcert(c.Ctx, cert, prof, pkcs12, password)
+	// Carry the password back to the caller — the previous code did
+	// `Information, err = emailcert(...)` which replaced the whole struct
+	// and dropped Password. Keep our Password; merge any error/status.
+	if mailInfo.Error != "" {
+		Information.Error = mailInfo.Error
+	}
+	if mailInfo.Status != 0 {
+		Information.Status = mailInfo.Status
+	}
 	return Information, err
 }
 
