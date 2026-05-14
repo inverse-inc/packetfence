@@ -32,6 +32,10 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"pfflow":                       NewPfFlowJob,
 	"purge_binary_logs":            MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
 	"admin_api_audit_log_cleanup":  MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	// Anchored on valid_until (the original cert's natural expiry) so OCSP
+	// still answers "Revoked" for any cert that could otherwise plausibly
+	// be presented to a verifier. Admin's `window` is grace beyond that.
+	"pki_revoked_certs_cleanup":    MakeWindowSqlJobSetupConfig(`DELETE FROM pki_revoked_certs WHERE valid_until < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"auth_log_cleanup":             MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"dns_audit_log_cleanup":        MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"radius_audit_log_cleanup":     MakeWindowSqlJobSetupConfig(`DELETE FROM radius_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),

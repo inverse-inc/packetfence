@@ -770,6 +770,48 @@ window=1D
 # Local task
 local=0
 
+[pki_revoked_certs_cleanup]
+#
+# type
+#
+# Task type
+type=pki_revoked_certs_cleanup
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Controls the cleanup of the pki_revoked_certs table. Revoked certificates whose original validity ended more than the window ago will be removed. Set the window long enough that no still-trusted-by-date client could plausibly present the cert; otherwise an OCSP query for it will return Unknown instead of Revoked.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 24h
+#
+# batch
+#
+# How many pki_revoked_certs entries to clean up in one run
+batch=1000
+#
+# timeout
+#
+# How long a pki_revoked_certs_cleanup job can run
+timeout=30s
+#
+# window
+#
+# How long to keep a pki_revoked_certs row past the original cert's natural expiry before deleting it
+window=30d
+#
+# local
+#
+# Local task
+local=0
+
 [admin_api_audit_log_cleanup]
 #
 # type
