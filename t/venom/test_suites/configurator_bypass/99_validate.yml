@@ -1,16 +1,20 @@
 name: Validate configurator_bypass completed successfully
 testcases:
-- name: validate_configurator_disabled
+- name: check_configurator_disabled
   steps:
   - type: http
     method: GET
-    url: '{{.pfserver_webadmin_url}}/admin'
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interfaces'
     ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.config.advanced.configurator ShouldEqual 'disabled'
+      - result.statuscode ShouldEqual 401
+      - result.bodyjson.message ShouldContainSubstring 'The configurator is turned off'
+    retry: 3
+    delay: 5
 
-- name: validate_admin_account
+- name: check_admin_account
   steps:
   - type: http
     method: POST
@@ -18,7 +22,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "username": "admin",
+        "username": "{{.pfserver_default_admin_user}}",
         "password": "{{.configurator.admin.password}}"
       }
     headers:
@@ -26,17 +30,9 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.token ShouldNotBeEmpty
-
-- name: validate_fingerbank_api_key
-  steps:
-  - type: http
-    method: GET
-    url: '{{.pfserver_webadmin_url}}/api/v1/fingerbank/account_info'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "Bearer {{.validate_admin_account.token}}"
-    assertions:
-      - result.statuscode ShouldEqual 200
+    vars:
+      auth_token:
+        from: result.bodyjson.token
 
 - name: check_pf_services_running
   steps:

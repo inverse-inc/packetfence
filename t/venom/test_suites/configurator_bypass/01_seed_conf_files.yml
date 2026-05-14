@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/pf.conf /usr/local/pf/conf/pf.conf
+      cp {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/pf.conf /usr/local/pf/conf/pf.conf
     assertions:
       - result.code ShouldEqual 0
 
@@ -12,7 +12,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/pfconfig.conf /usr/local/pf/conf/pfconfig.conf
+      cp {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/pfconfig.conf /usr/local/pf/conf/pfconfig.conf
     assertions:
       - result.code ShouldEqual 0
 
@@ -20,7 +20,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/networks.conf /usr/local/pf/conf/networks.conf
+      cp {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/networks.conf /usr/local/pf/conf/networks.conf
     assertions:
       - result.code ShouldEqual 0
 
@@ -28,6 +28,6 @@ testcases:
   steps:
   - type: exec
     script: |
-      cat {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/pfqueue.conf >> /usr/local/pf/conf/pfqueue.conf
+      cat {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/pfqueue.conf >> /usr/local/pf/conf/pfqueue.conf
     assertions:
       - result.code ShouldEqual 0

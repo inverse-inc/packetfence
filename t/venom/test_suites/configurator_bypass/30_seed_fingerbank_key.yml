@@ -4,6 +4,6 @@ testcases:
   steps:
   - type: exec
     script: |
-      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/fingerbank-upstream.conf /usr/local/fingerbank/conf/fingerbank.conf
+      cp {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/fingerbank-upstream.conf /usr/local/fingerbank/conf/fingerbank.conf
     assertions:
       - result.code ShouldEqual 0

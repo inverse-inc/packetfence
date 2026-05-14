@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      cp {{ venom_dir }}/test_suites/configurator_bypass/seeds/.rendered/resolv.conf /etc/resolv.conf
+      cp {{.venom_dir}}/test_suites/configurator_bypass/seeds/.rendered/resolv.conf /etc/resolv.conf
     assertions:
       - result.code ShouldEqual 0
 
