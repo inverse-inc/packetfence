@@ -313,6 +313,7 @@ require (
 	github.com/linkdata/deadlock v0.5.5 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260216142805-b3301c5f2a88 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.18 // indirect
 	github.com/mdlayher/socket v0.5.1 // indirect
 	github.com/mdlayher/vsock v1.2.1 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
@@ -407,6 +408,7 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/ini.v1 v1.67.1 // indirect
+	gorm.io/driver/sqlite v1.5.4 // indirect
 	howett.net/plist v1.0.0 // indirect
 	sigs.k8s.io/mcs-api v0.4.1 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect

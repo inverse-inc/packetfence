@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"crypto/dsa"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -163,8 +164,8 @@ type (
 		Profile            Profile         `json:"-"`
 		ProfileID          uint            `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
 		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"index:valid_until;type:time"`
-		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"index:not_before;type:time"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"index:valid_until;type:datetime"`
+		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"index:not_before;type:datetime"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty" gorm:"uniqueIndex:cn_serial"`
 		DNSNames           string          `json:"dns_names,omitempty"`
@@ -207,8 +208,8 @@ type (
 		Profile            Profile         `json:"-"`
 		ProfileID          uint            `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
 		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"index:valid_until;type:time"`
-		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"index:not_before;type:time"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"index:valid_until;type:datetime"`
+		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"index:not_before;type:datetime"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty"`
 		DNSNames           string          `json:"dns_names,omitempty"`
@@ -354,7 +355,7 @@ func (c CA) New() (types.Info, error) {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
-		SignatureAlgorithm:    c.Digest,
+		SignatureAlgorithm:    certutils.CompatibleSigAlgo(*c.KeyType, c.Digest),
 		ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
 		KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*c.KeyUsage, "|"))),
 		BasicConstraintsValid: true,
@@ -376,6 +377,8 @@ func (c CA) New() (types.Info, error) {
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
 	case certutils.KEY_DSA:
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
+	case certutils.KEY_ED25519:
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(ed25519.PrivateKey))
 	}
 	if err != nil {
 		return Information, err
@@ -865,7 +868,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
-		SignatureAlgorithm:    c.Digest,
+		SignatureAlgorithm:    certutils.CompatibleSigAlgo(*c.KeyType, c.Digest),
 		ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
 		KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*c.KeyUsage, "|"))),
 		BasicConstraintsValid: true,
@@ -887,6 +890,8 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
 	case certutils.KEY_DSA:
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
+	case certutils.KEY_ED25519:
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(ed25519.PrivateKey))
 	}
 	if err != nil {
 		return Information, err
@@ -941,31 +946,12 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	}
 	Information.Entries = cadb
 
+	// Use the stored CA's KeyType/Digest, not the request body's — the
+	// receiver may only carry the subject fields the caller wants to change,
+	// and the signing algorithm is bound to the existing private key anyway.
 	template := x509.CertificateRequest{
-		Subject: c.MakeSubject(),
-	}
-	// Pick a signature algorithm compatible with the CA's private key. The
-	// CA Digest is intended for x509 certificate signing and may be set to
-	// values incompatible with the key type (e.g. SHA256WithRSA on an ECDSA
-	// key); leaving SignatureAlgorithm unset lets x509 pick the default for
-	// the key. Honor c.Digest only when it matches the key family.
-	switch catls.PrivateKey.(type) {
-	case *ecdsa.PrivateKey:
-		switch c.Digest {
-		case x509.ECDSAWithSHA1, x509.ECDSAWithSHA256, x509.ECDSAWithSHA384, x509.ECDSAWithSHA512:
-			template.SignatureAlgorithm = c.Digest
-		}
-	case *rsa.PrivateKey:
-		switch c.Digest {
-		case x509.SHA1WithRSA, x509.SHA256WithRSA, x509.SHA384WithRSA, x509.SHA512WithRSA,
-			x509.SHA256WithRSAPSS, x509.SHA384WithRSAPSS, x509.SHA512WithRSAPSS:
-			template.SignatureAlgorithm = c.Digest
-		}
-	case *dsa.PrivateKey:
-		switch c.Digest {
-		case x509.DSAWithSHA1, x509.DSAWithSHA256:
-			template.SignatureAlgorithm = c.Digest
-		}
+		Subject:            c.MakeSubject(),
+		SignatureAlgorithm: certutils.CompatibleSigAlgo(*cadb[0].KeyType, cadb[0].Digest),
 	}
 	csrBuff := new(bytes.Buffer)
 	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
@@ -1057,6 +1043,8 @@ func (p Profile) New() (types.Info, error) {
 			Information.Error = err.Error()
 			return Information, err
 		}
+	case certutils.KEY_ED25519:
+		// Ed25519 has a fixed key size; ignore p.KeySize.
 	default:
 		return Information, errors.New("KeyType unsupported")
 
@@ -1285,7 +1273,7 @@ func (c Cert) New() (types.Info, error) {
 		Subject:            Subject,
 		NotBefore:          time.Now(),
 		NotAfter:           NotAfter,
-		SignatureAlgorithm: prof.Digest,
+		SignatureAlgorithm: certutils.CompatibleSigAlgo(*prof.Ca.KeyType, prof.Digest),
 		ExtKeyUsage:        certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
 		KeyUsage:           x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
 		SubjectKeyId:       skid,
@@ -1645,7 +1633,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		Subject:            Subject,
 		NotBefore:          time.Now(),
 		NotAfter:           time.Now().AddDate(0, 0, certdb[0].Profile.Validity),
-		SignatureAlgorithm: certdb[0].Profile.Digest,
+		SignatureAlgorithm: certutils.CompatibleSigAlgo(*certdb[0].Ca.KeyType, certdb[0].Profile.Digest),
 		ExtKeyUsage:        certutils.Extkeyusage(strings.Split(*certdb[0].Profile.ExtendedKeyUsage, "|")),
 		KeyUsage:           x509.KeyUsage(certutils.Keyusage(strings.Split(*certdb[0].Profile.KeyUsage, "|"))),
 		SubjectKeyId:       skid,
@@ -1694,6 +1682,8 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*ecdsa.PrivateKey))
 	case certutils.KEY_DSA:
 		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*dsa.PrivateKey))
+	case certutils.KEY_ED25519:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(ed25519.PrivateKey))
 	}
 	if err != nil {
 		return Information, err
@@ -1934,7 +1924,7 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 
 	// create cert template
 	v, _ := strconv.Atoi(attributes["Digest"])
-	SignatureAlgorithm := x509.SignatureAlgorithm(v)
+	SignatureAlgorithm := certutils.CompatibleSigAlgo(*ca.KeyType, x509.SignatureAlgorithm(v))
 
 	var ExtraExtensions []pkix.Extension
 
