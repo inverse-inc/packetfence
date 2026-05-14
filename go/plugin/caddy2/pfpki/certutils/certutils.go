@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/dsa"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
@@ -42,6 +43,7 @@ const (
 	KEY_ECDSA
 	KEY_RSA
 	KEY_DSA
+	KEY_ED25519
 )
 
 const (
@@ -69,6 +71,37 @@ func Keyusage(KeyUsage []string) int {
 		keyUsage = keyUsage | v
 	}
 	return keyUsage
+}
+
+// CompatibleSigAlgo returns digest unchanged if it matches the key family for
+// keytype; otherwise it returns x509.UnknownSignatureAlgorithm (0), letting
+// x509 pick a sensible default for the key. Use this to avoid passing
+// (e.g.) SHA256WithRSA together with an ECDSA or Ed25519 key — x509.Create*
+// rejects such mismatches.
+func CompatibleSigAlgo(keytype types.Type, digest x509.SignatureAlgorithm) x509.SignatureAlgorithm {
+	switch keytype {
+	case KEY_RSA:
+		switch digest {
+		case x509.SHA1WithRSA, x509.SHA256WithRSA, x509.SHA384WithRSA, x509.SHA512WithRSA,
+			x509.SHA256WithRSAPSS, x509.SHA384WithRSAPSS, x509.SHA512WithRSAPSS:
+			return digest
+		}
+	case KEY_ECDSA:
+		switch digest {
+		case x509.ECDSAWithSHA1, x509.ECDSAWithSHA256, x509.ECDSAWithSHA384, x509.ECDSAWithSHA512:
+			return digest
+		}
+	case KEY_DSA:
+		switch digest {
+		case x509.DSAWithSHA1, x509.DSAWithSHA256:
+			return digest
+		}
+	case KEY_ED25519:
+		if digest == x509.PureEd25519 {
+			return digest
+		}
+	}
+	return x509.UnknownSignatureAlgorithm
 }
 
 // GenerateKey function generate the public/private key based on the type and the size
@@ -152,6 +185,20 @@ func GenerateKey(keytype types.Type, size int) (keyOut *bytes.Buffer, pub crypto
 		}
 		bytes, _ := asn1.Marshal(val)
 		pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
+	case KEY_ED25519:
+		var edpub ed25519.PublicKey
+		var edkey ed25519.PrivateKey
+		edpub, edkey, err = ed25519.GenerateKey(PRNG)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		key = edkey
+		pub = edpub
+		der, err := x509.MarshalPKCS8PrivateKey(edkey)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		pem.Encode(keyOut, &pem.Block{Type: "PRIVATE KEY", Bytes: der})
 	}
 
 	return keyOut, pub, key, nil
@@ -535,22 +582,38 @@ func ReturnRSAPrivateKey(key *rsa.PrivateKey) (*bytes.Buffer, []byte, crypto.Pub
 	return keyOut, skid, pub, privkey, err
 }
 
+func ReturnEd25519PrivateKey(key ed25519.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, error) {
+	keyOut := new(bytes.Buffer)
+	pub := key.Public()
+	skid, err := CalculateSKID(pub)
+	if err != nil {
+		return keyOut, skid, pub, key, err
+	}
+	der, err := x509.MarshalPKCS8PrivateKey(key)
+	if err != nil {
+		return keyOut, skid, pub, key, err
+	}
+	pem.Encode(keyOut, &pem.Block{Type: "PRIVATE KEY", Bytes: der})
+	return keyOut, skid, pub, key, nil
+}
+
 func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, error) {
-	var keyOut *bytes.Buffer
-	keyOut = new(bytes.Buffer)
+	keyOut := new(bytes.Buffer)
 	pkey, err := x509.ParsePKCS8PrivateKey(key)
 	if err != nil {
 		return keyOut, nil, nil, nil, err
 	}
-	switch pkey.(type) {
+	switch pkey := pkey.(type) {
 	case *ecdsa.PrivateKey:
-		return ReturnECDSAPrivateKey(pkey.(*ecdsa.PrivateKey))
+		return ReturnECDSAPrivateKey(pkey)
 	case *dsa.PrivateKey:
-		return ReturnDSAPrivateKey(pkey.(*dsa.PrivateKey))
+		return ReturnDSAPrivateKey(pkey)
 	case *rsa.PrivateKey:
-		return ReturnRSAPrivateKey(pkey.(*rsa.PrivateKey))
+		return ReturnRSAPrivateKey(pkey)
+	case ed25519.PrivateKey:
+		return ReturnEd25519PrivateKey(pkey)
 	default:
-		return keyOut, nil, nil, nil, err
+		return keyOut, nil, nil, nil, errors.New("unsupported private key type in PKCS8 blob")
 	}
 
 }
@@ -606,6 +669,13 @@ func ExtractPrivateKey(KeyType *types.Type, block *pem.Block, Information *types
 				Information.Error = err.Error()
 				return keyOut, skid, pub, key, *Information, err
 			}
+		}
+	case KEY_ED25519:
+		var err error
+		keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+		if err != nil {
+			Information.Error = err.Error()
+			return keyOut, skid, pub, key, *Information, err
 		}
 	}
 	return keyOut, skid, pub, key, *Information, nil
