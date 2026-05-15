@@ -23,7 +23,11 @@ func Mount(h *types.Handler) chi.Router {
 		r.Post("/account/{id}", accountByIDHandler(h))
 		r.Post("/new-order", newOrderHandler(h))
 		r.Post("/order/{id}", orderByIDHandler(h))
+		r.Post("/order/{id}/finalize", orderFinalizeHandler(h))
 		r.Post("/authz/{id}", authzByIDHandler(h))
+		r.Post("/chall/{id}", challengeByIDHandler(h))
+		r.Post("/cert/{id}", certByIDHandler(h))
+		r.Post("/revoke-cert", revokeCertHandler(h))
 	})
 	return r
 }
