@@ -50,6 +50,11 @@
 			no_auth /api/v1/pfconnector/tunnel
 			no_auth /api/v1/pfconnector/health
 			no_auth /api/v1/fingerbank-collector/flags
+			# ACME (RFC 8555) is device-facing — clients sign their own
+			# JWS with EAB-bound HMACs or attestation, no admin token
+			# applies. Auth is enforced inside pfpki by the JWS
+			# middleware + EAB validator.
+			no_auth /api/v1/pki/acme/*
 			session_backend {$PF_SESSION_BACKEND:db} mem
 		}
 

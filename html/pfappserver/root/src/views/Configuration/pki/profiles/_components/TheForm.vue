@@ -143,6 +143,45 @@
                                   :column-label="$i18n.t('SCEP Server')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('ACME')">
+        <form-group-acme-enabled namespace="acme_enabled"
+                                 :column-label="$i18n.t('Enable ACME')"
+                                 :text="$i18n.t('Enable RFC 8555 ACME enrollment under this profile. Devices contact /acme/&lt;profile&gt;/directory; everything else is link-discovered. Apple managed-device payloads use this.')"
+                                 :enabled-value="1"
+                                 :disabled-value="0"
+        />
+        <form-group-acme-allowed-identifiers namespace="acme_allowed_identifiers"
+                                             :column-label="$i18n.t('Allowed identifier types')"
+                                             :text="$i18n.t('Comma-separated identifier types accepted in /new-order. dns,ip,email for generic clients; permanent-identifier for Apple managed-device enrollment.')"
+        />
+        <form-group-acme-eab-required namespace="acme_eab_required"
+                                      :column-label="$i18n.t('Require External Account Binding')"
+                                      :text="$i18n.t('When enabled, /new-account must carry a valid EAB inner JWS. Mint keys in the EAB tab and distribute via MDM payload.')"
+                                      :enabled-value="1"
+                                      :disabled-value="0"
+        />
+        <form-group-acme-attestation-formats namespace="acme_attestation_formats"
+                                             :column-label="$i18n.t('Attestation formats')"
+                                             :text="$i18n.t('Comma-separated attestation formats accepted on device-attest-01. Only apple is implemented today; leaving empty disables device-attest-01 and falls back to http-01.')"
+        />
+        <form-group-acme-attestation-roots namespace="acme_attestation_roots"
+                                           :column-label="$i18n.t('Attestation root CAs (PEM)')"
+                                           :text="$i18n.t('Optional PEM bundle of trusted attestation roots. Overrides the embedded Apple Enterprise Attestation Root CA. Leave empty to use the built-in roots.')"
+                                           auto-fit
+        />
+        <form-group-acme-account-expiry namespace="acme_account_expiry"
+                                        :column-label="$i18n.t('Account expiry (days)')"
+                                        :text="$i18n.t('How long an ACME account lives before the state cleanup task is allowed to drop it.')"
+        />
+        <form-group-acme-order-expiry namespace="acme_order_expiry"
+                                      :column-label="$i18n.t('Order expiry (days)')"
+                                      :text="$i18n.t('Lifetime of a new-order before it is considered expired and reclaimed by the cleanup task.')"
+        />
+        <form-group-acme-authz-expiry namespace="acme_authz_expiry"
+                                      :column-label="$i18n.t('Authorization expiry (hours)')"
+                                      :text="$i18n.t('Lifetime of an authorization (and its challenges) before reclamation. ACME clients refresh this from the directory.')"
+        />
+      </base-form-tab>
       <base-form-tab :title="$i18n.t('Renewal Configuration')">
         <form-group-days-before-renewal namespace="days_before_renewal"
                                         :column-label="$i18n.t('Days before renewal')"
@@ -246,7 +285,15 @@ import {
   FormGroupStreetAddress,
   FormGroupValidity,
   FormGroupScepServerEnabled,
-  FormGroupScepServerId
+  FormGroupScepServerId,
+  FormGroupAcmeEnabled,
+  FormGroupAcmeAllowedIdentifiers,
+  FormGroupAcmeEabRequired,
+  FormGroupAcmeAttestationFormats,
+  FormGroupAcmeAttestationRoots,
+  FormGroupAcmeAccountExpiry,
+  FormGroupAcmeOrderExpiry,
+  FormGroupAcmeAuthzExpiry
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
 import {keySizes, keyTypes} from '../../config'
@@ -295,7 +342,15 @@ const components = {
   FormGroupRenewalMailFooter,
   FormGroupRevokedValidUntil,
   FormGroupScepServerEnabled,
-  FormGroupScepServerId
+  FormGroupScepServerId,
+  FormGroupAcmeEnabled,
+  FormGroupAcmeAllowedIdentifiers,
+  FormGroupAcmeEabRequired,
+  FormGroupAcmeAttestationFormats,
+  FormGroupAcmeAttestationRoots,
+  FormGroupAcmeAccountExpiry,
+  FormGroupAcmeOrderExpiry,
+  FormGroupAcmeAuthzExpiry
 }
 
 export const props = {
