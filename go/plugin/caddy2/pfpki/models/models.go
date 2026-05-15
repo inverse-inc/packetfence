@@ -101,6 +101,19 @@ type (
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
 		AllowDuplicatedCN     int                     `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
 		MaximumDuplicatedCN   int                     `json:"maximum_duplicated_cn,omitempty,string" gorm:"default:0"`
+
+		// ACME (RFC 8555) — issuance over Apple's managed-device flow
+		// and any other ACMEv2 client. Mirrors the SCEP* cluster above.
+		// All-zero defaults preserve existing profile behavior; ACME
+		// stays off until AcmeEnabled is flipped.
+		AcmeEnabled            int    `json:"acme_enabled,omitempty" gorm:"default:0"`
+		AcmeAllowedIdentifiers string `json:"acme_allowed_identifiers,omitempty"`
+		AcmeEabRequired        int    `json:"acme_eab_required,omitempty" gorm:"default:1"`
+		AcmeAttestationFormats string `json:"acme_attestation_formats,omitempty"`
+		AcmeAttestationRoots   string `json:"acme_attestation_roots,omitempty" gorm:"type:longtext"`
+		AcmeAccountExpiry      int    `json:"acme_account_expiry,omitempty,string" gorm:"default:365"`
+		AcmeOrderExpiry        int    `json:"acme_order_expiry,omitempty,string" gorm:"default:7"`
+		AcmeAuthzExpiry        int    `json:"acme_authz_expiry,omitempty,string" gorm:"default:24"`
 	}
 
 	// Cert struct
