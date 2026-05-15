@@ -681,7 +681,7 @@ lint_ci_yaml:
   extends:
     - .check_job
   image:
-    name: cytopia/yamllint:1
+    name: cytopia/yamllint:1.35
     entrypoint: [""]
   rules:
     - when: always
@@ -700,8 +700,11 @@ kaniko:
     - .build_img_container_kanikobuild_job
   variables:
     IMAGE_NAME: "kaniko-build"
-    # On devel two-tag (slug + latest); elsewhere overridden by .build_img_container_rules arm.
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    # IMAGE_TAGS is always set by the matching .build_img_container_rules arm:
+    # devel → "${CI_COMMIT_REF_SLUG},latest"; tag → tag; branches → slug.
+    # The placeholder below is never used at runtime (the job only runs when
+    # a .build_img_container_rules arm matches and sets IMAGE_TAGS itself).
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
@@ -712,7 +715,7 @@ pfdeb:
   needs: ["kaniko"]
   variables:
     IMAGE_NAME: "pfdebian"
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
@@ -725,7 +728,7 @@ pfdeb_based_full:
     - job: build_img_docker_deb12
       optional: true
   variables:
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
     matrix:
       - IMAGE_NAME: *service_images_full
@@ -738,7 +741,7 @@ img:
     - .build_img_container_job
   needs: ["pfdeb"]
   variables:
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
     matrix:
       - IMAGE_NAME:
@@ -752,7 +755,7 @@ rad_based:
     - .build_img_container_job
   needs: ["pfdeb"]
   variables:
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
     matrix:
       - IMAGE_NAME:
@@ -766,7 +769,7 @@ rad_extend:
     - .build_img_container_job
   needs: ["rad_based"]
   variables:
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
     matrix:
       - IMAGE_NAME:
@@ -791,8 +794,9 @@ pfconfig_material_builder:
   needs: ["pfdeb_based_full"]
   variables:
     IMAGE_NAME: "pfconfig-material-builder"
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
+    - !reference [.gated_by_build_img_container, rules]
     - !reference [.gated_by_build_artifacts_material, rules]
     - !reference [.build_img_container_rules, rules]
 
@@ -833,10 +837,11 @@ build_signing_debian:
   # Debian signing/upload/unit-test/perl-client-build jobs.
   extends:
     - .build_img_container_job
-  needs: ["kaniko"]
+  needs:
+    - kaniko
   variables:
     IMAGE_NAME: "signing-debian"
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
@@ -845,10 +850,11 @@ build_signing_rhel:
   # Powers GitHub Actions RHEL signing matrix and perl-client RPM build.
   extends:
     - .build_img_container_job
-  needs: ["kaniko"]
+  needs:
+    - kaniko
   variables:
     IMAGE_NAME: "signing-rhel"
-    IMAGE_TAGS: ${IMAGE_TAGS_DEVEL}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
@@ -982,6 +988,7 @@ publish_ppa:
   extends:
     - .publish_job
   rules:
+    - !reference [.gated_by_build_artifacts_pkg, rules]
     - !reference [.gated_by_publish_ppa, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
       variables:

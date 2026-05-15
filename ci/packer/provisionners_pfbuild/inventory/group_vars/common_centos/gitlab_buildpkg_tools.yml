@@ -12,6 +12,6 @@ gitlab_buildpkg_tools__rpm_deps_repos:
     module_hotfixes: 1
 
 # packages install will occur
-# during build depencies install from SPEC files
+# during build dependencies install from SPEC files
 gitlab_buildpkg_tools__rpm_pkgs:
   - 'epel-release'

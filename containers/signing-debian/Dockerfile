@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The bullseye package is Architecture: all (pure Perl) and its runtime deps
 # (perl, gnupg, libdigest-md5-perl, libconfig-file-perl) are all in bookworm,
 # so we fetch the .deb from the Debian archive and let apt resolve its deps.
-ARG DPKG_SIG_DEB_URL=http://archive.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
+ARG DPKG_SIG_DEB_URL=https://archive.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
 
 # Pre-bake all signing/upload/publish dependencies; no runtime apt-get install.
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \

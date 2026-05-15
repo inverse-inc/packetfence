@@ -8,6 +8,7 @@ RUN apt-get update -qq && \
         ca-certificates curl gnupg \
         python3 python3-nacl \
         git make \
+        bsdextrautils \
         openssh-client && \
     \
     install -m 0755 -d /etc/apt/keyrings && \
