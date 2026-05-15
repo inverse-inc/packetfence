@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/acme"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
@@ -171,6 +172,11 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Get("/", handlers.ManageOcsp(PFPki))
 			r.Post("/", handlers.ManageOcsp(PFPki))
 		})
+		// ACME (RFC 8555). Per-profile sub-routes at
+		// /api/v1/pki/acme/{profile}/{directory|new-nonce|…}. ACME
+		// clients only need the /directory URL configured in their MDM
+		// payload; everything else is link-discovered from there.
+		r.Mount("/pki/acme", acme.Mount(PFPki))
 		// SCEP api endpoint
 		r.Route("/pki/scep", func(r chi.Router) {
 			r.Get("/", handlers.ManageSCEP(PFPki))
