@@ -148,6 +148,14 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 	profile.ScepServerEnabled = p.ScepServerEnabled
 	profile.AllowDuplicatedCN = p.AllowDuplicatedCN
 	profile.MaximumDuplicatedCN = p.MaximumDuplicatedCN
+	profile.AcmeEnabled = p.AcmeEnabled
+	profile.AcmeAllowedIdentifiers = p.AcmeAllowedIdentifiers
+	profile.AcmeEabRequired = p.AcmeEabRequired
+	profile.AcmeAttestationFormats = p.AcmeAttestationFormats
+	profile.AcmeAttestationRoots = p.AcmeAttestationRoots
+	profile.AcmeAccountExpiry = p.AcmeAccountExpiry
+	profile.AcmeOrderExpiry = p.AcmeOrderExpiry
+	profile.AcmeAuthzExpiry = p.AcmeAuthzExpiry
 	profile.ScepServer = *scepserver
 
 	p.DB.Save(&profile)

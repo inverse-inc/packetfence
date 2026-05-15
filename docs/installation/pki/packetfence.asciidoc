@@ -325,3 +325,94 @@ associated to the template and put it in Intune as a "trusted certificate"
 Then set the SCEP URL to http://ip_address/scep/template_name or
 https://ip_address/scep/template_name
 
+==== ACME (RFC 8555) for Apple Managed Device Attestation
+
+PacketFence ships an ACME server (RFC 8555) so newer Apple devices —
+iOS 16+ and macOS 13+ under managed enrollment — can request
+certificates through their MDM stack instead of SCEP. The same code
+path handles the device-attest-01 challenge (RFC 9447) with Apple
+attestation, which is the only protocol Apple offers for hardware-bound,
+Secure-Enclave-issued client certs.
+
+The ACME server is mounted at:
+
+ /api/v1/pki/acme/<template_name>/directory
+
+Devices only need that URL; everything else (new-nonce, new-account,
+new-order, finalize, cert) is discovered through the directory document.
+
+===== Enable ACME on a template
+
+Edit the template (Configuration -> Integration -> PKI -> Templates),
+open the *ACME* tab, and set:
+
+* *Enable ACME* — turn the ACME directory on for this template.
+* *Allowed identifier types* — what /new-order will accept. Use
+  `dns,ip,email` for generic ACME clients, or `permanent-identifier`
+  for Apple managed-device enrollment.
+* *Attestation formats* — `apple` to enable device-attest-01 against
+  Apple's attestation chain. Leaving this empty disables device
+  attestation and the server falls back to http-01.
+* *Require External Account Binding* — keep this on for any production
+  fleet. EAB is what pins each enrollment to a key the operator
+  pre-shared with the device via MDM.
+* *Attestation root CAs (PEM)* — optional override of the embedded
+  Apple Enterprise Attestation Root CA. Required during the initial
+  release until the embedded root is verified against Apple's published
+  fingerprint.
+* *Account / Order / Authorization expiry* — defaults are usually
+  fine. The pki_acme_state_cleanup pfcron task drops rows past these
+  expiries so the pki_acme_* tables don't grow unbounded.
+
+===== Mint EAB keys
+
+When *Require External Account Binding* is on, every /new-account
+request must carry a signed EAB inner JWS proving the device has a
+KID + HMAC pair the operator authorized. Mint pairs through the
+admin API:
+
+ # List existing keys (HMAC is blanked in list responses)
+ curl -X GET  https://<pf>/api/v1/pki/profile/<id>/acme/eab
+
+ # Mint a new key — HMAC is returned once and never again
+ curl -X POST https://<pf>/api/v1/pki/profile/<id>/acme/eab \
+      -H 'Content-Type: application/json' \
+      -d '{"reference": "lab-fleet-2026Q2"}'
+
+ # Revoke a key (soft-delete; audit history is preserved)
+ curl -X DELETE https://<pf>/api/v1/pki/profile/<id>/acme/eab/<eab_id>
+
+The mint response carries `key_id` (the KID for the device's EAB JWS)
+and `hmac` (the HMAC key). Both must be transferred to the device via
+MDM payload before enrollment.
+
+===== Generate an Apple MDM profile
+
+PacketFence renders a ready-to-import `.mobileconfig` payload bound to
+a specific (template, EAB) pair:
+
+ curl -OJ https://<pf>/api/v1/pki/profile/<id>/acme/eab/<eab_id>/mobileconfig
+
+Hand the downloaded file to Jamf, Intune, or your MDM tool of choice
+as the certificate payload template. Device-specific substitutions
+like `%HardwareUUID%` are left for the MDM to fill at deploy time.
+
+===== Cleanup task
+
+ACME state grows quickly under enrollment churn. Enable the
+`pki_acme_state_cleanup` pfcron task (Configuration -> System
+Configuration -> Maintenance) — it sweeps expired nonces,
+authorizations, orders, and their challenges in dependency order.
+The defaults (hourly schedule, 1 hour grace window) suit most
+deployments; tune `batch` upward only if you observe steady-state
+churn beyond a few thousand enrollments per hour.
+
+===== Audit log
+
+Account creation, EAB mint/revoke, and certificate revocation flow
+through `admin_api_audit_log` with the action names
+`acme.account.create`, `pfpki.AcmeEABCreate`, `pfpki.AcmeEABDelete`,
+and `acme.cert.revoke`. ACME-side rows are attributed to the synthetic
+`UserName` `acme:<template_name>/<account_key_id>` so per-template
+traffic can be queried.
+
