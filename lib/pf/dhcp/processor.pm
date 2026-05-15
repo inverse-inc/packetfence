@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 # External libs
+use CHI;
 use Readonly;
 
 # Internal libs
@@ -72,6 +73,15 @@ Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
 # Local DHCP servers local cache
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
+
+# Tracks when each (mac, ip, lease_length) last queued a firewallsso 'Update'.
+# Process-local; with the hashed pfdhcplistener_external queue each MAC is
+# pinned to one worker, so a per-process cache covers all packets for a given
+# client. Entries are set with TTL = lease_length / 2 — the same half-lease
+# cadence DHCP clients renew on — so the firewall session stays alive without
+# enqueueing an Update on every renewal packet.
+my $sso_refresh_hash = {};
+my $sso_refresh_cache = CHI->new( driver => 'Memory', datastore => $sso_refresh_hash );
 
 
 =head2 _get_local_dhcp_servers
@@ -137,11 +147,23 @@ sub processIPTasks {
 
     # Firewall SSO
     if (any { pf::util::isenabled($_->{'sso_on_dhcp'}) } values %ConfigFirewallSSO ) {
-        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
-            $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'oldip'}, timeout => undef, source => $DHCP) );
-            $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH, source => $DHCP) );
+        my $sso_mac     = $iptasks_arguments{'mac'};
+        my $sso_ip      = $iptasks_arguments{'ip'};
+        my $sso_timeout = $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH;
+        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $sso_ip ) {
+            $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $sso_mac, ip => $iptasks_arguments{'oldip'}, timeout => undef, source => $DHCP) );
+            $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $sso_mac, ip => $sso_ip, timeout => $sso_timeout, source => $DHCP) );
+            # Force the refresh on the new IP so the next packet skips Update.
+            $sso_refresh_cache->remove("$sso_mac|$sso_ip|$sso_timeout");
         }
-        $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH, source => $DHCP) );
+        # Refresh the firewall session timeout at most once per half-lease.
+        # Without this gate every DHCP renewal packet (one per client per
+        # half-lease) queued a redundant general-queue task.
+        my $sso_refresh_key = "$sso_mac|$sso_ip|$sso_timeout";
+        unless ($sso_refresh_cache->get($sso_refresh_key)) {
+            $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $sso_mac, ip => $sso_ip, timeout => $sso_timeout, source => $DHCP) );
+            $sso_refresh_cache->set($sso_refresh_key, 1, int($sso_timeout / 2));
+        }
     }
 
     # Inline enforcement
