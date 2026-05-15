@@ -21,6 +21,9 @@ func Mount(h *types.Handler) chi.Router {
 		r.Get("/new-nonce", newNonceHandler(h))
 		r.Post("/new-account", newAccountHandler(h))
 		r.Post("/account/{id}", accountByIDHandler(h))
+		r.Post("/new-order", newOrderHandler(h))
+		r.Post("/order/{id}", orderByIDHandler(h))
+		r.Post("/authz/{id}", authzByIDHandler(h))
 	})
 	return r
 }
