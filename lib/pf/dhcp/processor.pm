@@ -83,6 +83,17 @@ my @local_dhcp_servers_ip;
 my $sso_refresh_hash = {};
 my $sso_refresh_cache = CHI->new( driver => 'Memory', datastore => $sso_refresh_hash );
 
+# Tracks the last (dhcp_fingerprint|dhcp_vendor|computername) signature
+# observed per MAC, so fingerbank_process is only enqueued when the device's
+# DHCP fingerprint actually changes. Fingerbank classification is a pure
+# function of those three fields, so re-running it on identical input wastes
+# a general-queue task per DHCP renewal. TTL mirrors the [storage fingerbank]
+# expires_in (24h) — long enough to suppress renewal storms, short enough
+# that updated Fingerbank signatures get re-applied within a day.
+my $fingerbank_signature_hash = {};
+my $fingerbank_signature_cache = CHI->new( driver => 'Memory', datastore => $fingerbank_signature_hash );
+Readonly::Scalar my $FINGERBANK_SIGNATURE_TTL => 86400;
+
 
 =head2 _get_local_dhcp_servers
 
@@ -226,7 +237,18 @@ sub processFingerbank {
     # If there is a match, we override Fingerbank call
     my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
     unless ( (keys %$dhcp_filter_rule) > 0 ) {
-        $self->apiClient->notify('fingerbank_process', $fingerbank_args->{mac});
+        # Suppress fingerbank_process when the device's DHCP signature is
+        # unchanged. Classification depends only on these three fields, so
+        # re-running on every renewal packet just wastes a general-queue task.
+        my $mac = $fingerbank_args->{mac};
+        my $signature = ($fingerbank_args->{dhcp_fingerprint} // '') . '|'
+                      . ($fingerbank_args->{dhcp_vendor} // '') . '|'
+                      . ($fingerbank_args->{computername} // '');
+        my $cached = $fingerbank_signature_cache->get($mac);
+        if (!defined($cached) || $cached ne $signature) {
+            $self->apiClient->notify('fingerbank_process', $mac);
+            $fingerbank_signature_cache->set($mac, $signature, $FINGERBANK_SIGNATURE_TTL);
+        }
     }
 }
 
