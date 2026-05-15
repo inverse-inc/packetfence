@@ -361,7 +361,7 @@ sub process_pkt {
                 #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
                 if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
                     my $apiclient = api_client();
-                    $apiclient->notify('process_dhcpv4', %args);
+                    $apiclient->notify_hashed($dhcp_mac, 'process_dhcpv4', %args);
                     if(defined($rate_limit_key) && $rate_limiting != 0) {
                         $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
                     }
@@ -378,7 +378,7 @@ sub process_pkt {
                 # TODO: Rate-limiting for IPv6 just as for IPv4
 
                 my $apiclient = api_client();
-                $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
+                $apiclient->notify_hashed($args{src_mac}, 'process_dhcpv6', MIME::Base64::encode($l4->{data}));
             }
 
             # Non IPv4 nor IPv6 packet
