@@ -79,7 +79,7 @@ BEGIN {
 }
 
 use pf::access_filter::radius;
-use Test::More tests => 2 + (scalar @tests * 1);
+use Test::More tests => 3 + (scalar @tests * 1);
 use Test::NoWarnings;
 
 {
@@ -102,13 +102,42 @@ use Test::NoWarnings;
     is_deeply(
         $reply,
         {
-            'Reply-Message'      => 'Request processed by PacketFence',
-            'reply:Cisco-AVPair' => [
+            'Reply-Message' => 'Request processed by PacketFence',
+            'Cisco-AVPair' => [
                 'url-redirect-acl=Pre-Auth',
                 'url-redirect=http://1.2.3.4/Cisco::WLC/sidbob'
             ]
         },
-        "Test filter"
+        "Test filter strips reply: prefix when merging into empty reply"
+    );
+}
+
+{
+    # Regression: filter answer with 'reply:' prefix must merge with the
+    # bare 'Cisco-AVPair' arrayref set by returnRadiusAccessAccept, not
+    # produce a parallel 'reply:Cisco-AVPair' key.
+    my $filter = pf::access_filter::radius->new;
+    $pf::access_filter::radius::LOOKUP{session_id} = sub { "bob" };
+    my $args = {mac => "00:99:88:77:66:55"};
+    my $rule = $filter->test('TestScope', $args);
+    my $existing = {
+        'Cisco-AVPair' => [ 'ip:inacl#101=permit ip any any', 'ip:inacl#102=permit ip any any' ],
+        'Tunnel-Type' => 13,
+    };
+    my ($reply, $status) = $filter->handleAnswerInRule($rule, $args, $existing);
+    is_deeply(
+        $reply,
+        {
+            'Reply-Message' => 'Request processed by PacketFence',
+            'Tunnel-Type'   => 13,
+            'Cisco-AVPair'  => [
+                'ip:inacl#101=permit ip any any',
+                'ip:inacl#102=permit ip any any',
+                'url-redirect-acl=Pre-Auth',
+                'url-redirect=http://1.2.3.4/Cisco::WLC/sidbob',
+            ],
+        },
+        "Test filter merges reply:Cisco-AVPair into existing Cisco-AVPair arrayref"
     );
 }
 
