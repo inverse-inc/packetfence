@@ -19,6 +19,8 @@ func Mount(h *types.Handler) chi.Router {
 		r.Get("/directory", directoryHandler(h))
 		r.Head("/new-nonce", newNonceHandler(h))
 		r.Get("/new-nonce", newNonceHandler(h))
+		r.Post("/new-account", newAccountHandler(h))
+		r.Post("/account/{id}", accountByIDHandler(h))
 	})
 	return r
 }
