@@ -122,12 +122,18 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 				}
 				authzIDs = append(authzIDs, authz.ID)
 
-				// Seed one challenge per authz. http-01 is the only
-				// type wired today; the device-attest-01 row will be
-				// added alongside the Apple validator in Phase 2.
+				// Seed one challenge per authz. The type depends on what
+				// the identifier is + what the profile allows:
+				//   - permanent-identifier + profile lists "apple" in
+				//     AcmeAttestationFormats  -> device-attest-01
+				//   - dns/ip                                    -> http-01
+				// dns-01 lands as a follow-up when an operator needs
+				// it; today the http-01 path is sufficient for all
+				// non-Apple flows.
+				chType := pickChallengeType(ident.Type, jc.Profile.AcmeAttestationFormats)
 				challenge := models.AcmeChallenge{
 					AuthzID: authz.ID,
-					Type:    "http-01",
+					Type:    chType,
 					Token:   randomToken(),
 					Status:  "pending",
 				}
@@ -402,6 +408,22 @@ func parseValidityHints(nb, na string) (time.Time, time.Time) {
 		notAfter, _ = time.Parse(time.RFC3339, na)
 	}
 	return notBefore, notAfter
+}
+
+// pickChallengeType maps (identifier-type, profile attestation policy)
+// to the challenge type the server should issue. The policy is
+// per-profile so two profiles on the same pfpki can run different
+// proof flows in parallel (e.g. one corp-managed-Apple profile with
+// device-attest-01, one DevOps profile with http-01).
+func pickChallengeType(identifierType, attestationFormatsCSV string) string {
+	if identifierType == "permanent-identifier" {
+		for _, f := range splitCSV(attestationFormatsCSV) {
+			if f == "apple" {
+				return "device-attest-01"
+			}
+		}
+	}
+	return "http-01"
 }
 
 // randomToken returns a 32-byte URL-safe base64 string suitable for an

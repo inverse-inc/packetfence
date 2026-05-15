@@ -135,6 +135,25 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 	switch ch.Type {
 	case "http-01":
 		validateErr = http01Validate(r.Context(), authz.Value, ch.Token, thumbprint)
+	case "device-attest-01":
+		// RFC 9447 §3: the JWS payload is JSON of the shape
+		//   {"attObj":"<base64url CBOR>"}
+		// We unwrap that envelope here and hand the validator the raw
+		// CBOR bytes — keeps the validator focused on attestation
+		// content rather than ACME-envelope plumbing.
+		var wrap struct {
+			AttObj string `json:"attObj"`
+		}
+		if err := json.Unmarshal(jc.Payload, &wrap); err != nil {
+			validateErr = errors.New("device-attest-01: payload is not JSON: " + err.Error())
+			break
+		}
+		cborBytes, err := jwsURLEncoding.DecodeString(wrap.AttObj)
+		if err != nil {
+			validateErr = errors.New("device-attest-01: attObj is not URL-safe base64: " + err.Error())
+			break
+		}
+		validateErr = deviceAttest01Validate(*jc.Profile, cborBytes, ch.Token, thumbprint, authz.Value)
 	default:
 		validateErr = errors.New("unsupported challenge type: " + ch.Type)
 	}
