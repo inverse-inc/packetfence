@@ -160,6 +160,114 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 	return jwsMiddleware(h, jwsRequireKID, inner)
 }
 
+// finalizePayload is the §7.4 request body the client sends to
+// /order/{id}/finalize: a base64url-encoded CSR DER.
+type finalizePayload struct {
+	CSR string `json:"csr"`
+}
+
+// orderFinalizeHandler implements §7.4 finalize. Preconditions:
+//   - Order must exist and belong to the JWS account.
+//   - Order must be in `ready` state (all authzs valid).
+//   - Posted CSR must be parseable and self-signature-valid.
+//   - CSR's CN/SANs must be a subset of the order's identifiers.
+//
+// On success, the cert is signed via models.SignCSRForACME (the
+// single integration seam with the existing pfpki issuance code), the
+// order's CertSerialNumber + status flip in one transaction, and we
+// return the updated order body. The client then polls /order/{id}
+// until status==valid and downloads the cert from /cert/{serial}.
+func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
+	inner := func(w http.ResponseWriter, r *http.Request) {
+		jc := fromCtx(r.Context())
+		if jc == nil || jc.Account == nil {
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, "missing account in JWS context")
+			return
+		}
+		idStr := chi.URLParam(r, "id")
+		id, err := strconv.ParseUint(idStr, 10, 64)
+		if err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "bad order id")
+			return
+		}
+		// Pre-load the profile with its CA so SignCSRForACME has
+		// everything it needs without a second SELECT inside the
+		// signing path.
+		var prof models.Profile
+		if err := h.DB.Preload("Ca").First(&prof, jc.Profile.ID).Error; err != nil {
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
+			return
+		}
+		var order models.AcmeOrder
+		if err := h.DB.First(&order, id).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				_ = WriteProblem(w, http.StatusNotFound, ErrMalformed, "no such order")
+				return
+			}
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
+			return
+		}
+		if order.AccountID != jc.Account.ID {
+			_ = WriteProblem(w, http.StatusUnauthorized, ErrUnauthorized, "order belongs to a different account")
+			return
+		}
+		if order.Status != "ready" {
+			_ = WriteProblem(w, http.StatusForbidden, ErrOrderNotReady,
+				"order status is "+order.Status+", finalize requires ready")
+			return
+		}
+
+		var payload finalizePayload
+		if err := json.Unmarshal(jc.Payload, &payload); err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "decode payload: "+err.Error())
+			return
+		}
+		csrDER, err := jwsURLEncoding.DecodeString(payload.CSR)
+		if err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, "csr field is not URL-safe base64: "+err.Error())
+			return
+		}
+
+		// Decode identifiers from storage into the shape SignCSRForACME
+		// expects (no acme→models import dependency).
+		var raw []identifier
+		if order.Identifiers != "" {
+			_ = json.Unmarshal([]byte(order.Identifiers), &raw)
+		}
+		ids := make([]models.AcmeIdentifier, len(raw))
+		for i, x := range raw {
+			ids[i] = models.AcmeIdentifier{Type: x.Type, Value: x.Value}
+		}
+
+		cert, err := models.SignCSRForACME(h.DB, r.Context(), prof, csrDER, ids)
+		if err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, err.Error())
+			return
+		}
+
+		// Order transition: ready → valid + record the cert serial so
+		// /cert/{serial} can resolve it later.
+		if err := h.DB.Model(&models.AcmeOrder{}).Where("id = ?", order.ID).
+			Updates(map[string]any{
+				"status":            "valid",
+				"cert_serial_number": cert.SerialNumber,
+			}).Error; err != nil {
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
+			return
+		}
+		// Refresh the in-memory copy so the response reflects the new
+		// state.
+		order.Status = "valid"
+		order.CertSerialNumber = cert.SerialNumber
+
+		loc := orderURL(r, jc.Profile.Name, order.ID)
+		w.Header().Set("Location", loc)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(buildOrderResponse(r, jc.Profile.Name, &order, parseAuthzIDs(order.AuthzIDs)))
+	}
+	return jwsMiddleware(h, jwsRequireKID, inner)
+}
+
 // orderByIDHandler is the RFC 8555 §6.3 POST-as-GET read of an order.
 // Empty body in the JWS payload; the kid in the protected header
 // authenticates the request. Ownership check: the order's account must
