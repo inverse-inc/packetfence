@@ -43,7 +43,21 @@ use Moose;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
-has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
+# pf::api::can_fork runs the api method in-process (and forks for :Fork
+# methods like trigger_scan). pf::client::getClient would default to
+# pf::api::jsonrpcclient inside the modern Go-driven pfqueue worker
+# (sbin/pfqueue-backend doesn't setClient), so each notify() turns into an
+# HTTPS POST to webservices — 5-7 round-trips per DHCP packet. Loading the
+# class lazily avoids a compile-time circular dep with pf::api (pf::api
+# loads this module, and pf::api::can_fork is already loaded by pf::task::api
+# before any DHCP task runs).
+has 'apiClient'    => (
+    is      => 'ro',
+    default => sub {
+        require pf::api::can_fork;
+        pf::api::can_fork->new;
+    },
+);
 has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
 
 
