@@ -27,6 +27,7 @@ use pf::config qw(
     %connection_type_to_str
     $INLINE
     %ConfigFirewallSSO
+    %ConfigScan
 );
 use pf::config::util;
 use pf::constants qw($TRUE);
@@ -190,7 +191,12 @@ sub processIPTasks {
     # Conformity scan
     # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for conformity scan. Remove the condition once "resolved"
     unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
-        $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+        # Mirror the early-return in pf::api::trigger_scan: skip the
+        # enqueue when no scan engines exist so we don't ship a task the
+        # general-queue worker would immediately drop.
+        if (scalar keys %ConfigScan) {
+            $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+        }
     }
 
     # Parking security_event
