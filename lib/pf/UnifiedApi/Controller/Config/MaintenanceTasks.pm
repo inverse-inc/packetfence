@@ -30,6 +30,7 @@ use pfappserver::Form::Config::Pfcron::certificates_check;
 use pfappserver::Form::Config::Pfcron::pki_certificates_check;
 use pfappserver::Form::Config::Pfcron::pki_process_cloud_revocations;
 use pfappserver::Form::Config::Pfcron::pki_revoked_certs_cleanup;
+use pfappserver::Form::Config::Pfcron::pki_acme_state_cleanup;
 use pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache;
 use pfappserver::Form::Config::Pfcron::cluster_check;
 use pfappserver::Form::Config::Pfcron::fingerbank_data_update;
@@ -65,6 +66,7 @@ our %TYPES_TO_FORMS = (
       pki_certificates_check
       pki_process_cloud_revocations
       pki_revoked_certs_cleanup
+      pki_acme_state_cleanup
       cleanup_chi_database_cache
       cluster_check
       fingerbank_data_update

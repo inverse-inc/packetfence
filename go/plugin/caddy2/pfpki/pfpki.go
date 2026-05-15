@@ -135,6 +135,12 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Patch("/{id}", handlers.GetProfileByID(PFPki))
 			r.Get("/{id}", handlers.GetProfileByID(PFPki))
 			r.Post("/{id}/sign_csr", handlers.SignCSR(PFPki))
+			// EAB management — admin mints/lists/revokes External
+			// Account Binding keys for ACME enrollment under {id}.
+			r.Get("/{id}/acme/eab", handlers.AcmeEABList(PFPki))
+			r.Post("/{id}/acme/eab", handlers.AcmeEABCreate(PFPki))
+			r.Delete("/{id}/acme/eab/{eab_id}", handlers.AcmeEABDelete(PFPki))
+			r.Get("/{id}/acme/eab/{eab_id}/mobileconfig", handlers.AcmeEABMobileConfig(PFPki))
 
 		})
 		// Certs api endpoint

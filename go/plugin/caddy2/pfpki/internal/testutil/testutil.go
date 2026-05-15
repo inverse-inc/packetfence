@@ -142,6 +142,10 @@ func newRouter(h *types.Handler) chi.Router {
 			r.Patch("/{id}", handlers.GetProfileByID(h))
 			r.Get("/{id}", handlers.GetProfileByID(h))
 			r.Post("/{id}/sign_csr", handlers.SignCSR(h))
+			r.Get("/{id}/acme/eab", handlers.AcmeEABList(h))
+			r.Post("/{id}/acme/eab", handlers.AcmeEABCreate(h))
+			r.Delete("/{id}/acme/eab/{eab_id}", handlers.AcmeEABDelete(h))
+			r.Get("/{id}/acme/eab/{eab_id}/mobileconfig", handlers.AcmeEABMobileConfig(h))
 		})
 		r.Route("/pki/certs", func(r chi.Router) {
 			r.Post("/", handlers.GetSetCert(h))
