@@ -414,6 +414,195 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
+// AcmeIdentifier is the lightweight (type, value) pair the ACME layer
+// hands to SignCSRForACME. It mirrors the on-the-wire shape so we
+// don't have to import the acme package back into models.
+type AcmeIdentifier struct {
+	Type  string
+	Value string
+}
+
+// SignCSRForACME issues a cert against the given profile for an
+// ACME-finalize call. It is the single integration point the user
+// asked about: ACME's identifier set (already validated against the
+// order) is verified against the CSR's CN+SANs, then the cert is
+// signed with the profile's CA and persisted to pki_certs.
+//
+// Returns the newly-inserted Cert row (with ID + SerialNumber
+// populated) or an error suitable for an ACME problem document.
+//
+// Callers must hand a profile loaded with `Preload("Ca")` so the CA
+// cert/key are accessible.
+func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byte, identifiers []AcmeIdentifier) (*Cert, error) {
+	csr, err := x509.ParseCertificateRequest(csrDER)
+	if err != nil {
+		return nil, fmt.Errorf("parse CSR: %w", err)
+	}
+	if err := csr.CheckSignature(); err != nil {
+		return nil, fmt.Errorf("CSR self-signature: %w", err)
+	}
+
+	// Validate CSR identifiers ⊆ order identifiers. We allow the CSR
+	// to use a strict subset (some clients drop SANs they no longer
+	// want) but a SAN not in the order is a hard reject — this is the
+	// security boundary that prevents a device that proved ownership
+	// of example.com from minting a cert for example.bank.
+	allowedDNS, allowedIP := partitionIdentifiers(identifiers)
+	if cn := strings.TrimSpace(csr.Subject.CommonName); cn != "" {
+		if !containsString(allowedDNS, cn) && !containsString(allowedIP, cn) {
+			return nil, fmt.Errorf("CSR CN %q not in order identifiers", cn)
+		}
+	}
+	for _, dns := range csr.DNSNames {
+		if !containsString(allowedDNS, dns) {
+			return nil, fmt.Errorf("CSR DNS SAN %q not in order identifiers", dns)
+		}
+	}
+	for _, ip := range csr.IPAddresses {
+		if !containsString(allowedIP, ip.String()) {
+			return nil, fmt.Errorf("CSR IP SAN %q not in order identifiers", ip.String())
+		}
+	}
+
+	// Atomically allocate a serial.
+	serial, err := nextSerialNumber(db, prof.Ca.ID, false)
+	if err != nil {
+		return nil, fmt.Errorf("allocate serial: %w", err)
+	}
+
+	// Skid is computed from the CSR's pubkey, not the CA's, so each
+	// issued leaf has its own SubjectKeyIdentifier.
+	skid, err := certutils.CalculateSKID(csr.PublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("compute SKID: %w", err)
+	}
+
+	// Build the cert template. KeyUsage / ExtKeyUsage / Digest come
+	// from the profile, just like the existing CSR.New path.
+	keyUsage := x509.KeyUsage(certutils.Keyusage(strings.Split(strDeref(prof.KeyUsage), "|")))
+	extKeyUsage := certutils.Extkeyusage(strings.Split(strDeref(prof.ExtendedKeyUsage), "|"))
+
+	tmpl := &x509.Certificate{
+		SerialNumber:       serial,
+		Subject:            csr.Subject,
+		NotBefore:          time.Now().UTC(),
+		NotAfter:           time.Now().AddDate(0, 0, prof.Validity).UTC(),
+		SignatureAlgorithm: certutils.CompatibleSigAlgo(*prof.Ca.KeyType, prof.Digest),
+		KeyUsage:           keyUsage,
+		ExtKeyUsage:        extKeyUsage,
+		SubjectKeyId:       skid,
+		DNSNames:           csr.DNSNames,
+		IPAddresses:        csr.IPAddresses,
+		EmailAddresses:     csr.EmailAddresses,
+		URIs:               csr.URIs,
+	}
+	if prof.OCSPUrl != "" {
+		tmpl.OCSPServer = []string{prof.OCSPUrl}
+	}
+
+	catls, err := tls.X509KeyPair([]byte(prof.Ca.Cert), []byte(prof.Ca.Key))
+	if err != nil {
+		return nil, fmt.Errorf("load CA key pair: %w", err)
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return nil, fmt.Errorf("parse CA cert: %w", err)
+	}
+	derBytes, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, csr.PublicKey, catls.PrivateKey)
+	if err != nil {
+		return nil, fmt.Errorf("sign cert: %w", err)
+	}
+	pemBuf := new(bytes.Buffer)
+	if err := pem.Encode(pemBuf, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes}); err != nil {
+		return nil, err
+	}
+
+	dnMap := certutils.GetDNFromCert(csr.Subject)
+	cnForRow := strings.TrimSpace(csr.Subject.CommonName)
+	if cnForRow == "" {
+		// ACME profiles often issue with empty CN + only SANs; pick
+		// the first DNS SAN for the row's index column.
+		if len(csr.DNSNames) > 0 {
+			cnForRow = csr.DNSNames[0]
+		} else if len(csr.IPAddresses) > 0 {
+			cnForRow = csr.IPAddresses[0].String()
+		}
+	}
+
+	var ipStrings []string
+	for _, ip := range csr.IPAddresses {
+		ipStrings = append(ipStrings, ip.String())
+	}
+
+	notfalse := false
+	notTrue := true
+	row := Cert{
+		Cn:                 cnForRow,
+		Mail:               strings.Join(csr.EmailAddresses, ","),
+		Ca:                 prof.Ca,
+		CaID:               prof.Ca.ID,
+		CaName:             prof.Ca.Cn,
+		StreetAddress:      dnMap["streetAddress"],
+		Organisation:       dnMap["O"],
+		OrganisationalUnit: dnMap["OU"],
+		Country:            dnMap["C"],
+		State:              dnMap["ST"],
+		Locality:           dnMap["L"],
+		PostalCode:         dnMap["postalCode"],
+		Cert:               pemBuf.String(),
+		Profile:            prof,
+		ProfileID:          prof.ID,
+		ProfileName:        prof.Name,
+		ValidUntil:         tmpl.NotAfter,
+		NotBefore:          tmpl.NotBefore,
+		SerialNumber:       serial.String(),
+		DNSNames:           strings.Join(csr.DNSNames, ","),
+		IPAddresses:        strings.Join(ipStrings, ","),
+		Scep:               &notfalse,
+		Csr:                &notTrue,
+		Subject:            csr.Subject.String(),
+		DB:                 db,
+		Ctx:                ctx,
+	}
+	if err := db.Create(&row).Error; err != nil {
+		return nil, fmt.Errorf("persist cert: %w", err)
+	}
+	return &row, nil
+}
+
+// partitionIdentifiers splits an ACME identifier slice into DNS and
+// IP buckets so SAN validation can be done in two simple slice scans.
+func partitionIdentifiers(ids []AcmeIdentifier) (dns, ip []string) {
+	for _, id := range ids {
+		switch id.Type {
+		case "dns":
+			dns = append(dns, id.Value)
+		case "ip":
+			ip = append(ip, id.Value)
+		}
+	}
+	return
+}
+
+func strDeref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+// containsString is the trivial linear-scan membership test used by
+// SignCSRForACME's identifier validation. Tiny lists (1-5 names), so
+// the obvious O(n*m) check is fine.
+func containsString(xs []string, want string) bool {
+	for _, x := range xs {
+		if x == want {
+			return true
+		}
+	}
+	return false
+}
+
 // RevokeBySerial looks up a leaf by serial number under the given CA
 // name and revokes it with the supplied reason. Returns true when a
 // matching cert was found and revoked, false when no row matched (which
