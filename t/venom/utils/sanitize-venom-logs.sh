@@ -6,6 +6,7 @@ set -o nounset -o pipefail -o errexit
 # Create an archive
 
 pf_logs_root=/usr/local/pf/logs
+var_logs_root=/var/log
 venom_root=/usr/local/pf/t/venom
 venom_result_dir=${venom_root}/results
 venom_result_archive=${venom_root}/results-$(hostname).tar.gz
@@ -25,6 +26,10 @@ create_archive() {
     if [[ -d ${pf_logs_root} ]]; then
          # add pf logs if available
 	 all_path="${all_path} ${pf_logs_root}"
+    fi
+    if [[ -d ${var_logs_root} ]]; then
+         # add system logs if available
+	 all_path="${all_path} ${var_logs_root}"
     fi
     tar c -zf "${venom_result_archive}" ${all_path}
 }
