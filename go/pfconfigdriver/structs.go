@@ -1113,6 +1113,7 @@ type PfConfSwitch struct {
 	VoIPCDPDetect  string `json:"VoIPCDPDetect"`
 	VoIPDHCPDetect string `json:"VoIPDHCPDetect"`
 	VoIPLLDPDetect string `json:"VoIPLLDPDetect"`
+	VoIPDACL       string `json:"VoIPDACL"`
 
 	// RADIUS
 	UseCoA                   string              `json:"useCoA"`

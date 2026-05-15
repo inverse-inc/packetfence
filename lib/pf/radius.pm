@@ -314,9 +314,36 @@ sub authorize {
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($args->{'isPhone'} && isenabled($switch->{_VoIPEnabled})) {
-        $RAD_REPLY_REF = $self->_authorizeVoip($args);
-        $args->{'user_role'} = $VOICE_ROLE;
-        goto CLEANUP;
+        my $voip_reply_ref = $self->_authorizeVoip($args);
+
+        if (!isenabled($switch->{_VoIPDACL})) {
+            $RAD_REPLY_REF = $voip_reply_ref;
+            $args->{'user_role'} = $VOICE_ROLE;
+            goto CLEANUP;
+        }
+
+        # VoIPDACL is enabled: keep the Voice VSA but continue through the regular
+        # authorize flow so the FULL Access-Accept (VLAN tunnel attributes, role
+        # attributes, push/downloadable ACLs, access-filter rules) is computed as
+        # if this were a regular endpoint. The Voice VSA is merged on top after
+        # returnRadiusAccessAccept(). Note: the data VLAN attributes returned
+        # alongside the Voice VSA may conflict with the voice VLAN unless the
+        # switch is configured to accept both (e.g. Cisco device-traffic-class=voice
+        # with a separate access VLAN).
+        if (ref($voip_reply_ref) eq 'ARRAY' && @$voip_reply_ref >= 1
+            && $voip_reply_ref->[0] == $RADIUS::RLM_MODULE_OK) {
+            my @voip_pairs = @$voip_reply_ref;
+            shift @voip_pairs;
+            $args->{'_voip_vsa'} = { @voip_pairs };
+            $logger->info("VoIPDACL enabled on switch ($switch_id): captured Voice VSA, "
+                . "continuing through regular flow to compute full Access-Accept for phone $mac");
+        } else {
+            # _authorizeVoip refused (e.g. switch does not support VoIP via RADIUS);
+            # fall back to the original behavior so the failure is returned.
+            $RAD_REPLY_REF = $voip_reply_ref;
+            $args->{'user_role'} = $VOICE_ROLE;
+            goto CLEANUP;
+        }
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -378,6 +405,19 @@ sub authorize {
     }
 
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
+
+    # If we are in VoIPDACL mode, merge the previously captured Voice VSA
+    # on top of the regular Access-Accept (VLAN tunnel attributes, role
+    # attributes, push/downloadable ACLs, access-filter rules).
+    if (defined $args->{'_voip_vsa'} && ref($args->{'_voip_vsa'}) eq 'HASH'
+        && ref($RAD_REPLY_REF) eq 'ARRAY' && @$RAD_REPLY_REF >= 1) {
+        my @reply = @$RAD_REPLY_REF;
+        my $status = shift @reply;
+        $RAD_REPLY_REF = [
+            $status,
+            pf::radius::_merge_radius_attrs(@reply, %{$args->{'_voip_vsa'}}),
+        ];
+    }
 
 CLEANUP:
     # If the device is lost or stolen, then ensure we execute the actions of the violation so the emails can be sent on connection
@@ -614,7 +654,14 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
+
+    # When VoIPDACL is enabled the caller will continue through the regular
+    # authorize flow, which performs its own synchronize_locationlog with the
+    # computed role/vlan. Skip the VoIP-only locationlog write here to avoid
+    # an immediately-overwritten entry.
+    if (!isenabled($args->{'switch'}->{_VoIPDACL})) {
+        $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
+    }
 
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();
@@ -1434,6 +1481,31 @@ sub _machine_auth_detection {
         $$node_obj->machine_account($user_name);
         $$options->{'machine_account'} = $user_name;
     }
+}
+
+=item _merge_radius_attrs
+
+Merge two flat lists of RADIUS attribute key/value pairs. When the same
+attribute appears on both sides, values are combined into an arrayref so
+multivalued attributes (e.g. Cisco-AVPair, Filter-Id) are preserved.
+
+=cut
+
+sub _merge_radius_attrs {
+    my (@pairs) = @_;
+    my @order;
+    my %merged;
+    while (my ($k, $v) = splice(@pairs, 0, 2)) {
+        if (exists $merged{$k}) {
+            my @existing = ref($merged{$k}) eq 'ARRAY' ? @{$merged{$k}} : ($merged{$k});
+            my @incoming = ref($v)         eq 'ARRAY' ? @$v             : ($v);
+            $merged{$k}  = [@existing, @incoming];
+        } else {
+            push @order, $k;
+            $merged{$k} = $v;
+        }
+    }
+    return map { ($_ => $merged{$_}) } @order;
 }
 
 =back
