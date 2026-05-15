@@ -134,13 +134,21 @@ func revokeCertHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
 			return
 		}
+		actor := requestActor(jc)
 		if !found {
 			// Race: the cert was revoked by another caller between
 			// the lookup above and the revoke. Treat as success per
-			// §7.6 idempotency.
+			// §7.6 idempotency, but still emit an audit row so the
+			// double-revoke is observable.
+			auditACMEEvent(r.Context(), h.DB, jc.Profile.Name, actor, "acme.cert.revoke",
+				serial, r.Method, requestURLForAudit(r), http.StatusOK,
+				map[string]any{"reason": reason, "already_revoked": true})
 			w.WriteHeader(http.StatusOK)
 			return
 		}
+		auditACMEEvent(r.Context(), h.DB, jc.Profile.Name, actor, "acme.cert.revoke",
+			serial, r.Method, requestURLForAudit(r), http.StatusOK,
+			map[string]any{"reason": reason})
 		// §7.6: empty body, 200 OK on success.
 		w.WriteHeader(http.StatusOK)
 	}

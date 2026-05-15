@@ -140,6 +140,14 @@ func newAccountHandler(h *types.Handler) http.HandlerFunc {
 			return
 		}
 
+		auditACMEEvent(r.Context(), h.DB, jc.Profile.Name, thumb, "acme.account.create",
+			strconv.FormatUint(uint64(newRow.ID), 10), r.Method, requestURLForAudit(r),
+			http.StatusCreated, map[string]any{
+				"contact": payload.Contact,
+				"eab_key": newRow.ExternalAccountKeyID,
+				"key_id":  newRow.KeyID,
+			})
+
 		writeAccount(w, r, &newRow, http.StatusCreated)
 	}
 	return jwsMiddleware(h, jwsRequireJWK, inner)
