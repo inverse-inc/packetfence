@@ -86,19 +86,33 @@ sub handleAnswerInRule {
             return ($radius_reply, $status);
         }
 
-        foreach my $key (keys %$radius_reply_ref) {
-            if (exists($radius_reply->{$key})) {
-                my $type = reftype($radius_reply->{$key});
-                if (defined($type) && $type eq 'ARRAY') {
-                    my @attribute;
-                    push(@attribute,@{$radius_reply_ref->{$key}});
-                    push(@attribute,@{$radius_reply->{$key}});
-                    $radius_reply_ref->{$key} = \@attribute;
-                    delete $radius_reply->{$key};
-                }
+        # Normalize the optional 'reply:' section prefix and merge filter
+        # answers into the existing reply. Without this, an answer such as
+        # 'reply:Cisco-AVPair = ...' lands under a different hash key than
+        # the bare 'Cisco-AVPair' set by returnRadiusAccessAccept, and both
+        # cross the rlm_rest boundary as duplicate keys targeting the same
+        # attribute -- producing non-deterministic results on the wire.
+        for my $key (keys %$radius_reply) {
+            (my $target = $key) =~ s/^reply://;
+            if ($target =~ /:/) {
+                # other section (control:, request:, session-state:, ...);
+                # leave as-is so it doesn't collide with reply attributes.
+                $radius_reply_ref->{$key} = delete $radius_reply->{$key};
+                next;
             }
+            my @incoming = (reftype($radius_reply->{$key}) // '') eq 'ARRAY'
+                           ? @{$radius_reply->{$key}}
+                           : ($radius_reply->{$key});
+            if (exists $radius_reply_ref->{$target}) {
+                my @existing = (reftype($radius_reply_ref->{$target}) // '') eq 'ARRAY'
+                               ? @{$radius_reply_ref->{$target}}
+                               : ($radius_reply_ref->{$target});
+                $radius_reply_ref->{$target} = [@existing, @incoming];
+            } else {
+                $radius_reply_ref->{$target} = (@incoming > 1) ? \@incoming : $incoming[0];
+            }
+            delete $radius_reply->{$key};
         }
-        $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
         return ($radius_reply_ref, $status);
     }
 
