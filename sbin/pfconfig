@@ -85,27 +85,9 @@ my $logger = get_logger;
 our $PROGRAM_NAME = $0 = $args{n};
 our $PID_FILE = $args{p} // "${var_dir}/run/$PROGRAM_NAME.pid";
 
-# init signal handlers
-POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfconfig: could not set SIGHUP handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGTERM,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfconfig: could not set SIGTERM handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGINT,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfconfig: could not set SIGINT handler: $!");
+$SIG{INT}  = \&normal_sighandler;
+$SIG{HUP}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
 
 my $daemonize = $args{d};
 
@@ -175,6 +157,9 @@ our %DISPATCH = (
 my $encoding;
 
 my $REQUEST_TIMEOUT = 5;
+use IO::Select;
+
+my $select = IO::Select->new($listener);
 
 while($RUNNING) {
     # check for any child to reap
@@ -186,8 +171,11 @@ while($RUNNING) {
     my $socket;
     my $line;
     my $query;
+    my @ready = $select->can_read(1);
+    next unless @ready;
     local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
     eval {
+        local $!;
         my $paddr = accept($socket, $listener);
         #Check if a signal was caught
         unless (defined $paddr || $! == EINTR) {
