@@ -85,6 +85,8 @@ my $logger = get_logger;
 our $PROGRAM_NAME = $0 = $args{n};
 our $PID_FILE = $args{p} // "${var_dir}/run/$PROGRAM_NAME.pid";
 
+$SIG{PIPE} = 'IGNORE';
+$SIG{CHLD} = \&child_sighandler;
 $SIG{INT}  = \&normal_sighandler;
 $SIG{HUP}  = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
@@ -162,9 +164,6 @@ use IO::Select;
 my $select = IO::Select->new($listener);
 
 while($RUNNING) {
-    # check for any child to reap
-    waitpid(-1, WNOHANG);
-
     # reset the encoding
     $encoding = undef;
 
@@ -541,6 +540,14 @@ sub getLockOnPid {
         return undef;
     }
     return $fh;
+}
+
+sub child_sighandler {
+    local ($!, $?);
+    while (1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+    }
 }
 
 =back
