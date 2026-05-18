@@ -9,7 +9,7 @@ fi
 
 function base_args {
   name="$1"
-  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
+  args="--init --sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
   args="$args -v /etc/sudoers:/etc/sudoers -v /etc/sudoers.d/:/etc/sudoers.d/"
@@ -135,8 +135,8 @@ function run_img {
   docker container rm -f $name 1&2> /dev/null
   echo "Running with args $args"
   if ! [ -z $NOTIFY_SOCKET ]; then
-    sdproxy $name $args --name=$name $img $cmd
+    exec sdproxy $name $args --name=$name $img $cmd
   else
-   /usr/bin/docker run $args --name=$name $img $cmd
+   exec /usr/bin/docker run $args --name=$name $img $cmd
   fi
 }
