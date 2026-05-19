@@ -516,6 +516,7 @@ sub security_event_last_errors { @ERRORS }
 sub info_for_security_event_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
+    $type = lc($type);
     my $node_info = pf::node::node_view($mac);
 
     my $results = {};
@@ -528,7 +529,6 @@ sub info_for_security_event_engine {
     if ($api_config) {
         my $cache = pf::CHI->new( namespace => 'fingerbank' );
 
-        $type = lc($type);
 
         my $devices = [];
         if (!defined $device_id) {
