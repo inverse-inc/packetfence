@@ -52,6 +52,7 @@ variables:
   ISODIR: $CIDIR/cd-iso
   DVD_USB_ISODIR: $CIDIR/dvd-usb-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
+  VAGRANT_LIB_DIR: $CIDIR/lib/vagrant
   TESTDIR: t/venom
   CONTAINER_DIR: containers
   UPLOAD_DIR: $CILIBDIR/upload
@@ -359,9 +360,12 @@ variables:
   stage: build_images
   variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
-    BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
+    - ${VAGRANT_IMG_DIR}/upload-to-linode.sh
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
@@ -542,9 +546,12 @@ variables:
   stage: build_pf_img
   variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
-    BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
+    - ${VAGRANT_IMG_DIR}/upload-to-linode.sh
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
@@ -560,6 +567,12 @@ variables:
 .deb_script_job:
   script:
     - make -e build_deb
+
+.setup_vagrant_box_job:
+  variables:
+    BOX_NAME: pfdeb12dev
+  before_script:
+    - ${VAGRANT_LIB_DIR}/setup-vagrant-box.sh
 
 .test_script_job:
   variables:
@@ -1073,6 +1086,7 @@ configurator_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 pfappserver_el8:
@@ -1089,6 +1103,7 @@ pfappserver_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 dot1x_eap_peap_el8:
@@ -1105,6 +1120,7 @@ dot1x_eap_peap_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 mac_auth_el8:
@@ -1121,6 +1137,7 @@ mac_auth_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 dot1x_eap_tls_el8:
@@ -1137,6 +1154,7 @@ dot1x_eap_tls_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 fingerbank_invalid_db_deb12:
@@ -1145,6 +1163,7 @@ fingerbank_invalid_db_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 security_events_deb12:
@@ -1153,6 +1172,7 @@ security_events_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 cli_login_deb12:
@@ -1161,6 +1181,7 @@ cli_login_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 cli_login_el8:
@@ -1177,6 +1198,7 @@ external_integrations_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 captive_portal_el8:
@@ -1193,6 +1215,7 @@ captive_portal_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 inline_deb12:
@@ -1201,6 +1224,7 @@ inline_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 inline_el8:
@@ -1225,6 +1249,7 @@ mac_auth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 device_profiling_virtualswitch_el8:
@@ -1241,6 +1266,7 @@ device_profiling_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 dot1x_wired_computer_auth_virtualswitch_el8:
@@ -1257,6 +1283,7 @@ dot1x_wired_computer_auth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 pfacct_bandwidth_virtualswitch_el8:
@@ -1273,6 +1300,7 @@ pfacct_bandwidth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 security_event_virtualswitch_el8:
@@ -1289,6 +1317,7 @@ security_event_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .test_rules
 
 ### release
@@ -1306,6 +1335,7 @@ configurator_deb12_pristine:
   extends:
     - .test_job
     - .test_script_job
+    - .setup_vagrant_box_job
     - .release_only_rules
 
 
