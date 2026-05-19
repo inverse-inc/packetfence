@@ -9,7 +9,7 @@ fi
 
 function base_args {
   name="$1"
-  args="--init --sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
+  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
   args="$args -v /etc/sudoers:/etc/sudoers -v /etc/sudoers.d/:/etc/sudoers.d/"
