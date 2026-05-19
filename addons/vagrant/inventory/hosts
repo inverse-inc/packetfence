@@ -143,7 +143,7 @@ all:
               disk_size: 130
             pf1deb12dev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -153,7 +153,7 @@ all:
               disk_size: 130
             pf2deb12dev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -163,7 +163,7 @@ all:
               disk_size: 130
             pf3deb12dev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -203,7 +203,7 @@ all:
               disk_size: 130
             pf1deb12localdev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb12localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb12localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -213,7 +213,7 @@ all:
               disk_size: 130
             pf2deb12localdev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb12localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb12localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -223,7 +223,7 @@ all:
               disk_size: 130
             pf3deb12localdev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb12localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb12localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -246,7 +246,7 @@ all:
               disk_size: 130
             pfdeb12dev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -266,7 +266,7 @@ all:
               disk_size: 130
             deb12dev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -290,7 +290,7 @@ all:
               disk_size: 130
             pfdeb12localdev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -310,7 +310,7 @@ all:
               disk_size: 130
             deb12localdev:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -340,7 +340,7 @@ all:
               disk_size: 130
             pfdeb12stable:
               box: debian/bookworm64
-              box_version: 12.20250126.1
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
