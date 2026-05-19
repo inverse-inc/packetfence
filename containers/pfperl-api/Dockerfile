@@ -20,4 +20,4 @@ RUN ln -s /usr/local/pf/bin/pfcmd.pl /usr/local/pf/bin/pfcmd && \
     mkdir -p ./var/control && \
     bash -c 'cd /usr/local/pf/db && export VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1) && ln -f -s $VERSIONSQL ./pf-schema.sql'
 
-ENTRYPOINT /usr/local/pf/sbin/pfperl-api prefork -m production -l http://127.0.0.1:22224 -l http://100.64.0.1:22224 --pid-file /usr/local/pf/var/run/pfperl-api.pid
+ENTRYPOINT ["/usr/local/pf/sbin/pfperl-api", "prefork", "-m", "production", "-l", "http://127.0.0.1:22224", "-l", "http://100.64.0.1:22224", "--pid-file", "/usr/local/pf/var/run/pfperl-api.pid"]

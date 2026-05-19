@@ -26,4 +26,4 @@ RUN ln -s /usr/local/pf/bin/impacket/impacket_addcomputer.py /usr/local/pf/bin/i
 
 COPY --from=0 /usr/local/pf/go/ntlm-join-remote /usr/local/pf/sbin/ntlm-join-remote
 
-ENTRYPOINT /usr/local/pf/sbin/ntlm-join-remote
+ENTRYPOINT ["/usr/local/pf/sbin/ntlm-join-remote"]

@@ -17,4 +17,4 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfdns /usr/local/pf/sbin/pfdns
-ENTRYPOINT /usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns-connector.conf
+ENTRYPOINT ["/usr/local/pf/sbin/pfdns", "-conf=/usr/local/pf/var/conf/pfdns-connector.conf"]

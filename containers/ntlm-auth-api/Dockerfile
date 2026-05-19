@@ -17,4 +17,4 @@ COPY addons/ntlm-auth-api/openssl.cnf /usr/lib/ssl/openssl.cnf
 
 WORKDIR /usr/local/pf/bin/pyntlm_auth
 
-ENTRYPOINT /usr/bin/gunicorn -c /usr/local/pf/bin/pyntlm_auth/gunicorn.conf.py
+ENTRYPOINT ["/usr/bin/gunicorn", "-c", "/usr/local/pf/bin/pyntlm_auth/gunicorn.conf.py"]
