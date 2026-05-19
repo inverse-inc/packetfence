@@ -119,6 +119,7 @@ function run_multi() {
     run_img $img "$name-$suffix" "$args" "$cmd"
   fi
 }
+
 function sdproxy() {
   SD_NOTIFY_PROXY=/usr/local/pf/sbin/sdnotify-proxy
   SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock
@@ -132,7 +133,7 @@ function run_img {
   args="$3"
   cmd="$4"
   cd /usr/local/pf/
-  docker container rm -f $name 1&2> /dev/null
+  docker container rm -f $name &> /dev/null
   echo "Running with args $args"
   if ! [ -z $NOTIFY_SOCKET ]; then
     sdproxy $name --init $args --name=$name $img $cmd
