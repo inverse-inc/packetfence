@@ -51,6 +51,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
   - Upgrade to Caddy 2.11 (with bundled CoreDNS update) (#8961)
+  - Tweak API restart timing to wait for the API to be ready (#9053)
+  - Rename "Azure Active Directory"/"Azure" to "Microsoft Entra ID"/"Entra ID" in documentation (#9048)
   - Update Go to 1.25.5 (#8856)
   - Migrated Perl report/dynamic_report endpoint to Go — adds endpoint scaffolding and dev docs (#8843)
   - pfdhcp performance optimizations — fixes race conditions, goroutine leaks, missing error checks (#8803)
@@ -80,6 +82,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Bug Fixes
 
   - Fix parent_id semantics across role create, update, and admin UI — distinguish payload-omitted vs explicit-null (#9029)
+  - Fix duplicate IP addresses returned from the pfdhcp pool (#9043)
+  - Fix CoA timeouts when deauth is tunneled via pfconnector — omit LocalAddr on the connector path so the kernel picks the correct source IP (#9049)
+  - EntraID source: fix device group lookup that stopped working since 15.x (#9044, #8812)
+  - Reject empty or unparseable CA certificate on save to prevent RADIUS EAP from silently breaking (#9042)
   - Fix SSO portaltoken validation — use HttpdPortal URL and add X-Forwarded-For-PacketFence header (#8962, #8951)
   - Security event purge: batch by 100 nodes and fix SQL syntax (#8740, #7293)
   - Install tcpdump for Go unit tests on EL8 (#8981, #8978)
