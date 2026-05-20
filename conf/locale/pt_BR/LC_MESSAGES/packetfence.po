@@ -85,6 +85,10 @@ msgid ""
 "<i>Downloads</i>), and double-click to open it."
 msgstr "Aparecerá um navegador de arquivos, permitindo que você selecione o certificado. Localize o certificado que você baixou previamente (ele deve estar em uma pasta chamada <i>Downloads</i>), e abra-o com um duplo clique."
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "A password reset was requested for your account."
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/chrome.html
 msgid ""
 "A prompt will appear asking whether to trust the certificate authority. "
@@ -238,6 +242,11 @@ msgid ""
 "show <i>Trusted Root Certification Authorities</i>. Press <i>Next</i> again."
 msgstr "De volta à tela principal do assistente, a caixa <i>Armazenamento de Certificado</i> deve agora apresentar <i>Autoridades de certificação raiz confiáveis</i>. Clique em <i>Próximo</i> novamente."
 
+# html/captive-portal/templates/status/forgot_password.html
+# html/captive-portal/templates/status/forgot_password_sent.html
+msgid "Back to Login"
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Bandwidth balance "
 msgstr "Saldo de largura de banda"
@@ -361,6 +370,10 @@ msgstr "Navegador de arquivos do Chrome"
 msgid "Click here to access the enrollment page"
 msgstr "Clique aqui para acessar a página de inscrição"
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "Click the button below to reset your password."
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Company"
 msgstr "Empresa"
@@ -373,6 +386,10 @@ msgstr "Nome do computador"
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
 msgid "Confirm Mobile Phone Number"
 msgstr "Confirme o Número do Celular"
+
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Confirm Password"
+msgstr ""
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Confirm your password"
@@ -669,6 +686,10 @@ msgstr "Instalação de certificado no Firefox"
 msgid "Firstname"
 msgstr "Nome"
 
+# html/captive-portal/templates/status/login.html
+msgid "Forgot your password?"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # pf::person::FIELDS
 msgid "Gender"
@@ -765,6 +786,12 @@ msgstr "Eu não tenho um PIN"
 msgid "IP"
 msgstr "IP"
 
+# html/captive-portal/templates/status/forgot_password_sent.html
+msgid ""
+"If an account exists with that username or email, you will receive a "
+"password reset link shortly."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using a Windows phone"
 msgstr "Se você estiver usando um telefone com Windows"
@@ -776,6 +803,10 @@ msgstr "Se você estiver usando um telefone ou tablet com Android"
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Apple phone or tablet"
 msgstr "Se você estiver usando um telefone ou Tablet Apple"
+
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "If you did not request a password reset, please ignore this email."
+msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid ""
@@ -902,6 +933,7 @@ msgstr "Usuário local"
 # html/captive-portal/templates/oauth2/landing.html
 # html/captive-portal/templates/saml.html
 # html/captive-portal/templates/status/login.html
+# html/captive-portal/templates/status/reset_password_token_success.html
 msgid "Login"
 msgstr "Usuário"
 
@@ -979,6 +1011,10 @@ msgstr "O acesso à rede foi concedido"
 # html/captive-portal/templates/status.html
 msgid "Network subscriptions"
 msgstr "Subscrições de rede"
+
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "New Password"
+msgstr ""
 
 # lib/pf/pfcron/task/password_of_the_day.pm
 msgid "New password of the day"
@@ -1189,6 +1225,10 @@ msgstr "Senha"
 msgid "Password Of the Day"
 msgstr "Senha do Dia"
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "Password Reset Request"
+msgstr ""
+
 # html/captive-portal/templates/provisioner/dpsk.html
 msgid "Password: "
 msgstr "Senha: "
@@ -1223,6 +1263,10 @@ msgid ""
 "Please click the button below to confirm the cancelation of your "
 "subscription."
 msgstr "Por favor, clique no botão abaixo para confirmar o cancelamento da sua subscrição."
+
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Please fill in all fields"
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
@@ -1304,9 +1348,22 @@ msgstr "Registro"
 msgid "Registration pending"
 msgstr "Registro pendente"
 
+# html/captive-portal/templates/status/reset_password_token_invalid.html
+msgid "Request a new link"
+msgstr ""
+
 # html/captive-portal/templates/sms/validate.html
 msgid "Resend PIN"
 msgstr "Reenviar PIN"
+
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Reset Password"
+msgstr ""
+
+# html/captive-portal/templates/status/forgot_password.html
+msgid "Reset your password"
+msgstr ""
 
 # html/captive-portal/templates/max-nodes-reached.html
 msgid "Retry signup"
@@ -1370,6 +1427,14 @@ msgstr "Selecionar um método de autenticação"
 msgid "Select registration role"
 msgstr "Selecione a função para fazer o registro"
 
+# html/captive-portal/templates/status/forgot_password.html
+msgid "Send Reset Link"
+msgstr ""
+
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Set your new password"
+msgstr ""
+
 # /usr/local/pf/conf/portal_modules.conf.defaults default_show_local_account
 msgid "Show local account"
 msgstr "Mostrar conta local"
@@ -1405,6 +1470,10 @@ msgid "Status"
 msgstr "Status"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+msgid "Status - Forgot Password"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Login"
 msgstr "Status - Login"
 
@@ -1415,6 +1484,10 @@ msgstr "Status - Gerenciar Conta"
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Network Access"
 msgstr "Status - Acesso à rede"
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+msgid "Status - Reset Password"
+msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/android.html
 # html/captive-portal/templates/ssl_inspection/chrome.html
@@ -1502,6 +1575,11 @@ msgid ""
 " it was already used or has expired."
 msgstr "O código de ativação fornecido é inválido. As razões podem ser: ele nunca existiu, ele já foi usado ou expirou."
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "The activation code provided is not valid for this page."
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid ""
 "The device %s will be disconnected and won't be able to be registered again."
@@ -1526,6 +1604,7 @@ msgid "The system is in maintenance mode"
 msgstr "O sistema está em modo de manutenção"
 
 # html/captive-portal/templates/status/reset_password.html
+# html/captive-portal/templates/status/reset_password_token.html
 msgid "The two entered passwords did not match"
 msgstr "As duas senhas digitadas não conferem"
 
@@ -1647,6 +1726,10 @@ msgstr "Este guia ajudará você a instalar o certificado de filtragem SSL para 
 msgid "This is your current device."
 msgstr "Este é o seu dispositivo atual."
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "This link will expire in %s minutes."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
@@ -1660,6 +1743,7 @@ msgstr "Este é o seu dispositivo atual."
 # html/captive-portal/templates/emails/emails-
 # guest_local_account_creation.html
 # html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-
@@ -1684,6 +1768,10 @@ msgid ""
 "network's filtering unit must issue to your computer or mobile device a file"
 " called an SSL certificate."
 msgstr "Esta rede emprega uma tecnologia chamada captive portal, que permite ao(s) administrador(es) restringir o acesso à rede a usuários confiáveis. Para evitar avisos de segurança de certificado ao acessar este portal, a unidade de filtragem da rede deve emitir para o seu computador ou dispositivo móvel um arquivo com certificado SSL."
+
+# html/captive-portal/templates/status/reset_password_token_invalid.html
+msgid "This password reset link is invalid or has expired."
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 msgid "This username and password will be valid starting"
@@ -1831,6 +1919,10 @@ msgstr "Conta de Usuário"
 # html/captive-portal/templates/status/login.html
 msgid "Username"
 msgstr "Nome de Usuário"
+
+# html/captive-portal/templates/status/forgot_password.html
+msgid "Username or Email"
+msgstr ""
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_login_policy
 msgid "Username/password login"
@@ -2066,6 +2158,10 @@ msgid ""
 "Your network access is currently being enabled. Once network connectivity is"
 " established you will be automatically redirected."
 msgstr "Seu acesso à rede está sendo ativado. Uma vez que a conectividade da rede for estabelecida, você será automaticamente redirecionado."
+
+# html/captive-portal/templates/status/reset_password_token_success.html
+msgid "Your password has been reset successfully."
+msgstr ""
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Your password has been updated"

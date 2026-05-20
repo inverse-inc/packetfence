@@ -7,7 +7,7 @@
 # Christopher <chuguet@inverse.ca>, 2023
 # oeufdure <fdurand@inverse.ca>, 2014-2018,2021
 # inverse <support@inverse.ca>, 2014,2016,2018
-# jgoimard <jgoimard@inverse.ca>, 2022,2024-2025
+# jgoimard <jgoimard@inverse.ca>, 2022,2024-2026
 # julsemaan <jsemaan@inverse.ca>, 2014,2019
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2013-04-01 18:48+0000\n"
-"Last-Translator: jgoimard <jgoimard@inverse.ca>, 2022,2024-2025\n"
+"Last-Translator: jgoimard <jgoimard@inverse.ca>, 2022,2024-2026\n"
 "Language-Team: French (http://app.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -70,6 +70,12 @@ msgstr "Une liste des durées d’accès disponibles pour l’utilisateur admin 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "A description of the billing tier"
 msgstr "Description du plan de facturation"
+
+# conf/documentation.conf (alerting.smtp_name)
+msgid ""
+"A descriptive name for the SMTP server connection. This can be used to "
+"identify the SMTP server in logs and notifications."
+msgstr "Un nom descriptif pour la connexion au serveur SMTP. Cela peut être utilisé pour identifier le serveur SMTP dans les journaux et les notifications."
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid ""
@@ -390,6 +396,14 @@ msgid "Allowed actions"
 msgstr "Actions permises"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed list of bypass vlans"
+msgstr "Liste autorisée des VLAN de contournement"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed node bypass roles"
+msgstr "Rôles de contournement de nœud autorisés"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed node roles"
 msgstr "Rôles de l’appareil permis"
 
@@ -619,6 +633,10 @@ msgstr "Plans de facturation - Lecture"
 msgid "BILLING_TIER_UPDATE"
 msgstr "Plans de facturation - Mise à jour"
 
+# conf/documentation.conf (database_proxysql.port)
+msgid "Backend port to contact the database."
+msgstr "Port backend pour contacter la base de données."
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
 msgid "Base Object"
 msgstr "Objet de base"
@@ -844,6 +862,10 @@ msgstr "Cliquer pour ajouter un rôle"
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Click to add a rule"
 msgstr "Cliquez pour ajouter une règle"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Click to add a vlan"
+msgstr "Cliquez pour ajouter un vlan"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -1075,6 +1097,15 @@ msgstr "Liste séparée par des virgules des interfaces utilisées pour le trafi
 msgid "Comma-delimited list of port used by proxy interception."
 msgstr "Liste de port(s) utilisé(s) par l’interception proxy séparée par des virgules  ."
 
+# conf/documentation.conf (database_proxysql.backends)
+msgid ""
+"Comma-separated list of MySQL backend hosts (e.g. "
+"10.0.0.1,10.0.0.2,10.0.0.3). A single host uses single-server mode. Multiple"
+" hosts enable replication mode where ProxySQL monitors the read_only status "
+"of each server to automatically route writes to the master and reads to "
+"replicas, with failover handled by an external orchestrator."
+msgstr "Liste séparée par des virgules des hôtes backend MySQL (par exemple 10.0.0.1,10.0.0.2,10.0.0.3). Un seul hôte utilise le mode serveur unique. Plusieurs hôtes activent le mode de réplication dans lequel ProxySQL surveille l'état read_only de chaque serveur pour acheminer automatiquement les écritures vers le maître et les lectures vers les répliques, le basculement étant géré par un orchestrateur externe."
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/intune.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/OpenID.pm
 msgid ""
@@ -1112,6 +1143,10 @@ msgstr "Conditions"
 # html/pfappserver/lib/pfappserver/Form/Field/RadiusAnswer.pm
 msgid "Config"
 msgstr "Configuration"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DomainsConnectors.pm
+msgid "Connector"
+msgstr "Connecteur"
 
 # html/pfappserver/lib/pfappserver/Form/Field/RadiusAnswer.pm
 msgid "Control"
@@ -1527,9 +1562,25 @@ msgstr "Type d’appareil"
 msgid "Disable Active-Directory domain configuration from within PacketFence"
 msgstr "Désactive la configuration de domaine Active Directory dans PacketFence"
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Disable the ability to set a bypass vlan"
+msgstr "Désactiver la possibilité de définir un VLAN de contournement"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "Disable this box if you are using a hidden SSID"
 msgstr "Décocher cette boite si vous utilisez un SSID caché"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Disallowed node bypass roles"
+msgstr "Rôles de contournement de nœud interdits"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Disallowed node roles"
+msgstr "Rôles de nœuds interdits"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Disallowed user roles"
+msgstr "Rôles d'utilisateur interdits"
 
 # html/pfappserver/lib/pfappserver/Form/Field/RadiusAnswer.pm
 msgid "Disconnect"
@@ -1538,6 +1589,10 @@ msgstr "Déconnecter"
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Disconnect Port"
 msgstr "Port de deconnexion"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DnsConnectors.pm
+msgid "Dns Name"
+msgstr "Nom DNS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
@@ -1549,11 +1604,19 @@ msgstr "Souhaitez-vous surveiller cette source?"
 msgid "Domain"
 msgstr "Domaine"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DomainsConnectors.pm
+msgid "Domain Name"
+msgstr "Nom de domaine"
+
 # conf/documentation.conf (general.domain)
 msgid ""
 "Domain name of PacketFence system. Changing this requires to restart "
 "haproxy-portal."
 msgstr "Nom de domaine de PacketFence. Une modification requiert un redémarrage du service haproxy-portal."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DnsConnectors.pm
+msgid "Domain(s) name"
+msgstr "Nom(s) du domaine"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -1660,6 +1723,10 @@ msgstr "Adresse e-mail à partir de laquelle les notifications de serveurs DHCP 
 msgid "Email addresses to send the new generated password."
 msgstr "Adresses de courriel pour envoyer le nouveau mot de passe généré."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
+msgid "Enable ACLs"
+msgstr "Activer les ACL"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Enable CoA"
@@ -1751,6 +1818,10 @@ msgid ""
 "Enable the automatic network detection feature for registration auto-"
 "redirect"
 msgstr "Activer la vérification de l’accès internet une fois enregistré."
+
+# conf/documentation.conf (radius_configuration.pfacct_rate_limit)
+msgid "Enable the rate limiting on pfacct to prevent hammering httpd.aaa"
+msgstr "Activez la limitation de débit sur pfacct pour éviter de marteler httpd.aaa"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid ""
@@ -2237,6 +2308,10 @@ msgstr "Adresse IP réservée"
 msgid "IP address of the router to reach this network"
 msgstr "Adresse IP du routeur pour atteindre ce réseau."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DnsConnectors.pm
+msgid "IP of the dns server"
+msgstr "IP du serveur DNS"
+
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "IPv4 Address"
 msgstr "Adresse IPv4"
@@ -2297,6 +2372,12 @@ msgid ""
 "If enabled, we will intercept proxy request on the specified ports to "
 "forward to the captive portal."
 msgstr "Si activé, les requêtes proxy interceptées sur les ports spécifiés seront renvoyées sur le portail captif."
+
+# conf/documentation.conf (radius_configuration.pfacct_rate_limit_cache_ttl)
+msgid ""
+"If rate limiting on pfacct is enabled,  the Time to Live value in minutes "
+"represent the time of the accounting cache"
+msgstr "Si la limitation de débit sur pfacct est activée, la valeur Time to Live en minutes représente le temps du cache comptable"
 
 # conf/documentation.conf (captive_portal.loadbalancers_ip)
 msgid ""
@@ -2590,6 +2671,18 @@ msgid ""
 "provided then all roles are available"
 msgstr "Liste des rôles assignables à un utilisateur disponibles pour l’utilisateur admin. Si aucun n’est fourni, alors tous les rôles sont disponibles."
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid ""
+"List of roles not available to the admin user to assign to a node. If none "
+"are provided then all roles are available"
+msgstr "Liste des rôles non disponibles pour l'utilisateur administrateur à attribuer à un nœud. Si aucun n'est fourni, tous les rôles sont disponibles"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid ""
+"List of roles not available to the admin user to assign to a user. If none "
+"are provided then all roles are available"
+msgstr "Liste des rôles non disponibles pour l'utilisateur administrateur à attribuer à un utilisateur. Si aucun n'est fourni, tous les rôles sont disponibles"
+
 # conf/documentation.conf (advanced.netflow_on_all_networks)
 msgid "Listen to netflow on all networks"
 msgstr "Ecoute du netflow sur tout les réseaux"
@@ -2715,6 +2808,10 @@ msgstr "Emplacement du binaire de pfpki."
 # conf/documentation.conf (services.pfstats_binary)
 msgid "Location of the pfstats binary."
 msgstr "Emplacement du binaire pfstats."
+
+# conf/documentation.conf (services.pfudpproxy_binary)
+msgid "Location of the pfudpproxy binary."
+msgstr "Emplacement du binaire pfudpproxy."
 
 # conf/documentation.conf (services.proxysql_binary)
 msgid "Location of the proxysql binary."
@@ -2863,6 +2960,27 @@ msgstr "Appareils maximum par utilisateur"
 msgid "Maximum MAC addresses"
 msgstr "MAC adresse maximum"
 
+# conf/documentation.conf (advanced.pffilter_max_rss)
+msgid ""
+"Maximum RSS in MB before a pffilter worker recycles itself. Set to 0 to "
+"disable the RSS check. Requires a restart of the pffilter service to be "
+"fully effective."
+msgstr "RSS maximum en Mo avant qu'un travailleur pffilter ne se recycle. Réglez sur 0 pour désactiver la vérification RSS. Nécessite un redémarrage du service pffilter pour être pleinement efficace."
+
+# conf/documentation.conf (advanced.pfperl_api_max_rss)
+msgid ""
+"Maximum RSS in MB before a pfperl-api worker recycles itself. Set to 0 to "
+"disable the RSS check. Requires a restart of the pfperl-api service to be "
+"fully effective."
+msgstr "RSS maximum en Mo avant qu'un travailleur pfperl-api ne se recycle. Réglez sur 0 pour désactiver la vérification RSS. Nécessite un redémarrage du service pfperl-api pour être pleinement efficace."
+
+# conf/documentation.conf (advanced.pfqueue_max_rss)
+msgid ""
+"Maximum RSS in MB before a pfqueue worker recycles itself. Set to 0 to "
+"disable the RSS check. Requires a restart of the pfqueue service to be fully"
+" effective."
+msgstr "RSS maximum en Mo avant qu'un travailleur pfqueue ne se recycle. Réglez sur 0 pour désactiver la vérification RSS. Nécessite un redémarrage du service pfqueue pour être pleinement efficace."
+
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Maximum allowed unregistration date"
 msgstr "Date maximale de désenregistrement autorisé"
@@ -2972,6 +3090,7 @@ msgstr "Cache NTLM"
 # html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Potd.pm
+# html/pfappserver/lib/pfappserver/Form/Field/EnvVar.pm
 # html/pfappserver/lib/pfappserver/Form/Field/NameVal.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/lib/pfappserver/Form/Field/SourceRule.pm
@@ -3092,6 +3211,14 @@ msgstr "Note"
 # html/pfappserver/lib/pfappserver/Form/Config/Source/HTTP.pm
 msgid "Note : The URL is always prefixed by a slash (/)"
 msgstr "Note : L’URL est toujours préfixée d’un slash (/)"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid ""
+"Note: This only triggers during autoregistration. Warning: If the VLAN "
+"changes when the role changes, an incorrect SSO update may occur until "
+"PacketFence receives a DHCP packet that updates the IP of the device and "
+"triggers a new SSO request."
+msgstr "Remarque : cela ne se déclenche que pendant l’auto enregistrement. Avertissement : si le VLAN change lorsque le rôle change, une mise à jour SSO incorrecte peut se produire jusqu'à ce que PacketFence reçoive un paquet DHCP qui met à jour l'IP de l'appareil et déclenche une nouvelle requête SSO."
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -3687,6 +3814,10 @@ msgstr "Veuillez spécifier la description de l'entrée du portail en libre serv
 msgid "Please specify the description of the admin role."
 msgstr "Veuillez spécifier la description du rôle admin."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DomainsConnectors.pm
+msgid "Please specify the domaine name."
+msgstr "Veuillez préciser le nom du domaine."
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "Please specify the end date of the registration window."
 msgstr "Veuillez spécifier la date de fin du créneau d’enregistrement."
@@ -3729,6 +3860,10 @@ msgstr "Veuillez spécifier le temps maximum pour le bail DHCP."
 # html/pfappserver/lib/pfappserver/Form/Config/Cloud.pm
 msgid "Please specify the name of the Cloud Service"
 msgstr "Veuillez spécifier le nom du service Cloud"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DnsConnectors.pm
+msgid "Please specify the name of the DNS."
+msgstr "Veuillez préciser le nom du DNS."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Radiusd/EAPProfile.pm
 msgid "Please specify the name of the EAP profile."
@@ -3849,6 +3984,10 @@ msgstr "Port de l'API"
 # conf/documentation.conf (ports.collector)
 msgid "Port of the collector webservice."
 msgstr "Port d’écoute du service web du collecteur."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DnsConnectors.pm
+msgid "Port of the dns server"
+msgstr "Port du serveur DNS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -4444,6 +4583,7 @@ msgstr "Texte du message SMS ($pin sera remplacé par le numéro de téléphone)
 msgid "SSID"
 msgstr "SSID"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/GoogleWorkspaceLDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
 msgid "SSL"
@@ -4930,6 +5070,10 @@ msgstr "Est-ce que pfdhcplistener doit être démarré ? Gardez le activé sauf 
 msgid "Should pfdns be managed by PacketFence?"
 msgstr "Est-ce que pfdns doit être géré par PacketFence ?"
 
+# conf/documentation.conf (services.pfdns-connector)
+msgid "Should pfdns-connector be managed by PacketFence?"
+msgstr "Le connecteur pfdns-connector doit-il être géré par PacketFence ?"
+
 # conf/documentation.conf (services.pffilter)
 msgid "Should pffilter be managed by PacketFence?"
 msgstr "Est-ce que pffilter doit être géré par PacketFence ?"
@@ -4972,6 +5116,12 @@ msgstr "Est-ce que pfsso doit être géré par PacketFence ?"
 # conf/documentation.conf (services.pfstats)
 msgid "Should pfstats be managed by PacketFence?"
 msgstr "Est-ce pfstats doit être géré par PacketFence ?"
+
+# conf/documentation.conf (services.pfudpproxy)
+msgid ""
+"Should pfudpproxy be managed by PacketFence? This is a UDP reverse proxy for"
+" NetFlow/sFlow/IPFIX (UDP 4739) in cluster mode."
+msgstr "pfudpproxy doit-il être géré par PacketFence ? Il s'agit d'un proxy inverse UDP pour NetFlow/sFlow/IPFIX (UDP 4739) en mode cluster."
 
 # conf/documentation.conf (services.proxysql)
 msgid ""
@@ -5151,6 +5301,7 @@ msgstr "Parrainage BCC"
 msgid "Start Date"
 msgstr "Date de départ"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/GoogleWorkspaceLDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
 msgid "Start TLS"
@@ -5457,6 +5608,10 @@ msgid ""
 "only applies to bcrypt."
 msgstr "Le facteur de coût à appliquer au hachage des mots de passe le cas échéant. Actuellement cela s’applique uniquement aux bcrypt."
 
+# conf/documentation.conf (advanced.default_role_parent_id)
+msgid "The default parent role id to use when creating a new role"
+msgstr "L'identifiant de rôle parent par défaut à utiliser lors de la création d'un nouveau rôle"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid ""
 "The default realm to be used while formatting the username when no realm can"
@@ -5542,6 +5697,10 @@ msgid ""
 "change if you know what you are doing. Will only affect a locally running "
 "MySQL server."
 msgstr "L’attribut de configuration innodb_buffer_pool_size(en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+
+# conf/documentation.conf (pfdns_connector.pfdns_connector_server)
+msgid "The ip address and port used to reach the pfdns_connector server"
+msgstr "L'adresse IP et le port utilisés pour atteindre le serveur pfdns_connector"
 
 # conf/documentation.conf (database_advanced.key_buffer_size)
 msgid ""
@@ -5751,6 +5910,102 @@ msgstr "Modèle d'analyse à utiliser pour scanner les clients."
 # html/pfappserver/lib/pfappserver/Form/Config/Pfcron.pm
 msgid "The schedule for maintenance task (cron like spec)."
 msgstr "Le planning de la tâche de maintenance (cron comme spec)."
+
+# conf/documentation.conf (services_host.api_frontend_service_host)
+msgid "The service HOST for api_frontend"
+msgstr "Le service HOST pour api_frontend"
+
+# conf/documentation.conf (services_host.fingerbank_collector_service_host)
+msgid "The service HOST for fingerbank_collector"
+msgstr "Le service HOST pour fingerbank_collector"
+
+# conf/documentation.conf (services_host.guardicore_service_host)
+msgid "The service HOST for guardicore"
+msgstr "Le service HOST pour guardicore"
+
+# conf/documentation.conf (services_host.haproxy_admin_service_host)
+msgid "The service HOST for haproxy_admin"
+msgstr "Le service HOST pour haproxy_admin"
+
+# conf/documentation.conf (services_host.haproxy_portal_service_host)
+msgid "The service HOST for haproxy_portal"
+msgstr "Le service HOST pour haproxy_portal"
+
+# conf/documentation.conf (services_host.httpd_aaa_service_host)
+msgid "The service HOST for httpd_aaa"
+msgstr "Le service HOST pour httpd_aaa"
+
+# conf/documentation.conf (services_host.httpd_admin_dispatcher_service_host)
+msgid "The service HOST for httpd_admin_dispatcher"
+msgstr "Le service HOST pour httpd_admin_dispatcher"
+
+# conf/documentation.conf (services_host.httpd_dispatcher_service_host)
+msgid "The service HOST for httpd_dispatcher"
+msgstr "Le service HOST pour httpd_dispatcher"
+
+# conf/documentation.conf (services_host.httpd_portal_service_host)
+msgid "The service HOST for httpd_portal"
+msgstr "Le service HOST pour httpd_portal"
+
+# conf/documentation.conf (services_host.httpd_webservices_service_host)
+msgid "The service HOST for httpd_webservices"
+msgstr "Le service HOST pour httpd_webservices"
+
+# conf/documentation.conf (services_host.kafka_service_host)
+msgid "The service HOST for kafka"
+msgstr "Le service HOST pour kafka"
+
+# conf/documentation.conf (services_host.kubernetes_service_host)
+msgid "The service HOST for kubernetes"
+msgstr "Le service HOST pour kubernetes"
+
+# conf/documentation.conf (services_host.pfacct_service_host)
+msgid "The service HOST for pfacct"
+msgstr "Le service HOST pour pfacct"
+
+# conf/documentation.conf (services_host.pfconfig_service_host)
+msgid "The service HOST for pfconfig"
+msgstr "Le service HOST pour pfconfig"
+
+# conf/documentation.conf (services_host.pfconnector_service_host)
+msgid "The service HOST for pfconnector"
+msgstr "Le service HOST pour pfconnector"
+
+# conf/documentation.conf (services_host.pfdns_connector_service_host)
+msgid "The service HOST for pfdns_connector"
+msgstr "Le service HOST pour pfdns_connector"
+
+# conf/documentation.conf (services_host.pfldapexplorer_service_host)
+msgid "The service HOST for pfldapexplorer"
+msgstr "Le service HOST pour pfldapexplorer"
+
+# conf/documentation.conf (services_host.pfperl_api_service_host)
+msgid "The service HOST for pfperl_api"
+msgstr "Le service HOST pour pfperl_api"
+
+# conf/documentation.conf (services_host.pfpki_service_host)
+msgid "The service HOST for pfpki"
+msgstr "Le service HOST pour pfpki"
+
+# conf/documentation.conf (services_host.pfsso_service_host)
+msgid "The service HOST for pfsso"
+msgstr "Le service HOST pour pfsso"
+
+# conf/documentation.conf (services_host.proxysql_service_host)
+msgid "The service HOST for proxysql"
+msgstr "Le service HOST pour proxysql"
+
+# conf/documentation.conf (services_host.radiusd_auth_service_host)
+msgid "The service HOST for radiusd_auth"
+msgstr "Le service HOST pour radiusd_auth"
+
+# conf/documentation.conf (services_host.redis_cache_service_host)
+msgid "The service HOST for redis_cache"
+msgstr "Le service HOST pour redis_cache"
+
+# conf/documentation.conf (services_host.redis_queue_service_host)
+msgid "The service HOST for redis_queue"
+msgstr "Le service HOST pour redis_queue"
 
 # conf/documentation.conf (services_url.api-frontend)
 msgid "The service URL for api-frontend"
@@ -6470,6 +6725,7 @@ msgstr "VLAN ID dans lequel PacketFence doit mettre le port."
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+# html/pfappserver/lib/pfappserver/Form/Field/EnvVar.pm
 # html/pfappserver/lib/pfappserver/Form/Field/FilterCondition.pm
 # html/pfappserver/lib/pfappserver/Form/Field/NameVal.pm
 msgid "Value"
@@ -7006,6 +7262,10 @@ msgid "advanced.configurator"
 msgstr "advanced.configurator"
 
 # conf/documentation.conf
+msgid "advanced.default_role_parent_id"
+msgstr "advanced.default_role_parent_id"
+
+# conf/documentation.conf
 msgid "advanced.disable_pf_domain_auth"
 msgstr "Désactiver l’authentification de PF sur le domaine"
 
@@ -7042,8 +7302,16 @@ msgid "advanced.openid_attributes"
 msgstr "advanced.openid_attributes"
 
 # conf/documentation.conf
+msgid "advanced.pffilter_max_rss"
+msgstr "advanced.pffilter_max_rss"
+
+# conf/documentation.conf
 msgid "advanced.pffilter_processes"
 msgstr "Processus PfFilter"
+
+# conf/documentation.conf
+msgid "advanced.pfperl_api_max_rss"
+msgstr "advanced.pfperl_api_max_rss"
 
 # conf/documentation.conf
 msgid "advanced.pfperl_api_processes"
@@ -7052,6 +7320,10 @@ msgstr "advanced.pfperl_api_processes"
 # conf/documentation.conf
 msgid "advanced.pfperl_api_timeout"
 msgstr "advanced.pfperl_api_timeout"
+
+# conf/documentation.conf
+msgid "advanced.pfqueue_max_rss"
+msgstr "advanced.pfqueue_max_rss"
 
 # conf/documentation.conf
 msgid "advanced.pfupdate_custom_script_path"
@@ -7112,6 +7384,10 @@ msgstr "Expéditeur"
 # conf/documentation.conf
 msgid "alerting.smtp_encryption"
 msgstr "Chiffrement SMTP"
+
+# conf/documentation.conf
+msgid "alerting.smtp_name"
+msgstr "alerting.smtp_name"
 
 # conf/documentation.conf
 msgid "alerting.smtp_password"
@@ -7516,6 +7792,14 @@ msgstr "Nombre de Thread"
 msgid "database_proxysql"
 msgstr "database_proxysql"
 
+# conf/documentation.conf
+msgid "database_proxysql.backends"
+msgstr "database_proxysql.backends"
+
+# conf/documentation.conf
+msgid "database_proxysql.port"
+msgstr "database_proxysql.port"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
 msgstr "jours"
@@ -7674,6 +7958,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf
 # (radius_configuration.normalize_radius_machine_auth_username options)
 # conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
+# conf/documentation.conf (radius_configuration.pfacct_rate_limit options)
 # conf/documentation.conf (radius_configuration.pfacct_workers options)
 # conf/documentation.conf (radius_configuration.process_bandwidth_accounting
 # options)
@@ -7704,6 +7989,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
+# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -7713,6 +7999,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
+# conf/documentation.conf (services.pfudpproxy options)
 # conf/documentation.conf (services.proxysql options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radiusd_acct options)
@@ -7897,6 +8184,7 @@ msgstr "en_US"
 # conf/documentation.conf
 # (radius_configuration.normalize_radius_machine_auth_username options)
 # conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
+# conf/documentation.conf (radius_configuration.pfacct_rate_limit options)
 # conf/documentation.conf (radius_configuration.pfacct_workers options)
 # conf/documentation.conf (radius_configuration.process_bandwidth_accounting
 # options)
@@ -7927,6 +8215,7 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
+# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -7936,6 +8225,7 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
+# conf/documentation.conf (services.pfudpproxy options)
 # conf/documentation.conf (services.proxysql options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radiusd_acct options)
@@ -8135,6 +8425,10 @@ msgstr "Choix des durées d’accès"
 # conf/documentation.conf
 msgid "guests_admin_registration.default_access_duration"
 msgstr "Durée d’accès par défaut"
+
+# pf::Authentication::constants (Conditions)
+msgid "has bit"
+msgstr "a un bit"
 
 # conf/documentation.conf (advanced.language options)
 msgid "he_IL"
@@ -8568,6 +8862,10 @@ msgstr "ne contient pas"
 msgid "not equals"
 msgstr "non égal"
 
+# pf::Authentication::constants (Conditions)
+msgid "not has bit"
+msgstr "n'a pas de bit"
+
 # html/pfappserver/lib/pfappserver/Form/Field/FilterCondition.pm
 msgid "not_$_"
 msgstr "not_$_"
@@ -8611,6 +8909,10 @@ msgstr "Domaine"
 # conf/documentation.conf
 msgid "pfconnector"
 msgstr "pfconnector"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Connector/DnsConnectors.pm
+msgid "pfconnector port to reach out the dns server"
+msgstr "Port du pfconnector pour joindre le serveur DNS."
 
 # conf/documentation.conf
 msgid "pfconnector.redis_server"
@@ -8675,6 +8977,14 @@ msgstr "Recherche par IP"
 # conf/documentation.conf
 msgid "pfdhcp.timeout_ms"
 msgstr "Expiration de la requête (ms)"
+
+# conf/documentation.conf
+msgid "pfdns_connector"
+msgstr "pfdns_connector"
+
+# conf/documentation.conf
+msgid "pfdns_connector.pfdns_connector_server"
+msgstr "pfdns_connector.pfdns_connector_server"
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 # pf::Authentication::Source::TwilioSource (available_attributes)
@@ -8938,6 +9248,14 @@ msgid "radius_configuration.ntlm_redis_cache"
 msgstr "Cache Redis NTLM"
 
 # conf/documentation.conf
+msgid "radius_configuration.pfacct_rate_limit"
+msgstr "radius_configuration.pfacct_rate_limit"
+
+# conf/documentation.conf
+msgid "radius_configuration.pfacct_rate_limit_cache_ttl"
+msgstr "radius_configuration.pfacct_rate_limit_cache_ttl"
+
+# conf/documentation.conf
 msgid "radius_configuration.pfacct_work_queue_size"
 msgstr "radius_configuration.pfacct_work_queue_size"
 
@@ -9177,6 +9495,30 @@ msgstr "Realm"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "reason"
 msgstr "Raison"
+
+# conf/documentation.conf (services.redis_cache_host)
+msgid "redis_cache_host host"
+msgstr "redis_cache_host host"
+
+# conf/documentation.conf (services.redis_cache_port)
+msgid "redis_cache_port port"
+msgstr "redis_cache_port port"
+
+# conf/documentation.conf (services.redis_ntlm_cache_host)
+msgid "redis_ntlm_cache_host host"
+msgstr "redis_ntlm_cache_host host"
+
+# conf/documentation.conf (services.redis_ntlm_cache_port)
+msgid "redis_ntlm_cache_port port"
+msgstr "redis_ntlm_cache_port port"
+
+# conf/documentation.conf (services.redis_queue_host)
+msgid "redis_queue_host host"
+msgstr "redis_queue_host host"
+
+# conf/documentation.conf (services.redis_queue_port)
+msgid "redis_queue_port port"
+msgstr "redis_queue_port port"
 
 # pf::api (Allowed actions)
 msgid "reevaluate_access"
@@ -9441,6 +9783,10 @@ msgid "services.pfdns"
 msgstr "pfdns"
 
 # conf/documentation.conf
+msgid "services.pfdns-connector"
+msgstr "services.pfdns-connector"
+
+# conf/documentation.conf
 msgid "services.pfdns_binary"
 msgstr "Emplacement du binaire pfdns."
 
@@ -9493,6 +9839,14 @@ msgid "services.pfstats_binary"
 msgstr "Emplacement du binaire pfstats."
 
 # conf/documentation.conf
+msgid "services.pfudpproxy"
+msgstr "services.pfudpproxy"
+
+# conf/documentation.conf
+msgid "services.pfudpproxy_binary"
+msgstr "services.pfudpproxy_binary"
+
+# conf/documentation.conf
 msgid "services.proxysql"
 msgstr "services.proxysql"
 
@@ -9533,12 +9887,36 @@ msgid "services.redis_cache"
 msgstr "Cache de redis"
 
 # conf/documentation.conf
+msgid "services.redis_cache_host"
+msgstr "services.redis_cache_host"
+
+# conf/documentation.conf
+msgid "services.redis_cache_port"
+msgstr "services.redis_cache_port"
+
+# conf/documentation.conf
 msgid "services.redis_ntlm_cache"
 msgstr "Cache NTLM Redis"
 
 # conf/documentation.conf
+msgid "services.redis_ntlm_cache_host"
+msgstr "services.redis_ntlm_cache_host"
+
+# conf/documentation.conf
+msgid "services.redis_ntlm_cache_port"
+msgstr "services.redis_ntlm_cache_port"
+
+# conf/documentation.conf
 msgid "services.redis_queue"
 msgstr "File d’attente de redis"
+
+# conf/documentation.conf
+msgid "services.redis_queue_host"
+msgstr "services.redis_queue_host"
+
+# conf/documentation.conf
+msgid "services.redis_queue_port"
+msgstr "services.redis_queue_port"
 
 # conf/documentation.conf
 msgid "services.snmptrapd"
@@ -9555,6 +9933,106 @@ msgstr "services.tracking-config"
 # conf/documentation.conf
 msgid "services.tracking-config_binary"
 msgstr "services.tracking-config_binary"
+
+# conf/documentation.conf
+msgid "services_host"
+msgstr "services_host"
+
+# conf/documentation.conf
+msgid "services_host.api_frontend_service_host"
+msgstr "services_host.api_frontend_service_host"
+
+# conf/documentation.conf
+msgid "services_host.fingerbank_collector_service_host"
+msgstr "services_host.fingerbank_collector_service_host"
+
+# conf/documentation.conf
+msgid "services_host.guardicore_service_host"
+msgstr "services_host.guardicore_service_host"
+
+# conf/documentation.conf
+msgid "services_host.haproxy_admin_service_host"
+msgstr "services_host.haproxy_admin_service_host"
+
+# conf/documentation.conf
+msgid "services_host.haproxy_portal_service_host"
+msgstr "services_host.haproxy_portal_service_host"
+
+# conf/documentation.conf
+msgid "services_host.httpd_aaa_service_host"
+msgstr "services_host.httpd_aaa_service_host"
+
+# conf/documentation.conf
+msgid "services_host.httpd_admin_dispatcher_service_host"
+msgstr "services_host.httpd_admin_dispatcher_service_host"
+
+# conf/documentation.conf
+msgid "services_host.httpd_dispatcher_service_host"
+msgstr "services_host.httpd_dispatcher_service_host"
+
+# conf/documentation.conf
+msgid "services_host.httpd_portal_service_host"
+msgstr "services_host.httpd_portal_service_host"
+
+# conf/documentation.conf
+msgid "services_host.httpd_webservices_service_host"
+msgstr "services_host.httpd_webservices_service_host"
+
+# conf/documentation.conf
+msgid "services_host.kafka_service_host"
+msgstr "services_host.kafka_service_host"
+
+# conf/documentation.conf
+msgid "services_host.kubernetes_service_host"
+msgstr "services_host.kubernetes_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfacct_service_host"
+msgstr "services_host.pfacct_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfconfig_service_host"
+msgstr "services_host.pfconfig_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfconnector_service_host"
+msgstr "services_host.pfconnector_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfdns_connector_service_host"
+msgstr "services_host.pfdns_connector_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfldapexplorer_service_host"
+msgstr "services_host.pfldapexplorer_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfperl_api_service_host"
+msgstr "services_host.pfperl_api_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfpki_service_host"
+msgstr "services_host.pfpki_service_host"
+
+# conf/documentation.conf
+msgid "services_host.pfsso_service_host"
+msgstr "services_host.pfsso_service_host"
+
+# conf/documentation.conf
+msgid "services_host.proxysql_service_host"
+msgstr "services_host.proxysql_service_host"
+
+# conf/documentation.conf
+msgid "services_host.radiusd_auth_service_host"
+msgstr "services_host.radiusd_auth_service_host"
+
+# conf/documentation.conf
+msgid "services_host.redis_cache_service_host"
+msgstr "services_host.redis_cache_service_host"
+
+# conf/documentation.conf
+msgid "services_host.redis_queue_service_host"
+msgstr "services_host.redis_queue_service_host"
 
 # conf/documentation.conf
 msgid "services_url"
