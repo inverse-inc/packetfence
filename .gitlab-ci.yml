@@ -814,6 +814,20 @@ ci_related:
     - !reference [.gated_by_build_img_docker, rules]
     - !reference [.build_img_docker_rules, rules]
 
+build_packer_vagrant_container:
+  # Packer + qemu-system-x86 + ansible-core + rclone image used by the
+  # vagrant box build job. Any runner with Docker and /dev/kvm can use it.
+  extends:
+    - .build_img_container_job
+  needs:
+    - kaniko
+  variables:
+    IMAGE_NAME: "packer-vagrant-build"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.build_img_container_rules, rules]
+
 ### build_img_vagrant jobs
 build_img_vagrant_devel_and_branches_debian_bookworm:
   extends:
