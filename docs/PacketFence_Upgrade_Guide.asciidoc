@@ -891,8 +891,6 @@ If a difference is found the current configuration will be saved in [filename]`/
 /usr/local/pf/addons/upgrade/to-15.0-check-custom-iptables-configurations.sh
 ----
 
-== Upgrading from a version prior to X.Y.Z
-
 == Upgrading from a version prior to 15.1.0
 
 Run the following upgrade scripts:
@@ -904,6 +902,8 @@ Run the following upgrade scripts:
 /usr/local/pf/addons/upgrade/to-15.1-azure-ad.pl
 /usr/local/pf/addons/upgrade/to-15.1-rename-proxysql-backend.pl
 ----
+
+== Upgrading from a version prior to X.Y.Z
 
 == Troubleshooting Upgrades
 
