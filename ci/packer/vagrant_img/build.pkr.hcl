@@ -69,6 +69,43 @@ build {
 }
 
 build {
+  name    = "ad_dev"
+  sources = ["source.qemu.bullseye-11"]
+
+  # Fix DHCP/DNS for QEMU user-mode networking.
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    inline = [
+      "set -eux",
+      "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
+      "ip link set \"$IFACE\" up",
+      "dhclient -v \"$IFACE\" || true",
+      "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
+    ]
+  }
+
+  provisioner "ansible" {
+    playbook_file       = "${var.pfroot_dir}/addons/vagrant/playbooks/linux_servers/samba4ad.yml"
+    host_alias          = "ad"
+    groups              = ["linux_servers", "service_samba4ad"]
+    inventory_directory = "${var.pfroot_dir}/addons/vagrant/inventory"
+    extra_arguments = [
+      "--extra-vars", "samba4ad__mgmt_ip=10.0.2.15",
+      "--skip-tags",  "upgrade",
+    ]
+    galaxy_force_install = false
+    use_proxy            = false
+  }
+
+  post-processors {
+    post-processor "vagrant" {
+      output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
+      keep_input_artifact = false
+    }
+  }
+}
+
+build {
   name = "stable"
   sources = [
     "source.vagrant.el-8",
