@@ -20,17 +20,35 @@ VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
 PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
+# Debian netinstall ISO — downloaded once, reused across builds
+DEBIAN_ISO_VERSION ?= 12.14.0
+DEBIAN_ISO_URL ?= https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
+DEBIAN_ISO_CHECKSUM ?= adfcbb50782af99d457467f9b38c9e0fb3b1b6e211e0202f099aa58874b3f923
+DEBIAN_ISO_CACHE_DIR ?= /tmp/packer-iso
+DEBIAN_ISO_FILE := $(DEBIAN_ISO_CACHE_DIR)/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
 #==============================================================================
 # Targets
 #==============================================================================
+.PHONY: download-iso
+download-iso:
+	mkdir -p $(DEBIAN_ISO_CACHE_DIR)
+	@if [ ! -f "$(DEBIAN_ISO_FILE)" ]; then \
+		echo "===> Downloading Debian $(DEBIAN_ISO_VERSION) netinst ISO..."; \
+		curl -fL "$(DEBIAN_ISO_URL)" -o "$(DEBIAN_ISO_FILE)"; \
+		echo "$(DEBIAN_ISO_CHECKSUM)  $(DEBIAN_ISO_FILE)" | sha256sum -c; \
+	else \
+		echo "===> ISO already cached: $(DEBIAN_ISO_FILE)"; \
+	fi
+
 .PHONY: pfbox
-pfbox:	clean
+pfbox:	download-iso clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
 	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
+	PKR_VAR_iso_url="file://$(DEBIAN_ISO_FILE)" \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer validate -only="$(BUILD_NAME)" .
@@ -43,6 +61,7 @@ pfbox:	clean
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
 	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
+	PKR_VAR_iso_url="file://$(DEBIAN_ISO_FILE)" \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
