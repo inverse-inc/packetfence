@@ -356,8 +356,9 @@ variables:
 
 .build_img_vagrant_devel_and_branches_job:
   stage: build_images
+  image: ghcr.io/inverse-inc/packetfence/packer-vagrant-build:latest
   variables:
-    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
@@ -368,8 +369,7 @@ variables:
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
-    - shell
-    - inverse.ca
+    - docker-kvm
 
 # Strict gate: build_artifacts must not start if lint_ci_yaml failed or if any
 # build_images job failed. lint_ci_yaml is non-optional (always present) so a
@@ -589,8 +589,9 @@ variables:
 
 .build_pf_img_vagrant_release_job:
   stage: build_pf_img
+  image: ghcr.io/inverse-inc/packetfence/packer-vagrant-build:latest
   variables:
-    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
@@ -602,8 +603,7 @@ variables:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   dependencies: []
   tags:
-    - inverse.ca
-    - shell
+    - docker-kvm
 
 .rpm_script_job:
   script:
