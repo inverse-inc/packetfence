@@ -138,11 +138,15 @@ variables:
 
 .gated_by_build_artifacts_pkg:
   rules:
+    - if: '$BUILD_IMG_VAGRANT == "yes"'
+      when: never
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
 
 .gated_by_build_img_container:
   rules:
+    - if: '$BUILD_IMG_VAGRANT == "yes"'
+      when: never
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
@@ -204,6 +208,8 @@ variables:
 
 .gated_by_deploy_pkg:
   rules:
+    - if: '$BUILD_IMG_VAGRANT == "yes"'
+      when: never
     - if: '$DEPLOY_PKG == "no"'
       when: never
 
