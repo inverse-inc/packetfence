@@ -21,9 +21,9 @@ PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
 PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
 # Debian netinstall ISO — downloaded once, reused across builds
-DEBIAN_ISO_VERSION ?= 12.14.0
-DEBIAN_ISO_URL ?= https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
-DEBIAN_ISO_CHECKSUM ?= adfcbb50782af99d457467f9b38c9e0fb3b1b6e211e0202f099aa58874b3f923
+DEBIAN_ISO_VERSION ?= 12.11.0
+DEBIAN_ISO_URL ?= https://debian.uvigo.es/debian-cd/$(DEBIAN_ISO_VERSION)/amd64/iso-cd/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
+DEBIAN_ISO_CHECKSUM ?= 30ca12a15cae6a1033e03ad59eb7f66a6d5a258dcf27acd115c2bd42d22640e8
 DEBIAN_ISO_CACHE_DIR ?= /tmp/packer-iso
 DEBIAN_ISO_FILE := $(DEBIAN_ISO_CACHE_DIR)/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
 #==============================================================================
