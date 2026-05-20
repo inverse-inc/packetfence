@@ -25,6 +25,11 @@ DEBIAN_BASE_BOX_VERSION ?= 12.20260519.1
 DEBIAN_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bookworm64/versions/$(DEBIAN_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
 DEBIAN_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
 DEBIAN_BASE_BOX_FILE := $(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.img
+# debian/bullseye64 base box — used for the AD (Samba4) vagrant box build
+BULLSEYE_BASE_BOX_VERSION ?= 11.20241217.1
+BULLSEYE_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bullseye64/versions/$(BULLSEYE_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
+BULLSEYE_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
+BULLSEYE_BASE_BOX_FILE := $(BULLSEYE_BASE_BOX_CACHE_DIR)/bullseye64.img
 #==============================================================================
 # Targets
 #==============================================================================
@@ -39,6 +44,19 @@ download-base-image:
 		rm -f "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box"; \
 	else \
 		echo "===> Base image already cached: $(DEBIAN_BASE_BOX_FILE)"; \
+	fi
+
+.PHONY: download-bullseye-base-image
+download-bullseye-base-image:
+	mkdir -p $(BULLSEYE_BASE_BOX_CACHE_DIR)
+	@if [ ! -f "$(BULLSEYE_BASE_BOX_FILE)" ]; then \
+		echo "===> Downloading debian/bullseye64 libvirt box v$(BULLSEYE_BASE_BOX_VERSION)..."; \
+		curl -fL "$(BULLSEYE_BASE_BOX_URL)" -o "$(BULLSEYE_BASE_BOX_CACHE_DIR)/bullseye64.box"; \
+		echo "===> Extracting QCOW2 from box..."; \
+		tar -xOf "$(BULLSEYE_BASE_BOX_CACHE_DIR)/bullseye64.box" box.img > "$(BULLSEYE_BASE_BOX_FILE)"; \
+		rm -f "$(BULLSEYE_BASE_BOX_CACHE_DIR)/bullseye64.box"; \
+	else \
+		echo "===> Bullseye base image already cached: $(BULLSEYE_BASE_BOX_FILE)"; \
 	fi
 
 .PHONY: pfbox
@@ -105,6 +123,41 @@ pfdeb12stable:
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
 	BUILD_NAME="$(STABLE_GROUP).qemu.debian-12" \
 	pfbox
+
+# AD (Samba4) builds — use debian/bullseye64 base image
+.PHONY: pfadbox
+pfadbox: download-bullseye-base-image clean
+	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
+	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
+	PKR_VAR_pfserver_name=$(BOX_NAME) \
+	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
+	PKR_VAR_bullseye_disk_image_url="file://$(BULLSEYE_BASE_BOX_FILE)" \
+	PACKER_LOG=$(PACKER_LOG) \
+	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
+	packer validate -only="$(BUILD_NAME)" .
+
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS) \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS) \
+	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
+	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
+	PKR_VAR_pfserver_name=$(BOX_NAME) \
+	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
+	PKR_VAR_bullseye_disk_image_url="file://$(BULLSEYE_BASE_BOX_FILE)" \
+	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
+	PACKER_LOG=$(PACKER_LOG) \
+	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
+	packer build -only="$(BUILD_NAME)" .
+
+.PHONY: pfad11dev
+pfad11dev:
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	$(MAKE) -e \
+	BOX_NAME=$@ \
+	ANSIBLE_GROUP=ad_dev \
+	BUILD_NAME="ad_dev.qemu.bullseye-11" \
+	pfadbox
 
 # Generic debian-12 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
 .PHONY: pfdebian12dev_generic
