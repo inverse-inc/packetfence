@@ -159,6 +159,16 @@ pfad11dev:
 	BUILD_NAME="ad_dev.qemu.bullseye-11" \
 	pfadbox
 
+# Generic AD dev build — BOX_NAME must be provided externally (e.g. for branch builds)
+.PHONY: pfad11dev_generic
+pfad11dev_generic:
+	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfad11dev_generic))
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	$(MAKE) -e \
+	ANSIBLE_GROUP=ad_dev \
+	BUILD_NAME="ad_dev.qemu.bullseye-11" \
+	pfadbox
+
 # Generic debian-12 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
 .PHONY: pfdebian12dev_generic
 pfdebian12dev_generic:

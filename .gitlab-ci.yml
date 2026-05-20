@@ -1457,6 +1457,45 @@ build_pf_img_vagrant_branch_debian_bookworm:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
+# AD (Samba4) devel box: packages already deployed to the public inverse.ca repo.
+build_pf_img_vagrant_ad_devel_debian_bullseye:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfad11dev
+  needs:
+    - job: deploy_deb
+      artifacts: false
+    - job: build_packer_vagrant_container
+      artifacts: false
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+# AD (Samba4) feature-branch box: branch slug embedded in box name.
+build_pf_img_vagrant_ad_branch_debian_bullseye:
+  extends:
+    - .build_pf_img_vagrant_job
+  script:
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_NAME="pfad11dev-${CI_COMMIT_REF_SLUG}"
+    - export BOX_DESC="PacketFence AD ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
+    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
+        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
+        pfad11dev_generic
+    - BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}" ${VAGRANT_IMG_DIR}/upload-to-linode.sh
+  needs:
+    - job: publish_ppa
+      artifacts: false
+    - job: build_packer_vagrant_container
+      artifacts: false
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
 # Release (tag): stable box with PacketFence installed, manual trigger.
 build_pf_img_vagrant_release_debian_bookworm:
   extends:
