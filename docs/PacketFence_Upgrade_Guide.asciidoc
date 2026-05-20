@@ -174,7 +174,7 @@ to ensure compatibility and security.
 **Before Using Automation**:
 
 [options="compact"]
- * <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>> 
+ * <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>>
  * Review the <<#_operating_system_compatibility,Operating System Compatibility>>
 matrix to determine if your upgrade requires OS migration via export/import
 procedures instead of automated in-place upgrades.
@@ -593,7 +593,7 @@ unless specifying individual machine account names for each node.
 PacketFence 14.0 introduces changes to supported operating systems:
 
 [options="compact"]
- - **Dropped**: Debian 11 (bullseye) 
+ - **Dropped**: Debian 11 (bullseye)
  - **Added**: Debian 12 (bookworm)
  - **Continued**: RedHat EL8 support
 
@@ -822,7 +822,7 @@ yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetf
 
 Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>>
 
-==== RedHat EL8 Cluster Upgrade 
+==== RedHat EL8 Cluster Upgrade
 
 **Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 
@@ -890,6 +890,8 @@ If a difference is found the current configuration will be saved in [filename]`/
 ----
 /usr/local/pf/addons/upgrade/to-15.0-check-custom-iptables-configurations.sh
 ----
+
+== Upgrading from a version prior to X.Y.Z
 
 == Upgrading from a version prior to 15.1.0
 
