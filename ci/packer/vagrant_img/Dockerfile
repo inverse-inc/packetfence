@@ -9,6 +9,8 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         libvirt-clients \
+        make \
+        python3 \
         qemu-system-x86 \
         qemu-utils \
         rclone \
