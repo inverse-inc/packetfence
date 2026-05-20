@@ -176,6 +176,11 @@ variables:
     - if: '$TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
       when: never
 
+.gated_by_build_pf_img_vagrant:
+  rules:
+    - if: '$BUILD_PF_IMG_VAGRANT != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_vagrant=yes/'
+      when: never
+
 .gated_by_build_pf_img_zen:
   rules:
     - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
@@ -354,9 +359,9 @@ variables:
   tags:
     - docker
 
-.build_img_vagrant_devel_and_branches_job:
-  stage: build_images
-  image: ghcr.io/inverse-inc/packetfence/packer-vagrant-build:latest
+.build_pf_img_vagrant_job:
+  stage: build_pf_img
+  image: ${KNK_REGISTRY_URL}/packer-vagrant-build:${IMAGE_TAG}
   variables:
     RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
   script:
@@ -364,10 +369,11 @@ variables:
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
-    - ${VAGRANT_IMG_DIR}/upload-to-linode.sh
+    - BOX_NAME=${BOX_NAME} BOX_VERSION=${BOX_VERSION} ${VAGRANT_IMG_DIR}/upload-to-linode.sh
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
+  dependencies: []
   tags:
     - docker-kvm
 
@@ -400,8 +406,6 @@ variables:
     - job: build_signing_debian
       optional: true
     - job: build_signing_rhel
-      optional: true
-    - job: build_img_vagrant_devel_and_branches_debian_bookworm
       optional: true
 
 .build_artifacts_pkg_job:
@@ -588,22 +592,8 @@ variables:
     - shell
 
 .build_pf_img_vagrant_release_job:
-  stage: build_pf_img
-  image: ghcr.io/inverse-inc/packetfence/packer-vagrant-build:latest
-  variables:
-    RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
-  script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
-    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
-    - ${VAGRANT_IMG_DIR}/upload-to-linode.sh
-  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
-  after_script:
-    - make -e -C ${VAGRANT_IMG_DIR} clean
-  dependencies: []
-  tags:
-    - docker-kvm
+  extends:
+    - .build_pf_img_vagrant_job
 
 .rpm_script_job:
   script:
@@ -892,16 +882,6 @@ build_packer_vagrant_container:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
 
-### build_img_vagrant jobs
-build_img_vagrant_devel_and_branches_debian_bookworm:
-  extends:
-    - .build_img_vagrant_devel_and_branches_job
-  variables:
-    BOX_NAME: pfdeb12dev
-  rules:
-    - !reference [.gated_by_build_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME == "devel"'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
 ########################################
 #  BUILD_ARTIFACTS JOBS
@@ -1437,11 +1417,57 @@ build_pf_img_usb_iso:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_usb_iso=yes/)'
 
 ### build_pf_img_vagrant jobs
+# Devel and maintenance: packages already deployed to the public inverse.ca repo.
+build_pf_img_vagrant_devel_debian_bookworm:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfdeb12dev
+  needs:
+    - job: deploy_deb
+      artifacts: false
+    - job: build_packer_vagrant_container
+      artifacts: false
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+# Feature branches: packages come from the pipeline PPA (publish_ppa); branch
+# slug is embedded in the box name so each branch gets its own box slot on Linode.
+build_pf_img_vagrant_branch_debian_bookworm:
+  extends:
+    - .build_pf_img_vagrant_job
+  script:
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_NAME="pfdeb12dev-${CI_COMMIT_REF_SLUG}"
+    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
+    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
+        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
+        pfdebian12dev_generic
+    - BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}" ${VAGRANT_IMG_DIR}/upload-to-linode.sh
+  needs:
+    - job: publish_ppa
+      artifacts: false
+    - job: build_packer_vagrant_container
+      artifacts: false
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+# Release (tag): stable box with PacketFence installed, manual trigger.
 build_pf_img_vagrant_release_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_release_job
   variables:
     BOX_NAME: pfdeb12stable
+  needs:
+    - job: deploy_deb
+      artifacts: false
+    - job: build_packer_vagrant_container
+      artifacts: false
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
