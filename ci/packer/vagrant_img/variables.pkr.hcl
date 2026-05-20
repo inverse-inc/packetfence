@@ -63,3 +63,15 @@ variable disk_image_checksum {
   type    = string
   default = "none"
 }
+
+# Path to the extracted QCOW2 from a debian/bullseye64 libvirt base box.
+# The Makefile download-bullseye-base-image target produces this file.
+variable bullseye_disk_image_url {
+  type    = string
+  default = "file:///tmp/packer-iso/bullseye64.img"
+}
+
+variable bullseye_disk_image_checksum {
+  type    = string
+  default = "none"
+}
