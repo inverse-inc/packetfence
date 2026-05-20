@@ -21,8 +21,8 @@ PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
 PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
 # debian/bookworm64 base box — downloaded once, QCOW2 extracted for packer disk_image build
-DEBIAN_BASE_BOX_VERSION ?= 12.20240503.1
-DEBIAN_BASE_BOX_URL ?= https://app.vagrantup.com/debian/boxes/bookworm64/versions/$(DEBIAN_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
+DEBIAN_BASE_BOX_VERSION ?= 12.20260519.1
+DEBIAN_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bookworm64/versions/$(DEBIAN_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
 DEBIAN_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
 DEBIAN_BASE_BOX_FILE := $(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.img
 #==============================================================================
