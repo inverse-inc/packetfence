@@ -73,6 +73,8 @@ build {
   sources = ["source.qemu.bullseye-11"]
 
   # Fix DHCP/DNS for QEMU user-mode networking, then refresh apt cache.
+  # resolv.conf is made immutable so reboots during Ansible provisioning
+  # don't lose DNS (dhclient at boot would overwrite it with QEMU's 10.0.2.3).
   provisioner "shell" {
     execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
     inline = [
@@ -80,7 +82,9 @@ build {
       "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
       "ip link set \"$IFACE\" up",
       "dhclient -v \"$IFACE\" || true",
+      "rm -f /etc/resolv.conf",
       "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
+      "chattr +i /etc/resolv.conf",
       "apt-get update -qq",
     ]
   }
