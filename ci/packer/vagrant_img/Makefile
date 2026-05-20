@@ -20,35 +20,36 @@ VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
 PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
-# Debian netinstall ISO — downloaded once, reused across builds
-DEBIAN_ISO_VERSION ?= 12.11.0
-DEBIAN_ISO_URL ?= https://debian.uvigo.es/debian-cd/$(DEBIAN_ISO_VERSION)/amd64/iso-cd/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
-DEBIAN_ISO_CHECKSUM ?= 30ca12a15cae6a1033e03ad59eb7f66a6d5a258dcf27acd115c2bd42d22640e8
-DEBIAN_ISO_CACHE_DIR ?= /tmp/packer-iso
-DEBIAN_ISO_FILE := $(DEBIAN_ISO_CACHE_DIR)/debian-$(DEBIAN_ISO_VERSION)-amd64-netinst.iso
+# debian/bookworm64 base box — downloaded once, QCOW2 extracted for packer disk_image build
+DEBIAN_BASE_BOX_VERSION ?= 12.20240503.1
+DEBIAN_BASE_BOX_URL ?= https://app.vagrantup.com/debian/boxes/bookworm64/versions/$(DEBIAN_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
+DEBIAN_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
+DEBIAN_BASE_BOX_FILE := $(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.img
 #==============================================================================
 # Targets
 #==============================================================================
-.PHONY: download-iso
-download-iso:
-	mkdir -p $(DEBIAN_ISO_CACHE_DIR)
-	@if [ ! -f "$(DEBIAN_ISO_FILE)" ]; then \
-		echo "===> Downloading Debian $(DEBIAN_ISO_VERSION) netinst ISO..."; \
-		curl -fL "$(DEBIAN_ISO_URL)" -o "$(DEBIAN_ISO_FILE)"; \
-		echo "$(DEBIAN_ISO_CHECKSUM)  $(DEBIAN_ISO_FILE)" | sha256sum -c; \
+.PHONY: download-base-image
+download-base-image:
+	mkdir -p $(DEBIAN_BASE_BOX_CACHE_DIR)
+	@if [ ! -f "$(DEBIAN_BASE_BOX_FILE)" ]; then \
+		echo "===> Downloading debian/bookworm64 libvirt box v$(DEBIAN_BASE_BOX_VERSION)..."; \
+		curl -fL "$(DEBIAN_BASE_BOX_URL)" -o "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box"; \
+		echo "===> Extracting QCOW2 from box..."; \
+		tar -xOf "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box" box.img > "$(DEBIAN_BASE_BOX_FILE)"; \
+		rm -f "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box"; \
 	else \
-		echo "===> ISO already cached: $(DEBIAN_ISO_FILE)"; \
+		echo "===> Base image already cached: $(DEBIAN_BASE_BOX_FILE)"; \
 	fi
 
 .PHONY: pfbox
-pfbox:	download-iso clean
+pfbox:	download-base-image clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
 	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
-	PKR_VAR_iso_url="file://$(DEBIAN_ISO_FILE)" \
+	PKR_VAR_disk_image_url="file://$(DEBIAN_BASE_BOX_FILE)" \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer validate -only="$(BUILD_NAME)" .
@@ -61,7 +62,7 @@ pfbox:	download-iso clean
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
 	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
-	PKR_VAR_iso_url="file://$(DEBIAN_ISO_FILE)" \
+	PKR_VAR_disk_image_url="file://$(DEBIAN_BASE_BOX_FILE)" \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
