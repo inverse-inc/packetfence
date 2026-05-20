@@ -106,6 +106,16 @@ pfdeb12stable:
 	BUILD_NAME="$(STABLE_GROUP).qemu.debian-12" \
 	pfbox
 
+# Generic debian-12 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
+.PHONY: pfdebian12dev_generic
+pfdebian12dev_generic:
+	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfdebian12dev_generic))
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	$(MAKE) -e \
+	ANSIBLE_GROUP=$(DEV_GROUP) \
+	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
+	pfbox
+
 # Cleanup
 .PHONY: clean
 clean:
