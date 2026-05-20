@@ -52,12 +52,14 @@ variable box_description {
   type = string
 }
 
-variable iso_url {
+# Path to the extracted QCOW2 from a debian/bookworm64 libvirt base box.
+# The Makefile download-base-image target produces this file.
+variable disk_image_url {
   type    = string
-  default = "https://debian.uvigo.es/debian-cd/12.11.0/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso"
+  default = "file:///tmp/packer-iso/bookworm64.img"
 }
 
-variable iso_checksum {
+variable disk_image_checksum {
   type    = string
-  default = "sha256:30ca12a15cae6a1033e03ad59eb7f66a6d5a258dcf27acd115c2bd42d22640e8"
+  default = "none"
 }
