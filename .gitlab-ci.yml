@@ -552,7 +552,7 @@ variables:
     - make -e -C ${ZENDIR} clean_all
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell
 
 .build_pf_img_iso_job:
   stage: build_pf_img
@@ -563,7 +563,7 @@ variables:
     - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell
 
 .build_pf_img_usb_iso_job:
   stage: build_pf_img
@@ -574,7 +574,7 @@ variables:
     - make -e -C ${USB_ISODIR} clean
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell
 
 .build_pf_img_vagrant_release_job:
   stage: build_pf_img
