@@ -30,9 +30,25 @@ BULLSEYE_BASE_BOX_VERSION ?= 11.20241217.1
 BULLSEYE_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bullseye64/versions/$(BULLSEYE_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
 BULLSEYE_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
 BULLSEYE_BASE_BOX_FILE := $(BULLSEYE_BASE_BOX_CACHE_DIR)/bullseye64.img
+# Vagrant insecure key — downloaded from the official Vagrant repository
+VAGRANT_INSECURE_KEY_URL ?= https://raw.githubusercontent.com/hashicorp/vagrant/main/keys/vagrant
+VAGRANT_INSECURE_KEY_DIR := $(CURDIR)/provisioners/keys
+VAGRANT_INSECURE_KEY_FILE := $(VAGRANT_INSECURE_KEY_DIR)/vagrant_insecure_key
 #==============================================================================
 # Targets
 #==============================================================================
+.PHONY: download-vagrant-key
+download-vagrant-key:
+	@if [ ! -f "$(VAGRANT_INSECURE_KEY_FILE)" ]; then \
+		echo "===> Downloading Vagrant insecure private key..."; \
+		mkdir -p "$(VAGRANT_INSECURE_KEY_DIR)"; \
+		curl -fsSL "$(VAGRANT_INSECURE_KEY_URL)" -o "$(VAGRANT_INSECURE_KEY_FILE)"; \
+		curl -fsSL "$(VAGRANT_INSECURE_KEY_URL).pub" -o "$(VAGRANT_INSECURE_KEY_FILE).pub"; \
+		chmod 600 "$(VAGRANT_INSECURE_KEY_FILE)"; \
+	else \
+		echo "===> Vagrant insecure key already present: $(VAGRANT_INSECURE_KEY_FILE)"; \
+	fi
+
 .PHONY: download-base-image
 download-base-image:
 	mkdir -p $(DEBIAN_BASE_BOX_CACHE_DIR)
@@ -60,7 +76,7 @@ download-bullseye-base-image:
 	fi
 
 .PHONY: pfbox
-pfbox:	download-base-image clean
+pfbox:	download-vagrant-key download-base-image clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
@@ -126,7 +142,7 @@ pfdeb12stable:
 
 # AD (Samba4) builds — use debian/bullseye64 base image
 .PHONY: pfadbox
-pfadbox: download-bullseye-base-image clean
+pfadbox: download-vagrant-key download-bullseye-base-image clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
