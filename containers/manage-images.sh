@@ -98,6 +98,7 @@ configure_and_check() {
                            -not -path "*/ntlm-join-remote/*" \
                            -not -path "*/signing-debian/*" \
                            -not -path "*/signing-rhel/*" \
+                           -not -path "*/packer-vagrant-build/*" \
                            -not -path "*/pfconfig-material-builder/*" \
                            -printf "%P\n")
 
