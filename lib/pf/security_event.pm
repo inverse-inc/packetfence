@@ -28,6 +28,7 @@ use pfconfig::cached_scalar;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Config;
 use pf::security_event_config;
 use pf::node;
 use pf::StatsD::Timer;
@@ -515,43 +516,48 @@ sub security_event_last_errors { @ERRORS }
 sub info_for_security_event_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
+    $type = lc($type);
     my $node_info = pf::node::node_view($mac);
 
-    my $cache = pf::CHI->new( namespace => 'fingerbank' );
-
-    $type = lc($type);
-
-    my $devices = [];
-    my ($device_id);
-    if($type eq "device"){
+    my $results = {};
+    my $device_id;
+    if ($type eq "device") {
         $device_id = $tid;
     }
-    else {
-        my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
-        if(is_success($device_result)){
-            $device_id = $device->id
-        }
-    }
+    my $mac_vendor_id;
+    my $api_config = fingerbank::Config::is_api_key_configured();
+    if ($api_config) {
+        my $cache = pf::CHI->new( namespace => 'fingerbank' );
 
-    my $attr_map = {
-        dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
-        dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
-        dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
-        dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
-    };
-    my $results = {};
-    foreach my $attr (keys %$attr_map){
-        my $model = $attr_map->{$attr};
-        my $query = {value => $node_info->{$attr}};
-        $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
-            my ($status, $result) = $model->find([$query]);
-            return is_success($status) ? $result->id : undef;
+
+        my $devices = [];
+        if (!defined $device_id) {
+            my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+            if (is_success($device_result)) {
+                $device_id = $device->id
+            }
+        }
+
+        my $attr_map = {
+            dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
+            dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
+            dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
+            dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
+        };
+        foreach my $attr (keys %$attr_map) {
+            my $model = $attr_map->{$attr};
+            my $query = {value => $node_info->{$attr}};
+            $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
+                my ($status, $result) = $model->find([$query]);
+                return is_success($status) ? $result->id : undef;
+            });
+        }
+
+        $mac_vendor_id = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
+            my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
+            return $mac_vendor ? $mac_vendor->id : undef;
         });
     }
-    my ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
-        my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
-        return $mac_vendor ? $mac_vendor->id : undef;
-    });
 
     my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
 
