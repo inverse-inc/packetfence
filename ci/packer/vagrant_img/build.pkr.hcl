@@ -72,7 +72,7 @@ build {
   name    = "ad_dev"
   sources = ["source.qemu.bullseye-11"]
 
-  # Fix DHCP/DNS for QEMU user-mode networking.
+  # Fix DHCP/DNS for QEMU user-mode networking, then refresh apt cache.
   provisioner "shell" {
     execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
     inline = [
@@ -81,6 +81,7 @@ build {
       "ip link set \"$IFACE\" up",
       "dhclient -v \"$IFACE\" || true",
       "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
+      "apt-get update -qq",
     ]
   }
 
