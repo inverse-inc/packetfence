@@ -78,8 +78,8 @@ all:
           cpus: 1
           memory: 512
         ad:
-          box: debian/bullseye64
-          box_version: 11.20241217.1
+          box: inverse-inc/pfad11dev
+          box_url: https://packetfence-iso.us-east-1.linodeobjects.com/vagrant/pfad11dev/metadata.json
           mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
