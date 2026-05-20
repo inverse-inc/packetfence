@@ -999,6 +999,7 @@ pfdeb_based_rel:
           - "ntlm-auth-api"
           - "ntlm-join-remote"
           - "netdata"
+          - "pfstats"
           - "pfdns-connector"
 
 img_rel:
