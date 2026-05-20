@@ -172,7 +172,12 @@
         masked: no
         name: "{{ item }}"
       loop:
-      - "samba-ad-dc" 
+      - "samba-ad-dc"
+
+    - name: Set DNS to use local Samba AD DC so kinit can find the KDC
+      ansible.builtin.shell: |
+        chattr -i /etc/resolv.conf 2>/dev/null || true
+        printf 'nameserver %s\nnameserver 8.8.8.8\n' "{{ samba4ad__mgmt_ip }}" > /etc/resolv.conf
 
     - name: Reboot
       include_tasks: ./tasks/samba4ad_reboot_tasks.yml
