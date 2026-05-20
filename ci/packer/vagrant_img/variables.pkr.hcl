@@ -51,3 +51,13 @@ variable box_version {
 variable box_description {
   type = string
 }
+
+variable iso_url {
+  type    = string
+  default = "https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/debian-12.14.0-amd64-netinst.iso"
+}
+
+variable iso_checksum {
+  type    = string
+  default = "sha256:adfcbb50782af99d457467f9b38c9e0fb3b1b6e211e0202f099aa58874b3f923"
+}

@@ -74,7 +74,7 @@ pfdeb12dev:
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).vagrant.debian-12" \
+	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
 	pfbox
 
 .PHONY: pfdeb12stable
@@ -83,7 +83,7 @@ pfdeb12stable:
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	BUILD_NAME="$(STABLE_GROUP).vagrant.debian-12" \
+	BUILD_NAME="$(STABLE_GROUP).qemu.debian-12" \
 	pfbox
 
 # Cleanup
