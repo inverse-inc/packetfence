@@ -44,6 +44,31 @@ Vagrant.configure("2") do |config|
         v.cpus = details['cpus']
         v.memory = details['memory']
       end
+
+      if server == 'ad'
+        srv.vm.provision "upgrade-os", type: "shell" do |s|
+          s.inline = "apt-get update -qq && apt-get upgrade -y"
+          s.privileged = true
+        end
+
+        # Reconfigure Samba4 DC with actual management IP (replaces QEMU build-time IP 10.0.2.15).
+        srv.vm.provision "reconfigure-ad-ip", type: "shell", run: "once" do |s|
+          s.privileged = true
+          s.inline = <<-SHELL
+            set -e
+            ACTUAL_IP=$(ip -4 addr show eth1 2>/dev/null | grep -oP '(?<=inet )\\d+(\\.\\d+){3}' | head -1)
+            if [ -z "$ACTUAL_IP" ]; then
+              echo "ERROR: could not detect management IP on eth1"
+              exit 1
+            fi
+            echo "==> Reconfiguring Samba4 DC from 10.0.2.15 to ${ACTUAL_IP}"
+            sed -i "s/10\\.0\\.2\\.15/${ACTUAL_IP}/g" /etc/hosts
+            sed -i "s/10\\.0\\.2\\.15/${ACTUAL_IP}/g" /etc/dhcp/dhclient.conf
+            systemctl restart samba-ad-dc
+            echo "==> Done. Samba4 DC restarted."
+          SHELL
+        end
+      end
     end
   end
 end
