@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # packer version changes.
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
         ansible-core \
+        apt-cacher-ng \
         ca-certificates \
         curl \
         libvirt-clients \
@@ -34,3 +35,19 @@ RUN set -eux; \
     && chmod 0755 /usr/local/bin/packer \
     && rm -f "/tmp/${PACKER_ZIP}" /tmp/packer_SHA256SUMS \
     && packer version
+
+# Layer 3: pre-install packer plugins so builds work without outbound access at runtime
+COPY ci/packer/vagrant_img/plugins.pkr.hcl /tmp/packer-init/
+RUN packer init /tmp/packer-init && rm -rf /tmp/packer-init
+
+# Layer 4: bake Ansible Galaxy collections so builds skip the download step
+COPY ci/packer/vagrant_img/provisioners/requirements.yml /tmp/galaxy-requirements.yml
+RUN ansible-galaxy install -r /tmp/galaxy-requirements.yml \
+        --collections-path /root/.ansible/collections \
+    && rm /tmp/galaxy-requirements.yml
+
+# Entrypoint starts apt-cacher-ng before handing off to packer.
+# Mount /var/cache/apt-cacher-ng as a Docker volume to persist cache across CI jobs.
+COPY ci/packer/vagrant_img/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

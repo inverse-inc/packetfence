@@ -15,14 +15,14 @@ source "qemu" "debian-12" {
   iso_url      = var.disk_image_url
   iso_checksum = var.disk_image_checksum
 
-  communicator = "ssh"
-  ssh_username = "vagrant"
-  ssh_password = "vagrant"
-  ssh_timeout  = "10m"
+  communicator           = "ssh"
+  ssh_username           = "vagrant"
+  ssh_private_key_file   = "provisioners/keys/vagrant_insecure_key"
+  ssh_timeout            = "10m"
 
-  cpus      = 2
-  memory    = 2048
-  disk_size = 40960
+  cpus      = 4
+  memory    = 4096
+  disk_size = 102400
 
   accelerator  = "kvm"
   machine_type = "q35"
@@ -31,7 +31,7 @@ source "qemu" "debian-12" {
   net_device     = "virtio-net"
 
   headless         = true
-  output_directory = "${var.output_dir}"
+  output_directory = "${var.output_dir}/tmp"
   vm_name          = "debian-12.qcow2"
 
   shutdown_command = "echo 'vagrant' | sudo -S shutdown -P now"
