@@ -4,12 +4,6 @@ packetfence (15.2.0) unstable; urgency=low
 
  -- Inverse <info@inverse.ca>  Wed, 20 May 2026 21:07:20 +0000
 
-packetfence (15.2) unstable; urgency=low
-
-  * Version 15.2
-
- -- Inverse <info@inverse.ca>  Wed, 20 May 2026 21:03:34 +0000
-
 packetfence (15.1.0) unstable; urgency=low
 
   * Version 15.1.0
