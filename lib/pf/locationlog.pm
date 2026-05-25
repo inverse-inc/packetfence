@@ -507,8 +507,10 @@ sub _is_locationlog_accurate {
         $ifIndexChanged = ($locationlog_mac->{port} ne $ifIndex);
     }
 
-    my $teap_u_changed = ($locationlog_mac->{'teap_username'} ne $teap_username);
-    my $teap_m_changed = ($locationlog_mac->{'teap_machinename'} ne $teap_machinename);
+    # Treat an empty incoming TEAP value as "unspecified" so non-TEAP callers
+    # (e.g. accounting, VoIP, VPN) don't invalidate a row that already has TEAP data.
+    my $teap_u_changed = ($teap_username    ne '' && $locationlog_mac->{'teap_username'}    ne $teap_username);
+    my $teap_m_changed = ($teap_machinename ne '' && $locationlog_mac->{'teap_machinename'} ne $teap_machinename);
 
     if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged || $roleChanged || $switchMacChanged || $teap_u_changed || $teap_m_changed) {
         $logger->trace("latest locationlog entry is not accurate");
