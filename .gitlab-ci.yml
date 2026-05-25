@@ -1984,7 +1984,7 @@ build_pf_img_cd_iso_devel_branches_and_maintenance:
   environment:
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} cd-iso
 
 build_pf_img_cd_iso_release:
   extends:
@@ -1994,7 +1994,7 @@ build_pf_img_cd_iso_release:
   environment:
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_TAG}
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} cd-iso
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
