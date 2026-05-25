@@ -72,12 +72,6 @@ has_field 'machine_eap_type' =>
         ],
     );
 
-has_field 'cipher_list' =>
-    (
-        type => 'Text',
-        label => 'Cipher List',
-    );
-
 sub options_tls {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
 }

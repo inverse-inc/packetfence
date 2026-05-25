@@ -898,21 +898,6 @@ eap [% key -%] {
 		user_eap_type = [% eap.$key.teap_config.user_eap_type %]
 		machine_eap_type = [% eap.$key.teap_config.machine_eap_type %]
 
-		#
-		#  If 'cipher_list' is set here, it will over-ride the
-		#  'cipher_list' configuration from the 'tls-common'
-		#  configuration.  The EAP-TEAP module has it's own
-		#  over-ride for 'cipher_list' because the
-		#  specifications mandata a different set of ciphers
-		#  than are used by the other EAP methods.
-		#
-		#  cipher_list though must include "ADH" for anonymous provisioning.
-		#  This is not as straight forward as appending "ADH" alongside
-		#  "DEFAULT" as "DEFAULT" contains "!aNULL" so instead it is
-		#  recommended "ALL:!EXPORT:!eNULL:!SSLv2" is used
-		#
-		cipher_list = "[% eap.$key.teap_config.cipher_list %]"
-
 		#  Authority ID of the server
 		#
 		#  If you are running a cluster of RADIUS servers, you should make
