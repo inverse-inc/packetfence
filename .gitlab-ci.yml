@@ -681,12 +681,11 @@ run_pipeline_if_necessary:
 lint_ci_yaml:
   extends:
     - .check_job
-  image:
-    name: cytopia/yamllint:1
-    entrypoint: [""]
+  image: python:3-alpine
   rules:
     - when: always
   script:
+    - pip install --quiet yamllint
     - >
       yamllint
       -d '{extends: relaxed, rules: {line-length: disable, truthy: disable}}'
