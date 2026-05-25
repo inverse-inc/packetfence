@@ -26,6 +26,11 @@
                                :text="$i18n.t('This sets &session-state:FreeRADIUS-EAP-TEAP-TLV-Identity-Type with the relevant values. The TEAP module then picks those values, in order, to authenticate the chosen identity.')"
 
     />
+
+    <form-group-default-eap-type namespace="default_eap_type"
+                                 :column-label="$i18n.t('Default EAP Type')"
+                                 :text="$i18n.t('The default EAP type used inside the TEAP tunnel when no EAP-Type is set by another module.')"
+    />
   </base-form>
 </template>
 <script>
@@ -38,7 +43,8 @@ import {
   FormGroupIdentifier,
   FormGroupTls,
   FormGroupAuthorityIdentity,
-  FormGroupIdentityTypes
+  FormGroupIdentityTypes,
+  FormGroupDefaultEapType
 } from './'
 
 const components = {
@@ -47,7 +53,8 @@ const components = {
   FormGroupIdentifier,
   FormGroupTls,
   FormGroupAuthorityIdentity,
-  FormGroupIdentityTypes
+  FormGroupIdentityTypes,
+  FormGroupDefaultEapType
 }
 
 export const props = {

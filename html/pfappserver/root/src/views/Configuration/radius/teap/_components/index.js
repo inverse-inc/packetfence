@@ -14,6 +14,7 @@ export {
   BaseFormGroupChosenOne  as FormGroupTls,
   BaseFormGroupInput      as FormGroupAuthorityIdentity,
   BaseFormGroupChosenOne  as FormGroupIdentityTypes,
+  BaseFormGroupChosenOne  as FormGroupDefaultEapType,
 
   BaseViewCollectionItem  as BaseView,
   TheForm,
