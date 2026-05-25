@@ -17,7 +17,7 @@ fi
 
 PF_RELEASE="`echo $PF_RELEASE | sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`"
 
-ISO_NAME=PacketFence-ISO-${PF_VERSION}.iso
+ISO_NAME=PacketFence-CD-ISO-${PF_VERSION}.iso
 
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}
