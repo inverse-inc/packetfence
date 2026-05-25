@@ -1,7 +1,7 @@
 PF_VERSION=$(CI_COMMIT_REF_NAME)
 RESULT_DIR=results
 
-.PHONY: iso
+.PHONY: cd-iso
 
 iso:
 	echo "Building Debian installer for $(PF_VERSION)"
