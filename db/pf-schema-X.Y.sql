@@ -449,6 +449,8 @@ BEGIN
             switch_ip = OLD.switch_ip,
             switch_mac = OLD.switch_mac,
             switch_id = OLD.switch_id,
+            teap_username = OLD.teap_username,
+            teap_machinename = OLD.teap_machinename,
             stripped_user_name = OLD.stripped_user_name,
             realm = OLD.realm,
             session_id = OLD.session_id,
