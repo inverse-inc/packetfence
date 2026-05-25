@@ -556,7 +556,7 @@ variables:
     - make -e -C ${ZENDIR} clean_all
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell
 
 .build_pf_img_cd_iso_job:
   stage: build_pf_img
@@ -567,18 +567,18 @@ variables:
     - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell
 
 .build_pf_img_dvd_usb_iso_job:
   stage: build_pf_img
   environment:
     name: sourceforge
-  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${DVD_USB_ISODIR} clean
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell
 
 .build_pf_img_vagrant_release_job:
   stage: build_pf_img
