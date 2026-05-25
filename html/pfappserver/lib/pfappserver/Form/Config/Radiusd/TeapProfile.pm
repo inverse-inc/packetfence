@@ -42,19 +42,6 @@ has_field 'authority_identity' =>
         type => 'Text',
     );
 
-has_field 'pac_opaque_key' => (
-    type     => 'Text',
-    apply    => [
-        {
-            check   => sub { $_[0] =~ /^[0-9a-fA-F]{32}$/ },
-            message => sub {
-                my ( $value, $field ) = @_;
-                return $field->name . " must be 32-chars hexadecimal. e.g., openssl rand -hex 32";
-            },
-        }
-    ]
-);
-
 sub options_tls {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
 }

@@ -29,7 +29,6 @@ export default (props) => {
       .radiusTeapIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
     authority_identity: yup.string().nullable().label(i18n.t('Authority Identity')),
     identity_types: yup.string().nullable().label(i18n.t('Identity Types')),
-    pac_opaque_key: yup.string().nullable().min(32).max(32).isHash().label(i18n.t('Key')),
     tls: yup.string().nullable().label(i18n.t('TLS Profile'))
   })
 }

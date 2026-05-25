@@ -916,9 +916,9 @@ eap [% key -%] {
 		#  Authority ID of the server
 		#
 		#  If you are running a cluster of RADIUS servers, you should make
-		#  the value chosen here (and for "pac_opaque_key") the same on all
-		#  your RADIUS servers.  This value should be unique to your
-		#  installation.  We suggest using a domain name.
+		#  the value chosen here the same on all your RADIUS servers.
+		#  This value should be unique to your installation.  We suggest
+		#  using a domain name.
 		#
 		authority_identity = [% eap.$key.teap_config.authority_identity %]
 
@@ -940,13 +940,6 @@ eap [% key -%] {
 		#  manually, but that is substantially more complicated.
 		#
 		identity_types = "[% eap.$key.teap_config.identity_types %]"
-
-		#  PAC Opaque encryption key (must be exactly 32 bytes in size)
-		#
-		#  This value MUST be secret, and MUST be generated using
-		#  a secure method, such as via 'openssl rand -hex 32'
-		#
-		pac_opaque_key = [% eap.$key.teap_config.pac_opaque_key %]
 
 		#  Same as for TTLS, PEAP, etc.
 		#
