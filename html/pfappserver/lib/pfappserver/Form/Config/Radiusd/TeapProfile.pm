@@ -28,24 +28,28 @@ has_field 'id' =>
 has_field 'tls' =>
     (
         type => 'Select',
+        required => 1,
         options_method => \&options_tls,
     );
 
 has_field 'identity_types' =>
     (
         type => 'Select',
+        required => 1,
         options_method => \&options_identity_types,
     );
 
 has_field 'authority_identity' =>
     (
         type => 'Text',
+        required => 1,
     );
 
 has_field 'default_eap_type' =>
     (
         type    => 'Select',
         label   => 'Default EAP Type',
+        required => 1,
         options => [
             map { { value => lc($_), label => $_ } }
               qw(MSCHAPv2 TLS GTC MD5)
@@ -56,6 +60,7 @@ has_field 'user_eap_type' =>
     (
         type    => 'Select',
         label   => 'User EAP Type',
+        required => 1,
         options => [
             map { { value => lc($_), label => $_ } }
               qw(MSCHAPv2 TLS GTC MD5)
@@ -66,6 +71,7 @@ has_field 'machine_eap_type' =>
     (
         type    => 'Select',
         label   => 'Machine EAP Type',
+        required => 1,
         options => [
             map { { value => lc($_), label => $_ } }
               qw(MSCHAPv2 TLS GTC MD5)
