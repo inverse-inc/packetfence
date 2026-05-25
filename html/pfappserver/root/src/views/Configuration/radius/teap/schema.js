@@ -32,6 +32,7 @@ export default (props) => {
     tls: yup.string().nullable().label(i18n.t('TLS Profile')),
     default_eap_type: yup.string().nullable().label(i18n.t('Default EAP Type')),
     user_eap_type: yup.string().nullable().label(i18n.t('User EAP Type')),
-    machine_eap_type: yup.string().nullable().label(i18n.t('Machine EAP Type'))
+    machine_eap_type: yup.string().nullable().label(i18n.t('Machine EAP Type')),
+    cipher_list: yup.string().nullable().label(i18n.t('Cipher List'))
   })
 }
