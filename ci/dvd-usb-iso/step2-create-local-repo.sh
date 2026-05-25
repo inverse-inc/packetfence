@@ -30,14 +30,14 @@ echo "=============================================="
 
 # Run create-local-repo.sh as root inside the container.
 # - PF_ROOT is mounted read-only at /pf-root so the script's path resolution
-#   (SCRIPT_DIR=/pf-root/ci/usb-bootable-iso, PF_ROOT=/pf-root) works correctly.
+#   (SCRIPT_DIR=/pf-root/ci/dvd-usb-iso, PF_ROOT=/pf-root) works correctly.
 # - REPO_DIR is mounted read-write at /repo for the output.
 docker run --rm \
     -v "${PF_ROOT}:/pf-root:ro" \
     -v "${REPO_DIR}:/repo" \
     -e PF_REPO_TYPE \
     -e PF_RELEASE_VERSION \
-    -w /pf-root/ci/usb-bootable-iso \
+    -w /pf-root/ci/dvd-usb-iso \
     "${BUILDER_IMAGE}" \
     bash -c '
         set -e
@@ -45,7 +45,7 @@ docker run --rm \
         apt-get update -qq
         apt-get install -y -qq --no-install-recommends \
             debootstrap gnupg curl ca-certificates dpkg-dev
-        /pf-root/ci/usb-bootable-iso/create-local-repo.sh /repo "'"${PF_RELEASE_VERSION}"'"
+        /pf-root/ci/dvd-usb-iso/create-local-repo.sh /repo "'"${PF_RELEASE_VERSION}"'"
     '
 
 # Files were written by root inside the container — fix ownership on host.

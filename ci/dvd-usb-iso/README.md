@@ -1,6 +1,6 @@
-# PacketFence USB Bootable ISO
+# PacketFence DVD-USB ISO
 
-Build a self-contained, offline USB installer for PacketFence on Debian 12 (Bookworm).
+Build a self-contained, offline DVD-USB installer for PacketFence on Debian 12 (Bookworm).
 
 The ISO bundles the Debian DVD, all PacketFence packages, dependencies, and pre-downloaded Docker images so that no internet connection is required during installation.
 
@@ -42,11 +42,11 @@ Installed automatically by the build script if missing:
 ### From a local checkout
 
 ```bash
-cd ci/usb-bootable-iso
+cd ci/dvd-usb-iso
 make iso
 ```
 
-The output file is `PacketFence-USB-ISO-<version>.iso`.
+The output file is `PacketFence-DVD-USB-ISO-<version>.iso`.
 
 ### Override version or output name
 
@@ -68,7 +68,7 @@ make clean
 
 ### From GitLab CI
 
-Trigger a pipeline with the variable `BUILD_PF_IMG_USB_ISO=yes`, or include `build_pf_img_usb_iso=yes` in the commit message. The PPA must be published first.
+Trigger a pipeline with the variable `BUILD_PF_IMG_DVD_USB_ISO=yes`, or include `build_pf_img_dvd_usb_iso=yes` in the commit message. The PPA must be published first.
 
 ## Writing the ISO to a USB key
 
@@ -89,7 +89,7 @@ Look for the USB device (e.g., `/dev/sdb`). Make sure you identify the correct d
 Use `dd` to write a raw copy of the ISO to the USB device. The ISO is built as a hybrid image (isohybrid), so it is directly bootable when written this way:
 
 ```bash
-sudo dd if=PacketFence-USB-ISO-<version>.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sudo dd if=PacketFence-DVD-USB-ISO-<version>.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
 Replace `/dev/sdX` with your actual USB device (e.g., `/dev/sdb`).
@@ -147,7 +147,7 @@ qemu-system-x86_64 \
   -smp 2 \
   -enable-kvm \
   -bios /usr/share/ovmf/OVMF.fd \
-  -cdrom PacketFence-USB-ISO-<version>.iso \
+  -cdrom PacketFence-DVD-USB-ISO-<version>.iso \
   -drive file=/tmp/pf-test.qcow2,format=qcow2 \
   -boot d \
   -net nic -net user
@@ -160,7 +160,7 @@ qemu-system-x86_64 \
   -m 4096 \
   -smp 2 \
   -enable-kvm \
-  -cdrom PacketFence-USB-ISO-<version>.iso \
+  -cdrom PacketFence-DVD-USB-ISO-<version>.iso \
   -drive file=/tmp/pf-test.qcow2,format=qcow2 \
   -boot d \
   -net nic -net user
@@ -176,7 +176,7 @@ qemu-system-x86_64 \
   -smp 2 \
   -enable-kvm \
   -bios /usr/share/ovmf/OVMF.fd \
-  -drive file=PacketFence-USB-ISO-<version>.iso,format=raw,if=virtio,readonly=on \
+  -drive file=PacketFence-DVD-USB-ISO-<version>.iso,format=raw,if=virtio,readonly=on \
   -drive file=/tmp/pf-test.qcow2,format=qcow2,if=virtio \
   -boot c \
   -net nic -net user
