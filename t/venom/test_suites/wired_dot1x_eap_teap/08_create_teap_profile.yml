@@ -17,7 +17,6 @@ testcases:
             "isNew":true,
             "authority_identity":"1234",
             "identity_types":"machine,user",
-            "pac_opaque_key":"0123456789abcdef0123456789ABCDEF",
             "tls":"tls-eap-teap"
           }
         headers:
