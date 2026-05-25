@@ -398,6 +398,7 @@ func TestMatcher(t *testing.T) {
 			continue
 		}
 
+		test.out.Raw = test.in
 		if diff := cmp.Diff(
 			matcher,
 			test.out,
@@ -660,4 +661,137 @@ func TestPolicyLoad(t *testing.T) {
 		t.Fatalf("LookupByRoles does not match %s", diff)
 	}
 
+}
+
+const RolesPoliciesMapDenyJSON = `
+{
+  "ByRoles": {
+    "Restricted": [
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 7,
+            "verdict": "block",
+            "dc-inventory-revision": 1727715416,
+            "rule-id": "deny-policy-rule-id/"
+          }
+        ],
+        "acls": [
+          "deny tcp any any eq 23"
+        ]
+      },
+      {
+        "enforcement_info": [],
+        "acls": [
+          "deny udp any any eq 161"
+        ]
+      },
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 1,
+            "verdict": "allow",
+            "dc-inventory-revision": 1727715416,
+            "rule-id": "permit-only/"
+          }
+        ],
+        "acls": [
+          "permit tcp any any eq 443"
+        ]
+      }
+    ]
+  }
+}
+`
+
+func TestPolicyLookupDenyHits(t *testing.T) {
+	lookup := PolicyLookup{}
+	if err := json.Unmarshal([]byte(RolesPoliciesMapDenyJSON), &lookup); err != nil {
+		t.Fatalf("json.Unmarshal: %v", err)
+	}
+	lookup.UpdateMatchers()
+
+	cases := []struct {
+		name string
+		ne   NetworkEvent
+		want *EnforcementInfo
+	}{
+		{
+			name: "denied flow matching deny rule with configured EnforcementInfo",
+			ne: NetworkEvent{
+				EventType:  NetworkEventTypeFailed,
+				DestPort:   23,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			want: &EnforcementInfo{
+				RuleID:              "deny-policy-rule-id/",
+				Verdict:             "block",
+				PolicyRevision:      7,
+				DcInventoryRevision: 1727715416,
+			},
+		},
+		{
+			name: "denied flow matching deny rule without configured EnforcementInfo synthesizes verdict",
+			ne: NetworkEvent{
+				EventType:  NetworkEventTypeFailed,
+				DestPort:   161,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolUdp,
+			},
+			want: &EnforcementInfo{
+				Verdict: EnforcementVerdictBlock,
+				RuleID:  "deny udp any any eq 161",
+			},
+		},
+		{
+			name: "denied flow with no matching deny rule returns nil",
+			ne: NetworkEvent{
+				EventType:  NetworkEventTypeFailed,
+				DestPort:   443,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			want: nil,
+		},
+		{
+			name: "permitted flow does not match deny rules",
+			ne: NetworkEvent{
+				EventType:  NetworkEventTypeSuccessful,
+				DestPort:   23,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			want: nil,
+		},
+		{
+			name: "permitted flow matches permit rule as before",
+			ne: NetworkEvent{
+				EventType:  NetworkEventTypeSuccessful,
+				DestPort:   443,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			want: &EnforcementInfo{
+				RuleID:              "permit-only/",
+				Verdict:             "allow",
+				PolicyRevision:      1,
+				DcInventoryRevision: 1727715416,
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := lookup.LookupByRoles("Restricted", &tc.ne)
+			if diff := cmp.Diff(got, tc.want); diff != "" {
+				t.Fatalf("LookupByRoles mismatch (-got +want):\n%s", diff)
+			}
+		})
+	}
 }

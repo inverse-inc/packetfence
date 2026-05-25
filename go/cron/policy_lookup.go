@@ -26,7 +26,7 @@ func ParseAcl(acl string) (Matcher, error) {
 	}
 
 	i := 0
-	matcher := Matcher{}
+	matcher := Matcher{Raw: acl}
 	hasDstMac := false
 	switch parts[i] {
 	default:
@@ -148,6 +148,7 @@ type Matcher struct {
 	Port   int
 	SrcNet netip.Prefix
 	DstNet netip.Prefix
+	Raw    string
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
@@ -299,11 +300,26 @@ func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) *EnforcementInf
 }
 
 func matchEnforcementInfo(policies []Policy, ne *NetworkEvent) *EnforcementInfo {
+	wantAction := "permit"
+	if ne.EventType == NetworkEventTypeFailed {
+		wantAction = "deny"
+	}
+
 	for _, policy := range policies {
 		for _, match := range policy.Matchers {
-			if match.Matches(ne) {
-				if len(policy.EnforcementInfo) > 0 {
-					return &policy.EnforcementInfo[0]
+			if match.Action != wantAction {
+				continue
+			}
+			if !match.Matches(ne) {
+				continue
+			}
+			if len(policy.EnforcementInfo) > 0 {
+				return &policy.EnforcementInfo[0]
+			}
+			if wantAction == "deny" {
+				return &EnforcementInfo{
+					Verdict: EnforcementVerdictBlock,
+					RuleID:  match.Raw,
 				}
 			}
 		}

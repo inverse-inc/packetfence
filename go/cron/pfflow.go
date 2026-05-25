@@ -57,6 +57,7 @@ type PfFlow struct {
 }
 
 func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
+	denied := f.SnmpIndexOutput == 0
 	switch f.BiFlow {
 	default:
 		return EventKey{
@@ -67,6 +68,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 			DstPort:   f.DstPort,
 			Proto:     f.Proto,
 			HasBiFlow: false,
+			Denied:    denied,
 		}
 	case 1:
 		return EventKey{
@@ -77,6 +79,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 			DstPort:   f.DstPort,
 			Proto:     f.Proto,
 			HasBiFlow: true,
+			Denied:    denied,
 		}
 	case 2:
 		return EventKey{
@@ -87,6 +90,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 			DstPort:   f.SrcPort,
 			Proto:     f.Proto,
 			HasBiFlow: true,
+			Denied:    denied,
 		}
 	}
 }
@@ -159,8 +163,13 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 		return nil
 	}
 
+	eventType := NetworkEventTypeSuccessful
+	if f.SnmpIndexOutput == 0 {
+		eventType = NetworkEventTypeFailed
+	}
+
 	return &NetworkEvent{
-		EventType:           NetworkEventTypeSuccessful,
+		EventType:           eventType,
 		SourceIp:            f.CalculatedSrcIp(),
 		DestIp:              f.CalculatedDstIp(),
 		DestPort:            f.CalculatedDstPort(),

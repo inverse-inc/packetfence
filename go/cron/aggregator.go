@@ -21,6 +21,7 @@ type EventKey struct {
 	DstPort   uint16
 	Proto     uint8
 	HasBiFlow bool
+	Denied    bool
 }
 
 func NewAggregator(o *AggregatorOptions) *Aggregator {
