@@ -3,7 +3,7 @@ RESULT_DIR=results
 
 .PHONY: cd-iso
 
-iso:
+cd-iso:
 	echo "Building Debian installer for $(PF_VERSION)"
 	PF_RELEASE='$(shell cat ../../conf/pf-release)' \
 	PF_VERSION='$(PF_VERSION)' \
