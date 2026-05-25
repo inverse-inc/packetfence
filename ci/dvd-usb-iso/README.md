@@ -42,7 +42,7 @@ Installed automatically by the build script if missing:
 ### From a local checkout
 
 ```bash
-cd ci/usb-bootable-iso
+cd ci/dvd-usb-iso
 make iso
 ```
 
