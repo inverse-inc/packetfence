@@ -17,6 +17,7 @@ export {
   BaseFormGroupChosenOne  as FormGroupDefaultEapType,
   BaseFormGroupChosenOne  as FormGroupUserEapType,
   BaseFormGroupChosenOne  as FormGroupMachineEapType,
+  BaseFormGroupInput      as FormGroupCipherList,
 
   BaseViewCollectionItem  as BaseView,
   TheForm,
