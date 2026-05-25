@@ -31,6 +31,16 @@
                                  :column-label="$i18n.t('Default EAP Type')"
                                  :text="$i18n.t('The default EAP type used inside the TEAP tunnel when no EAP-Type is set by another module.')"
     />
+
+    <form-group-user-eap-type namespace="user_eap_type"
+                              :column-label="$i18n.t('User EAP Type')"
+                              :text="$i18n.t('The EAP type used for user authentication inside the TEAP tunnel. Overrides the default EAP type for user identities.')"
+    />
+
+    <form-group-machine-eap-type namespace="machine_eap_type"
+                                 :column-label="$i18n.t('Machine EAP Type')"
+                                 :text="$i18n.t('The EAP type used for machine authentication inside the TEAP tunnel. Overrides the default EAP type for machine identities.')"
+    />
   </base-form>
 </template>
 <script>
@@ -44,7 +54,9 @@ import {
   FormGroupTls,
   FormGroupAuthorityIdentity,
   FormGroupIdentityTypes,
-  FormGroupDefaultEapType
+  FormGroupDefaultEapType,
+  FormGroupUserEapType,
+  FormGroupMachineEapType
 } from './'
 
 const components = {
@@ -54,7 +66,9 @@ const components = {
   FormGroupTls,
   FormGroupAuthorityIdentity,
   FormGroupIdentityTypes,
-  FormGroupDefaultEapType
+  FormGroupDefaultEapType,
+  FormGroupUserEapType,
+  FormGroupMachineEapType
 }
 
 export const props = {
