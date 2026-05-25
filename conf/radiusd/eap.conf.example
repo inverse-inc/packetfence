@@ -857,7 +857,7 @@ eap [% key -%] {
 		#
 		tls = [% eap.$key.teap_config.tls %]
 
-		default_eap_type = mschapv2
+		default_eap_type = [% eap.$key.teap_config.default_eap_type %]
 
 		#  Set the EAP type for user / machine authentication.
 		#

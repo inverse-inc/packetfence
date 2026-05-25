@@ -2,3 +2,4 @@
 tls = tls-eap-teap
 authority_identity = 1234
 identity_types = user
+default_eap_type = mschapv2

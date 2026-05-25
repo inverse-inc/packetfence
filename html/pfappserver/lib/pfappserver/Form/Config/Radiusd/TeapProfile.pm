@@ -42,6 +42,16 @@ has_field 'authority_identity' =>
         type => 'Text',
     );
 
+has_field 'default_eap_type' =>
+    (
+        type    => 'Select',
+        label   => 'Default EAP Type',
+        options => [
+            map { { value => lc($_), label => $_ } }
+              qw(MSCHAPv2 TLS GTC MD5)
+        ],
+    );
+
 sub options_tls {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
 }
