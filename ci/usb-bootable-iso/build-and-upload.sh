@@ -15,8 +15,8 @@ fi
 PF_RELEASE=${PF_RELEASE:-$(< "${PF_ROOT}/conf/pf-release")}
 PF_RELEASE_VERSION=$(sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g' <<< "$PF_RELEASE")
 
-ISO_NAME=PacketFence-USB-ISO-${PF_VERSION}.iso
-UPLOAD_DIR=${PF_VERSION}-usb
+ISO_NAME=PacketFence-DVD-USB-ISO-${PF_VERSION}.iso
+UPLOAD_DIR=${PF_VERSION}
 RESULT_DIR=${SCRIPT_DIR}/results/${UPLOAD_DIR}
 
 # Common rclone options

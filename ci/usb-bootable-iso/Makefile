@@ -3,7 +3,7 @@
 # Default values
 PF_VERSION ?= $(shell cut -d' ' -f2 < ../../conf/pf-release)
 PF_RELEASE ?= $(shell cat ../../conf/pf-release)
-ISO_OUT ?= PacketFence-USB-ISO-$(PF_VERSION).iso
+ISO_OUT ?= PacketFence-DVD-USB-ISO-$(PF_VERSION).iso
 
 # Export for sub-scripts
 export PF_VERSION
