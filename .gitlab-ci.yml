@@ -43,7 +43,7 @@ variables:
   TESTCIDIR: ${CILIBDIR}/test
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
-  ISODIR: $CIDIR/debian-installer
+  ISODIR: $CIDIR/cd-iso
   DVD_USB_ISODIR: $CIDIR/dvd-usb-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   TESTDIR: t/venom

@@ -1,7 +1,7 @@
 PF_VERSION=$(CI_COMMIT_REF_NAME)
 RESULT_DIR=results
 
-.PHONY: packetfence-debian-installer.iso
+.PHONY: iso
 
 iso:
 	echo "Building Debian installer for $(PF_VERSION)"
