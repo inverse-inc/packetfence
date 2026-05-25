@@ -26,13 +26,6 @@
                                :text="$i18n.t('This sets &session-state:FreeRADIUS-EAP-TEAP-TLV-Identity-Type with the relevant values. The TEAP module then picks those values, in order, to authenticate the chosen identity.')"
 
     />
-
-    <form-group-pac-opaque-key namespace="pac_opaque_key"
-                               :column-label="$i18n.t('Key')"
-                               :text="$i18n.t('this is a field containing the ticket that is sent to the EAP server during the TEAP Phase 1 tunnel establishment, keep this a 32 char hex string. E.g., 0123456789abcdef0123456789ABCDEF')"
-
-
-    />
   </base-form>
 </template>
 <script>
@@ -45,8 +38,7 @@ import {
   FormGroupIdentifier,
   FormGroupTls,
   FormGroupAuthorityIdentity,
-  FormGroupIdentityTypes,
-  FormGroupPacOpaqueKey
+  FormGroupIdentityTypes
 } from './'
 
 const components = {
@@ -55,8 +47,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupTls,
   FormGroupAuthorityIdentity,
-  FormGroupIdentityTypes,
-  FormGroupPacOpaqueKey
+  FormGroupIdentityTypes
 }
 
 export const props = {

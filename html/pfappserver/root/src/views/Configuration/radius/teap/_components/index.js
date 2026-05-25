@@ -13,7 +13,6 @@ export {
   BaseFormGroupInput      as FormGroupIdentifier,
   BaseFormGroupChosenOne  as FormGroupTls,
   BaseFormGroupInput      as FormGroupAuthorityIdentity,
-  BaseFormGroupInput      as FormGroupPacOpaqueKey,
   BaseFormGroupChosenOne  as FormGroupIdentityTypes,
 
   BaseViewCollectionItem  as BaseView,
