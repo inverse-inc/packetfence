@@ -5,4 +5,3 @@ identity_types = user
 default_eap_type = mschapv2
 user_eap_type = tls
 machine_eap_type = tls
-cipher_list = ALL:!EXPORT:!eNULL:!SSLv2
