@@ -911,7 +911,7 @@ eap [% key -%] {
 		#  "DEFAULT" as "DEFAULT" contains "!aNULL" so instead it is
 		#  recommended "ALL:!EXPORT:!eNULL:!SSLv2" is used
 		#
-		#cipher_list = "ALL:!EXPORT:!eNULL:!SSLv2"
+		cipher_list = "[% eap.$key.teap_config.cipher_list %]"
 
 		#  Authority ID of the server
 		#
