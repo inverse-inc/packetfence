@@ -682,7 +682,7 @@ lint_ci_yaml:
   extends:
     - .check_job
   image:
-    name: cytopia/yamllint:1.35
+    name: cytopia/yamllint:1
     entrypoint: [""]
   rules:
     - when: always
