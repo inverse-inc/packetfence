@@ -58,8 +58,8 @@ docker run --rm \
     -e DOCKER_IMAGES_DIR=/work/docker-images \
     -e ISOFILES_DIR=/work/isofiles \
     -e ISO_OUT="/iso-out/${ISO_OUT_NAME}" \
-    -e SCRIPT_DIR=/pf-root/ci/usb-bootable-iso \
-    -w /pf-root/ci/usb-bootable-iso \
+    -e SCRIPT_DIR=/pf-root/ci/dvd-usb-iso \
+    -w /pf-root/ci/dvd-usb-iso \
     "${BUILDER_IMAGE}" \
     bash -c '
         set -e
@@ -67,7 +67,7 @@ docker run --rm \
         apt-get update -qq
         apt-get install -y -qq --no-install-recommends \
             xorriso cpio gzip coreutils
-        /pf-root/ci/usb-bootable-iso/assemble-iso.sh
+        /pf-root/ci/dvd-usb-iso/assemble-iso.sh
     '
 
 # Output ISO and any work dirs created by root inside container — fix ownership.

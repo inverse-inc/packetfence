@@ -44,7 +44,7 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   ISODIR: $CIDIR/debian-installer
-  DVD_USB_ISODIR: $CIDIR/usb-bootable-iso
+  DVD_USB_ISODIR: $CIDIR/dvd-usb-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   TESTDIR: t/venom
   CONTAINER_DIR: containers
