@@ -43,7 +43,7 @@ Installed automatically by the build script if missing:
 
 ```bash
 cd ci/dvd-usb-iso
-make iso
+make dvd-usb-iso
 ```
 
 The output file is `PacketFence-DVD-USB-ISO-<version>.iso`.
@@ -51,13 +51,13 @@ The output file is `PacketFence-DVD-USB-ISO-<version>.iso`.
 ### Override version or output name
 
 ```bash
-make iso PF_VERSION=15.1.0 ISO_OUT=packetfence-custom.iso
+make dvd-usb-iso PF_VERSION=15.1.0 ISO_OUT=packetfence-custom.iso
 ```
 
 ### Skip work directory cleanup (faster rebuilds while debugging)
 
 ```bash
-SKIP_CLEAN=1 make iso
+SKIP_CLEAN=1 make dvd-usb-iso
 ```
 
 ### Clean all build artifacts
@@ -223,7 +223,7 @@ cat /var/log/packetfence-first-boot.log
 
 | File | Description |
 |------|-------------|
-| `Makefile` | Build targets: `iso`, `upload`, `clean` |
+| `Makefile` | Build targets: `dvd-usb-iso`, `upload`, `clean` |
 | `build-usb-bootable-iso.sh` | Main build orchestration script |
 | `create-local-repo.sh` | Downloads and assembles the offline APT repository |
 | `predownload-docker-images.sh` | Pulls and archives all Docker images |
