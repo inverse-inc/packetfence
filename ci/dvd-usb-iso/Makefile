@@ -1,4 +1,4 @@
-.PHONY: iso upload clean stage1 stage2 stage3 help
+.PHONY: dvd-usb-iso upload clean stage1 stage2 stage3 help
 
 # Default values
 PF_VERSION ?= $(shell cut -d' ' -f2 < ../../conf/pf-release)
@@ -13,7 +13,7 @@ export ISO_OUT
 # Build ISO only (no upload). Runs the full containerized pipeline:
 # stage 0 (host wget) -> stage 1 (host docker pull) ->
 # stage 2 (debian:bookworm: debootstrap + apt) -> stage 3 (debian:bookworm: xorriso)
-iso:
+dvd-usb-iso:
 	./build-usb-bootable-iso.sh
 
 # Build and upload ISO to Linode (CI target)
@@ -37,7 +37,7 @@ clean:
 
 help:
 	@echo "Targets:"
-	@echo "  iso      Build the USB bootable ISO (full pipeline)"
+	@echo "  dvd-usb-iso  Build the DVD-USB bootable ISO (full pipeline)"
 	@echo "  upload   Build and upload the ISO to Linode (CI target)"
 	@echo "  stage1   Stage 1: pre-pull Docker images (host)"
 	@echo "  stage2   Stage 2: build offline APT repo (in debian:bookworm)"
