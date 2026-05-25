@@ -895,8 +895,8 @@ eap [% key -%] {
 		#  Supported authentication methods inside of TEAP are
 		#  EAP-TLS, EAP-MSCHAPv2, and PAP.
 
-		user_eap_type = tls
-		machine_eap_type = tls
+		user_eap_type = [% eap.$key.teap_config.user_eap_type %]
+		machine_eap_type = [% eap.$key.teap_config.machine_eap_type %]
 
 		#
 		#  If 'cipher_list' is set here, it will over-ride the
