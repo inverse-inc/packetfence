@@ -41,6 +41,11 @@
                                  :column-label="$i18n.t('Machine EAP Type')"
                                  :text="$i18n.t('The EAP type used for machine authentication inside the TEAP tunnel. Overrides the default EAP type for machine identities.')"
     />
+
+    <form-group-cipher-list namespace="cipher_list"
+                            :column-label="$i18n.t('Cipher List')"
+                            :text="$i18n.t('The allowed TLS cipher suites for EAP-TEAP. Overrides the cipher_list from the TLS profile. Must include &quot;ADH&quot; for anonymous provisioning; recommended value is &quot;ALL:!EXPORT:!eNULL:!SSLv2&quot;.')"
+    />
   </base-form>
 </template>
 <script>
@@ -56,7 +61,8 @@ import {
   FormGroupIdentityTypes,
   FormGroupDefaultEapType,
   FormGroupUserEapType,
-  FormGroupMachineEapType
+  FormGroupMachineEapType,
+  FormGroupCipherList
 } from './'
 
 const components = {
@@ -68,7 +74,8 @@ const components = {
   FormGroupIdentityTypes,
   FormGroupDefaultEapType,
   FormGroupUserEapType,
-  FormGroupMachineEapType
+  FormGroupMachineEapType,
+  FormGroupCipherList
 }
 
 export const props = {
