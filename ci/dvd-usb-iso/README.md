@@ -1,6 +1,6 @@
-# PacketFence USB Bootable ISO
+# PacketFence DVD-USB ISO
 
-Build a self-contained, offline USB installer for PacketFence on Debian 12 (Bookworm).
+Build a self-contained, offline DVD-USB installer for PacketFence on Debian 12 (Bookworm).
 
 The ISO bundles the Debian DVD, all PacketFence packages, dependencies, and pre-downloaded Docker images so that no internet connection is required during installation.
 
