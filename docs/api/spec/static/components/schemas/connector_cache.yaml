@@ -1,0 +1,120 @@
+ConnectorCacheStats:
+  type: object
+  properties:
+    MemAlloc:
+      description: Memory allocated by the program in bytes
+      type: integer
+    MemSys:
+      description: Memory used by the system process in bytes
+      type: integer
+    DBSize:
+      description: Size of the database in bytes
+      type: integer
+    DevicesInDB:
+      description: Number of devices cached in radius attributes table
+      type: integer
+    CredentialInDB:
+      description: Number of credential cached in credentials table
+      type: integer
+    KeysInRateLimit:
+      description: Number of devices currently cached in memory for ratelimit
+      type: integer
+ConnectorCacheConfigUpdate:
+  type: object
+  properties:
+    fields:
+      type: array
+      items:
+        type: object
+        properties:
+          field:
+            description: Full path of the option to update. Use snake case concatenated with a dot.
+            type: string
+            examples:
+              - "database.cache_ram_size"
+              - "app.rate_limit_rate"
+          value:
+            oneOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - type: array
+                items:
+                  type: string
+              - type: array
+                items:
+                  type: number
+              - type: array
+                items:
+                  type: integer
+              - type: array
+                items:
+                  type: boolean
+              - type: object
+                description: "Object containing only types described above"
+            examples:
+              - true
+              - ["a", "b", "c"]
+              - [1, 2, 3]
+ConnectorCacheConfig:
+  database:
+    type: object
+    properties:
+      cache_ram_size:
+        description: RAM in Mb used by the database at runtime
+        type: integer
+        default: 256
+        minimum: 32
+        maximum: 4096
+      startup_clean:
+        description: Perform a database clean (expired entries + optimization) at service startup and restart
+        type: boolean
+        default: true
+  server:
+    type: object
+    properties:
+      port:
+        type: integer
+        description: Port of the cache service
+        default: 12142
+        minimum: 1024
+        maximum: 65535
+  app:
+    type: object
+    properties:
+      radius_attribute_ttl:
+        description: Time to live in days of radius attributes entries per device
+        type: integer
+        default: 30
+        minimum: 1
+        maximum: 365
+      credential_ttl:
+        description: Time to live in days of radius attributes entries per credential
+        type: integer
+        default: 30
+        minimum: 1
+        maximum: 365
+      radius_attributes_filters:
+        description: Radius attributes to exclude in the cache. The filter exclude all attributes name starting with one of the value specified
+        type: array
+        items:
+          type: string
+        default: "['control:', 'MS-MPPE', 'EAP-Message']"
+      rate_limit_reject:
+        description: Weither to reject a ratelimited request (403), or process request (200)
+        type: boolean
+        default: false
+        maximum: 365
+      rate_limit_rate:
+        description: Maximum number of request per device per AP in hours
+        type: integer
+        default: 6
+        minimum: 0
+        maximum: 180
+      rate_limit_key_max_age:
+        description: Maximum duration in hours of a device in memory for ratelimiting (minor impact on memory management, no impact on business logic)
+        type: integer
+        default: 4
+        minimum: 1
+        maximum: 24

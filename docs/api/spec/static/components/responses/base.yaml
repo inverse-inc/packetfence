@@ -102,3 +102,27 @@ Count:
     application/json:
       schema:
         $ref: "#/components/schemas/CountResponse"
+SuccessText:
+  description: Success.
+  content:
+    text/plain; charset=utf-8:
+      schema:
+        type: string
+BadRequestText:
+  description: Bad request.
+  content:
+    text/plain; charset=utf-8:
+      schema:
+        type: string
+NotFoundText:
+  description: Not found.
+  content:
+    text/plain; charset=utf-8:
+      schema:
+        type: string
+InternalServerErrorText:
+  description: Internal server error.
+  content:
+    text/plain; charset=utf-8:
+      schema:
+        type: string
