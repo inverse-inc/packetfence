@@ -10,7 +10,12 @@
         schema:
           type: string
     responses:
-      "200": "pong"
+      "200":
+        content:
+          text/plain:
+            schema:
+              type: string
+              example: "pong"
       "400":
         $ref: "#/components/responses/BadRequestText"
       "404":
@@ -18,7 +23,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/Ping
+      - Config/Connectors/Cache
 /config/connector/{connector_id}/cache/optimize-db:
   post:
     description: Delete expired database entries (credential + radius attributes), then optimize the database.
@@ -40,7 +45,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/OptimizeDb
+      - Config/Connectors/Cache
 /config/connector/{connector_id}/cache/clean:
   post:
     description: Clean all database entries and ratelimit keys.
@@ -62,7 +67,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/Clean
+      - Config/Connectors/Cache
 /config/connector/{connector_id}/cache/restart:
   post:
     description: Gracefully stop then restart the cache (a few ms of downtime max).
@@ -84,7 +89,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/Restart
+      - Config/Connectors/Cache
 /config/connector/{connector_id}/cache/stats:
   get:
     description: Get some metrics about RAM, disk database... usage.
@@ -109,7 +114,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/Stats
+      - Config/Connectors/Cache
 /config/connector/{connector_id}/cache/config:
   get:
     description: Get the configuration of the cache.
@@ -134,7 +139,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/Config
+      - Config/Connectors/Cache
   put:
     description: Update the configuration of the cache.
     operationId: api.v1.Config.Connectors.Cache.ConfigUpdate
@@ -147,10 +152,9 @@
           type: string
     requestBody:
       content:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ConnectorCacheConfigPut"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConnectorCacheConfigUpdate"
     responses:
       "200":
         content:
@@ -164,7 +168,7 @@
       "500":
         $ref: "#/components/responses/InternalServerErrorText"
     tags:
-      - Config/Connectors/Cache/Config
+      - Config/Connectors/Cache
 /config/connector/{connector_id}:
   delete:
     description: Delete an item.
