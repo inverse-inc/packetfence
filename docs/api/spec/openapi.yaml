@@ -28828,6 +28828,9 @@ components:
         VoIPCDPDetect:
           description: VoIPCDPDetect
           type: string
+        VoIPDACL:
+          description: VoIPDACL
+          type: string
         VoIPDHCPDetect:
           description: VoIPDHCPDetect
           type: string
@@ -29158,6 +29161,9 @@ components:
         VoIPCDPDetect:
           description: VoIPCDPDetect
           type: string
+        VoIPDACL:
+          description: VoIPDACL
+          type: string
         VoIPDHCPDetect:
           description: VoIPDHCPDetect
           type: string
@@ -29383,6 +29389,8 @@ components:
               $ref: '#/components/schemas/Meta'
             VoIPCDPDetect:
               $ref: '#/components/schemas/Meta'
+            VoIPDACL:
+              $ref: '#/components/schemas/Meta'
             VoIPDHCPDetect:
               $ref: '#/components/schemas/Meta'
             VoIPEnabled:
@@ -29556,6 +29564,8 @@ components:
             VlanMapping:
               $ref: '#/components/schemas/Meta'
             VoIPCDPDetect:
+              $ref: '#/components/schemas/Meta'
+            VoIPDACL:
               $ref: '#/components/schemas/Meta'
             VoIPDHCPDetect:
               $ref: '#/components/schemas/Meta'
