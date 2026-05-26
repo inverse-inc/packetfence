@@ -163,8 +163,7 @@ rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
 [source,bash,subs="attributes"]
 ----
 # Install PacketFence repository
-yum localinstall
-https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 
 # Install PacketFence with all dependencies
 # Includes: MariaDB, FreeRADIUS, DHCP server
