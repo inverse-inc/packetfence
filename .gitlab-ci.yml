@@ -617,8 +617,9 @@ variables:
           exit 1
         fi
         # Accept comma-separated list (e.g. auth,virtual) by translating to regex alternation
-        TEST_ONLY_PATTERN=$(printf '%s' "$TEST_ONLY" | tr ',' '|')
-        if echo "$CI_JOB_NAME" | grep -qE "$TEST_ONLY_PATTERN"; then
+        # Filter out empty items to prevent empty alternation (e.g., "mac_auth," -> "mac_auth|" matches everything)
+        TEST_ONLY_PATTERN=$(printf '%s' "$TEST_ONLY" | tr ',' '\n' | grep -v '^[[:space:]]*$' | tr '\n' '|' | sed 's/|$//')
+        if echo "$CI_JOB_NAME" | grep -qE -- "$TEST_ONLY_PATTERN"; then
           echo "Running: $CI_JOB_NAME matches TEST_ONLY pattern: $TEST_ONLY"
         else
           echo "Skipping: $CI_JOB_NAME does not match TEST_ONLY pattern: $TEST_ONLY"
