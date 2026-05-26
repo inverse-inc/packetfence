@@ -1,9 +1,12 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-# Get script directory and source shared config
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-source "${SCRIPT_DIR}/../debian-version.conf"
+# DEBIAN_VERSION should be provided as environment variable when running in Docker
+# When running directly on host, source from config file
+if [ -z "${DEBIAN_VERSION:-}" ]; then
+  SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+  source "${SCRIPT_DIR}/../debian-version.conf"
+fi
 
 function clean() {
   rm -fr isofiles/

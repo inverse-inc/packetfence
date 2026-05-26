@@ -323,5 +323,5 @@ t/venom/scenarios/*/PLAN_B.md
 
 # Temporary documentation files
 ISO_INSTALLATION_COMPARISON.md
-ci/usb-bootable-iso/PLAN.md
-ci/usb-bootable-iso/TROUBLESHOOTING.md
+ci/dvd-usb-iso/PLAN.md
+ci/dvd-usb-iso/TROUBLESHOOTING.md

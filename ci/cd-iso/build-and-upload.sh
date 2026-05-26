@@ -1,6 +1,10 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
+# Get script directory and source shared config
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "${SCRIPT_DIR}/../debian-version.conf"
+
 PF_VERSION=${PF_VERSION:-localtest}
 
 # Fix PF version if maintenance to match tag
@@ -17,7 +21,7 @@ fi
 
 PF_RELEASE="`echo $PF_RELEASE | sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`"
 
-ISO_NAME=PacketFence-ISO-${PF_VERSION}.iso
+ISO_NAME=PacketFence-CD-ISO-${PF_VERSION}.iso
 
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}
@@ -36,7 +40,7 @@ upload_to_linode() {
 mkdir -p ${SF_RESULT_DIR}
 
 echo "===> Build ISO for release $PF_RELEASE"
-docker run --rm -e PF_RELEASE=$PF_RELEASE -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/debian-installer -v `pwd`/../debian-version.conf:/debian-version.conf debian:12 /debian-installer/create-debian-installer-docker.sh
+docker run --rm -e PF_RELEASE=$PF_RELEASE -e DEBIAN_VERSION=$DEBIAN_VERSION -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/cd-iso debian:12 /cd-iso/create-debian-installer-docker.sh
 
 echo "===> Upload to Linode"
 upload_to_linode
