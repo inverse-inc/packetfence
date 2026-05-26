@@ -619,6 +619,11 @@ variables:
         # Accept comma-separated list (e.g. auth,virtual) by translating to regex alternation
         # Filter out empty items to prevent empty alternation (e.g., "mac_auth," -> "mac_auth|" matches everything)
         TEST_ONLY_PATTERN=$(printf '%s' "$TEST_ONLY" | tr ',' '\n' | grep -v '^[[:space:]]*$' | tr '\n' '|' | sed 's/|$//')
+        # Guard against empty pattern (e.g., TEST_ONLY="," or only whitespace) which would match everything
+        if [ -z "$TEST_ONLY_PATTERN" ]; then
+          echo "Error: TEST_ONLY contains no valid test names (only commas/whitespace)."
+          exit 1
+        fi
         if echo "$CI_JOB_NAME" | grep -qE -- "$TEST_ONLY_PATTERN"; then
           echo "Running: $CI_JOB_NAME matches TEST_ONLY pattern: $TEST_ONLY"
         else
