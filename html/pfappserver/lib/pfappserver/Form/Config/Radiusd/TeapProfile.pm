@@ -43,6 +43,15 @@ has_field 'authority_identity' =>
     (
         type => 'Text',
         required => 1,
+        # Restrict to characters safe to interpolate into raddb config (no
+        # quotes, braces, newlines): the value is templated verbatim into
+        # eap.conf, and Template Toolkit has no radiusd-escape filter.
+        apply => [
+            {
+                check   => qr/\A[A-Za-z0-9._\-:]{1,255}\z/,
+                message => 'Authority identity may contain only letters, digits, dot, underscore, dash, and colon (max 255 chars).',
+            },
+        ],
     );
 
 has_field 'default_eap_type' =>
