@@ -120,8 +120,8 @@ sub authorize {
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
-    my $teap_username    = $radius_request->{'PacketFence-TEAP-User-Name'}    // '';
-    my $teap_machinename = $radius_request->{'PacketFence-TEAP-Machine-Name'} // '';
+    my $teap_username    = _first_value($radius_request->{'PacketFence-TEAP-User-Name'});
+    my $teap_machinename = _first_value($radius_request->{'PacketFence-TEAP-Machine-Name'});
 
     my $RAD_REPLY_REF;
 
@@ -1509,6 +1509,12 @@ sub _merge_radius_attrs {
         }
     }
     return map { ($_ => $merged{$_}) } @order;
+}
+
+sub _first_value {
+    my ($value) = @_;
+    return '' unless defined $value;
+    return (ref($value) eq 'ARRAY') ? ($value->[0] // '') : $value;
 }
 
 =back
