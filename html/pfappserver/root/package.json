@@ -24,7 +24,7 @@
     "mixpanel-browser": "^2.56.0",
     "papaparse": "5.4.1",
     "pinia": "2.1.7",
-    "plotly.js": "^2.35.3",
+    "plotly.js": "^3.0.2",
     "plotly.js-locales": "^2.35.2",
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "1.1.13",
