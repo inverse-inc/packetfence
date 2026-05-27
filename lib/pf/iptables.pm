@@ -344,7 +344,7 @@ sub iptables_services_rules {
       packetfence-haproxy-portal.service
       packetfence-httpd.aaa.service
       packetfence-httpd.dispatcher.service
-      packetfenca-httpd.portal.service
+      packetfence-httpd.portal.service
       packetfence-httpd.webservices.service
       packetfence-kafka.service
       packetfence-keepalived.service
