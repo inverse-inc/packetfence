@@ -1,6 +1,6 @@
 [default]
 tls = tls-eap-teap
-authority_identity = 1234
+authority_identity = packetfence.local
 identity_types = user
 default_eap_type = mschapv2
 user_eap_type = tls
