@@ -316,13 +316,13 @@ sub authorize {
     if ($args->{'isPhone'} && isenabled($switch->{_VoIPEnabled})) {
         my $voip_reply_ref = $self->_authorizeVoip($args);
 
-        if (!isenabled($switch->{_VoIPDACL})) {
+        if (!isenabled($switch->{_VoIPFullAuthorization})) {
             $RAD_REPLY_REF = $voip_reply_ref;
             $args->{'user_role'} = $VOICE_ROLE;
             goto CLEANUP;
         }
 
-        # VoIPDACL is enabled: keep the Voice VSA but continue through the regular
+        # VoIPFullAuthorization is enabled: keep the Voice VSA but continue through the regular
         # authorize flow so the FULL Access-Accept (VLAN tunnel attributes, role
         # attributes, push/downloadable ACLs, access-filter rules) is computed as
         # if this were a regular endpoint. The Voice VSA is merged on top after
@@ -335,7 +335,7 @@ sub authorize {
             my @voip_pairs = @$voip_reply_ref;
             shift @voip_pairs;
             $args->{'_voip_vsa'} = { @voip_pairs };
-            $logger->info("VoIPDACL enabled on switch ($switch_id): captured Voice VSA, "
+            $logger->info("VoIPFullAuthorization enabled on switch ($switch_id): captured Voice VSA, "
                 . "continuing through regular flow to compute full Access-Accept for phone $mac");
         } else {
             # _authorizeVoip refused (e.g. switch does not support VoIP via RADIUS);
@@ -406,7 +406,7 @@ sub authorize {
 
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
-    # If we are in VoIPDACL mode, merge the previously captured Voice VSA
+    # If we are in VoIPFullAuthorization mode, merge the previously captured Voice VSA
     # on top of the regular Access-Accept (VLAN tunnel attributes, role
     # attributes, push/downloadable ACLs, access-filter rules).
     if (defined $args->{'_voip_vsa'} && ref($args->{'_voip_vsa'}) eq 'HASH'
@@ -655,11 +655,11 @@ sub _authorizeVoip {
         ];
     }
 
-    # When VoIPDACL is enabled the caller will continue through the regular
+    # When VoIPFullAuthorization is enabled the caller will continue through the regular
     # authorize flow, which performs its own synchronize_locationlog with the
     # computed role/vlan. Skip the VoIP-only locationlog write here to avoid
     # an immediately-overwritten entry.
-    if (!isenabled($args->{'switch'}->{_VoIPDACL})) {
+    if (!isenabled($args->{'switch'}->{_VoIPFullAuthorization})) {
         $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
     }
 

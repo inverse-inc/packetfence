@@ -193,11 +193,11 @@ has_field 'VoIPDHCPDetect' =>
    default => undef,
   );
 
-has_field 'VoIPDACL' =>
+has_field 'VoIPFullAuthorization' =>
   (
    type => 'Toggle',
    default => undef,
-   label => 'Send ACLs for VoIP',
+   label => 'Full RADIUS authorization for VoIP',
    tags => { after_element => \&help,
              help => 'When enabled, the RADIUS reply for a VoIP device contains the Voice VSA AND the full Access-Accept response computed as if the device were a regular endpoint (VLAN tunnel attributes, role attributes, push/downloadable ACLs, access-filter rules). The data VLAN returned alongside the Voice VSA may conflict with the voice VLAN; make sure the switch is configured to accept both.' },
   );
@@ -296,7 +296,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPDACL PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPFullAuthorization PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
   );
 
 has_field 'SNMPUseConnector' =>

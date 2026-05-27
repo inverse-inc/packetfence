@@ -1109,11 +1109,11 @@ type PfConfSwitch struct {
 	WsPwd       pfcrypt.CryptString `json:"wsPwd"`
 
 	// VoIP Detection
-	VoIPEnabled    int    `json:"VoIPEnabled"`
-	VoIPCDPDetect  string `json:"VoIPCDPDetect"`
-	VoIPDHCPDetect string `json:"VoIPDHCPDetect"`
-	VoIPLLDPDetect string `json:"VoIPLLDPDetect"`
-	VoIPDACL       string `json:"VoIPDACL"`
+	VoIPEnabled           int    `json:"VoIPEnabled"`
+	VoIPCDPDetect         string `json:"VoIPCDPDetect"`
+	VoIPDHCPDetect        string `json:"VoIPDHCPDetect"`
+	VoIPLLDPDetect        string `json:"VoIPLLDPDetect"`
+	VoIPFullAuthorization string `json:"VoIPFullAuthorization"`
 
 	// RADIUS
 	UseCoA                   string              `json:"useCoA"`

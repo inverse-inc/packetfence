@@ -28828,14 +28828,14 @@ components:
         VoIPCDPDetect:
           description: VoIPCDPDetect
           type: string
-        VoIPDACL:
-          description: VoIPDACL
-          type: string
         VoIPDHCPDetect:
           description: VoIPDHCPDetect
           type: string
         VoIPEnabled:
           description: VoIP
+          type: string
+        VoIPFullAuthorization:
+          description: VoIPFullAuthorization
           type: string
         VoIPLLDPDetect:
           description: VoIPLLDPDetect
@@ -29161,14 +29161,14 @@ components:
         VoIPCDPDetect:
           description: VoIPCDPDetect
           type: string
-        VoIPDACL:
-          description: VoIPDACL
-          type: string
         VoIPDHCPDetect:
           description: VoIPDHCPDetect
           type: string
         VoIPEnabled:
           description: VoIP
+          type: string
+        VoIPFullAuthorization:
+          description: VoIPFullAuthorization
           type: string
         VoIPLLDPDetect:
           description: VoIPLLDPDetect
@@ -29389,11 +29389,11 @@ components:
               $ref: '#/components/schemas/Meta'
             VoIPCDPDetect:
               $ref: '#/components/schemas/Meta'
-            VoIPDACL:
-              $ref: '#/components/schemas/Meta'
             VoIPDHCPDetect:
               $ref: '#/components/schemas/Meta'
             VoIPEnabled:
+              $ref: '#/components/schemas/Meta'
+            VoIPFullAuthorization:
               $ref: '#/components/schemas/Meta'
             VoIPLLDPDetect:
               $ref: '#/components/schemas/Meta'
@@ -29565,11 +29565,11 @@ components:
               $ref: '#/components/schemas/Meta'
             VoIPCDPDetect:
               $ref: '#/components/schemas/Meta'
-            VoIPDACL:
-              $ref: '#/components/schemas/Meta'
             VoIPDHCPDetect:
               $ref: '#/components/schemas/Meta'
             VoIPEnabled:
+              $ref: '#/components/schemas/Meta'
+            VoIPFullAuthorization:
               $ref: '#/components/schemas/Meta'
             VoIPLLDPDetect:
               $ref: '#/components/schemas/Meta'

@@ -179,7 +179,7 @@ sub new {
         '_vlans'                        => undef,
         '_ExternalPortalEnforcement'    => 'disabled',
         '_VoIPEnabled'                  => undef,
-        '_VoIPDACL'                     => 'disabled',
+        '_VoIPFullAuthorization'        => 'disabled',
         '_roles'                        => undef,
         '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,

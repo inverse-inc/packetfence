@@ -89,7 +89,7 @@ radiusSecret=
 
 VoIPCDPDetect=Y
 VoIPDHCPDetect=Y
-VoIPDACL=N
+VoIPFullAuthorization=N
 AccessListMap=N
 UrlMap=N
 useCoA=Y

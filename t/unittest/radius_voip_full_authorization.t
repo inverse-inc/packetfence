@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-radius_voip_dacl
+radius_voip_full_authorization
 
 =head1 DESCRIPTION
 
-Unit tests for the VoIPDACL feature:
+Unit tests for the VoIPFullAuthorization feature:
   - pf::radius::_merge_radius_attrs (helper used to merge the Voice VSA on
     top of the regular Access-Accept reply)
-  - Switch field default and parsing for _VoIPDACL
+  - Switch field default and parsing for _VoIPFullAuthorization
 
 =cut
 
@@ -116,7 +116,7 @@ use pf::util qw(isenabled);
                 'device-traffic-class=voice',
             ],
         ],
-        '_merge_radius_attrs mixed disjoint+duplicate (typical VoIPDACL reply)',
+        '_merge_radius_attrs mixed disjoint+duplicate (typical VoIPFullAuthorization reply)',
     );
 }
 
@@ -147,36 +147,36 @@ use pf::util qw(isenabled);
 }
 
 # ----------------------------------------------------------------------------
-# Switch field: _VoIPDACL
+# Switch field: _VoIPFullAuthorization
 # ----------------------------------------------------------------------------
 
 {
     # Default value when neither the switch nor the [default] section sets it.
-    # The 172.16.8.40 fixture sets only VoIPEnabled=Y, no VoIPDACL.
+    # The 172.16.8.40 fixture sets only VoIPEnabled=Y, no VoIPFullAuthorization.
     my $switch = pf::SwitchFactory->instantiate('172.16.8.40');
     ok(defined $switch, 'instantiated switch 172.16.8.40');
-    ok(!isenabled($switch->{_VoIPDACL}),
-        '_VoIPDACL defaults to a disabled value when not set');
+    ok(!isenabled($switch->{_VoIPFullAuthorization}),
+        '_VoIPFullAuthorization defaults to a disabled value when not set');
     ok(isenabled($switch->{_VoIPEnabled}),
-        '_VoIPEnabled is on for the VoIPDACL-off fixture (sanity)');
+        '_VoIPEnabled is on for the VoIPFullAuthorization-off fixture (sanity)');
 }
 
 {
     # Explicit on.
     my $switch = pf::SwitchFactory->instantiate('172.16.8.39');
     ok(defined $switch, 'instantiated switch 172.16.8.39');
-    ok(isenabled($switch->{_VoIPDACL}),
-        '_VoIPDACL=Y in switches.conf is recognized by isenabled()');
+    ok(isenabled($switch->{_VoIPFullAuthorization}),
+        '_VoIPFullAuthorization=Y in switches.conf is recognized by isenabled()');
     ok(isenabled($switch->{_VoIPEnabled}),
-        '_VoIPEnabled is on for the VoIPDACL-on fixture (sanity)');
+        '_VoIPEnabled is on for the VoIPFullAuthorization-on fixture (sanity)');
 }
 
 {
-    # Switches with no VoIP setup at all still expose a sane _VoIPDACL.
+    # Switches with no VoIP setup at all still expose a sane _VoIPFullAuthorization.
     my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
     ok(defined $switch, 'instantiated switch 172.16.8.28');
-    ok(!isenabled($switch->{_VoIPDACL}),
-        '_VoIPDACL is disabled for a non-VoIP switch');
+    ok(!isenabled($switch->{_VoIPFullAuthorization}),
+        '_VoIPFullAuthorization is disabled for a non-VoIP switch');
 }
 
 =head1 AUTHOR
