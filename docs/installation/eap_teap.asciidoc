@@ -86,6 +86,11 @@ Config TEAP Profiles
 *Itentity Types* is a setting that telling Radius Server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
 If you want to authenticate both machine identity and user identity, select "machine,user" or "user,machine".
 
+*Authority Identity* identifies your RADIUS server to TEAP supplicants (per RFC 7170). The shipped default
+`packetfence.local` MUST be changed for any production deployment, and MUST be identical across every node
+of a cluster. A domain name owned by your organization is recommended. The field accepts only letters,
+digits, dot, underscore, dash, and colon.
+
 image::teap-profiles.jpg[scaledwidth="100%",alt="EAP Profile Settings"]
 
 Restart radiusd service
