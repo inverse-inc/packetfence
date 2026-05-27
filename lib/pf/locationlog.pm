@@ -248,6 +248,17 @@ sub locationlog_insert_start {
     if (!(defined($vlan)) && defined($locationlog_mac->{'vlan'})) {
         $vlan = $locationlog_mac->{'vlan'};
     }
+
+    # Preserve the inner TEAP identity across re-inserts driven by non-RADIUS
+    # callers (pfsnmp, VoIP, inline DHCP) that don't carry the TEAP attributes
+    # in their args. Without this, a vlan/role/conn_type change would silently
+    # blank the audit-trail teap_username/teap_machinename on the new row.
+    if ($teap_username eq '' && defined($locationlog_mac->{'teap_username'})) {
+        $teap_username = $locationlog_mac->{'teap_username'};
+    }
+    if ($teap_machinename eq '' && defined($locationlog_mac->{'teap_machinename'})) {
+        $teap_machinename = $locationlog_mac->{'teap_machinename'};
+    }
     my %values = (
         switch_id           => $switch_id,
         switch              => $switch,
@@ -509,8 +520,8 @@ sub _is_locationlog_accurate {
 
     # Treat an empty incoming TEAP value as "unspecified" so non-TEAP callers
     # (e.g. accounting, VoIP, VPN) don't invalidate a row that already has TEAP data.
-    my $teap_u_changed = ($teap_username    ne '' && $locationlog_mac->{'teap_username'}    ne $teap_username);
-    my $teap_m_changed = ($teap_machinename ne '' && $locationlog_mac->{'teap_machinename'} ne $teap_machinename);
+    my $teap_u_changed = ($teap_username    ne '' && ($locationlog_mac->{'teap_username'}    // '') ne $teap_username);
+    my $teap_m_changed = ($teap_machinename ne '' && ($locationlog_mac->{'teap_machinename'} // '') ne $teap_machinename);
 
     if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged || $roleChanged || $switchMacChanged || $teap_u_changed || $teap_m_changed) {
         $logger->trace("latest locationlog entry is not accurate");

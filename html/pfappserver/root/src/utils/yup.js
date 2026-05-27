@@ -16,7 +16,6 @@ import {
   reNumeric,
   reStaticRoute,
   reUUID,
-  reHash,
 } from './regex'
 
 yup.setLocale({ // default validators
@@ -159,15 +158,6 @@ yup.addMethod(yup.string, 'isAlphaNumericHyphenUnderscoreDot', function (message
     test: value => ['', null, undefined].includes(value) || reAlphaNumericHyphenUnderscoreDot(value)
   })
 })
-
-yup.addMethod(yup.string, 'isHash', function (message) {
-  return this.test({
-    name: 'isHash',
-    message: message || i18n.t('Invalid hash character, only letters (A-F, a-f), numbers are allowed.'),
-    test: value => ['', null, undefined].includes(value) || reHash(value)
-  })
-})
-
 
 yup.addMethod(yup.string, 'isCIDR', function (message) {
   return this.test({

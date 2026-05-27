@@ -924,7 +924,7 @@ eap [% key -%] {
 		#  chosen identity.  You can set &session-state:FreeRADIUS-EAP-TEAP-TLV-Identity-Type
 		#  manually, but that is substantially more complicated.
 		#
-		identity_types = "[% eap.$key.teap_config.identity_types %]"
+		identity_types = [% eap.$key.teap_config.identity_types %]
 
 		#  Same as for TTLS, PEAP, etc.
 		#
