@@ -28,7 +28,7 @@ args="$args -v /usr/local/pfconnector-remote/raddb/:/usr/local/pf/raddb/"
 args="$args -v /usr/local/pfconnector-remote/db:/usr/local/collector-remote/db"
 
 # connector-cache sqlite DB (persist across container restarts)
-args="$args -v /usr/local/pfconnector-remote/var/lib/packetfence-connector-cache:/var/lib/packetfence-connector-cache"
+args="$args -v /usr/local/pfconnector-remote/var/lib/packetfence-connector-cache:/usr/local/packetfence-connector-cache"
 
 args="$args --network=host"
 
