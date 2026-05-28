@@ -32,3 +32,13 @@ header {
     }
   }
 }
+
+// ── Logo dark-mode filter ──────────────────────────────────────────────────────
+// In dark mode --pf-logo-filter becomes brightness(0) invert(1), converting any
+// dark logo to white. Customers can set --pf-logo-filter: none in theme.css
+// if their logo is already suited for dark backgrounds.
+.pf-logo {
+  max-width: var(--pf-logo-max-width);
+  filter: var(--pf-logo-filter);
+  transition: filter 0.3s ease;
+}

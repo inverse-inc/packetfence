@@ -1,13 +1,94 @@
 /// _settings.packetfence.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// PacketFence captive portal — layout constants and theme token values.
+/// Imported by styles.scss before _settings.theme.scss.
 
-// Border radius of buttons and frames
+// ── Layout ────────────────────────────────────────────────────────────────────
+
 $pf-border-radius:           8px;
-
-// Buttons shadow
 $pf-btn-box-shadow:          0px 1px 3px 0px rgba(0,0,0,0.2);
-
-// Fixed header height
 $pf-header-height:           60px;
-
-// Fixed header height ratio for bigger screens
 $pf-header-tablet-ratio:     1.2;
+
+
+// ── Theme — light palette ─────────────────────────────────────────────────────
+
+// Status
+$pf-color-error:               #f02b1f;
+$pf-color-notice:              #00cd63;
+
+// Surfaces & backgrounds
+$pf-background:                #f5f5f5;
+$pf-frame-background:          #ffffff;
+$pf-frame-border-color:        transparent;
+$pf-media-background:          #f5f5f5;
+$pf-media-border-color:        #d2d2d2;
+$pf-divider-color:             #c2c2c27a;
+
+// Text & links
+$pf-base-text-color:           #2a2a2b;
+$pf-link-color:                #007ab8;
+$pf-heading-color:             #002f6c;
+$pf-footer-text-color:         #2a2a2b;
+$pf-footer-background-color:   transparent;
+
+// Primary action
+$pf-color-primary:             #007ab8;
+$pf-color-primary-touch:       #0069a8;
+$pf-color-primary-disabled:    #a3a2a2;
+
+// Secondary action
+$pf-color-secondary:           #002f6c;
+$pf-color-secondary-touch:     #004a99;
+$pf-color-secondary-disabled:  #9caab3;
+
+// Tertiary action
+$pf-color-tertiary:            #007ab8;
+$pf-color-tertiary-touch:      #0069a8;
+
+// Input fields
+$pf-input-label:               #717171;
+$pf-input-border:              #767b8a;
+$pf-input-background:          #ffffff;
+$pf-focus-ring-color:          rgba(0, 122, 184, 0.20);
+
+// Special
+$pf-logo-filter:               none;
+
+
+// ── Theme — dark palette ──────────────────────────────────────────────────────
+
+// Status
+$pf-dark-color-error:              #f87171;
+$pf-dark-color-notice:             #4ade80;
+
+// Surfaces & backgrounds
+$pf-dark-background:               #0c0e1b;
+$pf-dark-frame-background:         #181a2c;
+$pf-dark-frame-border-color:       rgba(255, 255, 255, 0.10);
+$pf-dark-media-background:         #20223a;
+$pf-dark-media-border-color:       #4c5080;
+$pf-dark-divider-color:            #2e3054;
+
+// Text & links
+$pf-dark-base-text-color:          #f5f5f5;
+$pf-dark-link-color:               #60baff;
+$pf-dark-heading-color:            #60baff;
+$pf-dark-footer-text-color:        #9ca3b4;
+
+// Primary disabled differs from light
+$pf-dark-color-primary-disabled:   #666680;
+
+// Secondary action
+$pf-dark-color-secondary:          #1878bd;
+$pf-dark-color-secondary-touch:    #1268a8;
+$pf-dark-color-secondary-disabled: #5070a0;
+
+// Special
+$pf-dark-logo-filter:              brightness(0) invert(1);
+
+// Input fields
+$pf-dark-input-label:              #a9a7ad;
+$pf-dark-input-border:             #6870a8;
+$pf-dark-input-background:         #20223a;
+$pf-dark-focus-ring-color:         rgba(0, 122, 184, 0.40);

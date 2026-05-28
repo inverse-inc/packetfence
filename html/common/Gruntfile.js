@@ -31,6 +31,9 @@ module.exports = function(grunt) {
         options: {
           map: false,
           processors: [
+            // Insert static fallback values before every var() for IE8-IE11 compatibility.
+            // preserve: true keeps both the static fallback AND the var() declaration.
+            require('postcss-custom-properties')({ preserve: true }),
             require('autoprefixer')(),
             require('csswring').postcss // minifier
           ]
@@ -41,6 +44,7 @@ module.exports = function(grunt) {
         options: {
           map: true,
           processors: [
+            require('postcss-custom-properties')({ preserve: true }),
             require('autoprefixer')()
           ]
         },

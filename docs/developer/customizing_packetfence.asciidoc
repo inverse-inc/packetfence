@@ -74,6 +74,28 @@ You also need to disable Content-Security-Policy (CSP) headers on captive portal
 (see
 <<PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
 
+===== CSS Theme file
+
+A default `theme.css` is loaded automatically for every captive portal page
+(before any per-profile override). All `--pf-*` variables are present in the
+file but commented out, so it is a no-op by default. Operators can uncomment
+and change values directly in this file to apply a site-wide look:
+
+[source,css]
+----
+/* /usr/local/pf/html/captive-portal/templates/theme.css */
+:root {
+
+  /* ── Brand colour ──────────────────────────── */
+  --pf-color-primary:       #e63000;
+  --pf-color-primary-touch: #c52b00;
+
+  /* ── Force dark mode for all visitors ──────── */
+  /* color-scheme: dark; */
+
+}
+----
+
 ===== Workflow
 
 When a `HTTP` request is received by the Apache web server, the following

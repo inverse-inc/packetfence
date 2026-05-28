@@ -5,9 +5,15 @@ html, body {
 }
 
 html {
-  font-family: "Arial", "Helvetica Neue", sans-serif;
+  font-family:  var(--pf-font-family);
+  font-size:    var(--pf-font-size-base);
+  font-weight:  var(--pf-font-weight-normal);
   color: $pf-base-text-color;
   background-color: $pf-background;
+}
+
+h1 {
+  font-weight: var(--pf-font-weight-heading);
 }
 
 main {

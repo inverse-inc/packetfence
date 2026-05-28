@@ -1,9 +1,13 @@
 /// _objects.media.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// Note: the original code used darken($pf-media-background, 10%) for borders,
+/// but Sass color functions cannot operate on CSS custom property strings. The
+/// derived color is pre-computed in _settings.css-vars.scss as --pf-media-border-color.
 
 .o-media--notice {
   color: $pf-color-notice;
   background-color: $pf-media-background;
-  border: 1px solid darken($pf-media-background, 10%);
+  border: 1px solid var(--pf-media-border-color);
   border-radius: $pf-border-radius;
 
   .c-iconic use {
@@ -15,7 +19,7 @@
 .o-media--error {
   color: $pf-color-error;
   background-color: $pf-media-background;
-  border: 1px solid darken($pf-media-background, 10%);
+  border: 1px solid var(--pf-media-border-color);
   border-radius: $pf-border-radius;
 
   .c-iconic use {

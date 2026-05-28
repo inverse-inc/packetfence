@@ -1,52 +1,59 @@
 /// _settings.colors.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// Color SCSS variables.
+/// CSS custom properties are defined in _settings.theme.scss, which is
+/// imported BEFORE this file in styles.scss.
+///
+/// Each SCSS variable is set to var(--pf-*, <raw-fallback>).
+/// Component/element/object SCSS files use these variables as-is — they compile
+/// to var() in the output CSS, enabling runtime theme switching.
+///
+/// The raw-fallback value (second argument to var()) is used:
+///   1. When a CSS custom property is not yet defined (e.g. in a JS-less env).
+///   2. By postcss-custom-properties to generate IE8–IE11 static fallbacks.
+///
+/// IMPORTANT: Do NOT use these variables as arguments to Sass color functions
+/// (lighten, darken, mix, etc.) — Sass cannot evaluate CSS custom property
+/// strings at compile time. Use the corresponding --pf-* CSS var directly in
+/// those files, or add a pre-computed --pf-*-derived variable in
+/// _settings.css-vars.scss.
 
-/**
- * Some predefined color variables
- */
+// ── Status ────────────────────────────────────────────────────────────────────
+$pf-color-error:               var(--pf-color-error, #f02b1f);
+$pf-color-notice:              var(--pf-color-notice, #00cd63);
 
-$pf-color-error:                         #be2125;
-$pf-color-notice:                        #299144;
+// ── Base surface & text ───────────────────────────────────────────────────────
+$pf-base-text-color:           var(--pf-base-text-color, #2a2a2b);
+$pf-background:                var(--pf-background, #f5f5f5);
+$pf-frame-background:          var(--pf-frame-background, #ffffff);
+$pf-link-color:                var(--pf-link-color, #007ab8);
 
-/**
- * Color assignation to objects and components
- */
+// ── Headings ──────────────────────────────────────────────────────────────────
+$pf-heading-color:             var(--pf-heading-color, #002f6c);
 
-// Text color
-$pf-base-text-color:                     #555555;
+// ── Alerts / media ────────────────────────────────────────────────────────────
+$pf-media-background:          var(--pf-media-background, #f5f5f5);
 
-// Background color
-$pf-background:                          #efefef;
+// ── Footer ────────────────────────────────────────────────────────────────────
+$pf-footer-background-color:   var(--pf-footer-background-color, transparent);
+$pf-footer-text-color:         var(--pf-footer-text-color, #2a2a2b);
 
-// Frame background color
-$pf-frame-background:                    #fefefe;
+// ── Primary button ────────────────────────────────────────────────────────────
+$pf-color-primary:             var(--pf-color-primary, #007ab8);
+$pf-color-primary-touch:       var(--pf-color-primary-touch, #0069a8);
+$pf-color-primary-disabled:    var(--pf-color-primary-disabled, #a3a2a2);
 
-// Link color
-$pf-link-color:                          #0473b8;
+// ── Secondary button ──────────────────────────────────────────────────────────
+$pf-color-secondary:           var(--pf-color-secondary, #002f6c);
+$pf-color-secondary-touch:     var(--pf-color-secondary-touch, #004a99);
+$pf-color-secondary-disabled:  var(--pf-color-secondary-disabled, #9caab3);
 
-// Media background color (alerts)
-$pf-media-background:                    #efefef;
+// ── Tertiary button ───────────────────────────────────────────────────────────
+$pf-color-tertiary:            var(--pf-color-tertiary, #007ab8);
+$pf-color-tertiary-touch:      var(--pf-color-tertiary-touch, #0069a8);
 
-// Footer background
-$pf-footer-background-color:             transparent;
-
-// Footer text color
-$pf-footer-text-color:                   $pf-base-text-color;
-
-// Primary button
-$pf-color-primary:                       #eb5b6b;
-$pf-color-primary-touch:                 #eb717f;
-$pf-color-primary-disabled:              rgb(163, 162, 162);
-
-// Secondary button
-$pf-color-secondary:                     #0473b8;
-$pf-color-secondary-touch:               #0875ba;
-$pf-color-secondary-disabled:            #9caab3;
-
-// Tertiary button
-$pf-color-tertiary:                      $pf-link-color;
-$pf-color-tertiary-touch:                #0b6397;
-
-// Input fields
-$pf-input-label:                         #828282;
-$pf-input-border:                        #ced4da;
-$pf-input-background:                    #ffffff;
+// ── Inputs ────────────────────────────────────────────────────────────────────
+$pf-input-border-width:        var(--pf-input-border-width, 1px);
+$pf-input-label:               var(--pf-input-label, #717171);
+$pf-input-border:              var(--pf-input-border, #767b8a);
+$pf-input-background:          var(--pf-input-background, #ffffff);

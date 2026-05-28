@@ -2,10 +2,11 @@
 
 $btn-line-height: 1.5;
 
- .c-btn {
+.c-btn {
   display: inline-block;
   vertical-align: middle;
   font: inherit;
+  font-weight: 400;
   text-align: center;
   margin: 0;
   cursor: pointer;
@@ -13,7 +14,7 @@ $btn-line-height: 1.5;
   padding: $inuit-global-spacing-unit-small $inuit-global-spacing-unit;
   transition: $global-transition;
   border: none;
-  border-radius: $global-radius;
+  border-radius: var(--pf-border-radius);
 
   &:hover {
     text-decoration: none;
@@ -47,7 +48,9 @@ $btn-line-height: 1.5;
   }
 
   &[disabled] {
-    background-color: $pf-color-primary-disabled;    
+    background-color: $pf-color-primary-disabled;
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
@@ -66,6 +69,12 @@ $btn-line-height: 1.5;
   &:hover,
   &:focus {
     background-color: $pf-color-secondary-touch;
+  }
+
+  &[disabled] {
+    background-color: $pf-color-secondary-disabled;
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
 }
@@ -93,7 +102,6 @@ $btn-line-height: 1.5;
 
 
 
-
 /* Size variants
    ========================================================================== */
 
@@ -109,7 +117,6 @@ $btn-line-height: 1.5;
 .c-btn--large {
   padding: $inuit-global-spacing-unit $inuit-global-spacing-unit-large;
 }
-
 
 
 
@@ -157,7 +164,9 @@ $btn-ghost-border-width: 2px;
 
     &:hover,
     &:focus {
-      color: $pf-color-secondary-touch;
+      color: #fff;
+      background-color: $pf-color-secondary !important; // overrides ghost base (higher specificity + !important)
+      border-color: $pf-color-secondary;                // prevent border turning white via currentColor
     }
 
   }

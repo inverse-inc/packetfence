@@ -376,6 +376,7 @@ sub render {
     $args->{lang} = $self->session->{lang};
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
 
+    my $theme_path = "/profile-templates/" . $self->profile->name . "/theme.css"; 
     my $layout_args = {
         isRootSSO => $self->isRootSSO,
         flash => $self->flash,
@@ -384,6 +385,7 @@ sub render {
         client_ip => $self->current_ip,
         title => $self->title,
         logo => $profile->getLogo,
+        theme_path => $theme_path,
         profile => $profile,
         lang => $self->session->{lang},
         %saved_fields,

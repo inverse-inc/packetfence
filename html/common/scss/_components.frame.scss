@@ -3,6 +3,9 @@
 .c-frame {
   background-color: $pf-frame-background;
   border-radius: $pf-border-radius;
+  // Inset 1px outline via box-shadow — no layout impact, no double-line at
+  // first/last card junction, transparent in light mode (no-op).
+  box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);
 }
 
 .c-frame--first {

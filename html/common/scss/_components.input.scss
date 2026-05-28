@@ -29,10 +29,10 @@
   label {
     cursor: pointer;
     display: block;
-    color: $pf-input-label;
-    font-weight: 600;
-    font-size: 75%;
-    text-transform: uppercase;
+    color: $pf-base-text-color;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: $inuit-global-spacing-unit-tiny;
   }
 
   label.radio {
@@ -45,16 +45,23 @@
   }
 
   input:not([type=radio]), select {
-    border: 2px solid $pf-input-border;
-    border-radius: .25rem;
+    border: $pf-input-border-width solid $pf-input-border;
+    border-radius: var(--pf-border-radius);
     background-color: $pf-input-background;
+    color: $pf-base-text-color;
     padding: $inuit-global-spacing-unit-small;
-    transition: border-color 0.15s linear;
+    transition: border-color 0.15s linear, box-shadow 0.15s linear;
     width: 100%;
     -webkit-appearance: none;
 
+    &::placeholder {
+      color: $pf-input-label;
+    }
+
     &:focus {
       outline: none;
+      border-color: $pf-color-primary;
+      box-shadow: 0 0 0 3px var(--pf-focus-ring-color);
     }
   }
 
@@ -90,7 +97,7 @@
   }
 
   select {
-    background-color: white;
+    // background-color inherited from the shared input rule above ($pf-input-background)
     height: $spacing-unit + $inuit-global-font-size * 1.2;
   }
 }

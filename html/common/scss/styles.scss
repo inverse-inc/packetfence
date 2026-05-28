@@ -67,6 +67,7 @@ $pf-font-small: $inuit-global-font-size * 0.8;
 @import "settings/settings.core";
 @import "settings.global";
 @import "settings.packetfence";
+@import "settings.theme";
 @import "settings.colors";
 
 
@@ -90,7 +91,7 @@ $pf-font-small: $inuit-global-font-size * 0.8;
 @import "elements/elements.page";
 @import "elements.page";
 @import "elements.links";
-$inuit-font-size-h1:                     $inuit-global-font-size * 1.1875;
+$inuit-font-size-h1:                     $inuit-global-font-size * 1.25;   // 20px
 $inuit-font-size-h2:                     $inuit-global-font-size * 1.1;
 @import "elements/elements.headings";
 @import "elements.headings";

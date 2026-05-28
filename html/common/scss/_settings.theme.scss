@@ -1,0 +1,183 @@
+/// _settings.theme.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// CSS Custom Property theme layer.
+/// Import order: AFTER settings.packetfence (which provides $pf-* SCSS variables).
+///
+/// Declares all --pf-* CSS custom properties in three blocks:
+///   :root                               — light defaults (all browsers)
+///   @media (prefers-color-scheme: dark)  — dark overrides (Chrome 76+, FF 67+, Safari 12.1+)
+///   @supports (color: light-dark(...))   — light-dark() enhancement (Chrome 123+, FF 120+, Safari 17.5+)
+
+
+// ── Light theme defaults (:root) ─────────────────────────────────────────────
+:root {
+  color-scheme: light dark;
+
+
+  // ── 1. Colors ───────────────────────────────────────────────────────────────
+
+  // Status
+  --pf-color-error:               #{$pf-color-error};
+  --pf-color-notice:              #{$pf-color-notice};
+
+  // Surfaces & backgrounds
+  --pf-background:                #{$pf-background};
+  --pf-frame-background:          #{$pf-frame-background};
+  --pf-frame-border-color:        #{$pf-frame-border-color};
+  --pf-media-background:          #{$pf-media-background};
+  --pf-media-border-color:        #{$pf-media-border-color};
+  --pf-divider-color:             #{$pf-divider-color};
+
+  // Text & links
+  --pf-base-text-color:           #{$pf-base-text-color};
+  --pf-link-color:                #{$pf-link-color};
+  --pf-heading-color:             #{$pf-heading-color};
+  --pf-footer-text-color:         #{$pf-footer-text-color};
+  --pf-footer-background-color:   #{$pf-footer-background-color};
+
+  // Primary action
+  --pf-color-primary:             #{$pf-color-primary};
+  --pf-color-primary-touch:       #{$pf-color-primary-touch};
+  --pf-color-primary-disabled:    #{$pf-color-primary-disabled};
+
+  // Secondary action
+  --pf-color-secondary:           #{$pf-color-secondary};
+  --pf-color-secondary-touch:     #{$pf-color-secondary-touch};
+  --pf-color-secondary-disabled:  #{$pf-color-secondary-disabled};
+
+  // Tertiary action
+  --pf-color-tertiary:            #{$pf-color-tertiary};
+  --pf-color-tertiary-touch:      #{$pf-color-tertiary-touch};
+
+
+  // ── 2. Elements ─────────────────────────────────────────────────────────────
+
+  // Input fields
+  --pf-input-border-width:        1px;
+  --pf-input-label:               #{$pf-input-label};
+  --pf-input-border:              #{$pf-input-border};
+  --pf-input-background:          #{$pf-input-background};
+  --pf-focus-ring-color:          #{$pf-focus-ring-color};
+
+  // Typography
+  --pf-font-family:               "Arial", "Helvetica Neue", sans-serif;
+  --pf-font-size-base:            16px;
+  --pf-font-weight-normal:        400;
+  --pf-font-weight-heading:       700;
+
+  // Spacing — component SCSS uses $inuit-global-spacing-unit-* for compile-time
+  // arithmetic; these custom properties allow operator runtime overrides.
+  --pf-spacing-tiny:              #{$inuit-global-spacing-unit-tiny};   // 6px
+  --pf-spacing-small:             #{$inuit-global-spacing-unit-small};  // 12px
+  --pf-spacing:                   #{$inuit-global-spacing-unit};        // 24px
+  --pf-spacing-large:             #{$inuit-global-spacing-unit-large};  // 48px
+
+  // Shape
+  --pf-border-radius:             #{$pf-border-radius};   // 8px
+  --pf-global-radius:             #{$global-radius};      // 1.5rem
+  --pf-btn-box-shadow:            #{$pf-btn-box-shadow};
+  --pf-logo-max-width:            50%;
+
+
+  // ── 3. Special ──────────────────────────────────────────────────────────────
+
+  // Logo filter — opt in via captive-portal/templates/theme.css if your logo
+  // is dark/black and disappears on dark backgrounds:
+  //   --pf-logo-filter: brightness(0) invert(1);
+  --pf-logo-filter:               #{$pf-logo-filter};
+}
+
+
+// ── Dark theme — OS preference fallback (all browsers) ───────────────────────
+// Chrome 76+, Firefox 67+, Safari 12.1+.
+// On modern browsers this block is superseded by the @supports block below.
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    // Status
+    --pf-color-error:               #{$pf-dark-color-error};
+    --pf-color-notice:              #{$pf-dark-color-notice};
+
+    // Surfaces & backgrounds
+    --pf-background:                #{$pf-dark-background};
+    --pf-frame-background:          #{$pf-dark-frame-background};
+    --pf-frame-border-color:        #{$pf-dark-frame-border-color};
+    --pf-media-background:          #{$pf-dark-media-background};
+    --pf-media-border-color:        #{$pf-dark-media-border-color};
+    --pf-divider-color:             #{$pf-dark-divider-color};
+
+    // Text & links
+    --pf-base-text-color:           #{$pf-dark-base-text-color};
+    --pf-link-color:                #{$pf-dark-link-color};
+    --pf-heading-color:             #{$pf-dark-heading-color};
+    --pf-footer-text-color:         #{$pf-dark-footer-text-color};
+
+    // Primary action — color and touch are the same as light; only disabled differs
+    --pf-color-primary-disabled:    #{$pf-dark-color-primary-disabled};
+
+    // Secondary action
+    --pf-color-secondary:           #{$pf-dark-color-secondary};
+    --pf-color-secondary-touch:     #{$pf-dark-color-secondary-touch};
+    --pf-color-secondary-disabled:  #{$pf-dark-color-secondary-disabled};
+
+    // Tertiary action — same as light; no override needed
+
+    // Input fields
+    --pf-input-label:               #{$pf-dark-input-label};
+    --pf-input-border:              #{$pf-dark-input-border};
+    --pf-input-background:          #{$pf-dark-input-background};
+    --pf-focus-ring-color:          #{$pf-dark-focus-ring-color};
+
+    // Special
+    --pf-logo-filter:               #{$pf-dark-logo-filter};
+  }
+}
+
+
+// ── Modern browsers: light-dark() progressive enhancement ────────────────────
+// Chrome 123+, Firefox 120+, Safari 17.5+.
+// light-dark() resolves based on the computed color-scheme on :root, so an
+// operator setting `color-scheme: dark` in theme.css switches the full palette.
+
+@supports (color: light-dark(red, blue)) {
+  :root {
+
+    // Status
+    --pf-color-error:               light-dark(#{$pf-color-error},              #{$pf-dark-color-error});
+    --pf-color-notice:              light-dark(#{$pf-color-notice},             #{$pf-dark-color-notice});
+
+    // Surfaces & backgrounds
+    --pf-background:                light-dark(#{$pf-background},              #{$pf-dark-background});
+    --pf-frame-background:          light-dark(#{$pf-frame-background},        #{$pf-dark-frame-background});
+    --pf-frame-border-color:        light-dark(#{$pf-frame-border-color},      #{$pf-dark-frame-border-color});
+    --pf-media-background:          light-dark(#{$pf-media-background},        #{$pf-dark-media-background});
+    --pf-media-border-color:        light-dark(#{$pf-media-border-color},      #{$pf-dark-media-border-color});
+    --pf-divider-color:             light-dark(#{$pf-divider-color},           #{$pf-dark-divider-color});
+
+    // Text & links
+    --pf-base-text-color:           light-dark(#{$pf-base-text-color},         #{$pf-dark-base-text-color});
+    --pf-link-color:                light-dark(#{$pf-link-color},              #{$pf-dark-link-color});
+    --pf-heading-color:             light-dark(#{$pf-heading-color},           #{$pf-dark-heading-color});
+    --pf-footer-text-color:         light-dark(#{$pf-footer-text-color},       #{$pf-dark-footer-text-color});
+
+    // Primary action — only disabled differs between modes
+    --pf-color-primary-disabled:    light-dark(#{$pf-color-primary-disabled},  #{$pf-dark-color-primary-disabled});
+
+    // Secondary action
+    --pf-color-secondary:           light-dark(#{$pf-color-secondary},         #{$pf-dark-color-secondary});
+    --pf-color-secondary-touch:     light-dark(#{$pf-color-secondary-touch},   #{$pf-dark-color-secondary-touch});
+    --pf-color-secondary-disabled:  light-dark(#{$pf-color-secondary-disabled},#{$pf-dark-color-secondary-disabled});
+
+    // Input fields
+    --pf-input-label:               light-dark(#{$pf-input-label},             #{$pf-dark-input-label});
+    --pf-input-border:              light-dark(#{$pf-input-border},            #{$pf-dark-input-border});
+    --pf-input-background:          light-dark(#{$pf-input-background},        #{$pf-dark-input-background});
+    --pf-focus-ring-color:          light-dark(#{$pf-focus-ring-color},        #{$pf-dark-focus-ring-color});
+
+    // Note: --pf-logo-filter is NOT included here.
+    // light-dark() is a CSS color function and does not work with filter values.
+    // Logo filter switching is handled by the @media block above (OS preference).
+  }
+}
