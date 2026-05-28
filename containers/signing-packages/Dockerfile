@@ -7,6 +7,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 # (perl, gnupg, libdigest-md5-perl, libconfig-file-perl) are all in bookworm,
 # so we fetch the .deb from the Debian archive and let apt resolve its deps.
 ARG DPKG_SIG_DEB_URL=https://archive.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
+# SHA256 pinned from the signed bullseye main Packages index (dpkg-sig 0.13.1+nmu4).
+# The .deb is fetched over plain HTTPS, so verify the checksum before installing to
+# guard against archive tampering / MITM. Update this if DPKG_SIG_DEB_URL changes.
+ARG DPKG_SIG_DEB_SHA256=64a0898317de54f50bebead2867a921b9adb1c8588ff3e5113164ff87efbc609
 
 # Unified signing container for both DEB and RPM packages.
 # Pre-bake all signing/upload/publish dependencies; no runtime apt-get install.
@@ -18,6 +22,7 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
         > /etc/apt/sources.list.d/github-cli.list && \
     curl -fsSL "${DPKG_SIG_DEB_URL}" -o /tmp/dpkg-sig.deb && \
+    echo "${DPKG_SIG_DEB_SHA256}  /tmp/dpkg-sig.deb" | sha256sum -c - && \
     apt-get update -qq && apt-get install -y --no-install-recommends \
         gh \
         gpg \
