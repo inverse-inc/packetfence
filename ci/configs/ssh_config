@@ -1,0 +1,9 @@
+Host *
+    Port 444
+    User reposync
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+    KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
