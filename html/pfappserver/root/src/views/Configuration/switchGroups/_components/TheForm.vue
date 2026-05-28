@@ -68,6 +68,11 @@
                                      :text="$i18n.t('Detect VoIP with the DHCP Fingerprint.')"
         />
 
+        <form-group-voip-full-authorization namespace="VoIPFullAuthorization"
+                              :column-label="$i18n.t('Full RADIUS authorization for VoIP')"
+                              :text="$i18n.t('When enabled, the RADIUS reply for a VoIP device contains the Voice VSA AND the full Access-Accept response computed as if the device were a regular endpoint — VLAN tunnel attributes, role attributes, downloadable/push ACLs, and any access-filter rules. The data VLAN returned alongside the Voice VSA may conflict with the device\'s voice VLAN; make sure your switch is configured to accept both (e.g. Cisco device-traffic-class=voice with a separate access VLAN).')"
+        />
+
         <form-group-uplink-dynamic namespace="uplink_dynamic"
                                    v-show="supports(['WiredMacAuth', 'WiredDot1x'])"
                                    :column-label="$i18n.t('Dynamic Uplinks')"
@@ -643,6 +648,7 @@ import {
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupVoipFullAuthorization,
   FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
@@ -729,6 +735,7 @@ const components = {
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupVoipFullAuthorization,
   FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
