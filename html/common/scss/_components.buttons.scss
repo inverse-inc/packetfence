@@ -10,6 +10,8 @@ $btn-line-height: 1.5;
   text-align: center;
   margin: 0;
   cursor: pointer;
+  touch-action: manipulation;          // eliminate 300ms tap delay on mobile
+  -webkit-tap-highlight-color: transparent;
   line-height: $btn-line-height;
   padding: $inuit-global-spacing-unit-small $inuit-global-spacing-unit;
   border: none;

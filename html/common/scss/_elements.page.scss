@@ -9,10 +9,21 @@ html {
   font-size:    var(--pf-font-size-base);
   font-weight:  var(--pf-font-weight-normal);
   color: $pf-base-text-color;
+  background-color: $pf-background;
+  background-image: var(--pf-background-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 h1 {
   font-weight: var(--pf-font-weight-heading);
+}
+
+// Suppress default tap-highlight on all tappable elements (iOS / Android Chrome)
+a, button, label, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
 }
 
 main {
@@ -22,16 +33,4 @@ main {
   @include mq($from: tablet) {
     padding-top: $pf-header-height * $pf-header-tablet-ratio;
   }
-}
-
-// Full-page wrapper — background-color + optional background-image
-// background-color moved here from html/header so an operator background-image
-// shows through the transparent header area.
-.o-page {
-  min-height: 100vh;
-  background-color: $pf-background;
-  background-image: var(--pf-background-image, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }

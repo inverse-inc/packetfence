@@ -2,6 +2,8 @@
 
 .dot {
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   display: inline-block;
   user-select: none;
 
