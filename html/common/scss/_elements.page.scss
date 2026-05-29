@@ -9,7 +9,6 @@ html {
   font-size:    var(--pf-font-size-base);
   font-weight:  var(--pf-font-weight-normal);
   color: $pf-base-text-color;
-  background-color: $pf-background;
 }
 
 h1 {
@@ -17,9 +16,22 @@ h1 {
 }
 
 main {
+  min-height: 100vh;
   padding-top: $pf-header-height;
   width: 100%;
   @include mq($from: tablet) {
-    padding-top: $pf-header-height * 1.2;
+    padding-top: $pf-header-height * $pf-header-tablet-ratio;
   }
+}
+
+// Full-page wrapper — background-color + optional background-image
+// background-color moved here from html/header so an operator background-image
+// shows through the transparent header area.
+.o-page {
+  min-height: 100vh;
+  background-color: $pf-background;
+  background-image: var(--pf-background-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }

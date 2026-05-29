@@ -98,6 +98,49 @@ and change values directly in this file to apply a site-wide look:
 }
 ----
 
+===== CSS Background Image
+
+By default no background image is applied (`--pf-background-image: none`).
+
+To set a full-page background image, place the file in
+`/usr/local/pf/html/common/` and set the variable in
+`/usr/local/pf/html/captive-portal/templates/theme.css`:
+
+[source,css]
+----
+:root {
+  --pf-background-image: url("/common/bg.png");
+}
+----
+
+The background image is applied to the `html` element with
+`background-attachment: fixed` so it remains viewport-pinned and covers the
+full viewport regardless of page length.
+
+[source,css]
+----
+html {
+  background-color: var(--pf-background);       /* shown when no image is set */
+  background-image: var(--pf-background-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+----
+
+*Recommended image dimensions and format*
+
+* *Size:* at least 1920 × 1080 px (Full HD). 2560 × 1440 px or higher is
+  preferred for HiDPI / Retina displays.
+* *Aspect ratio:* 16:9 landscape covers most desktop and tablet viewports
+  without cropping important content.
+* *Format:* JPEG for photographic images (aim for ≤ 300 KB after compression);
+  PNG only if transparency is required.
+* *Tip:* Apply a subtle dark or light overlay in the image editor so the
+  text in the registration card remains legible regardless of the portal
+  colour scheme.
+
 ===== Workflow
 
 When a `HTTP` request is received by the Apache web server, the following

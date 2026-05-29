@@ -80,31 +80,22 @@
           <div class="c-divider u-margin-left u-margin-right u-margin-left@tablet u-margin-right@tablet u-margin-bottom-small"></div>
 
           [% content | none %]
+
+          [% UNLESS preregistration %]
+          <!-- Client info — IP / MAC -->
+          <div class="c-divider u-margin-top-small"></div>
+          <div class="c-footer-info o-layout--center u-padding-horizontal u-padding-horizontal@tablet u-padding-top-small u-padding-bottom-small">
+            <p class="text-p3">[% i18n("help: provide info") %]</p>
+            <p class="text-p3 u-margin-none">IP <b>[% client_ip %]</b></p>
+            [% UNLESS isRootSSO %]
+            <p class="text-p3 u-margin-none">MAC <b>[% client_mac %]</b></p>
+            [% END %]
+          </div>
+          [% END %]
         </div><!-- /.c-frame -->
 
       </div>
     </div>
   </main>
-
-  [% UNLESS preregistration %]
-  <footer>
-    <div class="o-layout o-layout--center u-padding-horizontal-small u-padding-horizontal@tablet">
-      <div class="o-layout__item o-layout--center [ u-1/1 u-2/3@tablet ]">
-        <div class="o-pack o-pack--middle">
-          <div class="o-pack__item o-layout--center">
-            <p class="text-p3">[% i18n("help: provide info") %]</p>
-            <p class="text-p3 u-margin-none">IP <b>[% client_ip %]</b></p>
-            [% UNLESS isRootSSO %]
-            <p class="text-p3">MAC <b>[% client_mac %]</b></p>
-            [% END %]
-          </div>
-        </div>
-        <!-- <div class="o-box u-padding-tiny u-padding@tablet">
-          <p class="text-center">[% i18n("help: provide info") %]</p>
-        </div> -->
-      </div>
-    </div>
-  </footer>
-  [% END %]
 </body>
 </html>

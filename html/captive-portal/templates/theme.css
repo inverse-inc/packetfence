@@ -53,6 +53,8 @@
 
   /* ── Surfaces & backgrounds ─────────────────────────────────────────────── */
 
+  /* --pf-background-image: url("/common/bg.png"); */   /* full-page background image (.o-page) */
+
   /* --pf-background:         #f5f5f5; */   /* page background                   */
   /* --pf-frame-background:   #ffffff; */   /* card / frame background            */
   /* --pf-frame-border-color: transparent; */   /* card border (visible in dark)  */

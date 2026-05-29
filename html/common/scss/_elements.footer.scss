@@ -2,8 +2,8 @@
 
 $pf-footer-font-size: $pf-font-small;
 
-footer {
+// Client IP/MAC info block — rendered inside the card (moved from <footer>)
+.c-footer-info {
   color: $pf-footer-text-color;
   font-size: $pf-footer-font-size;
-  width: 100%;
 }

@@ -90,6 +90,9 @@
   // is dark/black and disappears on dark backgrounds:
   //   --pf-logo-filter: brightness(0) invert(1);
   --pf-logo-filter:               #{$pf-logo-filter};
+
+  // Background image for .o-page wrapper — none by default; set via theme.css
+  --pf-background-image:          none;
 }
 
 
