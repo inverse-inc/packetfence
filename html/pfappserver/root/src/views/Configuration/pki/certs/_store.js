@@ -79,9 +79,13 @@ export const actions = {
       throw err
     })
   },
-  emailCert: ({ commit }, id) => {
+  emailCert: ({ commit }, payload) => {
+    // payload can be either a plain `id` (legacy) or `{ id, password }`.
+    const { id, password } = (typeof payload === 'object' && payload !== null)
+      ? payload
+      : { id: payload }
     commit('CERT_REQUEST')
-    return api.email(id).then(response => {
+    return api.email(id, password).then(response => {
       commit('CERT_SUCCESS')
       return response
     }).catch(err => {

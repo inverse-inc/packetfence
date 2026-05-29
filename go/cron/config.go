@@ -23,6 +23,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"fingerbank_data_update":       NewFingerbankDataUpdate,
 	"certificates_check":           NewCertificatesCheck,
 	"pki_certificates_check":       NewPkiCertificatesCheck,
+	"pki_process_cloud_revocations": NewPkiProcessCloudRevocations,
 	"file_logger":                  NewFileLogger,
 	"cleanup_chi_database_cache":   NewChiCleanup,
 	"bandwidth_maintenance":        NewBandwidthMaintenance,
@@ -32,6 +33,23 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"pfflow":                       NewPfFlowJob,
 	"purge_binary_logs":            MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
 	"admin_api_audit_log_cleanup":  MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	// Anchored on valid_until (the original cert's natural expiry) so OCSP
+	// still answers "Revoked" for any cert that could otherwise plausibly
+	// be presented to a verifier. Admin's `window` is grace beyond that.
+	"pki_revoked_certs_cleanup":    MakeWindowSqlJobSetupConfig(`DELETE FROM pki_revoked_certs WHERE valid_until < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	// ACME state grows quickly under churn: every device enrollment
+	// produces one order, one or more authzs, one challenge per authz,
+	// plus a transient nonce. We sweep the four expirable tables in
+	// dependency order (challenges -> authzs -> orders -> nonces) so
+	// FK-style references stay valid mid-sweep even though we don't
+	// declare DB-level FKs. Nonces use the window=0 fast path because
+	// they're already past expires_at to be candidates.
+	"pki_acme_state_cleanup": MakeMultiWindowSqlJobSetupConfig(
+		`DELETE c FROM pki_acme_challenges c INNER JOIN pki_acme_authzs a ON c.authz_id = a.id WHERE a.expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
+		`DELETE FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
+		`DELETE FROM pki_acme_orders WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
+		`DELETE FROM pki_acme_nonces WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
+	),
 	"auth_log_cleanup":             MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"dns_audit_log_cleanup":        MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"radius_audit_log_cleanup":     MakeWindowSqlJobSetupConfig(`DELETE FROM radius_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),

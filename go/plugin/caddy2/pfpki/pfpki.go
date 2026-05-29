@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/acme"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
@@ -104,6 +105,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(handlers.LimitRequestBody)
 
 	PFPki := &pfpki
 
@@ -133,6 +135,12 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Patch("/{id}", handlers.GetProfileByID(PFPki))
 			r.Get("/{id}", handlers.GetProfileByID(PFPki))
 			r.Post("/{id}/sign_csr", handlers.SignCSR(PFPki))
+			// EAB management — admin mints/lists/revokes External
+			// Account Binding keys for ACME enrollment under {id}.
+			r.Get("/{id}/acme/eab", handlers.AcmeEABList(PFPki))
+			r.Post("/{id}/acme/eab", handlers.AcmeEABCreate(PFPki))
+			r.Delete("/{id}/acme/eab/{eab_id}", handlers.AcmeEABDelete(PFPki))
+			r.Get("/{id}/acme/eab/{eab_id}/mobileconfig", handlers.AcmeEABMobileConfig(PFPki))
 
 		})
 		// Certs api endpoint
@@ -162,11 +170,19 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 		})
 		// Check renewal api endpoint
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
+		// Drain pending cloud-side (Intune) revocations and apply them.
+		r.Get("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
+		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
 		// OCSP api endpoint
 		r.Route("/pki/ocsp", func(r chi.Router) {
 			r.Get("/", handlers.ManageOcsp(PFPki))
 			r.Post("/", handlers.ManageOcsp(PFPki))
 		})
+		// ACME (RFC 8555). Per-profile sub-routes at
+		// /api/v1/pki/acme/{profile}/{directory|new-nonce|…}. ACME
+		// clients only need the /directory URL configured in their MDM
+		// payload; everything else is link-discovered from there.
+		r.Mount("/pki/acme", acme.Mount(PFPki))
 		// SCEP api endpoint
 		r.Route("/pki/scep", func(r chi.Router) {
 			r.Get("/", handlers.ManageSCEP(PFPki))
