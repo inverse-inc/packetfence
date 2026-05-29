@@ -62,6 +62,8 @@ value to be
 `/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
 
 For the best results, your logo size should be approximately 330x75 pixels.
+Use a PNG with a transparent background so the logo blends correctly in both
+light and dark mode.
 
 ===== CSS
 
