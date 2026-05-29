@@ -28834,6 +28834,9 @@ components:
         VoIPEnabled:
           description: VoIP
           type: string
+        VoIPFullAuthorization:
+          description: VoIPFullAuthorization
+          type: string
         VoIPLLDPDetect:
           description: VoIPLLDPDetect
           type: string
@@ -29164,6 +29167,9 @@ components:
         VoIPEnabled:
           description: VoIP
           type: string
+        VoIPFullAuthorization:
+          description: VoIPFullAuthorization
+          type: string
         VoIPLLDPDetect:
           description: VoIPLLDPDetect
           type: string
@@ -29387,6 +29393,8 @@ components:
               $ref: '#/components/schemas/Meta'
             VoIPEnabled:
               $ref: '#/components/schemas/Meta'
+            VoIPFullAuthorization:
+              $ref: '#/components/schemas/Meta'
             VoIPLLDPDetect:
               $ref: '#/components/schemas/Meta'
             VpnMap:
@@ -29560,6 +29568,8 @@ components:
             VoIPDHCPDetect:
               $ref: '#/components/schemas/Meta'
             VoIPEnabled:
+              $ref: '#/components/schemas/Meta'
+            VoIPFullAuthorization:
               $ref: '#/components/schemas/Meta'
             VoIPLLDPDetect:
               $ref: '#/components/schemas/Meta'

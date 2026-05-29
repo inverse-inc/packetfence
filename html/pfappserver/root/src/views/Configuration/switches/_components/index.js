@@ -91,6 +91,7 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupVoipLldpDetect,
   BaseFormGroupToggleNYDefault            as FormGroupVoipCdpDetect,
   BaseFormGroupToggleNYDefault            as FormGroupVoipDhcpDetect,
+  BaseFormGroupToggleNYDefault            as FormGroupVoipFullAuthorization,
   BaseFormGroupToggleNYDefault            as FormGroupPostMfaValidation,
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
