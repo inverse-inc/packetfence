@@ -114,6 +114,13 @@ server dynamic_clients {
             }
         }
 
+        # Connector traffic: identify by PacketFence-ConnectorID VSA and resolve to the shared 'pfconnector' row
+        if ( &control:PacketFence-NasName == '0' && "%{PacketFence-ConnectorID}" != "" ) {
+            update control {
+                &PacketFence-NasName := "pfconnector"
+            }
+        }
+
         # If the MAC was not found, try finding the IP
         if ( &control:PacketFence-NasName == '0' ) {
             update {

@@ -6,11 +6,11 @@ RADDB_TEMPLATE="/usr/local/pf/raddb/sites-available/packetfence"
 RADDB_PACKETFENCE="/usr/local/pf/raddb/sites-enabled/packetfence"
 PFCONNECTOR_CONF="/usr/local/pf/conf/pfconnector-client.env"
 
-# Fetch the local secret from the pfconnector server API
-LOCAL_SECRET=$(curl -s http://localhost:22226/api/v1/pfconnector/local-secret)
+# Fetch the shared pfconnector RADIUS secret (unified_api_system_user.pass) from the pfconnector server API
+RADIUS_SECRET=$(curl -s http://localhost:22226/api/v1/pfconnector/radius-secret)
 
-if [ -z "$LOCAL_SECRET" ]; then
-    echo "ERROR: Could not fetch local secret from pfconnector API" >&2
+if [ -z "$RADIUS_SECRET" ]; then
+    echo "ERROR: Could not fetch radius secret from pfconnector API" >&2
     exit 1
 fi
 
@@ -38,11 +38,11 @@ fi
 
 # Generate raddb config from template
 if [ -f "$RADDB_TEMPLATE" ]; then
-    sed -e "s/%password%/$LOCAL_SECRET/g" \
+    sed -e "s/%password%/$RADIUS_SECRET/g" \
         -e "s/%mgmt_ip%/$MGMT_IP/g" \
         -e "s/%connector_id%/$CONNECTOR_ID/g" \
         "$RADDB_TEMPLATE" > "$RADDB_PACKETFENCE"
-    echo "Configured raddb: local_secret=***, mgmt_ip=$MGMT_IP, connector_id=$CONNECTOR_ID"
+    echo "Configured raddb: radius_secret=***, mgmt_ip=$MGMT_IP, connector_id=$CONNECTOR_ID"
 else
     echo "ERROR: $RADDB_TEMPLATE not found" >&2
     exit 1

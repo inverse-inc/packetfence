@@ -115,6 +115,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/local-secret":
 		s.handleLocalSecret(w, r)
 		return
+	case apiPrefix + "/radius-secret":
+		s.handleRadiusSecret(w, r)
+		return
 	case apiPrefix + "/multi-domain-config":
 		s.handleRemoteMultiDomainConfig(w, r)
 		return
@@ -895,6 +898,17 @@ func (s *Server) handleLocalSecret(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte(localSecret.Element))
+}
+
+func (s *Server) handleRadiusSecret(w http.ResponseWriter, req *http.Request) {
+	user := pfconfigdriver.UnifiedApiSystemUser{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &user); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Failed to fetch unified API system user"))
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte(user.Pass))
 }
 
 // handleRemoteMultiDomainConfig returns ConfigRealm / ConfigOrderedRealm /
