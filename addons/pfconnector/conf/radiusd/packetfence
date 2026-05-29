@@ -76,7 +76,14 @@ server pf-remote {
 		update control {
 			Tmp-String-0 := "%{control:Proxy-To-Realm}"
 		}
-		rest-ratelimit
+		# Only rate-limit the first packet of a conversation. EAP methods
+		# (PEAP/TTLS/TLS) emit one Access-Request per TLS round-trip, all
+		# carrying a State attribute; counting each one would burn through
+		# rate_limit_rate (default 6) mid-handshake and 403-reject the
+		# in-flight auth. The initial request has no State.
+		if (!State) {
+			rest-ratelimit
+		}
 		if (&control:Tmp-String-0 == "degraded") {
 			update control {
 				Proxy-To-Realm := "degraded"
