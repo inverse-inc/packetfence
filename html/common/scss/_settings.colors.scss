@@ -57,3 +57,8 @@ $pf-input-border-width:        var(--pf-input-border-width, 1px);
 $pf-input-label:               var(--pf-input-label, #717171);
 $pf-input-border:              var(--pf-input-border, #767b8a);
 $pf-input-background:          var(--pf-input-background, #ffffff);
+
+// ── Disabled button overlay & text ────────────────────────────────────────────
+$pf-btn-disabled-text:              var(--pf-btn-disabled-text, #707070);
+$pf-btn-primary-disabled-overlay:   var(--pf-btn-primary-disabled-overlay, #d6d5d5);
+$pf-btn-secondary-disabled-overlay: var(--pf-btn-secondary-disabled-overlay, #cdd4d9);

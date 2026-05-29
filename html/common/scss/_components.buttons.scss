@@ -12,9 +12,11 @@ $btn-line-height: 1.5;
   cursor: pointer;
   line-height: $btn-line-height;
   padding: $inuit-global-spacing-unit-small $inuit-global-spacing-unit;
-  transition: $global-transition;
   border: none;
   border-radius: var(--pf-border-radius);
+  position: relative;
+  isolation: isolate;  // stacking context — keeps ::after z-index local to button
+  overflow: hidden;    // clips ::after to border-radius
 
   &:hover {
     text-decoration: none;
@@ -49,8 +51,19 @@ $btn-line-height: 1.5;
 
   &[disabled] {
     background-color: $pf-color-primary-disabled;
-    opacity: 0.5;
+    color: $pf-btn-disabled-text;
     cursor: not-allowed;
+    pointer-events: none; // block hover on disabled <a> tags
+
+    // Absolute backdrop: lightened solid overlay (above bg, below text via z-index -1).
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: $pf-btn-primary-disabled-overlay;
+      pointer-events: none;
+    }
   }
 }
 
@@ -73,8 +86,18 @@ $btn-line-height: 1.5;
 
   &[disabled] {
     background-color: $pf-color-secondary-disabled;
-    opacity: 0.5;
+    color: $pf-btn-disabled-text;
     cursor: not-allowed;
+    pointer-events: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: $pf-btn-secondary-disabled-overlay;
+      pointer-events: none;
+    }
   }
 
 }

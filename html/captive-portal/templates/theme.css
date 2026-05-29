@@ -92,6 +92,13 @@
 
   /* ══ 2. Elements ═════════════════════════════════════════════════════════════ */
 
+  /* ── Buttons ────────────────────────────────────────────────────────────── */
+
+  /* --pf-btn-disabled-text:              #707070; */   /* disabled button label     */
+  /* --pf-btn-primary-disabled-overlay:   #d6d5d5; */   /* primary button backdrop   */
+  /* --pf-btn-secondary-disabled-overlay: #cdd4d9; */   /* secondary button backdrop */
+
+
   /* ── Input fields ────────────────────────────────────────────────────────── */
 
   /* --pf-input-border-width: 1px;      */   /* input border width               */
@@ -181,6 +188,10 @@
   --pf-color-secondary-disabled:  #5070a0;
 
   ---- 2. Elements ----
+
+  --pf-btn-disabled-text:              #d8d8f0;
+  --pf-btn-primary-disabled-overlay:   #9494a6;
+  --pf-btn-secondary-disabled-overlay: #859abd;
 
   --pf-input-label:               #a9a7ad;
   --pf-input-border:              #6870a8;

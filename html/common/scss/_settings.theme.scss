@@ -49,6 +49,11 @@
   --pf-color-tertiary:            #{$pf-color-tertiary};
   --pf-color-tertiary-touch:      #{$pf-color-tertiary-touch};
 
+  // Disabled button overlay & text
+  --pf-btn-disabled-text:              #{$pf-btn-disabled-text};
+  --pf-btn-primary-disabled-overlay:   #{$pf-btn-primary-disabled-overlay};
+  --pf-btn-secondary-disabled-overlay: #{$pf-btn-secondary-disabled-overlay};
+
 
   // ── 2. Elements ─────────────────────────────────────────────────────────────
 
@@ -124,6 +129,11 @@
 
     // Tertiary action — same as light; no override needed
 
+    // Disabled button overlay & text
+    --pf-btn-disabled-text:              #{$pf-dark-btn-disabled-text};
+    --pf-btn-primary-disabled-overlay:   #{$pf-dark-btn-primary-disabled-overlay};
+    --pf-btn-secondary-disabled-overlay: #{$pf-dark-btn-secondary-disabled-overlay};
+
     // Input fields
     --pf-input-label:               #{$pf-dark-input-label};
     --pf-input-border:              #{$pf-dark-input-border};
@@ -169,6 +179,11 @@
     --pf-color-secondary:           light-dark(#{$pf-color-secondary},         #{$pf-dark-color-secondary});
     --pf-color-secondary-touch:     light-dark(#{$pf-color-secondary-touch},   #{$pf-dark-color-secondary-touch});
     --pf-color-secondary-disabled:  light-dark(#{$pf-color-secondary-disabled},#{$pf-dark-color-secondary-disabled});
+
+    // Disabled button overlay & text
+    --pf-btn-disabled-text:              light-dark(#{$pf-btn-disabled-text},              #{$pf-dark-btn-disabled-text});
+    --pf-btn-primary-disabled-overlay:   light-dark(#{$pf-btn-primary-disabled-overlay},   #{$pf-dark-btn-primary-disabled-overlay});
+    --pf-btn-secondary-disabled-overlay: light-dark(#{$pf-btn-secondary-disabled-overlay}, #{$pf-dark-btn-secondary-disabled-overlay});
 
     // Input fields
     --pf-input-label:               light-dark(#{$pf-input-label},             #{$pf-dark-input-label});
