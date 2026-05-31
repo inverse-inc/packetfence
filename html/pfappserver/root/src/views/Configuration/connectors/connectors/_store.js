@@ -18,6 +18,7 @@ export const useStore = $store => {
     getItemOptions: params => $store.dispatch('$_connectors/optionsConnectors', params.id),
     updateItem: params => $store.dispatch('$_connectors/updateConnector', params),
     deleteItem: params => $store.dispatch('$_connectors/deleteConnector', params.id),
+    getConnectorsStatus: () => $store.dispatch('$_connectors/getConnectorsStatus'),
   }
 }
 
@@ -109,6 +110,11 @@ export const actions = {
     }).catch(err => {
       commit('CONNECTOR_ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  getConnectorsStatus: () => {
+    return api.status().then(response => {
+      return response.items
     })
   },
   deleteConnector: ({ commit }, id) => {
