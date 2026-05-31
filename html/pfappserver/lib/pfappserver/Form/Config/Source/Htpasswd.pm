@@ -18,10 +18,15 @@ with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::Inte
 # Form fields
 has_field 'path' =>
   (
-   type => 'Path',
+   type => 'Text',
    required => 0,
    element_class => ['input-xxlarge'],
-   # Default value needed for creating dummy source
+   # Default value needed for creating dummy source.
+   # We deliberately use Text (and validate ourselves below) instead of the
+   # 'Path' field type: the latter rejects any path that does not exist on
+   # disk, which prevents the admin from creating a fresh Htpasswd source
+   # whose file has not been created yet -- creating that file is exactly
+   # what the new "Create new htpasswd file" button does.
    default => '',
   );
 
@@ -38,17 +43,32 @@ has_field 'path_upload' =>
 
 =head2 validate
 
-Make sure the htpasswd file is readable.
+Validate the configured path:
+
+  * an absolute path including a file name is required;
+  * if the file already exists on disk it must be a regular file readable
+    by the pf user -- directories or other special files are rejected so
+    that the "Create new htpasswd file" button in the Users section cannot
+    accidentally overwrite something else;
+  * a non-existing file is accepted as long as its parent directory exists
+    and is writable -- creating the file on demand is exactly what the
+    Users section's "Create new htpasswd file" button does.
 
 =cut
 
 sub validate {
     my $self = shift;
-
     $self->SUPER::validate();
     my $path = $self->value->{path};
-    if (defined($path) && !-r $path) {
-        $self->field('path')->add_error("The file is not readable by the user 'pf'.");
+    return unless defined $path && $path ne '';
+
+    my $field = $self->field('path');
+    my $source = pf::Authentication::Source::HtpasswdSource->new(
+        id   => '__validate__',
+        path => $path,
+    );
+    for my $err ($source->validate_path) {
+        $field->add_error($err);
     }
 }
 

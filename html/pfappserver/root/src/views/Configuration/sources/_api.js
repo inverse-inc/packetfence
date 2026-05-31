@@ -54,5 +54,28 @@ export default {
     return apiCall.postQuiet('config/sources/test', data).then(response => {
       return response
     })
+  },
+  htpasswdUsersList: id => {
+    return apiCall.get(['config', 'source', id, 'htpasswd_users']).then(response => {
+      return response.data
+    })
+  },
+  htpasswdUsersCreate: ({ id, username, password }) => {
+    return apiCall.post(['config', 'source', id, 'htpasswd_users'], { username, password }).then(response => {
+      return response.data
+    })
+  },
+  htpasswdUsersUpdate: ({ id, username, password }) => {
+    return apiCall.patch(['config', 'source', id, 'htpasswd_users', username], { password }).then(response => {
+      return response.data
+    })
+  },
+  htpasswdUsersDelete: ({ id, username }) => {
+    return apiCall.delete(['config', 'source', id, 'htpasswd_users', username])
+  },
+  htpasswdFileCreate: ({ id }) => {
+    return apiCall.post(['config', 'source', id, 'htpasswd_file'], {}).then(response => {
+      return response.data
+    })
   }
 }

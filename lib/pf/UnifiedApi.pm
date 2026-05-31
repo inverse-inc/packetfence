@@ -1598,6 +1598,16 @@ sub setup_api_v1_config_sources_routes {
     $collection_route->any(['POST'] => "/test")->to("Config::Sources#test")->name("api.v1.Config.Sources.test");
     $resource_route->register_sub_action({ method => 'GET', action => 'saml_metadata'});
 
+    my $htpasswd_users_route = $resource_route->any("/htpasswd_users")->name("api.v1.Config.Sources.resource.htpasswd_users");
+    $htpasswd_users_route->any(['GET'])->to("Config::Sources#htpasswd_users_list")->name("api.v1.Config.Sources.resource.htpasswd_users.list");
+    $htpasswd_users_route->any(['POST'])->to("Config::Sources#htpasswd_users_create" => {auditable => 1})->name("api.v1.Config.Sources.resource.htpasswd_users.create");
+    my $htpasswd_user_route = $htpasswd_users_route->any("/#username")->name("api.v1.Config.Sources.resource.htpasswd_users.user");
+    $htpasswd_user_route->any(['PATCH'])->to("Config::Sources#htpasswd_users_update" => {auditable => 1})->name("api.v1.Config.Sources.resource.htpasswd_users.update");
+    $htpasswd_user_route->any(['DELETE'])->to("Config::Sources#htpasswd_users_delete" => {auditable => 1})->name("api.v1.Config.Sources.resource.htpasswd_users.delete");
+
+    my $htpasswd_file_route = $resource_route->any("/htpasswd_file")->name("api.v1.Config.Sources.resource.htpasswd_file");
+    $htpasswd_file_route->any(['POST'])->to("Config::Sources#htpasswd_file_create" => {auditable => 1})->name("api.v1.Config.Sources.resource.htpasswd_file.create");
+
     return ($collection_route, $resource_route);
 }
 

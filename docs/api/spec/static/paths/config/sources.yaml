@@ -26,3 +26,209 @@
               $ref: '#/components/schemas/ConfigSource'
     tags:
       - Config/Sources
+
+/api/v1/config/source/{source_id}/htpasswd_users:
+  description: |-
+    Manage users defined in the htpasswd file of an Htpasswd authentication
+    source. Every write is propagated to all cluster members through
+    pf::cluster::sync_files().
+  parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: source_id
+      required: true
+      schema:
+        type: string
+  get:
+    description: |-
+      List the users defined in the htpasswd file of the source.
+      The response also tells whether the file exists on the local
+      filesystem so the GUI can offer to create it on demand.
+    operationId: api.v1.Config.Sources.resource.htpasswd_users.list
+    responses:
+      '200':
+        description: Users defined in the htpasswd file.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: string
+                file_exists:
+                  type: boolean
+                  description: |-
+                    True when the htpasswd file exists on the local
+                    filesystem; false when it has not been created yet.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '405':
+        description: The source exists but is not an Htpasswd source.
+    tags:
+      - Config/Sources
+  post:
+    description: |-
+      Add a user to the htpasswd file (or update the password of an existing
+      one). The change is written through Apache::Htpasswd and the file is
+      then synced to all cluster members.
+    operationId: api.v1.Config.Sources.resource.htpasswd_users.create
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+                format: password
+    responses:
+      '201':
+        description: User created or updated.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '405':
+        description: The source exists but is not an Htpasswd source.
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Sources
+
+/api/v1/config/source/{source_id}/htpasswd_file:
+  description: |-
+    Create the htpasswd file of an Htpasswd authentication source on disk
+    and propagate it to all cluster members. Idempotent.
+  parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: source_id
+      required: true
+      schema:
+        type: string
+  post:
+    description: |-
+      Create an empty htpasswd file for this source on the local node and
+      sync it to all cluster members through pf::cluster::sync_files().
+      Returns 201 when the file was newly created, 200 when it already
+      existed.
+    operationId: api.v1.Config.Sources.resource.htpasswd_file.create
+    responses:
+      '200':
+        description: File already existed; nothing was written.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                created:
+                  type: integer
+                  enum: [0]
+      '201':
+        description: File was newly created and synced to the cluster.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                created:
+                  type: integer
+                  enum: [1]
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '405':
+        description: The source exists but is not an Htpasswd source.
+      '500':
+        description: The file could not be created on disk.
+    tags:
+      - Config/Sources
+
+/api/v1/config/source/{source_id}/htpasswd_users/{username}:
+  description: Update or delete a single user in the htpasswd file.
+  parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: source_id
+      required: true
+      schema:
+        type: string
+    - description: Username in the htpasswd file.
+      in: path
+      name: username
+      required: true
+      schema:
+        type: string
+  patch:
+    description: Change the password of an existing user.
+    operationId: api.v1.Config.Sources.resource.htpasswd_users.update
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - password
+            properties:
+              password:
+                type: string
+                format: password
+    responses:
+      '200':
+        description: Password updated.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '405':
+        description: The source exists but is not an Htpasswd source.
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Sources
+  delete:
+    description: |-
+      Remove a user from the htpasswd file and sync the file to all cluster
+      members. Idempotent: a missing user still returns 204.
+    operationId: api.v1.Config.Sources.resource.htpasswd_users.delete
+    responses:
+      '204':
+        description: User deleted (or did not exist).
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '405':
+        description: The source exists but is not an Htpasswd source.
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Sources

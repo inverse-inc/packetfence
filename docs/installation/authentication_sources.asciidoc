@@ -113,6 +113,35 @@ by clicking on the `Preview` button near the Connexion's title.
 Unplug and unregister your endpoint. Reconnect the endpoint - you should see the
 captive portal with the new Email-based registration option.
 
+=== Htpasswd Authentication
+
+The Htpasswd source authenticates users against an Apache-style password file.
+From _Configuration -> Policies and Access Control -> Authentication Sources_,
+click `New internal source -> Htpasswd` and provide a `Name`, `Description` and
+the path to the file. You can either type the path of an existing file or
+upload a file from your workstation -- the uploaded content is stored under
+[filename]`/usr/local/pf/conf/uploads/sources/`.
+
+==== Managing Users from the Admin UI
+
+Once the source is saved, a *Users* section appears in the source form. From
+there you can:
+
+[options="compact"]
+ * list the users currently defined in the htpasswd file,
+ * create a new htpasswd file on the local node when the configured path
+   does not yet exist on disk (and, when running in a cluster, propagate
+   it to the other members),
+ * add a new user,
+ * change the password of an existing user,
+ * delete a user.
+
+Every write goes through Apache::Htpasswd and is then propagated to the other
+cluster members through the standard [filename]`pf::cluster::sync_files()`
+helper, so the password file stays in sync on all nodes without any CLI work.
+Deleting a user is idempotent: removing an unknown user is a no-op and still
+returns success.
+
 === Adding SMS Authentication for Guests
 
 This section will show you how to enable SMS authentication on the captive

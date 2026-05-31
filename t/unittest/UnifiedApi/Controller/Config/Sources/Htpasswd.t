@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 75;
 
 #This test will running last
 use Test::NoWarnings;
@@ -210,6 +210,121 @@ $t->patch_ok("$base_url/$id3" =>
   )
   ->status_is(200)
   ->json_is("/path", "/usr/local/pf/conf/uploads/sources/${id3}_path_upload.conf");
+
+# htpasswd_users sub-resource (GUI-driven user management) ====================
+
+# the source created above via path_upload already has one user 'authtest'
+$t->get_ok("$base_url/$id1/htpasswd_users")
+  ->status_is(200)
+  ->json_is('/items', ['authtest']);
+
+# add a new user
+$t->post_ok("$base_url/$id1/htpasswd_users" =>
+    json => { username => 'alice', password => 's3cret' }
+  )
+  ->status_is(201)
+  ->json_is('/username', 'alice');
+
+# listing now shows both, sorted
+$t->get_ok("$base_url/$id1/htpasswd_users")
+  ->status_is(200)
+  ->json_is('/items', ['alice', 'authtest']);
+
+# update an existing user's password
+$t->patch_ok("$base_url/$id1/htpasswd_users/alice" =>
+    json => { password => 'new-s3cret' }
+  )
+  ->status_is(200)
+  ->json_is('/username', 'alice');
+
+# rejecting invalid input
+$t->post_ok("$base_url/$id1/htpasswd_users" =>
+    json => { username => 'bob', password => '' }
+  )
+  ->status_is(422);
+
+$t->post_ok("$base_url/$id1/htpasswd_users" =>
+    json => { username => 'has:colon', password => 'whatever' }
+  )
+  ->status_is(422);
+
+# delete the user
+$t->delete_ok("$base_url/$id1/htpasswd_users/alice")
+  ->status_is(204);
+
+$t->get_ok("$base_url/$id1/htpasswd_users")
+  ->status_is(200)
+  ->json_is('/items', ['authtest']);
+
+# deleting an unknown user is a no-op (still 204)
+$t->delete_ok("$base_url/$id1/htpasswd_users/nobody")
+  ->status_is(204);
+
+# the sub-resource is only available on Htpasswd sources
+# create a non-Htpasswd source for negative testing
+my $null_id = "null_$$";
+$t->post_ok("$collection_base_url" =>
+    json => {
+        type => 'Null',
+        id => $null_id,
+        description => "negative test",
+    }
+  )
+  ->status_is(201);
+
+$t->get_ok("$base_url/$null_id/htpasswd_users")
+  ->status_is(405);
+
+# htpasswd_file sub-resource (create file on demand) =========================
+
+# list response carries file_exists for an existing source
+$t->get_ok("$base_url/$id1/htpasswd_users")
+  ->status_is(200)
+  ->json_is('/file_exists', $true);
+
+# create a fresh source that points at a path which does not exist yet
+my $missing_id = "missing_$$";
+my $missing_path = "/tmp/pf-test-htpasswd-${missing_id}.conf";
+unlink $missing_path;
+$t->post_ok("$collection_base_url" =>
+    json => {
+        type => 'Htpasswd',
+        id   => $missing_id,
+        path => $missing_path,
+        path_upload => undef,
+        description => "missing-file test",
+    }
+  )
+  ->status_is(201);
+
+# list now reports file_exists: false
+$t->get_ok("$base_url/$missing_id/htpasswd_users")
+  ->status_is(200)
+  ->json_is('/items', [])
+  ->json_is('/file_exists', $false);
+
+# create the file via the new endpoint
+$t->post_ok("$base_url/$missing_id/htpasswd_file")
+  ->status_is(201)
+  ->json_is('/created', 1);
+ok(-e $missing_path, "$missing_path was created on disk");
+
+# second call is a no-op (200, created => 0)
+$t->post_ok("$base_url/$missing_id/htpasswd_file")
+  ->status_is(200)
+  ->json_is('/created', 0);
+
+# list now reports file_exists: true and an empty list
+$t->get_ok("$base_url/$missing_id/htpasswd_users")
+  ->status_is(200)
+  ->json_is('/items', [])
+  ->json_is('/file_exists', $true);
+
+# create endpoint is only available on Htpasswd sources
+$t->post_ok("$base_url/$null_id/htpasswd_file")
+  ->status_is(405);
+
+unlink $missing_path;
 
 =head1 AUTHOR
 

@@ -180,6 +180,141 @@ sub saml_metadata {
     return $self->render(text => $xml);;
 }
 
+=head2 _get_htpasswd_source
+
+Resolve the source id from the route and ensure it is an Htpasswd source.
+Renders a proper error response and returns undef on failure.
+
+=cut
+
+sub _get_htpasswd_source {
+    my ($self) = @_;
+    my $id = $self->id;
+    my $source = pf::authentication::getAuthenticationSource($id);
+    if (!defined $source) {
+        $self->render_error(404, "source '$id' not found");
+        return undef;
+    }
+    if (($source->{type} // '') ne 'Htpasswd') {
+        $self->render_error(405, "source '$id' is not an Htpasswd source");
+        return undef;
+    }
+    return $source;
+}
+
+=head2 htpasswd_users_list
+
+List the users defined in the htpasswd file of the source.
+
+=cut
+
+sub htpasswd_users_list {
+    my ($self) = @_;
+    my $source = $self->_get_htpasswd_source or return;
+    my $users = eval { $source->list_users };
+    if ($@) {
+        return $self->render_error(500, "$@");
+    }
+    my $file_exists = $source->file_exists ? \1 : \0;
+    return $self->render(
+        status => 200,
+        json   => { items => $users, file_exists => $file_exists },
+    );
+}
+
+=head2 htpasswd_file_create
+
+Create the htpasswd file for the source on disk and sync it to all cluster
+members. Idempotent: returns 201 when the file was newly created, 200 when
+it already existed.
+
+=cut
+
+sub htpasswd_file_create {
+    my ($self) = @_;
+    my $source = $self->_get_htpasswd_source or return;
+    my @errors = $source->validate_path;
+    if (@errors) {
+        return $self->render_error(422, join(' ', @errors));
+    }
+    my $result = eval { $source->create_file };
+    if ($@) {
+        return $self->render_error(500, "$@");
+    }
+    my $status = $result->{created} ? 201 : 200;
+    return $self->render(status => $status, json => $result);
+}
+
+=head2 htpasswd_users_create
+
+Create or update a user. Body: { username, password }.
+
+=cut
+
+sub htpasswd_users_create {
+    my ($self) = @_;
+    my $source = $self->_get_htpasswd_source or return;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    my $username = $data->{username};
+    my $password = $data->{password};
+    if (!defined $username || $username eq '') {
+        return $self->render_error(422, "username is required");
+    }
+    if (!defined $password || $password eq '') {
+        return $self->render_error(422, "password is required");
+    }
+    eval { $source->set_user($username, $password) };
+    if ($@) {
+        return $self->render_error(422, "$@");
+    }
+    return $self->render(status => 201, json => { username => $username });
+}
+
+=head2 htpasswd_users_update
+
+Update the password of an existing user. Body: { password }.
+
+=cut
+
+sub htpasswd_users_update {
+    my ($self) = @_;
+    my $source = $self->_get_htpasswd_source or return;
+    my $username = $self->stash('username');
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    my $password = $data->{password};
+    if (!defined $password || $password eq '') {
+        return $self->render_error(422, "password is required");
+    }
+    eval { $source->set_user($username, $password) };
+    if ($@) {
+        return $self->render_error(422, "$@");
+    }
+    return $self->render(status => 200, json => { username => $username });
+}
+
+=head2 htpasswd_users_delete
+
+Delete a user from the htpasswd file.
+
+=cut
+
+sub htpasswd_users_delete {
+    my ($self) = @_;
+    my $source = $self->_get_htpasswd_source or return;
+    my $username = $self->stash('username');
+    eval { $source->delete_user($username) };
+    if ($@) {
+        return $self->render_error(422, "$@");
+    }
+    return $self->render(status => 204, data => '');
+}
+
 sub cleanup_item {
     my ($self, $item) = @_;
     $item = $self->SUPER::cleanup_item($item);

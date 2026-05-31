@@ -17,6 +17,15 @@
     <form-group-path namespace="path"
       :column-label="$i18n.t('Htpasswd File Path')"
       :title="$i18n.t('Upload Htpasswd File')"
+      :text="$i18n.t(
+        'Type a path or upload an existing file. A missing file can be created from the Users section below.'
+      )"
+    />
+
+    <htpasswd-users v-if="!isNew && !isClone"
+      :id="id"
+      :form="form"
+      :is-new="isNew"
     />
 
     <form-group-realms namespace="realms"
@@ -42,6 +51,7 @@ import {
   FormGroupIdentifier,
   FormGroupPath,
   FormGroupRealms,
+  HtpasswdUsers,
 } from './'
 
 const components = {
@@ -53,6 +63,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupPath,
   FormGroupRealms,
+  HtpasswdUsers,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

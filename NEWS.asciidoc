@@ -29,6 +29,15 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - Htpasswd authentication source — list, add, change the password of, and
+    remove users directly from the admin UI; every write is propagated to the
+    other cluster members through pf::cluster::sync_files() so the password
+    file stays in sync without any CLI work
+  - Htpasswd authentication source — create a new htpasswd file directly
+    from the admin UI; the file is created on the local node and, when
+    running in a cluster, propagated to the other members so a fresh
+    source is immediately usable without touching the filesystem manually
+
 === Bug Fixes
 
 === Security Fixes

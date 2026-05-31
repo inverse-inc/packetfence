@@ -19,6 +19,7 @@ import BaseFormGroupDomains from './BaseFormGroupDomains'
 import BaseFormGroupHostPortEncryption from './BaseFormGroupHostPortEncryption'
 import BaseFormGroupPersonMappings from './BaseFormGroupPersonMappings'
 import BaseFormGroupProtocolHostPort from './BaseFormGroupProtocolHostPort'
+import BaseHtpasswdUsers from './BaseHtpasswdUsers'
 import ButtonSamlMetaData from './ButtonSamlMetaData'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -145,6 +146,7 @@ export {
   BaseFormGroupChosenOne                    as FormGroupEduroamRadiusAuthProxyType,
   BaseFormGroupInput                        as FormGroupEduroamOperatorName,
 
+  BaseHtpasswdUsers                         as HtpasswdUsers,
   BaseServices,
   ButtonSamlMetaData,
   TheForm,
