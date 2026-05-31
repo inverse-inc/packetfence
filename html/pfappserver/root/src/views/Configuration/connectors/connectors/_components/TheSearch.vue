@@ -120,7 +120,7 @@ const components = {
   BaseTableSortable
 }
 
-import { ref, toRefs, onMounted, onUnmounted, reactive, computed } from '@vue/composition-api'
+import { ref, toRefs, onMounted, onUnmounted, computed } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -149,14 +149,14 @@ const setup = (props, context) => {
 
   const router = useRouter($router)
 
-  const connectorStatuses = reactive({})
+  const connectorStatuses = ref({})
   let statusInterval = null
 
   const fetchStatuses = () => {
     getConnectorsStatus().then(statuses => {
-      statuses.forEach(s => {
-        connectorStatuses[s.id] = s.status
-      })
+      connectorStatuses.value = Object.fromEntries(
+        statuses.map(s => [s.id, s.status])
+      )
     }).catch(() => {
       // gracefully ignore errors
     })
@@ -177,7 +177,7 @@ const setup = (props, context) => {
   const itemsWithStatus = computed(() => {
     return items.value.map(item => ({
       ...item,
-      status: connectorStatuses[item.id] || 'unknown'
+      status: connectorStatuses.value[item.id] || 'unknown'
     }))
   })
 
