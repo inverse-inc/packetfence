@@ -41,11 +41,11 @@ sub status {
         $ua->connect_timeout(5);
         $ua->request_timeout(5);
         my $tx = $ua->get("$url/api/v1/pfconnector/connector-status");
-        if ($tx->success) {
-            my $data = $tx->result->json;
+        if (!$tx->error) {
+            my $data = $tx->res->json;
             $status_map = $data->{connector_status} // {};
         } else {
-            $logger->warn("Failed to fetch connector status from pfconnector-server: " . ($tx->error ? $tx->error->{message} : 'unknown error'));
+            $logger->warn("Failed to fetch connector status from pfconnector-server: " . $tx->error->{message});
         }
     } else {
         $logger->warn("Missing services_url for pfconnector-server, cannot fetch connector status");
