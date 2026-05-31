@@ -41,14 +41,14 @@
         <template v-slot:cell(networks)="item">
           <b-badge v-for="(network, index) in item.item.networks" :key="index" class="mr-1" variant="secondary">{{ network }}</b-badge>
         </template>
-        <template v-slot:cell(status)="item">
+        <template v-slot:cell(status)="data">
           <icon name="circle"
             v-b-tooltip.hover
-            :title="statusTooltip(item.status)"
+            :title="statusTooltip(data.item.status)"
             :class="{
-              'text-success': item.status === 'up',
-              'text-warning': item.status === 'unknown',
-              'text-danger': item.status === 'down',
+              'text-success': data.item.status === 'up',
+              'text-warning': data.item.status === 'unknown',
+              'text-danger': data.item.status === 'down',
             }"
           />
         </template>
