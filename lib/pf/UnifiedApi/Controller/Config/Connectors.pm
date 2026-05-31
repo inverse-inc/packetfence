@@ -32,7 +32,7 @@ sub status {
     my $logger = get_logger();
 
     my $config_store = $self->config_store_class->new;
-    my $connectors = $config_store->readAll('id');
+    my $connectors = $config_store->readAllIds;
 
     my $status_map = {};
     my $url = $Config{services_url}{'pfconnector-server'};
@@ -52,7 +52,7 @@ sub status {
     }
 
     my @items;
-    foreach my $connector_id (sort keys %$connectors) {
+    foreach my $connector_id (sort @$connectors) {
         my $status;
         if (exists $status_map->{$connector_id}) {
             $status = $status_map->{$connector_id} ? 'up' : 'down';
