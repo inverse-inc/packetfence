@@ -119,7 +119,9 @@ func (t *ConnectorStatusTracker) tick(ctx context.Context, timeout time.Duration
 
 	for _, j := range jobs {
 		if !j.tun.IsActive() {
+			mu.Lock()
 			results[j.id] = false
+			mu.Unlock()
 			continue
 		}
 		wg.Add(1)

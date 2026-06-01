@@ -59,7 +59,11 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 
 func (api *API) setupRoutes() {
 	api.Router.Use(middleware.RequestID)
-	api.Router.Use(middleware.RealIP)
+	// NOTE: do NOT use middleware.RealIP here. It rewrites r.RemoteAddr from
+	// the X-Forwarded-For/X-Real-IP request headers, which a remote caller can
+	// forge. localhostOnly relies on the real TCP peer in r.RemoteAddr to gate
+	// this :8081 API to loopback; trusting proxy headers would let a remote
+	// client spoof 127.0.0.1 and reach the service-management/credcache endpoints.
 	api.Router.Use(middleware.Logger)
 	api.Router.Use(middleware.Recoverer)
 
@@ -225,6 +229,7 @@ func status(api *API) http.HandlerFunc {
 
 			}
 		}
+		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
 	})
 }
 
@@ -318,6 +323,7 @@ func manageService(api *API, action string) http.HandlerFunc {
 				}
 			}
 		}
+		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
 	})
 }
 
