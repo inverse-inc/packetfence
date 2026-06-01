@@ -863,6 +863,7 @@ sign_packages:
   stage: sign
   needs:
     - job: ci_related
+      optional: true
     - job: build_artifacts_pkg_centos_8
     - job: build_artifacts_pkg_debian_bookworm
   variables:
