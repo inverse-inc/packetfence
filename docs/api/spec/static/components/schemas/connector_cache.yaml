@@ -105,7 +105,7 @@ ConnectorCacheConfig:
             type: string
           default: ['control:', 'MS-MPPE', 'EAP-Message']
         rate_limit_reject:
-          description: Weither to reject a ratelimited request (403), or process request (200)
+          description: Whether to reject a ratelimited request (403), or process request (200)
           type: boolean
           default: false
           maximum: 365
