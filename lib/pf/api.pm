@@ -150,6 +150,11 @@ sub echo : Public {
 
 sub switch_freeradius_populate_nas_config : Public {
     my ($class) = @_;
+    # Make sure we read the latest switch config from pfconfig by forcing the
+    # local daemon to reload the namespace from disk before tying the hash.
+    # The normal commit path already expires it, but this keeps the task
+    # correct when invoked directly.
+    pfconfig::manager->new->expire("config::Switch");
     tie my %switches, 'pfconfig::cached_hash', "config::Switch";
     pf::freeradius::freeradius_populate_nas_config(\%switches);
     return;
