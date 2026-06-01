@@ -84,6 +84,93 @@ systemctl restart packetfence-pfconnector-remote
    
 Once your pfconnector is started, you can now point your network equipment to use the pfconnector's IP address for RADIUS and the captive portal like you would do with a typical on-premise PacketFence server. When defining the RADIUS secret in PacketFence and in your network equipment, always use the value inside `/usr/local/pf/conf/local_secret`.
 
+===== Admin Configuration
+
+The pfconnector configuration in the admin interface is located under _Configuration -> System Configuration -> Connectors_. This section has three tabs:
+
+* *Connectors* -- Define the remote connector instances and their network ranges.
+* *Domains* -- Map DNS domain names to connectors. When a resource is defined by a fully qualified domain name (e.g. an LDAP source), if the domain matches, traffic is routed through the associated connector.
+* *DNS* -- Configure DNS servers that should be reached through a connector to resolve hostnames for these domains.
+
+====== Creating a Connector
+
+In the _Connectors_ tab, create a new connector with the following fields:
+
+* *Identifier* -- The connector ID obtained from `pfconnector-configure` on the remote machine. This is a UUID that uniquely identifies the connector instance.
+* *Description* -- A human-readable label for this connector (e.g. "Amsterdam Office").
+* *Secret* -- A shared secret used to authenticate the connector's SSH tunnel. Generate a strong random value and use it both here and in the connector's `pfconnector-client.env` file on the remote side.
+* *Networks* -- One or more CIDR ranges that are reachable behind this connector. These define which traffic should be routed through this connector. Networks are matched from top to bottom (connector order matters), and the most specific match wins.
+
+The _Networks_ field is critical: it tells PacketFence which IP ranges are behind this connector. Any traffic destined for an IP within these networks will be routed through the connector's encrypted tunnel. This includes:
+
+- RADIUS CoA and Disconnect requests to network equipment
+- SNMP queries for access reevaluation
+- LDAP queries to Active Directory servers
+- DNS resolution
+
+.Connector status indicator
+[NOTE]
+Each connector in the list shows a colored status icon: green (connected), yellow (unknown), or red (disconnected). This reflects whether the connector's tunnel is currently active.
+
+====== Associating a Domain Name with a Connector
+
+To route traffic for resources that are defined by hostname (such as LDAP sources or Active Directory servers) through a pfconnector, two steps are required:
+
+*Step 1 -- Map the domain to a connector*
+
+In the _Connectors -> Domains_ tab, create an entry:
+
+* *Domain* -- The DNS domain name (e.g. `inverse.local`).
+* *Connector* -- Select the connector instance that serves this domain from the dropdown.
+
+This tells PacketFence which connector tunnel to use when communicating with hosts under this domain.
+
+*Step 2 -- Enable connector usage on the resource*
+
+In the resource configuration (e.g. an LDAP source defined under _Configuration -> Domains_), ensure the server hostname falls under the domain configured above, and set *Use Connector* to `Enabled`.
+
+Additionally, the server IP must fall within one of the CIDR ranges defined in the connector's _Networks_ field. PacketFence matches the IP to find the correct connector and routes the traffic through its tunnel.
+
+.Workflow example
+====
+A typical setup for an Active Directory domain `inverse.local` behind the "Amsterdam Office" connector:
+
+. In _Configuration -> Connectors -> Connectors_, the "Amsterdam Office" connector has `Networks` set to `10.0.0.0/8, 192.168.1.0/24`.
+. In _Configuration -> Connectors -> Domains_, create an entry: Domain `inverse.local`, Connector "Amsterdam Office".
+. In _Configuration -> Domains_, edit the `inverse.local` domain:
+  * *Active Directory server* is set to `10.5.1.10` (which is within `10.0.0.0/8`).
+  * *Use Connector* is set to `Enabled`.
+
+At runtime, when PacketFence needs to perform an LDAP bind or search against the host `dc01.inverse.local`, it resolves the domain `inverse.local` to the "Amsterdam Office" connector, matches `10.5.1.10` against the connector's networks, and routes the LDAP traffic through its tunnel.
+====
+
+====== Configuring DNS Resolution Through a Connector
+
+If DNS servers on the remote site need to be reachable through the connector (for example, to resolve Active Directory hostnames), configure DNS connectors in the _Connectors -> DNS_ tab:
+
+* *Identifier* -- A name for this DNS connector entry.
+* *IP* -- The IP address of the DNS server on the remote side.
+* *Port* -- The port the DNS server listens on (typically `53`).
+* *Connector Port* -- A port in the range `30000-30999` allocated for this DNS forwarder. This port must be unique across all DNS connector entries.
+* *Domains* -- One or more domain names this DNS server is authoritative for. These domains must first be defined in the _Connectors -> Domains_ tab.
+
+The DNS connector establishes a port forward through the connector tunnel: DNS queries sent to `127.0.0.1:<connector_port>` on the PacketFence server are forwarded to `<ip>:<port>` on the remote side. PacketFence automatically routes DNS queries for the listed domains through the appropriate connector's DNS forwarder.
+
+.Workflow example
+====
+For an Active Directory deployment where the DNS server `10.5.1.53` is behind the "Amsterdam Office" connector and handles the `inverse.local` domain:
+
+. Ensure `inverse.local` is defined in _Configuration -> Connectors -> Domains_ and linked to the "Amsterdam Office" connector.
+. In _Configuration -> Connectors -> DNS_, create an entry:
+  * *Identifier*: `amsterdam-dns`
+  * *IP*: `10.5.1.53`
+  * *Port*: `53`
+  * *Connector Port*: `30001`
+  * *Domains*: select `inverse.local`
+
+PacketFence will then forward any DNS query for `*.inverse.local` to `10.5.1.53:53` through the connector tunnel.
+====
+
 ===== Upgrade (for version prior to 12.1.0)
 
 PacketFence Connector released with PacketFence 12.0.0 was not packaged.
