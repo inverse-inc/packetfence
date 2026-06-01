@@ -1328,6 +1328,8 @@ build_pf_img_zen:
     BUILD_DIR: ci/packer/zen
     BUILD_TARGET: zen-deb12
     CLEAN_TARGET: clean_all
+  tags:
+    - shell
   rules:
     - if: '$CI_COMMIT_TAG'
       when: manual
