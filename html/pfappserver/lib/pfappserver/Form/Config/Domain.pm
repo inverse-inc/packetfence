@@ -296,9 +296,9 @@ has_field 'ntlm_auth_port' =>
 has_field 'use_connector',
     (
         type => 'Toggle',
-        checkbox_value => '1',
-        unchecked_value => '0',
-        default => '0',
+        checkbox_value => 'true',
+        unchecked_value => 'false',
+        default => 'false',
     );
 
 

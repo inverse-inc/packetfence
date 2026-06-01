@@ -130,9 +130,9 @@ has_field 'sso_on_access_reevaluation',
 has_field 'sso_on_role_change',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => '0',
+   checkbox_value => 'true',
+   unchecked_value => 'false',
+   default => 'false',
    tags => { after_element => \&help,
              help => 'Note: This only triggers during autoregistration. Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.' },
   );

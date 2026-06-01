@@ -78,10 +78,10 @@ has_field 'fingerbank_dynamic_access_list' => (
 
 has_field 'acls_enabled' => (
     type => 'Toggle',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
+    checkbox_value => 'true',
+    unchecked_value => 'false',
     label => 'Enable ACLs',
-    default => 'enabled',
+    default => 'true',
 );
 
 has_field 'acls' => (

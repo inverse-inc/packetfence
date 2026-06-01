@@ -179,7 +179,7 @@ sub new {
         '_vlans'                        => undef,
         '_ExternalPortalEnforcement'    => 'false',
         '_VoIPEnabled'                  => undef,
-        '_VoIPFullAuthorization'        => 'disabled',
+        '_VoIPFullAuthorization'        => 'false',
         '_roles'                        => undef,
         '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,
@@ -203,7 +203,7 @@ sub new {
         '_networks'                     => undef,
         '_networks_from'                => undef,
         '_interfaces'                   => undef,
-        '_useSNMP'                      => 'enabled',
+        '_useSNMP'                      => 'true',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;

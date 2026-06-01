@@ -91,8 +91,8 @@ sub nodecategory_populate_from_config {
             $id,
             $role->{max_nodes_per_pid},
             $role->{notes},
-            $role->{include_parent_acls} // "disabled",
-            $role->{fingerbank_dynamic_access_list} // "disabled",
+            $role->{include_parent_acls} // "false",
+            $role->{fingerbank_dynamic_access_list} // "false",
             join("\n", @{$role->{acls} // []});
     }
 
