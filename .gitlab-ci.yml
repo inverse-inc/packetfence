@@ -760,6 +760,12 @@ ci_related:
       variables:
         IMAGE_TAG: latest
         IMAGE_TAGS: "latest,devel,maintenance-99-9"
+    # build_pf_img_* on devel depends on signed/published packages, so the
+    # signing-packages and publish-ppa images must exist in this pipeline.
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_PF_IMG_ZEN == "yes" || $BUILD_PF_IMG_CD_ISO == "yes" || $BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_(zen|cd_iso|dvd_usb_iso)=yes/)'
+      variables:
+        IMAGE_TAG: latest
+        IMAGE_TAGS: "latest,devel,maintenance-99-9"
     - !reference [.gated_by_build_img_docker, rules]
     - !reference [.build_img_docker_rules, rules]
 
