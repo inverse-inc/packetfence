@@ -84,10 +84,14 @@ systemctl restart packetfence-pfconnector-remote
    
 ===== NTLM Authentication Behind a Connector
 
-When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM single sign-on requires two additional services to be installed on the pfconnector-remote host:
+When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM authentication requires two additional services to be installed on each pfconnector-remote host where the domain is used:
 
-* `packetfence-ntlm-auth-api-remote` -- Handles NTLM authentication requests for users in the remote domain. It receives authentication proxy requests from the main PacketFence server through the connector tunnel and forwards them to the local domain controller.
+* `packetfence-ntlm-auth-api-remote` -- Handles NTLM authentication requests for users in the remote domain. It receives authentication proxy requests from the main PacketFence server through the connector tunnel and forwards them to the local domain controller. This service is required for:
+** NTLM single sign-on (transparent browser authentication for the captive portal).
+** NT Key cache for 802.1X EAP-PEAP -- when the NT Key cache is enabled on a domain behind a pfconnector, the transitive login with the domain controller is performed by this service running on the pfconnector-remote host.
 * `packetfence-ntlm-auth-join-remote` -- Manages the machine account in Active Directory. It performs the domain join and maintains the machine credential cache on the pfconnector-remote host, which is necessary for NTLM authentication to function.
+
+IMPORTANT: `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves a domain using NTLM or NT Key cache. Each remote instance only serves domains whose domain controllers are reachable through its local connector.
 
 Install them alongside the pfconnector:
 
