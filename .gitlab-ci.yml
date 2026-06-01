@@ -254,25 +254,50 @@ variables:
 # Shared rules for deploy_* (rpm, deb, pkg_friendly_names) — runs on
 # devel push/web/schedule, release tag, branches via web/api/schedule,
 # maintenance via web/api/schedule. Used together with .gated_by_deploy_pkg.
-# Mirror DEPLOY_ENV_NAME from .context_rules — .deploy_pkg_rules is the only rule path the deploy_* jobs traverse, and .context_rules' when:always fallback can't be composed in without breaking branch/source filtering.
+# Mirror DEPLOY_ENV_NAME and the deploy-dir vars (DEB_DEPLOY_DIR / RPM_DEPLOY_DIR)
+# from .context_rules — .deploy_pkg_rules is the only rule path the deploy_* jobs
+# traverse, and .context_rules' when:always fallback can't be composed in without
+# breaking branch/source filtering. Without DEB_DEPLOY_DIR set here, deploy-artifacts.sh
+# falls back to its :-foo default and publishes under .../PacketFence/foo/<version>/.
+# (Pre-matrix maintenance branches set these per explicit deploy job; this block is
+# the single-matrix equivalent.) RPM_DEPLOY_DIR is only overridden for feature
+# branches; devel/maintenance/release rely on the script default
+# (${PF_MINOR_RELEASE}/x86_64), and PF_MINOR_RELEASE (from conf/pf-release) is not
+# available at YAML rule-evaluation time.
 .deploy_pkg_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
       variables:
         DEPLOY_ENV_NAME: pf-devel
         IMAGE_TAG: latest
+        DEB_DEPLOY_DIR: debian
+        # packetfence-release/export/upgrade deploy into the shared debian/ + RHEL*
+        # dirs regardless of context, so the context is encoded in the filename.
+        # Only ci-lib gets a devel-specific name; the rest use versioned defaults.
+        PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
     - if: '$CI_COMMIT_TAG'
       variables:
         DEPLOY_ENV_NAME: pf-stable
         IMAGE_TAG: $CI_COMMIT_TAG
+        DEB_DEPLOY_DIR: debian
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
+        DEB_DEPLOY_DIR: debian
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         DEPLOY_ENV_NAME: pf-branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
+        DEB_DEPLOY_DIR: debian-branches
+        RPM_DEPLOY_DIR: branches/x86_64
+        # release/export/ci-lib deploy into the shared debian/ + RHEL* dirs; the
+        # *-branches filenames keep feature-branch builds from overwriting the
+        # versioned release artifacts that live alongside them.
+        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
+        PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
+        PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
+        PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
 # === TEST-STAGE RULES ===
 # .test_rules merges the former .test_devel_and_maintenance_rules and
