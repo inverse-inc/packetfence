@@ -96,6 +96,11 @@ configure_and_check() {
                            -not -path "*/caddy-l4/*" \
                            -not -path "*/github-apps-token/*" \
                            -not -path "*/ntlm-join-remote/*" \
+                           -not -path "*/signing-packages/*" \
+                           -not -path "*/publish-ppa/*" \
+                           -not -path "*/pfbuild-bookworm/*" \
+                           -not -path "*/pfbuild-centos-8/*" \
+                           -not -path "*/pfconfig-material-builder/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do

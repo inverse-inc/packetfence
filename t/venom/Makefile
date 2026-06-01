@@ -106,6 +106,12 @@ unit_tests_el8:
 	SCENARIOS_TO_RUN=unit_tests \
 	$(MAKE_TARGET)
 
+unit_tests_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=unit_tests \
+	$(MAKE_TARGET)
+
 configurator_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \

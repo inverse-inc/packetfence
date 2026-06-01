@@ -1,4 +1,0 @@
-### Ansible provisionner
-# dir created by Packer during provisioning
-roles/
-ansible_collections/
