@@ -170,6 +170,7 @@ variables:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
+    - if: '$BUILD_PF_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_vagrant=yes/'
 
 .gated_by_test_yes:
   rules:
@@ -1455,7 +1456,10 @@ build_pf_img_vagrant_devel_debian_bookworm:
   variables:
     BOX_NAME: pfdeb12dev
   needs:
-    - job: deploy_deb
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: deb
       artifacts: false
     - job: build_packer_vagrant_container
       artifacts: false
@@ -1495,7 +1499,10 @@ build_pf_img_vagrant_ad_devel_debian_bullseye:
   variables:
     BOX_NAME: pfad11dev
   needs:
-    - job: deploy_deb
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: deb
       artifacts: false
     - job: build_packer_vagrant_container
       artifacts: false
@@ -1534,7 +1541,10 @@ build_pf_img_vagrant_release_debian_bookworm:
   variables:
     BOX_NAME: pfdeb12stable
   needs:
-    - job: deploy_deb
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: deb
       artifacts: false
     - job: build_packer_vagrant_container
       artifacts: false
