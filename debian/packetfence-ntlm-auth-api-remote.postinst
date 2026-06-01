@@ -36,7 +36,9 @@ case "$1" in
         /bin/systemctl stop packetfence-ntlm-auth-api-remote.service
     fi
 
-    if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
+    if ! grep -qE '^100\.64\.0\.1[[:space:]]+containers-gateway\.internal([[:space:]]|$)' /etc/hosts; then
+        # Drop any stale mapping (e.g. the old 127.0.0.1 loopback entry) before adding the connector gateway one
+        sed -i -E '/[[:space:]]containers-gateway\.internal([[:space:]]|$)/d' /etc/hosts
         echo "" >> /etc/hosts
         echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
     fi

@@ -803,12 +803,14 @@ func (s *Server) handleRemoteRadiusConf(w http.ResponseWriter, req *http.Request
 	if errApi != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(errApi.Error()))
+		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	body, err := json.Marshal(&data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)

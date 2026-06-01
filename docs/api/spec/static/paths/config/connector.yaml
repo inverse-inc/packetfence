@@ -348,6 +348,36 @@
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
       - Config/Connectors
+/config/connectors/status:
+  description: pf::UnifiedApi::Controller::Config::Connectors
+  get:
+    description: Get the current reachability status of every connector.
+    operationId: api.v1.Config.Connectors.status
+    parameters: []
+    responses:
+      "200":
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    properties:
+                      id:
+                        description: "`PRIMARY KEY` - the connector identifier."
+                        type: string
+                      status:
+                        description: Current reachability of the connector as observed by the latest probe.
+                        example: up
+                        type: string
+                    type: object
+                  type: array
+              type: object
+        description: Request successful. Response contains the status of each connector.
+      "401":
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - Config/Connectors
 /config/connectors/bulk_delete:
   description: pf::UnifiedApi::Controller::Config::Connectors
   post:

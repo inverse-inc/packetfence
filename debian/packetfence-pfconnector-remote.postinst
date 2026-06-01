@@ -23,9 +23,6 @@ export LC_CTYPE
 
 case "$1" in
     configure)
-    if ! grep -q "containers-gateway.internal" /etc/hosts; then
-        echo "127.0.0.1 containers-gateway.internal" >> /etc/hosts
-    fi
     if [ ! -f /usr/local/pfconnector-remote/raddb/certs/server.pem ]; then
         make -C /usr/local/pfconnector-remote/raddb/certs
     fi
@@ -44,7 +41,9 @@ case "$1" in
         /bin/systemctl stop packetfence-pfconnector-remote-combined.service
     fi
 
-    if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
+    if ! grep -qE '^100\.64\.0\.1[[:space:]]+containers-gateway\.internal([[:space:]]|$)' /etc/hosts; then
+        # Drop any stale mapping (e.g. the old 127.0.0.1 loopback entry) before adding the connector gateway one
+        sed -i -E '/[[:space:]]containers-gateway\.internal([[:space:]]|$)/d' /etc/hosts
         echo "" >> /etc/hosts
         echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
     fi
