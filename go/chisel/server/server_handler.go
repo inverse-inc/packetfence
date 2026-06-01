@@ -632,6 +632,12 @@ func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, 
 	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
 }
 
+// fakeMachineAccountPassword masks the real AD machine-account secret for
+// connectors that are not next to the domain's AD. It is a valid-length,
+// obviously-fake NT-hash-shaped value: the ntlm-auth-api still starts and can
+// serve cached auth, but cannot talk to AD with it.
+const fakeMachineAccountPassword = "00000000000000000000000000000000"
+
 func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Request) {
 	connectorId := req.URL.Query().Get("CONNECTOR_ID")
 	domains := pfconfigdriver.Domains{}
@@ -641,18 +647,24 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		return
 	}
 	Connectors := connector.NewConnectorsContainer(req.Context())
-	var Domains map[string]pfconfigdriver.Domain
-	Domains = make(map[string]pfconfigdriver.Domain)
+	Domains := make(map[string]pfconfigdriver.Domain)
 	for domain, Elements := range domains.Element {
-		if connectorId == "" {
-			Domains[domain] = Elements
-		} else {
-			ServerIp := Elements.AdServer
-			Connector := Connectors.ForIP(req.Context(), net.ParseIP(ServerIp))
-			if sharedutils.IsEnabled(Elements.UseConnector) && Connector.PfconfigHashNS == connectorId {
-				Domains[domain] = Elements
-			}
+		// Only connector-served domains are relevant to a remote; connector-less
+		// domains are handled centrally.
+		if !sharedutils.IsEnabled(Elements.UseConnector) {
+			continue
 		}
+		// The connector sitting next to the AD (the one owning the ad_server IP)
+		// gets the real machine-account secret. Every other connector gets the
+		// same domain config with the secret masked, so its ntlm-auth-api can
+		// still start and serve cached auth without ever receiving credentials it
+		// has no use for. An unidentified caller (connectorId == "") is treated as
+		// a non-owner and gets everything masked.
+		owner := Connectors.ForIP(req.Context(), net.ParseIP(Elements.AdServer))
+		if connectorId == "" || owner == nil || owner.PfconfigHashNS != connectorId {
+			Elements.MachineAccountPassword = fakeMachineAccountPassword
+		}
+		Domains[domain] = Elements
 	}
 	jsonData, err := json.Marshal(Domains)
 	w.Header().Set("Content-Type", "application/json")
@@ -942,14 +954,39 @@ func (s *Server) handleRemoteMultiDomainConfig(w http.ResponseWriter, req *http.
 
 	domainConnector := s.buildDomainConnectorMap(ctx, domains.Element)
 
+	// Only expose the domain fields the pfconnector-remote actually needs for
+	// the authorize/routing decision. The full Domain struct carries secrets
+	// (machine_account_password, additional_machine_accounts, ...) that no
+	// remote needs over this endpoint — the connector next to the AD does the
+	// real NTLM auth through its own ntlm-auth-api, which gets those secrets
+	// via a dedicated channel, not here.
+	sanitizedDomains := make(map[string]sanitizedDomain, len(domains.Element))
+	for id, d := range domains.Element {
+		sanitizedDomains[id] = sanitizedDomain{
+			NtlmAuthHost: d.NtlmAuthHost,
+			NtlmAuthPort: d.NtlmAuthPort,
+			UseConnector: d.UseConnector,
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"realms":           realms.Element,
 		"ordered_realms":   ordered.Element,
-		"domains":          domains.Element,
+		"domains":          sanitizedDomains,
 		"domain_connector": domainConnector,
 	})
+}
+
+// sanitizedDomain is the subset of pfconfigdriver.Domain exposed to
+// pfconnector-remotes via handleRemoteMultiDomainConfig. It mirrors the
+// client-side multiDomainDomain in go/chisel/clientapi/multi_domain_config.go
+// and deliberately omits every secret/AD-config field.
+type sanitizedDomain struct {
+	NtlmAuthHost string `json:"ntlm_auth_host"`
+	NtlmAuthPort string `json:"ntlm_auth_port"`
+	UseConnector string `json:"use_connector"`
 }
 
 // buildDomainConnectorMap mirrors find_connector() in
