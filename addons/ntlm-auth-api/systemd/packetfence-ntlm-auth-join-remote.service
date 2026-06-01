@@ -1,7 +1,7 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence NTLM Auth join remote
-PartOf=packetfence-pfconnector-remote.service
+PartOf=packetfence-pfconnector-remote-combined.service
 
 [Service]
 Type=forking

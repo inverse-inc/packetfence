@@ -197,7 +197,7 @@ func status(api *API) http.HandlerFunc {
 		}
 
 		if srv.Name == "" {
-			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote.service)", http.StatusBadRequest)
+			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote-combined.service)", http.StatusBadRequest)
 			return
 		}
 
@@ -207,7 +207,7 @@ func status(api *API) http.HandlerFunc {
 			return
 		}
 		defer systemd.Close()
-		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
+		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote-combined.service"}
 		for _, service := range allowed {
 			if srv.Name == service {
 				status, substatus, err := systemd.Status(service)
@@ -270,7 +270,7 @@ func manageService(api *API, action string) http.HandlerFunc {
 		}
 
 		if srv.Name == "" {
-			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote.service)", http.StatusBadRequest)
+			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote-combined.service)", http.StatusBadRequest)
 			return
 		}
 
@@ -280,7 +280,7 @@ func manageService(api *API, action string) http.HandlerFunc {
 			return
 		}
 		defer systemd.Close()
-		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
+		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote-combined.service"}
 		for _, service := range allowed {
 			if srv.Name == service {
 				switch action {

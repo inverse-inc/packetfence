@@ -2,20 +2,9 @@
 
 set -o nounset -o pipefail -o errexit
 
-# Previously, the CONNECTOR_ID was extracted and used to filter domains by connector.
-# Now the API returns all domains when no CONNECTOR_ID is provided, so every
-# pfconnector-remote gets the full domain list (needed for offline credcache auth).
-#
-# CONNECTOR_ID=$(grep '^AUTH=' /usr/local/pfconnector-remote/conf/pfconnector-client.env | cut -d'=' -f2 | cut -d':' -f1)
-# if [ -z "$CONNECTOR_ID" ]; then
-#     echo "Error: no CONNECTOR_ID found in /usr/local/pfconnector-remote/conf/pfconnector-client.env"
-#     exit 1
-# fi
-
 INPUT_FILE="/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env"
 TEMP_ENV_FILE=$(mktemp)
 
-# Previously filtered by connector: ...remote-ntlm-auth-api-env?CONNECTOR_ID=$CONNECTOR_ID
 if curl --fail --silent --show-error "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-env" -o "$TEMP_ENV_FILE"; then
     if [ ! -s "$TEMP_ENV_FILE" ]; then
         echo "Warning: Fetched ntlm_auth_api.env is empty, falling back to existing file"
