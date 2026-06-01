@@ -216,7 +216,11 @@ func status(api *API) http.HandlerFunc {
 				}
 				res.Header().Set("Content-Type", "application/json")
 				res.WriteHeader(http.StatusOK)
-				res.Write([]byte(`{"service": "` + srv.Name + `", "status": "` + status + `" "substatus": "` + substatus + `"}`))
+				json.NewEncoder(res).Encode(map[string]string{
+					"service":   srv.Name,
+					"status":    status,
+					"substatus": substatus,
+				})
 				return
 
 			}
