@@ -82,6 +82,27 @@ Finally, restart the packetfence-pfconnector-remote service:
 systemctl restart packetfence-pfconnector-remote
 ----
    
+===== NTLM Authentication Behind a Connector
+
+When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM single sign-on requires two additional services to be installed on the pfconnector-remote host:
+
+* `packetfence-ntlm-auth-api-remote` -- Handles NTLM authentication requests for users in the remote domain. It receives authentication proxy requests from the main PacketFence server through the connector tunnel and forwards them to the local domain controller.
+* `packetfence-ntlm-auth-join-remote` -- Manages the machine account in Active Directory. It performs the domain join and maintains the machine credential cache on the pfconnector-remote host, which is necessary for NTLM authentication to function.
+
+Install them alongside the pfconnector:
+
+[source,bash]
+----
+apt update
+apt install packetfence-ntlm-auth-api-remote packetfence-ntlm-auth-join-remote
+----
+
+NOTE: `packetfence-ntlm-auth-api-remote` depends on `packetfence-pfconnector-remote` and `packetfence-ntlm-auth-join-remote` depends on `packetfence-ntlm-auth-api-remote`, so installing `packetfence-ntlm-auth-join-remote` is sufficient to pull in both dependencies.
+
+Both services are `PartOf` the pfconnector systemd unit and will start and stop automatically with it.
+
+===== Connecting Network Equipment
+
 Once your pfconnector is started, you can now point your network equipment to use the pfconnector's IP address for RADIUS and the captive portal like you would do with a typical on-premise PacketFence server. When defining the RADIUS secret in PacketFence and in your network equipment, always use the value inside `/usr/local/pf/conf/local_secret`.
 
 ===== Admin Configuration
