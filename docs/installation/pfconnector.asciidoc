@@ -89,7 +89,7 @@ When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domai
 * `packetfence-ntlm-auth-api-remote` -- Handles NTLM authentication requests for the remote domain. It receives authentication proxy requests from the main PacketFence server through the connector tunnel and forwards them to the local domain controller. This service is required when the NT Key cache is enabled on a domain behind a pfconnector, as the transitive login with the domain controller must be performed locally on the pfconnector-remote host.
 * `packetfence-ntlm-auth-join-remote` -- Manages the machine account in Active Directory. It performs the domain join and maintains the machine credential cache on the pfconnector-remote host, which is necessary for NTLM authentication to function.
 
-IMPORTANT: When using the NT Key cache for 802.1X EAP-PEAP with a domain behind a pfconnector, `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves such a domain. Each remote instance only handles domains whose domain controllers are reachable through its local connector.
+IMPORTANT: When using the NT Key cache for 802.1X EAP-PEAP with a domain behind a pfconnector, `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves such a domain. Each remote instance handles authentication using its local cache when the main domain controller behind the pfconnector-remote is unreachable or when the pfconnector-remote loses connectivity to the main PacketFence server.
 
 Install them alongside the pfconnector:
 
