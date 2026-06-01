@@ -170,8 +170,8 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx = h.addInfoToContext(ctx, info)
 	firewalls := pfconfigdriver.GetRefresh(ctx, "firewallsso.FirewallsContainer").(*firewallsso.FirewallsContainer)
 
-	var shouldStart bool
 	for _, firewall := range firewalls.All(ctx) {
+		shouldStart := false
 		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|mac|" + info["mac"] + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
