@@ -647,25 +647,13 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		return
 	}
 	Connectors := connector.NewConnectorsContainer(req.Context())
-	Domains := make(map[string]pfconfigdriver.Domain)
-	for domain, Elements := range domains.Element {
-		// Only connector-served domains are relevant to a remote; connector-less
-		// domains are handled centrally.
-		if !sharedutils.IsEnabled(Elements.UseConnector) {
-			continue
+	Domains := maskDomainSecretsForConnector(domains.Element, connectorId, func(ip net.IP) string {
+		owner := Connectors.ForIP(req.Context(), ip)
+		if owner == nil {
+			return ""
 		}
-		// The connector sitting next to the AD (the one owning the ad_server IP)
-		// gets the real machine-account secret. Every other connector gets the
-		// same domain config with the secret masked, so its ntlm-auth-api can
-		// still start and serve cached auth without ever receiving credentials it
-		// has no use for. An unidentified caller (connectorId == "") is treated as
-		// a non-owner and gets everything masked.
-		owner := Connectors.ForIP(req.Context(), net.ParseIP(Elements.AdServer))
-		if connectorId == "" || owner == nil || owner.PfconfigHashNS != connectorId {
-			Elements.MachineAccountPassword = fakeMachineAccountPassword
-		}
-		Domains[domain] = Elements
-	}
+		return owner.PfconfigHashNS
+	})
 	jsonData, err := json.Marshal(Domains)
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
@@ -675,6 +663,37 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
+}
+
+// maskDomainSecretsForConnector builds the per-connector domain view served by
+// handleRemoteNtlmAuthAPIEnv. It keeps only use_connector-enabled domains, and
+// replaces machine_account_password with fakeMachineAccountPassword unless
+// connectorId is the connector that owns the domain's AD (i.e.
+// ownerForIP(ad_server) == connectorId). An empty connectorId (an unidentified
+// caller) is treated as a non-owner for every domain, so its secrets are masked.
+//
+// ownerForIP resolves a domain's ad_server IP to the owning connector id; it is
+// injected so this decision logic can be unit-tested without a live pfconfig
+// socket or connectors container.
+func maskDomainSecretsForConnector(domains map[string]pfconfigdriver.Domain, connectorId string, ownerForIP func(net.IP) string) map[string]pfconfigdriver.Domain {
+	out := make(map[string]pfconfigdriver.Domain, len(domains))
+	for domain, d := range domains {
+		// Only connector-served domains are relevant to a remote; connector-less
+		// domains are handled centrally.
+		if !sharedutils.IsEnabled(d.UseConnector) {
+			continue
+		}
+		// The connector next to the AD (owning the ad_server IP) gets the real
+		// machine-account secret; everyone else gets the same config with the
+		// secret masked so its ntlm-auth-api can still start and serve cached auth
+		// without ever receiving credentials it has no use for. d is the range
+		// copy, so mutating it does not touch the caller's source map.
+		if connectorId == "" || ownerForIP(net.ParseIP(d.AdServer)) != connectorId {
+			d.MachineAccountPassword = fakeMachineAccountPassword
+		}
+		out[domain] = d
+	}
+	return out
 }
 
 func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Request) {
