@@ -90,7 +90,6 @@ func (api *API) setupRoutes() {
 				r.Post("/stop", manageService(api, "stop"))
 				r.Post("/restart", manageService(api, "restart"))
 			})
-			r.Handle("/logs", handleWebSocketConnection())
 			r.Route("/status", func(r chi.Router) {
 				r.Get("/", connectorStatus(api))
 			})
