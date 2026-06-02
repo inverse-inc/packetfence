@@ -17,6 +17,8 @@ has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
 
 has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]});
 
+has 'with_aup' => (is => 'rw', default => sub {1});
+
 with 'captiveportal::Role::MultiSource';
 
 use pf::log;
@@ -56,6 +58,7 @@ sub BUILD {
             parent => $self,
             source_id => $source->id,
             custom_fields => $self->custom_fields,
+            with_aup => $self->with_aup,
         ));
     }
 }

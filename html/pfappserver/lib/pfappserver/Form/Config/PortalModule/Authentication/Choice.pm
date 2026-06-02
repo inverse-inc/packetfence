@@ -20,11 +20,32 @@ with 'pfappserver::Base::Form::Role::WithCustomFields';
 use captiveportal::DynamicRouting::Module::Authentication::Choice;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Choice'}
 
+has_field 'with_aup' =>
+  (
+   type => 'Checkbox',
+   label => 'Require AUP',
+   checkbox_value => 1,
+   input_without_param => 0,
+   tags => { after_element => \&help,
+             help => 'Require the user to accept the AUP' },
+  );
+
 ## Definition
 
 sub child_definition {
     my ($self) = @_;
-    return ($self->source_fields, qw(custom_fields template));
+    return ($self->source_fields, qw(custom_fields template with_aup));
+}
+
+=head2 BUILD
+
+set the default value for the with_aup field from the module attribute
+
+=cut
+
+sub BUILD {
+    my ($self) = @_;
+    $self->field('with_aup')->default($self->for_module->meta->find_attribute_by_name('with_aup')->default->());
 }
 
 =over
