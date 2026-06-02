@@ -419,7 +419,7 @@ sub _resolve_theme_path {
     my ($self) = @_;
     my $profile_name = $self->profile->name;
     for my $name ($profile_name, 'default') {
-        if (-f "$captiveportal_profile_templates_path/$name/theme.css") {
+        if (-f "$captiveportal_profile_templates_path/$name/theme.css" && -s "$captiveportal_profile_templates_path/$name/theme.css") {
             return "/profile-templates/$name/theme.css";
         }
     }
