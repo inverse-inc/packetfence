@@ -28,10 +28,9 @@ case "$1" in
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-ntlm-auth-join-remote.service
     if [ -n "$2" ]; then
-        if systemctl is-active --quiet "packetfence-ntlm-auth-join-remote.service"; then
-            echo "Upgrade detected, restarting packetfence-ntlm-auth-join-remote service"
-            /bin/systemctl restart packetfence-ntlm-auth-join-remote.service
-        fi
+        echo "Upgrade detected, restarting packetfence-ntlm-auth-join-remote service"
+        /bin/systemctl restart packetfence-ntlm-auth-join-remote.service || \
+            echo "Warning: failed to restart packetfence-ntlm-auth-join-remote.service (will retry via Restart=on-failure)"
     else
         /bin/systemctl stop packetfence-ntlm-auth-join-remote.service 2>/dev/null || true
     fi

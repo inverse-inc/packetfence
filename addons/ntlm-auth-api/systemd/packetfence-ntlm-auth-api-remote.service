@@ -1,6 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence NTLM auth Backend API Controller Remote
+Requires=packetfence-pfconnector-remote-combined.service
+After=packetfence-pfconnector-remote-combined.service
 PartOf=packetfence-pfconnector-remote-combined.service
 
 [Service]

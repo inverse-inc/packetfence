@@ -1,6 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence NTLM Auth join remote
+Requires=packetfence-pfconnector-remote-combined.service
+After=packetfence-pfconnector-remote-combined.service
 PartOf=packetfence-pfconnector-remote-combined.service
 
 [Service]
