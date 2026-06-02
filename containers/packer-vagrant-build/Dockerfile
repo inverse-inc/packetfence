@@ -42,8 +42,8 @@ RUN packer init /tmp/packer-init && rm -rf /tmp/packer-init
 
 # Layer 4: bake Ansible Galaxy collections so builds skip the download step
 COPY ci/packer/vagrant_img/provisioners/requirements.yml /tmp/galaxy-requirements.yml
-RUN ansible-galaxy install -r /tmp/galaxy-requirements.yml \
-        --collections-path /root/.ansible/collections \
+RUN ansible-galaxy role install -r /tmp/galaxy-requirements.yml \
+    && ansible-galaxy collection install -r /tmp/galaxy-requirements.yml \
     && rm /tmp/galaxy-requirements.yml
 
 # Entrypoint starts apt-cacher-ng before handing off to packer.
