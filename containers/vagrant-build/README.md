@@ -1,4 +1,4 @@
-# packer-vagrant-build
+# vagrant-build
 
 Container image used by the CI vagrant box build jobs. Ships packer, qemu-system-x86, ansible-core, rclone, make, and python3.
 
@@ -6,14 +6,14 @@ Container image used by the CI vagrant box build jobs. Ships packer, qemu-system
 
 `/dev/kvm` must be accessible — either on the host or passed through to the container. Without KVM, QEMU falls back to software emulation (TCG) and a full Debian install takes many hours.
 
-- **CI**: runners tagged `docker-kvm` have `devices = ["/dev/kvm"]` in `config.toml`
+- **CI**: runners tagged `shell-v7` have KVM available on the host
 - **Local**: pass `--device /dev/kvm` to `docker run` (requires the host kernel to support KVM and your user to be in the `kvm` group)
 
 ## Build the image locally
 
 ```bash
 cd /path/to/packetfence
-docker build -f containers/packer-vagrant-build/Dockerfile -t packer-vagrant-build:test .
+docker build -f containers/vagrant-build/Dockerfile -t vagrant-build:test .
 ```
 
 ## Run a packer box build locally
@@ -24,7 +24,7 @@ docker run --rm \
   -v "$(pwd):/workspace" \
   -w /workspace/ci/packer/vagrant_img \
   -e PACKER_LOG=1 \
-  packer-vagrant-build:test \
+  vagrant-build:test \
   packer build -only="dev.qemu.debian-12" \
     -var "output_dir=/workspace/ci/packer/vagrant_img/results/pfdeb12dev" \
     -var "ansible_group=dev" \
@@ -39,8 +39,8 @@ Output box: `ci/packer/vagrant_img/results/pfdeb12dev/pfdeb12dev-libvirt.box`
 ## Smoke test (no KVM needed)
 
 ```bash
-docker run --rm packer-vagrant-build:test packer version
-docker run --rm packer-vagrant-build:test qemu-system-x86_64 --version
-docker run --rm packer-vagrant-build:test ansible --version
-docker run --rm packer-vagrant-build:test rclone version
+docker run --rm vagrant-build:test packer version
+docker run --rm vagrant-build:test qemu-system-x86_64 --version
+docker run --rm vagrant-build:test ansible --version
+docker run --rm vagrant-build:test rclone version
 ```

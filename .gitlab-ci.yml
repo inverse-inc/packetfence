@@ -385,7 +385,7 @@ variables:
 
 .build_pf_img_vagrant_job:
   stage: build_pf_img
-  image: ${KNK_REGISTRY_URL}/packer-vagrant-build:${IMAGE_TAG}
+  image: ${KNK_REGISTRY_URL}/vagrant-build:${IMAGE_TAG}
   variables:
     RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
   script:
@@ -828,7 +828,7 @@ build_packer_vagrant_container:
   needs:
     - kaniko
   variables:
-    IMAGE_NAME: "packer-vagrant-build"
+    IMAGE_NAME: "vagrant-build"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
