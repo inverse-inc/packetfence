@@ -28,18 +28,13 @@ zen-deb12:
 	PKR_ON_ERROR="$(PKR_ON_ERROR)" \
 	./zen-in-docker.sh debian-12
 
-.PHONY: zen-el8
-zen-el8:
-	PF_VERSION="$(PF_VERSION)" \
-	PKR_VAR_pf_version="$(PKR_VAR_pf_version)" \
-	PKR_VAR_vm_name="$(PKR_VAR_vm_name)" \
-	VM_NAME="$(VM_NAME)" \
-	ANSIBLE_FORCE_COLOR="$(ANSIBLE_FORCE_COLOR)" \
-	PKR_ON_ERROR="$(PKR_ON_ERROR)" \
-	./zen-in-docker.sh el-8
-
 .PHONY: clean_all
-clean_all: clean clean_cache
+clean_all: clean_container clean clean_cache
+
+# kill a build container orphaned by a job timeout or cancel
+.PHONY: clean_container
+clean_container:
+	-docker rm -f zen-build-debian-12 2>/dev/null
 
 .PHONY: clean
 clean:

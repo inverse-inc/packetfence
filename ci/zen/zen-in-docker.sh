@@ -1,6 +1,6 @@
 #!/bin/bash
-# Host-side wrapper invoked by `make zen-deb12` / `make zen-el8`: runs the
-# zen-builder image with /dev/kvm and hands off to build-in-container.sh.
+# Host-side wrapper invoked by `make zen-deb12`: runs the zen-builder
+# image with /dev/kvm and hands off to build-in-container.sh.
 set -o errexit -o nounset -o pipefail
 
 BUILD_NAME="${1:?usage: zen-in-docker.sh <build-name> (e.g. debian-12)}"
@@ -29,10 +29,15 @@ KVM_GID="$(stat -c '%g' /dev/kvm)"
 
 echo "===> zen build in ${ZEN_BUILDER_IMAGE} (kvm gid=${KVM_GID}, build=${BUILD_NAME})"
 
-# -e without a value forwards the variable from this environment.
+# Runs as the calling user so bind-mounted files are not root-owned;
+# HOME=/tmp keeps packer/ansible dotdirs writable.
 docker run --rm \
+  --pull always \
+  --name "zen-build-${BUILD_NAME}" \
   --device /dev/kvm \
+  --user "$(id -u):$(id -g)" \
   --group-add "${KVM_GID}" \
+  -e HOME=/tmp \
   -e PF_VERSION \
   -e PKR_VAR_pf_version \
   -e PKR_VAR_vm_name \
