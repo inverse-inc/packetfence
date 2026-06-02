@@ -75,7 +75,7 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	//no proxy defined, provide access to health/version checks
 	switch r.URL.Path {
 	case apiPrefix + "/ping":
-		w.Header().Set("Content-Type", "plain/text")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("pong"))
 		return
