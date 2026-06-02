@@ -796,29 +796,9 @@ pfconfig_material_builder:
     - !reference [.gated_by_build_artifacts_material, rules]
     - !reference [.build_img_container_rules, rules]
 
-# Builder image consumed by build_pf_img_zen via ZEN_BUILDER_IMAGE.
-# Built only when the zen job is requested; always on release tags so
-# the manual zen job has its image.
-zen_builder:
-  extends:
-    - .build_img_container_job
-  needs: ["kaniko"]
-  variables:
-    IMAGE_NAME: "zen-builder"
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
-  rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - if: '$CI_COMMIT_TAG'
-      variables:
-        IMAGE_TAG: ${CI_COMMIT_TAG}
-        IMAGE_TAGS: ${CI_COMMIT_TAG}
-    - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
-      when: never
-    - !reference [.build_img_container_rules, rules]
-
 ########################################
 # ci_related image build jobs
-# (pfbuild, signing-packages, publish-ppa, vagrant-build)
+# (pfbuild, signing-packages, publish-ppa, vagrant-build, zen-builder)
 ########################################
 ci_related:
   extends:
@@ -850,6 +830,25 @@ ci_related:
     - !reference [.gated_by_build_img_docker, rules]
     - !reference [.build_img_docker_rules, rules]
 
+# Builder image consumed by build_pf_img_zen via ZEN_BUILDER_IMAGE.
+# Own job (not in the ci_related matrix) to stay gated on
+# BUILD_PF_IMG_ZEN; always built on release tags for the manual zen job.
+zen_builder:
+  extends:
+    - .build_img_container_job
+  needs: ["kaniko"]
+  variables:
+    IMAGE_NAME: "zen-builder"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_TAG}
+        IMAGE_TAGS: ${CI_COMMIT_TAG}
+    - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
+      when: never
+    - !reference [.build_img_container_rules, rules]
 
 ########################################
 #  BUILD_ARTIFACTS JOBS
