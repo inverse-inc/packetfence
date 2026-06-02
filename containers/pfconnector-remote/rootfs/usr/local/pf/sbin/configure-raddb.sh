@@ -36,9 +36,16 @@ if [ -z "$CONNECTOR_ID" ]; then
     exit 1
 fi
 
+# Escape characters that are special in a sed replacement (\, /, &) so a
+# secret containing them doesn't corrupt the generated config.
+sed_escape() {
+    printf '%s' "$1" | sed -e 's/[&/\]/\\&/g'
+}
+
 # Generate raddb config from template
 if [ -f "$RADDB_TEMPLATE" ]; then
-    sed -e "s/%password%/$RADIUS_SECRET/g" \
+    RADIUS_SECRET_ESC=$(sed_escape "$RADIUS_SECRET")
+    sed -e "s/%password%/$RADIUS_SECRET_ESC/g" \
         -e "s/%mgmt_ip%/$MGMT_IP/g" \
         -e "s/%connector_id%/$CONNECTOR_ID/g" \
         "$RADDB_TEMPLATE" > "$RADDB_PACKETFENCE"
