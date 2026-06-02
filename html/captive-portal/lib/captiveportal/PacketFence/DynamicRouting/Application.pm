@@ -29,7 +29,7 @@ use HTML::Entities;
 use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 use pf::web ();
 use pf::api::queue;
-use pf::file_paths qw($install_dir);
+use pf::file_paths qw($install_dir $captiveportal_profile_templates_path);
 use pf::config qw(%Config);
 use pf::activation;
 use fingerbank::Config;
@@ -376,7 +376,8 @@ sub render {
     $args->{lang} = $self->session->{lang};
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
 
-    my $theme_path = "/profile-templates/" . $self->profile->name . "/theme.css"; 
+    my $theme_path = $self->_resolve_theme_path;
+
     my $layout_args = {
         isRootSSO => $self->isRootSSO,
         flash => $self->flash,
@@ -406,6 +407,23 @@ sub render {
     $self->template_output($content);
 
     $self->empty_flash();
+}
+
+=head2 _resolve_theme_path
+
+Return the URL path for theme.css: profile-specific first, default profile as fallback, undef if neither exists.
+
+=cut
+
+sub _resolve_theme_path {
+    my ($self) = @_;
+    my $profile_name = $self->profile->name;
+    for my $name ($profile_name, 'default') {
+        if (-f "$captiveportal_profile_templates_path/$name/theme.css") {
+            return "/profile-templates/$name/theme.css";
+        }
+    }
+    return undef;
 }
 
 =head2 _render
