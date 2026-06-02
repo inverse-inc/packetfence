@@ -88,6 +88,26 @@ PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEAS
 # X.Y.Z
 PF_PATCH_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+\.\d+)/)' $(PF_RELEASE_PATH))
 
+# CI package version suffix — mirrors ci-build-pkg PKG_BUILD_SUFFIX_MODE=long.
+# GitLab CI exports CI_COMMIT_REF_NAME, CI_PIPELINE_ID, CI_COMMIT_TIMESTAMP;
+# fall back to git/os values for manual builds.
+CI_COMMIT_REF_NAME  ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo local)
+CI_PIPELINE_ID      ?= 0
+CI_COMMIT_TIMESTAMP ?= $(shell git show -s --format=%cI HEAD 2>/dev/null)
+CI_COMMIT_DATE      := $(shell date -u -d "$(CI_COMMIT_TIMESTAMP)" +%Y%m%d%H%M%S 2>/dev/null || date -u +%Y%m%d%H%M%S)
+CI_COMMIT_REF_SLUG  ?= $(shell printf '%s' "$(CI_COMMIT_REF_NAME)" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '-' | sed 's/-\+/-/g; s/^-//; s/-$$//')
+CI_COMMIT_REF_TILDE := $(shell printf '%s' "$(CI_COMMIT_REF_SLUG)" | tr '_/-' '~')
+
+OS_RELEASE_ID   := $(shell . /etc/os-release 2>/dev/null && printf '%s' "$$ID" || echo unknown)
+OS_RELEASE_NAME := $(shell . /etc/os-release 2>/dev/null && printf '%s' "$${VERSION_CODENAME:-$${VERSION_ID%%.*}}" || echo unknown)
+OS_RELEASE_NUM  := $(shell . /etc/os-release 2>/dev/null && printf '%04d' "$${VERSION_ID%%.*}" 2>/dev/null || printf '0000')
+
+DEB_PKG_SUFFIX  := +$(CI_COMMIT_DATE)+$(CI_PIPELINE_ID)+$(OS_RELEASE_NUM)+$(CI_COMMIT_REF_TILDE)+$(OS_RELEASE_NAME)
+RPM_PKG_SUFFIX  := $(CI_COMMIT_DATE).$(CI_PIPELINE_ID).$(OS_RELEASE_NUM).$(CI_COMMIT_REF_TILDE)
+
+PKG_RESULT_DIR  ?= $(SRC_ROOT_DIR)/result
+PKG_RELEASE_DIR  = $(PKG_RESULT_DIR)/$(OS_RELEASE_ID)/$(OS_RELEASE_NAME)
+
 # SRC HTML dirs
 SRC_HTMLDIR = $(SRC_ROOT_DIR)/html
 SRC_HTML_CPDIR = $(SRC_HTMLDIR)/captive-portal

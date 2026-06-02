@@ -96,6 +96,11 @@ configure_and_check() {
                            -not -path "*/caddy-l4/*" \
                            -not -path "*/github-apps-token/*" \
                            -not -path "*/ntlm-join-remote/*" \
+                           -not -path "*/signing-packages/*" \
+                           -not -path "*/publish-ppa/*" \
+                           -not -path "*/pfbuild-bookworm/*" \
+                           -not -path "*/pfbuild-centos-8/*" \
+                           -not -path "*/pfconfig-material-builder/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
@@ -111,11 +116,21 @@ configure_and_check() {
 
 pull_images() {
     RETRY_LIMIT=2
+
+    # Pull from the registry when reachable (apt upgrade), fall back to local
+    # images when not (offline USB bootable ISO install)
+    if curl -s -o /dev/null --max-time 10 "https://${KNK_REGISTRY_URL%%/*}/v2/"; then
+        OFFLINE=no
+    else
+        OFFLINE=yes
+        echo "$(date) - Registry ${KNK_REGISTRY_URL%%/*} not reachable, using local images"
+    fi
+
     for img in ${CONTAINERS_IMAGES}; do
         FULL_IMAGE="${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
 
         # Skip pull if image already exists locally (for offline installation)
-        if docker image inspect "${FULL_IMAGE}" &>/dev/null; then
+        if [ "$OFFLINE" = "yes" ] && docker image inspect "${FULL_IMAGE}" &>/dev/null; then
             echo "Image already exists locally: ${FULL_IMAGE}"
             continue
         fi

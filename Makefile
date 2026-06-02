@@ -248,18 +248,34 @@ rpm/.rpmmacros:
 .PHONY: build_rpm
 build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
-	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
-	# no need to build other packages if packetfence build failed
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-test.spec
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-export.spec
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-upgrade.spec
+	mkdir -p $(PKG_RELEASE_DIR)
+	for spec in packetfence.spec packetfence-release.spec packetfence-test.spec packetfence-export.spec packetfence-upgrade.spec; do \
+		sed -i -e "s/^Release:.*/Release:\t$(RPM_PKG_SUFFIX)%{?dist}/" $(SRC_RPMDIR)/$$spec ; \
+		rpmbuild -ba --clean --rmsource \
+			--define "_topdir $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME)" \
+			--define "_sourcedir $(SRC_ROOT_DIR)" \
+			$(SRC_RPMDIR)/$$spec || exit 1 ; \
+	done
+	find $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME) -type f -name '*.rpm' \
+		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
 
 .PHONY: build_deb
 build_deb: conf/git_commit_id conf/build_id
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
 	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
-	ci-build-pkg $(SRC_DEBDIR)
+	mkdir -p $(PKG_RELEASE_DIR)
+	sed -i -e "s/(\(.[^+]*\)+.*)/(\1)/" $(SRC_DEBDIR)/changelog
+	cd $(SRC_ROOT_DIR) && DEBEMAIL="" dch \
+		--local "$(DEB_PKG_SUFFIX)" \
+		--controlmaint \
+		--release-heuristic changelog \
+		-t "build for $(CI_COMMIT_REF_NAME)"
+	sed -i -e "s/UNRELEASED/$(OS_RELEASE_NAME)/" $(SRC_DEBDIR)/changelog
+	cd $(SRC_ROOT_DIR) && debuild -us -uc --lintian-opts -i
+	find $(SRC_ROOT_DIR)/.. -maxdepth 1 -name "*$(DEB_PKG_SUFFIX)*" \
+		\( -name '*.deb' -o -name '*.dsc' -o -name '*.tar.*' -o -name '*.build*' -o -name '*.changes' \) \
+		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
+	cd $(SRC_ROOT_DIR) && debclean
 
 .PHONY: patch_release
 patch_release:

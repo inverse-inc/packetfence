@@ -25,8 +25,9 @@ log_subsection() {
 get_pf_release() {
     if [ -f "${PF_SRC_DIR}/conf/pf-release" ]; then
         PF_RELEASE_PATH=$(readlink -e ${PF_SRC_DIR}/conf/pf-release)
-        PF_MINOR_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' ${PF_RELEASE_PATH})
-        PF_PATCH_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+\.\d+)/)' ${PF_RELEASE_PATH})
+        # Extract version from "PacketFence X.Y.Z" format using grep (no perl dependency)
+        PF_PATCH_RELEASE=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' ${PF_RELEASE_PATH} | head -1)
+        PF_MINOR_RELEASE=$(grep -oE '[0-9]+\.[0-9]+' ${PF_RELEASE_PATH} | head -1)
     else
         echo "We are not in a PacketFence tree, reading variables from environment"
         PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-99.9}
