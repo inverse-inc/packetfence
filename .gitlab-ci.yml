@@ -820,7 +820,7 @@ ci_related:
     - !reference [.gated_by_build_img_docker, rules]
     - !reference [.build_img_docker_rules, rules]
 
-build_packer_vagrant_container:
+build_vagrant_container:
   # Packer + qemu-system-x86 + ansible-core + rclone image used by the
   # vagrant box build job. Any runner with Docker and /dev/kvm can use it.
   extends:
@@ -1472,7 +1472,7 @@ build_pf_img_vagrant_devel_debian_bookworm:
         matrix:
           - DEPLOY_TYPE: deb
       artifacts: false
-    - job: build_packer_vagrant_container
+    - job: build_vagrant_container
       artifacts: false
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
@@ -1497,7 +1497,7 @@ build_pf_img_vagrant_branch_debian_bookworm:
   needs:
     - job: publish_ppa
       artifacts: false
-    - job: build_packer_vagrant_container
+    - job: build_vagrant_container
       artifacts: false
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
@@ -1515,7 +1515,7 @@ build_pf_img_vagrant_ad_devel_debian_bullseye:
         matrix:
           - DEPLOY_TYPE: deb
       artifacts: false
-    - job: build_packer_vagrant_container
+    - job: build_vagrant_container
       artifacts: false
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
@@ -1539,7 +1539,7 @@ build_pf_img_vagrant_ad_branch_debian_bullseye:
   needs:
     - job: publish_ppa
       artifacts: false
-    - job: build_packer_vagrant_container
+    - job: build_vagrant_container
       artifacts: false
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
@@ -1557,7 +1557,7 @@ build_pf_img_vagrant_release_debian_bookworm:
         matrix:
           - DEPLOY_TYPE: deb
       artifacts: false
-    - job: build_packer_vagrant_container
+    - job: build_vagrant_container
       artifacts: false
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
