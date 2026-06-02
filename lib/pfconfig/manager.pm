@@ -445,8 +445,17 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 =cut
 
 sub expire {
-    my ( $self, $what, $light ) = @_;
+    my ( $self, $what, $light, $seen ) = @_;
     $what = normalize_namespace_query($what);
+
+    # Deduplicate within a single expiry run. A resource is a child of many
+    # namespaces (e.g. resource::RolesReverseLookup is declared under 13 of
+    # them), so without this guard expire_all rebuilds the same expensive
+    # resources dozens of times. Rebuilding once per run is sufficient since
+    # the configuration is static for the duration of the run.
+    $seen //= {};
+    return if $seen->{$what};
+    $seen->{$what} = 1;
 
     my $logger = get_logger;
     if(defined($light) && $light){
@@ -470,13 +479,13 @@ sub expire {
             next if $namespace eq $what;
 
             $logger->info("Expiring overlayed resource from base resource $what.");
-            $self->expire($namespace, $light);
+            $self->expire($namespace, $light, $seen);
         }
 
         if ( $namespace->{child_resources} ) {
             foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
                 $logger->info("Expiring child resource $child_resource. Master resource is $what");
-                $self->expire($child_resource, $light);
+                $self->expire($child_resource, $light, $seen);
             }
         }
     }
@@ -577,8 +586,9 @@ sub expire_all {
     my ($self, $light) = @_;
     my $logger = get_logger;
     my @namespaces = $self->list_top_namespaces;
+    my %seen;
     foreach my $namespace (@namespaces) {
-        $self->expire($namespace, $light);
+        $self->expire($namespace, $light, \%seen);
     }
 }
 
