@@ -1,0 +1,5 @@
+name: Enable rogue DHCP detection
+testcases:
+- name: enable_rogue_dhcp_detection
+  steps:
+  - type: pf_api_enable_rogue_dhcp_detection
