@@ -17,6 +17,7 @@ use warnings;
 
 use File::Temp qw(tempfile);
 use pf::constants qw($TRUE $FALSE);
+use Digest::MD5 qw(md5_hex);
 use File::Slurp qw(read_file write_file);
 use LWP::UserAgent;
 use pf::util;
@@ -133,7 +134,7 @@ Get the modulus MD5 of an RSA key
 
 sub rsa_modulus_md5 {
     my ($rsa) = @_;
-    return openssl_modulus_md5("rsa", $rsa->get_private_key_string());
+    return modulus_md5("rsa", $rsa->get_private_key_string());
 }
 
 =head2 x509_modulus_md5
@@ -144,26 +145,48 @@ Get the modulus MD5 of an x509 certificate
 
 sub x509_modulus_md5 {
     my ($x509) = @_;
-    return openssl_modulus_md5("x509", $x509->as_string());
+    return modulus_md5("x509", $x509->as_string());
 }
 
-=head2 openssl_modulus_md5
+=head2 modulus_md5
 
-Get the modulus MD5 through OpenSSL
+Get the modulus MD5 of an RSA key ("rsa") or x509 certificate ("x509").
+
+This computes the same value as the OpenSSL pipeline:
+
+    openssl $type -noout -modulus | openssl md5
+
+i.e. the MD5 of the C<Modulus=E<lt>UPPERCASE-HEXE<gt>\n> line that
+C<openssl -modulus> prints, but does so in pure Perl without shelling out.
 
 =cut
 
-sub openssl_modulus_md5 {
+sub modulus_md5 {
     my ($type, $data) = @_;
-    my $result = `echo "$data" | openssl $type -noout -modulus | openssl md5 | awk '{ print \$2 }'`;
-    chomp($result);
-    if($? != 0) {
-        get_logger->error("Unable to get modulus: $result");
+
+    my $modulus = eval {
+        if ($type eq "rsa") {
+            my $rsa = rsa_from_string($data);
+            my ($n) = $rsa->get_key_parameters();
+            $n->to_hex;
+        }
+        elsif ($type eq "x509") {
+            my $x509 = x509_from_string($data);
+            defined($x509) ? $x509->modulus() : undef;
+        }
+        else {
+            die "unsupported modulus type '$type'\n";
+        }
+    };
+
+    if ($@ || !defined($modulus) || $modulus eq "") {
+        get_logger->error("Unable to get modulus: " . ($@ || "no modulus could be extracted"));
         return undef;
     }
-    else {
-        return $result;
-    }
+
+    # openssl prints the modulus as "Modulus=<UPPERCASE-HEX>" followed by a
+    # newline, and that exact byte sequence is what gets hashed.
+    return md5_hex("Modulus=" . $modulus . "\n");
 }
 
 =head2 validate_cert_key_match
