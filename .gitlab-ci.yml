@@ -51,7 +51,7 @@ variables:
   RELEASEDIR: ${CILIBDIR}/release
   TESTCIDIR: ${CILIBDIR}/test
   PACKERDIR: $CIDIR/packer
-  ZENDIR: $CIDIR/packer/zen
+  ZENDIR: $CIDIR/zen
   ISODIR: $CIDIR/cd-iso
   DVD_USB_ISODIR: $CIDIR/dvd-usb-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
@@ -419,6 +419,8 @@ variables:
     - job: pfconfig_material_builder
       optional: true
     - job: ci_related
+      optional: true
+    - job: zen_builder
       optional: true
 
 .build_artifacts_pkg_job:
@@ -792,6 +794,18 @@ pfconfig_material_builder:
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.gated_by_build_artifacts_material, rules]
+    - !reference [.build_img_container_rules, rules]
+
+# Builder image consumed by build_pf_img_zen via ZEN_BUILDER_IMAGE.
+zen_builder:
+  extends:
+    - .build_img_container_job
+  needs: ["kaniko"]
+  variables:
+    IMAGE_NAME: "zen-builder"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
 
 ########################################
@@ -1374,15 +1388,20 @@ build_pf_img_zen:
     name: sourceforge
     url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
   variables:
-    BUILD_DIR: ci/packer/zen
+    BUILD_DIR: ci/zen
     BUILD_TARGET: zen-deb12
     CLEAN_TARGET: clean_all
+    # zen_builder pushes the slug tag in every context; tag pipelines
+    # override IMAGE_TAG below (release tags are pushed unslugified).
+    ZEN_BUILDER_IMAGE: ${KNK_REGISTRY_URL}/zen-builder:${IMAGE_TAG}
   tags:
     - shell
   rules:
     - if: '$CI_COMMIT_TAG'
       when: manual
       allow_failure: true
+      variables:
+        IMAGE_TAG: $CI_COMMIT_TAG
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/)'
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/)'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/)'
