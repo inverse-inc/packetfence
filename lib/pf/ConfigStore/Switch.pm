@@ -72,8 +72,15 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Switch configstore");
+    # Read the just-committed switch config from the local node and hand it to the
+    # job. In k8s the pfconfig replicas may still be syncing the change from git, so
+    # the worker cannot reliably read it back itself; the producer already has the
+    # authoritative copy from the switches.conf it just wrote.
+    my $manager = pfconfig::manager->new;
+    $manager->expire($self->pfconfigNamespace);
+    my $switches = $manager->get_cache($self->pfconfigNamespace);
     my $client = pf::api::queue->new(queue => 'priority');
-    $client->notify( 'switch_freeradius_populate_nas_config');
+    $client->notify( 'switch_freeradius_populate_nas_config', $switches);
     return ($result, $error);
 }
 

@@ -149,14 +149,20 @@ sub echo : Public {
 }
 
 sub switch_freeradius_populate_nas_config : Public {
-    my ($class) = @_;
-    # Make sure we read the latest switch config from pfconfig by forcing the
-    # local daemon to reload the namespace from disk before tying the hash.
-    # The normal commit path already expires it, but this keeps the task
-    # correct when invoked directly.
-    pfconfig::manager->new->expire("config::Switch");
-    tie my %switches, 'pfconfig::cached_hash', "config::Switch";
-    pf::freeradius::freeradius_populate_nas_config(\%switches);
+    my ($class, $switches) = @_;
+    if (ref($switches) eq 'HASH') {
+        # Config supplied by the producer (normal path). It is authoritative, so
+        # there is no need to read it back from pfconfig. In k8s the pfconfig
+        # replicas may still be syncing the change from git, so reading it here
+        # could serve pre-sync data.
+        pf::freeradius::freeradius_populate_nas_config($switches);
+    }
+    else {
+        # Fallback for jobs enqueued without config (e.g. an in-flight job during
+        # an upgrade). Best-effort read from pfconfig; may lag git sync in k8s.
+        tie my %s, 'pfconfig::cached_hash', "config::Switch";
+        pf::freeradius::freeradius_populate_nas_config(\%s);
+    }
     return;
 }
 
