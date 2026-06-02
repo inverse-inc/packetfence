@@ -7,3 +7,10 @@ $pf-footer-font-size: $pf-font-small;
   color: $pf-footer-text-color;
   font-size: $pf-footer-font-size;
 }
+
+// Email templates contain </body></html> which triggers browser HTML error
+// recovery, creating a <footer> element for content displaced outside the body.
+// layout.html never uses <footer>, so this selector safely suppresses it.
+body > footer {
+  display: none;
+}
