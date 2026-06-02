@@ -162,7 +162,7 @@ func (s *Server) handleCredcacheForward(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ch, err := tun.OpenChisselChannel(r.Context(), credcacheClientTarget)
+	ch, err := tun.OpenChiselChannel(r.Context(), credcacheClientTarget)
 	if err != nil {
 		log.LoggerWContext(r.Context()).Error(fmt.Sprintf("credcache forward: open channel to %s failed: %s", connectorId, err))
 		w.WriteHeader(http.StatusBadGateway)

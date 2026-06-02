@@ -146,7 +146,7 @@ func probeConnector(ctx context.Context, tun *tunnel.Tunnel, timeout time.Durati
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	ch, err := tun.OpenChisselChannel(ctx, connectorStatusProbeTarget)
+	ch, err := tun.OpenChiselChannel(ctx, connectorStatusProbeTarget)
 	if err != nil {
 		return false
 	}
