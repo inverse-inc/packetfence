@@ -184,10 +184,11 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // ping to test if the connector is running
 func ping(_ *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, _ *http.Request) {
-		res.Header().Set("Content-Type", "plain/text")
+		res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte("pong"))
 	})
+}
 }
 
 // status handles the status endpoint
