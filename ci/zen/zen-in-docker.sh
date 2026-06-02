@@ -38,6 +38,7 @@ docker run --rm \
   --user "$(id -u):$(id -g)" \
   --group-add "${KVM_GID}" \
   -e HOME=/tmp \
+  -e USER="$(id -un)" \
   -e PF_VERSION \
   -e PKR_VAR_pf_version \
   -e PKR_VAR_vm_name \
