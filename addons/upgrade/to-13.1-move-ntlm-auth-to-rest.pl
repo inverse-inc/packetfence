@@ -36,7 +36,7 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
-my $tmp = pf_run("date +%Y%m%d_%H%M%S");
+my $tmp = safe_pf_run("date +%Y%m%d_%H%M%S");
 $tmp =~ s/^\s+|\s+$//g;
 
 my $domain_bk="/usr/local/pf/conf/domain.conf_".$tmp."_bk";
