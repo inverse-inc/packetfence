@@ -135,7 +135,7 @@ sub can_delete_from_config {
     my $id = $self->id;
     my @errors;
     if (exists $RolesReverseLookup{$id}) {
-         @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+         @errors = map { config_delete_error($id, $_, $RolesReverseLookup{$id}{$_}) } sort keys %{$RolesReverseLookup{$id}};
     }
 
     if (@errors) {
@@ -146,9 +146,13 @@ sub can_delete_from_config {
 }
 
 sub config_delete_error {
-    my ($name, $namespace) = @_;
+    my ($name, $namespace, $ids) = @_;
     my $reason = uc($namespace) . "_IN_USE";
-    return { name => $name, message => "Role still in use for $namespace", reason => $reason, status => 422 };
+    my %seen;
+    my @ids = sort grep { !$seen{$_}++ } @{ $ids // [] };
+    my $message = "Role still in use for $namespace";
+    $message .= ": " . join(", ", @ids) if @ids;
+    return { name => $name, message => $message, reason => $reason, status => 422, ids => \@ids };
 }
 
 my $CAN_DELETE_FROM_DB_SQL = <<SQL;
@@ -300,11 +304,25 @@ sub reassign_role_config_store {
 
 sub reassign_role_config_store_switch {
     my ($self, $errors, $old, $new) = @_;
+    $self->prune_role_from_switches($old);
+}
+
+=head2 prune_role_from_switches
+
+Delete every per-role mapping key (${role}Role, ${role}Vlan, ...) for the given
+role from all switches. Used both when a role is reassigned/renamed and when it
+is deleted, so stale per-role keys never accumulate in switches.conf.
+
+=cut
+
+sub prune_role_from_switches {
+    my ($self, $role) = @_;
+    return unless defined $role && length $role;
     my $cs = pf::ConfigStore::Switch->new;
     my $i = 0;
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cachedConfig->Sections()) {
-        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom) ) {
+        for my $f (map { "${role}${_}" } qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom) ) {
             next if !$cachedConfig->exists($sect, $f);
             $cachedConfig->delval($sect, $f);
             $i |= 1;
@@ -314,6 +332,20 @@ sub reassign_role_config_store_switch {
     if ($i) {
         $cs->commit();
     }
+}
+
+=head2 post_remove
+
+After a role is deleted, prune its per-role mapping keys from all switches so
+that orphaned mappings can't accumulate (which otherwise bloats switches.conf
+and makes the switch config API very slow).
+
+=cut
+
+sub post_remove {
+    my ($self, $id, $old_item) = @_;
+    $self->prune_role_from_switches($id);
+    return;
 }
 
 sub reassign_role_config_store_source {

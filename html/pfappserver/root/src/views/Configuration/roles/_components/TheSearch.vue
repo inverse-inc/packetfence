@@ -118,10 +118,10 @@
         <div class="mx-2">{{ $t('The role could not be deleted. Either manually handle the following errors and try again, or re-reassign the resources to another existing role.') }}</div>
       </b-media>
       <h5>{{ $t('Role is still in use for:') }}</h5>
-      <b-row v-for="error in deleteErrors" :key="error.reason">
-        <b-col cols="auto" class="mr-auto">{{ reasons[error.reason] }}</b-col>
-        <b-col cols="auto">{{ error.reason }}</b-col>
-      </b-row>
+      <div v-for="error in deleteErrors" :key="error.reason" class="mb-2">
+        <strong>{{ reasons[error.reason] || error.reason }}</strong>
+        <span v-if="error.ids && error.ids.length" class="text-secondary">: {{ error.ids.join(', ') }}</span>
+      </div>
       <template v-slot:modal-footer>
         <b-row class="w-100">
           <b-col cols="auto" class="mr-auto pl-0">
