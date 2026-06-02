@@ -9,8 +9,8 @@ source "qemu" "debian-12" {
   headless = "true"
 
   # build-time hardware; final appliance sizing is in the VMX template
-  cpus = "2"
-  memory = "2048"
+  cpus = "6"
+  memory = "16384"
   disk_interface = "virtio"
   net_device = "virtio-net"
 
