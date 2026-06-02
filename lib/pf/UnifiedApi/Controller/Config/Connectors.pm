@@ -43,7 +43,11 @@ sub status {
         my $tx = $ua->get("$url/api/v1/pfconnector/connector-status");
         if (!$tx->error) {
             my $data = $tx->res->json;
-            $status_map = $data->{connector_status} // {};
+            if (ref($data) eq 'HASH') {
+                $status_map = $data->{connector_status} // {};
+            } else {
+                $logger->warn("Unexpected response from pfconnector-server connector-status: not a JSON object");
+            }
         } else {
             $logger->warn("Failed to fetch connector status from pfconnector-server: " . $tx->error->{message});
         }
