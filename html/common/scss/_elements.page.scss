@@ -10,11 +10,18 @@ html {
   font-weight:  var(--pf-font-weight-normal);
   color: $pf-base-text-color;
   background-color: $pf-background;
-  background-image: var(--pf-background-image, none);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+
+  // Phone: background color only — no image
+  background-image: var(--pf-background-image, none);
+
+  // Tablet and wider: default Akamai background images.
+  @include mq($from: tablet) {
+    background-image: var(--pf-background-image, url("/common/img/bg-akamai.png"));
+  }
 }
 
 h1 {

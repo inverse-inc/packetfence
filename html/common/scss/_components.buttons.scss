@@ -207,3 +207,20 @@ $btn-ghost-border-width: 2px;
   }
 
 }
+
+// Dark mode: ghost secondary → always filled; border matches bg; darkens on hover
+@media (prefers-color-scheme: dark) {
+  .c-btn--ghost.c-btn--secondary {
+    background-color: var(--pf-color-secondary) !important;
+    border-color: var(--pf-color-secondary);
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      background-color: var(--pf-color-secondary-touch) !important;
+      border-color: var(--pf-color-secondary-touch);
+      color: #fff;
+    }
+  }
+}
+

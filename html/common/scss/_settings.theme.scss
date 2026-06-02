@@ -86,13 +86,12 @@
 
   // ── 3. Special ──────────────────────────────────────────────────────────────
 
-  // Logo filter — opt in via captive-portal/templates/theme.css if your logo
-  // is dark/black and disappears on dark backgrounds:
-  //   --pf-logo-filter: brightness(0) invert(1);
+  // Logo filter — none in light mode; brightness(0) invert(1) in dark mode
+  // (set in the @media block below). Override in theme.css if needed:
+  //   --pf-logo-filter: none;                    disable dark inversion
+  //   --pf-logo-filter: brightness(0) invert(1); force in all modes
   --pf-logo-filter:               #{$pf-logo-filter};
 
-  // Background image for .o-page wrapper — none by default; set via theme.css
-  --pf-background-image:          none;
 }
 
 

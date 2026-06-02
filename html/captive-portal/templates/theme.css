@@ -1,123 +1,101 @@
 /*
  * PacketFence Captive Portal — Theme Customization
- * =================================================
- * Uncomment any variable below and change its value. No build step required.
+ * Uncomment and change any variable below. No build step required.
  *
+ * COLOR SCHEME
+ *   Uncomment ONE line to force a mode; default follows OS preference.
+ *   color-scheme: dark  — modern browsers (Chrome 123+, FF 120+, Safari 17.5+)
+ *     all --pf-* colors switch automatically. On older browsers only native
+ *     controls change; uncomment the FORCE DARK MODE block at the bottom too.
  *
- * DARK MODE
- * ---------
- * By default the portal follows the visitor's OS preference (light or dark).
- * To force a specific mode, uncomment exactly ONE of the color-scheme lines:
- *
- *   color-scheme: light dark;   follow OS preference  ← this is the default
- *   color-scheme: light;        always light
- *   color-scheme: dark;         always dark
- *
- * Modern browsers (Chrome 123+, Firefox 120+, Safari 17.5+):
- *   Setting color-scheme: dark is sufficient — all --pf-* color variables
- *   switch automatically via light-dark().
- *
- * Older browsers:
- *   color-scheme: dark only affects native browser controls (scrollbars,
- *   inputs, etc.). To also force the full dark colour palette on older
- *   browsers, uncomment the "FORCE DARK MODE" block at the bottom.
- *
- *
- * PER-MODE VALUES (colors only)
- * -----------------------------
- * Use light-dark() to set different values for light and dark in one line.
- * Note: light-dark() works only with CSS color values, not with other
- * properties such as filter or font-family.
- *
- *   --pf-color-primary: light-dark(#your-light-color, #your-dark-color);
- *
- * To use the same value in both modes, write the plain value:
- *   --pf-color-primary: #00a4eb;
+ * PER-MODE COLORS  (color values only — light-dark() does not work on filter/font)
+ *   --pf-color-primary: light-dark(#light, #dark);
  */
 
 :root {
 
-  /* ── Theme mode ─────────────────────────────────────────────────────────── */
-  /* color-scheme: light dark; */   /* follow OS preference (this is the default) */
-  /* color-scheme: light;      */   /* always light                               */
-  /* color-scheme: dark;       */   /* always dark                                */
+  /* color-scheme: light dark; */   /* follow OS preference (default) */
+  /* color-scheme: light;      */   /* always light                   */
+  /* color-scheme: dark;       */   /* always dark — see note above   */
 
 
-  /* ══ 1. Colors ══════════════════════════════════════════════════════════════ */
+  /* — Surfaces & backgrounds — */
 
-  /* ── Status ─────────────────────────────────────────────────────────────── */
+  /* Background images (Akamai light/dark) are shown by default on tablet+
+   * (≥ 740 px); phones use background colour only.
+   * Disable:  --pf-background-image: none;
+   * Override: --pf-background-image: url("/common/my-bg.jpg");
+   * Note: the dark image responds to OS prefers-color-scheme, not to the
+   * color-scheme override above — set the variable explicitly if forcing dark. */
+  /* --pf-background-image: none; */
 
-  /* --pf-color-error:  #f02b1f; */   /* validation errors, error messages       */
-  /* --pf-color-notice: #00cd63; */   /* success / informational notices          */
-
-
-  /* ── Surfaces & backgrounds ─────────────────────────────────────────────── */
-
-  /* --pf-background-image: url("/common/bg.png"); */   /* full-page background image (.o-page) */
-
-  /* --pf-background:         #f5f5f5; */   /* page background                   */
-  /* --pf-frame-background:   #ffffff; */   /* card / frame background            */
-  /* --pf-frame-border-color: transparent; */   /* card border (visible in dark)  */
-  /* --pf-media-background:   #f5f5f5; */   /* alert / media box background       */
-  /* --pf-media-border-color: #d2d2d2; */   /* alert / media box border           */
-  /* --pf-divider-color:      #c2c2c27a; */   /* horizontal rule                  */
+  /* --pf-background:         #f5f5f5; */   /* page background            */
+  /* --pf-frame-background:   #ffffff; */   /* card background            */
+  /* --pf-frame-border-color: #d4d4d4; */       /* card border            */
+  /* --pf-media-background:   #f5f5f5; */   /* alert box background       */
+  /* --pf-media-border-color: #d2d2d2; */   /* alert box border           */
+  /* --pf-divider-color:      #c2c2c27a; */  /* horizontal rule            */
 
 
-  /* ── Text & links ────────────────────────────────────────────────────────── */
+  /* — Text & links — */
 
   /* --pf-base-text-color:         #2a2a2b; */
   /* --pf-link-color:              #007ab8; */
-  /* --pf-heading-color:           #002f6c; */   /* page title (h1)                */
-  /* --pf-footer-text-color:       #2a2a2b; */   /* IP / MAC info in footer        */
+  /* --pf-heading-color:           #002f6c; */   /* page title (h1)        */
+  /* --pf-footer-text-color:       #2a2a2b; */   /* IP / MAC footer info   */
   /* --pf-footer-background-color: transparent; */
 
 
-  /* ── Primary action (main buttons, highlights) ───────────────────────────── */
+  /* — Status — */
+
+  /* --pf-color-error:  #f02b1f; */   /* validation errors               */
+  /* --pf-color-notice: #00cd63; */   /* success notices                 */
+
+
+  /* — Primary action — */
 
   /* --pf-color-primary:          #007ab8; */
-  /* --pf-color-primary-touch:    #0069a8; */   /* hover / focus state            */
-  /* --pf-color-primary-disabled: #a3a2a2; */   /* disabled state                 */
+  /* --pf-color-primary-touch:    #0069a8; */   /* hover / focus          */
+  /* --pf-color-primary-disabled: #a3a2a2; */   /* disabled               */
 
 
-  /* ── Secondary action ────────────────────────────────────────────────────── */
+  /* — Secondary action — */
 
   /* --pf-color-secondary:          #002f6c; */
   /* --pf-color-secondary-touch:    #004a99; */
   /* --pf-color-secondary-disabled: #9caab3; */
 
 
-  /* ── Tertiary / link-style action ────────────────────────────────────────── */
+  /* — Tertiary / link action — */
 
   /* --pf-color-tertiary:       #007ab8; */
   /* --pf-color-tertiary-touch: #0069a8; */
 
 
-  /* ══ 2. Elements ═════════════════════════════════════════════════════════════ */
+  /* — Buttons — */
 
-  /* ── Buttons ────────────────────────────────────────────────────────────── */
-
-  /* --pf-btn-disabled-text:              #707070; */   /* disabled button label     */
-  /* --pf-btn-primary-disabled-overlay:   #d6d5d5; */   /* primary button backdrop   */
-  /* --pf-btn-secondary-disabled-overlay: #cdd4d9; */   /* secondary button backdrop */
+  /* --pf-btn-disabled-text:              #707070; */
+  /* --pf-btn-primary-disabled-overlay:   #d6d5d5; */
+  /* --pf-btn-secondary-disabled-overlay: #cdd4d9; */
 
 
-  /* ── Input fields ────────────────────────────────────────────────────────── */
+  /* — Inputs — */
 
-  /* --pf-input-border-width: 1px;      */   /* input border width               */
-  /* --pf-input-label:        #717171;  */   /* field label / placeholder text    */
-  /* --pf-input-border:       #767b8a;  */   /* input border color                */
-  /* --pf-input-background:   #ffffff;  */   /* input fill                        */
+  /* --pf-input-border-width: 1px;     */
+  /* --pf-input-label:        #717171; */   /* label / placeholder        */
+  /* --pf-input-border:       #767b8a; */
+  /* --pf-input-background:   #ffffff; */
 
 
-  /* ── Typography ──────────────────────────────────────────────────────────── */
+  /* — Typography — */
 
   /* --pf-font-family:         "Arial", "Helvetica Neue", sans-serif; */
-  /* --pf-font-size-base:      16px; */   /* base font size                      */
-  /* --pf-font-weight-normal:  400;  */   /* body text weight                    */
-  /* --pf-font-weight-heading: 700;  */   /* page title (h1) weight              */
+  /* --pf-font-size-base:      16px; */
+  /* --pf-font-weight-normal:  400;  */
+  /* --pf-font-weight-heading: 700;  */
 
 
-  /* ── Spacing ─────────────────────────────────────────────────────────────── */
+  /* — Spacing — */
 
   /* --pf-spacing-tiny:  6px;  */
   /* --pf-spacing-small: 12px; */
@@ -125,48 +103,27 @@
   /* --pf-spacing-large: 48px; */
 
 
-  /* ── Shape ───────────────────────────────────────────────────────────────── */
+  /* — Shape — */
 
-  /* --pf-border-radius:  8px;    */   /* buttons and inputs                     */
-  /* --pf-global-radius:  1.5rem; */   /* frames and cards                       */
-  /* --pf-logo-max-width: 50%;    */   /* logo width relative to card            */
+  /* --pf-border-radius:  8px;    */   /* buttons and inputs             */
+  /* --pf-global-radius:  1.5rem; */   /* frames and cards               */
+  /* --pf-logo-max-width: 50%;    */   /* logo width relative to card    */
 
 
-  /* ══ 3. Special ══════════════════════════════════════════════════════════════ */
-
-  /* ── Logo filter ─────────────────────────────────────────────────────────── */
-  /*                                                                              */
-  /* In dark mode (OS preference) the portal applies brightness(0) invert(1)    */
-  /* automatically so dark/black logos remain visible on dark backgrounds.       */
-  /*                                                                              */
-  /* To disable the filter in dark mode (e.g. your logo is already light):       */
-  /* --pf-logo-filter: none;                                                      */
-  /*                                                                              */
-  /* To apply a filter in all modes:                                              */
-  /* --pf-logo-filter: brightness(0) invert(1);                                  */
-  /*                                                                              */
-  /* Note: light-dark() does not work with filter values.                         */
+  /* — Logo filter — dark mode auto-inverts black logos. Override if needed:
+   * --pf-logo-filter: none;                    disable inversion
+   * --pf-logo-filter: brightness(0) invert(1); force in all modes */
 
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════════
- * FORCE DARK MODE — full palette override (all browsers)
- * ───────────────────────────────────────────────────────────────────────────
- * Modern browsers (Chrome 123+, Firefox 120+, Safari 17.5+):
- *   A single `color-scheme: dark` in the :root block above is sufficient —
- *   all --pf-* color variables switch automatically. This block is redundant.
- *
- * Older browsers that do not support light-dark():
- *   Uncomment the entire :root block below to force dark mode for ALL
- *   visitors regardless of OS preference.
- * ═══════════════════════════════════════════════════════════════════════════ */
+/* FORCE DARK MODE — full palette override for older browsers
+ * Modern browsers: color-scheme: dark above is sufficient; skip this block.
+ * Older browsers: uncomment the entire :root block below. */
 
 /*
 :root {
   color-scheme: dark;
-
-  ---- 1. Colors ----
 
   --pf-color-error:               #f87171;
   --pf-color-notice:              #4ade80;
@@ -189,8 +146,6 @@
   --pf-color-secondary-touch:     #1268a8;
   --pf-color-secondary-disabled:  #5070a0;
 
-  ---- 2. Elements ----
-
   --pf-btn-disabled-text:              #d8d8f0;
   --pf-btn-primary-disabled-overlay:   #9494a6;
   --pf-btn-secondary-disabled-overlay: #859abd;
@@ -199,8 +154,6 @@
   --pf-input-border:              #6870a8;
   --pf-input-background:          #20223a;
   --pf-focus-ring-color:          rgba(0, 122, 184, 0.40);
-
-  ---- 3. Special ----
 
   --pf-logo-filter:               brightness(0) invert(1);
 }

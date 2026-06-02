@@ -61,9 +61,10 @@ upload your logo in the appropriate connection profile, then edit it's 'Logo'
 value to be
 `/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
 
-For the best results, your logo size should be approximately 330x75 pixels.
-Use a PNG with a transparent background so the logo blends correctly in both
-light and dark mode.
+For the best results, use a PNG with a transparent background and an aspect
+ratio of approximately 3.4:1 (e.g. 370 × 110 px). This ensures the logo
+blends correctly in both light and dark mode and scales well on all screen
+sizes.
 
 ===== CSS
 
@@ -100,18 +101,9 @@ and change values directly in this file to apply a site-wide look:
 
 ===== CSS Background Image
 
-By default no background image is applied (`--pf-background-image: none`).
-
-To set a full-page background image, place the file in
-`/usr/local/pf/html/common/` and set the variable in
-`/usr/local/pf/html/captive-portal/templates/theme.css`:
-
-[source,css]
-----
-:root {
-  --pf-background-image: url("/common/bg.png");
-}
-----
+A single Akamai-branded background image is applied automatically on
+tablet-width and wider screens (≥ 740 px). On phones the background colour is
+used instead.
 
 The background image is applied to the `html` element with
 `background-attachment: fixed` so it remains viewport-pinned and covers the
@@ -119,24 +111,53 @@ full viewport regardless of page length.
 
 [source,css]
 ----
-html {
-  background-color: var(--pf-background);       /* shown when no image is set */
-  background-image: var(--pf-background-image, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+/* Phone: background colour only */
+html { background-image: none; }
+
+/* Tablet and wider (≥ 740 px) */
+@media (min-width: 46.25em) {
+  html { background-image: url("/common/img/bg-akamai.png"); }
 }
 ----
 
+*Overriding or disabling the background image*
+
+To disable the default background image, set the variable in
+`/usr/local/pf/html/captive-portal/templates/theme.css`:
+
+[source,css]
+----
+:root {
+  --pf-background-image: none;
+}
+----
+
+To replace it with a custom image, place the file under
+`/usr/local/pf/html/common/` and point the variable to it:
+
+[source,css]
+----
+:root {
+  --pf-background-image: url("/common/my-bg.jpg");
+}
+----
+
+*Minimum image requirements*
+
+* *Size:* at least 1280 × 720 px (HD 720p).
+* *Aspect ratio:* 16:9 landscape.
+* *File size:* ≤ 500 KB for PNG; ≤ 300 KB for AVIF.
+* *Format:* PNG, AVIF, or JPEG.
+
 *Recommended image dimensions and format*
 
-* *Size:* at least 1920 × 1080 px (Full HD). 2560 × 1440 px or higher is
-  preferred for HiDPI / Retina displays.
+* *Size:* 1920 × 1080 px (Full HD) or higher. 2560 × 1440 px is preferred
+  for HiDPI / Retina displays.
 * *Aspect ratio:* 16:9 landscape covers most desktop and tablet viewports
   without cropping important content.
-* *Format:* JPEG for photographic images (aim for ≤ 300 KB after compression);
-  PNG only if transparency is required.
+* *Format:* PNG for flat/graphic images (logos, patterns); AVIF or JPEG for
+  photographic images. For AVIF, provide a JPEG at the same resolution as a
+  fallback for older browsers.
 * *Tip:* Apply a subtle dark or light overlay in the image editor so the
   text in the registration card remains legible regardless of the portal
   colour scheme.

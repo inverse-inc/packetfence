@@ -17,6 +17,7 @@ module.exports = function(grunt) {
           'styles.css': 'scss/styles.scss'
         },
         options: {
+          sourceMap: false, // exclude CSS source maps for production builds.
           outputStyle: 'compressed'
         }
       },
