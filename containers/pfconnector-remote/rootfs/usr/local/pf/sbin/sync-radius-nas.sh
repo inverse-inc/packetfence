@@ -13,7 +13,7 @@ if [ -z "$CONNECTOR_ID" ]; then
     exit 1
 fi
 
-PFCONNECTOR_API="localhost:22226/api/v1/pfconnector/remote-radius-nas?CONNECTOR_ID=$CONNECTOR_ID"
+PFCONNECTOR_API="http://localhost:22226/api/v1/pfconnector/remote-radius-nas?CONNECTOR_ID=$CONNECTOR_ID"
 
 mkdir -p "$CLIENTS_DIR"
 

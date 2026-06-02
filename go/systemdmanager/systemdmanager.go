@@ -2,7 +2,6 @@ package systemdmanager
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/godbus/dbus/v5"
@@ -176,19 +175,19 @@ func (sm *SystemdManager) ListSystemdServices() ([]SystemdService, error) {
 	return services, nil
 }
 
-func (sm *SystemdManager) getActiveServices() {
+func (sm *SystemdManager) getActiveServices() error {
 	systemd := sm.conn.Object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
 
 	call := systemd.Call("org.freedesktop.systemd1.Manager.ListUnitsByPatterns", 0,
 		[]string{"active"}, []string{"*.service"})
 	if call.Err != nil {
-		log.Fatal("Error calling ListUnitsByPatterns:", call.Err)
+		return fmt.Errorf("error calling ListUnitsByPatterns: %v", call.Err)
 	}
 
 	var units [][]interface{}
 	err := call.Store(&units)
 	if err != nil {
-		log.Fatal("Error to decode:", err)
+		return fmt.Errorf("error decoding units: %v", err)
 	}
 
 	fmt.Println("\nActives Services only:")
@@ -200,4 +199,6 @@ func (sm *SystemdManager) getActiveServices() {
 			fmt.Printf("%-40s %-15s %s\n", name, activeState, description)
 		}
 	}
+
+	return nil
 }

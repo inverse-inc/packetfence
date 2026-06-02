@@ -7,7 +7,7 @@ CRT_FILE="$RADIUS_SSL"/radius_default_tls-common.crt
 CA_FILE="$RADIUS_SSL"/radius_default_tls-common.pem
 KEY_FILE="$RADIUS_SSL"/radius_default_tls-common.key
 
-RET=$(curl -s -f "localhost:22226/api/v1/pfconnector/remote-radius-conf")
+RET=$(curl -s -f "http://localhost:22226/api/v1/pfconnector/remote-radius-conf")
 
 CA=$(echo "$RET" | jq -r '.ca')
 KEY=$(echo "$RET" | jq -r '.private_key')

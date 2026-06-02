@@ -18,6 +18,6 @@ if [ -z "$CONNECTOR_ID" ]; then
     exit 1
 fi
 
-curl --fail "localhost:22226/api/v1/pfconnector/remote-fingerbank-collector-nba-conf" > /usr/local/collector-remote/conf/network_behavior_policies.conf
+curl --fail "http://localhost:22226/api/v1/pfconnector/remote-fingerbank-collector-nba-conf" > /usr/local/collector-remote/conf/network_behavior_policies.conf
 
-curl --fail "localhost:22226/api/v1/pfconnector/remote-fingerbank-collector-env?CONNECTOR_ID=$CONNECTOR_ID" > /usr/local/collector-remote/conf/collector.env
+curl --fail "http://localhost:22226/api/v1/pfconnector/remote-fingerbank-collector-env?CONNECTOR_ID=$CONNECTOR_ID" > /usr/local/collector-remote/conf/collector.env
