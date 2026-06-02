@@ -33,21 +33,6 @@ our $template = Template->new($TT_OPTIONS);
 
 our $ADD_COMPUTERS_BIN = '/usr/local/pf/bin/impacket-addcomputer';
 
-=head2 run
-
-Executes a command and returns the results as the domain interfaces expect it
-
-=cut
-
-sub run {
-    my ($cmd) = @_;
-    local $?;
-    my $result = `$cmd`;
-    my $code = $? >> 8;
-
-    return ($code, $result);
-}
-
 =head2 add_computer
 
 Executes the command in the OS to test the domain join

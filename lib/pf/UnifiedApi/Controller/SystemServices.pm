@@ -24,22 +24,17 @@ sub resource {
     return 1;
 }
 
-sub quoted_system_service_id {
-    my ($id) = @_;
-    ($id) =~ s/'/'"'"'/g;
-    return "'$id'"
-}
-
 sub systemctl {
     my ($command, $service) = @_;
-    my $cmd = "sudo systemctl $command ".quoted_system_service_id($service);
-    return system($cmd);
+    my $status_ref;
+    safe_pf_run(qw(sudo systemctl), $command, $service, {status_ref => \$status_ref});
+    return $status_ref;
 }
 
 sub status {
     my ($self) = @_;
-    my $service = quoted_system_service_id($self->param("system_service_id"));
-    my $pid = `sudo systemctl show -p MainPID $service`;
+    my $pid = safe_pf_run(qw(sudo systemctl show -p MainPID), $self->param("system_service_id"));
+    $pid //= '';
     chomp $pid;
     $pid = (split(/=/, $pid))[1];
     return $self->render(json => {message => ($pid ? "Service is running" : "Service is not running"), pid => $pid+0}, status => ($pid ? 200 : 500));
