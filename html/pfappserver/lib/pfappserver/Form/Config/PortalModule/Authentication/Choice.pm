@@ -30,22 +30,32 @@ has_field 'with_aup' =>
              help => 'Require the user to accept the AUP' },
   );
 
+has_field 'aup_template' =>
+  (
+   type => 'Text',
+   label => 'AUP template',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'The template to use for the AUP' },
+  );
+
 ## Definition
 
 sub child_definition {
     my ($self) = @_;
-    return ($self->source_fields, qw(custom_fields template with_aup));
+    return ($self->source_fields, qw(custom_fields template with_aup aup_template));
 }
 
 =head2 BUILD
 
-set the default value for the with_aup field from the module attribute
+set the default value for the with_aup and aup_template fields from the module attributes
 
 =cut
 
 sub BUILD {
     my ($self) = @_;
     $self->field('with_aup')->default($self->for_module->meta->find_attribute_by_name('with_aup')->default->());
+    $self->field('aup_template')->default($self->for_module->meta->find_attribute_by_name('aup_template')->default->());
 }
 
 =over
