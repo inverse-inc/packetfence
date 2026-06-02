@@ -797,6 +797,8 @@ pfconfig_material_builder:
     - !reference [.build_img_container_rules, rules]
 
 # Builder image consumed by build_pf_img_zen via ZEN_BUILDER_IMAGE.
+# Built only when the zen job is requested; always on release tags so
+# the manual zen job has its image.
 zen_builder:
   extends:
     - .build_img_container_job
@@ -806,6 +808,12 @@ zen_builder:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
+    - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_TAG}
+        IMAGE_TAGS: ${CI_COMMIT_TAG}
+    - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
+      when: never
     - !reference [.build_img_container_rules, rules]
 
 ########################################
