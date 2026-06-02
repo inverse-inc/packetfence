@@ -1,7 +1,8 @@
 # QEMU/KVM build, run in the zen-builder container; the qcow2 becomes
 # a VMware OVA in ../build-and-upload.sh.
 source "qemu" "debian-12" {
-  vm_name = "${var.vm_name}"
+  # the qemu builder uses vm_name verbatim as the disk file name
+  vm_name = "${var.vm_name}.qcow2"
   disk_size = "200000"
   format = "qcow2"
   accelerator = "kvm"
