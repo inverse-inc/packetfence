@@ -189,7 +189,6 @@ func ping(_ *API) http.HandlerFunc {
 		res.Write([]byte("pong"))
 	})
 }
-}
 
 // status handles the status endpoint
 func status(api *API) http.HandlerFunc {
