@@ -29,17 +29,29 @@ BEGIN {
 }
 
 use pf::util;
+use pf::util::dns;
 use pf::domain;
 use pf::ConfigStore::Domain;
 
-my $REALM = pf_run('grep default_realm /etc/krb5.conf | awk \'{print $3}\'');
-chomp($REALM);
-my $WORKGROUP = pf_run('grep workgroup /etc/samba/smb.conf | awk \'{print $3}\'');
-chomp($WORKGROUP);
-my $SERVER = pf_run('grep admin_server /etc/krb5.conf | head -1 | awk \'{print $3}\'');
-chomp($SERVER);
-my $NAMESERVER = pf_run('grep nameserver /etc/resolv.conf | head -1 | awk \'{print $2}\'');
-chomp($NAMESERVER);
+# Return the value of the first "<key> = <value>" line in $file, or '' if none.
+# Replaces the old `grep <key> <file> | awk '{print $3}'` shell pipelines.
+sub _first_config_value {
+    my ($file, $key) = @_;
+    open(my $fh, '<', $file) or return '';
+    while (my $line = <$fh>) {
+        if ($line =~ /^\s*\Q$key\E\s*=\s*(\S+)/) {
+            close($fh);
+            return $1;
+        }
+    }
+    close($fh);
+    return '';
+}
+
+my $REALM      = _first_config_value('/etc/krb5.conf',      'default_realm');
+my $WORKGROUP  = _first_config_value('/etc/samba/smb.conf', 'workgroup');
+my $SERVER     = _first_config_value('/etc/krb5.conf',      'admin_server');
+my $NAMESERVER = eval { pf::util::dns::get_resolv_dns_servers()->[0] } // '';
 
 print "CAUTION: This account needs to have the rights to bind a new server on the domain. \n";
 print "What is the username to bind this server on the domain : ";
@@ -76,7 +88,7 @@ print "Are these settings fine ? This is your last chance before the domain bind
 my $confirm = <STDIN>;
 chomp($confirm);
 if($confirm eq 'y'){
-  pf_run('cp /etc/krb5.conf /etc/krb5.conf.pf_backup');
+  safe_pf_run('cp /etc/krb5.conf /etc/krb5.conf.pf_backup');
   pf::domain::regenerate_configuration();
   my $output = pf::domain::join_domain($WORKGROUP, $config);
   # we remove the password after the configuration
