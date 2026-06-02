@@ -399,7 +399,7 @@ variables:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   dependencies: []
   tags:
-    - docker-kvm
+    - shell-v7
 
 # Strict gate: build_artifacts must not start if lint_ci_yaml failed or if any
 # build_images job failed. lint_ci_yaml is non-optional (always present) so a
