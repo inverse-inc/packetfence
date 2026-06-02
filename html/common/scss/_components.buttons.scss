@@ -208,6 +208,15 @@ $btn-ghost-border-width: 2px;
 
 }
 
+// Dark mode: tertiary button background transparent so it looks like a link
+// (light mode uses #fff which blends with the white card; dark mode needs transparent)
+@media (prefers-color-scheme: dark) {
+  .c-btn--tertiary,
+  a.c-btn--tertiary {
+    background-color: transparent;
+  }
+}
+
 // Dark mode: ghost secondary → always filled; border matches bg; darkens on hover
 @media (prefers-color-scheme: dark) {
   .c-btn--ghost.c-btn--secondary {

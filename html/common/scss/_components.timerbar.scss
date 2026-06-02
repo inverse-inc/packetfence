@@ -3,16 +3,21 @@
 .c-timerbar {
   height: 15px;
   width: 100%;
-  background-color: lightgrey;
+  background-color: $pf-media-border-color;
+  background-color: var(--pf-media-border-color, #{$pf-media-border-color});
+  border-radius: $pf-border-radius;
+  overflow: hidden;
+
   [class|=loaded] {
     height: 15px;
     width: 0;
-    background-color: gray;
+    background-color: $pf-color-secondary;
+    background-color: var(--pf-color-secondary, #{$pf-color-secondary});
     transition: width 500ms ease-out;
   }
 
   $i: 0;
-  @while $i <= 100 { // number of 15-minutes blocks in a day
+  @while $i <= 100 {
     .loaded-#{$i} {
       width: $i * 1%;
     }

@@ -18,7 +18,14 @@
 }
 
 .c-frame--raised {
-  box-shadow: 3px 3px 18px 0px #808080;
+  box-shadow: 0 2px 8px $pf-media-border-color;
+}
+
+@media (prefers-color-scheme: dark) {
+  .c-frame--raised {
+    // Restore the base border ring — drop shadow not needed on dark backgrounds
+    box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);
+  }
 }
 
 /*
