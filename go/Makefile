@@ -4,7 +4,7 @@ CGO_ENABLED=1
 # to change the arch a binary is compiled for.
 # make GOARCH=arm64 pfconnector
 GOARCH=
-build_cmd = GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) $(GO) build $(ARGS)
+build_cmd = CGO_ENABLED=$(CGO_ENABLED) $(if $(GOARCH),GOARCH=$(GOARCH),) $(GO) build $(ARGS)
 
 .PHONY: all
 all: $(PF_BINARIES) $(PF_GO_CMDS)
