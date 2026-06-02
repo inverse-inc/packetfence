@@ -29,8 +29,15 @@ case "$1" in
     /bin/systemctl enable packetfence-ntlm-auth-api-remote.service
     if [ -n "$2" ]; then
         echo "Upgrade detected, restarting packetfence-ntlm-auth-api-remote service"
-        /bin/systemctl restart packetfence-ntlm-auth-api-remote.service || \
-            echo "Warning: failed to restart packetfence-ntlm-auth-api-remote.service (will retry via Restart=on-failure)"
+        # --no-block: don't make dpkg wait on (and report) the first start. During an
+        # upgrade the pfconnector-remote-combined container was just restarted and its
+        # tunnel (:22226 / credcache forward) can take up to 120s to be ready, while the
+        # combined unit is Type=simple so our After= is satisfied long before that. The
+        # forking PIDFile is only written once a domain container answers /ping, so the
+        # first start would block to the 90s timeout and fail. Restart=on-failure brings
+        # it up cleanly once the tunnel is ready.
+        /bin/systemctl restart --no-block packetfence-ntlm-auth-api-remote.service || \
+            echo "Warning: failed to enqueue restart of packetfence-ntlm-auth-api-remote.service (will retry via Restart=on-failure)"
     else
         /bin/systemctl stop packetfence-ntlm-auth-api-remote.service
     fi
