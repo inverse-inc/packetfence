@@ -8,7 +8,7 @@
   // Standard (Firefox, Chrome 121+): thin bar, thumb = divider color,
   // track = card background — automatically adapts with the CSS vars.
   scrollbar-width: thin;
-  scrollbar-color: var(--pf-divider-color) var(--pf-frame-background);
+  scrollbar-color: var(--pf-divider-color) var(--pf-card-background-color);
 
   // WebKit (Safari, older Chrome/Edge)
   &::-webkit-scrollbar {
@@ -16,7 +16,7 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--pf-frame-background);
+    background: var(--pf-card-background-color);
     border-radius: 3px;
   }
 
@@ -25,7 +25,7 @@
     border-radius: 3px;
 
     &:hover {
-      background-color: var(--pf-base-text-color);
+      background-color: var(--pf-text-base-color);
     }
   }
 }

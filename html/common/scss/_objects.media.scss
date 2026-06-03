@@ -1,41 +1,41 @@
 /// _objects.media.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
 .o-media--notice {
-  color: $pf-base-text-color;
+  color: $pf-text-base-color;
   background-color: $pf-notice-background;
-  border: 1px solid $pf-color-notice;
-  border-left: 4px solid $pf-color-notice;
+  border: 1px solid $pf-success-color;
+  border-left: 4px solid $pf-success-color;
   border-radius: $pf-border-radius;
 
-  .c-iconic use { fill: $pf-color-notice; }
+  .c-iconic use { fill: $pf-success-color; }
 }
 
 .o-media--error {
-  color: $pf-base-text-color;
+  color: $pf-text-base-color;
   background-color: $pf-error-background;
-  border: 1px solid $pf-color-error;
-  border-left: 4px solid $pf-color-error;
+  border: 1px solid $pf-error-color;
+  border-left: 4px solid $pf-error-color;
   border-radius: $pf-border-radius;
 
-  .c-iconic use { fill: $pf-color-error; }
+  .c-iconic use { fill: $pf-error-color; }
 }
 
 @media (prefers-color-scheme: dark) {
   .o-media--notice {
-    color: $pf-dark-base-text-color;
+    color: $pf-dark-text-base-color;
     background-color: $pf-dark-notice-background;
-    border-color: $pf-dark-color-notice;
-    border-left-color: $pf-dark-color-notice;
+    border-color: $pf-dark-success-color;
+    border-left-color: $pf-dark-success-color;
 
-    .c-iconic use { fill: $pf-dark-color-notice; }
+    .c-iconic use { fill: $pf-dark-success-color; }
   }
 
   .o-media--error {
-    color: $pf-dark-base-text-color;
+    color: $pf-dark-text-base-color;
     background-color: $pf-dark-error-background;
-    border-color: $pf-dark-color-error;
-    border-left-color: $pf-dark-color-error;
+    border-color: $pf-dark-error-color;
+    border-left-color: $pf-dark-error-color;
 
-    .c-iconic use { fill: $pf-dark-color-error; }
+    .c-iconic use { fill: $pf-dark-error-color; }
   }
 }

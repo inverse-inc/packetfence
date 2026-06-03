@@ -9,7 +9,14 @@
  *     controls change; uncomment the FORCE DARK MODE block at the bottom too.
  *
  * PER-MODE COLORS  (color values only — light-dark() does not work on filter/font)
- *   --pf-color-primary: light-dark(#light, #dark);
+ *   --pf-primary-color: light-dark(#light, #dark);
+ *
+ * SPACING
+ *   --pf-spacing-base is the atomic unit (6 px).
+ *   Use calc() multiples for larger values:
+ *     calc(var(--pf-spacing-base) * 2)  → 12 px
+ *     calc(var(--pf-spacing-base) * 4)  → 24 px
+ *     calc(var(--pf-spacing-base) * 8)  → 48 px
  */
 
 :root {
@@ -29,67 +36,41 @@
    * color-scheme override above — set the variable explicitly if forcing dark. */
   /* --pf-background-image: none; */
 
-  /* --pf-background:         #f5f5f5; */   /* page background            */
-  /* --pf-frame-background:   #ffffff; */   /* card background            */
-  /* --pf-frame-border-color: #d4d4d4; */       /* card border            */
-  /* --pf-media-background:   #f5f5f5; */   /* alert box background       */
-  /* --pf-media-border-color: #d2d2d2; */   /* alert box border           */
-  /* --pf-divider-color:      #c2c2c27a; */  /* horizontal rule            */
+  /* --pf-page-background-color: #f5f5f5; */   /* page background            */
+  /* --pf-card-background-color: #ffffff; */   /* card background            */
+  /* --pf-alert-background-color: #f5f5f5; */  /* alert / message box bg     */
+  /* --pf-divider-color:      #c2c2c27a; */    /* horizontal rule            */
+
+  /* Card and alert border colors are derived automatically from their
+   * background via color-mix() — no separate variable to set.            */
 
 
   /* — Text & links — */
 
-  /* --pf-base-text-color:         #2a2a2b; */
-  /* --pf-link-color:              #007ab8; */
-  /* --pf-heading-color:           #002f6c; */   /* page title (h1)        */
-  /* --pf-footer-text-color:       #2a2a2b; */   /* IP / MAC footer info   */
-  /* --pf-footer-background-color: transparent; */
+  /* --pf-text-base-color:     #2a2a2b; */
+  /* --pf-link-color:          #007ab8; */
+  /* --pf-text-heading-color:  #002f6c; */   /* page title (h1)            */
+  /* --pf-text-secondary-color: #2a2a2b; */  /* footer info, captions      */
 
 
   /* — Status — */
 
-  /* --pf-color-error:  #f02b1f; */   /* validation errors               */
-  /* --pf-color-notice: #00cd63; */   /* success notices                 */
+  /* --pf-error-color:   #f02b1f; */   /* validation errors              */
+  /* --pf-success-color: #00cd63; */   /* success notices                */
 
 
-  /* — Primary action — */
+  /* — Actions — */
 
-  /* --pf-color-primary:          #007ab8; */
-  /* --pf-color-primary-touch:    #0069a8; */   /* hover / focus          */
-  /* --pf-color-primary-disabled: #a3a2a2; */   /* disabled               */
+  /* --pf-primary-color:   #007ab8; */
+  /* --pf-secondary-color: #002f6c; */
+  /* --pf-tertiary-color:  #007ab8; */
 
-
-  /* — Secondary action — */
-
-  /* --pf-color-secondary:          #002f6c; */
-  /* --pf-color-secondary-touch:    #004a99; */
-  /* --pf-color-secondary-disabled: #9caab3; */
-
-
-  /* — Tertiary / link action — */
-
-  /* --pf-color-tertiary:       #007ab8; */
-  /* --pf-color-tertiary-touch: #0069a8; */
-
-
-  /* — Buttons — */
-
-  /* --pf-btn-disabled-text:              #707070; */
-  /* --pf-btn-primary-disabled-overlay:   #d6d5d5; */
-  /* --pf-btn-secondary-disabled-overlay: #cdd4d9; */
-
-
-  /* — Inputs — */
-
-  /* --pf-input-border-width: 1px;     */
-  /* --pf-input-label:        #717171; */   /* label / placeholder        */
-  /* --pf-input-border:       #767b8a; */
-  /* --pf-input-background:   #ffffff; */
+  /* Hover, disabled, and overlay states are derived internally —
+   * not exposed as separate variables.                              */
 
 
   /* — Typography — */
 
-  /* --pf-font-family:         "Arial", "Helvetica Neue", sans-serif; */
   /* --pf-font-size-base:      16px; */
   /* --pf-font-weight-normal:  400;  */
   /* --pf-font-weight-heading: 700;  */
@@ -97,17 +78,14 @@
 
   /* — Spacing — */
 
-  /* --pf-spacing-tiny:  6px;  */
-  /* --pf-spacing-small: 12px; */
-  /* --pf-spacing:       24px; */
-  /* --pf-spacing-large: 48px; */
+  /* --pf-spacing-base: 6px; */   /* atomic unit — use calc() multiples     */
 
 
   /* — Shape — */
 
-  /* --pf-border-radius:  8px;    */   /* buttons and inputs             */
-  /* --pf-global-radius:  1.5rem; */   /* frames and cards               */
-  /* --pf-logo-max-width: 50%;    */   /* logo width relative to card    */
+  /* --pf-border-radius:  8px;    */   /* buttons and inputs                 */
+  /* --pf-global-radius:  1.5rem; */   /* frames and cards                   */
+  /* --pf-logo-max-width: 50%;    */   /* logo width relative to card        */
 
 
   /* — Logo filter — dark mode auto-inverts black logos. Override if needed:
@@ -125,35 +103,20 @@
 :root {
   color-scheme: dark;
 
-  --pf-color-error:               #f87171;
-  --pf-color-notice:              #4ade80;
+  --pf-error-color:               #f87171;
+  --pf-success-color:             #4ade80;
 
-  --pf-background:                #0c0e1b;
-  --pf-frame-background:          #181a2c;
-  --pf-frame-border-color:        rgba(255, 255, 255, 0.10);
-  --pf-media-background:          #20223a;
-  --pf-media-border-color:        #4c5080;
+  --pf-page-background-color:     #0c0e1b;
+  --pf-card-background-color:     #181a2c;
+  --pf-alert-background-color:    #20223a;
   --pf-divider-color:             #2e3054;
 
-  --pf-base-text-color:           #f5f5f5;
+  --pf-text-base-color:           #f5f5f5;
   --pf-link-color:                #60baff;
-  --pf-heading-color:             #60baff;
-  --pf-footer-text-color:         #9ca3b4;
+  --pf-text-heading-color:        #60baff;
+  --pf-text-secondary-color:      #9ca3b4;
 
-  --pf-color-primary-disabled:    #666680;
-
-  --pf-color-secondary:           #1878bd;
-  --pf-color-secondary-touch:     #1268a8;
-  --pf-color-secondary-disabled:  #5070a0;
-
-  --pf-btn-disabled-text:              #d8d8f0;
-  --pf-btn-primary-disabled-overlay:   #9494a6;
-  --pf-btn-secondary-disabled-overlay: #859abd;
-
-  --pf-input-label:               #a9a7ad;
-  --pf-input-border:              #6870a8;
-  --pf-input-background:          #20223a;
-  --pf-focus-ring-color:          rgba(0, 122, 184, 0.40);
+  --pf-secondary-color:           #1878bd;
 
   --pf-logo-filter:               brightness(0) invert(1);
 }

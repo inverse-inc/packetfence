@@ -1,10 +1,18 @@
 /// _components.frame.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// Border colors use a three-tier cascade:
+///   [1] Static hex  — IE (no var() support)
+///   [2] CSS custom property — browsers without color-mix() (var() resolves to
+///       the static fallback defined in _settings.theme.scss)
+///   [3] color-mix() — modern browsers: border derives from background colour,
+///       so changing --pf-card-background-color adjusts the border automatically.
 
 .c-frame {
-  background-color: $pf-frame-background;
+  background-color: $pf-card-background-color;
   border-radius: $pf-border-radius;
-  // Inset 1px border ring (visible in dark mode; transparent in light).
-  box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);
+  box-shadow: 0 0 0 1px #{$pf-frame-border-color};                                                    // [1] IE
+  box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);                                   // [2] no color-mix()
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--pf-card-background-color) 85%, CanvasText);        // [3] modern
 }
 
 .c-frame--first {
@@ -18,13 +26,17 @@
 }
 
 .c-frame--raised {
-  box-shadow: 0 2px 8px $pf-media-border-color;
+  box-shadow: 0 2px 8px #{$pf-media-border-color};                                                    // [1] IE
+  box-shadow: 0 2px 8px var(--pf-media-border-color, transparent);                                   // [2] no color-mix()
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--pf-alert-background-color) 75%, CanvasText);       // [3] modern
 }
 
 @media (prefers-color-scheme: dark) {
   .c-frame--raised {
     // Restore the base border ring — drop shadow not needed on dark backgrounds
-    box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);
+    box-shadow: 0 0 0 1px #{$pf-dark-frame-border-color};                                            // [1] IE
+    box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);                                 // [2] no color-mix()
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--pf-card-background-color) 85%, CanvasText);      // [3] modern
   }
 }
 

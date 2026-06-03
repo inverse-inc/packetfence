@@ -31,7 +31,7 @@
   label {
     cursor: pointer;
     display: block;
-    color: $pf-base-text-color;
+    color: $pf-text-base-color;
     font-weight: 500;
     font-size: 0.875rem;
     margin-bottom: $inuit-global-spacing-unit-tiny;
@@ -47,31 +47,31 @@
   }
 
   input:not([type=radio]), select {
-    border: $pf-input-border-width solid $pf-input-border;
+    border: 1px solid var(--pf-primary-color);
     border-radius: var(--pf-border-radius);
     background-color: $pf-input-background;
-    color: $pf-base-text-color;
+    color: $pf-text-base-color;
     padding: $inuit-global-spacing-unit-small;
     width: 100%;
     -webkit-appearance: none;
 
     &::placeholder {
-      color: $pf-input-label;
+      color: var(--pf-text-secondary-color);
     }
 
     &:focus {
       outline: none;
-      border-color: $pf-color-primary;
+      border-color: $pf-primary-color;
       box-shadow: 0 0 0 3px var(--pf-focus-ring-color);
     }
   }
 
   .error {
     input, select {
-      border-color: $pf-color-error;
+      border-color: $pf-error-color;
     }
     .error_message {
-      color: $pf-color-error;
+      color: $pf-error-color;
       font-size: 80%;
     }
   }
@@ -89,7 +89,7 @@
       right: 0; top: 0; bottom: 0;
       border-radius: 5px;
       margin: 1em;
-      background-color: $pf-color-secondary;
+      background-color: $pf-secondary-color;
       color: #fff;
       line-height: $inuit-global-line-height * 2/3;
       text-transform: uppercase;

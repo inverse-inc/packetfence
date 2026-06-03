@@ -36,7 +36,7 @@ $btn-line-height: 1.5;
    ========================================================================== */
 
 .c-btn--primary, a.c-btn--primary {
-  background-color: $pf-color-primary;
+  background-color: $pf-primary-color;
 
   &,
   &:hover,
@@ -71,7 +71,7 @@ $btn-line-height: 1.5;
 
 
 .c-btn--secondary, a.c-btn--secondary {
-  background-color: $pf-color-secondary;
+  background-color: $pf-secondary-color;
 
   &,
   &:hover,
@@ -107,14 +107,14 @@ $btn-line-height: 1.5;
 
 .c-btn--tertiary, a.c-btn--tertiary {
   background-color: #fff;
-  color: $pf-color-tertiary;
+  color: $pf-tertiary-color;
 
   &,
   &:hover,
   &:active,
   &:focus {
     text-decoration: none;
-    color: $pf-color-tertiary;
+    color: $pf-tertiary-color;
   }
 
   &:hover,
@@ -175,7 +175,7 @@ $btn-ghost-border-width: 2px;
   }
 
   &.c-btn--primary {
-    color: $pf-color-primary;
+    color: $pf-primary-color;
 
     &:hover,
     &:focus {
@@ -185,13 +185,13 @@ $btn-ghost-border-width: 2px;
   }
 
   &.c-btn--secondary {
-    color: $pf-color-secondary;
+    color: $pf-secondary-color;
 
     &:hover,
     &:focus {
       color: #fff;
-      background-color: $pf-color-secondary !important; // overrides ghost base (higher specificity + !important)
-      border-color: $pf-color-secondary;                // prevent border turning white via currentColor
+      background-color: $pf-secondary-color !important; // overrides ghost base (higher specificity + !important)
+      border-color: $pf-secondary-color;                // prevent border turning white via currentColor
     }
 
   }
@@ -220,16 +220,15 @@ $btn-ghost-border-width: 2px;
 // Dark mode: ghost secondary → always filled; border matches bg; darkens on hover
 @media (prefers-color-scheme: dark) {
   .c-btn--ghost.c-btn--secondary {
-    background-color: var(--pf-color-secondary) !important;
-    border-color: var(--pf-color-secondary);
+    background-color: var(--pf-secondary-color) !important;
+    border-color: var(--pf-secondary-color);
     color: #fff;
 
     &:hover,
     &:focus {
-      background-color: var(--pf-color-secondary-touch) !important;
-      border-color: var(--pf-color-secondary-touch);
+      background-color: #{$pf-dark-secondary-touch} !important;
+      border-color: #{$pf-dark-secondary-touch};
       color: #fff;
     }
   }
 }
-

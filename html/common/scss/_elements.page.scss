@@ -8,8 +8,8 @@ html {
   font-family:  var(--pf-font-family);
   font-size:    var(--pf-font-size-base);
   font-weight:  var(--pf-font-weight-normal);
-  color: $pf-base-text-color;
-  background-color: $pf-background;
+  color: $pf-text-base-color;
+  background-color: $pf-page-background-color;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

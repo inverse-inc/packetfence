@@ -38,7 +38,7 @@ header {
 // to disable if the logo is already light/white.
 .pf-logo {
   max-width: var(--pf-logo-max-width);
-  margin-top: var(--pf-spacing);
+  margin-top: calc(var(--pf-spacing-base) * 4);  // 24px = 4 × 6px base
   filter: var(--pf-logo-filter);
   transition: filter 0.3s ease;
 }

@@ -90,14 +90,172 @@ and change values directly in this file to apply a site-wide look:
 :root {
 
   /* ── Brand colour ──────────────────────────── */
-  --pf-color-primary:       #e63000;
-  --pf-color-primary-touch: #c52b00;
+  --pf-primary-color: #e63000;
 
   /* ── Force dark mode for all visitors ──────── */
   /* color-scheme: dark; */
 
 }
 ----
+
+====== Available CSS custom properties
+
+All variables live inside `:root { … }` and are commented out by default (no-op).
+Uncomment and set only the ones you need — everything else inherits the built-in
+Akamai/PacketFence palette.
+
+Per-mode values use the https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark[`light-dark()`] function
+(Chrome 123+, Firefox 120+, Safari 17.5+):
+
+[source,css]
+----
+--pf-primary-color: light-dark(#007ab8, #60baff);
+----
+
+NOTE: Hover, focus, and disabled states for buttons are derived internally and
+are not exposed as separate variables. Border colours for cards and alert boxes
+are computed automatically from their background colour via `color-mix()` and
+do not need to be set independently.
+
+.Surfaces & backgrounds
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default (light) |Description
+
+|`--pf-background-image`
+|Akamai branded image
+|Background image shown on tablet and wider (≥ 740 px). Set to `none` to disable or `url(…)` to override.
+
+|`--pf-page-background-color`
+|`#f5f5f5`
+|Page background colour (visible on phones and when no image is set).
+
+|`--pf-card-background-color`
+|`#ffffff`
+|Registration card background. Card border colour is derived from this automatically.
+
+|`--pf-alert-background-color`
+|`#f5f5f5`
+|Alert/info box background. Alert border colour is derived from this automatically.
+
+|`--pf-divider-color`
+|`#c2c2c27a`
+|Horizontal rule colour.
+|===
+
+.Text & links
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default (light) |Description
+
+|`--pf-text-base-color`
+|`#2a2a2b`
+|Body text.
+
+|`--pf-link-color`
+|`#007ab8`
+|Inline link colour.
+
+|`--pf-text-heading-color`
+|`#002f6c`
+|Page title (`h1`).
+
+|`--pf-text-secondary-color`
+|`#2a2a2b`
+|Secondary text: IP / MAC address footer, input labels, captions.
+|===
+
+.Status colours
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default (light) |Description
+
+|`--pf-error-color`
+|`#f02b1f`
+|Validation error text and borders.
+
+|`--pf-success-color`
+|`#00cd63`
+|Success / notice indicators.
+|===
+
+.Actions
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default (light) |Description
+
+|`--pf-primary-color`
+|`#007ab8`
+|Primary button background.
+
+|`--pf-secondary-color`
+|`#002f6c`
+|Secondary button background.
+
+|`--pf-tertiary-color`
+|`#007ab8`
+|Tertiary / text-button colour.
+|===
+
+.Typography
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default |Description
+
+|`--pf-font-size-base`
+|`16px`
+|Root font size (all `rem` values scale from this).
+
+|`--pf-font-weight-normal`
+|`400`
+|Normal text weight.
+
+|`--pf-font-weight-heading`
+|`700`
+|Heading weight.
+|===
+
+.Spacing
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default |Description
+
+|`--pf-spacing-base`
+|`6px`
+|Atomic spacing unit. Use `calc()` multiples for larger values:
+`calc(var(--pf-spacing-base) * 2)` → 12 px,
+`calc(var(--pf-spacing-base) * 4)` → 24 px,
+`calc(var(--pf-spacing-base) * 8)` → 48 px.
+|===
+
+.Shape
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default |Description
+
+|`--pf-border-radius`
+|`8px`
+|Button and input corner radius.
+
+|`--pf-global-radius`
+|`1.5rem`
+|Card and frame corner radius.
+
+|`--pf-logo-max-width`
+|`50%`
+|Logo width relative to the registration card.
+|===
+
+.Logo filter
+[cols="2,2,3",options="header"]
+|===
+|Variable |Default |Description
+
+|`--pf-logo-filter`
+|auto-invert in dark mode
+|CSS `filter` applied to the logo `<img>`. Dark mode auto-inverts black logos.
+Set to `none` to disable, or `brightness(0) invert(1)` to force inversion in all modes.
+|===
 
 ===== CSS Background Image
 
