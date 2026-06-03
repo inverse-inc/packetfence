@@ -1,57 +1,37 @@
 /// _settings.colors.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 ///
-/// Color SCSS variables.
-/// CSS custom properties are defined in _settings.theme.scss, which is
-/// imported BEFORE this file in styles.scss.
-///
-/// Public variables (var(--pf-*)) are runtime-switchable; the fallback value
-/// is used when the custom property is absent (JS-less env, IE11).
-///
-/// Internal/compile-time variables (raw values) are not CSS-custom-property-
-/// backed — they compile to static values in the output CSS.
-///
-/// IMPORTANT: Do NOT use these variables as arguments to Sass color functions
-/// (lighten, darken, mix, etc.) — Sass cannot evaluate CSS custom property
-/// strings at compile time. Use pre-computed values from _settings.packetfence
-/// for those cases.
+/// SCSS variable wrappers around CSS custom properties (runtime-switchable).
+/// IMPORTANT: Do NOT use these as arguments to Sass color functions (lighten,
+/// darken, mix, etc.) — Sass cannot evaluate CSS var() at compile time.
+/// Use raw values from _settings.packetfence.scss for compile-time color math.
 
-// ── Status ────────────────────────────────────────────────────────────────────
 $pf-error-color:               var(--pf-error-color, #f02b1f);
 $pf-success-color:             var(--pf-success-color, #00cd63);
 
-// ── Base surface & text ───────────────────────────────────────────────────────
 $pf-text-base-color:           var(--pf-text-base-color, #2a2a2b);
 $pf-page-background-color:     var(--pf-page-background-color, #f5f5f5);
 $pf-card-background-color:     var(--pf-card-background-color, #ffffff);
 $pf-link-color:                var(--pf-link-color, #007ab8);
 
-// ── Headings ──────────────────────────────────────────────────────────────────
 $pf-text-heading-color:        var(--pf-text-heading-color, #002f6c);
 
-// ── Alerts / media ────────────────────────────────────────────────────────────
 $pf-alert-background-color:    var(--pf-alert-background-color, #f5f5f5);
 
-// ── Footer / secondary text ───────────────────────────────────────────────────
 $pf-text-secondary-color:      var(--pf-text-secondary-color, #2a2a2b);
 
-// ── Primary button ────────────────────────────────────────────────────────────
 $pf-primary-color:             var(--pf-primary-color, #007ab8);
-$pf-color-primary-touch:       #0069a8;   // internal compile-time only
-$pf-color-primary-disabled:    #a3a2a2;   // internal compile-time only
+$pf-color-primary-touch:       #0069a8;   // internal
+$pf-color-primary-disabled:    #a3a2a2;   // internal
 
-// ── Secondary button ──────────────────────────────────────────────────────────
 $pf-secondary-color:           var(--pf-secondary-color, #002f6c);
-$pf-color-secondary-touch:     #004a99;   // internal compile-time only
-$pf-color-secondary-disabled:  #9caab3;   // internal compile-time only
+$pf-color-secondary-touch:     #004a99;   // internal
+$pf-color-secondary-disabled:  #9caab3;   // internal
 
-// ── Tertiary button ───────────────────────────────────────────────────────────
 $pf-tertiary-color:            var(--pf-tertiary-color, #007ab8);
-$pf-color-tertiary-touch:      #0069a8;   // internal compile-time only
+$pf-color-tertiary-touch:      #0069a8;   // internal
 
-// ── Inputs (internal) ────────────────────────────────────────────────────────
 $pf-input-background:          var(--pf-input-background, #ffffff);
 
-// ── Disabled button overlay & text (internal compile-time) ───────────────────
-$pf-btn-disabled-text:              #707070;
-$pf-btn-primary-disabled-overlay:   #d6d5d5;
-$pf-btn-secondary-disabled-overlay: #cdd4d9;
+$pf-btn-disabled-text:              #707070;   // internal
+$pf-btn-primary-disabled-overlay:   #d6d5d5;   // internal
+$pf-btn-secondary-disabled-overlay: #cdd4d9;   // internal

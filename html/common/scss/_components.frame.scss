@@ -1,11 +1,6 @@
 /// _components.frame.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 ///
-/// Border colors use a three-tier cascade:
-///   [1] Static hex  — IE (no var() support)
-///   [2] CSS custom property — browsers without color-mix() (var() resolves to
-///       the static fallback defined in _settings.theme.scss)
-///   [3] color-mix() — modern browsers: border derives from background colour,
-///       so changing --pf-card-background-color adjusts the border automatically.
+/// Border: three-tier cascade — [1] IE static → [2] var() fallback → [3] color-mix() modern.
 
 .c-frame {
   background-color: $pf-card-background-color;
@@ -33,24 +28,9 @@
 
 @media (prefers-color-scheme: dark) {
   .c-frame--raised {
-    // Restore the base border ring — drop shadow not needed on dark backgrounds
+    // drop shadow not needed on dark backgrounds — restore border ring
     box-shadow: 0 0 0 1px #{$pf-dark-frame-border-color};                                            // [1] IE
     box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);                                 // [2] no color-mix()
     box-shadow: 0 0 0 1px color-mix(in oklch, var(--pf-card-background-color) 85%, CanvasText);      // [3] modern
   }
-}
-
-/*
- * See https://github.com/evankarageorgos/hue
- *
- * The following classes can be added to the page's body.
- */
-.c-frame--earlyMorning {
-  min-height: 100%;
-  background: linear-gradient(-180deg, #BCC5CE 0%, #929EAD 98%);
-}
-
-.c-frame--air {
-  min-height: 100%;
-  background: linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%);
 }

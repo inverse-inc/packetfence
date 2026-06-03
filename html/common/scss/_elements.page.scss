@@ -12,11 +12,8 @@ html {
   background-color: $pf-page-background-color;
 }
 
-// Background image rendered on a fixed pseudo-element so it never scrolls and
-// sits behind all content. Phone: no image (page background colour only).
-// Tablet and wider: default Akamai branded image.
-// Profile theme.css can override background-image with url("filename") —
-// use a relative path so it resolves from theme.css's own location.
+// Background on body::before (fixed, behind content, tablet+ only).
+// theme.css override: body::before { background-image: url("file.png"); } — relative URL only.
 @include mq($from: tablet) {
   body::before {
     content: ' ';

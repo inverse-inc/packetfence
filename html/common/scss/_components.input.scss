@@ -62,7 +62,9 @@
     &:focus {
       outline: none;
       border-color: $pf-primary-color;
-      box-shadow: 0 0 0 3px var(--pf-focus-ring-color);
+      box-shadow: 0 0 0 3px #{$pf-focus-ring-color};                                     // [1] IE
+      box-shadow: 0 0 0 3px var(--pf-focus-ring-color);                                  // [2] no color-mix()
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--pf-primary-color) 30%, Canvas);   // [3] modern
     }
   }
 

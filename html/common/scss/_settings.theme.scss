@@ -1,185 +1,109 @@
 /// _settings.theme.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 ///
-/// CSS Custom Property theme layer.
-/// Import order: AFTER settings.packetfence (which provides $pf-* SCSS variables).
-///
-/// Declares all --pf-* CSS custom properties in three blocks:
-///   :root                               — light defaults (all browsers)
-///   @media (prefers-color-scheme: dark)  — dark overrides (Chrome 76+, FF 67+, Safari 12.1+)
-///   @supports (color: light-dark(...))   — light-dark() enhancement (Chrome 123+, FF 120+, Safari 17.5+)
-///
-/// Public API (exposed in theme.css for operator customisation):
-///   --pf-page-background-color, --pf-card-background-color, --pf-alert-background-color,
-///   --pf-divider-color, --pf-text-base-color, --pf-link-color, --pf-text-heading-color,
-///   --pf-text-secondary-color, --pf-error-color, --pf-success-color,
-///   --pf-primary-color, --pf-secondary-color, --pf-tertiary-color,
-///   --pf-border-radius, --pf-global-radius, --pf-logo-max-width, --pf-logo-filter,
-///   --pf-font-size-base, --pf-font-weight-normal, --pf-font-weight-heading,
-///   --pf-spacing-base, color-scheme
-///
-/// Internal (defined here, used by components — not in theme.css):
-///   --pf-input-background, --pf-focus-ring-color, --pf-font-family
-///
-/// Border colors (frame, media) are derived via color-mix() from their parent
-/// background in component SCSS — no separate CSS custom property needed.
+/// CSS Custom Property theme layer. Import AFTER _settings.packetfence.scss.
+/// Three blocks: :root (light), @media dark (fallback), @supports light-dark() (modern).
 
-
-// ── Light theme defaults (:root) ─────────────────────────────────────────────
 :root {
   color-scheme: light dark;
 
-
-  // ── 1. Colors ───────────────────────────────────────────────────────────────
-
-  // Status
   --pf-error-color:               #{$pf-error-color};
   --pf-success-color:             #{$pf-success-color};
 
-  // Surfaces & backgrounds
   --pf-page-background-color:     #{$pf-page-background-color};
   --pf-card-background-color:     #{$pf-card-background-color};
   --pf-alert-background-color:    #{$pf-alert-background-color};
   --pf-divider-color:             #{$pf-divider-color};
 
-  // Text & links
   --pf-text-base-color:           #{$pf-text-base-color};
   --pf-link-color:                #{$pf-link-color};
   --pf-text-heading-color:        #{$pf-text-heading-color};
   --pf-text-secondary-color:      #{$pf-text-secondary-color};
 
-  // Primary action
   --pf-primary-color:             #{$pf-primary-color};
-
-  // Secondary action
   --pf-secondary-color:           #{$pf-secondary-color};
-
-  // Tertiary action
   --pf-tertiary-color:            #{$pf-tertiary-color};
 
-
-  // ╔══════════════════════════════════════════════════════════════════════════╗
-  // ║  INTERNAL — not in theme.css; not operator-facing                       ║
-  // ╚══════════════════════════════════════════════════════════════════════════╝
-
-  // Border colors: static fallback used by the three-tier cascade in
-  // _components.frame.scss and _components.timerbar.scss.
-  // [1] IE fallback is the #{$...} SCSS interpolation in the component itself.
-  // [2] This var() is the mid-tier fallback (no color-mix() support).
-  // [3] color-mix() in the component overwrites this on modern browsers.
+  // ── INTERNAL — not in theme.css ──────────────────────────────────────────────
+  // Border colors: var() fallback for the three-tier cascade in frame/timerbar.
   --pf-frame-border-color:        #{$pf-frame-border-color};
   --pf-media-border-color:        #{$pf-media-border-color};
 
-  // ── 2. Elements ─────────────────────────────────────────────────────────────
-
-  // Input fields
   --pf-input-background:          #{$pf-input-background};
   --pf-focus-ring-color:          #{$pf-focus-ring-color};
-
-  // Typography — font-family is internal; not offered for operator override
   --pf-font-family:               "Arial", "Helvetica Neue", sans-serif;
+  // ─────────────────────────────────────────────────────────────────────────────
+
   --pf-font-size-base:            16px;
   --pf-font-weight-normal:        400;
   --pf-font-weight-heading:       700;
 
-  // Spacing — base unit 6px; use calc(var(--pf-spacing-base) * N) for multiples
   --pf-spacing-base:              #{$inuit-global-spacing-unit-tiny};   // 6px
 
-  // Shape
   --pf-border-radius:             #{$pf-border-radius};   // 8px
   --pf-global-radius:             #{$global-radius};      // 1.5rem
   --pf-btn-box-shadow:            #{$pf-btn-box-shadow};
   --pf-logo-max-width:            50%;
 
-
-  // ── 3. Special ──────────────────────────────────────────────────────────────
-
-  // Logo filter — none in light mode; brightness(0) invert(1) in dark mode
-  // (set in the @media block below). Override in theme.css if needed:
-  //   --pf-logo-filter: none;                    disable dark inversion
-  //   --pf-logo-filter: brightness(0) invert(1); force in all modes
+  // light-dark() does not work with filter values — logo filter uses @media only
   --pf-logo-filter:               #{$pf-logo-filter};
-
 }
 
 
-// ── Dark theme — OS preference fallback (all browsers) ───────────────────────
-// Chrome 76+, Firefox 67+, Safari 12.1+.
-// On modern browsers this block is superseded by the @supports block below.
-
+// Dark overrides — Chrome 76+, FF 67+, Safari 12.1+. Superseded by @supports below.
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
 
-    // Status
     --pf-error-color:               #{$pf-dark-error-color};
     --pf-success-color:             #{$pf-dark-success-color};
 
-    // Surfaces & backgrounds
     --pf-page-background-color:     #{$pf-dark-page-background-color};
     --pf-card-background-color:     #{$pf-dark-card-background-color};
     --pf-alert-background-color:    #{$pf-dark-alert-background-color};
     --pf-divider-color:             #{$pf-dark-divider-color};
 
-    // Text & links
     --pf-text-base-color:           #{$pf-dark-text-base-color};
     --pf-link-color:                #{$pf-dark-link-color};
     --pf-text-heading-color:        #{$pf-dark-text-heading-color};
     --pf-text-secondary-color:      #{$pf-dark-text-secondary-color};
 
-    // Secondary action
     --pf-secondary-color:           #{$pf-dark-secondary-color};
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  INTERNAL                                                               ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // ── INTERNAL ─────────────────────────────────────────────────────────────
     --pf-frame-border-color:        #{$pf-dark-frame-border-color};
     --pf-media-border-color:        #{$pf-dark-media-border-color};
     --pf-input-background:          #{$pf-dark-input-background};
     --pf-focus-ring-color:          #{$pf-dark-focus-ring-color};
 
-    // Special
     --pf-logo-filter:               #{$pf-dark-logo-filter};
   }
 }
 
 
-// ── Modern browsers: light-dark() progressive enhancement ────────────────────
-// Chrome 123+, Firefox 120+, Safari 17.5+.
-// light-dark() resolves based on the computed color-scheme on :root, so an
-// operator setting `color-scheme: dark` in theme.css switches the full palette.
-
+// light-dark() — Chrome 123+, FF 120+, Safari 17.5+.
+// color-scheme: dark in theme.css switches the full palette via light-dark().
 @supports (color: light-dark(red, blue)) {
   :root {
-
-    // Status
     --pf-error-color:               light-dark(#{$pf-error-color},              #{$pf-dark-error-color});
     --pf-success-color:             light-dark(#{$pf-success-color},            #{$pf-dark-success-color});
 
-    // Surfaces & backgrounds
     --pf-page-background-color:     light-dark(#{$pf-page-background-color},    #{$pf-dark-page-background-color});
     --pf-card-background-color:     light-dark(#{$pf-card-background-color},    #{$pf-dark-card-background-color});
     --pf-alert-background-color:    light-dark(#{$pf-alert-background-color},   #{$pf-dark-alert-background-color});
     --pf-divider-color:             light-dark(#{$pf-divider-color},            #{$pf-dark-divider-color});
 
-    // Text & links
     --pf-text-base-color:           light-dark(#{$pf-text-base-color},          #{$pf-dark-text-base-color});
     --pf-link-color:                light-dark(#{$pf-link-color},               #{$pf-dark-link-color});
     --pf-text-heading-color:        light-dark(#{$pf-text-heading-color},       #{$pf-dark-text-heading-color});
     --pf-text-secondary-color:      light-dark(#{$pf-text-secondary-color},     #{$pf-dark-text-secondary-color});
 
-    // Secondary action
     --pf-secondary-color:           light-dark(#{$pf-secondary-color},          #{$pf-dark-secondary-color});
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  INTERNAL                                                               ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // ── INTERNAL ─────────────────────────────────────────────────────────────
     --pf-frame-border-color:        light-dark(#{$pf-frame-border-color},       #{$pf-dark-frame-border-color});
     --pf-media-border-color:        light-dark(#{$pf-media-border-color},       #{$pf-dark-media-border-color});
     --pf-input-background:          light-dark(#{$pf-input-background},         #{$pf-dark-input-background});
     --pf-focus-ring-color:          light-dark(#{$pf-focus-ring-color},         #{$pf-dark-focus-ring-color});
-
-    // Note: --pf-logo-filter is NOT included here.
-    // light-dark() is a CSS color function and does not work with filter values.
-    // Logo filter switching is handled by the @media block above (OS preference).
+    // --pf-logo-filter excluded: light-dark() is a color function, not a filter
   }
 }

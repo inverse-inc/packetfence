@@ -48,7 +48,9 @@ $btn-line-height: 1.5;
 
   &:hover,
   &:focus {
-    background-color: $pf-color-primary-touch;
+    background-color: $pf-color-primary-touch;                                         // [1] IE
+    background-color: var(--pf-primary-color);                                         // [2] no color-mix()
+    background-color: color-mix(in oklch, var(--pf-primary-color) 82%, CanvasText);   // [3] modern
   }
 
   &[disabled] {
@@ -83,7 +85,9 @@ $btn-line-height: 1.5;
 
   &:hover,
   &:focus {
-    background-color: $pf-color-secondary-touch;
+    background-color: $pf-color-secondary-touch;                                         // [1] IE
+    background-color: var(--pf-secondary-color);                                         // [2] no color-mix()
+    background-color: color-mix(in oklch, var(--pf-secondary-color) 82%, CanvasText);   // [3] modern
   }
 
   &[disabled] {
@@ -119,7 +123,9 @@ $btn-line-height: 1.5;
 
   &:hover,
   &:focus {
-    color: $pf-color-tertiary-touch;
+    color: $pf-color-tertiary-touch;                                                     // [1] IE
+    color: var(--pf-tertiary-color);                                                     // [2] no color-mix()
+    color: color-mix(in oklch, var(--pf-tertiary-color) 82%, CanvasText);               // [3] modern
   }
 
 }
@@ -179,7 +185,9 @@ $btn-ghost-border-width: 2px;
 
     &:hover,
     &:focus {
-      color: $pf-color-primary-touch;
+      color: $pf-color-primary-touch;                                                    // [1] IE
+      color: var(--pf-primary-color);                                                    // [2] no color-mix()
+      color: color-mix(in oklch, var(--pf-primary-color) 82%, CanvasText);              // [3] modern
     }
 
   }
@@ -217,6 +225,20 @@ $btn-ghost-border-width: 2px;
   }
 }
 
+// Dark mode: disabled button colours — compile-time vars have no dark override otherwise
+@media (prefers-color-scheme: dark) {
+  .c-btn--primary[disabled] {
+    background-color: $pf-dark-color-primary-disabled;
+    color: $pf-dark-btn-disabled-text;
+    &::after { background-color: $pf-dark-btn-primary-disabled-overlay; }
+  }
+  .c-btn--secondary[disabled] {
+    background-color: $pf-dark-secondary-disabled;
+    color: $pf-dark-btn-disabled-text;
+    &::after { background-color: $pf-dark-btn-secondary-disabled-overlay; }
+  }
+}
+
 // Dark mode: ghost secondary → always filled; border matches bg; darkens on hover
 @media (prefers-color-scheme: dark) {
   .c-btn--ghost.c-btn--secondary {
@@ -226,8 +248,10 @@ $btn-ghost-border-width: 2px;
 
     &:hover,
     &:focus {
-      background-color: #{$pf-dark-secondary-touch} !important;
-      border-color: #{$pf-dark-secondary-touch};
+      background-color: #{$pf-dark-secondary-touch} !important;                                                   // [1] IE
+      background-color: color-mix(in oklch, var(--pf-secondary-color) 82%, CanvasText) !important;               // [3] modern
+      border-color: #{$pf-dark-secondary-touch};                                                                   // [1] IE
+      border-color: color-mix(in oklch, var(--pf-secondary-color) 82%, CanvasText);                               // [3] modern
       color: #fff;
     }
   }

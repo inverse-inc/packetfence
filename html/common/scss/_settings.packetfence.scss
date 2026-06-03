@@ -13,11 +13,9 @@ $pf-header-tablet-ratio:     1.2;
 
 // ── Theme — light palette ─────────────────────────────────────────────────────
 
-// Status
 $pf-error-color:               #f02b1f;
 $pf-success-color:             #00cd63;
 
-// Surfaces & backgrounds
 $pf-page-background-color:     #f5f5f5;
 $pf-card-background-color:     #ffffff;
 $pf-frame-border-color:        #d4d4d4;  // internal fallback for color-mix()
@@ -25,50 +23,40 @@ $pf-alert-background-color:    #f5f5f5;
 $pf-media-border-color:        #d2d2d2;  // internal fallback for color-mix()
 $pf-divider-color:             #c2c2c2;
 
-// Message box tinted backgrounds — solid pre-computed colors, not themeable
 $pf-notice-background:         mix($pf-success-color, $pf-card-background-color, 12%);
 $pf-error-background:          mix($pf-error-color,   $pf-card-background-color, 12%);
 
-// Text & links
 $pf-text-base-color:           #2a2a2b;
 $pf-link-color:                #007ab8;
 $pf-text-heading-color:        #002f6c;
 $pf-text-secondary-color:      #2a2a2b;
 
-// Primary action
 $pf-primary-color:             #007ab8;
-$pf-color-primary-touch:       #0069a8;  // internal
-$pf-color-primary-disabled:    #a3a2a2;  // internal
+$pf-color-primary-touch:       #0069a8;
+$pf-color-primary-disabled:    #a3a2a2;
 
-// Secondary action
 $pf-secondary-color:           #002f6c;
-$pf-color-secondary-touch:     #004a99;  // internal
-$pf-color-secondary-disabled:  #9caab3;  // internal
+$pf-color-secondary-touch:     #004a99;
+$pf-color-secondary-disabled:  #9caab3;
 
-// Disabled button overlay & text — internal
 $pf-btn-disabled-text:              #707070;
 $pf-btn-primary-disabled-overlay:   #d6d5d5;  // primary-disabled (#a3a2a2) + 40% white
 $pf-btn-secondary-disabled-overlay: #cdd4d9;  // secondary-disabled (#9caab3) + 40% white
 
-// Tertiary action
 $pf-tertiary-color:            #007ab8;
-$pf-color-tertiary-touch:      #0069a8;  // internal
+$pf-color-tertiary-touch:      #0069a8;
 
-// Input fields — internal
 $pf-input-background:          #ffffff;
 $pf-focus-ring-color:          #c2dff0;
 
-// Special
 $pf-logo-filter:               none;
 
 
 // ── Theme — dark palette ──────────────────────────────────────────────────────
 
-// Status
 $pf-dark-error-color:              #f87171;
 $pf-dark-success-color:            #4ade80;
 
-// Surfaces & backgrounds
 $pf-dark-page-background-color:    #0c0e1b;
 $pf-dark-card-background-color:    #181a2c;
 $pf-dark-frame-border-color:       #2c2f43;  // internal fallback for color-mix()
@@ -78,29 +66,23 @@ $pf-dark-divider-color:            #2e3054;
 $pf-dark-notice-background:        mix($pf-dark-success-color, $pf-dark-card-background-color, 15%);
 $pf-dark-error-background:         mix($pf-dark-error-color,   $pf-dark-card-background-color, 15%);
 
-// Text & links
 $pf-dark-text-base-color:          #f5f5f5;
 $pf-dark-link-color:               #60baff;
 $pf-dark-text-heading-color:       #60baff;
 $pf-dark-text-secondary-color:     #9ca3b4;
 
-// Primary disabled differs from light — internal
 $pf-dark-color-primary-disabled:   #666680;
 
-// Secondary action
 $pf-dark-secondary-color:          #1878bd;
-$pf-dark-secondary-touch:          #1268a8;  // internal
-$pf-dark-secondary-disabled:       #5070a0;  // internal
+$pf-dark-secondary-touch:          #1268a8;
+$pf-dark-secondary-disabled:       #5070a0;
 
-// Disabled button overlay & text — internal
 $pf-dark-btn-disabled-text:              #d8d8f0;
 $pf-dark-btn-primary-disabled-overlay:   #9494a6;  // primary-disabled-dark (#666680) + 30% white
 $pf-dark-btn-secondary-disabled-overlay: #859abd;  // secondary-disabled-dark (#5070a0) + 30% white
 
-// Special
 $pf-dark-logo-filter:              brightness(0) invert(1);
 
-// Input fields — internal
 $pf-dark-input-label:              #a9a7ad;
 $pf-dark-input-background:         #20223a;
 $pf-dark-focus-ring-color:         #1a5a80;
