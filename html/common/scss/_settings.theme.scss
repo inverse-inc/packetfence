@@ -18,7 +18,7 @@
 ///   --pf-spacing-base, color-scheme
 ///
 /// Internal (defined here, used by components — not in theme.css):
-///   --pf-input-background, --pf-focus-ring-color, --pf-font-family, --pf-background-image
+///   --pf-input-background, --pf-focus-ring-color, --pf-font-family
 ///
 /// Border colors (frame, media) are derived via color-mix() from their parent
 /// background in component SCSS — no separate CSS custom property needed.

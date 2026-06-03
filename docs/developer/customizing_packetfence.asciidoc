@@ -122,10 +122,6 @@ do not need to be set independently.
 |===
 |Variable |Default (light) |Description
 
-|`--pf-background-image`
-|Akamai branded image
-|Background image shown on tablet and wider (≥ 740 px). Set to `none` to disable or `url(…)` to override.
-
 |`--pf-page-background-color`
 |`#f5f5f5`
 |Page background colour (visible on phones and when no image is set).
@@ -259,66 +255,22 @@ Set to `none` to disable, or `brightness(0) invert(1)` to force inversion in all
 
 ===== CSS Background Image
 
-A single Akamai-branded background image is applied automatically on
-tablet-width and wider screens (≥ 740 px). On phones the background colour is
-used instead.
-
-The background image is applied to the `html` element with
-`background-attachment: fixed` so it remains viewport-pinned and covers the
-full viewport regardless of page length.
+Set a background image by adding a direct rule at the bottom of the profile's
+`theme.css` (outside `:root`). Shown on tablet and wider (≥ 740 px); phones
+use the page background colour.
 
 [source,css]
 ----
-/* Phone: background colour only */
-html { background-image: none; }
-
-/* Tablet and wider (≥ 740 px) */
 @media (min-width: 46.25em) {
-  html { background-image: url("/common/img/bg-akamai.png"); }
+  body::before { background-image: url("my-bg.jpg"); }
 }
 ----
 
-*Overriding or disabling the background image*
+*Constraint:* use a **relative URL** only. Absolute paths
+(`/profile-templates/…/file`) bypass the admin preview proxy and return empty
+content.
 
-To disable the default background image, set the variable in
-`/usr/local/pf/html/captive-portal/templates/theme.css`:
-
-[source,css]
-----
-:root {
-  --pf-background-image: none;
-}
-----
-
-To replace it with a custom image, place the file under
-`/usr/local/pf/html/common/` and point the variable to it:
-
-[source,css]
-----
-:root {
-  --pf-background-image: url("/common/my-bg.jpg");
-}
-----
-
-*Minimum image requirements*
-
-* *Size:* at least 1280 × 720 px (HD 720p).
-* *Aspect ratio:* 16:9 landscape.
-* *File size:* ≤ 500 KB for PNG; ≤ 300 KB for AVIF.
-* *Format:* PNG, AVIF, or JPEG.
-
-*Recommended image dimensions and format*
-
-* *Size:* 1920 × 1080 px (Full HD) or higher. 2560 × 1440 px is preferred
-  for HiDPI / Retina displays.
-* *Aspect ratio:* 16:9 landscape covers most desktop and tablet viewports
-  without cropping important content.
-* *Format:* PNG for flat/graphic images (logos, patterns); AVIF or JPEG for
-  photographic images. For AVIF, provide a JPEG at the same resolution as a
-  fallback for older browsers.
-* *Tip:* Apply a subtle dark or light overlay in the image editor so the
-  text in the registration card remains legible regardless of the portal
-  colour scheme.
+*Image requirements:* 16:9 landscape, ≥ 1920 × 1080 px, PNG/AVIF/JPEG.
 
 ===== Workflow
 

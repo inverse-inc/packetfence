@@ -10,17 +10,23 @@ html {
   font-weight:  var(--pf-font-weight-normal);
   color: $pf-text-base-color;
   background-color: $pf-page-background-color;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+}
 
-  // Phone: background color only — no image
-  background-image: var(--pf-background-image, none);
-
-  // Tablet and wider: default Akamai background images.
-  @include mq($from: tablet) {
-    background-image: var(--pf-background-image, url("/common/img/bg-akamai.png"));
+// Background image rendered on a fixed pseudo-element so it never scrolls and
+// sits behind all content. Phone: no image (page background colour only).
+// Tablet and wider: default Akamai branded image.
+// Profile theme.css can override background-image with url("filename") —
+// use a relative path so it resolves from theme.css's own location.
+@include mq($from: tablet) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: url("/common/img/packetfence-background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 }
 
