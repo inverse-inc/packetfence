@@ -96,9 +96,6 @@ func (api *API) setupRoutes() {
 				r.Post("/stop", manageService(api, "stop"))
 				r.Post("/restart", manageService(api, "restart"))
 			})
-			r.Route("/status", func(r chi.Router) {
-				r.Get("/", connectorStatus(api))
-			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
@@ -326,30 +323,6 @@ func manageService(api *API, action string) http.HandlerFunc {
 			}
 		}
 		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
-	})
-}
-
-// collector handles the collector endpoint
-func collector(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-	})
-}
-
-// connector handles the connector endpoint
-func connector(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-	})
-}
-
-// ntlmAuth handles the NTLM authentication endpoint
-func ntlmAuth(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-	})
-}
-
-// connectorStatus handles the connector status endpoint
-func connectorStatus(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 	})
 }
 
