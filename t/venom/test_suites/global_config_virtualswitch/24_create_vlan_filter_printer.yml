@@ -12,7 +12,7 @@ testcases:
         "id": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.id}}",
         "description": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.description}}",
         "status": "disabled",
-        "run_actions": "enabled",
+        "run_actions": "true",
         "scopes": ["RegisteredRole"],
         "condition": {
           "op": "or",

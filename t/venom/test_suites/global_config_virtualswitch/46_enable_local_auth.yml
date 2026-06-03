@@ -8,7 +8,7 @@ testcases:
     method: PATCH
     body: >-
       {
-        "local_auth": "enabled"
+        "local_auth": "true"
       }
     status_code: 200
 

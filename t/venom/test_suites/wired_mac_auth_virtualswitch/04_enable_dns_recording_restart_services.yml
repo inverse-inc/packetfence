@@ -9,7 +9,7 @@ testcases:
     status_code: 200
     body: >-
       {
-        "record_dns_in_sql": "enabled"
+        "record_dns_in_sql": "true"
       }
 
 - name: restart_pfcron_service

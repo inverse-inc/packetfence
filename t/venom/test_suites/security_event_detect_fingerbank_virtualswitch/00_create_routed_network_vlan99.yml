@@ -20,5 +20,5 @@ testcases:
         "dhcp_max_lease_time": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }

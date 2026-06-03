@@ -20,7 +20,7 @@ testcases:
         "dhcp_max_lease_time": "{{.virtualswitch.networks.guest.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }
 
 - name: create_registration_network_vlan2
@@ -42,7 +42,7 @@ testcases:
         "dhcp_max_lease_time": "{{.virtualswitch.networks.registration.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }
 
 - name: create_windows_network_vlan3
@@ -64,7 +64,7 @@ testcases:
         "dhcp_max_lease_time": "{{.virtualswitch.networks.windows.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }
 
 - name: create_user_network_vlan4
@@ -86,7 +86,7 @@ testcases:
         "dhcp_max_lease_time": "{{.virtualswitch.networks.user.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }
 
 - name: create_android_network_vlan5
@@ -108,7 +108,7 @@ testcases:
         "dhcp_max_lease_time": "{{.virtualswitch.networks.android.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }
 
 - name: create_isolation_network_vlan6
@@ -130,5 +130,5 @@ testcases:
         "dhcp_max_lease_time": "{{.virtualswitch.networks.isolation.dhcp_max_lease_time}}",
         "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
         "pool_backend": "memory",
-        "coa": "enabled"
+        "coa": "true"
       }

@@ -641,9 +641,9 @@ $t->options_ok("/api/v1/config/base/general")
                 type        => "string",
                 required => $false,
                 implied  => undef,
-                placeholder => 'enabled',
+                placeholder => 'true',
                 allow_custom => $false,
-                default     => undef,
+                default     => 'false',
             },
         },
         status => 200
