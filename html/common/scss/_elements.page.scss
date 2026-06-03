@@ -19,7 +19,7 @@ html {
 // use a relative path so it resolves from theme.css's own location.
 @include mq($from: tablet) {
   body::before {
-    content: '';
+    content: ' ';
     position: fixed;
     inset: 0;
     z-index: -1;
