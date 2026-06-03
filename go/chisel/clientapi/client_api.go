@@ -12,9 +12,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
@@ -24,13 +26,13 @@ const defaultCredcacheTarget = "http://127.0.0.1:12142/api/v1/credcache/"
 
 // Handler struct
 type API struct {
-	Router        *chi.Mux
-	ConnectorId   string
-	ctx           context.Context
-	cancel        context.CancelFunc
-	tunnel        *tunnel.Tunnel
-	mdCache       *multiDomainCache
-	statusCache   *connectorStatusCache
+	Router      *chi.Mux
+	ConnectorId string
+	ctx         context.Context
+	cancel      context.CancelFunc
+	tunnel      *tunnel.Tunnel
+	mdCache     *multiDomainCache
+	statusCache *connectorStatusCache
 }
 
 type Service struct {
@@ -647,15 +649,22 @@ func (api *API) Start(ctx context.Context, addr string) error {
 		Handler: api,
 	}
 
+	// This is an auxiliary side-car API (status/credcache/service control). A
+	// listen failure (e.g. port already bound on a restart race) must not take
+	// down the pfconnector-client process with it, so log and return rather
+	// than panic.
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			panic(err)
+			log.Logger().Error(fmt.Sprintf("clientapi: server on %s stopped: %s", addr, err))
 		}
 	}()
 
 	// Wait for the context to be done
 	<-ctx.Done()
 
-	// Shutdown the server gracefully
-	return server.Shutdown(ctx)
+	// Shutdown the server gracefully. The incoming ctx is already cancelled, so
+	// use a fresh bounded context to give in-flight requests a chance to drain.
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	return server.Shutdown(shutdownCtx)
 }

@@ -162,7 +162,11 @@ func (s *Server) handleCredcacheForward(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ch, err := tun.OpenChiselChannel(r.Context(), credcacheClientTarget)
+	// Bound the channel open so a flapping connector can't pin this request
+	// goroutine for the full SSH_WAIT window while OpenChiselChannel blocks.
+	openCtx, cancelOpen := context.WithTimeout(r.Context(), 10*time.Second)
+	defer cancelOpen()
+	ch, err := tun.OpenChiselChannel(openCtx, credcacheClientTarget)
 	if err != nil {
 		log.LoggerWContext(r.Context()).Error(fmt.Sprintf("credcache forward: open channel to %s failed: %s", connectorId, err))
 		w.WriteHeader(http.StatusBadGateway)
@@ -906,7 +910,10 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 
 		sw := pfconfigdriver.PfConfSwitch{}
 		sw.PfconfigHashNS = key
-		pfconfigdriver.FetchDecodeSocket(ctx, &sw)
+		if err := pfconfigdriver.FetchDecodeSocket(ctx, &sw); err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("remote-radius-nas: failed to fetch switch %s from pfconfig, skipping: %s", key, err))
+			continue
+		}
 		secret := sw.RadiusSecret.String()
 		if secret == "" {
 			continue

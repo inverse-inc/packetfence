@@ -473,8 +473,9 @@ func client(args []string) {
 	}
 	go func(ctx context.Context) {
 		api := clientapi.NewApi(ctx, config.Auth, c.GetTunnel())
+		// The side-car API failing should not be fatal to the tunnel client.
 		if err := api.Start(ctx, ":8081"); err != nil {
-			log.Fatal(err)
+			log.Printf("clientapi: %v", err)
 		}
 	}(ctx)
 	if err := c.Wait(); err != nil {

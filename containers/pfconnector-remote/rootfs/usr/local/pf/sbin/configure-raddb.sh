@@ -14,6 +14,13 @@ if [ -z "$RADIUS_SECRET" ]; then
     exit 1
 fi
 
+# A newline in the secret cannot be expressed in a single sed s/// command and
+# would also break the generated config; refuse it rather than emit garbage.
+if [[ "$RADIUS_SECRET" == *$'\n'* ]]; then
+    echo "ERROR: radius secret contains a newline; refusing to write config" >&2
+    exit 1
+fi
+
 # Detect the IP address used for the default route
 MGMT_IP=$(ip route get 1.1.1.1 | awk '/src/ {for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}')
 
@@ -44,10 +51,14 @@ sed_escape() {
 
 # Generate raddb config from template
 if [ -f "$RADDB_TEMPLATE" ]; then
+    # All substitution values go through sed_escape so a connector_id (named in
+    # the admin UI) containing / or & can't corrupt the config or break sed.
     RADIUS_SECRET_ESC=$(sed_escape "$RADIUS_SECRET")
+    MGMT_IP_ESC=$(sed_escape "$MGMT_IP")
+    CONNECTOR_ID_ESC=$(sed_escape "$CONNECTOR_ID")
     sed -e "s/%password%/$RADIUS_SECRET_ESC/g" \
-        -e "s/%mgmt_ip%/$MGMT_IP/g" \
-        -e "s/%connector_id%/$CONNECTOR_ID/g" \
+        -e "s/%mgmt_ip%/$MGMT_IP_ESC/g" \
+        -e "s/%connector_id%/$CONNECTOR_ID_ESC/g" \
         "$RADDB_TEMPLATE" > "$RADDB_PACKETFENCE"
     echo "Configured raddb: radius_secret=***, mgmt_ip=$MGMT_IP, connector_id=$CONNECTOR_ID"
 else

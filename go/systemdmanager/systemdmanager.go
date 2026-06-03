@@ -32,7 +32,9 @@ func NewSystemdManager() (*SystemdManager, error) {
 
 // Close closes the D-Bus connection
 func (sm *SystemdManager) Close() {
-	sm.conn.Close()
+	if sm != nil && sm.conn != nil {
+		sm.conn.Close()
+	}
 }
 
 // Start starts a systemd service
@@ -100,7 +102,22 @@ func (sm *SystemdManager) Status(serviceName string) (string, string, error) {
 		return "", "", fmt.Errorf("error getting SubState: %v", err)
 	}
 
-	return activeState.Value().(string), subState.Value().(string), nil
+	active, ok1 := activeState.Value().(string)
+	sub, ok2 := subState.Value().(string)
+	if !ok1 || !ok2 {
+		return "", "", fmt.Errorf("unexpected systemd property types for %s", serviceName)
+	}
+	return active, sub, nil
+}
+
+// asString returns the string value at index i of a D-Bus unit tuple, or "" if
+// the slot is absent or not a string. Avoids panics on unexpected reply shapes.
+func asString(unit []interface{}, i int) string {
+	if i >= len(unit) {
+		return ""
+	}
+	s, _ := unit[i].(string)
+	return s
 }
 
 // IsActive checks if a service is active
@@ -156,16 +173,16 @@ func (sm *SystemdManager) ListSystemdServices() ([]SystemdService, error) {
 	var services []SystemdService
 	for _, unit := range units {
 		if len(unit) >= 6 {
-			name := unit[0].(string)
+			name := asString(unit, 0)
 
 			// Filtrer uniquement les services (.service)
 			if strings.HasSuffix(name, ".service") {
 				service := SystemdService{
 					Name:        name,
-					Description: unit[1].(string),
-					LoadState:   unit[2].(string),
-					ActiveState: unit[3].(string),
-					SubState:    unit[4].(string),
+					Description: asString(unit, 1),
+					LoadState:   asString(unit, 2),
+					ActiveState: asString(unit, 3),
+					SubState:    asString(unit, 4),
 				}
 				services = append(services, service)
 			}
@@ -173,32 +190,4 @@ func (sm *SystemdManager) ListSystemdServices() ([]SystemdService, error) {
 	}
 
 	return services, nil
-}
-
-func (sm *SystemdManager) getActiveServices() error {
-	systemd := sm.conn.Object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
-
-	call := systemd.Call("org.freedesktop.systemd1.Manager.ListUnitsByPatterns", 0,
-		[]string{"active"}, []string{"*.service"})
-	if call.Err != nil {
-		return fmt.Errorf("error calling ListUnitsByPatterns: %v", call.Err)
-	}
-
-	var units [][]interface{}
-	err := call.Store(&units)
-	if err != nil {
-		return fmt.Errorf("error decoding units: %v", err)
-	}
-
-	fmt.Println("\nActives Services only:")
-	for _, unit := range units {
-		if len(unit) >= 4 {
-			name := unit[0].(string)
-			description := unit[1].(string)
-			activeState := unit[3].(string)
-			fmt.Printf("%-40s %-15s %s\n", name, activeState, description)
-		}
-	}
-
-	return nil
 }

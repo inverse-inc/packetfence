@@ -186,8 +186,11 @@ sub additional_switches {
                 }
             } (@$entries);
         }
-    } else {
-        push @switches, { id => $management_network->tag('ip'), radiusSecret => $local_secret, type => 'PacketFence'};
+    } elsif (ref($management_network)) {
+        my $mgmt_ip = $management_network->tag('vip') || $management_network->tag('ip');
+        if (defined $mgmt_ip && $mgmt_ip =~ /\S/) {
+            push @switches, { id => $mgmt_ip, radiusSecret => $local_secret, type => 'PacketFence'};
+        }
     }
 
     return @switches;
