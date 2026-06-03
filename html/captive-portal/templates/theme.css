@@ -73,7 +73,9 @@
 
 
 /* BACKGROUND IMAGE — relative URL only (resolves from theme.css location).
- * Constraint: absolute paths bypass the admin preview proxy → empty content. */
+ * Constraint: absolute paths bypass the admin preview proxy → empty content.
+ * Override:  body::before { background-image: url("my-bg.png"); }
+ * Disable:   body::before { background-image: none; }  → shows --pf-page-background-color */
 
 /* body::before { background-image: url("packetfence-background.png"); } */
 
