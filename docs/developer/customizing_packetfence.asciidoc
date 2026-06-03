@@ -61,10 +61,7 @@ upload your logo in the appropriate connection profile, then edit it's 'Logo'
 value to be
 `/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
 
-For the best results, use a PNG with a transparent background and an aspect
-ratio of approximately 3.4:1 (e.g. 370 × 110 px). This ensures the logo
-blends correctly in both light and dark mode and scales well on all screen
-sizes.
+For the best results, your logo size should be approximately 330x75 pixels.
 
 ===== CSS
 
