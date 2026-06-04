@@ -29,7 +29,7 @@ RUN apt-get update && \
 RUN ln -s /opt/vmware-ovftool/ovftool /usr/local/bin/ovftool
 
 # Let an arbitrary host UID self-register in /etc/passwd at startup.
-RUN chmod g=u /etc/passwd /etc/group
+RUN chmod a+w /etc/passwd /etc/group
 
 # Smoke-test the toolchain at build time so a broken image fails to push.
 RUN packer version && \
