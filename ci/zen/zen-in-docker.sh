@@ -40,6 +40,7 @@ docker run --rm \
   --device /dev/kvm \
   --user "$(id -u):$(id -g)" \
   --group-add "${KVM_GID}" \
+  --group-add 0 \
   -e HOME=/tmp \
   -e USER="$(id -un)" \
   -e PF_VERSION \
