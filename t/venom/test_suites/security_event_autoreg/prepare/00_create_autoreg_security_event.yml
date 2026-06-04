@@ -4,6 +4,25 @@ testcases:
   steps:
   - type: get_login_token
 
+- name: seed_dhcp_fingerprint
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/fingerbank/local/dhcp_fingerprints'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "value": "{{.security_event_autoreg.node.dhcp_fingerprint}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 201
+    vars:
+      id:
+        from: result.bodyjson.id
+
 - name: create_security_event
   steps:
   - type: http
@@ -19,7 +38,7 @@ testcases:
         "enabled": "Y",
         "target_category": "{{.mac_auth.roles.headless_device.id}}",
         "triggers": [{
-          "dhcp_fingerprint": "{{.security_event_autoreg.node.dhcp_fingerprint_id}}"
+          "dhcp_fingerprint": "{{.seed_dhcp_fingerprint.id}}"
         }],
         "whitelisted_roles": []
       }
