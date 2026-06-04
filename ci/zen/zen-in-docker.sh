@@ -10,6 +10,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # CI sets the image ref; the default comes from containers/zen-builder/build-local.sh.
 : "${ZEN_BUILDER_IMAGE:=zen-builder:local-test}"
 
+# `always` matches the CI need for a fresh push; override to `never` locally.
+: "${ZEN_BUILDER_PULL:=always}"
+
 # ovftool is not redistributable: kept on the host, bind-mounted below.
 : "${OVFTOOL_HOST_DIR:=/usr/lib/vmware-ovftool}"
 
@@ -32,7 +35,7 @@ echo "===> zen build in ${ZEN_BUILDER_IMAGE} (kvm gid=${KVM_GID}, build=${BUILD_
 # Runs as the calling user so bind-mounted files are not root-owned;
 # HOME=/tmp keeps packer/ansible dotdirs writable.
 docker run --rm \
-  --pull always \
+  --pull "${ZEN_BUILDER_PULL}" \
   --name "zen-build-${BUILD_NAME}" \
   --device /dev/kvm \
   --user "$(id -u):$(id -g)" \
