@@ -12,35 +12,30 @@ Container image used by the CI vagrant box build jobs. Ships packer, qemu-system
 ## Build the image locally
 
 ```bash
-cd /path/to/packetfence
-docker build -f containers/vagrant-build/Dockerfile -t vagrant-build:test .
+./containers/vagrant-build/build-local.sh   # produces vagrant-build:local-test
 ```
 
 ## Run a packer box build locally
 
+The Makefile entry targets wrap the container run (`vagrant-in-docker.sh`):
+
 ```bash
-docker run --rm \
-  --device /dev/kvm \
-  -v "$(pwd):/workspace" \
-  -w /workspace/ci/packer/vagrant_img \
-  -e PACKER_LOG=1 \
-  vagrant-build:test \
-  packer build -only="dev.qemu.debian-12" \
-    -var "output_dir=/workspace/ci/packer/vagrant_img/results/pfdeb12dev" \
-    -var "ansible_group=dev" \
-    -var "pfserver_name=pfdeb12dev" \
-    -var "box_version=15.1.$(date -u +%Y%m%d%H%M%S)" \
-    -var "pf_version=15.1" \
-    .
+make -C ci/packer/vagrant_img pfdeb12dev
+# use a specific image instead of vagrant-build:local-test:
+VAGRANT_BUILD_IMAGE=ghcr.io/inverse-inc/packetfence/vagrant-build:devel \
+  make -e -C ci/packer/vagrant_img pfdeb12dev
 ```
 
 Output box: `ci/packer/vagrant_img/results/pfdeb12dev/pfdeb12dev-libvirt.box`
 
+To also upload to Linode Object Storage (what CI does), export `UPLOAD_BOX=yes`
+plus the `RCLONE_*` credentials before calling make.
+
 ## Smoke test (no KVM needed)
 
 ```bash
-docker run --rm vagrant-build:test packer version
-docker run --rm vagrant-build:test qemu-system-x86_64 --version
-docker run --rm vagrant-build:test ansible --version
-docker run --rm vagrant-build:test rclone version
+docker run --rm vagrant-build:local-test packer version
+docker run --rm vagrant-build:local-test qemu-system-x86_64 --version
+docker run --rm vagrant-build:local-test ansible --version
+docker run --rm vagrant-build:local-test rclone version
 ```

@@ -383,17 +383,21 @@ variables:
   tags:
     - docker
 
+# The packer build and the Linode upload run inside the vagrant-build image
+# via vagrant-in-docker.sh (shell executors ignore `image:`).
 .build_pf_img_vagrant_job:
   stage: build_pf_img
-  image: ${KNK_REGISTRY_URL}/vagrant-build:${IMAGE_TAG}
   variables:
     RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
+    # ci_related pushes the slug tag in every context; tag pipelines
+    # override IMAGE_TAG (release tags are pushed unslugified).
+    VAGRANT_BUILD_IMAGE: ${KNK_REGISTRY_URL}/vagrant-build:${IMAGE_TAG}
+    UPLOAD_BOX: "yes"
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
-    - BOX_NAME=${BOX_NAME} BOX_VERSION=${BOX_VERSION} ${VAGRANT_IMG_DIR}/upload-to-linode.sh
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
@@ -1473,7 +1477,6 @@ build_pf_img_vagrant_branch_debian_bookworm:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
         pfdebian12dev_generic
-    - BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}" ${VAGRANT_IMG_DIR}/upload-to-linode.sh
   needs:
     - job: publish_ppa
       artifacts: false
@@ -1523,7 +1526,6 @@ build_pf_img_vagrant_ad_branch_debian_bullseye:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
         pfad11dev_generic
-    - BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}" ${VAGRANT_IMG_DIR}/upload-to-linode.sh
   needs:
     - job: publish_ppa
       artifacts: false

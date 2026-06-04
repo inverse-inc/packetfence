@@ -102,7 +102,8 @@ pfbox:	download-vagrant-key download-base-image clean
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer build -only="$(BUILD_NAME)" .
 
-# EL builds
+# EL builds — legacy local-only targets: the vagrant builder needs
+# vagrant + libvirtd on the host, they do not run in the vagrant-build container.
 .PHONY: pfel8dev
 pfel8dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
@@ -121,32 +122,38 @@ pfel8stable:
 	BUILD_NAME="$(STABLE_GROUP).vagrant.el-8" \
 	pfbox
 
-# Debian builds
+# Debian builds — host-side entry targets: the packer build itself runs inside
+# the vagrant-build container (see vagrant-in-docker.sh).
 .PHONY: pfdeb12dev
 pfdeb12dev:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	make -e \
 	BOX_NAME=$@ \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
 	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
-	pfbox
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfbox
 
 .PHONY: pfdeb12stable
 pfdeb12stable:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	make -e \
 	BOX_NAME=$@ \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
 	BUILD_NAME="$(STABLE_GROUP).qemu.debian-12" \
-	pfbox
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfbox
 
-# AD (Samba4) builds — use debian/bullseye64 base image
+# AD (Samba4) builds — use debian/bullseye64 base image, runs in-container
 .PHONY: pfadbox
 pfadbox: download-vagrant-key download-bullseye-base-image clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_box_description="$(BOX_DESC)" \
 	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
 	PKR_VAR_bullseye_disk_image_url="file://$(BULLSEYE_BASE_BOX_FILE)" \
 	PACKER_LOG=$(PACKER_LOG) \
@@ -159,6 +166,7 @@ pfadbox: download-vagrant-key download-bullseye-base-image clean
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_box_description="$(BOX_DESC)" \
 	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
 	PKR_VAR_bullseye_disk_image_url="file://$(BULLSEYE_BASE_BOX_FILE)" \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
@@ -168,32 +176,40 @@ pfadbox: download-vagrant-key download-bullseye-base-image clean
 
 .PHONY: pfad11dev
 pfad11dev:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	$(MAKE) -e \
 	BOX_NAME=$@ \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=ad_dev \
 	BUILD_NAME="ad_dev.qemu.bullseye-11" \
-	pfadbox
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfadbox
 
 # Generic AD dev build — BOX_NAME must be provided externally (e.g. for branch builds)
 .PHONY: pfad11dev_generic
 pfad11dev_generic:
 	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfad11dev_generic))
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	$(MAKE) -e \
+	BOX_NAME="$(BOX_NAME)" \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=ad_dev \
 	BUILD_NAME="ad_dev.qemu.bullseye-11" \
-	pfadbox
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfadbox
 
 # Generic debian-12 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
 .PHONY: pfdebian12dev_generic
 pfdebian12dev_generic:
 	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfdebian12dev_generic))
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	$(MAKE) -e \
+	BOX_NAME="$(BOX_NAME)" \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
 	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
-	pfbox
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfbox
 
 # Cleanup
 .PHONY: clean
@@ -207,5 +223,6 @@ clean_all:
 #==============================================================================
 # Local tests
 #==============================================================================
-# dev: VAGRANT_CLOUD_TOKEN=token make -e pf*dev
-# stable: VAGRANT_CLOUD_TOKEN=token make -e pf*stable
+# dev: make -e pf*dev
+# stable: make -e pf*stable
+# see containers/vagrant-build/README.md
