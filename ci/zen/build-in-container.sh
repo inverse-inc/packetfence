@@ -7,14 +7,6 @@ BUILD_NAME="${1:?usage: build-in-container.sh <build-name> (e.g. debian-12)}"
 
 ZEN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Ansible/paramiko needs getpwuid() to resolve the running UID.
-if ! getent passwd "$(id -u)" >/dev/null; then
-    echo "builder:x:$(id -u):$(id -g):builder:${HOME:-/tmp}:/bin/bash" >> /etc/passwd
-fi
-if ! getent group "$(id -g)" >/dev/null; then
-    echo "builder:x:$(id -g):" >> /etc/group
-fi
-
 # ovftool is bind-mounted from the host; fail fast if the mount is broken.
 echo "===> ovftool sanity check"
 ovftool --version

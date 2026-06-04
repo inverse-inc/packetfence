@@ -32,6 +32,14 @@ KVM_GID="$(stat -c '%g' /dev/kvm)"
 
 echo "===> zen build in ${ZEN_BUILDER_IMAGE} (kvm gid=${KVM_GID}, build=${BUILD_NAME})"
 
+# Bind-mount a passwd/group with the host UID so ansible's getpwuid() works.
+NSS_DIR="$(mktemp -d)"
+trap 'rm -rf "${NSS_DIR}"' EXIT
+docker run --rm --entrypoint cat "${ZEN_BUILDER_IMAGE}" /etc/passwd > "${NSS_DIR}/passwd"
+docker run --rm --entrypoint cat "${ZEN_BUILDER_IMAGE}" /etc/group  > "${NSS_DIR}/group"
+echo "builder:x:$(id -u):$(id -g):builder:/tmp:/bin/bash" >> "${NSS_DIR}/passwd"
+echo "builder:x:$(id -g):"                                >> "${NSS_DIR}/group"
+
 # Runs as the calling user so bind-mounted files are not root-owned;
 # HOME=/tmp keeps packer/ansible dotdirs writable.
 docker run --rm \
@@ -40,7 +48,6 @@ docker run --rm \
   --device /dev/kvm \
   --user "$(id -u):$(id -g)" \
   --group-add "${KVM_GID}" \
-  --group-add 0 \
   -e HOME=/tmp \
   -e USER="$(id -un)" \
   -e PF_VERSION \
@@ -54,6 +61,8 @@ docker run --rm \
   -e RCLONE_LINODE_URL \
   -v "${SCRIPT_DIR}":/zen \
   -v "${OVFTOOL_HOST_DIR}":/opt/vmware-ovftool:ro \
+  -v "${NSS_DIR}/passwd":/etc/passwd:ro \
+  -v "${NSS_DIR}/group":/etc/group:ro \
   -w /zen \
   "${ZEN_BUILDER_IMAGE}" \
   /zen/build-in-container.sh "${BUILD_NAME}"
