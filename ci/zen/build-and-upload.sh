@@ -67,5 +67,9 @@ ovftool --shaAlgorithm=SHA1 --lax "${VMWARE_RESULT_DIR}/${VM_NAME}.vmx" "${VMWAR
 echo "===> Compress VMware OVA"
 compress_vmware_ova
 
-echo "===> Upload to Linode"
-upload_to_linode
+if [[ -n "${RCLONE_ACCESS_KEY_ID:-}" ]]; then
+    echo "===> Upload to Linode"
+    upload_to_linode
+else
+    echo "===> Skipping Linode upload (RCLONE_ACCESS_KEY_ID unset)"
+fi
