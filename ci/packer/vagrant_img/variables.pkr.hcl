@@ -35,15 +35,6 @@ variable spec_file_path {
   default = "/tmp/packetfence.spec"
 }
 
-# Vagrant cloud
-# only env variable which is not passed using Makefile
-# to avoid a display on screen
-variable access_token {
-  type = string
-  default = env("VAGRANT_CLOUD_TOKEN")
-  sensitive = true
-}
-
 variable box_version {
   type = string
 }

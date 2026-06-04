@@ -56,14 +56,12 @@ build {
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
 
+  # Local .box output picked up by upload-to-linode.sh (Linode Object Storage
+  # replaced Vagrant Cloud for distribution).
   post-processors {
-    post-processor "vagrant-cloud" {
-      box_tag = "inverse-inc/${var.pfserver_name}"
-      version = "${var.box_version}"
-      access_token = "${var.access_token}"
-      version_description = "${var.box_description}"
-      # temp workaround to a bug on Vagrant Cloud with Packer 1.6.6
-      no_direct_upload = true
+    post-processor "vagrant" {
+      output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
+      keep_input_artifact = false
     }
   }
 }
@@ -146,14 +144,12 @@ build {
     use_proxy = false
   }
 
+  # Local .box output picked up by upload-to-linode.sh (Linode Object Storage
+  # replaced Vagrant Cloud for distribution).
   post-processors {
-    post-processor "vagrant-cloud" {
-      box_tag = "inverse-inc/${var.pfserver_name}"
-      version = "${var.box_version}"
-      access_token = "${var.access_token}"
-      version_description = "${var.box_description}"
-      # temp workaround to a bug on Vagrant Cloud with Packer 1.6.6
-      no_direct_upload = true
+    post-processor "vagrant" {
+      output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
+      keep_input_artifact = false
     }
   }
 }
