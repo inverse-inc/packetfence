@@ -28,6 +28,9 @@ RUN apt-get update && \
 # Dangling until zen-in-docker.sh mounts the host's ovftool dir there.
 RUN ln -s /opt/vmware-ovftool/ovftool /usr/local/bin/ovftool
 
+# Let an arbitrary host UID self-register in /etc/passwd at startup.
+RUN chmod g=u /etc/passwd /etc/group
+
 # Smoke-test the toolchain at build time so a broken image fails to push.
 RUN packer version && \
     qemu-system-x86_64 --version | head -n1 && \
