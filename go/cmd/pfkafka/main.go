@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -54,11 +56,21 @@ func main() {
 		}
 	}()
 
+	ctx := context.Background()
 	for {
-		m, err := r.ReadMessage(context.Background())
+		m, err := r.ReadMessage(ctx)
 		if err != nil {
-			fmt.Printf("Error: %s", err)
-			break
+			// The reader was closed or the context was cancelled: nothing left to do.
+			if errors.Is(err, io.EOF) || errors.Is(err, context.Canceled) {
+				fmt.Fprintf(os.Stderr, "reader stopped: %s\n", err)
+				break
+			}
+			// Transient errors (leader election, coordinator move, metadata
+			// refresh, broker reconnects) are expected: kafka-go recovers on
+			// the next read, so log and keep going instead of exiting.
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			time.Sleep(time.Second)
+			continue
 		}
 		//fmt.Printf("message at offset-partition %d-%d: %s = %s\n", m.Offset, m.Partition, string(m.Key), string(m.Value))
 		fmt.Printf("%s\n", string(m.Value))
