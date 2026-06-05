@@ -17,6 +17,7 @@ use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($kafka_config_file);
 use pf::IniFiles;
 use pf::cluster qw($cluster_enabled @cluster_hosts %ConfigCluster);
+use pfconfig::manager;
 use Crypt::OpenSSL::Random;
 use MIME::Base64;
 use Data::UUID;
@@ -110,7 +111,13 @@ sub get_cluster_member_for_kafka {
 
 sub make_member {
     my ($host, $ip, $node_id) = @_;
-    my $advertised_listeners = qq{INTERNAL://${ip}:29092,EXTERNAL://${ip}:9092,PF://containers-gateway.internal:9095,PFCONNECTOR://127.0.0.1:9096};
+    # In a cluster, every broker must advertise a unique, cross-node routable
+    # address for the PF listener. Using containers-gateway.internal here makes
+    # all brokers advertise the same hostname, which resolves to each node's own
+    # local broker -- so clients can never reach a partition leader / group
+    # coordinator that lives on another node (Not Leader / Not Coordinator
+    # errors). Advertise the node's management IP, like INTERNAL/EXTERNAL do.
+    my $advertised_listeners = qq{INTERNAL://${ip}:29092,EXTERNAL://${ip}:9092,PF://${ip}:9095,PFCONNECTOR://127.0.0.1:9096};
     return {
         host => $host,
         node_id => $node_id,
@@ -134,7 +141,14 @@ sub set_or_create {
     }
 }
 
-$ini->RewriteConfig() if $changed;
+if ($changed) {
+    $ini->RewriteConfig();
+    # We edited kafka.conf directly on disk, so the pfconfig cache for this
+    # namespace is now stale. Expire it so that downstream consumers
+    # (e.g. `pfcmd service kafka generateconfig` building var/conf/kafka.env)
+    # read the values we just wrote instead of the previous cached ones.
+    pfconfig::manager->new->expire("config::Kafka");
+}
 
 =head1 AUTHOR
 
