@@ -15,10 +15,10 @@ import (
 
 func main() {
 	// to consume messages
-	topic := "network_events"
+	topic := "pfflows_events"
 	user := ""
 	pass := ""
-	broker := "localhost:9092"
+	broker := "localhost:9095"
 	flag.StringVar(&topic, "topic", topic, "topic")
 	flag.StringVar(&broker, "broker", broker, "broker")
 	flag.StringVar(&user, "user", user, "user")
