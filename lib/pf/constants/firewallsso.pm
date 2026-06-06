@@ -37,6 +37,7 @@ Readonly::Scalar our $FIREWALL_TYPES => [
     "PaloAlto",
     "WatchGuard",
     "JSONRPC",
+    "Kerio",
     "LightSpeedRocket",
     "SmoothWall",
     "FamilyZone",

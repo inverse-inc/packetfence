@@ -60,6 +60,10 @@ include::firewall/jsonrpc.asciidoc[]
 
 include::firewall/junipersrx.asciidoc[]
 
+=== Kerio Control
+
+include::firewall/kerio.asciidoc[]
+
 === Palo Alto
 
 include::firewall/paloalto.asciidoc[]
