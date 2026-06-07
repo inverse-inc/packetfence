@@ -1,0 +1,13 @@
+PftestRun:
+  description: Request successful. Response contains the captured output and the pftest exit code from the local node.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PftestRun"
+
+PftestClusterRun:
+  description: Request successful. Response aggregates one entry per cluster peer; standalone installs return a single-item list with the local hostname.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PftestClusterRun"

@@ -1,0 +1,77 @@
+/api/v1/pftest/authentication:
+  post:
+    summary: Run `pftest authentication` on the local node.
+    description: |
+      Runs the same probe as the CLI helper `pftest authentication
+      <user> <password> [<sources>...]`. Empty password is accepted and
+      turns the call into a reach test against each source. The full
+      captured stdout/stderr is returned verbatim; ANSI escapes are
+      stripped from `output` and preserved in `output_raw`.
+
+      The endpoint is auditable; the `password` field is redacted from
+      the admin API audit log entry by the standard `fields_to_mask`
+      mechanism.
+    requestBody:
+      $ref: "#/components/requestBodies/PftestAuthentication"
+    responses:
+      '200':
+        $ref: "#/components/responses/PftestRun"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - pftest
+
+/api/v1/pftest/profile_filter:
+  post:
+    summary: Run `pftest profile_filter` on the local node.
+    description: |
+      Resolves which connection profile would match the given MAC under
+      the supplied attribute set. `params` keys must match
+      `[A-Za-z0-9_-]+`; malformed keys are dropped server-side.
+    requestBody:
+      $ref: "#/components/requestBodies/PftestProfileFilter"
+    responses:
+      '200':
+        $ref: "#/components/responses/PftestRun"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - pftest
+
+/api/v1/pftest/cluster/authentication:
+  post:
+    summary: Fan-out variant of /pftest/authentication across the cluster.
+    description: |
+      Standalone installs return a single-item list with the local
+      hostname; cluster installs aggregate one entry per cluster peer.
+      Peer calls run in parallel with a 25–30s per-peer timeout.
+    requestBody:
+      $ref: "#/components/requestBodies/PftestAuthentication"
+    responses:
+      '200':
+        $ref: "#/components/responses/PftestClusterRun"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - pftest
+
+/api/v1/pftest/cluster/profile_filter:
+  post:
+    summary: Fan-out variant of /pftest/profile_filter across the cluster.
+    requestBody:
+      $ref: "#/components/requestBodies/PftestProfileFilter"
+    responses:
+      '200':
+        $ref: "#/components/responses/PftestClusterRun"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - pftest

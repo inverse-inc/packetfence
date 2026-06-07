@@ -1,0 +1,30 @@
+PftestRun:
+  type: object
+  properties:
+    output:
+      description: Captured stdout+stderr with ANSI escapes stripped.
+      type: string
+    output_raw:
+      description: Captured stdout+stderr including any ANSI escapes.
+      type: string
+    exit_code:
+      description: Exit status of the subcommand. Negative values indicate a controller-side error.
+      type: integer
+
+PftestClusterRun:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          host:
+            description: Cluster member that produced this entry.
+            type: string
+          output:
+            type: string
+          output_raw:
+            type: string
+          exit_code:
+            type: integer

@@ -32,3 +32,17 @@ LogsTouch:
     application/json:
       schema:
         $ref: "#/components/schemas/Message"
+
+LogsHistory:
+  description: Request successful. Response contains events within the requested window plus the advanced cursor.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/LogsHistory"
+
+LogsClusterHistory:
+  description: Request successful. Response contains one entry per cluster peer; standalone installs return a single-item list with the local hostname.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/LogsClusterHistory"

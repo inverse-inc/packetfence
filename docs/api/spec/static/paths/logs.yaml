@@ -74,3 +74,48 @@
         $ref: "#/components/responses/BadRequest"
     tags:
       - LiveLogs
+
+/api/v1/logs/history:
+  options:
+    summary: Meta for historical-log query (allowed files).
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsMeta"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+    tags:
+      - HistoricalLogs
+  post:
+    summary: Read past log entries on the local node within a time range.
+    description: |
+      Reads `/usr/local/pf/logs/*.log` plus matching `.log.<N>.gz` rotations.
+      Cursor-paginated; the response cursor is keyed by filename.
+    requestBody:
+      $ref: "#/components/requestBodies/LogsHistory"
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsHistory"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - HistoricalLogs
+
+/api/v1/logs/cluster_history:
+  post:
+    summary: Fan-out variant of /logs/history across the cluster.
+    description: |
+      Standalone installs return a single-item list with the local hostname;
+      cluster installs aggregate one entry per cluster peer.
+    requestBody:
+      $ref: "#/components/requestBodies/LogsHistory"
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsClusterHistory"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - HistoricalLogs

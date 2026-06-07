@@ -1,0 +1,38 @@
+PftestAuthentication:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - user
+        properties:
+          user:
+            description: Username to authenticate.
+            type: string
+          password:
+            description: Password to authenticate with. Empty turns the call into a reach test.
+            type: string
+          sources:
+            description: Restrict the probe to these authentication source IDs. Empty = all configured sources.
+            type: array
+            items:
+              type: string
+
+PftestProfileFilter:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - mac
+        properties:
+          mac:
+            description: MAC address to evaluate (`aa:bb:cc:dd:ee:ff` or twelve hex digits).
+            type: string
+          params:
+            description: Attribute set used to drive the connection-profile match. Keys must match `[A-Za-z0-9_-]+`.
+            type: object
+            additionalProperties:
+              type: string

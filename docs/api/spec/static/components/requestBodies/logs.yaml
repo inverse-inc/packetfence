@@ -19,3 +19,38 @@ LogsCreate:
           filter_is_regexp:
             description: Filter is a regular expression.
             type: boolean
+
+LogsHistory:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - files
+        properties:
+          files:
+            description: Log files to read (active + matching rotated .gz).
+            type: array
+            items:
+              type: string
+          filter:
+            description: Filter events by string or regex.
+            type: string
+          filter_is_regexp:
+            description: Filter is a regular expression.
+            type: boolean
+          cursor:
+            description: Per-filename cursor returned by a previous response; paginates the read.
+            type: object
+            additionalProperties:
+              type: integer
+              format: int64
+          start:
+            description: Lower time bound (inclusive), ISO-8601. Defaults to now-24h when both cursor and start are absent.
+            type: string
+            format: date-time
+          end:
+            description: Upper time bound (exclusive), ISO-8601. Defaults to now+1min.
+            type: string
+            format: date-time

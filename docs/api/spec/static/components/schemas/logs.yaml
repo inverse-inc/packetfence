@@ -58,3 +58,68 @@ LogsTail:
           timestamp:
             description: Unix epoch timestamp (seconds).
             type: integer
+
+LogsHistoryEvent:
+  type: object
+  properties:
+    data:
+      type: object
+      properties:
+        raw:
+          description: Raw log line.
+          type: string
+        meta:
+          type: object
+          properties:
+            timestamp:
+              type: string
+            hostname:
+              type: string
+            process:
+              type: string
+            syslog_name:
+              type: string
+            log_level:
+              type: string
+            filename:
+              type: string
+            log_without_prefix:
+              type: string
+
+LogsHistory:
+  type: object
+  properties:
+    events:
+      type: array
+      items:
+        $ref: "#/components/schemas/LogsHistoryEvent"
+    cursor:
+      description: Per-filename cursor (unix ms of the latest emitted event for each file). Feed this back to paginate.
+      type: object
+      additionalProperties:
+        type: integer
+        format: int64
+
+LogsClusterHistory:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          host:
+            description: Cluster member that produced this slice.
+            type: string
+          events:
+            type: array
+            items:
+              $ref: "#/components/schemas/LogsHistoryEvent"
+          cursor:
+            type: object
+            additionalProperties:
+              type: integer
+              format: int64
+          error:
+            description: Present when the peer call failed; events is empty in that case.
+            type: string
