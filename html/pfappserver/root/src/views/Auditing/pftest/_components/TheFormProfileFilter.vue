@@ -3,7 +3,14 @@
     <b-row class="mb-3">
       <b-col md="4">
         <small>{{ $t('MAC address') }}</small>
-        <b-form-input v-model="mac" placeholder="aa:bb:cc:dd:ee:ff" />
+        <b-form-input v-model="mac" placeholder="aa:bb:cc:dd:ee:ff"
+          :state="macState" />
+        <b-form-invalid-feedback :state="macState">
+          {{ $t('Expected 12 hex digits, optionally separated by : or -') }}
+        </b-form-invalid-feedback>
+        <b-form-valid-feedback :state="macState" v-if="cleanMac">
+          <icon name="check" /> {{ cleanMac }}
+        </b-form-valid-feedback>
       </b-col>
     </b-row>
     <small class="font-weight-bold">{{ $t('Attributes') }}</small>
@@ -40,7 +47,7 @@
       <icon name="plus" class="mr-1" />{{ $t('Add attribute') }}
     </b-button>
     <div class="mt-3">
-      <b-button type="submit" variant="primary" :disabled="isLoading || !mac">
+      <b-button type="submit" variant="primary" :disabled="isLoading || !cleanMac">
         <icon v-if="isLoading" name="circle-notch" spin class="mr-1" />
         <icon v-else name="play" class="mr-1" />
         {{ $t('Test profile filter') }}
@@ -50,7 +57,7 @@
 </template>
 
 <script>
-import { ref } from '@vue/composition-api'
+import { ref, computed } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
 
 const components = { Multiselect }
@@ -95,19 +102,34 @@ const setup = (props, context) => {
 
   const placeholderFor = attr => (attr && PLACEHOLDERS[attr.value]) || 'value'
 
+  // Accept the same formats as pf::util::clean_mac (twelve hex digits with
+  // optional :, -, or . separators). Normalise to lowercase aa:bb:... so the
+  // user gets immediate visual feedback that their input is well-formed.
+  const cleanMac = computed(() => {
+    if (!mac.value) return ''
+    const hex = mac.value.replace(/[\s:.-]/g, '').toLowerCase()
+    if (!/^[0-9a-f]{12}$/.test(hex)) return ''
+    return hex.match(/.{2}/g).join(':')
+  })
+  const macState = computed(() => {
+    if (!mac.value) return null     // blank: no styling
+    return cleanMac.value ? true : false
+  })
+
   const addPair = () => pairs.value.push({ attr: null, value: '' })
   const removePair = idx => pairs.value.splice(idx, 1)
 
   const onSubmit = () => {
+    if (!cleanMac.value) return
     const params = {}
     for (const pair of pairs.value) {
       if (pair.attr && pair.attr.value && pair.value !== '') {
         params[pair.attr.value] = pair.value
       }
     }
-    context.emit('submit', { mac: mac.value, params })
+    context.emit('submit', { mac: cleanMac.value, params })
   }
-  return { mac, pairs, attributeOptions, placeholderFor, addPair, removePair, onSubmit }
+  return { mac, cleanMac, macState, pairs, attributeOptions, placeholderFor, addPair, removePair, onSubmit }
 }
 
 export default { name: 'the-form-profile-filter', components, props, setup }
