@@ -109,7 +109,7 @@ const actions = {
   },
   stopSession: ({ state, commit }) => {
     commit('LOG_SESSION_STOPPING')
-    return api.delete(state.session.session_id).then(response => {
+    return api.delete(state.session.session_id, state.session.peer).then(response => {
       commit('LOG_SESSION_STOPPED')
       return response
     }).catch(err => {
@@ -131,7 +131,7 @@ const actions = {
         }
         promise = api.item(state.session.session_id, pollBody)
       } else {
-        promise = api.item(state.session.session_id)
+        promise = api.item(state.session.session_id, null, state.session.peer)
       }
       return promise.then(response => {
         commit('LOG_SESSION_RESPONSE', response)
@@ -164,7 +164,7 @@ const actions = {
   touchSession: ({ state, commit }) => {
     if (state.paused) {
       commit('LOG_SESSION_REQUEST')
-      return api.touch(state.session.session_id).then(response => {
+      return api.touch(state.session.session_id, state.session.peer).then(response => {
         commit('LOG_SESSION_SUCCESS')
         return response
       }).catch(err => {

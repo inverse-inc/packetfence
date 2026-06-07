@@ -10,32 +10,43 @@ const prefix = () => {
   return isSaas() ? 'eslogs' : 'logs'
 }
 
+// Build an axios config that pins the request to a specific cluster peer.
+// Standalone callers pass `server === undefined` and get an empty config so
+// no X-PacketFence-Server header is ever sent (the haproxy-admin LUA on
+// standalone has no <ip>-api backend and would 503).
+const serverConfig = server => {
+  if (server && server.management_ip) {
+    return { headers: { 'X-PacketFence-Server': server.management_ip } }
+  }
+  return {}
+}
+
 export default {
-  create: body => {
+  create: (body, server) => {
     if (isSaas()) {
       return apiCall.postQuiet(`eslogs/tail`, body).then(response => {
         return response.data
       })
     }
-    return apiCall.post(`logs/tail`, body).then(response => {
+    return apiCall.post(`logs/tail`, body, serverConfig(server)).then(response => {
       return response.data
     })
   },
-  delete: id => {
+  delete: (id, server) => {
     if (isSaas()) {
       return Promise.resolve({})
     }
-    return apiCall.delete([prefix(), 'tail', id]).then(response => {
+    return apiCall.delete([prefix(), 'tail', id], serverConfig(server)).then(response => {
       return response.data
     })
   },
-  item: (id, pollBody) => {
+  item: (id, pollBody, server) => {
     if (isSaas() && pollBody) {
       return apiCall.postQuiet(`eslogs/tail`, pollBody).then(response => {
         return response.data
       })
     }
-    return apiCall.getQuiet(`${prefix()}/tail/${id}`, { performance: false }).then(response => {
+    return apiCall.getQuiet(`${prefix()}/tail/${id}`, { performance: false, ...serverConfig(server) }).then(response => {
       return response.data
     })
   },
@@ -44,11 +55,11 @@ export default {
       return response.data
     })
   },
-  touch: id => {
+  touch: (id, server) => {
     if (isSaas()) {
       return Promise.resolve({})
     }
-    return apiCall.postQuiet([prefix(), 'tail', id, 'touch']).then(response => {
+    return apiCall.postQuiet([prefix(), 'tail', id, 'touch'], {}, serverConfig(server)).then(response => {
       return response.data
     })
   }

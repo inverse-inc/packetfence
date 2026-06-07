@@ -22,6 +22,9 @@
           </b-button>
         </div>
       </div>
+      <small v-if="isCluster" class="text-muted">
+        <icon name="cubes" class="mr-1" />{{ $t('Will tail on all {n} cluster nodes.', { n: nodeCount }) }}
+      </small>
     </base-form>
   </b-form>
 </template>
@@ -64,6 +67,12 @@ const setup = (props, context) => {
   const formRef = ref(null)
   const files = ref([])
   const isLoading = computed(() => $store.getters['$_live_logs/isLoading'])
+  const isSaas = computed(() => $store.getters['system/isSaas'])
+  const isCluster = computed(() => !isSaas.value && $store.getters['cluster/isCluster'])
+  const nodeCount = computed(() => {
+    const servers = $store.state.cluster && $store.state.cluster.servers
+    return servers ? Object.keys(servers).length : 0
+  })
   const isValid = useDebouncedWatchHandler(
     [form],
     () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0)
@@ -80,12 +89,12 @@ const setup = (props, context) => {
 
   const onCreate = () => {
     $store.dispatch('$_live_logs/createSession', form.value).then(response => {
-      const { session_id } = response
-      if (session_id) {
+      const id = response && (response.group_id || response.session_id)
+      if (id) {
         form.value.files = []
         form.value.filter = null
         form.value.filter_is_regexp = false
-        $router.push({ name: 'live_log', params: { id: session_id } })
+        $router.push({ name: 'live_log', params: { id } })
       }
     })
   }
@@ -96,6 +105,8 @@ const setup = (props, context) => {
     files,
     schema,
     isLoading,
+    isCluster,
+    nodeCount,
     isValid,
     onCreate
   }

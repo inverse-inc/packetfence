@@ -7,10 +7,26 @@ import api from '../_api'
 import SessionStore from './session'
 import i18n from '@/utils/locale'
 
+// Cluster fan-out — when isCluster (Object.keys(servers).length > 1) and
+// not SaaS, createSession opens one tail session per peer using the
+// X-PacketFence-Server header to pin each request. We then register one
+// submodule per peer under a synthetic group_id. The group_id is what the
+// router uses for the :id URL; the View component concatenates events
+// across the peer submodules looked up via _groups[group_id].
+//
+// Standalone / single-node paths keep the legacy shape exactly: one
+// session, one submodule, _groups[session_id] = [session_id].
+const peerList = () => {
+  const servers = store.state.cluster && store.state.cluster.servers
+  if (!servers) return []
+  return Object.values(servers).filter(s => s && s.management_ip)
+}
+
 // Default values
 const state = () => {
   return {
     _lastSessionId: null,
+    _groups: {},
     message: '',
     status: ''
   }
@@ -25,7 +41,8 @@ const getters = {
     }).map(namespace => {
       return store.getters[`$_live_logs/${namespace}/session`]
     })
-  }
+  },
+  groupPeers: state => groupId => state._groups[groupId] || [groupId]
 }
 
 const actions = {
@@ -42,6 +59,38 @@ const actions = {
   createSession: ({ commit }, form) => {
     commit('LOG_SESSION_REQUEST')
     const saas = store.getters['system/isSaas']
+    const isCluster = !saas && store.getters['cluster/isCluster']
+
+    if (isCluster) {
+      const servers = peerList()
+      const group_id = uuidv4()
+      return Promise.all(servers.map(server =>
+        api.create(form, server).then(response => ({ server, response }))
+                                .catch(err => ({ server, error: err }))
+      )).then(results => {
+        const peers = results
+          .filter(r => r.response && r.response.session_id)
+          .map(r => ({
+            hostname: r.server.host,
+            management_ip: r.server.management_ip,
+            session_id: r.response.session_id
+          }))
+        if (peers.length === 0) {
+          commit('LOG_SESSION_ERROR', { data: { message: 'No cluster node could start a session' } })
+          return { error: true }
+        }
+        commit('LOG_GROUP_START', { group_id, peers })
+        peers.forEach(peer => {
+          commit('LOG_SESSION_START', {
+            form,
+            response: { session_id: peer.session_id },
+            peer
+          })
+        })
+        return { session_id: group_id, group_id, peers }
+      })
+    }
+
     return api.create(form).then(response => {
       let session_id
       if (saas) {
@@ -57,21 +106,25 @@ const actions = {
       return err
     })
   },
-  destroySession: ({ commit }, id) => {
-    if (!store.getters[`$_live_logs/${id}/isRunning`]) {
-      commit('LOG_SESSION_STOP', id)
+  destroySession: ({ state, commit }, id) => {
+    const peers = state._groups[id] || [id]
+    const stopOne = sessionId => {
+      if (!store.getters[`$_live_logs/${sessionId}/isRunning`]) {
+        commit('LOG_SESSION_STOP', sessionId)
+        return Promise.resolve()
+      }
+      // session.js holds the per-peer server config and uses it on delete.
+      return store.dispatch(`$_live_logs/${sessionId}/stopSession`)
+        .then(() => commit('LOG_SESSION_STOP', sessionId))
+        .catch(err => {
+          commit('LOG_SESSION_STOP', sessionId)
+          commit('LOG_SESSION_ERROR', err && err.response)
+        })
     }
-    else {
-      commit('LOG_SESSION_REQUEST')
-      return api.delete(id).then(response => {
-        commit('LOG_SESSION_STOP', id)
-        return response
-      }).catch(err => {
-        commit('LOG_SESSION_STOP', id)
-        commit('LOG_SESSION_ERROR', err.response)
-        return err
-      })
-    }
+    commit('LOG_SESSION_REQUEST')
+    return Promise.all(peers.map(stopOne)).finally(() => {
+      if (state._groups[id]) commit('LOG_GROUP_STOP', id)
+    })
   }
 }
 
@@ -80,7 +133,7 @@ const mutations = {
     state.status = 'loading'
     state.message = ''
   },
-  LOG_SESSION_START: (state, { form, response, cursor }) => {
+  LOG_SESSION_START: (state, { form, response, cursor, peer }) => {
     state.status = 'success'
     const { session_id } = response
     if (session_id) {
@@ -92,8 +145,24 @@ const mutations = {
         return name
       }
       store.registerModule(['$_live_logs', session_id], SessionStore)
-      store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id, name: nameFromFiles(form.files), ...(cursor != null ? { cursor } : {}) })
+      store.dispatch(`$_live_logs/${session_id}/setSession`, {
+        ...form,
+        session_id,
+        name: nameFromFiles(form.files),
+        ...(cursor != null ? { cursor } : {}),
+        ...(peer ? { peer } : {})
+      })
     }
+  },
+  LOG_GROUP_START: (state, { group_id, peers }) => {
+    // Vue 2 reactivity: assign a new object so the View picks up the change.
+    state._groups = { ...state._groups, [group_id]: peers.map(p => p.session_id) }
+  },
+  LOG_GROUP_STOP: (state, group_id) => {
+    if (state._lastSessionId === group_id) state._lastSessionId = null
+    const next = { ...state._groups }
+    delete next[group_id]
+    state._groups = next
   },
   SET_LAST_SESSION: (state, id) => {
     state._lastSessionId = id

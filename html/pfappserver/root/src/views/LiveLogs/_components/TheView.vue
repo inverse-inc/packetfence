@@ -1,7 +1,12 @@
 <template>
   <div class="live-logs-page">
-    <div class="live-logs-header px-3 py-2 border-bottom">
+    <div class="live-logs-header px-3 py-2 border-bottom d-flex align-items-center">
       <h4 class="mb-0" v-t="'Live Logs'" />
+      <b-badge v-if="isClusterSession" variant="info" class="ml-3"
+        v-b-tooltip.hover.right
+        :title="$i18n.t('Tailing log files from every cluster node in parallel.')">
+        {{ $i18n.t('Cluster: {n} nodes', { n: peerIds.length }) }}
+      </b-badge>
     </div>
     <the-create-bar />
     <the-tabs />
@@ -265,6 +270,19 @@ const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
 
+  // Resolve URL :id to one or more session submodule namespaces.
+  // - Standalone / SaaS: peerIds = [id], primary = id (legacy behaviour).
+  // - Cluster: id is a synthetic group_id; peerIds is the per-peer
+  //   session_id list, primary is the first peer (used as authoritative
+  //   source for UI state like options/size/isRunning/searchQuery).
+  const peerIds = computed(() => {
+    const groups = $store.state.$_live_logs && $store.state.$_live_logs._groups
+    if (groups && groups[id.value]) return groups[id.value]
+    return [id.value]
+  })
+  const primary = computed(() => peerIds.value[0])
+  const isClusterSession = computed(() => peerIds.value.length > 1)
+
   // const form = session
   const formRef = ref(null)
   const files = ref([])
@@ -273,70 +291,128 @@ const setup = (props, context) => {
   const session = customRef((track, trigger) => ({
     get() {
       track()
-      return $store.getters[`$_live_logs/${id.value}/session`]
+      return $store.getters[`$_live_logs/${primary.value}/session`]
     },
     set(newValue) {
-      $store.dispatch(`$_live_logs/${id.value}/setSession`, newValue)
-        .finally(() => trigger())
+      // Mirror form updates (files/filter changes) to every peer so the
+      // session-options panel stays in sync across the cluster.
+      Promise.all(peerIds.value.map(pid =>
+        $store.dispatch(`$_live_logs/${pid}/setSession`, newValue)
+      )).finally(() => trigger())
     }
   }))
 
   const options = customRef((track, trigger) => ({
     get() {
       track()
-      return $store.getters[`$_live_logs/${id.value}/options`]
+      return $store.getters[`$_live_logs/${primary.value}/options`]
     },
     set(newValue) {
-      $store.dispatch(`$_live_logs/${id.value}/setOptions`, newValue)
-        .finally(() => trigger())
+      Promise.all(peerIds.value.map(pid =>
+        $store.dispatch(`$_live_logs/${pid}/setOptions`, newValue)
+      )).finally(() => trigger())
     }
   }))
 
+  // Merge events across peer submodules and order by timestamp so a
+  // single chronological stream is shown even on a 3-node cluster.
+  const mergedEvents = computed(() => {
+    const all = peerIds.value.flatMap(pid =>
+      $store.getters[`$_live_logs/${pid}/eventsFiltered`] || []
+    )
+    if (peerIds.value.length === 1) return all // preserve insertion order
+    return all.slice().sort((a, b) => {
+      const ta = a && a.data && a.data.meta && a.data.meta.timestamp || ''
+      const tb = b && b.data && b.data.meta && b.data.meta.timestamp || ''
+      return ta < tb ? -1 : ta > tb ? 1 : 0
+    })
+  })
+
   const events = computed(() => (options.value.order === 'reverse')
-    ? $store.getters[`$_live_logs/${id.value}/eventsFiltered`].slice().reverse()
-    : $store.getters[`$_live_logs/${id.value}/eventsFiltered`]
+    ? mergedEvents.value.slice().reverse()
+    : mergedEvents.value
   )
 
-  const scopes = computed(() => $store.getters[`$_live_logs/${id.value}/scopes`])
+  // Merge scopes (hostname / filename / log_level / process / syslog_name)
+  // so the per-host counts add up across the cluster and the user can
+  // filter by any of them from a single panel.
+  const scopes = computed(() => {
+    if (peerIds.value.length === 1) {
+      return $store.getters[`$_live_logs/${primary.value}/scopes`]
+    }
+    const merged = {}
+    for (const pid of peerIds.value) {
+      const peerScopes = $store.getters[`$_live_logs/${pid}/scopes`] || {}
+      for (const [scope, { label, values = {} }] of Object.entries(peerScopes)) {
+        if (!merged[scope]) merged[scope] = { label, values: {} }
+        for (const [key, val] of Object.entries(values)) {
+          const cur = merged[scope].values[key] || { count: 0 }
+          merged[scope].values[key] = {
+            count: cur.count + (val.count || 0),
+            filter: cur.filter || val.filter
+          }
+        }
+      }
+    }
+    return merged
+  })
 
-  const lines = computed(() => $store.getters[`$_live_logs/${id.value}/lines`])
+  const lines = computed(() => peerIds.value.reduce((sum, pid) =>
+    sum + ($store.getters[`$_live_logs/${pid}/lines`] || 0), 0))
 
   const size = customRef((track, trigger) => ({
     get() {
       track()
-      return $store.getters[`$_live_logs/${id.value}/size`]
+      return $store.getters[`$_live_logs/${primary.value}/size`]
     },
     set(newValue) {
-      $store.dispatch(`$_live_logs/${id.value}/setSize`, newValue)
-        .finally(() => trigger())
+      Promise.all(peerIds.value.map(pid =>
+        $store.dispatch(`$_live_logs/${pid}/setSize`, newValue)
+      )).finally(() => trigger())
     }
   }))
 
-  const isLoading = computed(() => $store.getters[`$_live_logs/${id.value}/isLoading`])
-  const isStopping = computed(() => $store.getters[`$_live_logs/${id.value}/isStopping`])
-  const isRunning = computed(() => $store.getters[`$_live_logs/${id.value}/isRunning`])
-  const isPaused = computed(() => $store.getters[`$_live_logs/${id.value}/isPaused`])
+  // Any peer being loading/stopping should reflect on the toolbar so the
+  // user does not see a stale Stop button while a peer is still tearing down.
+  const isLoading = computed(() => peerIds.value.some(pid => $store.getters[`$_live_logs/${pid}/isLoading`]))
+  const isStopping = computed(() => peerIds.value.some(pid => $store.getters[`$_live_logs/${pid}/isStopping`]))
+  const isRunning = computed(() => peerIds.value.some(pid => $store.getters[`$_live_logs/${pid}/isRunning`]))
+  const isPaused = computed(() => $store.getters[`$_live_logs/${primary.value}/isPaused`])
   const isValid = useDebouncedWatchHandler([session], () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))
 
-  const onToggleFilter = (scope, key) => $store.dispatch(`$_live_logs/${id.value}/toggleFilter`, { scope, key })
-  const onStopSession = () => $store.dispatch(`$_live_logs/${id.value}/stopSession`)
+  const onToggleFilter = (scope, key) => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/toggleFilter`, { scope, key })
+  ))
+  const onStopSession = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/stopSession`)
+  ))
   const onStartSession = () => {
     isStarting.value = true
     const { session_id, ...form } = session.value
     $store.dispatch(`$_live_logs/createSession`, form).then(response => {
-      const { session_id } = response
-      if (session_id) {
-        $store.dispatch(`$_live_logs/${session_id}/setSize`, size.value)
+      const newId = response && (response.group_id || response.session_id)
+      if (newId) {
+        // Mirror the user's preferred buffer size onto every fresh peer.
+        const fresh = response.group_id
+          ? (response.peers || []).map(p => p.session_id)
+          : [response.session_id]
+        fresh.forEach(pid => $store.dispatch(`$_live_logs/${pid}/setSize`, size.value))
         $store.dispatch('$_live_logs/destroySession', id.value)
-        $router.push({ name: 'live_log', params: { id: session_id } })
+        $router.push({ name: 'live_log', params: { id: newId } })
       }
     }).finally(() => {
       isStarting.value = false
     })
   }
-  const onPauseSession = () => $store.dispatch(`$_live_logs/${id.value}/pauseSession`)
-  const onUnpauseSession = () => $store.dispatch(`$_live_logs/${id.value}/unpauseSession`)
-  const onClearEvents = () => $store.dispatch(`$_live_logs/${id.value}/clearEvents`)
+  const onPauseSession = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/pauseSession`)
+  ))
+  const onUnpauseSession = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/unpauseSession`)
+  ))
+  const onClearEvents = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/clearEvents`)
+  ))
     .then(() => $store.dispatch('notification/info', { message: i18n.t('Cleared logs.') }))
   const onCopyEvents = () => {
     try {
@@ -368,12 +444,12 @@ const setup = (props, context) => {
   // search
   const logRef = ref(null)
   const searchQuery = computed({
-    get: () => $store.getters[`$_live_logs/${id.value}/searchQuery`],
-    set: val => $store.commit(`$_live_logs/${id.value}/SET_SEARCH_QUERY`, val)
+    get: () => $store.getters[`$_live_logs/${primary.value}/searchQuery`],
+    set: val => peerIds.value.forEach(pid => $store.commit(`$_live_logs/${pid}/SET_SEARCH_QUERY`, val))
   })
   const searchIsRegex = computed({
-    get: () => $store.getters[`$_live_logs/${id.value}/searchIsRegex`],
-    set: val => $store.commit(`$_live_logs/${id.value}/SET_SEARCH_IS_REGEX`, val)
+    get: () => $store.getters[`$_live_logs/${primary.value}/searchIsRegex`],
+    set: val => peerIds.value.forEach(pid => $store.commit(`$_live_logs/${pid}/SET_SEARCH_IS_REGEX`, val))
   })
   const searchError = ref(false)
   const searchCurrentIdx = ref(0)
@@ -475,6 +551,8 @@ const setup = (props, context) => {
     scopes,
     lines,
     size,
+    peerIds,
+    isClusterSession,
 
     isLoading,
     isStarting,
