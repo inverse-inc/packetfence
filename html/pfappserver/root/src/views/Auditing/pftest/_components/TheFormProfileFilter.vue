@@ -63,10 +63,7 @@ import Multiselect from 'vue-multiselect'
 const components = { Multiselect }
 const props = { isLoading: { type: Boolean, default: false } }
 
-// Keep in sync with %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE in
-// lib/pf/factory/condition/profile.pm — these are the keys evaluated by
-// connection-profile filter rules. Other keys still work but won't drive
-// profile matching, so they're hidden from the dropdown.
+// Mirror %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE in lib/pf/factory/condition/profile.pm — other keys still work but don't drive matching.
 const KNOWN_ATTRIBUTES = [
   { value: 'last_ssid',                text: 'last SSID seen on the node' },
   { value: 'last_switch',              text: 'switch identifier (IP/MAC/IfDesc)' },

@@ -105,16 +105,12 @@ sub _query {
     my $filter   = $body->{filter};
     my $is_regex = $body->{filter_is_regexp} ? 1 : 0;
 
-    # Sensible default when no time window or cursor was supplied: scan
-    # only the last 24h. Without this we would happily open every .gz
-    # rotation back to retention and read them oldest-first — operators
-    # would see months-old events before any recent content and conclude
-    # the feature is broken.
+    # Default to last 24h: without a bound the loop would scan every .gz rotation back to retention.
     my $now_ms = int(time() * 1000);
     if (!%$cursor && !defined $start_ms) {
         $start_ms = $now_ms - 24 * 60 * 60 * 1000;
     }
-    $end_ms //= $now_ms + 60_000; # tolerate "future" rsyslog timestamps
+    $end_ms //= $now_ms + 60_000;
 
     my $matcher;
     if (defined $filter && length $filter) {
@@ -213,10 +209,7 @@ sub _enumerate_sources {
         unshift @candidates, @rotations;
     }
 
-    # logrotate runs daily, so a rotated file's mtime is approximately the
-    # right edge of its content window and (mtime - 1 day) is the left edge.
-    # Drop a rotation whose window cannot overlap [floor_ms, end_ms]. The
-    # active file always passes — its content extends to "now".
+    # Daily logrotate: a rotation's mtime ≈ right edge of its content window; (mtime - 1d) ≈ left.
     my $DAY_MS = 86_400_000;
     my @kept;
     for my $c (@candidates) {

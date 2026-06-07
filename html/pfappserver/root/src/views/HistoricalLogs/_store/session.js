@@ -93,18 +93,14 @@ const actions = {
     dispatch('loadMore')
   },
   setOptions: ({ commit }, options) => { commit('SET_OPTIONS', options) },
-  // No live polling on the historical view — pause/unpause/touch are no-ops
-  // kept here only so the LiveLogs-style TheView can dispatch them uniformly.
+  // Pause/unpause/touch are no-ops here; kept to match the LiveLogs action surface.
   pauseSession: () => {},
   unpauseSession: () => {},
   touchSession: () => {},
   stopSession: ({ commit }) => { commit('SET_RUNNING', false) },
   loadMore: ({ state, commit }) => {
     commit('LOG_SESSION_REQUEST')
-    // Merge per-host cursors into the request: the backend dispatches to
-    // every cluster peer and each peer's response carries its own cursor.
-    // We collapse them into a single map keyed by filename — when a peer
-    // is missing a key for a file we sent earlier, that peer is exhausted.
+    // Collapse per-host cursors into one filename-keyed map; missing entries flag an exhausted peer.
     const cursor = {}
     for (const hostCursor of Object.values(state.cursors)) {
       for (const [file, ms] of Object.entries(hostCursor || {})) {
@@ -152,8 +148,7 @@ const mutations = {
       const host = item.host
       const peerEvents = item.events || []
       if (peerEvents.length === 0) exhaustedCount++
-      // Server-side cursor is per-filename; we track per-host to know which
-      // peer to keep querying when others are exhausted.
+      // Track per-host so exhausted peers stop driving requests once others fall silent.
       if (item.cursor && Object.keys(item.cursor).length) {
         Vue.set(state.cursors, host, { ...(state.cursors[host] || {}), ...item.cursor })
       }

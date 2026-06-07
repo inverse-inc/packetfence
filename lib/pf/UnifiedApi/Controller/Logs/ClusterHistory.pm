@@ -47,9 +47,7 @@ sub query {
         });
     }
 
-    # Parallel fan-out: a slow peer must not block the rest. The serial
-    # version's worst-case (3 nodes x PEER_TIMEOUT_MS) approached the
-    # haproxy_admin 90 s server timeout and caused 504s on busy clusters.
+    # Parallel fan-out: serial would multiply PEER_TIMEOUT_MS by node count and trip haproxy_admin's 90s server timeout.
     my @servers = pf::cluster::enabled_servers();
     my @promises;
     for my $server (@servers) {

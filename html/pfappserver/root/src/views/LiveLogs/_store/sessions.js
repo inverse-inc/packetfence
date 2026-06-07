@@ -7,15 +7,7 @@ import api from '../_api'
 import SessionStore from './session'
 import i18n from '@/utils/locale'
 
-// Cluster fan-out — when isCluster (Object.keys(servers).length > 1) and
-// not SaaS, createSession opens one tail session per peer using the
-// X-PacketFence-Server header to pin each request. We then register one
-// submodule per peer under a synthetic group_id. The group_id is what the
-// router uses for the :id URL; the View component concatenates events
-// across the peer submodules looked up via _groups[group_id].
-//
-// Standalone / single-node paths keep the legacy shape exactly: one
-// session, one submodule, _groups[session_id] = [session_id].
+// Cluster mode opens one session per peer and stores them under a group_id; standalone keeps the legacy single-session shape.
 const peerList = () => {
   const servers = store.state.cluster && store.state.cluster.servers
   if (!servers) return []

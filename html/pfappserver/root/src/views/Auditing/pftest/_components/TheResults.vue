@@ -41,10 +41,7 @@ const setup = (props, context) => {
     } catch (e) { /* clipboard not available */ }
   }
 
-  // Mirror the CLI's pf::util::console::colors palette without depending on
-  // ANSI escapes (Capture::Tiny disables is_interactive() so pftest never
-  // emits the codes when run from the API). Match the same phrases pftest
-  // prints with the success/warning/error helpers.
+  // Reproduce pf::util::console::colors client-side — Capture::Tiny strips ANSI server-side.
   const lines = output => (output || '').split('\n')
   const lineClass = line => {
     if (/\bAuthentication\s+SUCCEEDED\b/.test(line)) return 'pftest-success'

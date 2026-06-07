@@ -93,15 +93,8 @@ sub _run_profile_filter {
     return _invoke('profile_filter', $mac, @args);
 }
 
-# Run pf::pftest::<subcmd> in-process and capture STDOUT+STDERR.
-# The pfperl-api container bind-mounts /usr/local/pf/lib but NOT
-# /usr/local/pf/bin, so shelling out to bin/pftest fails with ENOENT.
-# Loading the subcommand module directly mirrors what bin/pftest does
-# without the exec hop.
-#
-# Returns { status => 200, json => { output, output_raw, exit_code } }.
-# Non-zero exit codes are returned verbatim (auth-failure is a useful
-# result, not an HTTP error).
+# pfperl-api bind-mounts lib but not bin, so load the subcommand module
+# in-process instead of shelling out to bin/pftest.
 sub _invoke {
     my ($subcmd, @args) = @_;
 
