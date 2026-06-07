@@ -246,6 +246,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_system_summary_route($api_v1_route);
     $self->setup_api_v1_emails_route($api_v1_route);
     $self->setup_api_v1_logs_history_routes($api_v1_route);
+    $self->setup_api_v1_pftest_routes($api_v1_route);
 }
 
 sub setup_api_v1_1_routes {
@@ -2063,6 +2064,24 @@ sub setup_api_v1_logs_history_routes {
 
     my $cluster = $root->any("/logs/cluster_history")->to(controller => "Logs::ClusterHistory")->name("api.v1.Logs.ClusterHistory");
     $cluster->register_sub_action({path => '', action => 'query', method => 'POST'});
+    return;
+}
+
+=head2 setup_api_v1_pftest_routes
+
+setup_api_v1_pftest_routes
+
+=cut
+
+sub setup_api_v1_pftest_routes {
+    my ($self, $root) = @_;
+    my $route = $root->any("/pftest")->to(controller => "Pftest")->name("api.v1.Pftest");
+    $route->register_sub_action({action => 'authentication', method => 'POST', auditable => 1});
+    $route->register_sub_action({action => 'profile_filter', method => 'POST', auditable => 1});
+
+    my $cluster = $root->any("/pftest/cluster")->to(controller => "Pftest::Cluster")->name("api.v1.Pftest.Cluster");
+    $cluster->register_sub_action({action => 'authentication', method => 'POST', auditable => 1});
+    $cluster->register_sub_action({action => 'profile_filter', method => 'POST', auditable => 1});
     return;
 }
 
