@@ -6,10 +6,10 @@
         <b-form-input v-model="user" autocomplete="off" />
       </b-col>
       <b-col md="4">
-        <small>{{ $t('Password') }}</small>
+        <small>{{ $t('Password (optional)') }}</small>
         <b-form-input ref="passwordInput" type="password" autocomplete="new-password"
           :value="password" @input="onPasswordInput" />
-        <small class="text-muted">{{ $t('Sent over HTTPS and redacted from the admin audit log.') }}</small>
+        <small class="text-muted">{{ $t('Sent over HTTPS and redacted from the admin audit log. Empty = reach-test only.') }}</small>
       </b-col>
       <b-col md="4">
         <small>{{ $t('Sources (optional)') }}</small>
@@ -18,7 +18,7 @@
       </b-col>
     </b-row>
     <b-button type="submit" variant="primary" class="mt-3"
-      :disabled="isLoading || !user || !password">
+      :disabled="isLoading || !user">
       <icon v-if="isLoading" name="circle-notch" spin class="mr-1" />
       <icon v-else name="play" class="mr-1" />
       {{ $t('Test authentication') }}

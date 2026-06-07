@@ -21,11 +21,18 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 
-use pf::util qw(safe_pf_run clean_mac);
-use pf::file_paths qw($install_dir);
+use Capture::Tiny qw(capture_merged);
+use Module::Load qw(load);
+use Module::Loaded qw(is_loaded);
+
+use pf::util qw(clean_mac);
 use pf::log;
 
-my $PFTEST_BIN = "$install_dir/bin/pftest";
+# Whitelist of subcommand modules that may be invoked from the GUI. The
+# CLI dispatcher loads pf::pftest::<name> dynamically; we keep an explicit
+# allow-list here so a typo in the body cannot reach `locationlog` (DB
+# scan), `help`, or any future subcommand we have not vetted for the UI.
+my %ALLOWED = map { $_ => 1 } qw(authentication profile_filter);
 
 sub authentication {
     my ($self) = @_;
@@ -49,14 +56,18 @@ sub _run_authentication {
     my $srcs = $body->{sources} // [];
     $srcs = [$srcs] if ref($srcs) ne 'ARRAY';
 
-    unless (defined $user && length $user && defined $pass && length $pass) {
+    unless (defined $user && length $user) {
         return { status => 422, json => {
-            message => "user and password are required",
+            message => "user is required",
             errors  => [], status => 422,
         } };
     }
+    # Password is optional — the CLI accepts an empty second arg, which
+    # exercises sources that fail closed (LDAP rejects, SAML challenges,
+    # etc.) and is a useful "is this source reachable at all" probe.
+    $pass = '' unless defined $pass;
 
-    return _spawn('authentication', $user, $pass, @$srcs);
+    return _invoke('authentication', $user, $pass, @$srcs);
 }
 
 sub _run_profile_filter {
@@ -79,34 +90,48 @@ sub _run_profile_filter {
         next unless defined $v;
         push @args, "$k=$v";
     }
-    return _spawn('profile_filter', $mac, @args);
+    return _invoke('profile_filter', $mac, @args);
 }
 
-# Run bin/pftest <subcmd> @args, capture stdout+stderr together, return:
-#   { status => 200, json => { output => stripped, output_raw => raw, exit_code => N } }
-# pftest may exit non-zero for legitimate "test failed" cases (e.g. auth
-# failure); we treat all exit codes 0..255 as "ran successfully" and let
-# the caller inspect exit_code.
-sub _spawn {
+# Run pf::pftest::<subcmd> in-process and capture STDOUT+STDERR.
+# The pfperl-api container bind-mounts /usr/local/pf/lib but NOT
+# /usr/local/pf/bin, so shelling out to bin/pftest fails with ENOENT.
+# Loading the subcommand module directly mirrors what bin/pftest does
+# without the exec hop.
+#
+# Returns { status => 200, json => { output, output_raw, exit_code } }.
+# Non-zero exit codes are returned verbatim (auth-failure is a useful
+# result, not an HTTP error).
+sub _invoke {
     my ($subcmd, @args) = @_;
-    my $status = 0;
-    my $raw = safe_pf_run(
-        $PFTEST_BIN, $subcmd, @args,
-        {
-            redirect_stderr_to_stdout => 1,
-            accepted_exit_status      => [0..255],
-            status_ref                => \$status,
-        },
-    );
-    $raw //= '';
-    my $exit_code = ($status == -1) ? -1 : ($status >> 8);
 
-    my $stripped = $raw;
+    return { status => 422, json => {
+        message => "Subcommand '$subcmd' is not exposed via the API",
+        errors  => [], status => 422,
+    } } unless $ALLOWED{$subcmd};
+
+    my $module = "pf::pftest::$subcmd";
+    my $exit_code = 0;
+    my $merged = capture_merged {
+        eval {
+            load $module unless is_loaded($module);
+            my $cmd = $module->new({ args => \@args });
+            my $rc  = $cmd->run();
+            $exit_code = defined $rc ? ($rc + 0) : 0;
+            1;
+        } or do {
+            my $err = $@ || 'unknown error';
+            print "ERROR: $err\n";
+            $exit_code = -1;
+        };
+    };
+
+    my $stripped = $merged;
     $stripped =~ s/\x1B\[[0-9;]*[A-Za-z]//g;
 
     return { status => 200, json => {
         output     => $stripped,
-        output_raw => $raw,
+        output_raw => $merged,
         exit_code  => $exit_code,
     } };
 }

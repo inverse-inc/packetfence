@@ -19,11 +19,15 @@ of topology.
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
+use Mojo::IOLoop;
+use Mojo::Promise;
 
 use pf::cluster;
 use pf::api::unifiedapiclient;
 use pf::UnifiedApi::Controller::Logs::History;
 use pf::log;
+
+use constant PEER_TIMEOUT_MS => 25_000;
 
 sub query {
     my ($self) = @_;
@@ -43,28 +47,43 @@ sub query {
         });
     }
 
-    my @items;
-    my @errors;
-    for my $server (pf::cluster::enabled_servers()) {
-        my $client = pf::api::unifiedapiclient->new(
-            host       => $server->{management_ip},
-            timeout_ms => 30_000,
-        );
-        my $resp = eval { $client->call("POST", "/api/v1/logs/history", $body) };
-        if ($@ || !$resp) {
-            my $err = $@ || 'unknown error';
-            get_logger->warn("ClusterHistory: peer $server->{host} failed: $err");
-            push @errors, { host => $server->{host}, error => "$err" };
-            push @items,  { host => $server->{host}, events => [], cursor => {} };
-            next;
-        }
-        push @items, { host => $server->{host}, %$resp };
+    # Parallel fan-out: a slow peer must not block the rest. The serial
+    # version's worst-case (3 nodes x PEER_TIMEOUT_MS) approached the
+    # haproxy_admin 90 s server timeout and caused 504s on busy clusters.
+    my @servers = pf::cluster::enabled_servers();
+    my @promises;
+    for my $server (@servers) {
+        my $sub = Mojo::IOLoop->subprocess;
+        my $p   = $sub->run_p(sub {
+            my $client = pf::api::unifiedapiclient->new(
+                host       => $server->{management_ip},
+                timeout_ms => PEER_TIMEOUT_MS,
+            );
+            my $resp = eval { $client->call("POST", "/api/v1/logs/history", $body) };
+            if ($@ || !$resp) {
+                my $err = $@ || 'no response';
+                chomp $err;
+                return { host => $server->{host}, events => [], cursor => {}, error => "$err" };
+            }
+            return { host => $server->{host}, %$resp };
+        });
+        push @promises, $p->catch(sub {
+            my ($err) = @_;
+            chomp $err;
+            return { host => $server->{host}, events => [], cursor => {}, error => "$err" };
+        });
     }
 
-    return $self->render(json => {
-        items  => \@items,
-        errors => \@errors,
+    $self->render_later;
+    Mojo::Promise->all(@promises)->then(sub {
+        my @items = map { $_->[0] } @_;
+        $self->render(json => { items => \@items });
+    })->catch(sub {
+        my $err = shift // 'unknown error';
+        get_logger->error("ClusterHistory fan-out failed: $err");
+        $self->render_error(500, "Cluster fan-out failed: $err");
     });
+    return;
 }
 
 =head1 AUTHOR

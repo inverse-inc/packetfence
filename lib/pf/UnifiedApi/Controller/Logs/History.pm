@@ -105,6 +105,17 @@ sub _query {
     my $filter   = $body->{filter};
     my $is_regex = $body->{filter_is_regexp} ? 1 : 0;
 
+    # Sensible default when no time window or cursor was supplied: scan
+    # only the last 24h. Without this we would happily open every .gz
+    # rotation back to retention and read them oldest-first — operators
+    # would see months-old events before any recent content and conclude
+    # the feature is broken.
+    my $now_ms = int(time() * 1000);
+    if (!%$cursor && !defined $start_ms) {
+        $start_ms = $now_ms - 24 * 60 * 60 * 1000;
+    }
+    $end_ms //= $now_ms + 60_000; # tolerate "future" rsyslog timestamps
+
     my $matcher;
     if (defined $filter && length $filter) {
         if ($is_regex) {
@@ -125,6 +136,8 @@ sub _query {
     FILE: for my $name (@$files) {
         my $floor_ms = $cursor->{$name} // $start_ms;
         my @sources  = _enumerate_sources($name, $floor_ms, $end_ms);
+        my $last_ts_ms;   # carry forward for multi-line / continuation events
+        my $last_meta;
 
         for my $src (@sources) {
             my $fh = _open_source($src);
@@ -137,7 +150,17 @@ sub _query {
 
                 my $meta = _parse_line($line, $name);
                 my $ts_ms = $meta->{timestamp_ms};
-                next unless defined $ts_ms;
+                # Stack-trace / multi-line continuations have no header
+                # of their own; attribute them to the previous event's
+                # timestamp so they remain visible in the result.
+                if (!defined $ts_ms) {
+                    next unless defined $last_ts_ms;
+                    $ts_ms = $last_ts_ms;
+                    $meta = {
+                        %$last_meta,
+                        log_without_prefix => $line,
+                    } if $last_meta;
+                }
                 next if defined $floor_ms && $ts_ms <= $floor_ms;
                 next if defined $end_ms   && $ts_ms >= $end_ms;
 
@@ -156,6 +179,8 @@ sub _query {
                     },
                 };
                 $new_cursor{$name} = $ts_ms;
+                $last_ts_ms = $ts_ms;
+                $last_meta  = $meta;
             }
             close $fh;
         }

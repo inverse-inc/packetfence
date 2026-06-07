@@ -42,7 +42,7 @@
         <b-col sm="9" class="d-flex flex-column min-h-0 px-0">
           <div ref="logRef" class="log size-normal background-white scroll-forward">
             <div class="scroll-only-child">
-              <base-table-empty v-if="!events.length" icon="scroll" :text="$t('No events in this window.')" class="flex-fill">
+              <base-table-empty v-if="!events || !events.length" icon="scroll" :text="$t('No events in this window.')" class="flex-fill">
                 {{ $t('No events') }}
               </base-table-empty>
               <div v-else class="text-raw px-3 py-1">

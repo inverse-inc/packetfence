@@ -6,11 +6,11 @@
         {{ $t('Diagnostic helpers from the pftest CLI. Runs on every cluster node and aggregates the per-host output.') }}
       </p>
     </b-card-header>
-    <b-tabs v-model="tabIdx" card class="mt-1">
-      <b-tab :title="$t('Authentication')" @click="onTabAuth">
+    <b-tabs v-model="tabIdx" card class="mt-1" @input="onTabChange">
+      <b-tab :title="$t('Authentication')">
         <the-form-authentication @submit="onRunAuthentication" :isLoading="isLoading" />
       </b-tab>
-      <b-tab :title="$t('Profile Filter')" @click="onTabProfile">
+      <b-tab :title="$t('Profile Filter')">
         <the-form-profile-filter @submit="onRunProfileFilter" :isLoading="isLoading" />
       </b-tab>
     </b-tabs>
@@ -33,13 +33,13 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_pftest/isLoading'])
   const results = computed(() => $store.getters['$_pftest/results'])
 
-  const onTabAuth = () => $store.dispatch('$_pftest/setSubcmd', 'authentication')
-  const onTabProfile = () => $store.dispatch('$_pftest/setSubcmd', 'profile_filter')
-
+  const onTabChange = idx => {
+    $store.dispatch('$_pftest/setSubcmd', idx === 1 ? 'profile_filter' : 'authentication')
+  }
   const onRunAuthentication = body => $store.dispatch('$_pftest/runAuthentication', body)
   const onRunProfileFilter = body => $store.dispatch('$_pftest/runProfileFilter', body)
 
-  return { tabIdx, isLoading, results, onTabAuth, onTabProfile, onRunAuthentication, onRunProfileFilter }
+  return { tabIdx, isLoading, results, onTabChange, onRunAuthentication, onRunProfileFilter }
 }
 
 export default {
