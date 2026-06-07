@@ -36,7 +36,13 @@ export default {
     if (isSaas()) {
       return Promise.resolve({})
     }
-    return apiCall.delete([prefix(), 'tail', id], serverConfig(server)).then(response => {
+    // apiCall.delete is overridden in src/utils/api.js with a (url, data, config)
+    // signature (it's in the same group as post/put/patch), not axios's standard
+    // (url, config). Passing serverConfig as the 2nd arg would land the header
+    // object in the request BODY and silently drop X-PacketFence-Server, which
+    // sends every cluster-peer DELETE to the local node's default `api` backend
+    // -> 404. data must be null so the third positional argument is read as config.
+    return apiCall.delete([prefix(), 'tail', id], null, serverConfig(server)).then(response => {
       return response.data
     })
   },
