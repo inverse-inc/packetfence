@@ -184,16 +184,25 @@
             <div class="scroll-only-child">
               <div v-if="events && options.output === 'raw'" class="text-raw px-3 py-1">
                 <div v-for="(event, idx) in events" :key="idx"
-                  :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }"
-                  v-html="highlightRaw(event.data.raw)" />
+                  :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
+                  <span v-if="event.data.meta.hostname"
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
+                    v-b-tooltip.hover.left :title="$t('Node / log file')">
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
+                  </span>
+                  <span v-html="highlightRaw(event.data.raw)" />
+                </div>
               </div>
               <div v-else-if="events && options.output === 'color'" class="text-raw px-2 py-1">
                 <div v-for="(event, idx) in events" :key="idx"
                   :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
+                  <span v-if="event.data.meta.hostname"
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
+                    v-b-tooltip.hover.left :title="$t('Node / log file')">
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
+                  </span>
                   <span class="log-timestamp" v-if="event.data.meta.timestamp"
                   :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
-                  <span class="log-hostname" v-if="event.data.meta.hostname"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.hostname }}</span>
                   <span class="log-syslog" v-if="event.data.meta.syslog_name"
                   :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.syslog_name }}</span>
                   <span class="log-process" v-if="event.data.meta.process"
@@ -272,14 +281,14 @@ const setup = (props, context) => {
 
   // Resolve URL :id to one or more session submodule namespaces.
   // - Standalone / SaaS: peerIds = [id], primary = id (legacy behaviour).
-  // - Cluster: id is a synthetic group_id; peerIds is the per-peer
-  //   session_id list, primary is the first peer (used as authoritative
-  //   source for UI state like options/size/isRunning/searchQuery).
-  const peerIds = computed(() => {
+  // - Cluster: id is a synthetic group_id; the value in _groups[id] is an
+  //   array of full peer objects {hostname, management_ip, session_id}.
+  const peerEntries = computed(() => {
     const groups = $store.state.$_live_logs && $store.state.$_live_logs._groups
     if (groups && groups[id.value]) return groups[id.value]
-    return [id.value]
+    return [{ session_id: id.value, management_ip: null }]
   })
+  const peerIds = computed(() => peerEntries.value.map(p => p.session_id))
   const primary = computed(() => peerIds.value[0])
   const isClusterSession = computed(() => peerIds.value.length > 1)
 
@@ -383,8 +392,8 @@ const setup = (props, context) => {
   const onToggleFilter = (scope, key) => Promise.all(peerIds.value.map(pid =>
     $store.dispatch(`$_live_logs/${pid}/toggleFilter`, { scope, key })
   ))
-  const onStopSession = () => Promise.all(peerIds.value.map(pid =>
-    $store.dispatch(`$_live_logs/${pid}/stopSession`)
+  const onStopSession = () => Promise.all(peerEntries.value.map(peer =>
+    $store.dispatch(`$_live_logs/${peer.session_id}/stopSession`, peer)
   ))
   const onStartSession = () => {
     isStarting.value = true
@@ -525,6 +534,17 @@ const setup = (props, context) => {
   const isSearchMatch = (idx) => searchMatchIndices.value.includes(idx)
   const isSearchCurrent = (idx) => searchMatchIndices.value[searchCurrentIdx.value] === idx
 
+  // Stable per-hostname colour: hash the string into 6 buckets so the
+  // same node always gets the same accent regardless of event order.
+  const hostColorIndex = (hostname) => {
+    if (!hostname) return 0
+    let h = 0
+    for (let i = 0; i < hostname.length; i++) {
+      h = (h * 31 + hostname.charCodeAt(i)) | 0
+    }
+    return Math.abs(h) % 6
+  }
+
   // immediate
   $store.dispatch(`$_live_logs/optionsSession`).then(response => {
     const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
@@ -582,7 +602,8 @@ const setup = (props, context) => {
     highlightRaw,
     highlightEscaped,
     isSearchMatch,
-    isSearchCurrent
+    isSearchCurrent,
+    hostColorIndex
   }
 }
 
@@ -711,6 +732,27 @@ export default {
     }
   }
 }
+
+// Source tag: shows "<hostname> / <filename>" so every line in a
+// merged cluster stream is unambiguously attributable.
+.log-source-tag {
+  display: inline-block;
+  font-family: monospace;
+  font-size: .8em;
+  line-height: 1;
+  padding: .15rem .4rem;
+  margin: 0 .35rem 0 0;
+  border-radius: .25rem;
+  color: #fff;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.log-source-tag-0 { background: #2563eb; }   // blue
+.log-source-tag-1 { background: #16a34a; }   // green
+.log-source-tag-2 { background: #c026d3; }   // magenta
+.log-source-tag-3 { background: #ea580c; }   // orange
+.log-source-tag-4 { background: #0891b2; }   // teal
+.log-source-tag-5 { background: #ca8a04; }   // amber
 
 /*
  reverse content, pin vertical scrollbar to the bottom,

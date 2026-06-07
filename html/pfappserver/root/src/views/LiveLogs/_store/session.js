@@ -107,9 +107,13 @@ const actions = {
   setOptions: ({ commit }, options) => {
     commit('SET_OPTIONS', options)
   },
-  stopSession: ({ state, commit }) => {
+  stopSession: ({ state, commit }, peerOverride) => {
     commit('LOG_SESSION_STOPPING')
-    return api.delete(state.session.session_id, state.session.peer).then(response => {
+    // Caller (sessions.js destroySession) can pass the peer explicitly so we
+    // do not silently lose the X-PacketFence-Server header when state.session.peer
+    // was never populated (page reload re-registers submodules from scratch).
+    const peer = peerOverride || state.session.peer
+    return api.delete(state.session.session_id, peer).then(response => {
       commit('LOG_SESSION_STOPPED')
       return response
     }).catch(err => {

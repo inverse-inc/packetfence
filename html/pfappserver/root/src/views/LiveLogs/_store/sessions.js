@@ -107,23 +107,29 @@ const actions = {
     })
   },
   destroySession: ({ state, commit }, id) => {
-    const peers = state._groups[id] || [id]
-    const stopOne = sessionId => {
-      if (!store.getters[`$_live_logs/${sessionId}/isRunning`]) {
-        commit('LOG_SESSION_STOP', sessionId)
+    // _groups[id] is an array of full peer objects {hostname, management_ip, session_id}
+    // so we don't depend on each per-peer submodule still having state.session.peer
+    // populated (which can race when the user clicks Stop right after creation).
+    const group = state._groups[id]
+    const peers = group || [{ session_id: id, management_ip: null }]
+    const stopOne = peer => {
+      const sid = peer.session_id
+      if (!store.getters[`$_live_logs/${sid}/isRunning`]) {
+        commit('LOG_SESSION_STOP', sid)
         return Promise.resolve()
       }
-      // session.js holds the per-peer server config and uses it on delete.
-      return store.dispatch(`$_live_logs/${sessionId}/stopSession`)
-        .then(() => commit('LOG_SESSION_STOP', sessionId))
+      // Pass the peer explicitly so the X-PacketFence-Server header is set
+      // regardless of submodule state.
+      return store.dispatch(`$_live_logs/${sid}/stopSession`, peer)
+        .then(() => commit('LOG_SESSION_STOP', sid))
         .catch(err => {
-          commit('LOG_SESSION_STOP', sessionId)
+          commit('LOG_SESSION_STOP', sid)
           commit('LOG_SESSION_ERROR', err && err.response)
         })
     }
     commit('LOG_SESSION_REQUEST')
     return Promise.all(peers.map(stopOne)).finally(() => {
-      if (state._groups[id]) commit('LOG_GROUP_STOP', id)
+      if (group) commit('LOG_GROUP_STOP', id)
     })
   }
 }
@@ -155,8 +161,10 @@ const mutations = {
     }
   },
   LOG_GROUP_START: (state, { group_id, peers }) => {
-    // Vue 2 reactivity: assign a new object so the View picks up the change.
-    state._groups = { ...state._groups, [group_id]: peers.map(p => p.session_id) }
+    // Store full peer objects ({hostname, management_ip, session_id}) so the
+    // destroy/stop path can build the X-PacketFence-Server header without
+    // hopping through each per-peer submodule's state.
+    state._groups = { ...state._groups, [group_id]: peers.slice() }
   },
   LOG_GROUP_STOP: (state, group_id) => {
     if (state._lastSessionId === group_id) state._lastSessionId = null
