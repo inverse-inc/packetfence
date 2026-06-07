@@ -1,6 +1,9 @@
 <template>
   <div class="historical-logs-page">
     <div class="historical-logs-header px-3 py-2 border-bottom d-flex align-items-center">
+      <b-button variant="outline-secondary" size="sm" class="mr-3" :to="{ name: 'historical_logs' }">
+        <icon name="arrow-left" class="mr-1" />{{ $t('Edit query') }}
+      </b-button>
       <h4 class="mb-0" v-t="'Historical Logs'" />
       <span class="ml-3 text-muted small">{{ session && session.name }}</span>
       <span class="ml-auto small text-muted">{{ $t('Lines loaded: {n}', { n: lines }) }}</span>

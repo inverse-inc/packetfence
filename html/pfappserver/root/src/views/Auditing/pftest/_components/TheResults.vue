@@ -19,7 +19,11 @@
         </b-button>
       </b-card-header>
       <b-card-body class="p-0">
-        <pre class="text-monospace m-0 p-3 small" style="white-space: pre-wrap; word-break: break-word; max-height: 24rem; overflow-y: auto;">{{ r.output }}</pre>
+        <pre class="pftest-output m-0 p-3 small">
+          <template v-for="(line, lineIdx) in lines(r.output)">
+            <span :key="lineIdx" :class="lineClass(line)">{{ line }}</span><br :key="`br-${lineIdx}`" />
+          </template>
+        </pre>
       </b-card-body>
     </b-card>
   </div>
@@ -67,8 +71,46 @@ const setup = (props, context) => {
       })
     } catch (e) { /* clipboard not available */ }
   }
-  return { badgeVariant, headerBg, cardVariant, badgeIcon, badgeText, copyOne }
+
+  // Mirror the CLI's pf::util::console::colors palette without depending on
+  // ANSI escapes (Capture::Tiny disables is_interactive() so pftest never
+  // emits the codes when run from the API). Match the same phrases pftest
+  // prints with the success/warning/error helpers.
+  const lines = output => (output || '').split('\n')
+  const lineClass = line => {
+    if (/\bAuthentication\s+SUCCEEDED\b/.test(line)) return 'pftest-success'
+    if (/\bAuthentication\s+CHALLENGE\b/.test(line)) return 'pftest-warning'
+    if (/\bAuthentication\s+FAILED\b/.test(line))    return 'pftest-error'
+    if (/^Found\s+'[^']+'\s+profile\s+for\b/.test(line)) return 'pftest-success'
+    if (/^Testing authentication for /.test(line))   return 'pftest-bold'
+    if (/^Authenticating against /.test(line))       return 'pftest-info'
+    if (/^\s+(Matched against|set_)/.test(line))     return 'pftest-muted'
+    if (/^\s+Did not match/.test(line))              return 'pftest-muted'
+    if (/^ERROR:/.test(line))                        return 'pftest-error'
+    return ''
+  }
+
+  return { badgeVariant, headerBg, cardVariant, badgeIcon, badgeText, copyOne, lines, lineClass }
 }
 
 export default { name: 'the-results', props, setup }
 </script>
+
+<style lang="scss">
+.pftest-output {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 28rem;
+  overflow-y: auto;
+  background: #1f2128;
+  color: #cdd6e0;
+  border-radius: 0 0 .25rem .25rem;
+}
+.pftest-success { color: #4ade80; }
+.pftest-warning { color: #fbbf24; }
+.pftest-error   { color: #f87171; font-weight: 600; }
+.pftest-info    { color: #93c5fd; }
+.pftest-muted   { color: #94a3b8; }
+.pftest-bold    { font-weight: 600; color: #e2e8f0; }
+</style>

@@ -1,6 +1,9 @@
 <template>
   <div class="live-logs-page">
     <div class="live-logs-header px-3 py-2 border-bottom d-flex align-items-center">
+      <b-button variant="outline-secondary" size="sm" class="mr-3" :to="{ name: 'live_logs' }">
+        <icon name="arrow-left" class="mr-1" />{{ $i18n.t('New session') }}
+      </b-button>
       <h4 class="mb-0" v-t="'Live Logs'" />
       <b-badge v-if="isClusterSession" variant="info" class="ml-3"
         v-b-tooltip.hover.right
