@@ -245,6 +245,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_system_services_routes($api_v1_route);
     $self->setup_api_v1_system_summary_route($api_v1_route);
     $self->setup_api_v1_emails_route($api_v1_route);
+    $self->setup_api_v1_logs_history_routes($api_v1_route);
 }
 
 sub setup_api_v1_1_routes {
@@ -2046,6 +2047,23 @@ sub setup_api_v1_authentication_routes {
     $route->register_sub_action({action => 'adminAuthentication', path => '/admin_authentication', method => 'POST', auditable => 1});
     $route->register_sub_action({action => 'roleAuthentication', path => '/role_authentication', method => 'POST', auditable => 1});
     return ;
+}
+
+=head2 setup_api_v1_logs_history_routes
+
+setup_api_v1_logs_history_routes
+
+=cut
+
+sub setup_api_v1_logs_history_routes {
+    my ($self, $root) = @_;
+    my $history = $root->any("/logs/history")->to(controller => "Logs::History")->name("api.v1.Logs.History");
+    $history->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
+    $history->register_sub_action({path => '', action => 'query',   method => 'POST'});
+
+    my $cluster = $root->any("/logs/cluster_history")->to(controller => "Logs::ClusterHistory")->name("api.v1.Logs.ClusterHistory");
+    $cluster->register_sub_action({path => '', action => 'query', method => 'POST'});
+    return;
 }
 
 =head2 setup_api_v1_queues_routes
