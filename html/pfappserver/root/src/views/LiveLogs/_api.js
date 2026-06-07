@@ -36,15 +36,31 @@ export default {
     if (isSaas()) {
       return Promise.resolve({})
     }
-    // apiCall.delete is overridden in src/utils/api.js with a (url, data, config)
-    // signature (it's in the same group as post/put/patch), not axios's standard
-    // (url, config). Passing serverConfig as the 2nd arg would land the header
-    // object in the request BODY and silently drop X-PacketFence-Server, which
-    // sends every cluster-peer DELETE to the local node's default `api` backend
-    // -> 404. data must be null so the third positional argument is read as config.
-    return apiCall.delete([prefix(), 'tail', id], null, serverConfig(server)).then(response => {
-      return response.data
-    })
+    // We bypass apiCall.delete because:
+    //  - its (url, data, config) override is easy to mis-pass (data vs config
+    //    confusion already cost us X-PacketFence-Server on cluster peers);
+    //  - its response is NOT marked `quiet`, so a 404 from the Go log-tailer
+    //    surfaces as a red "Unable to find this session" notification.
+    //
+    // Use apiCall.request directly and set:
+    //  - validateStatus to accept 404 as a success — the tail session may
+    //    already be gone (golongpoll idle-evicted it, peer restarted, header
+    //    lost because the user has a stale cached bundle, …) and the cleanup
+    //    goal is reached either way;
+    //  - transformResponse to inject `quiet: true` so the shared response
+    //    interceptor in utils/api.js does not pop a notification on the
+    //    (now-success-treated) 404.
+    return apiCall.request({
+      method: 'delete',
+      url: `${prefix()}/tail/${encodeURIComponent(id)}`,
+      validateStatus: status => (status >= 200 && status < 300) || status === 404,
+      transformResponse: [data => {
+        let jsonData
+        try { jsonData = JSON.parse(data) } catch (e) { jsonData = {} }
+        return Object.assign({ quiet: true }, jsonData)
+      }],
+      ...serverConfig(server)
+    }).then(response => response.data)
   },
   item: (id, pollBody, server) => {
     if (isSaas() && pollBody) {
