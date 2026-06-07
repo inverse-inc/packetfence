@@ -6,86 +6,107 @@
         <icon name="cubes" class="mr-1" />{{ $t('Queries all {n} cluster nodes.', { n: nodeCount }) }}
       </small>
     </div>
-    <b-form @submit.prevent="onCreate" ref="formRef" class="px-3 py-3 border-bottom bg-light">
-      <base-form :form="form" :schema="schema" :isLoading="isLoading">
-        <b-row class="no-gutters">
+    <div class="px-3 py-3 border-bottom bg-light">
+      <b-form @submit.prevent="onSubmit">
+        <b-row>
           <b-col md="6" class="pr-2">
-            <small class="ml-1">{{ $t('Log Files') }}</small>
-            <base-input-chosen-multiple namespace="files" :placeholder="$t('Log Files...')" :options="files" />
+            <label class="small mb-1">{{ $t('Log Files') }}</label>
+            <multiselect v-model="selectedFiles"
+              :options="fileOptions" :multiple="true" :close-on-select="false"
+              track-by="value" label="text"
+              :placeholder="$t('Choose log file(s)...')" />
           </b-col>
-          <b-col md="3" class="pr-2">
-            <small class="ml-1">{{ $t('Start (UTC)') }}</small>
-            <base-input namespace="start" :placeholder="'2026-06-01T00:00:00Z'" />
-          </b-col>
-          <b-col md="3">
-            <small class="ml-1">{{ $t('End (UTC)') }}</small>
-            <base-input namespace="end" :placeholder="'2026-06-08T00:00:00Z'" />
+          <b-col md="6">
+            <label class="small mb-1">{{ $t('Time range (your local timezone)') }}</label>
+            <b-row no-gutters>
+              <b-col cols="6" class="pr-2">
+                <b-input-group>
+                  <template #prepend>
+                    <b-input-group-text>{{ $t('From') }}</b-input-group-text>
+                  </template>
+                  <b-form-input type="datetime-local" v-model="startLocal" :max="endLocal || nowLocal" />
+                </b-input-group>
+              </b-col>
+              <b-col cols="6">
+                <b-input-group>
+                  <template #prepend>
+                    <b-input-group-text>{{ $t('To') }}</b-input-group-text>
+                  </template>
+                  <b-form-input type="datetime-local" v-model="endLocal" :min="startLocal" :max="nowLocal" />
+                </b-input-group>
+              </b-col>
+            </b-row>
+            <div class="mt-2">
+              <small class="text-muted mr-2">{{ $t('Quick:') }}</small>
+              <b-button-group size="sm">
+                <b-button variant="outline-secondary" @click="setRange(1)">{{ $t('Last 1h') }}</b-button>
+                <b-button variant="outline-secondary" @click="setRange(6)">{{ $t('Last 6h') }}</b-button>
+                <b-button variant="outline-secondary" @click="setRange(24)">{{ $t('Last 24h') }}</b-button>
+                <b-button variant="outline-secondary" @click="setRange(24*7)">{{ $t('Last 7d') }}</b-button>
+                <b-button variant="outline-secondary" @click="setRange(0)">{{ $t('Clear') }}</b-button>
+              </b-button-group>
+            </div>
           </b-col>
         </b-row>
-        <b-row class="no-gutters mt-2">
+        <b-row class="mt-3">
           <b-col md="9" class="pr-2">
-            <small class="ml-1">{{ $t('Filter') }}</small>
-            <base-input namespace="filter" :placeholder="$t('substring or regex')" />
+            <label class="small mb-1">{{ $t('Text filter (optional)') }}</label>
+            <b-input-group>
+              <b-form-input v-model="filter" :placeholder="$t('Substring or regex...')" />
+              <template #append>
+                <b-input-group-text>
+                  <b-form-checkbox v-model="filterIsRegexp" class="mb-0">{{ $t('Regex') }}</b-form-checkbox>
+                </b-input-group-text>
+              </template>
+            </b-input-group>
           </b-col>
           <b-col md="3" class="d-flex align-items-end">
-            <div class="d-flex align-items-center mr-3 mb-2">
-              <span class="mr-2 small text-nowrap text-muted">{{ $t('Regexp') }}</span>
-              <base-input-toggle-false-true namespace="filter_is_regexp" />
-            </div>
-            <b-button variant="primary" type="submit" :disabled="isLoading || !isValid" size="sm" class="mb-2 ml-auto">
+            <b-button type="submit" variant="primary" size="lg" class="ml-auto"
+              :disabled="isLoading || !selectedFiles.length">
               <icon v-if="isLoading" name="circle-notch" spin class="mr-1" />
+              <icon v-else name="search" class="mr-1" />
               {{ $t('Load') }}
             </b-button>
           </b-col>
         </b-row>
-      </base-form>
-    </b-form>
+      </b-form>
+    </div>
   </div>
 </template>
 
 <script>
-import {
-  BaseForm,
-  BaseInput,
-  BaseInputChosenMultiple,
-  BaseInputToggleFalseTrue
-} from '@/components/new/'
-
-const components = {
-  BaseForm,
-  BaseInput,
-  BaseInputChosenMultiple,
-  BaseInputToggleFalseTrue
-}
-
-import { computed, ref } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import { computed, ref, onMounted } from '@vue/composition-api'
+import Multiselect from 'vue-multiselect'
 import i18n from '@/utils/locale'
-import yup from '@/utils/yup'
 
-const isoLike = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/
+const components = { Multiselect }
 
-const schema = yup.object({
-  files: yup.array().ensure().required(i18n.t('Log file(s) required.')).of(yup.string().nullable()),
-  start: yup.string().nullable().test('iso', i18n.t('Use ISO-8601, e.g. 2026-06-01T00:00:00Z'),
-    v => !v || isoLike.test(v)),
-  end: yup.string().nullable().test('iso', i18n.t('Use ISO-8601, e.g. 2026-06-01T00:00:00Z'),
-    v => !v || isoLike.test(v))
-})
+// Convert a local "YYYY-MM-DDTHH:MM" datetime-local value to an ISO-8601
+// UTC string with seconds. Empty input -> null (= "no bound").
+const localToIso = (s) => {
+  if (!s) return null
+  const d = new Date(s)
+  if (isNaN(d)) return null
+  return d.toISOString().replace(/\.\d+Z$/, 'Z')
+}
 
 const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
-  const form = ref({
-    name: i18n.t('Historical query'),
-    files: [],
-    filter: null,
-    filter_is_regexp: false,
-    start: null,
-    end: null
+  const fileOptions = ref([])
+  const selectedFiles = ref([])
+  const startLocal = ref('')
+  const endLocal = ref('')
+  const filter = ref('')
+  const filterIsRegexp = ref(false)
+
+  const nowLocal = computed(() => {
+    // Format Date() to "YYYY-MM-DDTHH:MM" in local timezone for <input type="datetime-local" max>.
+    const d = new Date()
+    const pad = n => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
   })
-  const formRef = ref(null)
-  const files = ref([])
+
   const isLoading = computed(() => $store.getters['$_historical_logs/isLoading'])
   const isSaas = computed(() => $store.getters['system/isSaas'])
   const isCluster = computed(() => !isSaas.value && $store.getters['cluster/isCluster'])
@@ -93,20 +114,45 @@ const setup = (props, context) => {
     const servers = $store.state.cluster && $store.state.cluster.servers
     return servers ? Object.keys(servers).length : 0
   })
-  const isValid = useDebouncedWatchHandler([form],
-    () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))
 
-  $store.dispatch('$_historical_logs/optionsSession').then(response => {
-    const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
-    if (allowed) {
-      files.value = allowed
-        .map(({ text, value }) => ({ text: `${value} - ${text}`, value }))
-        .sort((a, b) => a.value.localeCompare(b.value))
-    }
+  onMounted(() => {
+    $store.dispatch('$_historical_logs/optionsSession').then(response => {
+      const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
+      if (allowed) {
+        fileOptions.value = allowed
+          .map(({ text, value }) => ({ text, value }))
+          .sort((a, b) => a.value.localeCompare(b.value))
+      }
+    })
+    // Default to "last 1h" so the form is immediately useful.
+    setRange(1)
   })
 
-  const onCreate = () => {
-    $store.dispatch('$_historical_logs/createSession', form.value).then(response => {
+  // Hours back from now; 0 clears both bounds.
+  const setRange = hours => {
+    if (hours === 0) {
+      startLocal.value = ''
+      endLocal.value = ''
+      return
+    }
+    const pad = n => String(n).padStart(2, '0')
+    const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+    const now = new Date()
+    const then = new Date(now.getTime() - hours * 60 * 60 * 1000)
+    startLocal.value = fmt(then)
+    endLocal.value = fmt(now)
+  }
+
+  const onSubmit = () => {
+    const form = {
+      name: i18n.t('Historical query'),
+      files: selectedFiles.value.map(o => o.value),
+      filter: filter.value || null,
+      filter_is_regexp: !!filterIsRegexp.value,
+      start: localToIso(startLocal.value),
+      end: localToIso(endLocal.value)
+    }
+    $store.dispatch('$_historical_logs/createSession', form).then(response => {
       const { session_id } = response
       if (session_id) {
         $router.push({ name: 'historical_log', params: { id: session_id } })
@@ -114,7 +160,13 @@ const setup = (props, context) => {
     })
   }
 
-  return { form, formRef, files, schema, isLoading, isCluster, nodeCount, isValid, onCreate }
+  return {
+    fileOptions, selectedFiles,
+    startLocal, endLocal, nowLocal,
+    filter, filterIsRegexp,
+    isLoading, isCluster, nodeCount,
+    setRange, onSubmit
+  }
 }
 
 export default {

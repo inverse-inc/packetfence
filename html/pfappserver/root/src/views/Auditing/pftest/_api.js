@@ -9,5 +9,10 @@ export default {
   },
   runProfileFilter: body => {
     return apiCall.post('pftest/cluster/profile_filter', body).then(response => response.data)
+  },
+  // Lists configured authentication sources so the user can pick a subset
+  // instead of typing source IDs by hand.
+  listSources: () => {
+    return apiCall.getQuiet('config/sources').then(response => response.data.items || [])
   }
 }

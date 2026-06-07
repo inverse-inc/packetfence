@@ -3,18 +3,26 @@
     <b-row>
       <b-col md="4">
         <small>{{ $t('Username') }}</small>
-        <b-form-input v-model="user" autocomplete="off" />
+        <b-form-input v-model="user" autocomplete="off" :placeholder="$t('e.g. admin or test@example.com')" />
       </b-col>
       <b-col md="4">
         <small>{{ $t('Password (optional)') }}</small>
         <b-form-input ref="passwordInput" type="password" autocomplete="new-password"
-          :value="password" @input="onPasswordInput" />
-        <small class="text-muted">{{ $t('Sent over HTTPS and redacted from the admin audit log. Empty = reach-test only.') }}</small>
+          :value="password" @input="onPasswordInput" :placeholder="$t('leave empty for reach-test')" />
+        <small class="text-muted">{{ $t('Sent over HTTPS and redacted from the admin audit log.') }}</small>
       </b-col>
       <b-col md="4">
         <small>{{ $t('Sources (optional)') }}</small>
-        <b-form-input v-model="sourcesInput" :placeholder="$t('comma-separated source IDs')" />
-        <small class="text-muted">{{ $t('Empty = all configured sources.') }}</small>
+        <multiselect v-model="selectedSources"
+          :options="sourceOptions" :multiple="true" :close-on-select="false"
+          :placeholder="$t('All sources') + ' (' + (sourceOptions.length || $t('loading')) + ')'"
+          track-by="value" label="text"
+          :loading="sourcesLoading">
+          <template #option="{ option }">
+            <strong>{{ option.value }}</strong> <span class="text-muted">{{ option.text }}</span>
+          </template>
+        </multiselect>
+        <small class="text-muted">{{ $t('Pick one or more; empty = test against all configured sources.') }}</small>
       </b-col>
     </b-row>
     <b-button type="submit" variant="primary" class="mt-3"
@@ -27,35 +35,49 @@
 </template>
 
 <script>
-import { ref } from '@vue/composition-api'
+import { ref, computed, onMounted } from '@vue/composition-api'
+import Multiselect from 'vue-multiselect'
+import api from '../_api'
 
+const components = { Multiselect }
 const props = { isLoading: { type: Boolean, default: false } }
 
 const setup = (props, context) => {
   const user = ref('')
-  // Password is intentionally kept out of the Vuex store so it does not
-  // survive route navigation / persist in localStorage. Cleared on submit.
   const password = ref('')
   const passwordInput = ref(null)
-  const sourcesInput = ref('')
+  const allSources = ref([])
+  const sourcesLoading = ref(false)
+  const selectedSources = ref([])
+
+  const sourceOptions = computed(() => allSources.value.map(s => ({
+    value: s.id,
+    text: s.type ? `(${s.type})` : ''
+  })))
+
+  onMounted(() => {
+    sourcesLoading.value = true
+    api.listSources().then(items => {
+      allSources.value = items
+    }).catch(() => {}).finally(() => { sourcesLoading.value = false })
+  })
 
   const onPasswordInput = v => { password.value = v }
   const onSubmit = () => {
-    const sources = sourcesInput.value.split(',').map(s => s.trim()).filter(Boolean)
+    const sources = (selectedSources.value || []).map(s => s.value).filter(Boolean)
     context.emit('submit', {
       user: user.value,
       password: password.value,
       sources
     })
-    // Wipe immediately so it does not linger in component state.
     password.value = ''
     if (passwordInput.value && passwordInput.value.$el) {
       const el = passwordInput.value.$el
       if (el.tagName === 'INPUT') el.value = ''
     }
   }
-  return { user, password, sourcesInput, onPasswordInput, onSubmit, passwordInput }
+  return { user, password, passwordInput, selectedSources, sourceOptions, sourcesLoading, onPasswordInput, onSubmit }
 }
 
-export default { name: 'the-form-authentication', props, setup }
+export default { name: 'the-form-authentication', components, props, setup }
 </script>

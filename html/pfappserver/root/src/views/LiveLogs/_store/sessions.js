@@ -45,6 +45,55 @@ const getters = {
   groupPeers: state => groupId => state._groups[groupId] || [groupId]
 }
 
+// Extracted from createSession so the cluster-config preload above can chain
+// into it cleanly with a single return path (cluster fan-out vs legacy single).
+const startSessions = (commit, form, saas, isCluster) => {
+  if (isCluster) {
+    const servers = peerList()
+    const group_id = uuidv4()
+    return Promise.all(servers.map(server =>
+      api.create(form, server).then(response => ({ server, response }))
+                              .catch(err => ({ server, error: err }))
+    )).then(results => {
+      const peers = results
+        .filter(r => r.response && r.response.session_id)
+        .map(r => ({
+          hostname: r.server.host,
+          management_ip: r.server.management_ip,
+          session_id: r.response.session_id
+        }))
+      if (peers.length === 0) {
+        commit('LOG_SESSION_ERROR', { data: { message: 'No cluster node could start a session' } })
+        return { error: true }
+      }
+      commit('LOG_GROUP_START', { group_id, peers })
+      peers.forEach(peer => {
+        commit('LOG_SESSION_START', {
+          form,
+          response: { session_id: peer.session_id },
+          peer
+        })
+      })
+      return { session_id: group_id, group_id, peers }
+    })
+  }
+
+  return api.create(form).then(response => {
+    let session_id
+    if (saas) {
+      session_id = uuidv4()
+      commit('LOG_SESSION_START', { form, response: { session_id }, cursor: response.cursor })
+    } else {
+      session_id = response.session_id
+      commit('LOG_SESSION_START', { form, response })
+    }
+    return { ...response, session_id }
+  }).catch(err => {
+    commit('LOG_SESSION_ERROR', err.response)
+    return err
+  })
+}
+
 const actions = {
   optionsSession: ({ commit }) => {
     commit('LOG_SESSION_REQUEST')
@@ -59,51 +108,23 @@ const actions = {
   createSession: ({ commit }, form) => {
     commit('LOG_SESSION_REQUEST')
     const saas = store.getters['system/isSaas']
-    const isCluster = !saas && store.getters['cluster/isCluster']
+    // Ensure cluster config is loaded before deciding fan-out. Without this
+    // a user who clicks Start immediately after the page loads races with
+    // cluster/getConfig and silently falls back to the local-only single-
+    // session path — and then Stop on a "phantom" peer session 404s. Re-
+    // dispatching getConfig is cheap and the backend response is small.
+    const needsClusterLoad = !saas && (
+      !store.state.cluster ||
+      !store.state.cluster.servers ||
+      Object.keys(store.state.cluster.servers).length === 0
+    )
+    const clusterReady = needsClusterLoad
+      ? store.dispatch('cluster/getConfig').catch(() => null)
+      : Promise.resolve()
 
-    if (isCluster) {
-      const servers = peerList()
-      const group_id = uuidv4()
-      return Promise.all(servers.map(server =>
-        api.create(form, server).then(response => ({ server, response }))
-                                .catch(err => ({ server, error: err }))
-      )).then(results => {
-        const peers = results
-          .filter(r => r.response && r.response.session_id)
-          .map(r => ({
-            hostname: r.server.host,
-            management_ip: r.server.management_ip,
-            session_id: r.response.session_id
-          }))
-        if (peers.length === 0) {
-          commit('LOG_SESSION_ERROR', { data: { message: 'No cluster node could start a session' } })
-          return { error: true }
-        }
-        commit('LOG_GROUP_START', { group_id, peers })
-        peers.forEach(peer => {
-          commit('LOG_SESSION_START', {
-            form,
-            response: { session_id: peer.session_id },
-            peer
-          })
-        })
-        return { session_id: group_id, group_id, peers }
-      })
-    }
-
-    return api.create(form).then(response => {
-      let session_id
-      if (saas) {
-        session_id = uuidv4()
-        commit('LOG_SESSION_START', { form, response: { session_id }, cursor: response.cursor })
-      } else {
-        session_id = response.session_id
-        commit('LOG_SESSION_START', { form, response })
-      }
-      return { ...response, session_id }
-    }).catch(err => {
-      commit('LOG_SESSION_ERROR', err.response)
-      return err
+    return clusterReady.then(() => {
+      const isCluster = !saas && store.getters['cluster/isCluster']
+      return startSessions(commit, form, saas, isCluster)
     })
   },
   destroySession: ({ state, commit }, id) => {
