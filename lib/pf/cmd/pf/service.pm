@@ -46,7 +46,6 @@ Services managed by PacketFence:
   pfperl-api             | Perl daemon providing API
   pfpki                  | PKI daemon
   pfqueue-go             | PF queueing service
-  pfqueue-backend        | PF queueing backend service
   pfsetacls              | ACL service daemon
   pfsso                  | Firewall SSO daemon
   pfstats                | PF statistics daemon

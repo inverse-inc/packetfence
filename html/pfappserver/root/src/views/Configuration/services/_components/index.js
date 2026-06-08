@@ -36,7 +36,6 @@ export {
   BaseFormGroupSwitch                 as FormGroupPfipset,
   BaseFormGroupSwitch                 as FormGroupPfperlApi,
   BaseFormGroupSwitch                 as FormGroupPfpki,
-  BaseFormGroupSwitch                 as FormGroupPfqueueBackend,
   BaseFormGroupSwitch                 as FormGroupPfqueueGo,
   BaseFormGroupSwitch                 as FormGroupPfsso,
   BaseFormGroupSwitch                 as FormGroupPfstats,

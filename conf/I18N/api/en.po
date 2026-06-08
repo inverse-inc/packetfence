@@ -15779,10 +15779,6 @@ msgstr ""
 msgid "Should pfpki be started?"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:174
-msgid "Should pfqueue-backend be started?"
-msgstr ""
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:181
 msgid "Should pfqueue-go be started?"
 msgstr ""

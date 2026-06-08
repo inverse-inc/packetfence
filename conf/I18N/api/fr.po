@@ -17372,10 +17372,6 @@ msgstr "Faut-il démarrer pfperl-api ?"
 msgid "Should pfpki be started?"
 msgstr "Faut-il démarrer pfpki ?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:174
-msgid "Should pfqueue-backend be started?"
-msgstr "Faut-il démarrer pfqueue-backend ?"
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:181
 msgid "Should pfqueue-go be started?"
 msgstr "Faut-il démarrer pfqueue-go ?"

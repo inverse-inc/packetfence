@@ -562,19 +562,6 @@ index 079a1d9e70..d42ff78357 100644
  ExecStart=/usr/local/pf/sbin/pfpki-docker-wrapper
  ExecStop=/bin/bash -c "docker stop pfpki ; echo Stopped"
  Restart=on-failure
-diff --git a/conf/systemd/packetfence-pfqueue-backend.service b/conf/systemd/packetfence-pfqueue-backend.service
-index 40cf9cceda..99313b4270 100644
---- a/conf/systemd/packetfence-pfqueue-backend.service
-+++ b/conf/systemd/packetfence-pfqueue-backend.service
-@@ -11,7 +11,7 @@ TimeoutStopSec=60
- NotifyAccess=all
- StartLimitBurst=3
- StartLimitInterval=10
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_backend' -e 'pf::services::manager::pfqueue_backend->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_backend' -e 'pf::services::manager::pfqueue_backend->new()->generateConfig()'
- ExecStart=/usr/local/pf/sbin/pfqueue-backend
- TimeoutStopSec=30
- Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfqueue-go.service b/conf/systemd/packetfence-pfqueue-go.service
 index ea836d4227..1060b1f9e4 100644
 --- a/conf/systemd/packetfence-pfqueue-go.service

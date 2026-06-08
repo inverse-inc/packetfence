@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"os"
+	"os/exec"
 	"os/signal"
+	"slices"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -14,6 +17,7 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/file_paths"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
 	"github.com/redis/go-redis/v9"
@@ -23,6 +27,13 @@ const PFQUEUE_WEIGHTS = "QueueWeights"
 
 func main() {
 	log.SetProcessName("pfqueue")
+	ctx := log.LoggerNewContext(context.Background())
+	backend := NewBackendManager(ctx)
+	if err := backend.Start(); err != nil {
+		logErrorf(ctx, "Failed to start pfqueue-backend: %s", err.Error())
+		os.Exit(1)
+	}
+
 	systemdStart()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
@@ -30,8 +41,166 @@ func main() {
 	fmt.Println("Starting")
 	go qw.Run()
 	<-c
+	NotifySystemd("STOPPING=1")
+	// Stop the backend monitor first so it doesn't restart the backend
+	// process when systemd sends SIGTERM to the entire cgroup
+	backend.Stop()
 	qw.Stop()
-	defer NotifySystemd("STOPPING=1")
+}
+
+type BackendManager struct {
+	ctx    context.Context
+	stopCh chan struct{}
+	doneCh chan struct{}
+}
+
+func NewBackendManager(ctx context.Context) *BackendManager {
+	return &BackendManager{
+		ctx:    ctx,
+		stopCh: make(chan struct{}),
+		doneCh: make(chan struct{}),
+	}
+}
+
+func (bm *BackendManager) Start() error {
+	cmd, err := bm.startProcess()
+	if err != nil {
+		return err
+	}
+
+	go bm.monitor(cmd)
+	return nil
+}
+
+func (bm *BackendManager) startProcess() (*exec.Cmd, error) {
+	backendPath := file_paths.PF_DIR + "/sbin/pfqueue-backend"
+	cmd := exec.Command(backendPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	// Set the child in its own process group so we can signal it cleanly
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("starting pfqueue-backend: %w", err)
+	}
+
+	logInfof(bm.ctx, "Started pfqueue-backend (pid %d)", cmd.Process.Pid)
+
+	// Wait for the backend socket to become available
+	socketPath := file_paths.PFQUEUE_BACKEND_SOCKET
+	deadline := time.Now().Add(10 * time.Second)
+	for time.Now().Before(deadline) {
+		conn, err := net.DialTimeout("unix", socketPath, 100*time.Millisecond)
+		if err == nil {
+			conn.Close()
+			logInfof(bm.ctx, "pfqueue-backend socket is ready")
+			return cmd, nil
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	// Timeout waiting for socket - kill the process and report error
+	cmd.Process.Kill()
+	cmd.Wait()
+	return nil, fmt.Errorf("timed out waiting for pfqueue-backend socket at %s", socketPath)
+}
+
+func (bm *BackendManager) isStopping() bool {
+	select {
+	case <-bm.stopCh:
+		return true
+	default:
+		return false
+	}
+}
+
+// monitor is the sole goroutine that calls cmd.Wait() on the active process.
+// Stop() signals via stopCh; monitor handles SIGTERM and the actual Wait.
+func (bm *BackendManager) monitor(cmd *exec.Cmd) {
+	defer close(bm.doneCh)
+	for {
+		waitDone := make(chan error, 1)
+		go func() {
+			waitDone <- cmd.Wait()
+		}()
+
+		select {
+		case err := <-waitDone:
+			if bm.isStopping() {
+				return
+			}
+			// Systemd signals the whole cgroup on shutdown, so the backend
+			// can exit from SIGTERM/SIGINT before Stop() has closed stopCh.
+			// If that happens, wait briefly for Stop() to close stopCh and
+			// treat it as shutdown. If stopCh doesn't close in that window,
+			// the backend was killed independently (e.g. by an admin) and
+			// must be restarted.
+			if terminatedBySignal(err, syscall.SIGTERM, syscall.SIGINT) {
+				select {
+				case <-bm.stopCh:
+					logInfof(bm.ctx, "pfqueue-backend (pid %d) terminated by signal during shutdown", cmd.Process.Pid)
+					return
+				case <-time.After(5 * time.Second):
+					logWarnf(bm.ctx, "pfqueue-backend (pid %d) terminated by signal but pfqueue-go is not shutting down, restarting", cmd.Process.Pid)
+				}
+			} else {
+				logWarnf(bm.ctx, "pfqueue-backend (pid %d) exited unexpectedly: %v, restarting", cmd.Process.Pid, err)
+			}
+		case <-bm.stopCh:
+			cmd.Process.Signal(syscall.SIGTERM)
+			select {
+			case <-waitDone:
+			case <-time.After(30 * time.Second):
+				logWarnf(bm.ctx, "pfqueue-backend did not stop gracefully, killing")
+				cmd.Process.Kill()
+				<-waitDone
+			}
+			return
+		}
+
+		// Retry startProcess with backoff until it succeeds or stop is signaled
+		backoff := time.Second
+		for {
+			select {
+			case <-time.After(backoff):
+			case <-bm.stopCh:
+				return
+			}
+
+			newCmd, err := bm.startProcess()
+			if err != nil {
+				logErrorf(bm.ctx, "Failed to restart pfqueue-backend: %s, retrying in %s", err.Error(), backoff)
+				if backoff < 30*time.Second {
+					backoff *= 2
+				}
+				continue
+			}
+
+			cmd = newCmd
+			break
+		}
+	}
+}
+
+// Stop signals the monitor to shut down and waits for it to finish.
+// The monitor handles sending SIGTERM to the current backend process.
+func (bm *BackendManager) Stop() {
+	close(bm.stopCh)
+	<-bm.doneCh
+	logInfof(bm.ctx, "pfqueue-backend stopped")
+}
+
+func terminatedBySignal(err error, signals ...syscall.Signal) bool {
+	var exitErr *exec.ExitError
+	if !errors.As(err, &exitErr) {
+		return false
+	}
+	status, ok := exitErr.Sys().(syscall.WaitStatus)
+	if !ok || !status.Signaled() {
+		return false
+	}
+
+	return slices.Contains(signals, status.Signal())
 }
 
 type QueueWeight struct {

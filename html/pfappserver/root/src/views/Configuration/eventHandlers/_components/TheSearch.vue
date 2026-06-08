@@ -14,9 +14,6 @@
           service="pfdetect" restart start stop
           class="ml-1" />
         <base-button-service
-          service="pfqueue-backend" restart start stop
-          class="ml-1" />
-        <base-button-service
           service="pfqueue-go" restart start stop
           class="ml-1" />
       </base-search>

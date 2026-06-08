@@ -16249,10 +16249,6 @@ msgstr "pfperl-api başlatılmalı mı?"
 msgid "Should pfpki be started?"
 msgstr "Pfpki başlatılmalı mı?"
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:188
-msgid "Should pfqueue-backend be started?"
-msgstr "pfqueue-backend başlatılmalı mı?"
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:195
 msgid "Should pfqueue-go be started?"
 msgstr "pfqueue-go başlatılmalı mı?"

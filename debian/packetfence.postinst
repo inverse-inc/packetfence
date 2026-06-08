@@ -266,6 +266,14 @@ case "$1" in
         # Remove the monit service from the multi-user target if its there
         rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
+        # pfqueue-backend is now managed by pfqueue-go, remove old systemd service
+        if systemctl list-unit-files packetfence-pfqueue-backend.service 2>/dev/null | grep -q packetfence-pfqueue-backend; then
+            systemctl stop packetfence-pfqueue-backend.service || true
+            systemctl disable packetfence-pfqueue-backend.service || true
+            rm -f /lib/systemd/system/packetfence-pfqueue-backend.service
+            systemctl daemon-reload
+        fi
+
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."
