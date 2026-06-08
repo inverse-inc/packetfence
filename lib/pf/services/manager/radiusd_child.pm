@@ -1323,29 +1323,6 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
-        # Shared TLS stanza for the RadSec (TCP/TLS) load-balanced listeners below.
-        # TLS is terminated here; the proxied hop to the backends stays plain RADIUS/UDP.
-        # NOTE: \${certdir}/\${cadir} are radiusd runtime variables and must stay literal,
-        # hence the escaped dollar signs in this interpolating heredoc.
-        my $radsec_tls = <<"EOT";
-        limit {
-              max_connections = 16
-              lifetime = 0
-              idle_timeout = 30
-        }
-
-        tls {
-                private_key_file = $install_dir/raddb/certs/server.key
-                certificate_file = $install_dir/raddb/certs/server.crt
-                ca_file = $install_dir/raddb/certs/ca.pem
-                dh_file = \${certdir}/dh
-                fragment_size = 8192
-                ca_path = \${cadir}
-                cipher_list = "DEFAULT"
-                require_client_cert = yes
-        }
-EOT
-
         foreach my $interface ( uniq(@radius_ints) ) {
             my $server_ip = $interface->{Tip};
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
@@ -1395,18 +1372,11 @@ listen {
         virtual_server = pfcli.cluster
 }
 
-# RadSec (TCP/TLS) load-balanced entry points — terminate TLS, then balance
-# through pf.cluster over the existing UDP home-server pools.
-listen {
-        ipaddr = $server_ip
-        port = $radsec_port
-        type = auth+acct
-        proto = tcp
-        virtual_server = pf.cluster
-
-$radsec_tls
-}
-
+# RadSec (TCP/TLS) load-balanced entry point on the cluster VIP — equipment
+# targets the VIP, not a node IP. Terminate TLS here, then balance through
+# pf.cluster over the existing UDP home-server pools.
+# NOTE: \${certdir}/\${cadir} are radiusd runtime variables and must stay
+# literal, hence the escaped dollar signs in this interpolating heredoc.
 listen {
         ipaddr = $cluster_ip
         port = $radsec_port
@@ -1414,7 +1384,22 @@ listen {
         proto = tcp
         virtual_server = pf.cluster
 
-$radsec_tls
+        limit {
+              max_connections = 16
+              lifetime = 0
+              idle_timeout = 30
+        }
+
+        tls {
+                private_key_file = $install_dir/raddb/certs/server.key
+                certificate_file = $install_dir/raddb/certs/server.crt
+                ca_file = $install_dir/raddb/certs/ca.pem
+                dh_file = \${certdir}/dh
+                fragment_size = 8192
+                ca_path = \${cadir}
+                cipher_list = "DEFAULT"
+                require_client_cert = yes
+        }
 }
 
 EOT
