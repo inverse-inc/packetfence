@@ -210,7 +210,7 @@ sub pull {
     
     my $status;
     safe_pf_run("git", "pull",
-        { working_directory => $proto->git_directory, status_ref => \$status });
+        { working_directory => $proto->git_directory, status_ref => \$status, redirect_stderr_to_stdout => 1 });
     if(!defined($status) || $status != 0) {
         return (0, "Unable to pull repository.");
     }
@@ -229,7 +229,7 @@ sub push {
 
     my $status;
     safe_pf_run("git", "push",
-        { working_directory => $proto->git_directory, status_ref => \$status });
+        { working_directory => $proto->git_directory, status_ref => \$status, redirect_stderr_to_stdout => 1 });
     if(!defined($status) || $status != 0) {
         return (0, "Unable to push repository. Please retry the change.");
     }
@@ -260,7 +260,7 @@ sub update {
 
         my $status;
         safe_pf_run("git", "pull",
-            { working_directory => $proto->git_directory, status_ref => \$status });
+            { working_directory => $proto->git_directory, status_ref => \$status, redirect_stderr_to_stdout => 1 });
         if(!defined($status) || $status != 0) {
             $last_error = "Unable to pull repository";
             sleep 3;

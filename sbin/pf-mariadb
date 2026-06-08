@@ -115,7 +115,10 @@ sub launch_mysql {
     if($exec) {
         exec(@cmd);
     } else {
-        safe_pf_run(@cmd);
+        # mysqld_safe stays in the foreground; merge stderr into stdout so the
+        # child's output shares a single pipe that safe_pf_run drains, rather
+        # than leaving stderr undrained where it could fill and deadlock.
+        safe_pf_run(@cmd, { redirect_stderr_to_stdout => 1 });
     }
 }
 

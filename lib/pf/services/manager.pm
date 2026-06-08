@@ -420,7 +420,9 @@ sub isAlive {
     my $logger = get_logger();
     my $target = $self->systemdTarget;
     my $res;
-    safe_pf_run(qw(sudo systemctl -q is-active), $target, { status_ref => \$res });
+    # is-active exits non-zero (3) for inactive/failed services, which is a
+    # normal state and must not be logged as a command failure on this hot path.
+    safe_pf_run(qw(sudo systemctl -q is-active), $target, { status_ref => \$res, accepted_exit_status => [1, 2, 3, 4] });
     my $alive = (defined $res && $res == 0) ? 1 : 0;
     $logger->debug("sudo systemctl -q is-active $target returned code " . ($res // -1));
     return $alive;
