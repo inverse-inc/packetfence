@@ -90,7 +90,7 @@ remove_secrets() {
         for log_dir in "${venom_result_dir}" "${pf_logs_root}" "${var_logs_root}"; do
             if [[ -d "${log_dir}" ]]; then
                 echo "Sanitizing secrets in ${log_dir}"
-                if ! find "${log_dir}" -type f -print0 2>/dev/null | xargs -0 sed -i "s/${escaped_secret}/REDACTED/g" 2>/dev/null; then
+                if ! find "${log_dir}" -type f -print0 2>/dev/null | xargs -0 -r sed -i "s/${escaped_secret}/REDACTED/g" 2>/dev/null; then
                     echo "ERROR: Failed to sanitize secrets in ${log_dir}" >&2
                     sanitization_failed=1
                 fi
