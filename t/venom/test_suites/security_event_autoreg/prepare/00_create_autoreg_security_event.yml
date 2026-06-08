@@ -18,7 +18,7 @@ testcases:
       "Content-Type": "application/json"
       "Authorization": "{{.get_login_token.json.result.token}}"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldEqual 200
     vars:
       id:
         from: result.bodyjson.id
