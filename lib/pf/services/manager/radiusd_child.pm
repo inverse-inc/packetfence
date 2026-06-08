@@ -1323,9 +1323,33 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
+        # Shared TLS stanza for the RadSec (TCP/TLS) load-balanced listeners below.
+        # TLS is terminated here; the proxied hop to the backends stays plain RADIUS/UDP.
+        # NOTE: \${certdir}/\${cadir} are radiusd runtime variables and must stay literal,
+        # hence the escaped dollar signs in this interpolating heredoc.
+        my $radsec_tls = <<"EOT";
+        limit {
+              max_connections = 16
+              lifetime = 0
+              idle_timeout = 30
+        }
+
+        tls {
+                private_key_file = $install_dir/raddb/certs/server.key
+                certificate_file = $install_dir/raddb/certs/server.crt
+                ca_file = $install_dir/raddb/certs/ca.pem
+                dh_file = \${certdir}/dh
+                fragment_size = 8192
+                ca_path = \${cadir}
+                cipher_list = "DEFAULT"
+                require_client_cert = yes
+        }
+EOT
+
         foreach my $interface ( uniq(@radius_ints) ) {
             my $server_ip = $interface->{Tip};
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
+            my $radsec_port = $self->{radsec_loadbalancer_port};
             $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = $server_ip
@@ -1369,6 +1393,28 @@ listen {
         port = 1815
         type = auth
         virtual_server = pfcli.cluster
+}
+
+# RadSec (TCP/TLS) load-balanced entry points — terminate TLS, then balance
+# through pf.cluster over the existing UDP home-server pools.
+listen {
+        ipaddr = $server_ip
+        port = $radsec_port
+        type = auth+acct
+        proto = tcp
+        virtual_server = pf.cluster
+
+$radsec_tls
+}
+
+listen {
+        ipaddr = $cluster_ip
+        port = $radsec_port
+        type = auth+acct
+        proto = tcp
+        virtual_server = pf.cluster
+
+$radsec_tls
 }
 
 EOT
@@ -1757,7 +1803,8 @@ sub generate_port {
         $self->{acct_port} = $self->{acct_port} + 10;
         $self->{cli_port} = $self->{cli_port} + 10;
         $port = $port + 10;
-        $self->{radsec_port} = $self->{radsec_port} + 10;
+        $self->{radsec_loadbalancer_port} = $self->{radsec_port};   # 2083 — client-facing (load balancer)
+        $self->{radsec_port} = $self->{radsec_port} + 10;           # 2093 — backend auth instance
     }
     return $port;
 }
