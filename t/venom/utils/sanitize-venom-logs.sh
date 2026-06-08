@@ -72,7 +72,7 @@ remove_secrets() {
 
     for secret_id in ${secret_ids}; do
         # get real secret (suppress error output to avoid leaking secret fragments)
-        if ! secret=$(psonoci secret get ${secret_id} password 2>&1); then
+        if ! secret=$(psonoci secret get ${secret_id} password 2>/dev/null); then
             echo "ERROR: Failed to get secret ${secret_id}" >&2
             sanitization_failed=1
             continue
