@@ -1,6 +1,6 @@
 #!/bin/bash
 set -o nounset -o pipefail
-# NOTE: Do NOT use errexit - sanitization failures should not prevent log collection
+# NOTE: Do NOT use errexit - we handle failures explicitly and refuse archive creation on sanitization failures to prevent secret leakage
 
 # Replace all secrets that passed secret_is_valid test
 # found in Venom results by REDACTED
