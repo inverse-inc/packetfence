@@ -33,6 +33,7 @@ use Try::Tiny;
 use Switch;
 use Symbol qw(gensym);
 use File::Path qw(make_path);
+use File::Temp qw(tempfile);
 use IPC::Open3 qw(open3);
 use File::Basename;
 use Scalar::Util 'reftype';
@@ -1904,10 +1905,14 @@ sub inline_mangle_rules {
         }
 
         if (@ops) {
-            my $cmd = "LANG=C sudo ipset restore 2>&1";
-            open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
-            print IPSET join("\n", @ops);
-            close IPSET;
+            my ($fh, $tmpfile) = tempfile();
+            print $fh join("\n", @ops);
+            close($fh);
+            my $status;
+            safe_pf_run(qw(sudo ipset restore),
+                { stdin => $tmpfile, redirect_stderr_to_stdout => 1, status_ref => \$status });
+            unlink $tmpfile;
+            die "ipset restore failed\n" unless (defined $status && $status == 0);
         }
         $logger->info("Mangle rules are done.");
     } else {

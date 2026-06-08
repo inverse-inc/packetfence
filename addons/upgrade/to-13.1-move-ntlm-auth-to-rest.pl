@@ -36,13 +36,13 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
-my $tmp = safe_pf_run("date +%Y%m%d_%H%M%S");
+my $tmp = safe_pf_run("date", "+%Y%m%d_%H%M%S");
 $tmp =~ s/^\s+|\s+$//g;
 
 my $domain_bk="/usr/local/pf/conf/domain.conf_".$tmp."_bk";
 my $realm_bk="/usr/local/pf/conf/realm.conf_".$tmp."_bk";
-pf_run("cp -R /usr/local/pf/conf/domain.conf $domain_bk");
-pf_run("cp -R /usr/local/pf/conf/realm.conf $realm_bk");
+safe_pf_run("cp", "-R", "/usr/local/pf/conf/domain.conf", $domain_bk);
+safe_pf_run("cp", "-R", "/usr/local/pf/conf/realm.conf", $realm_bk);
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
@@ -200,9 +200,9 @@ if ($updated) {
 }
 
 print("Stopping winbindd\n");
-pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
+safe_pf_run(qw(sudo systemctl stop packetfence-winbindd), { redirect_stderr_to_stdout => 1 });
 sleep(3);
-pf_run("sudo systemctl disable packetfence-winbindd 2>/dev/null");
+safe_pf_run(qw(sudo systemctl disable packetfence-winbindd), { redirect_stderr_to_stdout => 1 });
 print("/chroots/* directories will be removed at the next reboot.\n");
 print("Domain config backup is available here $domain_bk\n");
 print("Realm  config backup is available here $realm_bk\n");
@@ -213,10 +213,10 @@ print("Realm  config backup is available here $realm_bk\n");
 
 sub tdbdump_get_value {
     my ($tdb_file, $key) = @_;
-    my $cmd = "/usr/bin/tdbdump $tdb_file -k $key";
 
-    my $result = qx($cmd);
-    my $exit_code = $? >> 8;
+    my $status;
+    my $result = safe_pf_run("/usr/bin/tdbdump", $tdb_file, "-k", $key, { status_ref => \$status });
+    my $exit_code = (defined $status ? $status : -1) >> 8;
 
     return $exit_code, $result;
 }

@@ -493,7 +493,9 @@ sub getlocalmac {
     return (-1) if ( !$dev );
     my $chi = pf::CHI->new(namespace => 'local_mac');
     my $mac = $chi->compute($dev, sub {
-        foreach (`LC_ALL=C /sbin/ifconfig -a $dev`) {
+        # Force a neutral locale; LC_ALL overrides LANG (which safe_pf_run sets).
+        local $ENV{LC_ALL} = 'C';
+        foreach (safe_pf_run("/sbin/ifconfig", "-a", $dev)) {
             if (/ether\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
                 # cache the value
                 return clean_mac($1);

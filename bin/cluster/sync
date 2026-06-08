@@ -54,6 +54,7 @@ use pf::file_paths qw(
 );
 use pf::constants::cluster qw(@FILES_TO_SYNC);
 use pf::cluster;
+use pf::util qw(safe_pf_run);
 use fingerbank::FilePath;
 use Pod::Usage;
 
@@ -146,7 +147,7 @@ if($master_server){
             open(my $fh, '>', $file);
             print $fh $result;
             close($fh);
-            `chown pf:pf $file`;
+            safe_pf_run("chown", "pf:pf", $file);
         };
         if($@){
             get_logger->error("Failed to sync file : $file . $@");

@@ -384,18 +384,33 @@ sub verify_chain {
     my ($cert, $intermediates) = @_;
     my $cert_str = $cert->as_string();
 
-    my (undef, $tmpinter) = tempfile();
     my $bundle = "";
     foreach my $inter (@$intermediates) {
         $bundle .= $inter->as_string();
     }
     $bundle .= "\n$cert_str\n";
-    write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
-    unlink $tmpinter;
+    # Trusted material for the verification: the system CA bundle followed by
+    # the provided intermediates and certificate (matches the previous
+    # "cat $OS_CA_CERT_FILE $tmpinter" behavior).
+    my $ca_content = (-r $OS_CA_CERT_FILE) ? read_file($OS_CA_CERT_FILE) : "";
+    my (undef, $cafile) = tempfile();
+    write_file($cafile, $ca_content . $bundle);
 
-    if($? != 0) {
+    # The certificate being verified, passed as a file argument rather than
+    # through a shell pipe.
+    my (undef, $certfile) = tempfile();
+    write_file($certfile, $cert_str);
+
+    my $status;
+    my $result = safe_pf_run(
+        "openssl", "verify", "-verbose", "-CAfile", $cafile, $certfile,
+        { redirect_stderr_to_stdout => 1, status_ref => \$status },
+    );
+    unlink $cafile;
+    unlink $certfile;
+
+    if (!defined($status) || $status != 0) {
         get_logger->error("Chain verification failed");
         return ($FALSE, $result);
     }

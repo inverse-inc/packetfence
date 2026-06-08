@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use pfconfig::config;
-use pf::util qw(isenabled);
+use pf::util qw(isenabled safe_pf_run);
 use pf::log;
 use File::Basename;
 use List::MoreUtils qw(firstval);
@@ -94,22 +94,28 @@ sub commit_file {
         }
 
         my $basedir = dirname($dst);
-        system("mkdir -p $basedir");
-        if($? != 0) {
+        my $status;
+        safe_pf_run("mkdir", "-p", $basedir, { status_ref => \$status });
+        if(!defined($status) || $status != 0) {
             $last_error = "Unable to create directory for file $dst";
             sleep 3;
             next;
         }
 
-        system("cp -a $src $dst");
-        if($? != 0) {
+        safe_pf_run("cp", "-a", $src, $dst, { status_ref => \$status });
+        if(!defined($status) || $status != 0) {
             $last_error = "Unable to copy $src into git repository $dst";
             sleep 3;
             next;
         }
 
-        system("cd ".$proto->git_directory." && git add -f $unprefixed_dst && git commit --allow-empty -m 'update $unprefixed_dst'");
-        if($? != 0) {
+        safe_pf_run("git", "add", "-f", $unprefixed_dst,
+            { working_directory => $proto->git_directory, status_ref => \$status });
+        if(defined($status) && $status == 0) {
+            safe_pf_run("git", "commit", "--allow-empty", "-m", "update $unprefixed_dst",
+                { working_directory => $proto->git_directory, status_ref => \$status });
+        }
+        if(!defined($status) || $status != 0) {
             $last_error = "Unable to commit to repository. Please retry the change.";
             sleep 3;
             next;
@@ -160,8 +166,14 @@ sub delete_file {
             next;
         }
 
-        system("cd ".$proto->git_directory." && git rm $file && git commit --allow-empty -m 'delete $file'");
-        if($? != 0) {
+        my $status;
+        safe_pf_run("git", "rm", $file,
+            { working_directory => $proto->git_directory, status_ref => \$status });
+        if(defined($status) && $status == 0) {
+            safe_pf_run("git", "commit", "--allow-empty", "-m", "delete $file",
+                { working_directory => $proto->git_directory, status_ref => \$status });
+        }
+        if(!defined($status) || $status != 0) {
             $last_error = "Unable to commit to repository. Please retry the change.";
             sleep 3;
             next;
@@ -196,8 +208,10 @@ Pulls the git repository
 sub pull {
     my ($proto) = @_;
     
-    system("cd ".$proto->git_directory." && git pull");
-    if($? != 0) {
+    my $status;
+    safe_pf_run("git", "pull",
+        { working_directory => $proto->git_directory, status_ref => \$status });
+    if(!defined($status) || $status != 0) {
         return (0, "Unable to pull repository.");
     }
 
@@ -213,8 +227,10 @@ Pushes the git repository
 sub push {
     my ($proto) = @_;
 
-    system("cd ".$proto->git_directory." && git push");
-    if($? != 0) {
+    my $status;
+    safe_pf_run("git", "push",
+        { working_directory => $proto->git_directory, status_ref => \$status });
+    if(!defined($status) || $status != 0) {
         return (0, "Unable to push repository. Please retry the change.");
     }
 
@@ -242,24 +258,34 @@ sub update {
             return 0;
         }
 
-        system("cd ".$proto->git_directory." && git pull");
-        if($? != 0) {
+        my $status;
+        safe_pf_run("git", "pull",
+            { working_directory => $proto->git_directory, status_ref => \$status });
+        if(!defined($status) || $status != 0) {
             $last_error = "Unable to pull repository";
             sleep 3;
             next;
         }
-        system("cp -a ".$proto->git_directory."/conf/* ".$proto->conf_directory."/");
-        if($? != 0) {
-            $last_error = "Unable to copy conf/ repository files";
-            sleep 3;
-            next;
+
+        # Expand the glob in Perl (no shell) before passing each source to cp.
+        my @conf_files = glob($proto->git_directory . "/conf/*");
+        if(@conf_files) {
+            safe_pf_run("cp", "-a", @conf_files, $proto->conf_directory . "/", { status_ref => \$status });
+            if(!defined($status) || $status != 0) {
+                $last_error = "Unable to copy conf/ repository files";
+                sleep 3;
+                next;
+            }
         }
 
-        system("cp -a ".$proto->git_directory."/fingerbank/conf/* ".$proto->fingerbank_conf_directory."/");
-        if($? != 0) {
-            $last_error = "Unable to copy fingerbank/conf/ repository files";
-            sleep 3;
-            next;
+        my @fb_conf_files = glob($proto->git_directory . "/fingerbank/conf/*");
+        if(@fb_conf_files) {
+            safe_pf_run("cp", "-a", @fb_conf_files, $proto->fingerbank_conf_directory . "/", { status_ref => \$status });
+            if(!defined($status) || $status != 0) {
+                $last_error = "Unable to copy fingerbank/conf/ repository files";
+                sleep 3;
+                next;
+            }
         }
 
         $last_error = undef;
