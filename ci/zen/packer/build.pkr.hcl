@@ -19,7 +19,8 @@ build {
     playbook_file = "${var.provisioner_dir}/site.yml"
     # Match ssh_username; otherwise defaults to the container's $USER.
     user = "root"
-    extra_arguments = ["--skip-tags", "rc-local-include-variables"]
+    # -O forces legacy scp; SFTP-mode scp (OpenSSH 9+) can't mkdir the remote tmp.
+    extra_arguments = ["--scp-extra-args=-O", "--skip-tags", "rc-local-include-variables"]
     host_alias = "${var.vm_name}"
     groups = [
       "${var.ansible_pfservers_group}",
