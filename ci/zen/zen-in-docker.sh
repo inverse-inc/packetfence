@@ -30,6 +30,10 @@ fi
 # Open /dev/kvm via the device's gid instead of --privileged.
 KVM_GID="$(stat -c '%g' /dev/kvm)"
 
+# Override docker's DNS for the qemu guest (space-separated).
+DNS_ARGS=()
+for ns in ${ZEN_BUILDER_DNS:-}; do DNS_ARGS+=(--dns "$ns"); done
+
 echo "===> zen build in ${ZEN_BUILDER_IMAGE} (kvm gid=${KVM_GID}, build=${BUILD_NAME})"
 
 # Bind-mount a passwd/group with the host UID so ansible's getpwuid() works.
@@ -45,6 +49,7 @@ echo "builder:x:$(id -g):"                                >> "${NSS_DIR}/group"
 docker run --rm \
   --pull "${ZEN_BUILDER_PULL}" \
   --name "zen-build-${BUILD_NAME}" \
+  "${DNS_ARGS[@]}" \
   --device /dev/kvm \
   --user "$(id -u):$(id -g)" \
   --group-add "${KVM_GID}" \
