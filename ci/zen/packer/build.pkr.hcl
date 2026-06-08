@@ -17,6 +17,8 @@ build {
   ]
   provisioner "ansible" {
     playbook_file = "${var.provisioner_dir}/site.yml"
+    # Match ssh_username; otherwise defaults to the container's $USER.
+    user = "root"
     extra_arguments = ["--skip-tags", "rc-local-include-variables"]
     host_alias = "${var.vm_name}"
     groups = [
