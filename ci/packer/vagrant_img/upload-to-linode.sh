@@ -28,9 +28,11 @@ BUCKET=${BUCKET:-packetfence-iso}
 BUCKET_PREFIX=${BUCKET_PREFIX:-vagrant}
 BOX_DESC=${BOX_DESC:-}
 
-BOX_FILENAME="${BOX_NAME}-${PROVIDER}.box"
-BOX_FILE="${RESULT_DIR}/${BOX_NAME}/${BOX_FILENAME}"
-MD5_FILE="${BOX_FILE}.md5sums.txt"
+# Packer writes the artifact under the per-build output_dir; the upload-time
+# rename flattens to <box>/<version>.box with no extra directory.
+LOCAL_BOX_FILE="${RESULT_DIR}/${BOX_NAME}/${BOX_NAME}-${PROVIDER}.box"
+REMOTE_BOX_FILENAME="${BOX_VERSION}.box"
+MD5_FILE="${LOCAL_BOX_FILE}.md5sums.txt"
 
 # Derive public HTTPS base URL from the S3 endpoint:
 #   https://us-east-1.linodeobjects.com  ->  https://packetfence-iso.us-east-1.linodeobjects.com
@@ -42,45 +44,27 @@ RCLONE_OPTS="--s3-provider=Ceph \
   --s3-endpoint=${RCLONE_LINODE_URL} \
   --s3-acl=public-read"
 
-if [ ! -f "${BOX_FILE}" ]; then
-    echo "ERROR: box file not found: ${BOX_FILE}"
+if [ ! -f "${LOCAL_BOX_FILE}" ]; then
+    echo "ERROR: box file not found: ${LOCAL_BOX_FILE}"
     exit 1
 fi
 
-echo "===> Computing checksum for ${BOX_FILENAME}"
-BOX_CHECKSUM=$(md5sum "${BOX_FILE}" | cut -d' ' -f1)
-echo "${BOX_CHECKSUM}  ${BOX_FILENAME}" > "${MD5_FILE}"
+echo "===> Computing checksum for ${REMOTE_BOX_FILENAME}"
+BOX_CHECKSUM=$(md5sum "${LOCAL_BOX_FILE}" | cut -d' ' -f1)
+echo "${BOX_CHECKSUM}  ${REMOTE_BOX_FILENAME}" > "${MD5_FILE}"
 
-versioned_prefix=":s3:${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/${BOX_VERSION}"
-latest_prefix=":s3:${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/latest"
+box_prefix=":s3:${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}"
 
-echo "===> Uploading versioned box to ${versioned_prefix}/"
+echo "===> Uploading ${REMOTE_BOX_FILENAME} to ${box_prefix}/"
 # shellcheck disable=SC2086
-rclone mkdir ${RCLONE_OPTS} "${versioned_prefix}/"
+rclone copyto ${RCLONE_OPTS} "${LOCAL_BOX_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}"
 # shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${BOX_FILE}" "${versioned_prefix}/${BOX_FILENAME}"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${MD5_FILE}" "${versioned_prefix}/${BOX_FILENAME}.md5sums.txt"
-
-echo "===> Uploading latest box to ${latest_prefix}/"
-# shellcheck disable=SC2086
-rclone mkdir ${RCLONE_OPTS} "${latest_prefix}/"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${BOX_FILE}" "${latest_prefix}/${BOX_FILENAME}"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${MD5_FILE}" "${latest_prefix}/${BOX_FILENAME}.md5sums.txt"
-
-echo "===> Updating latest.txt -> ${BOX_VERSION}"
-LATEST_TXT=$(mktemp)
-echo "${BOX_VERSION}" > "${LATEST_TXT}"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${LATEST_TXT}" ":s3:${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/latest.txt"
-rm -f "${LATEST_TXT}"
+rclone copyto ${RCLONE_OPTS} "${MD5_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}.md5sums.txt"
 
 echo "===> Updating metadata.json"
 METADATA_FILE=$(mktemp)
-METADATA_REMOTE=":s3:${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/metadata.json"
-BOX_PUBLIC_URL="${PUBLIC_BASE_URL}/${BUCKET_PREFIX}/${BOX_NAME}/${BOX_VERSION}/${BOX_FILENAME}"
+METADATA_REMOTE="${box_prefix}/metadata.json"
+BOX_PUBLIC_URL="${PUBLIC_BASE_URL}/${BUCKET_PREFIX}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
 
 # Download existing metadata.json or start fresh
 # shellcheck disable=SC2086
@@ -121,6 +105,5 @@ rclone copyto ${RCLONE_OPTS} "${METADATA_FILE}" "${METADATA_REMOTE}"
 rm -f "${METADATA_FILE}"
 
 echo "===> Done! Box available at:"
-echo "     ${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/${BOX_VERSION}/${BOX_FILENAME}"
-echo "     ${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/latest/${BOX_FILENAME}"
+echo "     ${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
 echo "     ${PUBLIC_BASE_URL}/${BUCKET_PREFIX}/${BOX_NAME}/metadata.json"

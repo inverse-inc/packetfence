@@ -1429,7 +1429,7 @@ build_pf_img_dvd_usb_iso:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 ### build_pf_img_vagrant jobs
-# Devel and maintenance: packages already deployed to the public inverse.ca repo.
+# Devel box: packages already deployed to the public inverse.ca repo.
 build_pf_img_vagrant_devel_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_job
@@ -1450,17 +1450,38 @@ build_pf_img_vagrant_devel_debian_bookworm:
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+
+# Maintenance branches: stable box namespace, shared with tag releases.
+build_pf_img_vagrant_maintenance_debian_bookworm:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfdeb12stable
+  needs:
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: deb
+      artifacts: false
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
-# Feature branches: packages come from the pipeline PPA (publish_ppa); branch
-# slug is embedded in the box name so each branch gets its own box slot on Linode.
+# Feature branches: packages come from the pipeline PPA (publish_ppa); all
+# feature branches share the same Linode prefix, the build version distinguishes them.
 build_pf_img_vagrant_branch_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_job
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
-    - export BOX_NAME="pfdeb12dev-${CI_COMMIT_REF_SLUG}"
+    - export BOX_NAME="pfdeb12branch"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
@@ -1500,16 +1521,37 @@ build_pf_img_vagrant_ad_devel_debian_bullseye:
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
+
+# AD (Samba4) maintenance branches: stable namespace.
+build_pf_img_vagrant_ad_maintenance_debian_bullseye:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfad11stable
+  needs:
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: deb
+      artifacts: false
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
-# AD (Samba4) feature-branch box: branch slug embedded in box name.
+# AD (Samba4) feature-branch box: shared branch namespace.
 build_pf_img_vagrant_ad_branch_debian_bullseye:
   extends:
     - .build_pf_img_vagrant_job
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
-    - export BOX_NAME="pfad11dev-${CI_COMMIT_REF_SLUG}"
+    - export BOX_NAME="pfad11branch"
     - export BOX_DESC="PacketFence AD ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}

@@ -30,12 +30,16 @@ PROVIDER=${PROVIDER:-libvirt}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}}
 WORK_DIR=${WORK_DIR:-/var/local/gitlab-runner/vagrant_img_cache}
 
-BOX_FILENAME="${BOX_NAME}-${PROVIDER}.box"
 VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
 
 echo "===> Resolving latest box version for ${BOX_NAME}"
-BOX_VERSION=$(curl -fsSL "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/latest.txt" | tr -d '[:space:]')
+# Newest entry is versions[0]; upload-to-linode.sh prepends on each build.
+BOX_VERSION=$(curl -fsSL "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/metadata.json" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["versions"][0]["version"])')
 echo "     Latest version: ${BOX_VERSION}"
+
+# Box file matches the layout written by upload-to-linode.sh: <box>/<version>.box
+BOX_FILENAME="${BOX_VERSION}.box"
 
 # Skip download if the same version is already installed locally
 if [ -f "${VERSION_MARKER}" ] && [ "$(cat "${VERSION_MARKER}")" = "${BOX_VERSION}" ]; then
@@ -50,12 +54,12 @@ mkdir -p "${WORK_DIR}"
 
 echo "===> Downloading ${BOX_FILENAME} (version ${BOX_VERSION})"
 curl -fSL \
-    "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/latest/${BOX_FILENAME}" \
+    "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/${BOX_FILENAME}" \
     -o "${WORK_DIR}/${BOX_FILENAME}"
 
 echo "===> Downloading checksum"
 curl -fSL \
-    "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/latest/${BOX_FILENAME}.md5sums.txt" \
+    "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/${BOX_FILENAME}.md5sums.txt" \
     -o "${WORK_DIR}/${BOX_FILENAME}.md5sums.txt"
 
 echo "===> Verifying checksum"
