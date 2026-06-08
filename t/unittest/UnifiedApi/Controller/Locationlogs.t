@@ -51,7 +51,7 @@ my %values = (
     ifDesc              => 'test ifDesc',
     start_time          => '0000-00-00 00:00:01',
     end_time            => '0000-00-00 00:00:02',
-    voip                => 'no',
+    voip                => 'false',
 );
 use Test::More tests => 91;
 

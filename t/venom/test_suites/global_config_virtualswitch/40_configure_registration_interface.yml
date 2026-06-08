@@ -31,7 +31,7 @@ testcases:
         "ipaddress": "{{.virtualswitch.registration.ip}}",
         "netmask": "{{.virtualswitch.registration.netmask}}",
         "dhcpd_enabled": "{{.virtualswitch.registration.dhcpd_enabled}}",
-        "nat_enabled": "disabled",
+        "nat_enabled": "false",
         "high_availability": 0,
         "additional_listening_daemons": {{.virtualswitch.registration.additional_listening_daemons}}
       }

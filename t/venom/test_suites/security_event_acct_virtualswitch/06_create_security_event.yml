@@ -14,7 +14,7 @@ testcases:
       {
         "id": "{{.security_event_acct_virtualswitch.event.id}}",
         "desc": "{{.security_event_acct_virtualswitch.event.desc}}",
-        "enabled": "Y",
+        "enabled": "true",
         "actions": ["reevaluate_access"],
         "vlan": "{{.security_event_acct_virtualswitch.event.vlan}}",
         "triggers": [{"{{.security_event_acct_virtualswitch.event.trigger_type}}": "{{.security_event_acct_virtualswitch.event.trigger_value}}"}],
@@ -23,7 +23,7 @@ testcases:
           "unit": "{{.security_event_acct_virtualswitch.event.grace_unit}}"
         },
         "max_enable": "{{.security_event_acct_virtualswitch.event.max_enable}}",
-        "auto_enable": "Y",
+        "auto_enable": "true",
         "priority": 1
       }
     headers:

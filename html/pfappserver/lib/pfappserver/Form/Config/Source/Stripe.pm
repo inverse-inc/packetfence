@@ -58,8 +58,6 @@ has_field 'domains' =>
 
 has_field customer_portal => (
     type => 'Checkbox',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
     default => pf::Authentication::Source::StripeSource->meta->get_attribute('customer_portal')->default,
 );
 

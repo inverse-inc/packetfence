@@ -38,7 +38,7 @@ has 'currency' => (is => 'rw', default => 'USD');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool');
 
-has 'send_email_confirmation' => (is => 'rw', default => 'disabled');
+has 'send_email_confirmation' => (is => 'rw', default => 'false');
 
 =head2 dynamic_routing_module
 

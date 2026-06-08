@@ -22,7 +22,7 @@ testcases:
         "id": "upstream",
         "port": "443",
         "sqlite_db_retention": "2",
-        "use_https": "enabled"
+        "use_https": "true"
       }
     headers:
       "Content-Type": "application/json"      

@@ -33,13 +33,13 @@ my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 my $args = {};
 is(
     $switch->{_ExternalPortalEnforcement},
-    'N',
+    'false',
     "Before Switch filtered",
 );
 $switch_filter->filterSwitch('radius_authorize', \$switch, $args);
 is(
     $switch->{_ExternalPortalEnforcement},
-    'Y',
+    'true',
     "Switch filtered",
 );
 
@@ -71,4 +71,3 @@ USA.
 =cut
 
 1;
-

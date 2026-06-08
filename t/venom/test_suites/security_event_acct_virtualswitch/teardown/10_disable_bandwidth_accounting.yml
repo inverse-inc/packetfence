@@ -8,6 +8,6 @@ testcases:
     method: PATCH
     body: >-
       {
-        "process_bandwidth_accounting": "disabled"
+        "process_bandwidth_accounting": "false"
       }
     status_code: 200

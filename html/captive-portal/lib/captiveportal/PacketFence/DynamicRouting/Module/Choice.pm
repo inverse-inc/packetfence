@@ -16,7 +16,7 @@ extends 'captiveportal::DynamicRouting::ModuleManager';
 use pf::util;
 use pf::log;
 
-has 'show_first_module_on_default' => (is => 'rw', isa => 'Str', default => sub{'disabled'});
+has 'show_first_module_on_default' => (is => 'rw', isa => 'Str', default => sub{'false'});
 
 has 'template' => (is => 'rw', isa => 'Str', default => sub {'content-with-choice.html'});
 
@@ -106,7 +106,7 @@ sub default_behavior {
     }
     else {
         get_logger->debug("Default behavior is to show only the choice");
-        $self->render_choice(); 
+        $self->render_choice();
     }
 }
 
@@ -151,4 +151,3 @@ USA.
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
-

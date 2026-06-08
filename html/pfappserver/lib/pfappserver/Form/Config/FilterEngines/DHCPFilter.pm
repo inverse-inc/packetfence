@@ -29,9 +29,7 @@ sub scopes {
 has_field 'run_actions' => (
    type => 'Toggle',
    label => 'Run Actions',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
+   default => 'true'
 );
 
 =head2 answers
@@ -172,4 +170,3 @@ USA.
 =cut
 
 1;
-

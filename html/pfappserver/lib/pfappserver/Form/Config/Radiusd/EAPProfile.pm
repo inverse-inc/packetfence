@@ -41,9 +41,7 @@ has_field timer_expire => (
 for my $f (qw(ignore_unknown_eap_types cisco_accounting_username_bug)) {
     has_field $f => (
         type            => 'Toggle',
-        checkbox_value  => 'yes',
-        unchecked_value => 'no',
-        default         => 'no',
+        default         => 'false',
     );
 }
 
@@ -108,4 +106,3 @@ USA.
 =cut
 
 1;
-

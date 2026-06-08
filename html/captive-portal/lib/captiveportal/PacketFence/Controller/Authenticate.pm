@@ -67,7 +67,7 @@ sub verifyAup : Private {
     my $request = $c->request;
     my $aup_status = $request->param("aup_signed");
     if ( !defined $aup_status ) {
-        $c->error("The AUP was not signed"); 
+        $c->error("The AUP was not signed");
     }
 }
 
@@ -84,7 +84,7 @@ sub authenticationLogin : Private {
     if ($request->{'match'} eq "status/login") {
         my $person_info = pf::person::person_view($request->param("username"));
         if($person_info) {
-            if($person_info->{potd} eq "yes") {
+            if($person_info->{potd} eq "true") {
                 $c->error("This username cannot be used on the self-service portal.");
                 $c->detach();
             }
@@ -115,8 +115,8 @@ sub authenticationLogin : Private {
     # validate login and password
     ( $return, $message, $source_id, $extra ) =
       pf::authentication::authenticate( {
-              'username' => $username, 
-              'password' => $password, 
+              'username' => $username,
+              'password' => $password,
               'rule_class' => $Rules::AUTH,
               'context' => $pf::constants::realm::PORTAL_CONTEXT,
           }, @{$sources} );

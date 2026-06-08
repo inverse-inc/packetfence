@@ -23,8 +23,6 @@ with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 has_field 'email_required' =>
   (
    type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
   );
 
 =head1 AUTHOR

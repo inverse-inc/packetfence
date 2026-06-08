@@ -74,7 +74,7 @@ testcases:
   - type: pf_api_action
     method: PATCH
     url: 'config/security_event/{{.security_event_random_mac.event.id}}'
-    body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"N","quiet":true}'
+    body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"false","quiet":true}'
 
 - name: reload_iptables_rules
   steps:

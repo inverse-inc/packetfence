@@ -51,9 +51,9 @@ sub field_list {
             my $type = $field_doc->{type};
             if ($type eq 'toggle') {
                 $field->{type}            = 'Toggle';
-                $field->{checkbox_value}  = 'enabled';
-                $field->{unchecked_value} = 'disabled';
-            } 
+                $field->{checkbox_value}  = 'true';
+                $field->{unchecked_value} = 'false';
+            }
             elsif ($type eq 'numeric') {
                 $field->{type} = 'PosInteger';
             }

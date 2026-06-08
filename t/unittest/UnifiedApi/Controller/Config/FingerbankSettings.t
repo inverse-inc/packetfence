@@ -39,7 +39,7 @@ $t->patch_ok(
         "host"                => "api.fingerbank.org",
         "port"                => "443",
         "sqlite_db_retention" => "2",
-        "use_https"           => "enabled",
+        "use_https"           => "true",
         "id"                  => "upstream"
     }
 )->status_is(200);
@@ -81,4 +81,3 @@ USA.
 =cut
 
 1;
-

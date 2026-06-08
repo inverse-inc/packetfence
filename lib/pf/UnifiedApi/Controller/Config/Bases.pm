@@ -2,7 +2,7 @@ package pf::UnifiedApi::Controller::Config::Bases;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::Bases - 
+pf::UnifiedApi::Controller::Config::Bases -
 
 =cut
 
@@ -248,8 +248,8 @@ sub database_assign {
     if ($json->{is_remote}) {
         my $remote = $json->{remote};
         my %database_proxysql = (
-            status => 'enabled',
-            backends => $remote->{host},
+            status => 'true',
+            backend => $remote->{host},
         );
         if ($remote->{ca_cert}) {
             my $path = "$conf_uploads/pf/database_proxysql_cacert.crt";

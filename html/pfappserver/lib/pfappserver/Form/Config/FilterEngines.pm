@@ -42,9 +42,7 @@ has_field 'condition' => (
 has_field 'status' => (
    type => 'Toggle',
    label => 'Enable Rule',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
+   default => 'true'
 );
 
 has_field 'scopes' => (
@@ -78,7 +76,7 @@ our %ADDITIONAL_FIELD_OPTIONS = (
         siblings => {
             value => {
                 allowed_values =>
-                  [ map { { text => $_, value => $_ } } ( "yes", "no" ) ],
+                  [ map { { text => $_, value => $_ } } ( "true", "false" ) ],
             },
         },
     },
@@ -203,4 +201,3 @@ USA.
 =cut
 
 1;
-

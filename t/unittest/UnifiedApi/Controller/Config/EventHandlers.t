@@ -96,7 +96,7 @@ $t->post_ok( "$collection_base_url/dry_run" => json => $config )
                             { api_method => 'trigger_scan', api_parameters => [ 'bob',     'bob' ] }
                         ],
                         'rule' => {
-                            'ip_mac_translation' => 'disabled',
+                            'ip_mac_translation' => 'false',
                             'rate_limit'         => {
                                 unit     => 's',
                                 interval => 0,
@@ -105,7 +105,7 @@ $t->post_ok( "$collection_base_url/dry_run" => json => $config )
                                 'modify_node: $scrip, $dstip',
                                 'trigger_scan: bob, bob'
                             ],
-                            'last_if_match' => 'enabled',
+                            'last_if_match' => 'true',
                             'regex' => 'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
                             'name' => 'from to'
                           }

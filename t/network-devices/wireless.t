@@ -91,7 +91,7 @@ $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
         'radiusSecret' => 'fake',
         'ip' => '127.0.0.1',
         'id' => '127.0.0.1',
-        'radiusDeauthUseConnector' => 'N',
+        'radiusDeauthUseConnector' => 'false',
     });
     # bogusly calling methods trying to generate warnings
     $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
@@ -124,4 +124,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-

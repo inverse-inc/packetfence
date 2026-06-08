@@ -127,16 +127,16 @@ $t->options_ok($collection_base_url)
                 'type' => 'string',
                 'allowed' => [
                                {
-                                 'value' => 'enabled',
+                                 'value' => 'true',
                                  'text' => 'enabled'
                                },
                                {
-                                 'value' => 'disabled',
+                                 'value' => 'false',
                                  'text' => 'disabled'
                                }
                              ],
-                'default' => undef,
-                'placeholder' => undef
+                'default' => 'false',
+                'placeholder' => 'true'
           },
             acls => {
                 "default" => undef,
@@ -162,11 +162,11 @@ $t->options_ok($collection_base_url)
           'inherit_vlan' => {
               'allowed' => [
                              {
-                               'value' => 'enabled',
+                               'value' => 'true',
                                'text' => 'enabled'
                              },
                              {
-                               'value' => 'disabled',
+                               'value' => 'false',
                                'text' => 'disabled'
                              }
                            ],
@@ -174,8 +174,8 @@ $t->options_ok($collection_base_url)
               'required' => 0,
               'implied' => undef,
               'type' => 'string',
-              'default' => 'disabled',
-              'placeholder' => 'enabled'
+              'default' => 'false',
+              'placeholder' => 'true'
             },
             'inherit_web_auth_url' => {
                   'required' => 0,
@@ -185,15 +185,15 @@ $t->options_ok($collection_base_url)
                   'allowed' => [
                                  {
                                    'text' => 'enabled',
-                                   'value' => 'enabled'
+                                   'value' => 'true'
                                  },
                                  {
                                    'text' => 'disabled',
-                                   'value' => 'disabled'
+                                   'value' => 'false'
                                  }
                                ],
-                  'default' => 'disabled',
-                  'placeholder' => 'enabled'
+                  'default' => 'false',
+                  'placeholder' => 'true'
             },
             'max_nodes_per_pid' => {
                'implied' => undef,
@@ -211,15 +211,15 @@ $t->options_ok($collection_base_url)
                  'allowed' => [
                                 {
                                   'text' => 'enabled',
-                                  'value' => 'enabled'
+                                  'value' => 'true'
                                 },
                                 {
                                   'text' => 'disabled',
-                                  'value' => 'disabled'
+                                  'value' => 'false'
                                 }
                               ],
-                 'default' => undef,
-                 'placeholder' => undef
+                 'default' => 'false',
+                 'placeholder' => 'true'
                },
               'inherit_role' => {
                   'type' => 'string',
@@ -229,15 +229,15 @@ $t->options_ok($collection_base_url)
                   'allowed' => [
                                  {
                                    'text' => 'enabled',
-                                   'value' => 'enabled'
+                                   'value' => 'true'
                                  },
                                  {
-                                   'value' => 'disabled',
+                                   'value' => 'false',
                                    'text' => 'disabled'
                                  }
                                ],
-                  'placeholder' => 'enabled',
-                  'default' => 'disabled'
+                  'placeholder' => 'true',
+                  'default' => 'false'
             },
             acls_enabled => {
                 implied => undef,
@@ -247,15 +247,15 @@ $t->options_ok($collection_base_url)
                 allowed => [
                        {
                          'text' => 'enabled',
-                         'value' => 'enabled'
+                         'value' => 'true'
                        },
                        {
-                         'value' => 'disabled',
+                         'value' => 'false',
                          'text' => 'disabled'
                        }
                 ],
-                placeholder => 'enabled',
-                default => 'enabled'
+                placeholder => 'true',
+                default => 'true'
             }
         },
         status => 200,

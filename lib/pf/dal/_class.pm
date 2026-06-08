@@ -55,7 +55,7 @@ BEGIN {
     %DEFAULTS = (
         security_event_id => '',
         description => 'none',
-        auto_enable => 'Y',
+        auto_enable => 'true',
         max_enables => '0',
         grace_period => '',
         window => '0',
@@ -65,7 +65,7 @@ BEGIN {
         max_enable_url => undef,
         redirect_url => undef,
         button_text => undef,
-        enabled => 'N',
+        enabled => 'false',
         vlan => undef,
         target_category => undef,
         delay_by => '0',

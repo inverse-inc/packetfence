@@ -357,7 +357,7 @@ sub validate_password {
     my ($status, $iter) = pf::dal::password->search(
         -where => {
             'password.pid' => $pid,
-            'person.potd' => $allow_potd ? 'yes' : ['no', undef],
+            'person.potd' => $allow_potd ? 'true' : ['false', undef],
         },
         -columns => [qw(password.pid|pid password.password|password), 'IFNULL(UNIX_TIMESTAMP(valid_from),0)|valid_from', 'IFNULL(UNIX_TIMESTAMP(expiration),0)|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join

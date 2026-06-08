@@ -14,17 +14,21 @@ pf::constants
 use strict;
 use warnings;
 use Readonly;
+use JSON::PP::Boolean;
 use base qw(Exporter);
 our @EXPORT = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR $CYAN_COLOR $MAGENTA_COLOR
     $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $SPACE $SPACE_NUMBERS $DIR_MODE $PFCMD_MODE $FAKE_MAC
+    $JSON_TRUE $JSON_FALSE
 );
 
 # some global constants
 Readonly::Scalar our $FALSE => 0;
 Readonly::Scalar our $TRUE => 1;
-Readonly::Scalar our $YES => 'yes';
-Readonly::Scalar our $NO => 'no';
+our $JSON_TRUE = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+our $JSON_FALSE = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
+Readonly::Scalar our $YES => 'true';
+Readonly::Scalar our $NO => 'false';
 Readonly::Scalar our $default_pid => 'default';
 Readonly::Scalar our $admin_pid => 'admin';
 Readonly::Scalar our $YELLOW_COLOR => 'yellow';
@@ -41,7 +45,7 @@ Readonly::Scalar our $PFCMD_MODE => 06755;
 Readonly::Scalar our $FAKE_MAC => "de:fa:ce:db:ab:e0";
 
 Readonly::Hash our %BUILTIN_USERS => (
-    $default_pid => 1, 
+    $default_pid => 1,
     $admin_pid => 1,
 );
 

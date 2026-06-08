@@ -110,7 +110,7 @@ our %ALLOWED_JOIN_FIELDS = (
     'online' => {
         namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
-        column_spec   => "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'off' ELSE 'on' END|online"
+        column_spec   => "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'offline' ELSE 'online' END|online"
     },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
@@ -252,7 +252,7 @@ sub rewrite_online_query {
     }
 
     my $value = $q->{value};
-    if (!defined $value || ($value ne 'on' && $value ne 'off' && $value ne 'unknown')) {
+    if (!defined $value || ($value ne 'online' && $value ne 'offline' && $value ne 'unknown')) {
         return (422, { message => "value of " . ($value // "(null)"). " is not valid for the online field" });
     }
 
@@ -265,14 +265,14 @@ sub rewrite_online_query {
     }
 
     if ($op eq 'equals') {
-        if ($value eq 'on') {
+        if ($value eq 'online') {
             return (200, \[$ON_QUERY]);
         }
 
         return (200, \[$OFF_QUERY]);
     }
 
-    if ($value eq 'on') {
+    if ($value eq 'online') {
         return (200, \["( ($UNKNOWN_QUERY) OR ($OFF_QUERY) )"]);
     }
 
@@ -343,4 +343,3 @@ USA.
 =cut
 
 1;
-

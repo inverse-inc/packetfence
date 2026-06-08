@@ -14,13 +14,13 @@ testcases:
       {
         "id": "{{.security_event_detect_fingerbank_virtualswitch.event.id}}",
         "desc": "{{.security_event_detect_fingerbank_virtualswitch.event.desc}}",
-        "enabled": "Y",
+        "enabled": "true",
         "actions": ["autoreg", "role"],
         "access_duration": "{{.security_event_detect_fingerbank_virtualswitch.event.access_duration}}",
         "target_category": "{{.security_event_detect_fingerbank_virtualswitch.event.target_category}}",
         "triggers": [{"{{.security_event_detect_fingerbank_virtualswitch.event.trigger_type}}": "{{.security_event_detect_fingerbank_virtualswitch.event.trigger_value}}"}],
         "max_enable": "{{.security_event_detect_fingerbank_virtualswitch.event.max_enable}}",
-        "auto_enable": "Y",
+        "auto_enable": "true",
         "priority": 1
       }
     headers:

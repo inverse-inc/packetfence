@@ -27,9 +27,8 @@ has_field 'ssid' =>
 has_field 'broadcast' =>
   (
    type => 'Checkbox',
-   checkbox_value => 1,
-   input_without_param => 0,
-   default => 1,
+   input_without_param => 'false',
+   default => 'true',
    tags => { after_element => \&help,
              help => 'Disable this box if you are using a hidden SSID' },
   );
@@ -70,8 +69,6 @@ has_field 'dpsk' =>
 
 has_field 'dpsk_use_local_password' => (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
 );
 
 has_field 'psk_size' =>
@@ -146,7 +143,6 @@ has_field 'can_sign_profile' =>
   (
    type => 'Checkbox',
    value => 0,
-   checkbox_value => 1,
    tags => { after_element => \&help,
              help => 'Check this box if you want the profiles signed' },
   );

@@ -1192,13 +1192,6 @@ sub field_allowed {
                 $element->_load_options();
                 $allowed = $element->options;
             }
-        } elsif ($field->isa('pfappserver::Form::Field::Toggle')) {
-            my $check = $field->checkbox_value;
-            my $uncheck = $field->unchecked_value;
-            $allowed = [
-                { label => $check, value => $check },
-                { label => $uncheck, value => $uncheck },
-            ];
         }
     }
 

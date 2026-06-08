@@ -112,7 +112,7 @@ If the provisioner has to be enforced on each connection
 
 =cut
 
-has enforce => (is => 'rw', default => sub { 'enabled' });
+has enforce => (is => 'rw', default => sub { 'true' });
 
 =head2 autoregister
 
@@ -120,7 +120,7 @@ If a role should be applied to the devices authorized in the provisioner
 
 =cut
 
-has autoregister => (is => 'rw', default => sub { 'disabled' });
+has autoregister => (is => 'rw', default => sub { 'false' });
 
 =head2 apply_role
 
@@ -128,7 +128,7 @@ If a role should be applied to the devices authorized in the provisioner
 
 =cut
 
-has apply_role => (is => 'rw', default => sub { 'disabled' });
+has apply_role => (is => 'rw', default => sub { 'false' });
 
 =head2 role_to_apply
 

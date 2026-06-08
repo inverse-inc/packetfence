@@ -66,8 +66,6 @@ has_field 'timeout' => (
 has_field 'monitor' => (
     type            => 'Toggle',
     label           => 'Monitor',
-    checkbox_value  => '1',
-    unchecked_value => '0',
     tags            => {
         after_element => \&help,
         help          => 'Do you want to monitor this source?'
@@ -78,8 +76,6 @@ has_field 'monitor' => (
 has_field 'use_connector',
   (
     type            => 'Toggle',
-    checkbox_value  => '1',
-    unchecked_value => '0',
     default         => $META->get_attribute('use_connector')->default,
   );
 

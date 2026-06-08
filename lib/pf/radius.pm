@@ -119,7 +119,7 @@ sub authorize {
     my ($do_auto_reg, %autoreg_node_defaults, $action);
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
-    
+
     my $RAD_REPLY_REF;
 
     $self->handleNtlmCaching($radius_request);
@@ -247,7 +247,7 @@ sub authorize {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('preProcess', $args);
     if ($rule) {
-        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
+        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'true' }, $args, $radius_request);
         %$radius_request = %$reply;
         $args->{'user_name'} = $switch->parseRequestUsername($radius_request);
         if ($user_name ne $args->{'user_name'}) {

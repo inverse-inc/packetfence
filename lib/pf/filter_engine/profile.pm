@@ -34,7 +34,7 @@ sub BUILDARGS {
         #Skip the default profile since it will be last
         next if $id eq $DEFAULT_PROFILE;
         my $profile = $config->{$id};
-        next if isdisabled($profile->{status} // 'enabled');
+        next if isdisabled($profile->{status} // 'true');
         my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
         if ($profile->{'advanced_filter'} ) {
             push @conditions, pf::factory::condition::profile->instantiate_advanced($profile->{'advanced_filter'});

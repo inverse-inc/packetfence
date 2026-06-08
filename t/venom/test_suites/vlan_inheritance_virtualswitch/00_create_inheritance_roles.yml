@@ -12,7 +12,7 @@ testcases:
         "id": "{{.vlan_inheritance_virtualswitch.roles.inheritance1.id}}",
         "max_nodes_per_pid": 0,
         "notes": "{{.vlan_inheritance_virtualswitch.roles.inheritance1.notes}}",
-        "inherit_vlan": "disabled"
+        "inherit_vlan": "false"
       }
 
 - name: create_inheritance2_role
@@ -26,7 +26,7 @@ testcases:
         "id": "{{.vlan_inheritance_virtualswitch.roles.inheritance2.id}}",
         "max_nodes_per_pid": 0,
         "notes": "{{.vlan_inheritance_virtualswitch.roles.inheritance2.notes}}",
-        "inherit_vlan": "enabled",
+        "inherit_vlan": "true",
         "parent_id": "{{.vlan_inheritance_virtualswitch.roles.inheritance1.id}}"
       }
 
@@ -41,6 +41,6 @@ testcases:
         "id": "{{.vlan_inheritance_virtualswitch.roles.inheritance3.id}}",
         "max_nodes_per_pid": 0,
         "notes": "{{.vlan_inheritance_virtualswitch.roles.inheritance3.notes}}",
-        "inherit_vlan": "enabled",
+        "inherit_vlan": "true",
         "parent_id": "{{.vlan_inheritance_virtualswitch.roles.inheritance2.id}}"
       }

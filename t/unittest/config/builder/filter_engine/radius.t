@@ -38,7 +38,7 @@ status=enabled
 top_op=and
 condition=connection_type == "Wireless-802.11-EAP"
 answer.0=request:NAS-IP-Address = 192.168.0.1
-merge_answer=yes
+merge_answer=true
 
 CONF
 
@@ -60,7 +60,7 @@ CONF
                                     'description'  => 'test',
                                     'params'       => [],
                                     'scopes'       => [ 'preProcess' ],
-                                    'merge_answer' => 'yes',
+                                    'merge_answer' => 'true',
                                     'answers'      => [
                                         {
                                             'tmpl' => bless(
@@ -111,7 +111,7 @@ status=enabled
 top_op=and
 condition=connection_sub_type == "EAP-TLS"
 answer.0=request:NAS-IP-Address = 192.168.0.1
-merge_answer=yes
+merge_answer=true
 
 CONF
 
@@ -133,7 +133,7 @@ CONF
                                     'description'  => 'test',
                                     'params'       => [],
                                     'scopes'       => [ 'preProcess' ],
-                                    'merge_answer' => 'yes',
+                                    'merge_answer' => 'true',
                                     'answers'      => [
                                         {
                                             'tmpl' => bless(

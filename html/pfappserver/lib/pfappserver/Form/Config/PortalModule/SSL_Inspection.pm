@@ -22,8 +22,6 @@ has_field 'skipable' =>
   (
    type => 'Toggle',
    label => 'Skippable',
-   unchecked_value => 0,
-   checkbox_value => 1,
    tags => { after_element => \&help,
              help => 'Whether or not, this message can be skipped' },
   );
@@ -85,5 +83,3 @@ USA.
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
-
-

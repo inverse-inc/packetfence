@@ -46,7 +46,7 @@ CONF
             RegisteredRole => pf::filter_engine->new({
                 filters => [
                     pf::filter->new({
-                        'condition' => 
+                        'condition' =>
                             pf::condition::all->new({
                                 conditions => [
                                     pf::condition::key->new(
@@ -100,7 +100,7 @@ CONF
 status=enabled
 condition=bob == "bob"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -137,7 +137,7 @@ CONF
                                     actions => [
                                         {
                                             api_method => 'modify_node',
-                                            api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                            api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                         },
                                     ],
                                 },
@@ -156,9 +156,9 @@ CONF
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
 status=enabled
-condition=bob.jones == "bob" && bob.jone == "no"
+condition=bob.jones == "bob" && bob.jone == "false"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -203,7 +203,7 @@ CONF
                                                             'condition' =>
                                                               bless(
                                                                 {
-                                                                    'value' => 'no'
+                                                                    'value' => 'false'
                                                                 },
 'pf::condition::equals'
                                                               ),
@@ -219,7 +219,7 @@ CONF
                                 ),
                                 answer => {
                                     status => 'enabled',
-                                    condition => 'bob.jones == "bob" && bob.jone == "no"',
+                                    condition => 'bob.jones == "bob" && bob.jone == "false"',
                                     scopes    => ['RegisteredRole'],
                                     _rule     => 'pf_deauth_from_wireless_secure',
                                     role    => 'registration',
@@ -229,7 +229,7 @@ CONF
                                         {
                                             api_method => 'modify_node',
                                             api_parameters =>
-'mac, $mac, status = unreg, autoreg = no'
+'mac, $mac, status = unreg, autoreg = false'
                                         },
                                     ],
                                 },
@@ -250,7 +250,7 @@ CONF
 status=enabled
 condition=bob.jones == "bob"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -286,7 +286,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -306,7 +306,7 @@ CONF
 status=enabled
 condition=not_date_is_before(bob.jones, "bob")
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -330,7 +330,7 @@ CONF
                                     }),
                                 }),
                             answer => {
-                                    
+
                                 status => 'enabled',
                                 condition => 'not_date_is_before(bob.jones, "bob")',
                                 scopes    => ['RegisteredRole'],
@@ -341,7 +341,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -361,7 +361,7 @@ CONF
 status=enabled
 condition=contains(bob.jones, "bob")
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -397,7 +397,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -417,7 +417,7 @@ CONF
 status=enabled
 condition=a =~ "^bob"
 scopes = RegisteredRole
-action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+action.0=modify_node: mac, $mac, status = unreg, autoreg = false
 role = registration
 CONF
 
@@ -450,7 +450,7 @@ CONF
                                 actions => [
                                     {
                                         api_method => 'modify_node',
-                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = false'
                                     },
                                 ],
                             },
@@ -603,4 +603,3 @@ USA.
 =cut
 
 1;
-

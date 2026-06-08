@@ -33,7 +33,7 @@ has_field 'api_key' =>
 has_field 'email_required' =>
   (
    type => 'Hidden',
-   default => 'yes',
+   default => 'true',
   );
 
 =head1 AUTHOR
@@ -64,4 +64,3 @@ USA.
 =cut
 
 1;
-

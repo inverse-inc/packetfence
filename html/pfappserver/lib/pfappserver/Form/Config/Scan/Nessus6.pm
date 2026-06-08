@@ -68,9 +68,7 @@ has_field 'verify_hostname' =>
    label => 'Verify Hostname',
    tags => { after_element => \&help,
              help => 'Verify hostname of server' },
-   checkbox_value  => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled',
+   default => 'true',
   );
 
 =over

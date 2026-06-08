@@ -46,7 +46,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
                 {
                     "field" => "online",
                     "op"    => "equals",
-                    "value" => "on"
+                    "value" => "online"
                 },
                 {
                     "op"  => 'or',
@@ -73,7 +73,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'off' ELSE 'on' END|online",
+                "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'offline' ELSE 'online' END|online",
             ],
         ],
         'Return the columns'
@@ -686,7 +686,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'off' ELSE 'on' END|online"
+                "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'offline' ELSE 'online' END|online"
             ]
         ],
         'Return the columns'

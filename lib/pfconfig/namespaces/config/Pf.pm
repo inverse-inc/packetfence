@@ -192,7 +192,7 @@ sub build_child {
 
 
     if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && isSelfSigned()) {
-        $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
+        $Config{'captive_portal'}{'secure_redirect'} = 'false';
         get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
     }
 
@@ -211,7 +211,7 @@ sub build_child {
 
 sub set_timezone {
     my ($tz) = @_;
-    my $lt = readlink("/etc/localtime"); 
+    my $lt = readlink("/etc/localtime");
     $lt =~ s/(\.\.)?\/usr\/share\/zoneinfo\///g;
     if($lt ne $tz) {
         my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";

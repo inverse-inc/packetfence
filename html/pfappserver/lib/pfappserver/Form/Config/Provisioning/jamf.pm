@@ -47,25 +47,19 @@ has_field 'api_password' => (
 has_field 'device_type_detection' => (
     type            => 'Toggle',
     label           => 'Automatic device detection',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default         => 'disabled',
+    default         => 'false',
 );
 
 has_field 'query_computers' => (
     type            => 'Toggle',
     label           => 'Query JAMF computers inventory',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default         => 'enabled',
+    default         => 'true',
 );
 
 has_field 'query_mobiledevices' => (
     type            => 'Toggle',
     label           => 'Query JAMF mobile devices inventory',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default         => 'enabled',
+    default         => 'true',
 );
 
 has_block definition => (

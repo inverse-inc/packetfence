@@ -157,7 +157,7 @@ $t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco
   ->status_is(201)
   ->json_is( '/warnings/0/code', 10002);
 
-$t->post_ok($collection_base_url => json => { id => "172.16.9.2", type => 'Cisco::ASA', description => "ss", UseDownloadableACLs => 'enabled'})
+$t->post_ok($collection_base_url => json => { id => "172.16.9.2", type => 'Cisco::ASA', description => "ss", UseDownloadableACLs => 'false'})
   ->status_is(201)
   ->json_is( '/warnings/0/code', 10001);
 
@@ -289,14 +289,14 @@ $t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => undef})
 
 $t->get_ok("$base_url/172.16.8.24")
   ->status_is(200)
-  ->json_is('/item/RoleMap', 'N');
+  ->json_is('/item/RoleMap', $false);
 
-$t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => 'Y'})
+$t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => $true})
   ->status_is(200);
 
 $t->get_ok("$base_url/172.16.8.24")
   ->status_is(200)
-  ->json_is('/item/RoleMap', 'Y');
+  ->json_is('/item/RoleMap', $true);
 
 $t->get_ok("$base_url/172.16.8.37")
   ->status_is(200)->json_is(
@@ -342,4 +342,3 @@ USA.
 =cut
 
 1;
-

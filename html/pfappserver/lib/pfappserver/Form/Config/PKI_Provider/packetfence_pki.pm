@@ -186,7 +186,6 @@ has_field 'server_cert_path_upload' => (
 
 has_field 'revoke_on_unregistration' => (
     type             => 'Checkbox',
-    checkbox_value   => 'Y',
     tags             => {
         after_element   => \&help,
         help            => 'Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate',
@@ -195,7 +194,6 @@ has_field 'revoke_on_unregistration' => (
 
 has_field 'certificate_validity_time_from_unreg_date' => (
     type             => 'Checkbox',
-    checkbox_value   => 'Y',
     tags             => {
         after_element   => \&help,
         help            => 'Enable to apply the same expiration date of the certificate as the unregistration date of the node.',

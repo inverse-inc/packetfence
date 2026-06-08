@@ -32,7 +32,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify a name for the role.' },
-   apply => [ 
+   apply => [
     {
         check => qr/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/,
         message =>
@@ -68,24 +68,20 @@ has_field 'max_nodes_per_pid' =>
 
 has_field 'include_parent_acls' => (
     type => 'Toggle',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
     label => 'Include parent ACLs',
 );
 
 has_field 'fingerbank_dynamic_access_list' => (
     type => 'Toggle',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
     label => 'Enabled Fingerbank Dynamic AccessList',
 );
 
 has_field 'acls_enabled' => (
     type => 'Toggle',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
+    checkbox_value => 'true',
+    unchecked_value => 'false',
     label => 'Enable ACLs',
-    default => 'enabled',
+    default => 'true',
 );
 
 has_field 'acls' => (
@@ -97,25 +93,19 @@ has_field 'acls' => (
 has_field 'inherit_vlan' => (
     type => 'Toggle',
     label => 'Inherit VLAN',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
 );
 
 has_field 'inherit_role' => (
     type => 'Toggle',
     label => 'Inherit Role',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
 );
 
 has_field 'inherit_web_auth_url' => (
     type => 'Toggle',
     label => 'Inherit Web Auth URL',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
 );
 
 has 'skip_role_acl_check' => (

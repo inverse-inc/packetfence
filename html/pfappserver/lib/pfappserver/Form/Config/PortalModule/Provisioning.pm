@@ -22,8 +22,6 @@ has_field 'skipable' =>
   (
    type => 'Toggle',
    label => 'Skippable',
-   unchecked_value => 'disabled',
-   checkbox_value => 'enabled',
    tags => { after_element => \&help,
              help => 'Whether or not, the provisioning can be skipped' },
   );
@@ -66,5 +64,3 @@ USA.
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
-
-

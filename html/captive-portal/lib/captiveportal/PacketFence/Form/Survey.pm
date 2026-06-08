@@ -33,7 +33,7 @@ has '+is_html5' => (default => 1);
 
 sub field_list {
     my ($self) = @_;
-    
+
     my @fields;
 
     while(my ($field_id, $field_config) = each(%{$self->survey->fields})) {
@@ -58,7 +58,7 @@ sub field_list {
                 },
             };
         } elsif ($type eq "Checkbox") {
-            $options->{checkbox_value} = "Y";
+            $options->{checkbox_value} = "true";
         }
 
         # Set the type unless its been set before
@@ -73,7 +73,7 @@ sub field_list {
 
 =head2 get_field
 
-Get a field following the standard field[$name] by its name 
+Get a field following the standard field[$name] by its name
 
 =cut
 

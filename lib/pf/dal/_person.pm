@@ -103,7 +103,7 @@ BEGIN {
         portal => undef,
         source => undef,
         psk => undef,
-        potd => 'no',
+        potd => 'false',
         otp => undef,
         sponsored_date => undef,
     );

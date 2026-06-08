@@ -57,7 +57,7 @@ has 'style' => (is => 'rw', default => 'charge');
 
 has 'domains' => (is => 'rw', default => '*.stripe.com,stripe.network,*.stripe.network');
 
-has 'customer_portal' => (is => 'rw', default => 'disabled');
+has 'customer_portal' => (is => 'rw', default => 'false');
 
 =head2 url
 
@@ -387,7 +387,7 @@ sub handleCancelLink {
     my $validator = $query_args->{validator};
     my $wants_validator = hmac_sha1_hex($subscription_id.$self->id.$self->publishable_key, $self->secret_key);
     if($validator eq $wants_validator) {
-        my ($status, $subscription) = $self->cancel_subscription($subscription_id); 
+        my ($status, $subscription) = $self->cancel_subscription($subscription_id);
         if(is_error($status) || !$subscription) {
             if($status == 404) {
                 return ($FALSE, "This subscription has already been canceled.");
@@ -436,7 +436,7 @@ sub setupStripeCustomerPortal {
         return $data->{url};
     } else {
         use Data::Dumper ; get_logger->error("Failed to setup Stripe Customer Portal session. Code $code. Response: ", Dumper($data));
-        return undef;       
+        return undef;
     }
 }
 

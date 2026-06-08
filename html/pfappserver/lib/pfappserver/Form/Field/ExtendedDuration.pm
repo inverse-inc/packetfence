@@ -65,7 +65,7 @@ has_field 'period_base' =>
    label => 'Relative to the beginning of the period',
    do_label => 0,
    do_wrapper => 0,
-   element_attr => { 'disabled' => 'disabled' },
+   element_attr => { 'disabled' => 'false' },
   );
 
 has_field 'extended_duration' =>
@@ -73,7 +73,7 @@ has_field 'extended_duration' =>
    type => 'Duration',
    label => 'and',
    do_wrapper => 0,
-   element_attr => { 'disabled' => 'disabled' },
+   element_attr => { 'disabled' => 'false' },
    with_operator => 1,
    with_time => 0,
   );
@@ -101,7 +101,7 @@ sub duration_inflate {
         if ($value =~ /^(\d+$TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+]\d+$TIME_MODIFIER_RE)$/i) {
             $hash = {'duration' => $1,
                      'day_base' => 'Y',
-                     'period_base' => ($2 eq 'R')? 'Y':'N',
+                     'period_base' => ($2 eq 'R')? 'true':'false',
                      'extended_duration' => $3};
         }
         elsif ($value =~ m/(\d+)($TIME_MODIFIER_RE)/) {

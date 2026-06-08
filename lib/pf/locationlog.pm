@@ -199,7 +199,7 @@ sub locationlog_view_open_switchport_no_VoIP {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            voip => { "!=" => "yes"},
+            voip => { "!=" => "true"},
             end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
@@ -212,7 +212,7 @@ sub locationlog_view_open_switchport_only_VoIP {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            voip => "yes",
+            voip => "true",
             end_time => $ZERO_DATE,
         },
         -limit => 1,
@@ -281,7 +281,7 @@ sub locationlog_update_end_switchport_no_VoIP {
             port   => $ifIndex,
             connection_type => { -like => 'Ethernet%'},
             end_time => $ZERO_DATE,
-            voip   => { "!=" => "yes" },
+            voip   => { "!=" => "true" },
         },
     );
 
@@ -299,7 +299,7 @@ sub locationlog_update_end_switchport_only_VoIP {
             port   => $ifIndex,
             connection_type => { -like => 'Ethernet%'},
             end_time => $ZERO_DATE,
-            voip   => "yes",
+            voip   => "true",
         },
     );
     return ($rows);

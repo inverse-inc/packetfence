@@ -106,14 +106,14 @@ sub field_list {
             $type eq "fingerbank_device_transition" && do {
                 $field->{type} = 'TextArea';
                 $field->{element_class} = ['input-xxlarge'];
-                my @devices = map { 
-                    my (undef, $device) = fingerbank::Model::Device->read($_); 
+                my @devices = map {
+                    my (undef, $device) = fingerbank::Model::Device->read($_);
                     {name => $device->name, id => $_}
                 } @{fingerbank::Model::Device->all_device_class_ids};
                 @devices = sort {lc($a->{name}) cmp lc($b->{name})} @devices;
                 my $str = "";
                 $str .= "<ul>";
-                $str .= join("", map{ '<li><b>' . $_->{name} . '</b>' . " = " . $_->{id} . "</li>" } @devices); 
+                $str .= join("", map{ '<li><b>' . $_->{name} . '</b>' . " = " . $_->{id} . "</li>" } @devices);
                 $str .= "</ul>";
                 $field->{tags}->{help} .= "<br><br>Valid device classes IDs are: $str";
                 last;
@@ -198,8 +198,7 @@ sub field_list {
                 last;
             };
             $type eq 'toggle' && do {
-                if ($doc_section->{options}->[0] eq 'enabled' ||
-                    $doc_section->{options}->[0] eq 'yes') {
+                if ($doc_section->{options}->[0] eq 'true') {
                     $field->{type} = 'Toggle';
                     $field->{checkbox_value} = $doc_section->{options}->[0];
                     $field->{unchecked_value} = $doc_section->{options}->[1];
@@ -388,7 +387,7 @@ For a passthrough form field, this validates that the passthroughs it contains w
 =cut
 
 sub validate_fqdn_not_in_passthroughs {
-    my (undef, $field, $modules) = @_; 
+    my (undef, $field, $modules) = @_;
 
     get_logger->debug("Validating field ".$field->name);
 

@@ -55,9 +55,7 @@ has_field ocsp => (
 
 has_field disable_tlsv1_2 => (
         type            => 'Toggle',
-        checkbox_value  => 'yes',
-        unchecked_value => 'no',
-        default         => 'no',
+        default         => 'false',
 );
 
 has_field tls_min_version => (

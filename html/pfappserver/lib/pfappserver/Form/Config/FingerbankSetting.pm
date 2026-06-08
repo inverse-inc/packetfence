@@ -90,8 +90,8 @@ build_toggle_field
 
 sub build_toggle_field {
     my ($self, $field, $section, $name, $doc) = @_;
-    $field->{checkbox_value}  = 'enabled';
-    $field->{unchecked_value} = 'disabled';
+    $field->{checkbox_value}  = 'true';
+    $field->{unchecked_value} = 'false';
     return ;
 }
 
@@ -146,7 +146,7 @@ sub field_list {
     my $section = $self->section;
     return [] if !defined $section;
     my @list;
-    
+
     foreach my $name (keys %{$Doc_Config{$section}} ) {
         push @list, $self->build_field_info($section, $name);
     }

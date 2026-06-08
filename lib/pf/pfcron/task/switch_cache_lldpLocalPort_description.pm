@@ -24,7 +24,7 @@ use pf::log;
 
 extends qw(pf::pfcron::task);
 
-has 'process_switchranges'  => ( is => 'rw', default => 'disabled' );
+has 'process_switchranges'  => ( is => 'rw', default => 'false' );
 
 
 =head2 run

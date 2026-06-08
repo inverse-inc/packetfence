@@ -51,16 +51,12 @@ has_field 'role' => (
 has_field 'run_actions' => (
    type => 'Toggle',
    label => 'Run Actions',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
+   default => 'true'
 );
 
 has_field 'actions_synchronous' => (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled'
+   default => 'false'
 );
 
 =head2 actions
@@ -156,4 +152,3 @@ USA.
 =cut
 
 1;
-

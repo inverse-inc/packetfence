@@ -83,7 +83,7 @@ Override the standard field names for node
 sub find_columns {
     [@COLUMN_NAMES]
 }
- 
+
 =head2 pre_save
 
 pre_save
@@ -93,7 +93,7 @@ pre_save
 sub pre_save {
     my ($self) = @_;
     my $voip = $self->voip;
-    $self->{voip} = 'no' if !defined ($voip) || $voip ne 'yes';
+    $self->{voip} = 'false' if !defined ($voip) || $voip ne 'true';
     return $self->_update_category_ids;
 }
 
@@ -104,7 +104,7 @@ sub pre_save {
 sub after_create_hook {
     my ($self) = @_;
     for my $a (@CATEGORY_ACCESSORS) {
-        $self->$a(undef);    
+        $self->$a(undef);
     }
     if (!$TRIGGER_NODE_DISCOVERED) {
         return;

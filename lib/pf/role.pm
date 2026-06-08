@@ -562,8 +562,8 @@ sub getNodeInfoForAutoReg {
         pid             => $args->{node_info}->{pid} // 'default',
         status          => 'reg',
         auto_registered => 1, # tells node_register to autoreg
-        autoreg         => 'yes',
-        voip            => 'no',
+        autoreg         => 'true',
+        voip            => 'false',
     );
     if (defined($role)) {
         $node_info{'category'} = $role;
@@ -572,7 +572,7 @@ sub getNodeInfoForAutoReg {
     # if we are called from a security_event with action=autoreg, say so
     if (defined($args->{'security_event_autoreg'}) && $args->{'$security_event_autoreg'}) {
         $node_info{'notes'} = 'AUTO-REGISTERED by security_event';
-        $node_info{'autoreg'} = 'no'; # This flag has not to be used for security_event autoreg
+        $node_info{'autoreg'} = 'false'; # This flag has not to be used for security_event autoreg
     }
 
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP

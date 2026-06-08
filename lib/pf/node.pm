@@ -203,7 +203,7 @@ sub node_delete {
 }
 
 our %DEFAULT_NODE_VALUES = (
-    'autoreg'          => 'no',
+    'autoreg'          => 'false',
     'bypass_vlan'      => '',
     'computername'     => '',
     'detect_date'      => $ZERO_DATE,
@@ -217,7 +217,7 @@ our %DEFAULT_NODE_VALUES = (
     'status'           => $STATUS_UNREGISTERED,
     'unregdate'        => $ZERO_DATE,
     'user_agent'       => '',
-    'voip'             => 'no',
+    'voip'             => 'false',
 );
 
 #
@@ -274,7 +274,7 @@ sub node_add_simple {
         'pid'         => 'default',
         'detect_date' => $date,
         'status'      => 'unreg',
-        'voip'        => 'no',
+        'voip'        => 'false',
         -ignore       => 1,
     );
     if ( !node_add( $mac, %tmp ) ) {
@@ -722,7 +722,7 @@ sub node_deregister {
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = $ZERO_DATE;
     $info{'unregdate'} = $ZERO_DATE;
-    $info{'autoreg'}   = 'no';
+    $info{'autoreg'}   = 'false';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if (my $provisioner = $profile->findProvisioner($mac)) {
@@ -883,7 +883,7 @@ sub node_cleanup {
     my $logger = get_logger();
     $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
 
-    if ($delete_time ne "0") {
+    if ($delete_time ne "false") {
         my $start_time = time;
         while (1) {
             my @nodes = node_expire_lastseen($delete_time, $batch);
@@ -911,7 +911,7 @@ sub node_cleanup {
         $logger->debug("Not deleting because the window is 0");
     }
 
-    if ($unreg_time ne "0") {
+    if ($unreg_time ne "false") {
         my $start_time = time;
         while (1) {
             my @nodes = node_unreg_lastseen($unreg_time, $batch);

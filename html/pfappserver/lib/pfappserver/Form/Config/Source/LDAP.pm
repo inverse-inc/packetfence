@@ -146,8 +146,6 @@ has_field 'password' =>
 has_field 'cache_match',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
    tags => { after_element => \&help,
              help => 'Will cache results of matching a rule' },
    default => $META->get_attribute('cache_match')->default,
@@ -166,8 +164,6 @@ has_field 'email_attribute' => (
 has_field 'monitor',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
    tags => { after_element => \&help,
              help => 'Do you want to monitor this source?' },
    default => $META->get_attribute('monitor')->default,
@@ -176,8 +172,6 @@ has_field 'monitor',
 has_field 'shuffle',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
    tags => { after_element => \&help,
              help => 'Randomly choose LDAP server to query' },
    default => $META->get_attribute('shuffle')->default,
@@ -186,8 +180,6 @@ has_field 'shuffle',
 has_field 'use_connector',
   (
    type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
    default => $META->get_attribute('use_connector')->default,
 );
 

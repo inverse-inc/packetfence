@@ -13,7 +13,7 @@ Role that defines the Authentication source behavior for creating local accounts
 use Moose::Role;
 use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS $HASH_PASSWORDS_DEFAULT);
 
-has 'create_local_account'     => (isa => 'Str', is => 'rw', default => 'no');
+has 'create_local_account'     => (isa => 'Str', is => 'rw', default => 'false');
 has 'local_account_logins'     => (isa => 'Str', is => 'rw', default => $LOCAL_ACCOUNT_UNLIMITED_LOGINS);
 has 'hash_passwords'           => (isa => 'Maybe[Str]', is => 'rw', default => $HASH_PASSWORDS_DEFAULT);
 has 'password_length'          => (isa => 'Maybe[Int]', is => 'rw', default => 8);

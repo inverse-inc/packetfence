@@ -9,5 +9,5 @@ testcases:
     status_code: 200
     body: >-
       {
-        "inherit_vlan": "disabled"
+        "inherit_vlan": "false"
       }

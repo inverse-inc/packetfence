@@ -26,8 +26,6 @@ has_field 'batch' => (
 
 has_field 'rotate' => (
     type => 'Toggle',
-    checkbox_value => 'enabled',
-    unchecked_value => 'disabled',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
              help => 'Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the ip6log_history table rather than the ip6log_archive.' },

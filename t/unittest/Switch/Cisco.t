@@ -30,13 +30,13 @@ use Test::NoWarnings;
 
 my $trapline = 'BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (1088317706) 125 days, 23:06:17.06|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.9.9.315.0.0.1|.1.3.6.1.2.1.2.2.1.1.10120 = Wrong Type (should be INTEGER): Gauge32: 10120|.1.3.6.1.2.1.31.1.1.1.1.10120 = STRING: GigabitEthernet0/20|.1.3.6.1.4.1.9.9.315.1.2.1.1.10.10120 = Hex-STRING: 8C 73 6E FF 4E F9  END VARIABLEBINDINGS';
 
-my $switch = pf::Switch::Cisco->new({ id => 'test', ip => '1.1.1.1', SNMPUseConnector => "N", radiusDeauthUseConnector => "N" });
+my $switch = pf::Switch::Cisco->new({ id => 'test', ip => '1.1.1.1', SNMPUseConnector => "false", radiusDeauthUseConnector => "false" });
 
 my $trap  = $switch->parseTrap($trapline);
 
 is_deeply(
     $trap,
-    {  
+    {
         trapType => 'secureMacAddrViolation',
         trapVlan => 0,
         trapMac => '8c:73:6e:ff:4e:f9',
@@ -74,4 +74,3 @@ USA.
 =cut
 
 1;
-

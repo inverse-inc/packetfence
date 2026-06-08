@@ -51,7 +51,6 @@ has_field 'trunkPort' =>
   (
    type => 'Checkbox',
    label => 'Trunk Port',
-   checkbox_value => 'yes',
    tags => { after_element => \&help,
              help => 'The port must be configured as a muti-vlan port' },
   );
@@ -76,7 +75,7 @@ Make sure some tagged VLANs are defined when trunk port is enabled.
 sub validate {
     my $self = shift;
 
-    if ($self->value->{'trunkPort'} eq 'yes') {
+    if ($self->value->{'trunkPort'} eq 'true') {
         unless ($self->value->{'taggedVlan'} =~ m/^(\d+,)*\d+$/) {
             $self->field('taggedVlan')->add_error("Please specify the VLANs to be tagged on the port.");
         }

@@ -29,7 +29,7 @@ has_field 'gateway' =>
   (
    type => 'IPAddress',
    label => 'Client Gateway',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => 'Please specify the gateway.' },
   );
 has_field '+netmask' =>
@@ -64,42 +64,32 @@ has_field 'next_hop' =>
 has_field 'fake_mac_enabled' =>
   (
    type => 'Toggle',
-   checkbox_value => 1,
-   unchecked_value => 0,
-   default => 0,
+   default => 'false',
    label => 'Fake MAC Address',
    );
 
 has_field 'nat_enabled' => (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
+    default => 'true',
     label => 'Enable NATting',
 );
 
 has_field 'nat_dns' => (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
+    default => 'true',
     label => 'Enable DNS NATting',
 );
 
 has_field 'coa' => (
     type => 'Toggle',
-    checkbox_value => "enabled",
-    unchecked_value => "disabled",
-    default => "disabled",
+    default => "false",
     label => 'Enable CoA',
 );
 
 has_field 'dhcpd' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
+   default => "true",
    label => 'DHCP server',
    );
 

@@ -2,7 +2,7 @@ package pf::UnifiedApi::Controller::Config::Certificates;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::Certificates - 
+pf::UnifiedApi::Controller::Config::Certificates -
 
 =cut
 
@@ -66,7 +66,7 @@ sub read_from_files {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
     my $config = $self->resource_config($certificate_id);
-    
+
     my $certs = read_file($config->{cert_file});
     my @certs = map { $_ . $CERT_DELIMITER} split($CERT_DELIMITER, $certs);
 
@@ -77,7 +77,7 @@ sub read_from_files {
 
     # The server certificate is the first of the whole chain
     my $cert = shift @certs;
-    
+
     my $key = read_file($config->{key_file});
 
     my $files_data = {
@@ -101,7 +101,7 @@ Read the certificates from the files and instantiate the Crypt::OpenSSL::* objec
 sub objects_from_files {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
-    
+
     return $self->objects_from_payload($self->read_from_files($certificate_id));
 }
 
@@ -119,7 +119,7 @@ sub get {
 }
 
 =head2 resource_info
-    
+
 Get a resource information including certificate information, chain validation and cert/key match
 
 =cut
@@ -181,7 +181,7 @@ Instantiate the Crypt::OpenSSL::* objects from a hash payload
 
 sub objects_from_payload {
     my ($self, $data) = @_;
-    
+
     my $cert;
     my @intermediate_cas;
     my @cas;
@@ -190,7 +190,7 @@ sub objects_from_payload {
     eval {
         $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse server certificate\n";
         $key = pf::ssl::rsa_from_string($data->{private_key}) or die "Failed to parse private key\n";
-        
+
         if(exists($data->{intermediate_cas})) {
             @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediate_cas}};
             @cas = @intermediate_cas;
@@ -264,9 +264,9 @@ sub replace {
     my ($self) = @_;
     my $data = $self->parse_json;
     my $params = $self->req->query_params->to_hash;
-    
+
     # Explicitely disable Let's Encrypt if manually managing certs
-    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "disabled");
+    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "false");
 
     my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_payload($data);
     unless(defined($cert)) {
@@ -304,7 +304,7 @@ sub replace {
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
     my @errors = pf::ssl::install_to_file($self->stash->{certificate_id}, %to_install);
-    
+
     if(scalar(@errors) > 0) {
         $self->render_error(422, join(", ", @errors));
     }
@@ -372,7 +372,7 @@ sub lets_encrypt_replace {
     get_logger->info("Performing Let's Encrypt configuration for domain $data->{common_name} using key $config->{key_file}");
 
     # Explicitely enable Let's Encrypt if using this API call
-    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "enabled");
+    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "true");
 
     my @cas;
     if($data->{ca}) {
@@ -407,7 +407,7 @@ sub lets_encrypt_replace {
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
     my @errors = pf::ssl::install_to_file($self->stash->{certificate_id}, %to_install);
-    
+
     if(scalar(@errors) > 0) {
         $self->render_error(422, join(", ", @errors));
     }
@@ -444,4 +444,3 @@ USA.
 =cut
 
 1;
-

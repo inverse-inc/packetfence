@@ -26,7 +26,7 @@ has id => (is => 'rw', required => 1);
 has path => (is => 'rw', required => 1);
 
 has type => (is => 'rw', required => 1);
- 
+
 has status => (is => 'rw', default =>  sub { "enabled" });
 
 has rules => (is => 'rw', default => sub {[]});

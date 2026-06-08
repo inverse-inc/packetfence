@@ -107,7 +107,7 @@ dispatch the array of actions
 sub dispatchActions {
     my ($self, $rule, $args) = @_;
     my $apiclient = $self->api_client();
-    my $run_actions = $rule->{run_actions} // "enabled";
+    my $run_actions = $rule->{run_actions} // "true";
     if (isenabled($run_actions)) {
         for my $action (@{$rule->{actions}//[]}) {
             my $param = $self->evalActionParams($action->{'api_parameters'}, $args);

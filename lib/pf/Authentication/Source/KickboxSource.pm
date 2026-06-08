@@ -36,7 +36,7 @@ Readonly our @ACCEPTABLE_RESULTS => qw(deliverable);
 
 has '+type' => (default => 'Kickbox');
 has 'api_key' => (isa => 'Str', is => 'rw');
-has '+email_required' => (isa => 'Str', is => 'rw', default => 'yes');
+has '+email_required' => (isa => 'Str', is => 'rw', default => 'true');
 
 sub authenticate {
     my ($self, $username, $password) = @_;
@@ -118,4 +118,3 @@ USA.
 =cut
 
 1;
-

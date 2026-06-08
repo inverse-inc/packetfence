@@ -94,7 +94,7 @@ sub build_child {
 "rule '$rule_id' seems to be defined multiple times skipping rule\n";
                 next;
             }
-            my $status = $rule_config->{status} // 'enabled';
+            my $status = $rule_config->{status} // 'true';
             if ( isdisabled($status) ) {
                 next;
             }
@@ -266,4 +266,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

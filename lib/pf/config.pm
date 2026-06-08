@@ -377,8 +377,8 @@ Readonly our $WEB_ADMIN_NONE => 0;
 Readonly our $WEB_ADMIN_ALL => 4294967295;
 
 # VoIP constants
-Readonly our $VOIP    => 'yes';
-Readonly our $NO_VOIP => 'no';
+Readonly our $VOIP    => 'true';
+Readonly our $NO_VOIP => 'false';
 
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
@@ -910,7 +910,7 @@ sub netflow_enabled {
     while( my ($network, $data) = each %ConfigNetworks ) {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
-        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'disabled');
+        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'false');
     }
 
     return $FALSE;

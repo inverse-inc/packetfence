@@ -27,7 +27,7 @@ testcases:
         "logo": null,
         "preregistration": null,
         "redirecturl": null,
-        "reuse_dot1x_credentials": "disabled",
+        "reuse_dot1x_credentials": "false",
         "root_module": "default_policy",
         "self_service": null,
         "sources": null,

@@ -33,7 +33,7 @@ is_deeply(
             v1 => { max_nodes_per_pid => 0},
             v2 => { parent => "v1", acls => [qw(a b)]},
             v3 => { parent => "v2", max_nodes_per_pid => 1},
-            v4 => { parent => "v3", acls => [qw(c d)], include_parent_acls => "enabled"},
+            v4 => { parent => "v3", acls => [qw(c d)], include_parent_acls => "true"},
             v5 => { parent => "v4"},
             v6 => { parent => "v7"},
             v7 => { parent => "v6"},
@@ -45,7 +45,7 @@ is_deeply(
         [v1 => {max_nodes_per_pid => 0}],
         [v2 => { parent => "v1", acls => [qw(a b)] }],
         [v3 => { parent => "v2", max_nodes_per_pid => 1}],
-        [v4 => { parent => "v3", acls => [qw(c d)], include_parent_acls => "enabled"} ],
+        [v4 => { parent => "v3", acls => [qw(c d)], include_parent_acls => "true"} ],
         [v5 => { parent => "v4"}]
     ],
 );

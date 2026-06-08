@@ -22,8 +22,6 @@ has_field 'show_first_module_on_default' =>
   (
    type => 'Toggle',
    label => 'Show first module when none is selected',
-   unchecked_value => 'disabled',
-   checkbox_value => 'enabled',
    default => for_module->meta->get_attribute('show_first_module_on_default')->default->(),
   );
 
@@ -76,4 +74,3 @@ USA.
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
-

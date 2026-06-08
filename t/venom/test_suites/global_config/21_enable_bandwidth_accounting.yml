@@ -7,6 +7,6 @@ testcases:
     method: PATCH
     body: >-
       {
-          "process_bandwidth_accounting": "enabled"
+          "process_bandwidth_accounting": "true"
       }
 

@@ -16,7 +16,7 @@ testcases:
         "access_duration": "{{.security_event_autoreg.event.access_duration}}",
         "actions": ["autoreg", "role"],
         "desc": "{{.security_event_autoreg.event.desc}}",
-        "enabled": "Y",
+        "enabled": "true",
         "target_category": "{{.mac_auth.roles.headless_device.id}}",
         "triggers": [{
           "dhcp_fingerprint": "{{.security_event_autoreg.node.dhcp_fingerprint_id}}"

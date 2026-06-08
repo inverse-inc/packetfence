@@ -103,7 +103,7 @@ ok (node_modify($node_mac, category_id => 4), "Not changing anything");
         "12",
         "12",
         $mac,
-        "yes",
+        "true",
         $WIRELESS_802_1X,
         "",
         "bob",
@@ -146,4 +146,3 @@ USA.
 =cut
 
 1;
-

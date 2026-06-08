@@ -135,7 +135,7 @@ sub set_disabled {
             set_disabled($subfield);
         }
     }
-    $field->set_element_attr("disabled" => "disabled");
+    $field->set_element_attr("disabled" => "false");
 }
 
 =head2 options_unit

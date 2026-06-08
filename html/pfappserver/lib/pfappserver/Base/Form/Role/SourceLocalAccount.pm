@@ -22,8 +22,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'create_local_account' => (
     type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
     label => 'Create Local Account',
     default_method => \&default_from_attribute,
     tags => {
@@ -92,7 +90,7 @@ sub default_from_attribute {
     my $source_class = $field->form->source_class;
     return $source_class->meta->get_attribute($field->name)->default;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -43,9 +43,7 @@ has_field 'id' => (
 has_field 'status' => (
     type            => 'Toggle',
     label           => 'Enabled',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'enabled',
+    default => 'true',
 );
 
 has_field 'workgroup' =>
@@ -167,9 +165,7 @@ has_field 'registration' =>
 has_field 'nt_key_cache_enabled' => (
     type            => 'Toggle',
     label           => 'NT Key cache',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
     tags => {
         after_element => \&help,
         help => 'Should the NT Key cache be enabled for this domain?'
@@ -230,8 +226,6 @@ has_field 'max_allowed_password_attempts_per_device' =>
 has_field 'ntlm_cache' =>
   (
    type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
    label => 'NTLM cache',
    tags => { after_element => \&help,
              help => 'Should the NTLM cache be enabled for this domain?' },
@@ -302,9 +296,9 @@ has_field 'ntlm_auth_port' =>
 has_field 'use_connector',
     (
         type => 'Toggle',
-        checkbox_value => '1',
-        unchecked_value => '0',
-        default => '0',
+        checkbox_value => 'true',
+        unchecked_value => 'false',
+        default => 'false',
     );
 
 
@@ -348,9 +342,7 @@ sub options_ntlm_cache_source {
 has_field 'channel_binding' => (
     type            => 'Toggle',
     label           => 'Enabled',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'disabled',
+    default => 'false',
 );
 
 

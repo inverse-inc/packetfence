@@ -37,35 +37,35 @@ has_field 'dhcp_start' =>
   (
    type => 'IPAddress',
    label => 'Starting IP Address',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => 'Please specify the starting IP address of the DHCP scope.' },
   );
 has_field 'dhcp_end' =>
   (
    type => 'IPAddress',
    label => 'Ending IP Address',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => 'Please specify the ending IP address of the DHCP scope.' },
   );
 has_field 'dhcp_default_lease_time' =>
   (
    type => 'PosInteger',
    label => 'Default Lease Time',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => 'Please specify the default DHCP lease time.' },
   );
 has_field 'dhcp_max_lease_time' =>
   (
    type => 'PosInteger',
    label => 'Max Lease Time',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => 'Please specify the maximum DHCP lease time.' },
   );
 has_field 'algorithm' =>
   (
    type => 'Select',
    label => 'DHCP Algorithm',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    options => [
         { value => $pf::constants::dhcp::RANDOM_ALGORITHM, label => 'Random'},
         { value => $pf::constants::dhcp::OLDEST_RELEASED_ALGORITHM, label => 'Oldest Released'},
@@ -76,7 +76,7 @@ has_field 'pool_backend' =>
   (
    type => 'Select',
    label => 'DHCP Pool Backend Type',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    options => [
         { value => $pf::constants::dhcp::MEMORY_POOL, label => 'Memory Pool'},
         { value => $pf::constants::dhcp::MYSQL_POOL, label => 'MySQL Pool'},
@@ -87,7 +87,7 @@ has_field 'dhcp_reply_ip' =>
   (
    type => 'Select',
    label => 'DHCP IP Reply',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    options => [
         { value => $pf::constants::dhcp::GIADDR, label => 'Relay agent IP address'},
         { value => $pf::constants::dhcp::SRCIPDHCP, label => 'DHCP Source IP address'},
@@ -124,7 +124,7 @@ has_field 'dns' =>
   (
    type => 'IPAddresses',
    label => 'DNS Server',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'true' } },
    messages => { required => "Please specify the DNS server's IP address(es)." },
    tags => { after_element => \&help,
              help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
@@ -142,9 +142,7 @@ has_field 'portal_fqdn' =>
 has_field 'netflow_accounting_enabled' =>
   (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
+   default => 'false',
    label => 'Enable Net Flow Accounting'
    );
 

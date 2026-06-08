@@ -118,7 +118,7 @@ ok(!$node->__from_table, "New node not the database");
 
 ok($node, "New node not in the database");
 
-is($node->voip, "no", "node->voip is default 'no'");
+is($node->voip, "false", "node->voip is default 'false'");
 
 ok(is_success($node->save), "Saving $test_mac into the database");
 
@@ -152,9 +152,9 @@ $node->voip("bob");
 
 ok(is_success($node->save), "Save with an invalid voip");
 
-is($node->voip, "no", "After saving a node with invalid voip is set to node");
+is($node->voip, "false", "After saving a node with invalid voip is set to node");
 
-$node->voip("yes");
+$node->voip("true");
 
 ok(is_success($node->save), "Save valid data into the database");
 
@@ -162,7 +162,7 @@ $node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Reloading node from database");
 
-is($node->voip, "yes", "Changes were saved into database");
+is($node->voip, "true", "Changes were saved into database");
 
 my $old_status = $node->status;
 
@@ -186,7 +186,7 @@ ok(is_success($node->save), "Saving node after being deleted");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-$node->voip("yes");
+$node->voip("true");
 
 ok(is_success($node->save), "Saving node after being deleted from under us");
 
@@ -194,7 +194,7 @@ $node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Saving after being deleted");
 
-is($node->voip, "yes", "Voip was saved");
+is($node->voip, "true", "Voip was saved");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
@@ -208,25 +208,25 @@ my $node2 = pf::dal::node->find({mac => $test_mac});
 
 $node->computername("zams-computer");
 
-$node2->voip("yes");
+$node2->voip("true");
 
 ok(is_success($node->save), "Save node with computername = zams-computer");
 
-ok(is_success($node2->save), "Save node2 with voip = yes");
+ok(is_success($node2->save), "Save node2 with voip = true");
 
 $node = pf::dal::node->find({mac => $test_mac});
 
-is($node->voip, "yes", "Saving different values do not conflict");
+is($node->voip, "true", "Saving different values do not conflict");
 
 is($node->computername, "zams-computer", "Saving different values do not conflict");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
+($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "true" });
 
 is($status, $STATUS::CREATED, "$test_mac was successfully created");
 
-($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
+($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "true" });
 
 is($status, $STATUS::OK, "$test_mac was successfully updated");
 
@@ -234,7 +234,7 @@ is($node->category, undef, "Undefined role");
 
 is($node->bypass_role, undef, "Undefined bypass_role");
 
-my $data = {"computername" => "computer", voip => "no", category => "gaming", bypass_role => "guest"};
+my $data = {"computername" => "computer", voip => "false", category => "gaming", bypass_role => "guest"};
 
 $node->merge($data);
 
