@@ -79,6 +79,7 @@ pf::cmd::pf::pfcron
 
 use strict;
 use warnings;
+use pf::log;
 use pf::config::pfcron qw(%ConfigCron);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants;
@@ -123,6 +124,9 @@ sub _run {
     }
 
     if (defined $task) {
+        # Stamp the work unit so pf::db can decorate this job's queries for
+        # ProxySQL routing (=> /* pf:pfcron:<task_id> */).
+        Log::Log4perl::MDC->put('pf_unit', $task_id);
         $task->run();
     } else {
         exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);

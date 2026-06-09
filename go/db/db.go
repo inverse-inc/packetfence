@@ -10,6 +10,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -46,7 +47,9 @@ func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
 }
 
 func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", uri)
+	// Open through the comment-wrapping driver so every statement carries the
+	// /* pf:<service>[:<unit>] */ ProxySQL routing remark.
+	db, err := sql.Open(sqlcomment.DriverName, uri)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
 		return nil, err

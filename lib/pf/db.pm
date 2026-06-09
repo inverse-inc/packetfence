@@ -80,8 +80,74 @@ sub set_session {
     return;
 }
 
+=item pf_query_comment
+
+Build the ProxySQL routing remark for the current execution context.
+
+Format: C</* pf:E<lt>serviceE<gt>[:E<lt>unitE<gt>] */>
+
+C<service> is the running daemon (the logging 'proc' MDC, which defaults to
+basename($0)). C<unit> is the logical work unit (a pfcron job id or pfqueue task
+type) when one has been stamped in the 'pf_unit' MDC at a dispatch point;
+otherwise it is omitted and C<service> is the whole routing bucket.
+
+ProxySQL rules should match this with C<match_pattern> (not C<match_digest>,
+which strips comments) anchored on C<^/\* pf:>.
+
+=cut
+
+sub pf_query_comment {
+    my $service = Log::Log4perl::MDC->get('proc');
+    $service = basename($0) unless defined $service && length $service;
+    my $tag = 'pf:' . _sanitize_query_tag($service);
+    my $unit = Log::Log4perl::MDC->get('pf_unit');
+    if (defined $unit && length $unit) {
+        my $u = _sanitize_query_tag($unit);
+        $tag .= ":$u" if length $u;
+    }
+    return "/* $tag */";
+}
+
+=item _sanitize_query_tag
+
+Make a value safe to embed inside a SQL comment: never allow the comment
+terminator, normalize package separators, and keep only routing-safe characters.
+
+=cut
+
+sub _sanitize_query_tag {
+    my ($v) = @_;
+    return '' unless defined $v;
+    $v =~ s{\*/}{}g;            # never allow the comment terminator
+    $v =~ s/::/\//g;            # perl package separator -> slash
+    $v =~ s/\s+/_/g;            # collapse whitespace
+    $v =~ s{[^A-Za-z0-9_\-/.]}{}g;
+    return $v;
+}
+
+=item _decorate_sql
+
+DBI method-entry callback (prepare / prepare_cached / do). Rewrites the SQL
+statement argument in place to prepend the routing remark, unless it is already
+decorated. Because the rewrite happens before the method runs, the decorated SQL
+becomes the prepare_cached cache key, so distinct units get distinct cached
+statements.
+
+=cut
+
+sub _decorate_sql {
+    # invocant is the dbh in $_[0]; the SQL statement is $_[1]
+    return unless defined $_[1];
+    return if $_[1] =~ m{^\s*/\* pf:};
+    $_[1] = pf_query_comment() . ' ' . $_[1];
+    return;
+}
+
 our %CALLBACKS = (
-    connected => \&set_session,
+    connected      => \&set_session,
+    prepare        => \&_decorate_sql,
+    prepare_cached => \&_decorate_sql,
+    do             => \&_decorate_sql,
 );
 
 tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
