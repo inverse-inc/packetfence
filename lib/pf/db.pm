@@ -125,38 +125,58 @@ sub _sanitize_query_tag {
     return $v;
 }
 
-=item _decorate_sql
+=item _decorate_statement
 
-DBI method-entry callback (prepare / prepare_cached / do). Rewrites the SQL
-statement argument in place to prepend the routing remark, unless it is already
-decorated. Because the rewrite happens before the method runs, the decorated SQL
-becomes the prepare_cached cache key, so distinct units get distinct cached
-statements.
+Return a copy of the SQL statement with the routing remark prepended, unless it
+is already decorated. Works on a copy (never the caller's value), so it is safe
+for static string literals -- unlike modifying DBI's @_ alias in place, which
+dies on read-only literals. The decorated SQL is what gets prepared, so it also
+becomes the prepare_cached cache key (distinct units => distinct cached
+statements).
 
 =cut
 
-sub _decorate_sql {
-    # invocant is the dbh in $_[0]; the SQL statement is $_[1]. Assigning to
-    # $_[1] in place is what DBI propagates to the real method (replacing the
-    # element via splice is NOT seen by DBI). The DAL and the legacy
-    # db_query_execute framework both pass a writable lexical, so those get
-    # decorated. Some callers pass a read-only literal (e.g.
-    # $dbh->do("SET SESSION ...")) which cannot be modified -- those are
-    # connection-setup statements, not routable queries, so skip them rather
-    # than dying.
-    return unless defined $_[1];
-    return if $_[1] =~ m{^\s*/\* pf:};
-    my $decorated = pf_query_comment() . ' ' . $_[1];
-    eval { $_[1] = $decorated; 1 } or return;
-    return;
+sub _decorate_statement {
+    my ($sql) = @_;
+    return $sql unless defined $sql;
+    return $sql if $sql =~ m{^\s*/\* pf:};
+    return pf_query_comment() . ' ' . $sql;
 }
 
 our %CALLBACKS = (
-    connected      => \&set_session,
-    prepare        => \&_decorate_sql,
-    prepare_cached => \&_decorate_sql,
-    do             => \&_decorate_sql,
+    connected => \&set_session,
 );
+
+# DBI handle subclass installed via the RootClass connect attribute (see
+# db_connect). Every prepare/prepare_cached/do goes through these overrides,
+# which decorate the statement with the routing remark before handing it to the
+# real DBI method. The select* helpers call prepare internally, so they are
+# covered transitively. set_session and other callbacks still fire as usual.
+{
+    package pf::db::dbi;
+    our @ISA = ('DBI');
+
+    package pf::db::dbi::st;
+    our @ISA = ('DBI::st');
+
+    package pf::db::dbi::db;
+    our @ISA = ('DBI::db');
+
+    sub prepare {
+        my ($dbh, $statement, @attr) = @_;
+        return $dbh->SUPER::prepare(pf::db::_decorate_statement($statement), @attr);
+    }
+
+    sub prepare_cached {
+        my ($dbh, $statement, @attr) = @_;
+        return $dbh->SUPER::prepare_cached(pf::db::_decorate_statement($statement), @attr);
+    }
+
+    sub do {
+        my ($dbh, $statement, @attr) = @_;
+        return $dbh->SUPER::do(pf::db::_decorate_statement($statement), @attr);
+    }
+}
 
 tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
@@ -178,7 +198,7 @@ sub db_connect {
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
     my ($dsn, $user, $pass) = db_data_source_info();
     # make sure we have a database handle
-    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, Callbacks => \%CALLBACKS })) {
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, RootClass => 'pf::db::dbi', Callbacks => \%CALLBACKS })) {
         $logger->debug("connected");
         return on_connect($DBH);
     }
