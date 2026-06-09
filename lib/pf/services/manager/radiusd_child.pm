@@ -1397,7 +1397,9 @@ listen {
                 dh_file = \${certdir}/dh
                 fragment_size = 8192
                 ca_path = \${cadir}
-                cipher_list = "DEFAULT"
+                tls_min_version = "1.2"
+                tls_max_version = "1.3"
+                cipher_list = "HIGH:!aNULL:!MD5"
                 require_client_cert = yes
         }
 }
