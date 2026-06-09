@@ -9,6 +9,8 @@ set -o nounset -o pipefail -o errexit
 #   RCLONE_LINODE_URL     S3 endpoint, e.g. https://us-east-1.linodeobjects.com
 #
 # Optional env vars:
+#   BOX_VERSION           pin to this exact version (skips metadata.json resolution).
+#                         Use this to match a version pinned in the vagrant inventory.
 #   BUCKET                (default: packetfence-iso)
 #   BUCKET_PREFIX         (default: vagrant)
 #   VAGRANT_BOX_LINODE_URL  override derived public base URL (incl. bucket prefix)
@@ -29,14 +31,56 @@ VAGRANT_BOX_LINODE_URL=${VAGRANT_BOX_LINODE_URL:-"${RCLONE_LINODE_URL/https:\/\/
 PROVIDER=${PROVIDER:-libvirt}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}}
 WORK_DIR=${WORK_DIR:-/var/local/gitlab-runner/vagrant_img_cache}
+BOX_VERSION=${BOX_VERSION:-}
 
 VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
 
-echo "===> Resolving latest box version for ${BOX_NAME}"
-# Newest entry is versions[0]; upload-to-linode.sh prepends on each build.
-BOX_VERSION=$(curl -fsSL "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/metadata.json" \
-              | python3 -c 'import json,sys; print(json.load(sys.stdin)["versions"][0]["version"])')
-echo "     Latest version: ${BOX_VERSION}"
+METADATA_URL="${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/metadata.json"
+BOX_PREFIX_URL="${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}"
+
+echo "===> setup-vagrant-box.sh inputs"
+echo "     BOX_NAME              = ${BOX_NAME}"
+echo "     BOX_VERSION (pinned)  = ${BOX_VERSION:-<unset; will resolve via metadata.json>}"
+echo "     PROVIDER              = ${PROVIDER}"
+echo "     VAGRANT_BOX_LOCAL_NAME= ${VAGRANT_BOX_LOCAL_NAME}"
+echo "     RCLONE_LINODE_URL     = ${RCLONE_LINODE_URL:-<unset>}"
+echo "     VAGRANT_BOX_LINODE_URL= ${VAGRANT_BOX_LINODE_URL}"
+echo "     METADATA_URL          = ${METADATA_URL}"
+echo "     WORK_DIR              = ${WORK_DIR}"
+
+echo "===> Probing bucket layout for ${BOX_NAME}"
+# Bucket listing may not be enabled, but individual public-read objects respond to HEAD.
+# Print HTTP status for the parent prefix and the metadata.json so failures self-explain.
+prefix_code=$(curl -sS -o /dev/null -w '%{http_code}' -L "${BOX_PREFIX_URL}/" || echo "curl_err")
+meta_code=$(curl -sS -o /dev/null -w '%{http_code}' -L -I "${METADATA_URL}" || echo "curl_err")
+echo "     HEAD ${BOX_PREFIX_URL}/   -> ${prefix_code}"
+echo "     HEAD ${METADATA_URL}      -> ${meta_code}"
+
+if [ -n "${BOX_VERSION}" ]; then
+    echo "===> Using pinned BOX_VERSION=${BOX_VERSION} (skipping metadata.json resolution)"
+    box_code=$(curl -sS -o /dev/null -w '%{http_code}' -L -I "${BOX_PREFIX_URL}/${BOX_VERSION}.box" || echo "curl_err")
+    echo "     HEAD ${BOX_PREFIX_URL}/${BOX_VERSION}.box -> ${box_code}"
+    if [ "${box_code}" != "200" ]; then
+        echo "ERROR: pinned .box not found at ${BOX_PREFIX_URL}/${BOX_VERSION}.box (HTTP ${box_code})"
+        exit 1
+    fi
+else
+    echo "===> Resolving latest box version for ${BOX_NAME}"
+    # Newest entry is versions[0]; upload-to-linode.sh prepends on each build.
+    META_BODY=$(mktemp)
+    trap 'rm -f "${META_BODY}"' EXIT
+    http_code=$(curl -sS -L -o "${META_BODY}" -w '%{http_code}' "${METADATA_URL}" || echo "curl_err")
+    if [ "${http_code}" != "200" ]; then
+        echo "ERROR: failed to fetch metadata.json (HTTP ${http_code})"
+        echo "----- response body (first 2KB) -----"
+        head -c 2048 "${META_BODY}" || true
+        echo
+        echo "-------------------------------------"
+        exit 1
+    fi
+    BOX_VERSION=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["versions"][0]["version"])' < "${META_BODY}")
+    echo "     Latest version: ${BOX_VERSION}"
+fi
 
 # Box file matches the layout written by upload-to-linode.sh: <box>/<version>.box
 BOX_FILENAME="${BOX_VERSION}.box"
