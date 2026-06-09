@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-# Upload a packer-built vagrant .box to Linode Object Storage (packetfence-iso bucket)
+# Upload a packer-built vagrant .box to Linode Object Storage (packetfence-vagrant-box bucket)
 # and maintain a Vagrant-compatible metadata.json for native versioning support.
 #
 # Required env vars:
@@ -10,12 +10,11 @@ set -o nounset -o pipefail -o errexit
 #   RESULT_DIR                directory where packer wrote the box
 #   RCLONE_ACCESS_KEY_ID
 #   RCLONE_SECRET_ACCESS_KEY
-#   RCLONE_LINODE_URL         e.g. https://us-east-1.linodeobjects.com
+#   RCLONE_LINODE_URL         e.g. https://us-ord-1.linodeobjects.com
 #
 # Optional env vars:
 #   PROVIDER      (default: libvirt)
-#   BUCKET        (default: packetfence-iso)
-#   BUCKET_PREFIX (default: vagrant)
+#   BUCKET        (default: packetfence-vagrant-box)
 #   BOX_DESC      (default: empty; shown as version description in metadata.json)
 #
 # Usage:
@@ -24,8 +23,7 @@ set -o nounset -o pipefail -o errexit
 #     ./upload-to-linode.sh
 
 PROVIDER=${PROVIDER:-libvirt}
-BUCKET=${BUCKET:-packetfence-iso}
-BUCKET_PREFIX=${BUCKET_PREFIX:-vagrant}
+BUCKET=${BUCKET:-packetfence-vagrant-box}
 BOX_DESC=${BOX_DESC:-}
 
 # Packer writes the artifact under the per-build output_dir; the upload-time
@@ -35,14 +33,13 @@ REMOTE_BOX_FILENAME="${BOX_VERSION}.box"
 MD5_FILE="${LOCAL_BOX_FILE}.md5sums.txt"
 
 # Derive public HTTPS base URL from the S3 endpoint:
-#   https://us-east-1.linodeobjects.com  ->  https://packetfence-iso.us-east-1.linodeobjects.com
+#   https://us-ord-1.linodeobjects.com  ->  https://packetfence-vagrant-box.us-ord-1.linodeobjects.com
 PUBLIC_BASE_URL="${RCLONE_LINODE_URL/https:\/\//https://${BUCKET}.}"
 
 RCLONE_OPTS="--s3-provider=Ceph \
   --s3-access-key-id=${RCLONE_ACCESS_KEY_ID} \
   --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY} \
-  --s3-endpoint=${RCLONE_LINODE_URL} \
-  --s3-acl=public-read"
+  --s3-endpoint=${RCLONE_LINODE_URL}"
 
 if [ ! -f "${LOCAL_BOX_FILE}" ]; then
     echo "ERROR: box file not found: ${LOCAL_BOX_FILE}"
@@ -53,7 +50,7 @@ echo "===> Computing checksum for ${REMOTE_BOX_FILENAME}"
 BOX_CHECKSUM=$(md5sum "${LOCAL_BOX_FILE}" | cut -d' ' -f1)
 echo "${BOX_CHECKSUM}  ${REMOTE_BOX_FILENAME}" > "${MD5_FILE}"
 
-box_prefix=":s3:${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}"
+box_prefix=":s3:${BUCKET}/${BOX_NAME}"
 
 echo "===> Uploading ${REMOTE_BOX_FILENAME} to ${box_prefix}/"
 # shellcheck disable=SC2086
@@ -64,7 +61,7 @@ rclone copyto ${RCLONE_OPTS} "${MD5_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}
 echo "===> Updating metadata.json"
 METADATA_FILE=$(mktemp)
 METADATA_REMOTE="${box_prefix}/metadata.json"
-BOX_PUBLIC_URL="${PUBLIC_BASE_URL}/${BUCKET_PREFIX}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
+BOX_PUBLIC_URL="${PUBLIC_BASE_URL}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
 
 # Download existing metadata.json or start fresh
 # shellcheck disable=SC2086
@@ -105,5 +102,5 @@ rclone copyto ${RCLONE_OPTS} "${METADATA_FILE}" "${METADATA_REMOTE}"
 rm -f "${METADATA_FILE}"
 
 echo "===> Done! Box available at:"
-echo "     ${BUCKET}/${BUCKET_PREFIX}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
-echo "     ${PUBLIC_BASE_URL}/${BUCKET_PREFIX}/${BOX_NAME}/metadata.json"
+echo "     ${BUCKET}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
+echo "     ${PUBLIC_BASE_URL}/${BOX_NAME}/metadata.json"

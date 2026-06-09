@@ -4,30 +4,28 @@ set -o nounset -o pipefail -o errexit
 # Download the latest prebuilt vagrant box from Linode Object Storage and
 # register it locally via `vagrant box add`.
 #
+# The bucket is private; all reads go through authenticated rclone.
+#
 # Required env vars:
-#   BOX_NAME              e.g. pfdeb12dev
-#   RCLONE_LINODE_URL     S3 endpoint, e.g. https://us-east-1.linodeobjects.com
+#   BOX_NAME                 e.g. pfdeb12dev
+#   RCLONE_LINODE_URL        S3 endpoint, e.g. https://us-ord-1.linodeobjects.com
+#   RCLONE_ACCESS_KEY_ID
+#   RCLONE_SECRET_ACCESS_KEY
 #
 # Optional env vars:
-#   BOX_VERSION           pin to this exact version (skips metadata.json resolution).
-#                         Use this to match a version pinned in the vagrant inventory.
-#   BUCKET                (default: packetfence-iso)
-#   BUCKET_PREFIX         (default: vagrant)
-#   VAGRANT_BOX_LINODE_URL  override derived public base URL (incl. bucket prefix)
-#   PROVIDER              (default: libvirt)
+#   BOX_VERSION             pin to this exact version (skips metadata.json resolution).
+#                           Use this to match a version pinned in the vagrant inventory.
+#   BUCKET                  (default: packetfence-vagrant-box)
+#   PROVIDER                (default: libvirt)
 #   VAGRANT_BOX_LOCAL_NAME  (default: inverse-inc/${BOX_NAME})
-#   WORK_DIR              (default: /var/local/gitlab-runner/vagrant_img_cache)
+#   WORK_DIR                (default: /var/local/gitlab-runner/vagrant_img_cache)
 #
 # Usage:
-#   BOX_NAME=pfdeb12dev RCLONE_LINODE_URL=https://us-east-1.linodeobjects.com \
+#   BOX_NAME=pfdeb12dev RCLONE_LINODE_URL=https://us-ord-1.linodeobjects.com \
+#     RCLONE_ACCESS_KEY_ID=... RCLONE_SECRET_ACCESS_KEY=... \
 #     ./setup-vagrant-box.sh
 
-BUCKET=${BUCKET:-packetfence-iso}
-BUCKET_PREFIX=${BUCKET_PREFIX:-vagrant}
-# Derive public HTTPS base URL from the S3 endpoint (same logic as upload-to-linode.sh):
-#   https://us-east-1.linodeobjects.com -> https://packetfence-iso.us-east-1.linodeobjects.com/vagrant
-VAGRANT_BOX_LINODE_URL=${VAGRANT_BOX_LINODE_URL:-"${RCLONE_LINODE_URL/https:\/\//https://${BUCKET}.}/${BUCKET_PREFIX}"}
-
+BUCKET=${BUCKET:-packetfence-vagrant-box}
 PROVIDER=${PROVIDER:-libvirt}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}}
 WORK_DIR=${WORK_DIR:-/var/local/gitlab-runner/vagrant_img_cache}
@@ -35,8 +33,13 @@ BOX_VERSION=${BOX_VERSION:-}
 
 VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
 
-METADATA_URL="${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/metadata.json"
-BOX_PREFIX_URL="${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}"
+RCLONE_OPTS="--s3-provider=Ceph \
+  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID} \
+  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY} \
+  --s3-endpoint=${RCLONE_LINODE_URL}"
+
+BOX_PREFIX=":s3:${BUCKET}/${BOX_NAME}"
+METADATA_REMOTE="${BOX_PREFIX}/metadata.json"
 
 echo "===> setup-vagrant-box.sh inputs"
 echo "     BOX_NAME              = ${BOX_NAME}"
@@ -44,24 +47,18 @@ echo "     BOX_VERSION (pinned)  = ${BOX_VERSION:-<unset; will resolve via metad
 echo "     PROVIDER              = ${PROVIDER}"
 echo "     VAGRANT_BOX_LOCAL_NAME= ${VAGRANT_BOX_LOCAL_NAME}"
 echo "     RCLONE_LINODE_URL     = ${RCLONE_LINODE_URL:-<unset>}"
-echo "     VAGRANT_BOX_LINODE_URL= ${VAGRANT_BOX_LINODE_URL}"
-echo "     METADATA_URL          = ${METADATA_URL}"
+echo "     BOX_PREFIX            = ${BOX_PREFIX}"
 echo "     WORK_DIR              = ${WORK_DIR}"
 
 echo "===> Probing bucket layout for ${BOX_NAME}"
-# Bucket listing may not be enabled, but individual public-read objects respond to HEAD.
-# Print HTTP status for the parent prefix and the metadata.json so failures self-explain.
-prefix_code=$(curl -sS -o /dev/null -w '%{http_code}' -L "${BOX_PREFIX_URL}/" || echo "curl_err")
-meta_code=$(curl -sS -o /dev/null -w '%{http_code}' -L -I "${METADATA_URL}" || echo "curl_err")
-echo "     HEAD ${BOX_PREFIX_URL}/   -> ${prefix_code}"
-echo "     HEAD ${METADATA_URL}      -> ${meta_code}"
+# shellcheck disable=SC2086
+rclone lsf ${RCLONE_OPTS} "${BOX_PREFIX}/" || echo "     (listing ${BOX_PREFIX}/ failed)"
 
 if [ -n "${BOX_VERSION}" ]; then
     echo "===> Using pinned BOX_VERSION=${BOX_VERSION} (skipping metadata.json resolution)"
-    box_code=$(curl -sS -o /dev/null -w '%{http_code}' -L -I "${BOX_PREFIX_URL}/${BOX_VERSION}.box" || echo "curl_err")
-    echo "     HEAD ${BOX_PREFIX_URL}/${BOX_VERSION}.box -> ${box_code}"
-    if [ "${box_code}" != "200" ]; then
-        echo "ERROR: pinned .box not found at ${BOX_PREFIX_URL}/${BOX_VERSION}.box (HTTP ${box_code})"
+    # shellcheck disable=SC2086
+    if ! rclone lsf ${RCLONE_OPTS} "${BOX_PREFIX}/${BOX_VERSION}.box" > /dev/null; then
+        echo "ERROR: pinned .box not found at ${BOX_PREFIX}/${BOX_VERSION}.box"
         exit 1
     fi
 else
@@ -69,13 +66,9 @@ else
     # Newest entry is versions[0]; upload-to-linode.sh prepends on each build.
     META_BODY=$(mktemp)
     trap 'rm -f "${META_BODY}"' EXIT
-    http_code=$(curl -sS -L -o "${META_BODY}" -w '%{http_code}' "${METADATA_URL}" || echo "curl_err")
-    if [ "${http_code}" != "200" ]; then
-        echo "ERROR: failed to fetch metadata.json (HTTP ${http_code})"
-        echo "----- response body (first 2KB) -----"
-        head -c 2048 "${META_BODY}" || true
-        echo
-        echo "-------------------------------------"
+    # shellcheck disable=SC2086
+    if ! rclone copyto ${RCLONE_OPTS} "${METADATA_REMOTE}" "${META_BODY}"; then
+        echo "ERROR: failed to fetch ${METADATA_REMOTE}"
         exit 1
     fi
     BOX_VERSION=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["versions"][0]["version"])' < "${META_BODY}")
@@ -97,14 +90,16 @@ fi
 mkdir -p "${WORK_DIR}"
 
 echo "===> Downloading ${BOX_FILENAME} (version ${BOX_VERSION})"
-curl -fSL \
-    "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/${BOX_FILENAME}" \
-    -o "${WORK_DIR}/${BOX_FILENAME}"
+# shellcheck disable=SC2086
+rclone copyto ${RCLONE_OPTS} \
+    "${BOX_PREFIX}/${BOX_FILENAME}" \
+    "${WORK_DIR}/${BOX_FILENAME}"
 
 echo "===> Downloading checksum"
-curl -fSL \
-    "${VAGRANT_BOX_LINODE_URL}/${BOX_NAME}/${BOX_FILENAME}.md5sums.txt" \
-    -o "${WORK_DIR}/${BOX_FILENAME}.md5sums.txt"
+# shellcheck disable=SC2086
+rclone copyto ${RCLONE_OPTS} \
+    "${BOX_PREFIX}/${BOX_FILENAME}.md5sums.txt" \
+    "${WORK_DIR}/${BOX_FILENAME}.md5sums.txt"
 
 echo "===> Verifying checksum"
 (cd "${WORK_DIR}" && md5sum -c "${BOX_FILENAME}.md5sums.txt")
