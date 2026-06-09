@@ -129,8 +129,10 @@ sub _run {
         # so any later work never inherits a stale unit (consistent with
         # sbin/pfqueue-backend).
         Log::Log4perl::MDC->put('pf_unit', $task_id);
-        $task->run();
+        my $ok  = eval { $task->run(); 1 };
+        my $err = $@;
         Log::Log4perl::MDC->remove('pf_unit');
+        die $err unless $ok;
     } else {
         exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
     }
