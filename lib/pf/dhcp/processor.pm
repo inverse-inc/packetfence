@@ -96,7 +96,7 @@ my @local_dhcp_servers_ip;
 # cadence DHCP clients renew on — so the firewall session stays alive without
 # enqueueing an Update on every renewal packet.
 my $sso_refresh_hash = {};
-my $sso_refresh_cache = CHI->new( driver => 'Memory', datastore => $sso_refresh_hash );
+my $sso_refresh_cache = CHI->new( driver => 'RawMemory', datastore => $sso_refresh_hash );
 
 # Tracks the last (dhcp_fingerprint|dhcp_vendor|computername) signature
 # observed per MAC, so fingerbank_process is only enqueued when the device's
@@ -106,7 +106,7 @@ my $sso_refresh_cache = CHI->new( driver => 'Memory', datastore => $sso_refresh_
 # expires_in (24h) — long enough to suppress renewal storms, short enough
 # that updated Fingerbank signatures get re-applied within a day.
 my $fingerbank_signature_hash = {};
-my $fingerbank_signature_cache = CHI->new( driver => 'Memory', datastore => $fingerbank_signature_hash );
+my $fingerbank_signature_cache = CHI->new( driver => 'RawMemory', datastore => $fingerbank_signature_hash );
 Readonly::Scalar my $FINGERBANK_SIGNATURE_TTL => 86400;
 
 
