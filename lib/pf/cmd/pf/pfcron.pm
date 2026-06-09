@@ -125,9 +125,12 @@ sub _run {
 
     if (defined $task) {
         # Stamp the work unit so pf::db can decorate this job's queries for
-        # ProxySQL routing (=> /* pf:pfcron:<task_id> */).
+        # ProxySQL routing (=> /* pf:pfcron:<task_id> */). Cleared after the run
+        # so any later work never inherits a stale unit (consistent with
+        # sbin/pfqueue-backend).
         Log::Log4perl::MDC->put('pf_unit', $task_id);
         $task->run();
+        Log::Log4perl::MDC->remove('pf_unit');
     } else {
         exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
     }
