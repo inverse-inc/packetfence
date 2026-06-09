@@ -79,9 +79,12 @@ func serviceName() string {
 	return n
 }
 
-// sanitize makes a value safe to embed in a SQL comment and unambiguous for a
-// ProxySQL regex: it can never contain the comment terminator, and keeps only
-// routing-safe characters.
+// sanitize makes a value safe to embed in a SQL comment: it can never contain
+// the comment terminator, and keeps only a small routing-safe charset. Note the
+// charset still permits regex metacharacters (e.g. '.', '/', '-') because they
+// occur in real service names and task types, so ProxySQL match_pattern rules
+// should escape them or use character classes rather than treating the tag as a
+// regex literal.
 func sanitize(v string) string {
 	v = strings.ReplaceAll(v, "*/", "")
 	var b strings.Builder
