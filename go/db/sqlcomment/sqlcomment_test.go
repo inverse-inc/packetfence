@@ -48,6 +48,13 @@ func TestDecorateIdempotent(t *testing.T) {
 	}
 }
 
+func TestDecorateAlreadyDecoratedWithLeadingWhitespace(t *testing.T) {
+	q := " \n\t/* pf:pfqueue */ SELECT 1"
+	if got := decorate(context.Background(), q); got != q {
+		t.Fatalf("decorate() modified an already-decorated query: got=%q want=%q", got, q)
+	}
+}
+
 func TestServiceNameStripsPath(t *testing.T) {
 	old := log.ProcessName
 	log.ProcessName = "/usr/local/pf/sbin/pfstats"
