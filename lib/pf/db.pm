@@ -136,10 +136,18 @@ statements.
 =cut
 
 sub _decorate_sql {
-    # invocant is the dbh in $_[0]; the SQL statement is $_[1]
+    # invocant is the dbh in $_[0]; the SQL statement is $_[1]. Assigning to
+    # $_[1] in place is what DBI propagates to the real method (replacing the
+    # element via splice is NOT seen by DBI). The DAL and the legacy
+    # db_query_execute framework both pass a writable lexical, so those get
+    # decorated. Some callers pass a read-only literal (e.g.
+    # $dbh->do("SET SESSION ...")) which cannot be modified -- those are
+    # connection-setup statements, not routable queries, so skip them rather
+    # than dying.
     return unless defined $_[1];
     return if $_[1] =~ m{^\s*/\* pf:};
-    $_[1] = pf_query_comment() . ' ' . $_[1];
+    my $decorated = pf_query_comment() . ' ' . $_[1];
+    eval { $_[1] = $decorated; 1 } or return;
     return;
 }
 
