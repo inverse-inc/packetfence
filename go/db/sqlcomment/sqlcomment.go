@@ -56,7 +56,8 @@ func unitFromContext(ctx context.Context) string {
 
 // decorate prepends the routing remark unless the query is already decorated.
 func decorate(ctx context.Context, query string) string {
-	if strings.HasPrefix(query, "/* pf:") {
+	// Treat leading whitespace as insignificant for idempotency since callers may indent multi-line SQL.
+	if strings.HasPrefix(strings.TrimLeft(query, " \t\r\n"), "/* pf:") {
 		return query
 	}
 	tag := "pf:" + sanitize(serviceName())
