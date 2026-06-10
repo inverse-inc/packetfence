@@ -99,8 +99,10 @@ Vagrant.configure("2") do |config|
 
         # Upgrade OS packages on first boot — skipped during image build to keep
         # build times short; runs here so each test VM starts with the latest packages.
+        # Non-interactive flags prevent dpkg conffile prompts from hanging `vagrant up`.
         srv.vm.provision "upgrade-os", type:"shell" do |s|
-          s.inline = "apt-get update -qq && apt-get upgrade -y"
+          s.env = { "DEBIAN_FRONTEND" => "noninteractive" }
+          s.inline = 'apt-get update -qq && apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade'
           s.privileged = true
         end
 
