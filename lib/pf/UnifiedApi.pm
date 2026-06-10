@@ -79,6 +79,7 @@ sub startup {
     $self->hook(before_dispatch => \&before_dispatch_cb);
     $self->hook(after_dispatch => \&after_dispatch_cb);
     $self->hook(before_render => \&before_render_cb);
+    $self->hook(around_action => \&around_action_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
 #   $self->plugin('NYTProf' => {
 #       nytprof => {
@@ -195,6 +196,33 @@ sub after_dispatch_cb {
 
     $c->after_dispatch;
     return;
+}
+
+=head2 around_action_cb
+
+Stamp the matched route as the work unit (MDC C<pf_unit>) for the duration of the
+action, so C<pf::db> decorates this request's queries with
+C</* pf:pfperl-api:E<lt>routeE<gt> */> for ProxySQL routing. The route pattern
+(e.g. C</api/v1/nodes/:node_id>) is bounded -- placeholders, not concrete ids --
+unlike the raw request path. The previous value is restored afterwards so nested
+actions (C<under> chains) and connection reuse never leak a unit.
+
+=cut
+
+sub around_action_cb {
+    my ($next, $c, $action, $last) = @_;
+    my $prev  = Log::Log4perl::MDC->get('pf_unit');
+    my $route = eval { $c->match->endpoint->to_string };
+    Log::Log4perl::MDC->put('pf_unit', $route) if defined $route && length $route;
+    my $result = eval { $next->() };
+    my $err = $@;
+    if (defined $prev) {
+        Log::Log4perl::MDC->put('pf_unit', $prev);
+    } else {
+        Log::Log4perl::MDC->remove('pf_unit');
+    }
+    die $err if $err;
+    return $result;
 }
 
 =head2 before_dispatch_cb
