@@ -207,10 +207,17 @@ sub process_data {
     my $args = $item->[1];
     my $task = "pf::task::$type"->new;
 
+    # Stamp the work unit so pf::db decorates this task's queries for ProxySQL
+    # routing (=> /* pf:pfqueue:<type> */). Cleared after so the idle loop and
+    # the next task never inherit a stale unit.
+    Log::Log4perl::MDC->put('pf_unit', $type);
+
     my ( $err, $result ) = eval {
         $logger->debug("Running task $type");
         $task->doTask($args);
     };
+
+    Log::Log4perl::MDC->remove('pf_unit');
 
     if ($@) {
         $err = $@;
