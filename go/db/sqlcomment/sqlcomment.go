@@ -102,8 +102,14 @@ func sanitize(v string) string {
 	return b.String()
 }
 
-// wrapDriver wraps a driver.Driver so every opened connection is a wrapConn.
+// wrapDriver wraps a driver.Driver so every opened connection is a wrapConn. It
+// also forwards driver.DriverContext (OpenConnector) when the underlying driver
+// supports it -- go-sql-driver/mysql does -- so database/sql keeps using the
+// connector-based path (DSN parsed once) instead of falling back to re-parsing
+// the DSN on every new connection.
 type wrapDriver struct{ driver.Driver }
+
+var _ driver.DriverContext = wrapDriver{}
 
 func (d wrapDriver) Open(dsn string) (driver.Conn, error) {
 	c, err := d.Driver.Open(dsn)
@@ -112,6 +118,47 @@ func (d wrapDriver) Open(dsn string) (driver.Conn, error) {
 	}
 	return wrapConn{c}, nil
 }
+
+func (d wrapDriver) OpenConnector(dsn string) (driver.Connector, error) {
+	dc, ok := d.Driver.(driver.DriverContext)
+	if !ok {
+		// Underlying driver has no DriverContext: use a DSN-based connector that
+		// routes back through our Open (which wraps the conn).
+		return dsnConnector{dsn: dsn, driver: d}, nil
+	}
+	c, err := dc.OpenConnector(dsn)
+	if err != nil {
+		return nil, err
+	}
+	return wrapConnector{Connector: c, driver: d}, nil
+}
+
+// wrapConnector wraps a driver.Connector so each connection is a wrapConn while
+// reporting the wrapping driver from Driver().
+type wrapConnector struct {
+	driver.Connector
+	driver driver.Driver
+}
+
+func (c wrapConnector) Connect(ctx context.Context) (driver.Conn, error) {
+	conn, err := c.Connector.Connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return wrapConn{conn}, nil
+}
+
+func (c wrapConnector) Driver() driver.Driver { return c.driver }
+
+// dsnConnector is the fallback connector used when the underlying driver does
+// not implement driver.DriverContext; it mirrors database/sql's own dsnConnector.
+type dsnConnector struct {
+	dsn    string
+	driver driver.Driver
+}
+
+func (c dsnConnector) Connect(context.Context) (driver.Conn, error) { return c.driver.Open(c.dsn) }
+func (c dsnConnector) Driver() driver.Driver                        { return c.driver }
 
 // wrapConn forwards every connection method to the underlying mysql connection,
 // decorating the SQL on the query/exec/prepare paths. It re-implements the

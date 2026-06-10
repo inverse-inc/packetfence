@@ -2,6 +2,8 @@ package sqlcomment
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"strings"
 	"testing"
 
@@ -73,4 +75,22 @@ func TestSanitizeRejectsCommentTerminatorAndJunk(t *testing.T) {
 	if got := sanitize("a b;c"); got != "a_bc" {
 		t.Fatalf("sanitize() = %q, want a_bc", got)
 	}
+}
+
+func TestOpenUsesConnectorAndWraps(t *testing.T) {
+	// sql.Open is lazy and does not connect, but because the driver implements
+	// driver.DriverContext, it eagerly calls OpenConnector(dsn) -- which parses
+	// the DSN. A well-formed DSN must therefore succeed without a live DB.
+	db, err := sql.Open(DriverName, "u:p@tcp(127.0.0.1:3306)/test")
+	if err != nil {
+		t.Fatalf("sql.Open(%q): %v", DriverName, err)
+	}
+	defer db.Close()
+
+	// The connector must report our wrapping driver, proving the OpenConnector
+	// path (not the legacy DSN fallback) is in use.
+	if _, ok := db.Driver().(wrapDriver); !ok {
+		t.Fatalf("db.Driver() = %T, want wrapDriver", db.Driver())
+	}
+	var _ driver.DriverContext = wrapDriver{}
 }
