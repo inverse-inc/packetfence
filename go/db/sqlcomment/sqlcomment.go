@@ -32,7 +32,9 @@ import (
 const DriverName = "mysql-pf"
 
 func init() {
-	sql.Register(DriverName, wrapDriver{mysql.MySQLDriver{}})
+	// Register with a *MySQLDriver, matching go-sql-driver's own registration
+	// and staying correct even if its Driver methods move to a pointer receiver.
+	sql.Register(DriverName, wrapDriver{&mysql.MySQLDriver{}})
 }
 
 type unitCtxKey struct{}
