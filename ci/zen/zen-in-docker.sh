@@ -36,6 +36,11 @@ for ns in ${ZEN_BUILDER_DNS:-}; do DNS_ARGS+=(--dns "$ns"); done
 
 echo "===> zen build in ${ZEN_BUILDER_IMAGE} (kvm gid=${KVM_GID}, build=${BUILD_NAME})"
 
+# Pull up front so the passwd/group extraction below sees the same image as the main run.
+if [[ "${ZEN_BUILDER_PULL}" == "always" ]]; then
+  docker pull "${ZEN_BUILDER_IMAGE}"
+fi
+
 # Bind-mount a passwd/group with the host UID so ansible's getpwuid() works.
 NSS_DIR="$(mktemp -d)"
 trap 'rm -rf "${NSS_DIR}"' EXIT
