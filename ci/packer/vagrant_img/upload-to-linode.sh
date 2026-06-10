@@ -36,10 +36,13 @@ MD5_FILE="${LOCAL_BOX_FILE}.md5sums.txt"
 #   https://us-ord-1.linodeobjects.com  ->  https://packetfence-vagrant-box.us-ord-1.linodeobjects.com
 PUBLIC_BASE_URL="${RCLONE_LINODE_URL/https:\/\//https://${BUCKET}.}"
 
-RCLONE_OPTS="--s3-provider=Ceph \
-  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID} \
-  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY} \
-  --s3-endpoint=${RCLONE_LINODE_URL}"
+# Configure rclone via env-var remote so credentials never appear on the
+# command line (visible to `ps`, debug traces, etc.).
+export RCLONE_CONFIG_S3_TYPE=s3
+export RCLONE_CONFIG_S3_PROVIDER=Ceph
+export RCLONE_CONFIG_S3_ACCESS_KEY_ID=${RCLONE_ACCESS_KEY_ID}
+export RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${RCLONE_SECRET_ACCESS_KEY}
+export RCLONE_CONFIG_S3_ENDPOINT=${RCLONE_LINODE_URL}
 
 if [ ! -f "${LOCAL_BOX_FILE}" ]; then
     echo "ERROR: box file not found: ${LOCAL_BOX_FILE}"
@@ -50,13 +53,11 @@ echo "===> Computing checksum for ${REMOTE_BOX_FILENAME}"
 BOX_CHECKSUM=$(md5sum "${LOCAL_BOX_FILE}" | cut -d' ' -f1)
 echo "${BOX_CHECKSUM}  ${REMOTE_BOX_FILENAME}" > "${MD5_FILE}"
 
-box_prefix=":s3:${BUCKET}/${BOX_NAME}"
+box_prefix="s3:${BUCKET}/${BOX_NAME}"
 
 echo "===> Uploading ${REMOTE_BOX_FILENAME} to ${box_prefix}/"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${LOCAL_BOX_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${MD5_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}.md5sums.txt"
+rclone copyto "${LOCAL_BOX_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}"
+rclone copyto "${MD5_FILE}" "${box_prefix}/${REMOTE_BOX_FILENAME}.md5sums.txt"
 
 echo "===> Updating metadata.json"
 METADATA_FILE=$(mktemp)
@@ -64,8 +65,7 @@ METADATA_REMOTE="${box_prefix}/metadata.json"
 BOX_PUBLIC_URL="${PUBLIC_BASE_URL}/${BOX_NAME}/${REMOTE_BOX_FILENAME}"
 
 # Download existing metadata.json or start fresh
-# shellcheck disable=SC2086
-if ! rclone copyto ${RCLONE_OPTS} "${METADATA_REMOTE}" "${METADATA_FILE}" 2>/dev/null; then
+if ! rclone copyto "${METADATA_REMOTE}" "${METADATA_FILE}" 2>/dev/null; then
     echo '{"name":"inverse-inc/'"${BOX_NAME}"'","versions":[]}' > "${METADATA_FILE}"
 fi
 
@@ -97,8 +97,7 @@ with open(meta_file, "w") as f:
     json.dump(meta, f, indent=2)
 PYEOF
 
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} "${METADATA_FILE}" "${METADATA_REMOTE}"
+rclone copyto "${METADATA_FILE}" "${METADATA_REMOTE}"
 rm -f "${METADATA_FILE}"
 
 echo "===> Done! Box available at:"

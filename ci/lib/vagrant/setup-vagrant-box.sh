@@ -33,12 +33,15 @@ BOX_VERSION=${BOX_VERSION:-}
 
 VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
 
-RCLONE_OPTS="--s3-provider=Ceph \
-  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID} \
-  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY} \
-  --s3-endpoint=${RCLONE_LINODE_URL}"
+# Configure rclone via env-var remote so credentials never appear on the
+# command line (visible to `ps`, debug traces, etc.).
+export RCLONE_CONFIG_S3_TYPE=s3
+export RCLONE_CONFIG_S3_PROVIDER=Ceph
+export RCLONE_CONFIG_S3_ACCESS_KEY_ID=${RCLONE_ACCESS_KEY_ID}
+export RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${RCLONE_SECRET_ACCESS_KEY}
+export RCLONE_CONFIG_S3_ENDPOINT=${RCLONE_LINODE_URL}
 
-BOX_PREFIX=":s3:${BUCKET}/${BOX_NAME}"
+BOX_PREFIX="s3:${BUCKET}/${BOX_NAME}"
 METADATA_REMOTE="${BOX_PREFIX}/metadata.json"
 
 echo "===> setup-vagrant-box.sh inputs"
@@ -51,13 +54,11 @@ echo "     BOX_PREFIX            = ${BOX_PREFIX}"
 echo "     WORK_DIR              = ${WORK_DIR}"
 
 echo "===> Probing bucket layout for ${BOX_NAME}"
-# shellcheck disable=SC2086
-rclone lsf ${RCLONE_OPTS} "${BOX_PREFIX}/" || echo "     (listing ${BOX_PREFIX}/ failed)"
+rclone lsf "${BOX_PREFIX}/" || echo "     (listing ${BOX_PREFIX}/ failed)"
 
 if [ -n "${BOX_VERSION}" ]; then
     echo "===> Using pinned BOX_VERSION=${BOX_VERSION} (skipping metadata.json resolution)"
-    # shellcheck disable=SC2086
-    if ! rclone lsf ${RCLONE_OPTS} "${BOX_PREFIX}/${BOX_VERSION}.box" > /dev/null; then
+    if ! rclone lsf "${BOX_PREFIX}/${BOX_VERSION}.box" > /dev/null; then
         echo "ERROR: pinned .box not found at ${BOX_PREFIX}/${BOX_VERSION}.box"
         exit 1
     fi
@@ -66,8 +67,7 @@ else
     # Newest entry is versions[0]; upload-to-linode.sh prepends on each build.
     META_BODY=$(mktemp)
     trap 'rm -f "${META_BODY}"' EXIT
-    # shellcheck disable=SC2086
-    if ! rclone copyto ${RCLONE_OPTS} "${METADATA_REMOTE}" "${META_BODY}"; then
+    if ! rclone copyto "${METADATA_REMOTE}" "${META_BODY}"; then
         echo "ERROR: failed to fetch ${METADATA_REMOTE}"
         exit 1
     fi
@@ -90,14 +90,12 @@ fi
 mkdir -p "${WORK_DIR}"
 
 echo "===> Downloading ${BOX_FILENAME} (version ${BOX_VERSION})"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} \
+rclone copyto \
     "${BOX_PREFIX}/${BOX_FILENAME}" \
     "${WORK_DIR}/${BOX_FILENAME}"
 
 echo "===> Downloading checksum"
-# shellcheck disable=SC2086
-rclone copyto ${RCLONE_OPTS} \
+rclone copyto \
     "${BOX_PREFIX}/${BOX_FILENAME}.md5sums.txt" \
     "${WORK_DIR}/${BOX_FILENAME}.md5sums.txt"
 
