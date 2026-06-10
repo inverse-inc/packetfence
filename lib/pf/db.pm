@@ -92,7 +92,9 @@ type) when one has been stamped in the 'pf_unit' MDC at a dispatch point;
 otherwise it is omitted and C<service> is the whole routing bucket.
 
 ProxySQL rules should match this with C<match_pattern> (not C<match_digest>,
-which strips comments) anchored on C<^/\* pf:>.
+which strips comments) anchored on C<^/\* pf:>. Note the tag may contain C<.>,
+C</> and C<->; escape these (or use character classes) when matching a specific
+service/unit, since C<match_pattern> is a regex.
 
 =cut
 
