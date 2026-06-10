@@ -9,6 +9,7 @@ import apiGo from '@/utils/api-go'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
+import { createBatchLoader } from '@/utils/batchLoader'
 
 const encodeURL = (url) => {
   if (Array.isArray(url)) {
@@ -17,6 +18,10 @@ const encodeURL = (url) => {
     return url
   }
 }
+
+// Coalesces per-row node_category lookups into batched search requests.
+// Created lazily on first use so it can capture the store's `commit`.
+let roleByCategoryIdLoader = null
 
 const api = {
   getAdminRoles () {
@@ -193,6 +198,17 @@ const api = {
   getRoleByCategoryId (categoryId) {
     return apiCall({ url: `node_category/${categoryId}`, method: 'get' })
   },
+  getRolesByCategoryIds (categoryIds) {
+    const search = {
+      query: {
+        op: 'or',
+        values: categoryIds.map(id => ({ field: 'category_id', op: 'equals', value: `${id}` }))
+      },
+      fields: ['category_id', 'name', 'notes'],
+      limit: categoryIds.length
+    }
+    return apiCall.post('node_categories/search', search).then(response => response.data.items)
+  },
   getRoutedNetworks () {
     return apiPerl.getAll('config/routed_networks')
   },
@@ -362,6 +378,7 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     realmsStatus: '',
     roles: false,
     rolesStatus: '',
+    cachedRoles: [], // per-id role lookups (lazy, coalesced) — distinct from the full `roles` list
     routedNetworks: false,
     routedNetworksStatus: '',
     scans: false,
@@ -1568,16 +1585,30 @@ const actions = {
     }
   },
   getRoleByCategoryId: ({ state, commit }, categoryId) => {
-    if (state.roles) {
-      const existing = state.roles.find(role => role.category_id.toString() === categoryId.toString())
-      if (existing) {
-        return Promise.resolve(existing)
-      }
+    const key = categoryId.toString()
+    // already known from the full list (if some other view bulk-loaded it)
+    // or from a previous lazy lookup?
+    const cached = (state.roles && state.roles.find(role => role.category_id.toString() === key)) ||
+      state.cachedRoles.find(role => role.category_id.toString() === key)
+    if (cached) {
+      return Promise.resolve(cached)
     }
-    return api.getRoleByCategoryId(categoryId).then(response => {
-      commit('ROLE_APPENDED', response.data.item)
-      return response.data.item
-    }).catch(() => null)
+    // Coalesce the per-row lookups (one per node in a table) into batched
+    // `POST node_categories/search` requests instead of one GET per id.
+    if (!roleByCategoryIdLoader) {
+      roleByCategoryIdLoader = createBatchLoader(
+        categoryIds => api.getRolesByCategoryIds(categoryIds).then(items => {
+          const byId = new Map()
+          items.forEach(item => {
+            commit('ROLE_CACHED', item)
+            byId.set(item.category_id.toString(), item)
+          })
+          return byId
+        }),
+        { wait: 50, maxBatchSize: 500, cacheKeyFn: id => id.toString(), cache: true }
+      )
+    }
+    return roleByCategoryIdLoader.load(categoryId).then(role => role || null).catch(() => null)
   },
   getRoutedNetworks: ({ state, getters, commit }) => {
     if (getters.isLoadingRoutedNetworks) {
@@ -2210,6 +2241,15 @@ const mutations = {
       const exists = state.roles.some(r => r.category_id.toString() === role.category_id.toString())
       if (!exists) {
         state.roles.push(role)
+      }
+    }
+  },
+  ROLE_CACHED: (state, role) => {
+    // push (don't replace) so the reactive array dep fires and table cells re-render
+    if (role) {
+      const exists = state.cachedRoles.some(r => r.category_id.toString() === role.category_id.toString())
+      if (!exists) {
+        state.cachedRoles.push(role)
       }
     }
   },
