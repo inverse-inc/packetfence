@@ -495,7 +495,8 @@ sub getlocalmac {
     my $mac = $chi->compute($dev, sub {
         # Force a neutral locale; LC_ALL overrides LANG (which safe_pf_run sets).
         local $ENV{LC_ALL} = 'C';
-        foreach (safe_pf_run("/sbin/ifconfig", "-a", $dev)) {
+        # Merge stderr to avoid separate pipe that could fill if ifconfig writes warnings
+        foreach (safe_pf_run("/sbin/ifconfig", "-a", $dev, { redirect_stderr_to_stdout => 1 })) {
             if (/ether\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
                 # cache the value
                 return clean_mac($1);
@@ -1071,12 +1072,9 @@ sub safe_pf_run {
         return undef; # scalar context
     }
 
-    waitpid($pid, 0);
-    my $status = $?;
-    if (defined $status_ref) {
-        $$status_ref = $status;
-    }
-
+    # CRITICAL: Drain stdout and stderr BEFORE waitpid to prevent deadlock.
+    # If the child writes enough data to fill the pipe buffer (~64KB), it will
+    # block waiting for us to read. If we waitpid first, we deadlock.
     my $out;
     if (!$stdout) {
         $out = do {
@@ -1084,6 +1082,23 @@ sub safe_pf_run {
             my $o = <$chld_out>;
             $o
         };
+    }
+
+    # Drain stderr as well (previously undrained, causing potential deadlock).
+    # Only read if stderr wasn't redirected to stdout or a file.
+    my $err;
+    if (!$redirect_stderr_to_stdout && !$stdout && $chld_err != \*STDERR) {
+        $err = do {
+            local $/ = undef;
+            my $e = <$chld_err>;
+            $e
+        };
+    }
+
+    waitpid($pid, 0);
+    my $status = $?;
+    if (defined $status_ref) {
+        $$status_ref = $status;
     }
 
     chdir $switch_back_wd if defined($switch_back_wd);
@@ -1103,8 +1118,16 @@ sub safe_pf_run {
         $loggable_command =~ s/$options->{log_strip}/*obfuscated-information*/g;
     }
 
+    # Prepare stderr for logging if available
+    my $stderr_msg = '';
+    if (defined($err) && length($err) > 0) {
+        # Truncate very long stderr to avoid log spam
+        my $stderr_display = length($err) > 500 ? substr($err, 0, 500) . '...[truncated]' : $err;
+        $stderr_msg = " stderr: $stderr_display";
+    }
+
     if ($status == -1) {
-        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
+        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception$stderr_msg");
         return;
     }
 
@@ -1113,9 +1136,9 @@ sub safe_pf_run {
         my $with_core = ($status & 128) ? 'with' : 'without';
         $logger->warn(
             "Problem trying to run command: $loggable_command called from $caller. "
-            . "Child died with signal $signal $with_core coredump."
+            . "Child died with signal $signal $with_core coredump.$stderr_msg"
         );
-        return 
+        return
     }
     my $exit_status = $status >> 8;
     # user specified that this error code is ok
@@ -1129,7 +1152,7 @@ sub safe_pf_run {
 
     $logger->warn(
         "Problem trying to run command: $loggable_command called from $caller. "
-        . "Child exited with non-zero value $exit_status"
+        . "Child exited with non-zero value $exit_status$stderr_msg"
     );
 
     return 
