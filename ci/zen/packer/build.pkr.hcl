@@ -36,7 +36,8 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    # ssh_username is root (see sources.pkr.hcl); no sudo needed.
+    execute_command = "{{.Vars}} bash '{{.Path}}'"
     script = "${var.provisioner_dir}/shell/sysprep-packetfence.sh"
   }
 }
