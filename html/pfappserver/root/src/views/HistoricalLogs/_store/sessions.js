@@ -1,7 +1,8 @@
 /**
 * "$_historical_logs" store module — clone of LiveLogs/_store/sessions.js
-* minus the per-peer fan-out, since the historical backend already fans
-* across the cluster via /api/v1/logs/cluster_history.
+* minus the per-peer session machinery: a historical query needs no
+* server-side session, each "Load more" fans out per peer inside the
+* session module's loadMore action.
 */
 import store from '@/store'
 import { v4 as uuidv4 } from 'uuid'
