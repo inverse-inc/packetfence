@@ -5,7 +5,7 @@ import Vue from 'vue'
 import store from '@/store'
 import api from '../_api'
 import { createDebouncer } from 'promised-debounce'
-import i18n from '@/utils/locale'
+import { defaultScopes, addMeta, delMeta, isFilteredGetter, eventsFilteredGetter, computeFilters } from '@/utils/logEvents'
 
 // Default values
 const state = () => {
@@ -26,28 +26,7 @@ const state = () => {
     },
     events: [],
     filters: {},
-    scopes: {
-      hostname: {
-        label: i18n.t('Hostname'),
-        values: {}
-      },
-      filename: {
-        label: i18n.t('Log Name'),
-        values: {}
-      },
-      log_level: {
-        label: i18n.t('Log Level'),
-        values: {}
-      },
-      process: {
-        label: i18n.t('Process Name'),
-        values: {}
-      },
-      syslog_name: {
-        label: i18n.t('Syslog Name'),
-        values: {}
-      }
-    },
+    scopes: defaultScopes(),
     size: 500,
     lines: 0,
     debouncer: false,
@@ -71,27 +50,8 @@ const getters = {
   events: state => state.events,
   scopes: state => state.scopes,
   filters: state => state.filters,
-  isFiltered: state => (scope, key) => {
-    const { scopes: { [scope]: { values: { [key]: { filter = false } = {} } = {} } = {} } = {} } = state
-    return filter
-  },
-  eventsFiltered: state => {
-    const fk = Object.keys(state.filters)
-    if (fk.length === 0) {
-      return state.events
-    }
-    return state.events.filter(event => {
-      const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-      for (let i = 0; i < fk.length; i++) {
-        let k = fk[i]
-        let a = state.filters[k]
-        if (!a.includes(meta[k])) {
-          return false
-        }
-      }
-      return event
-    })
-  },
+  isFiltered: isFilteredGetter,
+  eventsFiltered: eventsFilteredGetter,
   size: state => state.size,
   lines: state => state.lines,
   options: state => state.options,
@@ -194,37 +154,6 @@ const actions = {
   }
 }
 
-const addMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-  for (let key of Object.keys(meta)) {
-    if (!(key in scopes)) {
-      Vue.set(scopes[key], 'values', { [meta[key]]: { count: 1 } })
-    }
-    else if (!(meta[key] in scopes[key].values)) {
-      Vue.set(scopes[key], 'values', Object.entries({
-        ...scopes[key].values,
-        [meta[key]]: { count: 1 }
-      }).sort(([a], [b]) => {
-        if (!a) return -1
-        if (!b) return 1
-        return +a - +b
-      }).reduce((r, [k, v]) => {
-        return { ...r, [k]: v }
-      }, {}))
-    }
-    else {
-      Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count + 1)
-    }
-  }
-}
-
-const delMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-  for (let key of Object.keys(meta)) {
-    Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count - 1)
-  }
-}
-
 const mutations = {
   SET_SEARCH_QUERY: (state, query) => {
     state.searchQuery = query
@@ -313,21 +242,15 @@ const mutations = {
     }
   },
   LOG_FILTER_ENABLE: (state, { scope, key }) => {
-    state.scopes[scope].values[key].filter = true
+    // Vue.set: the `filter` key does not exist when a value is first
+    // toggled, plain assignment would not be reactive.
+    Vue.set(state.scopes[scope].values[key], 'filter', true)
   },
   LOG_FILTER_DISABLE: (state, { scope, key }) => {
-    state.scopes[scope].values[key].filter = false
+    Vue.set(state.scopes[scope].values[key], 'filter', false)
   },
   UPDATE_FILTERS: (state) => {
-    state.filters = Object.entries(state.scopes).reduce((r, [k, { values: f }]) => {
-      let v = Object.entries(f).reduce((r, [k, v]) => {
-        return (v.filter) ? [ ...r, k ] : r
-      }, [])
-      return {
-        ...r,
-        ...((v.length > 0) ? { [k]: v } : {})
-      }
-    }, {})
+    state.filters = computeFilters(state.scopes)
   },
   UPDATE_SIZE: (state, size) => {
     state.size = size

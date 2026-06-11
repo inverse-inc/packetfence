@@ -1,15 +1,9 @@
 import store from '@/store'
+import { loadClusterConfig } from '@/utils/cluster'
 import StoreModule from './_store/sessions'
 
 const TheForm = () => import(/* webpackChunkName: "HistoricalLogs" */ './_components/TheForm')
 const TheView = () => import(/* webpackChunkName: "HistoricalLogs" */ './_components/TheView')
-
-const loadClusterConfig = () => {
-  if (store.state.cluster && store.dispatch) {
-    return store.dispatch('cluster/getConfig').catch(() => {})
-  }
-  return Promise.resolve()
-}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_historical_logs) {

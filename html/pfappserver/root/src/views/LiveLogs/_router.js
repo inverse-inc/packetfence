@@ -1,19 +1,9 @@
 import store from '@/store'
+import { loadClusterConfig } from '@/utils/cluster'
 import StoreModule from './_store/sessions'
 
 const TheForm = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheForm')
 const TheView = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheView')
-
-// Lazily ensure the cluster/* store has its server list populated so the
-// LiveLogs UI can decide whether to fan out per-peer (cluster) or use the
-// single-session legacy path (standalone). Safe to call repeatedly: the
-// underlying cluster action is idempotent on the cached config.
-const loadClusterConfig = () => {
-  if (store.state.cluster && store.dispatch) {
-    return store.dispatch('cluster/getConfig').catch(() => {})
-  }
-  return Promise.resolve()
-}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_live_logs) {

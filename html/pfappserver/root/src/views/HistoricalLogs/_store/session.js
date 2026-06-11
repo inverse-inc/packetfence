@@ -8,6 +8,7 @@ import Vue from 'vue'
 import store from '@/store'
 import api from '../_api'
 import i18n from '@/utils/locale'
+import { defaultScopes, addMeta, isFilteredGetter, eventsFilteredGetter, computeFilters } from '@/utils/logEvents'
 
 const state = () => ({
   running: true,
@@ -19,17 +20,11 @@ const state = () => ({
     start: null,
     end: null
   },
-  cursors: {}, // { hostA: { 'packetfence.log': 1780... }, hostB: {...} }
+  cursors: {}, // { hostA: { 'packetfence.log': {source, offset, sig, ...} }, hostB: {...} }
   options: { background: 'white', size: 'normal', order: 'forward', output: 'color' },
   events: [],
   filters: {},
-  scopes: {
-    hostname:    { label: i18n.t('Hostname'),    values: {} },
-    filename:    { label: i18n.t('Log Name'),    values: {} },
-    log_level:   { label: i18n.t('Log Level'),   values: {} },
-    process:     { label: i18n.t('Process Name'),values: {} },
-    syslog_name: { label: i18n.t('Syslog Name'), values: {} }
-  },
+  scopes: defaultScopes(),
   size: 5000,
   lines: 0,
   searchQuery: '',
@@ -49,21 +44,8 @@ const getters = {
   scopes:      state => state.scopes,
   filters:     state => state.filters,
   exhausted:   state => state.exhausted,
-  isFiltered:  state => (scope, key) => {
-    const { scopes: { [scope]: { values: { [key]: { filter = false } = {} } = {} } = {} } = {} } = state
-    return filter
-  },
-  eventsFiltered: state => {
-    const fk = Object.keys(state.filters)
-    if (fk.length === 0) return state.events
-    return state.events.filter(event => {
-      const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-      for (const k of fk) {
-        if (!state.filters[k].includes(meta[k])) return false
-      }
-      return event
-    })
-  },
+  isFiltered:  isFilteredGetter,
+  eventsFiltered: eventsFilteredGetter,
   size: state => state.size,
   lines: state => state.lines,
   options: state => state.options,
@@ -77,22 +59,6 @@ const peerList = () => {
   const servers = store.state.cluster && store.state.cluster.servers
   if (!servers) return []
   return Object.values(servers).filter(s => s && s.management_ip)
-}
-
-const addMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-  for (const key of Object.keys(meta)) {
-    if (!(key in scopes)) {
-      Vue.set(scopes[key], 'values', { [meta[key]]: { count: 1 } })
-    } else if (!(meta[key] in scopes[key].values)) {
-      Vue.set(scopes[key], 'values', {
-        ...scopes[key].values,
-        [meta[key]]: { count: 1 }
-      })
-    } else {
-      Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count + 1)
-    }
-  }
 }
 
 const actions = {
@@ -206,12 +172,7 @@ const mutations = {
     Vue.set(state.scopes[scope].values[key], 'filter', false)
   },
   UPDATE_FILTERS: state => {
-    const filters = {}
-    for (const [scope, { values = {} }] of Object.entries(state.scopes)) {
-      const active = Object.entries(values).filter(([, v]) => v.filter).map(([k]) => k)
-      if (active.length) filters[scope] = active
-    }
-    state.filters = filters
+    state.filters = computeFilters(state.scopes)
   },
   UPDATE_SIZE: (state, size) => { state.size = size },
   CLEAR_EVENTS: state => {
