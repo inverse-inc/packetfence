@@ -12,18 +12,20 @@ html {
   background-color: $pf-page-background-color;
 }
 
-// Background on body::before (fixed, behind content, tablet+ only).
-// theme.css override: body::before { background-image: url("file.png"); } — relative URL only.
-@include mq($from: tablet) {
-  body::before {
-    content: ' ';
+// Background image injected by layout.html as <img class="pf-bg">.
+// Hidden on mobile; fixed full-viewport cover on tablet and wider.
+.pf-bg {
+  display: none;
+  @include mq($from: tablet) {
+    display: block;
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url("/common/img/packetfence-background.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
   }
 }
 

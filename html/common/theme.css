@@ -65,19 +65,21 @@
   /* --pf-logo-max-width: 50%;    */   /* logo width relative to card        */
 
 
-  /* — Logo filter —
-   * --pf-logo-filter: none;                    disable dark-mode inversion
-   * --pf-logo-filter: brightness(0) invert(1); force inversion in all modes */
+  /* — Logo —
+   * Upload logo.png to the connection profile's Files tab.
+   * Resolved server-side: profile-specific → default profile (no Logo field needed).
+   *
+   * --pf-logo-max-width: 50%;                  logo width relative to card
+   * --pf-logo-filter: none;                    disable dark-mode auto-inversion
+   * --pf-logo-filter: brightness(0) invert(1); force inversion in all modes   */
 
 }
 
 
-/* BACKGROUND IMAGE — relative URL only (resolves from theme.css location).
- * Constraint: absolute paths bypass the admin preview proxy → empty content.
- * Override:  body::before { background-image: url("my-bg.png"); }
- * Disable:   body::before { background-image: none; }  → shows --pf-page-background-color */
-
-/* body::before { background-image: url("packetfence-background.png"); } */
+/* BACKGROUND IMAGE
+ * Upload background.png to the connection profile's Files tab.
+ * Resolved server-side: profile-specific → default profile → /common/background.png.
+ * Shown on tablet and wider screens; phones use --pf-page-background-color. */
 
 
 /* FORCE DARK MODE — for browsers that do not support color-scheme: dark.

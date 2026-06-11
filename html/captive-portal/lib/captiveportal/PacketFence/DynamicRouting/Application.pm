@@ -375,8 +375,7 @@ sub render {
     my $profile = $self->profile;
     $args->{lang} = $self->session->{lang};
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
-
-    my $theme_path = $self->_resolve_theme_path;
+    my %theme_assets  = %{$self->_resolve_theme_assets};
 
     my $layout_args = {
         isRootSSO => $self->isRootSSO,
@@ -385,8 +384,7 @@ sub render {
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
         title => $self->title,
-        logo => $profile->getLogo,
-        theme_path => $theme_path,
+        %theme_assets,
         profile => $profile,
         lang => $self->session->{lang},
         %saved_fields,
@@ -407,23 +405,6 @@ sub render {
     $self->template_output($content);
 
     $self->empty_flash();
-}
-
-=head2 _resolve_theme_path
-
-Return the URL path for theme.css: profile-specific first, default profile as fallback, undef if neither exists.
-
-=cut
-
-sub _resolve_theme_path {
-    my ($self) = @_;
-    my $profile_name = $self->profile->name;
-    for my $name ($profile_name, 'default') {
-        if (-f "$captiveportal_profile_templates_path/$name/theme.css" && -s "$captiveportal_profile_templates_path/$name/theme.css") {
-            return "/profile-templates/$name/theme.css";
-        }
-    }
-    return undef;
 }
 
 =head2 _render
@@ -619,6 +600,41 @@ sub isRootSSO {
     my ($self) = @_;
     my $root_module = $self->root_module;
     return defined $root_module && $root_module->isa("captiveportal::DynamicRouting::Module::RootSSO")
+}
+
+=head2 _resolve_theme_assets
+
+Resolve theme_path, logo and background_url in a single filesystem pass.
+Fallback order: profile-specific → default profile → built-in default.
+
+=cut
+
+sub _resolve_theme_assets {
+    my ($self) = @_;
+    my $profile_name = $self->profile->name;
+    my @names = ($profile_name);
+    push @names, 'default' if $profile_name ne 'default';
+
+    my %assets = (
+        theme_path     => undef,
+        logo           => undef,
+        background_url => undef,
+    );
+
+    # //= assigns only when still undef, so the first match (own profile) wins
+    for my $name (@names) {
+        my $base = "$captiveportal_profile_templates_path/$name";
+        $assets{theme_path}     //= "/profile-templates/$name/theme.css"     if -f "$base/theme.css" && -s "$base/theme.css";
+        $assets{logo}           //= "/profile-templates/$name/logo.png"       if -f "$base/logo.png";
+        $assets{background_url} //= "/profile-templates/$name/background.png" if -f "$base/background.png";
+    }
+
+    # absolute fallbacks when neither the profile nor default has the file
+    $assets{theme_path}     //= '/common/theme.css';
+    $assets{background_url} //= '/common/background.png';
+    $assets{logo}           //= $self->profile->getLogo;  # config value
+
+    return \%assets;
 }
 
 =head1 AUTHOR

@@ -18,6 +18,11 @@
   <title>[% IF title.defined ; i18n(title) ; ELSE ; i18n("PacketFence Registration system") ; END %]</title>
 </head>
 <body>
+<!-- Background image: resolved server-side (profile-specific → default profile → /common/background.png).
+     Hidden on mobile via .pf-bg CSS class; shown as fixed full-viewport cover on tablet and wider. -->
+[% IF background_url %]
+<img class="pf-bg" src="[% background_url %]" aria-hidden="true" alt="">
+[% END %]
   <!--
     title: [% title %]
     module: [% current_module.pretty_class_name %]

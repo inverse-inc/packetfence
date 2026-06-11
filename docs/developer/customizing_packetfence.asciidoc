@@ -46,22 +46,20 @@ The template `aup_text.html` is used as the final fallback for all locales.
 Cannot use full locale in template name (`aup_text.en_US.html`); use only
 two-letter prefix.
 
-===== Logo
+===== Logo and Background Image
 
-Customize captive portal logo: go to _Configuration->Policies And Access
-Control->Connection Profiles->default->Files_. Upload logo at root of files.
-After upload, go to _Captive Portal_ section of connection profile and change
-'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
+To customize the logo or background image for a connection profile, upload the
+files via the profile's Files tab
+(_Configuration→Policies And Access Control→Connection Profiles→<profile>→Files_):
 
-Alternative: delete existing `logo.png`, upload your logo and rename to
-`logo.png`. This avoids altering 'Logo' value in connection profile.
+* *Logo*: upload a file named exactly `logo.png`. Recommended size: 330 × 75 px,
+  PNG with transparent background.
+* *Background*: upload a file named exactly `background.png`. Recommended size:
+  ≥ 1920 × 1080 px, 16:9 landscape, PNG.
 
-You can also have a different logo per connection profile. In order to do so,
-upload your logo in the appropriate connection profile, then edit it's 'Logo'
-value to be
-`/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
-
-For the best results, your logo size should be approximately 330x75 pixels.
+If a profile does not have its own file, the default connection profile's file
+is used as a fallback. No configuration fields need to be filled in — the portal
+resolves both assets automatically.
 
 ===== CSS
 
@@ -76,67 +74,39 @@ You also need to disable Content-Security-Policy (CSP) headers on captive portal
 
 ===== CSS Theme file
 
-A default `theme.css` is loaded automatically for every captive portal page
-(before any per-profile override). All `--pf-*` variables are present in the
-file but commented out, so it is a no-op by default. Operators can uncomment
-and change values directly in this file to apply a site-wide look:
+PacketFence loads `theme.css` automatically on every captive portal page.
+The source file at `/usr/local/pf/html/common/theme.css` contains all
+`--pf-*` CSS custom properties commented out — it is a no-op until
+an operator customises it.
+
+Asset resolution order:
+
+. The connection profile's own `theme.css`, if uploaded via its Files tab.
+. The *default* profile's `theme.css` — acts as a site-wide override for
+  all profiles that do not have their own file.
+. `/common/theme.css` — the absolute fallback.
+
+To apply a site-wide custom theme, upload a `theme.css` to the *default*
+connection profile's Files tab
+(_Configuration→Policies And Access Control→Connection Profiles→default→Files_).
+All other profiles will inherit it automatically.
+
+To override theming for a specific profile, upload a `theme.css` to that
+profile's Files tab — it takes priority over the default profile's file.
+
+Uncomment and set the variables you want to override:
 
 [source,css]
 ----
-/* /usr/local/pf/html/captive-portal/templates/theme.css */
 :root {
-
-  /* ── Brand colour ──────────────────────────── */
-  --pf-primary-color: #e63000;
-
-  /* ── Force dark mode for all visitors ──────── */
-  /* color-scheme: dark; */
-
-}
-----
-
-All `--pf-*` variables are documented inside the file. Common overrides:
-
-[source,css]
-----
-/* /usr/local/pf/html/captive-portal/templates/theme.css */
-:root {
-
-  /* Brand colours */
   --pf-primary-color:   #e63000;
   --pf-secondary-color: #8c1c00;
-
-  /* Page & card backgrounds */
-  --pf-page-background-color: #f0f0f0;
-  --pf-card-background-color: #ffffff;
-
-  /* Force dark mode (modern browsers) */
-  /* color-scheme: dark; */
-
-}
-
-/* Background image — relative URL, resolves from theme.css location */
-body::before { background-image: url("packetfence-background.png"); }
-----
-
-===== CSS Background Image
-
-Set a background image by adding a direct rule at the bottom of the profile's
-`theme.css` (outside `:root`). Shown on tablet and wider (≥ 740 px); phones
-use the page background colour.
-
-[source,css]
-----
-@media (min-width: 46.25em) {
-  body::before { background-image: url("my-bg.jpg"); }
 }
 ----
 
-*Constraint:* use a **relative URL** only. Absolute paths
-(`/profile-templates/…/file`) bypass the admin preview proxy and return empty
-content.
-
-*Image requirements:* 16:9 landscape, ≥ 1920 × 1080 px, PNG/AVIF/JPEG.
+No restart is required — changes take effect on the next page load.
+All available `--pf-*` variables are documented inside
+`/usr/local/pf/html/common/theme.css`.
 
 ===== Workflow
 

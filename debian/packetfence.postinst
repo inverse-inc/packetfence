@@ -72,6 +72,10 @@ case "$1" in
 
         #Make configurable logo in default profile templates
         make html/captive-portal/profile-templates/default/logo.png
+        #Make default theme.css in default profile templates
+        make html/captive-portal/profile-templates/default/theme.css
+        #Make default background in default profile templates
+        make html/captive-portal/profile-templates/default/background.png
 
         # Stop packetfence-config during upgrade process to ensure
         # it is started with latest code
@@ -114,6 +118,8 @@ case "$1" in
 
         mkdir -p /usr/local/pf/html/captive-portal/profile-templates/default
         cp /usr/local/pf/html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
+        cp /usr/local/pf/html/common/theme.css /usr/local/pf/html/captive-portal/profile-templates/default/theme.css
+        cp /usr/local/pf/html/common/background.png /usr/local/pf/html/captive-portal/profile-templates/default/background.png
 
         # managing services
         set +e
