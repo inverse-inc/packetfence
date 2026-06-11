@@ -18,6 +18,14 @@ PftestAuthentication:
             type: array
             items:
               type: string
+          cluster:
+            description: |
+              Cluster endpoints only — run on every enabled cluster node
+              instead of just the local one. Opt-in: each node performs a
+              real authentication attempt against the configured sources;
+              repeated failures can trigger account lockout in AD/LDAP.
+            type: boolean
+            default: false
 
 PftestProfileFilter:
   required: true
@@ -36,3 +44,7 @@ PftestProfileFilter:
             type: object
             additionalProperties:
               type: string
+          cluster:
+            description: Cluster endpoints only — run on every enabled cluster node instead of just the local one.
+            type: boolean
+            default: false

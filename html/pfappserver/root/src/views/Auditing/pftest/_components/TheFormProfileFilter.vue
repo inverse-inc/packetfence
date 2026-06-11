@@ -46,6 +46,9 @@
     <b-button variant="link" size="sm" class="pl-0" @click="addPair">
       <icon name="plus" class="mr-1" />{{ $t('Add attribute') }}
     </b-button>
+    <b-form-checkbox v-model="cluster" v-if="isCluster" class="mt-3">
+      {{ $t('Run on all cluster nodes') }}
+    </b-form-checkbox>
     <div class="mt-3">
       <b-button type="submit" variant="primary" :disabled="isLoading || !cleanMac">
         <icon v-if="isLoading" name="circle-notch" spin class="mr-1" />
@@ -92,6 +95,9 @@ const PLACEHOLDERS = {
 }
 
 const setup = (props, context) => {
+  const { root: { $store } = {} } = context
+  const isCluster = computed(() => $store.getters['cluster/isCluster'])
+  const cluster = ref(false)
   const mac = ref('')
   const pairs = ref([{ attr: null, value: '' }])
 
@@ -124,9 +130,9 @@ const setup = (props, context) => {
         params[pair.attr.value] = pair.value
       }
     }
-    context.emit('submit', { mac: cleanMac.value, params })
+    context.emit('submit', { mac: cleanMac.value, params, cluster: cluster.value })
   }
-  return { mac, cleanMac, macState, pairs, attributeOptions, placeholderFor, addPair, removePair, onSubmit }
+  return { mac, cleanMac, macState, pairs, attributeOptions, placeholderFor, addPair, removePair, isCluster, cluster, onSubmit }
 }
 
 export default { name: 'the-form-profile-filter', components, props, setup }

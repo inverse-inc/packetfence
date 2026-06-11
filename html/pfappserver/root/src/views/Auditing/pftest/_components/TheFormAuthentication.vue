@@ -25,6 +25,16 @@
         <small class="text-muted">{{ $t('Pick one or more; empty = test against all configured sources.') }}</small>
       </b-col>
     </b-row>
+    <b-row v-if="isCluster" class="mt-3">
+      <b-col>
+        <b-form-checkbox v-model="cluster">
+          {{ $t('Run on all cluster nodes') }}
+        </b-form-checkbox>
+        <small class="text-warning">
+          {{ $t('Each run performs a real authentication attempt against the configured sources on every node — repeated failures can trigger account lockout in AD/LDAP. Runs are rate-limited per tested user.') }}
+        </small>
+      </b-col>
+    </b-row>
     <b-button type="submit" variant="primary" class="mt-3"
       :disabled="isLoading || !user">
       <icon v-if="isLoading" name="circle-notch" spin class="mr-1" />
@@ -43,6 +53,9 @@ const components = { Multiselect }
 const props = { isLoading: { type: Boolean, default: false } }
 
 const setup = (props, context) => {
+  const { root: { $store } = {} } = context
+  const isCluster = computed(() => $store.getters['cluster/isCluster'])
+  const cluster = ref(false)
   const user = ref('')
   const password = ref('')
   const passwordInput = ref(null)
@@ -68,7 +81,8 @@ const setup = (props, context) => {
     context.emit('submit', {
       user: user.value,
       password: password.value,
-      sources
+      sources,
+      cluster: cluster.value
     })
     password.value = ''
     if (passwordInput.value && passwordInput.value.$el) {
@@ -76,7 +90,7 @@ const setup = (props, context) => {
       if (el.tagName === 'INPUT') el.value = ''
     }
   }
-  return { user, password, passwordInput, selectedSources, sourceOptions, sourcesLoading, onPasswordInput, onSubmit }
+  return { user, password, passwordInput, selectedSources, sourceOptions, sourcesLoading, isCluster, cluster, onPasswordInput, onSubmit }
 }
 
 export default { name: 'the-form-authentication', components, props, setup }

@@ -29,8 +29,11 @@ use Capture::Tiny qw(capture_merged);
 use Module::Load qw(load);
 use Module::Loaded qw(is_loaded);
 
+use pf::CHI;
 use pf::util qw(clean_mac);
 use pf::log;
+
+use constant AUTH_RATE_LIMIT_SECONDS => 10;
 
 # Whitelist of subcommand modules that may be invoked from the GUI. The
 # CLI dispatcher loads pf::pftest::<name> dynamically; we keep an explicit
@@ -41,6 +44,10 @@ my %ALLOWED = map { $_ => 1 } qw(authentication profile_filter);
 sub authentication {
     my ($self) = @_;
     my $body   = $self->req->json // {};
+    my $user   = $body->{user};
+    if (defined $user && length $user && auth_rate_limit_exceeded($user)) {
+        return $self->render(json => rate_limited_json(), status => 429);
+    }
     my $resp   = run_authentication($body);
     return $self->render(json => $resp->{json}, status => $resp->{status});
 }
@@ -50,6 +57,32 @@ sub profile_filter {
     my $body   = $self->req->json // {};
     my $resp   = run_profile_filter($body);
     return $self->render(json => $resp->{json}, status => $resp->{status});
+}
+
+# pftest authentication performs *real* bind attempts against the
+# configured sources; rapid repeats against the same account can trip
+# AD/LDAP lockout policies, and the cluster fan-out multiplies every
+# attempt by the node count. Allow one run per tested user per node per
+# window — Redis-backed so all pfperl-api workers on a node share it.
+# Cluster note: the fan-out entry point checks before dispatching and the
+# peers' public endpoint checks again per node (defense in depth); the
+# entry node runs its own share in-process so its check never fires twice.
+sub auth_rate_limit_exceeded {
+    my ($user) = @_;
+    my $cache = pf::CHI->new(namespace => 'pftest');
+    my $key   = "auth:" . lc($user);
+    return 1 if $cache->get($key);
+    $cache->set($key, 1, { expires_in => AUTH_RATE_LIMIT_SECONDS });
+    return 0;
+}
+
+sub rate_limited_json {
+    return {
+        message => sprintf(
+            "Too many authentication tests for this user; retry in %d seconds",
+            AUTH_RATE_LIMIT_SECONDS),
+        errors => [], status => 429,
+    };
 }
 
 sub run_authentication {

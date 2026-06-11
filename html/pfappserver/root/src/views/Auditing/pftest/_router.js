@@ -1,4 +1,5 @@
 import store from '@/store'
+import { loadClusterConfig } from '@/utils/cluster'
 import StoreModule from './_store'
 
 const TheView = () => import(/* webpackChunkName: "Auditing" */ './_components/TheView')
@@ -7,7 +8,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_pftest) {
     store.registerModule('$_pftest', StoreModule)
   }
-  next()
+  // The peer list drives the "run on all cluster nodes" opt-in checkbox.
+  loadClusterConfig().finally(() => next())
 }
 
 export default [

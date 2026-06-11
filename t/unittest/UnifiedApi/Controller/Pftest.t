@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::NoWarnings;
 
 use pf::UnifiedApi::Controller::Pftest;
@@ -75,4 +75,15 @@ use pf::UnifiedApi::Controller::Pftest;
 {
     my $resp = pf::UnifiedApi::Controller::Pftest::_invoke('locationlog');
     is($resp->{status}, 422, "non-allow-listed subcommand -> 422");
+}
+
+# Rate limit: a second authentication run for the same tested user inside
+# the window must be rejected. Unique user per test run — the cache
+# persists across consecutive prove invocations.
+{
+    my $user = "rate-limit-test-$$-" . time();
+    ok(!pf::UnifiedApi::Controller::Pftest::auth_rate_limit_exceeded($user),
+        "first run for a user is allowed");
+    ok(pf::UnifiedApi::Controller::Pftest::auth_rate_limit_exceeded($user),
+        "second run within the window is rejected");
 }

@@ -13,7 +13,8 @@
       mechanism.
 
       Requires the `PFTEST_CREATE` admin-role action (all `/pftest/*`
-      endpoints do).
+      endpoints do). Authentication runs are rate-limited per tested
+      user (one run per node per 10s window) — exceeding it returns 429.
     requestBody:
       $ref: "#/components/requestBodies/PftestAuthentication"
     responses:
@@ -23,6 +24,8 @@
         $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
+      '429':
+        description: Rate limited — too many authentication tests for this user; retry after the window.
     tags:
       - pftest
 
@@ -47,11 +50,14 @@
 
 /api/v1/pftest/cluster/authentication:
   post:
-    summary: Fan-out variant of /pftest/authentication across the cluster.
+    summary: Cluster-aware variant of /pftest/authentication.
     description: |
-      Standalone installs return a single-item list with the local
-      hostname; cluster installs aggregate one entry per cluster peer.
-      Peer calls run in parallel with a 25–30s per-peer timeout.
+      Returns a per-host item list. By default only the local node runs
+      the probe; with `cluster: true` in the body every enabled cluster
+      node does (opt-in — N nodes mean N real authentication attempts,
+      which can trip account-lockout policies). Peer calls run in
+      parallel with a 25–30s per-peer timeout. Authentication runs are
+      rate-limited per tested user; exceeding the window returns 429.
     requestBody:
       $ref: "#/components/requestBodies/PftestAuthentication"
     responses:
@@ -61,12 +67,17 @@
         $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
+      '429':
+        description: Rate limited — too many authentication tests for this user; retry after the window.
     tags:
       - pftest
 
 /api/v1/pftest/cluster/profile_filter:
   post:
-    summary: Fan-out variant of /pftest/profile_filter across the cluster.
+    summary: Cluster-aware variant of /pftest/profile_filter.
+    description: |
+      Returns a per-host item list. By default only the local node runs
+      the probe; with `cluster: true` every enabled cluster node does.
     requestBody:
       $ref: "#/components/requestBodies/PftestProfileFilter"
     responses:

@@ -13,6 +13,7 @@ const state = () => ({
 const getters = {
   isLoading: state => state.status === 'loading',
   results: state => state.results,
+  message: state => state.message,
   subcmd: state => state.subcmd
 }
 
