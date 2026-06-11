@@ -33,7 +33,13 @@ export default {
     if (isSaas()) {
       return Promise.resolve({})
     }
-    // 404 = session already gone; treat as success and mark response quiet so the interceptor stays silent.
+    // Stop is idempotent and often fires from navigation/unload paths after
+    // the server already reaped the session (5min idle timeout), so a 404
+    // is treated as success and the response is marked quiet to keep the
+    // interceptor silent. A 404 can however also mean a wrong session id or
+    // a request that landed on the wrong cluster node — annotate the result
+    // with gone:true and leave a console.debug trail with the peer context
+    // so those cases stay diagnosable instead of vanishing.
     return apiCall.request({
       method: 'delete',
       url: `${prefix()}/tail/${encodeURIComponent(id)}`,
@@ -44,7 +50,14 @@ export default {
         return Object.assign({ quiet: true }, jsonData)
       }],
       ...serverConfig(server)
-    }).then(response => response.data)
+    }).then(response => {
+      if (response.status === 404) {
+        const peer = (server && server.management_ip) || 'default route'
+        console.debug(`live-log session ${id} already gone on ${peer} (stop returned 404)`) // eslint-disable-line no-console
+        return { ...response.data, gone: true }
+      }
+      return response.data
+    })
   },
   item: (id, pollBody, server) => {
     if (isSaas() && pollBody) {
