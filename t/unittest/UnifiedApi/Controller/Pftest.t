@@ -20,38 +20,47 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::NoWarnings;
 
 use pf::UnifiedApi::Controller::Pftest;
 
-# Validation: missing user/password -> 422
+# Validation: missing user -> 422
 {
-    my $resp = pf::UnifiedApi::Controller::Pftest::_run_authentication(undef, {});
-    is($resp->{status}, 422, "missing user+password -> 422");
+    my $resp = pf::UnifiedApi::Controller::Pftest::run_authentication({});
+    is($resp->{status}, 422, "missing user -> 422");
 }
 
+# Password is optional by design (probes fail-closed sources); the runner
+# must forward an empty string rather than reject the request.
 {
-    my $resp = pf::UnifiedApi::Controller::Pftest::_run_authentication(undef, { user => 'u' });
-    is($resp->{status}, 422, "missing password -> 422");
+    no warnings 'redefine';
+    my @captured;
+    local *pf::UnifiedApi::Controller::Pftest::_invoke = sub {
+        @captured = @_;
+        return { status => 200, json => { output => '', output_raw => '', exit_code => 0 } };
+    };
+    my $resp = pf::UnifiedApi::Controller::Pftest::run_authentication({ user => 'u' });
+    is($resp->{status}, 200, "user without password accepted");
+    is_deeply(\@captured, ['authentication', 'u', ''], "empty password forwarded");
 }
 
 # Validation: bad MAC -> 422
 {
-    my $resp = pf::UnifiedApi::Controller::Pftest::_run_profile_filter(undef, { mac => 'not-a-mac' });
+    my $resp = pf::UnifiedApi::Controller::Pftest::run_profile_filter({ mac => 'not-a-mac' });
     is($resp->{status}, 422, "bad MAC -> 422");
 }
 
 # Validation: params filter strips non-conforming keys
-# (we exercise this via a mocked _spawn so we do not actually fork pftest)
+# (we exercise this via a mocked _invoke so we do not actually run pftest)
 {
     no warnings 'redefine';
     my @captured;
-    local *pf::UnifiedApi::Controller::Pftest::_spawn = sub {
+    local *pf::UnifiedApi::Controller::Pftest::_invoke = sub {
         @captured = @_;
         return { status => 200, json => { output => '', output_raw => '', exit_code => 0 } };
     };
-    pf::UnifiedApi::Controller::Pftest::_run_profile_filter(undef, {
+    pf::UnifiedApi::Controller::Pftest::run_profile_filter({
         mac    => 'aa:bb:cc:dd:ee:ff',
         params => { last_ssid => 'ok', 'bad key with space' => 'x', valid => 'yes' },
     });
@@ -60,4 +69,10 @@ use pf::UnifiedApi::Controller::Pftest;
     is_deeply([sort @captured[2..$#captured]],
               [sort 'last_ssid=ok', 'valid=yes'],
               "bad key dropped; good keys forwarded as k=v");
+}
+
+# _invoke refuses subcommands outside the allow-list
+{
+    my $resp = pf::UnifiedApi::Controller::Pftest::_invoke('locationlog');
+    is($resp->{status}, 422, "non-allow-listed subcommand -> 422");
 }

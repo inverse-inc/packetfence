@@ -38,9 +38,10 @@ sub _dispatch {
     my $body = $self->req->json // {};
 
     if (!$pf::cluster::cluster_enabled) {
-        my $local = pf::UnifiedApi::Controller::Pftest->new(%$self);
-        my $method = "_run_$action";
-        my $resp = $local->$method($body);
+        # run_* are package subs (pure functions of the body) — no controller
+        # instance needed, so no shared tx/stash state to worry about.
+        my $runner = pf::UnifiedApi::Controller::Pftest->can("run_$action");
+        my $resp   = $runner->($body);
         if ($resp->{status} != 200) {
             return $self->render(json => $resp->{json}, status => $resp->{status});
         }

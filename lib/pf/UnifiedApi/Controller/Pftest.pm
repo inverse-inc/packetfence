@@ -9,11 +9,15 @@ pf::UnifiedApi::Controller::Pftest -
 =head1 DESCRIPTION
 
 Exposes selected bin/pftest subcommands (authentication, profile_filter)
-as HTTP endpoints so admins can run them from the GUI. The controller
-spawns the CLI via safe_pf_run so output is byte-identical to a manual
+as HTTP endpoints so admins can run them from the GUI. The subcommand
+module runs in-process so output is byte-identical to a manual CLI
 invocation; ANSI escapes are stripped from the JSON 'output' field while
 the original is retained as 'output_raw' for clients that want the
 colored stream.
+
+The run_* runners are package subs (pure functions of the request body),
+so the Cluster controller can call them without constructing a controller
+instance.
 
 =cut
 
@@ -37,19 +41,19 @@ my %ALLOWED = map { $_ => 1 } qw(authentication profile_filter);
 sub authentication {
     my ($self) = @_;
     my $body   = $self->req->json // {};
-    my $resp   = $self->_run_authentication($body);
+    my $resp   = run_authentication($body);
     return $self->render(json => $resp->{json}, status => $resp->{status});
 }
 
 sub profile_filter {
     my ($self) = @_;
     my $body   = $self->req->json // {};
-    my $resp   = $self->_run_profile_filter($body);
+    my $resp   = run_profile_filter($body);
     return $self->render(json => $resp->{json}, status => $resp->{status});
 }
 
-sub _run_authentication {
-    my ($self, $body) = @_;
+sub run_authentication {
+    my ($body) = @_;
 
     my $user = $body->{user};
     my $pass = $body->{password};
@@ -70,8 +74,8 @@ sub _run_authentication {
     return _invoke('authentication', $user, $pass, @$srcs);
 }
 
-sub _run_profile_filter {
-    my ($self, $body) = @_;
+sub run_profile_filter {
+    my ($body) = @_;
 
     my $mac    = clean_mac($body->{mac} // '');
     my $params = $body->{params} // {};
