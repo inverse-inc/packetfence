@@ -28,7 +28,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === New Features
 
   - Cluster-wide live log streaming — the admin UI now tails log files from every cluster node in parallel and merges events client-side with hostname/filename attribution
-  - Historical log view — query active and rotated `.log.*.gz` files across the cluster with a time-range picker
+  - Historical log view — query active and rotated `.log.*.gz` files across the cluster with a time-range picker, served by the Go log-tailer plugin (RE2 filters, bounded scans, lossless byte-offset pagination)
   - pftest in admin GUI — the `authentication` and `profile_filter` subcommands are exposed under Auditing > pftest and fan out across the cluster
 
 === Enhancements

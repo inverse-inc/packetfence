@@ -86,33 +86,22 @@
     tags:
       - HistoricalLogs
   post:
-    summary: Read past log entries on the local node within a time range.
+    summary: Read past log entries on one node within a time range.
     description: |
-      Reads `/usr/local/pf/logs/*.log` plus matching `.log.<N>.gz` rotations.
-      Cursor-paginated; the response cursor is keyed by filename.
+      Served by the log-tailer plugin in the node's api-frontend. Reads the
+      allow-listed files under `/usr/local/pf/logs/` plus matching
+      `.log.<N>.gz` rotations. Cursor-paginated: the response cursor is an
+      opaque per-filename object that must be sent back verbatim. The scan is
+      bounded (wall-clock, bytes, events); a response with `truncated: true`
+      means the window is not exhausted — resubmit with the returned cursor
+      to continue. On a cluster, query a specific node by setting the
+      `X-PacketFence-Server` header to its management IP (one request per
+      node; there is no server-side fan-out endpoint).
     requestBody:
       $ref: "#/components/requestBodies/LogsHistory"
     responses:
       '200':
         $ref: "#/components/responses/LogsHistory"
-      '401':
-        $ref: "#/components/responses/Unauthorized"
-      '422':
-        $ref: "#/components/responses/UnprocessableEntity"
-    tags:
-      - HistoricalLogs
-
-/api/v1/logs/cluster_history:
-  post:
-    summary: Fan-out variant of /logs/history across the cluster.
-    description: |
-      Standalone installs return a single-item list with the local hostname;
-      cluster installs aggregate one entry per cluster peer.
-    requestBody:
-      $ref: "#/components/requestBodies/LogsHistory"
-    responses:
-      '200':
-        $ref: "#/components/responses/LogsClusterHistory"
       '401':
         $ref: "#/components/responses/Unauthorized"
       '422':

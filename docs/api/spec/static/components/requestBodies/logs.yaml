@@ -35,17 +35,22 @@ LogsHistory:
             items:
               type: string
           filter:
-            description: Filter events by string or regex.
+            description: |
+              Filter events by string (case-insensitive substring) or, with
+              filter_is_regexp, an RE2 regular expression. Maximum 256
+              characters.
             type: string
           filter_is_regexp:
-            description: Filter is a regular expression.
+            description: Filter is an RE2 regular expression (no backtracking constructs).
             type: boolean
           cursor:
-            description: Per-filename cursor returned by a previous response; paginates the read.
+            description: |
+              Per-filename cursor returned by a previous response. Opaque:
+              send it back verbatim to continue the read; it tracks the byte
+              position inside the source files so pages never drop lines.
             type: object
             additionalProperties:
-              type: integer
-              format: int64
+              $ref: "#/components/schemas/LogsHistoryCursor"
           start:
             description: Lower time bound (inclusive), ISO-8601. Defaults to now-24h when both cursor and start are absent.
             type: string

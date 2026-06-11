@@ -32,12 +32,6 @@ if ! [ -z "$LIB_MOUNT" ]; then
   args="$args -v$LIB_MOUNT:/usr/local/pf/lib"
 fi
 
-# pfperl-api hosts the new historical-log API which reads from
-# /usr/local/pf/logs/ (active files + rotated .gz). Without this read-only
-# bind-mount the controller returns 0 events because the path does not
-# exist inside the container.
-args="$args -v /usr/local/pf/logs:/usr/local/pf/logs:ro"
-
 cd /usr/local/pf/
 
 run $name "$args"

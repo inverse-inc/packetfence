@@ -86,6 +86,32 @@ LogsHistoryEvent:
             log_without_prefix:
               type: string
 
+LogsHistoryCursor:
+  description: |
+    Opaque per-file read position. Clients must echo it back unchanged; the
+    fields track the byte position inside a specific source (active file or
+    rotation) so pagination never drops lines, survives logrotate renames
+    and falls back to the timestamp when a rotation was pruned.
+  type: object
+  properties:
+    source:
+      description: Rotation index of the source (0 = active file).
+      type: integer
+    offset:
+      description: Uncompressed byte offset of the next unread line.
+      type: integer
+      format: int64
+    sig:
+      description: Content signature identifying the source across renames.
+      type: string
+    sig_len:
+      description: Number of prefix bytes the signature covers.
+      type: integer
+    ts_ms:
+      description: Unix ms of the last scanned line (resume fallback).
+      type: integer
+      format: int64
+
 LogsHistory:
   type: object
   properties:
@@ -94,32 +120,14 @@ LogsHistory:
       items:
         $ref: "#/components/schemas/LogsHistoryEvent"
     cursor:
-      description: Per-filename cursor (unix ms of the latest emitted event for each file). Feed this back to paginate.
+      description: Per-filename cursor. Opaque — feed it back verbatim to paginate.
       type: object
       additionalProperties:
-        type: integer
-        format: int64
-
-LogsClusterHistory:
-  type: object
-  properties:
-    items:
-      type: array
-      items:
-        type: object
-        properties:
-          host:
-            description: Cluster member that produced this slice.
-            type: string
-          events:
-            type: array
-            items:
-              $ref: "#/components/schemas/LogsHistoryEvent"
-          cursor:
-            type: object
-            additionalProperties:
-              type: integer
-              format: int64
-          error:
-            description: Present when the peer call failed; events is empty in that case.
-            type: string
+        $ref: "#/components/schemas/LogsHistoryCursor"
+    truncated:
+      description: |
+        True when a scan bound (wall-clock budget, byte ceiling or event cap)
+        stopped the read before the window was exhausted. Resubmit with the
+        returned cursor to continue; an empty truncated page only means the
+        budget expired before a match was found.
+      type: boolean
