@@ -44,6 +44,7 @@ const getters = {
   scopes:      state => state.scopes,
   filters:     state => state.filters,
   exhausted:   state => state.exhausted,
+  message:     state => state.message,
   isFiltered:  isFilteredGetter,
   eventsFiltered: eventsFilteredGetter,
   size: state => state.size,

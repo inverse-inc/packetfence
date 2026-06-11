@@ -90,6 +90,15 @@ const localToIso = (s) => {
   return d.toISOString().replace(/\.\d+Z$/, 'Z')
 }
 
+// Inverse of localToIso for prefilling the datetime-local inputs.
+const isoToLocal = (s) => {
+  if (!s) return ''
+  const d = new Date(s)
+  if (isNaN(d)) return ''
+  const pad = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
@@ -116,16 +125,31 @@ const setup = (props, context) => {
   })
 
   onMounted(() => {
+    // "Edit query" returns here from the results view: prefill from the
+    // previous session instead of starting blank.
+    const lastId = $store.state.$_historical_logs && $store.state.$_historical_logs._lastSessionId
+    const lastSession = (lastId && $store.getters[`$_historical_logs/${lastId}/session`]) || null
+
     $store.dispatch('$_historical_logs/optionsSession').then(response => {
       const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
       if (allowed) {
         fileOptions.value = allowed
           .map(({ text, value }) => ({ text, value }))
           .sort((a, b) => a.value.localeCompare(b.value))
+        if (lastSession && lastSession.files) {
+          selectedFiles.value = fileOptions.value.filter(o => lastSession.files.includes(o.value))
+        }
       }
     })
-    // Default to "last 1h" so the form is immediately useful.
-    setRange(1)
+    if (lastSession) {
+      filter.value = lastSession.filter || ''
+      filterIsRegexp.value = !!lastSession.filter_is_regexp
+      startLocal.value = isoToLocal(lastSession.start)
+      endLocal.value = isoToLocal(lastSession.end)
+    } else {
+      // Default to "last 1h" so the form is immediately useful.
+      setRange(1)
+    }
   })
 
   // Hours back from now; 0 clears both bounds.
