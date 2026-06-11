@@ -575,7 +575,8 @@ variables:
 
 .setup_vagrant_box_job:
   variables:
-    BOX_NAME: pfdeb12dev
+    BOX_NAME: pfdeb12branch
+    BOX_VERSION: '15.2.20260609175011'
   before_script:
     - ${VAGRANT_LIB_DIR}/setup-vagrant-box.sh
 
