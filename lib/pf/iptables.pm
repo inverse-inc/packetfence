@@ -1146,7 +1146,8 @@ sub iptables_pfdhcp_rules {
 
     if ( @dhcp_ints ) {
         $chains->{name} = $service_name;
-        foreach my $tint ( @dhcp_ints ) {
+        foreach my $network ( @dhcp_ints ) {
+            my $tint = $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
