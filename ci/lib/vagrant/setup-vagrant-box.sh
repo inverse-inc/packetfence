@@ -105,12 +105,24 @@ echo "===> Verifying checksum"
 echo "===> Removing any existing local box for ${VAGRANT_BOX_LOCAL_NAME} (${PROVIDER})"
 vagrant box remove "${VAGRANT_BOX_LOCAL_NAME}" --provider "${PROVIDER}" --all --force || true
 
-echo "===> Adding box as ${VAGRANT_BOX_LOCAL_NAME}"
-vagrant box add \
-    --name "${VAGRANT_BOX_LOCAL_NAME}" \
-    --provider "${PROVIDER}" \
-    --force \
-    "${WORK_DIR}/${BOX_FILENAME}"
+# Synthesize metadata.json so vagrant registers the box at BOX_VERSION;
+# adding the bare .box would register as v0 and trigger a re-fetch from box_url.
+LOCAL_METADATA="${WORK_DIR}/${BOX_NAME}.local.metadata.json"
+python3 - "${VAGRANT_BOX_LOCAL_NAME}" "${BOX_VERSION}" "${PROVIDER}" \
+    "${WORK_DIR}/${BOX_FILENAME}" "${LOCAL_METADATA}" <<'PY'
+import json, sys
+name, version, provider, box_path, out_path = sys.argv[1:6]
+json.dump({
+    "name": name,
+    "versions": [{
+        "version": version,
+        "providers": [{"name": provider, "url": f"file://{box_path}"}],
+    }],
+}, open(out_path, "w"))
+PY
+
+echo "===> Adding box as ${VAGRANT_BOX_LOCAL_NAME} (version ${BOX_VERSION})"
+vagrant box add --force "${LOCAL_METADATA}"
 
 echo "${BOX_VERSION}" > "${VERSION_MARKER}"
 
