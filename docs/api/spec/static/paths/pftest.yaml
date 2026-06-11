@@ -11,6 +11,9 @@
       The endpoint is auditable; the `password` field is redacted from
       the admin API audit log entry by the standard `fields_to_mask`
       mechanism.
+
+      Requires the `PFTEST_CREATE` admin-role action (all `/pftest/*`
+      endpoints do).
     requestBody:
       $ref: "#/components/requestBodies/PftestAuthentication"
     responses:

@@ -15,7 +15,9 @@ export default [
     path: 'pftest',
     name: 'pftest',
     component: TheView,
-    meta: { can: 'read services' },
+    // 'create pftest' = PFTEST_CREATE, the role the Go api-frontend enforces
+    // on POST /api/v1/pftest/* — frontend and backend stay aligned.
+    meta: { can: 'create pftest' },
     beforeEnter
   }
 ]

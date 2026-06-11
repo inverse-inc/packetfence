@@ -47,7 +47,7 @@ const setup = () => {
       name: i18n.t('pftest'),
       path: '/auditing/pftest',
       saveSearchNamespace: 'pftest',
-      can: 'read services'
+      can: 'create pftest'
     }
   ]))
 
