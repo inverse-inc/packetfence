@@ -206,14 +206,14 @@
                     v-b-tooltip.hover.left :title="$t('Node / log file')">
                     {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
                   </span>
-                  <span class="log-timestamp" v-if="event.data.meta.timestamp"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
-                  <span class="log-syslog" v-if="event.data.meta.syslog_name"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.syslog_name }}</span>
-                  <span class="log-process" v-if="event.data.meta.process"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.process }}</span>
-                  <span class="log-level" v-if="event.data.meta.log_level"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.log_level }}</span>
+                  <!-- Neutral timestamp + a single colored level chip: only
+                       the level carries the level color, so lines without a
+                       recognized level simply have no chip instead of looking
+                       randomly unmarked. Syslog/process repeat the source tag
+                       and are not rendered (still filterable via the sidebar). -->
+                  <span class="log-timestamp text-line log-level-none" v-if="event.data.meta.timestamp">{{ event.data.meta.timestamp }}</span>
+                  <span v-if="event.data.meta.log_level"
+                  :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
                   <span v-html="highlightEscaped(event.data.meta.log_without_prefix)" />
                 </div>
               </div>
@@ -348,9 +348,9 @@ const setup = (props, context) => {
     : mergedEvents.value
   )
 
-  // Merge scopes (hostname / filename / log_level / process / syslog_name)
-  // so the per-host counts add up across the cluster and the user can
-  // filter by any of them from a single panel.
+  // Merge scopes (hostname / filename / log_level / process) so the
+  // per-host counts add up across the cluster and the user can filter by
+  // any of them from a single panel.
   const scopes = computed(() => {
     if (peerIds.value.length === 1) {
       return $store.getters[`$_live_logs/${primary.value}/scopes`]

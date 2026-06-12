@@ -10,21 +10,21 @@ import i18n from '@/utils/locale'
  * Events have the shape { data: { raw, meta: { timestamp, hostname,
  * process, syslog_name, log_level, filename, log_without_prefix } } };
  * `timestamp` and `log_without_prefix` are per-line values and are
- * excluded from the countable scopes.
+ * excluded from the countable scopes, `syslog_name` because it duplicates
+ * `process` for the ISO lines the tailer emits (one filter group suffices).
  */
 
 export const defaultScopes = () => ({
   hostname: { label: i18n.t('Hostname'), values: {} },
   filename: { label: i18n.t('Log Name'), values: {} },
   log_level: { label: i18n.t('Log Level'), values: {} },
-  process: { label: i18n.t('Process Name'), values: {} },
-  syslog_name: { label: i18n.t('Syslog Name'), values: {} }
+  process: { label: i18n.t('Process Name'), values: {} }
 })
 
 // Count an event's meta values into the scopes; new values are inserted in
 // sorted order so the sidebar lists stay stable while streaming.
 export const addMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
+  const { data: { meta: { timestamp, log_without_prefix, syslog_name, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
   for (const key of Object.keys(meta)) {
     if (!(key in scopes)) {
       Vue.set(scopes, key, { label: key, values: { [meta[key]]: { count: 1 } } })
@@ -48,7 +48,7 @@ export const addMeta = (scopes, event) => {
 }
 
 export const delMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
+  const { data: { meta: { timestamp, log_without_prefix, syslog_name, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
   for (const key of Object.keys(meta)) {
     Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count - 1)
   }

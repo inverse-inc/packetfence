@@ -74,7 +74,8 @@
                 {{ $t('No events') }}
               </base-table-empty>
               <!-- Same chip rendering as the LiveLogs color view: colored
-                   source tag plus level-tinted meta chips (_log-events.scss). -->
+                   source tag, neutral timestamp, one colored level chip
+                   (_log-events.scss). -->
               <div v-else class="text-raw px-2 py-1">
                 <div v-for="(event, idx) in events" :key="idx"
                   :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
@@ -83,14 +84,11 @@
                     v-b-tooltip.hover.left :title="$t('Node / log file')">
                     {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
                   </span>
-                  <span class="log-timestamp" v-if="event.data.meta.timestamp"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
-                  <span class="log-syslog" v-if="event.data.meta.syslog_name"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.syslog_name }}</span>
-                  <span class="log-process" v-if="event.data.meta.process"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.process }}</span>
-                  <span class="log-level" v-if="event.data.meta.log_level"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.log_level }}</span>
+                  <!-- Neutral timestamp + a single colored level chip — same
+                       compact line shape as the live view. -->
+                  <span class="log-timestamp text-line log-level-none" v-if="event.data.meta.timestamp">{{ event.data.meta.timestamp }}</span>
+                  <span v-if="event.data.meta.log_level"
+                  :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
                   <span v-html="highlightEscaped(event.data.meta.log_without_prefix)" />
                 </div>
               </div>

@@ -41,10 +41,7 @@
     background: rgba(0, 0, 0, 1);
 
     .log-timestamp,
-    .log-hostname,
-    .log-level,
-    .log-process,
-    .log-syslog {
+    .log-level {
       color: rgba(0, 0, 0, 1);
     }
   }
@@ -53,10 +50,7 @@
     background: rgba(255, 255, 255, 1);
 
     .log-timestamp,
-    .log-hostname,
-    .log-level,
-    .log-process,
-    .log-syslog {
+    .log-level {
       color: rgba(255, 255, 255, 1);
     }
   }
@@ -94,10 +88,7 @@
     }
 
     &.log-timestamp,
-    &.log-hostname,
-    &.log-level,
-    &.log-process,
-    &.log-syslog {
+    &.log-level {
       white-space: nowrap;
       margin: 0 .25rem 0 0;
       padding: .25rem .5rem;
@@ -108,18 +99,18 @@
 }
 
 // Source tag: shows "<hostname> / <filename>" so every line in a
-// merged cluster stream is unambiguously attributable.
+// merged cluster stream is unambiguously attributable. Same font size as
+// the log text — two sizes per line read as visual noise.
 .log-source-tag {
   display: inline-block;
   font-family: monospace;
-  font-size: .8em;
-  line-height: 1;
-  padding: .15rem .4rem;
+  font-size: inherit;
+  line-height: 1.2;
+  padding: .1rem .4rem;
   margin: 0 .35rem 0 0;
   border-radius: .25rem;
   color: #fff;
   white-space: nowrap;
-  vertical-align: 1px;
 }
 .log-source-tag-0 { background: #2563eb; }   // blue
 .log-source-tag-1 { background: #16a34a; }   // green
