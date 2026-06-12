@@ -398,6 +398,21 @@ func TestExtractMetaISO(t *testing.T) {
 	if lm.Hostname != "packetfence1" || lm.LogLevel != "warn" {
 		t.Errorf("ExtractMeta ISO path failed: %+v", lm)
 	}
+
+	// Level words in other casings and the syslog/apache vocabulary
+	for _, tc := range []struct{ msg, want string }{
+		{"httpd WARNING: cert expires soon", "warn"},
+		{"daemon notice: reloading config", "info"},
+		{"connection error to database", "error"},
+		{"proxy CRITICAL state reached", "fatal"},
+		{"stderr captured from child", ""}, // ERR inside a word must not match
+		{"t=x lvl=dbug msg=\"connection error to db\"", "debug"}, // structured lvl= beats prose
+	} {
+		meta, _, ok := metaEngine.ExtractMetaISO("2026-06-11T00:00:18.164560+02:00 packetfence1 httpd[1]: " + tc.msg)
+		if !ok || meta.LogLevel != tc.want {
+			t.Errorf("level for %q: ok=%v got=%q want=%q", tc.msg, ok, meta.LogLevel, tc.want)
+		}
+	}
 }
 
 // Regression: a cursor taken while the active file is empty must never
