@@ -22,7 +22,8 @@ const state = () => {
       background: 'white',
       size: 'normal',
       order: 'forward',
-      output: 'raw'
+      output: 'raw',
+      levelHighlight: true
     },
     events: [],
     filters: {},

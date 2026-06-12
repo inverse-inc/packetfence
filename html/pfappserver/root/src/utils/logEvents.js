@@ -90,6 +90,25 @@ export const eventsFilteredGetter = state => {
   })
 }
 
+// Source tag shows only the log name, not the directory it lives in: the
+// live tailer reports the full path it was handed (e.g.
+// /usr/local/pf/logs/packetfence.log) while the history endpoint already
+// reports a basename. Splitting on both separators makes this idempotent —
+// a value that is already a basename passes through unchanged.
+export const basename = (path) => String(path || '').split(/[\\/]/).pop()
+
+// Remove the redundant hostname token from a raw syslog line for display.
+// The rsyslog lines are "<timestamp> <host> <process>[pid]: <message>"; the
+// host already appears in the colored source tag, so repeating it inline is
+// noise. We only strip it when it sits exactly where the format puts it —
+// right after the first (timestamp) token — so continuation/stack-trace and
+// legacy lines, where the hostname is not in that position, are left intact.
+export const stripHostnameToken = (raw, hostname) => {
+  if (!raw || !hostname) return raw
+  const escaped = hostname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return raw.replace(new RegExp('^(\\S+\\s+)' + escaped + '\\s+'), '$1')
+}
+
 // Stable per-hostname colour: hash the string into 6 buckets (matching the
 // .log-source-tag-0..5 classes) so the same node always gets the same accent
 // regardless of event order or view.

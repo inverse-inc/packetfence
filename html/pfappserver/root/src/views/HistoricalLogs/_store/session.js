@@ -21,7 +21,7 @@ const state = () => ({
     end: null
   },
   cursors: {}, // { hostA: { 'packetfence.log': {source, offset, sig, ...} }, hostB: {...} }
-  options: { background: 'white', size: 'normal', order: 'forward', output: 'color' },
+  options: { background: 'white', size: 'normal', order: 'forward', output: 'color', levelHighlight: true },
   events: [],
   filters: {},
   scopes: defaultScopes(),

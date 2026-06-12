@@ -96,6 +96,15 @@
       border-radius: .25rem;
     }
   }
+
+  // Log-level highlight toggle (off): neutralize only the level chip's color
+  // so the level word stays readable but no longer carries an accent. The
+  // host source tag is intentionally untouched — the switch governs log-level
+  // highlighting specifically.
+  &.level-highlight-off .log-level {
+    background: var(--secondary);
+    border-color: var(--secondary);
+  }
 }
 
 // Source tag: shows "<hostname> / <filename>" so every line in a

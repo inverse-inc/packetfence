@@ -66,9 +66,17 @@
               </b-input-group-append>
             </b-input-group>
             <small v-if="searchQuery && !searchError" class="mx-1 text-nowrap text-muted">{{ searchCurrentDisplay }} / {{ searchMatchCount }}</small>
+            <b-button-group class="mx-1 flex-shrink-0" size="sm" :title="$t('Toggle log level highlighting')" v-b-tooltip.hover.top.d300>
+              <b-button @click="options.levelHighlight = !options.levelHighlight"
+                :active="options.levelHighlight"
+                :variant="options.levelHighlight ? 'secondary' : 'outline-secondary'">
+                <icon name="palette" />
+              </b-button>
+            </b-button-group>
           </div>
           <b-alert variant="warning" class="m-2" :show="!!message">{{ message }}</b-alert>
-          <div ref="logRef" class="log size-normal background-white scroll-forward">
+          <div ref="logRef" class="log size-normal background-white scroll-forward"
+            :class="{ 'level-highlight-off': !options.levelHighlight }">
             <div class="scroll-only-child">
               <base-table-empty v-if="!events || !events.length" icon="scroll" :text="$t('No events in this window.')" class="flex-fill">
                 {{ $t('No events') }}
@@ -82,7 +90,7 @@
                   <span v-if="event.data.meta.hostname"
                     :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
                     v-b-tooltip.hover.left :title="$t('Node / log file')">
-                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
                   </span>
                   <!-- Neutral timestamp + a single colored level chip — same
                        compact line shape as the live view. -->
@@ -103,7 +111,7 @@
 <script>
 import { BaseTableEmpty } from '@/components/new/'
 import { computed, ref, toRefs, watch, nextTick } from '@vue/composition-api'
-import { hostColorIndex } from '@/utils/logEvents'
+import { basename, hostColorIndex } from '@/utils/logEvents'
 
 const components = { BaseTableEmpty }
 const props = { id: { type: String } }
@@ -113,6 +121,7 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const session = computed(() => $store.getters[`$_historical_logs/${id.value}/session`])
+  const options = computed(() => $store.getters[`$_historical_logs/${id.value}/options`])
   const events = computed(() => $store.getters[`$_historical_logs/${id.value}/eventsFiltered`])
   const scopes = computed(() => $store.getters[`$_historical_logs/${id.value}/scopes`])
   const lines = computed(() => $store.getters[`$_historical_logs/${id.value}/lines`])
@@ -211,13 +220,13 @@ const setup = (props, context) => {
   const isSearchCurrent = (idx) => searchMatchIndices.value[searchCurrentIdx.value] === idx
 
   return {
-    session, events, scopes, lines, isLoading, exhausted, message,
+    session, options, events, scopes, lines, isLoading, exhausted, message,
     onLoadMore, onClearEvents, onToggleFilter,
     logRef, searchQuery, searchIsRegex, searchError,
     searchMatchCount, searchCurrentDisplay,
     onSearchNext, onSearchPrev, onSearchClear,
     highlightEscaped, isSearchMatch, isSearchCurrent,
-    hostColorIndex
+    basename, hostColorIndex
   }
 }
 

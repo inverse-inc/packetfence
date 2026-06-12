@@ -167,6 +167,13 @@
                 ]"
                 :labelRight="true" />
               </small>
+              <b-button-group class="mx-1" size="sm" :title="$i18n.t('Toggle log level highlighting')" v-b-tooltip.hover.top.d300>
+                <b-button @click="options.levelHighlight = !options.levelHighlight"
+                  :active="options.levelHighlight"
+                  :variant="options.levelHighlight ? 'secondary' : 'outline-secondary'">
+                  <icon name="palette" />
+                </b-button>
+              </b-button-group>
               <b-button-group class="mx-1" size="sm" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.order = 'reverse'" :active="options.order === 'reverse'" :variant="(options.order === 'reverse') ? 'secondary' : 'outline-secondary'">
                   <icon name="sort-numeric-up-alt" />
@@ -184,7 +191,8 @@
             'background-black': options.background === 'black',
             'size-small': options.size === 'small',
             'size-normal': options.size === 'normal',
-            'size-large': options.size === 'large'
+            'size-large': options.size === 'large',
+            'level-highlight-off': !options.levelHighlight
           }">
             <div class="scroll-only-child">
               <div v-if="events && options.output === 'raw'" class="text-raw px-3 py-1">
@@ -193,9 +201,14 @@
                   <span v-if="event.data.meta.hostname"
                     :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
                     v-b-tooltip.hover.left :title="$t('Node / log file')">
-                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
                   </span>
-                  <span v-html="highlightRaw(event.data.raw)" />
+                  <!-- Same colored level chip as the color view so the
+                       Log-Level highlight toggle applies in raw mode too. No
+                       timestamp chip here — raw keeps its inline timestamp. -->
+                  <span v-if="event.data.meta.log_level"
+                  :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
+                  <span v-html="highlightRaw(stripHostnameToken(event.data.raw, event.data.meta.hostname))" />
                 </div>
               </div>
               <div v-else-if="events && options.output === 'color'" class="text-raw px-2 py-1">
@@ -204,7 +217,7 @@
                   <span v-if="event.data.meta.hostname"
                     :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
                     v-b-tooltip.hover.left :title="$t('Node / log file')">
-                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
                   </span>
                   <!-- Neutral timestamp + a single colored level chip: only
                        the level carries the level color, so lines without a
@@ -268,7 +281,7 @@ const sizes = [
 import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
-import { hostColorIndex } from '@/utils/logEvents'
+import { basename, stripHostnameToken, hostColorIndex } from '@/utils/logEvents'
 import yup from '@/utils/yup'
 
 const schema = yup.object({
@@ -604,6 +617,8 @@ const setup = (props, context) => {
     highlightEscaped,
     isSearchMatch,
     isSearchCurrent,
+    basename,
+    stripHostnameToken,
     hostColorIndex
   }
 }
