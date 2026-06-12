@@ -27,7 +27,7 @@ export const addMeta = (scopes, event) => {
   const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
   for (const key of Object.keys(meta)) {
     if (!(key in scopes)) {
-      Vue.set(scopes[key], 'values', { [meta[key]]: { count: 1 } })
+      Vue.set(scopes, key, { label: key, values: { [meta[key]]: { count: 1 } } })
     }
     else if (!(meta[key] in scopes[key].values)) {
       Vue.set(scopes[key], 'values', Object.entries({
@@ -52,6 +52,20 @@ export const delMeta = (scopes, event) => {
   for (const key of Object.keys(meta)) {
     Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count - 1)
   }
+}
+
+// Set a value's filter flag, creating the scope/value entry if this module
+// has not seen it yet: in the merged cluster view a user can click a value
+// only another peer produced (e.g. a different node's hostname); count
+// stays 0 until addMeta sees it here.
+export const setScopeFilter = (scopes, scope, key, filter) => {
+  if (!(scope in scopes)) {
+    Vue.set(scopes, scope, { label: scope, values: {} })
+  }
+  if (!(key in scopes[scope].values)) {
+    Vue.set(scopes[scope].values, key, { count: 0 })
+  }
+  Vue.set(scopes[scope].values[key], 'filter', filter)
 }
 
 // Getter bodies shared by both session stores.

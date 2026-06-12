@@ -76,7 +76,9 @@
                 <small class="ml-1" :key="`small-${children.label}`">{{ children.label }}</small>
                 <b-list-group :key="`group-${children.label}`" class="mt-1 mb-3">
                   <template v-for="({ count, filter }, key) in children.values">
-                    <b-list-group-item :key="`${key}-${count}-${filter}`"
+                    <!-- Stable key: count changes on every poll; keying on it
+                         recreates the element mid-click and drops the click. -->
+                    <b-list-group-item :key="key"
                       href="#" class="cursor-pointer"
                       :active="filter"
                       :variant="(filter) ? 'primary' : 'light'"
@@ -392,9 +394,15 @@ const setup = (props, context) => {
   const isPaused = computed(() => $store.getters[`$_live_logs/${primary.value}/isPaused`])
   const isValid = useDebouncedWatchHandler([session], () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))
 
-  const onToggleFilter = (scope, key) => Promise.all(peerIds.value.map(pid =>
-    $store.dispatch(`$_live_logs/${pid}/toggleFilter`, { scope, key })
-  ))
+  // Decide the target state once from the merged scopes (what the user sees)
+  // and set it explicitly on every peer module — a per-module toggle would
+  // flip peers in opposite directions when their flags diverge.
+  const onToggleFilter = (scope, key) => {
+    const { [scope]: { values: { [key]: { filter = false } = {} } = {} } = {} } = scopes.value
+    return Promise.all(peerIds.value.map(pid =>
+      $store.dispatch(`$_live_logs/${pid}/setFilter`, { scope, key, filter: !filter })
+    ))
+  }
   const onStopSession = () => Promise.all(peerEntries.value.map(peer =>
     $store.dispatch(`$_live_logs/${peer.session_id}/stopSession`, peer)
   ))

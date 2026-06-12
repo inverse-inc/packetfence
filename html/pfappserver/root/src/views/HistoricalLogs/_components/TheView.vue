@@ -27,7 +27,9 @@
                 <small class="ml-1" :key="`small-${children.label}`">{{ children.label }}</small>
                 <b-list-group :key="`group-${children.label}`" class="mt-1 mb-3">
                   <template v-for="({ count, filter }, key) in children.values">
-                    <b-list-group-item :key="`${key}-${count}-${filter}`"
+                    <!-- Stable key: keying on count/filter recreates the
+                         element mid-click and drops the click. -->
+                    <b-list-group-item :key="key"
                       href="#" class="cursor-pointer"
                       :active="filter"
                       :variant="filter ? 'primary' : 'light'"

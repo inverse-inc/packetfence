@@ -5,7 +5,7 @@ import Vue from 'vue'
 import store from '@/store'
 import api from '../_api'
 import { createDebouncer } from 'promised-debounce'
-import { defaultScopes, addMeta, delMeta, isFilteredGetter, eventsFilteredGetter, computeFilters } from '@/utils/logEvents'
+import { defaultScopes, addMeta, delMeta, isFilteredGetter, eventsFilteredGetter, computeFilters, setScopeFilter } from '@/utils/logEvents'
 
 // Default values
 const state = () => {
@@ -135,15 +135,15 @@ const actions = {
       })
     }
   },
-  toggleFilter: ({ getters, commit }, { scope, key }) => {
-    if (getters.isFiltered(scope, key)) { // disable
-      commit('LOG_FILTER_DISABLE', { scope, key })
-      commit('UPDATE_FILTERS')
-    }
-    else { //enable
-      commit('LOG_FILTER_ENABLE', { scope, key })
-      commit('UPDATE_FILTERS')
-    }
+  // Explicit target state: the cluster view computes the desired flag once
+  // from the merged scopes and sets it on every peer module, so peers can
+  // never toggle in opposite directions.
+  setFilter: ({ commit }, { scope, key, filter }) => {
+    commit('LOG_FILTER_SET', { scope, key, filter })
+    commit('UPDATE_FILTERS')
+  },
+  toggleFilter: ({ getters, dispatch }, { scope, key }) => {
+    return dispatch('setFilter', { scope, key, filter: !getters.isFiltered(scope, key) })
   },
   setSize: ({ commit }, size) => {
     commit('UPDATE_SIZE', +size)
@@ -241,13 +241,8 @@ const mutations = {
       state.message = response.data.message
     }
   },
-  LOG_FILTER_ENABLE: (state, { scope, key }) => {
-    // Vue.set: the `filter` key does not exist when a value is first
-    // toggled, plain assignment would not be reactive.
-    Vue.set(state.scopes[scope].values[key], 'filter', true)
-  },
-  LOG_FILTER_DISABLE: (state, { scope, key }) => {
-    Vue.set(state.scopes[scope].values[key], 'filter', false)
+  LOG_FILTER_SET: (state, { scope, key, filter }) => {
+    setScopeFilter(state.scopes, scope, key, filter)
   },
   UPDATE_FILTERS: (state) => {
     state.filters = computeFilters(state.scopes)
