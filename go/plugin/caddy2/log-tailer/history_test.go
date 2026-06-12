@@ -573,3 +573,184 @@ func TestHistoryForgedSigLenClamped(t *testing.T) {
 		t.Errorf("expected ts-floor fallback to deliver both lines, got %d", len(resp.Events))
 	}
 }
+
+// The user-visible multi-file contract: one page is a chronologically merged
+// window across ALL requested files, not per-file blocks.
+func TestHistoryMergeTwoFiles(t *testing.T) {
+	useHistoryFixtureDir(t)
+	writeHistoryFixture(t, "packetfence.log", []string{
+		isoLine("2026-06-11T10:00:00.000000+02:00", "pf 0"),
+		isoLine("2026-06-11T10:00:02.000000+02:00", "pf 2"),
+		isoLine("2026-06-11T10:00:04.000000+02:00", "pf 4"),
+	})
+	writeHistoryFixture(t, "pfdhcp.log", []string{
+		isoLine("2026-06-11T10:00:01.000000+02:00", "dhcp 1"),
+		isoLine("2026-06-11T10:00:03.000000+02:00", "dhcp 3"),
+	})
+
+	req := &historyRequest{
+		Files: []string{"packetfence.log", "pfdhcp.log"},
+		Start: "2026-06-11T00:00:00+02:00",
+		End:   "2026-06-12T00:00:00+02:00",
+	}
+	resp, errMsg := runHistoryQuery(req, testAllowed)
+	if errMsg != "" {
+		t.Fatal(errMsg)
+	}
+	if len(resp.Events) != 5 || resp.Truncated {
+		t.Fatalf("expected 5 events untruncated, got %d truncated=%v", len(resp.Events), resp.Truncated)
+	}
+	wantOrder := []string{"pf 0", "dhcp 1", "pf 2", "dhcp 3", "pf 4"}
+	files := map[string]int{}
+	for i, ev := range resp.Events {
+		if !strings.Contains(ev.Data.Raw, wantOrder[i]) {
+			t.Fatalf("event %d out of chronological order: %s", i, ev.Data.Raw)
+		}
+		files[ev.Data.Meta.Filename]++
+	}
+	if files["packetfence.log"] != 3 || files["pfdhcp.log"] != 2 {
+		t.Fatalf("expected events from both files, got %v", files)
+	}
+}
+
+// A busy first file must not starve the second one off the page (the
+// sequential scan returned 500 events all from file A here), and cursor
+// replay across the buffered-event page boundary must stay lossless.
+func TestHistoryMergePagination(t *testing.T) {
+	useHistoryFixtureDir(t)
+	linesA, linesB := []string{}, []string{}
+	for i := 0; i < historyMaxEvents; i++ {
+		linesA = append(linesA, isoLine(fmt.Sprintf("2026-06-11T10:00:00.%06d+02:00", (2*i)*1000), fmt.Sprintf("pf %04d", i)))
+		linesB = append(linesB, isoLine(fmt.Sprintf("2026-06-11T10:00:00.%06d+02:00", (2*i+1)*1000), fmt.Sprintf("dhcp %04d", i)))
+		if i%100 == 50 {
+			// Continuation lines exercise the pending-event boundary.
+			linesA = append(linesA, fmt.Sprintf("    pf continuation %04d", i))
+			linesB = append(linesB, fmt.Sprintf("    dhcp continuation %04d", i))
+		}
+	}
+	writeHistoryFixture(t, "packetfence.log", linesA)
+	writeHistoryFixture(t, "pfdhcp.log", linesB)
+	totalWritten := len(linesA) + len(linesB)
+
+	seen := map[string]int{}
+	cursor := map[string]*historyCursor{}
+	total := 0
+	for page := 0; page < 10; page++ {
+		req := &historyRequest{
+			Files:  []string{"packetfence.log", "pfdhcp.log"},
+			Start:  "2026-06-11T00:00:00+02:00",
+			End:    "2026-06-12T00:00:00+02:00",
+			Cursor: cursor,
+		}
+		resp, errMsg := runHistoryQuery(req, testAllowed)
+		if errMsg != "" {
+			t.Fatalf("page %d: %s", page, errMsg)
+		}
+		if page == 0 {
+			if !resp.Truncated || len(resp.Events) != historyMaxEvents {
+				t.Fatalf("page 0: expected %d truncated events, got %d truncated=%v", historyMaxEvents, len(resp.Events), resp.Truncated)
+			}
+			files := map[string]int{}
+			for _, ev := range resp.Events {
+				files[ev.Data.Meta.Filename]++
+			}
+			if files["packetfence.log"] == 0 || files["pfdhcp.log"] == 0 {
+				t.Fatalf("page 0 starved a file: %v", files)
+			}
+		}
+		for _, ev := range resp.Events {
+			seen[ev.Data.Raw]++
+			total++
+		}
+		cursor = resp.Cursor
+		if len(resp.Events) == 0 && !resp.Truncated {
+			break
+		}
+	}
+	if total != totalWritten {
+		t.Fatalf("expected %d events total across pages, got %d", totalWritten, total)
+	}
+	for raw, count := range seen {
+		if count != 1 {
+			t.Fatalf("line delivered %d times: %s", count, raw)
+		}
+	}
+}
+
+func TestHistoryMergeEmptyFile(t *testing.T) {
+	useHistoryFixtureDir(t)
+	if err := os.WriteFile(filepath.Join(historyLogDir, "pfdhcp.log"), []byte{}, 0644); err != nil {
+		t.Fatal(err)
+	}
+	lines := []string{}
+	for i := 0; i < historyMaxEvents+50; i++ {
+		lines = append(lines, isoLine(fmt.Sprintf("2026-06-11T10:00:%02d.%06d+02:00", i/1000, (i%1000)*1000), fmt.Sprintf("event %d", i)))
+	}
+	writeHistoryFixture(t, "packetfence.log", lines)
+
+	req := &historyRequest{
+		Files: []string{"packetfence.log", "pfdhcp.log"},
+		Start: "2026-06-11T00:00:00+02:00",
+		End:   "2026-06-12T00:00:00+02:00",
+	}
+	resp, errMsg := runHistoryQuery(req, testAllowed)
+	if errMsg != "" {
+		t.Fatal(errMsg)
+	}
+	if len(resp.Events) != historyMaxEvents || !resp.Truncated {
+		t.Fatalf("page 0: expected %d truncated events, got %d truncated=%v", historyMaxEvents, len(resp.Events), resp.Truncated)
+	}
+
+	req.Cursor = resp.Cursor
+	resp, errMsg = runHistoryQuery(req, testAllowed)
+	if errMsg != "" {
+		t.Fatal(errMsg)
+	}
+	if len(resp.Events) != 50 || resp.Truncated {
+		t.Fatalf("page 1: expected 50 untruncated events, got %d truncated=%v", len(resp.Events), resp.Truncated)
+	}
+}
+
+func TestHistoryMergeFilter(t *testing.T) {
+	useHistoryFixtureDir(t)
+	writeHistoryFixture(t, "packetfence.log", []string{
+		isoLine("2026-06-11T10:00:01.000000+02:00", "needle pf one"),
+		isoLine("2026-06-11T10:00:02.000000+02:00", "hay"),
+		isoLine("2026-06-11T10:00:05.000000+02:00", "needle pf five"),
+	})
+	writeHistoryFixture(t, "pfdhcp.log", []string{
+		isoLine("2026-06-11T10:00:03.000000+02:00", "needle dhcp three"),
+		isoLine("2026-06-11T10:00:04.000000+02:00", "hay"),
+	})
+
+	req := &historyRequest{
+		Files:  []string{"packetfence.log", "pfdhcp.log"},
+		Filter: "needle",
+		Start:  "2026-06-11T00:00:00+02:00",
+		End:    "2026-06-12T00:00:00+02:00",
+	}
+	resp, errMsg := runHistoryQuery(req, testAllowed)
+	if errMsg != "" {
+		t.Fatal(errMsg)
+	}
+	wantOrder := []string{"needle pf one", "needle dhcp three", "needle pf five"}
+	if len(resp.Events) != len(wantOrder) {
+		t.Fatalf("expected %d filtered events, got %d", len(wantOrder), len(resp.Events))
+	}
+	for i, ev := range resp.Events {
+		if !strings.Contains(ev.Data.Raw, wantOrder[i]) {
+			t.Fatalf("event %d out of order: %s", i, ev.Data.Raw)
+		}
+	}
+
+	// Non-matching regions still advanced both cursors: the next page is
+	// empty and final.
+	req.Cursor = resp.Cursor
+	resp, errMsg = runHistoryQuery(req, testAllowed)
+	if errMsg != "" {
+		t.Fatal(errMsg)
+	}
+	if len(resp.Events) != 0 || resp.Truncated {
+		t.Fatalf("replay: expected empty final page, got %d truncated=%v", len(resp.Events), resp.Truncated)
+	}
+}

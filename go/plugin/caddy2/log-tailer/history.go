@@ -264,12 +264,43 @@ func runHistoryQuery(req *historyRequest, allowed map[string]string) (*historyRe
 		resp.Cursor[name] = cur
 	}
 
-	for _, name := range req.Files {
-		exhausted := scan.scanFile(name, req.Cursor[name], resp)
-		if !exhausted {
-			resp.Truncated = true
+	// Chronological k-way merge across the requested files: every page
+	// advances a single global time frontier instead of scanning the files
+	// sequentially, where a busy first file would fill each page entirely
+	// and starve the others. One event of read-ahead per file; the linear
+	// minimum scan is fine for the handful of files a request can name.
+	iters := make([]*historyFileIter, len(req.Files))
+	for i, name := range req.Files {
+		iters[i] = scan.newHistoryFileIter(name, req.Cursor[name])
+		iters[i].advance()
+	}
+	for {
+		best := -1
+		for i, it := range iters {
+			if it.pending != nil && (best == -1 || it.pendingTsMs < iters[best].pendingTsMs) {
+				best = i
+			}
+		}
+		if best == -1 {
+			break // every file exhausted or stalled on a budget
+		}
+		resp.Events = append(resp.Events, *iters[best].pending)
+		iters[best].pending = nil
+		if len(resp.Events) >= historyMaxEvents {
+			// Page cap: do not refill — the cursor then resumes after the
+			// consumed line instead of re-reading a buffered one.
 			break
 		}
+		iters[best].advance()
+	}
+	for i, name := range req.Files {
+		if c := iters[i].resumeCursor(); c != nil {
+			resp.Cursor[name] = c
+		}
+		if !iters[i].done() {
+			resp.Truncated = true
+		}
+		iters[i].close()
 	}
 	return resp, ""
 }
@@ -290,148 +321,257 @@ type historySource struct {
 	mtimeMs int64
 }
 
-// over reports whether one of the global scan budgets is exhausted. The
-// wall clock is only sampled every 256 lines to keep the per-line cost low.
-func (s *historyScan) over(eventCount int) bool {
-	if eventCount >= historyMaxEvents || s.bytesScanned >= historyMaxScanBytes {
+// overBudget reports whether a global scan budget (bytes or wall clock) is
+// exhausted. The wall clock is only sampled every 256 lines to keep the
+// per-line cost low. The page event cap is enforced by the merge loop in
+// runHistoryQuery.
+func (s *historyScan) overBudget() bool {
+	if s.bytesScanned >= historyMaxScanBytes {
 		return true
 	}
 	s.lineCount++
 	return s.lineCount%256 == 0 && time.Now().After(s.deadline)
 }
 
-// scanFile scans one logical file (active + rotations) and appends matching
-// events. It returns true when the file was fully scanned within budget,
-// false when a budget bound stopped it early (cursor left mid-file).
-func (s *historyScan) scanFile(name string, cur *historyCursor, resp *historyResponse) bool {
+// historyFileIter walks one logical file (active + rotations) and yields the
+// matching events one at a time, so runHistoryQuery can merge several files
+// chronologically. The per-file scan state lives here; the global budgets
+// stay in historyScan and are shared by every iterator of the request.
+type historyFileIter struct {
+	scan    *historyScan
+	name    string
+	sources []historySource
+	srcIdx  int
+	skip    int64 // unconsumed cursor resume offset for sources[srcIdx]
+	tsFloor int64
+
+	reader io.ReadCloser
+	br     *bufio.Reader
+	offset int64
+
+	// Continuation context: a multi-line event (stack trace, …) is
+	// attributed to the previous header so it stays visible in the result.
+	lastTsMs     int64
+	lastMeta     historyEventMeta
+	haveLastMeta bool
+
+	// One event of read-ahead for the merge. pendingCursor points BEFORE
+	// the pending line (offset of its first byte, TsMs excluding it), so an
+	// event left unconsumed at the page boundary is re-read exactly once by
+	// the next page. Under the timestamp-floor resume fallback (cursor's
+	// source pruned by retention) a pending HEADER survives too; a pending
+	// continuation shares its header's millisecond and can be dropped there,
+	// matching the pre-existing stop-cursor semantics.
+	pending       *historyEvent
+	pendingTsMs   int64
+	pendingCursor *historyCursor
+
+	stopCursor *historyCursor // position at a budget stall, window end or end of the last source
+	exhausted  bool           // window end reached or every source fully read
+	stalled    bool           // a global budget stopped the scan mid-file
+
+	// Source signature memoized per source: cursors are now snapshotted per
+	// emitted event rather than only at scan stops, and hashing the prefix
+	// re-opens (and for .gz decompresses) the file. An empty file has no
+	// identity yet ("",0) and is re-hashed on the next snapshot.
+	sigSrcIdx int
+	sigVal    string
+	sigLen    int
+	sigValid  bool
+}
+
+func (s *historyScan) newHistoryFileIter(name string, cur *historyCursor) *historyFileIter {
 	floorMs := s.startMs
 	if cur != nil && cur.TsMs > floorMs {
 		floorMs = cur.TsMs
 	}
-	sources := enumerateHistorySources(name, floorMs, s.endMs)
-	if len(sources) == 0 {
-		return true
+	it := &historyFileIter{scan: s, name: name}
+	it.sources = enumerateHistorySources(name, floorMs, s.endMs)
+	if len(it.sources) == 0 {
+		// Nothing to scan; resumeCursor() stays nil so a cursor from the
+		// request is left untouched in the response.
+		it.exhausted = true
+		return it
 	}
-
-	startIdx, skipOffset, tsFloor := locateHistoryResume(sources, cur)
-
-	// Seed the continuation context from the cursor: a multi-line event cut
-	// by the previous page boundary must still be attributed and delivered.
-	lastTsMs := int64(0)
+	it.srcIdx, it.skip, it.tsFloor = locateHistoryResume(it.sources, cur)
 	if cur != nil {
-		lastTsMs = cur.TsMs
+		// Seed the continuation context from the cursor: a multi-line event
+		// cut by the previous page boundary must still be attributed and
+		// delivered.
+		it.lastTsMs = cur.TsMs
 	}
-	var lastMeta historyEventMeta
-	haveLastMeta := false
+	return it
+}
 
-	for i := startIdx; i < len(sources); i++ {
-		src := sources[i]
-		reader, err := openHistorySource(src)
+// cursorAt materializes a resume cursor for the current source at an
+// explicit position. Callers pass the pre-line position for stops that must
+// re-read the line, or the current position for resumes after a consumed one.
+func (it *historyFileIter) cursorAt(offset, tsMs int64) *historyCursor {
+	src := it.sources[it.srcIdx]
+	if !it.sigValid || it.sigSrcIdx != it.srcIdx {
+		it.sigVal, it.sigLen = historySourceSig(src.path)
+		it.sigSrcIdx = it.srcIdx
+		it.sigValid = it.sigLen > 0
+	}
+	return &historyCursor{Source: src.idx, Offset: offset, Sig: it.sigVal, SigLen: it.sigLen, TsMs: tsMs}
+}
+
+// advance fills the read-ahead slot with the next matching event, or marks
+// the iterator exhausted (window end / all sources read) or stalled (global
+// budget hit). The line-processing order mirrors the original sequential
+// scan exactly: budget check before the window check, continuation context
+// updated before the window/filter skips, offset advanced after the
+// window-end check — cursor placement and attribution depend on it.
+func (it *historyFileIter) advance() {
+	if it.pending != nil || it.exhausted || it.stalled {
+		return
+	}
+	for {
+		if it.reader == nil {
+			if it.srcIdx >= len(it.sources) {
+				it.exhausted = true
+				return
+			}
+			src := it.sources[it.srcIdx]
+			reader, err := openHistorySource(src)
+			if err != nil {
+				it.skip = 0
+				it.srcIdx++
+				continue
+			}
+			it.offset = 0
+			if it.skip > 0 {
+				if !discardHistoryBytes(reader, src, it.skip) {
+					reader.Close()
+					it.skip = 0
+					it.srcIdx++
+					continue
+				}
+				it.offset = it.skip
+				it.skip = 0
+			}
+			it.reader = reader
+			it.br = bufio.NewReaderSize(reader, 64*1024)
+		}
+
+		line, err := it.br.ReadString('\n')
 		if err != nil {
+			// A final line without a newline is a partial write on the
+			// active file: leave it for the next poll, the cursor still
+			// points at its first byte.
+			it.stopCursor = it.cursorAt(it.offset, it.lastTsMs)
+			it.reader.Close()
+			it.reader = nil
+			it.srcIdx++
+			continue
+		}
+		lineLen := int64(len(line))
+		line = strings.TrimRight(line, "\n")
+		posOffset, posTsMs := it.offset, it.lastTsMs
+		it.scan.bytesScanned += lineLen
+
+		if it.scan.overBudget() {
+			it.stopCursor = it.cursorAt(posOffset, posTsMs)
+			it.reader.Close()
+			it.reader = nil
+			it.stalled = true
+			return
+		}
+		if line == "" {
+			it.offset += lineLen
 			continue
 		}
 
-		offset := int64(0)
-		if i == startIdx && skipOffset > 0 {
-			if !discardHistoryBytes(reader, src, skipOffset) {
-				reader.Close()
-				continue
-			}
-			offset = skipOffset
+		meta, rawTs, headerOK := metaEngine.ExtractMetaISO(line)
+		tsMs := int64(0)
+		if headerOK {
+			tsMs = meta.Timestamp.UnixMilli()
+		} else if it.lastTsMs != 0 {
+			tsMs = it.lastTsMs
+		} else {
+			it.offset += lineLen
+			continue
 		}
 
-		cursorAt := func() *historyCursor {
-			sig, sigLen := historySourceSig(src.path)
-			return &historyCursor{Source: src.idx, Offset: offset, Sig: sig, SigLen: sigLen, TsMs: lastTsMs}
+		if tsMs >= it.scan.endMs {
+			if tsMs-it.scan.endMs > historyAnomalousSkewMs {
+				// Clock anomaly — skip the line instead of stopping, so it
+				// cannot hide every later (sane) line of the file.
+				it.offset += lineLen
+				continue
+			}
+			// Lines are appended chronologically; everything after this
+			// point in this source — and in every newer source — is out of
+			// the window. Leave the cursor *before* this line.
+			it.stopCursor = it.cursorAt(posOffset, posTsMs)
+			it.reader.Close()
+			it.reader = nil
+			it.exhausted = true
+			return
+		}
+		it.offset += lineLen
+		if headerOK {
+			it.lastTsMs = tsMs
+			it.lastMeta = historyEventMeta{
+				Timestamp:        rawTs,
+				Hostname:         meta.Hostname,
+				Process:          meta.SyslogName,
+				SyslogName:       meta.SyslogName,
+				LogLevel:         meta.LogLevel,
+				Filename:         it.name,
+				LogWithoutPrefix: meta.LogWithoutPrefix,
+			}
+			it.haveLastMeta = true
+		}
+		if tsMs < it.scan.startMs || (it.tsFloor > 0 && tsMs <= it.tsFloor) {
+			continue
+		}
+		if it.scan.filter != nil && !it.scan.filter.MatchString(line) {
+			continue
 		}
 
-		br := bufio.NewReaderSize(reader, 64*1024)
-		for {
-			line, err := br.ReadString('\n')
-			if err != nil {
-				// A final line without a newline is a partial write on the
-				// active file: leave it for the next poll, the cursor still
-				// points at its first byte.
-				break
+		ev := historyEvent{}
+		ev.Data.Raw = line
+		if it.haveLastMeta {
+			ev.Data.Meta = it.lastMeta
+			if !headerOK {
+				ev.Data.Meta.LogWithoutPrefix = line
 			}
-			lineLen := int64(len(line))
-			line = strings.TrimRight(line, "\n")
-			s.bytesScanned += lineLen
-
-			if s.over(len(resp.Events)) {
-				resp.Cursor[name] = cursorAt()
-				reader.Close()
-				return false
-			}
-			if line == "" {
-				offset += lineLen
-				continue
-			}
-
-			meta, rawTs, headerOK := metaEngine.ExtractMetaISO(line)
-			tsMs := int64(0)
-			if headerOK {
-				tsMs = meta.Timestamp.UnixMilli()
-			} else if lastTsMs != 0 {
-				// Multi-line continuation (stack trace, …): attribute it to
-				// the previous event so it stays visible in the result.
-				tsMs = lastTsMs
-			} else {
-				offset += lineLen
-				continue
-			}
-
-			if tsMs >= s.endMs {
-				if tsMs-s.endMs > historyAnomalousSkewMs {
-					// Clock anomaly — skip the line instead of stopping, so
-					// it cannot hide every later (sane) line of the file.
-					offset += lineLen
-					continue
-				}
-				// Lines are appended chronologically; everything after this
-				// point in this source — and in every newer source — is out
-				// of the window. Leave the cursor *before* this line.
-				resp.Cursor[name] = cursorAt()
-				reader.Close()
-				return true
-			}
-			offset += lineLen
-			if headerOK {
-				lastTsMs = tsMs
-				lastMeta = historyEventMeta{
-					Timestamp:        rawTs,
-					Hostname:         meta.Hostname,
-					Process:          meta.SyslogName,
-					SyslogName:       meta.SyslogName,
-					LogLevel:         meta.LogLevel,
-					Filename:         name,
-					LogWithoutPrefix: meta.LogWithoutPrefix,
-				}
-				haveLastMeta = true
-			}
-			if tsMs < s.startMs || (tsFloor > 0 && tsMs <= tsFloor) {
-				continue
-			}
-			if s.filter != nil && !s.filter.MatchString(line) {
-				continue
-			}
-
-			ev := historyEvent{}
-			ev.Data.Raw = line
-			if haveLastMeta {
-				ev.Data.Meta = lastMeta
-				if !headerOK {
-					ev.Data.Meta.LogWithoutPrefix = line
-				}
-			} else {
-				ev.Data.Meta = historyEventMeta{Filename: name, LogWithoutPrefix: line}
-			}
-			resp.Events = append(resp.Events, ev)
+		} else {
+			ev.Data.Meta = historyEventMeta{Filename: it.name, LogWithoutPrefix: line}
 		}
-		resp.Cursor[name] = cursorAt()
-		reader.Close()
+		it.pending = &ev
+		it.pendingTsMs = tsMs
+		it.pendingCursor = it.cursorAt(posOffset, posTsMs)
+		return
 	}
-	return true
+}
+
+// resumeCursor returns the cursor the next page must replay, or nil when
+// nothing was scanned (no sources) and a request cursor must stay untouched.
+func (it *historyFileIter) resumeCursor() *historyCursor {
+	if it.pending != nil {
+		return it.pendingCursor
+	}
+	if it.reader != nil {
+		// Stopped by the page event cap right after an event was consumed:
+		// resume after the consumed line.
+		return it.cursorAt(it.offset, it.lastTsMs)
+	}
+	return it.stopCursor
+}
+
+// done reports whether the file was fully scanned within the window — the
+// page is truncated whenever any file is not.
+func (it *historyFileIter) done() bool {
+	return it.exhausted && it.pending == nil
+}
+
+func (it *historyFileIter) close() {
+	if it.reader != nil {
+		it.reader.Close()
+		it.reader = nil
+	}
 }
 
 // locateHistoryResume finds the source a cursor points into. The source is
