@@ -29,6 +29,7 @@ listen {
         type = auth+acct
         proto = tcp
         virtual_server = packetfence
+        clients = radsec_dynamic_clients
 
         limit {
               max_connections = 16
@@ -49,6 +50,23 @@ listen {
 }
 
 [% END %]
+
+# RadSec dynamic clients — resolve TCP/TLS NAS on demand from the radius_nas
+# table, like the global udp "client dynamic" network in
+# raddb/sites-available/dynamic-clients but scoped to proto = tls and
+# referenced only by the RadSec listener above (clients = radsec_dynamic_clients).
+# A NAS present in radius_nas by IP/range is accepted on RadSec without a
+# hand-written clients.conf entry. Trust is the client certificate
+# (require_client_cert = yes); the "radsec" secret is unused for TLS transport.
+clients radsec_dynamic_clients {
+        client radsec_dynamic {
+                ipaddr = 0.0.0.0/0
+                proto = tls
+                secret = radsec
+                dynamic_clients = dynamic_clients
+                lifetime = 0
+        }
+}
 
 listen {
     type = control

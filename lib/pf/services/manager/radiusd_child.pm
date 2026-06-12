@@ -1383,6 +1383,7 @@ listen {
         type = auth+acct
         proto = tcp
         virtual_server = pf.cluster
+        clients = radsec_loadbalancer
 
         limit {
               max_connections = 16
@@ -1406,6 +1407,28 @@ listen {
 
 EOT
         }
+
+        # RadSec dynamic clients — resolve TCP/TLS NAS on demand from the
+        # radius_nas table, exactly like the global udp "client dynamic"
+        # network (raddb/sites-available/dynamic-clients) but scoped to
+        # proto = tls and referenced ONLY by the RadSec listener(s) above via
+        # "clients = radsec_loadbalancer". A NAS registered in PacketFence
+        # (i.e. present in radius_nas by IP/range) is therefore accepted on
+        # RadSec without a hand-written clients.conf entry. Trust is enforced
+        # by the client certificate (require_client_cert = yes); the "radsec"
+        # secret is the RadSec convention and is unused for TLS transport.
+        $tags{'listen'} .= <<"EOT";
+clients radsec_loadbalancer {
+        client radsec_dynamic {
+                ipaddr = 0.0.0.0/0
+                proto = tls
+                secret = radsec
+                dynamic_clients = dynamic_clients
+                lifetime = 0
+        }
+}
+
+EOT
 
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
