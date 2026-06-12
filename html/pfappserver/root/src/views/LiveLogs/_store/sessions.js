@@ -24,17 +24,43 @@ const state = () => {
   }
 }
 
+// Per-peer submodules are registered as root-state keys named by their UUID.
+const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+
 const getters = {
   isLoading: state => state.status === 'loading',
   sessions: state => {
-    return (Object.keys(state) || []).filter(key => {
-      let [ , namespace ] = /^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/.exec(key) || []
-      return namespace
-    }).map(namespace => {
+    return (Object.keys(state) || []).filter(key => uuidRe.test(key)).map(namespace => {
       return store.getters[`$_live_logs/${namespace}/session`]
     })
   },
-  groupPeers: state => groupId => state._groups[groupId] || [groupId]
+  // One tab per cluster group (merged view) or per standalone session — never
+  // per peer. Group tabs are emitted at their first peer's position so mixed
+  // concurrent tails keep creation order.
+  tabs: state => {
+    const sessionToGroup = {}
+    Object.entries(state._groups).forEach(([gid, peers]) =>
+      peers.forEach(p => { sessionToGroup[p.session_id] = gid }))
+    const emitted = new Set()
+    const tabs = []
+    for (const key of Object.keys(state)) {
+      if (!uuidRe.test(key)) continue
+      const session = store.getters[`$_live_logs/${key}/session`]
+      if (!session) continue // submodule mid-unregister
+      const gid = sessionToGroup[key]
+      if (gid) {
+        if (emitted.has(gid)) continue
+        emitted.add(gid) // all peers share the same files, so the first peer's name fits the group
+        tabs.push({ id: gid, name: session.name, peerCount: state._groups[gid].length })
+      } else if (!session.peer) {
+        // Peer submodules outlive their _groups entry by up to 300ms during
+        // teardown (LOG_SESSION_STOP setTimeout); `!session.peer` keeps them
+        // from flashing up as standalone tabs in that window.
+        tabs.push({ id: key, name: session.name, peerCount: 0 })
+      }
+    }
+    return tabs
+  }
 }
 
 // Extracted from createSession so the cluster-config preload above can chain
