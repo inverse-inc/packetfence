@@ -46,7 +46,7 @@
         </b-col>
         <b-col sm="9" class="d-flex flex-column min-h-0 px-0">
           <div class="historical-logs-toolbar d-flex align-items-center flex-nowrap px-2 py-1 border-bottom">
-            <b-input-group class="mx-1 historical-logs-search flex-grow-1" size="sm">
+            <b-input-group class="mx-1 log-search flex-grow-1" size="sm">
               <b-form-input v-model="searchQuery" :placeholder="$t('Find...')"
                 :class="{ 'is-invalid': searchError }"
                 @keydown.enter.exact.prevent="onSearchNext"
@@ -73,14 +73,25 @@
               <base-table-empty v-if="!events || !events.length" icon="scroll" :text="$t('No events in this window.')" class="flex-fill">
                 {{ $t('No events') }}
               </base-table-empty>
-              <div v-else class="text-raw px-3 py-1">
+              <!-- Same chip rendering as the LiveLogs color view: colored
+                   source tag plus level-tinted meta chips (_log-events.scss). -->
+              <div v-else class="text-raw px-2 py-1">
                 <div v-for="(event, idx) in events" :key="idx"
                   :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
-                  <span class="log-timestamp" v-if="event.data.meta.timestamp">{{ event.data.meta.timestamp }}</span>
-                  <span class="log-hostname" v-if="event.data.meta.hostname"> {{ event.data.meta.hostname }}</span>
-                  <span class="log-process" v-if="event.data.meta.process"> {{ event.data.meta.process }}</span>
-                  <span v-if="event.data.meta.log_level" :class="`log-level log-level-${event.data.meta.log_level}`"> {{ event.data.meta.log_level }}</span>
-                  <span v-html="highlightEscaped(' ' + (event.data.meta.log_without_prefix || ''))" />
+                  <span v-if="event.data.meta.hostname"
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
+                    v-b-tooltip.hover.left :title="$t('Node / log file')">
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ event.data.meta.filename }}</template>
+                  </span>
+                  <span class="log-timestamp" v-if="event.data.meta.timestamp"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
+                  <span class="log-syslog" v-if="event.data.meta.syslog_name"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.syslog_name }}</span>
+                  <span class="log-process" v-if="event.data.meta.process"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.process }}</span>
+                  <span class="log-level" v-if="event.data.meta.log_level"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.log_level }}</span>
+                  <span v-html="highlightEscaped(event.data.meta.log_without_prefix)" />
                 </div>
               </div>
             </div>
@@ -94,6 +105,7 @@
 <script>
 import { BaseTableEmpty } from '@/components/new/'
 import { computed, ref, toRefs, watch, nextTick } from '@vue/composition-api'
+import { hostColorIndex } from '@/utils/logEvents'
 
 const components = { BaseTableEmpty }
 const props = { id: { type: String } }
@@ -206,7 +218,8 @@ const setup = (props, context) => {
     logRef, searchQuery, searchIsRegex, searchError,
     searchMatchCount, searchCurrentDisplay,
     onSearchNext, onSearchPrev, onSearchClear,
-    highlightEscaped, isSearchMatch, isSearchCurrent
+    highlightEscaped, isSearchMatch, isSearchCurrent,
+    hostColorIndex
   }
 }
 
@@ -235,28 +248,6 @@ export default {
   background: var(--light);
   flex-shrink: 0;
 }
-.historical-logs-search {
-  max-width: 26rem;
-}
-.historical-logs-page {
-  .search-match {
-    background: rgba(255, 235, 59, 0.15);
-  }
-  .search-current {
-    background: rgba(255, 235, 59, 0.4);
-  }
-  // The Go backend emits lowercase levels (info/warn/error/debug/fatal/
-  // trace) — same convention as the live tailer.
-  .log-level {
-    padding: 0 .25rem;
-    border-radius: .25rem;
-    color: var(--white);
-    background: var(--secondary);
-
-    &.log-level-info { background: var(--info); }
-    &.log-level-warn { background: var(--warning); }
-    &.log-level-error,
-    &.log-level-fatal { background: var(--danger); }
-  }
-}
+// Stream rendering (.log, chips, source tags, scroll, search) is shared
+// with LiveLogs: src/styles/_log-events.scss (loaded globally).
 </style>

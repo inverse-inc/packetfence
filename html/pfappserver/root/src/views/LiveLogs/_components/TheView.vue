@@ -104,7 +104,7 @@
           <div class="live-logs-toolbar d-flex align-items-center flex-nowrap px-2 py-1"
             :class="(options.order === 'forward') ? 'border-top order-2' : 'border-bottom order-0'"
           >
-            <b-input-group class="mx-1 live-logs-search flex-grow-1" size="sm">
+            <b-input-group class="mx-1 log-search flex-grow-1" size="sm">
               <b-form-input v-model="searchQuery" :placeholder="$t('Find...')"
                 :class="{ 'is-invalid': searchError }"
                 @keydown.enter.exact.prevent="onSearchNext"
@@ -268,6 +268,7 @@ const sizes = [
 import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
+import { hostColorIndex } from '@/utils/logEvents'
 import yup from '@/utils/yup'
 
 const schema = yup.object({
@@ -545,17 +546,6 @@ const setup = (props, context) => {
   const isSearchMatch = (idx) => searchMatchIndices.value.includes(idx)
   const isSearchCurrent = (idx) => searchMatchIndices.value[searchCurrentIdx.value] === idx
 
-  // Stable per-hostname colour: hash the string into 6 buckets so the
-  // same node always gets the same accent regardless of event order.
-  const hostColorIndex = (hostname) => {
-    if (!hostname) return 0
-    let h = 0
-    for (let i = 0; i < hostname.length; i++) {
-      h = (h * 31 + hostname.charCodeAt(i)) | 0
-    }
-    return Math.abs(h) % 6
-  }
-
   // immediate
   $store.dispatch(`$_live_logs/optionsSession`).then(response => {
     const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
@@ -650,135 +640,6 @@ export default {
 .live-logs-toolbar {
   flex-shrink: 0;
 }
-.live-logs-search {
-  min-width: 10rem;
-  .form-control {
-    height: auto;
-  }
-  .input-group-append .btn {
-    border-color: #ced4da;
-    color: var(--secondary);
-  }
-}
-.search-match {
-  background: rgba(255, 235, 59, 0.15);
-}
-.search-current {
-  background: rgba(255, 235, 59, 0.4);
-}
-.min-h-0 {
-  min-height: 0;
-}
-.log, .scopes {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow-y: scroll;
-  overflow-x: auto;
-}
-.log {
-  display: flex;
-  align-items: flex-end;
-
-  &.background-black {
-    color: rgba(255, 255, 255, 1);
-    background: rgba(0, 0, 0, 1);
-
-    .log-timestamp,
-    .log-hostname,
-    .log-level,
-    .log-process,
-    .log-syslog {
-      color: rgba(0, 0, 0, 1);
-    }
-  }
-  &.background-white {
-    color: rgba(0, 0, 0, 1);
-    background: rgba(255, 255, 255, 1);
-
-    .log-timestamp,
-    .log-hostname,
-    .log-level,
-    .log-process,
-    .log-syslog {
-      color: rgba(255, 255, 255, 1);
-    }
-  }
-  &.size-small {
-    font-size: 0.75em;
-  }
-  &.size-normal {
-    font-size: 1em;
-  }
-  &.size-large {
-    font-size: 1.5em;
-  }
-
-  .text-line {
-    line-height: 1.5rem;
-    margin: .25rem 0;
-
-    &.log-level-none {
-      background: var(--secondary);
-    }
-    &.log-level-info {
-      background: var(--info);
-    }
-    &.log-level-warn {
-      background: var(--warning);
-    }
-    &.log-level-error {
-      background: var(--danger);
-    }
-
-    &.log-timestamp,
-    &.log-hostname,
-    &.log-level,
-    &.log-process,
-    &.log-syslog {
-      white-space: nowrap;
-      margin: 0 .25rem 0 0;
-      padding: .25rem .5rem;
-      border: 1px solid;
-      border-radius: .25rem;
-    }
-  }
-}
-
-// Source tag: shows "<hostname> / <filename>" so every line in a
-// merged cluster stream is unambiguously attributable.
-.log-source-tag {
-  display: inline-block;
-  font-family: monospace;
-  font-size: .8em;
-  line-height: 1;
-  padding: .15rem .4rem;
-  margin: 0 .35rem 0 0;
-  border-radius: .25rem;
-  color: #fff;
-  white-space: nowrap;
-  vertical-align: 1px;
-}
-.log-source-tag-0 { background: #2563eb; }   // blue
-.log-source-tag-1 { background: #16a34a; }   // green
-.log-source-tag-2 { background: #c026d3; }   // magenta
-.log-source-tag-3 { background: #ea580c; }   // orange
-.log-source-tag-4 { background: #0891b2; }   // teal
-.log-source-tag-5 { background: #ca8a04; }   // amber
-
-/*
- reverse content, pin vertical scrollbar to the bottom,
-   reverses content only on immediate children
-*/
-.scroll-forward {
-  flex-direction: column-reverse;
-}
-.scroll-reverse {
-  flex-direction: column;
-}
-/*
-  placeholder, only immediate children are reversed
-*/
-.scroll-only-child {
-  width: 100%
-}
+// Stream rendering (.log, chips, source tags, scroll, search) is shared
+// with HistoricalLogs: src/styles/_log-events.scss (loaded globally).
 </style>

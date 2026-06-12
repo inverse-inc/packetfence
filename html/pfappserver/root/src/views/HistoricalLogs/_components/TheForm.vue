@@ -24,7 +24,7 @@
                   <template #prepend>
                     <b-input-group-text>{{ $t('From') }}</b-input-group-text>
                   </template>
-                  <b-form-input type="datetime-local" v-model="startLocal" :max="endLocal || nowLocal" />
+                  <b-form-input type="datetime-local" v-model="startLocal" :max="endLocal" />
                 </b-input-group>
               </b-col>
               <b-col cols="6">
@@ -32,7 +32,11 @@
                   <template #prepend>
                     <b-input-group-text>{{ $t('To') }}</b-input-group-text>
                   </template>
-                  <b-form-input type="datetime-local" v-model="endLocal" :min="startLocal" :max="nowLocal" />
+                  <!-- No :max="now": a computed has no reactive deps on the
+                       clock, so it froze at mount time and the browser then
+                       rejected current timestamps. An end bound in the future
+                       is harmless — the scan simply ends at the last line. -->
+                  <b-form-input type="datetime-local" v-model="endLocal" :min="startLocal" />
                 </b-input-group>
               </b-col>
             </b-row>
@@ -109,13 +113,6 @@ const setup = (props, context) => {
   const filter = ref('')
   const filterIsRegexp = ref(false)
 
-  const nowLocal = computed(() => {
-    // Format Date() to "YYYY-MM-DDTHH:MM" in local timezone for <input type="datetime-local" max>.
-    const d = new Date()
-    const pad = n => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-  })
-
   const isLoading = computed(() => $store.getters['$_historical_logs/isLoading'])
   const isSaas = computed(() => $store.getters['system/isSaas'])
   const isCluster = computed(() => !isSaas.value && $store.getters['cluster/isCluster'])
@@ -186,7 +183,7 @@ const setup = (props, context) => {
 
   return {
     fileOptions, selectedFiles,
-    startLocal, endLocal, nowLocal,
+    startLocal, endLocal,
     filter, filterIsRegexp,
     isLoading, isCluster, nodeCount,
     setRange, onSubmit

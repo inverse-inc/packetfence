@@ -90,6 +90,18 @@ export const eventsFilteredGetter = state => {
   })
 }
 
+// Stable per-hostname colour: hash the string into 6 buckets (matching the
+// .log-source-tag-0..5 classes) so the same node always gets the same accent
+// regardless of event order or view.
+export const hostColorIndex = (hostname) => {
+  if (!hostname) return 0
+  let h = 0
+  for (let i = 0; i < hostname.length; i++) {
+    h = (h * 31 + hostname.charCodeAt(i)) | 0
+  }
+  return Math.abs(h) % 6
+}
+
 // Rebuild the active-filters map from the scope flags (UPDATE_FILTERS body).
 export const computeFilters = scopes => {
   const filters = {}

@@ -1,0 +1,146 @@
+/**
+ * Shared log-stream rendering (LiveLogs and HistoricalLogs).
+ *
+ * Both views render the same event stream: a colored source tag
+ * ("<hostname> / <filename>"), level-colored meta chips and the raw line.
+ * Loaded globally so neither view depends on the other's route chunk
+ * having been visited.
+ */
+
+.min-h-0 {
+  min-height: 0;
+}
+.log, .scopes {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: auto;
+}
+.log-search {
+  min-width: 10rem;
+  .form-control {
+    height: auto;
+  }
+  .input-group-append .btn {
+    border-color: #ced4da;
+    color: var(--secondary);
+  }
+}
+.search-match {
+  background: rgba(255, 235, 59, 0.15);
+}
+.search-current {
+  background: rgba(255, 235, 59, 0.4);
+}
+.log {
+  display: flex;
+  align-items: flex-end;
+
+  &.background-black {
+    color: rgba(255, 255, 255, 1);
+    background: rgba(0, 0, 0, 1);
+
+    .log-timestamp,
+    .log-hostname,
+    .log-level,
+    .log-process,
+    .log-syslog {
+      color: rgba(0, 0, 0, 1);
+    }
+  }
+  &.background-white {
+    color: rgba(0, 0, 0, 1);
+    background: rgba(255, 255, 255, 1);
+
+    .log-timestamp,
+    .log-hostname,
+    .log-level,
+    .log-process,
+    .log-syslog {
+      color: rgba(255, 255, 255, 1);
+    }
+  }
+  &.size-small {
+    font-size: 0.75em;
+  }
+  &.size-normal {
+    font-size: 1em;
+  }
+  &.size-large {
+    font-size: 1.5em;
+  }
+
+  .text-line {
+    line-height: 1.5rem;
+    margin: .25rem 0;
+
+    // The Go tailer emits lowercase levels: info/warn/error/fatal/debug/trace.
+    &.log-level-none {
+      background: var(--secondary);
+    }
+    &.log-level-info {
+      background: var(--info);
+    }
+    &.log-level-warn {
+      background: var(--warning);
+    }
+    &.log-level-error,
+    &.log-level-fatal {
+      background: var(--danger);
+    }
+    &.log-level-debug,
+    &.log-level-trace {
+      background: var(--secondary);
+    }
+
+    &.log-timestamp,
+    &.log-hostname,
+    &.log-level,
+    &.log-process,
+    &.log-syslog {
+      white-space: nowrap;
+      margin: 0 .25rem 0 0;
+      padding: .25rem .5rem;
+      border: 1px solid;
+      border-radius: .25rem;
+    }
+  }
+}
+
+// Source tag: shows "<hostname> / <filename>" so every line in a
+// merged cluster stream is unambiguously attributable.
+.log-source-tag {
+  display: inline-block;
+  font-family: monospace;
+  font-size: .8em;
+  line-height: 1;
+  padding: .15rem .4rem;
+  margin: 0 .35rem 0 0;
+  border-radius: .25rem;
+  color: #fff;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.log-source-tag-0 { background: #2563eb; }   // blue
+.log-source-tag-1 { background: #16a34a; }   // green
+.log-source-tag-2 { background: #c026d3; }   // magenta
+.log-source-tag-3 { background: #ea580c; }   // orange
+.log-source-tag-4 { background: #0891b2; }   // teal
+.log-source-tag-5 { background: #ca8a04; }   // amber
+
+/*
+ reverse content, pin vertical scrollbar to the bottom,
+   reverses content only on immediate children
+*/
+.scroll-forward {
+  flex-direction: column-reverse;
+}
+.scroll-reverse {
+  flex-direction: column;
+}
+/*
+  placeholder, only immediate children are reversed
+*/
+.scroll-only-child {
+  width: 100%
+}
