@@ -1,9 +1,6 @@
 <template>
   <div class="live-logs-page">
     <div class="live-logs-header px-3 py-2 border-bottom d-flex align-items-center">
-      <b-button variant="outline-secondary" size="sm" class="mr-3" :to="{ name: 'live_logs' }">
-        <icon name="arrow-left" class="mr-1" />{{ $i18n.t('New session') }}
-      </b-button>
       <h4 class="mb-0" v-t="'Live Logs'" />
       <b-badge v-if="isClusterSession" variant="info" class="ml-3"
         v-b-tooltip.hover.right
@@ -105,7 +102,7 @@
             :class="(options.order === 'forward') ? 'border-top order-2' : 'border-bottom order-0'"
           >
             <b-input-group class="mx-1 log-search flex-grow-1" size="sm">
-              <b-form-input v-model="searchQuery" :placeholder="$t('Find...')"
+              <b-form-input v-model="searchInput" :placeholder="$t('Find...')"
                 :class="{ 'is-invalid': searchError }"
                 @keydown.enter.exact.prevent="onSearchNext"
                 @keydown.enter.shift.prevent="onSearchPrev" />
@@ -118,12 +115,12 @@
                 <b-button variant="outline-secondary" @click="onSearchNext" :disabled="searchMatchCount === 0">
                   <icon name="chevron-down" />
                 </b-button>
-                <b-button variant="outline-secondary" @click="onSearchClear" :disabled="!searchQuery">
+                <b-button variant="outline-secondary" @click="onSearchClear" :disabled="!searchInput">
                   <icon name="times" />
                 </b-button>
               </b-input-group-append>
             </b-input-group>
-            <small v-if="searchQuery && !searchError" class="mx-1 text-nowrap text-muted">{{ searchCurrentDisplay }} / {{ searchMatchCount }}</small>
+            <small v-if="searchInput && !searchError" class="mx-1 text-nowrap text-muted">{{ searchCurrentDisplay }} / {{ searchMatchCount }}</small>
             <div class="d-flex align-items-center flex-shrink-0">
               <b-button v-if="isRunning && !isPaused"
                 variant="primary" class="mx-1" size="sm" @click="onPauseSession">
@@ -196,11 +193,10 @@
           }">
             <div class="scroll-only-child">
               <div v-if="events && options.output === 'raw'" class="text-raw px-3 py-1">
-                <div v-for="(event, idx) in events" :key="idx"
+                <div v-for="(event, idx) in events" :key="idx" class="log-line"
                   :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
                   <span v-if="event.data.meta.hostname"
-                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
-                    v-b-tooltip.hover.left :title="$t('Node / log file')">
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]">
                     {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
                   </span>
                   <!-- Same colored level chip as the color view so the
@@ -208,15 +204,14 @@
                        timestamp chip here — raw keeps its inline timestamp. -->
                   <span v-if="event.data.meta.log_level"
                   :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
-                  <span v-html="highlightRaw(stripHostnameToken(event.data.raw, event.data.meta.hostname))" />
+                  <span v-html="highlightEscaped(stripHostnameToken(event.data.raw, event.data.meta.hostname), idx)" />
                 </div>
               </div>
               <div v-else-if="events && options.output === 'color'" class="text-raw px-2 py-1">
-                <div v-for="(event, idx) in events" :key="idx"
+                <div v-for="(event, idx) in events" :key="idx" class="log-line"
                   :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
                   <span v-if="event.data.meta.hostname"
-                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]"
-                    v-b-tooltip.hover.left :title="$t('Node / log file')">
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]">
                     {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
                   </span>
                   <!-- Neutral timestamp + a single colored level chip: only
@@ -227,7 +222,7 @@
                   <span class="log-timestamp text-line log-level-none" v-if="event.data.meta.timestamp">{{ event.data.meta.timestamp }}</span>
                   <span v-if="event.data.meta.log_level"
                   :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
-                  <span v-html="highlightEscaped(event.data.meta.log_without_prefix)" />
+                  <span v-html="highlightEscaped(event.data.meta.log_without_prefix, idx)" />
                 </div>
               </div>
             </div>
@@ -278,8 +273,9 @@ const sizes = [
   { text: '5000', value: 5000 }
 ]
 
-import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import { useLogSearch } from '@/composables/useLogSearch'
 import i18n from '@/utils/locale'
 import { basename, stripHostnameToken, hostColorIndex } from '@/utils/logEvents'
 import yup from '@/utils/yup'
@@ -475,7 +471,10 @@ const setup = (props, context) => {
     }
   }
 
-  // search
+  // search — shared machinery (useLogSearch). The store-backed query/regex
+  // fan out over every peer (write all, read primary); matchText is the text
+  // the active output mode actually renders, so the counter and the <mark>
+  // highlight agree in both the raw and color views.
   const logRef = ref(null)
   const searchQuery = computed({
     get: () => $store.getters[`$_live_logs/${primary.value}/searchQuery`],
@@ -485,79 +484,16 @@ const setup = (props, context) => {
     get: () => $store.getters[`$_live_logs/${primary.value}/searchIsRegex`],
     set: val => peerIds.value.forEach(pid => $store.commit(`$_live_logs/${pid}/SET_SEARCH_IS_REGEX`, val))
   })
-  const searchError = ref(false)
-  const searchCurrentIdx = ref(0)
-
-  const searchRegex = computed(() => {
-    if (!searchQuery.value) return null
-    searchError.value = false
-    try {
-      const pattern = searchIsRegex.value
-        ? searchQuery.value
-        : searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      return new RegExp(pattern, 'gi')
-    } catch (e) {
-      searchError.value = true
-      return null
-    }
+  const {
+    searchInput, searchError, searchMatchCount, searchCurrentDisplay,
+    onSearchNext, onSearchPrev, onSearchClear,
+    highlightEscaped, isSearchMatch, isSearchCurrent
+  } = useLogSearch({
+    events, searchQuery, searchIsRegex, logRef,
+    matchText: e => options.value.output === 'raw'
+      ? stripHostnameToken(e.data.raw, e.data.meta.hostname)
+      : e.data.meta.log_without_prefix
   })
-
-  const searchMatchIndices = computed(() => {
-    const re = searchRegex.value
-    if (!re || !events.value) return []
-    return events.value.reduce((acc, event, idx) => {
-      re.lastIndex = 0
-      if (re.test(event.data.raw)) acc.push(idx)
-      return acc
-    }, [])
-  })
-
-  const searchMatchCount = computed(() => searchMatchIndices.value.length)
-  const searchCurrentDisplay = computed(() => searchMatchCount.value === 0 ? 0 : searchCurrentIdx.value + 1)
-
-  watch(searchMatchIndices, () => {
-    searchCurrentIdx.value = 0
-  })
-
-  const scrollToCurrentMatch = () => {
-    nextTick(() => {
-      if (!logRef.value) return
-      const el = logRef.value.querySelector('.search-current')
-      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    })
-  }
-
-  const onSearchNext = () => {
-    if (searchMatchCount.value === 0) return
-    searchCurrentIdx.value = (searchCurrentIdx.value + 1) % searchMatchCount.value
-    scrollToCurrentMatch()
-  }
-  const onSearchPrev = () => {
-    if (searchMatchCount.value === 0) return
-    searchCurrentIdx.value = (searchCurrentIdx.value - 1 + searchMatchCount.value) % searchMatchCount.value
-    scrollToCurrentMatch()
-  }
-  const onSearchClear = () => {
-    searchQuery.value = ''
-    searchCurrentIdx.value = 0
-  }
-
-  const escapeHtml = (text) => String(text || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-
-  const applyHighlight = (str) => {
-    const re = searchRegex.value
-    if (!re) return str
-    re.lastIndex = 0
-    return str.replace(re, match => `<mark>${match}</mark>`)
-  }
-  const highlightRaw = (text) => applyHighlight(escapeHtml(text))
-  const highlightEscaped = (text) => applyHighlight(escapeHtml(text))
-
-  const isSearchMatch = (idx) => searchMatchIndices.value.includes(idx)
-  const isSearchCurrent = (idx) => searchMatchIndices.value[searchCurrentIdx.value] === idx
 
   // immediate
   $store.dispatch(`$_live_logs/optionsSession`).then(response => {
@@ -605,7 +541,7 @@ const setup = (props, context) => {
     onSaveEvents,
 
     logRef,
-    searchQuery,
+    searchInput,
     searchIsRegex,
     searchError,
     searchMatchCount,
@@ -613,7 +549,6 @@ const setup = (props, context) => {
     onSearchNext,
     onSearchPrev,
     onSearchClear,
-    highlightRaw,
     highlightEscaped,
     isSearchMatch,
     isSearchCurrent,

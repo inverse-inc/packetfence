@@ -111,14 +111,21 @@ export const stripHostnameToken = (raw, hostname) => {
 
 // Stable per-hostname colour: hash the string into 6 buckets (matching the
 // .log-source-tag-0..5 classes) so the same node always gets the same accent
-// regardless of event order or view.
+// regardless of event order or view. Memoized: this is called once per
+// rendered row on every (re-)render of the up-to-5000-line stream, but the
+// hostname set is tiny and stable, so the hash only ever runs once per host.
+const hostColorCache = new Map()
 export const hostColorIndex = (hostname) => {
   if (!hostname) return 0
+  const cached = hostColorCache.get(hostname)
+  if (cached !== undefined) return cached
   let h = 0
   for (let i = 0; i < hostname.length; i++) {
     h = (h * 31 + hostname.charCodeAt(i)) | 0
   }
-  return Math.abs(h) % 6
+  const idx = Math.abs(h) % 6
+  hostColorCache.set(hostname, idx)
+  return idx
 }
 
 // Rebuild the active-filters map from the scope flags (UPDATE_FILTERS body).
