@@ -8,19 +8,12 @@ pf::UnifiedApi::Controller::Pftest::Cluster -
 
 =head1 DESCRIPTION
 
-Cluster fan-out wrapper around pf::UnifiedApi::Controller::Pftest. Without
-`cluster: true` in the body — or on standalone installs — only the local
-node runs the subcommand and the response is wrapped as a single
-{items: [{host, ...}]} payload so the frontend always sees the same shape.
-
-Fan-out is opt-in because one `pftest authentication` run means a *real*
-bind attempt against the configured sources on every node: N attempts per
-click can trip account-lockout policies and looks like a distributed
-brute force from the directory's perspective. When fanning out, the local
-share runs in-process and the remaining peers are called in parallel via
-Mojo::IOLoop subprocesses, so total wall-clock matches the slowest peer
-rather than the sum. Authentication runs are additionally rate-limited
-per tested user (see pf::UnifiedApi::Controller::Pftest).
+Cluster fan-out wrapper around pf::UnifiedApi::Controller::Pftest. The
+response is always a {items: [{host, ...}]} payload so the frontend sees one
+shape. Fan-out is opt-in (`cluster: true`) because each authentication run is
+a real bind attempt on every node — N per click can trip account lockout. When
+fanning out, the local share runs in-process and peers are called in parallel
+via Mojo::IOLoop subprocesses (total time = slowest peer, not the sum).
 
 =cut
 
@@ -47,11 +40,8 @@ sub _dispatch {
     # flag is removed from the body so the per-peer calls cannot recurse.
     my $fan_out = delete $body->{cluster};
 
-    # Entry-point rate limit: one authentication run per tested user per
-    # window, checked before any work (and before the fan-out multiplies
-    # it). The local share below runs in-process so this check cannot
-    # trip itself; remote peers enforce their own window on their public
-    # endpoint as defense in depth.
+    # Entry-point rate limit, before the fan-out multiplies it. The local
+    # share runs in-process (no self-trip); peers check their own window.
     if ($action eq 'authentication') {
         my $user = $body->{user};
         if (defined $user && length $user

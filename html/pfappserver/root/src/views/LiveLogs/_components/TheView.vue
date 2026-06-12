@@ -214,11 +214,9 @@
                     :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]">
                     {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
                   </span>
-                  <!-- Neutral timestamp + a single colored level chip: only
-                       the level carries the level color, so lines without a
-                       recognized level simply have no chip instead of looking
-                       randomly unmarked. Syslog/process repeat the source tag
-                       and are not rendered (still filterable via the sidebar). -->
+                  <!-- Only the level chip carries color (no chip when the line
+                       has no recognized level); syslog/process repeat the
+                       source tag and are hidden (still filterable in sidebar). -->
                   <span class="log-timestamp text-line log-level-none" v-if="event.data.meta.timestamp">{{ event.data.meta.timestamp }}</span>
                   <span v-if="event.data.meta.log_level"
                   :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
@@ -471,10 +469,8 @@ const setup = (props, context) => {
     }
   }
 
-  // search — shared machinery (useLogSearch). The store-backed query/regex
-  // fan out over every peer (write all, read primary); matchText is the text
-  // the active output mode actually renders, so the counter and the <mark>
-  // highlight agree in both the raw and color views.
+  // Shared search (useLogSearch): store-backed query/regex fan out to every
+  // peer (write all, read primary); matchText is the active mode's rendered text.
   const logRef = ref(null)
   const searchQuery = computed({
     get: () => $store.getters[`$_live_logs/${primary.value}/searchQuery`],

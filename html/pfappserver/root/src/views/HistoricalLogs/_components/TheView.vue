@@ -133,10 +133,8 @@ const setup = (props, context) => {
   const onClearEvents = () => $store.dispatch(`$_historical_logs/${id.value}/clearEvents`)
   const onToggleFilter = (scope, key) => $store.dispatch(`$_historical_logs/${id.value}/toggleFilter`, { scope, key })
 
-  // In-results text search — shared machinery (useLogSearch), backed by the
-  // searchQuery/searchIsRegex state this store already carries. matchText is
-  // the exact text each row renders (log_without_prefix), so the counter and
-  // the <mark> highlight always point at the same lines.
+  // Shared search (useLogSearch): matchText is log_without_prefix, the exact
+  // text each row renders, so the counter and the <mark> highlight agree.
   const logRef = ref(null)
   const searchQuery = computed({
     get: () => $store.getters[`$_historical_logs/${id.value}/searchQuery`],

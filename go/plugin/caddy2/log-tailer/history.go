@@ -1,24 +1,12 @@
 package logtailer
 
-// Time-window history mode for the log tailer.
-//
-// Where the tailing sessions in this plugin follow the *live* end of the
-// active log files, the history endpoint reads the files at rest — the
-// active file plus its .log.<N>.gz logrotate rotations — and returns the
-// lines that fall inside a requested time window, paginated with a
-// byte-offset cursor. Both modes share the line-format contract in
-// logmeta.go, so the parsing exists exactly once.
-//
-// Safety properties relied upon by the admin API:
-//   - filenames are validated against the syslog allow-list before any
-//     path is built (no traversal out of the log directory)
-//   - filters are RE2 (regexp.Compile): no catastrophic backtracking, a
-//     hostile pattern cannot hang the worker
-//   - the scan is bounded by a wall-clock budget and a decompressed-byte
-//     ceiling in addition to the event cap; when a bound is hit the
-//     response carries truncated=true and a cursor that resumes exactly
-//     where the scan stopped (cursors advance over non-matching regions
-//     too, so a filter with no matches still makes progress)
+// Time-window history mode for the log tailer: reads the active log file plus
+// its .log.<N>.gz rotations and returns lines inside a requested window,
+// paginated with a byte-offset cursor. Shares the line-format contract in
+// logmeta.go with the live tailer. Safety: filenames validated against the
+// syslog allow-list before any path is built; RE2 filters (no backtracking);
+// scan bounded by wall-clock + decompressed-byte + event budgets, with a
+// truncated=true continuation cursor that advances over non-matching regions.
 
 import (
 	"bufio"
@@ -59,17 +47,13 @@ type historyCursor struct {
 	Source int `json:"source"`
 	// Uncompressed byte offset of the next unread line within that source.
 	Offset int64 `json:"offset"`
-	// Identity of the source content (hash of its first SigLen bytes) so a
-	// logrotate rename between two polls is detected: the same content is
-	// found again under its new rotation index and the byte offset stays
-	// valid because rotation never rewrites the data. SigLen pins the
-	// hashed prefix length — log files are append-only, so the hash over a
-	// FIXED length is stable even while the file keeps growing.
+	// Content signature (hash of the first SigLen bytes) to follow a logrotate
+	// rename across polls — the byte offset survives because rotation never
+	// rewrites the data; append-only files keep a fixed-length hash stable.
 	Sig    string `json:"sig"`
 	SigLen int    `json:"sig_len"`
-	// Timestamp (unix ms) of the last line scanned. Only used as a resume
-	// fallback when the source the cursor points to has disappeared
-	// (e.g. rotation pruned by retention): lines <= this are skipped.
+	// Last scanned timestamp (unix ms); resume fallback when the source is gone
+	// (rotation pruned by retention): lines <= this are skipped.
 	TsMs int64 `json:"ts_ms"`
 }
 
@@ -264,11 +248,8 @@ func runHistoryQuery(req *historyRequest, allowed map[string]string) (*historyRe
 		resp.Cursor[name] = cur
 	}
 
-	// Chronological k-way merge across the requested files: every page
-	// advances a single global time frontier instead of scanning the files
-	// sequentially, where a busy first file would fill each page entirely
-	// and starve the others. One event of read-ahead per file; the linear
-	// minimum scan is fine for the handful of files a request can name.
+	// Chronological k-way merge along a single global time frontier (not
+	// file-sequential, which would starve later files), one read-ahead per file.
 	iters := make([]*historyFileIter, len(req.Files))
 	for i, name := range req.Files {
 		iters[i] = scan.newHistoryFileIter(name, req.Cursor[name])
@@ -321,10 +302,8 @@ type historySource struct {
 	mtimeMs int64
 }
 
-// overBudget reports whether a global scan budget (bytes or wall clock) is
-// exhausted. The wall clock is only sampled every 256 lines to keep the
-// per-line cost low. The page event cap is enforced by the merge loop in
-// runHistoryQuery.
+// overBudget reports whether the byte or wall-clock budget is exhausted; the
+// wall clock is sampled every 256 lines to keep the per-line cost low.
 func (s *historyScan) overBudget() bool {
 	if s.bytesScanned >= historyMaxScanBytes {
 		return true
@@ -370,10 +349,8 @@ type historyFileIter struct {
 	exhausted  bool           // window end reached or every source fully read
 	stalled    bool           // a global budget stopped the scan mid-file
 
-	// Source signature memoized per source: cursors are now snapshotted per
-	// emitted event rather than only at scan stops, and hashing the prefix
-	// re-opens (and for .gz decompresses) the file. An empty file has no
-	// identity yet ("",0) and is re-hashed on the next snapshot.
+	// Source signature memoized per source (hashing re-opens/decompresses the
+	// file). An empty file has no identity yet ("",0) and is re-hashed later.
 	sigSrcIdx int
 	sigVal    string
 	sigLen    int
@@ -416,12 +393,11 @@ func (it *historyFileIter) cursorAt(offset, tsMs int64) *historyCursor {
 	return &historyCursor{Source: src.idx, Offset: offset, Sig: it.sigVal, SigLen: it.sigLen, TsMs: tsMs}
 }
 
-// advance fills the read-ahead slot with the next matching event, or marks
-// the iterator exhausted (window end / all sources read) or stalled (global
-// budget hit). The line-processing order mirrors the original sequential
-// scan exactly: budget check before the window check, continuation context
-// updated before the window/filter skips, offset advanced after the
-// window-end check — cursor placement and attribution depend on it.
+// advance fills the read-ahead slot with the next matching event, or marks the
+// iterator exhausted (window end / all sources read) or stalled (budget hit).
+// Line-processing order is load-bearing: budget check, then continuation
+// context, then window/filter skips, offset advanced after the window-end
+// check — cursor placement and attribution depend on it.
 func (it *historyFileIter) advance() {
 	if it.pending != nil || it.exhausted || it.stalled {
 		return
@@ -584,12 +560,10 @@ func locateHistoryResume(sources []historySource, cur *historyCursor) (startIdx 
 	if cur == nil {
 		return 0, 0, 0
 	}
-	// A signature over zero bytes carries no identity: an empty active file
-	// looks like every other empty file, so matching it would silently skip
-	// rotations written in between. Fall back to the timestamp floor.
-	// SigLen is client JSON: values above what the server ever emits would
-	// turn historySourceSigN into an unbounded allocation/decompression
-	// outside the scan budgets, so clamp them to the same fallback.
+	// A zero-byte signature has no identity (every empty file looks alike), so
+	// fall back to the timestamp floor. SigLen is client JSON — clamp values
+	// above what the server emits, else historySourceSigN would decompress
+	// unboundedly outside the scan budgets.
 	if cur.Sig == "" || cur.SigLen <= 0 || cur.SigLen > historySigBytes {
 		return 0, 0, cur.TsMs
 	}

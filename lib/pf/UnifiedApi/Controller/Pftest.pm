@@ -59,14 +59,9 @@ sub profile_filter {
     return $self->render(json => $resp->{json}, status => $resp->{status});
 }
 
-# pftest authentication performs *real* bind attempts against the
-# configured sources; rapid repeats against the same account can trip
-# AD/LDAP lockout policies, and the cluster fan-out multiplies every
-# attempt by the node count. Allow one run per tested user per node per
-# window — Redis-backed so all pfperl-api workers on a node share it.
-# Cluster note: the fan-out entry point checks before dispatching and the
-# peers' public endpoint checks again per node (defense in depth); the
-# entry node runs its own share in-process so its check never fires twice.
+# Rate-limit authentication: real bind attempts can trip AD/LDAP lockout,
+# multiplied by the cluster fan-out. One run per tested user per node per
+# window, Redis-backed so all pfperl-api workers on a node share it.
 sub auth_rate_limit_exceeded {
     my ($user) = @_;
     my $cache = pf::CHI->new(namespace => 'pftest');

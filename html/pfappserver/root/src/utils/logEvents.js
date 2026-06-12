@@ -1,18 +1,9 @@
 import Vue from 'vue'
 import i18n from '@/utils/locale'
 
-/**
- * Shared helpers for the log-event session stores (LiveLogs and
- * HistoricalLogs). Both stores expose the same scopes/filters UI; keeping
- * the meta bookkeeping and the filter getters here prevents the two
- * modules from drifting on every fix.
- *
- * Events have the shape { data: { raw, meta: { timestamp, hostname,
- * process, syslog_name, log_level, filename, log_without_prefix } } };
- * `timestamp` and `log_without_prefix` are per-line values and are
- * excluded from the countable scopes, `syslog_name` because it duplicates
- * `process` for the ISO lines the tailer emits (one filter group suffices).
- */
+// Shared scope/filter helpers for the LiveLogs and HistoricalLogs session
+// stores. timestamp/log_without_prefix/syslog_name are excluded from the
+// countable scopes (per-line, or syslog_name duplicates process).
 
 export const defaultScopes = () => ({
   hostname: { label: i18n.t('Hostname'), values: {} },
@@ -90,30 +81,21 @@ export const eventsFilteredGetter = state => {
   })
 }
 
-// Source tag shows only the log name, not the directory it lives in: the
-// live tailer reports the full path it was handed (e.g.
-// /usr/local/pf/logs/packetfence.log) while the history endpoint already
-// reports a basename. Splitting on both separators makes this idempotent —
-// a value that is already a basename passes through unchanged.
+// Basename: the live tailer reports a full path, the history endpoint already
+// a basename — splitting on both separators is idempotent for either.
 export const basename = (path) => String(path || '').split(/[\\/]/).pop()
 
-// Remove the redundant hostname token from a raw syslog line for display.
-// The rsyslog lines are "<timestamp> <host> <process>[pid]: <message>"; the
-// host already appears in the colored source tag, so repeating it inline is
-// noise. We only strip it when it sits exactly where the format puts it —
-// right after the first (timestamp) token — so continuation/stack-trace and
-// legacy lines, where the hostname is not in that position, are left intact.
+// Strip the hostname token (already shown in the source tag) from a raw syslog
+// line. Only when it sits in the expected slot — right after the timestamp —
+// so continuation/stack-trace and legacy lines are left intact.
 export const stripHostnameToken = (raw, hostname) => {
   if (!raw || !hostname) return raw
   const escaped = hostname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   return raw.replace(new RegExp('^(\\S+\\s+)' + escaped + '\\s+'), '$1')
 }
 
-// Stable per-hostname colour: hash the string into 6 buckets (matching the
-// .log-source-tag-0..5 classes) so the same node always gets the same accent
-// regardless of event order or view. Memoized: this is called once per
-// rendered row on every (re-)render of the up-to-5000-line stream, but the
-// hostname set is tiny and stable, so the hash only ever runs once per host.
+// Stable per-hostname colour, memoized: hash into 6 buckets matching the
+// .log-source-tag-0..5 classes.
 const hostColorCache = new Map()
 export const hostColorIndex = (hostname) => {
   if (!hostname) return 0

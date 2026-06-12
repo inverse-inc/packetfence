@@ -19,3 +19,7 @@ actions=WINDOWS_EVENTS_READ
 [FleetDM Event Handler]
 description=Receives FleetDM events
 actions=FLEETDM_EVENTS_READ
+
+[pftest Operator]
+description=Run pftest authentication and profile filter tests
+actions=PFTEST_READ,PFTEST_CREATE

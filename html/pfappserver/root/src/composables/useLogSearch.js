@@ -2,24 +2,11 @@ import { computed, nextTick, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 
 /**
- * In-results text search shared by the LiveLogs and HistoricalLogs stream
- * views. Both views render up to `size` (5000) loaded events as live DOM, so
- * the search has to stay cheap per keystroke or it freezes the page. Three
- * things keep it cheap:
- *
- *  - `searchInput` is the value the text box binds to (instant echo); the
- *    heavy regex/highlight recompute is driven by `searchQuery`, which is
- *    only updated a debounce later. Typing never blocks on a full rescan.
- *  - match membership is a Set, so the per-row `isSearchMatch` is O(1) and
- *    highlighting is skipped entirely for non-matching rows.
- *  - the match source is `matchText(event)` — the exact text the row renders
- *    — so the "x / N" counter and the <mark> highlight always agree (matching
- *    the raw line while highlighting the message body would count rows that
- *    show no mark).
- *
- * The store-backed `searchQuery`/`searchIsRegex` stay in the view (LiveLogs
- * fans the write out over every peer; Historical writes one namespace), so
- * they are passed in as writable computeds.
+ * In-results text search shared by the LiveLogs and HistoricalLogs views.
+ * Kept cheap per keystroke (the views render up to 5000 live DOM rows): a
+ * debounced `searchQuery` drives the recompute and a Set gives O(1) per-row
+ * match membership. `matchText` is the exact text a row renders (not the raw
+ * line), so the "x / N" counter and the <mark> highlight always agree.
  *
  * @param events       ref<Array>            the (filtered) events being shown
  * @param searchQuery  writable computed     store-backed query string
@@ -68,9 +55,8 @@ export const useLogSearch = ({ events, searchQuery, searchIsRegex, logRef, match
     searchCurrentIdx.value = 0
   })
 
-  // searchInput is the responsive UI value; propagate it to the heavy
-  // searchQuery only after the user pauses (immediate:false so mount does not
-  // commit). Keep the returned ref so the debounced watcher stays alive.
+  // searchInput is the responsive UI value; debounced into the heavy
+  // searchQuery (immediate:false so mount does not commit).
   const searchInput = ref(searchQuery.value)
   const _debounced = useDebouncedWatchHandler([searchInput], () => { // eslint-disable-line no-unused-vars
     searchQuery.value = searchInput.value
