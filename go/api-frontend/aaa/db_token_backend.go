@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
+	"github.com/VividCortex/mysqlerr"
+	"github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
 )
@@ -136,22 +139,63 @@ func (tb *DbTokenBackend) TokenIsValid(token string) bool {
 	return count == 1
 }
 
+// touchGranularity bounds how often a token's sliding expiration is rewritten.
+func touchGranularity(timeout time.Duration) time.Duration {
+	g := timeout / 10
+	if g > time.Minute {
+		g = time.Minute
+	}
+	if g < time.Second {
+		// A zero/tiny timeout would otherwise degrade to one write per
+		// request and, with Truncate(0) being a no-op, an instant expiry.
+		g = time.Second
+	}
+	return g
+}
+
+// isRetryableTouchErr matches the Galera write-conflict class: a concurrent
+// touch of the same token from another cluster node surfaces as a deadlock
+// (certification failure / brute-force abort) or, when stuck behind an
+// applier, a lock wait timeout.
+func isRetryableTouchErr(err error) bool {
+	var mysqlErr *mysql.MySQLError
+	return errors.As(err, &mysqlErr) &&
+		(mysqlErr.Number == mysqlerr.ER_LOCK_DEADLOCK || mysqlErr.Number == mysqlerr.ER_LOCK_WAIT_TIMEOUT)
+}
+
 func (tb *DbTokenBackend) TouchTokenInfo(token string) {
-	expired := timeToExpired(time.Now().Add(tb.inActivityTimeout))
+	// The expiration is quantized to bucket boundaries and only written when
+	// it actually advances: within a bucket every node computes the identical
+	// target, so all but the first touch match zero rows, produce no Galera
+	// writeset and cannot conflict — instead of one same-row UPDATE per
+	// authenticated request from every cluster node. The effective inactivity
+	// timeout becomes [timeout-g, timeout].
+	g := touchGranularity(tb.inActivityTimeout)
+	target := timeToExpired(time.Now().Add(tb.inActivityTimeout).Truncate(g))
 	db, err := tb.getDB()
 	if err != nil {
 		log.Logger().Error(err.Error())
 		return
 	}
-	_, err = db.Exec(
-		"UPDATE chi_cache SET expires_at = ? WHERE `key` = ?",
-		expired,
-		tokenKey(tb, token),
-	)
-	if err != nil {
-		log.Logger().Error(err.Error())
-		return
+	const attempts = 2
+	for attempt := 1; ; attempt++ {
+		_, err = db.Exec(
+			"UPDATE chi_cache SET expires_at = ? WHERE `key` = ? AND expires_at < ?",
+			target,
+			tokenKey(tb, token),
+			target,
+		)
+		if err == nil {
+			return
+		}
+		if !isRetryableTouchErr(err) || attempt >= attempts {
+			break
+		}
+		// A concurrent touch from another node won the bucket; the re-run
+		// serializes behind it and matches zero rows.
+		log.Logger().Debug("retrying token touch after cluster write conflict: " + err.Error())
 	}
+	log.Logger().Error(err.Error())
 }
 
 func (tb *DbTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
