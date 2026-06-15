@@ -94,6 +94,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/local-fingerbank-collector-endpoints":
 		s.handleLocalFingerbankCollectorEndpoints(w, r)
 		return
+	case apiPrefix + "/fingerbank-collector-endpoint":
+		s.handleFingerbankCollectorEndpoint(w, r)
+		return
 	case apiPrefix + "/remote-fingerbank-collector-env":
 		s.handleRemoteFingerbankCollectorEnv(w, r)
 		return
@@ -634,6 +637,50 @@ func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, 
 	})
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
+}
+
+type FingerbankCollectorEndpointReply struct {
+	Endpoint string `json:"endpoint"`
+}
+
+// handleFingerbankCollectorEndpoint returns the single collector endpoint URL for a
+// given connector-id. This lets callers target only the collector co-located with the
+// pfconnector a device connected through, instead of fanning out across all collectors.
+func (s *Server) handleFingerbankCollectorEndpoint(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id query parameter"})
+		return
+	}
+
+	o, ok := activeTunnels.Load(connectorId)
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
+		return
+	}
+
+	tun := o.(*tunnel.Tunnel)
+	if !(tun.IsActive() && tun.IsRemoteConnector) {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Connector tunnel is not an active remote connector: %s", connectorId)})
+		return
+	}
+
+	index := s.computeConnectorIndex(connectorId)
+	if index > maxCheckedInConnectors {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Too many connectors are currently connected on this server. Denying access to %s", connectorId))
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: "Too many connectors are currently connected on this server."})
+		return
+	}
+
+	host := s.pfconnectorHost(req)
+	fingerbankLocalPort := baseFingerbankPort + index
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(FingerbankCollectorEndpointReply{Endpoint: fmt.Sprintf("http://%s:%d", host, fingerbankLocalPort)})
 }
 
 // fakeMachineAccountPassword masks the real AD machine-account secret for

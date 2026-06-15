@@ -42,6 +42,7 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *httprouter.Router
+	db     *sql.DB
 }
 
 // Setup the api middleware
@@ -137,6 +138,13 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	}()
 
 	wg.Wait()
+	// Standalone *sql.DB handle used by handlers that need raw SQL access (e.g. resolving
+	// a node's connector from its locationlog switch IP).
+	if sqlHandle, sqlErr := db.DbFromConfig(ctx); sqlErr != nil {
+		log.LoggerWContext(ctx).Warn("Unable to open sql.DB handle for the API plugin: " + sqlErr.Error())
+	} else {
+		m.db = sqlHandle
+	}
 	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
 	NewAuthLog(ctx, DBP).AddToRouter(router)
 	NewDnsAuditLog(ctx, DBP).AddToRouter(router)
