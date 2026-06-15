@@ -79,7 +79,6 @@ all:
           memory: 512
         ad:
           box: inverse-inc/pfad11branch
-          box_version: '15.2.20260615162039'
           box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfad11branch/metadata.json
           mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
@@ -114,7 +113,6 @@ all:
           hosts:
             pf1el8dev:
               box: inverse-inc/pfel8branch
-              box_version: '15.2.20260615160323'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8dev']['netmask'] }}"
@@ -125,7 +123,6 @@ all:
               disk_size: 130
             pf2el8dev:
               box: inverse-inc/pfel8branch
-              box_version: '15.2.20260615160323'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8dev']['netmask'] }}"
@@ -136,7 +133,6 @@ all:
               disk_size: 130
             pf3el8dev:
               box: inverse-inc/pfel8branch
-              box_version: '15.2.20260615160323'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8dev']['netmask'] }}"
@@ -147,7 +143,6 @@ all:
               disk_size: 130
             pf1deb12dev:
               box: inverse-inc/pfdeb12branch
-              box_version: '15.2.20260615162058'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb12dev']['netmask'] }}"
@@ -158,7 +153,6 @@ all:
               disk_size: 130
             pf2deb12dev:
               box: inverse-inc/pfdeb12branch
-              box_version: '15.2.20260615162058'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb12dev']['netmask'] }}"
@@ -169,7 +163,6 @@ all:
               disk_size: 130
             pf3deb12dev:
               box: inverse-inc/pfdeb12branch
-              box_version: '15.2.20260615162058'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb12dev']['netmask'] }}"
@@ -243,7 +236,6 @@ all:
           hosts:
             pfel8dev:
               box: inverse-inc/pfel8branch
-              box_version: '15.2.20260615160323'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
@@ -254,7 +246,6 @@ all:
               disk_size: 130
             pfdeb12dev:
               box: inverse-inc/pfdeb12branch
-              box_version: '15.2.20260615162058'
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['netmask'] }}"

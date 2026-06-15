@@ -575,8 +575,9 @@ variables:
 
 .setup_vagrant_box_job:
   variables:
+    # No BOX_VERSION pin: setup-vagrant-box.sh resolves the latest from the
+    # bucket metadata.json — the single source of truth for box versions.
     BOX_NAME: pfdeb12branch
-    BOX_VERSION: '15.2.20260609175011'
   before_script:
     - ${VAGRANT_LIB_DIR}/setup-vagrant-box.sh
 
