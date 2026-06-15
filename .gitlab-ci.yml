@@ -573,13 +573,6 @@ variables:
   script:
     - make -e build_deb
 
-.setup_vagrant_box_job:
-  variables:
-    # No BOX_VERSION pin: setup-vagrant-box.sh resolves the latest from the
-    # bucket metadata.json — the single source of truth for box versions.
-    BOX_NAME: pfdeb12branch
-  before_script:
-    - ${VAGRANT_LIB_DIR}/setup-vagrant-box.sh
 
 .test_script_job:
   variables:
@@ -1084,7 +1077,6 @@ configurator_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 pfappserver_el8:
@@ -1101,7 +1093,6 @@ pfappserver_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 dot1x_eap_peap_el8:
@@ -1118,7 +1109,6 @@ dot1x_eap_peap_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 mac_auth_el8:
@@ -1135,7 +1125,6 @@ mac_auth_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 dot1x_eap_tls_el8:
@@ -1152,7 +1141,6 @@ dot1x_eap_tls_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 fingerbank_invalid_db_deb12:
@@ -1161,7 +1149,6 @@ fingerbank_invalid_db_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 security_events_deb12:
@@ -1170,7 +1157,6 @@ security_events_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 cli_login_deb12:
@@ -1179,7 +1165,6 @@ cli_login_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 cli_login_el8:
@@ -1196,7 +1181,6 @@ external_integrations_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 captive_portal_el8:
@@ -1213,7 +1197,6 @@ captive_portal_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 inline_deb12:
@@ -1222,7 +1205,6 @@ inline_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 inline_el8:
@@ -1247,7 +1229,6 @@ mac_auth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 device_profiling_virtualswitch_el8:
@@ -1264,7 +1245,6 @@ device_profiling_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 dot1x_wired_computer_auth_virtualswitch_el8:
@@ -1281,7 +1261,6 @@ dot1x_wired_computer_auth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 pfacct_bandwidth_virtualswitch_el8:
@@ -1298,7 +1277,6 @@ pfacct_bandwidth_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 security_event_virtualswitch_el8:
@@ -1315,7 +1293,6 @@ security_event_virtualswitch_deb12:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .test_rules
 
 ### release
@@ -1333,7 +1310,6 @@ configurator_deb12_pristine:
   extends:
     - .test_job
     - .test_script_job
-    - .setup_vagrant_box_job
     - .release_only_rules
 
 
