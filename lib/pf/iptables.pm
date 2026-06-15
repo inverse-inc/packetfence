@@ -1291,14 +1291,14 @@ sub iptables_pfconfig_rules {
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 44444 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Localhost is already accepted by the global "-i lo -j ACCEPT" rule
         if ($cluster_enabled) {
             push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
             foreach my $mgmt_back (uniq(@mgmt_backend)) {
                 util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 44444 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
         }
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 44444 -j DROP", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-p tcp -m tcp --dport 44444 -j DROP", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     }
@@ -1385,7 +1385,7 @@ sub iptables_mariadb_rules {
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        # Localhost is already accepted by the global "-i lo -j ACCEPT" rule
         if ($cluster_enabled) {
             push my @db_peers, map { $_->{management_ip} } pf::cluster::db_enabled_servers();
             foreach my $peer (uniq(@db_peers)) {
@@ -1397,7 +1397,7 @@ sub iptables_mariadb_rules {
             $logger->warn("Service $service_name: Cluster is not enable.");
         }
         foreach my $port (qw(3306 4444 4567 4568)) {
-            util_safe_push( "-i $tint -p tcp -m tcp --dport $port -j DROP", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-p tcp -m tcp --dport $port -j DROP", $chains->{'filter'}{'INPUT'} );
         }
         # Convert to JSON and save to file
         util_create_service_rules($chains);
