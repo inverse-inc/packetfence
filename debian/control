@@ -134,6 +134,7 @@ Depends: ${misc:Depends}, vlan,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
+ gettext,
  liblocale-gettext-perl,
  locales-all,
 # logging framework
