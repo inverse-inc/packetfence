@@ -98,11 +98,12 @@ my @local_dhcp_servers_ip;
 my $sso_refresh_hash = {};
 my $sso_refresh_cache = CHI->new( driver => 'RawMemory', datastore => $sso_refresh_hash );
 
-# Tracks the last (dhcp_fingerprint|dhcp_vendor|computername) signature
-# observed per MAC, so fingerbank_process is only enqueued when the device's
-# DHCP fingerprint actually changes. Fingerbank classification is a pure
-# function of those three fields, so re-running it on identical input wastes
-# a general-queue task per DHCP renewal. TTL mirrors the [storage fingerbank]
+# Tracks the last DHCP signature observed per MAC (the IPv4 and DHCPv6
+# fingerprint/vendor fields plus computername), so fingerbank_process is only
+# enqueued when the device's DHCP fingerprint actually changes. Fingerbank
+# classification is a pure function of those fields, so re-running it on
+# identical input wastes a general-queue task per DHCP renewal. TTL mirrors
+# the [storage fingerbank]
 # expires_in (24h) — long enough to suppress renewal storms, short enough
 # that updated Fingerbank signatures get re-applied within a day.
 my $fingerbank_signature_hash = {};
@@ -179,8 +180,10 @@ sub processIPTasks {
         if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $sso_ip ) {
             $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $sso_mac, ip => $iptasks_arguments{'oldip'}, timeout => undef, source => $DHCP) );
             $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $sso_mac, ip => $sso_ip, timeout => $sso_timeout, source => $DHCP) );
-            # Force the refresh on the new IP so the next packet skips Update.
-            $sso_refresh_cache->remove("$sso_mac|$sso_ip|$sso_timeout");
+            # Start already established the session for the new IP with this
+            # timeout, so arm the cache to skip the redundant Update below (and
+            # subsequent renewals) until the next half-lease.
+            $sso_refresh_cache->set("$sso_mac|$sso_ip|$sso_timeout", 1, int($sso_timeout / 2));
         }
         # Refresh the firewall session timeout at most once per half-lease.
         # Without this gate every DHCP renewal packet (one per client per
@@ -258,12 +261,17 @@ sub processFingerbank {
     my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
     unless ( (keys %$dhcp_filter_rule) > 0 ) {
         # Suppress fingerbank_process when the device's DHCP signature is
-        # unchanged. Classification depends only on these three fields, so
-        # re-running on every renewal packet just wastes a general-queue task.
+        # unchanged. Classification depends only on these fields, so re-running
+        # on every renewal packet just wastes a general-queue task. The
+        # signature must cover every field mapped into fingerbank_args that
+        # influences classification, including the DHCPv6-derived ones, or a
+        # change in only the DHCPv6 fingerprint/enterprise would be suppressed.
         my $mac = $fingerbank_args->{mac};
         my $signature = ($fingerbank_args->{dhcp_fingerprint} // '') . '|'
                       . ($fingerbank_args->{dhcp_vendor} // '') . '|'
-                      . ($fingerbank_args->{computername} // '');
+                      . ($fingerbank_args->{computername} // '') . '|'
+                      . ($fingerbank_args->{dhcp6_fingerprint} // '') . '|'
+                      . ($fingerbank_args->{dhcp6_enterprise} // '');
         my $cached = $fingerbank_signature_cache->get($mac);
         if (!defined($cached) || $cached ne $signature) {
             $self->apiClient->notify('fingerbank_process', $mac);
