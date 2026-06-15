@@ -304,7 +304,45 @@ sub reassign_role_config_store {
 
 sub reassign_role_config_store_switch {
     my ($self, $errors, $old, $new) = @_;
-    $self->prune_role_from_switches($old);
+    $self->migrate_role_in_switches($old, $new);
+}
+
+=head2 migrate_role_in_switches
+
+Rename every per-role mapping key (${old}Role, ${old}Vlan, ...) to use the new
+role name (${new}Role, ${new}Vlan, ...) for the given role across all switches.
+Used when a role is reassigned/renamed so that switch-specific Role/Vlan/Url/...
+mappings follow the role instead of being lost. An existing mapping already set
+under the new role is preserved (the old value is dropped) so we don't clobber
+config the new role already had.
+
+=cut
+
+sub migrate_role_in_switches {
+    my ($self, $old, $new) = @_;
+    return unless defined $old && length $old;
+    return unless defined $new && length $new;
+    return if $old eq $new;
+    my $cs = pf::ConfigStore::Switch->new;
+    my $i = 0;
+    my $cachedConfig = $cs->cachedConfig;
+    for my $sect ($cachedConfig->Sections()) {
+        for my $suffix (qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom)) {
+            my $old_key = "${old}${suffix}";
+            next if !$cachedConfig->exists($sect, $old_key);
+            my $value = $cachedConfig->val($sect, $old_key);
+            my $new_key = "${new}${suffix}";
+            if (!$cachedConfig->exists($sect, $new_key)) {
+                $cachedConfig->setval($sect, $new_key, $value);
+            }
+            $cachedConfig->delval($sect, $old_key);
+            $i |= 1;
+        }
+    }
+
+    if ($i) {
+        $cs->commit();
+    }
 }
 
 =head2 prune_role_from_switches
