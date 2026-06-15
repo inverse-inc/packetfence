@@ -1353,13 +1353,19 @@ sub iptables_mariadb_rules {
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         if ($cluster_enabled) {
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 4444 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 4567 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 4568 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            push my @db_peers, map { $_->{management_ip} } pf::cluster::db_enabled_servers();
+            foreach my $peer (uniq(@db_peers)) {
+                foreach my $port (qw(3306 4444 4567 4568)) {
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $peer --dport $port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                }
+            }
         } else {
             $logger->warn("Service $service_name: Cluster is not enable.");
+        }
+        foreach my $port (qw(3306 4444 4567 4568)) {
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $port -j DROP", $chains->{'filter'}{'INPUT'} );
         }
         # Convert to JSON and save to file
         util_create_service_rules($chains);
