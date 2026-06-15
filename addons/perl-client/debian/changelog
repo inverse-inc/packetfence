@@ -1,3 +1,9 @@
+fingerbank (4.3.4) unstable; urgency=medium
+
+  * Fix collector.port field type from numeric to text to allow the env variable default
+
+ -- Inverse inc. <info@inverse.ca>  Mon, 15 Jun 2026 11:12:12 +0200
+
 fingerbank (4.3.3) unstable; urgency=medium
 
   * Use env variables for the configuration
