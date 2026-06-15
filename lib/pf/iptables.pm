@@ -63,6 +63,7 @@ BEGIN {
     iptables_mysql_prob_rules
     iptables_netdata_rules
     iptables_pfacct_rules
+    iptables_pfconfig_rules
     iptables_pfconnector_server_rules
     iptables_pfdhcp_rules
     iptables_pfdns_rules
@@ -384,6 +385,7 @@ sub iptables_services_rules {
         case "packetfence-mariadb.service"               { iptables_mariadb_rules($action); }
         case "packetfence-mysql-probe.service"           { iptables_mysql_prob_rules($action); }
         case "packetfence-netdata.service"               { iptables_netdata_rules($action); }
+        case "packetfence-config.service"                { iptables_pfconfig_rules($action); }
         case "packetfence-pfacct.service"                { iptables_pfacct_rules($action); }
         case "packetfence-pfconnector-server.service"    { iptables_pfconnector_server_rules($action); }
         case "packetfence-pfdhcp.service"                { iptables_pfdhcp_rules($action); }
@@ -1267,6 +1269,36 @@ sub iptables_netdata_rules {
             }
         }
         util_safe_push( "-i $tint -p tcp -m tcp --dport 19999 -j DROP", $chains->{'filter'}{'INPUT'} );
+        # Convert to JSON and save to file
+        util_create_service_rules($chains);
+    }
+}
+
+=item iptables_pfconfig_rules
+
+Iptable rules for pfconfig service
+
+=cut
+
+sub iptables_pfconfig_rules {
+    my $service_name = "pfconfig_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       return util_remove_service_rules($service_name);
+    }
+    my $logger = get_logger();
+    if ( util_management_network_is_set($service_name) ){
+        my $tint = $management_network->{Tint};
+        my $chains = util_create_chains();
+        $chains->{name} = $service_name;
+        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 44444 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        if ($cluster_enabled) {
+            push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+            foreach my $mgmt_back (uniq(@mgmt_backend)) {
+                util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 44444 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            }
+        }
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 44444 -j DROP", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     }
