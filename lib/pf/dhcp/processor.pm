@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 # External libs
+use CHI;
 use Readonly;
 
 # Internal libs
@@ -26,6 +27,7 @@ use pf::config qw(
     %connection_type_to_str
     $INLINE
     %ConfigFirewallSSO
+    %ConfigScan
 );
 use pf::config::util;
 use pf::constants qw($TRUE);
@@ -41,7 +43,21 @@ use Moose;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
-has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
+# pf::api::can_fork runs the api method in-process (and forks for :Fork
+# methods like trigger_scan). pf::client::getClient would default to
+# pf::api::jsonrpcclient inside the modern Go-driven pfqueue worker
+# (sbin/pfqueue-backend doesn't setClient), so each notify() turns into an
+# HTTPS POST to webservices — 5-7 round-trips per DHCP packet. Loading the
+# class lazily avoids a compile-time circular dep with pf::api (pf::api
+# loads this module, and pf::api::can_fork is already loaded by pf::task::api
+# before any DHCP task runs).
+has 'apiClient'    => (
+    is      => 'ro',
+    default => sub {
+        require pf::api::can_fork;
+        pf::api::can_fork->new;
+    },
+);
 has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
 
 
@@ -72,6 +88,27 @@ Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
 # Local DHCP servers local cache
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
+
+# Tracks when each (mac, ip, lease_length) last queued a firewallsso 'Update'.
+# Process-local; with the hashed pfdhcplistener_external queue each MAC is
+# pinned to one worker, so a per-process cache covers all packets for a given
+# client. Entries are set with TTL = lease_length / 2 — the same half-lease
+# cadence DHCP clients renew on — so the firewall session stays alive without
+# enqueueing an Update on every renewal packet.
+my $sso_refresh_hash = {};
+my $sso_refresh_cache = CHI->new( driver => 'RawMemory', datastore => $sso_refresh_hash );
+
+# Tracks the last DHCP signature observed per MAC (the IPv4 and DHCPv6
+# fingerprint/vendor fields plus computername), so fingerbank_process is only
+# enqueued when the device's DHCP fingerprint actually changes. Fingerbank
+# classification is a pure function of those fields, so re-running it on
+# identical input wastes a general-queue task per DHCP renewal. TTL mirrors
+# the [storage fingerbank]
+# expires_in (24h) — long enough to suppress renewal storms, short enough
+# that updated Fingerbank signatures get re-applied within a day.
+my $fingerbank_signature_hash = {};
+my $fingerbank_signature_cache = CHI->new( driver => 'RawMemory', datastore => $fingerbank_signature_hash );
+Readonly::Scalar my $FINGERBANK_SIGNATURE_TTL => 86400;
 
 
 =head2 _get_local_dhcp_servers
@@ -137,11 +174,25 @@ sub processIPTasks {
 
     # Firewall SSO
     if (any { pf::util::isenabled($_->{'sso_on_dhcp'}) } values %ConfigFirewallSSO ) {
-        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
-            $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'oldip'}, timeout => undef, source => $DHCP) );
-            $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH, source => $DHCP) );
+        my $sso_mac     = $iptasks_arguments{'mac'};
+        my $sso_ip      = $iptasks_arguments{'ip'};
+        my $sso_timeout = $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH;
+        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $sso_ip ) {
+            $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $sso_mac, ip => $iptasks_arguments{'oldip'}, timeout => undef, source => $DHCP) );
+            $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $sso_mac, ip => $sso_ip, timeout => $sso_timeout, source => $DHCP) );
+            # Start already established the session for the new IP with this
+            # timeout, so arm the cache to skip the redundant Update below (and
+            # subsequent renewals) until the next half-lease.
+            $sso_refresh_cache->set("$sso_mac|$sso_ip|$sso_timeout", 1, int($sso_timeout / 2));
         }
-        $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH, source => $DHCP) );
+        # Refresh the firewall session timeout at most once per half-lease.
+        # Without this gate every DHCP renewal packet (one per client per
+        # half-lease) queued a redundant general-queue task.
+        my $sso_refresh_key = "$sso_mac|$sso_ip|$sso_timeout";
+        unless ($sso_refresh_cache->get($sso_refresh_key)) {
+            $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $sso_mac, ip => $sso_ip, timeout => $sso_timeout, source => $DHCP) );
+            $sso_refresh_cache->set($sso_refresh_key, 1, int($sso_timeout / 2));
+        }
     }
 
     # Inline enforcement
@@ -157,7 +208,12 @@ sub processIPTasks {
     # Conformity scan
     # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for conformity scan. Remove the condition once "resolved"
     unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
-        $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+        # Mirror the early-return in pf::api::trigger_scan: skip the
+        # enqueue when no scan engines exist so we don't ship a task the
+        # general-queue worker would immediately drop.
+        if (scalar keys %ConfigScan) {
+            $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+        }
     }
 
     # Parking security_event
@@ -204,7 +260,23 @@ sub processFingerbank {
     # If there is a match, we override Fingerbank call
     my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
     unless ( (keys %$dhcp_filter_rule) > 0 ) {
-        $self->apiClient->notify('fingerbank_process', $fingerbank_args->{mac});
+        # Suppress fingerbank_process when the device's DHCP signature is
+        # unchanged. Classification depends only on these fields, so re-running
+        # on every renewal packet just wastes a general-queue task. The
+        # signature must cover every field mapped into fingerbank_args that
+        # influences classification, including the DHCPv6-derived ones, or a
+        # change in only the DHCPv6 fingerprint/enterprise would be suppressed.
+        my $mac = $fingerbank_args->{mac};
+        my $signature = ($fingerbank_args->{dhcp_fingerprint} // '') . '|'
+                      . ($fingerbank_args->{dhcp_vendor} // '') . '|'
+                      . ($fingerbank_args->{computername} // '') . '|'
+                      . ($fingerbank_args->{dhcp6_fingerprint} // '') . '|'
+                      . ($fingerbank_args->{dhcp6_enterprise} // '');
+        my $cached = $fingerbank_signature_cache->get($mac);
+        if (!defined($cached) || $cached ne $signature) {
+            $self->apiClient->notify('fingerbank_process', $mac);
+            $fingerbank_signature_cache->set($mac, $signature, $FINGERBANK_SIGNATURE_TTL);
+        }
     }
 }
 
