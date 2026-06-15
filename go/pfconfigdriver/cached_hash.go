@@ -3,6 +3,7 @@ package pfconfigdriver
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/inverse-inc/go-utils/log"
 )
@@ -12,9 +13,18 @@ type CachedHash struct {
 	Ids        PfconfigKeys
 	Structs    map[string]PfconfigObject
 	New        func(context.Context, string) (PfconfigObject, error)
+	// mutex guards Refresh and the read accessors. Refresh both rewrites
+	// cc.Ids (FetchDecodeSocket zeroes then refills it) and rewrites the
+	// Structs map, so concurrent callers (e.g. one per inbound connection)
+	// would otherwise observe torn reads — most visibly an empty key in
+	// cc.Ids.Response.Keys, which then crashes New() with an empty id.
+	mutex sync.Mutex
 }
 
 func (cc *CachedHash) Refresh(ctx context.Context) {
+	cc.mutex.Lock()
+	defer cc.mutex.Unlock()
+
 	cc.Ids.PfconfigNS = cc.PfconfigNS
 
 	var reload bool
@@ -63,6 +73,9 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 }
 
 func (cc *CachedHash) IsValid(ctx context.Context) bool {
+	cc.mutex.Lock()
+	defer cc.mutex.Unlock()
+
 	if !IsValid(ctx, &cc.Ids) {
 		return false
 	}
@@ -82,5 +95,29 @@ func (cc *CachedHash) IsValid(ctx context.Context) bool {
 }
 
 func (cc *CachedHash) Keys(ctx context.Context) []string {
-	return cc.Ids.Keys
+	cc.mutex.Lock()
+	defer cc.mutex.Unlock()
+	return append([]string(nil), cc.Ids.Keys...)
+}
+
+// GetStruct returns the instantiated object for id and whether it exists,
+// taking the lock so it is safe to call concurrently with Refresh.
+func (cc *CachedHash) GetStruct(ctx context.Context, id string) (PfconfigObject, bool) {
+	cc.mutex.Lock()
+	defer cc.mutex.Unlock()
+	o, ok := cc.Structs[id]
+	return o, ok
+}
+
+// SnapshotStructs returns a shallow copy of the id->object map, taken under
+// the lock, so callers can iterate without racing against Refresh swapping
+// the underlying map.
+func (cc *CachedHash) SnapshotStructs(ctx context.Context) map[string]PfconfigObject {
+	cc.mutex.Lock()
+	defer cc.mutex.Unlock()
+	snapshot := make(map[string]PfconfigObject, len(cc.Structs))
+	for id, o := range cc.Structs {
+		snapshot[id] = o
+	}
+	return snapshot
 }
