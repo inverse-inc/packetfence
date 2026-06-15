@@ -131,6 +131,47 @@ run() {
     run_tests
 }
 
+# The Linode box bucket is private, so Vagrant can't fetch our boxes from box_url
+# directly (403). Pre-fetch them with authenticated rclone, driven by the VM's
+# box_url in the inventory (single source of truth). Public boxes (generic/rhel8,
+# debian/*) have no bucket URL and are fetched by Vagrant directly.
+prefetch_private_box() {
+    local vm=$1
+    # No object-storage creds (e.g. local dev): let Vagrant handle the box itself.
+    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || return 0
+
+    local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
+    [ -x "${setup_script}" ] || return 0
+
+    local box_url
+    box_url=$(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
+import sys, yaml
+inv = yaml.safe_load(open(sys.argv[1]))
+target, hit = sys.argv[2], {}
+def walk(node):
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == target and isinstance(v, dict) and 'box' in v:
+                hit.update(v)
+            walk(v)
+    elif isinstance(node, list):
+        for x in node:
+            walk(x)
+walk(inv)
+print(hit.get('box_url', ''))
+PY
+)
+    case "${box_url}" in
+        *packetfence-vagrant-box*)
+            # https://<host>/<box_name>/metadata.json -> <box_name>
+            local box_name
+            box_name=$(basename "$(dirname "${box_url}")")
+            echo "===> Pre-fetching private box '${box_name}' for VM '${vm}'"
+            BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
+            ;;
+    esac
+}
+
 # Start with or without VM
 start_vm() {
     local vm=$1
@@ -154,6 +195,7 @@ start_vm() {
           ansible-playbook site.yml -l $vm )
     else
         echo "Machine $vm doesn't exist, start and provision with Vagrant"
+        prefetch_private_box ${vm}
         ( cd ${VAGRANT_DIR} ; \
           run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           VAGRANT_DOTFILE_PATH=${dotfile_path} \
