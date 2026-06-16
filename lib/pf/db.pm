@@ -200,12 +200,8 @@ sub db_connect {
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
     my ($dsn, $user, $pass, $config) = db_data_source_info();
     # make sure we have a database handle
-<<<<<<< HEAD
-    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_compression => 1, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, RootClass => 'pf::db::dbi', Callbacks => \%CALLBACKS })) {
-=======
     my $compression = ($config->{host} // '') eq 'localhost' ? 0 : 1;
-    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_compression => $compression, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, Callbacks => \%CALLBACKS })) {
->>>>>>> c96caf46d8 (Only enable compression for tcp sockets in Perl DB connections)
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_compression => $compression, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, RootClass => 'pf::db::dbi', Callbacks => \%CALLBACKS })) {
         $logger->debug("connected");
         return on_connect($DBH);
     }
