@@ -35,6 +35,49 @@
                          :buton-label="$i18n.t('Add Cluster IPv4')"
     />
 
+    <hr>
+    <h5 class="mb-3">{{ $i18n.t('mTLS') }}</h5>
+
+    <form-group-ssl-enabled namespace="ssl.enabled"
+                            :column-label="$i18n.t('Enable mTLS')"
+                            :text="$i18n.t('Enable the SSL/mTLS listener for the Kafka broker.')"
+    />
+
+    <form-group-ssl-ca namespace="ssl.ca_id"
+                       :column-label="$i18n.t('Certificate Authority')"
+                       :text="$i18n.t('The pfpki Certificate Authority used to sign the broker certificate.')"
+    />
+
+    <form-group-ssl-input namespace="ssl.cn"
+                          :column-label="$i18n.t('Common Name')"
+                          :text="$i18n.t('The Common Name of the broker certificate.')"
+    />
+
+    <form-group-ssl-input namespace="ssl.dns_names"
+                          :column-label="$i18n.t('DNS Names')"
+                          :text="$i18n.t('Comma-separated DNS Subject Alternative Names.')"
+    />
+
+    <form-group-ssl-input namespace="ssl.ip_addresses"
+                          :column-label="$i18n.t('IP Addresses')"
+                          :text="$i18n.t('Comma-separated IP Subject Alternative Names.')"
+    />
+
+    <form-group-ssl-input namespace="ssl.listener"
+                          :column-label="$i18n.t('Listener')"
+                          :text="$i18n.t('The Kafka listener to secure with mTLS (the external listener on port 9092). Internal listeners are left unchanged.')"
+    />
+
+    <form-group-ssl-peer-ca namespace="ssl.peer_ca"
+                            :column-label="$i18n.t('Peer CA Certificate')"
+                            :text="$i18n.t('PEM of the peer CA certificate used to validate the peer (truststore).')"
+    />
+
+    <b-form-group label-cols="3" :label="$i18n.t('Broker Certificate')">
+      <button-kafka-generate-cert :form="form" />
+      <b-form-text v-t="'Generate (or renew) the broker certificate from the selected CA and write it to disk. Save the form first to persist the CA and the peer certificate.'" />
+    </b-form-group>
+
   </base-form>
 </template>
 <script>
@@ -48,6 +91,11 @@ import {
   FormGroupHostConfigs,
   FormGroupAuths,
   FormGroupIptables,
+  FormGroupSslEnabled,
+  FormGroupSslCa,
+  FormGroupSslInput,
+  FormGroupSslPeerCa,
+  ButtonKafkaGenerateCert,
 } from './'
 
 const components = {
@@ -59,6 +107,11 @@ const components = {
   FormGroupHostConfigs,
   FormGroupAuths,
   FormGroupIptables,
+  FormGroupSslEnabled,
+  FormGroupSslCa,
+  FormGroupSslInput,
+  FormGroupSslPeerCa,
+  ButtonKafkaGenerateCert,
 }
 
 export const props = {

@@ -78,6 +78,53 @@ has_field 'cluster.contains' => (
    type => 'NameVal',
 );
 
+has_field 'ssl' => (
+   type => 'Compound',
+);
+
+has_field 'ssl.enabled' => (
+   type            => 'Toggle',
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default         => 'disabled',
+);
+
+has_field 'ssl.ca_id' => (
+   type => 'Text',
+);
+
+has_field 'ssl.profile_id' => (
+   type => 'Text',
+);
+
+has_field 'ssl.cn' => (
+   type => 'Text',
+);
+
+has_field 'ssl.dns_names' => (
+   type => 'Text',
+);
+
+has_field 'ssl.ip_addresses' => (
+   type => 'Text',
+);
+
+has_field 'ssl.keystore_password' => (
+   type => 'Text',
+);
+
+has_field 'ssl.truststore_password' => (
+   type => 'Text',
+);
+
+has_field 'ssl.peer_ca' => (
+   type => 'TextArea',
+);
+
+has_field 'ssl.listener' => (
+   type => 'Text',
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

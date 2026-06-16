@@ -29,3 +29,26 @@ KAFKA_SASL_ENABLED_MECHANISMS=PLAIN
 [[% ENV.env_or_default("KAFKA_HOSTNAME", '%hostname%') %]]
 KAFKA_NODE_ID=1
 KAFKA_ADVERTISED_LISTENERS=INTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:29092,EXTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_EXTERNAL", '%mgmtip%') %]:9092,PF://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:9095,PFCONNECTOR://127.0.0.1:9096
+
+# mTLS configuration for the external Kafka listener
+[ssl]
+# Enable mTLS on the external listener (enabled|disabled)
+enabled=disabled
+# The pfpki Certificate Authority id used to sign the broker certificate
+ca_id=
+# The pfpki profile id used to issue the broker certificate (auto-managed)
+profile_id=
+# The Common Name of the broker certificate
+cn=
+# Comma-separated DNS Subject Alternative Names for the broker certificate
+dns_names=
+# Comma-separated IP Subject Alternative Names for the broker certificate
+ip_addresses=
+# Password protecting the generated keystore (auto-generated)
+keystore_password=%keystore_password%
+# Password protecting the generated truststore (auto-generated)
+truststore_password=%truststore_password%
+# PEM of the peer's CA certificate used to validate the peer (truststore)
+peer_ca=
+# The name of the listener to secure with mTLS (the external listener on 9092)
+listener=EXTERNAL

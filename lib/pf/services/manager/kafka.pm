@@ -25,8 +25,13 @@ use Sys::Hostname;
 
 use Template;
 use pf::constants qw($TRUE $FALSE);
+use pf::util qw(isenabled);
 use pf::config qw ($management_network);
 use pfconfig::cached_hash;
+
+# The kafka ssl directory as seen from inside the kafka container (the host
+# /usr/local/pf/conf/kafka directory is bind-mounted at the same path).
+use constant KAFKA_SSL_DIR => '/usr/local/pf/conf/kafka/ssl';
 
 tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
@@ -76,7 +81,61 @@ sub env_vars {
             $env{$k} = $v;
         }
     }
+    $self->add_ssl_env_vars(\%env);
     return \%env;
+}
+
+=head2 add_ssl_env_vars
+
+When the [ssl] section is enabled, switch only the external listener to SSL and
+add the Confluent keystore/truststore environment variables. Internal and
+inter-broker listeners (and all advertised addresses/ports) are left untouched,
+so only the external Kafka exchanges are secured with mTLS.
+
+=cut
+
+sub add_ssl_env_vars {
+    my ($self, $env) = @_;
+    my $ssl = $ConfigKafka{ssl};
+    return unless $ssl && isenabled($ssl->{enabled});
+    my $listener = $ssl->{listener} || 'EXTERNAL';
+
+    # Flip just the external listener's security protocol to SSL; the listener
+    # name, port and advertised address stay exactly as they were.
+    _set_listener_protocol($env, $listener, 'SSL');
+
+    $env->{KAFKA_SSL_KEYSTORE_LOCATION}   = KAFKA_SSL_DIR . "/keystore.p12";
+    $env->{KAFKA_SSL_KEYSTORE_TYPE}       = "PKCS12";
+    $env->{KAFKA_SSL_KEYSTORE_PASSWORD}   = $ssl->{keystore_password} // '';
+    $env->{KAFKA_SSL_KEY_PASSWORD}        = $ssl->{keystore_password} // '';
+    $env->{KAFKA_SSL_TRUSTSTORE_LOCATION} = KAFKA_SSL_DIR . "/truststore.p12";
+    $env->{KAFKA_SSL_TRUSTSTORE_TYPE}     = "PKCS12";
+    $env->{KAFKA_SSL_TRUSTSTORE_PASSWORD} = $ssl->{truststore_password} // '';
+
+    # Require a trusted client certificate, scoped to the external listener only,
+    # so internal/inter-broker traffic keeps its current security protocol.
+    $env->{"KAFKA_LISTENER_NAME_${listener}_SSL_CLIENT_AUTH"} = "required";
+}
+
+# Set (or add) the security protocol of a single named listener in
+# KAFKA_LISTENER_SECURITY_PROTOCOL_MAP, preserving every other listener.
+sub _set_listener_protocol {
+    my ($env, $listener, $proto) = @_;
+    my $key = 'KAFKA_LISTENER_SECURITY_PROTOCOL_MAP';
+    my @pairs = grep { /\S/ } split(/\s*,\s*/, $env->{$key} // '');
+    my @out;
+    my $found = 0;
+    for my $pair (@pairs) {
+        my ($name, $p) = split(/:/, $pair, 2);
+        if (defined $name && $name eq $listener) {
+            push @out, "$name:$proto";
+            $found = 1;
+        } else {
+            push @out, $pair;
+        }
+    }
+    push @out, "$listener:$proto" unless $found;
+    $env->{$key} = join(",", @out);
 }
 
 sub isManaged {

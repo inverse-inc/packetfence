@@ -42,6 +42,22 @@ my @setup_values = (
         }
     },
     {
+        section => 'ssl',
+        param => 'keystore_password',
+        default_val => '%keystore_password%',
+        new_val => sub {
+            return unpack("H*", Crypt::OpenSSL::Random::random_bytes(16));
+        }
+    },
+    {
+        section => 'ssl',
+        param => 'truststore_password',
+        default_val => '%truststore_password%',
+        new_val => sub {
+            return unpack("H*", Crypt::OpenSSL::Random::random_bytes(16));
+        }
+    },
+    {
         section => 'cluster',
         param => 'CLUSTER_ID',
         default_val => '%uuid%',
@@ -67,7 +83,7 @@ for my $setup (@setup_values) {
     }
 }
 
-my %keep = map { $_ => 1 } ('cluster', 'admin', 'auth client', 'iptables') ;
+my %keep = map { $_ => 1 } ('cluster', 'admin', 'auth client', 'iptables', 'ssl') ;
 
 if ($cluster_enabled) {
     for my $section ($ini->Sections) {

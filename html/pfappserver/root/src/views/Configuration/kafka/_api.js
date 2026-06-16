@@ -16,5 +16,10 @@ export default {
     return apiCall[patch](['config', 'kafka'], data).then(response => {
       return response.data
     })
+  },
+  generateCert: data => {
+    return apiCall.post(['config', 'kafka', 'generate_cert'], data).then(response => {
+      return response.data
+    })
   }
 }

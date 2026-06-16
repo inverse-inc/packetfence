@@ -62,6 +62,16 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  generateCert: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.generateCert(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 

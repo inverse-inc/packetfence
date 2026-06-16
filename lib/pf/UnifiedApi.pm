@@ -2449,6 +2449,7 @@ sub setup_api_v1_config_kafka_routes {
     $resource_route->register_sub_action({ method => 'PATCH', action => 'update', path => ''});
     $resource_route->register_sub_action({ method => 'GET', action => 'get', path => ''});
     $resource_route->register_sub_action({ method => 'OPTIONS', action => 'options', path => ''});
+    $resource_route->register_sub_action({ method => 'POST', action => 'generate_cert' });
 }
 
 =head1 AUTHOR

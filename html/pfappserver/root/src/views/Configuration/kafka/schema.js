@@ -32,11 +32,28 @@ const schemaIptables = yup.object({
   cluster_ips: schemaIpv4s,
 })
 
+const schemaSsl = yup.object({
+  enabled: yup.string().nullable(),
+  ca_id: yup.string().nullable().when('enabled', {
+    is: 'enabled',
+    then: yup.string().nullable().required(i18n.t('Certificate Authority required when mTLS is enabled.')),
+  }),
+  cn: yup.string().nullable().when('enabled', {
+    is: 'enabled',
+    then: yup.string().nullable().required(i18n.t('Common Name required when mTLS is enabled.')),
+  }),
+  dns_names: yup.string().nullable(),
+  ip_addresses: yup.string().nullable(),
+  peer_ca: yup.string().nullable(),
+  listener: yup.string().nullable(),
+})
+
 export const schema = () => yup.object({
   admin: schemaAuth,
   auths: schemaAuths,
   cluster: schemaClusters,
   iptables: schemaIptables,
+  ssl: schemaSsl,
 })
 
 export default schema

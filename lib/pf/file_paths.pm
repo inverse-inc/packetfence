@@ -130,6 +130,7 @@ our (
     $git_commit_id_file,
     $pfqueue_backend_socket,
     $kafka_config_dir,
+    $kafka_ssl_dir,
     $provisioning_filters_config_file,
     $provisioning_filters_config_default_file,
     $provisioning_filters_meta_config_file,
@@ -240,6 +241,7 @@ BEGIN {
         $git_commit_id_file
         $pfqueue_backend_socket
         $kafka_config_dir
+        $kafka_ssl_dir
         $provisioning_filters_config_file
         $provisioning_filters_config_default_file
         $provisioning_filters_meta_config_file
@@ -265,6 +267,7 @@ $html_dir = catdir($install_dir, "html");
 $log_dir  = catdir($install_dir, "logs");
 $log_conf_dir  = catdir($conf_dir,"log.conf.d");
 $kafka_config_dir = catdir($conf_dir, "kafka");
+$kafka_ssl_dir = catdir($kafka_config_dir, "ssl");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
 $generated_iptables_conf_dir   = catdir($generated_conf_dir, "iptables");

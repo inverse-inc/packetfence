@@ -15,12 +15,22 @@ use warnings;
 use pf::error qw(is_error is_success);
 use pf::util qw(listify);
 use pf::constants qw($TRUE);
+use pf::log;
+use pf::file_paths qw($kafka_ssl_dir);
+use pf::cluster;
+use pf::api::unifiedapiclient;
+use pf::dal::pki_certs;
+use pf::dal::pki_cas;
+use File::Path qw(make_path);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::Controller::Config;
 use pfappserver::Form::Config::Kafka;
 use pf::ConfigStore::Kafka;
 use pf::UnifiedApi::OpenAPI::Generator::Config;
+
+# The conventional pfpki profile name used to issue Kafka broker certificates
+use constant KAFKA_PKI_PROFILE_NAME => 'kafka-mtls';
 has 'config_store_class' => 'pf::ConfigStore::Kafka';
 has 'form_class' => 'pfappserver::Form::Config::Kafka';
 has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
@@ -447,6 +457,12 @@ sub update {
     }
 
     if ($self->save_in_config_store($new_data)) {
+        # The peer CA may have changed on save: rebuild the truststore on disk
+        # and distribute the ssl artifacts to the rest of the cluster.
+        eval { $self->_sync_peer_truststore() };
+        if ($@) {
+            get_logger->error("Unable to refresh the Kafka truststore: $@");
+        }
         $self->render(status => 200, json => {});
     }
 }
@@ -537,6 +553,7 @@ sub config_store {
 our %fields = (
     iptables => undef,
     admin => undef,
+    ssl => undef,
 );
 
 sub item {
@@ -651,6 +668,350 @@ sub flatten_item {
     }
 
     return \@flatten_items;
+}
+
+=head2 generate_cert
+
+Generate (or renew) the Kafka broker certificate using a pfpki CA.
+
+Ensures a dedicated pfpki profile exists for the selected CA, signs a broker
+certificate against it, then writes the keystore (PKCS12) and the PEM artifacts
+to C<$kafka_ssl_dir>. In a cluster the artifacts are distributed to every node.
+
+=cut
+
+sub generate_cert {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    $data //= {};
+
+    my $cs  = $self->config_store;
+    my $ssl = $cs->read('ssl') || {};
+
+    # Posted values take precedence over the saved [ssl] config
+    my $ca_id        = $data->{ca_id}        // $ssl->{ca_id};
+    my $cn           = $data->{cn}           // $ssl->{cn};
+    my $dns_names    = $data->{dns_names}    // $ssl->{dns_names}    // '';
+    my $ip_addresses = $data->{ip_addresses} // $ssl->{ip_addresses} // '';
+    my $keystore_password = $ssl->{keystore_password};
+
+    unless (defined $ca_id && $ca_id ne '') {
+        return $self->render_error(422, "A pfpki Certificate Authority (ca_id) must be selected");
+    }
+    unless (defined $cn && $cn ne '') {
+        return $self->render_error(422, "A Common Name (cn) is required");
+    }
+    unless (defined $keystore_password && $keystore_password ne '') {
+        return $self->render_error(422, "The keystore password is not initialized (run kafka-init)");
+    }
+
+    # In a cluster, the single shared certificate must carry every broker's
+    # advertised address in its SANs so it validates on all nodes.
+    if ($cluster_enabled) {
+        ($dns_names, $ip_addresses) = $self->_expand_cluster_sans($dns_names, $ip_addresses);
+    }
+
+    my $client = pf::api::unifiedapiclient->default_client;
+
+    my ($profile_id, $profile_name) = eval { $self->_ensure_kafka_profile($client, $ca_id) };
+    if ($@ || !$profile_id) {
+        return $self->render_error(500, "Unable to find or create the Kafka PKI profile: " . ($@ || 'unknown error'));
+    }
+
+    my $cert_resp = eval {
+        $client->call("POST", "/api/v1/pki/certs", {
+            cn           => $cn,
+            profile_id   => $profile_id,
+            dns_names    => $dns_names,
+            ip_addresses => $ip_addresses,
+        });
+    };
+    if ($@ || !$cert_resp) {
+        return $self->render_error(500, "Certificate generation failed: " . ($@ || 'unknown error'));
+    }
+
+    my $item   = (ref($cert_resp->{items}) eq 'ARRAY') ? $cert_resp->{items}[0] : undef;
+    my $serial = $cert_resp->{serial} // ($item ? $item->{serial_number} : undef);
+
+    my ($key_pem, $cert_pem) = $self->_read_cert_material($cn, $serial);
+    my $ca_pem = $self->_read_ca_cert($ca_id);
+    unless ($key_pem && $cert_pem && $ca_pem) {
+        return $self->render_error(500, "Unable to read the generated certificate material from the database");
+    }
+
+    # Persist the (possibly newly created) profile id and the resolved SANs
+    $self->_persist_ssl($cs, {
+        ca_id        => $ca_id,
+        profile_id   => $profile_id,
+        cn           => $cn,
+        dns_names    => $dns_names,
+        ip_addresses => $ip_addresses,
+    });
+
+    my @files = eval { $self->_write_keystore($key_pem, $cert_pem, $ca_pem, $keystore_password) };
+    if ($@) {
+        return $self->render_error(500, "Unable to write the keystore files: $@");
+    }
+
+    # (Re)build the peer truststore so a freshly generated keystore and the
+    # truststore are always in sync on disk, then distribute to the cluster.
+    eval { push @files, $self->_write_truststore($ssl->{peer_ca}, $ssl->{truststore_password}) };
+    if ($@) {
+        get_logger->error("Unable to build the Kafka truststore: $@");
+    }
+    $self->_sync_ssl_dir();
+
+    return $self->render(status => 200, json => {
+        serial      => $serial,
+        profile_id  => $profile_id,
+        valid_until => ($item ? $item->{valid_until} : undef),
+        files       => \@files,
+    });
+}
+
+=head2 _ensure_kafka_profile
+
+Find the dedicated Kafka pfpki profile for the given CA, creating it if needed.
+Returns C<($profile_id, $profile_name)>.
+
+=cut
+
+sub _ensure_kafka_profile {
+    my ($self, $client, $ca_id) = @_;
+
+    my $search = $client->call("POST", "/api/v1/pki/profiles/search", {
+        query => {
+            op     => 'and',
+            values => [
+                { field => 'ca_id', op => 'equals', value => $ca_id },
+                { field => 'name',  op => 'equals', value => KAFKA_PKI_PROFILE_NAME },
+            ],
+        },
+        limit => 1,
+    });
+    if ($search && ref($search->{items}) eq 'ARRAY' && @{$search->{items}}) {
+        my $p = $search->{items}[0];
+        return ($p->{ID} // $p->{id}, $p->{name} // $p->{Name});
+    }
+
+    # extended_key_usage "1|2" => serverAuth + clientAuth (the broker is both a
+    # TLS server to the peer and a TLS client to it during the mutual handshake)
+    my $created = $client->call("POST", "/api/v1/pki/profiles", {
+        name               => KAFKA_PKI_PROFILE_NAME,
+        ca_id              => $ca_id,
+        validity           => 825,
+        key_type           => 1,
+        key_size           => 2048,
+        digest             => 4,
+        key_usage          => "1|4",
+        extended_key_usage => "1|2",
+    });
+    my $p = (ref($created->{items}) eq 'ARRAY') ? $created->{items}[0] : $created;
+    return ($p->{ID} // $p->{id}, $p->{name} // $p->{Name});
+}
+
+=head2 _read_cert_material
+
+Read the private key and certificate PEM for the issued certificate from the
+pki_certs table (the create API intentionally omits the private key).
+
+=cut
+
+sub _read_cert_material {
+    my ($self, $cn, $serial) = @_;
+    # Prefer an exact match on the serial returned by the create call; fall back
+    # to the most recently issued certificate for this CN (the one we just made).
+    for my $where ( ($serial ? ({ cn => $cn, serial_number => $serial }) : ()), { cn => $cn } ) {
+        my ($status, $iter) = pf::dal::pki_certs->search(
+            -where    => $where,
+            -order_by => { -desc => 'id' },
+            -limit    => 1,
+            -with_class => undef,
+        );
+        next unless is_success($status);
+        my $row = $iter->next or next;
+        return ($row->{key}, $row->{cert});
+    }
+    return;
+}
+
+=head2 _read_ca_cert
+
+Read the CA certificate PEM for the given CA id from the pki_cas table.
+
+=cut
+
+sub _read_ca_cert {
+    my ($self, $ca_id) = @_;
+    my ($status, $iter) = pf::dal::pki_cas->search(
+        -where    => { id => $ca_id },
+        -limit    => 1,
+        -with_class => undef,
+    );
+    return unless is_success($status);
+    my $row = $iter->next;
+    return unless $row;
+    return $row->{cert};
+}
+
+=head2 _persist_ssl
+
+Persist the given key/value pairs into the [ssl] section and commit.
+
+=cut
+
+sub _persist_ssl {
+    my ($self, $cs, $params) = @_;
+    my $ssl = $cs->read('ssl') || {};
+    $cs->update_or_create('ssl', { %$ssl, %$params });
+    $self->commit($cs);
+}
+
+=head2 _ssl_dir
+
+Ensure the kafka ssl directory exists and return its path.
+
+=cut
+
+sub _ssl_dir {
+    my ($self) = @_;
+    make_path($kafka_ssl_dir) unless -d $kafka_ssl_dir;
+    return $kafka_ssl_dir;
+}
+
+=head2 _write_file
+
+Write content to a file under the ssl dir with the given mode, owned by pf.
+
+=cut
+
+sub _write_file {
+    my ($self, $name, $content, $mode) = @_;
+    my $path = $self->_ssl_dir . "/$name";
+    open(my $fh, '>', $path) or die "cannot write $path: $!\n";
+    print {$fh} $content;
+    close($fh);
+    chmod($mode, $path);
+    if ($ENV{PF_UID} && $ENV{PF_GID}) {
+        chown($ENV{PF_UID}, $ENV{PF_GID}, $path);
+    }
+    return $path;
+}
+
+=head2 _write_keystore
+
+Write key.pem, cert.pem, ca.pem and build the PKCS12 keystore (key + cert + CA
+chain). Returns the list of file paths written.
+
+=cut
+
+sub _write_keystore {
+    my ($self, $key_pem, $cert_pem, $ca_pem, $password) = @_;
+    my $key_path  = $self->_write_file('key.pem',  $key_pem,  0600);
+    my $cert_path = $self->_write_file('cert.pem', $cert_pem, 0644);
+    my $ca_path   = $self->_write_file('ca.pem',   $ca_pem,   0644);
+    my $ks_path   = $self->_ssl_dir . "/keystore.p12";
+
+    local $ENV{PF_KAFKA_KS_PASS} = $password;
+    my @cmd = (
+        'openssl', 'pkcs12', '-export',
+        '-inkey',    $key_path,
+        '-in',       $cert_path,
+        '-certfile', $ca_path,
+        '-name',     'kafka',
+        '-out',      $ks_path,
+        '-passout',  'env:PF_KAFKA_KS_PASS',
+    );
+    system(@cmd) == 0 or die "openssl keystore generation failed (exit " . ($? >> 8) . ")\n";
+    chmod(0600, $ks_path);
+    if ($ENV{PF_UID} && $ENV{PF_GID}) {
+        chown($ENV{PF_UID}, $ENV{PF_GID}, $ks_path);
+    }
+    return ($key_path, $cert_path, $ca_path, $ks_path);
+}
+
+=head2 _write_truststore
+
+Write the peer CA PEM and build a PKCS12 truststore from it. Returns the list of
+file paths written (empty if no peer CA is configured).
+
+=cut
+
+sub _write_truststore {
+    my ($self, $peer_ca, $password) = @_;
+    return () unless defined $peer_ca && $peer_ca =~ /\S/;
+    return () unless defined $password && $password ne '';
+
+    my $peer_path = $self->_write_file('peer-ca.pem', $peer_ca, 0644);
+    my $ts_path   = $self->_ssl_dir . "/truststore.p12";
+
+    local $ENV{PF_KAFKA_TS_PASS} = $password;
+    my @cmd = (
+        'openssl', 'pkcs12', '-export', '-nokeys',
+        '-in',      $peer_path,
+        '-name',    'kafka-peer-ca',
+        '-out',     $ts_path,
+        '-passout', 'env:PF_KAFKA_TS_PASS',
+    );
+    system(@cmd) == 0 or die "openssl truststore generation failed (exit " . ($? >> 8) . ")\n";
+    chmod(0600, $ts_path);
+    if ($ENV{PF_UID} && $ENV{PF_GID}) {
+        chown($ENV{PF_UID}, $ENV{PF_GID}, $ts_path);
+    }
+    return ($peer_path, $ts_path);
+}
+
+=head2 _sync_peer_truststore
+
+Rebuild the peer truststore from the saved config and distribute it. Used after
+a config save so a changed peer CA is reflected on disk.
+
+=cut
+
+sub _sync_peer_truststore {
+    my ($self) = @_;
+    my $ssl = $self->config_store->read('ssl') || {};
+    my @files = $self->_write_truststore($ssl->{peer_ca}, $ssl->{truststore_password});
+    $self->_sync_ssl_dir() if @files;
+    return;
+}
+
+=head2 _expand_cluster_sans
+
+Merge the configured SANs with every cluster member's management IP so the
+shared certificate validates on all brokers. Returns C<($dns_names, $ips)>.
+
+=cut
+
+sub _expand_cluster_sans {
+    my ($self, $dns_names, $ip_addresses) = @_;
+    my %ips = map { $_ => 1 } grep { /\S/ } split(/\s*,\s*/, $ip_addresses // '');
+    for my $server (pf::cluster::enabled_servers()) {
+        $ips{$server->{management_ip}} = 1 if $server->{management_ip};
+    }
+    return ($dns_names, join(",", sort keys %ips));
+}
+
+=head2 _sync_ssl_dir
+
+Distribute the kafka ssl artifacts to the other cluster members. Each member
+pulls the files from this (origin) server via the cluster file sync.
+
+=cut
+
+sub _sync_ssl_dir {
+    my ($self) = @_;
+    return unless $cluster_enabled;
+    my @files = grep { -f $_ } glob("$kafka_ssl_dir/*");
+    return unless @files;
+    eval { pf::cluster::sync_files(\@files) };
+    if ($@) {
+        get_logger->error("Unable to distribute the Kafka ssl files to the cluster: $@");
+    }
+    return;
 }
 
 =head1 AUTHOR
