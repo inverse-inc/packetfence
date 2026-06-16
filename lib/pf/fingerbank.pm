@@ -154,6 +154,25 @@ sub process {
     }
 }
 
+=head2 _refresh_collector_auth
+
+Set the current Fingerbank API key as the C<Authorization> header on a collector request.
+
+The built request is cached (see L</endpoint_attributes> and L</update_collector_endpoint_data>)
+in the Redis-backed C<fingerbank> CHI namespace with no expiration, so the auth header baked in
+by C<fingerbank::Collector::build_request> would otherwise become stale when the API key is
+rotated, causing C<401 Unauthorized> from the collector until the cache is manually flushed.
+Refreshing the header at request time keeps it in sync with C<fingerbank.conf> (which
+C<fingerbank::Config> reloads on file mtime change).
+
+=cut
+
+sub _refresh_collector_auth {
+    my ($req) = @_;
+    $req->header(Authorization => "Token ".fingerbank::Config::get_config('upstream', 'api_key'));
+    return $req;
+}
+
 =head2 endpoint_attributes
 
 Given a MAC address, collect all the latest known data profiling attributes.
@@ -174,6 +193,7 @@ sub endpoint_attributes {
     my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$mac", sub {
         $collector->build_request("GET", "/endpoint_data/$mac");
     });
+    _refresh_collector_auth($req);
 
     my $res = $collector_ua->request($req);
     if ($res->is_success) {
@@ -232,6 +252,7 @@ sub update_collector_endpoint_data {
     my $req = cache()->compute("pf::fingerbank::update_collector_endpoint_data::request::$mac", sub {
         $collector->build_request("PATCH", "/endpoint_data/$mac");
     });
+    _refresh_collector_auth($req);
     $req->content(encode_json($data));
 
     my $res = $collector_ua->request($req);
