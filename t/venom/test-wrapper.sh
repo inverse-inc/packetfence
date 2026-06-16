@@ -24,6 +24,20 @@ delete_dir_if_exists() {
     fi
 }
 
+# vagrant redraws "Progress: N%" with carriage returns (no newline), so the whole
+# burst arrives as one line; `tr` splits it so each redraw can be dropped. Covers
+# the vagrant-libvirt volume upload ("Progress: 0%") and box downloads
+# ("name: Progress: 45% (Rate: ...)"). Real output, including colors, passes through.
+filter_vagrant_progress() {
+    local esc=$'\033'
+    tr '\r' '\n' | awk -v esc="$esc" '
+      { clean = $0; gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean) }
+      clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/ { next }   # drop progress redraws
+      clean ~ /^[ \t]*$/ && $0 != clean { next }                                              # drop control-only fragments
+      { print; fflush() }
+    '
+}
+
 configure_and_check() {
     log_section "Configure and check"
     # full path to root of sources
@@ -145,7 +159,7 @@ start_vm() {
           VAGRANT_DOTFILE_PATH=${dotfile_path} \
                   vagrant up \
                   ${vm} \
-                  ${VAGRANT_UP_OPTS} )
+                  ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
     fi
 }
 
