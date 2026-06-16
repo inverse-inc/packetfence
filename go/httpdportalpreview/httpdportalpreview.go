@@ -189,7 +189,7 @@ func (p *Proxy) RewriteAnswer(r *http.Response, buff []byte) error {
 		case tt == html.StartTagToken, tt == html.SelfClosingTagToken:
 			t := z.Token()
 			// Check if the token is an <a> or <form> tag
-			isAnchor := (t.Data == "a" || t.Data == "form" || t.Data == "link" || t.Data == "img" || t.Data == "script")
+			isAnchor := (t.Data == "a" || t.Data == "form" || t.Data == "link" || t.Data == "img" || t.Data == "script" || t.Data == "source")
 
 			if !isAnchor {
 				continue
@@ -234,6 +234,9 @@ func getHref(t html.Token) (ok bool, href string) {
 			href = a.Val
 			ok = true
 		case a.Key == "src":
+			href = a.Val
+			ok = true
+		case a.Key == "srcset":
 			href = a.Val
 			ok = true
 		}

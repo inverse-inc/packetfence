@@ -55,7 +55,10 @@ files via the profile's Files tab
 * *Logo*: upload a file named exactly `logo.png`. Recommended size: 330 × 75 px,
   PNG with transparent background.
 * *Background*: upload a file named exactly `background.png`. Recommended size:
-  ≥ 1920 × 1080 px, 16:9 landscape, PNG.
+  1920 × 1080 px, 16:9 landscape, PNG. The portal scales the image to fill the
+  viewport (`object-fit: cover`), so smaller files will be upscaled on large
+  displays. The image is only downloaded on tablet-and-wider screens; mobile
+  devices skip the fetch entirely.
 
 If a profile does not have its own file, the default connection profile's file
 is used as a fallback. No configuration fields need to be filled in — the portal

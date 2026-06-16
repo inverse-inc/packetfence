@@ -8,9 +8,7 @@
   <meta name="color-scheme" content="light dark">
   <link href="/common/styles.css" media="screen" rel="stylesheet" type="text/css" />
   <!-- Theme CSS configuration -->
-  [% IF theme_path %]
-    <link href="[% theme_path %]" media="screen" rel="stylesheet" type="text/css" />
-  [% END %]
+  <link href="[% theme_path %]" media="screen" rel="stylesheet" type="text/css" />
   <script src="/common/pf.js" type="text/javascript"></script>
   <script src="/content/captiveportal.js" type="text/javascript"></script>
   <script src="/common/qrcode.min.js" type="text/javascript"></script>
@@ -18,11 +16,14 @@
   <title>[% IF title.defined ; i18n(title) ; ELSE ; i18n("PacketFence Registration system") ; END %]</title>
 </head>
 <body>
-<!-- Background image: resolved server-side (profile-specific → default profile → /common/background.png).
-     Hidden on mobile via .pf-bg CSS class; shown as fixed full-viewport cover on tablet and wider. -->
-[% IF background_url %]
-<img class="pf-bg" src="[% background_url %]" aria-hidden="true" alt="">
-[% END %]
+  <!-- Background image: resolved server-side (profile-specific → default profile → /common/background.png).
+     <picture> + <source media> ensures the image is only fetched on tablet-and-wider viewports;
+     mobile devices receive a data: no-op and skip the download entirely. -->
+  <picture>
+    <!-- Show background image on larger screens ( tablet + ) -->
+    <source media="(min-width: 46.25em)" srcset="[% background_url %]">
+    <img class="pf-bg" aria-hidden="true" alt="">
+  </picture>
   <!--
     title: [% title %]
     module: [% current_module.pretty_class_name %]
