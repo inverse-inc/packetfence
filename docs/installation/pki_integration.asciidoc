@@ -18,11 +18,6 @@ endif::[]
 
 //== PKI Integration
 
-[[ms-pki]]
-=== Microsoft PKI
-
-include::pki/microsoft.asciidoc[]
-
 [[pf-pki]]
 === PacketFence PKI
 
