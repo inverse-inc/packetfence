@@ -137,11 +137,6 @@ run() {
 # debian/*) have no bucket URL and are fetched by Vagrant directly.
 prefetch_private_box() {
     local vm=$1
-    # No object-storage creds (e.g. local dev): let Vagrant handle the box itself.
-    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || return 0
-
-    local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
-    [ -x "${setup_script}" ] || return 0
 
     local box_url
     box_url=$(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
@@ -161,15 +156,21 @@ walk(inv)
 print(hit.get('box_url', ''))
 PY
 )
+    # Public boxes (debian/*, generic/rhel8) have no bucket URL: Vagrant fetches them.
     case "${box_url}" in
-        *packetfence-vagrant-box*)
-            # https://<host>/<box_name>/metadata.json -> <box_name>
-            local box_name
-            box_name=$(basename "$(dirname "${box_url}")")
-            echo "===> Pre-fetching private box '${box_name}' for VM '${vm}'"
-            BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
-            ;;
+        *packetfence-vagrant-box*) ;;
+        *) return 0 ;;
     esac
+
+    # Private box: creds are mandatory; fail clearly instead of a later vagrant 403.
+    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || \
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset (set RCLONE_ACCESS_KEY_ID/RCLONE_SECRET_ACCESS_KEY/RCLONE_LINODE_URL)."
+
+    local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
+    local box_name                                    # .../<box_name>/metadata.json
+    box_name=$(basename "$(dirname "${box_url}")")
+    echo "===> Pre-fetching private box '${box_name}' for VM '${vm}'"
+    BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
 }
 
 # Start with or without VM

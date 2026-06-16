@@ -52,7 +52,8 @@ variables:
   ISODIR: $CIDIR/cd-iso
   DVD_USB_ISODIR: $CIDIR/dvd-usb-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
-  VAGRANT_LIB_DIR: $CIDIR/lib/vagrant
+  # Absolute: consumed by test-wrapper.sh under `make -C t/venom` (cwd != repo root).
+  VAGRANT_LIB_DIR: ${CI_PROJECT_DIR}/$CIDIR/lib/vagrant
   TESTDIR: t/venom
   CONTAINER_DIR: containers
   UPLOAD_DIR: $CILIBDIR/upload
