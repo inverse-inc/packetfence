@@ -109,7 +109,7 @@ sub build {
         my $key = "${connector}:${local_port}";
         next if $join_remote_seen{$key};
         $join_remote_seen{$key} = 1;
-        my $r = "${local_port}:127.0.0.1:" . JOIN_REMOTE_TARGET_PORT . "/tcp";
+        my $r = "${local_port}:100.64.0.1:" . JOIN_REMOTE_TARGET_PORT . "/tcp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;

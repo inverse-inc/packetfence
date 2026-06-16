@@ -877,6 +877,27 @@ type Domain struct {
 	UseConnector                        string `json:"use_connector"`
 }
 
+type Realms struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Realm"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]Realm
+}
+
+type OrderedRealms struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::OrderedRealm"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 []string
+}
+
+type Realm struct {
+	Regex  string `json:"regex"`
+	Domain string `json:"domain"`
+}
+
 type FleetDM struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
@@ -1151,4 +1172,17 @@ type PfConfDnsConnectors struct {
 	PfconfigNS              string `val:"config::DnsConnectors"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
+}
+
+type PfRadiusCert struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Ssl"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]struct {
+		Default string `json:"default,omitempty"`
+		Cert    string `json:"cert,omitempty"`
+		Ca      string `json:"ca,omitempty"`
+		Key     string `json:"key,omitempty"`
+	}
 }

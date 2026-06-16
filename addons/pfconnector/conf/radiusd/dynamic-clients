@@ -1,0 +1,13 @@
+# Dynamic clients loaded from flat files synced from PacketFence server
+client dynamic {
+        ipaddr = 0.0.0.0/0
+        dynamic_clients = dynamic_clients_server
+        directory = ${confdir}/dynamic-clients/
+        lifetime = 0
+}
+
+server dynamic_clients_server {
+        authorize {
+                dynamic_clients
+        }
+}

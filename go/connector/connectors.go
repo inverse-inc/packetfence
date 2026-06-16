@@ -37,19 +37,25 @@ func NewConnectorsContainer(ctx context.Context) *ConnectorsContainer {
 
 func (cc *ConnectorsContainer) All(ctx context.Context) map[string]*Connector {
 	connectors := map[string]*Connector{}
-	for id, o := range cc.Structs {
+	for id, o := range cc.SnapshotStructs(ctx) {
 		connectors[id] = o.(*Connector)
 	}
 	return connectors
 }
 
 func (cc *ConnectorsContainer) Get(ctx context.Context, id string) *Connector {
-	return cc.Structs[id].(*Connector)
+	if o, ok := cc.GetStruct(ctx, id); ok {
+		return o.(*Connector)
+	}
+	return nil
 }
 
 func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector {
-	for _, id := range cc.Keys(ctx) {
-		c := cc.Get(ctx, id)
+	// Take a single consistent snapshot so the iteration can't race with a
+	// concurrent Refresh swapping the underlying map.
+	snapshot := cc.SnapshotStructs(ctx)
+	for _, o := range snapshot {
+		c := o.(*Connector)
 		for _, network := range c.NetworksObjects {
 			if network.Contains(ip) {
 				return c
@@ -57,12 +63,15 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 		}
 	}
 
-	return cc.Get(ctx, "local_connector")
+	if o, ok := snapshot["local_connector"]; ok {
+		return o.(*Connector)
+	}
+	return nil
 }
 
 func (cc *ConnectorsContainer) IpPartOf(ctx context.Context, ip net.IP) bool {
-	for _, id := range cc.Keys(ctx) {
-		c := cc.Get(ctx, id)
+	for _, o := range cc.SnapshotStructs(ctx) {
+		c := o.(*Connector)
 		for _, network := range c.NetworksObjects {
 			if network.Contains(ip) {
 				return true
@@ -168,6 +177,9 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 			toIP = dstIp.String()
 		}
 		c := cc.ForIP(ctx, net.ParseIP(toIP))
+		if c == nil {
+			return "", fmt.Errorf("unable to find a connector for %s", toIP)
+		}
 		var connInfo DynReverseConnectionInfo
 		var err error
 		if localPort != "" {

@@ -1,0 +1,285 @@
+
+home_server pf.remote {
+        type = auth+acct
+        ipaddr = 100.64.0.1
+        src_ipaddr = %mgmt_ip%
+        port = 18122
+        secret = '%password%'
+        response_window = 3                  # seconds to wait for ANY reply
+        zombie_period = 10                   # mark server dead after this
+        revive_interval = 60                 # auto revive if it’s been dead that long
+
+        # Status‑server checks every check_interval, if supported
+        status_check = status-server
+        check_interval = 10                  # probe every 10 sec
+        num_answers_to_alive = 1             # 1 good reply → mark alive
+}
+
+home_server degraded {
+	virtual_server = pf.degraded
+}
+
+#  Put all of the servers into a pool.
+home_server_pool pf_auth_pool {
+	type = fail-over
+	home_server =  pf.remote
+	home_server =  degraded
+}
+
+home_server_pool pf_acct_pool {
+	type = fail-over
+	home_server =  pf.remote
+}
+
+realm remote {
+	auth_pool = pf_auth_pool
+	acct_pool = pf_acct_pool
+}
+
+home_server_pool degraded_pool {
+	home_server = degraded
+}
+
+realm degraded {
+	auth_pool = degraded_pool
+}
+
+
+server pf-remote {
+	pre-proxy {
+		update proxy-request {
+			PacketFence-ConnectorID := "%connector_id%"
+		}
+	}
+
+	post-proxy {
+		rewrite_calling_station_id
+		rewrite_called_station_id
+		update control {
+			PacketFence-Proxied-To := "%{home_server:ipaddr}"
+		}
+		if (&proxy-reply:Packet-Type == Access-Accept) {
+			rest
+		}
+		else {
+			noop
+		}
+		attr_filter.packetfence_post_auth
+	}
+
+	authorize {
+		rest-remote
+		# Always rate-limit-check so a 403 hard-reject wins even when
+		# rest-remote already said degraded. Stash rest-remote's verdict
+		# so a rate-limit "remote" response can't upgrade a tunnel-down
+		# decision back to remote.
+		update control {
+			Tmp-String-0 := "%{control:Proxy-To-Realm}"
+		}
+		# Only rate-limit the first packet of a conversation. EAP methods
+		# (PEAP/TTLS/TLS) emit one Access-Request per TLS round-trip, all
+		# carrying a State attribute; counting each one would burn through
+		# rate_limit_rate (default 6) mid-handshake and 403-reject the
+		# in-flight auth. The initial request has no State.
+		if (!State) {
+			rest-ratelimit
+		}
+		if (&control:Tmp-String-0 == "degraded") {
+			update control {
+				Proxy-To-Realm := "degraded"
+			}
+		}
+		update control {
+			Load-Balance-Key := "%{Calling-Station-Id}"
+		}
+		if(!NAS-IP-Address){
+			update request {
+				NAS-IP-Address := "%{Packet-Src-IP-Address}"
+			}
+		}
+	}
+
+
+	authenticate {
+	}
+	accounting {
+		rest-remote
+		if(!NAS-IP-Address){
+			update request {
+				NAS-IP-Address := "%{Packet-Src-IP-Address}"
+			}
+		}
+	}
+
+}
+
+
+
+server pf.degraded {
+	authorize {
+		rewrite_calling_station_id
+		rewrite_called_station_id
+
+		filter_username
+
+		filter_password
+
+		preprocess
+
+		suffix
+
+		ntdomain
+
+		eap {
+			ok = return
+		}
+		if ( !EAP-Message ) {
+			update {
+				&control:Auth-Type := Accept
+			}
+		}
+		pap
+
+	}
+
+	authenticate {
+		Auth-Type PAP {
+			pap
+		}
+
+		Auth-Type CHAP {
+			chap
+		}
+
+		Auth-Type MS-CHAP {
+			mschap
+		}
+
+	#	Auth-Type LDAP {
+	#		ldap
+	#	}
+
+		#
+		#  Allow EAP authentication.
+		eap
+	}
+
+
+	#
+	#  Pre-accounting.  Decide which accounting type to use.
+	#
+	preacct {
+		preprocess
+
+	}
+
+	#
+	#  Accounting.  Log the accounting data.
+	#
+	accounting {
+		if (noop) {
+			ok
+		}
+
+		attr_filter.accounting_response
+	}
+
+
+	session {
+	}
+
+
+	post-auth {
+		attr_filter.packetfence_post_auth
+		linelog
+		if (reply:Packet-Type != Access-Challenge) {
+			rest
+		}
+		Post-Auth-Type REJECT {
+			attr_filter.access_reject
+			attr_filter.packetfence_post_auth
+
+			# Insert EAP-Failure message if the request was
+			# rejected by policy instead of because of an
+			# authentication failure
+			eap
+
+			#  Remove reply message if the response contains an EAP-Message
+			remove_reply_message_if_eap
+			linelog
+		}
+	}
+
+	pre-proxy {
+	}
+
+	post-proxy {
+		eap
+	}
+}
+
+server packetfence-degraded-tunnel {
+
+	authorize {
+		filter_username
+		mschap
+		suffix
+		ntdomain
+		rest-multidomain
+		eap {
+			ok = return
+		}
+		rewrite_called_station_id
+
+		# Uncomment the following line to enable local PEAP authentication
+
+		pap
+	}
+
+
+	authenticate {
+		Auth-Type PAP {
+			pap
+		}
+		Auth-Type CHAP {
+			chap
+		}
+		Auth-Type MS-CHAP {
+			packetfence-mschap-authenticate
+		}
+		eap
+
+	}
+
+	session {
+		radutmp
+	}
+
+
+	post-auth {
+		update outer.session-state {
+			&MS-MPPE-Encryption-Policy !* ANY
+			&MS-MPPE-Encryption-Types !* ANY
+			&MS-MPPE-Send-Key !* ANY
+			&MS-MPPE-Recv-Key !* ANY
+			&Message-Authenticator !* ANY
+			&EAP-Message !* ANY
+			&Proxy-State !* ANY
+		}
+
+		Post-Auth-Type REJECT {
+			attr_filter.access_reject
+			update outer.session-state {
+				&Module-Failure-Message := &request:Module-Failure-Message
+			}
+		}
+	}
+
+	pre-proxy {
+	}
+
+	post-proxy {
+		eap
+	}
+
+}

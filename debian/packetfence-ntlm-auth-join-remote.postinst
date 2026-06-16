@@ -28,10 +28,14 @@ case "$1" in
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-ntlm-auth-join-remote.service
     if [ -n "$2" ]; then
-        if systemctl is-active --quiet "packetfence-ntlm-auth-join-remote.service"; then
-            echo "Upgrade detected, restarting packetfence-ntlm-auth-join-remote service"
-            /bin/systemctl restart packetfence-ntlm-auth-join-remote.service
-        fi
+        echo "Upgrade detected, restarting packetfence-ntlm-auth-join-remote service"
+        # --no-block: don't make dpkg wait on (and report) the first start. During an
+        # upgrade the pfconnector-remote-combined container was just restarted and its
+        # tunnel can take up to 120s to be ready, while the combined unit is Type=simple
+        # so our After= is satisfied long before that. The first start would block to the
+        # timeout and fail; Restart=on-failure brings it up cleanly once the tunnel is ready.
+        /bin/systemctl restart --no-block packetfence-ntlm-auth-join-remote.service || \
+            echo "Warning: failed to enqueue restart of packetfence-ntlm-auth-join-remote.service (will retry via Restart=on-failure)"
     else
         /bin/systemctl stop packetfence-ntlm-auth-join-remote.service 2>/dev/null || true
     fi

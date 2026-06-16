@@ -56,6 +56,7 @@ type Server struct {
 	connectorIndexesLock  *sync.Mutex
 	radiusProxy           *radius_proxy.Proxy
 	baseCtx               context.Context
+	connectorStatus       *ConnectorStatusTracker
 }
 
 var upgrader = websocket.Upgrader{
@@ -80,6 +81,7 @@ func NewServerWithContext(ctx context.Context, c *Config) (*Server, error) {
 		connectorsIndexes:    map[string]int{},
 		connectorIndexesLock: &sync.Mutex{},
 		baseCtx:              ctx,
+		connectorStatus:      NewConnectorStatusTracker(),
 	}
 	server.Info = true
 	server.users = settings.NewUserIndex(server.Logger)
@@ -175,6 +177,7 @@ func (s *Server) StartContext(ctx context.Context, host, port string) error {
 	}
 
 	s.setupRedisClient(ctx)
+	s.connectorStatus.Start(ctx)
 
 	return s.httpServer.GoServe(ctx, l, h)
 }

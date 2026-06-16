@@ -41,7 +41,7 @@ BEGIN {
     );
 }
 
-use pf::config qw($local_secret $management_network);
+use pf::config qw($local_secret $management_network $unified_api_system_user);
 use pf::db;
 use pf::dal::radius_nas;
 use pf::dal;
@@ -148,6 +148,7 @@ sub freeradius_populate_nas_config {
     my @entries = (
         (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
         additional_switches(),
+        pfconnector_nas_row(),
     );
     #Looping through all the switches 100 at a time
     my $it = natatime 100, @entries;
@@ -160,6 +161,16 @@ sub freeradius_populate_nas_config {
     }
     _delete_expired($timestamp);
     validate_radius_nas_table($timestamp);
+}
+
+sub pfconnector_nas_row {
+    my $pass = $unified_api_system_user ? $unified_api_system_user->{pass} : undef;
+    return () unless defined $pass && $pass =~ /\S/;
+    return ({
+        id           => 'pfconnector',
+        radiusSecret => $pass,
+        type         => 'PacketFence',
+    });
 }
 
 sub additional_switches {
@@ -175,8 +186,12 @@ sub additional_switches {
                 }
             } (@$entries);
         }
+    } elsif (ref($management_network)) {
+        my $mgmt_ip = $management_network->tag('vip') || $management_network->tag('ip');
+        if (defined $mgmt_ip && $mgmt_ip =~ /\S/) {
+            push @switches, { id => $mgmt_ip, radiusSecret => $local_secret, type => 'PacketFence'};
+        }
     }
-
 
     return @switches;
 }

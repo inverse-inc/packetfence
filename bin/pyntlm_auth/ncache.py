@@ -8,6 +8,7 @@ import flags
 import utils
 import datetime
 import log
+import credcache_push
 
 NT_KEY_USER_LOCKED = "*"
 NT_KEY_USER_DISABLED = "-"
@@ -122,7 +123,13 @@ def update_cache_entry(key, value, expires_at):
     query = "INSERT INTO `chi_cache` (`key`, `value`, `expires_at`) VALUES (%s, %s, %s) " \
             "ON DUPLICATE KEY UPDATE `value` = %s"
     if hasattr(g, 'db'):
-        g.db.execute(query, (key, value, expires_at, value))
+        try:
+            g.db.execute(query, (key, value, expires_at, value))
+        except Exception as e:
+            log.warning(f"chi_cache write failed for key={key} (offline?): {e}")
+    # Mirror nt_key_cache:* writes to pfconnector-remote credcache when enabled
+    # (CREDCACHE_URL set). Fire-and-forget; no-op in non-remote installs.
+    credcache_push.push_async(key, value, expires_at)
 
 
 def get_cache_entry(key):
@@ -210,12 +217,37 @@ def cached_login(domain, account_username, mac, challenge, nt_response):
     cache_key_root = build_cache_key(domain, account_username, '')
     cache_key_device = build_cache_key(domain, account_username, mac)
 
-    cache_entries = get_cache_entries(cache_key_root, cache_key_device)
-    for cache_entry in cache_entries:
-        if cache_entry['key'] == cache_key_root:
-            cache_entry_root = cache_entry
-        if cache_entry['key'] == cache_key_device:
-            cache_entry_device = cache_entry
+    # Try credcache first: on a pfconnector-remote this avoids a chi_cache
+    # SELECT over the tunnel for every repeat auth. The caller verifies
+    # challenge/response itself, so a stale key simply fails that check and
+    # the user retries (same tradeoff as the pre-existing offline fast-path).
+    # No-op on non-remote installs where CREDCACHE_URL is unset.
+    cached_value = credcache_push.fetch(cache_key_root)
+    if cached_value:
+        nt_key = ""
+        try:
+            parsed = json.loads(cached_value)
+            if isinstance(parsed, dict) and "nt_key" not in parsed and "value" in parsed:
+                parsed = json.loads(parsed["value"])
+            nt_key = parsed.get("nt_key", "") if isinstance(parsed, dict) else ""
+        except Exception as e:
+            log.warning(f"credcache fast-path: failed to parse value for {cache_key_root}: {e}")
+        if nt_key:
+            log.debug(f"credcache fast-path for {cache_key_root}")
+            return nt_key, 0, None
+
+    try:
+        cache_entries = get_cache_entries(cache_key_root, cache_key_device)
+    except Exception as e:
+        log.warning(f"chi_cache read failed (offline?): {e}")
+        cache_entries = None
+
+    if cache_entries:
+        for cache_entry in cache_entries:
+            if cache_entry['key'] == cache_key_root:
+                cache_entry_root = cache_entry
+            if cache_entry['key'] == cache_key_device:
+                cache_entry_device = cache_entry
 
     nt_key = "",
     error_code = -1

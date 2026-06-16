@@ -11,8 +11,8 @@
       </base-search>
       <base-table-sortable ref="tableRef"
         :busy="isLoading"
-        :hover="items.length > 0"
-        :items="items"
+        :hover="itemsWithStatus.length > 0"
+        :items="itemsWithStatus"
         :fields="visibleColumns"
         class="mb-0"
         show-empty
@@ -40,6 +40,17 @@
         </template>
         <template v-slot:cell(networks)="item">
           <b-badge v-for="(network, index) in item.item.networks" :key="index" class="mr-1" variant="secondary">{{ network }}</b-badge>
+        </template>
+        <template v-slot:cell(status)="data">
+          <icon name="circle"
+            v-b-tooltip.hover
+            :title="statusTooltip(data.item.status)"
+            :class="{
+              'text-success': data.item.status === 'up',
+              'text-warning': data.item.status === 'unknown',
+              'text-danger': data.item.status === 'down',
+            }"
+          />
         </template>
         <template #cell(selected)="{ index, rowSelected }">
           <span @click.stop="onItemSelected(index)">
@@ -109,7 +120,7 @@ const components = {
   BaseTableSortable
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { ref, toRefs, onMounted, onUnmounted, computed } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -132,13 +143,54 @@ const setup = (props, context) => {
 
   const {
     deleteItem,
-    sortItems
+    sortItems,
+    getConnectorsStatus
   } = useStore($store)
 
   const router = useRouter($router)
 
+  const connectorStatuses = ref({})
+  let statusInterval = null
+
+  const fetchStatuses = () => {
+    getConnectorsStatus().then(statuses => {
+      connectorStatuses.value = Object.fromEntries(
+        statuses.map(s => [s.id, s.status])
+      )
+    }).catch(() => {
+      // gracefully ignore errors
+    })
+  }
+
+  onMounted(() => {
+    fetchStatuses()
+    statusInterval = setInterval(fetchStatuses, 10000)
+  })
+
+  onUnmounted(() => {
+    if (statusInterval) {
+      clearInterval(statusInterval)
+      statusInterval = null
+    }
+  })
+
+  const itemsWithStatus = computed(() => {
+    return items.value.map(item => ({
+      ...item,
+      status: connectorStatuses.value[item.id] || 'unknown'
+    }))
+  })
+
+  const statusTooltip = (status) => {
+    switch (status) {
+      case 'up': return i18n.t('Connected')
+      case 'down': return i18n.t('Disconnected')
+      default: return i18n.t('Unknown')
+    }
+  }
+
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items)
+  const selected = useBootstrapTableSelected(tableRef, itemsWithStatus)
   const {
     selectedItems
   } = selected
@@ -180,6 +232,8 @@ const setup = (props, context) => {
 
   return {
     useSearch,
+    itemsWithStatus,
+    statusTooltip,
     tableRef,
     onCopyInstallCommand,
     onRemove,

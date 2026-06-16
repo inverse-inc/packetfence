@@ -1,0 +1,14 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence Connector Remote (Combined)
+Wants=network.service
+After=network.service
+
+[Service]
+LimitNOFILE=infinity
+ExecStart=/usr/local/pfconnector-remote/bin/pfconnector-remote-combined-docker-wrapper
+ExecStop=/bin/bash -c "docker stop pfconnector-remote-combined ; echo Stopped"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

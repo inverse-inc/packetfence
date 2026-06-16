@@ -2221,6 +2221,8 @@ sub setup_api_v1_config_connectors_routes {
         "api.v1.Config.Connectors"
     );
 
+    $collection_route->register_sub_action({ action => 'status', method => 'GET' });
+
     return ($collection_route, $resource_route);
 }
 

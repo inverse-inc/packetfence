@@ -1,0 +1,35 @@
+#!/bin/bash
+
+source /usr/local/pfconnector-remote/containers/systemd-service
+
+name=pfconnector-remote-combined
+
+args=`base_args $name`
+
+# pfconnector-client env vars
+args="$args --env-file /usr/local/pfconnector-remote/conf/pfconnector-client.env"
+args="$args -eLOG_OUTPUT=stdout"
+# Don't exit the container when a supervised service crashes
+args="$args -eS6_BEHAVIOUR_IF_STAGE2_FAILS=0"
+# Allow up to 120s for services to start (wait-for-pfconnector needs time)
+args="$args -eS6_CMD_WAIT_FOR_SERVICES_MAXTIME=120000"
+
+# Shared mounts
+args="$args -v /usr/local/pfconnector-remote/conf:/usr/local/pf/conf"
+args="$args -v /usr/local/pfconnector-remote/logs:/usr/local/pf/logs"
+args="$args -v /usr/local/pfconnector-remote/var/conf:/usr/local/pf/var/conf"
+
+# radiusd-auth mounts
+args="$args -v /usr/local/pfconnector-remote/conf/log.conf.d/:/usr/local/pf/conf/log.conf.d/"
+args="$args -v /usr/local/pfconnector-remote/conf/ssl/:/usr/local/pf/conf/ssl/"
+args="$args -v /usr/local/pfconnector-remote/raddb/:/usr/local/pf/raddb/"
+
+# fingerbank-collector mounts
+args="$args -v /usr/local/pfconnector-remote/db:/usr/local/collector-remote/db"
+
+# connector-cache sqlite DB (persist across container restarts)
+args="$args -v /usr/local/pfconnector-remote/var/lib/packetfence-connector-cache:/usr/local/packetfence-connector-cache"
+
+args="$args --network=host"
+
+run $name "$args"

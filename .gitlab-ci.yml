@@ -739,6 +739,7 @@ radiusd_related:
           - "radiusd-cli"
           - "radiusd-load-balancer"
           - "radiusd-eduroam"
+          - "pfconnector-remote"
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
