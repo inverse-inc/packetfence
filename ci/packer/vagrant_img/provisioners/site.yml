@@ -1,6 +1,8 @@
 ---
 - import_playbook: playbooks/install_utils.yml
-  
+
+- import_playbook: playbooks/register_rhel_subscription.yml
+
 - import_playbook: playbooks/upgrade_os.yml
 
 - import_playbook: playbooks/install_repos.yml

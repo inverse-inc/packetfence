@@ -30,6 +30,11 @@ BULLSEYE_BASE_BOX_VERSION ?= 11.20241217.1
 BULLSEYE_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bullseye64/versions/$(BULLSEYE_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
 BULLSEYE_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
 BULLSEYE_BASE_BOX_FILE := $(BULLSEYE_BASE_BOX_CACHE_DIR)/bullseye64.img
+# generic/rhel8 base box — downloaded once, QCOW2 extracted for packer disk_image build
+RHEL8_BASE_BOX_VERSION ?= 4.3.12
+RHEL8_BASE_BOX_URL ?= https://vagrantcloud.com/generic/boxes/rhel8/versions/$(RHEL8_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
+RHEL8_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
+RHEL8_BASE_BOX_FILE := $(RHEL8_BASE_BOX_CACHE_DIR)/rhel8.img
 # Vagrant insecure key — downloaded from the official Vagrant repository
 VAGRANT_INSECURE_KEY_URL ?= https://raw.githubusercontent.com/hashicorp/vagrant/main/keys/vagrant
 VAGRANT_INSECURE_KEY_DIR := $(CURDIR)/provisioners/keys
@@ -75,6 +80,19 @@ download-bullseye-base-image:
 		echo "===> Bullseye base image already cached: $(BULLSEYE_BASE_BOX_FILE)"; \
 	fi
 
+.PHONY: download-rhel8-base-image
+download-rhel8-base-image:
+	mkdir -p $(RHEL8_BASE_BOX_CACHE_DIR)
+	@if [ ! -f "$(RHEL8_BASE_BOX_FILE)" ]; then \
+		echo "===> Downloading generic/rhel8 libvirt box v$(RHEL8_BASE_BOX_VERSION)..."; \
+		curl -fL "$(RHEL8_BASE_BOX_URL)" -o "$(RHEL8_BASE_BOX_CACHE_DIR)/rhel8.box"; \
+		echo "===> Extracting QCOW2 from box..."; \
+		tar -xOf "$(RHEL8_BASE_BOX_CACHE_DIR)/rhel8.box" box.img > "$(RHEL8_BASE_BOX_FILE)"; \
+		rm -f "$(RHEL8_BASE_BOX_CACHE_DIR)/rhel8.box"; \
+	else \
+		echo "===> RHEL 8 base image already cached: $(RHEL8_BASE_BOX_FILE)"; \
+	fi
+
 .PHONY: pfbox
 pfbox:	download-vagrant-key download-base-image clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
@@ -102,25 +120,29 @@ pfbox:	download-vagrant-key download-base-image clean
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer build -only="$(BUILD_NAME)" .
 
-# EL builds — legacy local-only targets: the vagrant builder needs
-# vagrant + libvirtd on the host, they do not run in the vagrant-build container.
+# EL 8 builds — host-side entry targets: the packer build itself runs inside
+# the vagrant-build container (see vagrant-in-docker.sh).
 .PHONY: pfel8dev
 pfel8dev:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	make \
 	BOX_NAME=$@ \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).vagrant.el-8" \
-	pfbox
+	BUILD_NAME="$(DEV_GROUP).qemu.el-8" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfel8box
 
 .PHONY: pfel8stable
 pfel8stable:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
-	make \
 	BOX_NAME=$@ \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	BUILD_NAME="$(STABLE_GROUP).vagrant.el-8" \
-	pfbox
+	BUILD_NAME="$(STABLE_GROUP).qemu.el-8" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfel8box
 
 # Debian builds — host-side entry targets: the packer build itself runs inside
 # the vagrant-build container (see vagrant-in-docker.sh).
@@ -210,6 +232,47 @@ pfdebian12dev_generic:
 	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	./vagrant-in-docker.sh pfbox
+
+# EL 8 builds — use generic/rhel8 base image, runs in-container
+.PHONY: pfel8box
+pfel8box: download-vagrant-key download-rhel8-base-image clean
+	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
+	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
+	PKR_VAR_pfserver_name=$(BOX_NAME) \
+	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_box_description="$(BOX_DESC)" \
+	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
+	PKR_VAR_rhel8_disk_image_url="file://$(RHEL8_BASE_BOX_FILE)" \
+	PACKER_LOG=$(PACKER_LOG) \
+	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
+	packer validate -only="$(BUILD_NAME)" .
+
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS) \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS) \
+	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
+	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
+	PKR_VAR_pfserver_name=$(BOX_NAME) \
+	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_box_description="$(BOX_DESC)" \
+	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
+	PKR_VAR_rhel8_disk_image_url="file://$(RHEL8_BASE_BOX_FILE)" \
+	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
+	PACKER_LOG=$(PACKER_LOG) \
+	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
+	packer build -only="$(BUILD_NAME)" .
+
+# Generic EL 8 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
+.PHONY: pfel8dev_generic
+pfel8dev_generic:
+	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfel8dev_generic))
+	BOX_NAME="$(BOX_NAME)" \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
+	ANSIBLE_GROUP=$(DEV_GROUP) \
+	BUILD_NAME="$(DEV_GROUP).qemu.el-8" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfel8box
 
 # Cleanup
 .PHONY: clean

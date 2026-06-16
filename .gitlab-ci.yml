@@ -1594,3 +1594,98 @@ build_pf_img_vagrant_release_debian_bookworm:
     - if: '$CI_COMMIT_TAG'
       when: manual
       allow_failure: true
+
+# EL 8 devel box: packages already deployed to the public inverse.ca repo.
+build_pf_img_vagrant_devel_el8:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfel8dev
+  needs:
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: rpm
+      artifacts: false
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+
+# EL 8 maintenance branches: stable namespace, shared with tag releases.
+build_pf_img_vagrant_maintenance_el8:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfel8stable
+  needs:
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: rpm
+      artifacts: false
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+# EL 8 feature branches: packages come from the pipeline PPA (publish_ppa); all
+# feature branches share the same Linode prefix, the build version distinguishes them.
+build_pf_img_vagrant_branch_el8:
+  extends:
+    - .build_pf_img_vagrant_job
+  script:
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_NAME="pfel8branch"
+    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
+    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
+        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
+        pfel8dev_generic
+  needs:
+    - job: publish_ppa
+      artifacts: false
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+# EL 8 release (tag): stable box with PacketFence installed, manual trigger.
+build_pf_img_vagrant_release_el8:
+  extends:
+    - .build_pf_img_vagrant_release_job
+  variables:
+    BOX_NAME: pfel8stable
+  needs:
+    - job: deploy_packages
+      parallel:
+        matrix:
+          - DEPLOY_TYPE: rpm
+      artifacts: false
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      allow_failure: true

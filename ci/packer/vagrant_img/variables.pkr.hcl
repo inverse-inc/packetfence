@@ -66,3 +66,15 @@ variable bullseye_disk_image_checksum {
   type    = string
   default = "none"
 }
+
+# Path to the extracted QCOW2 from a generic/rhel8 libvirt base box.
+# The Makefile download-rhel8-base-image target produces this file.
+variable rhel8_disk_image_url {
+  type    = string
+  default = "file:///tmp/packer-iso/rhel8.img"
+}
+
+variable rhel8_disk_image_checksum {
+  type    = string
+  default = "none"
+}
