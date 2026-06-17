@@ -233,6 +233,33 @@ pfdebian12dev_generic:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	./vagrant-in-docker.sh pfbox
 
+# Shared node+wireless box — bullseye base, reuses the generic pfadbox recipe.
+# ANSIBLE_GROUP is unused by the node_box build (it sets groups directly) but the
+# pfserver_name var is required, so a value is still passed.
+.PHONY: pfnode11dev
+pfnode11dev:
+	BOX_NAME=$@ \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
+	ANSIBLE_GROUP=nodes \
+	BUILD_NAME="node_box.qemu.bullseye-11" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfadbox
+
+# Generic node+wireless build — BOX_NAME must be provided externally (branch/maintenance).
+.PHONY: pfnode11dev_generic
+pfnode11dev_generic:
+	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfnode11dev_generic))
+	BOX_NAME="$(BOX_NAME)" \
+	BOX_VERSION="$(BOX_VERSION)" \
+	BOX_DESC="$(BOX_DESC)" \
+	RESULT_DIR="$(RESULT_DIR)" \
+	ANSIBLE_GROUP=nodes \
+	BUILD_NAME="node_box.qemu.bullseye-11" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
+	./vagrant-in-docker.sh pfadbox
+
 # EL 8 builds — use generic/rhel8 base image, runs in-container
 .PHONY: pfel8box
 pfel8box: download-vagrant-key download-rhel8-base-image clean

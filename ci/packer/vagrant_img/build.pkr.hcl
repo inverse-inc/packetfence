@@ -123,6 +123,48 @@ build {
 }
 
 build {
+  name    = "node_box"
+  sources = ["source.qemu.bullseye-11"]
+
+  # Fix DHCP/DNS for QEMU user-mode networking before Ansible runs.
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    inline = [
+      "set -eux",
+      "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
+      "ip link set \"$IFACE\" up",
+      "dhclient -v \"$IFACE\" || true",
+      "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
+    ]
+  }
+
+  # Run the node pre-prov against the build host (joined to both groups);
+  # --extra-vars drops the per-pipeline PPA + packetfence-test (see bake.yml).
+  provisioner "ansible" {
+    playbook_file        = "${var.pfroot_dir}/addons/vagrant/playbooks/nodes/box/bake.yml"
+    host_alias           = "${var.pfserver_name}"
+    groups               = ["nodes", "wireless"]
+    inventory_directory  = "${var.pfroot_dir}/addons/vagrant/inventory"
+    galaxy_file          = "${var.pfroot_dir}/addons/vagrant/requirements.yml"
+    galaxy_force_install = true
+    ansible_env_vars     = ["PF_MINOR_RELEASE=${var.pf_version}"]
+    extra_arguments = [
+      "--skip-tags", "upgrade",
+      "--extra-vars", "gitlab_buildpkg_tools__ppa_enabled=false",
+      "--extra-vars", "{\"gitlab_buildpkg_tools__deb_pkgs\":[\"wpasupplicant\",\"sscep\",\"rsync\"]}",
+    ]
+    use_proxy = false
+  }
+
+  post-processors {
+    post-processor "vagrant" {
+      output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
+      keep_input_artifact = false
+    }
+  }
+}
+
+build {
   name = "stable"
   sources = [
     "source.qemu.el-8",

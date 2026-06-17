@@ -1549,6 +1549,68 @@ build_pf_img_vagrant_ad_branch_debian_bullseye:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
+# Shared node+wireless box (bullseye). Bakes only stock packages, so unlike the
+# PF/AD boxes these need neither deploy_packages nor publish_ppa.
+build_pf_img_vagrant_node_devel_debian_bullseye:
+  extends:
+    - .build_pf_img_vagrant_job
+  variables:
+    BOX_NAME: pfnode11dev
+  needs:
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+
+build_pf_img_vagrant_node_maintenance_debian_bullseye:
+  extends:
+    - .build_pf_img_vagrant_job
+  script:
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_NAME="pfnode11stable"
+    - export BOX_DESC="PacketFence node+wireless ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
+        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
+        pfnode11dev_generic
+  needs:
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+build_pf_img_vagrant_node_branch_debian_bullseye:
+  extends:
+    - .build_pf_img_vagrant_job
+  script:
+    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
+    - export BOX_NAME="pfnode11branch"
+    - export BOX_DESC="PacketFence node+wireless ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
+        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
+        pfnode11dev_generic
+  needs:
+    - job: ci_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: "vagrant-build"
+      artifacts: false
+      optional: true
+  rules:
+    - !reference [.gated_by_build_pf_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
 # Release (tag): stable box with PacketFence installed, manual trigger.
 build_pf_img_vagrant_release_debian_bookworm:
   extends:
