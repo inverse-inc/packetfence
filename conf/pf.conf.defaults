@@ -1624,3 +1624,10 @@ token=
 [pfdns_connector]
 pfdns_connector_server=[% ENV.env_or_default("PFDNS_CONNECTOR_HOST_PORT", "%mgmtip%:5353") %]
 
+[self_reg_login]
+sso_status=disabled
+sso_base_url=
+sso_login_path=/admin-sso
+sso_authorize_path=/portaltoken
+sso_login_text=Single Sign On
+allow_username_password=enabled
