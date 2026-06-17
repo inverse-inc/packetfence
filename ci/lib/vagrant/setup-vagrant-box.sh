@@ -18,7 +18,7 @@ set -o nounset -o pipefail -o errexit
 #   BUCKET                  (default: packetfence-vagrant-box)
 #   PROVIDER                (default: libvirt)
 #   VAGRANT_BOX_LOCAL_NAME  (default: inverse-inc/${BOX_NAME})
-#   WORK_DIR                (default: /var/local/gitlab-runner/vagrant_img_cache)
+#   WORK_DIR                (default: ~/vagrant_img_cache)
 #
 # Usage:
 #   BOX_NAME=pfdeb12dev RCLONE_LINODE_URL=https://us-ord-1.linodeobjects.com \
@@ -28,7 +28,7 @@ set -o nounset -o pipefail -o errexit
 BUCKET=${BUCKET:-packetfence-vagrant-box}
 PROVIDER=${PROVIDER:-libvirt}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}}
-WORK_DIR=${WORK_DIR:-/var/local/gitlab-runner/vagrant_img_cache}
+WORK_DIR=${WORK_DIR:-${HOME}/vagrant_img_cache}
 BOX_VERSION=${BOX_VERSION:-}
 
 VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
