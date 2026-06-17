@@ -20,6 +20,23 @@
 
   - name: Install, configure, and start Samba4ad
     block:
+    # samba-tool domain provision records the DC under whatever /etc/hostname
+    # currently says — without this, the packer-built box ships with the
+    # bullseye source-box hostname baked into secrets.tdb (so the live VM
+    # later advertises itself as bullseye.example.lan and PF's secure-channel
+    # handshake fails with NT 0xc0000017).
+    - name: Force system hostname so Samba records the DC under {{ inventory_hostname }}
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+        use: systemd
+
+    - name: Pin {{ inventory_hostname }} in /etc/hosts so resolution survives reboots
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1\s+'
+        line: "127.0.1.1 {{ inventory_hostname }}.{{ samba4ad__domain_name }} {{ inventory_hostname }}"
+        create: true
+
     - name: Disable IPV6
       ansible.posix.sysctl:
         name: "{{ item }}"
@@ -127,7 +144,7 @@
       ansible.builtin.shell:
         cmd: "{{ item }}"
       loop:
-      - "samba-tool domain provision --realm={{ dns_domain_upper }} --domain {{ samba4ad__global_custom['workgroup'] }} --server-role=dc "
+      - "samba-tool domain provision --realm={{ dns_domain_upper }} --domain {{ samba4ad__global_custom['workgroup'] }} --server-role=dc --host-name={{ inventory_hostname }} "
 
     - name: Allow ntml auth in samba config
       ansible.builtin.lineinfile:
