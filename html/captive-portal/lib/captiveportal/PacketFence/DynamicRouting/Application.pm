@@ -605,7 +605,8 @@ sub isRootSSO {
 =head2 _resolve_theme_assets
 
 Resolve theme_path, logo and background_url in a single filesystem pass.
-Fallback order: profile-specific → default profile → built-in default.
+Fallback order: profile-specific → default profile. Returns undef for
+theme_path and background_url if neither exists (no /common fallback).
 
 =cut
 
