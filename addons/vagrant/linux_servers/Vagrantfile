@@ -64,10 +64,36 @@ Vagrant.configure("2") do |config|
               echo "ERROR: could not detect management IP on eth1"
               exit 1
             fi
-            echo "==> Reconfiguring Samba4 DC from 10.0.2.15 to ${ACTUAL_IP}"
-            sed -i "s/10\\.0\\.2\\.15/${ACTUAL_IP}/g" /etc/hosts
-            sed -i "s/10\\.0\\.2\\.15/${ACTUAL_IP}/g" /etc/dhcp/dhclient.conf
+            echo "==> Reconfiguring Samba4 DC to ${ACTUAL_IP}"
+
+            printf '127.0.0.1 localhost\\n127.0.1.1 ad.example.lan ad\\n%s ad.example.lan ad\\n' "${ACTUAL_IP}" > /etc/hosts
+            sed -i "s|^prepend domain-name-servers .*|prepend domain-name-servers ${ACTUAL_IP}, 8.8.8.8;|" /etc/dhcp/dhclient.conf
+
+            chattr -i /etc/resolv.conf 2>/dev/null || true
+            printf 'nameserver %s\\nnameserver 8.8.8.8\\n' "${ACTUAL_IP}" > /etc/resolv.conf
+
+            # Pin samba to eth1 so its internal dns refresh doesn't register eth0 (libvirt mgmt).
+            if ! grep -q '^\\s*bind interfaces only' /etc/samba/smb.conf; then
+              sed -i '/^\\[global\\]/a\\        interfaces = lo eth1\\n        bind interfaces only = yes' /etc/samba/smb.conf
+            fi
+
             systemctl restart samba-ad-dc
+            AUTH="-UAdministrator%VagrantPass1"
+            for i in $(seq 1 30); do
+              samba-tool dns query 127.0.0.1 example.lan @ A $AUTH >/dev/null 2>&1 && break
+              sleep 1
+            done
+
+            for rec in "example.lan ad" "example.lan @" "example.lan DomainDnsZones" \\
+                       "example.lan ForestDnsZones" "_msdcs.example.lan gc"; do
+              for ip in $(samba-tool dns query 127.0.0.1 $rec A $AUTH 2>/dev/null | awk '$1=="A:"{print $2}'); do
+                [ "$ip" = "$ACTUAL_IP" ] && continue
+                samba-tool dns delete 127.0.0.1 $rec A "$ip" $AUTH || true
+              done
+              samba-tool dns query 127.0.0.1 $rec A $AUTH 2>/dev/null | grep -q "A: $ACTUAL_IP" || \
+                samba-tool dns add 127.0.0.1 $rec A "$ACTUAL_IP" $AUTH || true
+            done
+
             echo "==> Done. Samba4 DC restarted."
           SHELL
         end
