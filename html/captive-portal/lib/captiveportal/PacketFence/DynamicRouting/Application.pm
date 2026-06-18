@@ -629,9 +629,7 @@ sub _resolve_theme_assets {
         $assets{background_url} //= "/profile-templates/$name/background.png" if -f "$base/background.png";
     }
 
-    # absolute fallbacks when neither the profile nor default has the file
-    $assets{theme_path}     //= '/common/theme.css';
-    $assets{background_url} //= '/common/background.png';
+    # absolute fallback to config for a logo. 
     $assets{logo}           //= $self->profile->getLogo;  # config value
 
     return \%assets;
