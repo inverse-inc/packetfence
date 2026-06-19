@@ -176,6 +176,98 @@ KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.3:29092,EXTERNAL://172.16.3.3:909
 
 ----
 
+==== Securing the external listener with mTLS
+
+The external Kafka listener (port 9092) can be secured with mutual TLS (mTLS)
+using a broker certificate issued by the PacketFence PKI (pfpki). The internal
+and inter-broker listeners are left unchanged. When mTLS is enabled, the
+external listener switches to the `SSL` protocol and requires the connecting
+client to present a certificate (`ssl.client.auth=required`).
+
+===== Prerequisites
+
+[options="compact"]
+* A Certificate Authority configured in the PacketFence PKI that will sign the
+  broker certificate.
+
+* The PEM of the peer's CA certificate, i.e. the CA that signed the certificate
+  of the client that connects to the broker. It is used to build the truststore
+  so the broker can validate the client.
+
+===== Initializing the keystore and truststore passwords
+
+The keystore and truststore are PKCS12 files protected by passwords that are
+generated automatically and stored in the `[ssl]` section of
+`/usr/local/pf/conf/kafka.conf`. Generate them with:
+
+----
+/usr/local/pf/bin/kafka-init.pl
+----
+
+On a *cluster*, run this command on a *single* node only, then push the
+configuration to the other members so that every node ends up with the same
+`kafka.conf` (and therefore the same passwords):
+
+----
+/usr/local/pf/bin/cluster/sync --as-master
+----
+
+NOTE: Do not run `kafka-init.pl` on each member individually. It generates
+random passwords, so running it on every node would produce a different password
+per node, and the shared keystore distributed during certificate generation
+would then fail to load on the other members.
+
+===== Configuring mTLS in the administration interface
+
+Go to *Configuration -> System Configuration -> Kafka* and, in the *mTLS*
+section:
+
+[options="compact"]
+* *Enable mTLS*: turn it on.
+
+* *Certificate Authority*: select the pfpki CA that will sign the broker
+  certificate.
+
+* *Common Name*: the CN of the broker certificate.
+
+* *DNS Names* / *IP Addresses*: optional Subject Alternative Names for the broker
+  certificate. In a cluster, the management IP of every member is added to the
+  SANs automatically, so the single shared certificate is valid on all brokers.
+
+* *Peer CA Certificate*: paste the PEM of the peer's CA certificate (the
+  truststore used to validate the connecting client).
+
+Save the form.
+
+===== Generating the broker certificate
+
+Click *Generate Certificate*. PacketFence issues the broker certificate from the
+selected CA, writes the PEM material and the PKCS12 keystore and truststore under
+`/usr/local/pf/conf/kafka/ssl`, and, in a cluster, distributes the keystore and
+truststore to every member automatically.
+
+Finally, restart the Kafka service on every node:
+
+----
+systemctl restart packetfence-kafka
+----
+
+===== Connecting a client with mTLS
+
+The bundled `pfkafka` consumer can connect to the mTLS-secured listener using
+the on-disk certificate material:
+
+----
+/usr/local/pf/bin/pfkafka -tls -broker <broker_ip>:9092 -topic pfflows_events
+----
+
+The `-cert`, `-key` and `-ca` options default to the artifacts under
+`/usr/local/pf/conf/kafka/ssl` (`cert.pem`, `key.pem`, `ca.pem`); override them to
+use a different client certificate. The client certificate must be signed by the
+CA whose PEM was configured as the *Peer CA Certificate* above. Use
+`-server-name` to override the name checked against the broker certificate when
+connecting by IP.
+
 ==== FingerBank collector kafka configuration
 
 FingerBank collector can be configured to store the NetFlow, sFlow, IPFIX traffic
