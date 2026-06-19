@@ -469,8 +469,9 @@ sub update {
 
 sub save_in_config_store {
     my ($self, $data) = @_;
-    my $items = flatten_item($data);
     my $cs = $self->config_store;
+    $self->_preserve_managed_ssl($cs, $data);
+    my $items = flatten_item($data);
     my $ini = $cs->cachedConfig();
     $ini->Delete();
     for my $item (@$items) {
@@ -478,6 +479,29 @@ sub save_in_config_store {
     }
 
     return $self->commit($cs);
+}
+
+=head2 _preserve_managed_ssl
+
+The keystore/truststore passwords and the auto-managed pfpki profile id are
+generated server-side (kafka-init / generate_cert) and are intentionally absent
+from the admin form, so a submitted payload carries them empty. Since the save
+rewrites kafka.conf from scratch, carry the existing values forward whenever the
+incoming payload does not provide one, otherwise they would be wiped.
+
+=cut
+
+sub _preserve_managed_ssl {
+    my ($self, $cs, $data) = @_;
+    return unless ref($data->{ssl}) eq 'HASH';
+    my $existing = $cs->read('ssl') || {};
+    for my $key (qw(keystore_password truststore_password profile_id)) {
+        my $val = $data->{ssl}{$key};
+        next if defined $val && $val ne '';
+        $data->{ssl}{$key} = $existing->{$key}
+            if defined $existing->{$key} && $existing->{$key} ne '';
+    }
+    return;
 }
 
 sub commit {
