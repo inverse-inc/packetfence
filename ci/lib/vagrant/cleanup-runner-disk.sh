@@ -1,7 +1,11 @@
 #!/bin/bash
-# Reclaim disk on a gitlab-runner host that runs vagrant-libvirt PF bakes
-# and tests. Safe by default: only sweeps stale/legacy artifacts, never
-# the currently-active inverse-inc/pf*branch base boxes.
+# Reclaim disk on a runner host that runs vagrant-libvirt PF bakes and
+# tests. Safe by default: only sweeps stale/legacy artifacts, never the
+# currently-active inverse-inc/pf*branch base boxes.
+#
+# Targets every user account whose $HOME sits under /var/local/<name>
+# (e.g. gitlab-runner, plus any sibling runner/service account). The
+# libvirt pool sweep is system-wide and runs once at the end.
 #
 # Modes:
 #   (default) sweep — legacy pf*dev boxes, stale Tempfiles, prefetch
@@ -9,35 +13,32 @@
 #   --purge         — wipe ALL vagrant boxes, ALL .vagrant.d/tmp, ALL
 #                     prefetch cache, ALL pool 'vagrant_box_image' volumes.
 #                     Next pipeline re-downloads everything. Requires the
-#                     runner to be idle (no vagrant proc, no running
-#                     libvirt domain) — refuses otherwise.
+#                     host to be idle (no vagrant proc on any tracked
+#                     user, no running libvirt domain) — refuses otherwise.
 #
-# Targets (relative to gitlab-runner $HOME, default /var/local/gitlab-runner):
+# Per-user targets (relative to each detected $HOME):
 #   1. Vagrant boxes under .vagrant.d/boxes/ (sweep: legacy pf*dev only;
 #      purge: every locally-registered box).
 #   2. Empty orphan version dirs under .vagrant.d/boxes/*/*/.
 #   3. Vagrant Tempfiles under .vagrant.d/tmp (sweep: >$TMP_AGE_MIN min
 #      old; purge: everything).
-#   4. Prefetch scratch under vagrant_img_cache/*.
-#   5. libvirt-pool backing files (sweep: matching legacy pf*dev; purge:
-#      every '*_vagrant_box_image_*' volume in pool 'default').
+#   4. Prefetch scratch under $HOME/vagrant_img_cache/*.
+#
+# Global target:
+#   5. libvirt-pool backing files in pool 'default' (sweep: matching
+#      legacy pf*dev; purge: every '*_vagrant_box_image_*' volume).
 #
 # Usage:
 #   sudo ./cleanup-runner-disk.sh                       # dry-run sweep
 #   sudo ./cleanup-runner-disk.sh --apply               # apply sweep
 #   sudo ./cleanup-runner-disk.sh --purge               # dry-run purge
 #   sudo ./cleanup-runner-disk.sh --purge --apply       # apply purge
+#   ONLY_USERS="gitlab-runner" sudo ./cleanup-runner-disk.sh --apply
 #   TMP_AGE_MIN=60 sudo ./cleanup-runner-disk.sh --apply
-#   GR_HOME=/srv/gl-runner sudo ./cleanup-runner-disk.sh
 
 set -o nounset -o pipefail
 
-GR_USER=${GR_USER:-gitlab-runner}
-GR_HOME=${GR_HOME:-/var/local/gitlab-runner}
-VAGRANT_HOME=${VAGRANT_HOME:-${GR_HOME}/.vagrant.d}
-VAGRANT_BOXES=${VAGRANT_HOME}/boxes
-VAGRANT_TMP=${VAGRANT_HOME}/tmp
-PREFETCH_CACHE=${PREFETCH_CACHE:-${GR_HOME}/vagrant_img_cache}
+VAR_LOCAL=${VAR_LOCAL:-/var/local}
 PROVIDER=${PROVIDER:-libvirt}
 TMP_AGE_MIN=${TMP_AGE_MIN:-30}
 
@@ -57,16 +58,6 @@ for arg in "$@"; do
     esac
 done
 
-# Run vagrant + virsh as the gitlab-runner user (its $HOME holds the box
-# store and it's the libvirt-group member that owns pool access).
-if [ "$(id -un)" = "${GR_USER}" ]; then
-    as_runner() { "$@"; }
-else
-    as_runner() { sudo -u "${GR_USER}" -H VAGRANT_HOME="${VAGRANT_HOME}" "$@"; }
-fi
-vagrant_gr() { as_runner vagrant "$@"; }
-virsh_gr()   { as_runner virsh -c qemu:///system "$@"; }
-
 run() {
     if [ "${APPLY}" = yes ]; then
         "$@"
@@ -78,27 +69,165 @@ run() {
 
 hdr() { printf '\n=== %s\n' "$*"; }
 
-show_disk() {
-    df -h / /var/lib 2>/dev/null | sed 's/^/  /'
-    du -sh "${VAGRANT_BOXES}" "${VAGRANT_TMP}" "${PREFETCH_CACHE}" 2>/dev/null \
-        | sed 's/^/  /' || true
+# Emit "user:home" lines for every $VAR_LOCAL/<name> dir whose <name>
+# resolves to a real account whose $HOME equals the dir. Filter with
+# ONLY_USERS="a b c" if you want a subset.
+discover_users() {
+    local d name pw home
+    for d in "${VAR_LOCAL}"/*/; do
+        [ -d "${d}" ] || continue
+        name=$(basename "${d%/}")
+        pw=$(getent passwd "${name}" 2>/dev/null) || continue
+        home=$(echo "${pw}" | cut -d: -f6)
+        [ "${home}" = "${d%/}" ] || continue
+        if [ -n "${ONLY_USERS:-}" ]; then
+            case " ${ONLY_USERS} " in
+                *" ${name} "*) ;;
+                *) continue ;;
+            esac
+        fi
+        echo "${name}:${home}"
+    done
 }
 
-hdr "Mode: ${PURGE:+PURGE — wipes everything}${PURGE:+}${PURGE:-sweep}  Action: $([ ${APPLY} = yes ] && echo APPLY || echo dry-run)"
+# vagrant + virsh run as the target user (its $HOME holds the box store
+# and it's the libvirt-group member that owns pool access).
+as_user() {
+    local user=$1 home=$2; shift 2
+    if [ "$(id -un)" = "${user}" ]; then
+        VAGRANT_HOME="${home}/.vagrant.d" "$@"
+    else
+        sudo -u "${user}" -H VAGRANT_HOME="${home}/.vagrant.d" "$@"
+    fi
+}
 
-# Purge needs the runner idle — abort if any vagrant proc or libvirt
-# domain is running, since wiping pool box images yanks backing files
-# out from under live snapshot disks.
+show_disk() {
+    df -h / /var/lib 2>/dev/null | sed 's/^/  /'
+    for ent in ${USERS}; do
+        local user=${ent%%:*} home=${ent##*:}
+        du -sh "${home}/.vagrant.d/boxes" "${home}/.vagrant.d/tmp" \
+               "${home}/vagrant_img_cache" 2>/dev/null \
+            | sed 's/^/  /' || true
+    done
+}
+
+# Per-user cleanup steps 1-4. Step 5 (libvirt pool) is global.
+clean_user_home() {
+    local user=$1 home=$2
+    local VAGRANT_BOXES="${home}/.vagrant.d/boxes"
+    local VAGRANT_TMP="${home}/.vagrant.d/tmp"
+    local PREFETCH_CACHE="${home}/vagrant_img_cache"
+
+    hdr "User ${user} — vagrant box list"
+    as_user "${user}" "${home}" vagrant box list 2>/dev/null \
+        | sed 's/^/  /' || echo "  (vagrant box list failed)"
+
+    # 1) Vagrant boxes
+    local targets
+    if [ "${PURGE}" = yes ]; then
+        hdr "User ${user} — ALL local vagrant boxes (purge mode)"
+        targets=$(as_user "${user}" "${home}" vagrant box list --machine-readable 2>/dev/null \
+            | awk -F, '$3=="box-name"{print $4}' | sort -u || true)
+    else
+        hdr "User ${user} — legacy 'inverse-inc/pf*dev' boxes"
+        targets=$(as_user "${user}" "${home}" vagrant box list --machine-readable 2>/dev/null \
+            | awk -F, '$3=="box-name"{print $4}' \
+            | grep -E '^inverse-inc/pf[a-z0-9]+dev$' \
+            | sort -u || true)
+    fi
+    if [ -z "${targets}" ]; then
+        echo "  (none)"
+    else
+        echo "${targets}" | sed 's/^/  /'
+        for box in ${targets}; do
+            run as_user "${user}" "${home}" vagrant box remove \
+                --force --all --provider "${PROVIDER}" "${box}"
+        done
+    fi
+
+    # 2) Empty orphan version dirs
+    hdr "User ${user} — empty orphan version dirs under ${VAGRANT_BOXES}"
+    local orphans
+    orphans=$(find "${VAGRANT_BOXES}" -mindepth 2 -maxdepth 2 -type d -empty 2>/dev/null || true)
+    if [ -z "${orphans}" ]; then
+        echo "  (none)"
+    else
+        echo "${orphans}" | sed 's/^/  /'
+        run find "${VAGRANT_BOXES}" -mindepth 2 -maxdepth 2 -type d -empty -delete
+    fi
+
+    # 3) Vagrant Tempfiles
+    if [ "${PURGE}" = yes ]; then
+        hdr "User ${user} — ALL Vagrant Tempfiles under ${VAGRANT_TMP}"
+        local entries
+        entries=$(find "${VAGRANT_TMP}" -mindepth 1 -maxdepth 1 2>/dev/null || true)
+        if [ -z "${entries}" ]; then
+            echo "  (none)"
+        else
+            echo "${entries}" | sed 's/^/  /'
+            run find "${VAGRANT_TMP}" -mindepth 1 -delete
+        fi
+    else
+        hdr "User ${user} — Vagrant Tempfiles older than ${TMP_AGE_MIN}min"
+        if pgrep -u "${user}" -af vagrant >/dev/null; then
+            echo "  SKIPPED — vagrant process is running as ${user}:"
+            pgrep -u "${user}" -af vagrant | sed 's/^/    /'
+        else
+            local stale
+            stale=$(find "${VAGRANT_TMP}" -mindepth 1 -mmin "+${TMP_AGE_MIN}" 2>/dev/null || true)
+            if [ -z "${stale}" ]; then
+                echo "  (none)"
+            else
+                echo "${stale}" | sed 's/^/  /'
+                run find "${VAGRANT_TMP}" -mindepth 1 -mmin "+${TMP_AGE_MIN}" -delete
+            fi
+        fi
+    fi
+
+    # 4) Prefetch scratch
+    hdr "User ${user} — prefetch scratch under ${PREFETCH_CACHE}"
+    if [ -d "${PREFETCH_CACHE}" ]; then
+        local leftovers
+        leftovers=$(find "${PREFETCH_CACHE}" -mindepth 1 -maxdepth 1 2>/dev/null || true)
+        if [ -z "${leftovers}" ]; then
+            echo "  (none)"
+        else
+            echo "${leftovers}" | sed 's/^/  /'
+            for entry in ${leftovers}; do
+                run rm -rf "${entry}"
+            done
+        fi
+    else
+        echo "  (no ${PREFETCH_CACHE})"
+    fi
+}
+
+USERS=$(discover_users)
+if [ -z "${USERS}" ]; then
+    echo "No user homes discovered under ${VAR_LOCAL} — nothing to do." >&2
+    exit 0
+fi
+
+hdr "Mode: ${PURGE:+PURGE — wipes everything}${PURGE:+}${PURGE:-sweep}  Action: $([ ${APPLY} = yes ] && echo APPLY || echo dry-run)"
+echo "  Detected user homes:"
+echo "${USERS}" | sed 's/^/    /'
+
+# Purge needs the host idle — abort if any tracked user has a running
+# vagrant proc or any libvirt domain is up. Pool box-image deletes would
+# otherwise yank backing files out from under live snapshots.
 if [ "${PURGE}" = yes ]; then
     busy=
-    if pgrep -u "${GR_USER}" -af vagrant >/dev/null; then
-        busy="${busy}vagrant process running as ${GR_USER}\n"
-    fi
-    if virsh_gr list --name 2>/dev/null | grep -q .; then
-        busy="${busy}libvirt domain(s) running:\n$(virsh_gr list --name | sed 's/^/  /')\n"
+    for ent in ${USERS}; do
+        user=${ent%%:*}
+        if pgrep -u "${user}" -af vagrant >/dev/null; then
+            busy="${busy}vagrant process running as ${user}\n"
+        fi
+    done
+    if virsh -c qemu:///system list --name 2>/dev/null | grep -q .; then
+        busy="${busy}libvirt domain(s) running:\n$(virsh -c qemu:///system list --name | sed 's/^/  /')\n"
     fi
     if [ -n "${busy}" ]; then
-        printf 'PURGE refused — runner is not idle:\n%b' "${busy}" >&2
+        printf 'PURGE refused — host is not idle:\n%b' "${busy}" >&2
         exit 1
     fi
 fi
@@ -106,97 +235,18 @@ fi
 hdr "Disk usage before"
 show_disk
 
-hdr "Local vagrant boxes (as ${GR_USER})"
-vagrant_gr box list 2>/dev/null | sed 's/^/  /' || echo "  (vagrant box list failed)"
+for ent in ${USERS}; do
+    clean_user_home "${ent%%:*}" "${ent##*:}"
+done
 
-# 1) Vagrant boxes. Sweep: legacy pf*dev only. Purge: every local box.
-if [ "${PURGE}" = yes ]; then
-    hdr "ALL local vagrant boxes (purge mode)"
-    targets=$(vagrant_gr box list --machine-readable 2>/dev/null \
-        | awk -F, '$3=="box-name"{print $4}' | sort -u || true)
-else
-    hdr "Legacy 'inverse-inc/pf*dev' boxes (pre -branches/-devel/-maintenance)"
-    targets=$(vagrant_gr box list --machine-readable 2>/dev/null \
-        | awk -F, '$3=="box-name"{print $4}' \
-        | grep -E '^inverse-inc/pf[a-z0-9]+dev$' \
-        | sort -u || true)
-fi
-if [ -z "${targets}" ]; then
-    echo "  (none)"
-else
-    echo "${targets}" | sed 's/^/  /'
-    for box in ${targets}; do
-        run vagrant_gr box remove --force --all --provider "${PROVIDER}" "${box}"
-    done
-fi
-
-# 2) Empty orphan version dirs left behind by past box-removes
-hdr "Empty orphan version dirs under ${VAGRANT_BOXES}"
-orphans=$(find "${VAGRANT_BOXES}" -mindepth 2 -maxdepth 2 -type d -empty 2>/dev/null || true)
-if [ -z "${orphans}" ]; then
-    echo "  (none)"
-else
-    echo "${orphans}" | sed 's/^/  /'
-    run find "${VAGRANT_BOXES}" -mindepth 2 -maxdepth 2 -type d -empty -delete
-fi
-
-# 3) Vagrant Tempfiles. Sweep: >TMP_AGE_MIN min, and only if no vagrant
-#    proc is running (even an old-looking file could belong to a long
-#    box-add). Purge: everything (idle-check already enforced above).
-if [ "${PURGE}" = yes ]; then
-    hdr "ALL Vagrant Tempfiles under ${VAGRANT_TMP} (purge mode)"
-    tmp_entries=$(find "${VAGRANT_TMP}" -mindepth 1 -maxdepth 1 2>/dev/null || true)
-    if [ -z "${tmp_entries}" ]; then
-        echo "  (none)"
-    else
-        echo "${tmp_entries}" | sed 's/^/  /'
-        run find "${VAGRANT_TMP}" -mindepth 1 -delete
-    fi
-else
-    hdr "Vagrant Tempfiles older than ${TMP_AGE_MIN}min under ${VAGRANT_TMP}"
-    if pgrep -u "${GR_USER}" -af vagrant >/dev/null; then
-        echo "  SKIPPED — vagrant process is running as ${GR_USER}:"
-        pgrep -u "${GR_USER}" -af vagrant | sed 's/^/    /'
-    else
-        stale_tmp=$(find "${VAGRANT_TMP}" -mindepth 1 -mmin "+${TMP_AGE_MIN}" 2>/dev/null || true)
-        if [ -z "${stale_tmp}" ]; then
-            echo "  (none)"
-        else
-            echo "${stale_tmp}" | sed 's/^/  /'
-            run find "${VAGRANT_TMP}" -mindepth 1 -mmin "+${TMP_AGE_MIN}" -delete
-        fi
-    fi
-fi
-
-# 4) Prefetch scratch (always safe; prefetch-base-box.sh traps clean its
-#    work dir on EXIT but a crash/SIGKILL skips the trap)
-hdr "Prefetch scratch under ${PREFETCH_CACHE}"
-if [ -d "${PREFETCH_CACHE}" ]; then
-    leftovers=$(find "${PREFETCH_CACHE}" -mindepth 1 -maxdepth 1 2>/dev/null || true)
-    if [ -z "${leftovers}" ]; then
-        echo "  (none)"
-    else
-        echo "${leftovers}" | sed 's/^/  /'
-        # Restrict to direct children of PREFETCH_CACHE; don't recurse the rm.
-        for entry in ${leftovers}; do
-            run rm -rf "${entry}"
-        done
-    fi
-else
-    echo "  (no ${PREFETCH_CACHE})"
-fi
-
-# 5) libvirt-pool box backing files. Sweep: only legacy pf*dev matches
-#    (regex pfXXdev_vagrant_box_image_; dash before _vagrant... excludes
-#    modern -branches/-devel/-maintenance variants). Purge: every
-#    '_vagrant_box_image_' volume in pool 'default'.
+# 5) libvirt-pool box backing files (system-wide; one sweep).
 if [ "${PURGE}" = yes ]; then
     hdr "ALL libvirt-pool box backing volumes (purge mode)"
-    pool_vols=$(virsh_gr vol-list default 2>/dev/null \
+    pool_vols=$(virsh -c qemu:///system vol-list default 2>/dev/null \
         | awk '/_vagrant_box_image_/{print $1}' || true)
 else
     hdr "libvirt-pool backing for legacy pf*dev boxes"
-    pool_vols=$(virsh_gr vol-list default 2>/dev/null \
+    pool_vols=$(virsh -c qemu:///system vol-list default 2>/dev/null \
         | awk '/inverse-inc-VAGRANTSLASH-pf[a-z0-9]+dev_vagrant_box_image_/{print $1}' \
         || true)
 fi
@@ -205,7 +255,7 @@ if [ -z "${pool_vols}" ]; then
 else
     echo "${pool_vols}" | sed 's/^/  /'
     for vol in ${pool_vols}; do
-        run virsh_gr vol-delete --pool default "${vol}"
+        run virsh -c qemu:///system vol-delete --pool default "${vol}"
     done
 fi
 
