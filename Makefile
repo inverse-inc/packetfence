@@ -112,10 +112,10 @@ conf/ssl/server.key: | conf/ssl/server.key
 	openssl genrsa -out conf/ssl/server.key 2048
 
 conf/local_secret:
-	date +%s | sha256sum | base64 | head -c 32 > conf/local_secret
+	head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > $@
 
 conf/unified_api_system_pass:
-	date +%s | sha256sum | base64 | head -c 32 > conf/unified_api_system_pass
+	head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > $@
 
 conf/system_init_key:
 	hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > conf/system_init_key
