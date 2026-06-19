@@ -7,6 +7,15 @@ name=kafka
 chown -R 1000:1000 /usr/local/pf/var/kafka
 chown -R 1000:1000 /usr/local/pf/conf/kafka
 
+# conf/kafka/ssl holds the broker mTLS artifacts that the cluster master
+# distributes to the other members through the cluster file sync, which runs as
+# the pf user. The chown above gives the whole tree to the kafka container uid
+# (1000), which would prevent that sync from creating/updating the directory.
+# Keep conf/kafka/ssl owned by pf so the sync can write into it; the kafka
+# container only reads the artifacts, which are world-readable.
+mkdir -p /usr/local/pf/conf/kafka/ssl
+chown -R pf:pf /usr/local/pf/conf/kafka/ssl
+
 args=`base_args $name`
 args+=" -v /usr/local/pf/var/kafka:/usr/local/pf/var/kafka"
 args+=" -v /usr/local/pf/conf/kafka:/usr/local/pf/conf/kafka"

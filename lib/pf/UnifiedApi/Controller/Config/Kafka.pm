@@ -1045,9 +1045,15 @@ sub _sync_ssl_dir {
         map { "$kafka_ssl_dir/$_" }
         qw(ca.pem cert.pem peer-ca.pem keystore.p12 truststore.p12);
     return unless @files;
-    eval { pf::cluster::sync_files(\@files) };
+    my $failed = eval { pf::cluster::sync_files(\@files) };
     if ($@) {
         get_logger->error("Unable to distribute the Kafka ssl files to the cluster: $@");
+    }
+    elsif ($failed && @$failed) {
+        # sync_files does not die on per-member failures, it returns the list of
+        # members it could not reach/write -- surface it so a failed distribution
+        # is visible on the issuing node instead of only on the receivers.
+        get_logger->error("Unable to distribute the Kafka ssl files to cluster member(s): " . join(", ", @$failed));
     }
     return;
 }
