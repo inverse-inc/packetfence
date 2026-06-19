@@ -748,7 +748,7 @@ sub generate_cert {
     my $cert_resp = eval {
         $client->call("POST", "/api/v1/pki/certs", {
             cn           => $cn,
-            profile_id   => $profile_id,
+            profile_id   => "$profile_id",   # pfpki expects profile_id as a JSON string (,string tag)
             dns_names    => $dns_names,
             ip_addresses => $ip_addresses,
         });
@@ -823,13 +823,16 @@ sub _ensure_kafka_profile {
 
     # extended_key_usage "1|2" => serverAuth + clientAuth (the broker is both a
     # TLS server to the peer and a TLS client to it during the mutual handshake)
+    # pfpki decodes these numeric fields from JSON strings (the ,string struct
+    # tags in pfpki/models), matching how the webadmin posts form values, so
+    # send them quoted -- an unquoted number fails to unmarshal.
     my $created = $client->call("POST", "/api/v1/pki/profiles", {
         name               => KAFKA_PKI_PROFILE_NAME,
-        ca_id              => $ca_id,
-        validity           => 825,
-        key_type           => 1,
-        key_size           => 2048,
-        digest             => 4,
+        ca_id              => "$ca_id",
+        validity           => "825",
+        key_type           => "1",
+        key_size           => "2048",
+        digest             => "4",
         key_usage          => "1|4",
         extended_key_usage => "1|2",
     });
