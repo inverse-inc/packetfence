@@ -953,7 +953,10 @@ sub _write_keystore {
         '-passout',  'env:PF_KAFKA_KS_PASS',
     );
     system(@cmd) == 0 or die "openssl keystore generation failed (exit " . ($? >> 8) . ")\n";
-    chmod(0600, $ks_path);
+    # The keystore is distributed to the other cluster members by the pf-owned
+    # config-sync process, which must be able to read it; the private key inside
+    # is protected by the keystore password, so a readable mode is safe here.
+    chmod(0644, $ks_path);
     if ($ENV{PF_UID} && $ENV{PF_GID}) {
         chown($ENV{PF_UID}, $ENV{PF_GID}, $ks_path);
     }
@@ -984,7 +987,8 @@ sub _write_truststore {
         '-passout', 'env:PF_KAFKA_TS_PASS',
     );
     system(@cmd) == 0 or die "openssl truststore generation failed (exit " . ($? >> 8) . ")\n";
-    chmod(0600, $ts_path);
+    # Readable for the same cluster-sync reason as the keystore (password-protected).
+    chmod(0644, $ts_path);
     if ($ENV{PF_UID} && $ENV{PF_GID}) {
         chown($ENV{PF_UID}, $ENV{PF_GID}, $ts_path);
     }
@@ -1024,15 +1028,22 @@ sub _expand_cluster_sans {
 
 =head2 _sync_ssl_dir
 
-Distribute the kafka ssl artifacts to the other cluster members. Each member
-pulls the files from this (origin) server via the cluster file sync.
+Distribute the kafka ssl artifacts to the other cluster members using the same
+file sync as C<@FILES_TO_SYNC>: each member pulls the files from this (origin)
+server. Only the artifacts the other brokers actually need are distributed --
+the password-protected keystore/truststore the broker loads plus the public
+PEMs. The raw private key (key.pem) is intentionally NOT synced: no other node
+consumes it (the broker only reads the keystore), so it stays 0600 on the
+issuing node and is never sent over the wire.
 
 =cut
 
 sub _sync_ssl_dir {
     my ($self) = @_;
     return unless $cluster_enabled;
-    my @files = grep { -f $_ } glob("$kafka_ssl_dir/*");
+    my @files = grep { -f $_ }
+        map { "$kafka_ssl_dir/$_" }
+        qw(ca.pem cert.pem peer-ca.pem keystore.p12 truststore.p12);
     return unless @files;
     eval { pf::cluster::sync_files(\@files) };
     if ($@) {
