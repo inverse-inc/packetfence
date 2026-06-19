@@ -23,6 +23,39 @@ sub configFile { $kafka_config_file }
 
 sub pfconfigNamespace {'config::Kafka'}
 
+=head2 cleanupAfterRead
+
+The peer CA PEM spans several lines in kafka.conf, so it is read back as an
+array reference (one element per line). Flatten it to a single newline-joined
+string so the API returns a string (matching the form schema) and consumers
+such as the truststore builder receive usable PEM text.
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    if ($id eq 'ssl') {
+        $self->flatten_list_cr($data, 'peer_ca');
+    }
+    return;
+}
+
+=head2 cleanupBeforeCommit
+
+Symmetric counterpart to L</cleanupAfterRead>: should the peer CA arrive as an
+array reference (e.g. from a stale client), join it back into a single string
+before it is written so it is never persisted as a multi-valued entry.
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $assignments) = @_;
+    if ($id eq 'ssl' && ref($assignments->{peer_ca}) eq 'ARRAY') {
+        $assignments->{peer_ca} = $self->join_list_cr(@{$assignments->{peer_ca}});
+    }
+    return;
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
