@@ -189,23 +189,13 @@ call ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
---
--- Clean up the helper / validation procedures
---
-DROP PROCEDURE IF EXISTS ValidateVersion;
-DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
-DROP PROCEDURE IF EXISTS DropColumnIfExists;
-DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
-DROP PROCEDURE IF EXISTS DropIndexIfExists;
-
-ALTER TABLE `locationlog`
-    ADD `teap_username` varchar(255) DEFAULT '' NOT NULL,
-    ADD `teap_machinename` varchar(255) DEFAULT '' NOT NULL;
+\! echo "Updating locationlog";
+CALL AddColumnUnlessExists('locationlog', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
+CALL AddColumnUnlessExists('locationlog', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
 
 \! echo "Updating locationlog_history";
-ALTER TABLE `locationlog_history`
-    ADD `teap_username` varchar(255) DEFAULT '' NOT NULL,
-    ADD `teap_machinename` varchar(255) DEFAULT '' NOT NULL;
+CALL AddColumnUnlessExists('locationlog_history', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
+CALL AddColumnUnlessExists('locationlog_history', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
 
 \! echo "Updating locationlog_insert_in_history_after_insert";
 DELIMITER /
@@ -245,6 +235,15 @@ BEGIN
   END IF;
 END /
 DELIMITER ;
+
+--
+-- Clean up the helper / validation procedures
+--
+DROP PROCEDURE IF EXISTS ValidateVersion;
+DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
+DROP PROCEDURE IF EXISTS DropColumnIfExists;
+DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
+DROP PROCEDURE IF EXISTS DropIndexIfExists;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
