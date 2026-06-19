@@ -189,38 +189,13 @@ call ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
---
--- Index switch_observability_acls by mac for the switch_observability_acls_cleanup task
--- and for per-device ACL lookups
---
-\! echo "Adding index switch_observability_acls_mac_enforcement to switch_observability_acls...";
-CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acls_mac_enforcement',
-    'KEY `switch_observability_acls_mac_enforcement` (`mac`,`enforcement_timestamp`)');
-
---
--- Record the authentication source type alongside the source id in auth_log
---
-\! echo "Adding column source_type to auth_log...";
-CALL AddColumnUnlessExists('auth_log', 'source_type',
-    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
-
---
--- Clean up the helper / validation procedures
---
-DROP PROCEDURE IF EXISTS ValidateVersion;
-DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
-DROP PROCEDURE IF EXISTS DropColumnIfExists;
-DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
-DROP PROCEDURE IF EXISTS DropIndexIfExists;
-
-ALTER TABLE `locationlog`
-    ADD `teap_username` varchar(255) DEFAULT '' NOT NULL,
-    ADD `teap_machinename` varchar(255) DEFAULT '' NOT NULL;
+\! echo "Updating locationlog";
+CALL AddColumnUnlessExists('locationlog', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
+CALL AddColumnUnlessExists('locationlog', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
 
 \! echo "Updating locationlog_history";
-ALTER TABLE `locationlog_history`
-    ADD `teap_username` varchar(255) DEFAULT '' NOT NULL,
-    ADD `teap_machinename` varchar(255) DEFAULT '' NOT NULL;
+CALL AddColumnUnlessExists('locationlog_history', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
+CALL AddColumnUnlessExists('locationlog_history', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
 
 \! echo "Updating locationlog_insert_in_history_after_insert";
 DELIMITER /
@@ -260,6 +235,16 @@ BEGIN
   END IF;
 END /
 DELIMITER ;
+
+--
+-- Clean up the helper / validation procedures
+--
+DROP PROCEDURE IF EXISTS ValidateVersion;
+DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
+DROP PROCEDURE IF EXISTS DropColumnIfExists;
+DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
+DROP PROCEDURE IF EXISTS DropIndexIfExists;
+
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
