@@ -22,7 +22,7 @@
   <!-- Show background image on larger screens ( tablet + ). -->
   <picture>
     <source media="(min-width: 46.25em)" srcset="[% background_url %]">
-    <img class="pf-bg" aria-hidden="true" alt="">
+    <img class="pf-bg no-select" aria-hidden="true" alt="">
   </picture>
   [% END %]
   <!--
@@ -40,7 +40,7 @@
                 <div id="dots"></div>
               </div>
               <div class="o-pack__item o-layout--right">
-                <a href="/logout">
+                <a href="/logout" class="no-select">
                   [% svgIcon(id='ic_replay_black_24px', size='tiny', variant='secondary') %]
                 </a>
                 <!-- Uncomment to enable language switcher
@@ -63,7 +63,7 @@
           <div class="o-layout--center u-padding-horizontal u-padding-horizontal@tablet">
 
             [% IF logo %]
-            <img src="[% logo %]" class="u-padding-bottom pf-logo" alt=""/>
+            <img src="[% logo %]" class="u-padding-bottom pf-logo no-select" alt=""/>
             [% END %]
 
             [% IF title.defined %]
