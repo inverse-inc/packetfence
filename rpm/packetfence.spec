@@ -702,12 +702,12 @@ make html/captive-portal/profile-templates/default/logo.png
 
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
-    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 fi
 
 # Create server API system user password
