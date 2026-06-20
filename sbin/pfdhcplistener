@@ -28,7 +28,7 @@ use File::Basename qw(basename);
 use Getopt::Std;
 use Net::Pcap 0.16;
 use Pod::Usage;
-use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_SETMASK);
 use Fcntl qw(:flock);
 use Try::Tiny;
 use pf::util::dhcp;
@@ -435,12 +435,13 @@ run all runtasks
 
 sub runtasks {
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
-    sigprocmask(SIG_BLOCK, $mask);
+    my $oldmask = POSIX::SigSet->new();
+    sigprocmask(SIG_BLOCK, $mask, $oldmask);
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
     }
-    sigprocmask(SIG_UNBLOCK, $mask);
+    sigprocmask(SIG_SETMASK, $oldmask);
 }
 
 =head2 runtask
