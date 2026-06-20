@@ -28,7 +28,7 @@ use File::Basename qw(basename);
 use Getopt::Std;
 use Net::Pcap 0.16;
 use Pod::Usage;
-use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_SETMASK);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK SIG_SETMASK);
 use Fcntl qw(:flock);
 use Try::Tiny;
 use pf::util::dhcp;
@@ -458,6 +458,9 @@ sub runtask {
     }
     elsif ($pid == 0) {
         $SIG{CHLD} = 'DEFAULT';
+        # The parent forked us inside its SIGCHLD-blocked window; unblock so the
+        # child starts with a clean signal mask matching its DEFAULT disposition.
+        sigprocmask(SIG_UNBLOCK, POSIX::SigSet->new(POSIX::SIGCHLD()));
         $IS_CHILD = 1;
         Log::Log4perl::MDC->put('tid', $$);
         setup_global($task);
