@@ -109,7 +109,7 @@ sub commit_file {
             next;
         }
 
-        safe_pf_run("git", "add", "-f", $unprefixed_dst,
+        safe_pf_run("git", "add", "-f", "--", $unprefixed_dst,
             { working_directory => $proto->git_directory, status_ref => \$status });
         if(defined($status) && $status == 0) {
             safe_pf_run("git", "commit", "--allow-empty", "-m", "update $unprefixed_dst",
