@@ -33,5 +33,10 @@
   register: reg_rhel_sub_register_el
   retries: 3
   delay: 10
-  until: reg_rhel_sub_register_el is successful
+  until: >-
+    reg_rhel_sub_register_el is successful
+    or 'already registered' in (reg_rhel_sub_register_el.msg | default(''))
+  failed_when:
+    - reg_rhel_sub_register_el is failed
+    - "'already registered' not in (reg_rhel_sub_register_el.msg | default(''))"
   when: not reg_rhel_sub_consumer_cert.stat.exists
