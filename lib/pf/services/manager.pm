@@ -264,9 +264,7 @@ sub pid {
     my ($self) = @_;
     my $logger = get_logger();
     my $name = $self->{name};
-    my $pid = safe_pf_run(qw(sudo systemctl show -p MainPID), "packetfence-$name");
-    chomp $pid;
-    $pid = (split(/=/, $pid))[1];
+    my $pid = $self->systemctlShowProperty('MainPID', "packetfence-$name");
     if (defined $pid) {
         $logger->debug("sudo systemctl packetfence-$name returned $pid");
     } else {
@@ -454,9 +452,7 @@ Return true if systemd consider the service as enabled
 sub isEnabled {
     my ($self) = @_;
     my $name   = $self->name;
-    my $state  = safe_pf_run(qw(sudo systemctl show -p UnitFileState), "packetfence-$name");
-    chomp $state;
-    $state = ( split( /=/, $state ) )[1];
+    my $state  = $self->systemctlShowProperty('UnitFileState', "packetfence-$name");
     if ( defined $state and $state eq "enabled" ) {
         return $TRUE;
     }
@@ -488,9 +484,7 @@ sub _unitFileExists {
     # Use 'systemctl show' instead of 'systemctl cat' because
     # 'systemctl cat' fails inside Docker containers while
     # 'systemctl show' works via the D-Bus socket.
-    my $output = safe_pf_run(qw(sudo systemctl show -p LoadState), $target, { redirect_stderr_to_stdout => 1 });
-    chomp $output;
-    my $load_state = (split(/=/, $output))[1];
+    my $load_state = $self->systemctlShowProperty('LoadState', $target, { redirect_stderr_to_stdout => 1 });
     return defined $load_state && $load_state ne 'not-found';
 }
 
@@ -566,6 +560,24 @@ restart the service
 sub restart {
     my ($self) = @_;
     return $self->restartService();
+}
+
+=head2 systemctlShowProperty
+
+Run C<systemctl show -p PROPERTY NAME> and return the value of the property
+(the part after the C<=>), with any trailing newline removed. Returns undef
+if the command produced no output. An optional hashref of options is passed
+through to C<safe_pf_run>.
+
+=cut
+
+sub systemctlShowProperty {
+    my ($self, $prop, $name, $options) = @_;
+    my @extra = defined $options ? ($options) : ();
+    my $value = safe_pf_run(qw(sudo systemctl show -p), $prop, $name, @extra);
+    return undef unless defined $value;
+    chomp $value;
+    return (split(/=/, $value, 2))[1];
 }
 
 =head1 AUTHOR

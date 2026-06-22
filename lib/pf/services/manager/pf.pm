@@ -152,9 +152,7 @@ sub print_status {
 sub sub_pid {
     my ($self, $service) = @_;
     my $logger = get_logger();
-    my $pid = safe_pf_run(qw(sudo systemctl show -p MainPID), $service);
-    chomp $pid;
-    $pid = (split(/=/, $pid))[1];
+    my $pid = $self->systemctlShowProperty('MainPID', $service);
     if (defined $pid) {
         $logger->debug("sudo systemctl $service returned $pid");
     } else {

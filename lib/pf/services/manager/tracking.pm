@@ -75,9 +75,7 @@ sub pid {
     my ($self) = @_;
     my $logger = get_logger();
     my $name = $self->{name};
-    my $state = safe_pf_run(qw(sudo systemctl show -p ActiveState), "packetfence-$name.path");
-    chomp $state;
-    $state = (split(/=/, $state))[1];
+    my $state = $self->systemctlShowProperty('ActiveState', "packetfence-$name.path") // '';
     if ($state ne "inactive") {
         $logger->debug("sudo systemctl packetfence-$name returned $state");
         return $TRUE;
