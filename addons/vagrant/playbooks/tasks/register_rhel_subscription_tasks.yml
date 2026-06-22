@@ -20,10 +20,9 @@
   until: reg_rhel_sub_register_password is successful
   
 - name: Check if RHEL is already registered
-  ansible.builtin.command: subscription-manager identity
-  register: reg_rhel_sub_identity
-  changed_when: false
-  failed_when: false
+  ansible.builtin.stat:
+    path: /etc/pki/consumer/cert.pem
+  register: reg_rhel_sub_consumer_cert
 
 - name: Register RHEL subscription
   community.general.redhat_subscription:
@@ -35,4 +34,4 @@
   retries: 3
   delay: 10
   until: reg_rhel_sub_register_el is successful
-  when: reg_rhel_sub_identity.rc != 0
+  when: not reg_rhel_sub_consumer_cert.stat.exists
