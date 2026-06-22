@@ -208,7 +208,7 @@ if [ -z "${USERS}" ]; then
     exit 0
 fi
 
-hdr "Mode: ${PURGE:+PURGE — wipes everything}${PURGE:+}${PURGE:-sweep}  Action: $([ ${APPLY} = yes ] && echo APPLY || echo dry-run)"
+hdr "Mode: $([ "${PURGE}" = yes ] && echo 'PURGE — wipes everything' || echo 'sweep')  Action: $([ ${APPLY} = yes ] && echo APPLY || echo dry-run)"
 echo "  Detected user homes:"
 echo "${USERS}" | sed 's/^/    /'
 
