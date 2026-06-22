@@ -18,6 +18,7 @@ use base qw(Exporter);
 
 use pfconfig::constants;
 use fingerbank::FilePath;
+use File::Spec::Functions qw(catfile);
 use pf::file_paths qw(
     $server_cert
     $server_key
@@ -32,6 +33,7 @@ use pf::file_paths qw(
     $unified_api_system_pass_file
     $system_init_key_file
     $network_behavior_policy_config_file
+    $kafka_ssl_dir
 );
 
 our @EXPORT_OK = qw(@FILES_TO_SYNC);
@@ -50,8 +52,13 @@ our @FILES_TO_SYNC = (
     $pfconfig::constants::CONFIG_FILE_PATH,
     $iptable_custom_config_file,
     $ip6table_custom_config_file,
-    $fingerbank::FilePath::CONF_FILE, 
-    $fingerbank::FilePath::LOCAL_DB_FILE
+    $fingerbank::FilePath::CONF_FILE,
+    $fingerbank::FilePath::LOCAL_DB_FILE,
+    # Kafka mTLS artifacts: the broker keystore/truststore plus the client
+    # cert + key the pfkafka tool needs on every member. Absent files are
+    # skipped/logged by the sync when mTLS is not configured.
+    ( map { catfile($kafka_ssl_dir, $_) }
+        qw(ca.pem cert.pem key.pem peer-ca.pem keystore.p12 truststore.p12) ),
 );
 
 =head1 AUTHOR

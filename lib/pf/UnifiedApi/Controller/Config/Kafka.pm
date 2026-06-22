@@ -458,10 +458,16 @@ sub update {
 
     if ($self->save_in_config_store($new_data)) {
         # The peer CA may have changed on save: rebuild the truststore on disk
-        # and distribute the ssl artifacts to the rest of the cluster.
+        # and distribute the ssl artifacts to the rest of the cluster. Re-push
+        # the whole ssl dir as well so a save converges any member that is
+        # missing the artifacts (e.g. it was down when the cert was generated).
         eval { $self->_sync_peer_truststore() };
         if ($@) {
             get_logger->error("Unable to refresh the Kafka truststore: $@");
+        }
+        eval { $self->_sync_ssl_dir() };
+        if ($@) {
+            get_logger->error("Unable to distribute the Kafka ssl artifacts: $@");
         }
         $self->render(status => 200, json => {});
     }
@@ -1030,11 +1036,12 @@ sub _expand_cluster_sans {
 
 Distribute the kafka ssl artifacts to the other cluster members using the same
 file sync as C<@FILES_TO_SYNC>: each member pulls the files from this (origin)
-server. Only the artifacts the other brokers actually need are distributed --
-the password-protected keystore/truststore the broker loads plus the public
-PEMs. The raw private key (key.pem) is intentionally NOT synced: no other node
-consumes it (the broker only reads the keystore), so it stays 0600 on the
-issuing node and is never sent over the wire.
+server. The broker loads the password-protected keystore/truststore; the public
+PEMs and the client key.pem are distributed so the pfkafka client tool can do
+mTLS on every member (it loads cert.pem + key.pem from disk). key.pem lands 0664
+on the receivers (the cluster file sync forces that mode); this is no extra
+exposure since the same private key already travels inside the synced keystore.p12,
+whose password lives in the (0664) kafka.conf.
 
 =cut
 
@@ -1043,7 +1050,7 @@ sub _sync_ssl_dir {
     return unless $cluster_enabled;
     my @files = grep { -f $_ }
         map { "$kafka_ssl_dir/$_" }
-        qw(ca.pem cert.pem peer-ca.pem keystore.p12 truststore.p12);
+        qw(ca.pem cert.pem key.pem peer-ca.pem keystore.p12 truststore.p12);
     return unless @files;
     my $failed = eval { pf::cluster::sync_files(\@files) };
     if ($@) {
