@@ -167,7 +167,7 @@ sub delete_file {
         }
 
         my $status;
-        safe_pf_run("git", "rm", $file,
+        safe_pf_run("git", "rm", "--", $file,
             { working_directory => $proto->git_directory, status_ref => \$status });
         if(defined($status) && $status == 0) {
             safe_pf_run("git", "commit", "--allow-empty", "-m", "delete $file",
