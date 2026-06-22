@@ -27,12 +27,14 @@ type Proxy struct {
 	attributes_keys []string
 	secret          []byte
 	sessionTimeout  time.Duration
-	backends        *Backends
+	authBackends    *Backends
+	acctBackends    *Backends
 	*cio.Logger
 }
 
 type ProxyConfig struct {
-	Addrs          []string
+	AuthAddrs      []string
+	AcctAddrs      []string
 	Secret         []byte
 	SessionTimeout time.Duration
 	Logger         *cio.Logger
@@ -41,7 +43,8 @@ type ProxyConfig struct {
 func NewProxy(config *ProxyConfig) *Proxy {
 	radiusProxy := &Proxy{
 		sessionTimeout: config.SessionTimeout,
-		backends:       NewBackends(config.SessionTimeout, config.Addrs...),
+		authBackends:   NewBackends(config.SessionTimeout, config.AuthAddrs...),
+		acctBackends:   NewBackends(config.SessionTimeout, config.AcctAddrs...),
 		secret:         []byte(config.Secret),
 		Logger:         config.Logger,
 	}
@@ -49,8 +52,23 @@ func NewProxy(config *ProxyConfig) *Proxy {
 	return radiusProxy
 }
 
+// backendsForPacket selects the backend pool based on the RADIUS packet code.
+// Accounting-Request packets are routed to the accounting pool (pfacct); every
+// other packet (Access-Request, Status-Server, ...) goes to the authentication
+// pool (radiusd-auth). Without this split an accounting packet could be hashed
+// onto a radiusd-auth backend, which listens on the auth port and silently
+// discards accounting.
+func (rp *Proxy) backendsForPacket(p *radius.Packet) *Backends {
+	if p.Code == radius.CodeAccountingRequest {
+		return rp.acctBackends
+	}
+
+	return rp.authBackends
+}
+
 func (rp *Proxy) Cleanup(stop chan struct{}) {
-	rp.backends.sessions.Cleanup(5*time.Second, stop)
+	go rp.authBackends.sessions.Cleanup(5*time.Second, stop)
+	rp.acctBackends.sessions.Cleanup(5*time.Second, stop)
 }
 
 func (rp *Proxy) addProxyState(p *radius.Packet) bool {
@@ -59,20 +77,29 @@ func (rp *Proxy) addProxyState(p *radius.Packet) bool {
 		return false
 	}
 
+	backends := rp.backendsForPacket(p)
 	id, _ := uuid.NewUUID()
 	value := id.String()
 	rfc2865.ProxyState_SetString(p, value)
-	be := rp.backends.pickBackend(p)
-	rp.backends.sessions.Add(value, rp.sessionTimeout, be)
+	be := backends.pickBackend(p)
+	backends.sessions.Add(value, rp.sessionTimeout, be)
 	return true
 }
 
-func (rp *Proxy) AddBackend(addr string) {
-	rp.backends.Add(addr)
+func (rp *Proxy) AddAuthBackend(addr string) {
+	rp.authBackends.Add(addr)
 }
 
-func (rp *Proxy) DeleteBackend(addr string) {
-	rp.backends.Delete(addr)
+func (rp *Proxy) DeleteAuthBackend(addr string) {
+	rp.authBackends.Delete(addr)
+}
+
+func (rp *Proxy) AddAcctBackend(addr string) {
+	rp.acctBackends.Add(addr)
+}
+
+func (rp *Proxy) DeleteAcctBackend(addr string) {
+	rp.acctBackends.Delete(addr)
 }
 
 func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
@@ -125,12 +152,12 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		return nil, "", err
 	}
 
-	be := rp.backends.getBackend(packet)
+	be := rp.backendsForPacket(packet).getBackend(packet)
 	if be == nil {
 		return nil, "", errors.New("No backend available")
 	}
 
-	rp.Debugf("Proxy to %s for connector %s", be.addr, connectorID)
+	rp.Debugf("Proxy %s to %s for connector %s", packet.Code, be.addr, connectorID)
 	rp.IfDebugHandle(func(l *cio.Logger) {
 		l.Printf("Payload Proxied")
 		LogPacket(l, packet)
