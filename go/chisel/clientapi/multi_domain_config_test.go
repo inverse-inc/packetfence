@@ -38,6 +38,25 @@ func waitForHits(hits *atomic.Int32, want int32, timeout time.Duration) int32 {
 	return hits.Load()
 }
 
+// waitForCache blocks until the cache holds a populated config or `timeout`
+// elapses, returning the latest config (nil on timeout). Needed because the
+// `hits` counter is bumped server-side when the request arrives, which races
+// ahead of the client-side fetch->decode->set that actually fills the cache;
+// observing hits>=1 does not guarantee the cache is populated yet.
+func waitForCache(c *multiDomainCache, timeout time.Duration) *multiDomainConfig {
+	deadline := time.Now().Add(timeout)
+	for {
+		if cfg, _ := c.get(); cfg != nil {
+			return cfg
+		}
+		if !time.Now().Before(deadline) {
+			cfg, _ := c.get()
+			return cfg
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+}
+
 func withShortPoll(t *testing.T, interval time.Duration) {
 	t.Helper()
 	orig := multiDomainTunnelPollInterval
@@ -104,7 +123,9 @@ func TestRefresher_FetchOnTunnelUp(t *testing.T) {
 		t.Fatalf("expected at least 1 fetch after tunnel-up, got %d", got)
 	}
 
-	if cfg, _ := cache.get(); cfg == nil || cfg.Realms["example.com"].Domain != "EXAMPLE" {
+	// Wait for the cache to actually be populated rather than inferring it
+	// from the hits counter, which is bumped before the client sets the cache.
+	if cfg := waitForCache(cache, 500*time.Millisecond); cfg == nil || cfg.Realms["example.com"].Domain != "EXAMPLE" {
 		t.Fatalf("expected cache populated after tunnel-up, got %#v", cfg)
 	}
 
