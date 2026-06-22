@@ -108,9 +108,15 @@ sub add_ssl_env_vars {
     $env->{KAFKA_SSL_KEYSTORE_TYPE}       = "PKCS12";
     $env->{KAFKA_SSL_KEYSTORE_PASSWORD}   = $ssl->{keystore_password} // '';
     $env->{KAFKA_SSL_KEY_PASSWORD}        = $ssl->{keystore_password} // '';
-    $env->{KAFKA_SSL_TRUSTSTORE_LOCATION} = KAFKA_SSL_DIR . "/truststore.p12";
-    $env->{KAFKA_SSL_TRUSTSTORE_TYPE}     = "PKCS12";
-    $env->{KAFKA_SSL_TRUSTSTORE_PASSWORD} = $ssl->{truststore_password} // '';
+    # Use a PEM truststore (the peer CA cert directly) rather than a PKCS12 one.
+    # A PKCS12 truststore built by "openssl pkcs12 -export -nokeys" stores the CA
+    # as a plain certificate bag that the JDK does not load as a trust anchor
+    # (keytool reports 0 entries), so the broker's TrustManager initializes with an
+    # empty anchor set and every client handshake fails with "the trustAnchors
+    # parameter must be non-empty". A PEM truststore (Kafka >= 2.7) reads the CA
+    # cert directly and needs no password.
+    $env->{KAFKA_SSL_TRUSTSTORE_LOCATION} = KAFKA_SSL_DIR . "/peer-ca.pem";
+    $env->{KAFKA_SSL_TRUSTSTORE_TYPE}     = "PEM";
 
     # Require a trusted client certificate, scoped to the external listener only,
     # so internal/inter-broker traffic keeps its current security protocol.

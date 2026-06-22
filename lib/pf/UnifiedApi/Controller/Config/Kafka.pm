@@ -971,34 +971,21 @@ sub _write_keystore {
 
 =head2 _write_truststore
 
-Write the peer CA PEM and build a PKCS12 truststore from it. Returns the list of
-file paths written (empty if no peer CA is configured).
+Write the peer CA PEM. The broker consumes this PEM directly as its truststore
+(C<KAFKA_SSL_TRUSTSTORE_TYPE=PEM>, set in pf::services::manager::kafka), so no
+PKCS12 conversion is done: a PKCS12 truststore built from a bare CA via
+C<openssl pkcs12 -export -nokeys> is stored as a plain cert bag that the JDK does
+not load as a trust anchor, leaving the broker with an empty anchor set. Returns
+the list of file paths written (empty if no peer CA is configured). The
+C<$password> argument is unused (kept for the existing callers).
 
 =cut
 
 sub _write_truststore {
     my ($self, $peer_ca, $password) = @_;
     return () unless defined $peer_ca && $peer_ca =~ /\S/;
-    return () unless defined $password && $password ne '';
-
     my $peer_path = $self->_write_file('peer-ca.pem', $peer_ca, 0644);
-    my $ts_path   = $self->_ssl_dir . "/truststore.p12";
-
-    local $ENV{PF_KAFKA_TS_PASS} = $password;
-    my @cmd = (
-        'openssl', 'pkcs12', '-export', '-nokeys',
-        '-in',      $peer_path,
-        '-name',    'kafka-peer-ca',
-        '-out',     $ts_path,
-        '-passout', 'env:PF_KAFKA_TS_PASS',
-    );
-    system(@cmd) == 0 or die "openssl truststore generation failed (exit " . ($? >> 8) . ")\n";
-    # Readable for the same cluster-sync reason as the keystore (password-protected).
-    chmod(0644, $ts_path);
-    if ($ENV{PF_UID} && $ENV{PF_GID}) {
-        chown($ENV{PF_UID}, $ENV{PF_GID}, $ts_path);
-    }
-    return ($peer_path, $ts_path);
+    return ($peer_path);
 }
 
 =head2 _sync_peer_truststore
@@ -1050,7 +1037,7 @@ sub _sync_ssl_dir {
     return unless $cluster_enabled;
     my @files = grep { -f $_ }
         map { "$kafka_ssl_dir/$_" }
-        qw(ca.pem cert.pem key.pem peer-ca.pem keystore.p12 truststore.p12);
+        qw(ca.pem cert.pem key.pem peer-ca.pem keystore.p12);
     return unless @files;
     my $failed = eval { pf::cluster::sync_files(\@files) };
     if ($@) {
