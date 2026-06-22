@@ -36,7 +36,7 @@ sub status {
     my $pid = safe_pf_run(qw(sudo systemctl show -p MainPID), $self->param("system_service_id"));
     $pid //= '';
     chomp $pid;
-    $pid = (split(/=/, $pid))[1];
+    $pid = (split(/=/, $pid, 2))[1] // '';
     return $self->render(json => {message => ($pid ? "Service is running" : "Service is not running"), pid => $pid+0}, status => ($pid ? 200 : 500));
 }
 
