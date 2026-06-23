@@ -274,7 +274,20 @@ sub processFingerbank {
                       . ($fingerbank_args->{dhcp6_enterprise} // '');
         my $cached = $fingerbank_signature_cache->get($mac);
         if (!defined($cached) || $cached ne $signature) {
-            $self->apiClient->notify('fingerbank_process', $mac);
+            # Forward the attributes we parsed straight from this DHCP packet so
+            # pf::fingerbank::process can record them (notably the option-12
+            # hostname as computername) without depending on the Fingerbank
+            # collector having already aggregated them for this endpoint. The
+            # collector ingests asynchronously, so re-deriving these from it
+            # races its own ingestion -- which is why a freshly-seen device's
+            # machine name only showed up after a later re-process. Keys here use
+            # the namespace pf::fingerbank expects (hostname, dhcp_fingerprint,
+            # dhcp_vendor).
+            my %parsed_attributes;
+            $parsed_attributes{hostname}         = $fingerbank_args->{computername}     if defined($fingerbank_args->{computername})     && length($fingerbank_args->{computername});
+            $parsed_attributes{dhcp_fingerprint} = $fingerbank_args->{dhcp_fingerprint} if defined($fingerbank_args->{dhcp_fingerprint}) && length($fingerbank_args->{dhcp_fingerprint});
+            $parsed_attributes{dhcp_vendor}      = $fingerbank_args->{dhcp_vendor}      if defined($fingerbank_args->{dhcp_vendor})      && length($fingerbank_args->{dhcp_vendor});
+            $self->apiClient->notify('fingerbank_process', $mac, \%parsed_attributes);
             $fingerbank_signature_cache->set($mac, $signature, $FINGERBANK_SIGNATURE_TTL);
         }
     }

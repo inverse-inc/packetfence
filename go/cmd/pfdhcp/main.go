@@ -208,7 +208,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	// ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 	clientMac := answer.MAC.String()
-	clientHostname := string(options[dhcp.OptionHostName])
+	clientHostname := sanitizeHostname(string(options[dhcp.OptionHostName]))
 	prettyType := "DHCP" + strings.ToUpper(msgType.String())
 
 	// Get the appropriate handler and network scope
@@ -247,6 +247,21 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 
 	log.LoggerWContext(ctx).Debug(clientMac + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+
+	// PacketFence is the DHCP server for this network (a handler/network was
+	// found above). Record the client host name (option 12) on the node right
+	// away from the packet we're answering, rather than relying on the
+	// asynchronous Fingerbank collector to aggregate it later. The Perl DHCP
+	// processor defers computername to us for the networks we serve
+	// (pf_is_dhcp), so this is the authoritative writer for those networks.
+	if clientHostname != "" {
+		switch msgType {
+		case dhcp.Discover, dhcp.Request, dhcp.Inform:
+			if err := MysqlUpdateComputername(ctx, clientMac, clientHostname, db); err != nil {
+				log.LoggerWContext(ctx).Warn("Unable to update computername for " + clientMac + ": " + err.Error())
+			}
+		}
+	}
 
 	// Process request based on message type
 	switch msgType {

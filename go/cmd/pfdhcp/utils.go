@@ -602,6 +602,31 @@ func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time
 	return err
 }
 
+// sanitizeHostname cleans a DHCP option-12 (host name) value for storage and
+// logging: some clients pad it with trailing NUL bytes or surrounding
+// whitespace.
+func sanitizeHostname(h string) string {
+	return strings.TrimSpace(strings.TrimRight(h, "\x00"))
+}
+
+// MysqlUpdateComputername records the DHCP option-12 host name as the node's
+// computername. PacketFence (this DHCP server) has the host name directly in
+// the packet it answers, so writing it here makes the machine name land
+// immediately, instead of waiting for the asynchronous Fingerbank collector to
+// aggregate it and a later re-process to persist it. The WHERE clause makes
+// this a no-op when the value is unchanged or the node row does not exist yet.
+func MysqlUpdateComputername(ctx context.Context, mac string, hostname string, db *sql.DB) error {
+	if hostname == "" {
+		return nil
+	}
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	_, err := db.ExecContext(dbCtx,
+		"UPDATE node SET computername = ? WHERE mac = ? AND (computername IS NULL OR computername != ?)",
+		hostname, mac, hostname)
+	return err
+}
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {

@@ -87,7 +87,7 @@ my $api_client;
 
 sub process {
     my $timer = pf::StatsD::Timer->new();
-    my ( $mac, $force ) = @_;
+    my ( $mac, $force, $overrides ) = @_;
     my $logger = pf::log::get_logger;
 
     unless(fingerbank::Config::is_api_key_configured()) {
@@ -116,6 +116,33 @@ sub process {
     }
 
     $query_args->{mac} = $mac;
+
+    # Overlay attributes parsed directly from the live DHCP packet (passed in by
+    # pf::dhcp::processor) over what the collector returned. The collector
+    # aggregates endpoint data asynchronously and may not yet hold the option-12
+    # hostname (or the latest fingerprint) that PF already parsed, so prefer the
+    # in-hand values when recording the result below.
+    if (ref($overrides) eq 'HASH') {
+        for my $attr (keys %$overrides) {
+            my $val = $overrides->{$attr};
+            next unless defined($val) && length($val);
+            $query_args->{$attr} = $val;
+        }
+
+        # Persist the freshly-parsed hostname right away, independent of whether
+        # the Fingerbank query below runs (it can be skipped by the freshness
+        # guard or fail upstream). This guarantees the machine name lands on the
+        # first DHCP packet that carries it rather than waiting for a later
+        # collector-backed re-process.
+        my $hostname = $overrides->{hostname};
+        if (defined($hostname) && length($hostname)
+                && (!defined($node_before->{computername}) || $node_before->{computername} ne $hostname)) {
+            pf::dal::node->update_items(
+                -set   => { computername => $hostname },
+                -where => { mac => $mac },
+            );
+        }
+    }
 
     if(!$force && $query_args->{last_updated}->epoch <= $process_timestamp->epoch) {
         $logger->debug("No recent data found for $mac, will not trigger device profiling. Was last updated at $query_args->{last_updated} and last process timestamp is $process_timestamp");
