@@ -186,7 +186,22 @@ func startPodInformer(clientset *kubernetes.Clientset, namespace, filter string,
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
-				pod := obj.(*v1.Pod)
+				pod, ok := obj.(*v1.Pod)
+				if !ok {
+					// On a missed delete the informer delivers a
+					// DeletedFinalStateUnknown tombstone instead of the
+					// object; unwrap it to recover the last-known pod.
+					tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
+					if !ok {
+						l.Infof("DeleteFunc got unexpected object type %T, ignoring", obj)
+						return
+					}
+					pod, ok = tombstone.Obj.(*v1.Pod)
+					if !ok {
+						l.Infof("DeleteFunc tombstone contained unexpected object type %T, ignoring", tombstone.Obj)
+						return
+					}
+				}
 				address := getPodHostPort(pod, defaultPort)
 				l.Infof("Removing %s", address)
 				del(address)

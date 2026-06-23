@@ -68,7 +68,7 @@ func (rp *Proxy) backendsForPacket(p *radius.Packet) *Backends {
 
 func (rp *Proxy) Cleanup(stop chan struct{}) {
 	go rp.authBackends.sessions.Cleanup(5*time.Second, stop)
-	rp.acctBackends.sessions.Cleanup(5*time.Second, stop)
+	go rp.acctBackends.sessions.Cleanup(5*time.Second, stop)
 }
 
 func (rp *Proxy) addProxyState(p *radius.Packet) bool {
