@@ -22,7 +22,7 @@
 .dot--active div,
 .dot:hover div {
   background-color: #{$pf-color-secondary-touch};                                                     // [1] IE
-  background-color: var(--pf-secondary-color);                                                       // [2] no color-mix()
+  background-color: var(--pf-secondary-hover-color);                                                 // [2] CSS vars, no color-mix()
   background-color: color-mix(in oklch, var(--pf-secondary-color) 85%, CanvasText);                  // [3] modern
 }
 

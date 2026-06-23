@@ -2,7 +2,7 @@
 ///
 /// Note: the original code used lighten($pf-base-text-color, 50%), but Sass
 /// color functions cannot operate on CSS custom property strings. The derived
-/// color is pre-computed in _settings.css-vars.scss as --pf-divider-color.
+/// color is defined in _settings.packetfence.scss and exposed as --pf-divider-color
 
 .c-divider {
   border-top: 1px solid var(--pf-divider-color);

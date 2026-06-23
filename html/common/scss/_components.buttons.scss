@@ -49,7 +49,7 @@ $btn-line-height: 1.5;
   &:hover,
   &:focus {
     background-color: $pf-color-primary-touch;                                         // [1] IE
-    background-color: var(--pf-primary-color);                                         // [2] no color-mix()
+    background-color: var(--pf-primary-hover-color);                                   // [2] CSS vars, no color-mix()
     background-color: color-mix(in oklch, var(--pf-primary-color) 82%, CanvasText);   // [3] modern
   }
 
@@ -85,9 +85,9 @@ $btn-line-height: 1.5;
 
   &:hover,
   &:focus {
-    background-color: $pf-color-secondary-touch;                                         // [1] IE
-    background-color: var(--pf-secondary-color);                                         // [2] no color-mix()
-    background-color: color-mix(in oklch, var(--pf-secondary-color) 82%, CanvasText);   // [3] modern
+    background-color: $pf-color-secondary-touch;                                           // [1] IE
+    background-color: var(--pf-secondary-hover-color);                                     // [2] CSS vars, no color-mix()
+    background-color: color-mix(in oklch, var(--pf-secondary-color) 82%, CanvasText);     // [3] modern
   }
 
   &[disabled] {
@@ -124,7 +124,7 @@ $btn-line-height: 1.5;
   &:hover,
   &:focus {
     color: $pf-color-tertiary-touch;                                                     // [1] IE
-    color: var(--pf-tertiary-color);                                                     // [2] no color-mix()
+    color: var(--pf-tertiary-hover-color);                                               // [2] CSS vars, no color-mix()
     color: color-mix(in oklch, var(--pf-tertiary-color) 82%, CanvasText);               // [3] modern
   }
 
@@ -186,7 +186,7 @@ $btn-ghost-border-width: 2px;
     &:hover,
     &:focus {
       color: $pf-color-primary-touch;                                                    // [1] IE
-      color: var(--pf-primary-color);                                                    // [2] no color-mix()
+      color: var(--pf-primary-hover-color);                                              // [2] CSS vars, no color-mix()
       color: color-mix(in oklch, var(--pf-primary-color) 82%, CanvasText);              // [3] modern
     }
 

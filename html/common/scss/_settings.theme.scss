@@ -28,6 +28,12 @@
   --pf-frame-border-color:        #{$pf-frame-border-color};
   --pf-media-border-color:        #{$pf-media-border-color};
 
+  // Hover colors: layer [2] fallback for browsers with CSS vars but no color-mix().
+  // Theme authors may override these; modern browsers ignore them (color-mix() wins).
+  --pf-primary-hover-color:       #{$pf-color-primary-touch};
+  --pf-secondary-hover-color:     #{$pf-color-secondary-touch};
+  --pf-tertiary-hover-color:      #{$pf-color-tertiary-touch};
+
   --pf-input-background:          #{$pf-input-background};
   --pf-focus-ring-color:          #{$pf-focus-ring-color};
   --pf-font-family:               "Arial", "Helvetica Neue", sans-serif;
@@ -72,6 +78,7 @@
     // ── INTERNAL ─────────────────────────────────────────────────────────────
     --pf-frame-border-color:        #{$pf-dark-frame-border-color};
     --pf-media-border-color:        #{$pf-dark-media-border-color};
+    --pf-secondary-hover-color:     #{$pf-dark-secondary-touch};
     --pf-input-background:          #{$pf-dark-input-background};
     --pf-focus-ring-color:          #{$pf-dark-focus-ring-color};
 
@@ -102,6 +109,7 @@
     // ── INTERNAL ─────────────────────────────────────────────────────────────
     --pf-frame-border-color:        light-dark(#{$pf-frame-border-color},       #{$pf-dark-frame-border-color});
     --pf-media-border-color:        light-dark(#{$pf-media-border-color},       #{$pf-dark-media-border-color});
+    --pf-secondary-hover-color:     light-dark(#{$pf-color-secondary-touch},    #{$pf-dark-secondary-touch});
     --pf-input-background:          light-dark(#{$pf-input-background},         #{$pf-dark-input-background});
     --pf-focus-ring-color:          light-dark(#{$pf-focus-ring-color},         #{$pf-dark-focus-ring-color});
     // --pf-logo-filter excluded: light-dark() is a color function, not a filter

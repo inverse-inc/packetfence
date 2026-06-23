@@ -35,8 +35,7 @@ module.exports = function(grunt) {
             // Insert static fallback values before every var() for IE8-IE11 compatibility.
             // preserve: true keeps both the static fallback AND the var() declaration.
             require('postcss-custom-properties')({ preserve: true }),
-            require('autoprefixer')(),
-            require('csswring').postcss // minifier
+            require('autoprefixer')()
           ]
         },
         src: 'styles.css'
@@ -64,7 +63,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-postcss');
+  grunt.loadNpmTasks('@lodder/grunt-postcss');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Build CSS for distribution

@@ -45,6 +45,13 @@
   /* --pf-secondary-color: #002f6c; */
   /* --pf-tertiary-color:  #007ab8; */
 
+  /* Hover colors — only needed when overriding action colors above AND targeting
+   * browsers that support CSS custom properties but not color-mix() (e.g. Safari < 16.2).
+   * Modern browsers compute these automatically via color-mix(); omit if not required. */
+  /* --pf-primary-hover-color:   #0069a8; */
+  /* --pf-secondary-hover-color: #004a99; */
+  /* --pf-tertiary-hover-color:  #0069a8; */
+
 
   /* — Typography — */
 
@@ -78,7 +85,7 @@
 
 /* BACKGROUND IMAGE
  * Upload background.png to the connection profile's Files tab.
- * Resolved server-side: profile-specific → default profile → /common/background.png.
+ * Resolved server-side: profile-specific → default profile.
  * Shown on tablet and wider screens; phones use --pf-page-background-color. */
 
 
