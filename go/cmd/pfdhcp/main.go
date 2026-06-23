@@ -30,6 +30,7 @@ import (
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
@@ -84,6 +85,10 @@ var (
 
 	// Connection pool
 	dbConnPool *sql.DB
+
+	// JSON-RPC2 client to the PacketFence AAA API, used to trigger security
+	// events (e.g. hostname_change) back into PacketFence.
+	AAAClient *jsonrpc2.Client
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -139,6 +144,9 @@ func main() {
 
 	// Initialize StatsD client
 	go initStatsD(ctx)
+
+	// Client to the AAA API for triggering security events (hostname_change)
+	AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 
 	// Initialize DHCP configuration
 	DHCPConfig = newDHCPConfig()
@@ -257,9 +265,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	if clientHostname != "" {
 		switch msgType {
 		case dhcp.Discover, dhcp.Request, dhcp.Inform:
-			if err := MysqlUpdateComputername(ctx, clientMac, clientHostname, db); err != nil {
-				log.LoggerWContext(ctx).Warn("Unable to update computername for " + clientMac + ": " + err.Error())
-			}
+			recordComputername(ctx, clientMac, clientHostname, db)
 		}
 	}
 

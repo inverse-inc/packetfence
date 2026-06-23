@@ -615,6 +615,14 @@ type PfConfDns struct {
 	RecordDNS      string `json:"record_dns_in_sql"`
 }
 
+type PfConfNetwork struct {
+	StructConfig
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"config::Pf"`
+	PfconfigHashNS          string `val:"network"`
+	HostnameChangeDetection string `json:"hostname_change_detection"`
+}
+
 type PfConfParking struct {
 	StructConfig
 	PfconfigMethod          string `val:"hash_element"`
