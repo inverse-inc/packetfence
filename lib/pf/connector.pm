@@ -6,6 +6,7 @@ use pf::api::unifiedapiclient;
 use pf::AtFork;
 use pf::config qw(%Config);
 use pf::log;
+use pf::util qw(isenabled);
 
 has id => (is => 'rw');
 
@@ -58,10 +59,16 @@ sub dynreverse {
         connector_id => $self->id,
     });
 
-    #Override the host value if this is a container so that it always goes through the local containers interface
-    #Otherwise the UDP packets don't get an answer because the docker proxy doesn't get them back on the containers network
-    #This shouldn't apply to K8S containers, only when running containers on a 'Classic PF'
-    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && $ENV{PF_SAAS} ne 'yes') ) {
+    #Override the host value returned by the connector server's dynreverse API.
+    #In K8S/SaaS the connector is reached through PFCONNECTOR_SERVICE_HOST; the host the
+    #server returns (e.g. containers-gateway.internal) doesn't resolve from this pod, so
+    #whenever PFCONNECTOR_SERVICE_HOST is defined we always prefer it.
+    #Otherwise, on a 'Classic PF' container, force the local containers interface so that
+    #the docker proxy gets the packets back on the containers network.
+    if ($ENV{PFCONNECTOR_SERVICE_HOST}) {
+        $connector_conn->{host} = $ENV{PFCONNECTOR_SERVICE_HOST};
+    }
+    elsif ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
         $connector_conn->{host} = "containers-gateway.internal";
     }
     
