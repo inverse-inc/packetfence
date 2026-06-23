@@ -24,6 +24,20 @@ delete_dir_if_exists() {
     fi
 }
 
+# vagrant redraws "Progress: N%" with carriage returns (no newline), so the whole
+# burst arrives as one line; `tr` splits it so each redraw can be dropped. Covers
+# the vagrant-libvirt volume upload ("Progress: 0%") and box downloads
+# ("name: Progress: 45% (Rate: ...)"). Real output, including colors, passes through.
+filter_vagrant_progress() {
+    local esc=$'\033'
+    tr '\r' '\n' | awk -v esc="$esc" '
+      { clean = $0; gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean) }
+      clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/ { next }   # drop progress redraws
+      clean ~ /^[ \t]*$/ && $0 != clean { next }                                              # drop control-only fragments
+      { print; fflush() }
+    '
+}
+
 configure_and_check() {
     log_section "Configure and check"
     # full path to root of sources
@@ -79,10 +93,40 @@ check_free_space() {
     MANDATORY_SPACE='32212254'
     AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
 
+    # Low on space: reclaim from old/unused images, then re-measure.
+    if (( AVAILABLE_SPACE <= MANDATORY_SPACE )); then
+        reclaim_disk_space
+        AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
+    fi
+
     if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
         echo "Enough space on system to run tests."
     else
-        die "There is not enough space on system to run tests. Skipping tests."
+        die "There is not enough space on system to run tests, even after cleanup. Skipping tests."
+    fi
+}
+
+# Reclaim disk on low space. Only touches things not in use (concurrent jobs
+# stay safe); does not delete /var/lib/libvirt/images base volumes.
+reclaim_disk_space() {
+    log_subsection "Low disk space: reclaiming from old/unused images"
+    local vm
+
+    for vm in $(virsh list --inactive --name); do
+        echo "Undefining shut-off VM: $vm"
+        virsh undefine "$vm" --remove-all-storage || true
+    done
+    for vm in $(virsh list --name --state-paused); do
+        echo "Destroying paused VM: $vm"
+        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
+    done
+
+    ( cd "${VAGRANT_DIR}" && vagrant box prune --force ) || true
+
+    local cache="${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache}"
+    if [ -d "${cache}" ]; then
+        find "${cache}" -maxdepth 1 -type f \( -name '*.box' -o -name '*.box.md5sums.txt' \) \
+             -atime +3 -print -delete || true
     fi
 }
 
@@ -117,6 +161,49 @@ run() {
     run_tests
 }
 
+# The Linode box bucket is private, so Vagrant can't fetch our boxes from box_url
+# directly (403). Pre-fetch them with authenticated rclone, driven by the VM's
+# box_url in the inventory (single source of truth). Public boxes (generic/rhel8,
+# debian/*) have no bucket URL and are fetched by Vagrant directly.
+prefetch_private_box() {
+    local vm=$1
+
+    local box_url
+    box_url=$(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
+import sys, yaml
+inv = yaml.safe_load(open(sys.argv[1]))
+target, hit = sys.argv[2], {}
+def walk(node):
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == target and isinstance(v, dict) and 'box' in v:
+                hit.update(v)
+            walk(v)
+    elif isinstance(node, list):
+        for x in node:
+            walk(x)
+walk(inv)
+print(hit.get('box_url', ''))
+PY
+)
+    # Public boxes (debian/*, generic/rhel8) have no bucket URL: Vagrant fetches them.
+    case "${box_url}" in
+        *packetfence-vagrant-box*) ;;
+        *) return 0 ;;
+    esac
+
+    # Private box: creds are mandatory; fail clearly instead of a later vagrant 403.
+    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset."
+    [ -n "${RCLONE_SECRET_ACCESS_KEY:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_SECRET_ACCESS_KEY is unset."
+    [ -n "${RCLONE_LINODE_URL:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_LINODE_URL is unset."
+
+    local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
+    local box_name                                    # .../<box_name>/metadata.json
+    box_name=$(basename "$(dirname "${box_url}")")
+    echo "===> Pre-fetching private box '${box_name}' for VM '${vm}'"
+    BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
+}
+
 # Start with or without VM
 start_vm() {
     local vm=$1
@@ -140,12 +227,13 @@ start_vm() {
           ansible-playbook site.yml -l $vm )
     else
         echo "Machine $vm doesn't exist, start and provision with Vagrant"
+        prefetch_private_box ${vm}
         ( cd ${VAGRANT_DIR} ; \
           run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           VAGRANT_DOTFILE_PATH=${dotfile_path} \
                   vagrant up \
                   ${vm} \
-                  ${VAGRANT_UP_OPTS} )
+                  ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
     fi
 }
 

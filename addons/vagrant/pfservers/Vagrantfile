@@ -27,7 +27,8 @@ Vagrant.configure("2") do |config|
       # don't start automatically virtual machines
       config.vm.define server, autostart: false do |srv|
         srv.vm.box = details['box']
-        srv.vm.box_version = details['box_version']
+        srv.vm.box_version = details['box_version'] if details['box_version']
+        srv.vm.box_url = details['box_url'] if details['box_url']
         srv.vm.hostname = server
         
         # mgmt
@@ -95,6 +96,18 @@ Vagrant.configure("2") do |config|
             SHELL
         end
 
+
+        # Upgrade OS packages on first boot — skipped during image build to keep
+        # build times short; runs here so each test VM starts with the latest packages.
+        # Debian-only: EL VMs are upgraded by the Ansible `upgrade EL OS` play.
+        # Non-interactive flags prevent dpkg conffile prompts from hanging `vagrant up`.
+        if details['box'] =~ /deb|bookworm/i
+          srv.vm.provision "upgrade-os", type:"shell" do |s|
+            s.env = { "DEBIAN_FRONTEND" => "noninteractive" }
+            s.inline = 'apt-get update -qq && apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade'
+            s.privileged = true
+          end
+        end
 
         # Use to run only tasks tagged "install" in site.yml
         srv.vm.provision "config", type:"ansible", run:"never" do |config|
