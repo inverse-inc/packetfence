@@ -136,11 +136,24 @@ convert_box_volume() {
 # qcow2 is in BOX_STAGING_DIR. Frees several GB on the runner's
 # .vagrant.d/RESULT_DIR filesystem before the tar step (which momentarily
 # holds box.img twice: once in staging, once written into the .box).
+# `vagrant box remove` leaves the libvirt pool volume behind, so sweep it too.
 cleanup_base_box() {
-    log_section "Remove cached base box from .vagrant.d"
+    log_section "Remove cached base box from .vagrant.d and libvirt pool"
     local base_box="inverse-inc/${PF_VM_NAME/dev/branch}"
     if vagrant box list 2>/dev/null | grep -qE "^${base_box}\b"; then
         vagrant box remove --force --all --provider libvirt "${base_box}" || true
+    fi
+
+    # vagrant-libvirt mangles "inverse-inc/foo" → "inverse-inc-VAGRANTSLASH-foo"
+    local slug="${base_box//\//-VAGRANTSLASH-}"
+    local pool_vols vol
+    pool_vols=$(virsh -c qemu:///system vol-list default 2>/dev/null \
+        | awk -v p="${slug}_vagrant_box_image_" '$1 ~ p { print $1 }' || true)
+    if [ -n "${pool_vols}" ]; then
+        echo "${pool_vols}" | sed 's/^/  pool vol: /'
+        for vol in ${pool_vols}; do
+            virsh -c qemu:///system vol-delete --pool default "${vol}" || true
+        done
     fi
 }
 
