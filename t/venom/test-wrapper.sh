@@ -34,19 +34,27 @@ delete_dir_if_exists() {
     fi
 }
 
-# In non-TTY CI logs, vagrant's carriage-return "Progress: N%" redraws become one
-# line each (plus ANSI fragments). Drop them; all other output passes through.
+# Collapse vagrant Progress: N% redraws to only the latest frame per burst.
 filter_vagrant_progress() {
     local esc=$'\033'
     awk -v esc="$esc" '
-      {
-        clean = $0
-        gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean)
-        gsub(/\r/, "", clean)
+      function flush_pending() {
+          if (pending != "") { print pending; pending = ""; fflush() }
       }
-      clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/ { next }   # drop progress redraws
-      clean ~ /^[ \t]*$/ && $0 != clean { next }                                              # drop control-only fragments
-      { print; fflush() }
+      {
+          n = split($0, frames, "\r")
+          line = frames[n]
+          clean = line
+          gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean)
+          if (clean ~ /^[ \t]*$/) next
+          if (clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/) {
+              pending = line
+              next
+          }
+          flush_pending()
+          print line; fflush()
+      }
+      END { flush_pending() }
     '
 }
 
