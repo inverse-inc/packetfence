@@ -70,6 +70,19 @@ build {
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
 
+  # Ship the box unregistered: the build-time RHEL subscription goes stale once
+  # this build's consumer is reaped, leaving published boxes unable to reach
+  # entitled repos. Runtime provisioning re-registers per dev/CI.
+  provisioner "shell" {
+    only = ["qemu.el-8"]
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    inline = [
+      "set -eux",
+      "subscription-manager unregister || true",
+      "subscription-manager clean || true",
+    ]
+  }
+
   # Local .box output picked up by upload-to-linode.sh (Linode Object Storage
   # replaced Vagrant Cloud for distribution).
   post-processors {
@@ -210,6 +223,19 @@ build {
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = false
     use_proxy = false
+  }
+
+  # Ship the box unregistered: the build-time RHEL subscription goes stale once
+  # this build's consumer is reaped, leaving published boxes unable to reach
+  # entitled repos. Runtime provisioning re-registers per dev/CI.
+  provisioner "shell" {
+    only = ["qemu.el-8"]
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    inline = [
+      "set -eux",
+      "subscription-manager unregister || true",
+      "subscription-manager clean || true",
+    ]
   }
 
   # Local .box output picked up by upload-to-linode.sh (Linode Object Storage

@@ -18,11 +18,6 @@
   retries: 3
   delay: 10
   until: reg_rhel_sub_register_password is successful
-  
-- name: Check if RHEL is already registered
-  ansible.builtin.stat:
-    path: /etc/pki/consumer/cert.pem
-  register: reg_rhel_sub_consumer_cert
 
 - name: Register RHEL subscription
   community.general.redhat_subscription:
@@ -33,10 +28,4 @@
   register: reg_rhel_sub_register_el
   retries: 3
   delay: 10
-  until: >-
-    reg_rhel_sub_register_el is successful
-    or 'already registered' in (reg_rhel_sub_register_el.msg | default(''))
-  failed_when:
-    - reg_rhel_sub_register_el is failed
-    - "'already registered' not in (reg_rhel_sub_register_el.msg | default(''))"
-  when: not reg_rhel_sub_consumer_cert.stat.exists
+  until: reg_rhel_sub_register_el is successful
