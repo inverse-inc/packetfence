@@ -12,8 +12,6 @@ gitlab_buildpkg_tools__rpm_keys:
 gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
-    # bypass EL8 modular filtering so PF's freeradius overrides the AppStream module
-    module_hotfixes: 1
   - name: nodejs
     baseurl: 'https://rpm.nodesource.com/pub_20.x/nodistro/nodejs/$basearch'
     module_hotfixes: 1

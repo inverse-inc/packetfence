@@ -19,6 +19,7 @@ stages:
   - build_artifacts
   - sign
   - publish
+  - bake_img
   - test
   - test_cluster
   - deploy
@@ -56,8 +57,6 @@ variables:
   ISODIR: $CIDIR/cd-iso
   DVD_USB_ISODIR: $CIDIR/dvd-usb-iso
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
-  # Absolute: consumed by test-wrapper.sh under `make -C t/venom` (cwd != repo root).
-  VAGRANT_LIB_DIR: ${CI_PROJECT_DIR}/$CIDIR/lib/vagrant
   TESTDIR: t/venom
   CONTAINER_DIR: containers
   UPLOAD_DIR: $CILIBDIR/upload
@@ -161,6 +160,11 @@ variables:
     - if: '$BUILD_IMG_DOCKER == "no"'
       when: never
 
+.gated_by_build_img_vagrant:
+  rules:
+    - if: '$BUILD_IMG_VAGRANT != "yes" && $CI_COMMIT_MESSAGE !~ /build_img_vagrant=yes/'
+      when: never
+
 .gated_by_publish_ppa:
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
@@ -168,7 +172,6 @@ variables:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
-    - if: '$BUILD_PF_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_vagrant=yes/'
 
 .gated_by_test_yes:
   rules:
@@ -401,27 +404,45 @@ variables:
   tags:
     - docker
 
-# The packer build and the Linode upload run inside the vagrant-build image
-# via vagrant-in-docker.sh (shell executors ignore `image:`).
-.build_pf_img_vagrant_job:
-  stage: build_pf_img
+.build_img_vagrant_devel_and_branches_job:
+  stage: build_images
   variables:
-    RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
-    # ci_related pushes the slug tag in every context; tag pipelines
-    # override IMAGE_TAG (release tags are pushed unslugified).
-    VAGRANT_BUILD_IMAGE: ${KNK_REGISTRY_URL}/vagrant-build:${IMAGE_TAG}
-    UPLOAD_BOX: "yes"
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
-    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
-  dependencies: []
   tags:
     - shell-v7
+    - inverse.ca
+
+# Bake the per-pipeline vagrant box (PF VM provisioned + configurator wizard
+# pre-run). Consumed by all baked-box-opted test jobs in the same pipeline so
+# they skip site.yml and the 7-step configurator wizard. The .box is uploaded
+# to Linode Object Storage under ci/<category>/ (category = devel | maintenance
+# | branches); cleanup-old-vagrant-boxes.sh sweeps ci/branches/ by age before
+# each new upload.
+.bake_img_vagrant_job:
+  stage: bake_img
+  dependencies: []
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/bake-${CI_PIPELINE_ID}-${BAKE_ARCH}
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img/${CI_PIPELINE_ID}
+  script:
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} ${CILIBDIR}/vagrant/bake-vagrant-img.sh run
+  after_script:
+    - timeout ${PIPELINE_TIMEOUT_CLEANUP} ${CILIBDIR}/vagrant/bake-vagrant-img.sh teardown
+  # Capture configurator venom output on bake failure. teardown destroys the
+  # VM and wipes RESULT_DIR but leaves ${CI_PROJECT_DIR}/results/ alone.
+  artifacts:
+    when: on_failure
+    expire_in: 1 day
+    paths:
+      - results/*
+  tags:
+    - test-shell-v7
 
 # Strict gate: build_artifacts must not start if pre_ci_lint_yaml failed or if any
 # build_images job failed. pre_ci_lint_yaml is non-optional (always present) so a
@@ -446,6 +467,8 @@ variables:
     - job: ci_related
       optional: true
     - job: zen_builder
+      optional: true
+    - job: build_img_vagrant_devel_and_branches_debian_bookworm
       optional: true
 
 .build_artifacts_pkg_job:
@@ -598,8 +621,19 @@ variables:
     - shell-v7
 
 .build_pf_img_vagrant_release_job:
-  extends:
-    - .build_pf_img_vagrant_job
+  stage: build_pf_img
+  variables:
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    BOX_DESC: ${CI_PIPELINE_URL}
+  script:
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
+  after_script:
+    - make -e -C ${VAGRANT_IMG_DIR} clean
+  dependencies: []
+  tags:
+    - inverse.ca
+    - shell-v7
 
 .rpm_script_job:
   script:
@@ -609,6 +643,34 @@ variables:
   script:
     - make -e build_deb
 
+# Test jobs that opt INTO the per-pipeline baked vagrant box append one of
+# these to their `extends` list. The bake job dependency makes the test wait
+# for the box to be built; setup-vagrant-box.sh downloads it from Linode and
+# registers it, and the env vars switch test-wrapper.sh into the baked-box
+# code path (skip site.yml on PF VM, skip configurator scenario).
+# configurator_*, pfappserver_*, and *_pristine jobs intentionally don't
+# extend these — they exercise the full provisioning + configurator path.
+.test_job_vagrant_el8:
+  needs:
+    - bake_img_vagrant_el8
+  variables:
+    USE_VAGRANT_BOX: "yes"
+    VAGRANT_BOX_VERSION: "0.0.${CI_PIPELINE_ID}"
+    SKIP_CONFIGURATOR_BAKED: "yes"
+    BOX_NAME: pfel8dev
+  before_script:
+    - ${CILIBDIR}/vagrant/setup-vagrant-box.sh
+
+.test_job_vagrant_deb12:
+  needs:
+    - bake_img_vagrant_deb12
+  variables:
+    USE_VAGRANT_BOX: "yes"
+    VAGRANT_BOX_VERSION: "0.0.${CI_PIPELINE_ID}"
+    SKIP_CONFIGURATOR_BAKED: "yes"
+    BOX_NAME: pfdeb12dev
+  before_script:
+    - ${CILIBDIR}/vagrant/setup-vagrant-box.sh
 
 .test_script_job:
   variables:
@@ -845,7 +907,6 @@ ci_related:
           - "publish-ppa"
       - IMAGE_NAME: "pfbuild-debian-bookworm"
         DOCKFILE_PATH: "${CI_PROJECT_DIR}/containers/pfbuild-bookworm/Dockerfile"
-      - IMAGE_NAME: "vagrant-build"
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
       variables:
@@ -853,7 +914,7 @@ ci_related:
         IMAGE_TAGS: "latest,devel,maintenance-99-9"
     # build_pf_img_* on devel depends on signed/published packages, so the
     # signing-packages and publish-ppa images must exist in this pipeline.
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_PF_IMG_ZEN == "yes" || $BUILD_PF_IMG_CD_ISO == "yes" || $BUILD_PF_IMG_DVD_USB_ISO == "yes" || $BUILD_PF_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_(zen|cd_iso|dvd_usb_iso|vagrant)=yes/)'
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_PF_IMG_ZEN == "yes" || $BUILD_PF_IMG_CD_ISO == "yes" || $BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_(zen|cd_iso|dvd_usb_iso)=yes/)'
       variables:
         IMAGE_TAG: latest
         IMAGE_TAGS: "latest,devel,maintenance-99-9"
@@ -879,6 +940,50 @@ zen_builder:
     - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
       when: never
     - !reference [.build_img_container_rules, rules]
+
+### build_img_vagrant jobs
+build_img_vagrant_devel_and_branches_debian_bookworm:
+  extends:
+    - .build_img_vagrant_devel_and_branches_job
+  variables:
+    BOX_NAME: pfdeb12dev
+  rules:
+    - !reference [.gated_by_build_img_vagrant, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+
+########################################
+# BAKE_IMG JOBS
+########################################
+# One bake job per arch. Produces the per-pipeline baked vagrant box that
+# test jobs (which extend .test_job_vagrant_<arch>) consume to skip site.yml
+# and the configurator wizard. Disabled for cluster/stable variants; only
+# the pfel8dev / pfdeb12dev standalones are baked. Bake fires whenever any
+# baked-box-opted test job would run — reusing .test_rules.
+#
+# Bake jobs depend on publish_ppa because site.yml installs PF packages from
+# the pipeline's PPA (http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
+bake_img_vagrant_el8:
+  extends:
+    - .bake_img_vagrant_job
+    - .test_rules
+  needs:
+    - job: publish_ppa
+      artifacts: false
+  variables:
+    BAKE_ARCH: el8
+    PF_VM_NAME: pfel8dev
+
+bake_img_vagrant_deb12:
+  extends:
+    - .bake_img_vagrant_job
+    - .test_rules
+  needs:
+    - job: publish_ppa
+      artifacts: false
+  variables:
+    BAKE_ARCH: deb12
+    PF_VM_NAME: pfdeb12dev
 
 ########################################
 #  BUILD_ARTIFACTS JOBS
@@ -1117,6 +1222,25 @@ publish_ppa:
 # TEST JOBS
 ########################################
 ### development and maintenance
+# pfappserver_* are listed first so GitLab picks them up before the rest of
+# the test fleet when runner slots are scarce — they're the longest tests
+# and put on the critical path of pipeline duration.
+pfappserver_el8:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_rules
+
+pfappserver_deb12:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_rules
+
 unit_tests_el8:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1124,6 +1248,7 @@ unit_tests_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 unit_tests_deb12:
   variables:
@@ -1132,6 +1257,7 @@ unit_tests_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 configurator_el8:
   variables:
@@ -1190,6 +1316,7 @@ dot1x_eap_peap_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 dot1x_eap_peap_deb12:
   variables:
@@ -1198,6 +1325,7 @@ dot1x_eap_peap_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 mac_auth_el8:
   variables:
@@ -1206,6 +1334,7 @@ mac_auth_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 mac_auth_deb12:
   variables:
@@ -1214,6 +1343,7 @@ mac_auth_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 dot1x_eap_tls_el8:
   variables:
@@ -1222,6 +1352,7 @@ dot1x_eap_tls_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 dot1x_eap_tls_deb12:
   variables:
@@ -1230,6 +1361,7 @@ dot1x_eap_tls_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 fingerbank_invalid_db_deb12:
   variables:
@@ -1238,6 +1370,7 @@ fingerbank_invalid_db_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 security_events_deb12:
   variables:
@@ -1246,6 +1379,7 @@ security_events_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 cli_login_deb12:
   variables:
@@ -1254,6 +1388,7 @@ cli_login_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 cli_login_el8:
   variables:
@@ -1262,6 +1397,7 @@ cli_login_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 external_integrations_deb12:
   variables:
@@ -1270,6 +1406,7 @@ external_integrations_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 captive_portal_el8:
   variables:
@@ -1278,6 +1415,7 @@ captive_portal_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 captive_portal_deb12:
   variables:
@@ -1286,6 +1424,7 @@ captive_portal_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 inline_deb12:
   variables:
@@ -1294,6 +1433,7 @@ inline_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 inline_el8:
   variables:
@@ -1302,6 +1442,7 @@ inline_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 mac_auth_virtualswitch_el8:
   variables:
@@ -1310,6 +1451,7 @@ mac_auth_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 mac_auth_virtualswitch_deb12:
   variables:
@@ -1318,6 +1460,7 @@ mac_auth_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 device_profiling_virtualswitch_el8:
   variables:
@@ -1326,6 +1469,7 @@ device_profiling_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 device_profiling_virtualswitch_deb12:
   variables:
@@ -1334,6 +1478,7 @@ device_profiling_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 dot1x_wired_computer_auth_virtualswitch_el8:
   variables:
@@ -1342,6 +1487,7 @@ dot1x_wired_computer_auth_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 dot1x_wired_computer_auth_virtualswitch_deb12:
   variables:
@@ -1350,6 +1496,7 @@ dot1x_wired_computer_auth_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 pfacct_bandwidth_virtualswitch_el8:
   variables:
@@ -1358,6 +1505,7 @@ pfacct_bandwidth_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 pfacct_bandwidth_virtualswitch_deb12:
   variables:
@@ -1366,6 +1514,7 @@ pfacct_bandwidth_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 security_event_virtualswitch_el8:
   variables:
@@ -1374,6 +1523,7 @@ security_event_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_el8
 
 security_event_virtualswitch_deb12:
   variables:
@@ -1382,6 +1532,7 @@ security_event_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .test_job_vagrant_deb12
 
 ### release
 configurator_el8_pristine:
@@ -1500,324 +1651,11 @@ build_pf_img_dvd_usb_iso:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 ### build_pf_img_vagrant jobs
-# Devel box: packages already deployed to the public inverse.ca repo.
-build_pf_img_vagrant_devel_debian_bookworm:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfdeb12dev
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME == "devel"'
-
-# Maintenance branches: stable box namespace, shared with tag releases.
-build_pf_img_vagrant_maintenance_debian_bookworm:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfdeb12stable
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# Feature branches: packages come from the pipeline PPA (publish_ppa); all
-# feature branches share the same Linode prefix, the pipeline ID (BOX_VERSION)
-# distinguishes builds and lets a user pin a specific pipeline's box.
-build_pf_img_vagrant_branch_debian_bookworm:
-  extends:
-    - .build_pf_img_vagrant_job
-  script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
-    - export BOX_NAME="pfdeb12branch"
-    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
-        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfdebian12dev_generic
-  needs:
-    - job: publish_ppa
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# AD (Samba4) devel box: packages already deployed to the public inverse.ca repo.
-build_pf_img_vagrant_ad_devel_debian_bullseye:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfad11dev
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME == "devel"'
-
-# AD (Samba4) maintenance branches: stable namespace.
-build_pf_img_vagrant_ad_maintenance_debian_bullseye:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfad11stable
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# AD (Samba4) feature-branch box: shared branch namespace.
-build_pf_img_vagrant_ad_branch_debian_bullseye:
-  extends:
-    - .build_pf_img_vagrant_job
-  script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
-    - export BOX_NAME="pfad11branch"
-    - export BOX_DESC="PacketFence AD ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
-        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfad11dev_generic
-  needs:
-    - job: publish_ppa
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# Shared node+wireless box (bullseye). Bakes only stock packages, so unlike the
-# PF/AD boxes these need neither deploy_packages nor publish_ppa.
-build_pf_img_vagrant_node_devel_debian_bullseye:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfnode11dev
-  needs:
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME == "devel"'
-
-build_pf_img_vagrant_node_maintenance_debian_bullseye:
-  extends:
-    - .build_pf_img_vagrant_job
-  script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
-    - export BOX_NAME="pfnode11stable"
-    - export BOX_DESC="PacketFence node+wireless ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
-        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfnode11dev_generic
-  needs:
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-build_pf_img_vagrant_node_branch_debian_bullseye:
-  extends:
-    - .build_pf_img_vagrant_job
-  script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
-    - export BOX_NAME="pfnode11branch"
-    - export BOX_DESC="PacketFence node+wireless ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
-        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfnode11dev_generic
-  needs:
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# Release (tag): stable box with PacketFence installed, manual trigger.
 build_pf_img_vagrant_release_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_release_job
   variables:
     BOX_NAME: pfdeb12stable
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: manual
-      allow_failure: true
-
-# EL 8 devel box: packages already deployed to the public inverse.ca repo.
-build_pf_img_vagrant_devel_el8:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfel8dev
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: rpm
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME == "devel"'
-
-# EL 8 maintenance branches: stable namespace, shared with tag releases.
-build_pf_img_vagrant_maintenance_el8:
-  extends:
-    - .build_pf_img_vagrant_job
-  variables:
-    BOX_NAME: pfel8stable
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: rpm
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# EL 8 feature branches: packages come from the pipeline PPA (publish_ppa); all
-# feature branches share the same Linode prefix, the pipeline ID (BOX_VERSION)
-# distinguishes builds and lets a user pin a specific pipeline's box.
-build_pf_img_vagrant_branch_el8:
-  extends:
-    - .build_pf_img_vagrant_job
-  script:
-    - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
-    - export BOX_NAME="pfel8branch"
-    - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
-        BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfel8dev_generic
-  needs:
-    - job: publish_ppa
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
-  rules:
-    - !reference [.gated_by_build_pf_img_vagrant, rules]
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
-
-# EL 8 release (tag): stable box with PacketFence installed, manual trigger.
-build_pf_img_vagrant_release_el8:
-  extends:
-    - .build_pf_img_vagrant_release_job
-  variables:
-    BOX_NAME: pfel8stable
-  needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: rpm
-      artifacts: false
-    - job: ci_related
-      parallel:
-        matrix:
-          - IMAGE_NAME: "vagrant-build"
-      artifacts: false
-      optional: true
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'

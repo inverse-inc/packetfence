@@ -194,35 +194,6 @@ CALL AddColumnUnlessExists('locationlog', 'switch_id',
     'VARCHAR(255) DEFAULT NULL AFTER `switch_mac`');
 
 \! echo "Updating locationlog_history";
-CREATE TABLE IF NOT EXISTS `locationlog_history` (
-  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `mac` varchar(17) default NULL,
-  `switch` varchar(17) NOT NULL default '',
-  `port` varchar(20) NOT NULL default '',
-  `vlan` varchar(50) default NULL,
-  `role` varchar(255) default NULL,
-  `connection_type` varchar(50) NOT NULL default '',
-  `connection_sub_type` varchar(50) default NULL,
-  `dot1x_username` varchar(255) NOT NULL default '',
-  `ssid` varchar(32) NOT NULL default '',
-  `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `switch_ip` varchar(17) DEFAULT NULL,
-  `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) STORED,
-  `switch_mac` varchar(17) DEFAULT NULL,
-  `stripped_user_name` varchar (255) DEFAULT NULL,
-  `realm`  varchar (255) DEFAULT NULL,
-  `session_id` VARCHAR(255) DEFAULT NULL,
-  `ifDesc` VARCHAR(255) DEFAULT NULL,
-  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  KEY `locationlog_view_mac` (`mac`, `end_time`),
-  KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
-  KEY `locationlog_ssid` (`ssid`),
-  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
-  KEY `locationlog_switch_ip_int` (`switch_ip_int`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
-
 CALL AddColumnUnlessExists('locationlog_history', 'switch_id',
     'VARCHAR(255) DEFAULT NULL AFTER `switch_mac`');
 
