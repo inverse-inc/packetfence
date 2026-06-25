@@ -21,14 +21,33 @@ Vagrant.configure("2") do |config|
   # Number of seconds to wait for establishing an SSH connection to the guest
   config.ssh.connect_timeout = 90
 
+  # Standalone PF VMs eligible for the per-pipeline baked box override.
+  # Cluster/stable variants stay on the inventory box even if USE_VAGRANT_BOX leaks in.
+  baked_box_vms = ['pfel8dev', 'pfdeb12dev']
+
+  # Mirror of ci/lib/vagrant/box-category.sh — must match the bake's namespace.
+  ref = ENV['CI_COMMIT_REF_NAME'] || ''
+  baked_box_category = if ref == 'devel'
+                         'devel'
+                       elsif ref =~ /^maintenance\/\d+\.\d+$/
+                         'maintenance'
+                       else
+                         'branches'
+                       end
+
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)
   inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
     hosts['hosts'].each do |server, details|
       # don't start automatically virtual machines
       config.vm.define server, autostart: false do |srv|
-        srv.vm.box = details['box']
-        srv.vm.box_version = details['box_version'] if details['box_version']
-        srv.vm.box_url = details['box_url'] if details['box_url']
+        if ENV['USE_VAGRANT_BOX'] == 'yes' && baked_box_vms.include?(server)
+          srv.vm.box = "inverse-inc/#{server}-#{baked_box_category}"
+          srv.vm.box_version = ENV['VAGRANT_BOX_VERSION']
+        else
+          srv.vm.box = details['box']
+          srv.vm.box_version = details['box_version'] if details['box_version']
+          srv.vm.box_url = details['box_url'] if details['box_url']
+        end
         srv.vm.hostname = server
         
         # mgmt
@@ -96,18 +115,6 @@ Vagrant.configure("2") do |config|
             SHELL
         end
 
-
-        # Upgrade OS packages on first boot — skipped during image build to keep
-        # build times short; runs here so each test VM starts with the latest packages.
-        # Debian-only: EL VMs are upgraded by the Ansible `upgrade EL OS` play.
-        # Non-interactive flags prevent dpkg conffile prompts from hanging `vagrant up`.
-        if details['box'] =~ /deb|bookworm/i
-          srv.vm.provision "upgrade-os", type:"shell" do |s|
-            s.env = { "DEBIAN_FRONTEND" => "noninteractive" }
-            s.inline = 'apt-get update -qq && apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade'
-            s.privileged = true
-          end
-        end
 
         # Use to run only tasks tagged "install" in site.yml
         srv.vm.provision "config", type:"ansible", run:"never" do |config|
