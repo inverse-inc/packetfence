@@ -1,0 +1,27 @@
+---
+# Provisioning plays that target the non-PacketFence infrastructure VMs
+# (linux_servers, cumulus, nodes, wireless groups). These plays run per
+# test scenario even when the PF VM is booted from a pre-baked vagrant
+# image, because the supporting VMs are scenario-specific.
+#
+# utils.yml runs here because one of its plays (utils/venom.yml) targets
+# service_venom (wireless01) in addition to pfservers — wireless01 needs
+# the venom service even on the SKIP_SITE_PROVISION=yes test-job path
+# where site.yml is bypassed. utils plays are idempotent, so re-running
+# them on a baked PF VM is cheap.
+#
+# cluster_cross_ssh.yml runs here (not in site_pf.yml) because it wires SSH
+# between cluster peers — it needs the whole scenario's nodes, so it can't be
+# baked into a single-box image and must run per scenario on the baked path.
+- import_playbook: playbooks/cluster_cross_ssh.yml
+
+- import_playbook: playbooks/linux_servers.yml
+
+- import_playbook: playbooks/cumulus.yml
+
+- import_playbook: playbooks/nodes_post_prov.yml
+
+- import_playbook: playbooks/wireless.yml
+
+- import_playbook: playbooks/utils.yml
+  tags: utils
