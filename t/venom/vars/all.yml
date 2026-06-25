@@ -683,8 +683,8 @@ html.pfappserver_dir: '{{.pfserver_root_dir}}/t/html/pfappserver'
 #################################################################################
 # VirtualSwitch package download (requires authentication via GitLab env vars)
 # CI_VIRTUALSWITCH_USER and CI_VIRTUALSWITCH_PASSWORD must be set in GitLab CI/CD variables
-virtualswitch.package.deb_version: "2.6.31-1"
-virtualswitch.package.rpm_version: "2.6.31-1.el8"
+virtualswitch.package.deb_version: "2.6.38-1"
+virtualswitch.package.rpm_version: "2.6.38-1.el8"
 
 # VirtualSwitch network setup (created by virtualswitch-namespace service)
 # The namespace service creates: bridge vswitchbr, veth-host, veth-ns
