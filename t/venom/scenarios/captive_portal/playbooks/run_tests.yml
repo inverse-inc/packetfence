@@ -5,7 +5,6 @@
 
   vars:
     test_suites:
-      - configurator
       - global_config
       - captive_portal
       - captive_portal/locales

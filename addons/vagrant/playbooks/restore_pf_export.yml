@@ -1,0 +1,140 @@
+# Restore the configurator export into the test VM before run_tests.yml.
+# Single VM-targeted play so it works under `ansible-playbook -l <vm>`: the
+# runner-side download uses delegate_to: localhost + run_once because localhost
+# is not in the scenario's --limit. Needs CI_PIPELINE_ID + RCLONE_* on the runner.
+
+# Pre-bring NICs up so import.sh --conf's handle_network_change skips its prompts.
+- import_playbook: pf_interfaces_up.yml
+
+- hosts: pfservers
+  name: Restore PacketFence exportable backup into the test VM
+  become: True
+  gather_facts: False
+  tags: pf_export
+
+  vars:
+    bucket: '{{ lookup("env", "PF_EXPORT_BUCKET") | default("packetfence-vagrant-box", true) }}'
+    export_prefix: '{{ lookup("env", "PF_EXPORT_PREFIX") | default("pf-export", true) }}'
+    pipeline_id: '{{ lookup("env", "CI_PIPELINE_ID") }}'
+    result_dir: '{{ lookup("env", "RESULT_DIR") | default("/tmp", true) }}'
+    # arch-suffixed: deb12/el8 exports differ and must not be cross-restored
+    ci_job_name: '{{ lookup("env", "CI_JOB_NAME") | default("", true) }}'
+    pf_export_arch: '{{ lookup("env", "PF_EXPORT_ARCH") | default(ci_job_name.split("_") | last, true) }}'
+    pf_export_remote_path: /tmp/pf-export.tgz
+
+  tasks:
+    # Runner-side download (controller; not subject to --limit)
+    - name: Assert CI_PIPELINE_ID is set
+      assert:
+        that: pipeline_id | length > 0
+        fail_msg: 'CI_PIPELINE_ID must be set on the runner'
+      delegate_to: localhost
+      become: False
+      run_once: True
+
+    - name: Assert PF_EXPORT_ARCH resolved
+      assert:
+        that: pf_export_arch | length > 0
+        fail_msg: 'PF_EXPORT_ARCH not set and not derivable from CI_JOB_NAME'
+      delegate_to: localhost
+      become: False
+      run_once: True
+
+    - name: Ensure result_dir exists on the runner
+      file:
+        path: '{{ result_dir }}'
+        state: directory
+      delegate_to: localhost
+      become: False
+      run_once: True
+
+    - name: Download configurator export from Linode onto the runner
+      shell: >-
+        rclone copyto
+        ":s3:{{ bucket }}/{{ export_prefix }}/configurator_{{ pf_export_arch }}_{{ pipeline_id }}.tgz"
+        "{{ result_dir }}/pf-export.tgz"
+      environment:
+        RCLONE_S3_PROVIDER: Ceph
+        RCLONE_S3_ACCESS_KEY_ID: '{{ lookup("env", "RCLONE_ACCESS_KEY_ID") }}'
+        RCLONE_S3_SECRET_ACCESS_KEY: '{{ lookup("env", "RCLONE_SECRET_ACCESS_KEY") }}'
+        RCLONE_S3_ENDPOINT: '{{ lookup("env", "RCLONE_LINODE_URL") }}'
+      no_log: True
+      delegate_to: localhost
+      become: False
+      run_once: True
+
+    - name: Stat downloaded tarball
+      stat:
+        path: '{{ result_dir }}/pf-export.tgz'
+      register: pf_export_stat
+      delegate_to: localhost
+      become: False
+      run_once: True
+
+    - name: Assert tarball exists
+      assert:
+        that: pf_export_stat.stat.exists
+        fail_msg: 'pf-export.tgz not found after rclone download'
+      delegate_to: localhost
+      become: False
+      run_once: True
+
+    # Push into the VM and import
+    - name: Push tarball into the VM
+      copy:
+        src: '{{ result_dir }}/pf-export.tgz'
+        dest: '{{ pf_export_remote_path }}'
+        mode: '0600'
+
+    # `yes y` answers handle_interface_exists' IP-rewrite prompt; log fetched
+    # only on failure so happy runs ship nothing potentially sensitive.
+    - block:
+        - name: Run import.sh phase 1 (db restore, no upgrade)
+          shell: >-
+            /usr/local/pf/addons/full-import/import.sh --db-restore
+            -f {{ pf_export_remote_path }}
+            > /tmp/pf-import.log 2>&1
+          args:
+            executable: /bin/bash
+          timeout: 1800
+
+        - name: Run import.sh phase 2 (config only)
+          shell: >-
+            yes y |
+            /usr/local/pf/addons/full-import/import.sh --conf
+            -f {{ pf_export_remote_path }}
+            >> /tmp/pf-import.log 2>&1
+          args:
+            executable: /bin/bash
+          timeout: 1800
+
+        # import.sh isolates to packetfence-base; bring the full stack back up
+        - name: Restart PacketFence services
+          shell: '/usr/local/pf/bin/pfcmd service pf restart'
+          args:
+            executable: /bin/bash
+
+        - name: Remove tarball from the VM
+          file:
+            path: '{{ pf_export_remote_path }}'
+            state: absent
+      rescue:
+        - name: Bundle pf-logs + system-logs into one artifact tarball
+          shell: |
+            tar czf /tmp/pf-logs.tgz /usr/local/pf/logs /tmp/pf-import.log 2>/dev/null
+            tar czf /tmp/system-logs.tgz /var/log 2>/dev/null
+            tar -C /tmp -cf /tmp/vm-logs.tar pf-logs.tgz system-logs.tgz
+          args:
+            executable: /bin/bash
+          changed_when: false
+          failed_when: false
+
+        - fetch:
+            src: /tmp/vm-logs.tar
+            dest: '{{ result_dir }}/vm-logs-{{ inventory_hostname }}.tar'
+            flat: True
+            fail_on_missing: False
+
+        - name: Re-raise import failure
+          fail:
+            msg: 'import.sh failed; see {{ result_dir }}/vm-logs-{{ inventory_hostname }}.tar'

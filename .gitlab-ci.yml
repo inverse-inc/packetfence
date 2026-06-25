@@ -19,6 +19,7 @@ stages:
   - build_artifacts
   - sign
   - publish
+  - pretest
   - test
   - test_cluster
   - deploy
@@ -333,21 +334,28 @@ variables:
 # .test_branches_only_rules into a single template. For feature-branch runs
 # (not devel, not maintenance, no tag) it emits VAGRANT_COMMON_DOTFILE_PATH
 # as a rule variable so the job uses the devel-compatible Vagrant common state.
+# On devel/maintenance it overrides BOX_NAME to pfdeb12dev (flat bucket layout).
 # NOTE: TEST_ONLY filtering is done in .test_script_job via shell script
 # because GitLab CI doesn't expand variables inside regex patterns.
 .test_rules:
   rules:
-    # Run on devel branch (push, web, not schedule)
+    # Run on devel branch (push, web, not schedule) — use flat pfdeb12dev box
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
-    # Run on maintenance branches (web/api only)
+      variables:
+        BOX_NAME: pfdeb12dev
+    # Run on maintenance branches (web/api only) — use flat pfdeb12dev box
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
-    # Run on devel/maintenance with schedule
+      variables:
+        BOX_NAME: pfdeb12dev
+    # Run on devel/maintenance with schedule — use flat pfdeb12dev box
     - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
-    # Run on feature branches (web/api) — emit VAGRANT_COMMON_DOTFILE_PATH override
+      variables:
+        BOX_NAME: pfdeb12dev
+    # Run on feature branches (web/api) — pfdeb12branch box + VAGRANT_COMMON_DOTFILE_PATH override
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
       variables:
         VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-    # Run on feature branches via schedule — emit VAGRANT_COMMON_DOTFILE_PATH override
+    # Run on feature branches via schedule — pfdeb12branch box + VAGRANT_COMMON_DOTFILE_PATH override
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
       variables:
         VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -609,6 +617,43 @@ variables:
   script:
     - make -e build_deb
 
+# Gating templates: downstream test scenarios that previously ran the
+# `configurator` venom suite as a prep step now import the matching arch's
+# exportable backup. Each consumer extends the matching template so its
+# job only starts after the producer has uploaded.
+.needs_configurator_deb12:
+  needs:
+    - job: configurator_deb12
+      artifacts: false
+
+.needs_configurator_el8:
+  needs:
+    - job: configurator_el8
+      artifacts: false
+
+# Producer template: run the configurator scenario, then export a
+# PacketFence backup tarball (addons/exportable-backup.sh) to Linode only
+# if the suite passes. Applied to both configurator_deb12 and
+# configurator_el8 — the bucket key is suffixed with the arch (last
+# underscore-segment of CI_JOB_NAME) so deb12 and el8 don't collide.
+# Downstream test jobs import the matching tarball instead of running
+# configurator again.
+# Runs in `pretest` (before the test stage) — listed last in each producer's
+# extends so this stage overrides the `stage: test` from .test_job.
+.configurator_producer_job:
+  stage: pretest
+  script:
+    # Producer always runs when .test_rules selects the pipeline (TEST/TEST_ONLY
+    # gate lives there). Both arches are baked unconditionally; cheaper than
+    # parsing TEST_ONLY tokens to decide which export downstream needs.
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
+    # Export only on success; capture upload failure so teardown still runs.
+    - |
+      if [ -z "${EXIT_CODE:-}" ]; then
+        ${VAGRANT_LIB_DIR}/upload-pf-export.sh || EXIT_CODE=$?
+      fi
+    # Teardown always runs (get_logs + destroy VM); job still fails via JOB_STATUS.
+    - JOB_STATUS=${EXIT_CODE:-} timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
 
 .test_script_job:
   variables:
@@ -1124,6 +1169,7 @@ unit_tests_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 unit_tests_deb12:
   variables:
@@ -1132,6 +1178,7 @@ unit_tests_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 configurator_el8:
   variables:
@@ -1140,6 +1187,7 @@ configurator_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .configurator_producer_job
 
 configurator_deb12:
   variables:
@@ -1148,6 +1196,7 @@ configurator_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .configurator_producer_job
 
 # Cluster test family (heavy 3-VM jobs) — test_cluster stage, opt-in via TEST_CLUSTER.
 # cluster_configurator = the cluster analog of the configurator setup; more to follow.
@@ -1190,6 +1239,7 @@ dot1x_eap_peap_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 dot1x_eap_peap_deb12:
   variables:
@@ -1198,6 +1248,7 @@ dot1x_eap_peap_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 mac_auth_el8:
   variables:
@@ -1206,6 +1257,7 @@ mac_auth_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 mac_auth_deb12:
   variables:
@@ -1214,6 +1266,7 @@ mac_auth_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 dot1x_eap_tls_el8:
   variables:
@@ -1222,6 +1275,7 @@ dot1x_eap_tls_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 dot1x_eap_tls_deb12:
   variables:
@@ -1230,6 +1284,7 @@ dot1x_eap_tls_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 fingerbank_invalid_db_deb12:
   variables:
@@ -1238,6 +1293,7 @@ fingerbank_invalid_db_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 security_events_deb12:
   variables:
@@ -1246,6 +1302,7 @@ security_events_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 cli_login_deb12:
   variables:
@@ -1254,6 +1311,7 @@ cli_login_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 cli_login_el8:
   variables:
@@ -1262,6 +1320,7 @@ cli_login_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 external_integrations_deb12:
   variables:
@@ -1270,6 +1329,7 @@ external_integrations_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 captive_portal_el8:
   variables:
@@ -1278,6 +1338,7 @@ captive_portal_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 captive_portal_deb12:
   variables:
@@ -1286,6 +1347,7 @@ captive_portal_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 inline_deb12:
   variables:
@@ -1294,6 +1356,7 @@ inline_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 inline_el8:
   variables:
@@ -1302,6 +1365,7 @@ inline_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 mac_auth_virtualswitch_el8:
   variables:
@@ -1310,6 +1374,7 @@ mac_auth_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 mac_auth_virtualswitch_deb12:
   variables:
@@ -1318,6 +1383,7 @@ mac_auth_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 device_profiling_virtualswitch_el8:
   variables:
@@ -1326,6 +1392,7 @@ device_profiling_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 device_profiling_virtualswitch_deb12:
   variables:
@@ -1334,6 +1401,7 @@ device_profiling_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 dot1x_wired_computer_auth_virtualswitch_el8:
   variables:
@@ -1342,6 +1410,7 @@ dot1x_wired_computer_auth_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 dot1x_wired_computer_auth_virtualswitch_deb12:
   variables:
@@ -1350,6 +1419,7 @@ dot1x_wired_computer_auth_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 pfacct_bandwidth_virtualswitch_el8:
   variables:
@@ -1358,6 +1428,7 @@ pfacct_bandwidth_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 pfacct_bandwidth_virtualswitch_deb12:
   variables:
@@ -1366,6 +1437,7 @@ pfacct_bandwidth_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 security_event_virtualswitch_el8:
   variables:
@@ -1374,6 +1446,7 @@ security_event_virtualswitch_el8:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_el8
 
 security_event_virtualswitch_deb12:
   variables:
@@ -1382,6 +1455,7 @@ security_event_virtualswitch_deb12:
     - .test_job
     - .test_script_job
     - .test_rules
+    - .needs_configurator_deb12
 
 ### release
 configurator_el8_pristine:
@@ -1545,8 +1619,9 @@ build_pf_img_vagrant_maintenance_debian_bookworm:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
 # Feature branches: packages come from the pipeline PPA (publish_ppa); all
-# feature branches share the same Linode prefix, the pipeline ID (BOX_VERSION)
-# distinguishes builds and lets a user pin a specific pipeline's box.
+# feature branches share the same Linode prefix. Each branch uploads under its
+# own <BOX_NAME>/<CI_COMMIT_REF_SLUG>/ sub-prefix via REF_SLUG=<slug>; the
+# pipeline ID (BOX_VERSION) versions builds and lets a user pin a specific one.
 build_pf_img_vagrant_branch_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_job
@@ -1554,6 +1629,7 @@ build_pf_img_vagrant_branch_debian_bookworm:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfdeb12branch"
+    - export REF_SLUG="${CI_COMMIT_REF_SLUG}"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}

@@ -5,7 +5,6 @@
 
   vars:
     test_suites:
-    - configurator
     - global_config
     - wired_dot1x_eap_peap
     - wired_dot1x_eap_peap/teardown

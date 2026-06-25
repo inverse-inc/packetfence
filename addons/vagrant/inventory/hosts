@@ -17,24 +17,24 @@ all:
     nodes:
       hosts:
         node01:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: debian/bullseye64
+          box_version: 11.20241217.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: debian/bullseye64
+          box_version: 11.20241217.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node02']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node03:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: debian/bullseye64
+          box_version: 11.20241217.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node03']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node03']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
@@ -44,8 +44,8 @@ all:
     wireless:
       hosts:
         wireless01:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: debian/bullseye64
+          box_version: 11.20241217.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['wireless01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['wireless01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
@@ -78,8 +78,8 @@ all:
           cpus: 1
           memory: 512
         ad:
-          box: inverse-inc/pfad11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfad11dev/metadata.json
+          box: inverse-inc/pfad11branch
+          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfad11branch/metadata.json
           mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
@@ -112,8 +112,8 @@ all:
         clusters:
           hosts:
             pf1el8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
+              box: inverse-inc/pfel8branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -122,8 +122,8 @@ all:
               memory: 8192
               disk_size: 130
             pf2el8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
+              box: inverse-inc/pfel8branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -132,8 +132,8 @@ all:
               memory: 8192
               disk_size: 130
             pf3el8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
+              box: inverse-inc/pfel8branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -142,8 +142,8 @@ all:
               memory: 8192
               disk_size: 130
             pf1deb12dev:
-              box: inverse-inc/pfdeb12dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12dev/metadata.json
+              box: inverse-inc/pfdeb12branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -152,8 +152,8 @@ all:
               memory: 8192
               disk_size: 130
             pf2deb12dev:
-              box: inverse-inc/pfdeb12dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12dev/metadata.json
+              box: inverse-inc/pfdeb12branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -162,8 +162,8 @@ all:
               memory: 8192
               disk_size: 130
             pf3deb12dev:
-              box: inverse-inc/pfdeb12dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12dev/metadata.json
+              box: inverse-inc/pfdeb12branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -235,8 +235,8 @@ all:
         standalones:
           hosts:
             pfel8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
+              box: inverse-inc/pfel8branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -245,8 +245,8 @@ all:
               memory: 16384
               disk_size: 130
             pfdeb12dev:
-              box: inverse-inc/pfdeb12dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12dev/metadata.json
+              box: inverse-inc/pfdeb12branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -319,8 +319,8 @@ all:
               memory: 16384
               disk_size: 130
             pfel8stable:
-              box: inverse-inc/pfel8stable
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8stable/metadata.json
+              box: generic/rhel8
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -339,8 +339,8 @@ all:
               memory: 16384
               disk_size: 130
             pfdeb12stable:
-              box: inverse-inc/pfdeb12stable
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12stable/metadata.json
+              box: debian/bookworm64
+              box_version: 12.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"

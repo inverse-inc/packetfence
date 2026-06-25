@@ -23,12 +23,26 @@ Vagrant.configure("2") do |config|
 
   # common Ansible provisionner for all hosts
   # filtering is done using 'hosts' directive in site.yml
-  config.vm.provision "site_ansible", type: 'ansible' do |ansible|
-    ansible.playbook = "site.yml"
-    ansible.config_file = "ansible.cfg"
-    ansible.inventory_path = "inventory"
-    # only for debug
-    ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+  # SKIP_SITE_PROVISION=yes is set by golden-image test jobs so the PF VM
+  # boots from a pre-baked .box without re-running site.yml. site_others.yml
+  # still runs (see below) to provision the supporting non-PF VMs per test.
+  unless ENV['SKIP_SITE_PROVISION'] == 'yes'
+    config.vm.provision "site_ansible", type: 'ansible' do |ansible|
+      ansible.playbook = ENV['SITE_PROVISION_PLAYBOOK'] || "site.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.inventory_path = "inventory"
+      # only for debug
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
+  end
+
+  if ENV['SKIP_SITE_PROVISION'] == 'yes'
+    config.vm.provision "site_others_ansible", type: 'ansible' do |ansible|
+      ansible.playbook = "site_others.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.inventory_path = "inventory"
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
   end
 end
 

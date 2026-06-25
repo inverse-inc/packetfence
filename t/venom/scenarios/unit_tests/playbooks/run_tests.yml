@@ -5,8 +5,9 @@
 
   vars:
     test_suites:
-      # configurator is necessary to have Fingerbank configured
-      - configurator
+      # configurator-passed state is restored from the pretest exportable
+      # backup via ../../../../addons/vagrant/playbooks/restore_pf_export.yml
+      # (imported in site.yml) — no need to run the configurator suite here.
       - unit_tests/configure_smoke_db.yml
       - unit_tests/golang_tests.yml
       - unit_tests/perl_tests.yml
