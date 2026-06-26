@@ -25,6 +25,7 @@ configure_and_check() {
     RESULT_DIR=${RESULT_DIR:-/var/local/gitlab-runner/vagrant_img/${CI_PIPELINE_ID}}
     BOX_NAME="${PF_VM_NAME}"
     BOX_FILE="${RESULT_DIR}/${BOX_NAME}-libvirt.box"
+    LIBVIRT_POOL=${LIBVIRT_POOL:-default}
 
     VAGRANT_PF_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH:-/var/local/gitlab-runner/vagrant/bake-${CI_PIPELINE_ID}-${BAKE_ARCH}}
     VAGRANT_DIR="${PF_SRC_DIR}/addons/vagrant"
@@ -41,7 +42,7 @@ configure_and_check() {
     export ANSIBLE_DEPRECATION_WARNINGS=false
 
     declare -p BAKE_ARCH PF_VM_NAME CI_PIPELINE_ID
-    declare -p RESULT_DIR BOX_NAME BOX_FILE VAGRANT_PF_DOTFILE_PATH
+    declare -p RESULT_DIR BOX_NAME BOX_FILE LIBVIRT_POOL VAGRANT_PF_DOTFILE_PATH
     declare -p VAGRANT_DIR VENOM_DIR PF_MINOR_RELEASE
 
     mkdir -p "${RESULT_DIR}"
@@ -146,13 +147,17 @@ cleanup_base_box() {
 
     # vagrant-libvirt mangles "inverse-inc/foo" → "inverse-inc-VAGRANTSLASH-foo"
     local slug="${base_box//\//-VAGRANTSLASH-}"
-    local pool_vols vol
-    pool_vols=$(virsh -c qemu:///system vol-list default 2>/dev/null \
-        | awk -v p="${slug}_vagrant_box_image_" '$1 ~ p { print $1 }' || true)
+    local raw pool_vols vol
+    if ! raw=$(virsh -c qemu:///system vol-list "${LIBVIRT_POOL}" 2>/dev/null); then
+        echo "  WARNING: virsh vol-list ${LIBVIRT_POOL} failed — pool volume left behind" >&2
+        return 0
+    fi
+    # Anchor on the slug so a substring match can't delete an unrelated volume.
+    pool_vols=$(echo "${raw}" | awk -v p="^${slug}_vagrant_box_image_" '$1 ~ p { print $1 }')
     if [ -n "${pool_vols}" ]; then
         echo "${pool_vols}" | sed 's/^/  pool vol: /'
         for vol in ${pool_vols}; do
-            virsh -c qemu:///system vol-delete --pool default "${vol}" || true
+            virsh -c qemu:///system vol-delete --pool "${LIBVIRT_POOL}" "${vol}" || true
         done
     fi
 }
