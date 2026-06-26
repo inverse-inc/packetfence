@@ -131,9 +131,6 @@ tag_images() {
 # 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:latest
     done
 
-    # Tag pfconnector image as pfconnector-remote for the remote systemd service
-    docker tag ${KNK_REGISTRY_URL}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-remote:${TAG_OR_BRANCH_NAME}
-
     # Tag pfconnector-remote combined image
     docker tag ${KNK_REGISTRY_URL}/pfconnector-remote:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-remote-combined:${TAG_OR_BRANCH_NAME}
 
