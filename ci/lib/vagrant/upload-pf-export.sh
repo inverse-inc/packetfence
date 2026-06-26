@@ -36,7 +36,10 @@ EXPORT_PREFIX=${EXPORT_PREFIX:-pf-export}
 RESULT_DIR=${RESULT_DIR:-result}
 VAGRANT_DIR=${VAGRANT_DIR:-${CI_PROJECT_DIR:-.}/addons/vagrant}
 LOCAL_TGZ=${LOCAL_TGZ:-${RESULT_DIR}/pf-export.tgz}
-PF_EXPORT_ARCH=${PF_EXPORT_ARCH:-${CI_JOB_NAME##*_}}
+# ${CI_JOB_NAME:-} so nounset doesn't fire before the guard below; empty
+# job name -> empty arch -> caught by the PF_EXPORT_ARCH check.
+_ci_job_name=${CI_JOB_NAME:-}
+PF_EXPORT_ARCH=${PF_EXPORT_ARCH:-${_ci_job_name##*_}}
 
 if [ -z "${CI_PIPELINE_ID:-}" ]; then
     echo "ERROR: CI_PIPELINE_ID must be set"
