@@ -78,8 +78,8 @@ all:
           cpus: 1
           memory: 512
         ad:
-          box: inverse-inc/pfad11branch
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfad11branch/metadata.json
+          box: inverse-inc/pfad11dev
+          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfad11dev/metadata.json
           mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
