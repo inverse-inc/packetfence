@@ -28,6 +28,14 @@ case "$1" in
     fi
     cp /usr/local/pfconnector-remote/raddb/sites-available/status /usr/local/pfconnector-remote/raddb/sites-enabled/status
     /usr/local/pfconnector-remote/upgrade/remove-unpackaged-pfconnector.sh
+    # The bundled /etc/docker/daemon.json sets the docker0 bridge IP (bip) to
+    # 100.64.0.1/24, but docker only applies it on (re)start. Restart docker if
+    # docker0 isn't already on that address so the connector containers and the
+    # containers-gateway.internal mapping resolve correctly.
+    if ! ip -4 -o addr show docker0 2>/dev/null | grep -qF 'inet 100.64.0.1/24'; then
+        echo "Restarting docker to apply docker0 bridge IP 100.64.0.1"
+        /bin/systemctl restart docker
+    fi
     # get containers image and tag them locally
     /usr/local/pfconnector-remote/containers/manage-images.sh
     /bin/systemctl daemon-reload
