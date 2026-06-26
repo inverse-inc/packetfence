@@ -11,7 +11,6 @@
 
 # Restore configurator-passed PF state from the pretest's exportable backup
 # instead of re-running the configurator suite as part of this scenario.
-- import_playbook: ../../../../addons/vagrant/playbooks/restore_pf_export.yml
-  when: lookup("env", "CI") == 'true'
+- import_playbook: ../common/restore_pf_export.yml
 
 - import_playbook: playbooks/run_tests.yml
