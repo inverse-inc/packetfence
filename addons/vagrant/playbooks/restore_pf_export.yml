@@ -13,8 +13,8 @@
   tags: pf_export
 
   vars:
-    bucket: '{{ lookup("env", "PF_EXPORT_BUCKET") | default("packetfence-vagrant-box", true) }}'
-    export_prefix: '{{ lookup("env", "PF_EXPORT_PREFIX") | default("pf-export", true) }}'
+    bucket: '{{ lookup("env", "BUCKET") | default("packetfence-vagrant-box", true) }}'
+    export_prefix: '{{ lookup("env", "EXPORT_PREFIX") | default("pf-export", true) }}'
     pipeline_id: '{{ lookup("env", "CI_PIPELINE_ID") }}'
     result_dir: '{{ lookup("env", "RESULT_DIR") | default("/tmp", true) }}'
     # arch-suffixed: deb12/el8 exports differ and must not be cross-restored
