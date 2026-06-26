@@ -94,87 +94,14 @@ configure_and_check() {
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
-    # Golden box (set by test jobs that consume a pre-baked golden image).
-    # When USE_GOLDEN_BOX=yes, PF VMs (pfel8dev/pfdeb12dev) boot from the
-    # per-pipeline pre-baked .box at ${GOLDEN_BOX_DIR}/pf<arch>golden.box,
-    # skipping site.yml and the configurator wizard. Defaults preserve the
-    # original behavior.
-    USE_GOLDEN_BOX=${USE_GOLDEN_BOX:-no}
-    GOLDEN_BOX_VERSION=${GOLDEN_BOX_VERSION:-}
-    GOLDEN_BOX_DIR=${GOLDEN_BOX_DIR:-}
-    SKIP_CONFIGURATOR_BAKED=${SKIP_CONFIGURATOR_BAKED:-no}
-    FALLBACK_TO_FULL_PROVISION=${FALLBACK_TO_FULL_PROVISION:-no}
-
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p ANSIBLE_INVENTORY RESULT_DIR VENOM_ROOT_DIR
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAMES CLUSTER_NAME INT_TEST_VM_NAMES ALL_VM_NAMES ANSIBLE_VM_LIST
     declare -p SCENARIOS_TO_RUN DESTROY_ALL
-    declare -p USE_GOLDEN_BOX GOLDEN_BOX_VERSION GOLDEN_BOX_DIR
-    declare -p SKIP_CONFIGURATOR_BAKED FALLBACK_TO_FULL_PROVISION
 
     export ANSIBLE_INVENTORY
     export VENOM_ROOT_DIR
-    export USE_GOLDEN_BOX GOLDEN_BOX_VERSION GOLDEN_BOX_DIR
-    export SKIP_CONFIGURATOR_BAKED
-}
-
-# Maps a PF VM name to its golden box arch ("" if the VM is not a golden
-# bake target). Kept in sync with golden_arch_map in pfservers/Vagrantfile.
-golden_arch_for_pf_vm() {
-    case "$1" in
-        pfel8dev)   echo el8 ;;
-        pfdeb12dev) echo deb12 ;;
-        *)          echo "" ;;
-    esac
-}
-
-maybe_fallback_to_full_provision() {
-    local reason=$1
-    if [ "${FALLBACK_TO_FULL_PROVISION}" = "yes" ]; then
-        echo "FALLBACK_TO_FULL_PROVISION=yes — falling back to full site.yml provisioning (reason: ${reason})"
-        USE_GOLDEN_BOX=no
-        export USE_GOLDEN_BOX
-        return 0
-    fi
-    die "Cannot use golden box: ${reason}. Set FALLBACK_TO_FULL_PROVISION=yes to fall back to site.yml."
-}
-
-# Register the per-pipeline .box with the local Vagrant box store so
-# `vagrant up` pulls from it instead of Vagrant Cloud.
-register_golden_box_or_fallback() {
-    local vm=$1
-    local arch
-    arch=$(golden_arch_for_pf_vm "${vm}")
-    [ -n "${arch}" ] || return 0
-
-    if [ -z "${GOLDEN_BOX_VERSION}" ] || [ -z "${GOLDEN_BOX_DIR}" ]; then
-        maybe_fallback_to_full_provision "GOLDEN_BOX_VERSION or GOLDEN_BOX_DIR is empty"
-        return $?
-    fi
-
-    local box_name="inverse-inc/pf${arch}golden"
-    local box_file="${GOLDEN_BOX_DIR}/pf${arch}golden.box"
-
-    if [ ! -f "${box_file}" ]; then
-        maybe_fallback_to_full_provision "missing golden box file ${box_file}"
-        return $?
-    fi
-
-    log_subsection "Register golden box ${box_name} v${GOLDEN_BOX_VERSION} from ${box_file}"
-    if ! vagrant box add --force --name "${box_name}" --box-version "${GOLDEN_BOX_VERSION}" "${box_file}"; then
-        maybe_fallback_to_full_provision "vagrant box add ${box_name} failed"
-        return $?
-    fi
-}
-
-# After a golden-box `vagrant up`, libvirt assigns fresh MACs so the PF
-# interface->IP bindings baked at configurator time may need re-applying.
-refresh_network_post_golden() {
-    local vm=$1
-    log_subsection "Refresh network on ${vm} (post-golden boot)"
-    ( cd "${VAGRANT_DIR}" ; \
-      ansible-playbook playbooks/refresh_network_post_golden.yml -l "${vm}" )
 }
 
 check_free_space() {
@@ -187,10 +114,40 @@ check_free_space() {
     MANDATORY_SPACE='32212254'
     AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
 
+    # Low on space: reclaim from old/unused images, then re-measure.
+    if (( AVAILABLE_SPACE <= MANDATORY_SPACE )); then
+        reclaim_disk_space
+        AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
+    fi
+
     if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
         echo "Enough space on system to run tests."
     else
-        die "There is not enough space on system to run tests. Skipping tests."
+        die "There is not enough space on system to run tests, even after cleanup. Skipping tests."
+    fi
+}
+
+# Reclaim disk on low space. Only touches things not in use (concurrent jobs
+# stay safe); does not delete /var/lib/libvirt/images base volumes.
+reclaim_disk_space() {
+    log_subsection "Low disk space: reclaiming from old/unused images"
+    local vm
+
+    for vm in $(virsh list --inactive --name); do
+        echo "Undefining shut-off VM: $vm"
+        virsh undefine "$vm" --remove-all-storage || true
+    done
+    for vm in $(virsh list --name --state-paused); do
+        echo "Destroying paused VM: $vm"
+        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
+    done
+
+    ( cd "${VAGRANT_DIR}" && vagrant box prune --force ) || true
+
+    local cache="${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache}"
+    if [ -d "${cache}" ]; then
+        find "${cache}" -maxdepth 1 -type f \( -name '*.box' -o -name '*.box.md5sums.txt' \) \
+             -atime +3 -print -delete || true
     fi
 }
 
@@ -269,7 +226,11 @@ PY
 
     # Private box: creds are mandatory; fail clearly instead of a later vagrant 403.
     [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || \
-        die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset (set RCLONE_ACCESS_KEY_ID/RCLONE_SECRET_ACCESS_KEY/RCLONE_LINODE_URL)."
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset."
+    [ -n "${RCLONE_SECRET_ACCESS_KEY:-}" ] || \
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_SECRET_ACCESS_KEY is unset."
+    [ -n "${RCLONE_LINODE_URL:-}" ] || \
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_LINODE_URL is unset."
 
     local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
     local box_name                                    # .../<box_name>/metadata.json
@@ -307,50 +268,20 @@ start_vm() {
     local dotfile_path=$2
     declare -p dotfile_path
     run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
-
-    # arch is non-empty only for golden-eligible PF VMs in golden mode
-    local arch=""
-    if [ "${USE_GOLDEN_BOX}" = "yes" ]; then
-        arch=$(golden_arch_for_pf_vm "${vm}")
-    fi
-
     if [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ]; then
         echo "Machine $vm already exists"
         start_existing_vm ${vm} ${dotfile_path}
         wait_for_ssh ${vm}
-        if [ -n "${arch}" ]; then
-            # Golden mode: PF VM is already fully provisioned + configured.
-            # Re-running site.yml would undo the bake, so only refresh network.
-            refresh_network_post_golden "${vm}"
-        else
-            ( cd ${VAGRANT_DIR}; \
-              ansible-playbook site.yml -l $vm )
-        fi
+        ( cd ${VAGRANT_DIR}; \
+          ansible-playbook site.yml -l $vm )
     else
-        echo "Machine $vm doesn't exist, start and provision with Vagrant"
-        if [ -n "${arch}" ]; then
-            register_golden_box_or_fallback "${vm}"
-            # register_golden_box_or_fallback may have flipped USE_GOLDEN_BOX
-            # to "no" via the fallback path; recompute arch to honor it.
-            arch=""
-            [ "${USE_GOLDEN_BOX}" = "yes" ] && arch=$(golden_arch_for_pf_vm "${vm}")
-        fi
-        if [ -n "${arch}" ]; then
-            ( cd "${VAGRANT_DIR}" ; \
-              SKIP_SITE_PROVISION=yes \
-              VAGRANT_DOTFILE_PATH=${dotfile_path} \
-                      vagrant up \
-                      ${vm} \
-                      ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
-            refresh_network_post_golden "${vm}"
-        else
-            prefetch_private_box "${vm}"
-            ( cd "${VAGRANT_DIR}" ; \
-              VAGRANT_DOTFILE_PATH=${dotfile_path} \
-                      vagrant up \
-                      ${vm} \
-                      ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
-        fi
+        echo "Machine $vm doesn't exist, start with Vagrant"
+        prefetch_private_box ${vm}
+        ( cd ${VAGRANT_DIR} ; \
+          VAGRANT_DOTFILE_PATH=${dotfile_path} \
+                  vagrant up \
+                  ${vm} \
+                  ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
     fi
 }
 
