@@ -8,7 +8,7 @@ set -o nounset -o pipefail -o errexit
 # inventory box_url returns 403.
 #
 # This is distinct from setup-vagrant-box.sh, which handles the per-pipeline
-# CI bake artifact at packetfence-vagrant-box/ci/<category>/<BOX>_<PIPELINE>.box.
+# CI bake artifact at packetfence-vagrant-box/prebaked/<BOX>_<PIPELINE>.box.
 #
 # Required: BOX_NAME (e.g. pfdeb12branch),
 #           RCLONE_{ACCESS_KEY_ID,SECRET_ACCESS_KEY,LINODE_URL}.

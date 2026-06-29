@@ -2,7 +2,7 @@
 set -o nounset -o pipefail -o errexit
 
 # Upload a pipeline-baked vagrant .box to Linode under
-# packetfence-vagrant-box/ci/<category>/<BOX_NAME>_<CI_PIPELINE_ID>.box.
+# packetfence-vagrant-box/prebaked/<BOX_NAME>_<CI_PIPELINE_ID>.box.
 # Private (box embeds CI secrets); test runners pull it with rclone creds.
 #
 # Required env vars:
@@ -19,11 +19,6 @@ set -o nounset -o pipefail -o errexit
 
 PROVIDER=${PROVIDER:-libvirt}
 BUCKET=${BUCKET:-packetfence-vagrant-box}
-
-SCRIPT_DIR=$(readlink -e "$(dirname "${BASH_SOURCE[0]}")")
-# shellcheck source=ci/lib/vagrant/box-category.sh
-source "${SCRIPT_DIR}/box-category.sh"
-CATEGORY=$(vagrant_box_category)
 
 BOX_FILENAME="${BOX_NAME}-${PROVIDER}.box"
 BOX_FILE="${RESULT_DIR}/${BOX_FILENAME}"
@@ -47,11 +42,11 @@ echo "===> Computing checksum for ${BOX_FILENAME}"
 BOX_CHECKSUM=$(md5sum "${BOX_FILE}" | cut -d' ' -f1)
 echo "${BOX_CHECKSUM}  ${REMOTE_KEY}" > "${MD5_FILE}"
 
-remote_prefix="s3:${BUCKET}/ci/${CATEGORY}"
+remote_prefix="s3:${BUCKET}/prebaked"
 
 echo "===> Uploading box to ${remote_prefix}/${REMOTE_KEY}"
 rclone copyto "${BOX_FILE}" "${remote_prefix}/${REMOTE_KEY}"
 rclone copyto "${MD5_FILE}" "${remote_prefix}/${REMOTE_KEY}.md5sums.txt"
 
 echo "===> Done! Box available at:"
-echo "     ${BUCKET}/ci/${CATEGORY}/${REMOTE_KEY}"
+echo "     ${BUCKET}/prebaked/${REMOTE_KEY}"
