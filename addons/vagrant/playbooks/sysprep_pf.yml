@@ -5,9 +5,12 @@
 # being able to boot an appliance VM inside docker — fragile across runners
 # (kernel/KVM nesting/host-side perms).
 #
-# Without this, the next VM booted from the box would inherit the bake VM's
-# machine-id and NetworkManager connection profiles, so DHCP never fires on
-# the fresh MAC and vagrant-libvirt's wait_till_up times out.
+# The next VM booted from the box must pull a fresh DHCP lease on its new MAC.
+# NetworkManager derives the DHCP client-id from /etc/machine-id, so resetting
+# machine-id (NOT removing connection profiles) is what lets the lease renew
+# and vagrant-libvirt's wait_till_up succeed (vagrant-libvirt#851). The mgmt
+# NIC's connection profile is kept — wiping it leaves the NIC with no config
+# to come up on a PF host where NM won't auto-create a default connection.
 
 - hosts: all
   name: Sysprep PF VM before packaging
@@ -42,10 +45,9 @@
         content: |
           @reboot root /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; /usr/sbin/dpkg-reconfigure openssh-server >/dev/null 2>&1; /bin/systemctl restart ssh.service; rm -f /etc/cron.d/sysprep-ssh-keys'
 
-    - name: Remove NetworkManager runtime/connection state
+    - name: Remove NetworkManager runtime state (keep connection profiles)
       ansible.builtin.shell: |
-        rm -rf /etc/NetworkManager/system-connections/* \
-               /var/lib/NetworkManager/* 2>/dev/null || true
+        rm -rf /var/lib/NetworkManager/* 2>/dev/null || true
       changed_when: false
 
     - name: Remove DHCP lease state
