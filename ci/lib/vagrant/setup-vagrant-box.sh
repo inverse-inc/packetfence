@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-# Fetch ci/<category>/<BOX_NAME>_<CI_PIPELINE_ID>.box from Linode and
+# Fetch prebaked/<BOX_NAME>_<CI_PIPELINE_ID>.box from Linode and
 # register as inverse-inc/<BOX_NAME>-<category> v0.0.<CI_PIPELINE_ID>.
 # Also prunes -branches bakes older than 3d and stale pf*branch base boxes.
 #
@@ -26,7 +26,7 @@ export RCLONE_CONFIG_S3_PROVIDER=Ceph
 export RCLONE_CONFIG_S3_ACCESS_KEY_ID=${RCLONE_ACCESS_KEY_ID}
 export RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${RCLONE_SECRET_ACCESS_KEY}
 export RCLONE_CONFIG_S3_ENDPOINT=${RCLONE_LINODE_URL}
-remote_prefix="s3:${BUCKET}/ci/${CATEGORY}"
+remote_prefix="s3:${BUCKET}/prebaked"
 
 VAGRANT_BOX_VERSION=${VAGRANT_BOX_VERSION:-0.0.${CI_PIPELINE_ID}}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}-${CATEGORY}}
