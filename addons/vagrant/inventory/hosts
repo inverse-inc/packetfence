@@ -17,24 +17,27 @@ all:
     nodes:
       hosts:
         node01:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: inverse-inc/pfnode11branch
+          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11branch/metadata.json
+          box_version: '15.2-ci-2636370262'
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: inverse-inc/pfnode11branch
+          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11branch/metadata.json
+          box_version: '15.2-ci-2636370262'
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node02']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node03:
-          box: inverse-inc/pfnode11dev
-          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11dev/metadata.json
+          box: inverse-inc/pfnode11branch
+          box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfnode11branch/metadata.json
+          box_version: '15.2-ci-2636370262'
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node03']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node03']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
