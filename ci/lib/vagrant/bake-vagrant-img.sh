@@ -99,10 +99,9 @@ halt_pf_vm() {
 # allocated clusters, flattens the backing chain and writes a compressed
 # qcow2, which is then tarred into the .box vagrant layout. RESULT_DIR is
 # local staging only: the .box is uploaded to Linode Object Storage at
-# packetfence-vagrant-box/ci/<category>/<BOX_NAME>_<CI_PIPELINE_ID>.box where
+# packetfence-vagrant-box/prebaked/<BOX_NAME>_<CI_PIPELINE_ID>.box where
 # test runners fetch it via setup-vagrant-box.sh. cleanup-old-vagrant-boxes.sh
-# sweeps ci/branches/ before each upload; devel/maintenance bakes are kept
-# indefinitely.
+# sweeps prebaked/ before each upload, dropping bakes older than MAX_AGE_DAYS.
 #
 # qemu-img convert runs inside a container because the libvirt default
 # pool is root-owned and the gitlab-runner user can't read the volume
