@@ -86,6 +86,17 @@ sysprep_pf_vm() {
         && ansible-playbook playbooks/sysprep_pf.yml -l "${PF_VM_NAME}" )
 }
 
+# TEMPORARY: dump the post-sysprep network config to pin down why the packaged
+# box fails vagrant-libvirt wait_till_up (no mgmt-NIC IP). ANSIBLE_DISPLAY_OK_HOSTS
+# is forced on so the debug output isn't hidden. Non-fatal. Remove once resolved.
+diag_network_state() {
+    log_section "DIAG: ${PF_VM_NAME} network config (post-sysprep)"
+    ( cd "${VAGRANT_DIR}" \
+        && ANSIBLE_DISPLAY_OK_HOSTS=true \
+           ansible-playbook playbooks/diag_network_state.yml -l "${PF_VM_NAME}" ) \
+        || echo "WARNING: network diagnostic failed (non-fatal)"
+}
+
 halt_pf_vm() {
     log_section "Halt PF VM ${PF_VM_NAME}"
     ( cd "${VAGRANT_DIR}" \
@@ -224,6 +235,7 @@ run() {
     provision_and_run_configurator
     unregister_pf_vm
     sysprep_pf_vm
+    diag_network_state
     halt_pf_vm
     convert_box_volume
     destroy_pf_vm
