@@ -112,6 +112,15 @@
             executable: /bin/bash
           timeout: 1800
 
+        # import.sh restores fingerbank.conf with `cp -a`, preserving the
+        # export's (older) mtime. fingerbank::Config caches by mtime, so a
+        # config warmed before the import keeps masking the restored api_key
+        # and leaves the collector unmanaged. Bump the mtime to force a reload.
+        - name: Refresh Fingerbank config mtime so the restored api_key is seen
+          file:
+            path: '{{ fb_conf_file }}'
+            state: touch
+
         # import.sh isolates to packetfence-base; bring the full stack back up
         - name: Restart PacketFence services
           shell: '/usr/local/pf/bin/pfcmd service pf restart'
