@@ -17,6 +17,11 @@ export const provisioningTypes = {
   google_workspace_chromebook: i18n.t('Google Workspace Chromebook')
 }
 
+export const provisioningTypesWithLookup = {
+  ...provisioningTypes,
+  lookup: i18n.t('Lookup')
+}
+
 export const provisioningTypeOptions = Object.keys(provisioningTypes)
   .sort((a, b) => provisioningTypes[a].localeCompare(provisioningTypes[b]))
   .map(key => ({ value: key, text: provisioningTypes[key] }))
