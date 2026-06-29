@@ -131,7 +131,7 @@ import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import { apiFactory } from '../_api'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
-import { provisioningTypes } from '../../provisioners/config'
+import { provisioningTypesWithLookup } from '../../provisioners/config'
 
 const setup = (props, context) => {
 
@@ -198,7 +198,7 @@ const setup = (props, context) => {
       types.value = filterEngineTypes
         // friendly names
         .map(({ value }) => {
-          return { text: provisioningTypes[value] || value, value }
+          return { text: provisioningTypesWithLookup[value] || value, value }
         })
         // sorted by locale
         .sort((a,b) => a.text.localeCompare(b.text))
