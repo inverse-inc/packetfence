@@ -236,9 +236,8 @@ all:
         standalones:
           hosts:
             pfel8dev:
-              box: inverse-inc/pfel8branch
-              box_version: '15.2.20260617133300'
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8branch/metadata.json
+              box: inverse-inc/pfel8dev
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -247,9 +246,8 @@ all:
               memory: 16384
               disk_size: 130
             pfdeb12dev:
-              box: inverse-inc/pfdeb12branch
-              box_version: '15.2.20260617132935'
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
+              box: inverse-inc/pfdeb12dev
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12dev/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
