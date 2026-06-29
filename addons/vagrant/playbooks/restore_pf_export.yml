@@ -21,10 +21,7 @@
     ci_job_name: '{{ lookup("env", "CI_JOB_NAME") | default("", true) }}'
     pf_export_arch: '{{ lookup("env", "PF_EXPORT_ARCH") | default(ci_job_name.split("_") | last, true) }}'
     pf_export_remote_path: /tmp/pf-export.tgz
-    # psono secret holding the Fingerbank upstream api_key (same one the
-    # configurator suite uses); empty when the inventory vars aren't loaded.
     fb_conf_file: /usr/local/fingerbank/conf/fingerbank.conf
-    fb_secret_id: '{{ users_vars[dict_name].vars.fingerbank_api_key.secret_id | default("", true) }}'
 
   tasks:
     # Runner-side download (controller; not subject to --limit)
@@ -112,79 +109,23 @@
             executable: /bin/bash
           timeout: 1800
 
-        # import.sh restores fingerbank.conf with `cp -a`, preserving the
-        # export's (older) mtime. fingerbank::Config caches by mtime, so a
-        # config warmed before the import keeps masking the restored api_key
-        # and leaves the collector unmanaged. Bump the mtime to force a reload.
-        - name: Refresh Fingerbank config mtime so the restored api_key is seen
-          file:
-            path: '{{ fb_conf_file }}'
-            state: touch
+        # import.sh rewrites config on disk; per the upgrade guide a reload is
+        # required afterwards (pfcmd service pf restart no longer reloads).
+        # fingerbank.conf is cached in the redis 'fingerbank' namespace keyed by
+        # mtime, and import.sh's `cp -a` keeps the export's older mtime, so a
+        # cache warmed before the import masks the restored upstream api_key and
+        # leaves fingerbank-collector unmanaged. Clear it before the restart
+        # re-evaluates which services are managed.
+        - name: Clear stale Fingerbank config cache after import
+          shell: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
+          args:
+            executable: /bin/bash
 
         # import.sh isolates to packetfence-base; bring the full stack back up
         - name: Restart PacketFence services
           shell: '/usr/local/pf/bin/pfcmd service pf restart'
           args:
             executable: /bin/bash
-
-        # The exportable backup is meant to carry the Fingerbank api_key
-        # (fb_conf_file), which gates the fingerbank-collector service
-        # (pf::services::manager::fingerbank_collector -> is_api_key_configured).
-        # If the key didn't survive the import the collector stays disabled and
-        # device-profiling/Fingerbank tests get 500s from /fingerbank_refresh
-        # (collector unreachable on 100.64.0.1:4723). Re-apply it from psono the
-        # same way the configurator suite does, then restart so it comes up.
-        - name: Check whether the restored config has a Fingerbank api_key
-          shell: "grep -Eq '^[[:space:]]*api_key[[:space:]]*=[[:space:]]*\\S' {{ fb_conf_file }}"
-          register: fb_api_key_present
-          changed_when: false
-          failed_when: false
-
-        - name: Fetch Fingerbank api_key from psono (runner-side)
-          shell: 'psonoci secret get {{ fb_secret_id }} password'
-          delegate_to: localhost
-          become: False
-          run_once: True
-          register: fb_psono_key
-          no_log: True
-          when:
-            - fb_api_key_present.rc != 0
-            - fb_secret_id | length > 0
-
-        - name: Restore Fingerbank upstream settings so the collector can start
-          community.general.ini_file:
-            path: '{{ fb_conf_file }}'
-            section: upstream
-            option: '{{ item.option }}'
-            value: '{{ item.value }}'
-            owner: pf
-            group: pf
-            mode: '0644'
-          loop:
-            - { option: host, value: api.fingerbank.org }
-            - { option: port, value: '443' }
-            - { option: use_https, value: enabled }
-            - { option: db_path, value: /api/v2/download/db }
-            - { option: sqlite_db_retention, value: '2' }
-          when: not (fb_psono_key.skipped | default(false))
-
-        - name: Restore Fingerbank api_key (sensitive)
-          community.general.ini_file:
-            path: '{{ fb_conf_file }}'
-            section: upstream
-            option: api_key
-            value: '{{ fb_psono_key.stdout | trim }}'
-            owner: pf
-            group: pf
-            mode: '0644'
-          no_log: True
-          when: not (fb_psono_key.skipped | default(false))
-
-        - name: Restart PacketFence to bring up the Fingerbank collector
-          shell: '/usr/local/pf/bin/pfcmd service pf restart'
-          args:
-            executable: /bin/bash
-          when: not (fb_psono_key.skipped | default(false))
 
         - name: Wait for the Fingerbank collector to become active
           shell: 'systemctl is-active packetfence-fingerbank-collector'
@@ -201,9 +142,8 @@
             fail_msg: >-
               fingerbank-collector is not active after the export restore.
               Device-profiling and Fingerbank tests need it on 100.64.0.1:4723.
-              Ensure the exportable backup carried {{ fb_conf_file }} with a
-              valid [upstream] api_key, or that PSONO_CI_* and
-              fingerbank_api_key.secret_id are available to re-apply it.
+              Ensure the export carried {{ fb_conf_file }} with a valid
+              [upstream] api_key and that the Fingerbank cache was cleared.
 
         - name: Remove tarball from the VM
           file:
