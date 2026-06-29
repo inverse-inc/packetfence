@@ -5,12 +5,12 @@
 # being able to boot an appliance VM inside docker — fragile across runners
 # (kernel/KVM nesting/host-side perms).
 #
-# The next VM booted from the box must pull a fresh DHCP lease on its new MAC.
-# NetworkManager derives the DHCP client-id from /etc/machine-id, so resetting
-# machine-id (NOT removing connection profiles) is what lets the lease renew
-# and vagrant-libvirt's wait_till_up succeed (vagrant-libvirt#851). The mgmt
-# NIC's connection profile is kept — wiping it leaves the NIC with no config
-# to come up on a PF host where NM won't auto-create a default connection.
+# The next VM booted from the box must pull a fresh DHCP lease on its new MAC
+# so vagrant-libvirt's wait_till_up can discover its IP from the libvirt lease:
+#   - reset /etc/machine-id (NM derives the DHCP client-id from it; #851), and
+#   - ship the management NIC as DHCP. ifupdown boxes (Debian) bake eth0 in as a
+#     static address during provisioning, which leaves the clone with no lease;
+#     reset it. EL/NetworkManager boxes have no /etc/network/interfaces.
 
 - hosts: all
   name: Sysprep PF VM before packaging
@@ -60,6 +60,30 @@
       ansible.builtin.file:
         path: /etc/udev/rules.d/70-persistent-net.rules
         state: absent
+
+    # vagrant-libvirt bakes the management NIC into /etc/network/interfaces as a
+    # static address while provisioning; a repackaged box must hand it back as
+    # DHCP or the clone never gets a lease and wait_till_up times out. ifupdown
+    # boxes only — EL/NetworkManager boxes have no such file. vagrant rewrites
+    # the private-network NICs (eth1+) itself on the next `vagrant up`.
+    - name: Detect ifupdown interfaces file
+      ansible.builtin.stat:
+        path: /etc/network/interfaces
+      register: eni
+
+    - name: Reset management NIC to DHCP (ifupdown boxes)
+      ansible.builtin.copy:
+        dest: /etc/network/interfaces
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          auto lo
+          iface lo inet loopback
+
+          allow-hotplug eth0
+          iface eth0 inet dhcp
+      when: eni.stat.exists
 
     - name: Clear cloud-init state if present
       ansible.builtin.shell: cloud-init clean --logs 2>/dev/null || true
