@@ -1460,7 +1460,7 @@ build_pf_img_vagrant_branch_debian_bookworm:
     - .build_pf_img_vagrant_job
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.${CI_PIPELINE_ID}"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfdeb12branch"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
@@ -1530,7 +1530,7 @@ build_pf_img_vagrant_ad_branch_debian_bullseye:
     - .build_pf_img_vagrant_job
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.${CI_PIPELINE_ID}"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfad11branch"
     - export BOX_DESC="PacketFence AD ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
@@ -1595,7 +1595,7 @@ build_pf_img_vagrant_node_branch_debian_bullseye:
     - .build_pf_img_vagrant_job
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.${CI_PIPELINE_ID}"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfnode11branch"
     - export BOX_DESC="PacketFence node+wireless ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
@@ -1688,7 +1688,7 @@ build_pf_img_vagrant_branch_el8:
     - .build_pf_img_vagrant_job
   script:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
-    - export BOX_VERSION="${PF_MINOR_RELEASE}.${CI_PIPELINE_ID}"
+    - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfel8branch"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
