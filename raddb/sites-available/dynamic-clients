@@ -114,8 +114,10 @@ server dynamic_clients {
             }
         }
 
-        # Connector traffic: identify by PacketFence-ConnectorID VSA and resolve to the shared 'pfconnector' row
-        if ( &control:PacketFence-NasName == '0' && "%{PacketFence-ConnectorID}" != "" ) {
+        # Connector traffic: identify by PacketFence-ConnectorID VSA and resolve to the shared 'pfconnector' row.
+        # Use an attribute-existence test (not a bare %{} xlat) so it fires reliably in the dynamic-client fake
+        # request, mirroring the %{raw:...} pattern used by the MAC/IP lookups above and below.
+        if ( &control:PacketFence-NasName == '0' && &PacketFence-ConnectorID ) {
             update control {
                 &PacketFence-NasName := "pfconnector"
             }
