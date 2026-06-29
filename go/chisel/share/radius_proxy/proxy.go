@@ -1,18 +1,14 @@
 package radius_proxy
 
 import (
-	"context"
 	"crypto/hmac"
 	"crypto/md5"
 	"encoding/binary"
 	"errors"
-	"net"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 	"layeh.com/radius/rfc2869"
@@ -136,13 +132,12 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		packet.Attributes.Add(26, vsa)
 	}
 
-	secret, err := rp.foundSecret(context.Background(), packet)
-
-	if err != nil {
-		secret = string(rp.secret)
-	}
-
-	err = addMessageAuthenticator(packet, []byte(secret))
+	// All traffic reaching this proxy is connector traffic (the proxy is only
+	// instantiated on the cloud side). The cloud FreeRADIUS validates it against
+	// the `pfconnector` NAS client, whose shared secret is
+	// unified_api_system_user.pass — the same secret rp.secret is wired to. Sign
+	// the Message-Authenticator with it so validation succeeds end-to-end.
+	err = addMessageAuthenticator(packet, rp.secret)
 	if err != nil {
 		return nil, "", err
 	}
@@ -192,63 +187,4 @@ func addMessageAuthenticator(p *radius.Packet, secret []byte) error {
 	hash.Write(encode)
 	rfc2869.MessageAuthenticator_Set(p, hash.Sum(nil))
 	return nil
-}
-
-func (rp *Proxy) foundSecret(ctx context.Context, packet *radius.Packet) (string, error) {
-
-	var SwitchID []string
-	SwitchMAC := rfc2865.CallingStationID_GetString(packet)
-	if SwitchMAC != "" {
-		MacHW, err := net.ParseMAC(SwitchMAC)
-		if err == nil {
-			SwitchMAC = MacHW.String()
-			SwitchID = append(SwitchID, SwitchMAC)
-		}
-	}
-
-	SwitchNasIP := rfc2865.NASIPAddress_Get(packet)
-	if SwitchNasIP != nil {
-		SwitchID = append(SwitchID, SwitchNasIP.String())
-	}
-
-	switches := pfconfigdriver.PfSwitches{}
-	pfconfigdriver.FetchDecodeSocket(ctx, &switches)
-
-	for _, switchID := range SwitchID {
-
-		// Find the switch with the given ID
-		for _, sw := range switches.PfconfigKeys.Keys {
-			if sw != switchID {
-				continue
-			}
-			switche := pfconfigdriver.PfConfSwitch{}
-			switche.PfconfigHashNS = sw
-			pfconfigdriver.FetchDecodeSocket(ctx, &switche)
-			if switche.RadiusSecret.String() != "" {
-				return switche.RadiusSecret.String(), nil
-			}
-		}
-		// Find the switch within the ip ranges
-		if IsIPv4(net.ParseIP(switchID)) {
-			for _, sw := range switches.PfconfigKeys.Keys {
-				_, network, err := net.ParseCIDR(sw)
-				if err != nil {
-					continue
-				}
-				if network.Contains(net.ParseIP(switchID)) {
-					switche := pfconfigdriver.PfConfSwitch{}
-					switche.PfconfigHashNS = sw
-					pfconfigdriver.FetchDecodeSocket(ctx, &switche)
-					if switche.RadiusSecret.String() != "" {
-						return switche.RadiusSecret.String(), nil
-					}
-				}
-			}
-		}
-	}
-	return "", errors.New("No secret found")
-}
-
-func IsIPv4(address net.IP) bool {
-	return strings.Count(address.String(), ":") < 2
 }

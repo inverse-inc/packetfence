@@ -297,9 +297,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	localSecret := pfconfigdriver.LocalSecret{}
-	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret); err != nil {
-		l.Infof("Failed to fetch local secret from pfconfig, continuing without it: %s", err)
+	// The RADIUS proxy re-signs connector traffic with the secret the cloud
+	// FreeRADIUS expects for the `pfconnector` NAS client, which is
+	// unified_api_system_user.pass. Fetch it here so it is cached for the life of
+	// this tunnel/SSH connection.
+	unifiedApiSystemUser := pfconfigdriver.UnifiedApiSystemUser{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &unifiedApiSystemUser); err != nil {
+		l.Infof("Failed to fetch unified api system user from pfconfig, continuing without it: %s", err)
 	}
 	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
@@ -365,7 +369,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		Outbound:     true, //server always accepts outbound
 		Socks:        s.config.Socks5,
 		KeepAlive:    s.config.KeepAlive,
-		RadiusSecret: localSecret.Element,
+		RadiusSecret: unifiedApiSystemUser.Pass,
 	})
 	//bind
 	eg, ctx := errgroup.WithContext(req.Context())
