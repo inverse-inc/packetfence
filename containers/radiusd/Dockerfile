@@ -4,7 +4,7 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 RUN apt-get -qq update \
     && apt-get clean \
-    && apt-get -qq install -y freeradius=4:3.2.8+git freeradius-common=4:3.2.8+git freeradius-config=4:3.2.8+git freeradius-ldap=4:3.2.8+git freeradius-mysql=4:3.2.8+git freeradius-redis=4:3.2.8+git freeradius-rest=4:3.2.8+git freeradius-utils=4:3.2.8+git \
+    && apt-get -qq install -y freeradius=4:3.2.10+git freeradius-common=4:3.2.10+git freeradius-config=4:3.2.10+git freeradius-ldap=4:3.2.10+git freeradius-mysql=4:3.2.10+git freeradius-redis=4:3.2.10+git freeradius-rest=4:3.2.10+git freeradius-utils=4:3.2.10+git \
     && apt-get clean
 
 WORKDIR /usr/local/pf/
