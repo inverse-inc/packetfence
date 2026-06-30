@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 23;
 use Test::NoWarnings;
 
 use pf::constants qw($TRUE $FALSE);
@@ -150,6 +150,14 @@ my $x509 = pf::ssl::x509_from_string($ss_test_cert);
 is(ref($x509), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSSL::X509");
 
 is($x509->subject, "C=MX, ST=Cucaracha, L=Villa de los Tacos, O=Zammitocorpo, CN=pf.zammitocorpo.mx", "certificate has the right subject");
+
+# Reference value computed with the OpenSSL CLI pipeline this code replaces:
+#   openssl x509 -noout -modulus | openssl md5
+# (the cert and key match, so both modulus MD5s are identical)
+my $expected_modulus_md5 = "205ee9d2d1c13e5e7b12ae59e00ff974";
+is(pf::ssl::x509_modulus_md5($x509), $expected_modulus_md5, "x509_modulus_md5 matches the OpenSSL CLI value");
+is(pf::ssl::rsa_modulus_md5($rsa), $expected_modulus_md5, "rsa_modulus_md5 matches the OpenSSL CLI value");
+isnt(pf::ssl::rsa_modulus_md5($rsa_bad_cert), $expected_modulus_md5, "non-matching key yields a different modulus MD5");
 
 is(pf::ssl::validate_cert_key_match($x509, $rsa), $TRUE, "Cert/key that are matching should match");
 

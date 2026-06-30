@@ -35,6 +35,7 @@ use warnings;
 
 use POSIX;
 use Try::Tiny;
+use Digest::MD5 qw(md5_hex);
 
 use pf::config qw(
     $MAC
@@ -416,9 +417,7 @@ sub getAcceptForm {
     my $challenge = $portalSession->param("ecwp-original-param-challenge");
     my $newchal  = pack "H32", $challenge;
 
-    my @ib = unpack("C*", "\0" . $mac . $newchal);
-    my $encstr = join("", map {sprintf('\%3.3o', $_)} @ib);
-    my ($passvar) = split(/ /, `printf '$encstr' | md5sum`);
+    my $passvar = md5_hex("\0" . $mac . $newchal);
 
     $mac =~ s/:/-/g;
 

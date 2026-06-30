@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::log;
+use pf::util;
 use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
@@ -74,9 +75,7 @@ sub pid {
     my ($self) = @_;
     my $logger = get_logger();
     my $name = $self->{name};
-    my $state = `sudo systemctl show -p ActiveState packetfence-$name.path`;
-    chomp $state;
-    $state = (split(/=/, $state))[1];
+    my $state = $self->systemctlShowProperty('ActiveState', "packetfence-$name.path") // '';
     if ($state ne "inactive") {
         $logger->debug("sudo systemctl packetfence-$name returned $state");
         return $TRUE;

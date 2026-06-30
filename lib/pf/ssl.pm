@@ -17,6 +17,7 @@ use warnings;
 
 use File::Temp qw(tempfile);
 use pf::constants qw($TRUE $FALSE);
+use Digest::MD5 qw(md5_hex);
 use File::Slurp qw(read_file write_file);
 use LWP::UserAgent;
 use pf::util;
@@ -133,7 +134,7 @@ Get the modulus MD5 of an RSA key
 
 sub rsa_modulus_md5 {
     my ($rsa) = @_;
-    return openssl_modulus_md5("rsa", $rsa->get_private_key_string());
+    return modulus_md5("rsa", $rsa->get_private_key_string());
 }
 
 =head2 x509_modulus_md5
@@ -144,26 +145,48 @@ Get the modulus MD5 of an x509 certificate
 
 sub x509_modulus_md5 {
     my ($x509) = @_;
-    return openssl_modulus_md5("x509", $x509->as_string());
+    return modulus_md5("x509", $x509->as_string());
 }
 
-=head2 openssl_modulus_md5
+=head2 modulus_md5
 
-Get the modulus MD5 through OpenSSL
+Get the modulus MD5 of an RSA key ("rsa") or x509 certificate ("x509").
+
+This computes the same value as the OpenSSL pipeline:
+
+    openssl $type -noout -modulus | openssl md5
+
+i.e. the MD5 of the C<Modulus=E<lt>UPPERCASE-HEXE<gt>\n> line that
+C<openssl -modulus> prints, but does so in pure Perl without shelling out.
 
 =cut
 
-sub openssl_modulus_md5 {
+sub modulus_md5 {
     my ($type, $data) = @_;
-    my $result = `echo "$data" | openssl $type -noout -modulus | openssl md5 | awk '{ print \$2 }'`;
-    chomp($result);
-    if($? != 0) {
-        get_logger->error("Unable to get modulus: $result");
+
+    my $modulus = eval {
+        if ($type eq "rsa") {
+            my $rsa = rsa_from_string($data);
+            my ($n) = $rsa->get_key_parameters();
+            $n->to_hex;
+        }
+        elsif ($type eq "x509") {
+            my $x509 = x509_from_string($data);
+            defined($x509) ? $x509->modulus() : undef;
+        }
+        else {
+            die "unsupported modulus type '$type'\n";
+        }
+    };
+
+    if ($@ || !defined($modulus) || $modulus eq "") {
+        get_logger->error("Unable to get modulus: " . ($@ || "no modulus could be extracted"));
         return undef;
     }
-    else {
-        return $result;
-    }
+
+    # openssl prints the modulus as "Modulus=<UPPERCASE-HEX>" followed by a
+    # newline, and that exact byte sequence is what gets hashed.
+    return md5_hex("Modulus=" . $modulus . "\n");
 }
 
 =head2 validate_cert_key_match
@@ -361,18 +384,33 @@ sub verify_chain {
     my ($cert, $intermediates) = @_;
     my $cert_str = $cert->as_string();
 
-    my (undef, $tmpinter) = tempfile();
     my $bundle = "";
     foreach my $inter (@$intermediates) {
         $bundle .= $inter->as_string();
     }
     $bundle .= "\n$cert_str\n";
-    write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
-    unlink $tmpinter;
+    # Trusted material for the verification: the system CA bundle followed by
+    # the provided intermediates and certificate (matches the previous
+    # "cat $OS_CA_CERT_FILE $tmpinter" behavior).
+    my $ca_content = (-r $OS_CA_CERT_FILE) ? read_file($OS_CA_CERT_FILE) : "";
+    my (undef, $cafile) = tempfile();
+    write_file($cafile, $ca_content . $bundle);
 
-    if($? != 0) {
+    # The certificate being verified, passed as a file argument rather than
+    # through a shell pipe.
+    my (undef, $certfile) = tempfile();
+    write_file($certfile, $cert_str);
+
+    my $status;
+    my $result = safe_pf_run(
+        "openssl", "verify", "-verbose", "-CAfile", $cafile, $certfile,
+        { redirect_stderr_to_stdout => 1, status_ref => \$status },
+    );
+    unlink $cafile;
+    unlink $certfile;
+
+    if (!defined($status) || $status != 0) {
         get_logger->error("Chain verification failed");
         return ($FALSE, $result);
     }
