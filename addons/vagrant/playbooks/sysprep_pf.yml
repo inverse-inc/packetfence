@@ -34,16 +34,37 @@
       ansible.builtin.shell: rm -f /etc/ssh/ssh_host_*
       changed_when: false
 
-    # First boot of the packaged box re-runs openssh-server's debconf to
-    # regenerate host keys, then deletes itself.
-    - name: Arm first-boot openssh-server reconfigure
+    # sshd refuses connections without host keys. A @reboot cron is racy (vagrant
+    # probes :22 before cron fires) and dpkg-reconfigure is Debian-only, so install
+    # a oneshot ordered before sshd that regenerates any missing keys at boot.
+    # ssh.service (Debian) / sshd.service (EL); unknown units in Before= are ignored.
+    - name: Install regenerate-ssh-host-keys oneshot unit
       ansible.builtin.copy:
-        dest: /etc/cron.d/sysprep-ssh-keys
+        dest: /etc/systemd/system/regenerate-ssh-host-keys.service
         owner: root
         group: root
         mode: '0644'
         content: |
-          @reboot root /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; /usr/sbin/dpkg-reconfigure openssh-server >/dev/null 2>&1; /bin/systemctl restart ssh.service; rm -f /etc/cron.d/sysprep-ssh-keys'
+          [Unit]
+          Description=Regenerate missing SSH host keys before sshd starts
+          Before=ssh.service sshd.service ssh.socket
+          ConditionPathExists=!/etc/ssh/ssh_host_ed25519_key
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/ssh-keygen -A
+          RemainAfterExit=yes
+
+          [Install]
+          WantedBy=multi-user.target
+
+    # Enable only (not start): keys must regenerate on the clone's first boot,
+    # not now — we just removed them so the box ships without them.
+    - name: Enable regenerate-ssh-host-keys
+      ansible.builtin.systemd:
+        name: regenerate-ssh-host-keys.service
+        enabled: true
+        daemon_reload: true
 
     - name: Remove NetworkManager runtime state (keep connection profiles)
       ansible.builtin.shell: |
