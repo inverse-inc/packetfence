@@ -48,7 +48,7 @@ function import_mysqldump() {
   mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name"
 
   sub_splitter
-  # We reimport the schema so that we have the functions and triggers if the dump doesn't contain the triggers
+  # Detect a trigger-less dump (a pf-user mysqldump omits triggers); reapplied after import below.
   if ! egrep "CREATE.*TRIGGER.*(AFTER|BEFORE)" $dump_file > /dev/null; then
     echo "Dump file was made without triggers and procedures"
 
@@ -66,14 +66,28 @@ function import_mysqldump() {
     sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `activation`;//g' $dump_file
 
+    dump_without_triggers=1
   else
     echo "Dump file includes triggers and procedures"
+    dump_without_triggers=0
   fi
 
   sub_splitter
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
   check_code $?
+
+  # A pf-user mysqldump omits triggers; reapply only the triggers (not tables/seed
+  # data, which would clobber the restored rows) from the matching schema.
+  if [ "$dump_without_triggers" = 1 ]; then
+    sub_splitter
+    schema_version=`echo "$pf_version_in_export" | egrep -o '^[0-9]+\.[0-9]+'`
+    schema_file="/usr/local/pf/db/pf-schema-$schema_version.sql"
+    [ -f "$schema_file" ] || schema_file="/usr/local/pf/db/pf-schema-X.Y.sql"
+    echo "Reapplying triggers from $schema_file"
+    awk '/^DELIMITER \//{b=$0 ORS;f=1;t=0;next} f&&/^DELIMITER ;/{b=b $0 ORS;if(t)printf "%s",b;f=0;next} f{b=b $0 ORS;if(/CREATE TRIGGER/)t=1}' "$schema_file" | mysql ${mariadb_args} $db_name
+    check_code $?
+  fi
 
   sub_splitter
   echo "Importing grants"
