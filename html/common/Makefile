@@ -1,4 +1,4 @@
-CSS_FILES = styles.css # exclude styles.css.map, which is used only for development.
+CSS_FILES = styles.css styles.css.map
 
 all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
