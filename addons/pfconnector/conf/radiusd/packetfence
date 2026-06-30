@@ -26,9 +26,25 @@ home_server_pool pf_auth_pool {
 	home_server =  degraded
 }
 
+home_server pf.remote.acct {
+        type = acct
+        ipaddr = 100.64.0.1
+        src_ipaddr = %mgmt_ip%
+        port = 18132
+        secret = '%password%'
+        response_window = 3
+        zombie_period = 10
+        revive_interval = 60
+
+        # No status_check: a Status-Server here would be code-routed by the cloud
+        # proxy to radiusd-auth (not pfacct), so it wouldn't actually probe pfacct.
+        # Rely on response_window/zombie_period/revive_interval for liveness instead.
+}
+
 home_server_pool pf_acct_pool {
 	type = fail-over
-	home_server =  pf.remote
+	home_server =  pf.remote.acct
+	home_server =  degraded
 }
 
 realm remote {
@@ -42,6 +58,7 @@ home_server_pool degraded_pool {
 
 realm degraded {
 	auth_pool = degraded_pool
+	acct_pool = degraded_pool
 }
 
 
@@ -103,6 +120,12 @@ server pf-remote {
 	authenticate {
 	}
 	accounting {
+		# rest-remote queries the local API, which knows tunnel/cloud state and sets
+		# control:Proxy-To-Realm to "remote" (cloud up -> proxy acct to pf.remote.acct
+		# on udp 18132) or "degraded" (cloud down -> realm degraded answers locally with
+		# Accounting-Response OK). Same cloud-down detection as the authorize section.
+		# pre-proxy{} tags PacketFence-ConnectorID and the home_server signs with the
+		# unified secret, mirroring the auth path.
 		rest-remote
 		if(!NAS-IP-Address){
 			update request {
@@ -174,13 +197,12 @@ server pf.degraded {
 	}
 
 	#
-	#  Accounting.  Log the accounting data.
+	#  Accounting.  Tunnel is down (failed over here from pf_acct_pool), so just
+	#  acknowledge the request locally with Accounting-Response OK to stop the NAS
+	#  retransmitting; there is no cloud reachable to record it.
 	#
 	accounting {
-		if (noop) {
-			ok
-		}
-
+		ok
 		attr_filter.accounting_response
 	}
 
