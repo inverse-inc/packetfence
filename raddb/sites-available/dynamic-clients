@@ -115,9 +115,11 @@ server dynamic_clients {
         }
 
         # Connector traffic: identify by PacketFence-ConnectorID VSA and resolve to the shared 'pfconnector' row.
-        # Use an attribute-existence test (not a bare %{} xlat) so it fires reliably in the dynamic-client fake
-        # request, mirroring the %{raw:...} pattern used by the MAC/IP lookups above and below.
-        if ( &control:PacketFence-NasName == '0' && &PacketFence-ConnectorID ) {
+        # The dynamic-client fake request has an empty VPS list, so neither a bare %{PacketFence-ConnectorID}
+        # xlat nor an &PacketFence-ConnectorID existence test can see the attribute. Read it straight from the
+        # raw packet bytes with %{raw:...} (the MSG_PEEK'd triggering packet), mirroring the MAC/IP lookups.
+        # Requires the rlm_raw vendor-matching fix so the VSA (vendor 29464, attr 40) is found.
+        if ( &control:PacketFence-NasName == '0' && "%{raw:PacketFence-ConnectorID}" != "" ) {
             update control {
                 &PacketFence-NasName := "pfconnector"
             }
