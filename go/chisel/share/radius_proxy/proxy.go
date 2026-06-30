@@ -110,8 +110,7 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		LogPacket(l, packet)
 	})
 
-	added := rp.addProxyState(packet)
-	_ = added
+	mutated := rp.addProxyState(packet)
 
 	if !hasPacketFenceConnectorID(packet) {
 		connectorAttr, err := radius.NewString(connectorID)
@@ -130,13 +129,27 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		}
 
 		packet.Attributes.Add(26, vsa)
+		mutated = true
 	}
 
-	// All traffic reaching this proxy is connector traffic (the proxy is only
-	// instantiated on the cloud side). The cloud FreeRADIUS validates it against
-	// the `pfconnector` NAS client, whose shared secret is
-	// unified_api_system_user.pass — the same secret rp.secret is wired to. Sign
-	// the Message-Authenticator with it so validation succeeds end-to-end.
+	be := rp.backendsForPacket(packet).getBackend(packet)
+	if be == nil {
+		return nil, "", errors.New("No backend available")
+	}
+
+	// When the remote FreeRADIUS already proxied the packet it arrives signed with
+	// the unified secret and tagged with Proxy-State + PacketFence-ConnectorID, so we
+	// add nothing above. Forward the original bytes verbatim: this preserves the
+	// original authenticator — essential for Accounting-Request, whose Request
+	// Authenticator is keyed by the secret — and avoids a pointless re-sign that would
+	// also inject a bogus Message-Authenticator. We only re-sign when we actually
+	// mutated the packet (e.g. bare Status-Server liveness checks, which arrive
+	// untagged and get a freshly added Proxy-State/ConnectorID here).
+	if !mutated {
+		rp.Debugf("Proxy %s to %s for connector %s (verbatim)", packet.Code, be.addr, connectorID)
+		return payload, be.addr, nil
+	}
+
 	err = addMessageAuthenticator(packet, rp.secret)
 	if err != nil {
 		return nil, "", err
@@ -145,11 +158,6 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 	b2, err := packet.Encode()
 	if err != nil {
 		return nil, "", err
-	}
-
-	be := rp.backendsForPacket(packet).getBackend(packet)
-	if be == nil {
-		return nil, "", errors.New("No backend available")
 	}
 
 	rp.Debugf("Proxy %s to %s for connector %s", packet.Code, be.addr, connectorID)

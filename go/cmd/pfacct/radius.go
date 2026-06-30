@@ -539,15 +539,46 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		return nil, nil, err
 	}
 
-	// If the request overrides the tenant ID, we create a copy of the switchInfo and return it with an updated tenant ID
-	if val := inversedict.PacketFenceTenantID_Get(packet); val != 0 {
-		switchInfo2 := *switchInfo
-		switchInfo2.TenantId = int(val)
-		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, &switchInfo2)), nil
-	} else {
-		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	// switchInfo is a shared cached pointer; never mutate it. Copy before overriding.
+	info := switchInfo
+
+	// Connector accounting: the packet rode the connector tunnel and was signed
+	// with the unified secret, not the inner switch's secret. Keep the switch
+	// identity (tenant / attributes) resolved above, but validate and respond with
+	// the unified secret, mirroring the auth dynamic-clients ConnectorID resolution.
+	if h.unifiedSecret != "" && hasPacketFenceConnectorID(attrs) {
+		cp := *info
+		cp.Secret = h.unifiedSecret
+		info = &cp
 	}
 
+	// If the request overrides the tenant ID, copy and set it.
+	if val := inversedict.PacketFenceTenantID_Get(packet); val != 0 {
+		cp := *info
+		cp.TenantId = int(val)
+		info = &cp
+	}
+
+	return []byte(info.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, info)), nil
+}
+
+const (
+	packetFenceVendorID            = 29464
+	packetFenceConnectorIDAttrType = 40
+)
+
+// hasPacketFenceConnectorID reports whether the request carries the
+// PacketFence-ConnectorID VSA (vendor 29464, attr 40), i.e. it arrived via a
+// connector tunnel. Mirrors the detection in chisel/share/radius_proxy/proxy.go.
+func hasPacketFenceConnectorID(attrs radius.Attributes) bool {
+	for _, vsa := range attrs[radius.Type(26)] {
+		if len(vsa) >= 5 &&
+			binary.BigEndian.Uint32(vsa[:4]) == packetFenceVendorID &&
+			vsa[4] == packetFenceConnectorIDAttrType {
+			return true
+		}
+	}
+	return false
 }
 
 type Error string
