@@ -681,6 +681,20 @@ lint_ci_yaml:
       .gitlab-ci.yml
   allow_failure: false
 
+# Guards that a hung log collection can't skip VM destruction during cleanup.
+test_clean_environment:
+  extends:
+    - .check_job
+  needs:
+    - job: run_pipeline_if_necessary
+      optional: true
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  rules:
+    - when: always
+  script:
+    - ${TESTCIDIR}/clean-test-environment.test.sh
+  allow_failure: false
+
 ########################################
 # BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_related / radiusd / radiusd_related)
 ########################################
