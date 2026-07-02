@@ -30,6 +30,9 @@ variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PIPELINE_TIMEOUT_CLEANUP: 10m
+  # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
+  PIPELINE_TIMEOUT_TEARDOWN: 6m
+  PIPELINE_TIMEOUT_CLEAN: 3m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm

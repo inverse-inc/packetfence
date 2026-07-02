@@ -54,13 +54,22 @@ configure_and_check() {
     fi
 }
 
+# best-effort and bounded so a hung log fetch can't starve the destroy below
 teardown() {
-    MAKE_TARGET=teardown make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+    timeout "${PIPELINE_TIMEOUT_TEARDOWN:-6m}" \
+        env MAKE_TARGET=teardown make -e -C ${TEST_DIR} ${CI_JOB_NAME} \
+        || echo "WARN: log collection timed out or failed, continuing to VM destroy"
+}
+
+# VM destroy, bounded and independent from log collection; its exit code decides cleanup success
+clean() {
+    timeout "${PIPELINE_TIMEOUT_CLEAN:-3m}" \
+        env MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
 }
 
 teardown_clean() {
     teardown
-    MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+    clean
 }
 
 log_section "Configure and check"
