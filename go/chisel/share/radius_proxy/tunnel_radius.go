@@ -42,28 +42,14 @@ func isPodReady(pod *v1.Pod) bool {
 	return false
 }
 
+// getPodHostPort returns the pod IP paired with defaultPort, the port for the
+// pool this pod belongs to (1812 for auth, 1813 for acct). We deliberately do
+// NOT trust the pod's declared containerPort: pfacct pods advertise 1812 as
+// metadata while their accounting listener is on 1813/UDP, so honoring the
+// declared port would ship Accounting-Requests to a dead port (connection
+// refused). The auth/acct informers are each handed the correct defaultPort.
 func getPodHostPort(pod *v1.Pod, defaultPort int) string {
-	port, err := getPodPort(pod)
-	if err != nil {
-		return fmt.Sprintf("%s:%d", pod.Status.PodIP, defaultPort)
-	}
-
-	return fmt.Sprintf("%s:%d", pod.Status.PodIP, port)
-}
-
-func getPodPort(pod *v1.Pod) (int, error) {
-	if len(pod.Spec.Containers) == 0 {
-		return -1, errors.New("No Containers found")
-	}
-
-	ports := pod.Spec.Containers[0].Ports
-
-	if len(ports) == 0 {
-		return -1, errors.New("No port found")
-	}
-
-	return int(ports[0].ContainerPort), nil
-
+	return fmt.Sprintf("%s:%d", pod.Status.PodIP, defaultPort)
 }
 
 func clientSetFromEnv() (*kubernetes.Clientset, error) {
