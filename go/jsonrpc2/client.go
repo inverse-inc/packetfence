@@ -82,11 +82,18 @@ func NewAAAClientFromConfig(ctx context.Context) *Client {
 	var ports pfconfigdriver.PfConfPorts
 	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
 	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
+	// The AAA endpoint is addressed by the aaa_host/aaa_proto/aaa port triad.
+	// Fall back to the generic webservices host when aaa_host is unset so
+	// bare-metal/compose deployments that only configure `host` keep working.
+	host := webservices.AAAHost
+	if host == "" {
+		host = webservices.Host
+	}
 	return &Client{
 		Username: webservices.User,
 		Password: webservices.Pass.String(),
 		Proto:    webservices.AAAProto,
-		Host:     webservices.Host,
+		Host:     host,
 		Port:     ports.AAA,
 	}
 }
