@@ -19,7 +19,6 @@ import (
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
-	"github.com/inverse-inc/go-radius/inversedict"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
@@ -174,7 +173,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	}
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
-	node_id := mac.NodeId(uint16(switchInfo.TenantId))
+	node_id := mac.NodeId(0)
 	if h.ProcessBandwidthAcct {
 		if err := h.InsertBandwidthAccounting(
 			status,
@@ -533,8 +532,8 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		return nil, nil, err
 	}
 
-	packet, err := radius.Parse(raw, []byte(switchInfo.Secret))
-	if err != nil {
+	// Validate that the packet authenticates with the resolved secret.
+	if _, err := radius.Parse(raw, []byte(switchInfo.Secret)); err != nil {
 		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
@@ -544,18 +543,11 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	// Connector accounting: the packet rode the connector tunnel and was signed
 	// with the unified secret, not the inner switch's secret. Keep the switch
-	// identity (tenant / attributes) resolved above, but validate and respond with
+	// identity (attributes) resolved above, but validate and respond with
 	// the unified secret, mirroring the auth dynamic-clients ConnectorID resolution.
 	if h.unifiedSecret != "" && hasPacketFenceConnectorID(attrs) {
 		cp := *info
 		cp.Secret = h.unifiedSecret
-		info = &cp
-	}
-
-	// If the request overrides the tenant ID, copy and set it.
-	if val := inversedict.PacketFenceTenantID_Get(packet); val != 0 {
-		cp := *info
-		cp.TenantId = int(val)
 		info = &cp
 	}
 
@@ -967,7 +959,6 @@ func (rs *RadiusStatements) NodeBandwidthBalanceSubtract(mac mac.Mac, balance in
 
 type SwitchInfo struct {
 	Nasname, Secret  string
-	TenantId         int
 	RadiusAttributes db.CsvArray
 }
 
