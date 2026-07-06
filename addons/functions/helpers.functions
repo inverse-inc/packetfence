@@ -18,6 +18,11 @@ function check_code() {
 
 function prompt() {
   msg="$1"
+  # --restore-as-is: don't ask, keep things as they are (answer "no").
+  if [ "${do_restore_as_is:-0}" = 1 ]; then
+    echo "$msg (y/n): n [--restore-as-is]"
+    return 1
+  fi
   answer=""
   while [ "$answer" != "y" ] && [ "$answer" != "n" ]; do
     echo -n "$msg (y/n): "

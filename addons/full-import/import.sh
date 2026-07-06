@@ -79,7 +79,7 @@ import_db() {
     if echo "$db_dump" | grep '\.sql$' >/dev/null; then
         echo "The database dump uses mysqldump"
         #TODO /tmp/grants.sql should be included in the export
-        import_mysqldump grants.sql $db_dump usr/local/pf/conf/pf.conf $do_db_restore
+        import_mysqldump grants.sql $db_dump usr/local/pf/conf/pf.conf
     elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
         echo "The database uses mariabackup"
         # permit to remove mariabackup if everything goes well
@@ -96,7 +96,10 @@ import_db() {
         exit 1
     fi
 
-    if [ "$do_db_restore" -eq 0 ] ; then
+    if [ "$do_restore_as_is" -eq 1 ]; then
+        main_splitter
+        echo "--restore-as-is: same version, skipping database upgrade"
+    else
         handle_devel_upgrade `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
 
         #TODO: check the version of the export, we want to support only 10.3.0 and above
@@ -105,9 +108,6 @@ import_db() {
         main_splitter
         db_name=`get_db_name usr/local/pf/conf/pf.conf`
         upgrade_database $db_name
-    else
-        main_splitter
-        echo "Only database restoration has been selected. No upgrade on database will be done"
     fi
 }
 
@@ -122,10 +122,14 @@ import_config() {
     restore_profile_templates
 
     main_splitter
-    upgrade_imported_configuration
+    if [ "$do_restore_as_is" -eq 1 ]; then
+        echo "--restore-as-is: same version, skipping configuration upgrade"
+    else
+        upgrade_imported_configuration
+    fi
 
     main_splitter
-    if [ "$do_adjust_config" -eq 1 ]; then
+    if [ "$do_adjust_db_conf" -eq 1 ]; then
         echo "Performing adjustments on the configuration"
         adjust_configuration
     else
@@ -139,42 +143,31 @@ import_config() {
 
 
 finalize_import() {
-    if [ "$do_db_restore" -eq 0 ] ; then
-        main_splitter
-        echo "Finalizing import"
+    main_splitter
+    echo "Finalizing import"
 
-        sub_splitter
-        echo "Applying fixpermissions"
-        /usr/local/pf/bin/pfcmd fixpermissions
+    sub_splitter
+    echo "Applying fixpermissions"
+    /usr/local/pf/bin/pfcmd fixpermissions
 
-        sub_splitter
-        echo "Restarting packetfence-redis-cache"
-        systemctl restart packetfence-redis-cache
+    sub_splitter
+    echo "Restarting packetfence-redis-cache"
+    systemctl restart packetfence-redis-cache
 
-        sub_splitter
-        echo "Restarting packetfence-config"
-        systemctl restart packetfence-config
+    sub_splitter
+    echo "Restarting packetfence-config"
+    systemctl restart packetfence-config
 
-        sub_splitter
-        echo "Reloading configuration"
-        configreload
+    sub_splitter
+    echo "Reloading configuration"
+    configreload
 
-        main_splitter
-        echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
+    main_splitter
+    echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
 
-        # Done with everything, time to cleanup!
-        systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
-    else
-        main_splitter
-        echo "Finalizing db restoration"
+    # Done with everything, time to cleanup!
+    systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
 
-        sub_splitter
-        echo "Restarting service packetfence-httpd.admin_dispatcher"
-        systemctl restart packetfence-httpd.admin_dispatcher
-        echo "Restarting packetfence-haproxy-admin service"
-        systemctl start packetfence-haproxy-admin
-        echo "Completed import of the database! Complete any necessary adjustments and restart PacketFence"
-    fi
     popd > /dev/null
 }
 
@@ -188,9 +181,9 @@ Options:
  -f,--file                  Import a PacketFence export (mandatory)
  -h,--help                  Display this help
  --db                       Import only database from PacketFence export
- --db-restore               Restore only database from PacketFence export without upgrade process
  --conf                     Import only configuration from PacketFence export
- --skip-adjust-conf         Don't run adjustments on configuration (only use it if you know what you are doing)
+ --skip-adjust-db-conf      Config import only: keep the backup's DB host/port instead of forcing localhost
+ --restore-as-is            Reapply the backup exactly: same version (no upgrade), keep its DB host/port, no prompts
 
 EOF
 }
@@ -200,16 +193,16 @@ EOF
 #############################################################################
 do_full_import=1
 do_db_import=0
-do_db_restore=0
 do_config_import=0
-do_adjust_config=1
+do_adjust_db_conf=1
+do_restore_as_is=0
 mariabackup_installed=false
 EXPORT_FILE=${EXPORT_FILE:-}
 
 # Parse option
 # TEMP=$(getopt -o f:h --long file:,help,db,conf \
     #      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
-TEMP=$(getopt -o f:h --long file:,help,db,db-restore,conf,skip-adjust-conf \
+TEMP=$(getopt -o f:h --long file:,help,db,conf,skip-adjust-db-conf,restore-as-is \
      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
 
 # Note the quotes around `$TEMP': they are essential!
@@ -226,16 +219,16 @@ while true ; do
             help ; exit 0 ; shift
             ;;
         --db)
-            do_db_restore=0 ; do_db_import=1 ; do_full_import=0 ; shift
-            ;;
-        --db-restore)
-            do_db_restore=1 ; do_db_import=1 ; do_full_import=0 ; shift
+            do_db_import=1 ; do_full_import=0 ; shift
             ;;
         --conf)
             do_config_import=1 ; do_full_import=0 ; shift
             ;;
-        --skip-adjust-conf)
-            do_adjust_config=0 ; shift
+        --skip-adjust-db-conf)
+            do_adjust_db_conf=0 ; shift
+            ;;
+        --restore-as-is)
+            do_restore_as_is=1 ; shift
             ;;
         --)
             shift ; break
@@ -255,6 +248,12 @@ fi
 if [ ! -f "$EXPORT_FILE" ]; then
     echo "$EXPORT_FILE is not a regular file"
     exit 1
+fi
+
+# --restore-as-is reapplies the backup verbatim, so it also keeps the backup's
+# DB host/port (skips adjust_configuration) like --skip-adjust-db-conf does.
+if [ "$do_restore_as_is" -eq 1 ]; then
+    do_adjust_db_conf=0
 fi
 
 #############################################################################

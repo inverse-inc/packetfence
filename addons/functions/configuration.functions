@@ -143,6 +143,11 @@ function handle_network_change() {
       handle_interface_exists $interface
       check_code $?
     else
+      # --restore-as-is: don't prompt to remap/delete; leave the interface untouched.
+      if [ "${do_restore_as_is:-0}" = 1 ]; then
+        echo "--restore-as-is: leaving $interface untouched in pf.conf"
+        continue
+      fi
       stop_it=""
       while [ -z "$stop_it" ]; do
         sub_splitter
