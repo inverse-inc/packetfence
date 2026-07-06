@@ -157,6 +157,23 @@ If any issues are experienced during import, run it again.
 
 If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
+===== Import options
+
+Without any option, `import.sh` performs a full import (database and configuration)
+and upgrades them to the running version when the export comes from an older one.
+
+`-f, --file <archive>`:: Path to the export archive to import (mandatory).
+`--db`:: Import only the database.
+`--conf`:: Import only the configuration.
+`--restore-as-is`:: Restore the export exactly as it was backed up. Intended for
+restoring onto the *same* PacketFence version: no database, MariaDB or
+configuration upgrade is performed, the backup's database host and port are kept,
+and no question is asked (fully non-interactive).
+`--skip-adjust-db-conf`:: On a configuration import, keep the backup's database
+host and port instead of rewriting them to `localhost`. Useful on a cross-version
+import that must preserve a non-local database host. (`--restore-as-is` already
+implies this.)
+
 ===== Additional steps to build or rebuild a cluster
 
 To build or rebuild a cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
