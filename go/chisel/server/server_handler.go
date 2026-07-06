@@ -25,6 +25,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	connector "github.com/inverse-inc/packetfence/go/connector"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
@@ -127,6 +128,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/health":
 		s.handleConnectorHealth(w, r)
 		return
+	case apiPrefix + "/process-dhcp":
+		s.handleProcessDhcp(w, r)
+		return
 	}
 	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
 		s.handleCredcacheForward(w, r)
@@ -135,6 +139,112 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	//missing :O
 	w.WriteHeader(404)
 	w.Write([]byte("Not found"))
+}
+
+// dhcpEvent mirrors the fingerbank-collector's dhcp_forwarder.DhcpEvent JSON.
+// The collector sniffs raw DHCP frames (the pfdhcplistener replacement) and
+// POSTs them to /api/v1/pfconnector/process-dhcp through the connector tunnel.
+// Payload stays a base64 string end-to-end: the collector base64-encodes it in
+// JSON and pf::api base64-decodes it, so we forward it verbatim with no
+// decode/re-encode round trip. The collector's message_type/timestamp fields
+// are intentionally not modelled — pf::api derives everything it needs from the
+// payload — and are simply ignored on decode.
+type dhcpEvent struct {
+	Version int    `json:"version"`
+	Payload string `json:"payload"` // base64 DHCP UDP payload, forwarded verbatim
+	SrcMac  string `json:"src_mac"`
+	DstMac  string `json:"dst_mac"`
+	SrcIp   string `json:"src_ip"`
+	DstIp   string `json:"dst_ip"`
+}
+
+// The webservices JSON-RPC client is resolved from pfconfig once and reused:
+// process-dhcp is a hot path and NewClientFromConfig does a pfconfig socket
+// round-trip on every call. dhcpDispatchSem bounds the number of in-flight
+// async forwards so a slow/unreachable webservices endpoint can't spawn an
+// unbounded goroutine pile-up under DHCP volume.
+var (
+	dhcpRpcClientMu sync.Mutex
+	dhcpRpcClient   *jsonrpc2.Client
+	dhcpDispatchSem = make(chan struct{}, 128)
+)
+
+// getDhcpRpcClient returns a memoized webservices JSON-RPC client. It only
+// caches once pfconfig actually returns a usable endpoint; NewClientFromConfig
+// swallows fetch errors, so caching an empty-Host client would strand every
+// future packet. Until pfconfig is ready it keeps returning transient clients.
+func getDhcpRpcClient(ctx context.Context) *jsonrpc2.Client {
+	dhcpRpcClientMu.Lock()
+	defer dhcpRpcClientMu.Unlock()
+	if dhcpRpcClient != nil {
+		return dhcpRpcClient
+	}
+	c := jsonrpc2.NewClientFromConfig(ctx)
+	if c.Host == "" {
+		return c
+	}
+	dhcpRpcClient = c
+	return dhcpRpcClient
+}
+
+// handleProcessDhcp relays a collector-forwarded DHCP packet to
+// pf::api::process_dhcp_event over the webservices JSON-RPC endpoint. This runs
+// on the pfconnector-server, the only side with pfconfig access to resolve that
+// endpoint (host/port/proto) and its credentials. DHCP fingerprinting is
+// best-effort (like pfdhcplistener's async notify_hashed), so the forward is
+// handed to a bounded background dispatcher and we return 202 immediately —
+// never blocking the collector on the webservices round trip.
+func (s *Server) handleProcessDhcp(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusMethodNotAllowed, Message: "process-dhcp only accepts POST"})
+		return
+	}
+
+	var ev dhcpEvent
+	if err := json.NewDecoder(r.Body).Decode(&ev); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("Unable to decode DHCP event: %s", err)})
+		return
+	}
+	if ev.Payload == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Empty DHCP payload"})
+		return
+	}
+
+	// pf::api methods take a flat alternating key/value param list (%postdata).
+	// Payload is already base64 (see dhcpEvent) and forwarded verbatim.
+	params := []interface{}{
+		"version", ev.Version,
+		"payload", ev.Payload,
+		"src_mac", ev.SrcMac,
+		"dst_mac", ev.DstMac,
+		"src_ip", ev.SrcIp,
+		"dst_ip", ev.DstIp,
+	}
+
+	client := getDhcpRpcClient(r.Context())
+	logger := log.LoggerWContext(r.Context())
+
+	select {
+	case dhcpDispatchSem <- struct{}{}:
+		go func() {
+			defer func() { <-dhcpDispatchSem }()
+			// Detached context: the request context is cancelled once we return
+			// 202 below. Notify does not surface HTTP status, so a rejected
+			// event can only be logged on transport error, not recovered.
+			if err := client.Notify(context.Background(), "process_dhcp_event", params); err != nil {
+				logger.Error(fmt.Sprintf("process-dhcp: notify pf::api failed: %s", err))
+			}
+		}()
+		w.WriteHeader(http.StatusAccepted)
+	default:
+		// Dispatcher saturated (slow/unreachable webservices). Drop rather than
+		// block the collector, mirroring the collector's own full-channel drop.
+		logger.Warn("process-dhcp: dispatch queue full, dropping DHCP event")
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}
 }
 
 // handleCredcacheForward routes /api/v1/pfconnector/credcache/<connector-id>/...
