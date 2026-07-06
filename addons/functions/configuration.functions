@@ -27,6 +27,10 @@ function restore_config_files() {
   dump_dir="$1"
   files=`get_config_files`
   for f in $files; do
+    # cluster.conf is not restored here; handle_cluster_conf_restore decides its fate.
+    if [ "$f" = "$CLUSTER_CONF_PATH" ]; then
+      continue
+    fi
     echo "Restoring $f"
     mkdir -p `dirname $f`
     check_code $?
@@ -286,6 +290,52 @@ function cluster_set_interface_ip() {
 function cluster_set_management_ip() {
   local section="$1" ip="$2"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$CLUSTER_CONF_PATH'); if (\$c->SectionExists('$section')) { \$c->setval('$section', 'management_ip', '$ip'); \$c->RewriteConfig; }"
+}
+
+# Reset the live cluster.conf to an empty (standalone) configuration.
+function reset_cluster_conf() {
+  if [ -f "${CLUSTER_CONF_PATH}.example" ]; then
+    cp -a "${CLUSTER_CONF_PATH}.example" "$CLUSTER_CONF_PATH"
+  else
+    printf '[CLUSTER]\nmanagement_ip=\n' > "$CLUSTER_CONF_PATH"
+  fi
+  chown pf: "$CLUSTER_CONF_PATH"
+}
+
+# Decide what to do with cluster.conf on import (it is skipped by restore_config_files):
+#   --restore-as-is       : keep this server's current cluster.conf untouched
+#   --update-cluster-conf : restore the export's cluster.conf and adjust it for this server
+#   default               : keep the export's copy for reference, reset the live one to empty
+function handle_cluster_conf_restore() {
+  local dump_dir="$1"
+  local src="$dump_dir/usr/local/pf/conf/cluster.conf"
+
+  if [ "${do_restore_as_is:-0}" -eq 1 ]; then
+    echo "--restore-as-is: keeping this server's current cluster.conf unchanged"
+    return 0
+  fi
+
+  if [ "${do_update_cluster_conf:-0}" -eq 1 ]; then
+    if [ -f "$src" ]; then
+      echo "Restoring cluster.conf from the export and adjusting it for this server"
+      cp -a "$src" "$CLUSTER_CONF_PATH"
+      chown pf: "$CLUSTER_CONF_PATH"
+      handle_cluster_conf_change
+    else
+      echo "WARN: no cluster.conf found in the export; leaving the current one in place"
+    fi
+    return 0
+  fi
+
+  # Default: do not adopt the export's cluster configuration. Keep it for
+  # reference and leave this server standalone with an empty cluster.conf.
+  if [ -f "$src" ]; then
+    echo "Saving the export's cluster.conf as ${CLUSTER_CONF_PATH}.imported for reference"
+    cp -a "$src" "${CLUSTER_CONF_PATH}.imported"
+    chown pf: "${CLUSTER_CONF_PATH}.imported"
+  fi
+  echo "Resetting cluster.conf to a standalone (empty) configuration"
+  reset_cluster_conf
 }
 
 # Adjust the restored cluster.conf for this server, mirroring the pf.conf handling.

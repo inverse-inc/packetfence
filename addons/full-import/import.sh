@@ -119,11 +119,7 @@ import_config() {
     handle_network_change
 
     main_splitter
-    if [ "$do_restore_as_is" -eq 1 ]; then
-        echo "--restore-as-is: leaving cluster.conf untouched"
-    else
-        handle_cluster_conf_change
-    fi
+    handle_cluster_conf_restore `pwd`
 
     main_splitter
     restore_profile_templates
@@ -191,6 +187,7 @@ Options:
  --conf                     Import only configuration from PacketFence export
  --skip-adjust-db-conf      Config import only: keep the backup's DB host/port instead of forcing localhost
  --restore-as-is            Reapply the backup exactly: same version (no upgrade), keep its DB host/port, no prompts
+ --update-cluster-conf      Restore the export's cluster.conf and adjust it for this server (default: keep cluster.conf empty)
 
 EOF
 }
@@ -203,13 +200,14 @@ do_db_import=0
 do_config_import=0
 do_adjust_db_conf=1
 do_restore_as_is=0
+do_update_cluster_conf=0
 mariabackup_installed=false
 EXPORT_FILE=${EXPORT_FILE:-}
 
 # Parse option
 # TEMP=$(getopt -o f:h --long file:,help,db,conf \
     #      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
-TEMP=$(getopt -o f:h --long file:,help,db,conf,skip-adjust-db-conf,restore-as-is \
+TEMP=$(getopt -o f:h --long file:,help,db,conf,skip-adjust-db-conf,restore-as-is,update-cluster-conf \
      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
 
 # Note the quotes around `$TEMP': they are essential!
@@ -236,6 +234,9 @@ while true ; do
             ;;
         --restore-as-is)
             do_restore_as_is=1 ; shift
+            ;;
+        --update-cluster-conf)
+            do_update_cluster_conf=1 ; shift
             ;;
         --)
             shift ; break
