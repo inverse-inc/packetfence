@@ -55,8 +55,17 @@ if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
     mariadb_args="$mariadb_args -p$mariadb_root_pass"
   fi
 
+  db_name=$(/usr/local/pf/bin/get_pf_conf database db)
+  db_name=${db_name:-pf}
+
   echo "Database dump uses mysqldump. Exporting the grants from the database. Enter the MariaDB root password if prompted to"
   mysql $mariadb_args --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>'' AND user<>'PUBLIC'" | mysql $mariadb_args --skip-column-names -A | sed 's/$/;/g' > grants.sql
+
+  # pf-user dump omits triggers (no TRIGGER privilege); dump them as root.
+  # Routines are skipped: the base pf dump already carries them.
+  echo "Exporting the triggers from the database"
+  mysqldump $mariadb_args --single-transaction --no-create-info --no-data --skip-add-drop-table \
+    --triggers "$db_name" > triggers.sql
 fi
 
 main_splitter
