@@ -42,10 +42,14 @@ testcases:
       - result.systemout ShouldContainSubstring skipping database upgrade
       - result.systemout ShouldContainSubstring skipping configuration upgrade
 
-- name: sleep_for_services_to_restart
+# import.sh isolates packetfence-base; restart PacketFence like an operator would
+# so the DB is up here and the webadmin API is reachable for the teardown.
+- name: restart_packetfence
   steps:
+  - type: pfcmd_run_command
+    command: 'service pf start'
   - type: exec
-    script: sleep 10
+    script: sleep 30
 
 # Database restored: the user is back.
 - name: user_restored_in_db
