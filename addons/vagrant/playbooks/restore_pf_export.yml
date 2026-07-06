@@ -3,7 +3,7 @@
 # runner-side download uses delegate_to: localhost + run_once because localhost
 # is not in the scenario's --limit. Needs CI_PIPELINE_ID + RCLONE_* on the runner.
 
-# Pre-bring NICs up so import.sh --conf's handle_network_change skips its prompts.
+# Pre-bring NICs up so import.sh's handle_network_change skips its prompts.
 - import_playbook: pf_interfaces_up.yml
 
 - hosts: pfservers
@@ -87,22 +87,20 @@
         dest: '{{ pf_export_remote_path }}'
         mode: '0600'
 
-    # `yes y` answers handle_interface_exists' IP-rewrite prompt; log fetched
-    # only on failure so happy runs ship nothing potentially sensitive.
+    # Log fetched only on failure so happy runs ship nothing potentially sensitive.
     - block:
-        - name: Run import.sh phase 1 (db restore, no upgrade)
+        - name: Run import.sh phase 1 (db restore as-is, no upgrade)
           shell: >-
-            /usr/local/pf/addons/full-import/import.sh --db-restore
+            /usr/local/pf/addons/full-import/import.sh --db --restore-as-is
             -f {{ pf_export_remote_path }}
             > /tmp/pf-import.log 2>&1
           args:
             executable: /bin/bash
           timeout: 1800
 
-        - name: Run import.sh phase 2 (config only)
+        - name: Run import.sh phase 2 (config restore as-is, no upgrade)
           shell: >-
-            yes y |
-            /usr/local/pf/addons/full-import/import.sh --conf
+            /usr/local/pf/addons/full-import/import.sh --conf --restore-as-is
             -f {{ pf_export_remote_path }}
             >> /tmp/pf-import.log 2>&1
           args:
