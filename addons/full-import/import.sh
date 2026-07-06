@@ -119,6 +119,13 @@ import_config() {
     handle_network_change
 
     main_splitter
+    if [ "$do_restore_as_is" -eq 1 ]; then
+        echo "--restore-as-is: leaving cluster.conf untouched"
+    else
+        handle_cluster_conf_change
+    fi
+
+    main_splitter
     restore_profile_templates
 
     main_splitter
