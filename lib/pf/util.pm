@@ -1051,8 +1051,19 @@ sub safe_pf_run {
     local $!;
     local $ENV{LANG} = 'C';
     my $status_ref = $options->{status_ref};
+
+    # Block SIGCHLD across the fork/wait. pfconfig/pfqueue/pfqueue-backend/pffilter/
+    # pfdhcplistener install a $SIG{CHLD} reaper (waitpid(-1, WNOHANG); local $?).
+    # We drain the child's pipes to EOF before waiting, so the child has already
+    # exited by then -- without this block, that reaper collects it first and our
+    # waitpid returns -1 (a false failure). Other child deaths during the window
+    # are simply queued and delivered to the daemon's handler when we restore.
+    my $sigchld_set     = POSIX::SigSet->new(POSIX::SIGCHLD());
+    my $old_sigset      = POSIX::SigSet->new();
+    my $sigchld_blocked = POSIX::sigprocmask(POSIX::SIG_BLOCK(), $sigchld_set, $old_sigset);
     my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
     if ($@) {
+        POSIX::sigprocmask(POSIX::SIG_SETMASK(), $old_sigset) if $sigchld_blocked;
         if (defined $status_ref) {
             $$status_ref = -1;
         }
@@ -1071,6 +1082,7 @@ sub safe_pf_run {
 
     waitpid($pid, 0);
     my $status = $?;
+    POSIX::sigprocmask(POSIX::SIG_SETMASK(), $old_sigset) if $sigchld_blocked;
     if (defined $status_ref) {
         $$status_ref = $status;
     }
