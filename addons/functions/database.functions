@@ -32,7 +32,8 @@ function import_mysqldump() {
 
   mariadb_args="--defaults-file=`pwd`/setup_mycnf --socket=/var/lib/mysql/mysql.sock"
   # we need a grant dump generated via: mysql ${MYSQL_CONN} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql ${MYSQL_CONN} --skip-column-names -A | sed 's/$/;/g' > grants.sql
-  if ! test_db_connection_no_creds; then
+  # --restore-as-is: never prompt; rely on socket auth (fails later with a clear error if unavailable).
+  if ! test_db_connection_no_creds && [ "${do_restore_as_is:-0}" != 1 ]; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
@@ -77,16 +78,22 @@ function import_mysqldump() {
   mysql ${mariadb_args} $db_name < $dump_file
   check_code $?
 
-  # A pf-user mysqldump omits triggers; reapply only the triggers (not tables/seed
-  # data, which would clobber the restored rows) from the matching schema.
+  # pf dump omits triggers: reapply from triggers.sql (new exports) or the matching schema
+  # (old exports). Idempotent, so it is safe before upgrade_database patches changed triggers.
   if [ "$dump_without_triggers" = 1 ]; then
     sub_splitter
-    schema_version=`echo "$pf_version_in_export" | egrep -o '^[0-9]+\.[0-9]+'`
-    schema_file="/usr/local/pf/db/pf-schema-$schema_version.sql"
-    [ -f "$schema_file" ] || schema_file="/usr/local/pf/db/pf-schema-X.Y.sql"
-    echo "Reapplying triggers from $schema_file"
-    awk '/^DELIMITER \//{b=$0 ORS;f=1;t=0;next} f&&/^DELIMITER ;/{b=b $0 ORS;if(t)printf "%s",b;f=0;next} f{b=b $0 ORS;if(/CREATE TRIGGER/)t=1}' "$schema_file" | mysql ${mariadb_args} $db_name
-    check_code $?
+    if [ -f triggers.sql ]; then
+      echo "Applying triggers from export (triggers.sql)"
+      mysql ${mariadb_args} $db_name < triggers.sql
+      check_code $?
+    else
+      schema_version=`echo "$pf_version_in_export" | egrep -o '^[0-9]+\.[0-9]+'`
+      schema_file="/usr/local/pf/db/pf-schema-$schema_version.sql"
+      [ -f "$schema_file" ] || schema_file="/usr/local/pf/db/pf-schema-X.Y.sql"
+      echo "triggers.sql not found in export, reapplying triggers from $schema_file"
+      awk '/^DELIMITER \//{b=$0 ORS;f=1;t=0;next} f&&/^DELIMITER ;/{b=b $0 ORS;if(t)printf "%s",b;f=0;next} f{b=b $0 ORS;if(/CREATE TRIGGER/)t=1}' "$schema_file" | mysql ${mariadb_args} $db_name
+      check_code $?
+    fi
   fi
 
   sub_splitter
@@ -138,9 +145,14 @@ function import_mariabackup() {
   check_code $?
 
   sub_splitter
-  echo "Performing upgrade of MariaDB. Enter the MariaDB root password if prompted to"
-  echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
-  mysql_upgrade -p
+  # --restore-as-is: same version, no MariaDB engine upgrade.
+  if [ "${do_restore_as_is:-0}" = 1 ]; then
+    echo "--restore-as-is: same version, skipping MariaDB upgrade"
+  else
+    echo "Performing upgrade of MariaDB. Enter the MariaDB root password if prompted to"
+    echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
+    mysql_upgrade -p
+  fi
 
   popd
 }
