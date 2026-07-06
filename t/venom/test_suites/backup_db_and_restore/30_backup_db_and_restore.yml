@@ -1,0 +1,67 @@
+name: Full restore with --restore-as-is
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+    retry: 5
+    delay: 1
+
+# Wipe both the DB user and the config marker so a full restore has to bring both back.
+- name: delete_user_in_db
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/{{.backup_db_and_restore.user}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: remove_config_marker
+  steps:
+  - type: exec
+    script: rm -f {{.backup_db_and_restore.conf_marker}}
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: get_backup_name
+  steps:
+  - type: exec
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-30 minute" | head -n 1'
+    assertions:
+      - result.systemout ShouldNotBeEmpty
+
+- name: import_full_restore_as_is
+  steps:
+  - type: exec
+    script: '/usr/local/pf/addons/full-import/import.sh --restore-as-is -f {{.get_backup_name.result.systemout}}'
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring skipping database upgrade
+      - result.systemout ShouldContainSubstring skipping configuration upgrade
+
+- name: sleep_for_services_to_restart
+  steps:
+  - type: exec
+    script: sleep 10
+
+# Database restored: the user is back.
+- name: user_restored_in_db
+  steps:
+  - type: exec
+    script: mysql -N pf -e "SELECT COUNT(*) FROM person WHERE pid='{{.backup_db_and_restore.user}}';"
+    assertions:
+      - result.systemout ShouldEqual 1
+    retry: 5
+    delay: 2
+
+# Configuration restored: the marker file is back with its original content.
+- name: config_marker_restored
+  steps:
+  - type: exec
+    script: cat {{.backup_db_and_restore.conf_marker}}
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring venom-config-restore-marker

@@ -10,7 +10,7 @@ testcases:
 - name: import_previous_exportation
   steps:
   - type: exec
-    script: '/usr/local/pf/addons/full-import/import.sh --db-restore -f {{.get_backup_name.result.systemout}}'
+    script: '/usr/local/pf/addons/full-import/import.sh --db --restore-as-is -f {{.get_backup_name.result.systemout}}'
 
 - name: sleep_for_iptables_to_restart
   steps:

@@ -1,4 +1,4 @@
-name: Verify DB triggers survived the restore
+name: Verify DB triggers and routines survived the restore
 testcases:
 # Query as root: SHOW TRIGGERS / information_schema is privilege-filtered for the pf user.
 - name: password_delete_trigger_is_present
@@ -19,6 +19,16 @@ testcases:
       actual=$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA='pf';")
       echo "schema=$schema expected=$expected actual=$actual"
       [ "$expected" -gt 0 ] && [ "$expected" -eq "$actual" ]
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: all_db_routines_are_present
+  steps:
+  - type: exec
+    script: |
+      actual=$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA='pf' AND ROUTINE_NAME IN ('acct_start','acct_stop','acct_update','FREERADIUS_DECODE','ROUND_TO_HOUR','ROUND_TO_MONTH');")
+      echo "routines_present=$actual"
+      [ "$actual" -eq 6 ]
     assertions:
       - result.code ShouldEqual 0
 
