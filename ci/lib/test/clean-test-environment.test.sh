@@ -1,7 +1,8 @@
 #!/bin/bash
 # Regression test for clean-test-environment.sh: a hung/slow log collection
-# (teardown) must not prevent VM destruction (clean), even when the outer
-# PIPELINE_TIMEOUT_CLEANUP fires.
+# (teardown) must not prevent VM destruction (clean). Without an internal
+# teardown bound, a hung fetch would run past the outer PIPELINE_TIMEOUT_CLEANUP
+# and abort the job before clean; the fix keeps cleanup under that budget.
 #
 # Usage: clean-test-environment.test.sh [path-to-clean-test-environment.sh]
 set -o nounset -o pipefail
@@ -28,8 +29,9 @@ EOF
 chmod +x "$WORK/bin/make"
 
 # Outer timeout mirrors .gitlab-ci.yml's PIPELINE_TIMEOUT_CLEANUP wrapper.
-# teardown budget (1s) < hung log fetch (6s) < outer budget (4s): the fix must
-# kill log collection early and still reach VM destroy.
+# Without the internal bound the hung 6s fetch would exceed the 4s outer budget
+# and abort before VM destroy. Bounding teardown (1s) + clean (2s) keeps cleanup
+# under the outer budget, so it never fires and destroy still runs.
 timeout 4s \
     env PATH="$WORK/bin:$PATH" \
         PIPELINE_TIMEOUT_TEARDOWN=1s \
