@@ -99,7 +99,21 @@ sub run_authentication {
     # etc.) and is a useful "is this source reachable at all" probe.
     $pass = '' unless defined $pass;
 
-    return _invoke('authentication', $user, $pass, @$srcs);
+    my $result = _invoke('authentication', $user, $pass, @$srcs);
+
+    # Defensive: pftest echoes the subcommand's stdout/stderr back over HTTP.
+    # PF's own sources never print the submitted password, but if a source ever
+    # reflected it into its status message it would surface here — scrub the
+    # password substring so it can never leak through the response. Guarded on
+    # length so an empty password does not turn into an all-matching pattern.
+    if (length $pass && ref($result->{json}) eq 'HASH') {
+        for my $field (qw(output output_raw)) {
+            next unless defined $result->{json}{$field};
+            $result->{json}{$field} =~ s/\Q$pass\E/********/g;
+        }
+    }
+
+    return $result;
 }
 
 sub run_profile_filter {
