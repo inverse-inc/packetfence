@@ -190,6 +190,8 @@ wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
 # Create user for db
 backup_db_and_restore.user: adminvenom
 backup_db_and_restore.backup_dir: /root/backup
+# Non-functional marker file used to prove configuration is restored from the backup
+backup_db_and_restore.conf_marker: /usr/local/pf/html/captive-portal/profile-templates/venom_restore_marker.txt
 
 ################################################################################
 ## mac auth test suites specific variables

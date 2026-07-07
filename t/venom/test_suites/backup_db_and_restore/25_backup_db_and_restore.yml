@@ -1,0 +1,50 @@
+name: Restore configuration only with --conf --restore-as-is
+testcases:
+- name: get_backup_name
+  steps:
+  - type: exec
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-30 minute" | head -n 1'
+    assertions:
+      - result.systemout ShouldNotBeEmpty
+
+# Remove the marker so a successful restore has to bring it back from the backup.
+- name: remove_config_marker
+  steps:
+  - type: exec
+    script: rm -f {{.backup_db_and_restore.conf_marker}}
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: import_conf_restore_as_is
+  steps:
+  - type: exec
+    script: '/usr/local/pf/addons/full-import/import.sh --conf --restore-as-is -f {{.get_backup_name.result.systemout}}'
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring skipping configuration upgrade
+
+# Config restored: the marker file is back with its original content.
+- name: config_marker_restored
+  steps:
+  - type: exec
+    script: cat {{.backup_db_and_restore.conf_marker}}
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring venom-config-restore-marker
+
+# A configuration-only import must not touch the database: the restored user is still there.
+- name: db_left_untouched
+  steps:
+  - type: exec
+    script: mysql -N pf -e "SELECT COUNT(*) FROM person WHERE pid='{{.backup_db_and_restore.user}}';"
+    assertions:
+      - result.systemout ShouldEqual 1
+
+# import.sh isolates packetfence-base; restart PacketFence like an operator would
+# so the webadmin API is reachable for the following testsuite.
+- name: restart_packetfence
+  steps:
+  - type: pfcmd_run_command
+    command: 'service pf start'
+  - type: exec
+    script: sleep 30

@@ -32,7 +32,8 @@ function import_mysqldump() {
 
   mariadb_args="--defaults-file=`pwd`/setup_mycnf --socket=/var/lib/mysql/mysql.sock"
   # we need a grant dump generated via: mysql ${MYSQL_CONN} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql ${MYSQL_CONN} --skip-column-names -A | sed 's/$/;/g' > grants.sql
-  if ! test_db_connection_no_creds; then
+  # --restore-as-is: never prompt; rely on socket auth (fails later with a clear error if unavailable).
+  if ! test_db_connection_no_creds && [ "${do_restore_as_is:-0}" != 1 ]; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
@@ -48,9 +49,9 @@ function import_mysqldump() {
   mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name"
 
   sub_splitter
-  # We reimport the schema so that we have the functions and triggers if the dump doesn't contain the triggers
+  # Detect a trigger-less dump (a pf-user mysqldump omits triggers); reapplied after import below.
   if ! egrep "CREATE.*TRIGGER.*(AFTER|BEFORE)" $dump_file > /dev/null; then
-    echo "Dump file was made without triggers and procedures"
+    echo "Dump file was made without triggers"
 
     sub_splitter
     echo "Replacing CREATE TABLE and DROP TABLE statements"
@@ -66,14 +67,56 @@ function import_mysqldump() {
     sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `activation`;//g' $dump_file
 
+    dump_without_triggers=1
   else
-    echo "Dump file includes triggers and procedures"
+    echo "Dump file includes triggers"
+    dump_without_triggers=0
   fi
 
   sub_splitter
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
   check_code $?
+
+  # Recreate the empty structure of tables excluded from the dump (--ignore-table)
+  # so triggers that write to them (e.g. locationlog -> locationlog_history) work.
+  # New exports carry excluded_tables_schema.sql; older ones don't, so fall back
+  # to the matching schema (same pattern as the trigger reapply below).
+  sub_splitter
+  if [ -f excluded_tables_schema.sql ]; then
+    echo "Restoring structure of tables excluded from the dump (from export)"
+    sed 's/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g' excluded_tables_schema.sql | mysql ${mariadb_args} $db_name
+    check_code $?
+  else
+    schema_version=`echo "$pf_version_in_export" | egrep -o '^[0-9]+\.[0-9]+'`
+    schema_file="/usr/local/pf/db/pf-schema-$schema_version.sql"
+    [ -f "$schema_file" ] || schema_file="/usr/local/pf/db/pf-schema-X.Y.sql"
+    echo "excluded_tables_schema.sql not in export, recreating excluded tables from $schema_file"
+    # Keep this list in sync with the --ignore-table list in backup-and-maintenance.sh.
+    for t in locationlog_history iplog_archive; do
+      awk -v t="$t" 'BEGIN{p=0} $0 ~ "^CREATE TABLE (IF NOT EXISTS )?`?" t "`?[ (]" {p=1} p{print} p&&/;[[:space:]]*$/{p=0}' "$schema_file" \
+        | sed 's/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g' | mysql ${mariadb_args} $db_name
+      check_code $?
+    done
+  fi
+
+  # pf dump omits triggers: reapply from triggers.sql (new exports) or the matching schema
+  # (old exports). Idempotent, so it is safe before upgrade_database patches changed triggers.
+  if [ "$dump_without_triggers" = 1 ]; then
+    sub_splitter
+    if [ -f triggers.sql ]; then
+      echo "Applying triggers from export (triggers.sql)"
+      mysql ${mariadb_args} $db_name < triggers.sql
+      check_code $?
+    else
+      schema_version=`echo "$pf_version_in_export" | egrep -o '^[0-9]+\.[0-9]+'`
+      schema_file="/usr/local/pf/db/pf-schema-$schema_version.sql"
+      [ -f "$schema_file" ] || schema_file="/usr/local/pf/db/pf-schema-X.Y.sql"
+      echo "triggers.sql not found in export, reapplying triggers from $schema_file"
+      awk '/^DELIMITER \//{b=$0 ORS;f=1;t=0;next} f&&/^DELIMITER ;/{b=b $0 ORS;if(t)printf "%s",b;f=0;next} f{b=b $0 ORS;if(/CREATE TRIGGER/)t=1}' "$schema_file" | mysql ${mariadb_args} $db_name
+      check_code $?
+    fi
+  fi
 
   sub_splitter
   echo "Importing grants"
@@ -124,9 +167,14 @@ function import_mariabackup() {
   check_code $?
 
   sub_splitter
-  echo "Performing upgrade of MariaDB. Enter the MariaDB root password if prompted to"
-  echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
-  mysql_upgrade -p
+  # --restore-as-is: same version, no MariaDB engine upgrade.
+  if [ "${do_restore_as_is:-0}" = 1 ]; then
+    echo "--restore-as-is: same version, skipping MariaDB upgrade"
+  else
+    echo "Performing upgrade of MariaDB. Enter the MariaDB root password if prompted to"
+    echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
+    mysql_upgrade -p
+  fi
 
   popd
 }

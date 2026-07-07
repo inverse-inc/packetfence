@@ -48,28 +48,56 @@ installations.
    at end of import process.
 [options="compact"]
 * The import process will not join server to Active Directory domains automatically. Rejoin server manually.
-* The import process will only restore the files that can be edited via the admin interface which include:
-** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`
+* The import process restores the configuration files tracked by PacketFence
+(the [filename]`@pf::file_paths::stored_config_files` list), which include:
+** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`,
+including [filename]`log.conf` and [filename]`pfconfig.conf`
+(but *not* [filename]`cluster.conf`, see below)
+** A few non-`.conf` data files stored alongside the configuration:
+[filename]`oui.txt`, [filename]`allowed_device_oui.txt`,
+[filename]`allowed_device_types.txt` and
+[filename]`fingerbank-collector.env.defaults`
+** The [filename]`vlan_filters.conf.defaults` and
+[filename]`radius_filters.conf.defaults` default files
+** Files referenced from the configuration that live outside the standard set,
+discovered automatically at export time (for example
+[filename]`/usr/local/pf/conf/iptables-custom.conf.inc` and
+[filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc`)
 ** Connection profiles HTML templates in
 [filename]`/usr/local/pf/html/captive-portal/profile-templates/`
 ** Standard certificates
 *** [filename]`/usr/local/pf/conf/ssl/*`
 *** [filename]`/usr/local/pf/raddb/certs/*`
+
+NOTE: Because the [filename]`*.conf.defaults` files above are restored as-is,
+importing an older export can overwrite the default files shipped with the
+running version. Review them after a cross-version import.
+
 [options="compact"]
 * Here is a short list of the configuration files that will not be restored. Changes to these files need to be migrated manually. This list is not meant to be complete:
 ** [filename]`/usr/local/pf/conf/radiusd/*`
-** [filename]`/usr/local/pf/conf/log.conf`
 ** [filename]`/usr/local/pf/conf/log.conf.d/*`
-** [filename]`/usr/local/pf/conf/iptables.conf.tt` (but
-[filename]`/usr/local/pf/conf/iptables-custom.conf.inc` and
-[filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc` are restored)
-** [filename]`/usr/local/pf/conf/cluster.conf`
+** [filename]`/usr/local/pf/conf/iptables.conf.tt`
 
 
-WARNING: The import process will never replace a virtual IP address in
-configurations. If the export has been done on a cluster, ensure there are no
-references to
-virtual IP address of this cluster after import has been completed.
+* [filename]`cluster.conf` is *not* restored by default. The imported server is
+left standalone with an empty [filename]`cluster.conf`, and the export's copy is
+kept as [filename]`/usr/local/pf/conf/cluster.conf.imported` for reference. This
+matches the recommendation to import onto a standalone server. Two options change
+this behaviour:
+** `--update-cluster-conf` restores the export's [filename]`cluster.conf` and
+adjusts it for this server: the local node's section ([filename]`[<hostname>]`)
+has its interface IPs and management IP rewritten to match the values applied to
+[filename]`pf.conf`, and any interface rename is propagated to the `CLUSTER`
+(virtual IP) sections.
+** `--restore-as-is` leaves this server's *current* [filename]`cluster.conf`
+untouched (it is neither reset nor overwritten from the export).
+
+WARNING: With `--update-cluster-conf`, only the local node is adjusted. Virtual
+IP addresses are never rewritten, and peer-node sections cannot be derived from a
+single server. After the import, verify the `CLUSTER` sections and the other
+nodes' sections in [filename]`/usr/local/pf/conf/cluster.conf`, and ensure there
+are no stale references to the previous cluster's virtual IP addresses.
 
 === Export on current installation
 
@@ -157,12 +185,39 @@ If any issues are experienced during import, run it again.
 
 If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
+===== Import options
+
+Without any option, `import.sh` performs a full import (database and configuration)
+and upgrades them to the running version when the export comes from an older one.
+
+`-f, --file <archive>`:: Path to the export archive to import (mandatory).
+`--db`:: Import only the database.
+`--conf`:: Import only the configuration.
+`--restore-as-is`:: Restore the export exactly as it was backed up. Intended for
+restoring onto the *same* PacketFence version: no database, MariaDB or
+configuration upgrade is performed, the backup's database host and port are kept,
+and no question is asked (fully non-interactive). This server's current
+[filename]`cluster.conf` is kept untouched (it is not reset nor overwritten from
+the export).
+`--update-cluster-conf`:: Restore the export's [filename]`cluster.conf` and adjust
+it for this server (see the assumptions and limitations above). Without this
+option, [filename]`cluster.conf` is not imported: the server is left standalone
+with an empty [filename]`cluster.conf` and the export's copy is kept as
+[filename]`cluster.conf.imported`. Ignored when `--restore-as-is` is used.
+`--skip-adjust-db-conf`:: On a configuration import, keep the backup's database
+host and port instead of rewriting them to `localhost`. Useful on a cross-version
+import that must preserve a non-local database host. (`--restore-as-is` already
+implies this.)
+
 ===== Additional steps to build or rebuild a cluster
 
 To build or rebuild a cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
 If the previous installation was a cluster, some steps may not be necessary
-to do.  The export archive will contain the previous
-[filename]`cluster.conf` file.
+to do.  By default the import leaves the server standalone and keeps the export's
+[filename]`cluster.conf` as [filename]`cluster.conf.imported` for reference. To
+reuse the previous cluster configuration, run the import with
+`--update-cluster-conf`, then review the `CLUSTER` and peer-node sections before
+starting the cluster (see the assumptions and limitations above).
 
 WARNING: if Mariabackup was installed before running the import, it's possible that it needs to be reinstalled.

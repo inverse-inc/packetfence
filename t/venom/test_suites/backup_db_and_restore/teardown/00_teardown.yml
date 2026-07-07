@@ -9,6 +9,11 @@ testcases:
     - type: exec
       script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-*" -delete'
 
+- name: delete_config_marker
+  steps:
+    - type: exec
+      script: rm -f {{.backup_db_and_restore.conf_marker}}
+
 - name: delete_user_in_db
   steps:
   - type: http

@@ -1,0 +1,78 @@
+name: Verify DB triggers and routines survived the restore
+testcases:
+# Every table defined in the reference schema must exist after the restore.
+- name: all_schema_tables_are_present
+  steps:
+  - type: exec
+    script: |
+      ver=$(egrep -o '[0-9]+\.[0-9]+\.[0-9]+' /usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+')
+      schema=/usr/local/pf/db/pf-schema-$ver.sql
+      [ -f "$schema" ] || schema=/usr/local/pf/db/pf-schema-X.Y.sql
+      missing=""
+      for t in $(grep -oE '^CREATE TABLE (IF NOT EXISTS )?`?[a-zA-Z0-9_]+`?' "$schema" | sed -E 's/^CREATE TABLE (IF NOT EXISTS )?//; s/`//g'); do
+        [ "$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='pf' AND TABLE_NAME='$t';")" = 1 ] || missing="$missing $t"
+      done
+      echo "schema=$schema missing_tables:$missing"
+      [ -z "$missing" ]
+    assertions:
+      - result.code ShouldEqual 0
+
+# locationlog_history is excluded from the dump; the import must recreate it
+# empty (so the locationlog trigger that writes to it works).
+- name: excluded_table_present_and_empty
+  steps:
+  - type: exec
+    script: |
+      [ "$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='pf' AND TABLE_NAME='locationlog_history';")" = 1 ] || { echo "locationlog_history missing"; exit 1; }
+      c=$(mysql -N pf -e "SELECT COUNT(*) FROM locationlog_history;")
+      echo "locationlog_history_rows=$c"
+      [ "$c" -eq 0 ]
+    assertions:
+      - result.code ShouldEqual 0
+
+# Query as root: SHOW TRIGGERS / information_schema is privilege-filtered for the pf user.
+- name: password_delete_trigger_is_present
+  steps:
+  - type: exec
+    script: mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA='pf' AND TRIGGER_NAME='password_delete_trigger';"
+    assertions:
+      - result.systemout ShouldEqual 1
+
+- name: all_schema_triggers_are_present
+  steps:
+  - type: exec
+    script: |
+      ver=$(egrep -o '[0-9]+\.[0-9]+\.[0-9]+' /usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+')
+      schema=/usr/local/pf/db/pf-schema-$ver.sql
+      [ -f "$schema" ] || schema=/usr/local/pf/db/pf-schema-X.Y.sql
+      expected=$(grep -cE '^CREATE TRIGGER ' "$schema")
+      actual=$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA='pf';")
+      echo "schema=$schema expected=$expected actual=$actual"
+      [ "$expected" -gt 0 ] && [ "$expected" -eq "$actual" ]
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: all_db_routines_are_present
+  steps:
+  - type: exec
+    script: |
+      actual=$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA='pf' AND ROUTINE_NAME IN ('acct_start','acct_stop','acct_update','FREERADIUS_DECODE','ROUND_TO_HOUR','ROUND_TO_MONTH');")
+      echo "routines_present=$actual"
+      [ "$actual" -eq 6 ]
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: deleting_a_person_removes_its_password
+  steps:
+  - type: exec
+    script: |
+      mysql pf -e "DELETE FROM password WHERE pid='venom_trigger_check'; DELETE FROM person WHERE pid='venom_trigger_check';"
+      mysql pf -e "INSERT INTO person(pid) VALUES('venom_trigger_check');"
+      mysql pf -e "INSERT INTO password(pid,password,expiration) VALUES('venom_trigger_check','x','2031-12-01 00:00:00');"
+      mysql pf -e "DELETE FROM person WHERE pid='venom_trigger_check';"
+      left=$(mysql -N pf -e "SELECT COUNT(*) FROM password WHERE pid='venom_trigger_check';")
+      mysql pf -e "DELETE FROM password WHERE pid='venom_trigger_check';"
+      echo "password_rows_after_person_delete=$left"
+      [ "$left" -eq 0 ]
+    assertions:
+      - result.code ShouldEqual 0
