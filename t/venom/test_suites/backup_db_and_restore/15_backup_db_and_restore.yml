@@ -10,7 +10,7 @@ testcases:
       [ -f "$schema" ] || schema=/usr/local/pf/db/pf-schema-X.Y.sql
       missing=""
       for t in $(grep -oE '^CREATE TABLE (IF NOT EXISTS )?`?[a-zA-Z0-9_]+`?' "$schema" | sed -E 's/^CREATE TABLE (IF NOT EXISTS )?//; s/`//g'); do
-        [ -n "$(mysql -N pf -e "SHOW TABLES LIKE '$t';")" ] || missing="$missing $t"
+        [ "$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='pf' AND TABLE_NAME='$t';")" = 1 ] || missing="$missing $t"
       done
       echo "schema=$schema missing_tables:$missing"
       [ -z "$missing" ]
