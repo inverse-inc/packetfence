@@ -24,7 +24,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.13.0 // indirect
-	github.com/go-sql-driver/mysql v1.9.3
+	github.com/go-sql-driver/mysql v1.10.0
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
