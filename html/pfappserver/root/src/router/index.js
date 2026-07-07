@@ -17,6 +17,7 @@ import ConfiguratorRoute from '@/views/Configurator/_router'
 import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
 import LiveLogsRoutes from '@/views/LiveLogs/_router'
+import HistoricalLogsRoutes from '@/views/HistoricalLogs/_router'
 
 Vue.use(Loading)
 
@@ -66,13 +67,15 @@ let router = new Router({
     PreferencesRoute,
     ResetRoute,
     ...LiveLogsRoutes,
+    ...HistoricalLogsRoutes,
     DefaultRoute
   ]
 })
 
 router.beforeEach((to, from, next) => {
   if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)
-      && !to.path.startsWith('/live-logs')) {
+      && !to.path.startsWith('/live-logs')
+      && !to.path.startsWith('/historical-logs')) {
     showLoader()
   }
   /**

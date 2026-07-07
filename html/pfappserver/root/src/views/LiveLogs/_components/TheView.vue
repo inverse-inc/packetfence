@@ -1,7 +1,12 @@
 <template>
   <div class="live-logs-page">
-    <div class="live-logs-header px-3 py-2 border-bottom">
+    <div class="live-logs-header px-3 py-2 border-bottom d-flex align-items-center">
       <h4 class="mb-0" v-t="'Live Logs'" />
+      <b-badge v-if="isClusterSession" variant="info" class="ml-3"
+        v-b-tooltip.hover.right
+        :title="$i18n.t('Tailing log files from every cluster node in parallel.')">
+        {{ $i18n.t('Cluster: {n} nodes', { n: peerIds.length }) }}
+      </b-badge>
     </div>
     <the-create-bar />
     <the-tabs />
@@ -68,7 +73,9 @@
                 <small class="ml-1" :key="`small-${children.label}`">{{ children.label }}</small>
                 <b-list-group :key="`group-${children.label}`" class="mt-1 mb-3">
                   <template v-for="({ count, filter }, key) in children.values">
-                    <b-list-group-item :key="`${key}-${count}-${filter}`"
+                    <!-- Stable key: count changes on every poll; keying on it
+                         recreates the element mid-click and drops the click. -->
+                    <b-list-group-item :key="key"
                       href="#" class="cursor-pointer"
                       :active="filter"
                       :variant="(filter) ? 'primary' : 'light'"
@@ -94,8 +101,8 @@
           <div class="live-logs-toolbar d-flex align-items-center flex-nowrap px-2 py-1"
             :class="(options.order === 'forward') ? 'border-top order-2' : 'border-bottom order-0'"
           >
-            <b-input-group class="mx-1 live-logs-search flex-grow-1" size="sm">
-              <b-form-input v-model="searchQuery" :placeholder="$t('Find...')"
+            <b-input-group class="mx-1 log-search flex-grow-1" size="sm">
+              <b-form-input v-model="searchInput" :placeholder="$t('Find...')"
                 :class="{ 'is-invalid': searchError }"
                 @keydown.enter.exact.prevent="onSearchNext"
                 @keydown.enter.shift.prevent="onSearchPrev" />
@@ -108,12 +115,12 @@
                 <b-button variant="outline-secondary" @click="onSearchNext" :disabled="searchMatchCount === 0">
                   <icon name="chevron-down" />
                 </b-button>
-                <b-button variant="outline-secondary" @click="onSearchClear" :disabled="!searchQuery">
+                <b-button variant="outline-secondary" @click="onSearchClear" :disabled="!searchInput">
                   <icon name="times" />
                 </b-button>
               </b-input-group-append>
             </b-input-group>
-            <small v-if="searchQuery && !searchError" class="mx-1 text-nowrap text-muted">{{ searchCurrentDisplay }} / {{ searchMatchCount }}</small>
+            <small v-if="searchInput && !searchError" class="mx-1 text-nowrap text-muted">{{ searchCurrentDisplay }} / {{ searchMatchCount }}</small>
             <div class="d-flex align-items-center flex-shrink-0">
               <b-button v-if="isRunning && !isPaused"
                 variant="primary" class="mx-1" size="sm" @click="onPauseSession">
@@ -157,6 +164,13 @@
                 ]"
                 :labelRight="true" />
               </small>
+              <b-button-group class="mx-1" size="sm" :title="$i18n.t('Toggle log level highlighting')" v-b-tooltip.hover.top.d300>
+                <b-button @click="options.levelHighlight = !options.levelHighlight"
+                  :active="options.levelHighlight"
+                  :variant="options.levelHighlight ? 'secondary' : 'outline-secondary'">
+                  <icon name="palette" />
+                </b-button>
+              </b-button-group>
               <b-button-group class="mx-1" size="sm" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.order = 'reverse'" :active="options.order === 'reverse'" :variant="(options.order === 'reverse') ? 'secondary' : 'outline-secondary'">
                   <icon name="sort-numeric-up-alt" />
@@ -174,28 +188,39 @@
             'background-black': options.background === 'black',
             'size-small': options.size === 'small',
             'size-normal': options.size === 'normal',
-            'size-large': options.size === 'large'
+            'size-large': options.size === 'large',
+            'level-highlight-off': !options.levelHighlight
           }">
             <div class="scroll-only-child">
               <div v-if="events && options.output === 'raw'" class="text-raw px-3 py-1">
-                <div v-for="(event, idx) in events" :key="idx"
-                  :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }"
-                  v-html="highlightRaw(event.data.raw)" />
+                <div v-for="(event, idx) in events" :key="idx" class="log-line"
+                  :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
+                  <span v-if="event.data.meta.hostname"
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]">
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
+                  </span>
+                  <!-- Same colored level chip as the color view so the
+                       Log-Level highlight toggle applies in raw mode too. No
+                       timestamp chip here — raw keeps its inline timestamp. -->
+                  <span v-if="event.data.meta.log_level"
+                  :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
+                  <span v-html="highlightEscaped(stripHostnameToken(event.data.raw, event.data.meta.hostname), idx)" />
+                </div>
               </div>
               <div v-else-if="events && options.output === 'color'" class="text-raw px-2 py-1">
-                <div v-for="(event, idx) in events" :key="idx"
+                <div v-for="(event, idx) in events" :key="idx" class="log-line"
                   :class="{ 'search-match': isSearchMatch(idx), 'search-current': isSearchCurrent(idx) }">
-                  <span class="log-timestamp" v-if="event.data.meta.timestamp"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
-                  <span class="log-hostname" v-if="event.data.meta.hostname"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.hostname }}</span>
-                  <span class="log-syslog" v-if="event.data.meta.syslog_name"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.syslog_name }}</span>
-                  <span class="log-process" v-if="event.data.meta.process"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.process }}</span>
-                  <span class="log-level" v-if="event.data.meta.log_level"
-                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.log_level }}</span>
-                  <span v-html="highlightEscaped(event.data.meta.log_without_prefix)" />
+                  <span v-if="event.data.meta.hostname"
+                    :class="['log-source-tag', `log-source-tag-${hostColorIndex(event.data.meta.hostname)}`]">
+                    {{ event.data.meta.hostname }}<template v-if="event.data.meta.filename">&nbsp;/&nbsp;{{ basename(event.data.meta.filename) }}</template>
+                  </span>
+                  <!-- Only the level chip carries color (no chip when the line
+                       has no recognized level); syslog/process repeat the
+                       source tag and are hidden (still filterable in sidebar). -->
+                  <span class="log-timestamp text-line log-level-none" v-if="event.data.meta.timestamp">{{ event.data.meta.timestamp }}</span>
+                  <span v-if="event.data.meta.log_level"
+                  :class="`log-level text-line log-level-${event.data.meta.log_level}`">{{ event.data.meta.log_level }}</span>
+                  <span v-html="highlightEscaped(event.data.meta.log_without_prefix, idx)" />
                 </div>
               </div>
             </div>
@@ -246,9 +271,11 @@ const sizes = [
   { text: '5000', value: 5000 }
 ]
 
-import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import { useLogSearch } from '@/composables/useLogSearch'
 import i18n from '@/utils/locale'
+import { basename, stripHostnameToken, hostColorIndex } from '@/utils/logEvents'
 import yup from '@/utils/yup'
 
 const schema = yup.object({
@@ -265,6 +292,19 @@ const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
 
+  // Resolve URL :id to one or more session submodule namespaces.
+  // - Standalone / SaaS: peerIds = [id], primary = id (legacy behaviour).
+  // - Cluster: id is a synthetic group_id; the value in _groups[id] is an
+  //   array of full peer objects {hostname, management_ip, session_id}.
+  const peerEntries = computed(() => {
+    const groups = $store.state.$_live_logs && $store.state.$_live_logs._groups
+    if (groups && groups[id.value]) return groups[id.value]
+    return [{ session_id: id.value, management_ip: null }]
+  })
+  const peerIds = computed(() => peerEntries.value.map(p => p.session_id))
+  const primary = computed(() => peerIds.value[0])
+  const isClusterSession = computed(() => peerIds.value.length > 1)
+
   // const form = session
   const formRef = ref(null)
   const files = ref([])
@@ -273,70 +313,134 @@ const setup = (props, context) => {
   const session = customRef((track, trigger) => ({
     get() {
       track()
-      return $store.getters[`$_live_logs/${id.value}/session`]
+      return $store.getters[`$_live_logs/${primary.value}/session`]
     },
     set(newValue) {
-      $store.dispatch(`$_live_logs/${id.value}/setSession`, newValue)
-        .finally(() => trigger())
+      // Mirror form updates (files/filter changes) to every peer so the
+      // session-options panel stays in sync across the cluster.
+      Promise.all(peerIds.value.map(pid =>
+        $store.dispatch(`$_live_logs/${pid}/setSession`, newValue)
+      )).finally(() => trigger())
     }
   }))
 
   const options = customRef((track, trigger) => ({
     get() {
       track()
-      return $store.getters[`$_live_logs/${id.value}/options`]
+      return $store.getters[`$_live_logs/${primary.value}/options`]
     },
     set(newValue) {
-      $store.dispatch(`$_live_logs/${id.value}/setOptions`, newValue)
-        .finally(() => trigger())
+      Promise.all(peerIds.value.map(pid =>
+        $store.dispatch(`$_live_logs/${pid}/setOptions`, newValue)
+      )).finally(() => trigger())
     }
   }))
 
+  // Merge events across peer submodules and order by timestamp so a
+  // single chronological stream is shown even on a 3-node cluster.
+  const mergedEvents = computed(() => {
+    const all = peerIds.value.flatMap(pid =>
+      $store.getters[`$_live_logs/${pid}/eventsFiltered`] || []
+    )
+    if (peerIds.value.length === 1) return all // preserve insertion order
+    return all.slice().sort((a, b) => {
+      const ta = a && a.data && a.data.meta && a.data.meta.timestamp || ''
+      const tb = b && b.data && b.data.meta && b.data.meta.timestamp || ''
+      return ta < tb ? -1 : ta > tb ? 1 : 0
+    })
+  })
+
   const events = computed(() => (options.value.order === 'reverse')
-    ? $store.getters[`$_live_logs/${id.value}/eventsFiltered`].slice().reverse()
-    : $store.getters[`$_live_logs/${id.value}/eventsFiltered`]
+    ? mergedEvents.value.slice().reverse()
+    : mergedEvents.value
   )
 
-  const scopes = computed(() => $store.getters[`$_live_logs/${id.value}/scopes`])
+  // Merge scopes (hostname / filename / log_level / process) so the
+  // per-host counts add up across the cluster and the user can filter by
+  // any of them from a single panel.
+  const scopes = computed(() => {
+    if (peerIds.value.length === 1) {
+      return $store.getters[`$_live_logs/${primary.value}/scopes`]
+    }
+    const merged = {}
+    for (const pid of peerIds.value) {
+      const peerScopes = $store.getters[`$_live_logs/${pid}/scopes`] || {}
+      for (const [scope, { label, values = {} }] of Object.entries(peerScopes)) {
+        if (!merged[scope]) merged[scope] = { label, values: {} }
+        for (const [key, val] of Object.entries(values)) {
+          const cur = merged[scope].values[key] || { count: 0 }
+          merged[scope].values[key] = {
+            count: cur.count + (val.count || 0),
+            filter: cur.filter || val.filter
+          }
+        }
+      }
+    }
+    return merged
+  })
 
-  const lines = computed(() => $store.getters[`$_live_logs/${id.value}/lines`])
+  const lines = computed(() => peerIds.value.reduce((sum, pid) =>
+    sum + ($store.getters[`$_live_logs/${pid}/lines`] || 0), 0))
 
   const size = customRef((track, trigger) => ({
     get() {
       track()
-      return $store.getters[`$_live_logs/${id.value}/size`]
+      return $store.getters[`$_live_logs/${primary.value}/size`]
     },
     set(newValue) {
-      $store.dispatch(`$_live_logs/${id.value}/setSize`, newValue)
-        .finally(() => trigger())
+      Promise.all(peerIds.value.map(pid =>
+        $store.dispatch(`$_live_logs/${pid}/setSize`, newValue)
+      )).finally(() => trigger())
     }
   }))
 
-  const isLoading = computed(() => $store.getters[`$_live_logs/${id.value}/isLoading`])
-  const isStopping = computed(() => $store.getters[`$_live_logs/${id.value}/isStopping`])
-  const isRunning = computed(() => $store.getters[`$_live_logs/${id.value}/isRunning`])
-  const isPaused = computed(() => $store.getters[`$_live_logs/${id.value}/isPaused`])
+  // Any peer being loading/stopping should reflect on the toolbar so the
+  // user does not see a stale Stop button while a peer is still tearing down.
+  const isLoading = computed(() => peerIds.value.some(pid => $store.getters[`$_live_logs/${pid}/isLoading`]))
+  const isStopping = computed(() => peerIds.value.some(pid => $store.getters[`$_live_logs/${pid}/isStopping`]))
+  const isRunning = computed(() => peerIds.value.some(pid => $store.getters[`$_live_logs/${pid}/isRunning`]))
+  const isPaused = computed(() => $store.getters[`$_live_logs/${primary.value}/isPaused`])
   const isValid = useDebouncedWatchHandler([session], () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))
 
-  const onToggleFilter = (scope, key) => $store.dispatch(`$_live_logs/${id.value}/toggleFilter`, { scope, key })
-  const onStopSession = () => $store.dispatch(`$_live_logs/${id.value}/stopSession`)
+  // Decide the target state once from the merged scopes (what the user sees)
+  // and set it explicitly on every peer module — a per-module toggle would
+  // flip peers in opposite directions when their flags diverge.
+  const onToggleFilter = (scope, key) => {
+    const { [scope]: { values: { [key]: { filter = false } = {} } = {} } = {} } = scopes.value
+    return Promise.all(peerIds.value.map(pid =>
+      $store.dispatch(`$_live_logs/${pid}/setFilter`, { scope, key, filter: !filter })
+    ))
+  }
+  const onStopSession = () => Promise.all(peerEntries.value.map(peer =>
+    $store.dispatch(`$_live_logs/${peer.session_id}/stopSession`, peer)
+  ))
   const onStartSession = () => {
     isStarting.value = true
     const { session_id, ...form } = session.value
     $store.dispatch(`$_live_logs/createSession`, form).then(response => {
-      const { session_id } = response
-      if (session_id) {
-        $store.dispatch(`$_live_logs/${session_id}/setSize`, size.value)
+      const newId = response && (response.group_id || response.session_id)
+      if (newId) {
+        // Mirror the user's preferred buffer size onto every fresh peer.
+        const fresh = response.group_id
+          ? (response.peers || []).map(p => p.session_id)
+          : [response.session_id]
+        fresh.forEach(pid => $store.dispatch(`$_live_logs/${pid}/setSize`, size.value))
         $store.dispatch('$_live_logs/destroySession', id.value)
-        $router.push({ name: 'live_log', params: { id: session_id } })
+        $router.push({ name: 'live_log', params: { id: newId } })
       }
     }).finally(() => {
       isStarting.value = false
     })
   }
-  const onPauseSession = () => $store.dispatch(`$_live_logs/${id.value}/pauseSession`)
-  const onUnpauseSession = () => $store.dispatch(`$_live_logs/${id.value}/unpauseSession`)
-  const onClearEvents = () => $store.dispatch(`$_live_logs/${id.value}/clearEvents`)
+  const onPauseSession = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/pauseSession`)
+  ))
+  const onUnpauseSession = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/unpauseSession`)
+  ))
+  const onClearEvents = () => Promise.all(peerIds.value.map(pid =>
+    $store.dispatch(`$_live_logs/${pid}/clearEvents`)
+  ))
     .then(() => $store.dispatch('notification/info', { message: i18n.t('Cleared logs.') }))
   const onCopyEvents = () => {
     try {
@@ -365,89 +469,27 @@ const setup = (props, context) => {
     }
   }
 
-  // search
+  // Shared search (useLogSearch): store-backed query/regex fan out to every
+  // peer (write all, read primary); matchText is the active mode's rendered text.
   const logRef = ref(null)
   const searchQuery = computed({
-    get: () => $store.getters[`$_live_logs/${id.value}/searchQuery`],
-    set: val => $store.commit(`$_live_logs/${id.value}/SET_SEARCH_QUERY`, val)
+    get: () => $store.getters[`$_live_logs/${primary.value}/searchQuery`],
+    set: val => peerIds.value.forEach(pid => $store.commit(`$_live_logs/${pid}/SET_SEARCH_QUERY`, val))
   })
   const searchIsRegex = computed({
-    get: () => $store.getters[`$_live_logs/${id.value}/searchIsRegex`],
-    set: val => $store.commit(`$_live_logs/${id.value}/SET_SEARCH_IS_REGEX`, val)
+    get: () => $store.getters[`$_live_logs/${primary.value}/searchIsRegex`],
+    set: val => peerIds.value.forEach(pid => $store.commit(`$_live_logs/${pid}/SET_SEARCH_IS_REGEX`, val))
   })
-  const searchError = ref(false)
-  const searchCurrentIdx = ref(0)
-
-  const searchRegex = computed(() => {
-    if (!searchQuery.value) return null
-    searchError.value = false
-    try {
-      const pattern = searchIsRegex.value
-        ? searchQuery.value
-        : searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      return new RegExp(pattern, 'gi')
-    } catch (e) {
-      searchError.value = true
-      return null
-    }
+  const {
+    searchInput, searchError, searchMatchCount, searchCurrentDisplay,
+    onSearchNext, onSearchPrev, onSearchClear,
+    highlightEscaped, isSearchMatch, isSearchCurrent
+  } = useLogSearch({
+    events, searchQuery, searchIsRegex, logRef,
+    matchText: e => options.value.output === 'raw'
+      ? stripHostnameToken(e.data.raw, e.data.meta.hostname)
+      : e.data.meta.log_without_prefix
   })
-
-  const searchMatchIndices = computed(() => {
-    const re = searchRegex.value
-    if (!re || !events.value) return []
-    return events.value.reduce((acc, event, idx) => {
-      re.lastIndex = 0
-      if (re.test(event.data.raw)) acc.push(idx)
-      return acc
-    }, [])
-  })
-
-  const searchMatchCount = computed(() => searchMatchIndices.value.length)
-  const searchCurrentDisplay = computed(() => searchMatchCount.value === 0 ? 0 : searchCurrentIdx.value + 1)
-
-  watch(searchMatchIndices, () => {
-    searchCurrentIdx.value = 0
-  })
-
-  const scrollToCurrentMatch = () => {
-    nextTick(() => {
-      if (!logRef.value) return
-      const el = logRef.value.querySelector('.search-current')
-      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    })
-  }
-
-  const onSearchNext = () => {
-    if (searchMatchCount.value === 0) return
-    searchCurrentIdx.value = (searchCurrentIdx.value + 1) % searchMatchCount.value
-    scrollToCurrentMatch()
-  }
-  const onSearchPrev = () => {
-    if (searchMatchCount.value === 0) return
-    searchCurrentIdx.value = (searchCurrentIdx.value - 1 + searchMatchCount.value) % searchMatchCount.value
-    scrollToCurrentMatch()
-  }
-  const onSearchClear = () => {
-    searchQuery.value = ''
-    searchCurrentIdx.value = 0
-  }
-
-  const escapeHtml = (text) => String(text || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-
-  const applyHighlight = (str) => {
-    const re = searchRegex.value
-    if (!re) return str
-    re.lastIndex = 0
-    return str.replace(re, match => `<mark>${match}</mark>`)
-  }
-  const highlightRaw = (text) => applyHighlight(escapeHtml(text))
-  const highlightEscaped = (text) => applyHighlight(escapeHtml(text))
-
-  const isSearchMatch = (idx) => searchMatchIndices.value.includes(idx)
-  const isSearchCurrent = (idx) => searchMatchIndices.value[searchCurrentIdx.value] === idx
 
   // immediate
   $store.dispatch(`$_live_logs/optionsSession`).then(response => {
@@ -475,6 +517,8 @@ const setup = (props, context) => {
     scopes,
     lines,
     size,
+    peerIds,
+    isClusterSession,
 
     isLoading,
     isStarting,
@@ -493,7 +537,7 @@ const setup = (props, context) => {
     onSaveEvents,
 
     logRef,
-    searchQuery,
+    searchInput,
     searchIsRegex,
     searchError,
     searchMatchCount,
@@ -501,10 +545,12 @@ const setup = (props, context) => {
     onSearchNext,
     onSearchPrev,
     onSearchClear,
-    highlightRaw,
     highlightEscaped,
     isSearchMatch,
-    isSearchCurrent
+    isSearchCurrent,
+    basename,
+    stripHostnameToken,
+    hostColorIndex
   }
 }
 
@@ -540,114 +586,6 @@ export default {
 .live-logs-toolbar {
   flex-shrink: 0;
 }
-.live-logs-search {
-  min-width: 10rem;
-  .form-control {
-    height: auto;
-  }
-  .input-group-append .btn {
-    border-color: #ced4da;
-    color: var(--secondary);
-  }
-}
-.search-match {
-  background: rgba(255, 235, 59, 0.15);
-}
-.search-current {
-  background: rgba(255, 235, 59, 0.4);
-}
-.min-h-0 {
-  min-height: 0;
-}
-.log, .scopes {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow-y: scroll;
-  overflow-x: auto;
-}
-.log {
-  display: flex;
-  align-items: flex-end;
-
-  &.background-black {
-    color: rgba(255, 255, 255, 1);
-    background: rgba(0, 0, 0, 1);
-
-    .log-timestamp,
-    .log-hostname,
-    .log-level,
-    .log-process,
-    .log-syslog {
-      color: rgba(0, 0, 0, 1);
-    }
-  }
-  &.background-white {
-    color: rgba(0, 0, 0, 1);
-    background: rgba(255, 255, 255, 1);
-
-    .log-timestamp,
-    .log-hostname,
-    .log-level,
-    .log-process,
-    .log-syslog {
-      color: rgba(255, 255, 255, 1);
-    }
-  }
-  &.size-small {
-    font-size: 0.75em;
-  }
-  &.size-normal {
-    font-size: 1em;
-  }
-  &.size-large {
-    font-size: 1.5em;
-  }
-
-  .text-line {
-    line-height: 1.5rem;
-    margin: .25rem 0;
-
-    &.log-level-none {
-      background: var(--secondary);
-    }
-    &.log-level-info {
-      background: var(--info);
-    }
-    &.log-level-warn {
-      background: var(--warning);
-    }
-    &.log-level-error {
-      background: var(--danger);
-    }
-
-    &.log-timestamp,
-    &.log-hostname,
-    &.log-level,
-    &.log-process,
-    &.log-syslog {
-      white-space: nowrap;
-      margin: 0 .25rem 0 0;
-      padding: .25rem .5rem;
-      border: 1px solid;
-      border-radius: .25rem;
-    }
-  }
-}
-
-/*
- reverse content, pin vertical scrollbar to the bottom,
-   reverses content only on immediate children
-*/
-.scroll-forward {
-  flex-direction: column-reverse;
-}
-.scroll-reverse {
-  flex-direction: column;
-}
-/*
-  placeholder, only immediate children are reversed
-*/
-.scroll-only-child {
-  width: 100%
-}
+// Stream rendering (.log, chips, source tags, scroll, search) is shared
+// with HistoricalLogs: src/styles/_log-events.scss (loaded globally).
 </style>

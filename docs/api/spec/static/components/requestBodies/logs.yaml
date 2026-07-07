@@ -19,3 +19,43 @@ LogsCreate:
           filter_is_regexp:
             description: Filter is a regular expression.
             type: boolean
+
+LogsHistory:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - files
+        properties:
+          files:
+            description: Log files to read (active + matching rotated .gz).
+            type: array
+            items:
+              type: string
+          filter:
+            description: |
+              Filter events by string (case-insensitive substring) or, with
+              filter_is_regexp, an RE2 regular expression. Maximum 256
+              characters.
+            type: string
+          filter_is_regexp:
+            description: Filter is an RE2 regular expression (no backtracking constructs).
+            type: boolean
+          cursor:
+            description: |
+              Per-filename cursor returned by a previous response. Opaque:
+              send it back verbatim to continue the read; it tracks the byte
+              position inside the source files so pages never drop lines.
+            type: object
+            additionalProperties:
+              $ref: "#/components/schemas/LogsHistoryCursor"
+          start:
+            description: Lower time bound (inclusive), ISO-8601. Defaults to now-24h when both cursor and start are absent.
+            type: string
+            format: date-time
+          end:
+            description: Upper time bound (exclusive), ISO-8601. Defaults to now+1min.
+            type: string
+            format: date-time

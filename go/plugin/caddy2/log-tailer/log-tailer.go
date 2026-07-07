@@ -22,7 +22,7 @@ import (
 const maxSessionIdleTime = 5 * time.Minute
 const defaultPollTimeout = 30 * time.Second
 
-var handledPath = regexp.MustCompile(`^/api/v1/logs/tail`)
+var handledPath = regexp.MustCompile(`^/api/v1/logs/(tail|history)`)
 
 // Register the plugin in caddy
 func init() {
@@ -95,6 +95,12 @@ func (m *LogTailerHandler) buildLogTailerHandler(ctx context.Context) error {
 	logTailerApi.GET("/:id", m.getSession)
 	logTailerApi.POST("/:id/touch", m.touchSession)
 	logTailerApi.DELETE("/:id", m.deleteSession)
+
+	// Time-window reads over the at-rest files (active + .gz rotations);
+	// stateless, no session lifecycle. See history.go.
+	logHistoryApi := router.Group("/api/v1/logs/history")
+	logHistoryApi.OPTIONS("", m.optionsHistory)
+	logHistoryApi.POST("", m.queryHistory)
 
 	m.router = router
 

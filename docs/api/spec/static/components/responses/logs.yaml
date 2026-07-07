@@ -32,3 +32,10 @@ LogsTouch:
     application/json:
       schema:
         $ref: "#/components/schemas/Message"
+
+LogsHistory:
+  description: Request successful. Response contains events within the requested window plus the advanced cursor and the truncated flag.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/LogsHistory"
