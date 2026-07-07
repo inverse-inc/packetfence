@@ -1207,8 +1207,8 @@ sub fingerbank_lookup : Public :AllowedAsAction(mac, $mac) {
 =cut
 
 sub fingerbank_process : Public {
-    my ( $class, $mac ) = @_;
-    pf::fingerbank::process($mac);
+    my ( $class, $mac, $overrides ) = @_;
+    pf::fingerbank::process($mac, undef, $overrides);
 }
 
 =head2 fingerbank_update_component

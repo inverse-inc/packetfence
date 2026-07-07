@@ -602,6 +602,78 @@ func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time
 	return err
 }
 
+// sanitizeHostname cleans a DHCP option-12 (host name) value for storage and
+// logging: some clients pad it with trailing NUL bytes or surrounding
+// whitespace.
+func sanitizeHostname(h string) string {
+	return strings.TrimSpace(strings.TrimRight(h, "\x00"))
+}
+
+// recordComputername persists the DHCP option-12 host name as the node's
+// computername and, when network.hostname_change_detection is enabled, raises
+// the internal::hostname_change security event if the host name changed from a
+// previously-stored non-empty value (possible MAC spoofing). This mirrors the
+// Perl pf::api::detect_computername_change, which PacketFence's DHCP processor
+// no longer runs for networks pfdhcp serves (it defers computername to us).
+func recordComputername(ctx context.Context, mac string, hostname string, db *sql.DB) {
+	if hostname == "" {
+		return
+	}
+
+	// Only pay for the extra read + detection when the feature is enabled
+	// (disabled by default); otherwise just persist the value cheaply.
+	netConf := pfconfigdriver.GetType[pfconfigdriver.PfConfNetwork](ctx)
+	if sharedutils.IsEnabled(netConf.HostnameChangeDetection) {
+		old := mysqlGetComputername(ctx, mac, db)
+		if old != "" && old != hostname {
+			log.LoggerWContext(ctx).Warn("Computername change detected (" + old + " -> " + hostname + ") for " + mac + ". Possible MAC spoofing.")
+			if AAAClient != nil {
+				if err := AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", "internal", "mac", mac, "tid", "hostname_change"}); err != nil {
+					log.LoggerWContext(ctx).Error("Unable to trigger hostname_change security event for " + mac + ": " + err.Error())
+				}
+			}
+		}
+	}
+
+	if err := MysqlUpdateComputername(ctx, mac, hostname, db); err != nil {
+		log.LoggerWContext(ctx).Warn("Unable to update computername for " + mac + ": " + err.Error())
+	}
+}
+
+// mysqlGetComputername returns the node's currently stored computername, or ""
+// if the node does not exist or has none.
+func mysqlGetComputername(ctx context.Context, mac string, db *sql.DB) string {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	var computername sql.NullString
+	err := db.QueryRowContext(dbCtx, "SELECT computername FROM node WHERE mac = ?", mac).Scan(&computername)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.LoggerWContext(ctx).Error("Unable to read computername for " + mac + ": " + err.Error())
+		}
+		return ""
+	}
+	return computername.String
+}
+
+// MysqlUpdateComputername records the DHCP option-12 host name as the node's
+// computername. PacketFence (this DHCP server) has the host name directly in
+// the packet it answers, so writing it here makes the machine name land
+// immediately, instead of waiting for the asynchronous Fingerbank collector to
+// aggregate it and a later re-process to persist it. The WHERE clause makes
+// this a no-op when the value is unchanged or the node row does not exist yet.
+func MysqlUpdateComputername(ctx context.Context, mac string, hostname string, db *sql.DB) error {
+	if hostname == "" {
+		return nil
+	}
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	_, err := db.ExecContext(dbCtx,
+		"UPDATE node SET computername = ? WHERE mac = ? AND (computername IS NULL OR computername != ?)",
+		hostname, mac, hostname)
+	return err
+}
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
