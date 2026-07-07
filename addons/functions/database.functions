@@ -51,7 +51,7 @@ function import_mysqldump() {
   sub_splitter
   # Detect a trigger-less dump (a pf-user mysqldump omits triggers); reapplied after import below.
   if ! egrep "CREATE.*TRIGGER.*(AFTER|BEFORE)" $dump_file > /dev/null; then
-    echo "Dump file was made without triggers and procedures"
+    echo "Dump file was made without triggers"
 
     sub_splitter
     echo "Replacing CREATE TABLE and DROP TABLE statements"
