@@ -23,7 +23,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      [ -n "$(mysql -N pf -e "SHOW TABLES LIKE 'locationlog_history';")" ] || { echo "locationlog_history missing"; exit 1; }
+      [ "$(mysql -N pf -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='pf' AND TABLE_NAME='locationlog_history';")" = 1 ] || { echo "locationlog_history missing"; exit 1; }
       c=$(mysql -N pf -e "SELECT COUNT(*) FROM locationlog_history;")
       echo "locationlog_history_rows=$c"
       [ "$c" -eq 0 ]
