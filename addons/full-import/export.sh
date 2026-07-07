@@ -66,6 +66,24 @@ if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
   echo "Exporting the triggers from the database"
   mysqldump $mariadb_args --single-transaction --no-create-info --no-data --skip-add-drop-table \
     --triggers "$db_name" > triggers.sql
+
+  # The nightly dump omits large history tables via --ignore-table, but triggers
+  # write to them (e.g. the locationlog trigger inserts into locationlog_history),
+  # so export their structure only to recreate the empty tables on import.
+  # Keep this list in sync with the --ignore-table list in backup-and-maintenance.sh;
+  # only tables that exist are dumped, so obsolete names (pre-10.3) are ignored.
+  excluded_tables="locationlog_history iplog_archive"
+  existing_excluded=""
+  for t in $excluded_tables; do
+    if [ -n "$(mysql $mariadb_args -N -B -e "SHOW TABLES LIKE '$t'" "$db_name" 2>/dev/null)" ]; then
+      existing_excluded="$existing_excluded $t"
+    fi
+  done
+  if [ -n "$existing_excluded" ]; then
+    echo "Exporting the structure of the tables excluded from the dump:$existing_excluded"
+    mysqldump $mariadb_args --no-data --skip-triggers --skip-add-drop-table \
+      "$db_name" $existing_excluded > excluded_tables_schema.sql
+  fi
 fi
 
 main_splitter

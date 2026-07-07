@@ -78,6 +78,15 @@ function import_mysqldump() {
   mysql ${mariadb_args} $db_name < $dump_file
   check_code $?
 
+  # Recreate the empty structure of tables excluded from the dump (--ignore-table)
+  # so triggers that write to them (e.g. locationlog -> locationlog_history) work.
+  if [ -f excluded_tables_schema.sql ]; then
+    sub_splitter
+    echo "Restoring structure of tables excluded from the dump"
+    sed 's/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g' excluded_tables_schema.sql | mysql ${mariadb_args} $db_name
+    check_code $?
+  fi
+
   # pf dump omits triggers: reapply from triggers.sql (new exports) or the matching schema
   # (old exports). Idempotent, so it is safe before upgrade_database patches changed triggers.
   if [ "$dump_without_triggers" = 1 ]; then
