@@ -486,10 +486,10 @@ html/captive-portal/profile-templates/default/logo.png:
 
 html/captive-portal/profile-templates/default/theme.css:
 	mkdir -p html/captive-portal/profile-templates/default
-	cp html/common/theme.css /usr/local/pf/html/captive-portal/profile-templates/default/theme.css
+	cp -n html/common/theme.css /usr/local/pf/html/captive-portal/profile-templates/default/theme.css
 
 html/captive-portal/profile-templates/default/background.png:
 	mkdir -p html/captive-portal/profile-templates/default
-	cp html/common/background.png /usr/local/pf/html/captive-portal/profile-templates/default/background.png
+	cp -n html/common/background.png /usr/local/pf/html/captive-portal/profile-templates/default/background.png
 
 
