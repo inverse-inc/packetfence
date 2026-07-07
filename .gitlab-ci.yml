@@ -30,6 +30,9 @@ variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PIPELINE_TIMEOUT_CLEANUP: 10m
+  # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
+  PIPELINE_TIMEOUT_TEARDOWN: 6m
+  PIPELINE_TIMEOUT_CLEAN: 3m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm
@@ -676,6 +679,20 @@ lint_ci_yaml:
       yamllint
       -d '{extends: relaxed, rules: {line-length: disable, truthy: disable}}'
       .gitlab-ci.yml
+  allow_failure: false
+
+# Guards that a hung log collection can't skip VM destruction during cleanup.
+test_clean_environment:
+  extends:
+    - .check_job
+  needs:
+    - job: run_pipeline_if_necessary
+      optional: true
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  rules:
+    - when: always
+  script:
+    - ${TESTCIDIR}/clean-test-environment.test.sh
   allow_failure: false
 
 ########################################
