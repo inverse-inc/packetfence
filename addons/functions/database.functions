@@ -80,11 +80,24 @@ function import_mysqldump() {
 
   # Recreate the empty structure of tables excluded from the dump (--ignore-table)
   # so triggers that write to them (e.g. locationlog -> locationlog_history) work.
+  # New exports carry excluded_tables_schema.sql; older ones don't, so fall back
+  # to the matching schema (same pattern as the trigger reapply below).
+  sub_splitter
   if [ -f excluded_tables_schema.sql ]; then
-    sub_splitter
-    echo "Restoring structure of tables excluded from the dump"
+    echo "Restoring structure of tables excluded from the dump (from export)"
     sed 's/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g' excluded_tables_schema.sql | mysql ${mariadb_args} $db_name
     check_code $?
+  else
+    schema_version=`echo "$pf_version_in_export" | egrep -o '^[0-9]+\.[0-9]+'`
+    schema_file="/usr/local/pf/db/pf-schema-$schema_version.sql"
+    [ -f "$schema_file" ] || schema_file="/usr/local/pf/db/pf-schema-X.Y.sql"
+    echo "excluded_tables_schema.sql not in export, recreating excluded tables from $schema_file"
+    # Keep this list in sync with the --ignore-table list in backup-and-maintenance.sh.
+    for t in locationlog_history iplog_archive; do
+      awk -v t="$t" 'BEGIN{p=0} $0 ~ "^CREATE TABLE (IF NOT EXISTS )?`?" t "`?[ (]" {p=1} p{print} p&&/;[[:space:]]*$/{p=0}' "$schema_file" \
+        | sed 's/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g' | mysql ${mariadb_args} $db_name
+      check_code $?
+    done
   fi
 
   # pf dump omits triggers: reapply from triggers.sql (new exports) or the matching schema
