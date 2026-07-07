@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Test::NoWarnings;
 
 use pf::UnifiedApi::Controller::Pftest;
@@ -75,6 +75,31 @@ use pf::UnifiedApi::Controller::Pftest;
 {
     my $resp = pf::UnifiedApi::Controller::Pftest::_invoke('locationlog');
     is($resp->{status}, 422, "non-allow-listed subcommand -> 422");
+}
+
+# Password redaction: a non-empty tested password must never survive in the
+# output returned to the client, even if a source echoes it. An empty
+# password is a no-op so the substitution cannot match everywhere.
+{
+    no warnings 'redefine';
+    local *pf::UnifiedApi::Controller::Pftest::_invoke = sub {
+        my (undef, undef, $pass) = @_;
+        return { status => 200, json => {
+            output     => "tried password $pass here",
+            output_raw => "\e[31mtried password $pass here\e[0m",
+            exit_code  => 0,
+        } };
+    };
+
+    my $resp = pf::UnifiedApi::Controller::Pftest::run_authentication(
+        { user => 'u', password => 'S3cr3tPass' });
+    unlike($resp->{json}{output},     qr/S3cr3tPass/, "password redacted from output");
+    unlike($resp->{json}{output_raw}, qr/S3cr3tPass/, "password redacted from output_raw");
+
+    my $empty = pf::UnifiedApi::Controller::Pftest::run_authentication(
+        { user => 'u', password => '' });
+    like($empty->{json}{output}, qr/tried password\s+here/,
+        "empty password is a no-op (output not mangled)");
 }
 
 # Rate limit: a second authentication run for the same tested user inside
