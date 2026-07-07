@@ -166,7 +166,15 @@ finalize_import() {
     configreload
 
     main_splitter
-    echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
+    if [ "$do_full_import" -eq 1 ]; then
+        echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
+    elif [ "$do_db_import" -eq 1 ]; then
+        echo "Completed import of the database! Complete any necessary adjustments and restart PacketFence"
+    elif [ "$do_config_import" -eq 1 ]; then
+        echo "Completed import of the configuration! Complete any necessary adjustments and restart PacketFence"
+    else
+        echo "Completed import! Complete any necessary adjustments and restart PacketFence"
+    fi
 
     # Done with everything, time to cleanup!
     systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
