@@ -6,10 +6,11 @@ MariaDB running and available using UNIX socket
 ## Scenario steps
 1. Create user in DB using API and seed a config marker file
 2. Backup files and DB with exportable-backup script, and check the archive
-   carries the schema, data, grants and triggers
+   carries the schema, data, grants, triggers and the excluded tables' structure
 3. Delete user in DB using API
-4. Restore the database only with `--db --restore-as-is` and check the DB
-   triggers and routines survived the restore
+4. Restore the database only with `--db --restore-as-is` and check that all
+   schema tables are present (including the excluded, now-empty
+   locationlog_history) and the DB triggers and routines survived the restore
 5. Check that the user created at first step is still here using API
 6. Restore the configuration only with `--conf --restore-as-is` and check the
    config marker is restored while the database is left untouched

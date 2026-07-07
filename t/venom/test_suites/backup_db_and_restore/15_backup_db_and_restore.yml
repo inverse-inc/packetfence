@@ -1,5 +1,35 @@
 name: Verify DB triggers and routines survived the restore
 testcases:
+# Every table defined in the reference schema must exist after the restore.
+- name: all_schema_tables_are_present
+  steps:
+  - type: exec
+    script: |
+      ver=$(egrep -o '[0-9]+\.[0-9]+\.[0-9]+' /usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+')
+      schema=/usr/local/pf/db/pf-schema-$ver.sql
+      [ -f "$schema" ] || schema=/usr/local/pf/db/pf-schema-X.Y.sql
+      missing=""
+      for t in $(grep -oE '^CREATE TABLE (IF NOT EXISTS )?`?[a-zA-Z0-9_]+`?' "$schema" | sed -E 's/^CREATE TABLE (IF NOT EXISTS )?//; s/`//g'); do
+        [ -n "$(mysql -N pf -e "SHOW TABLES LIKE '$t';")" ] || missing="$missing $t"
+      done
+      echo "schema=$schema missing_tables:$missing"
+      [ -z "$missing" ]
+    assertions:
+      - result.code ShouldEqual 0
+
+# locationlog_history is excluded from the dump; the import must recreate it
+# empty (so the locationlog trigger that writes to it works).
+- name: excluded_table_present_and_empty
+  steps:
+  - type: exec
+    script: |
+      [ -n "$(mysql -N pf -e "SHOW TABLES LIKE 'locationlog_history';")" ] || { echo "locationlog_history missing"; exit 1; }
+      c=$(mysql -N pf -e "SELECT COUNT(*) FROM locationlog_history;")
+      echo "locationlog_history_rows=$c"
+      [ "$c" -eq 0 ]
+    assertions:
+      - result.code ShouldEqual 0
+
 # Query as root: SHOW TRIGGERS / information_schema is privilege-filtered for the pf user.
 - name: password_delete_trigger_is_present
   steps:

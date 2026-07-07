@@ -22,13 +22,15 @@ testcases:
       echo "$list"
       echo "$list" | grep -q '^grants.sql$'
       echo "$list" | grep -q '^triggers.sql$'
+      echo "$list" | grep -q '^excluded_tables_schema.sql$'
       db=$(echo "$list" | grep -E '^packetfence-db-dump-.*\.sql\.gz$' | head -n 1)
       [ -n "$db" ]
       tmp=$(mktemp -d)
-      tar -xzf "$tgz" -C "$tmp" "$db" triggers.sql
+      tar -xzf "$tgz" -C "$tmp" "$db" triggers.sql excluded_tables_schema.sql
       zcat "$tmp/$db" | grep -q 'CREATE TABLE'              # schema
       zcat "$tmp/$db" | grep -q 'INSERT INTO'               # data
       grep -qiE 'CREATE .*TRIGGER' "$tmp/triggers.sql"      # triggers
+      grep -q 'locationlog_history' "$tmp/excluded_tables_schema.sql"  # excluded table structure
       rm -rf "$tmp"
     assertions:
       - result.code ShouldEqual 0
