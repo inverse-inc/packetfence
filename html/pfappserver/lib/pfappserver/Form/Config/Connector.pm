@@ -36,7 +36,7 @@ has_field 'networks' =>
 
 has_field 'networks.contains' =>
   (
-   type => 'Text',
+   type => 'CIDR',
   );
 
 has_field 'secret' =>
