@@ -404,6 +404,18 @@ server packetfence {
 			}
 		}
 
+		# Force a Message-Authenticator into non-EAP (e.g. MAB) Access-Accept
+		# replies. FreeRADIUS only adds it automatically when the request
+		# carried an EAP-Message; MAB is non-EAP, so newer NAS firmware that
+		# requires attr 80 in the accept (e.g. Juniper Junos) would otherwise
+		# reject it. 0x00 is a placeholder; radiusd computes the real HMAC-MD5
+		# at send time.
+		if (!EAP-Message) {
+			update reply {
+				Message-Authenticator := 0x00
+			}
+		}
+
 		attr_filter.packetfence_post_auth
 		linelog
 		#
