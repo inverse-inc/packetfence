@@ -699,7 +699,11 @@ chown pf /usr/local/pf/conf/ssl/server.key
 
 #Make configurable logo in default profile templates
 make html/captive-portal/profile-templates/default/logo.png
-
+#Make default theme.css in default profile templates
+make html/captive-portal/profile-templates/default/theme.css
+#Make default background in default profile templates
+make html/captive-portal/profile-templates/default/background.png
+        
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
     head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret

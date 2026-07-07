@@ -1,52 +1,37 @@
 /// _settings.colors.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// SCSS variable wrappers around CSS custom properties (runtime-switchable).
+/// IMPORTANT: Do NOT use these as arguments to Sass color functions (lighten,
+/// darken, mix, etc.) — Sass cannot evaluate CSS var() at compile time.
+/// Use raw values from _settings.packetfence.scss for compile-time color math.
 
-/**
- * Some predefined color variables
- */
+$pf-error-color:               var(--pf-error-color, #f02b1f);
+$pf-success-color:             var(--pf-success-color, #00cd63);
 
-$pf-color-error:                         #be2125;
-$pf-color-notice:                        #299144;
+$pf-text-base-color:           var(--pf-text-base-color, #2a2a2b);
+$pf-page-background-color:     var(--pf-page-background-color, #f5f5f5);
+$pf-card-background-color:     var(--pf-card-background-color, #ffffff);
+$pf-link-color:                var(--pf-link-color, #007ab8);
 
-/**
- * Color assignation to objects and components
- */
+$pf-text-heading-color:        var(--pf-text-heading-color, #002f6c);
 
-// Text color
-$pf-base-text-color:                     #555555;
+$pf-alert-background-color:    var(--pf-alert-background-color, #f5f5f5);
 
-// Background color
-$pf-background:                          #efefef;
+$pf-text-secondary-color:      var(--pf-text-secondary-color, #2a2a2b);
 
-// Frame background color
-$pf-frame-background:                    #fefefe;
+$pf-primary-color:             var(--pf-primary-color, #007ab8);
+$pf-color-primary-touch:       #0069a8;   // internal
+$pf-color-primary-disabled:    #a3a2a2;   // internal
 
-// Link color
-$pf-link-color:                          #0473b8;
+$pf-secondary-color:           var(--pf-secondary-color, #002f6c);
+$pf-color-secondary-touch:     #004a99;   // internal
+$pf-color-secondary-disabled:  #9caab3;   // internal
 
-// Media background color (alerts)
-$pf-media-background:                    #efefef;
+$pf-tertiary-color:            var(--pf-tertiary-color, #007ab8);
+$pf-color-tertiary-touch:      #0069a8;   // internal
 
-// Footer background
-$pf-footer-background-color:             transparent;
+$pf-input-background:          var(--pf-input-background, #ffffff);
 
-// Footer text color
-$pf-footer-text-color:                   $pf-base-text-color;
-
-// Primary button
-$pf-color-primary:                       #eb5b6b;
-$pf-color-primary-touch:                 #eb717f;
-$pf-color-primary-disabled:              rgb(163, 162, 162);
-
-// Secondary button
-$pf-color-secondary:                     #0473b8;
-$pf-color-secondary-touch:               #0875ba;
-$pf-color-secondary-disabled:            #9caab3;
-
-// Tertiary button
-$pf-color-tertiary:                      $pf-link-color;
-$pf-color-tertiary-touch:                #0b6397;
-
-// Input fields
-$pf-input-label:                         #828282;
-$pf-input-border:                        #ced4da;
-$pf-input-background:                    #ffffff;
+$pf-btn-disabled-text:              #707070;   // internal
+$pf-btn-primary-disabled-overlay:   #d6d5d5;   // internal
+$pf-btn-secondary-disabled-overlay: #cdd4d9;   // internal

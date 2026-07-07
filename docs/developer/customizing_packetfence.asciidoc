@@ -46,22 +46,23 @@ The template `aup_text.html` is used as the final fallback for all locales.
 Cannot use full locale in template name (`aup_text.en_US.html`); use only
 two-letter prefix.
 
-===== Logo
+===== Logo and Background Image
 
-Customize captive portal logo: go to _Configuration->Policies And Access
-Control->Connection Profiles->default->Files_. Upload logo at root of files.
-After upload, go to _Captive Portal_ section of connection profile and change
-'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
+To customize the logo or background image for a connection profile, upload the
+files via the profile's Files tab
+(_Configuration→Policies And Access Control→Connection Profiles→<profile>→Files_):
 
-Alternative: delete existing `logo.png`, upload your logo and rename to
-`logo.png`. This avoids altering 'Logo' value in connection profile.
+* *Logo*: upload a file named exactly `logo.png`. Recommended size: 330 × 75 px,
+  PNG with transparent background.
+* *Background*: upload a file named exactly `background.png`. Recommended size:
+  1920 × 1080 px, 16:9 landscape, PNG. The portal scales the image to fill the
+  viewport (`object-fit: cover`), so smaller files will be upscaled on large
+  displays. The image is only downloaded on tablet-and-wider screens; mobile
+  devices skip the fetch entirely.
 
-You can also have a different logo per connection profile. In order to do so,
-upload your logo in the appropriate connection profile, then edit it's 'Logo'
-value to be
-`/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
-
-For the best results, your logo size should be approximately 330x75 pixels.
+If a profile does not have its own file, the default connection profile's file
+is used as a fallback. No configuration fields need to be filled in — the portal
+resolves both assets automatically.
 
 ===== CSS
 
@@ -73,6 +74,45 @@ tag inside [filename]`layout.html`.
 You also need to disable Content-Security-Policy (CSP) headers on captive portal
 (see
 <<PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
+
+===== CSS Theme file
+
+PacketFence loads `theme.css` automatically on every captive portal page.
+
+The file `/usr/local/pf/html/common/theme.css` ships with PacketFence and contains
+all `--pf-*` CSS custom properties commented out — it is a no-op until customised.
+During installation it is copied to the *default* connection profile at
+`/usr/local/pf/html/captive-portal/profile-templates/default/theme.css`,
+which serves as the starting point for all theming.
+
+Asset resolution order at runtime:
+
+. The connection profile's own `theme.css`, if one has been uploaded via its Files tab.
+. The *default* profile's `theme.css` — inherited automatically by all profiles that do not have their own file.
++
+If neither file exists, no theme stylesheet is loaded.
+
+To apply a site-wide custom theme, upload a `theme.css` to the *default*
+connection profile's Files tab
+(_Configuration→Policies And Access Control→Connection Profiles→default→Files_).
+All other profiles will inherit it automatically.
+
+To override theming for a specific profile, upload a `theme.css` to that
+profile's Files tab — it takes priority over the default profile's file.
+
+Uncomment and set the variables you want to override:
+
+[source,css]
+----
+:root {
+  --pf-primary-color:   #e63000;
+  --pf-secondary-color: #8c1c00;
+}
+----
+
+No restart is required — changes take effect on the next page load.
+All available `--pf-*` variables are documented inside
+`/usr/local/pf/html/common/theme.css`.
 
 ===== Workflow
 

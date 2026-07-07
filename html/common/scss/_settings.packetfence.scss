@@ -1,13 +1,88 @@
 /// _settings.packetfence.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// PacketFence captive portal — layout constants and theme token values.
+/// Imported by styles.scss before _settings.theme.scss.
 
-// Border radius of buttons and frames
+// ── Layout ────────────────────────────────────────────────────────────────────
+
 $pf-border-radius:           8px;
-
-// Buttons shadow
-$pf-btn-box-shadow:          0px 1px 3px 0px rgba(0,0,0,0.2);
-
-// Fixed header height
+$pf-btn-box-shadow:          none;
 $pf-header-height:           60px;
-
-// Fixed header height ratio for bigger screens
 $pf-header-tablet-ratio:     1.2;
+
+
+// ── Theme — light palette ─────────────────────────────────────────────────────
+
+$pf-error-color:               #f02b1f;
+$pf-success-color:             #00cd63;
+
+$pf-page-background-color:     #f5f5f5;
+$pf-card-background-color:     #ffffff;
+$pf-frame-border-color:        #d4d4d4;  // internal fallback for color-mix()
+$pf-alert-background-color:    #f5f5f5;
+$pf-media-border-color:        #d2d2d2;  // internal fallback for color-mix()
+$pf-divider-color:             #c2c2c2;
+
+$pf-notice-background:         mix($pf-success-color, $pf-card-background-color, 12%);
+$pf-error-background:          mix($pf-error-color,   $pf-card-background-color, 12%);
+
+$pf-text-base-color:           #2a2a2b;
+$pf-link-color:                #007ab8;
+$pf-text-heading-color:        #002f6c;
+$pf-text-secondary-color:      #2a2a2b;
+
+$pf-primary-color:             #007ab8;
+$pf-color-primary-touch:       #0069a8;
+$pf-color-primary-disabled:    #a3a2a2;
+
+$pf-secondary-color:           #002f6c;
+$pf-color-secondary-touch:     #004a99;
+$pf-color-secondary-disabled:  #9caab3;
+
+$pf-btn-disabled-text:              #707070;
+$pf-btn-primary-disabled-overlay:   #d6d5d5;  // primary-disabled (#a3a2a2) + 40% white
+$pf-btn-secondary-disabled-overlay: #cdd4d9;  // secondary-disabled (#9caab3) + 40% white
+
+$pf-tertiary-color:            #007ab8;
+$pf-color-tertiary-touch:      #0069a8;
+
+$pf-input-background:          #ffffff;
+$pf-focus-ring-color:          #c2dff0;
+
+$pf-logo-filter:               none;
+
+
+// ── Theme — dark palette ──────────────────────────────────────────────────────
+
+$pf-dark-error-color:              #f87171;
+$pf-dark-success-color:            #4ade80;
+
+$pf-dark-page-background-color:    #0c0e1b;
+$pf-dark-card-background-color:    #181a2c;
+$pf-dark-frame-border-color:       #2c2f43;  // internal fallback for color-mix()
+$pf-dark-alert-background-color:   #20223a;
+$pf-dark-media-border-color:       #4c5080;  // internal fallback for color-mix()
+$pf-dark-divider-color:            #2e3054;
+$pf-dark-notice-background:        mix($pf-dark-success-color, $pf-dark-card-background-color, 15%);
+$pf-dark-error-background:         mix($pf-dark-error-color,   $pf-dark-card-background-color, 15%);
+
+$pf-dark-text-base-color:          #f5f5f5;
+$pf-dark-link-color:               #60baff;
+$pf-dark-text-heading-color:       #60baff;
+$pf-dark-text-secondary-color:     #9ca3b4;
+
+$pf-dark-color-primary-disabled:   #666680;
+
+$pf-dark-secondary-color:          #1878bd;
+$pf-dark-secondary-touch:          #1268a8;
+$pf-dark-secondary-disabled:       #5070a0;
+
+$pf-dark-btn-disabled-text:              #d8d8f0;
+$pf-dark-btn-primary-disabled-overlay:   #9494a6;  // primary-disabled-dark (#666680) + 30% white
+$pf-dark-btn-secondary-disabled-overlay: #859abd;  // secondary-disabled-dark (#5070a0) + 30% white
+
+$pf-dark-logo-filter:              brightness(0) invert(1);
+
+$pf-dark-input-label:              #a9a7ad;
+$pf-dark-input-background:         #20223a;
+$pf-dark-focus-ring-color:         #1a5a80;

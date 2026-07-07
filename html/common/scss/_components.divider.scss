@@ -1,9 +1,9 @@
 /// _components.divider.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// Note: the original code used lighten($pf-base-text-color, 50%), but Sass
+/// color functions cannot operate on CSS custom property strings. The derived
+/// color is defined in _settings.packetfence.scss and exposed as --pf-divider-color
 
 .c-divider {
-  border-top: 1px solid lighten($pf-base-text-color, 50%);
-}
-
-footer .c-divider {
-  border-color: lighten($pf-footer-text-color, 50%);
+  border-top: 1px solid var(--pf-divider-color);
 }

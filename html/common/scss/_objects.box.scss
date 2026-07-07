@@ -21,24 +21,18 @@ $pf-box-width--small: $inuit-global-line-height * 2;
 }
 
 .o-box--inverted {
-  background-color: $pf-background;
+  background-color: $pf-page-background-color;
 }
 
 .o-box--highlight {
-  border-left: 8px solid $pf-color-primary;
+  border-left: 8px solid $pf-primary-color;
   > .layout {
     transform: translateX(-8px);
   }
 }
 
 .o-box--overlook {
-  background-color: $pf-background;
-  background-image: repeating-linear-gradient(-45deg,
-                                              $pf-background,
-                                              $pf-background 2px,
-                                              transparent 2px,
-                                              transparent 4px);
-  opacity: 0.7;
+  background-color: $pf-page-background-color;
 }
 
 .o-box--overlap {

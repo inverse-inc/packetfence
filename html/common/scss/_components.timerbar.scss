@@ -1,18 +1,26 @@
 /// _components.timerbar.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// Track background uses a three-tier cascade — see _components.frame.scss for rationale.
 
 .c-timerbar {
   height: 15px;
   width: 100%;
-  background-color: lightgrey;
+  background-color: #{$pf-media-border-color};                                                        // [1] IE
+  background-color: var(--pf-media-border-color, #{$pf-media-border-color});                         // [2] no color-mix()
+  background-color: color-mix(in oklch, var(--pf-alert-background-color) 80%, CanvasText);           // [3] modern
+  border-radius: $pf-border-radius;
+  overflow: hidden;
+
   [class|=loaded] {
     height: 15px;
     width: 0;
-    background-color: gray;
+    background-color: $pf-secondary-color;
+    background-color: var(--pf-secondary-color, #{$pf-secondary-color});
     transition: width 500ms ease-out;
   }
 
   $i: 0;
-  @while $i <= 100 { // number of 15-minutes blocks in a day
+  @while $i <= 100 {
     .loaded-#{$i} {
       width: $i * 1%;
     }

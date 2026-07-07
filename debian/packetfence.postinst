@@ -72,6 +72,10 @@ case "$1" in
 
         #Make configurable logo in default profile templates
         make html/captive-portal/profile-templates/default/logo.png
+        #Make default theme.css in default profile templates
+        make html/captive-portal/profile-templates/default/theme.css
+        #Make default background in default profile templates
+        make html/captive-portal/profile-templates/default/background.png
 
         # Stop packetfence-config during upgrade process to ensure
         # it is started with latest code

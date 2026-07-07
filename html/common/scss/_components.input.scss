@@ -3,6 +3,8 @@
 .input-checkbox-container {
   label {
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     display: inline-block;
     margin-left: $inuit-global-spacing-unit-small;
     vertical-align: middle;
@@ -29,10 +31,10 @@
   label {
     cursor: pointer;
     display: block;
-    color: $pf-input-label;
-    font-weight: 600;
-    font-size: 75%;
-    text-transform: uppercase;
+    color: $pf-text-base-color;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: $inuit-global-spacing-unit-tiny;
   }
 
   label.radio {
@@ -45,25 +47,33 @@
   }
 
   input:not([type=radio]), select {
-    border: 2px solid $pf-input-border;
-    border-radius: .25rem;
+    border: 1px solid var(--pf-primary-color);
+    border-radius: var(--pf-border-radius);
     background-color: $pf-input-background;
+    color: $pf-text-base-color;
     padding: $inuit-global-spacing-unit-small;
-    transition: border-color 0.15s linear;
     width: 100%;
     -webkit-appearance: none;
 
+    &::placeholder {
+      color: var(--pf-text-secondary-color);
+    }
+
     &:focus {
       outline: none;
+      border-color: $pf-primary-color;
+      box-shadow: 0 0 0 3px #{$pf-focus-ring-color};                                     // [1] IE
+      box-shadow: 0 0 0 3px var(--pf-focus-ring-color);                                  // [2] no color-mix()
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--pf-primary-color) 30%, Canvas);   // [3] modern
     }
   }
 
   .error {
     input, select {
-      border-color: $pf-color-error;
+      border-color: $pf-error-color;
     }
     .error_message {
-      color: $pf-color-error;
+      color: $pf-error-color;
       font-size: 80%;
     }
   }
@@ -81,7 +91,7 @@
       right: 0; top: 0; bottom: 0;
       border-radius: 5px;
       margin: 1em;
-      background-color: $pf-color-secondary;
+      background-color: $pf-secondary-color;
       color: #fff;
       line-height: $inuit-global-line-height * 2/3;
       text-transform: uppercase;
@@ -90,7 +100,7 @@
   }
 
   select {
-    background-color: white;
+    // background-color inherited from the shared input rule above ($pf-input-background)
     height: $spacing-unit + $inuit-global-font-size * 1.2;
   }
 }
