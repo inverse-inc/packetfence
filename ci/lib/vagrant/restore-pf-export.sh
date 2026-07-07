@@ -8,6 +8,7 @@ set -o nounset -o pipefail -o errexit
 #
 # Required env vars:
 #   CI_PIPELINE_ID
+#   PF_EXPORT_ARCH           deb12 | el8 (must match the export key suffix)
 #   RCLONE_LINODE_URL
 #   RCLONE_ACCESS_KEY_ID
 #   RCLONE_SECRET_ACCESS_KEY
