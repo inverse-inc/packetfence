@@ -69,7 +69,7 @@ function import_mysqldump() {
 
     dump_without_triggers=1
   else
-    echo "Dump file includes triggers and procedures"
+    echo "Dump file includes triggers"
     dump_without_triggers=0
   fi
 
