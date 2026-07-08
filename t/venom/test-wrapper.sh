@@ -475,10 +475,34 @@ destroy() {
             virsh vol-delete --pool "${pool}" "${vol}" || true
         done
     done
+    # Backstop: catch PF + node VMs the prefix sweep missed (domain name not
+    # matching the prefix), by UUID from this job's dotfiles, before those
+    # dotfiles are deleted below.
+    purge_job_domains
     cleanup_baked_boxes
     delete_dir_if_exists "${VAGRANT_PF_DOTFILE_PATH}"
     delete_dir_if_exists "${VAGRANT_COMMON_DOTFILE_PATH}"
     delete_ansible_files
+}
+
+# vagrant destroy only removes VMs it still tracks; one left by a failed `up`
+# (--no-destroy-on-error) or an out-of-sync index survives it. Force-remove
+# every domain recorded under this job's dotfile paths, with its storage —
+# scoped by the UUIDs vagrant wrote, so parallel jobs on the runner are safe.
+purge_job_domains() {
+    log_subsection "Force-remove leftover domains tracked by this job"
+    local dotfile id_file uuid
+    for dotfile in "${VAGRANT_PF_DOTFILE_PATH}" "${VAGRANT_COMMON_DOTFILE_PATH}"; do
+        [ -d "${dotfile}/machines" ] || continue
+        while IFS= read -r id_file; do
+            uuid=$(cat "${id_file}" 2>/dev/null) || continue
+            [ -n "${uuid}" ] || continue
+            virsh domstate "${uuid}" >/dev/null 2>&1 || continue
+            echo "Removing leftover domain ${uuid} (${id_file})"
+            virsh destroy "${uuid}" || true
+            virsh undefine "${uuid}" --remove-all-storage --nvram || true
+        done < <(find "${dotfile}/machines" -type f -path '*/libvirt/id' 2>/dev/null)
+    done
 }
 
 # Drop this pipeline's baked vagrant-box record (~5GB in ~/.vagrant.d/boxes/)
