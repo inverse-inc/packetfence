@@ -39,6 +39,31 @@
       when: ansible_os_family == 'Debian'
       failed_when: False
 
-    - name: Reload PacketFence configuration so daemons re-bind to interfaces
+    # Box booted into multi-user (no PF) so vagrant could get eth0's lease. Now
+    # reachable — bring PF up: base first (for pfcmd), clear the stale bake-time
+    # cache, reload config, then start services. default stays multi-user.
+    - name: Start PacketFence base services (mariadb, redis, pfconfig)
+      ansible.builtin.command: systemctl isolate packetfence-base.target
+      changed_when: True
+
+    - name: Clear stale pfconfig backend cache from bake time
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd pfconfig clear_backend
+      changed_when: True
+
+    - name: Reload PacketFence configuration from disk
       ansible.builtin.command: /usr/local/pf/bin/pfcmd configreload hard
       changed_when: True
+
+    - name: Start all PacketFence services
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
+      changed_when: True
+
+    - name: Report PacketFence service status
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf status
+      register: pf_status
+      changed_when: False
+      failed_when: False
+
+    - name: Show PacketFence service status
+      ansible.builtin.debug:
+        var: pf_status.stdout_lines
