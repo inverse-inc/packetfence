@@ -1,0 +1,41 @@
+name: First server — bootstrap galera (force-new-cluster)
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Database setup / First server":
+# regenerate the mariadb config from cluster.conf + [active_active], then
+# start the very first node with --force-new-cluster so it forms the cluster.
+- name: stop_mariadb
+  steps:
+  - type: exec
+    script: 'systemctl stop packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: generate_mariadb_config
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd generatemariadbconfig'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: set_force_new_cluster
+  steps:
+  - type: exec
+    script: 'systemctl set-environment MARIADB_ARGS=--force-new-cluster'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: start_mariadb_force_new_cluster
+  steps:
+  - type: exec
+    script: 'systemctl start packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: mariadb_active
+  steps:
+  - type: exec
+    script: 'systemctl is-active packetfence-mariadb'
+    retry: 18
+    delay: 10
+    assertions:
+      - result.systemout ShouldEqual active

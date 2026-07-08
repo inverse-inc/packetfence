@@ -1,0 +1,44 @@
+name: Wrap up — updatesystemd + restart PacketFence
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Wrapping up": regenerate the systemd
+# units for the cluster target and restart PacketFence. This is what brings
+# the cluster services (keepalived, radiusd-loadbalancer) up on every node.
+# The play runs serial:1 (run_tests.yml) so nodes restart one at a time and
+# galera keeps quorum — the doc's per-node reboot, minus the reboot.
+- name: updatesystemd
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service pf updatesystemd'
+    assertions:
+      - result.code ShouldEqual 0
+
+# docs "Enable PacketFence clustering services at boot (all servers)": every
+# node must default to packetfence-cluster.target so cluster-only services
+# (radiusd-load_balancer et al.) come back after the rolling reboot. first_server
+# sets this on pf1 only; joiners need it too or they boot without those services.
+- name: set_default_cluster_target
+  steps:
+  - type: exec
+    script: 'systemctl set-default packetfence-cluster'
+    assertions:
+      - result.code ShouldEqual 0
+
+# DB-dependent services can fail during bootstrap (DB not ready) and trip
+# systemd start-limits, leaving them dead even once the cluster is healthy.
+# The doc's final rolling reboot would clear this; since we skip reboots,
+# reset the failed state so the restart below can start them.
+- name: reset_failed_units
+  steps:
+  - type: exec
+    script: 'systemctl reset-failed "packetfence-*" || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: restart_pf
+  steps:
+  - type: exec
+    # timeout guards against an indefinite hang if a DB-dependent service
+    # blocks during restart (observed wedging pfcmd for >1h).
+    script: 'timeout -k 30 1200 /usr/local/pf/bin/pfcmd service pf restart || true'
+    assertions:
+      - result.code ShouldEqual 0

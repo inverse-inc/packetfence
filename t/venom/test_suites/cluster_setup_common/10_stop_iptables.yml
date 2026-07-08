@@ -1,0 +1,26 @@
+name: Stop iptables and crash-looping services (all nodes)
+testcases:
+# doc "Stop iptables (all servers)"; it also crash-loops pre-configuration
+# (get_inline_snat_interface FATALs while no mgmt interface is defined)
+- name: stop_iptables
+  steps:
+  - type: exec
+    script: 'systemctl stop packetfence-iptables || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+# unconfigured PF units (pfcron, radiusd, pfdhcp, ip6tables...) restart-loop
+# from boot and eat the runner; stop only failed/auto-restarting units —
+# healthy ones the configurator needs stay up. Later phases start them all.
+- name: stop_crashlooping_units
+  steps:
+  - type: exec
+    script: |
+      for i in 1 2 3; do
+        systemctl list-units 'packetfence-*' --state=failed,activating --no-legend --plain \
+          | awk '{print $1}' | xargs -r systemctl stop
+        sleep 2
+      done
+      systemctl reset-failed 'packetfence-*' || true
+    assertions:
+      - result.code ShouldEqual 0

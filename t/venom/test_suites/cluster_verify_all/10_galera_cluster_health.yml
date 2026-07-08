@@ -1,0 +1,33 @@
+name: Galera cluster health (wsrep status)
+testcases:
+- name: cluster_size_is_three
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_cluster_size''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual 3
+      - result.code ShouldEqual 0
+
+- name: cluster_status_primary
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_cluster_status''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual Primary
+      - result.code ShouldEqual 0
+
+- name: wsrep_ready
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_ready''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual ON
+      - result.code ShouldEqual 0
+
+- name: wsrep_connected
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_connected''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual ON
+      - result.code ShouldEqual 0

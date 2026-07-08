@@ -1,0 +1,207 @@
+---
+# Cluster scenario plays follow the documented bring-up
+# (docs/cluster/cluster_setup.asciidoc), each phase on the right node group:
+#   0) detect      — is a healthy galera cluster already present?
+#   1) common setup — sysctl + db tools + stop looping services, every node
+#   1b) quiesce joiners — PF stopped on pf2/pf3 until integration
+#   2) first server — configurator + cluster bootstrap (pf1), force-new-cluster
+#   3) joining servers — cluster/sync + mariadb join (pf2, pf3)
+#   4) first server finalize — mariadb normal restart + galera-autofix
+#   5) wrap up on all — updatesystemd + restart (serial)
+#   6) rolling reboot — reboot each node one at a time (doc's final step)
+#   7) verify on all  — assert cluster health on every node
+#
+# The bring-up plays (1-5) are DESTRUCTIVE and not safe to re-run on a live
+# cluster (force-new-cluster re-bootstrap, mysql datadir flush). Play 0 detects
+# an already-healthy cluster and gates plays 1-5 off so re-runs go straight to
+# verify. Play 6 always runs.
+
+# Host patterns use globs (not group slicing) because slicing
+# (`pfservers[0]`/`[1:]`) evaluates against the unlimited inventory
+# *before* --limit applies — verified to misroute pf1 into the
+# joiners play on 2026-06-25. The Makefile cluster_* targets pass
+# --limit pf{1,2,3}<os><flavor> so these globs intersect to the
+# correct single/pair/triple.
+
+- hosts: 'pf[123]*dev'
+  name: Cluster — detect existing cluster
+  become: True
+
+  tasks:
+    # A node is "already clustered" when galera reports size 3 and Synced.
+    # failed_when:false so a stopped/standalone mariadb just yields empty
+    # output (-> not healthy -> bring-up runs).
+    - name: Query galera cluster size
+      shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_cluster_size'\" | awk '{print $2}'"
+      register: wsrep_size
+      changed_when: false
+      failed_when: false
+
+    - name: Query galera local state
+      shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk '{print $2}'"
+      register: wsrep_state
+      changed_when: false
+      failed_when: false
+
+    - name: Decide whether the cluster is already healthy
+      set_fact:
+        cluster_already_healthy: "{{ wsrep_size.stdout == '3' and wsrep_state.stdout == 'Synced' }}"
+
+    - name: Report bring-up decision
+      debug:
+        msg: "cluster_already_healthy={{ cluster_already_healthy }} (size={{ wsrep_size.stdout }}, state={{ wsrep_state.stdout }}) -> bring-up {{ 'SKIPPED' if cluster_already_healthy else 'will run' }}"
+
+- hosts: 'pf[123]*dev'
+  name: Cluster — common setup (all nodes)
+  become: True
+
+  vars:
+    test_suites:
+      - cluster_setup_common
+
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: not (cluster_already_healthy | default(false))
+
+# doc: joiners integrate with PF services stopped (incl. mariadb); also frees
+# the runner while pf1 runs configurator + first-server.
+- hosts: 'pf2*dev:pf3*dev'
+  name: Cluster — quiesce joining servers until integration
+  become: True
+
+  tasks:
+    - name: Stop PacketFence services until join
+      shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
+      when: not (cluster_already_healthy | default(false))
+
+    - name: Reset failed PF units
+      shell: "systemctl reset-failed 'packetfence-*' || true"
+      when: not (cluster_already_healthy | default(false))
+
+- hosts: 'pf1*dev'
+  name: Cluster — first server setup
+  become: True
+  collections:
+    - inverse_inc.packetfence
+
+  tasks:
+    # configurator disables itself at the end of its suite, so on a re-run
+    # (pf1 already configured) every configurator API call returns 401.
+    # Same guard as inline_l2_and_radius: run the configurator suite only
+    # when it's still enabled; cluster_first_server always runs.
+    - name: Check configurator state
+      uri:
+        url: "https://{{ packetfence_install__mgmt_interface['ip'] }}:1443/api/v1/configurator/config/interfaces"
+        method: GET
+        follow_redirects: safe
+        validate_certs: no
+        return_content: yes
+        status_code:
+          - 200 # configurator enabled
+          - 401 # configurator disabled
+      register: configurator_state_register
+      when: not (cluster_already_healthy | default(false))
+
+    - import_tasks: run_venom_suites.yml
+      vars:
+        test_suites: >-
+          {{ (['configurator'] if (configurator_state_register.status | default(0)) == 200 else [])
+             + ['cluster_first_server'] }}
+      when: not (cluster_already_healthy | default(false))
+
+- hosts: 'pf2*dev:pf3*dev'
+  name: Cluster — joining servers
+  become: True
+
+  vars:
+    test_suites:
+      - cluster_joining_servers
+
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: not (cluster_already_healthy | default(false))
+
+- hosts: 'pf1*dev'
+  name: Cluster — first server finalize
+  become: True
+
+  vars:
+    test_suites:
+      - cluster_first_server_finalize
+
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: not (cluster_already_healthy | default(false))
+
+- hosts: 'pf[123]*dev'
+  name: Cluster — wrap up on all nodes
+  become: True
+  # one node at a time so the pf restart keeps galera quorum (doc's per-node
+  # reboot intent, minus the reboot).
+  serial: 1
+
+  vars:
+    test_suites:
+      - cluster_wrapup
+
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: not (cluster_already_healthy | default(false))
+
+- hosts: 'pf[123]*dev'
+  name: Cluster — rolling reboot (one node at a time)
+  become: True
+  # docs/cluster/cluster_setup.asciidoc "Wrapping up": reboot each server one
+  # by one, waiting for it to come back before the next. The reboot is what
+  # boots every node into the packetfence-cluster target with cluster mode
+  # fully active — starts cluster-only services and re-syncs pfconfig.
+  # serial:1 keeps galera quorum (only one node down at a time).
+  serial: 1
+
+  tasks:
+    # Stop PF first so galera closes cleanly (rejoin without SST); the graceful
+    # shutdown otherwise deadlocks systemd's reboot on deb12.
+    - name: Stop PacketFence before reboot
+      shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
+      when: not (cluster_already_healthy | default(false))
+
+    - name: Reboot the node and wait for it to come back
+      reboot:
+        reboot_timeout: 600
+        post_reboot_delay: 30
+        # force bypasses the deb12 graceful-shutdown deadlock
+        reboot_command: "systemctl reboot --force"
+      when: not (cluster_already_healthy | default(false))
+
+    # SSH comes back well before the boot transaction finishes; the last units
+    # (docker-wrapped radiusd-load_balancer et al.) can start minutes later and
+    # race the verify play (seen on pf3: active 35s after verify gave up).
+    # degraded = startup done with some failed units; verify judges those.
+    - name: Wait for the boot transaction to settle
+      command: timeout 600 systemctl is-system-running --wait
+      register: boot_settled
+      changed_when: false
+      failed_when: boot_settled.stdout not in ['running', 'degraded']
+      when: not (cluster_already_healthy | default(false))
+
+    # Don't move to the next node until galera has re-Synced here (doc:
+    # "ensure the database sync is fine" after each reboot).
+    - name: Wait for galera to re-Sync after reboot
+      shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk '{print $2}'"
+      register: wsrep_after_reboot
+      changed_when: false
+      until: wsrep_after_reboot.stdout == 'Synced'
+      retries: 40
+      delay: 15
+      when: not (cluster_already_healthy | default(false))
+
+- hosts: 'pf[123]*dev'
+  name: Cluster — verify on all nodes
+  become: True
+
+  vars:
+    test_suites:
+      - cluster_verify_all
+
+  tasks:
+    - import_tasks: run_venom_suites.yml

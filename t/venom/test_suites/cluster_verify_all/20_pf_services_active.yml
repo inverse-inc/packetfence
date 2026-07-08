@@ -1,0 +1,34 @@
+name: PacketFence cluster services active
+testcases:
+# Real PF systemd unit names (all packetfence-* prefixed). radiusd uses an
+# underscore: packetfence-radiusd-load_balancer. Each check retries so a
+# service still settling after the wrapup restart doesn't flake the assertion.
+- name: packetfence_mariadb_active
+  steps:
+  - type: exec
+    script: 'systemctl is-active packetfence-mariadb'
+    retry: 6
+    delay: 10
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
+
+- name: keepalived_active
+  steps:
+  - type: exec
+    script: 'systemctl is-active packetfence-keepalived'
+    retry: 6
+    delay: 10
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
+
+- name: radiusd_loadbalancer_active
+  steps:
+  - type: exec
+    script: 'systemctl is-active packetfence-radiusd-load_balancer'
+    retry: 6
+    delay: 10
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0

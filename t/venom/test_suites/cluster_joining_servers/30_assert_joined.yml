@@ -1,0 +1,26 @@
+name: Joining servers — assert joined the cluster
+testcases:
+# After SST the node reports the documented log line; we assert the wsrep
+# state directly (more robust than scraping systemd status). SST can take a
+# while, so poll generously.
+- name: wait_wsrep_synced
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_local_state_comment''" | awk "{print \$2}"'
+    retry: 40
+    delay: 15
+    assertions:
+      - result.systemout ShouldEqual Synced
+      - result.code ShouldEqual 0
+
+# Both joiners + pf1 = 3. Retry because the two joiners converge
+# independently (this node may be Synced before the other has joined).
+- name: cluster_size_is_three
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_cluster_size''" | awk "{print \$2}"'
+    retry: 30
+    delay: 15
+    assertions:
+      - result.systemout ShouldEqual 3
+      - result.code ShouldEqual 0

@@ -1,0 +1,34 @@
+name: Cluster common setup (all nodes)
+testcases:
+# docs/cluster/cluster_setup.asciidoc "sysctl.conf": allow services to bind
+# on non-local IPs (fast VIP failover) and disable IPv6. Applied live with
+# `sysctl -p` — reboot is skipped on purpose for CI stability.
+- name: sysctl_nonlocal_bind_and_disable_ipv6
+  steps:
+  - type: exec
+    script: |
+      set -e
+      grep -q '^net.ipv4.ip_nonlocal_bind' /etc/sysctl.conf || \
+        echo 'net.ipv4.ip_nonlocal_bind = 1' >> /etc/sysctl.conf
+      grep -q '^net.ipv6.conf.all.disable_ipv6' /etc/sysctl.conf || \
+        echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf
+      sysctl -p
+    assertions:
+      - result.code ShouldEqual 0
+
+# docs/cluster/cluster_setup.asciidoc "Install the database replication tools":
+# Mariabackup (+ socat) is required for galera SST. Idempotent on re-runs.
+- name: install_db_replication_tools
+  steps:
+  - type: exec
+    script: |
+      set -e
+      if command -v apt-get >/dev/null 2>&1; then
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update
+        apt-get -y install mariadb-backup socat
+      else
+        yum install -y MariaDB-backup socat --enablerepo=packetfence
+      fi
+    assertions:
+      - result.code ShouldEqual 0
