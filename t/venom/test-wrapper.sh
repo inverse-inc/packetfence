@@ -14,6 +14,16 @@ log_subsection() {
    printf "=\t%s\n" "" "$@" ""
 }
 
+# timestamped wall-clock per phase, so slow bring-up stages show in the log
+time_phase() {
+    local label=$1; shift
+    local start=$(date +%s)
+    echo "[$(date '+%F %T')] ${label}: start"
+    "$@"
+    local secs=$(( $(date +%s) - start ))
+    echo "[$(date '+%F %T')] ${label}: done in $((secs/60))m$((secs%60))s"
+}
+
 delete_dir_if_exists() {
     local dir=${1}
     if [ -d "${dir}" ]; then
@@ -61,6 +71,7 @@ configure_and_check() {
     # Vagrant
     VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
     VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
+    # serial boots: parallel volume imports thrash the runner's disk
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
     VAGRANT_DIR=$(readlink -e ../../addons/vagrant)
     VAGRANT_PF_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
@@ -149,16 +160,30 @@ run_ansible_galaxy() {
     done
 }
 
+# force-install each requirements file once per run instead of once per VM
+declare -A GALAXY_DONE
+run_ansible_galaxy_once() {
+    local req_file=$1
+    if [ -z "${GALAXY_DONE[${req_file}]:-}" ]; then
+        # cd first: collections/roles paths in the local ansible.cfg are relative to CWD
+        ( cd $(dirname ${req_file}) ; run_ansible_galaxy ${req_file} force )
+        GALAXY_DONE[${req_file}]=1
+    fi
+}
+
 run() {
+    local run_start=$(date +%s)
     check_free_space
     log_section "Tests"
-    start_and_provision_pf_vm ${PF_VM_NAMES}
+    time_phase "Start and provision PF VMs" start_and_provision_pf_vm ${PF_VM_NAMES}
     if [ -n "${INT_TEST_VM_NAMES}" ]; then
-        start_and_provision_other_vm ${INT_TEST_VM_NAMES}
+        time_phase "Start and provision other VMs" start_and_provision_other_vm ${INT_TEST_VM_NAMES}
     else
         log_subsection "No additional VM to start and provision"
     fi
-    run_tests
+    time_phase "Run scenarios: ${SCENARIOS_TO_RUN}" run_tests
+    local total=$(( $(date +%s) - run_start ))
+    log_section "Full run took $((total/60))m$((total%60))s"
 }
 
 # The Linode box bucket is private, so Vagrant can't fetch our boxes from box_url
@@ -204,32 +229,44 @@ PY
     BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
 }
 
+# start via libvirt without waiting; callers poll readiness with wait_for_ssh
+start_existing_vm() {
+    local vm=$1
+    local dotfile_path=$2
+    machine_uuid=$(cat ${dotfile_path}/machines/${vm}/libvirt/id)
+    machine_state=$(virsh -c qemu:///system domstate --domain $machine_uuid)
+    if [ "${machine_state}" = "shut off" ]; then
+        echo "Starting $vm using libvirt"
+        virsh -c qemu:///system start --domain $machine_uuid
+    else
+        echo "Machine already started"
+    fi
+}
+
+# wait for SSH and default route (mgmt SSH answers before eth0 DHCP is done)
+wait_for_ssh() {
+    local vm_list=${1// /,}
+    ( cd ${VAGRANT_DIR} ; \
+      ansible -m wait_for_connection -a "timeout=300" ${vm_list} ; \
+      ansible -m shell -a "timeout 120 bash -c 'until ip -4 route list default | grep -q .; do sleep 2; done'" ${vm_list} )
+}
+
 # Start with or without VM
 start_vm() {
     local vm=$1
     local dotfile_path=$2
     declare -p dotfile_path
+    run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
     if [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ]; then
         echo "Machine $vm already exists"
-        machine_uuid=$(cat ${dotfile_path}/machines/${vm}/libvirt/id)
-        machine_state=$(virsh -c qemu:///system domstate --domain $machine_uuid)
-        if [ "${machine_state}" = "shut off" ]; then
-            echo "Starting $vm using libvirt, provisioning using Ansible (without Vagrant)"
-            virsh -c qemu:///system start --domain $machine_uuid
-            # let time for the VM to boot before using ansible
-            echo "Let time to VM to start before provisioning using Ansible.."
-            sleep 60
-        else
-            echo "Machine already started, Ansible provisioning only"
-        fi
+        start_existing_vm ${vm} ${dotfile_path}
+        wait_for_ssh ${vm}
         ( cd ${VAGRANT_DIR}; \
-          run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           ansible-playbook site.yml -l $vm )
     else
-        echo "Machine $vm doesn't exist, start and provision with Vagrant"
+        echo "Machine $vm doesn't exist, start with Vagrant"
         prefetch_private_box ${vm}
         ( cd ${VAGRANT_DIR} ; \
-          run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           VAGRANT_DOTFILE_PATH=${dotfile_path} \
                   vagrant up \
                   ${vm} \
@@ -240,9 +277,33 @@ start_vm() {
 start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision PacketFence $vm_names"
+    run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
+    # boot all nodes first (one parallel vagrant up for the missing ones), then
+    # wait for SSH on all and install PacketFence in a single ansible run
+    local new_vms=""
     for vm in ${vm_names}; do
-        start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
+        if [ -e "${VAGRANT_PF_DOTFILE_PATH}/machines/${vm}/libvirt/id" ]; then
+            echo "Machine $vm already exists"
+            start_existing_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
+        else
+            echo "Machine $vm doesn't exist, will start with Vagrant"
+            prefetch_private_box ${vm}
+            new_vms="${new_vms} ${vm}"
+        fi
     done
+    if [ -n "${new_vms}" ]; then
+        ( cd ${VAGRANT_DIR} ; \
+          VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} \
+                  vagrant up \
+                  ${new_vms} \
+                  ${VAGRANT_UP_OPTS} --no-provision 2>&1 | filter_vagrant_progress )
+    fi
+    log_subsection "Wait for SSH on: $vm_names"
+    wait_for_ssh "${vm_names}"
+    local ansible_list=${vm_names// /,}
+    log_subsection "Install PacketFence in parallel on: $vm_names"
+    ( cd ${VAGRANT_DIR} ; \
+      ansible-playbook site.yml -l "${ansible_list}" )
 }
 
 start_and_provision_other_vm() {
@@ -261,7 +322,7 @@ start_and_provision_other_vm() {
 run_tests() {
     log_subsection "Configure VM for tests and run tests"
     # install roles and collections in VENOM_ROOT_DIR
-    run_ansible_galaxy ${VENOM_ROOT_DIR}/requirements.yml force
+    run_ansible_galaxy_once ${VENOM_ROOT_DIR}/requirements.yml
 
     for scenario_name in ${SCENARIOS_TO_RUN}; do
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
@@ -354,7 +415,7 @@ configure_and_check
 
 case $1 in
     run) run ;;
-    run_tests) run_tests ;;
+    run_tests) time_phase "Run scenarios: ${SCENARIOS_TO_RUN}" run_tests ;;
     destroy) destroy ;;
     teardown) teardown ;;
     *) die "Wrong argument"
