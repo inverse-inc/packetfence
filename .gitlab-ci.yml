@@ -669,8 +669,9 @@ variables:
 # for the box to be built; setup-vagrant-box.sh downloads it from Linode and
 # registers it, and the env vars switch test-wrapper.sh into the baked-box
 # code path (skip site.yml on PF VM, skip configurator scenario).
-# configurator_*, pfappserver_*, and *_pristine jobs intentionally don't
-# extend these — they exercise the full provisioning + configurator path.
+# pfappserver_* and *_pristine jobs intentionally don't extend these — they
+# exercise the full provisioning + configurator path. No standalone
+# configurator_<arch> test remains: the bake already runs the configurator suite.
 .test_job_vagrant_el8:
   needs:
     - bake_img_vagrant_el8
@@ -1261,22 +1262,6 @@ unit_tests_deb12:
     - .test_rules
     - .test_job_vagrant_deb12
 
-configurator_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-
-configurator_deb12:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-
 # Cluster test family (heavy 3-VM jobs) — test_cluster stage, opt-in via TEST_CLUSTER.
 # cluster_configurator = the cluster analog of the configurator setup; more to follow.
 cluster_configurator_deb12:
@@ -1294,22 +1279,6 @@ cluster_configurator_el8:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
-
-pfappserver_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-
-pfappserver_deb12:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
 
 dot1x_eap_peap_el8:
   variables:
