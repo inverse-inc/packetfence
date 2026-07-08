@@ -434,10 +434,11 @@ variables:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} ${CILIBDIR}/vagrant/bake-vagrant-img.sh run
   after_script:
     - timeout ${PIPELINE_TIMEOUT_CLEANUP} ${CILIBDIR}/vagrant/bake-vagrant-img.sh teardown
-  # Capture configurator venom output on bake failure. teardown destroys the
-  # VM and wipes RESULT_DIR but leaves ${CI_PROJECT_DIR}/results/ alone.
+  # The bake runs the configurator suite, so capture its venom output always
+  # (like a test job). bake-vagrant-img.sh fetches logs into results/ before
+  # teardown destroys the VM and wipes RESULT_DIR.
   artifacts:
-    when: on_failure
+    when: always
     expire_in: 1 day
     paths:
       - results/*
