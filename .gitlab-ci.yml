@@ -963,11 +963,14 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 #
 # Bake jobs depend on publish_ppa because site.yml installs PF packages from
 # the pipeline's PPA (http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
+# They also gate on the full build_images set: publish_ppa's chain omits the
+# golden base box (build_img_vagrant_*) the bake consumes.
 bake_img_vagrant_el8:
   extends:
     - .bake_img_vagrant_job
     - .test_rules
   needs:
+    - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
       artifacts: false
   variables:
@@ -979,6 +982,7 @@ bake_img_vagrant_deb12:
     - .bake_img_vagrant_job
     - .test_rules
   needs:
+    - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
       artifacts: false
   variables:
