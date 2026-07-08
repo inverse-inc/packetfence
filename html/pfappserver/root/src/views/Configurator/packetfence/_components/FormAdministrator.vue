@@ -106,6 +106,7 @@ export const setup = (props, context) => {
         access_level: 'ALL',
         valid_from: '1970-01-01 00:00:00',
         expiration: '2038-01-01 00:00:00'
+      })).then(resolve, reject)
       // re-fetch: the database is configured earlier in this same step, so the mount lookup may have failed
       $store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(_form => {
         userExists.value = true
