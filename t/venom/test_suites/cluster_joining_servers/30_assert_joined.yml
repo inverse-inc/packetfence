@@ -13,14 +13,6 @@ testcases:
       - result.systemout ShouldEqual Synced
       - result.code ShouldEqual 0
 
-# Both joiners + pf1 = 3. Retry because the two joiners converge
-# independently (this node may be Synced before the other has joined).
-- name: cluster_size_is_three
-  steps:
-  - type: exec
-    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_cluster_size''" | awk "{print \$2}"'
-    retry: 30
-    delay: 15
-    assertions:
-      - result.systemout ShouldEqual 3
-      - result.code ShouldEqual 0
+# Cluster size == 3 is asserted in cluster_verify_all, once BOTH joiners have
+# joined. Joiners run serially (one at a time), so a single joiner here only
+# sees itself + pf1; the full-size check belongs after all nodes are in.

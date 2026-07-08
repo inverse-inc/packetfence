@@ -112,6 +112,10 @@
 - hosts: 'pf2*dev:pf3*dev'
   name: Cluster — joining servers
   become: True
+  # doc: add cluster nodes one at a time. Joining pf2 and pf3 together makes both
+  # request an SST from pf1 at once; on constrained nodes a joiner gets stuck
+  # (seen on el8: pf3 stuck 'Initialized'). serial:1 joins them sequentially.
+  serial: 1
 
   vars:
     test_suites:
