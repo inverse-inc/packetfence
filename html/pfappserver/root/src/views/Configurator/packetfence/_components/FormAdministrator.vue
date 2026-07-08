@@ -98,20 +98,27 @@ export const setup = (props, context) => {
     let savePromise = new Promise((resolve, reject) => {
       const { pid, password } = form.value
       form.value.valid_from = "1970-01-01 00:00:00"
-      if (userExists.value) {
-        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, { pid, password })).then(resolve, reject)
-      } else {
-        $store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(() => {
-          // User exists
-          userExists.value = true
+      // admin no longer has a default password row in the schema (#9118): create it (POST) with
+      // the ALL access level the seed row used to grant when absent, update it (PATCH) otherwise
+      const createPassword = () => $store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, {
+        pid,
+        password,
+        access_level: 'ALL',
+        valid_from: '1970-01-01',
+        expiration: '2038-01-01'
+      })).then(resolve, reject)
+      // re-fetch: the database is configured earlier in this same step, so the mount lookup may have failed
+      $store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(_form => {
+        userExists.value = true
+        if (_form.has_password) {
           $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, { pid, password })).then(resolve, reject)
-        }).catch(() => {
-          // User doesn't exist
-          $store.dispatch('$_users/createUser', form.value).then(() => {
-            $store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, form.value)).then(resolve, reject)
-          }).catch(reject)
-        })
-      }
+        } else {
+          createPassword()
+        }
+      }).catch(() => {
+        // User doesn't exist
+        $store.dispatch('$_users/createUser', form.value).then(createPassword).catch(reject)
+      })
     })
     return savePromise
       .then(() => state.value.administrator = form.value)
