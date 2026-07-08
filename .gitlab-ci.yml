@@ -398,14 +398,14 @@ variables:
   tags:
     - shell-v7
 
-# Strict gate: build_artifacts must not start if lint_ci_yaml failed or if any
-# build_images job failed. lint_ci_yaml is non-optional (always present) so a
+# Strict gate: build_artifacts must not start if pre_ci_lint_yaml failed or if any
+# build_images job failed. pre_ci_lint_yaml is non-optional (always present) so a
 # lint failure blocks every artifact job. Every concrete build_images job is
 # listed as optional: true so a gated-out job (rules → when:never) does not
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
-    - job: lint_ci_yaml
+    - job: pre_ci_lint_yaml
     - job: kaniko
       optional: true
     - job: pfdebian
@@ -664,7 +664,7 @@ run_pipeline_if_necessary:
 # Catches YAML regressions before any other stage runs. allow_failure: false
 # because lint errors here break every downstream job — fail fast is the point.
 # TODO: upgrade to `glab ci lint --strict` once the auth path is decided.
-lint_ci_yaml:
+pre_ci_lint_yaml:
   extends:
     - .check_job
   needs:
@@ -681,8 +681,9 @@ lint_ci_yaml:
       .gitlab-ci.yml
   allow_failure: false
 
-# Guards that a hung log collection can't skip VM destruction during cleanup.
-test_clean_environment:
+# Unit test of clean-test-environment.sh (no VMs): guards that a hung log
+# collection can't skip VM destruction during cleanup.
+pre_ci_test_cleanup:
   extends:
     - .check_job
   needs:
