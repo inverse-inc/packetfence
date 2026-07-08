@@ -199,8 +199,8 @@ testcases:
         "password": "{{.configurator.admin.password}}",
         "pid": "admin",
         "access_level": "ALL",
-        "valid_from": "1970-01-01",
-        "expiration": "2038-01-01"
+        "valid_from": "1970-01-01 00:00:00",
+        "expiration": "2038-01-01 00:00:00"
       }
     headers:
       "Content-Type": "application/json"
