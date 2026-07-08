@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -315,44 +316,71 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
-		patchPortsAdd := []pfk8s.PatchPorts{}
-		patchPortsDel := []pfk8s.PatchPorts{}
-
 		services, err := client.GetService("pfconnector")
 		if err != nil {
-			l.Printf("Error getting pfconnector service: %v", err)
-			// If we can't get the service, we can't patch it, so we just return
-		}
+			// If we can't read the service we can't safely diff its ports, so skip
+			// patching entirely rather than blindly adding (and duplicating) ports.
+			l.Printf("Error getting pfconnector service, skipping port patching: %v", err)
+		} else {
+			patchPortsAdd := []pfk8s.PatchPorts{}
+			delIndexes := []int{}
+			seenNames := map[string]bool{}
 
-		for _, remote := range additionalRemotes {
-			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
-			for index, port := range services.Spec.Ports {
-				if port.Name == "port-"+strings.ToLower(remote.LocalProto)+"-"+remote.LocalPort {
-					// If the port already exists, we need to remove it first
+			for _, remote := range additionalRemotes {
+				port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
+				portName := "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort
 
-					patchPortsDel = append(patchPortsDel, pfk8s.PatchPorts{
-						Op:   "remove",
-						Path: "/spec/ports/" + strconv.Itoa(index),
-					})
+				// Skip duplicate remote definitions so we never add the same port
+				// name twice in a single patch.
+				if seenNames[portName] {
+					continue
 				}
+				seenNames[portName] = true
+
+				// Collect every existing port carrying this name so they get removed
+				// first. There may be more than one if a previous run left stale
+				// duplicates behind.
+				for index, svcPort := range services.Spec.Ports {
+					if svcPort.Name == portName {
+						delIndexes = append(delIndexes, index)
+					}
+				}
+
+				patchPortsAdd = append(patchPortsAdd, pfk8s.PatchPorts{
+					Op:   "add",
+					Path: "/spec/ports/-",
+					Value: pfk8s.PatchPortAdd{
+						Port:       int(port),
+						TargetPort: int(port),
+						Protocol:   strings.ToUpper(remote.LocalProto),
+						Name:       portName,
+					},
+				})
 			}
 
-			patchPortsAdd = append(patchPortsAdd, pfk8s.PatchPorts{
-				Op:   "add",
-				Path: "/spec/ports/-",
-				Value: pfk8s.PatchPortAdd{
-					Port:       int(port),
-					TargetPort: int(port),
-					Protocol:   strings.ToUpper(remote.LocalProto),
-					Name:       "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort,
-				},
-			})
-		}
-		if err := client.PatchPorts(patchPortsDel); err != nil {
-			l.Printf("Error deleting ports: %v", err)
-		}
-		if err := client.PatchPorts(patchPortsAdd); err != nil {
-			l.Printf("Error adding ports: %v", err)
+			// A JSON Patch applies its operations sequentially, so removing a lower
+			// index first shifts every following element down and makes the later
+			// indexes point at the wrong port (or out of range). Applying the
+			// removals from highest index to lowest keeps every recorded index valid.
+			sort.Sort(sort.Reverse(sort.IntSlice(delIndexes)))
+
+			// Send removals and adds as a single atomic patch, removals first. This
+			// guarantees we never re-add a name that still exists, which is what
+			// produced the k8s "Duplicate value" 422s when a connector reconnected.
+			patch := make([]pfk8s.PatchPorts, 0, len(delIndexes)+len(patchPortsAdd))
+			for _, index := range delIndexes {
+				patch = append(patch, pfk8s.PatchPorts{
+					Op:   "remove",
+					Path: "/spec/ports/" + strconv.Itoa(index),
+				})
+			}
+			patch = append(patch, patchPortsAdd...)
+
+			if len(patch) > 0 {
+				if err := client.PatchPorts(patch); err != nil {
+					l.Printf("Error patching ports: %v", err)
+				}
+			}
 		}
 	}
 
