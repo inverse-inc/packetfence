@@ -670,8 +670,9 @@ variables:
 # for the box to be built; setup-vagrant-box.sh downloads it from Linode and
 # registers it, and the env vars switch test-wrapper.sh into the baked-box
 # code path (skip site.yml on PF VM, skip configurator scenario).
-# configurator_*, pfappserver_*, and *_pristine jobs intentionally don't
-# extend these — they exercise the full provisioning + configurator path.
+# pfappserver_* and *_pristine jobs intentionally don't extend these — they
+# exercise the full provisioning + configurator path. No standalone
+# configurator_<arch> test remains: the bake already runs the configurator suite.
 .test_job_vagrant_el8:
   needs:
     - bake_img_vagrant_el8
@@ -1479,22 +1480,6 @@ captive_portal_el8:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_el8
-
-configurator_deb12:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-
-configurator_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
 
 external_integrations_deb12:
   variables:
