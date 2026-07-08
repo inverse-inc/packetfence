@@ -205,4 +205,4 @@ testcases:
     headers:
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 200
+      - result.statuscode ShouldEqual 201
