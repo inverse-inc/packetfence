@@ -19,7 +19,9 @@
 - import_playbook: playbooks/config_dev_repos.yml
 
 - import_playbook: playbooks/install_pf.yml
-  
+
+- import_playbook: playbooks/cluster_cross_ssh.yml
+
 - import_playbook: playbooks/linux_servers.yml
   
 - import_playbook: playbooks/cumulus.yml
