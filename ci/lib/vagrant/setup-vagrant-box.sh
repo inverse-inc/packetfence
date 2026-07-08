@@ -82,10 +82,57 @@ prune_old_pipeline_branches() {
                 gsub(/\)/,"",$3); print $1, $3 }')
 }
 
+# True if any live domain's XML references volume ${1} (its backing image).
+pool_vol_in_use() {
+    local vol="$1" dom
+    for dom in $(virsh -c qemu:///system list --name 2>/dev/null); do
+        [ -n "${dom}" ] || continue
+        virsh -c qemu:///system dumpxml "${dom}" 2>/dev/null \
+            | grep -qF "${vol}" && return 0
+    done
+    return 1
+}
+
+# Pool-volume name backing every box registered in ANY runner home. The
+# libvirt 'default' pool is shared system-wide (see cleanup-runner-disk.sh),
+# so scan $HOME plus each /var/local/*/ home — never reap a sibling's box.
+# Box dirs are .vagrant.d/boxes/<mangled-name>/<version>/<provider>/.
+registered_pool_vols() {
+    local p version name
+    for p in "${HOME}"/.vagrant.d/boxes/*/*/"${PROVIDER}" \
+             "${VAR_LOCAL:-/var/local}"/*/.vagrant.d/boxes/*/*/"${PROVIDER}"; do
+        [ -d "${p}" ] || continue
+        version=$(basename "$(dirname "${p}")")
+        name=$(basename "$(dirname "$(dirname "${p}")")")
+        echo "${name}_vagrant_box_image_${version}_box.img"
+    done
+}
+
+# Test teardown's `vagrant box remove` leaves the pool volume behind, and once
+# the record is gone prune_old_pipeline_branches can't match it. Reap any
+# unregistered, unused box volume — dead weight from a finished pipeline.
+sweep_orphan_pool_images() {
+    local vol reg
+    declare -A keep
+    while read -r reg; do keep["${reg}"]=1; done < <(registered_pool_vols)
+
+    for vol in $(virsh -c qemu:///system vol-list default 2>/dev/null \
+                     | awk '/_vagrant_box_image_/{print $1}'); do
+        [ -n "${keep[${vol}]:-}" ] && continue
+        if pool_vol_in_use "${vol}"; then
+            echo "===> Keeping in-use orphan pool volume ${vol}"
+            continue
+        fi
+        echo "===> Reaping orphan pool volume ${vol}"
+        virsh -c qemu:///system vol-delete --pool default "${vol}" || true
+    done
+}
+
 echo "===> Box ${VAGRANT_BOX_LOCAL_NAME} version ${VAGRANT_BOX_VERSION}"
 
 prune_branch_base_boxes
 prune_old_pipeline_branches
+sweep_orphan_pool_images
 
 # Skip download if this pipeline's version is already registered (parallel
 # test jobs on the same runner share the Vagrant box store)
