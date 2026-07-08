@@ -187,18 +187,22 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+# admin no longer has a default password row in the schema, so create it (POST) instead of updating (PATCH)
 - name: set_admin_account_password
   steps:
   - type: http
-    method: PATCH
+    method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/configurator/user/admin/password'
     ignore_verify_ssl: true
     body: >-
       {
         "password": "{{.configurator.admin.password}}",
-        "pid": "admin"
+        "pid": "admin",
+        "access_level": "ALL",
+        "valid_from": "1970-01-01 00:00:00",
+        "expiration": "2038-01-01 00:00:00"
       }
     headers:
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 200
+      - result.statuscode ShouldEqual 201
