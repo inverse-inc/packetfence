@@ -66,6 +66,18 @@ provision_and_run_configurator() {
            ./test-wrapper.sh run )
 }
 
+# Fetch the configurator venom logs off the PF VM into ${PF_SRC_DIR}/results
+# (the job's artifact path), like a test job's teardown — so bake results are
+# always available, pass or fail. Runs while the VM is still up. Non-fatal.
+capture_venom_logs() {
+    log_section "Capture venom logs from ${PF_VM_NAME}"
+    mkdir -p "${PF_SRC_DIR}/results"
+    ( cd "${VAGRANT_DIR}" \
+        && RESULT_DIR="${PF_SRC_DIR}/results" \
+           ansible-playbook playbooks/get_logs.yml -l "${PF_VM_NAME}" ) \
+        || echo "WARNING: venom log capture failed (non-fatal)"
+}
+
 # Drop RHEL entitlement certs (/etc/pki/consumer, /var/lib/rhsm) before
 # packaging. No-op on Debian via the playbook's own ansible_os_family guard.
 unregister_pf_vm() {
@@ -232,7 +244,10 @@ destroy_pf_vm() {
 }
 
 run() {
-    provision_and_run_configurator
+    local rc=0
+    provision_and_run_configurator || rc=$?
+    capture_venom_logs
+    [ "${rc}" -eq 0 ] || die "configurator run failed (rc=${rc}) — see results/ artifact"
     unregister_pf_vm
     sysprep_pf_vm
     diag_network_state
