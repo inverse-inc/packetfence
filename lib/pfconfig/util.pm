@@ -24,8 +24,7 @@ use pfconfig::undef_element;
 use pf::log;
 use pfconfig::constants;
 use IO::Socket::UNIX;
-use pf::Sereal qw($DECODER);
-use Sereal::Decoder qw(sereal_decode_with_object);
+use pf::Sereal qw(sereal_decode_safe);
 use Readonly;
 use JSON::MaybeXS qw(encode_json);
 use pfconfig::config;
@@ -81,7 +80,7 @@ sub fetch_decode_socket {
     die "cannot connect to the server $!n" unless $socket;
 
     my $response = fetch_socket($socket, $payload);
-    return sereal_decode_with_object($DECODER, $response);
+    return sereal_decode_safe($response);
 }
 
 sub socket_expire {

@@ -35,9 +35,8 @@ use JSON::MaybeXS;
 use pf::log;
 use pfconfig::util qw($undef_element normalize_namespace_query);
 use pfconfig::constants;
-use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
-use pf::Sereal qw($DECODER);
+use pf::Sereal qw(sereal_decode_safe);
 use pfconfig::config;
 use pf::config::crypt::object;
 use pf::config::crypt::string;
@@ -231,7 +230,7 @@ sub _get_from_socket {
     # it returns it as a sereal hash
     my $result;
     if ( $response ne "undef\n" ) {
-        eval { $result = sereal_decode_with_object($DECODER, $response); };
+        eval { $result = sereal_decode_safe($response); };
         if ($@) {
             print STDERR $@;
             print STDERR "$what $response";
