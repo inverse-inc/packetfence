@@ -117,7 +117,7 @@ configure_and_check() {
 }
 
 pull_images() {
-    RETRY_LIMIT=2
+    RETRY_LIMIT=5
 
     # Pull from the registry when reachable (apt upgrade), fall back to local
     # images when not (offline USB bootable ISO install)
@@ -137,19 +137,26 @@ pull_images() {
             continue
         fi
 
+        # docker pull sits in the if-condition so a transient failure (e.g. a
+        # dropped DNS packet) does not trip errexit before the retry can run.
+        pulled=no
         for attempt in $(seq 1 $RETRY_LIMIT); do
-            docker pull -q ${FULL_IMAGE}
-            if [ $? -eq 0 ]; then
+            if docker pull -q "${FULL_IMAGE}"; then
+                pulled=yes
                 break
-            else
-                if [ $attempt -le $RETRY_LIMIT ]; then
-                    sleep 3
-                    echo "Retry downloading image: ${FULL_IMAGE}"
-                else
-                    echo "Failed downloading image: ${FULL_IMAGE}"
-                fi
             fi
+            echo "$(date) - Pull failed (attempt ${attempt}/${RETRY_LIMIT}): ${FULL_IMAGE}"
+            sleep $((attempt * 3))
         done
+
+        if [ "$pulled" = "no" ]; then
+            if docker image inspect "${FULL_IMAGE}" &>/dev/null; then
+                echo "$(date) - Falling back to pre-existing local image: ${FULL_IMAGE}"
+            else
+                echo "$(date) - ERROR: unable to obtain image: ${FULL_IMAGE}"
+                return 1
+            fi
+        fi
     done
     echo "$(date) - Pull of images finished"
 }

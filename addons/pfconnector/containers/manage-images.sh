@@ -105,19 +105,20 @@ configure_and_check() {
 }
 
 pull_images() {
-    RETRY_LIMIT=2
+    RETRY_LIMIT=5
     for img in ${CONTAINERS_IMAGES}; do
+        FULL_IMAGE="${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+        # docker pull sits in the if-condition so a transient failure (e.g. a
+        # dropped DNS packet) does not trip errexit before the retry can run.
         for attempt in $(seq 1 $RETRY_LIMIT); do
-            docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
-            if [ $? -eq 0 ]; then
+            if docker pull -q "${FULL_IMAGE}"; then
                 break
+            fi
+            if [ "$attempt" -lt "$RETRY_LIMIT" ]; then
+                echo "$(date) - Retry downloading image: ${FULL_IMAGE}"
+                sleep $((attempt * 3))
             else
-                if [ $attempt -le $RETRY_LIMIT ]; then
-                    sleep 3
-                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
-                else
-                    echo "Failed downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
-                fi
+                echo "$(date) - Failed downloading image: ${FULL_IMAGE}"
             fi
         done
     done
