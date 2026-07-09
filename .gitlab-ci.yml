@@ -60,7 +60,6 @@ variables:
   TESTDIR: t/venom
   CONTAINER_DIR: containers
   UPLOAD_DIR: $CILIBDIR/upload
-  SF_ZEN_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -1392,8 +1391,8 @@ build_pf_img_zen:
   extends:
     - .build_pf_img_job
   environment:
-    name: sourceforge
-    url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
+    name: linode
+    url: ${RCLONE_LINODE_URL}/packetfence-zen/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/zen
     BUILD_TARGET: zen-deb12
@@ -1417,7 +1416,7 @@ build_pf_img_cd_iso:
   extends:
     - .build_pf_img_job
   environment:
-    name: sourceforge
+    name: linode
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/cd-iso
@@ -1440,7 +1439,7 @@ build_pf_img_dvd_usb_iso:
     - job: publish_ppa
       optional: true
   environment:
-    name: sourceforge
+    name: linode
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   variables:
     PF_VERSION: ${CI_COMMIT_REF_NAME}
