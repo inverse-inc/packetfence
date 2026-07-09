@@ -299,55 +299,28 @@ delete_ansible_files() {
     delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
 }
 
+# Cleaning = no test VMs, no leftover disk. vagrant destroy misses orphans
+# (dotfile-only; DOMAIN_PREFIX's random hex never reclaims them), so sweep
+# libvirt directly, scoped to the Vagrantfile prefix. Networks are shared/reused.
 destroy() {
     log_section "Destroy virtual machines"
-    resume_paused_vms
-    destroy_pf_vm
-    destroy_other_vm
-    delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
-    delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
-    destroy_paused_vms
-}
-
-# try to restart paused vms
-resume_paused_vms() {
-    log_subsection "Resuming paused VMs"
-    for vm in $(virsh list --name --state-paused); do
-        echo "Resuming VM: $vm"
-        virsh resume "$vm" || true
+    local prefix="vagrant-${CI_COMMIT_REF_SLUG-${USER}}-"
+    local vm pool vol
+    for vm in $(virsh list --all --name | grep -F "${prefix}" || true); do
+        echo "Destroying ${vm} and its disk"
+        virsh destroy "${vm}" >/dev/null 2>&1 || true
+        virsh undefine "${vm}" --remove-all-storage || true
     done
-}
-
-# using "|| true" as a workaround to unusual behavior
-# see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
-destroy_pf_vm() {
-    log_subsection "Vagrant Destroy PF"
-    ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant destroy -f || true )
-}
-
-# using "|| true" as a workaround to unusual behavior
-# see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
-destroy_other_vm() {
-    log_subsection "Vagrant Destroy other VMs"
-    ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f || true )
-}
-
-destroy_paused_vms() {
-    log_subsection "Virsh Destroy Paused VMs on the runner"
-    for vm in $(virsh list --name --state-paused); do
-        echo "Destroying and undefining VM: $vm"
-        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
+    # volumes orphaned by an interrupted run (domain gone, disk left behind)
+    for pool in $(virsh pool-list --name 2>/dev/null || true); do
+        for vol in $(virsh vol-list --pool "${pool}" 2>/dev/null | awk 'NR>2 && $1 {print $1}' | grep -F "${prefix}" || true); do
+            echo "Deleting orphaned volume ${vol} (pool ${pool})"
+            virsh vol-delete --pool "${pool}" "${vol}" || true
+        done
     done
-}
-
-destroy_all_vms() {
-    log_subsection "Visrh Destroy ALL VMs on the runner"
-    for vm in $(virsh list --name); do
-        echo "Destroying and undefining VM: $vm"
-        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
-    done
+    delete_dir_if_exists "${VAGRANT_PF_DOTFILE_PATH}"
+    delete_dir_if_exists "${VAGRANT_COMMON_DOTFILE_PATH}"
+    delete_ansible_files
 }
 
 configure_and_check
