@@ -181,10 +181,15 @@
     # (docker-wrapped radiusd-load_balancer et al.) can start minutes later and
     # race the verify play (seen on pf3: active 35s after verify gave up).
     # degraded = startup done with some failed units; verify judges those.
+    # Poll rather than `is-system-running --wait`: --wait landed in systemd 240,
+    # but el8 ships 239 where it's ignored and returns immediately ('starting').
     - name: Wait for the boot transaction to settle
-      command: timeout 600 systemctl is-system-running --wait
+      command: systemctl is-system-running
       register: boot_settled
       changed_when: false
+      until: boot_settled.stdout in ['running', 'degraded']
+      retries: 60
+      delay: 10
       failed_when: boot_settled.stdout not in ['running', 'degraded']
       when: not (cluster_already_healthy | default(false))
 
