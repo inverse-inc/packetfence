@@ -24,7 +24,8 @@ testcases:
   steps:
   - type: exec
     script: |
-      curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+      curl -sS --fail -o /dev/null -w "%{http_code}" -X PATCH \
+        -H 'Content-Type: application/json' \
         -d '{"galera-autofix":"enabled"}' \
         localhost:22224/api/v1/config/base/services
     assertions:

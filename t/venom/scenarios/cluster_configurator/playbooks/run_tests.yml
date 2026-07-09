@@ -43,13 +43,19 @@
       changed_when: false
       failed_when: false
 
-    - name: Decide whether the cluster is already healthy
+    - name: Decide whether THIS node is healthy (galera size 3 + Synced)
       set_fact:
-        cluster_already_healthy: "{{ wsrep_size.stdout == '3' and wsrep_state.stdout == 'Synced' }}"
+        node_healthy: "{{ wsrep_size.stdout == '3' and wsrep_state.stdout == 'Synced' }}"
+
+    # Gate plays 1-5 as a unit: skip destructive bring-up only when EVERY node
+    # is healthy, so a partially-healthy cluster is still rebuilt consistently.
+    - name: Cluster already healthy only if all nodes are
+      set_fact:
+        cluster_already_healthy: "{{ ansible_play_hosts | map('extract', hostvars, 'node_healthy') | map('bool') | min }}"
 
     - name: Report bring-up decision
       debug:
-        msg: "cluster_already_healthy={{ cluster_already_healthy }} (size={{ wsrep_size.stdout }}, state={{ wsrep_state.stdout }}) -> bring-up {{ 'SKIPPED' if cluster_already_healthy else 'will run' }}"
+        msg: "node_healthy={{ node_healthy }} (size={{ wsrep_size.stdout }}, state={{ wsrep_state.stdout }}); cluster_already_healthy={{ cluster_already_healthy }} -> bring-up {{ 'SKIPPED' if cluster_already_healthy else 'will run' }}"
 
 - hosts: 'pf[123]*dev'
   name: Cluster — common setup (all nodes)

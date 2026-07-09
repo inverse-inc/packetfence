@@ -233,11 +233,12 @@ PY
 start_existing_vm() {
     local vm=$1
     local dotfile_path=$2
-    machine_uuid=$(cat ${dotfile_path}/machines/${vm}/libvirt/id)
-    machine_state=$(virsh -c qemu:///system domstate --domain $machine_uuid)
+    local machine_uuid machine_state
+    machine_uuid=$(cat "${dotfile_path}/machines/${vm}/libvirt/id")
+    machine_state=$(virsh -c qemu:///system domstate --domain "${machine_uuid}")
     if [ "${machine_state}" = "shut off" ]; then
-        echo "Starting $vm using libvirt"
-        virsh -c qemu:///system start --domain $machine_uuid
+        echo "Starting ${vm} using libvirt"
+        virsh -c qemu:///system start --domain "${machine_uuid}"
     else
         echo "Machine already started"
     fi

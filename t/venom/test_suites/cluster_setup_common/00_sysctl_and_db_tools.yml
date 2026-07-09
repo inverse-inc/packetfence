@@ -8,10 +8,12 @@ testcases:
   - type: exec
     script: |
       set -e
-      grep -q '^net.ipv4.ip_nonlocal_bind' /etc/sysctl.conf || \
-        echo 'net.ipv4.ip_nonlocal_bind = 1' >> /etc/sysctl.conf
-      grep -q '^net.ipv6.conf.all.disable_ipv6' /etc/sysctl.conf || \
-        echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf
+      # enforce the exact value even if the base image pre-set a different one
+      # (drop any existing line for the key, then append the wanted value)
+      for kv in 'net.ipv4.ip_nonlocal_bind=1' 'net.ipv6.conf.all.disable_ipv6=1'; do
+        sed -i "\#^[[:space:]]*${kv%=*}[[:space:]]*=#d" /etc/sysctl.conf
+        echo "${kv%=*} = ${kv#*=}" >> /etc/sysctl.conf
+      done
       sysctl -p
     assertions:
       - result.code ShouldEqual 0
