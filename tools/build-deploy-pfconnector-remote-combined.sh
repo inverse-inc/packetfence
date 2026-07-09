@@ -106,6 +106,22 @@ if [ "$DO_PULL" = "yes" ]; then
     done
 fi
 
+# ---- preflight: warn if rootfs scripts lost their exec bit ------------------
+# The image forces the exec bit at build time (overlay stage below), but a
+# checkout without exec bits (tarball / SMB / core.fileMode=false) is a sign
+# the build host is misconfigured and other things may break too, so surface it.
+ROOTFS_SBIN="${PF_SRC_DIR}/containers/pfconnector-remote/rootfs/usr/local/pf/sbin"
+if [ -d "$ROOTFS_SBIN" ]; then
+    NON_EXEC=$(find "$ROOTFS_SBIN" -maxdepth 1 -type f -name '*.sh' ! -perm -u+x -printf '%f\n' 2>/dev/null || true)
+    if [ -n "$NON_EXEC" ]; then
+        echo "WARNING: these rootfs scripts are not executable in this checkout:" >&2
+        echo "$NON_EXEC" | sed 's/^/  - /' >&2
+        echo "  The overlay stage will chmod them in the image, but your checkout is" >&2
+        echo "  likely missing exec bits (git core.fileMode=false, or copied via" >&2
+        echo "  tarball/SMB). Consider:  git config core.fileMode true && git checkout -- $ROOTFS_SBIN" >&2
+    fi
+fi
+
 # ---- stage A: build the stock pfconnector-remote image ----------------------
 log "Building base image ${BASE_TAG}"
 cd "$PF_SRC_DIR"
