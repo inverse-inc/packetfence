@@ -2,7 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <b-button-close @click="onClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
-      <h4 class="d-inline mb-0" v-html="title" />
+      <h4 class="d-inline mb-0" v-safe-html="title" />
       <b-badge v-if="titleBadge" class="ml-2" variant="secondary" v-html="titleBadge" />
       <base-button-help v-if="titleHelp"
         class="ml-1" :url="titleHelp" />

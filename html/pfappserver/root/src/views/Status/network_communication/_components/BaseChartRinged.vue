@@ -159,6 +159,7 @@ const props = {
 }
 
 import { computed, onBeforeUnmount, ref, toRefs, watch } from '@vue/composition-api'
+import { escapeHtml } from '@/utils/html'
 import { useViewBox, useMiniMap } from '@/composables/useSvg'
 import { rgbaProto } from '../_composables/useCommunication'
 
@@ -398,7 +399,7 @@ const setup = (props, context) => {
                   x: '0em',
                   dy: '0.25em'
                 },
-                text: node
+                text: escapeHtml(node)
               },
               ...((isFocus)
                 ? Object.entries(
@@ -417,7 +418,7 @@ const setup = (props, context) => {
                   )
                   .reduce((lines, [proto, ports]) => {
                     Object.entries(ports).forEach(([port, count]) => {
-                      const text = `${proto}:${port}<tspan fill="rgba(0, 0, 0, 0.5)">(${count})</tspan>`
+                      const text = `${escapeHtml(proto)}:${escapeHtml(port)}<tspan fill="rgba(0, 0, 0, 0.5)">(${escapeHtml(count)})</tspan>`
                       lines.push({
                         key: `deviceTextPath-${node}-${proto}-${port}`,
                         props: {
@@ -580,7 +581,7 @@ const setup = (props, context) => {
                   x: '0em',
                   dy: '0.25em'
                 },
-                text: node
+                text: escapeHtml(node)
               },
               ...((isFocus)
                 ? Object.entries(
@@ -599,7 +600,7 @@ const setup = (props, context) => {
                   )
                   .reduce((lines, [proto, ports]) => {
                     Object.entries(ports).forEach(([port, count]) => {
-                      const text = `${proto}:${port}<tspan fill="rgba(0, 0, 0, 0.5)">(${count})</tspan>`
+                      const text = `${escapeHtml(proto)}:${escapeHtml(port)}<tspan fill="rgba(0, 0, 0, 0.5)">(${escapeHtml(count)})</tspan>`
                       lines.push({
                         key: `innerHostTextPath-${node}-${proto}-${port}`,
                         props: {
@@ -764,7 +765,7 @@ const setup = (props, context) => {
                   x: '0em',
                   dy: '0.25em'
                 },
-                text: node
+                text: escapeHtml(node)
               },
               ...((isFocus)
                 ? Object.entries(
@@ -783,7 +784,7 @@ const setup = (props, context) => {
                   )
                   .reduce((lines, [proto, ports]) => {
                     Object.entries(ports).forEach(([port, count]) => {
-                      const text = `${proto}:${port}<tspan fill="rgba(0, 0, 0, 0.5)">(${count})</tspan>`
+                      const text = `${escapeHtml(proto)}:${escapeHtml(port)}<tspan fill="rgba(0, 0, 0, 0.5)">(${escapeHtml(count)})</tspan>`
                       lines.push({
                         key: `outerHostTextPath-${node}-${proto}-${port}`,
                         props: {
