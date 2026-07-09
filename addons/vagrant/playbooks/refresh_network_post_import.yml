@@ -46,6 +46,16 @@
       ansible.builtin.command: systemctl isolate packetfence-base.target
       changed_when: True
 
+    # isolate returns before pfconfig opens its socket; wait for it to answer
+    # so the pfcmd calls below don't race it and fail to connect.
+    - name: Wait for pfconfig to answer
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd pfconfig get interfaces::management_network
+      register: pfconfig_ready
+      until: pfconfig_ready.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: False
+
     - name: Clear stale pfconfig backend cache from bake time
       ansible.builtin.command: /usr/local/pf/bin/pfcmd pfconfig clear_backend
       changed_when: True
