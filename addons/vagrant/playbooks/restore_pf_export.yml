@@ -125,6 +125,15 @@
           args:
             executable: /bin/bash
 
+        # A configurator-built VM starts inline tests with a clean firewall; a
+        # restored VM carries the backup's iptables/ipset state, so the first
+        # inline suite's pfipset regen can't destroy in-use sets and leaves
+        # broken rules. Flush-to-default + rebuild to match the configurator path.
+        - name: Rebuild iptables/ipset from a clean state after restore
+          shell: '/usr/local/pf/bin/pfcmd reloadiptablesrules hard'
+          args:
+            executable: /bin/bash
+
         - name: Wait for the Fingerbank collector to become active
           shell: 'systemctl is-active packetfence-fingerbank-collector'
           register: fb_collector_active
