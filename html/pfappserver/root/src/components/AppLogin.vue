@@ -199,7 +199,7 @@ const setup = (props, context) => {
       // Token has expired
       password.value = ''
       message.value = { level: 'warning', text: i18n.t('Your session has expired') }
-      showModal.value = !!$store.state.session.token
+      showModal.value = $store.getters['session/isAuthenticated']
     }
     else if (sessionTime.value < EXPIRATION_DELAY) {
       // Token will expire soon
