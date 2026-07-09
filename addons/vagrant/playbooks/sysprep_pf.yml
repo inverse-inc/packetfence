@@ -106,14 +106,26 @@
           iface eth0 inet dhcp
       when: eni.stat.exists
 
-    # EL parity for the ifupdown reset: drop MAC pinning so the clone's new MAC
-    # still activates eth0. File-only, so the live bake connection survives halt.
-    - name: Strip MAC pinning from network profiles (EL/NetworkManager)
-      ansible.builtin.shell: |
-        sed -i '/^HWADDR=/d' /etc/sysconfig/network-scripts/ifcfg-* 2>/dev/null || true
-        sed -i '/^[[:space:]]*mac-address=/d' /etc/NetworkManager/system-connections/*.nmconnection 2>/dev/null || true
-        true
-      changed_when: false
+    # EL parity for the ifupdown reset: the bake freezes eth0 as BOOTPROTO=static,
+    # so the clone never DHCPs and vagrant finds no lease. Reset eth0 to DHCP.
+    - name: Detect EL ifcfg for the mgmt NIC
+      ansible.builtin.stat:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+      register: ifcfg_eth0
+
+    - name: Reset management NIC to DHCP (EL/ifcfg boxes)
+      ansible.builtin.copy:
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          DEVICE=eth0
+          ONBOOT=yes
+          BOOTPROTO=dhcp
+          NM_CONTROLLED=yes
+          TYPE=Ethernet
+      when: ifcfg_eth0.stat.exists
 
     # Boot without PF so vagrant gets eth0's DHCP lease before packetfence-iptables
     # can block it; the import step starts PF once the clone is reachable.
