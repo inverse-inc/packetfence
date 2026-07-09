@@ -42,3 +42,16 @@
         dest: /usr/bin/qemu-system-x86_64
         state: link
       when: ansible_facts['os_family'] == "RedHat"
+
+    # TEMP(diagnostics): tools for the inline l2/l3 capture testcases
+    - name: Install tcpdump for the diagnostics capture
+      ansible.builtin.package:
+        name: tcpdump
+        state: present
+      failed_when: false
+
+    - name: Install conntrack for the diagnostics capture
+      ansible.builtin.package:
+        name: "{{ 'conntrack' if ansible_facts['os_family'] == 'Debian' else 'conntrack-tools' }}"
+        state: present
+      failed_when: false
