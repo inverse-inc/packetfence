@@ -135,6 +135,11 @@ RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.
     dpkg -i /tmp/custom-fingerbank-collector-remote.deb && \
     rm -f /tmp/custom-fingerbank-collector-remote.deb /usr/sbin/policy-rc.d /usr/bin/systemctl && \
     if [ -f /usr/bin/systemctl.real ]; then mv /usr/bin/systemctl.real /usr/bin/systemctl; fi
+# Guarantee the s6 oneshot scripts are executable, regardless of the file modes
+# in the build host's checkout (a checkout via tarball / SMB / core.fileMode=false
+# can strip the exec bit, giving exit 126 "Permission denied" at s6 startup).
+RUN chmod -R a+rX /usr/local/pf/sbin && \
+    find /etc/s6-overlay/s6-rc.d -type f \( -name run -o -name up -o -name finish \) -exec chmod a+rx {} +
 EOF
 
 log "Overlaying custom collector -> ${FINAL_TAG}"
