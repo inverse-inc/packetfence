@@ -127,6 +127,15 @@
           TYPE=Ethernet
       when: ifcfg_eth0.stat.exists
 
+    # Baked global GATEWAY + vagrant's ifcfg-eth1 rewrite (no DEFROUTE=no) routes
+    # the runner (192.168.121.1) out eth1, killing SSH; eth0 DHCP supplies the gw.
+    - name: Drop bake-time GATEWAY from /etc/sysconfig/network (EL boxes)
+      ansible.builtin.lineinfile:
+        path: /etc/sysconfig/network
+        regexp: '^GATEWAY='
+        state: absent
+      when: ifcfg_eth0.stat.exists
+
     # Boot without PF so vagrant gets eth0's DHCP lease before packetfence-iptables
     # can block it; the import step starts PF once the clone is reachable.
     - name: Boot the baked box without PacketFence (default target multi-user)
