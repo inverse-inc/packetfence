@@ -840,9 +840,25 @@ func maskDomainSecretsForConnector(domains map[string]pfconfigdriver.Domain, con
 		if connectorId == "" || ownerForIP(net.ParseIP(d.AdServer)) != connectorId {
 			d.MachineAccountPassword = fakeMachineAccountPassword
 		}
-		out[domain] = d
+		out[stripDomainHostPrefix(domain)] = d
 	}
 	return out
+}
+
+// stripDomainHostPrefix removes the "<host_id> " namespace prefix that
+// PacketFence prepends to a domain identifier when it is stored in
+// domain.conf (see pf::UnifiedApi::Controller::Config::Domains, which keys
+// each section as "<hostname> <id>"). A pfconnector-remote re-namespaces every
+// domain under its own hostname (see pfconnector-remote-load.sh, which builds
+// "[<local-hostname> <id>]" sections and "<id>.env" files), so it needs the
+// raw id and cannot cope with a space in the key. Domain ids are alphanumeric
+// and host_ids (hostnames) contain no spaces, so the raw id is the token after
+// the last space; a key without a space (already raw) is returned unchanged.
+func stripDomainHostPrefix(id string) string {
+	if i := strings.LastIndex(id, " "); i >= 0 {
+		return id[i+1:]
+	}
+	return id
 }
 
 func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Request) {
