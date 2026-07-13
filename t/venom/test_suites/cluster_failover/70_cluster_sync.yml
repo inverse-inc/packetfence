@@ -1,0 +1,26 @@
+name: cluster config sync — master push propagates to pf2/pf3
+testcases:
+# Write a unique marker under conf/ on pf1, push it with the documented
+# master-side sync (bin/cluster/sync --as-master --file=…, which calls
+# pf::cluster::sync_files -> distant_download_configfile on each peer), then
+# assert the exact token landed on pf2 and pf3. Everything runs in one shell
+# block so the marker is always cleaned up on every node, pass or fail.
+- name: master_push_propagates_marker
+  steps:
+  - type: exec
+    script: |
+      marker=/usr/local/pf/conf/venom-cluster-sync-marker.txt
+      token="venom-sync-$(date +%s)-$$"
+      echo "$token" > "$marker"
+      /usr/local/pf/bin/cluster/sync --as-master --file="$marker"
+      sync_rc=$?
+      rc=0
+      [ "$sync_rc" -eq 0 ] || rc=1
+      for n in pf2 pf3; do
+        ssh "$n" "grep -qx '$token' '$marker'" || rc=1
+      done
+      rm -f "$marker"
+      for n in pf2 pf3; do ssh "$n" "rm -f '$marker'" || true; done
+      exit $rc
+    assertions:
+      - result.code ShouldEqual 0

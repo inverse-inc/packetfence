@@ -1,0 +1,69 @@
+name: haproxy-portal failover — reg/iso VIPs migrate when haproxy-portal dies
+testcases:
+# The reg/iso (portal) vrrp_instances track haproxy_portal. Stopping it on pf1
+# trips the track_script and both portal VIPs migrate to pf2. The mgmt VIP tracks
+# radius_load_balancer, so it must stay on pf1 — asserts the scoped failover.
+- name: baseline_pf1_holds_portal_vips
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: stop_haproxy_portal_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service haproxy-portal stop || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: portal_vips_migrate_to_pf2
+  steps:
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'"
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_iso}}'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: portal_vips_gone_from_pf1
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'
+    assertions:
+      - result.code ShouldNotEqual 0
+
+- name: mgmt_vip_stays_on_pf1
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: restart_haproxy_portal_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service haproxy-portal restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: portal_vips_preempt_back_to_pf1
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'
+    retry: 24
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_iso}}'
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
