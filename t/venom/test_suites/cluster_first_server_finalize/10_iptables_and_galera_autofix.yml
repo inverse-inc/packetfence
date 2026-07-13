@@ -1,0 +1,33 @@
+name: First server finalize — iptables + galera-autofix
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Starting the first server normally":
+# bring iptables back now that pf1 is a normal cluster member. restart reports
+# non-zero because its stop phase kills the Restart=always monitor via SIGTERM;
+# tolerate the exit code and confirm the service is active afterwards.
+- name: restart_iptables
+  steps:
+  - type: exec
+    script: 'systemctl restart packetfence-iptables || true'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'systemctl is-active packetfence-iptables'
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+
+# docs/cluster/cluster_setup.asciidoc "Enabling galera-autofix service": it was
+# disabled during bootstrap (cluster_first_server pf.conf [services]); re-enable
+# it via the internal API and sync the change across the cluster.
+- name: reenable_galera_autofix
+  steps:
+  - type: exec
+    script: |
+      curl -sS --fail -o /dev/null -w "%{http_code}" -X PATCH \
+        -H 'Content-Type: application/json' \
+        -d '{"galera-autofix":"enabled"}' \
+        localhost:22224/api/v1/config/base/services
+    assertions:
+      - result.systemout ShouldEqual 200
+      - result.code ShouldEqual 0

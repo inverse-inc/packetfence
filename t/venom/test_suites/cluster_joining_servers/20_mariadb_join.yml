@@ -1,0 +1,32 @@
+name: Joining servers — flush and join MariaDB
+testcases:
+# docs/cluster/cluster_setup.asciidoc "MariaDB sync (second and third
+# servers)": stop mariadb, wipe the local datadir, restart so the node joins
+# the cluster via SST from pf1.
+- name: stop_mariadb
+  steps:
+  - type: exec
+    script: 'systemctl stop packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0
+
+# DESTRUCTIVE: refuse to run on the first server in case the suite is ever
+# mis-targeted (the doc warns this wipes all MariaDB data).
+- name: flush_mysql_datadir
+  steps:
+  - type: exec
+    script: |
+      H=$(hostname)
+      case "$H" in
+        pf1*) echo "refusing to flush mysql datadir on first server ($H)"; exit 1 ;;
+      esac
+      rm -rf /var/lib/mysql/*
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: restart_mariadb
+  steps:
+  - type: exec
+    script: 'systemctl restart packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0

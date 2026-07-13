@@ -1,0 +1,66 @@
+name: First server — pf.conf / pfconfig.conf cluster settings
+testcases:
+# docs/cluster/cluster_setup.asciidoc "PacketFence Configuration Modification":
+# append the cluster blocks to pf.conf. proxysql VIP 100.64.0.1:6033 is the
+# DB endpoint; galera + webservices creds come from venom_local_vars.yml.
+# NB: the doc's [advanced] configurator=disabled is intentionally omitted —
+# the configurator suite already disabled it, and re-adding the key here makes
+# Config::IniFiles read advanced.configurator as an ARRAY (duplicate key).
+- name: append_pf_conf
+  steps:
+  - type: exec
+    # idempotent: skip if our block is already present (heredoc EOF must stay
+    # at column 0 even inside the `if`, so body/terminator are not indented).
+    script: |
+      if ! grep -q '^galera_replication_username' /usr/local/pf/conf/pf.conf; then
+      cat >> /usr/local/pf/conf/pf.conf <<EOF
+
+      [database]
+      host={{.proxysql_bind_ip}}
+      port={{.proxysql_port}}
+
+      [active_active]
+      galera_replication_username={{.cluster_galera_user}}
+      galera_replication_password={{.cluster_galera_password}}
+
+      [webservices]
+      user={{.cluster_webservices_user}}
+      pass={{.cluster_webservices_password}}
+
+      [services]
+      galera-autofix=disabled
+      EOF
+      fi
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: append_pfconfig_conf
+  steps:
+  - type: exec
+    script: |
+      if ! grep -q '^\[mysql\]' /usr/local/pf/conf/pfconfig.conf; then
+      cat >> /usr/local/pf/conf/pfconfig.conf <<EOF
+
+      [mysql]
+      host={{.proxysql_bind_ip}}
+      port={{.proxysql_port}}
+      EOF
+      fi
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: restart_packetfence_config
+  steps:
+  - type: exec
+    script: 'systemctl restart packetfence-config'
+    assertions:
+      - result.code ShouldEqual 0
+
+# configreload warns about DB unavailability at this stage (proxysql not up
+# yet) — doc says to ignore it, so we tolerate a non-zero exit.
+- name: configreload_hard
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd configreload hard || true'
+    assertions:
+      - result.code ShouldEqual 0

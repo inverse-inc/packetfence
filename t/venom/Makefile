@@ -275,18 +275,18 @@ test_deb12:
         SCENARIOS_TO_RUN=test_venom\
         $(MAKE_TARGET)
 
-cluster_deb12:
+cluster_configurator_deb12:
 	make \
 	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
-	CLUSTER_NAME="$@$(DEV_ENV)" \
-	SCENARIOS_TO_RUN=cluster \
+	CLUSTER_NAME="cluster_deb12$(DEV_ENV)" \
+	SCENARIOS_TO_RUN=cluster_configurator \
 	$(MAKE_TARGET)
 
-cluster_el8:
+cluster_configurator_el8:
 	make \
 	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
-	CLUSTER_NAME="$@$(DEV_ENV)" \
-	SCENARIOS_TO_RUN=cluster \
+	CLUSTER_NAME="cluster_el8$(DEV_ENV)" \
+	SCENARIOS_TO_RUN=cluster_configurator \
 	$(MAKE_TARGET)
 
 mac_auth_virtualswitch_el8:

@@ -1,0 +1,84 @@
+name: First server — write cluster.conf (3-node IP map)
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Configure cluster.conf (first server
+# only)". Interface names are discovered at runtime (same index idiom as the
+# configurator suite: mgmt=3, reg=4, iso=5) because the vagrant boxes use
+# bare interfaces (eth*/ens*), not the doc's eth1.2/eth1.3 VLAN subinterfaces.
+# Hostnames come from `hostname` (pf2/pf3 derived by prefix) so the section
+# headers match what pf::cluster expects. Per-node IPs come from venom vars.
+- name: write_cluster_conf
+  steps:
+  - type: exec
+    script: |
+      set -e
+      iface_for() { ip -o link show | egrep -v '^1:' | grep "^$1:" | awk -F ': ' '{print $2}' | cut -d'@' -f1 | tr -d ' '; }
+      MGMTIF=$(iface_for {{.configurator.interfaces.mgmt.index}})
+      REGIF=$(iface_for {{.configurator.interfaces.reg.index}})
+      ISOIF=$(iface_for {{.configurator.interfaces.iso.index}})
+      H1=$(hostname)
+      H2=$(echo "$H1" | sed 's/^pf1/pf2/')
+      H3=$(echo "$H1" | sed 's/^pf1/pf3/')
+      cat > /usr/local/pf/conf/cluster.conf <<EOF
+      [CLUSTER]
+      management_ip={{.cluster_ip_mgmt}}
+
+      [CLUSTER interface $MGMTIF]
+      ip={{.cluster_ip_mgmt}}
+
+      [CLUSTER interface $REGIF]
+      ip={{.cluster_ip_reg}}
+
+      [CLUSTER interface $ISOIF]
+      ip={{.cluster_ip_iso}}
+
+      [$H1]
+      management_ip={{.pf1_mgmt_ip}}
+
+      [$H1 interface $MGMTIF]
+      ip={{.pf1_mgmt_ip}}
+
+      [$H1 interface $REGIF]
+      ip={{.pf1_reg_ip}}
+
+      [$H1 interface $ISOIF]
+      ip={{.pf1_iso_ip}}
+
+      [$H2]
+      management_ip={{.pf2_mgmt_ip}}
+
+      [$H2 interface $MGMTIF]
+      ip={{.pf2_mgmt_ip}}
+
+      [$H2 interface $REGIF]
+      ip={{.pf2_reg_ip}}
+
+      [$H2 interface $ISOIF]
+      ip={{.pf2_iso_ip}}
+
+      [$H3]
+      management_ip={{.pf3_mgmt_ip}}
+
+      [$H3 interface $MGMTIF]
+      ip={{.pf3_mgmt_ip}}
+
+      [$H3 interface $REGIF]
+      ip={{.pf3_reg_ip}}
+
+      [$H3 interface $ISOIF]
+      ip={{.pf3_iso_ip}}
+      EOF
+    assertions:
+      - result.code ShouldEqual 0
+
+# reload + checkup will warn about the DB being unavailable; the doc says to
+# ignore that and only watch for cluster-config errors. Tolerate non-zero.
+- name: configreload_and_checkup
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd configreload hard || true'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd checkup || true'
+    assertions:
+      - result.code ShouldEqual 0

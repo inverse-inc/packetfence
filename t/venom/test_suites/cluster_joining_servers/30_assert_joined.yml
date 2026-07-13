@@ -1,0 +1,18 @@
+name: Joining servers — assert joined the cluster
+testcases:
+# After SST the node reports the documented log line; we assert the wsrep
+# state directly (more robust than scraping systemd status). SST can take a
+# while, so poll generously.
+- name: wait_wsrep_synced
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_local_state_comment''" | awk "{print \$2}"'
+    retry: 40
+    delay: 15
+    assertions:
+      - result.systemout ShouldEqual Synced
+      - result.code ShouldEqual 0
+
+# Cluster size == 3 is asserted in cluster_verify_all, once BOTH joiners have
+# joined. Joiners run serially (one at a time), so a single joiner here only
+# sees itself + pf1; the full-size check belongs after all nodes are in.

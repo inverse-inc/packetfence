@@ -1,0 +1,13 @@
+name: pfcmd cluster maintenance
+testcases:
+- name: cluster_maintenance_runs
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd cluster maintenance'
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldNotEqual ""
+
+# Line-count / per-node-name assertions deferred until we capture the
+# real output format on a bootstrapped cluster — observed venom does not
+# support ShouldBeNumeric in this version (1.0.1).
