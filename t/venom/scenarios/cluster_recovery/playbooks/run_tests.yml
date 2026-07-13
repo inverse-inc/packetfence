@@ -1,0 +1,323 @@
+---
+# Cluster recovery scenarios — drive full-cluster outages and ordered
+# stop/start sequences from the Ansible controller (the runner) via libvirt,
+# and assert galera recovers. Assumes a HEALTHY 3-node cluster already exists
+# (run the cluster_configurator scenario first); this scenario only powers
+# nodes and checks recovery — it does not bootstrap.
+#
+#   pre) preflight   — assert the cluster is healthy before we start
+#   A) power failure — hard virsh-destroy all 3, boot all, autofix recovers
+#   B) simultaneous  — clean stop all 3 at once, boot all, autofix recovers
+#   C) sequential    — reboot one node at a time (quorum never lost)
+#   D) wrong order   — clean stop 1,2,3; boot 1,2 (must NOT serve) then 3 recovers
+#   E) right order   — clean stop 1,2,3; boot 3 (safe) serves, then 2 & 1 rejoin
+#
+# Power control uses the libvirt domain UUID from the vagrant dotfile
+# (vagrant_pf_dotfile_path passed by test-wrapper.sh) because the domain NAME
+# is randomised by the Vagrantfile.
+#
+# Timing note (scenario D): galera-autofix only force-bootstraps the
+# highest-seqno node ~10 min after a node boots (startWait 5m + connectDBTries
+# 10x30s). D deliberately completes each node's checks well under that window
+# so it exercises pf-mariadb's safe_to_bootstrap ordering, not autofix.
+#
+# Each scenario is gated so a subset can be run, e.g.
+#   -e '{"recovery_scenarios": ["D"]}'
+# The default runs them all.
+
+- hosts: 'pf[123]*dev'
+  name: "Recovery — preflight: cluster must be healthy"
+  become: True
+  vars:
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: run_venom_suites.yml
+
+########################################################################
+# A) Recover from a power failure
+########################################################################
+- hosts: 'pf[123]*dev'
+  name: "A1 — hard power-off all nodes at once (power failure)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/hard_off.yml
+      when: "'A' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "A2 — boot all nodes (one at a time, any order)"
+  become: True
+  serial: 1
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/boot.yml
+      when: "'A' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "A3 — galera recovers (autofix seqno election)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'A' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "A — verify cluster health after power-failure recovery"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: "'A' in recovery_scenarios"
+
+########################################################################
+# B) Simultaneous clean (ACPI) shutdown
+########################################################################
+- hosts: 'pf[123]*dev'
+  name: "B1 — clean-stop all nodes at the same time"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'B' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "B2 — boot all nodes (one at a time, any order)"
+  become: True
+  serial: 1
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/boot.yml
+      when: "'B' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "B3 — galera recovers"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'B' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "B — verify cluster health after simultaneous-shutdown recovery"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: "'B' in recovery_scenarios"
+
+########################################################################
+# C) Sequential reboot — one node at a time, quorum never lost
+########################################################################
+- hosts: 'pf[123]*dev'
+  name: "C1 — reboot each node one at a time, re-Sync before the next"
+  become: True
+  # serial:1 keeps galera quorum: only one node is ever down. This is the same
+  # guarantee the bring-up rolling-reboot provides; kept here so recovery
+  # coverage is self-contained.
+  serial: 1
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - name: "Stop PacketFence before reboot"
+      ansible.builtin.shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
+      when: "'C' in recovery_scenarios"
+
+    - name: "Reboot and wait for reconnect"
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+        post_reboot_delay: 30
+        reboot_command: "systemctl reboot --force"
+      when: "'C' in recovery_scenarios"
+
+    - name: "Wait for the boot transaction to settle"
+      ansible.builtin.command: systemctl is-system-running
+      register: _boot_settled
+      changed_when: false
+      until: _boot_settled.stdout in ['running', 'degraded']
+      retries: 60
+      delay: 10
+      failed_when: _boot_settled.stdout not in ['running', 'degraded']
+      when: "'C' in recovery_scenarios"
+
+    - name: "Wait for THIS node to re-Sync into galera before the next reboot"
+      ansible.builtin.shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk '{print $2}'"
+      register: _resync
+      changed_when: false
+      until: _resync.stdout == 'Synced'
+      retries: 40
+      delay: 15
+      when: "'C' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "C — verify cluster health after sequential reboot"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: "'C' in recovery_scenarios"
+
+########################################################################
+# D) All stop, wrong-order start (non-safe nodes must not bootstrap)
+########################################################################
+- hosts: 'pf1*dev'
+  name: "D1 — clean-stop node 1"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'D' in recovery_scenarios"
+
+- hosts: 'pf2*dev'
+  name: "D2 — clean-stop node 2"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'D' in recovery_scenarios"
+
+- hosts: 'pf3*dev'
+  name: "D3 — clean-stop node 3 last (so node 3 is safe_to_bootstrap)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'D' in recovery_scenarios"
+
+- hosts: 'pf1*dev'
+  name: "D4 — boot node 1; it must NOT start the DB (not safe, no quorum)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    not_serving_wait_seconds: 120
+  tasks:
+    - block:
+        - import_tasks: tasks/boot.yml
+        - import_tasks: tasks/assert_db_not_serving.yml
+      when: "'D' in recovery_scenarios"
+
+- hosts: 'pf2*dev'
+  name: "D5 — boot node 2; still must NOT reach Primary (no safe peer up)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    not_serving_wait_seconds: 120
+  tasks:
+    - block:
+        - import_tasks: tasks/boot.yml
+        - import_tasks: tasks/assert_db_not_serving.yml
+      when: "'D' in recovery_scenarios"
+
+- hosts: 'pf3*dev'
+  name: "D6 — boot node 3 (safe); it bootstraps and 1 & 2 rejoin"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/boot.yml
+      when: "'D' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "D — galera recovers once the safe node is up + verify"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'D' in recovery_scenarios"
+    - import_tasks: run_venom_suites.yml
+      when: "'D' in recovery_scenarios"
+
+########################################################################
+# E) All stop, right-order start (boot the safe node first)
+########################################################################
+- hosts: 'pf1*dev'
+  name: "E1 — clean-stop node 1"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'E' in recovery_scenarios"
+
+- hosts: 'pf2*dev'
+  name: "E2 — clean-stop node 2"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'E' in recovery_scenarios"
+
+- hosts: 'pf3*dev'
+  name: "E3 — clean-stop node 3 last (node 3 is safe_to_bootstrap)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'E' in recovery_scenarios"
+
+- hosts: 'pf3*dev'
+  name: "E4 — boot node 3 first; it bootstraps and serves alone"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - block:
+        - import_tasks: tasks/boot.yml
+        - import_tasks: tasks/wait_db_serving.yml
+      when: "'E' in recovery_scenarios"
+
+- hosts: 'pf2*dev'
+  name: "E5 — boot node 2; it joins the cluster"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - block:
+        - import_tasks: tasks/boot.yml
+        - import_tasks: tasks/wait_db_serving.yml
+      when: "'E' in recovery_scenarios"
+
+- hosts: 'pf1*dev'
+  name: "E6 — boot node 1; it joins the cluster"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+  tasks:
+    - import_tasks: tasks/boot.yml
+      when: "'E' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "E — full cluster restored + verify"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'E' in recovery_scenarios"
+    - import_tasks: run_venom_suites.yml
+      when: "'E' in recovery_scenarios"

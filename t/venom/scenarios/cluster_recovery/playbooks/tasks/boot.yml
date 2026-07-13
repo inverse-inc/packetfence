@@ -1,0 +1,17 @@
+---
+# Boot a powered-off node via libvirt and wait for it to answer SSH again.
+- import_tasks: read_uuid.yml
+
+- name: "Boot {{ inventory_hostname }} (virsh start)"
+  ansible.builtin.command: "virsh -c qemu:///system start --domain {{ domain_uuid }}"
+  delegate_to: localhost
+  register: _start
+  changed_when: true
+  failed_when:
+    - _start.rc != 0
+    - "'already active' not in (_start.stderr | default(''))"
+
+- name: "Wait for SSH to come back on {{ inventory_hostname }}"
+  ansible.builtin.wait_for_connection:
+    timeout: 420
+    delay: 10
