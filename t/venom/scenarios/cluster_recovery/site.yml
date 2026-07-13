@@ -1,0 +1,9 @@
+---
+# Development environnement
+## rsync before tests when doing local development
+## preinstall vim
+## fix term
+- import_playbook: ../common/dev.yml
+  when: lookup("env", "CI") != 'true'
+
+- import_playbook: playbooks/run_tests.yml

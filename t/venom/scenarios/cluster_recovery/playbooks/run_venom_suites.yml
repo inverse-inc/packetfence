@@ -1,0 +1,18 @@
+---
+# Shared by the three plays in run_tests.yml. Same shape as the standalone
+# scenarios' run_tests.yml: loop over test_suites, run venom-wrapper.sh
+# with a per-suite results directory.
+
+- name: Run Venom testsuites
+  command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
+  args:
+    chdir: '{{ venom_dir }}'
+  loop: '{{ test_suites }}'
+  vars:
+    venom_wrapper_args:
+      VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}'
+
+  # add inventory__group_environment to Ansible environment
+  # useful to make env vars available for Venom
+  environment: '{{ inventory__group_environment | d({})
+                   | combine(venom_wrapper_args | d({})) }}'
