@@ -25,7 +25,8 @@ func writeHistoryFixture(t *testing.T, name string, lines []string) {
 
 func writeHistoryGzFixture(t *testing.T, name string, lines []string) {
 	t.Helper()
-	f, err := os.Create(filepath.Join(historyLogDir, name))
+	path := filepath.Join(historyLogDir, name)
+	f, err := os.Create(path)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,6 +36,18 @@ func writeHistoryGzFixture(t *testing.T, name string, lines []string) {
 		t.Fatal(err)
 	}
 	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	// The scanner prunes rotations by mtime (enumerateHistorySources), so a
+	// fixture must carry the mtime logrotate would give it: just after its
+	// last line was written — not "now".
+	last := lines[len(lines)-1]
+	ts, err := time.Parse(time.RFC3339Nano, strings.Fields(last)[0])
+	if err != nil {
+		t.Fatalf("fixture %s: last line has no leading ISO timestamp: %v", name, err)
+	}
+	mtime := ts.Add(time.Minute)
+	if err := os.Chtimes(path, mtime, mtime); err != nil {
 		t.Fatal(err)
 	}
 }
