@@ -70,6 +70,6 @@ ansible-playbook scenarios/cluster_recovery/site.yml -l <pf1,pf2,pf3> \
 
 (The `recovery_scenarios` list defaults to `['A','B','C','D','E']`.)
 
-CI: jobs `cluster_recovery_deb12` / `_el8`, gated on `TEST_CLUSTER_RECOVERY=yes`
-(or a `test_cluster_recovery=yes` commit message) — separate from the
-`TEST_CLUSTER` gate.
+CI: jobs `cluster_recovery_deb12` / `_el8` run in the `test_cluster` stage under
+the same `TEST_CLUSTER=yes` gate as the configurator jobs (or a `test_cluster=yes`
+commit message).
