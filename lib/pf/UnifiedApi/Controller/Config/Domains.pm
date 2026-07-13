@@ -284,6 +284,11 @@ sub update {
 
     my $new_item = $self->mergeUpdate($data, $self->item);
 
+    # mergeUpdate sets the id to the host_id-namespaced value ($self->id); validate
+    # against the raw id so the field's maxlength/pattern apply to the user-supplied
+    # portion only (the prefix is an internal storage detail, not user input).
+    $new_item->{id} =~ s/^\Q$host_id\E //;
+
     my ($status, $new_data, $form) = $self->validate_item($new_item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
