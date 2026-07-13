@@ -41,6 +41,21 @@
       :text="$i18n.t(`Path appended to the Graph Url to lookup group memberships. %USERNAME is replaced with the URI-escaped username. Use /v1.0/devices(deviceId='%USERNAME')/memberOf to look up device/machine group memberships instead of user groups.`)"
     />
 
+    <form-group-lookup-device-owner namespace="lookup_device_owner"
+      :column-label="$i18n.t('Lookup Device Owner')"
+      :text="$i18n.t(`When enabled and looking up device/machine groups, also resolve the device's registered owner in Entra and merge that owner's groups into the memberOf used for rule matching. Only the first registered owner is used.`)"
+    />
+
+    <form-group-device-owner-url-path namespace="device_owner_url_path"
+      :column-label="$i18n.t('Device Owner Url Path')"
+      :text="$i18n.t(`Path appended to the Graph Url to resolve the device's registered owner. %USERNAME is replaced with the URI-escaped device identity. Only used when 'Lookup Device Owner' is enabled.`)"
+    />
+
+    <form-group-owner-groups-url-path namespace="owner_groups_url_path"
+      :column-label="$i18n.t('Owner Groups Url Path')"
+      :text="$i18n.t(`Path appended to the Graph Url to look up the resolved owner's group memberships. %USERNAME is replaced with the URI-escaped owner id. Only used when 'Lookup Device Owner' is enabled.`)"
+    />
+
     <form-group-timeout namespace="timeout"
       :column-label="$i18n.t('Timeout')"
       :text="$i18n.t('Timeout while sending HTTP requests to Azure AD.')"
@@ -73,9 +88,12 @@ import {
   FormGroupClientIdentifier,
   FormGroupClientSecret,
   FormGroupDescription,
+  FormGroupDeviceOwnerUrlPath,
   FormGroupGraphUrl,
   FormGroupIdentifier,
+  FormGroupLookupDeviceOwner,
   FormGroupOauthUrl,
+  FormGroupOwnerGroupsUrlPath,
   FormGroupRealms,
   FormGroupTenantIdentifier,
   FormGroupTimeout,
@@ -91,9 +109,12 @@ const components = {
   FormGroupClientIdentifier,
   FormGroupClientSecret,
   FormGroupDescription,
+  FormGroupDeviceOwnerUrlPath,
   FormGroupGraphUrl,
   FormGroupIdentifier,
+  FormGroupLookupDeviceOwner,
   FormGroupOauthUrl,
+  FormGroupOwnerGroupsUrlPath,
   FormGroupRealms,
   FormGroupTenantIdentifier,
   FormGroupTimeout,

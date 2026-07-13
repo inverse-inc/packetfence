@@ -28,6 +28,9 @@ has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
 has 'graph_url' => (isa => 'Str', is => 'rw', default => 'https://graph.microsoft.com');
 has 'oauth_url' => (isa => 'Str', is => 'rw', default => 'https://login.microsoftonline.com');
 has 'user_groups_url_path' => (isa => 'Str', is => 'rw', default => "/v1.0/users/%USERNAME/memberOf");
+has 'lookup_device_owner' => (isa => 'Bool', is => 'rw', default => 0);
+has 'device_owner_url_path' => (isa => 'Str', is => 'rw', default => "/v1.0/devices(deviceId='%USERNAME')/registeredOwners");
+has 'owner_groups_url_path' => (isa => 'Str', is => 'rw', default => "/v1.0/users/%USERNAME/memberOf");
 has 'user_groups_cache' => (isa => 'Int', is => "rw", default => 0);
 has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 
@@ -81,15 +84,29 @@ sub build_token_url {
     return "$url/$tenant_id/oauth2/v2.0/token";
 }
 
-sub build_user_groups_url {
-    my ($self, $username) = @_;
-    my $encoded_username = uri_escape($username);
+sub _build_graph_url {
+    my ($self, $path, $value) = @_;
+    my $encoded_value = uri_escape($value);
     my $url = $self->graph_url;
     $url =~ s#/*$##;
-    my $path = $self->user_groups_url_path;
     $path = "/$path" unless $path =~ m#^/#;
-    $path =~ s/%USERNAME/$encoded_username/g;
+    $path =~ s/%USERNAME/$encoded_value/g;
     return "$url$path";
+}
+
+sub build_user_groups_url {
+    my ($self, $username) = @_;
+    return $self->_build_graph_url($self->user_groups_url_path, $username);
+}
+
+sub build_device_owner_url {
+    my ($self, $username) = @_;
+    return $self->_build_graph_url($self->device_owner_url_path, $username);
+}
+
+sub build_owner_groups_url {
+    my ($self, $owner_id) = @_;
+    return $self->_build_graph_url($self->owner_groups_url_path, $owner_id);
 }
 
 sub build_scope_url {
@@ -196,17 +213,81 @@ sub get_memberOf {
 
     my $token = $self->get_admin_token();
     my $r = $ua->get(
-        $self->build_user_groups_url($username) . '?$select=id,displayName', 
-        Authorization => "Bearer $token", 
-        "Content-Type" => "application/json", 
+        $self->build_user_groups_url($username) . '?$select=id,displayName',
+        Authorization => "Bearer $token",
+        "Content-Type" => "application/json",
+    );
+    my @groups;
+    if($r->is_success) {
+        my $response = decode_json($r->decoded_content);
+        @groups = map{ $_->{displayName} } @{$response->{value}};
+    }
+    else {
+        $logger->error("Failed to obtain groups for $username: " . $r->status_line);
+        return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
+    }
+
+    # Optionally resolve the device's registered owner and merge in the owner's
+    # groups, so a machine certificate can be authorized based on who owns the
+    # device. Only the first registered owner is used.
+    if($self->lookup_device_owner) {
+        my $owner = $self->get_device_owner($username);
+        if(defined($owner) && length($owner)) {
+            push @groups, $self->get_owner_memberOf($owner);
+        }
+    }
+
+    # De-duplicate: a group may appear on both the device and its owner.
+    my %seen;
+    return grep { !$seen{$_}++ } @groups;
+}
+
+sub get_device_owner {
+    my ($self, $username) = @_;
+    my $logger = get_logger;
+    my $ua = $self->get_ua;
+
+    my $token = $self->get_admin_token();
+    my $r = $ua->get(
+        $self->build_device_owner_url($username) . '?$select=id,userPrincipalName',
+        Authorization => "Bearer $token",
+        "Content-Type" => "application/json",
+    );
+    if($r->is_success) {
+        my $response = decode_json($r->decoded_content);
+        my $owner = $response->{value}->[0];
+        unless($owner) {
+            $logger->warn("No registered owner found for device $username");
+            return undef;
+        }
+        my $owner_id = $owner->{id} // $owner->{userPrincipalName};
+        $logger->debug("Resolved registered owner '$owner_id' for device $username");
+        return $owner_id;
+    }
+    else {
+        $logger->error("Failed to obtain registered owner for device $username: " . $r->status_line);
+        return $self->handle_failed_admin_call($r, sub{$self->get_device_owner($username)});
+    }
+}
+
+sub get_owner_memberOf {
+    my ($self, $owner_id) = @_;
+    my $logger = get_logger;
+    my $ua = $self->get_ua;
+
+    my $token = $self->get_admin_token();
+    my $r = $ua->get(
+        $self->build_owner_groups_url($owner_id) . '?$select=id,displayName',
+        Authorization => "Bearer $token",
+        "Content-Type" => "application/json",
     );
     if($r->is_success) {
         my $response = decode_json($r->decoded_content);
         return map{ $_->{displayName} } @{$response->{value}};
     }
     else {
-        $logger->error("Failed to obtain groups for $username: " . $r->status_line);
-        return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
+        $logger->error("Failed to obtain groups for device owner $owner_id: " . $r->status_line);
+        return $self->handle_failed_admin_call($r, sub{$self->get_owner_memberOf($owner_id)});
     }
 }
 
