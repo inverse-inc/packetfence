@@ -72,10 +72,6 @@ variables:
   # Heavy 3-VM cluster tests. Also run on TEST=yes (after the test stage passes);
   # TEST_CLUSTER=yes forces them on their own.
   TEST_CLUSTER: ""
-  # Separate opt-in gate for the very slow cluster recovery jobs (A-E, ~1h+;
-  # default off, independent of TEST_CLUSTER).
-  # Enable with TEST_CLUSTER_RECOVERY=yes or a `test_cluster_recovery=yes` commit message.
-  TEST_CLUSTER_RECOVERY: ""
 
 
 ################################################################################
@@ -370,21 +366,6 @@ variables:
       variables:
         VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
-      variables:
-        VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-
-# Same as .cluster_test_rules, but gated on TEST_CLUSTER_RECOVERY (very slow A-E
-# recovery family, ~1h+). Separate opt-in so enabling the cluster family doesn't
-# pull in the recovery jobs.
-.cluster_recovery_test_rules:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST_CLUSTER_RECOVERY == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster_recovery=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST_CLUSTER_RECOVERY == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster_recovery=yes/ )'
-    - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST_CLUSTER_RECOVERY == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster_recovery=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST_CLUSTER_RECOVERY == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster_recovery=yes/ )'
-      variables:
-        VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $TEST_CLUSTER_RECOVERY == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster_recovery=yes/ )'
       variables:
         VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
 
@@ -1187,14 +1168,14 @@ cluster_configurator_el8:
     - .cluster_test_rules
 
 # Recovery family (A-E): builds the cluster then runs cluster_recovery in the
-# same job/VMs. Very slow; gated on TEST_CLUSTER_RECOVERY only.
+# same job/VMs. Slow (~1h+); same TEST_CLUSTER gate as the configurator jobs.
 cluster_recovery_deb12:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_cluster_job
     - .test_script_job
-    - .cluster_recovery_test_rules
+    - .cluster_test_rules
 
 cluster_recovery_el8:
   variables:
@@ -1202,7 +1183,7 @@ cluster_recovery_el8:
   extends:
     - .test_cluster_job
     - .test_script_job
-    - .cluster_recovery_test_rules
+    - .cluster_test_rules
 
 pfappserver_el8:
   variables:
