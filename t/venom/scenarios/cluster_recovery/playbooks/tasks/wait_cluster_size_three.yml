@@ -1,0 +1,14 @@
+---
+# Wait for full galera recovery on this node. Budget is deliberately long: the
+# autofix path (A/B) is startWait 5m + connectDBTries ~5m + seqno election +
+# SST, so recovery can take well over 10 minutes.
+- name: "Wait for galera size 3 + Synced on {{ inventory_hostname }}"
+  ansible.builtin.shell: |
+    size=$(mysql -uroot -N -e "SHOW STATUS LIKE 'wsrep_cluster_size'" 2>/dev/null | awk '{print $2}')
+    state=$(mysql -uroot -N -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | awk '{print $2}')
+    test "$size" = "3" -a "$state" = "Synced"
+  register: _recovered
+  until: _recovered.rc == 0
+  retries: 80
+  delay: 15
+  changed_when: false
