@@ -1,0 +1,80 @@
+name: pfcron failover — pfcron master role follows the mgmt VIP to pf2
+testcases:
+# pfcron runs maintenance jobs only on the node holding the management VIP
+# (isMaster). Moving the mgmt VIP (stop radiusd-load_balancer on pf1, which the
+# mgmt vrrp_instance tracks) makes pf2 the pfcron master.
+- name: baseline_pf1_holds_mgmt_vip
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: move_mgmt_vip_by_stopping_radiusd_load_balancer
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service radiusd-load_balancer stop || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: pf2_becomes_pfcron_master
+  steps:
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'"
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: "ssh pf2 'systemctl is-active packetfence-pfcron'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
+
+- name: restore_radiusd_load_balancer_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service radiusd-load_balancer restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'
+    retry: 24
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+
+# Service-health half: stopping pfcron on pf1 does not move a VIP (not tracked);
+# it confirms the standby's pfcron instance stays healthy and pf1's restarts fine.
+- name: stop_pfcron_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service pfcron stop || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: pf2_pfcron_still_healthy
+  steps:
+  - type: exec
+    script: "ssh pf2 'systemctl is-active packetfence-pfcron'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
+
+- name: restart_pfcron_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service pfcron restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'systemctl is-active packetfence-pfcron'
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0

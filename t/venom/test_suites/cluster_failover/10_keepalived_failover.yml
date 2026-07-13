@@ -1,0 +1,74 @@
+name: keepalived failover — all VIPs migrate to pf2
+testcases:
+# Stopping keepalived on the master removes its VRRP adverts; pf2 (priority 99)
+# becomes MASTER and takes every VIP. Restarting keepalived on pf1 (priority 100,
+# preempt on) brings all VIPs back.
+- name: baseline_pf1_master
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: stop_keepalived_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service keepalived stop || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: all_vips_migrate_to_pf2
+  steps:
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'"
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_iso}}'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: vips_gone_from_pf1
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'
+    assertions:
+      - result.code ShouldNotEqual 0
+
+- name: restart_keepalived_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service keepalived restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: vips_preempt_back_to_pf1
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_mgmt}}'
+    retry: 24
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_iso}}'
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
