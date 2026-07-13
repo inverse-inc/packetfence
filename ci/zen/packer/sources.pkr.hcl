@@ -1,24 +1,22 @@
-# VirtualBox builds
-source "virtualbox-iso" "debian-12" {
-  vm_name = "${var.vm_name}"
+# QEMU/KVM build, run in the zen-builder container; the qcow2 becomes
+# a VMware OVA in ../build-and-upload.sh.
+source "qemu" "debian-12" {
+  # the qemu builder uses vm_name verbatim as the disk file name
+  vm_name = "${var.vm_name}.qcow2"
   disk_size = "200000"
-  guest_os_type = "Debian_64"
-  hard_drive_interface = "scsi"
+  format = "qcow2"
+  accelerator = "kvm"
   headless = "true"
 
-  # hardware used to **build VM**
-  cpus = "2"
-  memory = "2048"
+  # build-time hardware; final appliance sizing is in the VMX template
+  cpus = "6"
+  memory = "16384"
+  disk_interface = "virtio"
+  net_device = "virtio-net"
 
-  # change hardware configuration before exporting VM
-  vboxmanage_post = [
-    ["modifyvm", "{{.Name}}", "--cpus", "4"],
-    ["modifyvm", "{{.Name}}", "--memory", "16384"],
-    ["modifyvm", "{{.Name}}", "--uartmode1", "disconnected"],
-    ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--remove"]
-  ]
   iso_url = "https://cdimage.debian.org/cdimage/archive/12.4.0/amd64/iso-cd/debian-12.4.0-amd64-netinst.iso"
   iso_checksum = "64d727dd5785ae5fcfd3ae8ffbede5f40cca96f1580aaa2820e8b99dae989d94"
+
   # boot parameters to preseed questions
   # all parameters below can't be moved to preseed file
   boot_command = [
@@ -42,7 +40,6 @@ source "virtualbox-iso" "debian-12" {
   ssh_password = "p@ck3tf3nc3"
   ssh_timeout = "60m"
   shutdown_command = "echo 'p@ck3tf3nc3' | sudo -S poweroff"
-  # export
-  format = "ova"
-  output_directory = "${var.output_vbox_directory}"
+
+  output_directory = "${var.output_qemu_directory}"
 }

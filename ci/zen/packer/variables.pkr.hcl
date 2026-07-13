@@ -1,10 +1,5 @@
-# We only declare variables without defaults
-# defaults are in Makefile
-variable output_vbox_directory {
-  type = string
-}
-
-variable output_vmware_directory {
+# Values arrive as PKR_VAR_* environment variables.
+variable output_qemu_directory {
   type = string
 }
 

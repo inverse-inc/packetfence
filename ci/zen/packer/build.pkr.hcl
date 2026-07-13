@@ -1,0 +1,43 @@
+packer {
+  required_plugins {
+    qemu = {
+      source  = "github.com/hashicorp/qemu"
+      version = "~> 1.1"
+    }
+    ansible = {
+      source  = "github.com/hashicorp/ansible"
+      version = "~> 1"
+    }
+  }
+}
+
+build {
+  sources = [
+    "source.qemu.debian-12",
+  ]
+  provisioner "ansible" {
+    playbook_file = "${var.provisioner_dir}/site.yml"
+    # Match ssh_username; otherwise defaults to the container's $USER.
+    user = "root"
+    # -O forces legacy scp; SFTP-mode scp (OpenSSH 9+) can't mkdir the remote tmp.
+    extra_arguments = ["--scp-extra-args=-O", "--skip-tags", "rc-local-include-variables"]
+    host_alias = "${var.vm_name}"
+    groups = [
+      "${var.ansible_pfservers_group}",
+    ]
+    ansible_env_vars = [
+      "PF_MINOR_RELEASE=${var.pf_version}"
+    ]
+    inventory_directory = "${var.provisioner_dir}/inventory"
+    galaxy_file = "${var.provisioner_dir}/requirements.yml"
+    galaxy_force_install = true
+    # temp
+    keep_inventory_file = true
+  }
+
+  provisioner "shell" {
+    # ssh_username is root (see sources.pkr.hcl); no sudo needed.
+    execute_command = "{{.Vars}} bash '{{.Path}}'"
+    script = "${var.provisioner_dir}/shell/sysprep-packetfence.sh"
+  }
+}
