@@ -1,0 +1,81 @@
+name: DHCP failover — pfdhcp follows the reg/iso VIP to pf2
+testcases:
+# pfdhcp is not keepalived-tracked: it serves only on the interface where it
+# detects the VIP (detectVIPLoop, 3s). DHCP lives on the reg/iso networks, so
+# moving the portal VIP (stop haproxy-portal on pf1) hands DHCP service to pf2 —
+# pf2's pfdhcp detects it now owns the reg VIP and starts answering.
+- name: baseline_pf1_holds_reg_vip
+  steps:
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: move_reg_vip_by_stopping_haproxy_portal
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service haproxy-portal stop || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: pf2_owns_reg_vip_and_pfdhcp_serving
+  steps:
+  - type: exec
+    script: "ssh pf2 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'"
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: "ssh pf2 'systemctl is-active packetfence-pfdhcp'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
+
+- name: restore_haproxy_portal_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service haproxy-portal restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'ip -o -4 addr show | grep -qw {{.cluster_ip_reg}}'
+    retry: 24
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+
+# Service-health half: stopping pfdhcp on pf1 does not move a VIP (not tracked);
+# it confirms the standby's pfdhcp instance stays healthy and pf1's restarts fine.
+- name: stop_pfdhcp_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service pfdhcp stop || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: pf2_pfdhcp_still_healthy
+  steps:
+  - type: exec
+    script: "ssh pf2 'systemctl is-active packetfence-pfdhcp'"
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
+
+- name: restart_pfdhcp_on_pf1
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service pfdhcp restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'systemctl is-active packetfence-pfdhcp'
+    retry: 6
+    delay: 5
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
