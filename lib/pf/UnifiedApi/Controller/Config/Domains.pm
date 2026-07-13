@@ -121,8 +121,6 @@ sub create {
         return 0;
     }
 
-    $id = $host_id . " " . $item->{id};
-    $item->{id} = $id;
     my $cs = $self->config_store;
     my $sections = $cs->readAllIds;
     my $max_port = 4999;
@@ -139,13 +137,16 @@ sub create {
     }
     $max_port = $max_port + 1;
 
+    # Validate against the raw, user-supplied id. The host_id prefix below is an
+    # internal namespacing detail for the config-store section and must not count
+    # against the id field's maxlength (would spuriously fail on long cloud hostnames).
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);
     }
 
-    $id = delete $item->{id} // $id;
+    $id = $host_id . " " . (delete $item->{id} // $id);
     if ($cs->hasId($id)) {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
