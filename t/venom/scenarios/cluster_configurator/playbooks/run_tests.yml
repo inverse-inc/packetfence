@@ -10,8 +10,9 @@
 #   5) wrap up on all — updatesystemd + restart (serial)
 #   6) rolling reboot — reboot each node one at a time (doc's final step)
 #   7) verify on all  — assert cluster health on every node
-#   8) failover (pf1) — stop services on the master, assert VIPs/roles move to
-#                       pf2, restore; plus a master-push config-sync check
+#   8) failover      — Ansible plays (failover.yml): stop services on the master,
+#                       assert VIPs/roles move to pf2, always-restore; plus a
+#                       master-push config-sync check
 #
 # The bring-up plays (1-5) are DESTRUCTIVE and not safe to re-run on a live
 # cluster (force-new-cluster re-bootstrap, mysql datadir flush). Play 0 detects
@@ -223,17 +224,7 @@
   tasks:
     - import_tasks: run_venom_suites.yml
 
-# Failover suite drives cross-node failover from pf1 (the master) over the root
-# SSH set up by cluster_cross_ssh.yml. Runs on pf1 only — the suite stops
-# services on pf1 and asserts VIPs/roles migrate to pf2, then restores. Always
-# runs (like verify), independent of the bring-up gate.
-- hosts: 'pf1*dev'
-  name: Cluster — failover tests (driven from pf1)
-  become: True
-
-  vars:
-    test_suites:
-      - cluster_failover
-
-  tasks:
-    - import_tasks: run_venom_suites.yml
+# Failover tests: Ansible plays (not a venom suite) so each scenario has a
+# guaranteed block/always restore and generous retries for the slow VRRP
+# failover. Driven from pf1, peer checks via delegate_to. Always runs.
+- import_playbook: failover.yml
