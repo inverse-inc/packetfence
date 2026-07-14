@@ -99,7 +99,7 @@ func NewPfAcct(logLevel string) *PfAcct {
 		AAANotifyQueueSize:  DefaultAAANotifyQueueSize,
 	}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
-	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
+	pfAcct.NodeSessionCache = cache.New(nodeSessionExpiration, nodeSessionCleanupInterval)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 
 	pfAcct.LoggerCtx = ctx
