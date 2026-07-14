@@ -92,12 +92,13 @@
         path: /etc/network/interfaces
       register: eni
 
-    # Replace only the eth0 stanza (bake-time static + gateway): the same file
-    # holds the PF-written reg/iso stanzas (eth2/eth3) pfdhcp needs on the clone.
+    # Drop eth0 (bake static + gateway) and eth1 (vagrant re-adds its own block;
+    # a duplicate stanza breaks ifup), keep PF's reg/iso stanzas for pfdhcp.
     - name: Reset management NIC to DHCP (ifupdown boxes)
       ansible.builtin.shell: |
-        awk '/^$/{ skip=0 } /^(auto|allow-hotplug|iface|mapping) /{ skip = ($2 == "eth0") } !skip' \
-            /etc/network/interfaces > /etc/network/interfaces.new
+        awk '/^$/{ skip=0 }
+             /^(auto|allow-hotplug|iface|mapping) /{ skip = ($2 == "eth0" || $2 == "eth1") }
+             !skip' /etc/network/interfaces > /etc/network/interfaces.new
         printf '\nallow-hotplug eth0\niface eth0 inet dhcp\n' >> /etc/network/interfaces.new
         mv /etc/network/interfaces.new /etc/network/interfaces
       when: eni.stat.exists
