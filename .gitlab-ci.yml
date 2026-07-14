@@ -354,8 +354,11 @@ variables:
 
 # Same contexts as .test_rules; fires on TEST=yes (test_cluster stage runs after
 # the test stage passes) or on the TEST_CLUSTER opt-in (runs standalone).
+# TEST_CLUSTER=no (or a `test_cluster=no` commit message) opts out even when TEST=yes.
 .cluster_test_rules:
   rules:
+    - if: '$TEST_CLUSTER == "no" || $CI_COMMIT_MESSAGE =~ /test_cluster=no/'
+      when: never
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
     - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
