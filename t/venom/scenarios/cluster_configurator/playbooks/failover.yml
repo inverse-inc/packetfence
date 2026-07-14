@@ -34,7 +34,7 @@
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: false }
       always:
         - name: "Restart keepalived on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service keepalived restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service keepalived restart --ignore-checkup || true"
           changed_when: true
         - include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
@@ -63,7 +63,7 @@
           loop: ["{{ cluster_vip.reg }}", "{{ cluster_vip.iso }}"]
       always:
         - name: "Restart radiusd-load_balancer on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart --ignore-checkup || true"
           changed_when: true
         - include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
@@ -92,7 +92,7 @@
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
       always:
         - name: "Restart haproxy-portal on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart --ignore-checkup || true"
           changed_when: true
         - include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
@@ -124,7 +124,7 @@
           delay: 5
       always:
         - name: "Restart httpd.portal on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal restart --ignore-checkup || true"
           changed_when: true
 
 ########################################################################
@@ -155,7 +155,7 @@
           delay: 5
       always:
         - name: "Restart haproxy-portal on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart --ignore-checkup || true"
           changed_when: true
         - include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
@@ -174,7 +174,7 @@
           delay: 5
       always:
         - name: "Restart pfdhcp on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp restart --ignore-checkup || true"
           changed_when: true
 
 ########################################################################
@@ -205,7 +205,7 @@
           delay: 5
       always:
         - name: "Restart radiusd-load_balancer on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart --ignore-checkup || true"
           changed_when: true
         - include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
@@ -224,7 +224,7 @@
           delay: 5
       always:
         - name: "Restart pfcron on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron restart || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron restart --ignore-checkup || true"
           changed_when: true
 
 ########################################################################
