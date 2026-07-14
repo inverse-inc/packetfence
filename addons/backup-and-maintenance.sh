@@ -210,7 +210,8 @@ backup_database(){
             mysqldump --opt --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME  pf_version > dummy
             BACKUPRC=$?
             if (( $BACKUPRC == 0 )); then
-                mysqldump --opt --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
+                # --skip-triggers: pf user lacks TRIGGER privilege, so dumping triggers truncates the dump; reapplied on import from triggers.sql.
+                mysqldump --opt --skip-triggers --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
                 BACKUPRC=$?
             fi
             if (( $BACKUPRC > 0 )); then
