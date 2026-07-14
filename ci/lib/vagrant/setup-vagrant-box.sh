@@ -3,7 +3,8 @@ set -o nounset -o pipefail -o errexit
 
 # Fetch prebaked/<BOX_NAME>_<CI_PIPELINE_ID>.box from Linode and
 # register as inverse-inc/<BOX_NAME>-<category> v0.0.<CI_PIPELINE_ID>.
-# Also prunes -branches bakes older than 3d and stale pf*branch base boxes.
+# Also prunes -branches bakes to their newest version, stale pf*branch base
+# boxes, and orphaned pool volumes.
 #
 # Required: BOX_NAME, CI_PIPELINE_ID, RCLONE_{ACCESS_KEY_ID,SECRET_ACCESS_KEY,LINODE_URL}
 
@@ -32,16 +33,9 @@ VAGRANT_BOX_VERSION=${VAGRANT_BOX_VERSION:-0.0.${CI_PIPELINE_ID}}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}-${CATEGORY}}
 REMOTE_KEY="${BOX_NAME}_${CI_PIPELINE_ID}.box"
 
-# vagrant-libvirt mangles "inverse-inc/foo" → "inverse-inc-VAGRANTSLASH-foo"
-# for the storage-pool volume name; replicate that to clean it up.
-drop_pool_image() {
-    local name="$1" version="$2"
-    virsh -c qemu:///system vol-delete --pool default \
-        "${name//\//-VAGRANTSLASH-}_vagrant_box_image_${version}_box.img" 2>/dev/null \
-        || true
-}
-
-# Keep only the highest version of each pf*branch base box.
+# Keep only the highest version of each pf*branch base box. Pruned boxes'
+# pool volumes are reaped by sweep_orphan_pool_images, which alone has the
+# in-use and cross-home guards.
 prune_branch_base_boxes() {
     local base_box latest v
     for base_box in $(vagrant box list 2>/dev/null \
@@ -56,30 +50,32 @@ prune_branch_base_boxes() {
             echo "===> Pruning stale ${base_box} version ${v} (keeping ${latest})"
             vagrant box remove "${base_box}" --provider "${PROVIDER}" \
                 --box-version "${v}" --force || true
-            drop_pool_image "${base_box}" "${v}"
         done
     done
 }
 
-# Drop other versions of THIS box unconditionally (a feature branch's
-# back-to-back bakes outrun MAX_AGE_DAYS and fill the box store); for
-# other -branches box names keep the MAX_AGE_DAYS TTL.
+# Keep only what a job can still consume: for THIS box just the current
+# version, for other -branches names their newest version until MAX_AGE_DAYS.
 prune_old_pipeline_branches() {
-    local box_name version box_img
-    while read -r box_name version; do
-        [ "${box_name}" = "${VAGRANT_BOX_LOCAL_NAME}" ] && \
-            [ "${version}" = "${VAGRANT_BOX_VERSION}" ] && continue
-        box_img="${HOME}/.vagrant.d/boxes/${box_name//\//-VAGRANTSLASH-}/${version}/${PROVIDER}/box.img"
-        [ -f "${box_img}" ] || continue
-        if [ "${box_name}" = "${VAGRANT_BOX_LOCAL_NAME}" ] \
-           || [ -n "$(find "${box_img}" -mtime "+${MAX_AGE_DAYS}" -print 2>/dev/null)" ]; then
+    local box_name version latest box_img
+    for box_name in $(vagrant box list 2>/dev/null \
+                          | awk '$1 ~ /^inverse-inc\/.*-branches$/ { print $1 }' | sort -u); do
+        latest=$(vagrant box list | awk -v name="${box_name}" \
+            '$1 == name { gsub(/\)/,"",$3); print $3 }' | sort -V | tail -1)
+        for version in $(vagrant box list | awk -v name="${box_name}" \
+            '$1 == name { gsub(/\)/,"",$3); print $3 }'); do
+            if [ "${box_name}" = "${VAGRANT_BOX_LOCAL_NAME}" ]; then
+                [ "${version}" = "${VAGRANT_BOX_VERSION}" ] && continue
+            elif [ "${version}" = "${latest}" ]; then
+                box_img="${HOME}/.vagrant.d/boxes/${box_name//\//-VAGRANTSLASH-}/${version}/${PROVIDER}/box.img"
+                [ -f "${box_img}" ] || continue
+                [ -n "$(find "${box_img}" -mtime "+${MAX_AGE_DAYS}" -print 2>/dev/null)" ] || continue
+            fi
             echo "===> Removing ${box_name} version ${version}"
             vagrant box remove "${box_name}" --provider "${PROVIDER}" \
                 --box-version "${version}" --force || true
-            drop_pool_image "${box_name}" "${version}"
-        fi
-    done < <(vagrant box list | awk '$1 ~ /^inverse-inc\/.*-branches$/ {
-                gsub(/\)/,"",$3); print $1, $3 }')
+        done
+    done
 }
 
 # True if any live domain's XML references volume ${1} (its backing image).
@@ -93,7 +89,7 @@ pool_vol_in_use() {
     return 1
 }
 
-# Pool-volume name backing every box registered in ANY runner home. The
+# Pool-volume prefix backing every box registered in ANY runner home. The
 # libvirt 'default' pool is shared system-wide (see cleanup-runner-disk.sh),
 # so scan $HOME plus each /var/local/*/ home — never reap a sibling's box.
 # Box dirs are .vagrant.d/boxes/<mangled-name>/<version>/<provider>/.
@@ -104,8 +100,14 @@ registered_pool_vols() {
         [ -d "${p}" ] || continue
         version=$(basename "$(dirname "${p}")")
         name=$(basename "$(dirname "$(dirname "${p}")")")
-        echo "${name}_vagrant_box_image_${version}_box.img"
+        echo "${name}_vagrant_box_image_${version}"
     done
+}
+
+# Volume names carry a _box_<N> disk suffix on current vagrant-libvirt
+# (none on older); compare on the common prefix.
+vol_prefix() {
+    sed -E 's/(_box_[0-9]+)?(\.img)?$//' <<< "$1"
 }
 
 # Test teardown's `vagrant box remove` leaves the pool volume behind, and once
@@ -118,7 +120,7 @@ sweep_orphan_pool_images() {
 
     for vol in $(virsh -c qemu:///system vol-list default 2>/dev/null \
                      | awk '/_vagrant_box_image_/{print $1}'); do
-        [ -n "${keep[${vol}]:-}" ] && continue
+        [ -n "${keep[$(vol_prefix "${vol}")]:-}" ] && continue
         if pool_vol_in_use "${vol}"; then
             echo "===> Keeping in-use orphan pool volume ${vol}"
             continue
@@ -128,8 +130,33 @@ sweep_orphan_pool_images() {
     done
 }
 
+# Scratch that killed jobs leave behind, own $HOME only (boxes and pool
+# volumes go through the guarded pruners below). Age gates keep anything a
+# just-started sibling job could still own.
+sweep_local_scratch() {
+    local d
+    # vagrant box-add Tempfiles — a killed add leaves a multi-GB one
+    find "${HOME}/.vagrant.d/tmp" -mindepth 1 -maxdepth 1 -mmin +30 \
+        -exec rm -rf {} + 2>/dev/null || true
+    # empty version dirs left by vagrant box remove
+    find "${HOME}/.vagrant.d/boxes" -mindepth 2 -maxdepth 2 -type d -empty \
+        -delete 2>/dev/null || true
+    # prefetch-base-box.sh work dirs orphaned by a killed prefetch
+    find "${HOME}/vagrant_img_cache" -mindepth 1 -maxdepth 1 -mmin +60 \
+        -exec rm -rf {} + 2>/dev/null || true
+    # box downloads in /tmp from pre-DL_ROOT revisions of this script
+    for d in /tmp/tmp.*; do
+        [ -d "${d}" ] && [ -O "${d}" ] || continue
+        compgen -G "${d}/*.box" >/dev/null || continue
+        [ -n "$(find "${d}" -maxdepth 0 -mmin +30 2>/dev/null)" ] || continue
+        echo "===> Removing stale box download dir ${d}"
+        rm -rf "${d}"
+    done
+}
+
 echo "===> Box ${VAGRANT_BOX_LOCAL_NAME} version ${VAGRANT_BOX_VERSION}"
 
+sweep_local_scratch
 prune_branch_base_boxes
 prune_old_pipeline_branches
 sweep_orphan_pool_images
@@ -142,8 +169,13 @@ if vagrant box list | grep -qF "${VAGRANT_BOX_LOCAL_NAME} (${PROVIDER}, ${VAGRAN
     exit 0
 fi
 
-WORK_DIR=$(mktemp -d)
-trap 'rm -rf "${WORK_DIR}"' EXIT
+# Download to $HOME's volume, not /tmp (too small for an 8GB box on some
+# runners); wipe the dir first so a killed job's leftover can't fill it.
+DL_ROOT="${HOME}/.vagrant-box-dl"
+rm -rf "${DL_ROOT}"
+mkdir -p "${DL_ROOT}"
+WORK_DIR=$(mktemp -d -p "${DL_ROOT}")
+trap 'rm -rf "${DL_ROOT}"' EXIT
 
 echo "===> Downloading ${REMOTE_KEY} (pipeline ${CI_PIPELINE_ID})"
 rclone copyto "${remote_prefix}/${REMOTE_KEY}" "${WORK_DIR}/${REMOTE_KEY}"
