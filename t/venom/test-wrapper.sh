@@ -157,6 +157,16 @@ refresh_network_post_import() {
       ansible-playbook playbooks/refresh_network_post_import.yml -l "${vm}" )
 }
 
+# The bake unregisters RHEL before packaging, so a baked el8 clone boots
+# without yum repos; re-register so scenarios can install packages.
+# No-op on Debian (playbook guards on os_family); teardown unregisters.
+reregister_rhel_post_import() {
+    local vm=$1
+    log_subsection "Re-register RHEL subscription on ${vm} (post-import)"
+    ( cd ${VAGRANT_DIR} ; \
+      ansible-playbook playbooks/register_rhel_subscription.yml -l "${vm}" )
+}
+
 check_free_space() {
     # https://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
     # "the block size currently defaults to 1024 bytes"
@@ -323,6 +333,7 @@ start_vm() {
             ( cd ${VAGRANT_DIR}; \
               run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force )
             refresh_network_post_import "${vm}"
+            reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR}; \
               run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
@@ -350,6 +361,7 @@ start_vm() {
                       ${vm} \
                       ${VAGRANT_UP_OPTS} ) 2>&1 | filter_vagrant_progress
             refresh_network_post_import "${vm}"
+            reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR} ; \
               run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
