@@ -103,6 +103,13 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 		return
 	}
 
+	// Acknowledge the switch immediately, before queuing the request for
+	// processing. This way a slow or backpressured worker queue can never
+	// delay the response and trigger accounting retransmits from the switch.
+	outPacket := r.Response(radius.CodeAccountingResponse)
+	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
+	w.Write(h.AddProxyState(outPacket, r))
+
 	rr := radiusRequest{
 		r:          r,
 		status:     status,
@@ -111,26 +118,17 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 	}
 
 	h.sendRadiusRequestToQueue(rr)
-	outPacket := r.Response(radius.CodeAccountingResponse)
-	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
-	w.Write(h.AddProxyState(outPacket, r))
-	// h.handleAccountingRequest(w, r, switchInfo, mac)
-	// h.Dispatcher.SubmitJob(Work(func() { h.handleAccountingRequest(r, switchInfo) }))
 }
 
 func (h *PfAcct) sendRadiusRequestToQueue(rr radiusRequest) {
 	queueIndex := djb2Hash(rr.mac[:]) % uint64(len(h.radiusRequests))
-	select {
-	case h.radiusRequests[queueIndex] <- rr:
-	default:
-		go func() {
-			h.overflows[queueIndex].Add(1)
-			h.radiusRequests[queueIndex] <- rr
-			h.overflows[queueIndex].Add(-1)
-		}()
-	}
-
-	h.SendGauge(fmt.Sprintf("pfacct.radiusRequests[%d]", queueIndex), len(h.radiusRequests[queueIndex])+int(h.overflows[queueIndex].Load()))
+	// Blocking send: this applies natural backpressure when a worker falls
+	// behind instead of spawning an unbounded number of goroutines (which grew
+	// memory without limit and reordered a MAC's packets under load). The
+	// switch was already acknowledged in HandleAccounting, so blocking here
+	// cannot cause accounting retransmits.
+	h.radiusRequests[queueIndex] <- rr
+	h.SendGauge(fmt.Sprintf("pfacct.radiusRequests[%d]", queueIndex), len(h.radiusRequests[queueIndex]))
 }
 
 func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
@@ -322,10 +320,10 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 }
 
 func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo) {
-	h.sendRadiusAccountingCall(rr.r)
+	h.sendRadiusAccountingCall(rr.r, rr.mac)
 }
 
-func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request) {
+func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
@@ -340,15 +338,28 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request) {
 
 	status := rfc2866.AcctStatusType_Get(r.Packet)
 
-	if h.RateLimit && h.rateLimit(attr, status) {
-		if err := h.AAAClient.Notify(ctx, "radius_accounting", attr); err != nil {
-			logError(ctx, err.Error())
-		}
-	} else if !h.RateLimit {
-		if err := h.AAAClient.Notify(ctx, "radius_accounting", attr); err != nil {
-			logError(ctx, err.Error())
-		}
+	// h.rateLimit has side effects (it updates the rate-limit caches) and must
+	// only be evaluated when rate limiting is enabled; short-circuit ordering
+	// preserves that.
+	if !h.RateLimit || h.rateLimit(attr, status) {
+		h.enqueueAAANotify(ctx, m, attr)
 	}
+}
+
+// enqueueAAANotify hands a radius_accounting notification to the MAC-sharded
+// notifier pool without blocking the accounting worker. If the target queue is
+// saturated the notification is dropped and counted (see reportAAADrops)
+// rather than stalling the worker, since node online/offline status has already
+// been written to the DB by the time we get here.
+func (h *PfAcct) enqueueAAANotify(ctx context.Context, m mac.Mac, attr map[string]interface{}) {
+	queueIndex := djb2Hash(m[:]) % uint64(len(h.aaaNotifyQueues))
+	select {
+	case h.aaaNotifyQueues[queueIndex] <- aaaNotifyJob{ctx: ctx, attr: attr}:
+	default:
+		h.aaaNotifyDropped.Add(1)
+	}
+
+	h.SendGauge(fmt.Sprintf("pfacct.aaaNotify[%d]", queueIndex), len(h.aaaNotifyQueues[queueIndex]))
 }
 
 func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatusType) bool {
@@ -463,6 +474,17 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 		pc, err := net.ListenUDP("udp4", addr)
 		if err != nil {
 			panic(err)
+		}
+		// Grow the UDP socket receive buffer so bursts from busy switches
+		// (thousands of devices) are absorbed instead of being dropped by the
+		// kernel ("receive buffer errors" in netstat -su). The kernel silently
+		// caps the effective size at net.core.rmem_max.
+		if h.SocketRecvBuffer > 0 {
+			if err := pc.SetReadBuffer(h.SocketRecvBuffer); err != nil {
+				logWarn(ctx, fmt.Sprintf("Unable to set UDP read buffer to %d bytes on %s: %s", h.SocketRecvBuffer, addr.String(), err.Error()))
+			} else {
+				logInfo(ctx, fmt.Sprintf("Requested UDP read buffer of %d bytes on %s (kernel caps at net.core.rmem_max)", h.SocketRecvBuffer, addr.String()))
+			}
 		}
 		intRADIUS = append(intRADIUS, pc)
 	}

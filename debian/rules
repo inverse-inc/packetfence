@@ -140,6 +140,8 @@ install: build
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modules-load.d
 	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
 	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/sysctl.d
+	install -m0644 $(CURDIR)/debian/packetfence.sysctl $(CURDIR)/debian/packetfence/etc/sysctl.d/99-packetfence-udp.conf
 
 	# copy the rsyslog systemd drop in and journald
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/

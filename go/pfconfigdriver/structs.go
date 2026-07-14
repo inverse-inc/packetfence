@@ -718,6 +718,9 @@ type PfConfRadiusConfiguration struct {
 	PfacctWorkQueueSize                string   `json:"pfacct_work_queue_size"`
 	PfacctRateLimit                    string   `json:"pfacct_rate_limit"`
 	PfacctRateLimitCacheTtl            string   `json:"pfacct_rate_limit_cache_ttl"`
+	PfacctSocketRecvBuffer             string   `json:"pfacct_socket_recv_buffer"`
+	PfacctAAANotifyWorkers             string   `json:"pfacct_aaa_notify_workers"`
+	PfacctAAANotifyQueueSize           string   `json:"pfacct_aaa_notify_queue_size"`
 }
 
 type PfQueueConfig struct {
