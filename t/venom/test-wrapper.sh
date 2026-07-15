@@ -185,10 +185,40 @@ check_free_space() {
     MANDATORY_SPACE='32212254'
     AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
 
+    # Low on space: reclaim from old/unused images, then re-measure.
+    if (( AVAILABLE_SPACE <= MANDATORY_SPACE )); then
+        reclaim_disk_space
+        AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
+    fi
+
     if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
         echo "Enough space on system to run tests."
     else
-        die "There is not enough space on system to run tests. Skipping tests."
+        die "There is not enough space on system to run tests, even after cleanup. Skipping tests."
+    fi
+}
+
+# Reclaim disk on low space. Only touches things not in use (concurrent jobs
+# stay safe); does not delete /var/lib/libvirt/images base volumes.
+reclaim_disk_space() {
+    log_subsection "Low disk space: reclaiming from old/unused images"
+    local vm
+
+    for vm in $(virsh list --inactive --name); do
+        echo "Undefining shut-off VM: $vm"
+        virsh undefine "$vm" --remove-all-storage || true
+    done
+    for vm in $(virsh list --name --state-paused); do
+        echo "Destroying paused VM: $vm"
+        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
+    done
+
+    ( cd "${VAGRANT_DIR}" && vagrant box prune --force ) || true
+
+    local cache="${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache}"
+    if [ -d "${cache}" ]; then
+        find "${cache}" -maxdepth 1 -type f \( -name '*.box' -o -name '*.box.md5sums.txt' \) \
+             -atime +3 -print -delete || true
     fi
 }
 
