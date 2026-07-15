@@ -447,6 +447,8 @@ done
 # systemd modules
 %{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
+# kernel tuning for UDP receive buffers (pfacct/pfdns/pfdhcp)
+%{__install} -D -m0644 packetfence.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-udp.conf
 # override docker-ce unit file
 %{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/system/docker.service
 
@@ -892,6 +894,7 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
 %attr(0644, root, root) /etc/modules-load.d/packetfence.conf
 %attr(0644, root, root) /etc/modprobe.d/packetfence.conf
+%attr(0644, root, root) /etc/sysctl.d/99-packetfence-udp.conf
 
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path

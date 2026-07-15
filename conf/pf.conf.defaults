@@ -1475,6 +1475,22 @@ pfacct_rate_limit=disabled
 #
 # If rate limiting on pfacct is enabled,  the Time to Live value in minutes represent the time of the accounting cache
 pfacct_rate_limit_cache_ttl=5
+# radius_configuration.pfacct_socket_recv_buffer
+#
+# Size in bytes of the UDP receive buffer (SO_RCVBUF) requested by pfacct on its
+# accounting socket. Larger values absorb bursts from busy switches and avoid
+# kernel packet drops ("receive buffer errors" in netstat -su). The kernel caps
+# the effective value at net.core.rmem_max. Zero leaves the OS default in place.
+pfacct_socket_recv_buffer=16777216
+# radius_configuration.pfacct_aaa_notify_workers
+#
+# The number of workers forwarding accounting notifications to httpd.aaa.
+# If zero it will be twice the number of CPUs.
+pfacct_aaa_notify_workers=0
+# radius_configuration.pfacct_aaa_notify_queue_size
+#
+# The size of the queue for each AAA notification worker.
+pfacct_aaa_notify_queue_size=1000
 
 [dns_configuration]
 #

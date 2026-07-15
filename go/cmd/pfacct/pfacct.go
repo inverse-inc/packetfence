@@ -27,6 +27,7 @@ import (
 
 const DefaultTimeDuration = 5 * time.Minute
 const DefaultRadiusWorkQueueSize = 1000
+const DefaultAAANotifyQueueSize = 1000
 
 type radiusRequest struct {
 	w          radius.ResponseWriter
@@ -58,7 +59,8 @@ type PfAcct struct {
 	StatsdOption            statsd.Option
 	StatsdClient            *statsd.Client
 	radiusRequests          []chan<- radiusRequest
-	overflows               []atomic.Int64
+	aaaNotifyQueues         []chan<- aaaNotifyJob
+	aaaNotifyDropped        atomic.Int64
 	localSecret             string
 	StatsdOnce              tryableonce.TryableOnce
 	isProxied               bool
@@ -67,6 +69,9 @@ type PfAcct struct {
 	ProcessBandwidthAcct    bool
 	RadiusWorkers           int
 	RadiusWorkQueueSize     int
+	SocketRecvBuffer        int
+	AAANotifyWorkers        int
+	AAANotifyQueueSize      int
 }
 
 func NewPfAcct(logLevel string) *PfAcct {
@@ -91,9 +96,10 @@ func NewPfAcct(logLevel string) *PfAcct {
 		Db:                  Database,
 		TimeDuration:        DefaultTimeDuration,
 		RadiusWorkQueueSize: DefaultRadiusWorkQueueSize,
+		AAANotifyQueueSize:  DefaultAAANotifyQueueSize,
 	}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
-	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
+	pfAcct.NodeSessionCache = cache.New(nodeSessionExpiration, nodeSessionCleanupInterval)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 
 	pfAcct.LoggerCtx = ctx
@@ -101,11 +107,12 @@ func NewPfAcct(logLevel string) *PfAcct {
 
 	pfAcct.SetupConfig(ctx)
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, pfAcct.RadiusWorkers, pfAcct.RadiusWorkQueueSize)
-	pfAcct.overflows = make([]atomic.Int64, pfAcct.RadiusWorkers, pfAcct.RadiusWorkers)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
+	pfAcct.aaaNotifyQueues = makeAAANotifiers(pfAcct, pfAcct.AAANotifyWorkers, pfAcct.AAANotifyQueueSize)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
 
 	pfAcct.runPing()
+	pfAcct.reportAAADrops()
 	return pfAcct
 }
 
@@ -122,6 +129,51 @@ func makeRadiusRequests(h *PfAcct, requestFanOut, backlog int) []chan<- radiusRe
 	}
 
 	return requests
+}
+
+// aaaNotifyJob carries a pre-serialized radius_accounting notification to the
+// dedicated AAA notifier pool.
+type aaaNotifyJob struct {
+	ctx  context.Context
+	attr map[string]interface{}
+}
+
+// makeAAANotifiers builds a MAC-sharded pool of workers that forward
+// radius_accounting notifications to httpd.aaa. Decoupling this (potentially
+// remote and slow) call from the accounting workers keeps the node
+// online/offline DB updates current even when httpd.aaa is overloaded, while
+// sharding by MAC preserves per-device ordering of the notifications.
+func makeAAANotifiers(h *PfAcct, workers, backlog int) []chan<- aaaNotifyJob {
+	queues := make([]chan<- aaaNotifyJob, workers)
+	for i := 0; i < workers; i++ {
+		c := make(chan aaaNotifyJob, backlog)
+		queues[i] = c
+		go func(c <-chan aaaNotifyJob) {
+			for job := range c {
+				if err := h.AAAClient.Notify(job.ctx, "radius_accounting", job.attr); err != nil {
+					logError(job.ctx, err.Error())
+				}
+			}
+		}(c)
+	}
+
+	return queues
+}
+
+// reportAAADrops periodically logs how many radius_accounting notifications
+// were dropped because the notifier queues were saturated. Drops here do not
+// affect node online/offline status (written synchronously by the accounting
+// workers); they only mean some accounting side effects (ip4log, locationlog,
+// triggers) were skipped while httpd.aaa could not keep up.
+func (pfAcct *PfAcct) reportAAADrops() {
+	go func() {
+		for {
+			time.Sleep(60 * time.Second)
+			if dropped := pfAcct.aaaNotifyDropped.Swap(0); dropped > 0 {
+				logWarn(pfAcct.LoggerCtx, fmt.Sprintf("Dropped %d radius_accounting notifications in the last 60s because the AAA notify queue was full (httpd.aaa may be overloaded); node online/offline status is unaffected", dropped))
+			}
+		}
+	}()
 }
 
 func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
@@ -197,6 +249,32 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	} else {
 		pfAcct.RadiusWorkQueueSize = int(i)
 	}
+
+	// Size (in bytes) of the UDP socket receive buffer requested via SO_RCVBUF.
+	// The kernel caps the effective value at net.core.rmem_max. Zero leaves the
+	// OS default (net.core.rmem_default) in place.
+	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctSocketRecvBuffer, 10, 64); err != nil {
+		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_socket_recv_buffer, leaving the OS default UDP receive buffer in place", RadiusConfiguration.PfacctSocketRecvBuffer))
+	} else {
+		pfAcct.SocketRecvBuffer = int(i)
+	}
+
+	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctAAANotifyWorkers, 10, 64); err != nil {
+		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_aaa_notify_workers defaulting to '%d'", RadiusConfiguration.PfacctAAANotifyWorkers, pfAcct.AAANotifyWorkers))
+	} else {
+		pfAcct.AAANotifyWorkers = int(i)
+	}
+
+	// If set to zero use twice the number of CPUs for the AAA notifier pool
+	pfAcct.AAANotifyWorkers = cmp.Or(pfAcct.AAANotifyWorkers, 2*numOfCpus)
+
+	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctAAANotifyQueueSize, 10, 64); err != nil {
+		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_aaa_notify_queue_size defaulting to '%d'", RadiusConfiguration.PfacctAAANotifyQueueSize, pfAcct.AAANotifyQueueSize))
+	} else {
+		pfAcct.AAANotifyQueueSize = int(i)
+	}
+
+	pfAcct.AAANotifyQueueSize = cmp.Or(pfAcct.AAANotifyQueueSize, DefaultAAANotifyQueueSize)
 
 	localSecret := pfconfigdriver.LocalSecret{}
 	pfconfigdriver.FetchDecodeSocket(ctx, &localSecret)
