@@ -194,8 +194,10 @@ func (j *PfFlowJob) Run() {
 		m, err := r.ReadMessage(ctx)
 		cancel()
 		if err != nil {
-			// Check if it's just a timeout (no messages available) vs a real error
-			if err == context.DeadlineExceeded {
+			// Check if it's just a timeout (no messages available) vs a real error.
+			// kafka-go's ReadMessage wraps the error ("fetching message: %w"), so a
+			// plain == comparison never matches — use errors.Is to unwrap.
+			if errors.Is(err, context.DeadlineExceeded) {
 				// Timeout waiting for messages is normal, just retry without reconnecting
 				continue
 			}
