@@ -24,10 +24,18 @@ time_phase() {
     echo "[$(date '+%F %T')] ${label}: done in $((secs/60))m$((secs%60))s"
 }
 
-# Strip vagrant-libvirt upload progress lines. On a TTY these overwrite a
-# single line via \r; in CI (no TTY) each update lands as its own log line.
+# vagrant redraws "Progress: N%" with carriage returns (no newline), so the whole
+# burst arrives as one line; `tr` splits it so each redraw can be dropped. Covers
+# the vagrant-libvirt volume upload ("Progress: 0%") and box downloads
+# ("name: Progress: 45% (Rate: ...)"). Real output, including colors, passes through.
 filter_vagrant_progress() {
-    grep --line-buffered -vE 'Progress: [0-9]+%'
+    local esc=$'\033'
+    tr '\r' '\n' | awk -v esc="$esc" '
+      { clean = $0; gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean) }
+      clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/ { next }   # drop progress redraws
+      clean ~ /^[ \t]*$/ && $0 != clean { next }                                              # drop control-only fragments
+      { print; fflush() }
+    '
 }
 
 delete_dir_if_exists() {
