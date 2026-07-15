@@ -816,13 +816,18 @@ sub find_or_create {
         -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
-    if (is_success($status)) {
-        my $row = $sth->fetchrow_hashref;
-        $sth->finish;
-        if ($row) {
-            my $obj = $proto->new_from_row($row);
-            return $STATUS::OK, $obj;
-        }
+    # Only treat the row as absent when the SELECT actually succeeded. On a
+    # read error (e.g. the DB is down) we cannot tell "not found" from "query
+    # failed"; falling through to save() here would overwrite an existing row
+    # with a fresh default record (for a node: status=unreg, pid=default).
+    if (is_error($status)) {
+        return $status, undef;
+    }
+    my $row = $sth->fetchrow_hashref;
+    $sth->finish;
+    if ($row) {
+        my $obj = $proto->new_from_row($row);
+        return $STATUS::OK, $obj;
     }
     $status =  $obj->save;
     if (is_error($status)) {
