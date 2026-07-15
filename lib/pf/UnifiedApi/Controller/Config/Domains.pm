@@ -24,6 +24,7 @@ has 'primary_key' => 'domain_id';
 use pf::ConfigStore::Domain;
 use pfappserver::Form::Config::Domain;
 use pf::domain;
+use pf::factory::connector;
 use pf::error qw(is_error);
 use pf::pfqueue::producer::redis;
 use pf::util;
@@ -40,6 +41,13 @@ use pf::config qw(%Config);
 use pf::log;
 
 use constant JOIN_REMOTE_PORT_OFFSET => 200;
+
+# The ntlm-join-remote service listens on this address:port on the connector-remote
+# side (see go/cmd/ntlm-join-remote and resource::pfconnector_static_connections).
+# For connector-backed domains we reach it on demand through a dynreverse tunnel
+# rather than a pre-provisioned static tunnel.
+use constant JOIN_REMOTE_TARGET_HOST => '100.64.0.1';
+use constant JOIN_REMOTE_TARGET_PORT => 23000;
 
 my $host_id = hostname();
 
@@ -214,6 +222,18 @@ sub create {
         my $api_host = $Config{'services_host'}{'pfconnector_service_host'};
         my $api_port = $max_port + JOIN_REMOTE_PORT_OFFSET;
 
+        # For connector-backed domains, reach ntlm-join-remote through an on-demand
+        # dynreverse tunnel instead of a pre-provisioned static tunnel. This removes
+        # the chicken-and-egg where the join needed a tunnel that only appeared after
+        # the domain was committed and the connector reconnected.
+        if ($use_connector) {
+            my $err_msg;
+            ($api_host, $api_port, $err_msg) = $self->connector_join_endpoint($ad_server_ip);
+            if (defined($err_msg)) {
+                return $self->render_error(422, $err_msg);
+            }
+        }
+
         my @real_computer_names = ($real_computer_name);
         if ($additional_machine_accounts + 0 > 0) {
             for my $i (0 .. $additional_machine_accounts - 1) {
@@ -359,6 +379,16 @@ sub update {
     my $api_host = $Config{'services_host'}{'pfconnector_service_host'};
     my $api_port = $old_item->{ntlm_auth_port} + JOIN_REMOTE_PORT_OFFSET;
 
+    # For connector-backed domains, reach ntlm-join-remote through an on-demand
+    # dynreverse tunnel (see connector_join_endpoint / create()).
+    if ($use_connector && !is_nt_hash_pattern($new_data->{machine_account_password})) {
+        my $err_msg;
+        ($api_host, $api_port, $err_msg) = $self->connector_join_endpoint($ad_server_ip);
+        if (defined($err_msg)) {
+            return $self->render_error(422, $err_msg);
+        }
+    }
+
     my @real_computer_names = ($real_computer_name);
 
     if ($additional_machine_accounts + 0 > 0) {
@@ -446,6 +476,36 @@ sub is_nt_hash_pattern {
         return 1;
     }
     return 0;
+}
+
+=head2 connector_join_endpoint
+
+Resolve the host:port to reach the ntlm-join-remote service through the connector
+that owns the given AD server IP. Sets up (or reuses) a dynreverse tunnel on the
+fly, so no static tunnel or connector reconnect is required before a domain can be
+joined. Returns ($host, $port, undef) on success or (undef, undef, $error_message)
+when no connector matches the AD server IP or the connector is not reachable.
+
+=cut
+
+sub connector_join_endpoint {
+    my ($self, $ad_server_ip) = @_;
+    my $connector = pf::factory::connector->for_ip($ad_server_ip);
+    unless (defined($connector) && defined($connector->id) && $connector->id ne 'local_connector') {
+        return (undef, undef, "No connector matches the AD server IP '$ad_server_ip'. Ensure the domain's ad_server falls within a connector's configured networks.");
+    }
+
+    my $to = JOIN_REMOTE_TARGET_HOST . ":" . JOIN_REMOTE_TARGET_PORT . "/tcp";
+    my $conn = eval { $connector->dynreverse($to, { expose_service => 1 }) };
+    if ($@) {
+        get_logger->error("Failed to obtain dynreverse tunnel to ntlm-join-remote via connector '" . $connector->id . "': $@");
+        return (undef, undef, "Unable to reach the connector '" . $connector->id . "' to set up the domain-join tunnel. Verify the connector is connected. ($@)");
+    }
+    unless (ref($conn) eq 'HASH' && $conn->{host} && $conn->{port}) {
+        return (undef, undef, "The connector '" . $connector->id . "' did not return a usable domain-join tunnel endpoint.");
+    }
+
+    return ($conn->{host}, $conn->{port}, undef);
 }
 
 =head2 validate_input

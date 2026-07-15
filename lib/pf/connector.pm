@@ -7,6 +7,7 @@ use pf::AtFork;
 use pf::config qw(%Config);
 use pf::log;
 use pf::util qw(isenabled);
+use JSON;
 
 has id => (is => 'rw');
 
@@ -53,11 +54,17 @@ sub connectorServerApiClient {
 }
 
 sub dynreverse {
-    my ($self, $to) = @_;
-    my $connector_conn = $self->connectorServerApiClient->call("POST", "/api/v1/pfconnector/dynreverse", {
+    my ($self, $to, $opts) = @_;
+    $opts //= {};
+    my %body = (
         to => $to,
         connector_id => $self->id,
-    });
+    );
+    # Opt this port into being published on the pfconnector k8s Service. Only
+    # callers that reach the port through the Service ClusterIP (e.g. the domain
+    # join) need this; the RADIUS/SNMP callers omit it to keep their behavior.
+    $body{expose_service} = JSON::true if $opts->{expose_service};
+    my $connector_conn = $self->connectorServerApiClient->call("POST", "/api/v1/pfconnector/dynreverse", \%body);
 
     #Override the host value returned by the connector server's dynreverse API.
     #In K8S/SaaS the connector is reached through PFCONNECTOR_SERVICE_HOST; the host the

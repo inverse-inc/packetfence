@@ -527,6 +527,11 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	})
 	if user != nil {
 		l.Infof("Connector %s has just connected to this server", user.Name)
+		// After a reconnect the pod no longer listens on this connector's previous
+		// dynreverse ports, so drop their k8s Service ports before we clear the
+		// ActiveDynReverse entries below (removeConnectorDynReverseServicePorts reads
+		// them). Otherwise stale, unroutable ports would accumulate in the Service.
+		s.removeConnectorDynReverseServicePorts(ctx, user.Name)
 		settings.ClearActiveDynReverseConnector(ctx, user.Name)
 		activeTunnels.Store(user.Name, tunnel)
 		tunnel.ConnectorID = user.Name
@@ -557,6 +562,11 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		ConnectorID string `json:"connector_id"`
 		To          string `json:"to"`
 		LocalPort   string `json:"local_port,omitempty"`
+		// ExposeService opts this dynreverse port into being published on the
+		// pfconnector k8s Service (needed when the caller reaches it via the Service
+		// ClusterIP, e.g. the domain-join flow). Left off by the RADIUS/SNMP callers
+		// so their behavior is unchanged.
+		ExposeService bool `json:"expose_service,omitempty"`
 	}{}
 
 	err := json.NewDecoder(req.Body).Decode(&payload)
@@ -574,6 +584,10 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		remote.Lock()
 		defer remote.Unlock()
 		remote.LastTouched = time.Now()
+		// No need to (re)patch the Service here: a live ActiveDynReverse entry implies
+		// the port was patched on its fresh bind and hasn't been pruned (pruning only
+		// happens on reconnect, which also clears this map). Keeping the hot reuse path
+		// free of a k8s API call matters for the RADIUS/SNMP dynreverse callers.
 		json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 		return
 	}
@@ -635,6 +649,13 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			err = <-doneChan
 
 			if err == nil {
+				// Expose the freshly-bound port on the pfconnector k8s Service so the
+				// caller can reach it through the Service ClusterIP. Must complete
+				// before we return the port, otherwise the caller's dial races the
+				// Service update. No-op outside k8s or when the caller didn't opt in.
+				if payload.ExposeService {
+					s.ensureDynReverseServicePort(req.Context(), dynPort, remote.LocalProto)
+				}
 				json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 				return
 			} else {
@@ -649,6 +670,112 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
 		return
+	}
+}
+
+// dynReverseServicePortName builds the k8s Service port name for a dynreverse
+// local port. It intentionally uses the same "port-<proto>-<port>" scheme as the
+// static ports in handleClientHandshake so the two never disagree on a name, and
+// it stays within the 15-char IANA_SVC_NAME limit (e.g. "port-tcp-65535").
+func dynReverseServicePortName(proto, port string) string {
+	return "port-" + strings.ToLower(proto) + "-" + port
+}
+
+// ensureDynReverseServicePort exposes a dynreverse local port on the pfconnector
+// k8s Service so it is reachable through the Service ClusterIP. In k8s the caller
+// (e.g. the domain-join flow) dials PFCONNECTOR_SERVICE_HOST:<dynPort>, which only
+// routes to the pod when the port is present in the Service spec. Unlike the
+// static tunnels bound at handshake, dynreverse ports are created on demand, so
+// nothing else adds them. Outside k8s (no admin client) this is a no-op, and it is
+// idempotent: it skips the patch when the port already exists.
+func (s *Server) ensureDynReverseServicePort(ctx context.Context, port, proto string) {
+	client := pfk8s.NewAdminClientFromEnv()
+	if client == nil {
+		return
+	}
+	l := log.LoggerWContext(ctx)
+	services, err := client.GetService("pfconnector")
+	if err != nil {
+		l.Error(fmt.Sprintf("Unable to get pfconnector service to expose dynreverse port %s: %s", port, err))
+		return
+	}
+	name := dynReverseServicePortName(proto, port)
+	for _, svcPort := range services.Spec.Ports {
+		if svcPort.Name == name {
+			return // already exposed
+		}
+	}
+	portNum, err := strconv.ParseUint(port, 10, 16)
+	if err != nil {
+		l.Error(fmt.Sprintf("Invalid dynreverse port %q, not patching service: %s", port, err))
+		return
+	}
+	patch := []pfk8s.PatchPorts{{
+		Op:   "add",
+		Path: "/spec/ports/-",
+		Value: pfk8s.PatchPortAdd{
+			Port:       int(portNum),
+			TargetPort: int(portNum),
+			Protocol:   strings.ToUpper(proto),
+			Name:       name,
+		},
+	}}
+	if err := client.PatchPorts(patch); err != nil {
+		l.Error(fmt.Sprintf("Unable to expose dynreverse port %s on pfconnector service: %s", port, err))
+	}
+}
+
+// removeConnectorDynReverseServicePorts drops the k8s Service ports previously
+// added for this connector's dynreverse tunnels. It must be called at handshake
+// before the connector's ActiveDynReverse entries are cleared, since it derives
+// the port names from those entries. (On a server-process restart the in-memory
+// map is empty, so any ports from before the restart cannot be reconciled here;
+// that is an accepted edge case as the pod/Service would typically be recreated.)
+func (s *Server) removeConnectorDynReverseServicePorts(ctx context.Context, connectorId string) {
+	client := pfk8s.NewAdminClientFromEnv()
+	if client == nil {
+		return
+	}
+	l := log.LoggerWContext(ctx)
+
+	names := map[string]bool{}
+	settings.ActiveDynReverse.Range(func(kInt, v interface{}) bool {
+		if k, ok := kInt.(string); ok && strings.HasPrefix(k, connectorId+":") {
+			remote := v.(*settings.Remote)
+			names[dynReverseServicePortName(remote.LocalProto, remote.LocalPort)] = true
+		}
+		return true
+	})
+	if len(names) == 0 {
+		return
+	}
+
+	services, err := client.GetService("pfconnector")
+	if err != nil {
+		l.Error(fmt.Sprintf("Unable to get pfconnector service to prune dynreverse ports: %s", err))
+		return
+	}
+	delIndexes := []int{}
+	for index, svcPort := range services.Spec.Ports {
+		if names[svcPort.Name] {
+			delIndexes = append(delIndexes, index)
+		}
+	}
+	if len(delIndexes) == 0 {
+		return
+	}
+	// Remove from highest index to lowest so each removal doesn't shift the
+	// indexes of the ones still to be removed.
+	sort.Sort(sort.Reverse(sort.IntSlice(delIndexes)))
+	patch := make([]pfk8s.PatchPorts, 0, len(delIndexes))
+	for _, index := range delIndexes {
+		patch = append(patch, pfk8s.PatchPorts{
+			Op:   "remove",
+			Path: "/spec/ports/" + strconv.Itoa(index),
+		})
+	}
+	if err := client.PatchPorts(patch); err != nil {
+		l.Error(fmt.Sprintf("Unable to prune dynreverse ports from pfconnector service: %s", err))
 	}
 }
 
