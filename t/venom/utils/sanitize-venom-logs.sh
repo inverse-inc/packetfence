@@ -15,6 +15,13 @@ venom_local_vars_file=${venom_root}/vars/local.yml
 PSONO_CI_API_KEY_ID=${PSONO_CI_API_KEY_ID:-}
 PSONO_CI_API_SECRET_KEY_HEX=${PSONO_CI_API_SECRET_KEY_HEX:-}
 
+# Ansible runs us under `no_log: True`, so stdout vanishes. Mirror progress to
+# a log file that survives a SIGTERM (10m PIPELINE_TIMEOUT_CLEANUP) — sits
+# outside venom_result_dir so it isn't sanitized in place.
+log_file=${venom_root}/sanitize-venom-logs.log
+log()     { printf '[%(%H:%M:%S)T] %s\n' -1 "$*"     | tee -a "${log_file}"; }
+log_err() { printf '[%(%H:%M:%S)T] ERROR: %s\n' -1 "$*" | tee -a "${log_file}" >&2; }
+
 # https://stackoverflow.com/a/2705678
 escape_secret () {
     local secret=$1
@@ -33,22 +40,24 @@ create_archive() {
          # add system logs if available
 	 all_path="${all_path} ${var_logs_root}"
     fi
+    log "Creating archive ${venom_result_archive} from: ${all_path}"
     # Allow tar exit code 1 (warnings like "file changed as we read it"), fail only on 2+
     tar c -zf "${venom_result_archive}" ${all_path}
     local rc=$?
     if [[ $rc -ge 2 ]]; then
-        echo "Error: tar failed with exit code $rc" >&2
+        log_err "tar failed with exit code $rc"
         return $rc
     fi
+    log "Archive created (tar rc=$rc)"
     return 0
 }
 
 check_psono_vars() {
     if [ -n "${PSONO_CI_API_KEY_ID}" ] && [ -n "${PSONO_CI_API_SECRET_KEY_HEX}" ]; then
-        echo "Psono variables detected in environment"
+        log "Psono variables detected in environment"
         return 0
     else
-        echo "No Psono variables in environment (or incomplete)"
+        log "No Psono variables in environment (or incomplete)"
         return 1
     fi
 }
@@ -56,76 +65,100 @@ check_psono_vars() {
 remove_secrets() {
     # check if local vars file exists
     if [[ ! -f ${venom_local_vars_file} ]]; then
-        echo "Local vars file not found: ${venom_local_vars_file}"
+        log "Local vars file not found: ${venom_local_vars_file}"
         return 0
+    else
+        log "Local vars file found: ${venom_local_vars_file}"
     fi
 
     # get list of secret_id in local.yml file
-    local secret_ids=$(grep secret_id ${venom_local_vars_file} | awk -F ':' '{print $2}' || true)
+    local secret_ids
+    secret_ids=$(grep secret_id ${venom_local_vars_file} | awk -F ':' '{print $2}' || true)
 
     if [[ -z "${secret_ids}" ]]; then
-        echo "No secret_id found in ${venom_local_vars_file}"
+        log "No secret_id found in ${venom_local_vars_file}"
         return 0
+    else
+        log "Found $(echo ${secret_ids} | wc -w) secret_id(s) to fetch"
     fi
 
     local sanitization_failed=0
+    local sed_args=()
 
+    # Fetch all secrets up front, then sanitize each log dir in ONE pass.
+    # Per-secret fs walks over /var/log + PF logs blew the 10m cleanup timeout.
     for secret_id in ${secret_ids}; do
-        # get real secret (suppress error output to avoid leaking secret fragments)
+        log "Fetching secret ${secret_id} from Psono"
         if ! secret=$(psonoci secret get ${secret_id} password 2>/dev/null); then
-            echo "ERROR: Failed to get secret ${secret_id}" >&2
+            log_err "Failed to get secret ${secret_id}"
             sanitization_failed=1
             continue
         fi
 
         if [[ -z "${secret}" ]]; then
-            echo "ERROR: Empty secret for ${secret_id}" >&2
+            log_err "Empty secret for ${secret_id}"
             sanitization_failed=1
             continue
         fi
 
-        escaped_secret=$(escape_secret "$secret")
-
-        # replace secret in all log directories that will be archived
-        for log_dir in "${venom_result_dir}" "${pf_logs_root}" "${var_logs_root}"; do
-            if [[ -d "${log_dir}" ]]; then
-                echo "Sanitizing secrets in ${log_dir}"
-                if ! find "${log_dir}" -type f -print0 2>/dev/null | xargs -0 -r sed -i "s/${escaped_secret}/REDACTED/g" 2>/dev/null; then
-                    echo "ERROR: Failed to sanitize secrets in ${log_dir}" >&2
-                    sanitization_failed=1
-                fi
-            fi
-        done
+        log "Got secret ${secret_id}"
+        sed_args+=(-e "s/$(escape_secret "$secret")/REDACTED/g")
     done
 
+    if [[ ${#sed_args[@]} -gt 0 ]]; then
+        log "Built ${#sed_args[@]} sed expression(s); starting per-dir sanitize pass"
+        for log_dir in "${venom_result_dir}" "${pf_logs_root}" "${var_logs_root}"; do
+            if [[ -d "${log_dir}" ]]; then
+                log "Sanitizing ${log_dir} (single pass over all secrets)"
+                if ! find "${log_dir}" -type f -print0 2>/dev/null \
+                    | xargs -0 -r sed -i "${sed_args[@]}" 2>/dev/null; then
+                    log_err "Failed to sanitize secrets in ${log_dir}"
+                    sanitization_failed=1
+                else
+                    log "Sanitized ${log_dir}"
+                fi
+            else
+                log "Skipping ${log_dir} (does not exist)"
+            fi
+        done
+    else
+        log "No usable secrets — nothing to sanitize"
+    fi
+
     if [[ $sanitization_failed -eq 1 ]]; then
-        echo "ERROR: Sanitization failed - refusing to create archive to prevent secret leakage" >&2
+        log_err "Sanitization failed - refusing to create archive to prevent secret leakage"
         return 1
     fi
 
     return 0
 }
 
+log "=== sanitize-venom-logs start (host=$(hostname)) ==="
+
 # If Psono variables are defined in environment, we can get secrets and we will need to remove it
 sanitization_required=0
 if check_psono_vars; then
     sanitization_required=1
     if ! remove_secrets; then
-        echo "FATAL: Sanitization failed - aborting to prevent secret leakage" >&2
+        log_err "FATAL: Sanitization failed - aborting to prevent secret leakage"
         exit 1
     fi
 else
-    echo "No secrets to remove"
+    log "No secrets to remove"
 fi
 
 if [[ -d ${venom_result_dir} ]] || [[ -f ${venom_result_dir} ]]; then
     if ! create_archive ${venom_result_dir}; then
-        echo "ERROR: Failed to create archive" >&2
+        log_err "Failed to create archive"
         exit 1
     fi
     if [[ $sanitization_required -eq 1 ]]; then
-        echo "SUCCESS: Logs sanitized and archived"
+        log "SUCCESS: Logs sanitized and archived"
     else
-        echo "SUCCESS: Logs archived (no sanitization required)"
+        log "SUCCESS: Logs archived (no sanitization required)"
     fi
+else
+    log "No venom result dir at ${venom_result_dir}, skipping archive"
 fi
+
+log "=== sanitize-venom-logs done ==="
