@@ -33,6 +33,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - Per-zone VRRP router id: in a multi-zone (layer 3) cluster, the keepalived `virtual_router_id` can now be set per zone in the zone's CLUSTER section of cluster.conf, instead of sharing the single `active_active` value across all zones
+
 === Bug Fixes
 
 === Security Fixes

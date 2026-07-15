@@ -104,6 +104,10 @@ $routes
 EOT
 
     if ( $pf::cluster::cluster_enabled ) {
+        # Allow the virtual_router_id to be overridden per cluster (DC zone) through the
+        # CLUSTER section of cluster.conf. This lets zones in separate regions use distinct
+        # VRRP router ids. Falls back to the global active_active setting when unset.
+        my $virtual_router_id = $ConfigCluster{$CLUSTER}{'virtual_router_id'} || $Config{'active_active'}{'virtual_router_id'};
         my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
         foreach my $interface ( @ints ) {
             my $cfg = $Config{"interface $interface"};
@@ -123,7 +127,7 @@ EOT
             }
             $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
-  virtual_router_id $Config{'active_active'}{'virtual_router_id'}
+  virtual_router_id $virtual_router_id
   advert_int 5
   priority $priority
   state MASTER
