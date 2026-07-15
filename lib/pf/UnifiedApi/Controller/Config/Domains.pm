@@ -192,8 +192,24 @@ sub create {
     my $ad_server_host = "";
     my $ad_server_ip = "";
 
+    my $use_connector = isenabled($item->{use_connector});
     my $dns_servers = $item->{dns_servers};
-    if (defined($dns_servers)) {
+    if ($use_connector) {
+        # Connector-backed domain: the cloud cannot reach the customer's on-prem
+        # dns_servers directly, so querying them here would stall ~75s before
+        # falling back. Resolve the AD server through the connector instead — a bare
+        # IP is used as-is, a hostname goes through pfdns-connector (and is checked
+        # against the connector networks).
+        my $resolved_ip = pf::factory::connector->resolve($ad_server);
+        if (defined($resolved_ip) && valid_ip($resolved_ip)) {
+            $ad_server_host = $ad_fqdn;
+            $ad_server_ip = $resolved_ip;
+        }
+        else {
+            return $self->render_error(422, "Unable to resolve AD server '$ad_server' through the connector. Provide an IP within a connector's networks, or a name resolvable via pfdns-connector.\n");
+        }
+    }
+    elsif (defined($dns_servers)) {
         my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
         if (defined($ip)) {
             $ad_server_host = $ad_fqdn;
@@ -218,7 +234,6 @@ sub create {
     }
 
     if (!is_nt_hash_pattern($computer_password)) {
-        my $use_connector = isenabled($item->{use_connector});
         my $api_host = $Config{'services_host'}{'pfconnector_service_host'};
         my $api_port = $max_port + JOIN_REMOTE_PORT_OFFSET;
 
@@ -350,8 +365,22 @@ sub update {
     my $ad_server_host = "";
     my $ad_server_ip = "";
 
+    my $use_connector = isenabled($new_item->{use_connector} // $old_item->{use_connector});
     my $dns_servers = $new_item->{dns_servers};
-    if (defined($dns_servers)) {
+    if ($use_connector) {
+        # Connector-backed domain: resolve the AD server through the connector
+        # rather than the customer's on-prem dns_servers (unreachable from the
+        # cloud, would stall ~75s). Bare IP used as-is; hostname via pfdns-connector.
+        my $resolved_ip = pf::factory::connector->resolve($ad_server);
+        if (defined($resolved_ip) && valid_ip($resolved_ip)) {
+            $ad_server_host = $ad_fqdn;
+            $ad_server_ip = $resolved_ip;
+        }
+        else {
+            return $self->render_error(422, "Unable to resolve AD server '$ad_server' through the connector. Provide an IP within a connector's networks, or a name resolvable via pfdns-connector.\n");
+        }
+    }
+    elsif (defined($dns_servers)) {
         my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
         if (defined($ip)) {
             $ad_server_host = $ad_fqdn;
@@ -375,7 +404,6 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
-    my $use_connector = isenabled($new_item->{use_connector} // $old_item->{use_connector});
     my $api_host = $Config{'services_host'}{'pfconnector_service_host'};
     my $api_port = $old_item->{ntlm_auth_port} + JOIN_REMOTE_PORT_OFFSET;
 
