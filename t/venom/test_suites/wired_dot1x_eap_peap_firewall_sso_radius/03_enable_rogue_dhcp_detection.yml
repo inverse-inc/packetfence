@@ -2,8 +2,4 @@ name: Enable rogue DHCP detection
 testcases:
 - name: enable_rogue_dhcp_detection
   steps:
-  # retry through a transient admin-API gateway timeout (504) on the first
-  # base/network config write; the backend recovers within seconds.
   - type: pf_api_enable_rogue_dhcp_detection
-    retry: 3
-    delay: 5
