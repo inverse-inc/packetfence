@@ -496,7 +496,7 @@ sub connector_join_endpoint {
     }
 
     my $to = JOIN_REMOTE_TARGET_HOST . ":" . JOIN_REMOTE_TARGET_PORT . "/tcp";
-    my $conn = eval { $connector->dynreverse($to, { expose_service => 1 }) };
+    my $conn = eval { $connector->dynreverse($to, { pod_direct => 1 }) };
     if ($@) {
         get_logger->error("Failed to obtain dynreverse tunnel to ntlm-join-remote via connector '" . $connector->id . "': $@");
         return (undef, undef, "Unable to reach the connector '" . $connector->id . "' to set up the domain-join tunnel. Verify the connector is connected. ($@)");

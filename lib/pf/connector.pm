@@ -7,7 +7,6 @@ use pf::AtFork;
 use pf::config qw(%Config);
 use pf::log;
 use pf::util qw(isenabled);
-use JSON;
 
 has id => (is => 'rw');
 
@@ -56,23 +55,28 @@ sub connectorServerApiClient {
 sub dynreverse {
     my ($self, $to, $opts) = @_;
     $opts //= {};
-    my %body = (
+    my $client = $self->connectorServerApiClient;
+    my $connector_conn = $client->call("POST", "/api/v1/pfconnector/dynreverse", {
         to => $to,
         connector_id => $self->id,
-    );
-    # Opt this port into being published on the pfconnector k8s Service. Only
-    # callers that reach the port through the Service ClusterIP (e.g. the domain
-    # join) need this; the RADIUS/SNMP callers omit it to keep their behavior.
-    $body{expose_service} = JSON::true if $opts->{expose_service};
-    my $connector_conn = $self->connectorServerApiClient->call("POST", "/api/v1/pfconnector/dynreverse", \%body);
+    });
 
     #Override the host value returned by the connector server's dynreverse API.
-    #In K8S/SaaS the connector is reached through PFCONNECTOR_SERVICE_HOST; the host the
-    #server returns (e.g. containers-gateway.internal) doesn't resolve from this pod, so
-    #whenever PFCONNECTOR_SERVICE_HOST is defined we always prefer it.
+    #pod_direct: dial the exact pfconnector instance that owns this tunnel instead of
+    #the k8s Service ClusterIP. A freshly-bound dynreverse port isn't reliably routed
+    #by kube-proxy through the ClusterIP (the static tunnels work only because they've
+    #been programmed for a while), whereas the instance address we just used for this
+    #API call is directly reachable. Required for long-lived calls like the domain join
+    #where dialing the ClusterIP hangs and the tunnel gets reaped mid-request.
+    #In K8S/SaaS the connector is otherwise reached through PFCONNECTOR_SERVICE_HOST; the
+    #host the server returns (e.g. containers-gateway.internal) doesn't resolve from this
+    #pod, so whenever PFCONNECTOR_SERVICE_HOST is defined we prefer it.
     #Otherwise, on a 'Classic PF' container, force the local containers interface so that
     #the docker proxy gets the packets back on the containers network.
-    if ($ENV{PFCONNECTOR_SERVICE_HOST}) {
+    if ($opts->{pod_direct}) {
+        $connector_conn->{host} = $client->host;
+    }
+    elsif ($ENV{PFCONNECTOR_SERVICE_HOST}) {
         $connector_conn->{host} = $ENV{PFCONNECTOR_SERVICE_HOST};
     }
     elsif ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
