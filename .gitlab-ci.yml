@@ -684,7 +684,7 @@ variables:
     # Skip the multi-GB box download for jobs TEST_ONLY excludes; script
     # still prints the canonical "Skipping" line and exits 0.
     - |
-      ${TESTCIDIR}/test-only-matches.sh; rc=$?
+      rc=0; ${TESTCIDIR}/test-only-matches.sh || rc=$?
       if [ "$rc" = 0 ]; then
         ${CILIBDIR}/vagrant/setup-vagrant-box.sh
       elif [ "$rc" = 1 ]; then
@@ -703,7 +703,7 @@ variables:
     BOX_NAME: pfdeb12dev
   before_script:
     - |
-      ${TESTCIDIR}/test-only-matches.sh; rc=$?
+      rc=0; ${TESTCIDIR}/test-only-matches.sh || rc=$?
       if [ "$rc" = 0 ]; then
         ${CILIBDIR}/vagrant/setup-vagrant-box.sh
       elif [ "$rc" = 1 ]; then
@@ -718,7 +718,7 @@ variables:
   script:
     # Check TEST_ONLY filter (shell-based since GitLab rules don't expand variables in regex)
     - |
-      ${TESTCIDIR}/test-only-matches.sh; rc=$?
+      rc=0; ${TESTCIDIR}/test-only-matches.sh || rc=$?
       if [ "$rc" = 1 ]; then
         echo "Skipping: $CI_JOB_NAME does not match TEST_ONLY pattern: $TEST_ONLY"
         exit 0
