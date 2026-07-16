@@ -36,6 +36,12 @@ testcases:
       }
     headers:
       "Content-Type": "application/json"
+    # First configurator API call on a freshly booted joiner: haproxy-admin ->
+    # pfperl-api backend may not be warm yet and return 504. Retry so it
+    # self-heals (idempotent PATCH); matches configurator/00_*. A hard failure
+    # here would drop the joiner from the run and leave a size-2 cluster.
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200
 
@@ -68,6 +74,8 @@ testcases:
       }
     headers:
       "Content-Type": "application/json"
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200
 
