@@ -395,6 +395,8 @@ variables:
 # via vagrant-in-docker.sh (shell executors ignore `image:`).
 .build_pf_img_vagrant_job:
   stage: build_pf_img
+  before_script:
+    - ci/lib/ensure-runner-disk-free.sh
   variables:
     RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
     # ci_related pushes the slug tag in every context; tag pipelines
@@ -578,6 +580,8 @@ variables:
 
 .build_pf_img_job:
   stage: build_pf_img
+  before_script:
+    - ci/lib/ensure-runner-disk-free.sh
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${BUILD_DIR} ${BUILD_TARGET}
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-runner/-/issues/2716
