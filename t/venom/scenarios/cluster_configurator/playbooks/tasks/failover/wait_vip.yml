@@ -1,13 +1,13 @@
 ---
 # Wait until vip_addr is present (vip_present=true) or absent (false) on vip_host.
 # Interface-independent; delegate lets one pf1-scoped play assert on a peer.
-- name: "Assert {{ vip_addr }} {{ 'present on' if vip_present else 'absent from' }} {{ vip_host }}"
+- name: "Assert {{ vip_addr }} {{ 'present on' if (vip_present | bool) else 'absent from' }} {{ vip_host }}"
   ansible.builtin.shell: |
     if ip -o -4 addr show | grep -qw {{ vip_addr }}; then have=1; else have=0; fi
-    test "$have" = "{{ 1 if vip_present else 0 }}"
+    test "$have" = "{{ 1 if (vip_present | bool) else 0 }}"
   delegate_to: "{{ vip_host }}"
   register: _vipcheck
   changed_when: false
   until: _vipcheck.rc == 0
-  retries: 48
+  retries: "{{ vip_retries | default(48) | int }}"
   delay: 5
