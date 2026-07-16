@@ -11,6 +11,8 @@
 #   C) sequential    — reboot one node at a time (quorum never lost)
 #   D) wrong order   — clean stop 1,2,3; boot 1,2 (must NOT serve) then 3 recovers
 #   E) right order   — clean stop 1,2,3; boot 3 (safe) serves, then 2 & 1 rejoin
+#   F) two down      — clean stop 1 & 2 (node 3 alone); node 3 loses galera
+#                      quorum and goes read-only; boot 1 & 2 back, cluster recovers
 #
 # Power control uses the libvirt domain UUID from the vagrant dotfile
 # (vagrant_pf_dotfile_path passed by test-wrapper.sh) because the domain NAME
@@ -41,7 +43,7 @@
   name: "A1 — hard power-off all nodes at once (power failure)"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/hard_off.yml
       when: "'A' in recovery_scenarios"
@@ -51,7 +53,7 @@
   become: True
   serial: 1
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'A' in recovery_scenarios"
@@ -60,7 +62,7 @@
   name: "A3 — galera recovers (autofix seqno election)"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/wait_cluster_size_three.yml
       when: "'A' in recovery_scenarios"
@@ -69,7 +71,7 @@
   name: "A — verify cluster health after power-failure recovery"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     test_suites:
       - cluster_verify_all
   tasks:
@@ -83,7 +85,7 @@
   name: "B1 — clean-stop all nodes at the same time"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'B' in recovery_scenarios"
@@ -93,7 +95,7 @@
   become: True
   serial: 1
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'B' in recovery_scenarios"
@@ -102,7 +104,7 @@
   name: "B3 — galera recovers"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/wait_cluster_size_three.yml
       when: "'B' in recovery_scenarios"
@@ -111,7 +113,7 @@
   name: "B — verify cluster health after simultaneous-shutdown recovery"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     test_suites:
       - cluster_verify_all
   tasks:
@@ -129,7 +131,7 @@
   # coverage is self-contained.
   serial: 1
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - name: "Stop PacketFence before reboot"
       ansible.builtin.shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
@@ -165,7 +167,7 @@
   name: "C — verify cluster health after sequential reboot"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     test_suites:
       - cluster_verify_all
   tasks:
@@ -179,7 +181,7 @@
   name: "D1 — clean-stop node 1"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'D' in recovery_scenarios"
@@ -188,7 +190,7 @@
   name: "D2 — clean-stop node 2"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'D' in recovery_scenarios"
@@ -197,7 +199,7 @@
   name: "D3 — clean-stop node 3 last (so node 3 is safe_to_bootstrap)"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'D' in recovery_scenarios"
@@ -206,7 +208,7 @@
   name: "D4 — boot node 1; it must NOT start the DB (not safe, no quorum)"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     not_serving_wait_seconds: 120
   tasks:
     - block:
@@ -218,7 +220,7 @@
   name: "D5 — boot node 2; still must NOT reach Primary (no safe peer up)"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     not_serving_wait_seconds: 120
   tasks:
     - block:
@@ -230,7 +232,7 @@
   name: "D6 — boot node 3 (safe); it bootstraps and 1 & 2 rejoin"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'D' in recovery_scenarios"
@@ -239,7 +241,7 @@
   name: "D — galera recovers once the safe node is up + verify"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     test_suites:
       - cluster_verify_all
   tasks:
@@ -255,7 +257,7 @@
   name: "E1 — clean-stop node 1"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'E' in recovery_scenarios"
@@ -264,7 +266,7 @@
   name: "E2 — clean-stop node 2"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'E' in recovery_scenarios"
@@ -273,7 +275,7 @@
   name: "E3 — clean-stop node 3 last (node 3 is safe_to_bootstrap)"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/graceful_off.yml
       when: "'E' in recovery_scenarios"
@@ -282,7 +284,7 @@
   name: "E4 — boot node 3 first; it bootstraps and serves alone"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - block:
         - import_tasks: tasks/boot.yml
@@ -293,7 +295,7 @@
   name: "E5 — boot node 2; it joins the cluster"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - block:
         - import_tasks: tasks/boot.yml
@@ -304,7 +306,7 @@
   name: "E6 — boot node 1; it joins the cluster"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'E' in recovery_scenarios"
@@ -313,7 +315,7 @@
   name: "E — full cluster restored + verify"
   become: True
   vars:
-    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E']) }}"
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
     test_suites:
       - cluster_verify_all
   tasks:
@@ -321,3 +323,65 @@
       when: "'E' in recovery_scenarios"
     - import_tasks: run_venom_suites.yml
       when: "'E' in recovery_scenarios"
+
+########################################################################
+# F) Two nodes down -> the lone survivor (node 3) loses galera quorum and
+#    goes read-only; booting node 1 & 2 back recovers the cluster.
+########################################################################
+- hosts: 'pf1*dev'
+  name: "F1 — clean-stop node 1"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'F' in recovery_scenarios"
+
+- hosts: 'pf2*dev'
+  name: "F2 — clean-stop node 2 (only node 3 left)"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
+  tasks:
+    - import_tasks: tasks/graceful_off.yml
+      when: "'F' in recovery_scenarios"
+
+- hosts: 'pf3*dev'
+  name: "F3 — node 3 lost quorum, DB is read-only"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
+  tasks:
+    - import_tasks: tasks/assert_db_read_only.yml
+      when: "'F' in recovery_scenarios"
+
+- hosts: 'pf1*dev'
+  name: "F4 — boot node 1"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
+  tasks:
+    - import_tasks: tasks/boot.yml
+      when: "'F' in recovery_scenarios"
+
+- hosts: 'pf2*dev'
+  name: "F5 — boot node 2"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
+  tasks:
+    - import_tasks: tasks/boot.yml
+      when: "'F' in recovery_scenarios"
+
+- hosts: 'pf[123]*dev'
+  name: "F — cluster recovers (quorum restored) + verify"
+  become: True
+  vars:
+    recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
+    test_suites:
+      - cluster_verify_all
+  tasks:
+    - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'F' in recovery_scenarios"
+    - import_tasks: run_venom_suites.yml
+      when: "'F' in recovery_scenarios"
