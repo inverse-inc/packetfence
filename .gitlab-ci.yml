@@ -190,16 +190,6 @@ variables:
     - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
       when: never
 
-.gated_by_build_pf_img_iso:
-  rules:
-    - if: '$BUILD_PF_IMG_ISO != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_iso=yes/'
-      when: never
-
-.gated_by_build_pf_img_usb_iso:
-  rules:
-    - if: '$BUILD_PF_IMG_USB_ISO != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_usb_iso=yes/'
-      when: never
-
 .gated_by_build_artifacts_website:
   rules:
     - if: '$BUILD_ARTIFACTS_WEBSITE != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_website=yes/'
