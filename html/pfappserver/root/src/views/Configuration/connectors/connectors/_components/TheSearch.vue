@@ -127,6 +127,7 @@ import { useDownload } from '@/composables/useDownload'
 import i18n from '@/utils/locale'
 import api from '../_api'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { connectorInstallCommand } from '../_composables/useInstallCommand'
 
 const setup = (props, context) => {
 
@@ -204,7 +205,8 @@ const setup = (props, context) => {
   const onCopyInstallCommand = (item) => {
     api.item(item.id).then(connector => {
       const server = $store.getters['system/hostname'] || window.location.hostname
-      const command = `curl -sL https://proxy.saas.packetfence.com/connector-remote-install.sh | bash -s -- ${connector.id} ${connector.secret} ${server}`
+      const version = $store.getters['system/version']
+      const command = connectorInstallCommand({ id: connector.id, secret: connector.secret, server, version })
       try {
         navigator.clipboard.writeText(command).then(() => {
           $store.dispatch('notification/info', { message: i18n.t('Install command copied to clipboard.') })
