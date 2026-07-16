@@ -1,199 +1,252 @@
 ---
-# Cluster failover tests, driven from pf1 (the master) as Ansible plays so every
-# scenario has a guaranteed restore (block/always) and generous until/retries for
-# the SMTP-alert-slowed VRRP transitions. Peer checks run directly on pf2 via
-# delegate_to. Runs after cluster_verify_all, so pf1 (keepalived priority 100)
-# holds every VIP. VIPs come from cluster_vip.{mgmt,reg,iso}.
+# Cluster failover tests, driven from pf1 as Ansible plays (block/always so every
+# scenario restores, generous until/retries for the SMTP-alert-slowed VRRP).
 #
-# Failover is VIP-driven (lib/pf/services/manager/keepalived.pm): mgmt/radius
-# track radiusd-load_balancer, portal (reg/iso) tracks haproxy-portal; stopping
-# keepalived moves all VIPs. pfdhcp/pfcron follow the VIP; httpd.portal is not
-# tracked (haproxy load-balances the portal across nodes' :8080 backends).
+# VIP topology (distributed VIPs / centralize_vips disabled), confirmed against a
+# live cluster and docs/cluster/cluster_setup.asciidoc:
+#   * mgmt VIP  (cluster_vip.mgmt) -> master pf1, backup pf2 (99) then pf3 (98)
+#   * reg  VIP  (cluster_vip.reg)  -> master pf2, backup pf1 (99) then pf3 (98)
+#   * iso  VIP  (cluster_vip.iso)  -> master pf2, backup pf1 (99) then pf3 (98)
+# So each test acts on the VIP's OWN master and asserts it fails to the 99-backup,
+# then preempts back. mgmt/radius track radius_load_balancer; reg/iso track
+# haproxy_portal (lib/pf/services/manager/keepalived.pm). pfdhcp/pfcron follow the
+# VIP; httpd.portal is not tracked (haproxy load-balances the portal across nodes).
+#
+# Peer actions/checks run via delegate_to; VIP presence is interface-independent
+# (ip -o -4 addr show | grep -qw <vip>). Service stop/start via pfcmd (restart uses
+# --ignore-checkup: a transient degraded cluster otherwise fails checkup and the
+# restart no-ops). The wait_vip assertions are the real signal.
 
 ########################################################################
-# keepalived — stopping it migrates ALL VIPs to pf2
+# keepalived on pf1 — only the mgmt VIP leaves pf1; reg/iso stay on pf2
 ########################################################################
 - hosts: 'pf1*dev'
-  name: "Failover — keepalived (all VIPs migrate to pf2)"
+  name: "Failover — keepalived on pf1 (mgmt VIP -> pf2, reg/iso stay on pf2)"
   become: True
   vars:
     pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
-    all_vips: ["{{ cluster_vip.mgmt }}", "{{ cluster_vip.reg }}", "{{ cluster_vip.iso }}"]
   tasks:
     - block:
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
-          loop: "{{ all_vips }}"
+        - name: "baseline: pf1 holds mgmt, pf2 holds reg+iso"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ item.host }}", vip_addr: "{{ item.vip }}", vip_present: true }
+          loop:
+            - { host: "{{ inventory_hostname }}", vip: "{{ cluster_vip.mgmt }}" }
+            - { host: "{{ pf2_host }}", vip: "{{ cluster_vip.reg }}" }
+            - { host: "{{ pf2_host }}", vip: "{{ cluster_vip.iso }}" }
         - name: "Stop keepalived on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service keepalived stop || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
+        # keepalived stays down until the mgmt VIP has moved to pf2
+        - name: "mgmt VIP migrates to pf2, gone from pf1"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ item.host }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: "{{ item.present }}" }
+          loop:
+            - { host: "{{ pf2_host }}", present: true }
+            - { host: "{{ inventory_hostname }}", present: false }
+        - name: "reg/iso stay on pf2 (unaffected by pf1 keepalived)"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ item }}", vip_present: true }
-          loop: "{{ all_vips }}"
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: false }
-      always:
+          loop: ["{{ cluster_vip.reg }}", "{{ cluster_vip.iso }}"]
         - name: "Restart keepalived on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service keepalived restart --ignore-checkup || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
-          loop: "{{ all_vips }}"
+        # mgmt reclaim is slow (preempt_delay + SMTP stalls)
+        - name: "mgmt VIP preempts back to pf1, gone from pf2"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ item.host }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: "{{ item.present }}", vip_retries: 72 }
+          loop:
+            - { host: "{{ inventory_hostname }}", present: true }
+            - { host: "{{ pf2_host }}", present: false }
+      always:
+        - name: "Ensure keepalived is running on pf1"
+          ansible.builtin.shell: "systemctl is-active --quiet packetfence-keepalived || timeout -k 30 300 /usr/local/pf/bin/pfcmd service keepalived restart --ignore-checkup || true"
+          changed_when: true
 
 ########################################################################
-# RADIUS — stopping radiusd-load_balancer migrates only the mgmt VIP
+# RADIUS — radiusd-load_balancer runs on pf1 (mgmt master); its loss moves mgmt
 ########################################################################
 - hosts: 'pf1*dev'
-  name: "Failover — RADIUS (mgmt VIP migrates, reg/iso stay)"
+  name: "Failover — RADIUS (mgmt VIP migrates pf1 -> pf2)"
   become: True
   vars:
     pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
   tasks:
     - block:
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "baseline: pf1 holds mgmt VIP"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
         - name: "Stop radiusd-load_balancer on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer stop || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
-        # scoped: reg/iso track haproxy-portal, so they must stay on pf1
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
+        - name: "mgmt VIP migrates to pf2, gone from pf1"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ item.host }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: "{{ item.present }}" }
+          loop:
+            - { host: "{{ pf2_host }}", present: true }
+            - { host: "{{ inventory_hostname }}", present: false }
+        - name: "reg/iso stay on pf2"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ item }}", vip_present: true }
           loop: ["{{ cluster_vip.reg }}", "{{ cluster_vip.iso }}"]
       always:
         - name: "Restart radiusd-load_balancer on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart --ignore-checkup || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
+        - name: "mgmt VIP preempts back to pf1"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true, vip_retries: 72 }
 
 ########################################################################
-# haproxy-portal — stopping it migrates the reg/iso VIPs
+# haproxy-portal — runs on pf2 (reg/iso master); its loss moves reg/iso to pf1
 ########################################################################
 - hosts: 'pf1*dev'
-  name: "Failover — haproxy-portal (reg/iso VIPs migrate, mgmt stays)"
+  name: "Failover — haproxy-portal (reg/iso VIPs migrate pf2 -> pf1)"
   become: True
   vars:
     pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
     portal_vips: ["{{ cluster_vip.reg }}", "{{ cluster_vip.iso }}"]
   tasks:
     - block:
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
-          loop: "{{ portal_vips }}"
-        - name: "Stop haproxy-portal on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal stop || true"
-          changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "baseline: pf2 holds reg+iso VIPs"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ item }}", vip_present: true }
           loop: "{{ portal_vips }}"
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "Stop haproxy-portal on pf2"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal stop || true"
+          delegate_to: "{{ pf2_host }}"
+          changed_when: true
+        - name: "reg/iso VIPs migrate to pf1"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
+          loop: "{{ portal_vips }}"
+        - name: "reg/iso VIPs gone from pf2"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ item }}", vip_present: false }
+          loop: "{{ portal_vips }}"
+        - name: "mgmt VIP stays on pf1"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
       always:
-        - name: "Restart haproxy-portal on pf1"
+        - name: "Restart haproxy-portal on pf2"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart --ignore-checkup || true"
+          delegate_to: "{{ pf2_host }}"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ item }}", vip_present: true }
+        - name: "reg/iso VIPs preempt back to pf2"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ item }}", vip_present: true, vip_retries: 72 }
           loop: "{{ portal_vips }}"
 
 ########################################################################
-# httpd.portal — not keepalived-tracked; VIP stays, portal still served
-# via peer backends through haproxy on the VIP
+# httpd.portal — not keepalived-tracked; reg VIP stays on pf2, portal still
+# served through the VIP by peer backends (haproxy balances across nodes)
 ########################################################################
 - hosts: 'pf1*dev'
   name: "Failover — httpd.portal (portal stays served via peers)"
   become: True
+  vars:
+    pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
   tasks:
     - block:
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
-        - name: "Stop httpd.portal on pf1"
+        - name: "baseline: pf2 holds reg VIP"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
+        - name: "Stop httpd.portal on pf2"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal stop || true"
+          delegate_to: "{{ pf2_host }}"
           changed_when: true
-        # reg VIP must NOT move (httpd.portal isn't tracked)
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
+        - name: "reg VIP stays on pf2 (httpd.portal not tracked)"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
         - name: "Portal still answers on the VIP (served by peer backends)"
           ansible.builtin.shell: "curl -sk --max-time 10 -o /dev/null -w '%{http_code}' https://{{ cluster_vip.reg }}/"
+          delegate_to: "{{ pf2_host }}"
           register: _portal_code
           changed_when: false
           until: _portal_code.stdout not in ['000', '503']
           retries: 24
           delay: 5
       always:
-        - name: "Restart httpd.portal on pf1"
+        - name: "Restart httpd.portal on pf2"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal restart --ignore-checkup || true"
+          delegate_to: "{{ pf2_host }}"
           changed_when: true
 
 ########################################################################
-# DHCP — pfdhcp follows the reg/iso VIP; plus a peer-health check
+# DHCP — reg/iso VIP lives on pf2, so pf2 serves DHCP; moving the VIP to pf1
+# hands DHCP to pf1
 ########################################################################
 - hosts: 'pf1*dev'
-  name: "Failover — DHCP (pfdhcp follows the reg VIP to pf2)"
+  name: "Failover — DHCP (pfdhcp follows the reg VIP pf2 -> pf1)"
   become: True
   vars:
     pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
   tasks:
-    # VIP-follow: move reg VIP (stop haproxy-portal) -> pf2 serves DHCP
+    # VIP-follow: move reg VIP to pf1 (stop haproxy-portal on pf2) -> pf1 serves
     - block:
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
-        - name: "Move reg VIP by stopping haproxy-portal on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal stop || true"
-          changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "baseline: pf2 holds reg VIP and serves DHCP"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
-        - name: "pf2 pfdhcp is serving"
-          ansible.builtin.command: "systemctl is-active packetfence-pfdhcp"
+        - name: "Move reg VIP to pf1 by stopping haproxy-portal on pf2"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal stop || true"
           delegate_to: "{{ pf2_host }}"
-          register: _pf2_dhcp
-          changed_when: false
-          until: _pf2_dhcp.stdout == 'active'
-          retries: 12
-          delay: 5
-      always:
-        - name: "Restart haproxy-portal on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart --ignore-checkup || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "pf1 now owns the reg VIP"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
-    # peer-health: stopping pfdhcp on pf1 doesn't move a VIP; assert pf2 stays healthy
-    - block:
-        - name: "Stop pfdhcp on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp stop || true"
-          changed_when: true
-        - name: "pf2 pfdhcp still healthy"
+        - name: "pf1 pfdhcp is serving"
           ansible.builtin.command: "systemctl is-active packetfence-pfdhcp"
-          delegate_to: "{{ pf2_host }}"
-          register: _pf2_dhcp2
+          register: _pf1_dhcp
           changed_when: false
-          until: _pf2_dhcp2.stdout == 'active'
+          until: _pf1_dhcp.stdout == 'active'
           retries: 12
           delay: 5
       always:
-        - name: "Restart pfdhcp on pf1"
+        - name: "Restart haproxy-portal on pf2 (reg VIP back to pf2)"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service haproxy-portal restart --ignore-checkup || true"
+          delegate_to: "{{ pf2_host }}"
+          changed_when: true
+        - name: "reg VIP preempts back to pf2"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true, vip_retries: 72 }
+    # service-health: stopping pfdhcp on pf2 doesn't move a VIP; assert the peer's pfdhcp stays healthy
+    - block:
+        - name: "Stop pfdhcp on pf2"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp stop || true"
+          delegate_to: "{{ pf2_host }}"
+          changed_when: true
+        - name: "pf1 pfdhcp still healthy"
+          ansible.builtin.command: "systemctl is-active packetfence-pfdhcp"
+          register: _pf1_dhcp2
+          changed_when: false
+          until: _pf1_dhcp2.stdout == 'active'
+          retries: 12
+          delay: 5
+      always:
+        - name: "Restart pfdhcp on pf2"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp restart --ignore-checkup || true"
+          delegate_to: "{{ pf2_host }}"
           changed_when: true
 
 ########################################################################
-# pfcron — master role follows the mgmt VIP; plus a peer-health check
+# pfcron — master role follows the MGMT VIP (pf1); moving mgmt to pf2 makes pf2 master
 ########################################################################
 - hosts: 'pf1*dev'
-  name: "Failover — pfcron (master role follows the mgmt VIP to pf2)"
+  name: "Failover — pfcron (master role follows the mgmt VIP pf1 -> pf2)"
   become: True
   vars:
     pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
   tasks:
-    # VIP-follow: move mgmt VIP (stop radiusd-load_balancer) -> pf2 becomes pfcron master
+    # VIP-follow: move mgmt VIP to pf2 (stop radiusd-load_balancer on pf1) -> pf2 becomes pfcron master
     - block:
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "baseline: pf1 holds mgmt VIP (pfcron master)"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
-        - name: "Move mgmt VIP by stopping radiusd-load_balancer on pf1"
+        - name: "Move mgmt VIP to pf2 by stopping radiusd-load_balancer on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer stop || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
+        - name: "pf2 now owns the mgmt VIP"
+          include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
         - name: "pf2 pfcron is running (now master)"
           ansible.builtin.command: "systemctl is-active packetfence-pfcron"
@@ -204,12 +257,13 @@
           retries: 12
           delay: 5
       always:
-        - name: "Restart radiusd-load_balancer on pf1"
+        - name: "Restart radiusd-load_balancer on pf1 (mgmt VIP back to pf1)"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart --ignore-checkup || true"
           changed_when: true
-        - include_tasks: tasks/failover/wait_vip.yml
-          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
-    # peer-health: stopping pfcron on pf1 doesn't move a VIP; assert pf2 stays healthy
+        - name: "mgmt VIP preempts back to pf1"
+          include_tasks: tasks/failover/wait_vip.yml
+          vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true, vip_retries: 72 }
+    # service-health: stopping pfcron on pf1 doesn't move a VIP; assert the peer's pfcron stays healthy
     - block:
         - name: "Stop pfcron on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron stop || true"
