@@ -125,12 +125,16 @@
           args:
             executable: /bin/bash
 
-        # A configurator-built VM starts inline tests with a clean firewall; a
-        # restored VM carries the backup's iptables/ipset state, so the first
-        # inline suite's pfipset regen can't destroy in-use sets and leaves
-        # broken rules. Flush-to-default + rebuild to match the configurator path.
-        - name: Rebuild iptables/ipset from a clean state after restore
-          shell: '/usr/local/pf/bin/pfcmd reloadiptablesrules hard'
+        # A configurator-built VM reaches the test suites with a clean firewall
+        # (policy ACCEPT); `reloadiptablesrules hard` instead installed the strict
+        # INPUT DROP ruleset before suites add interfaces (e.g. vswitchbr), silently
+        # dropping their RADIUS/DHCP. Flush to the same clean state and drop stale
+        # ipsets; suites that need strict rules (inline) apply them themselves.
+        - name: Flush iptables/ipset to the configurator-clean state after restore
+          shell: |
+            /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 \
+              -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_flush_to_default()'
+            ipset destroy 2>/dev/null || true
           args:
             executable: /bin/bash
 
