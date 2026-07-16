@@ -7,6 +7,20 @@ name: Joiner interface config (registration + isolation OS IPs)
 # Same interface PATCHes as configurator/10_run_configurator_step1.yml, reg+iso
 # only (mgmt already has its IP from vagrant; PF config arrives later via sync).
 testcases:
+# The freshly booted joiner's configurator API (haproxy-admin -> pfperl-api)
+# takes a while to warm up and returns 504 until it does. Poll it once here so
+# the interface PATCHes below run against an already-warm API.
+- name: wait_for_configurator_api
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interfaces'
+    ignore_verify_ssl: true
+    retry: 30
+    delay: 10
+    assertions:
+      - result.statuscode ShouldEqual 200
+
 - name: get_name_of_reg_int
   steps:
   - type: exec
