@@ -963,6 +963,17 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		}
 		return owner.PfconfigHashNS
 	})
+	// On a pfconnector-remote the ntlm-auth-api is always a local container,
+	// reachable at containers-gateway.internal — never the cloud pfconnector
+	// Service ClusterIP. resource::domains rewrites ntlm_auth_host to that ClusterIP
+	// for cloud-side radiusd, and that value can leak into the served config; the
+	// remote's on-host readiness monitor (and its clients) can't reach the ClusterIP.
+	// Force the local address so a drifted/overridden ntlm_auth_host can't break the
+	// remote's ntlm-auth-api startup.
+	for id, d := range Domains {
+		d.NtlmAuthHost = "containers-gateway.internal"
+		Domains[id] = d
+	}
 	jsonData, err := json.Marshal(Domains)
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
