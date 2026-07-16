@@ -347,11 +347,24 @@
       when: "'F' in recovery_scenarios"
 
 - hosts: 'pf3*dev'
-  name: "F3 — node 3 lost quorum, DB is read-only"
+  name: "F3 — node 3 holds all VIPs and its DB is read-only"
   become: True
   vars:
     recovery_scenarios: "{{ recovery_scenarios | default(['A','B','C','D','E','F']) }}"
   tasks:
+    # with node1 & node2 down, all VIPs fail over to node3 (the only survivor)
+    - name: "node 3 holds all VIPs (mgmt, reg, iso)"
+      ansible.builtin.shell: "ip -o -4 addr show | grep -qw {{ item }}"
+      loop:
+        - "{{ cluster_vip.mgmt }}"
+        - "{{ cluster_vip.reg }}"
+        - "{{ cluster_vip.iso }}"
+      register: _pf3_vips
+      changed_when: false
+      until: _pf3_vips is succeeded
+      retries: 48
+      delay: 5
+      when: "'F' in recovery_scenarios"
     - import_tasks: tasks/assert_db_read_only.yml
       when: "'F' in recovery_scenarios"
 
