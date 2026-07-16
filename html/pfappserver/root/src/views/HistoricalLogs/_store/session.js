@@ -36,7 +36,7 @@ const state = () => ({
 
 const getters = {
   isLoading:   state => state.status === 'loading',
-  isStopping:  state => false,
+  isStopping:  () => false,
   isRunning:   state => state.running,
   isPaused:    state => state.paused,
   session:     state => state.session,
