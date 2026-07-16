@@ -320,6 +320,9 @@ sub create {
     $cs->create($id, $item);
     return unless ($self->commit($cs));
     $self->post_create($id);
+    # Bind the new domain's static tunnels on the connector now, so it's usable
+    # without waiting for the connector to reconnect.
+    $self->reprovision_connector_static($ad_server_ip) if $use_connector;
     my $additional_out = $self->additional_create_out($form, $item);
 
     $id =~ s/^\S+\s+//;
@@ -480,6 +483,7 @@ sub update {
     $cs->update($id, $new_data);
     return unless ($self->commit($cs));
     $self->post_update($id);
+    $self->reprovision_connector_static($ad_server_ip) if $use_connector;
     $self->render(status => 200, json => $self->update_response($form));
 }
 
@@ -555,6 +559,24 @@ sub connector_join_endpoint {
     }
 
     return ($conn->{host}, $conn->{port}, undef);
+}
+
+=head2 reprovision_connector_static
+
+After committing a connector-backed domain, ask the owning connector's
+pfconnector server to bind the domain's newly-added static tunnels (e.g. the
+NTLM-auth tunnel on port ntlm_auth_port+CONNECTOR_PORT_OFFSET) on the live
+tunnel, so the domain is usable without a manual connector reconnect.
+Best-effort — never blocks the API response on connector reachability.
+
+=cut
+
+sub reprovision_connector_static {
+    my ($self, $ad_server_ip) = @_;
+    my $connector = pf::factory::connector->for_ip($ad_server_ip);
+    return unless defined($connector) && defined($connector->id) && $connector->id ne 'local_connector';
+    $connector->reprovision_static();
+    return;
 }
 
 =head2 validate_input

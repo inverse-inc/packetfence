@@ -39,6 +39,14 @@ var credcachePathPrefix = apiPrefix + "/credcache/"
 const credcacheClientTarget = "127.0.0.1:8081"
 
 var activeTunnels = sync.Map{}
+
+// connectorBoundRemotes tracks the static reverse-remote definitions already
+// bound per connector (connectorId -> map[remoteDef]bool). Recorded at handshake
+// and updated on reprovision so a rebind only binds/patches the newly-added
+// tunnels. Best-effort: reprovision binds per-remote and tolerates an already-in-
+// use port, so a stale/missing entry degrades gracefully.
+var connectorBoundRemotes = sync.Map{}
+
 var apiPrefix = "/api/v1/pfconnector"
 
 const (
@@ -89,6 +97,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-binds":
 		s.handleRemoteBinds(w, r)
+		return
+	case apiPrefix + "/reprovision-static-connections":
+		s.handleReprovisionStaticConnections(w, r)
 		return
 	case apiPrefix + "/all-fingerbank-collector-endpoints":
 		s.handleAllFingerbankCollectorEndpoints(w, r)
@@ -421,13 +432,19 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		l.Infof("Failed to fetch pfconnector static connections from pfconfig, continuing without them: %s", err)
 	}
 	additionalRemotes := chshare.Remotes{}
+	boundStatic := map[string]bool{}
 	if remotes, found := pfconnectorStaticConnections.Element[user.Name]; found {
 		for _, remoteDef := range remotes {
 			if remote, err := settings.DecodeRemote(remoteDef); err == nil {
 				additionalRemotes = append(additionalRemotes, remote)
+				boundStatic[remoteDef] = true
 			}
 		}
 	}
+	// Record what this connector has bound so a later reprovision (triggered when a
+	// domain is added) only binds/patches the newly-added tunnels. A reconnect
+	// re-runs this and overwrites the set with the fresh state.
+	connectorBoundRemotes.Store(user.Name, boundStatic)
 
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
 		services, err := client.GetService("pfconnector")
@@ -717,6 +734,149 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
 		return
+	}
+}
+
+// handleReprovisionStaticConnections binds (and exposes on the k8s Service) the
+// static reverse tunnels for a connector that were added since it last
+// handshaked — e.g. the NTLM-auth tunnel created when a connector-backed domain
+// is committed. It lets a domain become usable without a manual connector
+// reconnect. No active tunnel => no-op (the connector will pick everything up on
+// its next connect). Only newly-added remotes are touched.
+func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	payload := struct {
+		ConnectorID string `json:"connector_id"`
+	}{}
+	if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("Unable to decode JSON payload: %s", err)})
+		return
+	}
+	connectorId := payload.ConnectorID
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "connector_id is required"})
+		return
+	}
+
+	l := log.LoggerWContext(req.Context())
+
+	o, ok := activeTunnels.Load(connectorId)
+	if !ok {
+		// Not connected right now: the static connections will be provisioned when
+		// the connector next handshakes, so this isn't an error.
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("No active tunnel for connector %s; will provision on next connect", connectorId), "bound": 0})
+		return
+	}
+	tun := o.(*tunnel.Tunnel)
+
+	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch static connections: %s", err)})
+		return
+	}
+
+	// Copy the recorded bound-set so we can extend it without mutating shared state.
+	bound := map[string]bool{}
+	if boundIface, found := connectorBoundRemotes.Load(connectorId); found {
+		for k, v := range boundIface.(map[string]bool) {
+			bound[k] = v
+		}
+	}
+
+	newRemotes := chshare.Remotes{}
+	for _, remoteDef := range pfconnectorStaticConnections.Element[connectorId] {
+		if bound[remoteDef] {
+			continue
+		}
+		remote, err := settings.DecodeRemote(remoteDef)
+		if err != nil {
+			l.Error(fmt.Sprintf("reprovision: invalid remote %q for connector %s: %s", remoteDef, connectorId, err))
+			continue
+		}
+		newRemotes = append(newRemotes, remote)
+		bound[remoteDef] = true
+	}
+
+	if len(newRemotes) == 0 {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(gin.H{"message": "static connections already provisioned", "bound": 0})
+		return
+	}
+
+	// Publish the new ports on the k8s Service (no-op off-k8s; skips ports already
+	// present, so it's safe even if the bound-set was stale).
+	s.addStaticServicePorts(req.Context(), newRemotes)
+
+	// Bind each new reverse listener on the live tunnel, tied to the connection
+	// lifetime (cleaned up on disconnect). One remote per BindDynamicRemotes call
+	// so an already-in-use port (stale bound-set) fails only itself, not the batch.
+	// BindRemotes blocks for the listener's lifetime, so run each in the background.
+	for _, remote := range newRemotes {
+		r := remote
+		go func() {
+			if err := tun.BindDynamicRemotes([]*settings.Remote{r}); err != nil {
+				log.LoggerWContext(context.Background()).Error(fmt.Sprintf("reprovision: failed binding %s for connector %s: %s", r.String(), connectorId, err))
+			}
+		}()
+	}
+
+	connectorBoundRemotes.Store(connectorId, bound)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes), connectorId), "bound": len(newRemotes)})
+}
+
+// addStaticServicePorts adds the given reverse-remote local ports to the
+// pfconnector k8s Service so they're reachable via the ClusterIP. No-op off-k8s.
+// Idempotent: skips ports already present in the Service spec.
+func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.Remote) {
+	client := pfk8s.NewAdminClientFromEnv()
+	if client == nil {
+		return
+	}
+	l := log.LoggerWContext(ctx)
+	services, err := client.GetService("pfconnector")
+	if err != nil {
+		l.Error(fmt.Sprintf("Unable to get pfconnector service to add static ports: %s", err))
+		return
+	}
+	existing := map[string]bool{}
+	for _, svcPort := range services.Spec.Ports {
+		existing[svcPort.Name] = true
+	}
+	seen := map[string]bool{}
+	patch := []pfk8s.PatchPorts{}
+	for _, remote := range remotes {
+		portName := "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort
+		if existing[portName] || seen[portName] {
+			continue
+		}
+		seen[portName] = true
+		port, err := strconv.ParseUint(remote.LocalPort, 10, 16)
+		if err != nil {
+			l.Error(fmt.Sprintf("Invalid static port %q, skipping: %s", remote.LocalPort, err))
+			continue
+		}
+		patch = append(patch, pfk8s.PatchPorts{
+			Op:   "add",
+			Path: "/spec/ports/-",
+			Value: pfk8s.PatchPortAdd{
+				Port:       int(port),
+				TargetPort: int(port),
+				Protocol:   strings.ToUpper(remote.LocalProto),
+				Name:       portName,
+			},
+		})
+	}
+	if len(patch) > 0 {
+		if err := client.PatchPorts(patch); err != nil {
+			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
+		}
 	}
 }
 

@@ -88,5 +88,28 @@ sub dynreverse {
     return $connector_conn;
 }
 
+=head2 reprovision_static
+
+Ask the pfconnector server to (re)provision this connector's static reverse
+tunnels on its already-connected tunnel, so tunnels added since the connector
+last handshaked (e.g. the NTLM-auth tunnel of a freshly-committed domain) become
+usable without a manual connector reconnect. Best-effort: logs and swallows
+errors (a disconnected connector will pick everything up on its next connect).
+
+=cut
+
+sub reprovision_static {
+    my ($self) = @_;
+    eval {
+        $self->connectorServerApiClient->call("POST", "/api/v1/pfconnector/reprovision-static-connections", {
+            connector_id => $self->id,
+        });
+    };
+    if ($@) {
+        get_logger->warn("Failed to reprovision static connections for connector '".$self->id."': $@");
+    }
+    return;
+}
+
 1;
 
