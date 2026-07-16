@@ -49,16 +49,32 @@ use constant JOIN_REMOTE_PORT_OFFSET => 200;
 use constant JOIN_REMOTE_TARGET_HOST => '100.64.0.1';
 use constant JOIN_REMOTE_TARGET_PORT => 23000;
 
+# Connector-backed domains are namespaced under this stable, tenant-wide prefix
+# instead of the (ephemeral, per-pod) hostname. A domain served through a
+# connector isn't owned by any single PF host — it may even be served by several
+# connectors at once (AD on one side, cache-only ntlm-auth-api on another) — so
+# every pod/host must resolve the same section and config::Domain must surface it
+# cluster-wide. Classic, host-local domains keep the hostname prefix.
+use constant CONNECTOR_HOST_ID => 'connector';
+
 my $host_id = hostname();
 
 sub id {
     my ($self) = @_;
     my $primary_key = $self->primary_key;
     my $stash = $self->stash;
-    if (exists $stash->{$primary_key}) {
-        return $host_id . " " . $stash->{$primary_key};
+    return undef unless exists $stash->{$primary_key};
+    my $bare = $stash->{$primary_key};
+    # Resolve the stored section for this bare id. Connector-backed domains live
+    # under the stable CONNECTOR_HOST_ID prefix; classic domains under this host's
+    # hostname. Prefer an existing section; fall back to the host prefix for ids
+    # that don't exist yet.
+    my $cs = $self->config_store;
+    for my $prefix (CONNECTOR_HOST_ID, $host_id) {
+        my $candidate = "$prefix $bare";
+        return $candidate if $cs->hasId($candidate);
     }
-    return undef;
+    return "$host_id $bare";
 }
 
 =head2 get
@@ -71,7 +87,7 @@ sub get {
     my ($self) = @_;
     my $item = $self->item;
     if ($item) {
-        $item->{id} =~ s/$host_id //i;
+        $item->{id} =~ s/^\S+\s+//;
         $item = $self->cleanupItemForGet($item);
         return $self->render(json => { item => $item }, status => 200);
     }
@@ -80,7 +96,7 @@ sub get {
 
 sub item_shown {
     my ($self, $item) = @_;
-    if ($item->{id} =~ s/$host_id //i) {
+    if ($item->{id} =~ s/^\S+\s+//) {
         return $TRUE;
     }
     return $FALSE;
@@ -102,7 +118,7 @@ sub handle_search {
     }
 
     foreach my $item (@{$response->{items}}) {
-        $item->{id} =~ s/$host_id //i;
+        $item->{id} =~ s/^\S+\s+//;
     }
 
     my $fields = $search_info->{fields};
@@ -129,11 +145,17 @@ sub create {
         return 0;
     }
 
+    my $use_connector = isenabled($item->{use_connector});
+    # Connector-backed domains share the stable CONNECTOR_HOST_ID namespace; classic
+    # domains are namespaced under this host. ntlm_auth_port is allocated per
+    # namespace, so scan (below) and section id (further down) both key off it.
+    my $host_prefix = $use_connector ? CONNECTOR_HOST_ID : $host_id;
+
     my $cs = $self->config_store;
     my $sections = $cs->readAllIds;
     my $max_port = 4999;
     for my $section (@$sections) {
-        unless ($section =~ /^$host_id /) {
+        unless ($section =~ /^\Q$host_prefix\E /) {
             next;
         }
         my $ntlm_auth_port = $cs->cachedConfig->val($section, "ntlm_auth_port");
@@ -154,7 +176,7 @@ sub create {
         return $self->render(status => $status, json => $item);
     }
 
-    $id = $host_id . " " . (delete $item->{id} // $id);
+    $id = $host_prefix . " " . (delete $item->{id} // $id);
     if ($cs->hasId($id)) {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
@@ -192,7 +214,6 @@ sub create {
     my $ad_server_host = "";
     my $ad_server_ip = "";
 
-    my $use_connector = isenabled($item->{use_connector});
     my $dns_servers = $item->{dns_servers};
     if ($use_connector) {
         # Connector-backed domain: the cloud cannot reach the customer's on-prem
@@ -301,7 +322,7 @@ sub create {
     $self->post_create($id);
     my $additional_out = $self->additional_create_out($form, $item);
 
-    $id =~ s/$host_id //i;
+    $id =~ s/^\S+\s+//;
     $self->stash($self->primary_key => $id);
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
@@ -322,7 +343,7 @@ sub update {
     # mergeUpdate sets the id to the host_id-namespaced value ($self->id); validate
     # against the raw id so the field's maxlength/pattern apply to the user-supplied
     # portion only (the prefix is an internal storage detail, not user input).
-    $new_item->{id} =~ s/^\Q$host_id\E //;
+    $new_item->{id} =~ s/^\S+\s+//;
 
     my ($status, $new_data, $form) = $self->validate_item($new_item);
     if (is_error($status)) {
@@ -465,7 +486,7 @@ sub update {
 sub update_response {
     my ($self, $form) = @_;
     my $id = $self->id;
-    $id =~ s/$host_id //i;
+    $id =~ s/^\S+\s+//;
     my %response = (message => "Settings updated", id => $id);
     for my $field ($form->fields) {
         my $type = $field->type;
@@ -493,7 +514,7 @@ sub remove {
     }
 
     return unless ($self->commit($cs));
-    $id =~ s/$host_id //i;
+    $id =~ s/^\S+\s+//;
     return $self->render(json => { message => "Deleted $id successfully" }, status => 200);
 }
 
