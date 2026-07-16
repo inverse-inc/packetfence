@@ -11,14 +11,21 @@ is_me = Event()
 
 def primary_worker_register(worker):
     key = f"{redis_client.namespace}:primary_worker"
+    pid = str(worker.pid)
     while not stop_event.is_set():
         try:
-            res = redis_client.r.set(name=key, value=worker.pid, nx=True, ex=5, get=True)
-            if res is None:
+            # Best-effort primary-worker election, written to work on older Redis
+            # servers. Avoid `SET ... NX GET` (Redis 6.2+) and `EXPIRE ... XX GT`
+            # (Redis 7.0+): claim with `SET NX EX`, then read the holder with a
+            # follow-up GET and refresh the lease with a plain EXPIRE. The 5s TTL is
+            # refreshed every 2s, so the tiny set/get non-atomicity is harmless.
+            claimed = redis_client.r.set(name=key, value=pid, nx=True, ex=5)
+            if claimed:
                 worker.log.info(f"primary worker is registered on PID: {worker.pid}.")
                 is_me.set()
-            if str(worker.pid) == res:
-                redis_client.r.expire(name=key, time=10, xx=True, gt=True)
+            elif redis_client.r.get(key) == pid:
+                redis_client.r.expire(name=key, time=10)
+                is_me.set()
 
         except redis.ConnectionError:
             worker.log.warning("failed registering primary worker: redis connection error.")
