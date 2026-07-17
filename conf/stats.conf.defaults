@@ -458,7 +458,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.accept_per_switch_id
 mysql_query=
-mysql_query=SELECT DISTINCT r.switch_id, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='accept' AND created_at >= NOW() - INTERVAL 600 SECOND AND switch_id=r.switch_id) from radius_audit_log as r;
+mysql_query=SELECT switch_id, COUNT(1) FROM radius_audit_log WHERE auth_status='accept' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY switch_id;
 interval=600s
 management=true
 
@@ -467,7 +467,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.reject_per_switch_id
 mysql_query=
-mysql_query=SELECT DISTINCT r.switch_id, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='reject' AND created_at >= NOW() - INTERVAL 600 SECOND AND switch_id=r.switch_id) from radius_audit_log as r;
+mysql_query=SELECT switch_id, COUNT(1) FROM radius_audit_log WHERE auth_status='reject' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY switch_id;
 interval=600s
 management=true
 
@@ -476,7 +476,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.coa_per_switch_id
 mysql_query=
-mysql_query=SELECT DISTINCT r.switch_id, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='coa' AND created_at >= NOW() - INTERVAL 600 SECOND AND switch_id=r.switch_id) from radius_audit_log as r;
+mysql_query=SELECT switch_id, COUNT(1) FROM radius_audit_log WHERE auth_status='coa' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY switch_id;
 interval=600s
 management=true
 
@@ -485,7 +485,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.disconnect_per_switch_id
 mysql_query=
-mysql_query=SELECT DISTINCT r.switch_id, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='disconnect' AND created_at >= NOW() - INTERVAL 600 SECOND AND switch_id=r.switch_id) from radius_audit_log as r;
+mysql_query=SELECT switch_id, COUNT(1) FROM radius_audit_log WHERE auth_status='disconnect' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY switch_id;
 interval=600s
 management=true
 
@@ -494,7 +494,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.accept_per_connection_type
 mysql_query=
-mysql_query=SELECT DISTINCT r.connection_type, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='accept' AND created_at >= NOW() - INTERVAL 600 SECOND AND connection_type=r.connection_type) from radius_audit_log as r;
+mysql_query=SELECT connection_type, COUNT(1) FROM radius_audit_log WHERE auth_status='accept' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY connection_type;
 interval=600s
 management=true
 
@@ -503,7 +503,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.reject_per_connection_type
 mysql_query=
-mysql_query=SELECT DISTINCT r.connection_type, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='reject' AND created_at >= NOW() - INTERVAL 600 SECOND AND connection_type=r.connection_type) from radius_audit_log as r;
+mysql_query=SELECT connection_type, COUNT(1) FROM radius_audit_log WHERE auth_status='reject' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY connection_type;
 interval=600s
 management=true
 
@@ -512,7 +512,7 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.coa_per_connection_type
 mysql_query=
-mysql_query=SELECT DISTINCT r.connection_type, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='coa' AND created_at >= NOW() - INTERVAL 600 SECOND AND connection_type=r.connection_type) from radius_audit_log as r;
+mysql_query=SELECT connection_type, COUNT(1) FROM radius_audit_log WHERE auth_status='coa' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY connection_type;
 interval=600s
 management=true
 
@@ -521,6 +521,6 @@ type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.radius_audit_log.disconnect_per_connection_type
 mysql_query=
-mysql_query=SELECT DISTINCT r.connection_type, (SELECT COUNT(1) FROM radius_audit_log WHERE auth_status='disconnect' AND created_at >= NOW() - INTERVAL 600 SECOND AND connection_type=r.connection_type) from radius_audit_log as r;
+mysql_query=SELECT connection_type, COUNT(1) FROM radius_audit_log WHERE auth_status='disconnect' AND created_at >= NOW() - INTERVAL 600 SECOND GROUP BY connection_type;
 interval=600s
 management=true
