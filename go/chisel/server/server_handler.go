@@ -444,6 +444,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	// Record what this connector has bound so a later reprovision (triggered when a
 	// domain is added) only binds/patches the newly-added tunnels. A reconnect
 	// re-runs this and overwrites the set with the fresh state.
+	//
+	// Keyed by user.Name, which IS the connector id: connectors authenticate to the
+	// chisel tunnel with their connector id as the username, so user.Name equals the
+	// `connector_id` that handleReprovisionStaticConnections looks up, and the key
+	// under which PfconnectorStaticConnections.Element is stored (find_connector
+	// returns the connector id). This is the same invariant activeTunnels relies on
+	// (Store(user.Name) here vs Load(connectorId) there).
 	connectorBoundRemotes.Store(user.Name, boundStatic)
 
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
@@ -781,6 +788,9 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 	}
 
 	// Copy the recorded bound-set so we can extend it without mutating shared state.
+	// connectorId is the tunnel username the set was stored under at handshake (see
+	// the connectorBoundRemotes.Store in handleWebsocket); a stale/missing set only
+	// costs a redundant bind attempt, which fails harmlessly on an in-use port.
 	bound := map[string]bool{}
 	if boundIface, found := connectorBoundRemotes.Load(connectorId); found {
 		for k, v := range boundIface.(map[string]bool) {
