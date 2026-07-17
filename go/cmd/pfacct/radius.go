@@ -27,6 +27,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfradius"
 )
 
 const TRIGGER_TYPE_ACCOUNTING = "accounting"
@@ -554,19 +555,15 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	return []byte(info.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, info)), nil
 }
 
-const (
-	packetFenceVendorID            = 29464
-	packetFenceConnectorIDAttrType = 40
-)
-
 // hasPacketFenceConnectorID reports whether the request carries the
 // PacketFence-ConnectorID VSA (vendor 29464, attr 40), i.e. it arrived via a
-// connector tunnel. Mirrors the detection in chisel/share/radius_proxy/proxy.go.
+// connector tunnel. Mirrors the detection in chisel/share/radius_proxy/proxy.go
+// (both read the shared pfradius constants).
 func hasPacketFenceConnectorID(attrs radius.Attributes) bool {
 	for _, vsa := range attrs[radius.Type(26)] {
 		if len(vsa) >= 5 &&
-			binary.BigEndian.Uint32(vsa[:4]) == packetFenceVendorID &&
-			vsa[4] == packetFenceConnectorIDAttrType {
+			binary.BigEndian.Uint32(vsa[:4]) == pfradius.VendorID &&
+			vsa[4] == pfradius.ConnectorIDAttrType {
 			return true
 		}
 	}

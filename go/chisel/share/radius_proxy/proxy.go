@@ -9,14 +9,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
+	"github.com/inverse-inc/packetfence/go/pfradius"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 	"layeh.com/radius/rfc2869"
-)
-
-const (
-	packetFenceVendorID            = 29464
-	packetFenceConnectorIDAttrType = 40
 )
 
 type Proxy struct {
@@ -119,11 +115,11 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		}
 
 		vendorConnectorAttr := make(radius.Attribute, 2+len(connectorAttr))
-		vendorConnectorAttr[0] = packetFenceConnectorIDAttrType
+		vendorConnectorAttr[0] = pfradius.ConnectorIDAttrType
 		vendorConnectorAttr[1] = byte(len(vendorConnectorAttr))
 		copy(vendorConnectorAttr[2:], connectorAttr)
 
-		vsa, err := radius.NewVendorSpecific(packetFenceVendorID, vendorConnectorAttr)
+		vsa, err := radius.NewVendorSpecific(pfradius.VendorID, vendorConnectorAttr)
 		if err != nil {
 			return nil, "", err
 		}
@@ -175,8 +171,8 @@ func hasPacketFenceConnectorID(packet *radius.Packet) bool {
 		}
 		attr := avp.Attribute
 		if len(attr) >= 5 &&
-			binary.BigEndian.Uint32(attr[:4]) == packetFenceVendorID &&
-			attr[4] == packetFenceConnectorIDAttrType {
+			binary.BigEndian.Uint32(attr[:4]) == pfradius.VendorID &&
+			attr[4] == pfradius.ConnectorIDAttrType {
 			return true
 		}
 	}

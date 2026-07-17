@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/pfradius"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 )
@@ -72,10 +73,10 @@ func TestProxyPicksBackendFromCorrectPool(t *testing.T) {
 func addConnectorID(p *radius.Packet, id string) {
 	v, _ := radius.NewString(id)
 	vendorAttr := make(radius.Attribute, 2+len(v))
-	vendorAttr[0] = packetFenceConnectorIDAttrType
+	vendorAttr[0] = pfradius.ConnectorIDAttrType
 	vendorAttr[1] = byte(len(vendorAttr))
 	copy(vendorAttr[2:], v)
-	vsa, _ := radius.NewVendorSpecific(packetFenceVendorID, vendorAttr)
+	vsa, _ := radius.NewVendorSpecific(pfradius.VendorID, vendorAttr)
 	p.Attributes.Add(26, vsa)
 }
 

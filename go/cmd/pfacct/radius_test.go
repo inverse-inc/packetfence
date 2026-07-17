@@ -13,6 +13,7 @@ import (
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/vendors/cisco"
+	"github.com/inverse-inc/packetfence/go/pfradius"
 )
 
 type SecretSourceFunc func(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, context.Context, error)
@@ -191,24 +192,24 @@ func TestHasPacketFenceConnectorID(t *testing.T) {
 		},
 		{
 			name:  "matching PacketFence-ConnectorID VSA",
-			attrs: attrsWith(vendorVSA(packetFenceVendorID, packetFenceConnectorIDAttrType, "connectorA")),
+			attrs: attrsWith(vendorVSA(pfradius.VendorID, pfradius.ConnectorIDAttrType, "connectorA")),
 			want:  true,
 		},
 		{
 			name:  "right vendor, wrong attribute type",
-			attrs: attrsWith(vendorVSA(packetFenceVendorID, packetFenceConnectorIDAttrType-1, "connectorA")),
+			attrs: attrsWith(vendorVSA(pfradius.VendorID, pfradius.ConnectorIDAttrType-1, "connectorA")),
 			want:  false,
 		},
 		{
 			name:  "wrong vendor id",
-			attrs: attrsWith(vendorVSA(9, packetFenceConnectorIDAttrType, "connectorA")),
+			attrs: attrsWith(vendorVSA(9, pfradius.ConnectorIDAttrType, "connectorA")),
 			want:  false,
 		},
 		{
 			name: "unrelated VSA present alongside the ConnectorID VSA",
 			attrs: attrsWith(
 				vendorVSA(9, 1, "somethingelse"),
-				vendorVSA(packetFenceVendorID, packetFenceConnectorIDAttrType, "connectorA"),
+				vendorVSA(pfradius.VendorID, pfradius.ConnectorIDAttrType, "connectorA"),
 			),
 			want: true,
 		},
