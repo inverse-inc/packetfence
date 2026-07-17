@@ -418,7 +418,9 @@ sub parse_dhcp_ack {
 
     my $s_ip = $dhcp->{'src_ip'};
     my $s_mac = $dhcp->{'src_mac'};
-    my $client_mask = join( '.', @{$dhcp->{'options'}->{'1'}});
+    # Option 1 (subnet mask) is optional: DHCPINFORM-triggered ACKs and some
+    # servers omit it. Guard the array deref so a missing option doesn't die.
+    my $client_mask = defined($dhcp->{'options'}->{'1'}) ? join( '.', @{$dhcp->{'options'}->{'1'}}) : undef;
     my $lease_length = $dhcp->{'options'}->{'51'};
 
     my $client_ip;

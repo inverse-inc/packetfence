@@ -125,6 +125,44 @@ func TestMaskDomainSecretsForConnector_NonIPAdServer(t *testing.T) {
 	}
 }
 
+// TestStripDomainHostPrefix covers the "<host_id> <id>" -> "<id>" mapping and
+// the already-raw passthrough.
+func TestStripDomainHostPrefix(t *testing.T) {
+	cases := map[string]string{
+		"WIN-SDFCMFQ69C9 inverseINC": "inverseINC", // cloud pod hostname prefix
+		"pf1.example.com domA":       "domA",        // FQDN prefix (dots)
+		"packetfence-node1 domB":     "domB",        // dash in hostname
+		"domA":                       "domA",        // already raw, no prefix
+		"":                           "",            // empty
+	}
+	for in, want := range cases {
+		if got := stripDomainHostPrefix(in); got != want {
+			t.Errorf("stripDomainHostPrefix(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// TestMaskDomainSecretsForConnector_StripsHostPrefix ensures the host_id
+// namespace prefix is stripped from the served keys so the pfconnector-remote
+// receives raw, space-free domain ids (matching pfconnector-remote-load.sh).
+func TestMaskDomainSecretsForConnector_StripsHostPrefix(t *testing.T) {
+	src := map[string]pfconfigdriver.Domain{
+		"WIN-SDFCMFQ69C9 inverseINC": {AdServer: "10.0.0.5", UseConnector: "enabled", MachineAccountPassword: "real"},
+	}
+	got := maskDomainSecretsForConnector(src, "connectorA", ownerLookup(map[string]string{"10.0.0.5": "connectorA"}))
+
+	if _, ok := got["WIN-SDFCMFQ69C9 inverseINC"]; ok {
+		t.Errorf("output key should be stripped of the host_id prefix, got prefixed key %v", keys(got))
+	}
+	d, ok := got["inverseINC"]
+	if !ok {
+		t.Fatalf("expected raw key %q in output, got %v", "inverseINC", keys(got))
+	}
+	if d.MachineAccountPassword != "real" {
+		t.Errorf("owner should get real secret, got %q", d.MachineAccountPassword)
+	}
+}
+
 func keys(m map[string]pfconfigdriver.Domain) []string {
 	out := make([]string, 0, len(m))
 	for k := range m {

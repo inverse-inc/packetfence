@@ -12,7 +12,7 @@ export const useSections = () => {
         { name: i18n.t('Roles'), path: '/configuration/roles' },
         { name: i18n.t('Domains'),
           items: [
-            { name: i18n.t('Active Directory Domains'), path: '/configuration/domains', class: 'no-saas' },
+            { name: i18n.t('Active Directory Domains'), path: '/configuration/domains' },
             { name: i18n.t('Realms'), path: '/configuration/realms' }
           ]
         },

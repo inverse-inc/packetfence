@@ -1,26 +1,18 @@
 package radius_proxy
 
 import (
-	"context"
 	"crypto/hmac"
 	"crypto/md5"
 	"encoding/binary"
 	"errors"
-	"net"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfradius"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 	"layeh.com/radius/rfc2869"
-)
-
-const (
-	packetFenceVendorID            = 29464
-	packetFenceConnectorIDAttrType = 40
 )
 
 type Proxy struct {
@@ -114,8 +106,7 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		LogPacket(l, packet)
 	})
 
-	added := rp.addProxyState(packet)
-	_ = added
+	mutated := rp.addProxyState(packet)
 
 	if !hasPacketFenceConnectorID(packet) {
 		connectorAttr, err := radius.NewString(connectorID)
@@ -124,25 +115,38 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		}
 
 		vendorConnectorAttr := make(radius.Attribute, 2+len(connectorAttr))
-		vendorConnectorAttr[0] = packetFenceConnectorIDAttrType
+		vendorConnectorAttr[0] = pfradius.ConnectorIDAttrType
 		vendorConnectorAttr[1] = byte(len(vendorConnectorAttr))
 		copy(vendorConnectorAttr[2:], connectorAttr)
 
-		vsa, err := radius.NewVendorSpecific(packetFenceVendorID, vendorConnectorAttr)
+		vsa, err := radius.NewVendorSpecific(pfradius.VendorID, vendorConnectorAttr)
 		if err != nil {
 			return nil, "", err
 		}
 
 		packet.Attributes.Add(26, vsa)
+		mutated = true
 	}
 
-	secret, err := rp.foundSecret(context.Background(), packet)
-
-	if err != nil {
-		secret = string(rp.secret)
+	be := rp.backendsForPacket(packet).getBackend(packet)
+	if be == nil {
+		return nil, "", errors.New("No backend available")
 	}
 
-	err = addMessageAuthenticator(packet, []byte(secret))
+	// When the remote FreeRADIUS already proxied the packet it arrives signed with
+	// the unified secret and tagged with Proxy-State + PacketFence-ConnectorID, so we
+	// add nothing above. Forward the original bytes verbatim: this preserves the
+	// original authenticator — essential for Accounting-Request, whose Request
+	// Authenticator is keyed by the secret — and avoids a pointless re-sign that would
+	// also inject a bogus Message-Authenticator. We only re-sign when we actually
+	// mutated the packet (e.g. bare Status-Server liveness checks, which arrive
+	// untagged and get a freshly added Proxy-State/ConnectorID here).
+	if !mutated {
+		rp.Debugf("Proxy %s to %s for connector %s (verbatim)", packet.Code, be.addr, connectorID)
+		return payload, be.addr, nil
+	}
+
+	err = addMessageAuthenticator(packet, rp.secret)
 	if err != nil {
 		return nil, "", err
 	}
@@ -150,11 +154,6 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 	b2, err := packet.Encode()
 	if err != nil {
 		return nil, "", err
-	}
-
-	be := rp.backendsForPacket(packet).getBackend(packet)
-	if be == nil {
-		return nil, "", errors.New("No backend available")
 	}
 
 	rp.Debugf("Proxy %s to %s for connector %s", packet.Code, be.addr, connectorID)
@@ -172,8 +171,8 @@ func hasPacketFenceConnectorID(packet *radius.Packet) bool {
 		}
 		attr := avp.Attribute
 		if len(attr) >= 5 &&
-			binary.BigEndian.Uint32(attr[:4]) == packetFenceVendorID &&
-			attr[4] == packetFenceConnectorIDAttrType {
+			binary.BigEndian.Uint32(attr[:4]) == pfradius.VendorID &&
+			attr[4] == pfradius.ConnectorIDAttrType {
 			return true
 		}
 	}
@@ -192,63 +191,4 @@ func addMessageAuthenticator(p *radius.Packet, secret []byte) error {
 	hash.Write(encode)
 	rfc2869.MessageAuthenticator_Set(p, hash.Sum(nil))
 	return nil
-}
-
-func (rp *Proxy) foundSecret(ctx context.Context, packet *radius.Packet) (string, error) {
-
-	var SwitchID []string
-	SwitchMAC := rfc2865.CallingStationID_GetString(packet)
-	if SwitchMAC != "" {
-		MacHW, err := net.ParseMAC(SwitchMAC)
-		if err == nil {
-			SwitchMAC = MacHW.String()
-			SwitchID = append(SwitchID, SwitchMAC)
-		}
-	}
-
-	SwitchNasIP := rfc2865.NASIPAddress_Get(packet)
-	if SwitchNasIP != nil {
-		SwitchID = append(SwitchID, SwitchNasIP.String())
-	}
-
-	switches := pfconfigdriver.PfSwitches{}
-	pfconfigdriver.FetchDecodeSocket(ctx, &switches)
-
-	for _, switchID := range SwitchID {
-
-		// Find the switch with the given ID
-		for _, sw := range switches.PfconfigKeys.Keys {
-			if sw != switchID {
-				continue
-			}
-			switche := pfconfigdriver.PfConfSwitch{}
-			switche.PfconfigHashNS = sw
-			pfconfigdriver.FetchDecodeSocket(ctx, &switche)
-			if switche.RadiusSecret.String() != "" {
-				return switche.RadiusSecret.String(), nil
-			}
-		}
-		// Find the switch within the ip ranges
-		if IsIPv4(net.ParseIP(switchID)) {
-			for _, sw := range switches.PfconfigKeys.Keys {
-				_, network, err := net.ParseCIDR(sw)
-				if err != nil {
-					continue
-				}
-				if network.Contains(net.ParseIP(switchID)) {
-					switche := pfconfigdriver.PfConfSwitch{}
-					switche.PfconfigHashNS = sw
-					pfconfigdriver.FetchDecodeSocket(ctx, &switche)
-					if switche.RadiusSecret.String() != "" {
-						return switche.RadiusSecret.String(), nil
-					}
-				}
-			}
-		}
-	}
-	return "", errors.New("No secret found")
-}
-
-func IsIPv4(address net.IP) bool {
-	return strings.Count(address.String(), ":") < 2
 }

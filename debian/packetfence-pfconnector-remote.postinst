@@ -38,6 +38,11 @@ case "$1" in
     fi
     # get containers image and tag them locally
     /usr/local/pfconnector-remote/containers/manage-images.sh
+    # stop and disable legacy pfconnector-remote service in favor of the combined one
+    if systemctl is-enabled --quiet "packetfence-pfconnector-remote.service" 2>/dev/null; then
+        /bin/systemctl stop packetfence-pfconnector-remote.service 2>/dev/null || true
+        /bin/systemctl disable packetfence-pfconnector-remote.service 2>/dev/null || true
+    fi
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-pfconnector-remote-combined.service
     if [ -n "$2" ]; then

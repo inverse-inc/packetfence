@@ -62,6 +62,7 @@ type PfAcct struct {
 	aaaNotifyQueues         []chan<- aaaNotifyJob
 	aaaNotifyDropped        atomic.Int64
 	localSecret             string
+	unifiedSecret           string
 	StatsdOnce              tryableonce.TryableOnce
 	isProxied               bool
 	radiusdAcctEnabled      bool
@@ -279,6 +280,12 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	localSecret := pfconfigdriver.LocalSecret{}
 	pfconfigdriver.FetchDecodeSocket(ctx, &localSecret)
 	pfAcct.localSecret = localSecret.Element
+
+	// Connector accounting rides the connector tunnel signed with the unified
+	// secret (the same one the cloud FreeRADIUS validates connector auth with).
+	unifiedApiSystemUser := pfconfigdriver.UnifiedApiSystemUser{}
+	pfconfigdriver.FetchDecodeSocket(ctx, &unifiedApiSystemUser)
+	pfAcct.unifiedSecret = unifiedApiSystemUser.Pass
 
 	pfAcct.isProxied = isProxied(pfAcct)
 }

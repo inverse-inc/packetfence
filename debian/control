@@ -19,7 +19,7 @@ Pre-Depends:  ca-certificates,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
  fingerbank (>= 4.3.3), fingerbank (<< 5.0.0),
- fingerbank-collector (>= 1.4.1), fingerbank-collector (<< 2.0.0),
+ fingerbank-collector (>= 1.6.1), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-perl (>= 1.2.4),
 # Removed for now
@@ -208,6 +208,8 @@ Description: GPG keys provided by PacketFence project
 Package: packetfence-pfconnector-remote
 Architecture: all
 Depends: docker-ce, docker-ce-cli, containerd.io, iproute2, jq, make
+Conflicts: fingerbank-collector, fingerbank-collector-remote, freeradius-common
+Replaces: fingerbank-collector, fingerbank-collector-remote, freeradius-common
 Description: PacketFence Connector
  PacketFence Connector files. This package contains all files related to PacketFence Connector.
 

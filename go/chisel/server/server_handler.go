@@ -26,6 +26,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	connector "github.com/inverse-inc/packetfence/go/connector"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
@@ -38,6 +39,14 @@ var credcachePathPrefix = apiPrefix + "/credcache/"
 const credcacheClientTarget = "127.0.0.1:8081"
 
 var activeTunnels = sync.Map{}
+
+// connectorBoundRemotes tracks the static reverse-remote definitions already
+// bound per connector (connectorId -> map[remoteDef]bool). Recorded at handshake
+// and updated on reprovision so a rebind only binds/patches the newly-added
+// tunnels. Best-effort: reprovision binds per-remote and tolerates an already-in-
+// use port, so a stale/missing entry degrades gracefully.
+var connectorBoundRemotes = sync.Map{}
+
 var apiPrefix = "/api/v1/pfconnector"
 
 const (
@@ -89,6 +98,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-binds":
 		s.handleRemoteBinds(w, r)
 		return
+	case apiPrefix + "/reprovision-static-connections":
+		s.handleReprovisionStaticConnections(w, r)
+		return
 	case apiPrefix + "/all-fingerbank-collector-endpoints":
 		s.handleAllFingerbankCollectorEndpoints(w, r)
 		return
@@ -128,6 +140,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/health":
 		s.handleConnectorHealth(w, r)
 		return
+	case apiPrefix + "/process-dhcp":
+		s.handleProcessDhcp(w, r)
+		return
 	}
 	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
 		s.handleCredcacheForward(w, r)
@@ -136,6 +151,112 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	//missing :O
 	w.WriteHeader(404)
 	w.Write([]byte("Not found"))
+}
+
+// dhcpEvent mirrors the fingerbank-collector's dhcp_forwarder.DhcpEvent JSON.
+// The collector sniffs raw DHCP frames (the pfdhcplistener replacement) and
+// POSTs them to /api/v1/pfconnector/process-dhcp through the connector tunnel.
+// Payload stays a base64 string end-to-end: the collector base64-encodes it in
+// JSON and pf::api base64-decodes it, so we forward it verbatim with no
+// decode/re-encode round trip. The collector's message_type/timestamp fields
+// are intentionally not modelled — pf::api derives everything it needs from the
+// payload — and are simply ignored on decode.
+type dhcpEvent struct {
+	Version int    `json:"version"`
+	Payload string `json:"payload"` // base64 DHCP UDP payload, forwarded verbatim
+	SrcMac  string `json:"src_mac"`
+	DstMac  string `json:"dst_mac"`
+	SrcIp   string `json:"src_ip"`
+	DstIp   string `json:"dst_ip"`
+}
+
+// The webservices JSON-RPC client is resolved from pfconfig once and reused:
+// process-dhcp is a hot path and NewClientFromConfig does a pfconfig socket
+// round-trip on every call. dhcpDispatchSem bounds the number of in-flight
+// async forwards so a slow/unreachable webservices endpoint can't spawn an
+// unbounded goroutine pile-up under DHCP volume.
+var (
+	dhcpRpcClientMu sync.Mutex
+	dhcpRpcClient   *jsonrpc2.Client
+	dhcpDispatchSem = make(chan struct{}, 128)
+)
+
+// getDhcpRpcClient returns a memoized webservices JSON-RPC client. It only
+// caches once pfconfig actually returns a usable endpoint; NewClientFromConfig
+// swallows fetch errors, so caching an empty-Host client would strand every
+// future packet. Until pfconfig is ready it keeps returning transient clients.
+func getDhcpRpcClient(ctx context.Context) *jsonrpc2.Client {
+	dhcpRpcClientMu.Lock()
+	defer dhcpRpcClientMu.Unlock()
+	if dhcpRpcClient != nil {
+		return dhcpRpcClient
+	}
+	c := jsonrpc2.NewClientFromConfig(ctx)
+	if c.Host == "" {
+		return c
+	}
+	dhcpRpcClient = c
+	return dhcpRpcClient
+}
+
+// handleProcessDhcp relays a collector-forwarded DHCP packet to
+// pf::api::process_dhcp_event over the webservices JSON-RPC endpoint. This runs
+// on the pfconnector-server, the only side with pfconfig access to resolve that
+// endpoint (host/port/proto) and its credentials. DHCP fingerprinting is
+// best-effort (like pfdhcplistener's async notify_hashed), so the forward is
+// handed to a bounded background dispatcher and we return 202 immediately —
+// never blocking the collector on the webservices round trip.
+func (s *Server) handleProcessDhcp(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusMethodNotAllowed, Message: "process-dhcp only accepts POST"})
+		return
+	}
+
+	var ev dhcpEvent
+	if err := json.NewDecoder(r.Body).Decode(&ev); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("Unable to decode DHCP event: %s", err)})
+		return
+	}
+	if ev.Payload == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Empty DHCP payload"})
+		return
+	}
+
+	// pf::api methods take a flat alternating key/value param list (%postdata).
+	// Payload is already base64 (see dhcpEvent) and forwarded verbatim.
+	params := []interface{}{
+		"version", ev.Version,
+		"payload", ev.Payload,
+		"src_mac", ev.SrcMac,
+		"dst_mac", ev.DstMac,
+		"src_ip", ev.SrcIp,
+		"dst_ip", ev.DstIp,
+	}
+
+	client := getDhcpRpcClient(r.Context())
+	logger := log.LoggerWContext(r.Context())
+
+	select {
+	case dhcpDispatchSem <- struct{}{}:
+		go func() {
+			defer func() { <-dhcpDispatchSem }()
+			// Detached context: the request context is cancelled once we return
+			// 202 below. Notify does not surface HTTP status, so a rejected
+			// event can only be logged on transport error, not recovered.
+			if err := client.Notify(context.Background(), "process_dhcp_event", params); err != nil {
+				logger.Error(fmt.Sprintf("process-dhcp: notify pf::api failed: %s", err))
+			}
+		}()
+		w.WriteHeader(http.StatusAccepted)
+	default:
+		// Dispatcher saturated (slow/unreachable webservices). Drop rather than
+		// block the collector, mirroring the collector's own full-channel drop.
+		logger.Warn("process-dhcp: dispatch queue full, dropping DHCP event")
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}
 }
 
 // handleCredcacheForward routes /api/v1/pfconnector/credcache/<connector-id>/...
@@ -298,22 +419,39 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	localSecret := pfconfigdriver.LocalSecret{}
-	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret); err != nil {
-		l.Infof("Failed to fetch local secret from pfconfig, continuing without it: %s", err)
+	// The RADIUS proxy re-signs connector traffic with the secret the cloud
+	// FreeRADIUS expects for the `pfconnector` NAS client, which is
+	// unified_api_system_user.pass. Fetch it here so it is cached for the life of
+	// this tunnel/SSH connection.
+	unifiedApiSystemUser := pfconfigdriver.UnifiedApiSystemUser{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &unifiedApiSystemUser); err != nil {
+		l.Infof("Failed to fetch unified api system user from pfconfig, continuing without it: %s", err)
 	}
 	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
 		l.Infof("Failed to fetch pfconnector static connections from pfconfig, continuing without them: %s", err)
 	}
 	additionalRemotes := chshare.Remotes{}
+	boundStatic := map[string]bool{}
 	if remotes, found := pfconnectorStaticConnections.Element[user.Name]; found {
 		for _, remoteDef := range remotes {
 			if remote, err := settings.DecodeRemote(remoteDef); err == nil {
 				additionalRemotes = append(additionalRemotes, remote)
+				boundStatic[remoteDef] = true
 			}
 		}
 	}
+	// Record what this connector has bound so a later reprovision (triggered when a
+	// domain is added) only binds/patches the newly-added tunnels. A reconnect
+	// re-runs this and overwrites the set with the fresh state.
+	//
+	// Keyed by user.Name, which IS the connector id: connectors authenticate to the
+	// chisel tunnel with their connector id as the username, so user.Name equals the
+	// `connector_id` that handleReprovisionStaticConnections looks up, and the key
+	// under which PfconnectorStaticConnections.Element is stored (find_connector
+	// returns the connector id). This is the same invariant activeTunnels relies on
+	// (Store(user.Name) here vs Load(connectorId) there).
+	connectorBoundRemotes.Store(user.Name, boundStatic)
 
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
 		services, err := client.GetService("pfconnector")
@@ -393,7 +531,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		Outbound:     true, //server always accepts outbound
 		Socks:        s.config.Socks5,
 		KeepAlive:    s.config.KeepAlive,
-		RadiusSecret: localSecret.Element,
+		RadiusSecret: unifiedApiSystemUser.Pass,
 	})
 	//bind
 	eg, ctx := errgroup.WithContext(req.Context())
@@ -590,7 +728,10 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
 			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
 			fmt.Sprintf("100.64.0.1:18122:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
-			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
+			// Accounting tunnel: FreeRADIUS on the connector owns local UDP 1813 (NAS
+			// accounting) and proxies to this bind, which tunnels to the cloud pfacct.
+			// Mirrors the 1812 auth tunnel (100.64.0.1:18122) on a dedicated acct port.
+			fmt.Sprintf("100.64.0.1:18132:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
 			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
 			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
 			fmt.Sprintf("containers-gateway.internal:3306:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_3306", fmt.Sprintf("%s:3306", managementIP))),
@@ -600,6 +741,152 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
 		return
+	}
+}
+
+// handleReprovisionStaticConnections binds (and exposes on the k8s Service) the
+// static reverse tunnels for a connector that were added since it last
+// handshaked — e.g. the NTLM-auth tunnel created when a connector-backed domain
+// is committed. It lets a domain become usable without a manual connector
+// reconnect. No active tunnel => no-op (the connector will pick everything up on
+// its next connect). Only newly-added remotes are touched.
+func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	payload := struct {
+		ConnectorID string `json:"connector_id"`
+	}{}
+	if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("Unable to decode JSON payload: %s", err)})
+		return
+	}
+	connectorId := payload.ConnectorID
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "connector_id is required"})
+		return
+	}
+
+	l := log.LoggerWContext(req.Context())
+
+	o, ok := activeTunnels.Load(connectorId)
+	if !ok {
+		// Not connected right now: the static connections will be provisioned when
+		// the connector next handshakes, so this isn't an error.
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("No active tunnel for connector %s; will provision on next connect", connectorId), "bound": 0})
+		return
+	}
+	tun := o.(*tunnel.Tunnel)
+
+	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch static connections: %s", err)})
+		return
+	}
+
+	// Copy the recorded bound-set so we can extend it without mutating shared state.
+	// connectorId is the tunnel username the set was stored under at handshake (see
+	// the connectorBoundRemotes.Store in handleWebsocket); a stale/missing set only
+	// costs a redundant bind attempt, which fails harmlessly on an in-use port.
+	bound := map[string]bool{}
+	if boundIface, found := connectorBoundRemotes.Load(connectorId); found {
+		for k, v := range boundIface.(map[string]bool) {
+			bound[k] = v
+		}
+	}
+
+	newRemotes := chshare.Remotes{}
+	for _, remoteDef := range pfconnectorStaticConnections.Element[connectorId] {
+		if bound[remoteDef] {
+			continue
+		}
+		remote, err := settings.DecodeRemote(remoteDef)
+		if err != nil {
+			l.Error(fmt.Sprintf("reprovision: invalid remote %q for connector %s: %s", remoteDef, connectorId, err))
+			continue
+		}
+		newRemotes = append(newRemotes, remote)
+		bound[remoteDef] = true
+	}
+
+	if len(newRemotes) == 0 {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(gin.H{"message": "static connections already provisioned", "bound": 0})
+		return
+	}
+
+	// Publish the new ports on the k8s Service (no-op off-k8s; skips ports already
+	// present, so it's safe even if the bound-set was stale).
+	s.addStaticServicePorts(req.Context(), newRemotes)
+
+	// Bind each new reverse listener on the live tunnel, tied to the connection
+	// lifetime (cleaned up on disconnect). One remote per BindDynamicRemotes call
+	// so an already-in-use port (stale bound-set) fails only itself, not the batch.
+	// BindRemotes blocks for the listener's lifetime, so run each in the background.
+	for _, remote := range newRemotes {
+		r := remote
+		go func() {
+			if err := tun.BindDynamicRemotes([]*settings.Remote{r}); err != nil {
+				log.LoggerWContext(context.Background()).Error(fmt.Sprintf("reprovision: failed binding %s for connector %s: %s", r.String(), connectorId, err))
+			}
+		}()
+	}
+
+	connectorBoundRemotes.Store(connectorId, bound)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes), connectorId), "bound": len(newRemotes)})
+}
+
+// addStaticServicePorts adds the given reverse-remote local ports to the
+// pfconnector k8s Service so they're reachable via the ClusterIP. No-op off-k8s.
+// Idempotent: skips ports already present in the Service spec.
+func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.Remote) {
+	client := pfk8s.NewAdminClientFromEnv()
+	if client == nil {
+		return
+	}
+	l := log.LoggerWContext(ctx)
+	services, err := client.GetService("pfconnector")
+	if err != nil {
+		l.Error(fmt.Sprintf("Unable to get pfconnector service to add static ports: %s", err))
+		return
+	}
+	existing := map[string]bool{}
+	for _, svcPort := range services.Spec.Ports {
+		existing[svcPort.Name] = true
+	}
+	seen := map[string]bool{}
+	patch := []pfk8s.PatchPorts{}
+	for _, remote := range remotes {
+		portName := "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort
+		if existing[portName] || seen[portName] {
+			continue
+		}
+		seen[portName] = true
+		port, err := strconv.ParseUint(remote.LocalPort, 10, 16)
+		if err != nil {
+			l.Error(fmt.Sprintf("Invalid static port %q, skipping: %s", remote.LocalPort, err))
+			continue
+		}
+		patch = append(patch, pfk8s.PatchPorts{
+			Op:   "add",
+			Path: "/spec/ports/-",
+			Value: pfk8s.PatchPortAdd{
+				Port:       int(port),
+				TargetPort: int(port),
+				Protocol:   strings.ToUpper(remote.LocalProto),
+				Name:       portName,
+			},
+		})
+	}
+	if len(patch) > 0 {
+		if err := client.PatchPorts(patch); err != nil {
+			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
+		}
 	}
 }
 
@@ -686,6 +973,17 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		}
 		return owner.PfconfigHashNS
 	})
+	// On a pfconnector-remote the ntlm-auth-api is always a local container,
+	// reachable at containers-gateway.internal — never the cloud pfconnector
+	// Service ClusterIP. resource::domains rewrites ntlm_auth_host to that ClusterIP
+	// for cloud-side radiusd, and that value can leak into the served config; the
+	// remote's on-host readiness monitor (and its clients) can't reach the ClusterIP.
+	// Force the local address so a drifted/overridden ntlm_auth_host can't break the
+	// remote's ntlm-auth-api startup.
+	for id, d := range Domains {
+		d.NtlmAuthHost = "containers-gateway.internal"
+		Domains[id] = d
+	}
 	jsonData, err := json.Marshal(Domains)
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
@@ -723,9 +1021,25 @@ func maskDomainSecretsForConnector(domains map[string]pfconfigdriver.Domain, con
 		if connectorId == "" || ownerForIP(net.ParseIP(d.AdServer)) != connectorId {
 			d.MachineAccountPassword = fakeMachineAccountPassword
 		}
-		out[domain] = d
+		out[stripDomainHostPrefix(domain)] = d
 	}
 	return out
+}
+
+// stripDomainHostPrefix removes the "<host_id> " namespace prefix that
+// PacketFence prepends to a domain identifier when it is stored in
+// domain.conf (see pf::UnifiedApi::Controller::Config::Domains, which keys
+// each section as "<hostname> <id>"). A pfconnector-remote re-namespaces every
+// domain under its own hostname (see pfconnector-remote-load.sh, which builds
+// "[<local-hostname> <id>]" sections and "<id>.env" files), so it needs the
+// raw id and cannot cope with a space in the key. Domain ids are alphanumeric
+// and host_ids (hostnames) contain no spaces, so the raw id is the token after
+// the last space; a key without a space (already raw) is returned unchanged.
+func stripDomainHostPrefix(id string) string {
+	if i := strings.LastIndex(id, " "); i >= 0 {
+		return id[i+1:]
+	}
+	return id
 }
 
 func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Request) {

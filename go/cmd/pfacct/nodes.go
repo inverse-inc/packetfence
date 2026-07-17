@@ -9,8 +9,7 @@ import (
 type SessionID [16]byte
 
 type NodeKey struct {
-	TenantId int
-	Mac      mac.Mac
+	Mac mac.Mac
 }
 
 type Node struct {
@@ -189,20 +188,20 @@ func NewNodes() *Nodes {
 	return &Nodes{Nodes: make(map[NodeKey]*Node)}
 }
 
-func (n *Nodes) Add(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time, in, out int64) {
-	node := n.getOrAddNode(tenantId, mac)
+func (n *Nodes) Add(mac mac.Mac, sessionID SessionID, timeBucket time.Time, in, out int64) {
+	node := n.getOrAddNode(mac)
 	node.AddToTimeBucket(sessionID, timeBucket, in, out)
 }
 
-func (n *Nodes) Update(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time, in, out int64) {
-	node := n.getOrAddNode(tenantId, mac)
+func (n *Nodes) Update(mac mac.Mac, sessionID SessionID, timeBucket time.Time, in, out int64) {
+	node := n.getOrAddNode(mac)
 	node.UpdateTimeBucket(sessionID, timeBucket, in, out)
 }
 
-func (n *Nodes) getOrAddNode(tenantId int, mac mac.Mac) *Node {
+func (n *Nodes) getOrAddNode(mac mac.Mac) *Node {
 	var item *Node
 	var found bool
-	key := NodeKey{TenantId: tenantId, Mac: mac}
+	key := NodeKey{Mac: mac}
 	n.lock.RLock() //First try to get a read Only lock
 	if item, found = n.Nodes[key]; !found {
 		// Not Found drop read lock get write lock
@@ -220,10 +219,10 @@ func (n *Nodes) getOrAddNode(tenantId int, mac mac.Mac) *Node {
 	return item
 }
 
-func (n *Nodes) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time) (BandwidthBucket, bool) {
+func (n *Nodes) GetBucket(mac mac.Mac, sessionID SessionID, timeBucket time.Time) (BandwidthBucket, bool) {
 	var node *Node
 	var found bool
-	key := NodeKey{TenantId: tenantId, Mac: mac}
+	key := NodeKey{Mac: mac}
 	n.lock.RLock() //First try to get a read Only lock
 	if node, found = n.Nodes[key]; !found {
 		n.lock.RUnlock()
@@ -233,10 +232,10 @@ func (n *Nodes) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, timeBu
 	return node.GetBucket(sessionID, timeBucket)
 }
 
-func (n *Nodes) RemoveSession(tenantId int, mac mac.Mac, sessionID SessionID) *Session {
+func (n *Nodes) RemoveSession(mac mac.Mac, sessionID SessionID) *Session {
 	var item *Node
 	var found bool
-	key := NodeKey{TenantId: tenantId, Mac: mac}
+	key := NodeKey{Mac: mac}
 	n.lock.RLock() //First try to get a read Only lock
 	if item, found = n.Nodes[key]; !found {
 		return nil

@@ -19,10 +19,6 @@ use pf::util qw(listify isenabled);
 # Port offset added when using a connector for NTLM auth
 use constant CONNECTOR_PORT_OFFSET => 100;
 
-# Port offset and target port for the ntlm-join-remote service
-use constant JOIN_REMOTE_PORT_OFFSET => 200;
-use constant JOIN_REMOTE_TARGET_PORT => 23000;
-
 sub init {
     my ($self) = @_;
     $self->{_authentication_config} =
@@ -96,23 +92,13 @@ sub build {
         my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
         push @{ $hash{$connector} }, $r;
     }
-    # Join-remote tunnels to reach ntlm-join-remote on port 23000
-    # Deduplicate by connector + local_port to avoid duplicate tunnels
-    # while still allowing multiple domains behind the same connector
-    my %join_remote_seen;
-    for my $id ( keys %{ $self->{_domain_config} } ) {
-        my $data = $self->{_domain_config}{$id};
-        next unless isenabled($data->{'use_connector'});
-        my $port = $data->{'ntlm_auth_port'};
-        next unless defined $port;
-        my $connector = $self->find_connector( $data->{ad_server} );
-        my $local_port = $port + JOIN_REMOTE_PORT_OFFSET;
-        my $key = "${connector}:${local_port}";
-        next if $join_remote_seen{$key};
-        $join_remote_seen{$key} = 1;
-        my $r = "${local_port}:100.64.0.1:" . JOIN_REMOTE_TARGET_PORT . "/tcp";
-        push @{ $hash{$connector} }, $r;
-    }
+    # NOTE: ntlm-join-remote (port 23000 on the connector-remote) is no longer
+    # exposed via a static tunnel here. Connector-backed domain joins now set up an
+    # on-demand dynreverse tunnel at join time (see connector_join_endpoint() in
+    # pf::UnifiedApi::Controller::Config::Domains), which also patches the k8s
+    # pfconnector Service on the fly. A static tunnel required the connector to
+    # reconnect after the domain was committed before the port existed, which
+    # deadlocked first-time joins.
     return \%hash;
 }
 

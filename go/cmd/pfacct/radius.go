@@ -19,7 +19,6 @@ import (
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
-	"github.com/inverse-inc/go-radius/inversedict"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
@@ -28,6 +27,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfradius"
 )
 
 const TRIGGER_TYPE_ACCOUNTING = "accounting"
@@ -172,7 +172,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	}
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
-	node_id := mac.NodeId(uint16(switchInfo.TenantId))
+	node_id := mac.NodeId(0)
 	if h.ProcessBandwidthAcct {
 		if err := h.InsertBandwidthAccounting(
 			status,
@@ -555,21 +555,41 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		return nil, nil, err
 	}
 
-	packet, err := radius.Parse(raw, []byte(switchInfo.Secret))
-	if err != nil {
+	// Validate that the packet authenticates with the resolved secret.
+	if _, err := radius.Parse(raw, []byte(switchInfo.Secret)); err != nil {
 		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
-	// If the request overrides the tenant ID, we create a copy of the switchInfo and return it with an updated tenant ID
-	if val := inversedict.PacketFenceTenantID_Get(packet); val != 0 {
-		switchInfo2 := *switchInfo
-		switchInfo2.TenantId = int(val)
-		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, &switchInfo2)), nil
-	} else {
-		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	// switchInfo is a shared cached pointer; never mutate it. Copy before overriding.
+	info := switchInfo
+
+	// Connector accounting: the packet rode the connector tunnel and was signed
+	// with the unified secret, not the inner switch's secret. Keep the switch
+	// identity (attributes) resolved above, but validate and respond with
+	// the unified secret, mirroring the auth dynamic-clients ConnectorID resolution.
+	if h.unifiedSecret != "" && hasPacketFenceConnectorID(attrs) {
+		cp := *info
+		cp.Secret = h.unifiedSecret
+		info = &cp
 	}
 
+	return []byte(info.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, info)), nil
+}
+
+// hasPacketFenceConnectorID reports whether the request carries the
+// PacketFence-ConnectorID VSA (vendor 29464, attr 40), i.e. it arrived via a
+// connector tunnel. Mirrors the detection in chisel/share/radius_proxy/proxy.go
+// (both read the shared pfradius constants).
+func hasPacketFenceConnectorID(attrs radius.Attributes) bool {
+	for _, vsa := range attrs[radius.Type(26)] {
+		if len(vsa) >= 5 &&
+			binary.BigEndian.Uint32(vsa[:4]) == pfradius.VendorID &&
+			vsa[4] == pfradius.ConnectorIDAttrType {
+			return true
+		}
+	}
+	return false
 }
 
 type Error string
@@ -958,7 +978,6 @@ func (rs *RadiusStatements) NodeBandwidthBalanceSubtract(mac mac.Mac, balance in
 
 type SwitchInfo struct {
 	Nasname, Secret  string
-	TenantId         int
 	RadiusAttributes db.CsvArray
 }
 

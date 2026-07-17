@@ -74,7 +74,9 @@ use pf::password();
 use pf::web::guest();
 use pf::dhcp::processor_v4();
 use pf::dhcp::processor_v6();
+use pf::util::dhcp();
 use pf::util::dhcpv6();
+use MIME::Base64();
 use pf::domain::ntlm_cache();
 use pf::access_filter::switch;
 use Hash::Merge qw (merge);
@@ -1359,6 +1361,108 @@ sub process_dhcpv6 : Public {
 
     my $dhcpv6Processor = pf::dhcp::processor_v6->new();
     $dhcpv6Processor->process_packet($udp_payload);
+}
+
+=head2 process_dhcp_event
+
+Processes a DHCP packet forwarded by the fingerbank-collector (the
+pfdhcplistener replacement). The collector sniffs raw DHCP frames off the wire
+and ships the base64-encoded UDP payload here through the pfconnector-server,
+which relays it over the webservices JSON-RPC endpoint.
+
+Unlike pfdhcplistener, the collector has no listening interface, so it cannot
+provide the interface/VLAN context process_dhcpv4 normally receives. We
+synthesize it: collector-forwarded traffic is never inline (is_inline_vlan=0),
+which is the only code path that reads interface/interface_ip/interface_vlan;
+the remaining uses are log/statsd strings. net_type is set to 'internal' so
+pf::util::is_prod_interface() returns false and DHCP packets do not trigger
+per-packet post-registration conformity scans (which is how pfdhcplistener
+behaved on a normal 'internal' capture interface).
+
+Expects: version (4 or 6), payload (base64 UDP payload), and optionally
+src_mac, dst_mac, src_ip, dst_ip. DHCPv6 is delegated to process_dhcpv6, whose
+processor base64-decodes the payload itself.
+
+=cut
+
+sub process_dhcp_event : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(version payload);
+    my @found = grep { exists $postdata{$_} } @require;
+    return unless pf::util::validate_argv(\@require, \@found);
+
+    my $version = $postdata{'version'};
+
+    # DHCPv6: the v6 processor base64-decodes the payload itself, so hand it the
+    # base64 string verbatim through the existing entry point.
+    if ($version == 6) {
+        return $class->process_dhcpv6($postdata{'payload'});
+    }
+
+    if ($version != 4) {
+        $logger->warn("process_dhcp_event: unsupported DHCP version '$version'");
+        return;
+    }
+
+    my $payload = MIME::Base64::decode_base64($postdata{'payload'});
+    unless (length($payload)) {
+        $logger->warn("process_dhcp_event: empty DHCPv4 payload");
+        return;
+    }
+
+    my $dhcp;
+    eval { $dhcp = pf::util::dhcp::decode_dhcp($payload); };
+    if ($@ || !$dhcp) {
+        $logger->warn("process_dhcp_event: unable to decode DHCPv4 packet: $@");
+        return;
+    }
+
+    # Frame massaging mirrors pfdhcplistener: chaddr is the full 16-byte hardware
+    # address field; the node MAC is its first 6 bytes.
+    my $dhcp_mac = pf::util::clean_mac(substr($dhcp->{'chaddr'}, 0, 12));
+    if ($dhcp_mac ne "00:00:00:00:00:00" && !pf::util::valid_mac($dhcp_mac)) {
+        $logger->debug("process_dhcp_event: invalid CHADDR ($dhcp_mac), skipping");
+        return;
+    }
+    unless ($dhcp_mac) {
+        $logger->debug("process_dhcp_event: chaddr is undefined, skipping");
+        return;
+    }
+    $dhcp->{'chaddr'}   = $dhcp_mac;
+    $dhcp->{'src_mac'}  = pf::util::clean_mac($postdata{'src_mac'} // '');
+    $dhcp->{'dest_mac'} = pf::util::clean_mac($postdata{'dst_mac'}) if defined $postdata{'dst_mac'};
+    $dhcp->{'src_ip'}   = $postdata{'src_ip'} if defined $postdata{'src_ip'};
+    $dhcp->{'dest_ip'}  = $postdata{'dst_ip'} if defined $postdata{'dst_ip'};
+
+    # Match pfdhcplistener, which always sets src_mac from the L2 frame and drops
+    # the packet on an invalid source MAC. Validate unconditionally so a
+    # missing/empty src_mac is skipped rather than processed with a bogus MAC
+    # (which would emit rogue-DHCP alerts with an empty server MAC).
+    unless (pf::util::valid_mac($dhcp->{'src_mac'})) {
+        $logger->debug("process_dhcp_event: source MAC '" . $dhcp->{'src_mac'} . "' is invalid, skipping");
+        return;
+    }
+
+    my $processor = pf::dhcp::processor_v4->new(
+        dhcp     => $dhcp,
+        src_mac  => $dhcp->{'src_mac'},
+        dest_mac => $dhcp->{'dest_mac'},
+        src_ip   => $dhcp->{'src_ip'},
+        dest_ip  => $dhcp->{'dest_ip'},
+        # Collector-forwarded DHCP carries no interface/VLAN context. It is never
+        # inline, so interface/interface_ip/interface_vlan (only read in the
+        # inline branch and in log/statsd strings) get safe sentinels. net_type
+        # is 'internal' (not 'dhcp-listener') so is_prod_interface() is false and
+        # DHCP traffic does not trigger per-packet post-registration scans.
+        is_inline_vlan => 0,
+        interface      => 'dhcp-listener',
+        interface_ip   => undef,
+        interface_vlan => $pf::config::NO_VLAN,
+        net_type       => 'internal',
+    );
+    $processor->process_packet();
+
+    return $pf::config::TRUE;
 }
 
 =head2 copy_directory
