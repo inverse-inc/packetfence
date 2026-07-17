@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"net"
 	"reflect"
@@ -150,5 +151,79 @@ func TestPacketToMap(t *testing.T) {
 	expected := map[string]interface{}{"User-Name": "tim", "Cisco-AVPair": []interface{}{"bob=bobby", "j=r"}}
 	if reflect.DeepEqual(expected, attributeMap) == false {
 		t.Errorf("expected : %v, got : %v", expected, attributeMap)
+	}
+}
+
+// vendorVSA builds an attribute-26 Vendor-Specific value the way RADIUSSecret
+// sees it after radius.ParseAttributes:
+// [vendor-id:4][vendor-type:1][vendor-length:1][data...].
+func vendorVSA(vendorID uint32, vendorType byte, data string) radius.Attribute {
+	vsa := make(radius.Attribute, 6+len(data))
+	binary.BigEndian.PutUint32(vsa[:4], vendorID)
+	vsa[4] = vendorType
+	vsa[5] = byte(2 + len(data))
+	copy(vsa[6:], data)
+	return vsa
+}
+
+func attrsWith(vsas ...radius.Attribute) radius.Attributes {
+	a := radius.Attributes{}
+	for _, v := range vsas {
+		a.Add(26, v)
+	}
+	return a
+}
+
+// hasPacketFenceConnectorID gates whether accounting is validated/answered with
+// the unified connector secret instead of the inner switch's secret. A false
+// negative would reject legitimate connector accounting; a false positive would
+// answer normal NAS accounting with the wrong secret.
+func TestHasPacketFenceConnectorID(t *testing.T) {
+	tests := []struct {
+		name  string
+		attrs radius.Attributes
+		want  bool
+	}{
+		{
+			name:  "no attributes",
+			attrs: radius.Attributes{},
+			want:  false,
+		},
+		{
+			name:  "matching PacketFence-ConnectorID VSA",
+			attrs: attrsWith(vendorVSA(packetFenceVendorID, packetFenceConnectorIDAttrType, "connectorA")),
+			want:  true,
+		},
+		{
+			name:  "right vendor, wrong attribute type",
+			attrs: attrsWith(vendorVSA(packetFenceVendorID, packetFenceConnectorIDAttrType-1, "connectorA")),
+			want:  false,
+		},
+		{
+			name:  "wrong vendor id",
+			attrs: attrsWith(vendorVSA(9, packetFenceConnectorIDAttrType, "connectorA")),
+			want:  false,
+		},
+		{
+			name: "unrelated VSA present alongside the ConnectorID VSA",
+			attrs: attrsWith(
+				vendorVSA(9, 1, "somethingelse"),
+				vendorVSA(packetFenceVendorID, packetFenceConnectorIDAttrType, "connectorA"),
+			),
+			want: true,
+		},
+		{
+			name:  "truncated VSA (shorter than 5 bytes) is ignored, not a panic",
+			attrs: attrsWith(radius.Attribute{0x00, 0x00, 0x73}),
+			want:  false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := hasPacketFenceConnectorID(tc.attrs); got != tc.want {
+				t.Errorf("hasPacketFenceConnectorID() = %v, want %v", got, tc.want)
+			}
+		})
 	}
 }
