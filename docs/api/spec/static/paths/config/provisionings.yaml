@@ -1,0 +1,42 @@
+/api/v1/config/provisionings/test_jq:
+  description: pf::UnifiedApi::Controller::Config::Provisionings
+  post:
+    description: Evaluate a jq query against a sample JSON payload. Used to test the jq query of a generic_http provisioner.
+    operationId: api.v1.Config::Provisionings.test_jq
+    parameters: []
+    responses:
+      '200':
+        description: Request successful.
+        content:
+          application/json:
+            schema:
+              properties:
+                passes:
+                  description: Whether or not the jq query returns a truthy value.
+                  type: boolean
+                results:
+                  description: The raw results of the jq query.
+                  type: array
+                  items: {}
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              jq_query:
+                description: The jq query to evaluate.
+                type: string
+              json:
+                description: The sample JSON payload to evaluate the query against.
+                type: string
+            required:
+              - jq_query
+              - json
+    tags:
+      - Config/Provisionings

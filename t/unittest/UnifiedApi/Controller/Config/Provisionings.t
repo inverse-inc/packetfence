@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 40;
+use Test::More tests => 72;
 use Test::Mojo;
 
 #This test will running last
@@ -106,6 +106,84 @@ $t->delete_ok("$base_url/test")
 
 $t->get_ok("$base_url/test")
   ->status_is(404);
+
+# generic_http provisioner
+
+my $generic_http_id = "id_generic_http_$$";
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => $generic_http_id,
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    headers  => "Authorization: Bearer abc123\nX-Pid: \$node.pid",
+    jq_query => '.status == "enrolled"',
+})->status_is(201);
+
+$t->get_ok("$base_url/$generic_http_id")
+  ->status_is(200)
+  ->json_is('/item/type', 'generic_http')
+  ->json_is('/item/url', 'https://mdm.example.com/api/v1/devices?mac=$mac')
+  ->json_is('/item/headers', "Authorization: Bearer abc123\nX-Pid: \$node.pid")
+  ->json_is('/item/jq_query', '.status == "enrolled"');
+
+$t->delete_ok("$base_url/$generic_http_id")
+  ->status_is(200);
+
+# missing required fields (url, jq_query)
+$t->post_ok($collection_base_url => json => {
+    type => 'generic_http',
+    id   => "id_generic_http_invalid_$$",
+})->status_is(422);
+
+# a jq query that does not compile is rejected on create
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badjq_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    jq_query => '.devices | bogus_fn',
+})->status_is(422);
+
+# a valid query using brackets compiles and saves
+my $bracket_id = "id_generic_http_brackets_$$";
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => $bracket_id,
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    jq_query => '.devices[0].status == "enrolled"',
+})->status_is(201);
+
+# a jq query that does not compile is rejected on update
+$t->patch_ok("$base_url/$bracket_id" => json => {
+    jq_query => '.devices[',
+})->status_is(422);
+
+$t->delete_ok("$base_url/$bracket_id")
+  ->status_is(200);
+
+# test_jq
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status == "enrolled"',
+    json     => '{"status":"enrolled"}',
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->true);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status == "enrolled"',
+    json     => '{"status":"removed"}',
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->false);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => 'not json',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq", {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
 
 =head1 AUTHOR
 
