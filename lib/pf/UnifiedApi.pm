@@ -1270,6 +1270,8 @@ sub setup_api_v1_config_provisionings_routes {
         "api.v1.Config.Provisionings"
     );
 
+    $collection_route->any(['POST'] => "/test_jq")->to("Config::Provisionings#test_jq")->name("api.v1.Config.Provisionings.test_jq");
+
     return ($collection_route, $resource_route);
 }
 

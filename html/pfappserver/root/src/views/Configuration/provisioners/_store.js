@@ -113,6 +113,16 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  testJq: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.testJq(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 
