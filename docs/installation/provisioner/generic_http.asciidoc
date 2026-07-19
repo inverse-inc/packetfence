@@ -1,0 +1,105 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Generic HTTP
+
+The Generic HTTP provisioner allows you to integrate any HTTP JSON API (MDM,
+EDR, asset inventory, ...) that is not natively supported by PacketFence. You
+define the HTTP request to perform for a device in the configuration and a jq
+query that decides, from the JSON response, whether or not the device is
+compliant.
+
+==== Configure the provisioner
+
+In the PacketFence administration interface, go in _Configuration -> Advanced
+Access Configuration -> Provisioners_ and create a new provisioner of type
+*Generic HTTP*.
+
+===== The request
+
+The *URL*, the *headers* and the *body* of the request are templates. The
+following variables are available:
+
+ * `$mac`: the MAC address of the device being checked
+ * `$node.<attribute>`: any attribute of the node (ex: `$node.pid`,
+   `$node.category`, `$node.computername`, ...)
+
+For example:
+
+  https://mdm.example.com/api/v1/devices?mac=$mac
+
+The *headers* are defined one per line using the `Name: value` syntax. Both
+the name and the value are templates. For example:
+
+  Authorization: Bearer my-api-token
+  X-Owner: $node.pid
+
+The *body* is only sent for POST, PUT and PATCH requests and defaults to the
+`Content-Type` defined in the provisioner unless a `Content-Type` header is
+explicitly defined in the headers.
+
+When a *username* and *password* are defined, they are sent using HTTP basic
+authentication unless an `Authorization` header is explicitly defined in the
+headers.
+
+===== TLS
+
+When the server uses a certificate that is not trusted by the system, you can
+upload a *CA certificate* used to verify the server certificate. A *client
+certificate* and *client key* can also be uploaded when the server requires
+mutual TLS. Verification of the server certificate can be completely disabled
+with the *Verify TLS* toggle although this is not recommended.
+
+===== The jq query
+
+The JSON response of the server is evaluated with the *JQ query* of the
+provisioner. The device is authorized when the query returns a truthy value
+following the jq semantics: every result that is not `null` or `false` is
+truthy (including `0` and `""`), an empty result set is falsy.
+
+For example, given the following response:
+
+  {"devices": [{"mac": "aa:bb:cc:dd:ee:ff", "status": "enrolled"}]}
+
+the following query authorizes the device when the status of the first device
+is `enrolled`:
+
+  .devices[0].status == "enrolled"
+
+and the following one authorizes it as soon as at least one device matched:
+
+  .devices | length > 0
+
+NOTE: The query is evaluated with libjq (through the JQ::XS Perl library), so
+the full jq language is available. An invalid query or a JSON parsing error is
+logged and treated as a failed check.
+
+===== Testing the jq query
+
+The *Test JQ query* field of the provisioner allows you to validate your query
+without contacting the server: paste a sample JSON response in the field and
+click 'Test'. The result of the evaluation (pass or fail along with the raw
+results of the query) is displayed under the field.
+
+==== Enforcement
+
+Like any other provisioner, the compliance check can be enforced during RADIUS
+authentication and on the captive portal with the *Enforce* toggle, devices
+can be automatically registered with *Auto register* and a role can be applied
+with *Apply role*.

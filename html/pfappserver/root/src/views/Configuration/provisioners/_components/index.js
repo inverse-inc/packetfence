@@ -8,11 +8,13 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupSwitch,
+  BaseFormGroupTextarea,
   BaseFormGroupTextareaUpload,
 } from '@/components/new/'
 import BaseFormGroupRolesSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesSearchable'
 import BaseFormGroupRolesMultipleSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesMultipleSearchable'
 import {BaseFormGroupOses} from '@/views/Configuration/_components/new/'
+import BaseFormGroupJqTest from './BaseFormGroupJqTest'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -31,13 +33,18 @@ export {
   BaseFormGroupSwitch                       as FormGroupAutoRegister,
   BaseFormGroupInput                        as FormGroupBoardingHost,
   BaseFormGroupInputNumber                  as FormGroupBoardingPort,
+  BaseFormGroupTextarea                     as FormGroupBody,
   BaseFormGroupSwitch                       as FormGroupBroadcast,
   BaseFormGroupFileUpload                   as FormGroupCaCertPath,
+  BaseFormGroupFileUpload                   as FormGroupCaFile,
   BaseFormGroupSwitch                       as FormGroupCanSignProfile,
   BaseFormGroupRolesMultipleSearchable      as FormGroupCategory,
   BaseFormGroupTextareaUpload               as FormGroupCertChain,
   BaseFormGroupTextareaUpload               as FormGroupCertificate,
+  BaseFormGroupFileUpload                   as FormGroupClientCertFile,
+  BaseFormGroupFileUpload                   as FormGroupClientKeyFile,
   BaseFormGroupInputPassword                as FormGroupClientSecret,
+  BaseFormGroupInput                        as FormGroupContentType,
   BaseFormGroupInput                        as FormGroupCustomerId,
   BaseFormGroupInput                        as FormGroupDescription,
   BaseFormGroupSwitch                       as FormGroupDeviceTypeDetection,
@@ -49,12 +56,16 @@ export {
   BaseFormGroupInput                        as FormGroupEnrollUrl,
   BaseFormGroupInputNumber                  as FormGroupExpiresIn,
   BaseFormGroupInputNumber                  as FormGroupExpiresJitter,
+  BaseFormGroupTextarea                     as FormGroupHeaders,
   BaseFormGroupInput                        as FormGroupHost,
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupInput                        as FormGroupIosAgentDownloadUri,
+  BaseFormGroupTextarea                     as FormGroupJqQuery,
+  BaseFormGroupJqTest                       as FormGroupJqTest,
   BaseFormGroupInput                        as FormGroupIosDownloadUri,
   BaseFormGroupInput                        as FormGroupLoginUrl,
   BaseFormGroupInput                        as FormGroupMacOsxAgentDownloadUri,
+  BaseFormGroupChosenOne                    as FormGroupMethod,
   BaseFormGroupChosenOne                    as FormGroupNonComplianceSecurityEvent,
   BaseFormGroupOses                         as FormGroupOses,
   BaseFormGroupInputPassword                as FormGroupPasscode,
@@ -75,8 +86,11 @@ export {
   BaseFormGroupSwitch                       as FormGroupSyncPid,
   BaseFormGroupInput                        as FormGroupTenantCode,
   BaseFormGroupInput                        as FormGroupTenantIdentifier,
+  BaseFormGroupInputNumber                  as FormGroupTimeout,
+  BaseFormGroupInput                        as FormGroupUrl,
   BaseFormGroupInput                        as FormGroupUsername,
   BaseFormGroupInput                        as FormGroupUser,
+  BaseFormGroupSwitch                       as FormGroupVerifySsl,
   BaseFormGroupInput                        as FormGroupWindowsAgentDownloadUri,
   BaseFormGroupInput                        as FormGroupWindowsPhoneDownloadUri,
 
