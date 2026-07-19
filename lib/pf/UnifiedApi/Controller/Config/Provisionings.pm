@@ -23,12 +23,14 @@ has 'form_class' => 'pfappserver::Form::Config::Provisioning';
 has 'primary_key' => 'provisioning_id';
 
 use pf::ConfigStore::Provisioning;
+use pf::provisioner::generic_http;
 use pfappserver::Form::Config::Provisioning;
 use pfappserver::Form::Config::Provisioning::accept;
 use pfappserver::Form::Config::Provisioning::airwatch;
 use pfappserver::Form::Config::Provisioning::android;
 use pfappserver::Form::Config::Provisioning::deny;
 use pfappserver::Form::Config::Provisioning::dpsk;
+use pfappserver::Form::Config::Provisioning::generic_http;
 use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
@@ -46,6 +48,7 @@ our %TYPES_TO_FORMS = (
       android
       deny
       dpsk
+      generic_http
       google_workspace_chromebook
       intune
       jamf
@@ -61,7 +64,7 @@ our %TYPES_TO_FORMS = (
 sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
- 
+
 =head2 fields_to_mask
 
 fields_to_mask
@@ -69,6 +72,40 @@ fields_to_mask
 =cut
 
 sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token) }
+
+=head2 test_jq
+
+Evaluate a jq query against a sample JSON payload.
+Used by the admin GUI to test the jq query of a generic_http provisioner.
+
+=cut
+
+sub test_jq {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $query = $data->{jq_query} // '';
+    my $json  = $data->{json} // '';
+    if ($query eq '' || $json eq '') {
+        return $self->render_error(422, "Both jq_query and json must be provided");
+    }
+
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq($json, $query);
+    if (defined $err) {
+        return $self->render_error(422, "jq evaluation failed: $err");
+    }
+
+    return $self->render(
+        status => 200,
+        json => {
+            passes  => ($pass ? $self->json_true : $self->json_false),
+            results => $results,
+        }
+    );
+}
 
 =head1 AUTHOR
 
