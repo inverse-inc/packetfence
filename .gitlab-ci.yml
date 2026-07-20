@@ -1459,7 +1459,10 @@ build_pf_img_cd_iso:
 build_pf_img_dvd_usb_iso:
   extends:
     - .build_pf_img_job
+  # The ISO bundles the service Docker images (step1 pulls them from GHCR), so
+  # it must wait for the build_images stage to succeed, not just publish_ppa.
   needs:
+    - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
       optional: true
   environment:
