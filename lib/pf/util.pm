@@ -535,7 +535,7 @@ This safely modifies the contents of a file using a rename
 =cut
 
 sub safe_file_update {
-    my ($file, $contents, $binmode) = @_;
+    my ($file, $contents, $binmode, $mode) = @_;
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
@@ -554,6 +554,8 @@ sub safe_file_update {
     }
     $temp->unlink_on_destroy(0);
     fix_file_permissions($file);
+    # fix_file_permissions resets the mode; restore the source's mode last when provided
+    chmod($mode, $file) if defined $mode;
 }
 
 =item empty_dir

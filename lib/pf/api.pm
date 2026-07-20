@@ -729,8 +729,8 @@ sub notify_configfile_changed : Public {
 
     eval {
         my %data = ( conf_file => $postdata{conf_file} );
-        my ($result) = $apiclient->call( 'download_configfile', %data );
-        pf::util::safe_file_update($postdata{conf_file}, $result);
+        my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
+        pf::util::safe_file_update($postdata{conf_file}, $result, undef, $mode);
 
         $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
     };
@@ -750,8 +750,10 @@ sub download_configfile : Public {
 
     die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
+    # Preserve the source's permission bits (excluding setuid/setgid/sticky)
+    my $mode = (stat($postdata{conf_file}))[2] & 0777;
 
-    return $config;
+    return ($config, $mode);
 }
 
 sub distant_download_configfile : Public {
@@ -763,8 +765,8 @@ sub distant_download_configfile : Public {
     my $file = $postdata{conf_file};
     my %data = ( conf_file => $file );
     my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
-    my ($result) = $apiclient->call( 'download_configfile', %data );
-    pf::util::safe_file_update($file, $result);
+    my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
+    pf::util::safe_file_update($file, $result, undef, $mode);
     return 1;
 }
 

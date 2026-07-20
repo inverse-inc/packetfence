@@ -143,11 +143,12 @@ if($master_server){
         eval {
             get_logger->info("Synching file : $file");
             my %data = ( conf_file => $file );
-            my ($result) = $apiclient->call( 'download_configfile', %data );
+            my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
             open(my $fh, '>', $file);
             print $fh $result;
             close($fh);
             safe_pf_run("chown", "pf:pf", $file);
+            chmod($mode, $file) if defined $mode;
         };
         if($@){
             get_logger->error("Failed to sync file : $file . $@");
