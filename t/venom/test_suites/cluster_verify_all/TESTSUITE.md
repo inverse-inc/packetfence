@@ -37,6 +37,6 @@ three nodes.
 
 - All assertions are local-only (UNIX socket mysql, systemctl) — no
   network reachability assumed. VIP migration and portal-over-VIP checks
-  live in the failover plays (`playbooks/failover.yml`), which run after this.
+  live in the separate `cluster_failover` scenario, which runs after this.
 - mysql uses `-uroot` over the UNIX socket; no password handling
   needed (per `docs/cluster/troubleshooting_a_cluster.asciidoc:65`).
