@@ -422,6 +422,13 @@ server packetfence {
 			if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 				packetfence-audit-log-reject
 			}
+			elsif ("%{request:Module-Failure-Message}" =~ /Alert read:fatal:/) {
+				# PEAP/TTLS reject caused by the supplicant rejecting the
+				# server certificate: the client sent a fatal TLS alert (e.g.
+				# unknown CA / bad certificate) before the inner tunnel ran, so
+				# the inner-tunnel virtual server never got to log this attempt.
+				packetfence-audit-log-reject
+			}
 			if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
 				packetfence-audit-log-reject
 			}
