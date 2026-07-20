@@ -9,5 +9,7 @@
   register: _vipcheck
   changed_when: false
   until: _vipcheck.rc == 0
-  retries: "{{ vip_retries | default(48) | int }}"
+  # default ~10 min: VRRP failover here is slow (radius/haproxy track fall +
+  # keepalived smtp_alert 30s stalls per transition). Callers can override.
+  retries: "{{ vip_retries | default(120) | int }}"
   delay: 5
