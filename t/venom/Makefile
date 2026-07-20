@@ -279,14 +279,14 @@ cluster_configurator_deb12:
 	make \
 	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
 	CLUSTER_NAME="cluster_deb12$(DEV_ENV)" \
-	SCENARIOS_TO_RUN=cluster_configurator \
+	SCENARIOS_TO_RUN="cluster_configurator cluster_failover" \
 	$(MAKE_TARGET)
 
 cluster_configurator_el8:
 	make \
 	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
 	CLUSTER_NAME="cluster_el8$(DEV_ENV)" \
-	SCENARIOS_TO_RUN=cluster_configurator \
+	SCENARIOS_TO_RUN="cluster_configurator cluster_failover" \
 	$(MAKE_TARGET)
 
 # Cluster recovery scenarios (A-E). Runs cluster_configurator first to guarantee
