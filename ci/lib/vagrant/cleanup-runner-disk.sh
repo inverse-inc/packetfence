@@ -69,6 +69,11 @@ run() {
 
 hdr() { printf '\n=== %s\n' "$*"; }
 
+# True if user $1 runs the vagrant CLI. Match the executable, not the substring:
+# plain -f vagrant also hits paths like ci/lib/vagrant/ and vim on *vagrant* files.
+VAGRANT_PROC_RE='(^|[ /])vagrant( |$)'
+vagrant_running() { pgrep -u "$1" -af "${VAGRANT_PROC_RE}"; }
+
 # Emit "user:home" lines for every $VAR_LOCAL/<name> dir whose <name>
 # resolves to a real account whose $HOME equals the dir. Filter with
 # ONLY_USERS="a b c" if you want a subset.
@@ -169,9 +174,9 @@ clean_user_home() {
         fi
     else
         hdr "User ${user} — Vagrant Tempfiles older than ${TMP_AGE_MIN}min"
-        if pgrep -u "${user}" -af vagrant >/dev/null; then
+        if vagrant_running "${user}" >/dev/null; then
             echo "  SKIPPED — vagrant process is running as ${user}:"
-            pgrep -u "${user}" -af vagrant | sed 's/^/    /'
+            vagrant_running "${user}" | sed 's/^/    /'
         else
             local stale
             stale=$(find "${VAGRANT_TMP}" -mindepth 1 -mmin "+${TMP_AGE_MIN}" 2>/dev/null || true)
@@ -219,7 +224,7 @@ if [ "${PURGE}" = yes ]; then
     busy=
     for ent in ${USERS}; do
         user=${ent%%:*}
-        if pgrep -u "${user}" -af vagrant >/dev/null; then
+        if vagrant_running "${user}" >/dev/null; then
             busy="${busy}vagrant process running as ${user}\n"
         fi
     done
