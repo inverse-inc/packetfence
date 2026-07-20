@@ -905,6 +905,37 @@ Run the following upgrade scripts:
 
 == Upgrading from a version prior to X.Y.Z
 
+=== TLS hardening on HAProxy and Apache listeners
+
+The TLS configuration of the captive portal (port 443), the admin interface
+(port 1443) and the Apache aaa/webservices listeners has been hardened to
+address CBC/LUCKY13 scanner findings (issue #9052). Only AEAD, forward-secret
+ciphers (AES-GCM and ChaCha20-Poly1305) over TLS 1.2 and TLS 1.3 are now
+accepted.
+
+If you never modified [filename]`/usr/local/pf/conf/haproxy-portal.conf` or
+[filename]`/usr/local/pf/conf/haproxy-admin.conf`, the package upgrade updates
+them automatically and the new ciphers are applied when services restart at the
+end of the upgrade.
+
+If you customized those files, the package manager keeps your version and ships
+the new defaults alongside (`.rpmnew` on RHEL, dpkg conffile prompt on Debian).
+Merge the new `ssl-default-bind-ciphers`, `ssl-default-bind-ciphersuites`,
+`ssl-default-server-ciphers`, `ssl-default-server-ciphersuites` and
+`ssl-default-*-options` lines into your files, then restart:
+
+[source,bash]
+----
+systemctl restart packetfence-haproxy-portal packetfence-haproxy-admin
+----
+
+[NOTE]
+====
+Legacy clients without AEAD cipher support can no longer connect to the captive
+portal or admin interface — notably Android older than 5.0, Java 7, and
+Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
+====
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
