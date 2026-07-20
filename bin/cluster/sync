@@ -148,7 +148,11 @@ if($master_server){
             print $fh $result;
             close($fh);
             safe_pf_run("chown", "pf:pf", $file);
-            chmod($mode, $file) if defined $mode;
+            # apply the mode returned by the master; log if chmod fails
+            if (defined $mode) {
+                chmod($mode, $file)
+                  or get_logger->warn("Couldn't set mode on $file: $!");
+            }
         };
         if($@){
             get_logger->error("Failed to sync file : $file . $@");

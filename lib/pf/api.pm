@@ -750,8 +750,8 @@ sub download_configfile : Public {
 
     die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
-    # Preserve the source's permission bits (excluding setuid/setgid/sticky)
-    my $mode = (stat($postdata{conf_file}))[2] & 0777;
+    # Apply the original source file's mode as-is
+    my $mode = (stat($postdata{conf_file}))[2];
 
     return ($config, $mode);
 }
