@@ -45,3 +45,6 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
   interfaces, not the doc's VLAN subinterfaces.
 - configreload/checkup tolerate non-zero exits here: they warn about the DB
   being unavailable until the cluster is fully up, which the doc says to ignore.
+- `70_seed_exec_sync_file` only creates the source file; the matching
+  assertion runs on the joiners (`cluster_joining_servers/15_assert_synced_exec_perms`).
+  Keep the file path in sync between the two suites.

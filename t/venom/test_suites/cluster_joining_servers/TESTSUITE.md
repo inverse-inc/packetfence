@@ -31,3 +31,9 @@ two other nodes".
   independently — this node can be Synced before the other has joined.
 - Credentials come from `venom_local_vars.yml`, matching the `[webservices]`
   block cluster_first_server wrote into pf.conf on pf1.
+- `05_register_cluster_file` + `15_assert_synced_exec_perms` are the #8984
+  regression pair: they depend on `cluster_first_server/70_seed_exec_sync_file`
+  having created the executable source on pf1. `05` must run before the sync
+  because `cluster/sync --from` reads *this* node's `cluster-files.txt`.
+  `test -x` is the discriminator — it is false when no exec bit is set (even
+  for root), so it fails on the pre-fix behavior (file pulled as 0664).
