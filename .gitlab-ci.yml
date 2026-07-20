@@ -396,6 +396,9 @@ variables:
 .build_pf_img_vagrant_job:
   stage: build_pf_img
   before_script:
+    # Keep the global before_script steps (a job-level one replaces it), then preflight.
+    - unset http_proxy ; unset https_proxy
+    - env | grep ^CI_
     - ci/lib/ensure-runner-disk-free.sh
   variables:
     RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
@@ -581,6 +584,9 @@ variables:
 .build_pf_img_job:
   stage: build_pf_img
   before_script:
+    # Keep the global before_script steps (a job-level one replaces it), then preflight.
+    - unset http_proxy ; unset https_proxy
+    - env | grep ^CI_
     - ci/lib/ensure-runner-disk-free.sh
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${BUILD_DIR} ${BUILD_TARGET}

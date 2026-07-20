@@ -5,6 +5,12 @@
 # lab runners: build dir + boxes on /, libvirt pool on /var/lib).
 set -o nounset -o pipefail
 
+# --purge wipes vagrant boxes + libvirt volumes; never do that on a dev box.
+if [ -z "${CI:-}" ] && [ "${FORCE_RUNNER_DISK_RECLAIM:-}" != yes ]; then
+    echo "===> not in CI -- skipping (set FORCE_RUNNER_DISK_RECLAIM=yes to override)"
+    exit 0
+fi
+
 MIN_FREE_GB=${RUNNER_MIN_FREE_GB:-40}
 read -r -a CHECK_PATHS <<< "${RUNNER_DISK_CHECK_PATHS:-/ /var/lib}"
 
