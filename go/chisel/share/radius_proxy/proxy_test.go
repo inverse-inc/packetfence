@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/pfradius"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
@@ -21,6 +22,7 @@ func newTestProxy() *Proxy {
 		AcctAddrs:      []string{testAcctAddr},
 		Secret:         []byte("testing123"),
 		SessionTimeout: time.Second,
+		Logger:         cio.NewLogger("radius_proxy_test"),
 	})
 }
 
