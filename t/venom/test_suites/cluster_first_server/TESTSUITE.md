@@ -23,6 +23,7 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
 | 40_bootstrap_galera | `generatemariadbconfig`, `MARIADB_ARGS=--force-new-cluster`, start | done |
 | 50_restart_pf_set_default | `pfcmd service pf restart`, `set-default packetfence-cluster`, stop iptables | done |
 | 60_assert_galera_up | Assert `wsrep_on=ON`, status `Primary`, size `1` | done |
+| 70_seed_exec_sync_file | Create an executable helper + register it in `cluster-files.txt` (#8984 sync-permissions coverage) | done |
 
 ## Deferred to later phases
 
