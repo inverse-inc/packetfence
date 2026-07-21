@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service
 [Service]
 Type=simple
 ExecStart=/usr/local/pf/sbin/iptables_monitor.pl
-ExecStop=/usr/bin/kill -TERM $MAINPID
+ExecStop=-/usr/bin/kill -TERM $MAINPID
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
 KillSignal=TERM
 Restart=always
