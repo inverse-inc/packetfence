@@ -225,6 +225,20 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 	}
 }
 
+// Like decodeJsonInterface but returns the error instead of panicking, so an
+// empty/scalar element (e.g. an unset management_network) can't crash the daemon.
+func decodeJsonInterfaceErr(ctx context.Context, b []byte, o interface{}) error {
+	decoder := json.NewDecoder(bytes.NewReader(b))
+	for {
+		if err := decoder.Decode(&o); err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func listPfconfigFields(ctx context.Context, t reflect.Type, previousFields []string) []string {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
@@ -401,7 +415,9 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
-			decodeInterface(ctx, query.encoding, b, &o)
+			if err := decodeJsonInterfaceErr(ctx, b, &o); err != nil {
+				return errors.New(fmt.Sprintf("Could not decode element in response (%s). Response was: %s", err, jsonResponse))
+			}
 		} else {
 			return errors.New(fmt.Sprintf("Element in response was invalid. Response was: %s", jsonResponse))
 		}
