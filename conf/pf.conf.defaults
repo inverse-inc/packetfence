@@ -33,7 +33,7 @@ timezone=
 # If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname
 # resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts,
 # meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based.
-dhcpdetector=disabled
+dhcpdetector=enabled
 #
 # network.dhcp_rate_limiting
 #
@@ -47,7 +47,7 @@ dhcp_rate_limiting=300s
 #
 # Tries to identify Rogue DHCP Servers and triggers the 1100010 security_event if one is found.
 # This feature is only available if the dhcpdetector is activated.
-rogue_dhcp_detection=disabled
+rogue_dhcp_detection=enabled
 #
 # network.rogueinterval
 #
