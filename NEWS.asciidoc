@@ -23,21 +23,57 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>.
 
-== Version X.Y.Z released on xxxx-xx-xx
+== Version 15.2.0 released on 2026-07-21
 
 === New Features
 
-  - Cluster-wide live log streaming — the admin UI now tails log files from every cluster node in parallel and merges events client-side with hostname/filename attribution
-  - Historical log view — query active and rotated `.log.*.gz` files across the cluster with a time-range picker, served by the Go log-tailer plugin (RE2 filters, bounded scans, lossless byte-offset pagination)
-  - pftest in admin GUI — the `authentication` and `profile_filter` subcommands are exposed under Auditing > pftest, guarded by the new PFTEST_CREATE admin-role action, rate-limited per tested user, and fan out across the cluster on request (opt-in)
+  - Cluster-wide live log streaming — the admin UI now tails log files from every cluster node in parallel and merges events client-side with hostname/filename attribution (#9091)
+  - Historical log view — query active and rotated `.log.*.gz` files across the cluster with a time-range picker, served by the Go log-tailer plugin (RE2 filters, bounded scans, lossless byte-offset pagination) (#9091)
+  - pftest in admin GUI — the `authentication` and `profile_filter` subcommands are exposed under Auditing > pftest, guarded by the new PFTEST_CREATE admin-role action, rate-limited per tested user, and fan out across the cluster on request (opt-in) (#9091)
+  - RADIUS authentication and accounting through pfconnector — remote sites can proxy RADIUS to the cloud over pfconnector tunnels, with a dedicated accounting tunnel, routing by packet code and a unified shared secret (#8963)
+  - Connector-backed Active Directory domains — AD join and DNS resolution now work through the pfconnector, with automatic tunnel provisioning on domain commit and an Active Directory Domains menu in SaaS mode
+  - VoIP dACL — new VoIPDACL switch toggle merges the full Access-Accept (including downloadable ACLs) with the Voice VSA instead of returning only the Voice attributes (#9068)
+  - Captive portal theming — per-connection-profile `theme.css` support and refreshed default styling (#9071)
+  - Record the node computername directly from DHCP server traffic (#9124)
+  - SQL query tagging — all MySQL queries from Perl and Go services carry a `/* pf:<service>[:<unit>] */` comment for ProxySQL routing and troubleshooting (#9097)
 
 === Enhancements
 
-  - Per-zone VRRP router id: in a multi-zone (layer 3) cluster, the keepalived `virtual_router_id` can now be set per zone in the zone's CLUSTER section of cluster.conf, instead of sharing the single `active_active` value across all zones
+  - Per-zone VRRP router id: in a multi-zone (layer 3) cluster, the keepalived `virtual_router_id` can now be set per zone in the zone's CLUSTER section of cluster.conf, instead of sharing the single `active_active` value across all zones (#9159) @casdr
+  - pfdhcplistener performance — external DHCP events hashed by client MAC across dedicated workers, Fingerbank lookups skipped when the signature is unchanged, firewall SSO updates gated by a half-lease cache, and notifications run in-process (#9054)
+  - pfacct no longer drops RADIUS accounting under load — larger UDP receive buffers with backpressure, and the node session cache is bounded with an idle TTL to stop a memory leak (#9166)
+  - Faster RADIUS audit-log statistics — per-switch and per-connection-type metrics rewritten as GROUP BY queries (#9164)
+  - MySQL connection compression enabled on TCP connections from both the Perl and Go database layers (#9047)
+  - Fix pfcmd configreload hang and slow switch-config admin UI rooted in unbounded per-role switch mappings, plus clearer UX for blocked role deletions (#9078)
+  - Removed the SCEP PKI provider (#9051)
+  - Update Go to 1.26.4 (#9083)
+  - Bump Fingerbank package to 4.3.4 (#9104)
 
 === Bug Fixes
 
+  - Self-heal the missing locationlog_history table when upgrading from 15.0 to 15.1 (#9121, #9069)
+  - Fix switch NAS configuration not expiring in pfconfig after changes (#9134)
+  - Fix non-deterministic RADIUS filter merge when using the `reply:` prefix (#9063)
+  - Refresh the Fingerbank collector authorization header at request time so a changed API key is picked up without a restart (#9105)
+  - Nightly backup: skip triggers in the dump so the pf-user backup isn't truncated, and reapply DB triggers on import (#9136)
+  - Don't clobber existing rows in find_or_create when the database read fails (#9167)
+  - pfflowjob: don't reconnect to Kafka on idle read timeouts (#9168)
+  - Mask mariadb.socket so it cannot hold port 3306 from pf-mariadb (#9161)
+  - Make a multi-node Kafka cluster reachable for PF-listener clients (#9089)
+  - Entra ID: resolve sponsor group membership by email when the username is absent (#9144)
+  - Allow disabling the AUP for sources under Authentication::Choice (#9079)
+  - pfconnector: bind DNS tunnels on all interfaces and make Kubernetes port patching idempotent (#9149)
+  - pfconnector: serve the local ntlm_auth host to remotes, validate that connector networks are not defined more than once, and pin the remote install URL to the PacketFence release
+  - pfconnector-remote: remove the legacy fingerbank-collector on install/upgrade and restart Docker so the bridge picks up its address
+  - pfacct: use webservices.aaa_host for the AAA client instead of the generic host
+  - DHCP processor: fix the firewall SSO refresh gate and the Fingerbank DHCPv6 signature
+
 === Security Fixes
+
+  - The default admin password has been removed — the admin password must now be set during initial configuration (#9118, #9148)
+  - Replace shell command execution with safe_pf_run to prevent command injection (#9094)
+  - Drop CBC/LUCKY13 ciphers on haproxy and apache listeners (#9052, #9162)
+  - Improve the randomness of secrets generated at package installation
 
 == Version 15.1.0 released on 2026-05-20
 
