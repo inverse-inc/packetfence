@@ -1,0 +1,80 @@
+name: Check iptables and ip6tables services
+testcases:
+- name: check_iptables_service_running
+  steps:
+  - name: Get iptables service status
+    type: exec
+    script: systemctl is-active packetfence-iptables.service
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldEqual "active"
+    info: "IPv4 iptables service should be active when management interface is configured"
+
+  - name: Check iptables rules applied
+    type: exec
+    script: sudo /usr/sbin/iptables -L INPUT -n | grep -q "dpt:22"
+    assertions:
+      - result.code ShouldEqual 0
+    info: "IPv4 iptables should have SSH rule on management interface"
+
+- name: check_ip6tables_service_running
+  steps:
+  - name: Check ip6tables service is active
+    type: exec
+    script: systemctl is-active packetfence-ip6tables.service
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldEqual "active"
+    info: "IPv6 ip6tables service should be active (bound to iptables)"
+
+  - name: Check ip6tables service not in restart loop
+    type: exec
+    script: |
+      systemctl show -p NRestarts packetfence-ip6tables.service | cut -d= -f2
+    vars:
+      restart_count:
+        from: result.systemout
+
+  - name: Verify restart count is reasonable
+    type: exec
+    script: |
+      if [ "{{.restart_count}}" -gt 10 ]; then
+        echo "RESTART_LOOP"
+        exit 1
+      else
+        echo "OK"
+      fi
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldEqual "OK"
+    info: "IPv6 ip6tables service should not be in restart loop (restarts > 10)"
+
+- name: check_ip6tables_portal_rules
+  steps:
+  - name: Check if haproxy-portal service is active
+    type: exec
+    script: systemctl is-active packetfence-haproxy-portal.service || echo "inactive"
+    vars:
+      haproxy_portal_status:
+        from: result.systemout
+
+  - name: Check IPv6 portal rules when haproxy-portal active
+    type: exec
+    script: |
+      if [ "{{.haproxy_portal_status}}" = "active" ]; then
+        if [ -f /usr/local/pf/var/conf/iptables/generated/ip6tables/haproxy_portal_rules.json ]; then
+          if grep -q "dport 80" /usr/local/pf/var/conf/iptables/generated/ip6tables/haproxy_portal_rules.json && \
+             grep -q "dport 443" /usr/local/pf/var/conf/iptables/generated/ip6tables/haproxy_portal_rules.json; then
+            echo "RULES_OK"
+          else
+            echo "RULES_INCOMPLETE"
+          fi
+        else
+          echo "RULES_MISSING"
+        fi
+      else
+        echo "SERVICE_INACTIVE"
+      fi
+    assertions:
+      - result.systemout ShouldBeIn "RULES_OK" "SERVICE_INACTIVE"
+    info: "IPv6 portal rules (ports 80/443) should exist when haproxy-portal is active"
