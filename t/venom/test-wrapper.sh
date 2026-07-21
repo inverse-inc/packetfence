@@ -109,12 +109,15 @@ configure_and_check() {
     export SKIP_CONFIGURATOR_BAKED
 }
 
-# PF VMs eligible for the per-pipeline baked box (echoes the VM name, "" if
-# not eligible). Kept in sync with baked_box_vms in pfservers/Vagrantfile.
+# Maps a PF VM to its arch base baked box (echoes the box name, "" if not
+# eligible). Cluster nodes (pf{1,2,3}<arch>dev) reuse the standalone arch box;
+# stable variants are excluded. Kept in sync with baked_base_box in
+# pfservers/Vagrantfile.
 baked_box_for_pf_vm() {
     case "$1" in
-        pfel8dev|pfdeb12dev) echo "$1" ;;
-        *)                   echo "" ;;
+        pf*el8dev)   echo "pfel8dev" ;;
+        pf*deb12dev) echo "pfdeb12dev" ;;
+        *)           echo "" ;;
     esac
 }
 
