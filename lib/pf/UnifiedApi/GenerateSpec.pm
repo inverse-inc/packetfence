@@ -329,7 +329,7 @@ sub isRequiredField {
 
 sub fieldSubTypeValue {
     my ($field) = @_;
-    return $field->get_tag('subTypeValue') // $field->value;
+    return $field->tag_exists('subTypeValue') ? $field->get_tag('subTypeValue') : $field->value;
 }
 
 sub isSubTypeField {
