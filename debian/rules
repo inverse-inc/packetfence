@@ -160,7 +160,10 @@ install: build
 	make MYSQL_SUFFIX=server src/mariadb_udf/pf_udf.so
 	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(/usr/bin/mariadb-config --plugindir)/pf_udf.so
 	#dockerignore
-	install -m0755 .dockerignore $(CURDIR)/debian/packetfence/.dockerignore
+	# Must land in the container build context root (/usr/local/pf), not the
+	# filesystem root, otherwise `docker build .` tars logs/ and var/ (see the
+	# "write too long" errors when building local containers).
+	install -D -m0644 .dockerignore $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/.dockerignore
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
