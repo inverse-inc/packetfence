@@ -94,7 +94,7 @@ sub formsToMetaSchemas {
                 mapping => \%mapping,
                 propertyName => $propertyName
             },
-            oneOf => [@$oneOf]
+            oneOf => [sort { $a->{'$ref'} cmp $b->{'$ref'} } @$oneOf]
         };
     } elsif (@formsWithoutSubtype) {
         # No subtypes at all, create oneOf with inline schemas

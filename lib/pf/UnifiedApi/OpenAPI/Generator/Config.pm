@@ -368,7 +368,8 @@ sub buildForms {
     my ($controller, $child) = @_;
     my @form_classes;
     if ( $controller->can("type_lookup") ) {
-        @form_classes = values %{ $controller->type_lookup };
+        my $type_lookup = $controller->type_lookup;
+        @form_classes = map { $type_lookup->{$_} } sort keys %$type_lookup;
     } else {
         my $form_class = $controller->form_class;
         if (!defined $form_class) {
@@ -376,7 +377,7 @@ sub buildForms {
         }
 
         if ($form_class eq 'pfappserver::Form::Config::Pf') {
-            return map { $form_class->new( section => $_ ) } keys %pf::constants::pfconf::ALLOWED_SECTIONS;
+            return map { $form_class->new( section => $_ ) } sort keys %pf::constants::pfconf::ALLOWED_SECTIONS;
         }
 
         @form_classes = ( $form_class );
