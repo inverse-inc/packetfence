@@ -9,6 +9,7 @@ use pf::file_paths qw($generated_ip6tables_conf_dir $conf_dir);
 use pf::log;
 use pf::ip6tables qw(ip6tables_generate_config);
 use pf::config qw($management_network);
+use File::Path qw(make_path);
 use Linux::Inotify2;
 
 my $inotify = new Linux::Inotify2 or die "Unable to create inotify object: $!";
@@ -68,11 +69,12 @@ sub generate_ip6tables_configuration {
 
 if ( $any_managed ) {
     $logger->info("Service Ip6tables: Starting monitoring.");
+    make_path($generated_ip6tables_conf_dir) unless -d $generated_ip6tables_conf_dir;
     $inotify->watch( $generated_ip6tables_conf_dir, IN_CREATE | IN_DELETE | IN_MODIFY | IN_CLOSE_WRITE, sub {
         my $event = shift;
         my $file = $event->fullname;
         generate_ip6tables_configuration($file);
-    });
+    }) or $logger->error("Could not watch $generated_ip6tables_conf_dir: $!");
     $inotify->watch( $conf_dir."/ip6tables-custom.conf.inc", IN_CREATE | IN_DELETE | IN_MODIFY | IN_CLOSE_WRITE, sub {
         my $event = shift;
         my $file = $event->fullname;
