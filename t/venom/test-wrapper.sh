@@ -425,6 +425,15 @@ start_and_provision_pf_vm() {
         for vm in ${vm_names}; do
             start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
         done
+        # Baked cluster nodes skip site.yml, so run the cluster wiring that
+        # site_others.yml would have done (hostname, venom cluster vars,
+        # cross-node ssh) once all nodes are up.
+        if [ -n "${CLUSTER_NAME}" ]; then
+            local ansible_list=${vm_names// /,}
+            log_subsection "Prepare baked cluster nodes: ${vm_names}"
+            ( cd ${VAGRANT_DIR} ; \
+              ansible-playbook playbooks/cluster_prep_baked.yml -l "${ansible_list}" )
+        fi
         return
     fi
     # boot all nodes first (one parallel vagrant up for the missing ones), then

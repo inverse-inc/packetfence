@@ -1,0 +1,31 @@
+# Cluster wiring for nodes booted from the standalone baked box. The baked path
+# skips site.yml (site_others.yml included), so the cluster-specific setup that
+# normally runs there must run here after the nodes are up:
+#   - per-node hostname: pf::cluster keys the cluster.conf overlay by hostname()
+#     (lib/pfconfig/namespaces/config/Pf.pm), so each node must own its name or
+#     it silently keeps the baked standalone IP.
+#   - venom local vars: the standalone bake ran outside the `clusters` group, so
+#     its local.yml lacks the cluster vars (pf1_mgmt_ip, cluster_ip_mgmt, ...)
+#     that cluster_first_server/30_write_cluster_conf.yml interpolates.
+#   - cluster_cross_ssh: cross-node root SSH + /etc/hosts for `cluster/sync`.
+- hosts: pfservers
+  name: Prepare baked cluster nodes (hostname + venom vars)
+  become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min + network facts
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+        - "network"
+
+  tasks:
+  - name: Set per-node hostname
+    ansible.builtin.hostname:
+      name: "{{ inventory_hostname }}"
+
+  - name: Render venom local vars
+    import_tasks: tasks/install_venom_local_vars.yml
+
+- import_playbook: cluster_cross_ssh.yml
