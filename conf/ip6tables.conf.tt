@@ -55,6 +55,9 @@ COMMIT
 
 *filter
 :INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:RFC3964_IPv4 - [0:0]
 
 [% IF custom.filter.INPUT && custom.filter.INPUT.size %]
 [% INCLUDE chain_rules chain='INPUT' rules=custom.filter.INPUT %]
@@ -75,8 +78,6 @@ COMMIT
 -A INPUT -p ipv6-icmp -m icmp6 --icmpv6-type 137 -j ACCEPT
 -A INPUT -j REJECT --reject-with icmp6-adm-prohibited
 
-:FORWARD ACCEPT [0:0]
-
 [% IF custom.filter.FORWARD && custom.filter.FORWARD.size %]
 [% INCLUDE chain_rules chain='FORWARD' rules=custom.filter.FORWARD %]
 [% END %]
@@ -91,8 +92,6 @@ COMMIT
 
 -A FORWARD -j REJECT --reject-with icmp6-adm-prohibited
 
-:OUTPUT ACCEPT [0:0]
-
 -A OUTPUT -o lo -j ACCEPT
 
 [% IF custom.filter.OUTPUT && custom.filter.OUTPUT.size %]
@@ -104,8 +103,6 @@ COMMIT
 [% END %]
 
 -A OUTPUT -j RFC3964_IPv4
-
-:RFC3964_IPv4 - [0:0]
 
 [% IF custom.filter.RFC3964_IPv4 && custom.filter.RFC3964_IPv4.size %]
 [% INCLUDE chain_rules chain='RFC3964_IPv4' rules=custom.filter.RFC3964_IPv4 %]
