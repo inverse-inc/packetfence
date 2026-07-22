@@ -1,0 +1,18 @@
+name: Check iptables (IPv4) services
+testcases:
+- name: check_iptables_service_running
+  steps:
+  - name: Get iptables service status
+    type: exec
+    script: systemctl is-active packetfence-iptables.service
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldEqual "active"
+    info: "IPv4 iptables service should be active when management interface is configured"
+
+  - name: Check iptables rules applied
+    type: exec
+    script: sudo /usr/sbin/iptables -L INPUT -n | grep -q "dpt:22"
+    assertions:
+      - result.code ShouldEqual 0
+    info: "IPv4 iptables should have SSH rule on management interface"

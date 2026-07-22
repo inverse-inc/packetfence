@@ -1,13 +1,16 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence Iptables configuration
+Description=PacketFence IPv6 Iptables configuration
 Wants=packetfence-base.target packetfence-config.service
 After=packetfence-base.target packetfence-config.service
+Requires=packetfence-iptables.service
+PartOf=packetfence-iptables.service
+After=packetfence-iptables.service
 
 [Service]
 Type=simple
 ExecStart=/usr/local/pf/sbin/ip6tables_monitor.pl
-ExecStop=/usr/bin/kill -TERM $MAINPID
+ExecStop=-/usr/bin/kill -TERM $MAINPID
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
 KillSignal=TERM
 Restart=always

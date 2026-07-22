@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index f32d4110b2..873bb5160b 100644
+index 7735164bfe..be3978df0a 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -489,7 +489,7 @@ radiusd=enabled
@@ -252,13 +252,13 @@ index cb8f01c0c5..dca05ec908 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-ip6tables.service b/conf/systemd/packetfence-ip6tables.service
-index 2f5c0768e6..0711a18d12 100644
+index 23d3d3d7b7..4a17261e38 100644
 --- a/conf/systemd/packetfence-ip6tables.service
 +++ b/conf/systemd/packetfence-ip6tables.service
-@@ -8,13 +8,13 @@ After=packetfence-base.target packetfence-config.service
+@@ -10,13 +10,13 @@ After=packetfence-iptables.service
  Type=simple
  ExecStart=/usr/local/pf/sbin/ip6tables_monitor.pl
- ExecStop=/usr/bin/kill -TERM $MAINPID
+ ExecStop=-/usr/bin/kill -TERM $MAINPID
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
  KillSignal=TERM
@@ -272,13 +272,13 @@ index 2f5c0768e6..0711a18d12 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index e4184dbe5e..6b1476c6bf 100644
+index 3096a086ab..49e84602c0 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
 @@ -8,13 +8,13 @@ After=packetfence-base.target packetfence-config.service
  Type=simple
  ExecStart=/usr/local/pf/sbin/iptables_monitor.pl
- ExecStop=/usr/bin/kill -TERM $MAINPID
+ ExecStop=-/usr/bin/kill -TERM $MAINPID
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
  KillSignal=TERM
