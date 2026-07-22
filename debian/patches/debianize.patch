@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index f32d4110b2..873bb5160b 100644
+index 7735164bfe..be3978df0a 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -489,7 +489,7 @@ radiusd=enabled
@@ -454,10 +454,10 @@ index 46b4acdcb4..f4a51668dd 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-pfcron.service b/conf/systemd/packetfence-pfcron.service
-index e2840cc3b8..e541c1e102 100644
+index 75c6419fac..786648024a 100644
 --- a/conf/systemd/packetfence-pfcron.service
 +++ b/conf/systemd/packetfence-pfcron.service
-@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service
+@@ -10,7 +10,7 @@ StartLimitIntervalSec=0
  Type=notify
  NotifyAccess=all
  Environment=LOG_LEVEL=INFO
