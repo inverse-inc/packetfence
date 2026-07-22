@@ -22,7 +22,16 @@ import (
 func setProcessing() {
 	var Management pfconfigdriver.ManagementNetwork
 	ctx := context.Background()
-	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
+	logger := log.LoggerWContext(ctx)
+	// Wait for the management network; an empty interface panics downstream.
+	for {
+		if err := pfconfigdriver.FetchDecodeSocket(ctx, &Management); err != nil || Management.Int == "" {
+			logger.Warn(fmt.Sprintf("Management network not available yet, retrying: %v", err))
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		break
+	}
 	for {
 		if isMaster(ctx, &Management) {
 			atomic.StoreUint32(&processJobs, 1)
@@ -46,7 +55,10 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 			return true
 		}
 
-		eth, _ := net.InterfaceByName(management.Int)
+		eth, err := net.InterfaceByName(management.Int)
+		if err != nil || eth == nil {
+			return false
+		}
 		addresses, _ := eth.Addrs()
 		clusterIp := net.ParseIP(keyConfCluster.Ip)
 

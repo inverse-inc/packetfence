@@ -34,6 +34,15 @@ testcases:
     assertions:
       - result.code ShouldEqual 0
 
+# Hard reload rebuilds all namespaces (incl. host overlays) from synced config
+# before services start, so daemons don't read a cold/empty cache. All nodes.
+- name: configreload_hard
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd configreload hard'
+    assertions:
+      - result.code ShouldEqual 0
+
 - name: restart_pf
   steps:
   - type: exec

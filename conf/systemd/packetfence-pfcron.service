@@ -3,6 +3,8 @@
 Description=PacketFence pfcron Service
 Wants=packetfence-base.target packetfence-config.service
 After=packetfence-base.target packetfence-config.service
+# Retry forever: at boot pfcron may start before pfconfig is ready to serve.
+StartLimitIntervalSec=0
 
 [Service]
 Type=notify
@@ -12,6 +14,7 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-
 ExecStart=/usr/local/pf/sbin/pfcron-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfcron ; echo Stopped"
 Restart=on-failure
+RestartSec=30
 Slice=packetfence.slice
 
 [Install]
