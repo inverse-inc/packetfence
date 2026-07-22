@@ -416,10 +416,10 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
 			if err := decodeJsonInterfaceErr(ctx, b, &o); err != nil {
-				return errors.New(fmt.Sprintf("Could not decode element in response (%s). Response was: %s", err, jsonResponse))
+				return fmt.Errorf("could not decode element in response for %s: %w. Response was: %s", query.GetIdentifier(), err, jsonResponse)
 			}
 		} else {
-			return errors.New(fmt.Sprintf("Element in response was invalid. Response was: %s", jsonResponse))
+			return fmt.Errorf("element in response for %s was invalid. Response was: %s", query.GetIdentifier(), jsonResponse)
 		}
 	}
 
