@@ -66,6 +66,10 @@ sub config_builder {
     my ( $self, $namespace ) = @_;
     my $logger = get_logger;
     my $elem = $self->get_namespace($namespace);
+    unless (defined $elem) {
+        $logger->error("Cannot build unknown namespace $namespace");
+        return undef;
+    }
     my $tmp  = $elem->build();
     return filter_data($tmp);
 }
@@ -316,6 +320,7 @@ sub get_cache_ordered {
 
     unless (defined($memory) && $self->is_valid($what)) {
         $memory = $self->get_cache($what);
+        return undef unless defined $memory;
 
         if(ref($memory) eq "HASH") {
             $memory = $self->tie_ixhash_copied($memory);
@@ -365,6 +370,13 @@ sub cache_resource {
     my $logger = get_logger;
 
     $what = normalize_namespace_query($what);
+
+    # An unknown namespace must not create any persistent state (L1, L2 or
+    # control file), otherwise every bogus client key is cached forever
+    unless (defined $self->get_namespace($what)) {
+        $logger->error("Not caching unknown namespace $what");
+        return undef;
+    }
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
@@ -458,7 +470,18 @@ sub expire {
     $seen->{$what} = 1;
 
     my $logger = get_logger;
-    if(defined($light) && $light){
+    if($self->is_overlayed_namespace($what)){
+        # Overlayed namespaces (name(arg)) are consumer-driven: rebuilding
+        # them here would resurrect every argument ever requested, growing
+        # the L1/L2 caches forever. Evict them instead; the next request
+        # rebuilds them on demand like any cold key.
+        $logger->info("Evicting overlayed resource : $what");
+        delete $self->{memory}->{$what};
+        delete $self->{memorized_at}->{$what};
+        $self->{cache}->remove($what);
+        $self->touch_cache($what);
+    }
+    elsif(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
         delete $self->{memorized_at}->{$what};
         $self->touch_cache($what);
@@ -589,6 +612,18 @@ sub expire_all {
     my %seen;
     foreach my $namespace (@namespaces) {
         $self->expire($namespace, $light, \%seen);
+    }
+
+    # Anything left in L1 that the expiry run did not reach is a namespace
+    # that no longer exists; drop it so a full expire returns the memory
+    # cache to exactly the live namespace set
+    foreach my $key (keys %{$self->{memory}}) {
+        my $base = $key;
+        $base =~ s/^\Q$ordered_prefix\E//;
+        next if $seen{$base};
+        $logger->info("Pruning stale resource from memory : $key");
+        delete $self->{memory}->{$key};
+        delete $self->{memorized_at}->{$key};
     }
 }
 
