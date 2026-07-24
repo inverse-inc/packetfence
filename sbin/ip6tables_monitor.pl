@@ -80,6 +80,9 @@ if ( $any_managed ) {
         my $file = $event->fullname;
         generate_ip6tables_configuration($file);
     });
+    # Generate once now in case ExecStartPost wrote the JSON before this watch existed.
+    $logger->info("Service Ip6tables: Generating initial configuration.");
+    ip6tables_generate_config();
 }
 
 while ( $any_managed ) {
