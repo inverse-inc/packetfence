@@ -42,7 +42,7 @@ END { remove_tree($scratch_control_dir) if $scratch_control_dir }
     };
 }
 
-use Test::More tests => 23;
+use Test::More tests => 26;
 use Test::NoWarnings;
 
 use_ok("pfconfig::manager");
@@ -58,14 +58,17 @@ ok(defined $manager->{cache}->get($overlay), "overlay is stored in the L2 backen
 
 ok(defined $manager->get_cache_ordered($overlay), "ordered copy of the overlay is served");
 ok(exists $manager->{memory}{"ORDERED::$overlay"}, "ordered copy of the overlay is stored in L1");
+ok(-f pfconfig::util::control_file_path($overlay), "building an overlay creates its control file");
 
 $manager->expire($overlay);
 ok(!exists $manager->{memory}{$overlay}, "expiring an overlay evicts it from the L1 memory cache");
 ok(!exists $manager->{memorized_at}{$overlay}, "expiring an overlay evicts its memorized_at timestamp");
 ok(!exists $manager->{memory}{"ORDERED::$overlay"}, "expiring an overlay evicts its ordered copy");
 ok(!defined $manager->{cache}->get($overlay), "expiring an overlay removes it from the L2 backend");
+ok(!-f pfconfig::util::control_file_path($overlay), "expiring an overlay deletes its control file so it stops being rediscovered");
 
 ok(defined $manager->get_cache($overlay), "overlay rebuilds on demand after being evicted");
+ok(-f pfconfig::util::control_file_path($overlay), "rebuilding an evicted overlay re-creates its control file");
 $manager->expire($overlay);
 
 my $unknown = eval { $manager->get_cache("totally::bogus(x)") };

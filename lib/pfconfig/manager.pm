@@ -272,6 +272,31 @@ sub touch_cache {
     $self->{last_touch_cache} = $pfconfig::cached::LAST_TOUCH_CACHE = $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
 }
 
+=head2 delete_cache_control
+
+Deletes the control file of a namespace instead of touching it.
+
+Used when evicting an overlayed namespace. Touching the control file (as
+touch_cache does) would leave it behind for list_control_overlayed_namespaces
+to rediscover on every subsequent expire, so the overlay working set could only
+ever grow for the life of the daemon. Deleting it lets a no-longer-referenced
+overlay drop out of the discovery set entirely; a consumer that still needs it
+rebuilds it on demand (which re-creates the control file). We still bump
+last_touch_cache so consumer processes invalidate their subcaches, exactly as
+touch_cache does.
+
+=cut
+
+sub delete_cache_control {
+    my ( $self, $what ) = @_;
+    $what =~ s/\//;/g;
+    $what = normalize_namespace_query($what);
+    my $filename = pfconfig::util::control_file_path($what);
+    $filename = untaint_chain($filename);
+    unlink($filename);
+    $self->{last_touch_cache} = $pfconfig::cached::LAST_TOUCH_CACHE = $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
+}
+
 =head2 get_cache
 
 Gets a namespace either in the L1, L2 or L3 (builds it)
@@ -479,7 +504,12 @@ sub expire {
         delete $self->{memory}->{$what};
         delete $self->{memorized_at}->{$what};
         $self->{cache}->remove($what);
-        $self->touch_cache($what);
+        # Delete (not touch) the control file so this overlay stops being
+        # rediscovered by list_control_overlayed_namespaces on every expire.
+        # Leaving it behind would keep the overlay working set growing forever
+        # (see delete_cache_control). Consumers still see the change via the
+        # last_touch_cache bump, and the overlay rebuilds on demand if needed.
+        $self->delete_cache_control($what);
     }
     elsif(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
