@@ -27,7 +27,18 @@ use pfconfig::namespaces::config::Cluster;
 
 sub init {
     my ($self, $host_id) = @_;
-    $host_id //= "";
+    # Only record the host_id here. The dependency loading/building below used
+    # to live in init(), but the manager constructs this namespace on every
+    # expire just to read its child_resources, so building config::Pf,
+    # config::Cluster, etc. in init() ran heavy (and leaky) config builds on
+    # every reload. Defer all of that to build().
+    $self->{host_id} = $host_id // "";
+}
+
+sub build {
+    my ($self) = @_;
+
+    my $host_id = $self->{host_id} // "";
 
     $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
 
@@ -35,11 +46,6 @@ sub init {
     $self->{networks} = $self->{cache}->get_cache("config::Network($host_id)");
     $self->{interfaces} = $self->{cache}->get_cache("interfaces($host_id)");
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache}, $self->{cluster_name});
-
-}
-
-sub build {
-    my ($self) = @_;
 
     $self->{cluster_resource}->build();
 

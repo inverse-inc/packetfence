@@ -18,16 +18,18 @@ use pfconfig::namespaces::FilterEngine::SecurityEvent;
 
 use base 'pfconfig::namespaces::resource';
 
-sub init {
-    my ($self) = @_;
-    $self->{_engine} = pfconfig::namespaces::FilterEngine::SecurityEvent->new;
-    $self->{_engine}->build();
-}
-
 sub build {
     my ($self) = @_;
 
-    return $self->{_engine}->{bandwidth_expired_security_events};
+    # Build the engine here rather than in init(). The manager constructs this
+    # namespace on every expire just to read its child_resources; building the
+    # SecurityEvent engine in init() therefore ran a full config build on every
+    # reload, and config builds leak memory through the tied pf::IniFiles reads.
+    # Deferring it to build() keeps mere construction cheap and leak-free.
+    my $engine = pfconfig::namespaces::FilterEngine::SecurityEvent->new;
+    $engine->build();
+
+    return $engine->{bandwidth_expired_security_events};
 }
 
 
