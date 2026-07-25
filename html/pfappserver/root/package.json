@@ -67,7 +67,7 @@
     "node-sass": "^9.0.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
-    "postcss": "^8.4.31",
+    "postcss": "^8.5.18",
     "process": "^0.11.10",
     "sass-loader": "^13.3.2",
     "stream-browserify": "^3.0.0",
