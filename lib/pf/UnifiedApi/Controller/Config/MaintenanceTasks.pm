@@ -54,6 +54,7 @@ use pfappserver::Form::Config::Pfcron::security_event_purge;
 use pfappserver::Form::Config::Pfcron::flush_radius_audit_log;
 use pfappserver::Form::Config::Pfcron::flush_dns_audit_log;
 use pfappserver::Form::Config::Pfcron::pfflow;
+use pfappserver::Form::Config::Pfcron::switch_observability_acls_cleanup;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfcron::$_" } qw(
@@ -87,6 +88,7 @@ our %TYPES_TO_FORMS = (
       flush_radius_audit_log
       flush_dns_audit_log
       pfflow
+      switch_observability_acls_cleanup
     )
 );
 

@@ -1192,3 +1192,40 @@ fingerprint_networks=
 #
 # Local task
 local=0
+
+[switch_observability_acls_cleanup]
+#
+# type
+#
+# Task type
+type=switch_observability_acls_cleanup
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Controls the cleanup of the switch_observability_acls table. Entries for MAC addresses that no longer exist in the node table will be removed.
+#
+# batch
+#
+# How many switch_observability_acls entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a switch_observability_acls_cleanup job can run
+timeout=10s
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
+#
+# local
+#
+# Local task
+local=0

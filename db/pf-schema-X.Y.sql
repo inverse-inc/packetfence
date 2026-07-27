@@ -1672,7 +1672,8 @@ CREATE TABLE switch_observability_acls (
   `acls` MEDIUMTEXT NOT NULL,
   `enforcement_timestamp` DATETIME default NULL,
   PRIMARY KEY (`switch_id`, `mac`, `role_id`),
-  UNIQUE KEY `switch_observability_acls_switch_port` (`switch_id`, `port`)
+  UNIQUE KEY `switch_observability_acls_switch_port` (`switch_id`, `port`),
+  KEY `switch_observability_acls_mac_enforcement` (`mac`, `enforcement_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

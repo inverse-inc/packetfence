@@ -190,6 +190,14 @@ call ValidateVersion;
 --
 
 --
+-- Index switch_observability_acls by mac for the switch_observability_acls_cleanup task
+-- and for per-device ACL lookups
+--
+\! echo "Adding index switch_observability_acls_mac_enforcement to switch_observability_acls...";
+CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acls_mac_enforcement',
+    'KEY `switch_observability_acls_mac_enforcement` (`mac`,`enforcement_timestamp`)');
+
+--
 -- Clean up the helper / validation procedures
 --
 DROP PROCEDURE IF EXISTS ValidateVersion;
