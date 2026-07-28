@@ -39,6 +39,7 @@ import FormTypeKerberos from './FormTypeKerberos'
 import FormTypeKickbox from './FormTypeKickbox'
 import FormTypeLdap from './FormTypeLdap'
 import FormTypeLinkedIn from './FormTypeLinkedIn'
+import FormTypeLocalDB from './FormTypeLocalDB'
 import FormTypeNull from './FormTypeNull'
 import FormTypeOpenId from './FormTypeOpenId'
 import FormTypePaypal from './FormTypePaypal'
@@ -72,6 +73,7 @@ const components = {
   FormTypeKickbox,
   FormTypeLdap,
   FormTypeLinkedIn,
+  FormTypeLocalDB,
   FormTypeNull,
   FormTypeOpenId,
   FormTypePaypal,
@@ -114,6 +116,7 @@ export const setup = (props) => {
       case 'Kickbox':             return FormTypeKickbox //break
       case 'LDAP':                return FormTypeLdap //break
       case 'LinkedIn':            return FormTypeLinkedIn //break
+      case 'LocalDB':             return FormTypeLocalDB //break
       case 'Null':                return FormTypeNull //break
       case 'OpenID':              return FormTypeOpenId //break
       case 'Paypal':              return FormTypePaypal //break
