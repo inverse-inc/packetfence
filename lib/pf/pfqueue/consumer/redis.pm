@@ -16,10 +16,9 @@ use strict;
 use warnings;
 use pf::Redis;
 use Time::HiRes qw(usleep);
-use Sereal::Decoder qw(sereal_decode_with_object);
 use pf::dal;
 use pf::log;
-use pf::Sereal qw($DECODER);
+use pf::Sereal qw(sereal_decode_safe);
 use Moo;
 use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw(
@@ -122,7 +121,7 @@ sub process_next_job {
         local $@;
         eval {
             local $@;
-            sereal_decode_with_object($DECODER, $data, my $item);
+            my $item = sereal_decode_safe($data);
             if (ref($item) ne 'ARRAY') {
                 die "Invalid object stored in queue";
             }

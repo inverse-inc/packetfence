@@ -15,12 +15,11 @@ pfconfig::backend::mysql
 use strict;
 use warnings;
 use Sereal::Encoder qw(sereal_encode_with_object);
-use Sereal::Decoder qw(sereal_decode_with_object);
 use DBI;
 use pfconfig::config;
 use Try::Tiny;
 use pf::log;
-use pf::Sereal qw($DECODER $ENCODER_FREEZER);
+use pf::Sereal qw($ENCODER_FREEZER sereal_decode_safe);
 use pf::config::crypt::object;
 use pf::config::crypt::object::freeze;
 
@@ -214,7 +213,7 @@ sub get {
     }
     my $element;
     while ( my $row = $statement->fetchrow_hashref() ) {
-        $element = sereal_decode_with_object($DECODER, $row->{value});
+        $element = sereal_decode_safe($row->{value});
     }
     return $element;
 }
