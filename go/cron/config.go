@@ -47,6 +47,9 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 		`DELETE FROM radacct_log WHERE timestamp < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
 	"flush_radius_audit_log": NewFlushRadiusAuditLogJob,
+	"switch_observability_acls_cleanup": MakeBatchSqlJobSetupConfig(
+		`DELETE FROM switch_observability_acls WHERE mac != '' AND NOT EXISTS (SELECT 1 FROM node WHERE node.mac = switch_observability_acls.mac) LIMIT ?`,
+	),
 }
 
 func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
