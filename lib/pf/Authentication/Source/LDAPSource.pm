@@ -670,7 +670,8 @@ sub ldap_filter_for_conditions {
   if ($params->{'username'}) {
       $expression = $self->_makefilter($params->{'username'});
   } elsif ($params->{'email'}) {
-      $expression = '(|(' . $self->{'email_attribute'} . '=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
+      my $email = escape_filter_value($params->{'email'});
+      $expression = '(|(' . $self->{'email_attribute'} . '=' . $email . ')(proxyAddresses=smtp:' . $email . ')(mailLocalAddress=' . $email . ')(mailAlternateAddress=' . $email . '))';
   }
 
   if ($expression) {
@@ -743,9 +744,10 @@ sub search_attributes_in_subclass {
       return $FALSE;
     }
 
+    my $escaped = escape_filter_value($username);
     my $searchresult = $connection->search(
                   base => $self->{'basedn'},
-                  filter => "($self->{'usernameattribute'}=$username)"
+                  filter => "($self->{'usernameattribute'}=$escaped)"
     );
     if ($searchresult->is_error()) {
       $logger->error("Unable to locate user '$username'");
