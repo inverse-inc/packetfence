@@ -192,7 +192,8 @@ sub get_memberOf {
         return map{ $_->{displayName} } @{$response->{value}};
     }
     else {
-        $logger->error("Failed to obtain groups for $username: " . $r->status_line);
+        my $id = $self->id;
+        $logger->error("Failed to obtain groups for $username (source[$id]): " . $r->status_line);
         return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
     }
 }
