@@ -188,3 +188,28 @@ From the "Azure Active Directory" authentication source, create an
 authentication rule like this:"
 
 image::Azure_Group_membership.png[scaledwidth="100%",alt="Azure AD Group Membership"]
+
+===== Authorizing a device by its owner's groups
+
+When authenticating a device with a machine certificate, you may want to apply
+roles based on the groups of the user who owns the device rather than (or in
+addition to) the device's own groups. Enable this on the "Azure Active
+Directory" authentication source:
+
+[options="compact"]
+. *Lookup Device Owner*: enable this toggle. When on, after fetching the
+device's own groups PacketFence resolves the device's registered owner in Entra
+and merges that owner's groups into the group membership used for rule matching.
+Only the first registered owner is used.
+. *Device Owner Url Path*: the Graph path used to resolve the owner. `%USERNAME`
+is replaced with the device identity. Default:
+`/v1.0/devices(deviceId='%USERNAME')/registeredOwners` (see
+https://learn.microsoft.com/en-us/graph/api/device-list-registeredowners?view=graph-rest-1.0&tabs=http)
+. *Owner Groups Url Path*: the Graph path used to look up the resolved owner's
+groups. `%USERNAME` is replaced with the owner id returned by the previous call.
+Default: `/v1.0/users/%USERNAME/memberOf`
+
+The `Directory.Read.All` application permission configured earlier already
+covers the `registeredOwners` lookup, so no extra Azure permission is required.
+With this enabled, a machine certificate is authorized using the combined set of
+the device's groups and its owner's groups.

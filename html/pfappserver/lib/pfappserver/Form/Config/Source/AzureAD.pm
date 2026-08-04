@@ -90,6 +90,32 @@ has_field 'user_groups_url_path' =>
     default => $META->get_attribute('user_groups_url_path')->default,
   );
 
+has_field 'lookup_device_owner' =>
+  (
+    type            => 'Toggle',
+    checkbox_value  => '1',
+    unchecked_value => '0',
+    default         => $META->get_attribute('lookup_device_owner')->default,
+  );
+
+has_field 'device_owner_url_path' =>
+  (
+   type => 'Text',
+    element_attr => {
+        'placeholder' => $META->get_attribute('device_owner_url_path')->default
+    },
+    default => $META->get_attribute('device_owner_url_path')->default,
+  );
+
+has_field 'owner_groups_url_path' =>
+  (
+   type => 'Text',
+    element_attr => {
+        'placeholder' => $META->get_attribute('owner_groups_url_path')->default
+    },
+    default => $META->get_attribute('owner_groups_url_path')->default,
+  );
+
 
 =head1 COPYRIGHT
 
