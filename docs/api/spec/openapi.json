@@ -3739,6 +3739,9 @@
                "source" : {
                   "type" : "string"
                },
+               "source_type" : {
+                  "type" : "string"
+               },
                "status" : {
                   "type" : "string"
                }

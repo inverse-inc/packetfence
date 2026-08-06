@@ -31,6 +31,11 @@ use pf::constants qw($ZERO_DATE);
 use pf::error qw(is_error is_success);
 use pf::log;
 
+# The functions that write the source_type column take the authentication
+# source id and its type as their first two arguments, e.g.
+# ($source->id, $source->type). The paths that record a failure against every
+# source they tried pass comma joined lists of both.
+
 =head2 invalidate_previous
 
 =cut
@@ -54,11 +59,12 @@ sub invalidate_previous {
 }
 
 sub record_oauth_attempt {
-    my ($source, $mac, $profile) = @_;
+    my ($source, $source_type, $mac, $profile) = @_;
     invalidate_previous($source, $mac, $profile);
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
+        source_type => $source_type,
         mac => $mac,
         attempted_at => \'NOW()',
         status => $INCOMPLETE,
@@ -68,12 +74,13 @@ sub record_oauth_attempt {
 }
 
 sub record_completed_oauth {
-    my ($source, $mac, $pid, $auth_status, $profile) = @_;
+    my ($source, $source_type, $mac, $pid, $auth_status, $profile) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
         -set => {
             completed_at => \'NOW()',
             status => $auth_status,
             pid => $pid,
+            source_type => $source_type,
             profile => $profile,
         },
         -where => {
@@ -88,11 +95,12 @@ sub record_completed_oauth {
 }
 
 sub record_guest_attempt {
-    my ($source, $mac, $pid, $profile) = @_;
+    my ($source, $source_type, $mac, $pid, $profile) = @_;
     invalidate_previous($source, $mac, $profile);
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
+        source_type => $source_type,
         mac => $mac,
         pid => ($pid // ''),
         attempted_at => \'NOW()',
@@ -103,11 +111,12 @@ sub record_guest_attempt {
 }
 
 sub record_completed_guest {
-    my ($source, $mac, $auth_status, $profile) = @_;
+    my ($source, $source_type, $mac, $auth_status, $profile) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
         -set => {
             completed_at => \'NOW()',
             status => $auth_status,
+            source_type => $source_type,
             profile => $profile,
         },
         -where => {
@@ -122,10 +131,11 @@ sub record_completed_guest {
 }
 
 sub record_auth {
-    my ($source, $mac, $pid, $auth_status, $profile) = @_;
+    my ($source, $source_type, $mac, $pid, $auth_status, $profile) = @_;
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
+        source_type => $source_type,
         mac => $mac,
         pid => ($pid // ''),
         attempted_at => \'NOW()',

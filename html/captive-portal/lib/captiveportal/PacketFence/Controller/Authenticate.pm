@@ -121,7 +121,8 @@ sub authenticationLogin : Private {
               'context' => $pf::constants::realm::PORTAL_CONTEXT,
           }, @{$sources} );
     if ( defined($return) && $return == 1 ) {
-        pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
+        my ($matched_source) = grep { $_->id eq $source_id } @{$sources};
+        pf::auth_log::record_auth($source_id, $matched_source ? $matched_source->type : '', $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
         # save login into session
         $c->user_session->{username} = $username // $default_pid;
         $c->user_session->{source_id} = $source_id;
@@ -133,7 +134,7 @@ sub authenticationLogin : Private {
         # Logging USER/IP/MAC of the just-authenticated user
         $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
     } else {
-        pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $portalSession->clientMac, $username, $pf::auth_log::FAILED, $profile->name);
+        pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), join(',',map { $_->type } @{$sources}), $portalSession->clientMac, $username, $pf::auth_log::FAILED, $profile->name);
         $c->error($message);
     }
 }

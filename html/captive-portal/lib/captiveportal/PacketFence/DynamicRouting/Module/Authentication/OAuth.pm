@@ -118,7 +118,7 @@ Redirects to the OAuth provider and registers the attempt in the authlog
 
 sub redirect_to_provider {
     my ($self) = @_;
-    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
+    pf::auth_log::record_oauth_attempt($self->source->id, $self->source->type, $self->current_mac, $self->app->profile->name);
     $self->app->redirect($self->get_client->authorize);
 }
 
@@ -175,7 +175,7 @@ sub handle_callback {
         get_logger->info("OAuth2 successfull for username ".$self->username);
         $self->source->lookup_from_provider_info($self->username, $info);
         
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->source->type, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
 
         $self->update_person_from_fields();
 
