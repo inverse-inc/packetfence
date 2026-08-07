@@ -154,6 +154,11 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 	defer panichandler.Http(ctx, w)
 
+	// Searches and options of non sql reports are proxied to the perl API
+	if rewriteNonSqlReportRequest(r) {
+		return next.ServeHTTP(w, r)
+	}
+
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		// We always default to application/json
 		w.Header().Set("Content-Type", "application/json")

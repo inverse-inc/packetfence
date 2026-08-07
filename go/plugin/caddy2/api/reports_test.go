@@ -248,6 +248,34 @@ func TestReporSearch(t *testing.T) {
 	})
 }
 
+func TestReportIdForPerlApi(t *testing.T) {
+	tests := []struct {
+		method   string
+		path     string
+		expected string
+	}{
+		{http.MethodPost, "/api/v1.1/report/Node::Report::Test/search", "Node::Report::Test"},
+		{http.MethodOptions, "/api/v1.1/report/Node::Report::Test", "Node::Report::Test"},
+		{http.MethodGet, "/api/v1.1/report/Node::Report::Test/search", ""},
+		{http.MethodGet, "/api/v1.1/report/Node::Report::Test", ""},
+		{http.MethodPost, "/api/v1.1/report/Node::Report::Test", ""},
+		{http.MethodOptions, "/api/v1.1/report/Node::Report::Test/search", ""},
+		{http.MethodOptions, "/api/v1.1/reports", ""},
+		{http.MethodPost, "/api/v1.1/reports", ""},
+		{http.MethodPost, "/api/v1.1/report//search", ""},
+		{http.MethodPost, "/api/v1.1/report/Node::Report::Test/foo/search", ""},
+		{http.MethodPost, "/api/v1/dynamic_report/Node::Report::Test/search", ""},
+	}
+	for _, test := range tests {
+		utils_test.IsEqStr(
+			t,
+			test.method+" "+test.path,
+			reportIdForPerlApi(test.method, test.path),
+			test.expected,
+		)
+	}
+}
+
 func TestMain(m *testing.M) {
 	var err error
 	router, err = initRouterAndDb()
