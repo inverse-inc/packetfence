@@ -198,6 +198,13 @@ CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acl
     'KEY `switch_observability_acls_mac_enforcement` (`mac`,`enforcement_timestamp`)');
 
 --
+-- Record the authentication source type alongside the source id
+--
+\! echo "Adding column source_type to auth_log...";
+CALL AddColumnUnlessExists('auth_log', 'source_type',
+    'VARCHAR(255) DEFAULT NULL AFTER `source`');
+
+--
 -- Clean up the helper / validation procedures
 --
 DROP PROCEDURE IF EXISTS ValidateVersion;

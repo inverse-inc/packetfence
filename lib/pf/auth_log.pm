@@ -31,6 +31,24 @@ use pf::constants qw($ZERO_DATE);
 use pf::error qw(is_error is_success);
 use pf::log;
 
+=head2 source_type_for
+
+Resolve the authentication source type(s) from a source id, or from the
+comma-separated list of source ids recorded on failed multi-source attempts.
+
+=cut
+
+sub source_type_for {
+    my ($source) = @_;
+    return undef unless defined $source && length $source;
+    require pf::authentication;
+    my @types = map {
+        my $s = pf::authentication::getAuthenticationSource($_);
+        defined $s ? ($s->type) : ()
+    } split(/\s*,\s*/, $source);
+    return @types ? join(',', @types) : undef;
+}
+
 =head2 invalidate_previous
 
 =cut
@@ -59,6 +77,7 @@ sub record_oauth_attempt {
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
+        source_type => source_type_for($source),
         mac => $mac,
         attempted_at => \'NOW()',
         status => $INCOMPLETE,
@@ -93,6 +112,7 @@ sub record_guest_attempt {
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
+        source_type => source_type_for($source),
         mac => $mac,
         pid => ($pid // ''),
         attempted_at => \'NOW()',
@@ -126,6 +146,7 @@ sub record_auth {
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
+        source_type => source_type_for($source),
         mac => $mac,
         pid => ($pid // ''),
         attempted_at => \'NOW()',
