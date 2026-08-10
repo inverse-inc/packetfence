@@ -7,6 +7,11 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 LimitNOFILE=infinity
 Environment=LOG_LEVEL=INFO
+# Enable the Go pprof profiler in the pfconnector process. The container runs
+# with --network=host, so the address below is reachable on the host itself.
+# Set to 1/true for localhost:6060, or an explicit host:port. After changing,
+# run `systemctl daemon-reload` and restart the service.
+#Environment=CHISEL_PPROF=localhost:6060
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfconnector-server-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-server ; echo Stopped"

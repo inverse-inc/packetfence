@@ -44,6 +44,11 @@ function base_args {
     args="$args -eLOG_LEVEL=$LOG_LEVEL"
   fi
 
+  # Pass CHISEL_PPROF to container if set (enables the pfconnector pprof server)
+  if ! [ -z "$CHISEL_PPROF" ]; then
+    args="$args -eCHISEL_PPROF=$CHISEL_PPROF"
+  fi
+
   echo "$args"
 }
 

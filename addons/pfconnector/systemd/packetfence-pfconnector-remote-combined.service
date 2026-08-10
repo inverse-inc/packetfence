@@ -6,6 +6,11 @@ After=network.service
 
 [Service]
 LimitNOFILE=infinity
+# Enable the Go pprof profiler in the pfconnector process. The container runs
+# with --network=host, so the address below is reachable on the host itself.
+# Set to 1/true for localhost:6060, or an explicit host:port. After changing,
+# run `systemctl daemon-reload` and restart the service.
+#Environment=CHISEL_PPROF=localhost:6060
 ExecStart=/usr/local/pfconnector-remote/bin/pfconnector-remote-combined-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-remote-combined ; echo Stopped"
 Restart=always
