@@ -252,10 +252,10 @@ index cb8f01c0c5..dca05ec908 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-ip6tables.service b/conf/systemd/packetfence-ip6tables.service
-index 23d3d3d7b7..4a17261e38 100644
+index ef9c7c9e03..7fad187f97 100644
 --- a/conf/systemd/packetfence-ip6tables.service
 +++ b/conf/systemd/packetfence-ip6tables.service
-@@ -10,13 +10,13 @@ After=packetfence-iptables.service
+@@ -11,13 +11,13 @@ After=packetfence-iptables.service
  Type=simple
  ExecStart=/usr/local/pf/sbin/ip6tables_monitor.pl
  ExecStop=-/usr/bin/kill -TERM $MAINPID
@@ -418,26 +418,26 @@ index 35fc71303a..69f7fa5774 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-pfconnector-client.service b/conf/systemd/packetfence-pfconnector-client.service
-index 7a59957515..fcc47cd8ff 100644
+index d6b0e1c975..7068194aae 100644
 --- a/conf/systemd/packetfence-pfconnector-client.service
 +++ b/conf/systemd/packetfence-pfconnector-client.service
-@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
- [Service]
- LimitNOFILE=infinity
- Environment=LOG_LEVEL=INFO
+@@ -13,7 +13,7 @@ Environment=LOG_LEVEL=INFO
+ # same host. Set to 1/true for localhost:6060, or an explicit host:port. After
+ # changing, run `systemctl daemon-reload` and restart the service.
+ #Environment=CHISEL_PPROF=localhost:6061
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_client' -e 'pf::services::manager::pfconnector_client->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_client' -e 'pf::services::manager::pfconnector_client->new()->generateConfig()'
  ExecStart=/usr/local/pf/sbin/pfconnector-client-docker-wrapper
  ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
  Restart=always
 diff --git a/conf/systemd/packetfence-pfconnector-server.service b/conf/systemd/packetfence-pfconnector-server.service
-index 46b4acdcb4..f4a51668dd 100644
+index 668a0ebd4c..06dc0a0925 100644
 --- a/conf/systemd/packetfence-pfconnector-server.service
 +++ b/conf/systemd/packetfence-pfconnector-server.service
-@@ -7,15 +7,15 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
- [Service]
- LimitNOFILE=infinity
- Environment=LOG_LEVEL=INFO
+@@ -12,15 +12,15 @@ Environment=LOG_LEVEL=INFO
+ # Set to 1/true for localhost:6060, or an explicit host:port. After changing,
+ # run `systemctl daemon-reload` and restart the service.
+ #Environment=CHISEL_PPROF=localhost:6060
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
  ExecStart=/usr/local/pf/sbin/pfconnector-server-docker-wrapper
