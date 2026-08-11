@@ -80,7 +80,9 @@ sub record_completed_oauth {
             completed_at => \'NOW()',
             status => $auth_status,
             pid => $pid,
-            source_type => $source_type,
+            # Keep the source_type recorded at attempt time when the caller
+            # could not resolve it (e.g. the source was deleted in between)
+            (defined $source_type && length $source_type ? (source_type => $source_type) : ()),
             profile => $profile,
         },
         -where => {
@@ -116,7 +118,9 @@ sub record_completed_guest {
         -set => {
             completed_at => \'NOW()',
             status => $auth_status,
-            source_type => $source_type,
+            # Keep the source_type recorded at attempt time when the caller
+            # could not resolve it (e.g. the source was deleted in between)
+            (defined $source_type && length $source_type ? (source_type => $source_type) : ()),
             profile => $profile,
         },
         -where => {
