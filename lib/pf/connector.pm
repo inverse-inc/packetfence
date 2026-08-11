@@ -18,8 +18,10 @@ has fingerbank_environment => (is => 'rw');
 
 my %connections;
 my $redis;
+my %dynreverse_cache;
 sub CLONE {
     %connections = ();
+    %dynreverse_cache = ();
     $redis = undef;
 }
 pf::AtFork->add_to_child(\&CLONE);
@@ -52,9 +54,29 @@ sub connectorServerApiClient {
     }
 }
 
+# The TTL must stay at or below the server's LAST_TOUCHED_TIMEOUT (10s): the
+# dynreverse API call is what refreshes the tunnel's LastTouched, so a longer
+# client-side TTL could let an idle tunnel be reaped while its port is still
+# being served from this cache.
+our $DYNREVERSE_CACHE_TTL = 10;
+
 sub dynreverse {
     my ($self, $to, $opts) = @_;
     $opts //= {};
+
+    # Hot paths (SNMP/CoA on every RADIUS request when *UseConnector is
+    # enabled) call this per packet; serve the port from a short per-process
+    # cache instead of POSTing to the pfconnector server every time.
+    # pod_direct connections (rare, long-lived, e.g. domain join) bypass the
+    # cache since their host depends on which server instance answers.
+    my $cache_key = $self->id . ":" . $to;
+    if (!$opts->{pod_direct}) {
+        my $entry = $dynreverse_cache{$cache_key};
+        if ($entry && $entry->{expires_at} > time) {
+            return { %{$entry->{conn}} };
+        }
+    }
+
     my $client = $self->connectorServerApiClient;
     my $connector_conn = $client->call("POST", "/api/v1/pfconnector/dynreverse", {
         to => $to,
@@ -84,6 +106,11 @@ sub dynreverse {
     }
     
     get_logger->debug("Using pfconnector dynreverse ".$connector_conn->{host}.":".$connector_conn->{port}." via ".$self->id);
+
+    if (!$opts->{pod_direct}) {
+        # Store and return copies so a caller mutating the result can't poison the cache.
+        $dynreverse_cache{$cache_key} = { conn => { %$connector_conn }, expires_at => time + $DYNREVERSE_CACHE_TTL };
+    }
 
     return $connector_conn;
 }
