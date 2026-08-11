@@ -22,13 +22,13 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 61;                      # last test to print
+use Test::More tests => 64;                      # last test to print
 
 use Test::NoWarnings;
 
 use pf::constants;
 use pf::constants::realm;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE);
 use pf::constants::authentication::messages;
 
 # pf core libs
@@ -566,6 +566,23 @@ is_deeply(
         $source->{message},
         "line1 \$pin\nline2",
     );
+}
+
+{
+    # adminAuthentication only queries sources that have at least one administration rule.
+    # The 'local' SQL source comes first and has no administration rules: it must be skipped.
+    my @sql_authenticate_calls;
+    no warnings qw(redefine);
+    my $orig_sql_authenticate = \&pf::Authentication::Source::SQLSource::authenticate;
+    local *pf::Authentication::Source::SQLSource::authenticate = sub {
+        push @sql_authenticate_calls, $_[0]->id;
+        return $orig_sql_authenticate->(@_);
+    };
+
+    my ($result, $roles) = pf::authentication::adminAuthentication('authtest', 'authtest');
+    is($result, $LOGIN_SUCCESS, "adminAuthentication succeeds for authtest against htpasswd1");
+    is_deeply($roles, ['ALL'], "adminAuthentication returns the ALL access level for authtest");
+    is_deeply(\@sql_authenticate_calls, [], "sources without administration rules are never queried by adminAuthentication");
 }
 
 =head1 AUTHOR
