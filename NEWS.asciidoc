@@ -39,6 +39,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - New auth_log.source_type column recording the authentication source type (AD, LDAP, SQL, Email, SMS, ...) alongside the source id, so portal authentication reports survive a source being renamed or deleted
   - Per-zone VRRP router id: in a multi-zone (layer 3) cluster, the keepalived `virtual_router_id` can now be set per zone in the zone's CLUSTER section of cluster.conf, instead of sharing the single `active_active` value across all zones (#9159) @casdr
   - pfdhcplistener performance — external DHCP events hashed by client MAC across dedicated workers, Fingerbank lookups skipped when the signature is unchanged, firewall SSO updates gated by a half-lease cache, and notifications run in-process (#9054)
   - pfacct no longer drops RADIUS accounting under load — larger UDP receive buffers with backpressure, and the node session cache is bounded with an idle TTL to stop a memory leak (#9166)

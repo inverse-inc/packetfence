@@ -157,7 +157,7 @@ sub resend {
         return;
     };
 
-    pf::auth_log::record_guest_attempt($source->id, $mac, $pid, $portal);
+    pf::auth_log::record_guest_attempt($source->id, $source->type, $mac, $pid, $portal);
 
     $self->prompt_pin();
 
@@ -253,7 +253,7 @@ sub validate_info {
         return;
     };
 
-    pf::auth_log::record_guest_attempt($self->source->id, $self->current_mac, $pid, $self->app->profile->name);
+    pf::auth_log::record_guest_attempt($self->source->id, $self->source->type, $self->current_mac, $pid, $self->app->profile->name);
 
     $self->session->{telephone} = $telephone;
     $self->session->{mobileprovider} = $mobileprovider;
@@ -310,7 +310,7 @@ sub validation {
         $self->username($record->{pid});
         my $mac = $self->current_mac;
         pf::activation::set_status_verified_by_mac($SMS_ACTIVATION, $pin, $mac);
-        pf::auth_log::record_completed_guest($self->source->id, $mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
+        pf::auth_log::record_completed_guest($self->source->id, $self->source->type, $mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->done();
     }
     else {

@@ -204,7 +204,7 @@ sub authenticate {
                   'context' => $pf::constants::realm::PORTAL_CONTEXT,
               }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
-            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
+            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), join(',',map { $_->type } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->on_action('on_failure');
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
@@ -223,7 +223,7 @@ sub authenticate {
                 }
             }
 
-            pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
+            pf::auth_log::record_auth($source_id, $self->source->type, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
             $self->on_action('on_success');

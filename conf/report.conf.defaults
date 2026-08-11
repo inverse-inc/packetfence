@@ -203,8 +203,8 @@ description=All the authentications (portal) that have occured on the server.
 # The table to search from
 base_table=auth_log
 # The columns to select
-columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.status as "Status", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
-searches=string:Process Name:auth_log.process_name,string:MAC Address:auth_log.mac,string:Owner:auth_log.pid,string:Status:auth_log.status,string:Source:auth_log.source
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.status as "Status", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.source_type as "Source Type", auth_log.profile as "Connection Profile"
+searches=string:Process Name:auth_log.process_name,string:MAC Address:auth_log.mac,string:Owner:auth_log.pid,string:Status:auth_log.status,string:Source:auth_log.source,string:Source Type:auth_log.source_type
 date_field=attempted_at
 base_conditions_operator=any
 person_fields=Owner
@@ -217,7 +217,7 @@ description=All failed authentications (portal) that have occured on the server.
 # The table to search from
 base_table=auth_log
 # The columns to select
-columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.source_type as "Source Type", auth_log.profile as "Connection Profile"
 date_field=attempted_at
 base_conditions_operator=any
 person_fields=Owner
@@ -232,7 +232,7 @@ description=All successful authentications (portal) that have occured on the ser
 # The table to search from
 base_table=auth_log
 # The columns to select
-columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.source_type as "Source Type", auth_log.profile as "Connection Profile"
 date_field=attempted_at
 base_conditions_operator=any
 person_fields=Owner

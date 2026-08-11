@@ -77,7 +77,7 @@ Redirect the user to the SAML IDP
 sub redirect {
     my ($self) = @_;
     if(!$self->with_aup || $self->request_fields->{aup}){
-        pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
+        pf::auth_log::record_oauth_attempt($self->source->id, $self->source->type, $self->current_mac, $self->app->profile->name);
         my $relayState = $self->app->isRootSSO ? $self->app->request->cookie("CGISESSION")->value : undef;
         $self->app->redirect($self->source->sso_url($relayState));
     }
@@ -102,7 +102,7 @@ sub assertion {
     ($username, undef) = pf::config::util::strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
 
     if($username){
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->source->type, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->username($username);
         $self->done();
     }

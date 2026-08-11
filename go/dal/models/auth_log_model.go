@@ -19,6 +19,7 @@ type AuthLog struct {
 	AttemptedAt *time.Time `json:"attempted_at"`
 	CompletedAt *time.Time `json:"completed_at"`
 	Source      string     `json:"source,omitempty"`
+	SourceType  string     `json:"source_type,omitempty"`
 	Profile     string     `json:"profile,omitempty"`
 
 	DB  *gorm.DB         `json:"-" gorm:"-"`

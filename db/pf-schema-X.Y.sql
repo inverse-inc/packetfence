@@ -1239,6 +1239,7 @@ CREATE TABLE auth_log (
   `attempted_at` datetime NOT NULL,
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
+  `source_type` varchar(255) NOT NULL default "",
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
   KEY attempted_at (attempted_at),
