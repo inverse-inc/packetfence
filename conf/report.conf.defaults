@@ -198,47 +198,104 @@ person_fields=pid
 charts=pie|pid:bytes,bar|pid:bytes
 
 [Authentication::All]
-type=abstract
+type=sql
 description=All the authentications (portal) that have occured on the server.
-# The table to search from
-base_table=auth_log
-# The columns to select
 columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.status as "Status", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.source_type as "Source Type", auth_log.profile as "Connection Profile"
-searches=string:Process Name:auth_log.process_name,string:MAC Address:auth_log.mac,string:Owner:auth_log.pid,string:Status:auth_log.status,string:Source:auth_log.source,string:Source Type:auth_log.source_type
-date_field=attempted_at
-base_conditions_operator=any
+sql= <<EOT
+  SELECT
+    id,
+    process_name AS `Process Name`,
+    mac AS `MAC Address`,
+    pid AS `Owner`,
+    status AS `Status`,
+    attempted_at AS `Attempted at`,
+    completed_at AS `Completed at`,
+    source AS `Source`,
+    source_type AS `Source Type`,
+    profile AS `Connection Profile`
+  FROM auth_log
+  WHERE
+    attempted_at BETWEEN ? AND ?
+    AND id <= ?
+  ORDER BY id DESC
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 person_fields=Owner
 node_fields=MAC Address
-order_fields=-auth_log.attempted_at
 
 [Authentication::All Failures]
-type=abstract
+type=sql
 description=All failed authentications (portal) that have occured on the server.
-# The table to search from
-base_table=auth_log
-# The columns to select
 columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.source_type as "Source Type", auth_log.profile as "Connection Profile"
-date_field=attempted_at
-base_conditions_operator=any
+sql= <<EOT
+  SELECT
+    id,
+    process_name AS `Process Name`,
+    mac AS `MAC Address`,
+    pid AS `Owner`,
+    attempted_at AS `Attempted at`,
+    completed_at AS `Completed at`,
+    source AS `Source`,
+    source_type AS `Source Type`,
+    profile AS `Connection Profile`
+  FROM auth_log
+  WHERE
+    status = 'failed'
+    AND attempted_at BETWEEN ? AND ?
+    AND id <= ?
+  ORDER BY id DESC
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 person_fields=Owner
 node_fields=MAC Address
-order_fields=-auth_log.attempted_at
-base_conditions=auth_log.status:=:failed
 charts=scatter|Attempted at
 
 [Authentication::All Successes]
-type=abstract
+type=sql
 description=All successful authentications (portal) that have occured on the server.
-# The table to search from
-base_table=auth_log
-# The columns to select
 columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.source_type as "Source Type", auth_log.profile as "Connection Profile"
-date_field=attempted_at
-base_conditions_operator=any
+sql= <<EOT
+  SELECT
+    id,
+    process_name AS `Process Name`,
+    mac AS `MAC Address`,
+    pid AS `Owner`,
+    attempted_at AS `Attempted at`,
+    completed_at AS `Completed at`,
+    source AS `Source`,
+    source_type AS `Source Type`,
+    profile AS `Connection Profile`
+  FROM auth_log
+  WHERE
+    status = 'completed'
+    AND attempted_at BETWEEN ? AND ?
+    AND id <= ?
+  ORDER BY id DESC
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 person_fields=Owner
 node_fields=MAC Address
-order_fields=-auth_log.attempted_at
-base_conditions=auth_log.status:=:completed
 charts=scatter|Attempted at
 
 [Authentication::Top Failures::Connection Profile to Source]
@@ -618,34 +675,59 @@ node_fields=mac
 formatting=vendor:oui_to_vendor
 
 [Ip4Log::Archive]
-type=abstract
+type=sql
 description=IP address archive of the devices on your network when enabled (see Maintenance section)
-# The table to search from
-base_table=ip4log_archive
-# The columns to select
 columns=ip4log_archive.mac "MAC Address", ip4log_archive.ip as "IP", ip4log_archive.start_time as "Start time", ip4log_archive.end_time as "End time"
-searches=string:MAC Address:ip4log_archive.mac,string:IP:ip4log_archive.ip
-date_field=start_time
-# Display only the sponsor registration
-#base_conditions=activation.type:=:sponsor
-base_conditions_operator=all
+sql= <<EOT
+  SELECT
+    id,
+    mac AS `MAC Address`,
+    ip AS `IP`,
+    start_time AS `Start time`,
+    end_time AS `End time`
+  FROM ip4log_archive
+  WHERE
+    start_time BETWEEN ? AND ?
+    AND id <= ?
+  ORDER BY id DESC
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 node_fields=MAC Address
 charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
 
 [Ip4Log::History]
-type=abstract
+type=sql
 description=IP address history of the devices on the network (1 week is kept by default)
-# The table to search from
-base_table=ip4log_history
-# The columns to select
 columns=ip4log_history.mac "MAC Address", ip4log_history.ip as "IP", ip4log_history.start_time as "Start time", ip4log_history.end_time as "End time"
-searches=string:MAC Address:ip4log_history.mac,string:IP:ip4log_history.ip
-date_field=start_time
-# Display only the sponsor registration
-#base_conditions=activation.type:=:sponsor
-base_conditions_operator=all
+sql= <<EOT
+  SELECT
+    id,
+    mac AS `MAC Address`,
+    ip AS `IP`,
+    start_time AS `Start time`,
+    end_time AS `End time`
+  FROM ip4log_history
+  WHERE
+    start_time BETWEEN ? AND ?
+    AND id <= ?
+  ORDER BY id DESC
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 node_fields=MAC Address
-order_fields=-ip4log_history.start_time
 charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
 
 [Node::Active]
@@ -1352,36 +1434,78 @@ charts=pie|role:nodes,bar|role:nodes
 role_fields=role
 
 [Security Events::Closed]
-type=abstract
+type=sql
 description=List of closed security events on the network
-base_table=security_event
 columns=security_event.release_date "Release date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
-joins= <<EOT
-=>{class.security_event_id=security_event.security_event_id} class|class
-=>{security_event.mac=node.mac} node|node
-=>{node_category.category_id=node.category_id} node_category|node_category
+sql= <<EOT
+  SELECT
+    security_event.id,
+    security_event.release_date AS `Release date`,
+    class.description AS `Security Event Name`,
+    node.status AS `Node status`,
+    node.mac AS `MAC Address`,
+    node.computername AS `Computer Name`,
+    node.pid AS `Owner`,
+    node.device_class AS `Device Class`,
+    node_category.name AS `Role`
+  FROM security_event
+  LEFT JOIN class ON class.security_event_id = security_event.security_event_id
+  LEFT JOIN node ON security_event.mac = node.mac
+  LEFT JOIN node_category ON node_category.category_id = node.category_id
+  WHERE
+    security_event.status = 'closed'
+    AND security_event.start_date BETWEEN ? AND ?
+    AND security_event.id <= ?
+  ORDER BY security_event.id DESC
+  LIMIT ?;
 EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 node_fields=MAC Address
 person_fields=Owner
-date_field=start_date
-base_conditions=security_event.status:=:closed
 charts=scatter|Release date
 
 [Security Events::Open]
-type=abstract
+type=sql
 description=List of open security events on the network
-base_table=security_event
 columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
-joins= <<EOT
-=>{class.security_event_id=security_event.security_event_id} class|class
-=>{security_event.mac=node.mac} node|node
-=>{node_category.category_id=node.category_id} node_category|node_category
+sql= <<EOT
+  SELECT
+    security_event.id,
+    security_event.start_date AS `Event date`,
+    class.description AS `Security Event Name`,
+    node.status AS `Node status`,
+    node.mac AS `MAC Address`,
+    node.computername AS `Computer Name`,
+    node.pid AS `Owner`,
+    node.device_class AS `Device Class`,
+    node_category.name AS `Role`
+  FROM security_event
+  LEFT JOIN class ON class.security_event_id = security_event.security_event_id
+  LEFT JOIN node ON security_event.mac = node.mac
+  LEFT JOIN node_category ON node_category.category_id = node.category_id
+  WHERE
+    security_event.status = 'open'
+    AND security_event.start_date BETWEEN ? AND ?
+    AND security_event.id <= ?
+  ORDER BY security_event.id DESC
+  LIMIT ?;
 EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=id
+cursor_default=18446744073709551615
+default_limit=25
 node_fields=MAC Address
 person_fields=Owner
-date_field=start_date
-base_conditions=security_event.status:=:open
-role_fields=category_id
+role_fields=Role
 charts=scatter|Event date
 
 [Security Events::Open Active]
@@ -1528,45 +1652,93 @@ cursor_type=none
 default_limit=25
 
 [User::Registration::Email]
-type=abstract
-# The table to search from
-base_table=activation
-# The columns to select
+type=sql
+description=All the guest registrations by email activation
 columns=activation.pid as "Owner", activation.mac "MAC Address", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.unregdate as "Unreg date", activation.status as "Status", activation.portal as "Connection profile"
-searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
-# Display only the email registration
-base_conditions=activation.type:=:guest
-base_conditions_operator=all
+sql= <<EOT
+  SELECT
+    code_id,
+    pid AS `Owner`,
+    mac AS `MAC Address`,
+    activation_code AS `Activation code`,
+    expiration AS `Code expiration`,
+    unregdate AS `Unreg date`,
+    status AS `Status`,
+    portal AS `Connection profile`
+  FROM activation
+  WHERE
+    type = 'guest'
+    AND code_id <= ?
+  ORDER BY code_id DESC
+  LIMIT ?;
+EOT
+bindings=cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=code_id
+cursor_default=18446744073709551615
+default_limit=25
 person_fields=Owner
 node_fields=MAC Address
-order_fields=-activation.expiration
 
 [User::Registration::SMS]
-type=abstract
-# The table to search from
-base_table=activation
-# The columns to select
+type=sql
+description=All the guest registrations by SMS activation
 columns=activation.pid as "Owner", activation.mac "MAC Address", sms_carrier.name as "Carrier", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.status as "Status", activation.portal as "Connection profile"
-searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
-# Left join sms_carrier
-joins==>{activation.carrier_id=sms_carrier.id} sms_carrier|sms_carrier
-# Display only the sms registration
-base_conditions=activation.type:=:sms
-base_conditions_operator=all
+sql= <<EOT
+  SELECT
+    code_id,
+    activation.pid AS `Owner`,
+    activation.mac AS `MAC Address`,
+    sms_carrier.name AS `Carrier`,
+    activation.activation_code AS `Activation code`,
+    activation.expiration AS `Code expiration`,
+    activation.status AS `Status`,
+    activation.portal AS `Connection profile`
+  FROM activation
+  LEFT JOIN sms_carrier ON activation.carrier_id = sms_carrier.id
+  WHERE
+    activation.type = 'sms'
+    AND code_id <= ?
+  ORDER BY code_id DESC
+  LIMIT ?;
+EOT
+bindings=cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=code_id
+cursor_default=18446744073709551615
+default_limit=25
 person_fields=Owner
 node_fields=MAC Address
-order_fields=-activation.expiration
 
 [User::Registration::Sponsor]
-type=abstract
-# The table to search from
-base_table=activation
-# The columns to select
-columns=activation.pid as "Owner", activation.contact_info as "Sponsor", activation.mac "MAC Address",  activation.expiration as "Registration expiration", activation.status as "Status", activation.portal as "Connection profile",
-searches=string:Owner:activation.pid,string:Sponsor:activation.contact_info,string:MAC Address:activation.mac,string:Status:activation.status,string:Connection Profile:activation.portal
-date_field=expiration
-# Display only the sponsor registration
-base_conditions=activation.type:=:sponsor
-base_conditions_operator=all
+type=sql
+description=All the guest registrations by sponsor approval
+columns=activation.pid as "Owner", activation.contact_info as "Sponsor", activation.mac "MAC Address",  activation.expiration as "Registration expiration", activation.status as "Status", activation.portal as "Connection profile"
+sql= <<EOT
+  SELECT
+    code_id,
+    pid AS `Owner`,
+    contact_info AS `Sponsor`,
+    mac AS `MAC Address`,
+    expiration AS `Registration expiration`,
+    status AS `Status`,
+    portal AS `Connection profile`
+  FROM activation
+  WHERE
+    type = 'sponsor'
+    AND expiration BETWEEN ? AND ?
+    AND code_id <= ?
+  ORDER BY code_id DESC
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=code_id
+cursor_default=18446744073709551615
+default_limit=25
 person_fields=Owner
 node_fields=MAC Address

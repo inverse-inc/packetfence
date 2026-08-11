@@ -15,9 +15,9 @@ use warnings;
 
 our (@BuildQueryOptionsTests, @NextCursorTests);
 our (@CreateBindTests, @IsaTests);
-our (@ValidateQueryTests, @ValidateFieldsTests);
+our (@ValidateFieldsTests);
 our (@ValidateInputTests, @MetaForOptions);
-our (%defaultAbstractOptions, @DefaultReports);
+our (@DefaultReports);
 
 BEGIN {
     #include test libs
@@ -34,103 +34,81 @@ BEGIN {
     use Test2::Tools::Compare qw(array hash item field end match);
     my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
     @DefaultReports = $defaults->Sections();
-    %defaultAbstractOptions = (
-        offset     => 0,
-        limit      => 25,
-        sql_limit  => 26,
-#        where      => undef,
-    );
     @BuildQueryOptionsTests = (
         {
             id  => "User::Registration::Sponsor",
             in  => {},
             out => [
-                200,
+                422,
                 {
-                    %defaultAbstractOptions,
-                    start_date => undef,
-                    end_date => undef,
+                    message => 'invalid request',
+                    errors  => [
+                        {
+                            field   => 'start_date',
+                            message => "must have a value",
+                        },
+                        {
+                            field   => 'end_date',
+                            message => "must have a value",
+                        }
+                    ],
                 }
             ],
-            check => array {
-                item 200;
-                item hash {
-                };
-            },
-            msg => 'Default options',
+            msg => 'Date range is required',
         },
         {
             id => "User::Registration::Sponsor",
             in => {
-                limit  => 100,
-                cursor => 100,
+                start_date => '2012-12-25',
+                end_date   => '2013-12-25',
             },
             out => [
                 200,
                 {
-                    start_date => undef,
-                    end_date => undef,
-                    %defaultAbstractOptions,
-                    offset     => 100,
-                    limit      => 100,
-                    sql_limit  => 101,
+                    cursor     => '18446744073709551615',
+                    limit      => 25,
+                    sql_limit  => 26,
+                    start_date => '2012-12-25',
+                    end_date   => '2013-12-25',
                 }
             ],
-            msg => 'just limit, cursor',
+            msg => 'Default options',
         },
         {
             id => "User::Registration::Sponsor",
             in => {
                 limit      => 100,
                 cursor     => 200,
-                start_date => '2012-12-25'
+                start_date => '2012-12-25',
+                end_date   => '2013-12-25',
             },
             out => [
                 200,
                 {
-                    %defaultAbstractOptions,
-                    offset     => 200,
+                    cursor     => 200,
                     limit      => 100,
                     sql_limit  => 101,
                     start_date => '2012-12-25',
-                    end_date => undef,
+                    end_date   => '2013-12-25',
                 }
             ],
-            msg => 'just start_date limit, cursor',
+            msg => 'limit, cursor, start_date, end_date',
         },
         {
             id => "User::Registration::SMS",
             in => {
                 limit      => 100,
                 cursor     => 200,
-                start_date => '2012-12-25',
-                end_date   => '2013-12-25',
-                'sort'     => 'pid',
-                query      => {
-                    op     => 'and',
-                    values => [
-                        {
-                            op    => 'equals',
-                            field => "activation.pid",
-                            value => 'bob'
-                        },
-                    ],
-                },
             },
             out => [
                 200,
                 {
-                    %defaultAbstractOptions,
-                    offset     => 200,
-                    limit      => 100,
-                    sql_limit  => 101,
-                    order      => 'pid',
-                    where      => {
-                        'activation.pid' => { '=' => 'bob' }
-                    },
+                    cursor    => 200,
+                    limit     => 100,
+                    sql_limit => 101,
                 }
             ],
-            msg => 'limit, cursor, start_date, end_date, sort, query',
+            msg => 'limit, cursor',
         },
         {
             id  => "Node::Active",
@@ -242,22 +220,20 @@ BEGIN {
         {
             id => "User::Registration::Sponsor",
             in => [
-                [ {}, {}, { mac => "22:33:22:33:33:33" } ],
-                limit  => 2,
-                cursor => 2,
+                [ {}, {}, { code_id => 42 } ],
+                sql_limit => 3,
             ],
-            out     => 4,
+            out     => 42,
             results => [ {}, {}, ],
         },
         {
             id => "User::Registration::Sponsor",
             in => [
-                [ {}, {}, { mac => "22:33:22:33:33:33" } ],
-                limit  => 3,
-                cursor => 3,
+                [ {}, {}, { code_id => 42 } ],
+                sql_limit => 4,
             ],
             out     => undef,
-            results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+            results => [ {}, {}, { code_id => 42 } ],
         },
         {
             id => "Node::Report::TestMultiValueCursor",
@@ -329,123 +305,12 @@ BEGIN {
     @IsaTests = (
         {
             id  => 'User::Registration::Sponsor',
-            isa => 'pf::Report::abstract',
+            isa => 'pf::Report::sql',
         },
         {
             id  => 'Node::Active',
             isa => 'pf::Report::sql',
         }
-    );
-
-    @ValidateQueryTests = (
-        {
-            id => 'User::Registration::Sponsor',
-            in => {
-                op => 'and',
-            },
-            out => [],
-        },
-        {
-            id => 'User::Registration::Sponsor',
-            in => {
-                field => 'garbage',
-                op    => 'equals',
-                value => '',
-            },
-            out => [
-                {
-                    field   => 'garbage',
-                    message => 'invalid field',
-                }
-            ],
-        },
-        {
-            id => 'User::Registration::Sponsor',
-            in => {
-                field => 'activation.pid',
-                op    => 'equals',
-                value => 'bob',
-            },
-            out => [],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => undef,
-            out => [],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => {
-                op => 'and',
-                values => [
-                    {
-                        field => 'garbage',
-                        op    => 'equals',
-                        value => '',
-                    }
-                ],
-            },
-            out => [
-                {
-                    field   => 'garbage',
-                    message => 'invalid field',
-                }
-            ],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => {
-                op => 'and',
-                values => [
-                    {
-                        field => 'garbage',
-                        op    => undef,
-                        value => '',
-                    }
-                ],
-            },
-            out => [
-                { message => 'op (null) is invalid'}
-            ],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => {
-                op => 'garbage',
-            },
-            out => [
-                { message => 'op (garbage) is invalid'}
-            ],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => {
-                op => 'garbage',
-            },
-            out => [
-                { message => 'op (garbage) is invalid'}
-            ],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => {
-                op => 'equals',
-                field => undef,
-            },
-            out => [
-                { message => 'field must be set'}
-            ],
-        },
-        {
-            id  => 'User::Registration::Sponsor',
-            in  => {
-                op => 'contains',
-                field => 'activation.pid',
-            },
-            out => [
-                { message => 'op (contains) is not allowed to have a null value'}
-            ],
-        },
     );
 
 #     @ValidateFieldsTests = (
@@ -469,10 +334,6 @@ BEGIN {
         {
             id => 'User::Registration::Sponsor',
             in  => {
-                query => {
-                    op => 'equals',
-                    field => undef,
-                },
             },
             out => [
                 422,
@@ -480,7 +341,12 @@ BEGIN {
                     message => 'invalid request',
                     errors => [
                         {
-                            message => "field must be set",
+                            field => 'start_date',
+                            message => "must have a value",
+                        },
+                        {
+                            field => 'end_date',
+                            message => "must have a value",
                         }
                     ],
                 }
@@ -552,18 +418,6 @@ BEGIN {
                     end();
                 };
                 field query_fields => array {
-                    item hash {
-                        field name => 'ip4log_archive.mac';
-                        field text => 'MAC Address';
-                        field type => 'string';
-                        end();
-                    };
-                    item hash {
-                        field name => 'ip4log_archive.ip';
-                        field text => 'IP';
-                        field type => 'string';
-                        end();
-                    };
                     end();
                 };
                 field columns => array {
@@ -744,7 +598,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 5 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions + ((scalar @DefaultReports) * 3);
+use Test::More tests => 5 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions + ((scalar @DefaultReports) * 3);
 
 use pf::factory::report;
 use pf::error qw(is_success);
@@ -806,26 +660,6 @@ use Test::NoWarnings;
 
         ok ($report, "report '$id' created");
         isa_ok ($report, $t->{isa}, );
-    }
-}
-
-{
-    for my $t (@ValidateQueryTests) {
-        my $id = $t->{id};
-        my $report = pf::factory::report->new($id);
-        if (!$report) {
-            fail("Cannot get report $id");
-            next;
-        }
-
-        my $in = $t->{in};
-        my @errors;
-        $report->validate_query($in, \@errors),
-        is_deeply(
-            \@errors,
-            $t->{out},
-            "$id: pf::Report->validate_query"
-        );
     }
 }
 

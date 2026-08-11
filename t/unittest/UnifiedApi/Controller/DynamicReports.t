@@ -48,7 +48,7 @@ $t->get_ok('/api/v1/dynamic_reports' => json => { })
 
 $t->get_ok('/api/v1/dynamic_report/Authentication::All' => json => { })
   ->json_is('/item/id',"Authentication::All")
-  ->json_is('/item/type',"abstract")
+  ->json_is('/item/type',"sql")
   ->status_is(200);
   
 $t->post_ok('/api/v1/dynamic_report/Authentication::All/search', {'Content-Type' => 'application/json'} => '{')
