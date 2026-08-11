@@ -209,7 +209,13 @@ sub authorize {
 
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
     if (is_error($status_code)) {
-        $node_obj = pf::dal::node->new({"mac" => $mac});
+        # The node could not be read (e.g. the DB is down). Answering with a
+        # fabricated default node would move a registered device to the
+        # registration VLAN and saving it at CLEANUP would clobber the real
+        # row once the DB comes back; fail the request so the NAS retries.
+        $logger->error("Unable to read node $mac from the database ($status_code). This request will be failed to avoid altering the access of the device.");
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable") ];
+        goto AUDIT;
     }
     $node_obj->_load_locationlog;
     if ($status_code != $STATUS::CREATED) {
@@ -976,7 +982,10 @@ sub vpn {
 
         my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
         if (is_error($status_code)) {
-            $node_obj = pf::dal::node->new({"mac" => $mac});
+            # Node unreadable (e.g. DB down): fail instead of proceeding with
+            # a fabricated default node that would be saved over the real row.
+            $logger->error("Unable to read node $mac from the database ($status_code). This request will be failed to avoid altering the access of the device.");
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable") ];
         }
         $node_obj->_load_locationlog;
         if ($status_code != $STATUS::CREATED) {
@@ -1373,7 +1382,10 @@ sub radius_filter {
     Log::Log4perl::MDC->put( 'mac', $mac );
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
     if (is_error($status_code)) {
-        $node_obj = pf::dal::node->new({"mac" => $mac});
+        # Node unreadable (e.g. DB down): don't evaluate filters against a
+        # fabricated default node; decline like the unknown-switch case above.
+        $logger->error("Unable to read node $mac from the database ($status_code). Skipping radius filters.");
+        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Database is unavailable") ];
     }
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
