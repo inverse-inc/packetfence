@@ -24,7 +24,7 @@ BEGIN {
 
 use Test::More tests => 9;
 
-#This test will running last
+# This test will run last
 use Test::NoWarnings;
 use pf::authentication;
 use pf::auth_log;
