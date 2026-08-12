@@ -213,9 +213,10 @@ sub _getCombinationID {
         # If API is configured, we want an exact match to save us some time by avoiding a complex query
         my $resultset;
         if ( fingerbank::Config::configured_for_api ) {
-            # TODO : change cache key to CombinationMatchExact
-            # Should be done in a major or minor
-            my ($status, $id) = $self->cache->compute("CombinationMatch_$schema\_".encode_json(\@bindings), sub { 
+            # The key is distinct from the fuzzy CombinationMatch view below:
+            # adding/removing the API key switches which view computes the
+            # result and the two must not share cache entries
+            my ($status, $id) = $self->cache->compute("CombinationMatchExact_$schema\_".encode_json(\@bindings), sub {
                 my $view_class = "fingerbank::Schema::".$db->schema."::CombinationMatchExact";
                 my $bind_params = $view_class->view_bind_params(\@bindings);
                 $logger->trace("Bind params : ".join(',', @$bind_params));
