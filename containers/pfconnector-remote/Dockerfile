@@ -35,11 +35,30 @@ RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.
     printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d && \
     chmod +x /usr/sbin/policy-rc.d && \
     apt-get update && \
-    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache=0.1.3-1 sqlite3 && \
+    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache=0.1.3-1 sqlite3 make && \
     apt-get remove -y fingerbank-collector 2>/dev/null || true && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     rm -f /usr/sbin/policy-rc.d /usr/bin/systemctl && \
     if [ -f /usr/bin/systemctl.real ]; then mv /usr/bin/systemctl.real /usr/bin/systemctl; fi
+
+# Bake the radiusd-auth configuration into the image (was previously installed
+# on the host by the packetfence-pfconnector-remote package and bind-mounted).
+# Only the dynamic parts (RADIUS secret, TLS certs, NAS clients) are fetched
+# from the central server at container start by the s6 oneshots.
+COPY raddb /usr/local/pf/raddb
+COPY addons/pfconnector/conf/radiusd/auth.conf /usr/local/pf/raddb/auth.conf
+COPY addons/pfconnector/conf/radiusd/clients.conf /usr/local/pf/raddb/clients.conf
+COPY addons/pfconnector/conf/radiusd/proxy.conf.inc /usr/local/pf/raddb/proxy.conf.inc
+COPY addons/pfconnector/conf/radiusd/radiusd.conf /usr/local/pf/raddb/radiusd.conf
+COPY addons/pfconnector/conf/radiusd/rest.conf /usr/local/pf/raddb/mods-enabled/rest
+COPY addons/pfconnector/conf/radiusd/mschap.conf /usr/local/pf/raddb/mods-enabled/mschap
+COPY addons/pfconnector/conf/radiusd/eap.conf /usr/local/pf/raddb/mods-enabled/eap
+COPY addons/pfconnector/conf/radiusd/packetfence-pre-proxy /usr/local/pf/raddb/mods-config/attr_filter/packetfence-pre-proxy
+COPY addons/pfconnector/conf/radiusd/packetfence /usr/local/pf/raddb/sites-available/packetfence
+COPY addons/pfconnector/conf/radiusd/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients
+RUN rm -f /usr/local/pf/raddb/mods-enabled/perl && \
+    cp /usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status && \
+    mkdir -p /usr/local/pf/raddb/dynamic-clients /usr/local/pf/conf/ssl
 
 # Copy pfconnector binary from build stage
 COPY --from=go-builder /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnector

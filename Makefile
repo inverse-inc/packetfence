@@ -361,22 +361,9 @@ pfconnector_remote_install:
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
 	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(PFCONNECTOR_CONFDIR)/build_id
 	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pf-release
-	# raddb
-	cp -rv $(SRC_ROOT_DIR)/raddb $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/auth.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/auth.conf
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/clients.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/clients.conf
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/proxy.conf.inc $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/proxy.conf.inc
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/radiusd.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/radiusd.conf
-	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/rest.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/rest
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/mschap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/mschap
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/eap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/eap
-	rm -f $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/perl
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence-pre-proxy $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-config/attr_filter/packetfence-pre-proxy
-	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available/packetfence
-	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/dynamic-clients $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled/dynamic-clients
+	# persisted radiusd-auth certs (EAP/RadSec identity); the raddb config
+	# itself is baked into the pfconnector-remote-combined container image
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_PREFIX)/certs
 
 .PHONY: ntlm_auth_api_remote_install
 ntlm_auth_api_remote_install:
