@@ -83,7 +83,10 @@ StartServers  4
 MinSpareServers  2
 MaxSpareServers  10
 HostnameLookups  off
-MaxRequestsPerChild  1000
+# Counts connections, not requests: persistent keep-alive clients carry up to
+# MaxKeepAliveRequests (100) requests per connection, so 100 connections
+# ~= 10k requests before the child is recycled.
+MaxConnectionsPerChild  100
 
 SSLPassPhraseDialog  builtin
 SSLSessionCacheTimeout  300
