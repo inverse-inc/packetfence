@@ -484,10 +484,16 @@ sub adminAuthentication {
   $realm_source = ref($realm_source) eq 'ARRAY' ? $realm_source : [$realm_source];
 
   foreach my $source (@{$realm_source}) {
+    # A source can only grant an access level through one of its own administration rules,
+    # so sources without any are skipped to avoid needlessly querying them (RADIUS, LDAP, ...)
+    unless (any { $_->{class} eq $Rules::ADMIN } @{$source->rules}) {
+        get_logger->debug("Skipping source ".$source->id." for admin authentication of $stripped_username since it has no administration rules.");
+        next;
+    }
     get_logger->info("Found a realm source ".$source->id." for user $stripped_username in realm $realm.");
-    my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
-            'username' => $user, 
-            'password' => $password, 
+    my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( {
+            'username' => $user,
+            'password' => $password,
             'rule_class' => $Rules::ADMIN,
             'context' => $pf::constants::realm::ADMIN_CONTEXT,
         }, $source);
@@ -497,9 +503,9 @@ sub adminAuthentication {
         }
 
         $extra //= {};
-        my $match = pf::authentication::match2([$source], { 
+        my $match = pf::authentication::match2([$source], {
                 username => $user,
-                rule_class => $Rules::ADMIN, 
+                rule_class => $Rules::ADMIN,
                 context => $pf::constants::realm::ADMIN_CONTEXT,
                 action => $Actions::SET_ACCESS_LEVEL,
             }, $extra);
@@ -508,7 +514,10 @@ sub adminAuthentication {
         my $roles = $values->{$Actions::SET_ACCESS_LEVEL} // "NONE";
         $roles = [split /\s*,\s*/,$roles];
 
-        return ((all{ $_ ne 'NONE'} @$roles), $roles);
+        if (all { $_ ne 'NONE' } @$roles) {
+            return ($LOGIN_SUCCESS, $roles);
+        }
+        get_logger->info("User $user authenticated on source ".$source->id." but no administration rule granted an access level. Trying next source.");
     }
   }
 
