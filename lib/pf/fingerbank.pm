@@ -55,6 +55,10 @@ our %ACTION_MAP = (
     "update-upstream-db" => sub {
         pf::fingerbank::_update_fingerbank_component("Upstream database", sub{
             my ($status, $status_msg) = fingerbank::DB::update_upstream();
+            # The upstream SQLite file was replaced: the model and combination
+            # ids cached in the fingerbank CHI namespace refer to the old
+            # database, so clear them instead of serving them for up to 24h
+            clear_cache() if fingerbank::Util::is_success($status);
             return ($status, $status_msg);
         });
     },
@@ -89,6 +93,11 @@ sub process {
     my $timer = pf::StatsD::Timer->new();
     my ( $mac, $force, $overrides ) = @_;
     my $logger = pf::log::get_logger;
+
+    # pfqueue resets the log context before each task and nothing in the
+    # DHCP->fingerbank chain repopulates it, so without this every fingerbank
+    # log line from a queue task reads [mac:unknown]
+    Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
 
     unless(fingerbank::Config::is_api_key_configured()) {
         $logger->debug("Skipping Fingerbank processing because no API key is configured");
@@ -152,7 +161,15 @@ sub process {
         $cache->set($cache_key, DateTime->now(time_zone => "local"));
         my $query_success = $TRUE;
 
-        my $query_result = _query($query_args);
+        # Rate limit the queries based on the query parameters: back-to-back
+        # lookups carrying the same profiling attributes (RADIUS interim
+        # updates, DHCP renews, ...) share the cached result for $RATE_LIMIT
+        # seconds instead of each interrogating the collector. The cache lives
+        # in the Redis-backed fingerbank namespace so the limit applies across
+        # all processes (pfqueue workers, RADIUS, portal).
+        my $query_result = $cache->compute_with_undef("fingerbank::_query-" . _query_cache_key($query_args), sub {
+            return _query($query_args);
+        }, {expires_in => $RATE_LIMIT});
 
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
@@ -186,9 +203,9 @@ sub process {
 Set the current Fingerbank API key as the C<Authorization> header on a collector request.
 
 The built request is cached (see L</endpoint_attributes> and L</update_collector_endpoint_data>)
-in the Redis-backed C<fingerbank> CHI namespace with no expiration, so the auth header baked in
-by C<fingerbank::Collector::build_request> would otherwise become stale when the API key is
-rotated, causing C<401 Unauthorized> from the collector until the cache is manually flushed.
+in the Redis-backed C<fingerbank> CHI namespace (24 hour default expiration), so the auth header
+baked in by C<fingerbank::Collector::build_request> would otherwise become stale when the API key
+is rotated, causing C<401 Unauthorized> from the collector until the cached request expires.
 Refreshing the header at request time keeps it in sync with C<fingerbank.conf> (which
 C<fingerbank::Config> reloads on file mtime change).
 
@@ -290,6 +307,23 @@ sub update_collector_endpoint_data {
         get_logger->error("Error while communicating with the Fingerbank collector. ".$res->status_line);
         return undef;
     }
+}
+
+=head2 _query_cache_key
+
+Build a cache key from the profiling-relevant query parameters (the ones
+consumed by L<fingerbank::Query>) so that repeated lookups with identical
+parameters can share a cached result. The remaining endpoint attributes
+returned by the collector (counters, timestamps, ...) change with almost any
+traffic and must not be part of the key.
+
+=cut
+
+sub _query_cache_key {
+    my ($query_args) = @_;
+    my %params = map { my $k = lc($_); ($k => $query_args->{$k}) } @fingerbank::Constant::QUERY_PARAMETERS;
+    $params{mac} = $query_args->{mac};
+    return JSON::MaybeXS->new->canonical->encode(\%params);
 }
 
 =head2 _query
