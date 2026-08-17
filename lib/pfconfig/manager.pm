@@ -60,12 +60,17 @@ my $ordered_prefix = "ORDERED::";
 Builds the object associated to a namespace
 See it as a mini-factory
 
+An already constructed element can be passed as the third argument, so a caller
+that had to construct one anyway does not pay for a second construction. That
+matters because construction runs init(), which for most namespaces reaches the
+L2 backend and deserializes a config blob.
+
 =cut
 
 sub config_builder {
-    my ( $self, $namespace ) = @_;
+    my ( $self, $namespace, $elem ) = @_;
     my $logger = get_logger;
-    my $elem = $self->get_namespace($namespace);
+    $elem //= $self->get_namespace($namespace);
     unless (defined $elem) {
         $logger->error("Cannot build unknown namespace $namespace");
         return undef;
@@ -132,7 +137,63 @@ sub get_namespace {
 
     my $elem = $type->new($self, @args);
 
+    # Record the child graph while we have an object, so child_resources_for can
+    # answer without ever constructing one again. Only the list of names is kept
+    # -- never the object, which pins built state and snapshots its dependencies.
+    #
+    # Overlays are deliberately excluded: expire treats an overlay as terminal and
+    # never asks for its children, so memoising an entry per overlay argument would
+    # be unbounded growth for something nothing ever reads.
+    unless ($self->is_overlayed_namespace($full_name)) {
+        $self->{child_resources_cache}{normalize_namespace_query($full_name)}
+            = $elem->{child_resources} ? [@{$elem->{child_resources}}] : [];
+    }
+
     return $elem;
+}
+
+=head2 child_resources_for
+
+Returns the child resources of a namespace as an arrayref, without constructing
+the namespace object when we have already seen it.
+
+Constructing a namespace is not cheap and it is not side-effect free: most
+namespaces read their dependencies with get_cache inside init, which reaches the
+L2 backend and deserializes a config blob. expire only ever wanted the child
+graph, so paying that per namespace and per child on every expire request made a
+single `pfcmd pfconfig reload` do thousands of L2 reads -- and it deserialized
+config through the shared Sereal decoder often enough to eventually corrupt
+memory and segfault the daemon.
+
+The child graph is a static property of the namespace module: every declaration
+under lib/pfconfig/namespaces is a literal list, and the only two that vary
+(interfaces.pm and config/Pf.pm) vary by the host_id *argument*, which is part
+of the namespace key we memoise under. Module code only changes on upgrade, and
+that restarts the daemon, so the memo is valid for the life of the process.
+
+Only ever called for a static namespace: expire treats an overlay as terminal
+(see the is_overlayed_namespace guard there) and list_top_namespaces walks
+list_static_namespaces, so get_namespace does not memoise overlays.
+
+Returns [] for a namespace that cannot be loaded -- get_namespace documents an
+undef return, and the previous code dereferenced it blindly.
+
+=cut
+
+sub child_resources_for {
+    my ( $self, $what ) = @_;
+    $what = normalize_namespace_query($what);
+
+    my $cached = $self->{child_resources_cache}{$what};
+    return $cached if $cached;
+
+    # get_namespace populates the memo as a side effect
+    my $namespace = $self->get_namespace($what);
+    unless (defined $namespace) {
+        return $self->{child_resources_cache}{$what} = [];
+    }
+
+    return $self->{child_resources_cache}{$what} ||= [];
 }
 
 =head2 is_overlayed_namespace
@@ -159,7 +220,7 @@ Returns the overlayed namespaces for a static namespace
 =cut
 
 sub overlayed_namespaces {
-    my ($self, $base_namespace) = @_;
+    my ($self, $base_namespace, $all_overlayed) = @_;
 
     # Namespace is an empty overlay
     if($base_namespace =~ /(.+)\(\)$/) {
@@ -169,7 +230,9 @@ sub overlayed_namespaces {
     # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
-    my @namespaces = @{ $self->all_overlayed_namespaces() };
+    # Callers walking a whole tree pass the list in so it is enumerated once per
+    # run rather than once per namespace (see expire)
+    my @namespaces = @{ $all_overlayed // $self->all_overlayed_namespaces() };
     my @overlayed_namespaces;
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
@@ -199,9 +262,9 @@ List all the overlayed namespaces contained in the control directory
 
 sub list_control_overlayed_namespaces {
     my ($self) = @_;
-    my $control_dir = $pfconfig::constants::CONTROL_FILE_DIR;
+    my $control_dir = pfconfig::util::control_file_dir();
     my @modules;
-    if(! -d $pfconfig::constants::CONTROL_FILE_DIR) {
+    if(! -d $control_dir) {
         return @modules;
     }
     find(
@@ -252,6 +315,8 @@ sub init_cache {
     $self->{cache} = pfconfig::config->new->get_backend;
     $self->{memory}       = {};
     $self->{memorized_at} = {};
+    # namespace -> child_resources arrayref; see child_resources_for
+    $self->{child_resources_cache} = {};
     $self->{last_touch_cache} = time;
 }
 
@@ -398,13 +463,16 @@ sub cache_resource {
 
     # An unknown namespace must not create any persistent state (L1, L2 or
     # control file), otherwise every bogus client key is cached forever
-    unless (defined $self->get_namespace($what)) {
+    my $elem = $self->get_namespace($what);
+    unless (defined $elem) {
         $logger->error("Not caching unknown namespace $what");
         return undef;
     }
 
     $logger->debug("loading $what from outside");
-    my $result = $self->config_builder($what);
+    # Hand the element over rather than letting config_builder construct a second
+    # one: init() is expensive and leaks through the tied pf::IniFiles reads
+    my $result = $self->config_builder($what, $elem);
     # inflates the element if necessary
     $result = $self->post_process_element($what, $result);
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
@@ -482,17 +550,29 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 =cut
 
 sub expire {
-    my ( $self, $what, $light, $seen ) = @_;
+    my ( $self, $what, $light, $ctx ) = @_;
     $what = normalize_namespace_query($what);
 
-    # Deduplicate within a single expiry run. A resource is a child of many
+    # Per-run context, threaded through the recursion.
+    #
+    # seen: deduplicate within a single expiry run. A resource is a child of many
     # namespaces (e.g. resource::RolesReverseLookup is declared under 13 of
     # them), so without this guard expire_all rebuilds the same expensive
     # resources dozens of times. Rebuilding once per run is sufficient since
     # the configuration is static for the duration of the run.
-    $seen //= {};
-    return if $seen->{$what};
-    $seen->{$what} = 1;
+    #
+    # overlays: enumerating the overlays costs an L2 query plus a scan of the
+    # control directory, and it does not change during a run, so do it once here
+    # instead of once per namespace and per child.
+    #
+    # Callers outside this module pass no context: they expire a single namespace
+    # and let both defaults below fill themselves in.
+    $ctx //= {};
+    $ctx->{seen}     //= {};
+    $ctx->{overlays} //= $self->all_overlayed_namespaces();
+
+    return if $ctx->{seen}{$what};
+    $ctx->{seen}{$what} = 1;
 
     my $logger = get_logger;
     if($self->is_overlayed_namespace($what)){
@@ -524,22 +604,19 @@ sub expire {
     delete $self->{memory}->{"$ordered_prefix$what"};
 
     unless($self->is_overlayed_namespace($what)){
-        my $namespace = $self->get_namespace($what);
         # expire overlayed namespaces
-        my @overlayed_namespaces = $self->overlayed_namespaces($what);
-        foreach my $namespace (@overlayed_namespaces){
+        my @overlayed_namespaces = $self->overlayed_namespaces($what, $ctx->{overlays});
+        foreach my $overlayed (@overlayed_namespaces){
             # prevent deep recursion on namespace itself
-            next if $namespace eq $what;
+            next if $overlayed eq $what;
 
             $logger->info("Expiring overlayed resource from base resource $what.");
-            $self->expire($namespace, $light, $seen);
+            $self->expire($overlayed, $light, $ctx);
         }
 
-        if ( $namespace->{child_resources} ) {
-            foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
-                $logger->info("Expiring child resource $child_resource. Master resource is $what");
-                $self->expire($child_resource, $light, $seen);
-            }
+        foreach my $child_resource ( @{ $self->child_resources_for($what) } ) {
+            $logger->info("Expiring child resource $child_resource. Master resource is $what");
+            $self->expire($child_resource, $light, $ctx);
         }
     }
 }
@@ -593,8 +670,7 @@ sub list_top_namespaces {
     my @top_level_namespaces;
 
     foreach my $namespace (@$static_namespaces){
-        my $o = $self->get_namespace($namespace);
-        push @children, @{$o->{child_resources}} if $o->{child_resources};
+        push @children, @{ $self->child_resources_for($namespace) };
     }
 
     foreach my $namespace (@$static_namespaces){
@@ -639,9 +715,11 @@ sub expire_all {
     my ($self, $light) = @_;
     my $logger = get_logger;
     my @namespaces = $self->list_top_namespaces;
-    my %seen;
+    # Enumerate the overlays once for the whole run rather than once per
+    # namespace and per child; see expire
+    my $ctx = { seen => {}, overlays => $self->all_overlayed_namespaces() };
     foreach my $namespace (@namespaces) {
-        $self->expire($namespace, $light, \%seen);
+        $self->expire($namespace, $light, $ctx);
     }
 
     # Anything left in L1 that the expiry run did not reach is a namespace
@@ -650,7 +728,7 @@ sub expire_all {
     foreach my $key (keys %{$self->{memory}}) {
         my $base = $key;
         $base =~ s/^\Q$ordered_prefix\E//;
-        next if $seen{$base};
+        next if $ctx->{seen}{$base};
         $logger->info("Pruning stale resource from memory : $key");
         delete $self->{memory}->{$key};
         delete $self->{memorized_at}->{$key};

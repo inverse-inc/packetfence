@@ -128,6 +128,20 @@ sub parse_namespace {
     return ($namespace, @args_list);
 }
 
+=head2 control_file_dir
+
+Returns the directory holding the control files.
+
+The single point where $pfconfig::constants::CONTROL_FILE_DIR is read, so a test
+can redirect every control file operation (path building and discovery alike) by
+overriding this one sub. The constant itself is Readonly and cannot be localised.
+
+=cut
+
+sub control_file_dir {
+    return $pfconfig::constants::CONTROL_FILE_DIR;
+}
+
 =head2 control_file_path
 
 Returns the control file path for a namespace
@@ -136,7 +150,7 @@ Returns the control file path for a namespace
 
 sub control_file_path {
     my ($namespace) = @_;
-    return "$pfconfig::constants::CONTROL_FILE_DIR/" . $namespace . "-control";
+    return control_file_dir() . "/" . $namespace . "-control";
 }
 
 =head2 is_type_inline
