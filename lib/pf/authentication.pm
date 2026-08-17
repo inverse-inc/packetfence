@@ -485,8 +485,11 @@ sub adminAuthentication {
 
   foreach my $source (@{$realm_source}) {
     # A source can only grant an access level through one of its own administration rules,
-    # so sources without any are skipped to avoid needlessly querying them (RADIUS, LDAP, ...)
-    unless (any { $_->{class} eq $Rules::ADMIN } @{$source->rules}) {
+    # so sources without any are skipped to avoid needlessly querying them (RADIUS, LDAP, ...).
+    # Sources that override match (SQL, HTTP) build their rules at match time instead of
+    # taking them from the configuration, so they cannot be pre-filtered on configured rules.
+    my $builds_rules_at_match_time = $source->can('match') != pf::Authentication::Source->can('match');
+    unless ($builds_rules_at_match_time || any { $_->{class} eq $Rules::ADMIN } @{$source->rules}) {
         get_logger->debug("Skipping source ".$source->id." for admin authentication of $stripped_username since it has no administration rules.");
         next;
     }
