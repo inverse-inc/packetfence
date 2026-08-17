@@ -18,6 +18,10 @@ In order to use it with a configuration file :
 - Create a subclass in pfconfig/namespaces/config
 - Implement the init method and initialize at least the file attribute
 to the file path of the configuration file
+- To layer the file over a defaults file, set the import_file attribute to
+the defaults file path (and import_params to any extra pf::IniFiles options
+it needs, such as -default). Do NOT build the pf::IniFiles yourself in init:
+see the note on build below.
 - You can also implement the build_child method that is executed after
 the build method and has access to the configuration hash through
 the attribute cfg
@@ -50,10 +54,42 @@ sub _parse_error {
     $self->{parse_error} = $message;
 }
 
+=head2 import_config
+
+Materializes the -import defaults object declared by import_file, or returns
+undef when the subclass declared none.
+
+Built here rather than in init() on purpose. init() runs on every construction,
+and namespaces get constructed without ever being built -- expire and
+list_top_namespaces construct them to reach their child_resources. A pf::IniFiles
+is expensive to build and, worse, retains memory that is never freed once its
+values have been read, so building one in init() leaked a few MB per
+`pfcmd pfconfig reload`. Keep init() to cheap declaration only.
+
+=cut
+
+sub import_config {
+    my ($self) = @_;
+    return undef unless defined $self->{import_file};
+
+    # Faithfully mirrors what the subclasses used to do inline in init(),
+    # including handing back whatever new() returned: a failure has always
+    # surfaced as an undef -import rather than as an error here.
+    return pf::IniFiles->new(
+        -file     => $self->{import_file},
+        -envsubst => 1,
+        %{ $self->{import_params} // {} },
+    );
+}
+
 sub build {
     my ($self) = @_;
 
     my %tmp_cfg;
+
+    if (defined $self->{import_file}) {
+        $self->{added_params}->{-import} = $self->import_config();
+    }
 
     $self->{added_params}->{-file} = $self->{file};
     $self->{added_params}->{-allowempty} = 1;

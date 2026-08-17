@@ -20,7 +20,6 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw($cron_config_file $cron_default_config_file);
 use pf::util qw(normalize_time isenabled);
-use pf::IniFiles;
 use Clone qw(clone);
 
 use base 'pfconfig::namespaces::config';
@@ -28,8 +27,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $cron_config_file;
-    my $defaults = pf::IniFiles->new(-file => $cron_default_config_file, -envsubst => 1);
-    $self->{added_params}{'-import'} = $defaults;
+    $self->{import_file} = $cron_default_config_file;
 }
 
 my %golangUnits = (

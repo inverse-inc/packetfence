@@ -28,7 +28,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 15;
 use Test::NoWarnings;
 
 use_ok("pfconfig::namespaces::resource::network_config");
@@ -55,6 +55,30 @@ ok(
     !exists $bw->{_engine},
     "bandwidth_expired_security_events init() does not construct the SecurityEvent engine"
 );
+
+=head2 config namespaces declare their defaults file, they do not build it
+
+A config subclass layering its file over a defaults file must set import_file and
+let pfconfig::namespaces::config::build materialise the pf::IniFiles. Building it
+in init() put an IniFiles -- the thing that retains memory once read -- on every
+construction, which is what leaked per reload.
+
+=cut
+
+use_ok("pfconfig::namespaces::config::Report");
+use_ok("pfconfig::namespaces::config::Cron");
+
+for my $case (["config::Report", "Report"], ["config::Cron", "Cron"]) {
+    my ($label, $short) = @$case;
+    my $ns = "pfconfig::namespaces::config::$short"->new($cache);
+
+    ok(defined $ns->{import_file}, "$label init() declares its defaults file via import_file");
+    ok(
+        !defined $ns->{added_params} || !defined $ns->{added_params}{-import},
+        "$label init() does not build the -import IniFiles"
+    );
+    isa_ok($ns->import_config(), "pf::IniFiles", "$label import_config() builds it on demand");
+}
 
 =head1 AUTHOR
 
