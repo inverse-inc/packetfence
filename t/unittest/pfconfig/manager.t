@@ -47,7 +47,7 @@ END { remove_tree($scratch_control_dir) if $scratch_control_dir }
     *pfconfig::util::socket_expire = sub { return 1 };
 }
 
-use Test::More tests => 38;
+use Test::More tests => 42;
 use Test::NoWarnings;
 
 use_ok("pfconfig::manager");
@@ -157,6 +157,25 @@ segfault the daemon.
         *pfconfig::manager::get_namespace = $real_get_namespace;
         *pfconfig::manager::all_overlayed_namespaces = $real_all_overlayed;
     }
+}
+
+# tie_ixhash_copied builds its Tie::IxHash directly rather than through a tied
+# lexical. Lock in the contract that rewrite has to preserve: same class, keys in
+# sorted order, values carried over, and the same order when iterated the way a
+# consumer receives it.
+{
+    my %src = (zebra => 1, apple => { deep => 1 }, mango => "x", "b-key" => 0);
+    my $ordered = $manager->tie_ixhash_copied(\%src);
+
+    isa_ok($ordered, "Tie::IxHash", "tie_ixhash_copied returns a Tie::IxHash");
+    is_deeply([$ordered->Keys], [sort keys %src], "the copy is keyed in sorted order");
+    is_deeply([$ordered->Values], [map { $src{$_} } sort keys %src],
+        "the copy carries the same values");
+
+    my @iterated;
+    my $k = $ordered->FIRSTKEY;
+    while (defined $k) { push @iterated, $k; $k = $ordered->NEXTKEY($k) }
+    is_deeply(\@iterated, [sort keys %src], "iterating the copy yields the sorted order");
 }
 
 # child_resources_for must not blow up on a namespace that cannot be loaded --

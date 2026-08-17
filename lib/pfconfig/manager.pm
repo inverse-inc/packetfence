@@ -436,17 +436,24 @@ sub post_process_element {
 
 =head2 tie_ixhash_copied
 
-tie_ixhash_copied
+Returns a Tie::IxHash object holding the same pairs as $hash, with the keys in
+sorted order, so forked consumers all iterate in the same order.
+
+The object is built directly instead of tying a lexical hash and returning
+tied(%copy). Only the object is ever wanted -- get_cache_ordered stores it under
+the ORDERED:: key -- so the tied hash existed solely to be populated through and
+then thrown away, costing an HV plus a magic attach and free on every call.
+
+Tie::IxHash::new is TIEHASH, and TIEHASH passes its arguments straight to Push,
+which STOREs them pairwise, so this builds exactly the same object the hash slice
+assignment used to build.
 
 =cut
 
 sub tie_ixhash_copied {
     my ($self, $hash) = @_;
-    tie my %copy, 'Tie::IxHash';
-    my @keys = keys(%$hash);
-    @keys = sort(@keys);
-    @copy{@keys} = @{$hash}{@keys};
-    return tied(%copy);
+    my @keys = sort(keys(%$hash));
+    return Tie::IxHash->new(map { ($_ => $hash->{$_}) } @keys);
 }
 
 =head2 cache_resource
