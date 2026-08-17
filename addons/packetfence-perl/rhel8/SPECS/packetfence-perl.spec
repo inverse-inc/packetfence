@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.2.5
+Version:        1.2.6
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -33,6 +33,13 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Mon Aug 17 2026 Inverse <info@inverse.ca> 1.2.6-1
+- Upgrade Sereal::Decoder 5.004 -> 5.010
+- Upgrade Sereal::Encoder 5.004 -> 5.010
+  Picks up the decoder fix for pending frozen-object state (thaw_av and
+  ref_thawhash) not being reset between decodes, which segfaulted pfconfig
+  when decoding namespaces containing FREEZE'd objects. Sereal PR #316.
+
 * Tue Jul 4 2024 Inverse <info@inverse.ca> 1.2.4-1
 - Upgrade Template-Toolkit 3.009  -> 3.010
 - Upgrade Sereal::Decoder 4.018 -> 5.004
