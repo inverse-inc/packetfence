@@ -18,7 +18,6 @@ use pf::file_paths qw(
     $provisioning_filters_meta_config_file
     $provisioning_filters_meta_config_default_file
 );
-use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -26,8 +25,7 @@ sub init {
     my ($self) = @_;
     $self->{file} = $provisioning_filters_meta_config_file;
 
-    my $defaults = pf::IniFiles->new( -file => $provisioning_filters_meta_config_default_file, -envsubst => 1 );
-    $self->{added_params}->{'-import'} = $defaults;
+    $self->{import_file} = $provisioning_filters_meta_config_default_file;
     $self->{added_params}->{'-allowempty'} = 1;
 }
 

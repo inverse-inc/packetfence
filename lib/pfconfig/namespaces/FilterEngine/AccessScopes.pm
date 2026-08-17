@@ -46,7 +46,16 @@ sub build {
     my $config   = $self->parentConfig;
     $config->init;
     my $file = $config->{file};
-    my $ini = pf::IniFiles->new(%{$config->{added_params}}, -file => $file, -allowempty => 1, -envsubst => 1);
+    # The parent declares its defaults file rather than building the -import
+    # object in init (construction has to stay cheap -- see
+    # pfconfig::namespaces::config::import_config), so materialize it here. Without
+    # this the filter engines would silently build with no defaults at all.
+    my $import = $config->import_config();
+    my $ini = pf::IniFiles->new(
+        %{ $config->{added_params} // {} },
+        ( defined $import ? ( -import => $import ) : () ),
+        -file => $file, -allowempty => 1, -envsubst => 1,
+    );
     unless ($ini) {
         my $error_msg = join("\n", @pf::IniFiles::errors, "");
         get_logger->error($error_msg);

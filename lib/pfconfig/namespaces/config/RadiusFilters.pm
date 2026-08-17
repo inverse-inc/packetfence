@@ -27,8 +27,7 @@ sub init {
     $self->{file} = $radius_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::RadiusScopes'];
 
-    my $defaults = pf::IniFiles->new( -file => $radius_filters_config_default_file, -envsubst => 1 );
-    $self->{added_params}->{'-import'} = $defaults;
+    $self->{import_file} = $radius_filters_config_default_file;
 }
 
 sub build_child {

@@ -28,7 +28,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 24;
 use Test::NoWarnings;
 
 use_ok("pfconfig::namespaces::resource::network_config");
@@ -68,7 +68,9 @@ construction, which is what leaked per reload.
 use_ok("pfconfig::namespaces::config::Report");
 use_ok("pfconfig::namespaces::config::Cron");
 
-for my $case (["config::Report", "Report"], ["config::Cron", "Cron"]) {
+use_ok("pfconfig::namespaces::config::TLS");
+
+for my $case (["config::Report", "Report"], ["config::Cron", "Cron"], ["config::TLS", "TLS"]) {
     my ($label, $short) = @$case;
     my $ns = "pfconfig::namespaces::config::$short"->new($cache);
 
@@ -78,6 +80,63 @@ for my $case (["config::Report", "Report"], ["config::Cron", "Cron"]) {
         "$label init() does not build the -import IniFiles"
     );
     isa_ok($ns->import_config(), "pf::IniFiles", "$label import_config() builds it on demand");
+}
+
+# import_params has to reach the IniFiles, or a namespace whose defaults rely on a
+# -default section silently loses it
+is_deeply(
+    pfconfig::namespaces::config::TLS->new($cache)->{import_params},
+    { -default => 'tls-common' },
+    "config::TLS carries its -default through import_params"
+);
+
+# Source-level guard: no config namespace may go back to building -import in
+# init(). Cheaper and more complete than constructing all of them, several of
+# which need a live cache.
+{
+    my @offenders;
+    for my $file (glob "/usr/local/pf/lib/pfconfig/namespaces/config/*.pm") {
+        open my $fh, '<', $file or next;
+        my $src = do { local $/; <$fh> };
+        close $fh;
+        next unless $src =~ /\nsub init\b.*?\n}/s;
+        my $init = $&;
+        push @offenders, ($file =~ m{([^/]+)$})[0]
+            if $init =~ /added_params.*?-import/s;
+    }
+    is_deeply(\@offenders, [],
+        "no config namespace builds its -import inside init()");
+}
+
+=head2 AccessScopes must materialize the parent's import itself
+
+AccessScopes::build calls $config->init and then builds its own pf::IniFiles from
+$config->{added_params}. Now that the parent only declares import_file, build has
+to call import_config or the filter engines silently come up with no defaults --
+on a stock install that empties DNS_Scopes and VlanScopes outright.
+
+=cut
+
+use_ok("pfconfig::namespaces::FilterEngine::DNS_Scopes");
+{
+    my @captured;
+    my $real_new = \&pf::IniFiles::new;
+    {
+        no warnings 'redefine';
+        *pf::IniFiles::new = sub { push @captured, {@_[1 .. $#_]}; return $real_new->(@_) };
+    }
+
+    pfconfig::namespaces::FilterEngine::DNS_Scopes->new($cache)->build();
+
+    {
+        no warnings 'redefine';
+        *pf::IniFiles::new = $real_new;
+    }
+
+    my ($main) = grep { ($_->{-allowempty} // 0) && $_->{-file} } @captured;
+    ok($main, "AccessScopes built an IniFiles for the filter file");
+    isa_ok($main->{-import}, "pf::IniFiles",
+        "AccessScopes passed the parent's defaults as -import");
 }
 
 =head1 AUTHOR

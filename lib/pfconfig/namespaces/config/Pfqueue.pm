@@ -39,8 +39,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $pfqueue_config_file;
-    my $defaults = pf::IniFiles->new(-file => $pfqueue_default_config_file, -envsubst => 1);
-    $self->{added_params}{'-import'} = $defaults;
+    $self->{import_file} = $pfqueue_default_config_file;
 }
 
 sub build_child {

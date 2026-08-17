@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}            = $realm_config_file;
-    $self->{added_params}{'-import'} = pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1);
+    $self->{import_file} = $realm_default_config_file;
 }
 
 

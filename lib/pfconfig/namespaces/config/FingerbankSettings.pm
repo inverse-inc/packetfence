@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::IniFiles;
 use pf::log;
 use pf::file_paths qw($fingerbank_config_file $fingerbank_default_config_file);
 
@@ -25,8 +24,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $fingerbank_config_file;
-    my $defaults = pf::IniFiles->new(-file => $fingerbank_default_config_file, -envsubst => 1);
-    $self->{added_params}{'-import'} = $defaults;
+    $self->{import_file} = $fingerbank_default_config_file;
 }
 
 sub build_child {

@@ -32,8 +32,8 @@ sub init {
         'resource::eap_config'
     ];
 
-    my $defaults = pf::IniFiles->new( -file => $fast_default_config_file, -default => 'default', -envsubst => 1 );
-    $self->{added_params}->{'-import'} = $defaults;
+    $self->{import_file} = $fast_default_config_file;
+    $self->{import_params} = { -default => 'default' };
 }
 
 sub build_child {

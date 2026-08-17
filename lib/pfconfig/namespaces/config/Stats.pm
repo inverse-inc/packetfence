@@ -30,8 +30,7 @@ sub init {
 
     $self->{file} = $stats_config_file;
     
-    my $defaults = pf::IniFiles->new( -file => $stats_config_default_file, -envsubst => 1 );
-    $self->{added_params}->{'-import'} = $defaults;
+    $self->{import_file} = $stats_config_default_file;
 }
 
 sub build_child {
