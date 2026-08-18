@@ -87,8 +87,8 @@ jobs:
 
       - name: Check if the key was imported ${{ inputs._IMAGE_TYPE }}
         run: |
-          rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary}\n'
-          gpg --list-keys
+          gpg --batch --list-secret-keys --keyid-format LONG support@inverse.ca
+          gpg --batch --with-colons --list-secret-keys support@inverse.ca | grep -q '^sec:'
 
       - name: Sign the package ${{ inputs._IMAGE_TYPE }}
         run: rpm --define "_gpg_name support@inverse.ca" --define '_signature gpg' --addsign  /mnt/${{ inputs._PACKAGE_NAME }}*.rpm
