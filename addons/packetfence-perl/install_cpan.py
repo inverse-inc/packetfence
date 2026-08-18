@@ -76,7 +76,7 @@ def install_perl_module(dict_data):
     print(f"Installing perl module: {dict_data['ModName']} \n" )
     with open(file_log, 'w') as f:
         try:
-            process = subprocess.run(command,stdout=f,stderr=f,text=True, timeout=720)
+            process = subprocess.run(command,stdout=f,stderr=f,text=True, timeout=1440)
         except subprocess.TimeoutExpired as e:
             print('Error, timeout expired: ', e)
             return 2, file_name
