@@ -795,6 +795,8 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 
 // SCEP Verify
 func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
+	log.LoggerWContext(c.Ctx).Info("SCEP request for device " + m.CSR.Subject.CommonName)
+
 	prof, _ := c.GetProfileByName(c.SCEPAssociateProfile)
 
 	if prof.CloudEnabled == 1 {
