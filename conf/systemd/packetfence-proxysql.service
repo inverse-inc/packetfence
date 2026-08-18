@@ -9,14 +9,14 @@ Type=notify
 NotifyAccess=all
 ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh
 ExecStartPre=/bin/rm -f /usr/local/pf/var/run/proxysql/proxysql.pid
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::proxysql' -e 'pf::services::manager::proxysql->new()->generateConfig()'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::proxysql' -e 'pf::services::manager::proxysql->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
 ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped"
 TimeoutStopSec=60
 Restart=on-failure
 # iptables rules
-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("REMOVE")'
+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("add")'
+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence-cluster.target

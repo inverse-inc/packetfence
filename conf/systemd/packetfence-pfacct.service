@@ -10,15 +10,15 @@ Type=notify
 TimeoutStopSec=60
 NotifyAccess=all
 Environment=LOG_LEVEL=INFO
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfacct' -e 'pf::services::manager::pfacct->new()->generateConfig()'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfacct' -e 'pf::services::manager::pfacct->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfacct-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfacct ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/pfacct-systemd-notify.pid
 # iptables rules
-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("REMOVE")'
+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("add")'
+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfacct_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence.target
