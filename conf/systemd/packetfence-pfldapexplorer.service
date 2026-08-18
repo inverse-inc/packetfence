@@ -11,7 +11,7 @@ TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=8192
 Environment=LOG_LEVEL=INFO
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfldapexplorer' -e 'pf::services::manager::pfldapexplorer->new()->generateConfig()'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfldapexplorer' -e 'pf::services::manager::pfldapexplorer->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfldapexplorer-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfldapexplorer; echo Stopped"
 Restart=on-failure
