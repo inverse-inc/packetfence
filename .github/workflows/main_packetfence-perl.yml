@@ -92,6 +92,7 @@ jobs:
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
       _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
+    secrets: inherit
 
   sign_package:
     strategy:
