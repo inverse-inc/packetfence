@@ -489,7 +489,7 @@ radiusd=enabled
 # services.radiusd_binary
 #
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
-radiusd_binary=/usr/sbin/radiusd
+radiusd_binary=/usr/sbin/freeradius
 #
 # services.radiusd_acct
 #
@@ -554,7 +554,7 @@ httpd_aaa=enabled
 # services.httpd_binary
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
-httpd_binary=/usr/sbin/httpd
+httpd_binary=/usr/sbin/apache2
 #
 # services.snmptrapd
 #
@@ -678,7 +678,7 @@ openssl_binary=/usr/bin/openssl
 # services.arp_binary
 #
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
-arp_binary=/sbin/arp
+arp_binary=/usr/sbin/arp
 #
 # services.netdata
 #

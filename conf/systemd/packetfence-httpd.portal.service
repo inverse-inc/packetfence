@@ -9,7 +9,7 @@ Type=notify
 NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/httpd.portal-docker-wrapper
 ExecStop=/bin/bash -c "docker stop httpd.portal ; echo Stopped"
 TimeoutStopSec=60
@@ -17,8 +17,8 @@ Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
 # iptables rules
-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_portal_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_portal_rules("REMOVE")'
+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_portal_rules("add")'
+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_httpd_portal_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence.target
