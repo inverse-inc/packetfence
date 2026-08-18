@@ -10,14 +10,14 @@ StartLimitInterval=10
 Type=forking
 KillMode=process
 ExecStartPre=/bin/rm -f /usr/local/pf/var/run/keepalived.pid
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
 ExecStart=/usr/sbin/keepalived -f /usr/local/pf/var/conf/keepalived.conf --pid=/usr/local/pf/var/run/keepalived.pid
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 Slice=packetfence.slice
 # iptables rules
-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_keepalived_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_keepalived_rules("REMOVE")'
+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_keepalived_rules("add")'
+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_keepalived_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence.target

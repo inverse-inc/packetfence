@@ -12,15 +12,15 @@ Environment=LOG_LEVEL=INFO
 # Set to 1/true for localhost:6060, or an explicit host:port. After changing,
 # run `systemctl daemon-reload` and restart the service.
 #Environment=CHISEL_PPROF=localhost:6060
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfconnector-server-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-server ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/pfconnector-server-systemd-notify.pid
 # iptables rules
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfconnector_server_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfconnector_server_rules("REMOVE")'
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfconnector_server_rules("add")'
+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfconnector_server_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence.target
