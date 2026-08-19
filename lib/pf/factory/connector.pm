@@ -96,7 +96,8 @@ sub resolve {
             $ip = $ip.".";
         }
         my ($resolved_ips, $error) = resolve_dns_with_custom_resolver($ip, $Config{pfdns_connector}{pfdns_connector_server});
-        if (!@{$resolved_ips}) {
+        if ($error || !defined($resolved_ips) || !@{$resolved_ips}) {
+            get_logger->error("Unable to resolve $fqdn through pfdns-connector: " . ($error // "no A records returned"));
             return undef; # No valid IPs resolved
         }
         # If we have multiple IPs, we take the first one
