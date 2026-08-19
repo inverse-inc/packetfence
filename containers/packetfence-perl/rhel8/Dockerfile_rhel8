@@ -61,9 +61,15 @@ RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DE
 # allow to downgrade installed modules automatically
 # assertion at end of script will check everything is expected
     set -o nounset -o errexit && (echo o conf allow_installing_module_downgrades 'yes'; echo o conf commit)|${CPAN_BIN_PATH} && \
-# use cpan.metacpan.org to get outdated modules
+# cpan.metacpan.org stays first: it keeps superseded releases, which the pinned
+# versions in dependencies.csv need. www.cpan.org and cpan.cpantesters.org are
+# fallbacks for when the primary indexes a release whose tarball it does not
+# serve; URI-5.36 404'd there and took the whole Catalyst stack down with it.
 # disable pushy_https
-    set -o nounset -o errexit &&  (echo o conf urllist 'https://cpan.metacpan.org'; echo o conf commit)|${CPAN_BIN_PATH} && \
+    set -o nounset -o errexit &&  (echo o conf urllist 'https://cpan.metacpan.org'; \
+        echo o conf urllist push 'https://www.cpan.org'; \
+        echo o conf urllist push 'http://cpan.cpantesters.org'; \
+        echo o conf commit)|${CPAN_BIN_PATH} && \
     set -o nounset -o errexit &&  (echo o conf pushy_https '0'; echo o conf commit)|${CPAN_BIN_PATH} && \
 #limit the cache to 100mb
     set -o nounset -o errexit &&  (echo o conf build_cache 100; echo o conf commit)|${CPAN_BIN_PATH} 
