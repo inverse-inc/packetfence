@@ -413,6 +413,14 @@ yup.addMethod(yup.string, 'isFQDN', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isLowerCase', function (message) {
+  return this.test({
+    name: 'isLowerCase',
+    message: message || i18n.t('Must be lower case.'),
+    test: value => ['', null, undefined].includes(value) || value === value.toLowerCase()
+  })
+})
+
 export const isHex = (value, length = 16) => {
   return `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === length
 }
