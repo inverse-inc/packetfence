@@ -36,6 +36,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Captive portal theming — per-connection-profile `theme.css` support and refreshed default styling (#9071)
   - Record the node computername directly from DHCP server traffic (#9124)
   - SQL query tagging — all MySQL queries from Perl and Go services carry a `/* pf:<service>[:<unit>] */` comment for ProxySQL routing and troubleshooting (#9097)
+  - Files uploaded through the admin UI (PathUpload fields) are now synced to git storage (#9213)
 
 === Enhancements
 
@@ -49,6 +50,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Removed the SCEP PKI provider (#9051)
   - Update Go to 1.26.4 (#9083)
   - Bump Fingerbank package to 4.3.4 (#9104)
+  - Faster admin login — only authentication sources that define admin rules are queried, while match-time rule sources are still evaluated (#9215, #9218)
+  - New pfcron task switch_observability_acls_cleanup to purge old switch observability ACL entries (#9196)
+  - pfconnector: chisel pprof profiling can be enabled with the CHISEL_PPROF environment variable (#9210)
+  - pfpki: SCEP requests are logged with the device CN in CA.Verify
 
 === Bug Fixes
 
@@ -68,6 +73,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfconnector-remote: remove the legacy fingerbank-collector on install/upgrade and restart Docker so the bridge picks up its address
   - pfacct: use webservices.aaa_host for the AAA client instead of the generic host
   - DHCP processor: fix the firewall SSO refresh gate and the Fingerbank DHCPv6 signature
+  - IPv6 firewall rules are now actually applied — ip6tables rules are generated at monitor startup to close an inotify race, with CI validation (#9183)
+  - pfcron: stop the panic when the management network is empty and self-heal on boot (#9181)
+  - pfconnector: stop leaking UDP exit-node connections in the chisel tunnel (#9211)
+  - RADIUS: fail the request when the node cannot be read from the database instead of fabricating an unregistered node (#9214)
+  - httpd.aaa: fix a Fingerbank config memory leak and make mod_perl child recycling effective (#9217)
+  - Fingerbank: restore the rate-limited query cache and fix cache hygiene (#9216)
+  - Non-SQL (abstract) reports work again through the v1.1 report API — searching one returned a 400; those requests are now proxied to the Perl dynamic_report endpoint (#9207)
 
 === Security Fixes
 
@@ -75,6 +87,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Replace shell command execution with safe_pf_run to prevent command injection (#9094)
   - Drop CBC/LUCKY13 ciphers on haproxy and apache listeners (#9052, #9162)
   - Improve the randomness of secrets generated at package installation
+  - Escape user input in LDAP filters to prevent LDAP injection (#9119)
+  - Restrict Sereal deserialization (THAW) to an allow-list of classes (#9155)
 
 == Version 15.1.0 released on 2026-05-20
 
