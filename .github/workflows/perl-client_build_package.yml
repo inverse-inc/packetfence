@@ -35,7 +35,7 @@ jobs:
             exit 0
           fi
           echo "Root-owned leftovers in the workspace, e.g. $stray"
-          docker run --rm -v "$RUNNER_WORKSPACE:/w" alpine:3 chown -R "$(id -u):$(id -g)" /w \
+          docker run --rm -v "$RUNNER_WORKSPACE:/w" alpine:3 chown -hR "$(id -u):$(id -g)" /w \
             || echo "::warning title=Runner workspace ownership::Could not reclaim $RUNNER_WORKSPACE; the checkout below may fail with EACCES."
 
       - name: Checkout repository
