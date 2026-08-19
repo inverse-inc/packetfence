@@ -108,6 +108,65 @@ func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
 	r.POST("/api/v1.1/report/:id/search", a.SearchItem)
 }
 
+const (
+	reportPathPrefix        = "/api/v1.1/report/"
+	dynamicReportPathPrefix = "/api/v1/dynamic_report/"
+	reportSearchAction      = "search"
+	reportTypeSql           = "sql"
+)
+
+// rewriteNonSqlReportRequest rewrites the path of a v1.1 report request to its
+// perl API equivalent /api/v1/dynamic_report/... when the report is not a sql
+// report. Non sql (abstract) reports are not supported here, both their search
+// and their options are still handled by the perl API.
+// It returns true when the request was rewritten and must be handed over to the
+// next handler, which reverse proxies /api/v1/* to the perl API.
+func rewriteNonSqlReportRequest(r *http.Request) bool {
+	id := reportIdForPerlApi(r.Method, r.URL.Path)
+	if len(id) == 0 {
+		return false
+	}
+	reports, err := getReports(r)
+	if err != nil {
+		return false
+	}
+	report, ok := reports[id]
+	if !ok || report.Type == reportTypeSql {
+		return false
+	}
+	r.URL.Path = dynamicReportPathPrefix + strings.TrimPrefix(r.URL.Path, reportPathPrefix)
+	r.URL.RawPath = "" // let the url escape the path for us
+	r.RequestURI = r.URL.RequestURI()
+	return true
+}
+
+// reportIdForPerlApi returns the report id of a v1.1 report request the perl
+// API can handle: POST /api/v1.1/report/:id/search and
+// OPTIONS /api/v1.1/report/:id. It returns an empty string for any other request
+func reportIdForPerlApi(method, path string) string {
+	rest, ok := strings.CutPrefix(path, reportPathPrefix)
+	if !ok {
+		return ""
+	}
+	id, action, _ := strings.Cut(rest, "/")
+	if len(id) == 0 {
+		return ""
+	}
+	switch method {
+	case http.MethodPost:
+		if action != reportSearchAction {
+			return ""
+		}
+	case http.MethodOptions:
+		if len(action) != 0 {
+			return ""
+		}
+	default:
+		return ""
+	}
+	return id
+}
+
 func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var body ApiBody
 	reports, err := getReports(r)
@@ -154,7 +213,8 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 	defer r.Body.Close()
-	if inReport.Type != "sql" {
+	if inReport.Type != reportTypeSql {
+		// Should not happen, non sql reports are proxied to the perl API, see rewriteNonSqlReportSearch
 		body.QuickError(w, http.StatusBadRequest, "abstract report are deprecated, only sql reports are supported")
 		return
 	}
