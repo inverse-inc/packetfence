@@ -83,6 +83,25 @@ lives in `/home/github_runner/actions-runner` and its service runs as
 Runners for the `packetfence-perl-package-build` and `package-build` labels are
 the ones that run container jobs today.
 
+## Bootstrapping a runner that is already broken
+
+The hook only runs after a job, so a workspace that is *already* root-owned
+stays broken until something with root touches it -- and the job that would fix
+it cannot even check out. Step 4 above is the direct answer, but the host may
+not be reachable when the builds are red.
+
+For that case every job that checks out on the host (`build_preparation`,
+`build_image`, `git_checkout`) starts with a `Reclaim workspace ownership` step
+that borrows root from a container -- the runner user is in the `docker` group,
+so it needs no sudo -- and chowns `$RUNNER_WORKSPACE` back before
+`actions/checkout` runs. It probes first and skips the container entirely when
+the workspace is already clean, so the cost on a healthy runner is one `find`.
+
+Workflow files are read from the branch being built, so that self-heal only
+covers branches carrying these steps: a red `devel` needs the fix merged, or
+step 4 run by hand. Once the hook is installed on every runner the steps are
+redundant and can go.
+
 ## Verify
 
 The tail of any job log on that runner should show the hook:
