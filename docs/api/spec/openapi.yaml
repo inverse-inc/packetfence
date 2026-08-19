@@ -3660,7 +3660,8 @@ components:
         virtual_router_id:
           description: The virtual router id for keepalive. Leave untouched unless
             you have another keepalive cluster in this network. Must be between 1
-            and 255.
+            and 255. In a multi-zone (layer 3) cluster, this can be overridden per
+            zone by setting virtual_router_id in the zone's CLUSTER section of cluster.conf.
           type: string
         vrrp_unicast:
           description: Enable keepalived in unicast mode instead of multicast
@@ -4581,11 +4582,12 @@ components:
             for more details. Applying this requires a restart of radiusd.
           type: string
         pfacct_aaa_notify_queue_size:
-          description: radius_configuration.pfacct_aaa_notify_queue_size
-          type: string
+          description: The size of the queue for each AAA notification worker.
+          type: integer
         pfacct_aaa_notify_workers:
-          description: radius_configuration.pfacct_aaa_notify_workers
-          type: string
+          description: The number of workers forwarding accounting notifications to
+            httpd.aaa. If zero it will be twice the number of CPUs.
+          type: integer
         pfacct_rate_limit:
           description: Enable the rate limiting on pfacct to prevent hammering httpd.aaa
           type: string
@@ -4594,8 +4596,12 @@ components:
             in minutes represent the time of the accounting cache
           type: integer
         pfacct_socket_recv_buffer:
-          description: radius_configuration.pfacct_socket_recv_buffer
-          type: string
+          description: Size in bytes of the UDP receive buffer (SO_RCVBUF) requested
+            by pfacct on its accounting socket. Larger values absorb bursts from busy
+            switches and avoid kernel packet drops (visible as <i>receive buffer errors</i>
+            in netstat -su). The kernel caps the effective value at net.core.rmem_max.
+            Zero leaves the OS default in place.
+          type: integer
         pfacct_work_queue_size:
           description: The size of the queue for each worker.
           type: integer
@@ -10380,6 +10386,7 @@ components:
           security_event_maintenance: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
           security_event_purge: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventPurge'
           switch_cache_lldpLocalPort_description: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
+          switch_observability_acls_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchObservabilityAclsCleanup'
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
@@ -10412,6 +10419,7 @@ components:
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventPurge'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchObservabilityAclsCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
     ConfigMaintenanceTaskMeta:
       discriminator:
@@ -10445,6 +10453,7 @@ components:
           security_event_maintenance: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
           security_event_purge: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
           switch_cache_lldpLocalPort_description: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
+          switch_observability_acls_cleanup: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchObservabilityAclsCleanup'
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
@@ -10477,6 +10486,7 @@ components:
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchObservabilityAclsCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp'
     ConfigMaintenanceTaskMetaSubTypeAcctCleanup:
       properties:
@@ -11033,6 +11043,24 @@ components:
             schedule:
               $ref: '#/components/schemas/Meta'
             status:
+              $ref: '#/components/schemas/Meta'
+            type:
+              $ref: '#/components/schemas/Meta'
+          type: object
+      type: object
+    ConfigMaintenanceTaskMetaSubTypeSwitchObservabilityAclsCleanup:
+      properties:
+        meta:
+          properties:
+            batch:
+              $ref: '#/components/schemas/Meta'
+            id:
+              $ref: '#/components/schemas/Meta'
+            schedule:
+              $ref: '#/components/schemas/Meta'
+            status:
+              $ref: '#/components/schemas/Meta'
+            timeout:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -12196,6 +12224,41 @@ components:
         type:
           default: switch_cache_lldpLocalPort_description
           description: Discriminator `switch_cache_lldpLocalPort_description`
+          type: string
+      required:
+      - id
+      - type
+      type: object
+    ConfigMaintenanceTaskSubTypeSwitchObservabilityAclsCleanup:
+      properties:
+        batch:
+          description: Amount of items that will be processed in each batch of this
+            task. Batches are executed until there is no more items to process or
+            until the timeout is reached.
+          type: integer
+        id:
+          description: Pfcron Name
+          type: string
+        schedule:
+          description: The schedule for maintenance task (cron like spec).
+          type: string
+        status:
+          description: Whether or not this task is enabled.<br>Requires a restart
+            of pfcron to be effective.
+          type: string
+        timeout:
+          description: Maximum amount of time this task can run.
+          properties:
+            interval:
+              description: Interval
+              type: integer
+            unit:
+              description: Unit
+              type: string
+          type: object
+        type:
+          default: switch_observability_acls_cleanup
+          description: Discriminator `switch_observability_acls_cleanup`
           type: string
       required:
       - id
@@ -32943,6 +33006,7 @@ paths:
           - process_name
           - profile
           - source
+          - source_type
           - status
           items:
             enum:
@@ -32954,6 +33018,7 @@ paths:
             - process_name
             - profile
             - source
+            - source_type
             - status
             type: string
           type: array
@@ -32985,6 +33050,8 @@ paths:
             - profile DESC
             - source ASC
             - source DESC
+            - source_type ASC
+            - source_type DESC
             - status ASC
             - status DESC
             type: string
@@ -33051,6 +33118,7 @@ paths:
               - process_name
               - profile
               - source
+              - source_type
               - status
               limit: 25
               query:
@@ -33082,6 +33150,9 @@ paths:
                   - field: source
                     op: contains
                     value: foo
+                  - field: source_type
+                    op: contains
+                    value: foo
                   - field: status
                     op: contains
                     value: foo
@@ -33104,6 +33175,7 @@ paths:
                       - process_name
                       - profile
                       - source
+                      - source_type
                       - status
                       type: string
                     type: array
@@ -33130,6 +33202,8 @@ paths:
                       - profile DESC
                       - source ASC
                       - source DESC
+                      - source_type ASC
+                      - source_type DESC
                       - status ASC
                       - status DESC
                       type: string
@@ -41985,6 +42059,7 @@ paths:
           - security_event_maintenance
           - security_event_purge
           - switch_cache_lldpLocalPort_description
+          - switch_observability_acls_cleanup
           - ubiquiti_ap_mac_to_ip
           type: string
       responses:
@@ -42040,6 +42115,7 @@ paths:
           - security_event_maintenance
           - security_event_purge
           - switch_cache_lldpLocalPort_description
+          - switch_observability_acls_cleanup
           - ubiquiti_ap_mac_to_ip
           type: string
       responses:
@@ -42094,6 +42170,7 @@ paths:
           - security_event_maintenance
           - security_event_purge
           - switch_cache_lldpLocalPort_description
+          - switch_observability_acls_cleanup
           - ubiquiti_ap_mac_to_ip
           type: string
       responses:
@@ -42148,6 +42225,7 @@ paths:
           - security_event_maintenance
           - security_event_purge
           - switch_cache_lldpLocalPort_description
+          - switch_observability_acls_cleanup
           - ubiquiti_ap_mac_to_ip
           type: string
       requestBody:
@@ -42207,6 +42285,7 @@ paths:
           - security_event_maintenance
           - security_event_purge
           - switch_cache_lldpLocalPort_description
+          - switch_observability_acls_cleanup
           - ubiquiti_ap_mac_to_ip
           type: string
       requestBody:
