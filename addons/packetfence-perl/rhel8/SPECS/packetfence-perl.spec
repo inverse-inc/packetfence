@@ -39,6 +39,8 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
   Picks up the decoder fix for pending frozen-object state (thaw_av and
   ref_thawhash) not being reset between decodes, which segfaulted pfconfig
   when decoding namespaces containing FREEZE'd objects. Sereal PR #316.
+- Pin the Sereal umbrella distribution to 5.010 so that Data::Serializer::Sereal
+  cannot pull an unpinned, newer Sereal::Encoder/Decoder as a prerequisite.
 
 * Tue Jul 4 2024 Inverse <info@inverse.ca> 1.2.4-1
 - Upgrade Template-Toolkit 3.009  -> 3.010

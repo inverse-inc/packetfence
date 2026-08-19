@@ -34,7 +34,7 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
 RUN dnf install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
-    perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo && \ 
+    perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo git && \ 
     dnf group install -y "Development Tools"
 
 RUN subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms && \

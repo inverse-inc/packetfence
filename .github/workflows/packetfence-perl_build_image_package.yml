@@ -90,16 +90,26 @@ jobs:
       credentials:
         username: ${{ vars.USER_GITHUB }}
         password: ${{ secrets.TOKEN_GITHUB }}
-      volumes:
-        - ${{ github.workspace }}/addons/packetfence-perl/:${{ inputs._WORKDIR  }}
-    steps:     
+    steps:
+      # This job must check out on its own: it shares the 'packetfence-perl-package-build'
+      # label with build_image, so it can land on a different runner whose workspace still
+      # holds an older revision.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build package ${{inputs._IMAGE_TYPE}}
+        working-directory: ${{ github.workspace }}/addons/packetfence-perl
         run: |
-          cd /root
-          set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
+          set -e && python3 install_cpan.py -df dependencies.csv -vi true && ./build_package.sh
           ls -la ${{ inputs._OUTPUT_DIRECTORY }}
           ls -la ${{ inputs._OUTPUT_DIRECTORY }}/${{env.PATH_PACKAGE}}/packages/
         env:
+          # cpan reads its config from $HOME/.cpan/CPAN/MyConfig.pm; the runner forces
+          # HOME=/github/home, which hides the policy baked into the image (INSTALL_BASE,
+          # allow_installing_module_downgrades, allow_installing_outdated_dists, urllist).
+          HOME: /root
+          # build_package.sh honours ${WORKDIR:-/root} to locate debian/ and rhel8/.
+          WORKDIR: ${{ github.workspace }}/addons/packetfence-perl
           PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
