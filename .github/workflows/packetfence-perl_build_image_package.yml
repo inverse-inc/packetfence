@@ -122,3 +122,13 @@ jobs:
           PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || inputs._IMAGE_TYPE == 'debian11' && 'packetfence-perl*.deb' || inputs._IMAGE_TYPE == 'debian12' && 'packetfence-perl*.deb' }}
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
           PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
+
+      # Every step above ran as root inside the container while $GITHUB_WORKSPACE is a
+      # bind mount of the runner's own workspace, so checkout's .git and the build
+      # products under addons/packetfence-perl are left owned by root. The next job to
+      # land on this runner checks out as the runner user and cannot clean them:
+      # EACCES: permission denied, unlink '.../.git/logs/refs/heads/<branch>'.
+      # $RUNNER_TEMP is created by the runner process, so it carries the right owner.
+      - name: Give the workspace back to the runner user
+        if: always()
+        run: chown -R "$(stat -c '%u:%g' "$RUNNER_TEMP")" "$GITHUB_WORKSPACE"
