@@ -10,26 +10,21 @@ on:
         type: string
 
 jobs:
-  unit-test:
+  unit-test-rhel:
+    name: unit-test
+    if: inputs._IMAGE_TYPE == 'rhel8'
     runs-on: packetfence-perl-package-build
     container:
-      # Debian paths use the pre-baked signing-packages image (gnupg, sudo, wget,
-      # curl baked in). RHEL keeps redhat/ubi8:8.8 because it only yum-localinstalls.
-      image: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || 'ghcr.io/inverse-inc/packetfence/signing-packages:latest' }}
-      credentials:
-        username: ${{ vars.USER_GITHUB }}
-        password: ${{ secrets.TOKEN_GITHUB }}
+      # UBI is public on Docker Hub, so no registry credentials are required.
+      image: redhat/ubi8:8.8
     steps:
-      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
+      - name: Download artifactory rhel8
         uses: actions/download-artifact@v4.1.7
         with:
-          name: ${{ env.ARTIFACTORY_NAME }}
+          name: package-rpm8
           path:  /mnt
-        env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
 
-      - name: Install the package ${{ inputs._PACKAGE_NAME}} rhel8
-        if: inputs._IMAGE_TYPE == 'rhel8'
+      - name: Install the package ${{ inputs._PACKAGE_NAME }} rhel8
         run: |
           ls -la /mnt
           PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
@@ -40,8 +35,26 @@ jobs:
           echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
           rpm -qa | grep ${{ inputs._PACKAGE_NAME }}
 
-      - name: Install the package ${{ inputs._PACKAGE_NAME}} debian
-        if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12'
+  unit-test-debian:
+    name: unit-test
+    if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12'
+    runs-on: packetfence-perl-package-build
+    container:
+      # The Debian package test uses the private, pre-baked signing image.
+      image: ghcr.io/inverse-inc/packetfence/signing-packages:latest
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+    steps:
+      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path: /mnt
+        env:
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || 'package-deb12' }}
+
+      - name: Install the package ${{ inputs._PACKAGE_NAME }} debian
         run: |
           ls -la /mnt
           PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
