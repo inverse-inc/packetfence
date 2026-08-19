@@ -109,6 +109,7 @@ LWP::Protocol::https,6.10,OALDERS/LWP-Protocol-https-6.10.tar.gz,True,O/OA/OALDE
 Rose::DB,0.783,JSIRACUSA/Rose-DB-0.783.tar.gz,True,J/JS/JSIRACUSA/Rose-DB-0.783.tar.gz,4
 IPTables::Parse,1.6,MRASH/IPTables-Parse-1.6.tar.gz,True,M/MR/MRASH/IPTables-Parse-1.6.tar.gz,4
 Sereal::Encoder,5.010,YVES/Sereal-Encoder-5.010.tar.gz,True,Y/YV/YVES/Sereal-Encoder-5.010.tar.gz,4
+Sereal,5.010,YVES/Sereal-5.010.tar.gz,True,Y/YV/YVES/Sereal-5.010.tar.gz,4
 ExtUtils::CppGuess,0.23,ETJ/ExtUtils-CppGuess-0.23.tar.gz,True,E/ET/ETJ/ExtUtils-CppGuess-0.23.tar.gz,4
 Crypt::OpenSSL::RSA,0.33,TODDR/Crypt-OpenSSL-RSA-0.33.tar.gz,True,T/TO/TODDR/Crypt-OpenSSL-RSA-0.33.tar.gz,4
 Text::CSV,2.01,ISHIGAKI/Text-CSV-2.01.tar.gz,True,I/IS/ISHIGAKI/Text-CSV-2.01.tar.gz,4

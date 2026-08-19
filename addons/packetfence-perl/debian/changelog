@@ -5,6 +5,8 @@ packetfence-perl (1.2.6) unstable; urgency=medium
     Picks up the decoder fix for pending frozen-object state (thaw_av and
     ref_thawhash) not being reset between decodes, which segfaulted pfconfig
     when decoding namespaces containing FREEZE'd objects. Sereal PR #316.
+  * Pin the Sereal umbrella distribution to 5.010 so that Data::Serializer::Sereal
+    cannot pull an unpinned, newer Sereal::Encoder/Decoder as a prerequisite.
 
  -- Inverse <info@inverse.ca>  Mon, 17 Aug 2026 17:35:00 +0000
 

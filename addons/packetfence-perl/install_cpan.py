@@ -209,7 +209,7 @@ if __name__ == '__main__':
     number_exec = args.max_workers
     validate_perl_module = args.validate_perl_module
 
-    modules_without_version=("Net::Radius" "libwww::perl" "Module::Loaded")
+    modules_without_version=("Net::Radius", "libwww::perl", "Module::Loaded")
     list_of_depdencies = convert_csv(csv_filename)
     original_list_of_depdencies = list_of_depdencies
     logs_directory = manage_directory(os.environ.get('OUTPUT_DIRECTORY', '/mnt/output'))
