@@ -62,6 +62,7 @@ has_field 'ad_fqdn' =>
    label => 'Active Directory server',
    required => 1,
    messages => { required => 'Please specify the FQDN of the Active Directory server' },
+   apply => [ { check => qr/^[^A-Z]*$/, message => 'FQDN must be lower case.' } ],
    tags => { after_element => \&help,
              help => 'The FQDN of the Active Directory server' },
   );
@@ -140,6 +141,7 @@ has_field 'dns_name' =>
    label => 'DNS name of the domain',
    required => 1,
    messages => { required => 'Please specify the DNS name of the domain' },
+   apply => [ { check => qr/^[^A-Z]*$/, message => 'DNS name must be lower case.' } ],
    tags => { after_element => \&help,
              help => 'The DNS name (FQDN) of the domain.' },
   );
