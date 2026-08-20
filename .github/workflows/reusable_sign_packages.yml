@@ -18,7 +18,7 @@ on:
 
 jobs:
   sign_package_deb:
-    if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12'
+    if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12' || inputs._IMAGE_TYPE == 'debian13'
     runs-on: packetfence-perl-package-build
     container:
       # gpg, dpkg-sig, python3, pynacl, requests are pre-baked.
@@ -35,7 +35,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
 
       - name: Import private key ${{ inputs._IMAGE_TYPE }}
         run: | 
@@ -57,7 +57,7 @@ jobs:
           overwrite: true
         env:
           PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&   env.RPM_FORMAT_PACKAGE_NAME || env.DEB_FORMAT_PACKAGE_NAME }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
           DEB_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
           RPM_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.rpm"
 
@@ -79,7 +79,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path: /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
 
       - name: Import private key ${{ inputs._IMAGE_TYPE }}
         run: |
@@ -107,6 +107,6 @@ jobs:
           overwrite: true
         env:
           PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&   env.RPM_FORMAT_PACKAGE_NAME || env.DEB_FORMAT_PACKAGE_NAME }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
           DEB_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
           RPM_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.rpm"

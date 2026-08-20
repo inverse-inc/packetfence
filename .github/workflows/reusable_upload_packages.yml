@@ -36,7 +36,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
 
       - name: Upload the package to web server
         shell: bash

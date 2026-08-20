@@ -65,3 +65,38 @@ jobs:
           set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec bash -c 'apt install -f -y {}' \;
           echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
           dpkg -l | grep ${{ inputs._PACKAGE_NAME }}
+
+  unit-test-debian13:
+    name: unit-test
+    if: inputs._IMAGE_TYPE == 'debian13'
+    runs-on: packetfence-perl-package-build
+    container:
+      # A trixie .deb has to be installed on trixie: signing-packages is still
+      # debian:bookworm, so the job above cannot validate Debian 13 packages.
+      # The stock Debian image is public, so no registry credentials are needed.
+      image: debian:13
+    steps:
+      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: package-deb13
+          path: /mnt
+
+      - name: Install the package ${{ inputs._PACKAGE_NAME }} debian
+        run: |
+          ls -la /mnt
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates curl gnupg
+          PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
+          PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
+          # apt-key is gone in trixie; use a signed-by keyring, the way the
+          # pfbuild-trixie and pfdebian-trixie images do.
+          install -d -m 0755 /etc/apt/keyrings
+          curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY \
+            | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} trixie trixie" \
+            > /etc/apt/sources.list.d/packetfence.list
+          apt-get update
+          set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec bash -c 'apt-get install -f -y {}' \;
+          echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
+          dpkg -l | grep ${{ inputs._PACKAGE_NAME }}
