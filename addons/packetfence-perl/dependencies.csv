@@ -19,7 +19,7 @@ MRO::Compat,0.13,HAARG/MRO-Compat-0.13.tar.gz,True,H/HA/HAARG/MRO-Compat-0.13.ta
 Time::Piece,1.3401,ESAYM/Time-Piece-1.3401.tar.gz,True,E/ES/ESAYM/Time-Piece-1.3401.tar.gz,14
 Params::Validate,1.30,DROLSKY/Params-Validate-1.30.tar.gz,True,D/DR/DROLSKY/Params-Validate-1.30.tar.gz,12
 Sub::Name,0.26,ETHER/Sub-Name-0.26.tar.gz,True,E/ET/ETHER/Sub-Name-0.26.tar.gz,12
-Specio,0.47,DROLSKY/Specio-0.47.tar.gz,True,D/DR/DROLSKY/Specio-0.47.tar.gz,12
+Specio,0.53,DROLSKY/Specio-0.53.tar.gz,True,D/DR/DROLSKY/Specio-0.53.tar.gz,12
 Package::Stash,0.39,ETHER/Package-Stash-0.39.tar.gz,True,E/ET/ETHER/Package-Stash-0.39.tar.gz,12
 namespace::autoclean,0.29,ETHER/namespace-autoclean-0.29.tar.gz,True,E/ET/ETHER/namespace-autoclean-0.29.tar.gz,12
 HTTP::Date,6.05,OALDERS/HTTP-Date-6.05.tar.gz,True,O/OA/OALDERS/HTTP-Date-6.05.tar.gz,12
