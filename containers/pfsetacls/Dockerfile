@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM golang:1.25.1-bookworm AS build
+FROM golang:1.25.1-trixie AS build
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
@@ -45,7 +45,7 @@ RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source} ./
 RUN deployment/docker/ci/bin/install
 
 # Prepapre the VM
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfdebian-trixie:${IMAGE_TAG}
 
 COPY --from=build /usr/lib /usr/lib
 COPY --from=build /usr/local/lib /usr/local/lib

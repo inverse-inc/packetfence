@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfdebian-trixie:${IMAGE_TAG}
 
 RUN apt-get -qq update && \
     apt-get -qq install -y fingerbank --reinstall && \
