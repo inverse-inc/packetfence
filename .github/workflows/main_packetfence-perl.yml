@@ -67,7 +67,10 @@ jobs:
               - '.github/workflows/reusable_sign_packages.yml'
               - '.github/workflows/reusable_upload_packages.yml'
               - 'containers/packetfence-perl/rhel8/**'
-              - 'containers/packetfence-perl/debian/**'
+              # debian12, not debian/: there is no containers/packetfence-perl/debian
+              # directory, so the old glob matched nothing and changes to the Debian
+              # image never triggered this workflow. Kept in step with the build matrix.
+              - 'containers/packetfence-perl/debian12/**'
       - run:  | 
           echo ${{ steps.filters.outputs.src }}
           echo ${{ steps.filters.outputs.changes }}
