@@ -40,7 +40,7 @@ case "$1" in
 
         setup_system_init_key
 	/sbin/ldconfig
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ] || [ ${DIST} = "bookworm" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ] || [ ${DIST} = "bookworm" ] || [ ${DIST} = "trixie" ]; then
 	    systemctl enable packetfence-config
         fi
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
