@@ -96,10 +96,12 @@ jobs:
           ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm'}}
         env:
           # Consumed by the package version suffix in addons/perl-client/vars.mk,
-          # which mirrors config.mk's GitLab-flavoured variables.
+          # which mirrors config.mk's GitLab-flavoured variables. CI_COMMIT_TIMESTAMP
+          # is deliberately not exported: it is unset for workflow_dispatch and
+          # schedule, and an empty value would win over vars.mk's git fallback under
+          # make -e, degrading the date component to midnight.
           CI_COMMIT_REF_NAME: ${{ inputs._BRANCH_NAME }}
           CI_PIPELINE_ID: ${{ github.run_id }}
-          CI_COMMIT_TIMESTAMP: ${{ github.event.head_commit.timestamp }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
         uses: actions/upload-artifact@v4.4.3

@@ -174,7 +174,7 @@ build_rpm: dist
 	find $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME) -type f -name '*.rpm' \
 		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
 
-# no dist dependencie because debian/source/format is 3.0 (native): debuild
+# no dist dependency because debian/source/format is 3.0 (native): debuild
 # builds straight from the tree
 .PHONY: build_deb
 build_deb: db/fingerbank_Upstream.db
