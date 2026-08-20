@@ -69,6 +69,10 @@ with minimal effort. Instead of manually installing Debian 12 and installing
 PacketFence after, this will perform both tasks and select the optimal
 parameters and best practices for installing the operating system.
 
+NOTE: The ISO edition still installs Debian 12. To run PacketFence on
+Debian 13, install it from the repositories on an existing Debian 13 system
+as described in the next section.
+
 Download the ISO here:
 https://www.packetfence.com/download/#packages
 
@@ -98,14 +102,14 @@ screen to complete the installation.
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with
-all required dependencies.
+PacketFence provides repositories for *RHEL 8*, *Debian 13* (trixie) and
+*Debian 12* (bookworm) with all required dependencies.
 
 *Repository Benefits:*
 
 [options="compact"]
  * Streamlined installation with dependency management
- * Pre-built RPM (EL8) and DEB (Debian 12) packages  
+ * Pre-built RPM (EL8) and DEB (Debian 13, Debian 12) packages  
  * Simplified upgrade process
 
 ==== Common Prerequisites
@@ -170,7 +174,7 @@ yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetf
 yum install --enablerepo=packetfence packetfence
 ----
 
-==== Debian 12 System Preparation  
+==== Debian System Preparation  
 
 ===== Security Configuration:
 [source,bash]
@@ -203,7 +207,7 @@ Regarding resolvconf, remove the symlink to that file and create the
 *Prerequisites:*
 
 [options="compact"]
- * Fresh Debian 12 (bookworm) installation
+ * Fresh Debian 13 (trixie) or Debian 12 (bookworm) installation
  * Latest kernel running
 
 [source,bash]
@@ -223,8 +227,9 @@ development packages. Reboot if kernel was updated.
 apt install gnupg sudo curl
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 
-# Add PacketFence repository (Debian 12 bookworm)
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+# Add PacketFence repository (Debian 13 trixie)
+# On Debian 12, substitute "bookworm bookworm" for "trixie trixie".
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} trixie trixie" > /etc/apt/sources.list.d/packetfence.list
 
 # Install PacketFence with all dependencies  
 # Includes: MariaDB, FreeRADIUS, DHCP server
