@@ -9,7 +9,9 @@ ARG PF_MINOR_RELEASE
 RUN sed -i 's/mirrorlist/#mirrorlist/g; s|#baseurl=http://mirror.centos.org|baseurl=http://mirror.nsc.liu.se/centos-store|g' \
         /etc/yum.repos.d/CentOS-Linux-*.repo
 
-RUN dnf install -y python3 dnf-plugins-core rpm-build make git && \
+# python3-requests (baseos) pairs with python3-pynacl (EPEL, installed below):
+# addons/packetfence-perl/psono.py needs both to fetch build secrets.
+RUN dnf install -y python3 python3-requests dnf-plugins-core rpm-build make git && \
     alternatives --set python /usr/bin/python3
 
 RUN dnf -y module install ruby:3.0
@@ -34,6 +36,7 @@ RUN rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY && \
         'module_hotfixes=1' \
         > /etc/yum.repos.d/nodejs.repo && \
     dnf install -y epel-release && \
+    dnf install -y python3-pynacl && \
     dnf upgrade -y
 
 # NodeSource workaround for https://github.com/nodesource/distributions/issues/845

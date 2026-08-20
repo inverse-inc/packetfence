@@ -45,8 +45,11 @@ jobs:
     runs-on: package-build
     needs: git_checkout
     container:
-      # rpm, dpkg-dev, python3, pynacl, requests are pre-baked.
-      image: ghcr.io/inverse-inc/packetfence/signing-packages:latest
+      # Per-distro build image: signing-packages is debian:bookworm with signing
+      # tooling only, so 'make build_rpm' died there on a missing yum. These are
+      # the images the GitLab pipeline builds packages with (.gitlab-ci.yml:38-39),
+      # tagged with PFBUILD_DEFAULT_DEV_TAG.
+      image: ghcr.io/inverse-inc/packetfence/${{ inputs._IMAGE_TYPE == 'rhel8' && 'pfbuild-centos-8' || 'pfbuild-debian-bookworm' }}:latest
       credentials:
         username: ${{ vars.USER_GITHUB }}
         password: ${{ secrets.TOKEN_GITHUB }}
@@ -66,6 +69,18 @@ jobs:
           git config --global --add safe.directory '*'
           cd -
 
+      # psono.py needs requests + PyNaCl, which signing-packages pre-baked and the
+      # pfbuild images do not yet carry. Drop this step once they do.
+      - name: Ensure psono client deps
+        shell: bash
+        run: |
+          python3 -c 'import nacl, requests' 2>/dev/null && exit 0
+          if command -v dnf >/dev/null; then
+            dnf install -y python3-pynacl python3-requests
+          else
+            apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-nacl python3-requests
+          fi
+
       - name: Build package ${{inputs._IMAGE_TYPE}}
         shell: bash
         run: |
@@ -80,7 +95,13 @@ jobs:
           set -e &&  make SHELL='sh' -e ${{ inputs._IMAGE_TYPE == 'rhel8' && 'build_rpm' || 'build_deb'}}
           ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm'}}
         env:
+          # Consumed by the package version suffix in addons/perl-client/vars.mk,
+          # which mirrors config.mk's GitLab-flavoured variables. CI_COMMIT_TIMESTAMP
+          # is deliberately not exported: it is unset for workflow_dispatch and
+          # schedule, and an empty value would win over vars.mk's git fallback under
+          # make -e, degrading the date component to midnight.
           CI_COMMIT_REF_NAME: ${{ inputs._BRANCH_NAME }}
+          CI_PIPELINE_ID: ${{ github.run_id }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
         uses: actions/upload-artifact@v4.4.3
