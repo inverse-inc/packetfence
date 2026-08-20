@@ -37,6 +37,7 @@ variables:
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm
+  PFBUILD_DEB_TRIXIE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-trixie
   KANIKO_DEBUG_IMG: ghcr.io/inverse-inc/packetfence/kaniko-executor:debug
   KANIKOBUILD_IMG: ghcr.io/inverse-inc/packetfence/kaniko-build
   KNK_REGISTRY: ghcr.io
@@ -148,6 +149,13 @@ variables:
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
 
+# Debian 13 is the default Debian target; the Debian 12 package job is retained
+# for maintenance work but only runs on explicit request.
+.gated_by_build_artifacts_pkg_deb12:
+  rules:
+    - if: '$BUILD_ARTIFACTS_PKG_DEB12 != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_pkg_deb12=yes/'
+      when: never
+
 .gated_by_build_img_container:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
@@ -211,11 +219,11 @@ variables:
       when: never
 
 # === SHARED CONTAINER-BUILD RULES ===
-# Container-build jobs (kaniko, pfdebian, pfdebian_related, radiusd,
-# radiusd_related) share the same per-context filter + IMAGE_TAGS override
-# pattern. pfdebian_related uses a parallel-matrix anchor and reuses this
-# same rule set (release context included — all service images are built in
-# every context).
+# Container-build jobs (kaniko, pfdebian, pfdebian_trixie, pfdebian_related,
+# radiusd, radiusd_related) share the same per-context filter + IMAGE_TAGS
+# override pattern. pfdebian_related uses a parallel-matrix anchor and
+# reuses this same rule set (release context included — all service images
+# are built in every context).
 .build_img_container_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
@@ -429,6 +437,8 @@ variables:
     - job: kaniko
       optional: true
     - job: pfdebian
+      optional: true
+    - job: pfdebian_trixie
       optional: true
     - job: pfdebian_related
       optional: true
@@ -727,7 +737,8 @@ pre_ci_test_cleanup:
   allow_failure: false
 
 ########################################
-# BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_related / radiusd / radiusd_related)
+# BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_trixie /
+# pfdebian_related / radiusd / radiusd_related)
 ########################################
 kaniko:
   # NOTE: Not gated by BUILD_IMG_CONTAINER - kaniko is pipeline infrastructure
@@ -755,11 +766,25 @@ pfdebian:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
 
+# The runtime base for the service images. pfdebian (bookworm) is still built
+# above so maintenance branches have a base to pull, but every derived image's
+# FROM clause now resolves this one.
+pfdebian_trixie:
+  extends:
+    - .build_img_container_job
+  needs: ["kaniko"]
+  variables:
+    IMAGE_NAME: "pfdebian-trixie"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.build_img_container_rules, rules]
+
 pfdebian_related:
   extends:
     - .build_img_container_job
   needs:
-    - pfdebian
+    - pfdebian_trixie
     - job: ci_related
       optional: true
   variables:
@@ -776,7 +801,7 @@ pfdebian_related:
 radiusd:
   extends:
     - .build_img_container_job
-  needs: ["pfdebian"]
+  needs: ["pfdebian_trixie"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -826,6 +851,8 @@ ci_related:
           - "pfconfig-material-builder"
       - IMAGE_NAME: "pfbuild-debian-bookworm"
         DOCKFILE_PATH: "${CI_PROJECT_DIR}/containers/pfbuild-bookworm/Dockerfile"
+      - IMAGE_NAME: "pfbuild-debian-trixie"
+        DOCKFILE_PATH: "${CI_PROJECT_DIR}/containers/pfbuild-trixie/Dockerfile"
       - IMAGE_NAME: "vagrant-build"
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
@@ -880,6 +907,21 @@ build_artifacts_pkg_centos_8:
       when: never
     - !reference [.context_rules, rules]
 
+build_artifacts_pkg_debian_trixie:
+  image: ${PFBUILD_DEB_TRIXIE_IMG}:${IMAGE_TAG}
+  extends:
+    - .build_artifacts_pkg_job
+    - .deb_script_job
+  rules:
+    - !reference [.gated_by_build_artifacts_pkg, rules]
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
+      when: never
+    - !reference [.context_rules, rules]
+
+# Retained for maintenance work; opt in with BUILD_ARTIFACTS_PKG_DEB12=yes or a
+# build_artifacts_pkg_deb12=yes commit message.
 build_artifacts_pkg_debian_bookworm:
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
@@ -887,6 +929,7 @@ build_artifacts_pkg_debian_bookworm:
     - .deb_script_job
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
+    - !reference [.gated_by_build_artifacts_pkg_deb12, rules]
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
@@ -946,7 +989,9 @@ sign_packages:
     - job: ci_related
       optional: true
     - job: build_artifacts_pkg_centos_8
+    - job: build_artifacts_pkg_debian_trixie
     - job: build_artifacts_pkg_debian_bookworm
+      optional: true
   variables:
     # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_API_KEY_ID,
     # PSONO_API_KEY_SECRET_KEY, PSONO_GPG_PRIVATE_KEY_SECRET_ID:
