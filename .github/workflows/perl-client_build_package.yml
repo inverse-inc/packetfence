@@ -49,7 +49,7 @@ jobs:
       # tooling only, so 'make build_rpm' died there on a missing yum. These are
       # the images the GitLab pipeline builds packages with (.gitlab-ci.yml:38-39),
       # tagged with PFBUILD_DEFAULT_DEV_TAG.
-      image: ghcr.io/inverse-inc/packetfence/${{ inputs._IMAGE_TYPE == 'rhel8' && 'pfbuild-centos-8' || 'pfbuild-debian-bookworm' }}:latest
+      image: ghcr.io/inverse-inc/packetfence/${{ inputs._IMAGE_TYPE == 'rhel8' && 'pfbuild-centos-8' || inputs._IMAGE_TYPE == 'debian13' && 'pfbuild-debian-trixie' || 'pfbuild-debian-bookworm' }}:latest
       credentials:
         username: ${{ vars.USER_GITHUB }}
         password: ${{ secrets.TOKEN_GITHUB }}
@@ -93,7 +93,7 @@ jobs:
           cd "${EXECUTION_DIRECTORY}"/addons/perl-client/
           set -e && export FINGERBANK_API_KEY=$(set -e && python3  "${EXECUTION_DIRECTORY}"/addons/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_BUILDS_KEY_FINGERBANK }} --return_value=password)
           set -e &&  make SHELL='sh' -e ${{ inputs._IMAGE_TYPE == 'rhel8' && 'build_rpm' || 'build_deb'}}
-          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm'}}
+          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm' || inputs._IMAGE_TYPE == 'debian13' && 'debian/trixie'}}
         env:
           # Consumed by the package version suffix in addons/perl-client/vars.mk,
           # which mirrors config.mk's GitLab-flavoured variables. CI_COMMIT_TIMESTAMP
@@ -108,11 +108,11 @@ jobs:
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
 #          path:  /__w/packetfence/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bookworm'}}/${{ env.PACKAGE_NAME }}
-          path:  /mnt/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm'}}/${{ env.PACKAGE_NAME }}
+          path:  /mnt/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm' || inputs._IMAGE_TYPE == 'debian13' && 'debian/trixie'}}/${{ env.PACKAGE_NAME }}
           overwrite: true
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'fingerbank-*.noarch.rpm' || inputs._IMAGE_TYPE == 'debian11' && 'fingerbank*.deb' || inputs._IMAGE_TYPE == 'debian12' && 'fingerbank*.deb' }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'fingerbank-*.noarch.rpm' || inputs._IMAGE_TYPE == 'debian11' && 'fingerbank*.deb' || inputs._IMAGE_TYPE == 'debian12' && 'fingerbank*.deb' || inputs._IMAGE_TYPE == 'debian13' && 'fingerbank*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
           PATH: "${GITHUB_WORKSPACE}"
 
       - name: Clean directory
