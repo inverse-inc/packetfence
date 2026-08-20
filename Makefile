@@ -262,7 +262,6 @@ build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test
 .PHONY: build_deb
 build_deb: conf/git_commit_id conf/build_id
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
-	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
 	mkdir -p $(PKG_RELEASE_DIR)
 	sed -i -e "s/(\(.[^+]*\)+.*)/(\1)/" $(SRC_DEBDIR)/changelog
 	cd $(SRC_ROOT_DIR) && DEBEMAIL="" dch \

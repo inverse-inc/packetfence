@@ -369,6 +369,17 @@ do
   cp $file "$(dirname $file)/$(basename $file .example)"
 done
 
+# Rewrite the Debian-native service binary paths back to their RHEL locations.
+# conf/pf.conf.defaults ships Debian values because debian/patches/debianize.patch
+# (a one-way RHEL->Debian rewrite applied only during deb builds) was folded into
+# the tree. The deb build now needs no patch; the rpm build needs the inverse.
+# Consumed by lib/pf/services/manager/radiusd_child.pm and .../httpd.pm.
+sed -i \
+    -e 's|^radiusd_binary=/usr/sbin/freeradius$|radiusd_binary=/usr/sbin/radiusd|' \
+    -e 's|^httpd_binary=/usr/sbin/apache2$|httpd_binary=/usr/sbin/httpd|' \
+    -e 's|^arp_binary=/usr/sbin/arp$|arp_binary=/sbin/arp|' \
+    conf/pf.conf.defaults
+
 #==============================================================================
 # Installation
 #============================================================================
