@@ -221,7 +221,7 @@
         WatchdogSec=20
         StartLimitBurst=3
         StartLimitInterval=10
-        ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
+        ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
         Restart=on-failure
     when: ansible_facts['os_family'] == "RedHat"
 
