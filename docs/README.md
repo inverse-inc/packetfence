@@ -43,7 +43,7 @@ The documentation build system is controlled by Makefile targets in `/usr/local/
 
 ## Dependencies
 
-### Debian 12 (Bookworm)
+### Debian 13 (Trixie) / Debian 12 (Bookworm)
 
 Install system packages:
 ```bash
