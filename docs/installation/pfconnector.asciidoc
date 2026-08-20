@@ -34,7 +34,7 @@ Here are the use-cases the pfconnector supports:
 
 ===== Installation
 
-To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 12 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
+To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 13 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Debian 12 is also supported; substitute `bookworm bookworm` for `trixie trixie` in the repository line below. Then, perform the following commands as root:
 
 [source,bash]
 ----
@@ -48,7 +48,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} trixie trixie" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
 
@@ -213,7 +213,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} trixie trixie" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
 
@@ -250,7 +250,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} trixie trixie" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
 
