@@ -27,7 +27,7 @@ often the preferred deployment option for Cloud-first organizations.
 
 ==== Installation and Configuration Steps
 
-First, you need to create three 'Debian 12' or 'Rocky 8' Linodes in the same
+First, you need to create three 'Debian 13' or 'Rocky 8' Linodes in the same
 region. The 'Dedicated 16GB' plan or above is required and make sure Private IP
 is enabled for each instance.
 
