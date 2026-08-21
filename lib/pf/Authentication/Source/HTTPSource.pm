@@ -159,7 +159,7 @@ sub authenticate {
 sub handleResults {
     my ($self, $response_body, $username) = @_;
     my $result = eval {decode_json($response_body) };
-    if ($@) {
+    if ($@ || ref($result) ne 'HASH') {
         get_logger->error("$@");
         return ($FALSE, "Invalid response");
     }
