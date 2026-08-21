@@ -98,6 +98,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-binds":
 		s.handleRemoteBinds(w, r)
 		return
+	case apiPrefix + "/pfconnector-info":
+		s.handlePfconnectorInfo(w, r)
+		return
 	case apiPrefix + "/reprovision-static-connections":
 		s.handleReprovisionStaticConnections(w, r)
 		return
@@ -888,6 +891,42 @@ func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.
 			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
 		}
 	}
+}
+
+// handlePfconnectorInfo stores the IPs a connector-remote reports about
+// itself (POSTed through the tunnel after its remote binds are up) under
+// ips:<connector-id> in Redis, so the terminal API can build a URL that
+// reaches the remote's local API directly.
+func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request) {
+	clientInfo := struct {
+		IPs         []string `json:"ips"`
+		ConnectorID string   `json:"connector_id"`
+	}{}
+
+	if err := json.NewDecoder(req.Body).Decode(&clientInfo); err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error decoding client info: %s", err))
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	if clientInfo.ConnectorID == "" {
+		http.Error(w, "Missing connector_id", http.StatusBadRequest)
+		return
+	}
+	ips := strings.Join(clientInfo.IPs, ",")
+	if status := s.redis.Set(req.Context(), "ips:"+clientInfo.ConnectorID, ips, 0); status.Err() != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error storing client info in Redis: %s", status.Err()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":       "success",
+		"connector_id": clientInfo.ConnectorID,
+		"ips":          clientInfo.IPs,
+		"message":      "Connector information received successfully",
+	})
 }
 
 type FingerbankServersReply struct {
