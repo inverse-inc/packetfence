@@ -213,6 +213,7 @@ require (
 	github.com/onsi/gomega v1.38.2
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/shirou/gopsutil/v4 v4.26.2
 	github.com/smallstep/nosql v0.8.0
 	github.com/sorenisanerd/gotty v1.5.0
 	go.uber.org/zap v1.27.1
@@ -341,7 +342,6 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shirou/gopsutil/v4 v4.26.2 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect

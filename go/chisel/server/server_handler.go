@@ -104,6 +104,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-terminal":
 		s.handleRemoteTerm(w, r)
 		return
+	case apiPrefix + "/connector-detail":
+		s.handleConnectorDetail(w, r)
+		return
 	case apiPrefix + "/reprovision-static-connections":
 		s.handleReprovisionStaticConnections(w, r)
 		return
@@ -894,6 +897,87 @@ func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.
 			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
 		}
 	}
+}
+
+// StaticConnectionStatus describes one configured static connection of a
+// connector and whether its server-side listener is currently bound.
+type StaticConnectionStatus struct {
+	Spec       string `json:"spec"`
+	LocalPort  string `json:"local_port"`
+	LocalProto string `json:"local_proto"`
+	RemoteHost string `json:"remote_host"`
+	RemotePort string `json:"remote_port"`
+	Bound      bool   `json:"bound"`
+}
+
+// ConnectorDetailReply is the response of /connector-detail.
+type ConnectorDetailReply struct {
+	ConnectorID       string                   `json:"connector_id"`
+	Connected         bool                     `json:"connected"`
+	RemoteIPs         []string                 `json:"remote_ips"`
+	StaticConnections []StaticConnectionStatus `json:"static_connections"`
+	BoundRemotes      []tunnel.BoundRemoteInfo `json:"bound_remotes"`
+}
+
+// handleConnectorDetail reports, for one connector: whether its tunnel is
+// active, the IPs the remote reported about itself, its configured static
+// connections (with per-port bound status) and every port currently bound
+// on this server for its tunnel.
+func (s *Server) handleConnectorDetail(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	connectorID := req.URL.Query().Get("connector-id")
+	if connectorID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id query parameter"})
+		return
+	}
+
+	reply := ConnectorDetailReply{
+		ConnectorID:       connectorID,
+		RemoteIPs:         []string{},
+		StaticConnections: []StaticConnectionStatus{},
+		BoundRemotes:      []tunnel.BoundRemoteInfo{},
+	}
+
+	var tun *tunnel.Tunnel
+	if o, ok := activeTunnels.Load(connectorID); ok {
+		tun = o.(*tunnel.Tunnel)
+		reply.Connected = tun.IsActive()
+		reply.BoundRemotes = tun.BoundRemotes()
+	}
+
+	if ips := s.redis.Get(req.Context(), "ips:"+connectorID).Val(); ips != "" {
+		reply.RemoteIPs = strings.Split(ips, ",")
+	}
+
+	boundKeys := map[string]bool{}
+	for _, b := range reply.BoundRemotes {
+		boundKeys[b.LocalProto+"/"+b.LocalPort] = true
+	}
+
+	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Failed to fetch pfconnector static connections from pfconfig: %s", err))
+	} else if specs, found := pfconnectorStaticConnections.Element[connectorID]; found {
+		for _, spec := range specs {
+			remote, err := settings.DecodeRemote(spec)
+			if err != nil {
+				log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Unable to decode static connection %s: %s", spec, err))
+				continue
+			}
+			reply.StaticConnections = append(reply.StaticConnections, StaticConnectionStatus{
+				Spec:       spec,
+				LocalPort:  remote.LocalPort,
+				LocalProto: remote.LocalProto,
+				RemoteHost: remote.RemoteHost,
+				RemotePort: remote.RemotePort,
+				Bound:      boundKeys[remote.LocalProto+"/"+remote.LocalPort],
+			})
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(reply)
 }
 
 // terminalSessionTimeout is the duration a remotely-authorized terminal

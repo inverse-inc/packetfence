@@ -159,6 +159,10 @@ func (api *API) setupRoutes() {
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
 			r.Handle("/credcache", credcacheProxy())
+			r.Route("/system", func(r chi.Router) {
+				r.Get("/info", systemInfo(api))
+				r.Post("/restart", systemRestart(api))
+			})
 		})
 		// Not localhost-only: the admin's browser reaches this directly on
 		// the remote's IP to activate a terminal session authorized by the
