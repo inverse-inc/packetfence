@@ -5,6 +5,11 @@
     :schema="schema"
     :isLoading="isLoading"
   >
+    <the-test v-if="!isNew && !isClone && id"
+      :id="id"
+      :form="form"
+    />
+
     <form-group-identifier namespace="id"
       :column-label="$i18n.t('Identifier')"
       :disabled="!isNew && !isClone"
@@ -43,6 +48,7 @@ import {
   FormGroupPort,
   FormGroupPfconnectorPort,
   FormGroupDomains,
+  TheTest,
 } from './'
 
 const components = {
@@ -53,6 +59,7 @@ const components = {
   FormGroupPort,
   FormGroupPfconnectorPort,
   FormGroupDomains,
+  TheTest,
 }
 
 export const props = {

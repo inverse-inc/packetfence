@@ -29,6 +29,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/terminal", role: ALLOW_ANY},
+	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/dns-lookup", role: "CONNECTORS", roleSuffix: "_READ"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS"},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
