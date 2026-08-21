@@ -1,6 +1,8 @@
 package chclient
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"crypto/md5"
 	"crypto/tls"
@@ -268,16 +270,16 @@ func (c *Client) Start(ctx context.Context) error {
 		go func() {
 			for {
 				time.Sleep(5 * time.Second)
-				func() {
+				tunnelReady := func() bool {
 					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
 					if err != nil {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
-						return
+						return false
 					}
 					defer res.Body.Close()
 					if res.StatusCode != http.StatusOK {
 						fmt.Printf("Invalid status code %d received for remote binds\n", res.StatusCode)
-						return
+						return false
 					}
 					apiRemotes := struct {
 						Binds []string
@@ -285,7 +287,7 @@ func (c *Client) Start(ctx context.Context) error {
 					err = json.NewDecoder(res.Body).Decode(&apiRemotes)
 					if err != nil {
 						fmt.Printf("Unable to parse remote binds from pfconnector API: %s\n", err)
-						return
+						return false
 					}
 					remotes := []*settings.Remote{}
 					for _, remoteStr := range apiRemotes.Binds {
@@ -300,12 +302,91 @@ func (c *Client) Start(ctx context.Context) error {
 					if err != nil {
 						fmt.Println("Error binding remotes obtained from the pfconnector server", err)
 					}
+					return true
 				}()
+				if tunnelReady {
+					c.reportConnectorInfo()
+				}
 			}
 		}()
 	}
 
 	return nil
+}
+
+// reportConnectorInfo sends the IPs of the default-route interface to the
+// pfconnector server (through the tunnel-local bind on 22226) so the server
+// can expose how to reach this connector's local API.
+func (c *Client) reportConnectorInfo() {
+	clientInfo := struct {
+		IPs         []string `json:"ips"`
+		ConnectorID string   `json:"connector_id"`
+	}{
+		ConnectorID: strings.Split(c.config.Auth, ":")[0],
+	}
+	defaultIPs, err := getDefaultInterfaceIPs()
+	if err != nil {
+		fmt.Printf("failed to get default interface IPs: %v\n", err)
+		return
+	}
+	for _, ip := range defaultIPs {
+		clientInfo.IPs = append(clientInfo.IPs, ip.String())
+	}
+
+	clientInfoJSON, err := json.Marshal(clientInfo)
+	if err != nil {
+		fmt.Printf("failed to marshal client info: %v\n", err)
+		return
+	}
+
+	res, err := http.Post("http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", "application/json", bytes.NewBuffer(clientInfoJSON))
+	if err != nil {
+		fmt.Printf("failed to send client info: %v\n", err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		fmt.Printf("unexpected status code %d sending client info\n", res.StatusCode)
+	}
+}
+
+// getDefaultInterfaceIPs returns the IP addresses of the interface holding
+// the default route.
+func getDefaultInterfaceIPs() ([]net.IP, error) {
+	file, err := os.Open("/proc/net/route")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) >= 2 && fields[1] == "00000000" { // Destination 0.0.0.0
+			iface, err := net.InterfaceByName(fields[0])
+			if err != nil {
+				return nil, fmt.Errorf("failed to get interface %s: %w", fields[0], err)
+			}
+			ifaceIPs, err := iface.Addrs()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get addresses for interface %s: %w", fields[0], err)
+			}
+			ips := make([]net.IP, 0, len(ifaceIPs))
+			for _, addr := range ifaceIPs {
+				if ipnet, ok := addr.(*net.IPNet); ok {
+					ips = append(ips, ipnet.IP)
+				}
+			}
+			if len(ips) == 0 {
+				return nil, fmt.Errorf("no IP addresses found for interface %s", fields[0])
+			}
+			return ips, nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return nil, fmt.Errorf("no default route found")
 }
 
 func (c *Client) setProxy(u *url.URL, d *websocket.Dialer) error {
