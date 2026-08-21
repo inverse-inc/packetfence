@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.2.6
+Version:        1.2.7
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -33,6 +33,9 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Fri Aug 21 2026 Inverse <info@inverse.ca> 1.2.7-1
+- Upgrade Specio 0.47 -> 0.53
+
 * Mon Aug 17 2026 Inverse <info@inverse.ca> 1.2.6-1
 - Upgrade Sereal::Decoder 5.004 -> 5.010
 - Upgrade Sereal::Encoder 5.004 -> 5.010

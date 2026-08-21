@@ -1,3 +1,9 @@
+packetfence-perl (1.2.7) unstable; urgency=medium
+
+  * Upgrade Specio 0.47 -> 0.53
+
+ -- Inverse <info@inverse.ca>  Fri, 21 Aug 2026 16:39:16 +0000
+
 packetfence-perl (1.2.6) unstable; urgency=medium
 
   * Upgrade Sereal::Decoder 5.004 -> 5.010
