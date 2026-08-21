@@ -95,6 +95,9 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Post("/cve", m.CVE())
 		})
 		r.Get("/elasticsearch", m.handleElasticsearch())
+		r.Post("/terminal", m.pfconnectorTerminalGet())
+		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
+		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
 	})
 
 	var DBP **gorm.DB
