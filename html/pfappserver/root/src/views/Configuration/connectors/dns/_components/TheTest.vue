@@ -18,6 +18,7 @@
           :placeholder="$i18n.t('Hostname to resolve, e.g. dc1.') + (firstDomain || 'example.com')"
         />
         <b-form-select v-model="type" :options="recordTypes" class="mr-2" />
+        <b-form-select v-model="mode" :options="modes" class="mr-2" />
         <b-button type="submit" variant="primary" :disabled="isLoading || !name">
           <icon v-if="isLoading" name="circle-notch" spin class="mr-1" />{{ $i18n.t('Lookup') }}
         </b-button>
@@ -30,9 +31,15 @@
               <strong>{{ resultHeadline }}</strong>
               <div class="small">
                 {{ $i18n.t('Query') }}: <span class="text-monospace">{{ result.name }} {{ result.type }}</span>
-                — {{ $i18n.t('via connector') }} <span class="text-monospace">{{ result.connector_id }}</span>,
-                {{ $i18n.t('tunnel port') }} <span class="text-monospace">{{ result.pfconnector_port }}</span>
-                → <span class="text-monospace">{{ result.dns_server }}</span>
+                <template v-if="result.mode === 'packetfence'">
+                  — {{ $i18n.t('via pfdns-connector front-end (as PacketFence resolves)') }}
+                  <span class="text-monospace">{{ result.dns_server }}</span>
+                </template>
+                <template v-else>
+                  — {{ $i18n.t('via connector') }} <span class="text-monospace">{{ result.connector_id }}</span>,
+                  {{ $i18n.t('tunnel port') }} <span class="text-monospace">{{ result.pfconnector_port }}</span>
+                  → <span class="text-monospace">{{ result.dns_server }}</span>
+                </template>
               </div>
             </b-col>
             <b-col cols="auto" v-if="result.reachable">
@@ -66,20 +73,25 @@ export const setup = (props) => {
 
   const name = ref('')
   const type = ref('A')
+  const mode = ref('tunnel')
   const result = ref(null)
   const isLoading = ref(false)
 
   const recordTypes = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT']
+  const modes = [
+    { value: 'tunnel', text: i18n.t('Through this entry\'s tunnel') },
+    { value: 'packetfence', text: i18n.t('As PacketFence resolves') }
+  ]
 
   const firstDomain = computed(() => {
     const { domains = [] } = form.value || {}
     return domains.length ? domains[0] : null
   })
 
-  const doLookup = (qname, qtype) => {
+  const doLookup = (qname, qtype, qmode) => {
     isLoading.value = true
     result.value = null
-    api.lookup({ dns_connector_id: props.id, name: qname, type: qtype }).then(response => {
+    api.lookup({ dns_connector_id: props.id, name: qname, type: qtype, mode: qmode }).then(response => {
       result.value = response
     }).catch(error => {
       const { response: { data: { message = '' } = {} } = {} } = error
@@ -88,6 +100,7 @@ export const setup = (props) => {
         error: message || i18n.t('Request failed.'),
         name: qname,
         type: qtype,
+        mode: qmode,
         connector_id: '-',
         pfconnector_port: '-',
         dns_server: '-'
@@ -97,14 +110,14 @@ export const setup = (props) => {
     })
   }
 
-  const lookup = () => doLookup(name.value, type.value)
+  const lookup = () => doLookup(name.value, type.value, mode.value)
 
   // Quick entry test: ask the configured server for the SOA of the first
   // domain it is supposed to serve.
   const testEntry = () => {
     name.value = firstDomain.value
     type.value = 'SOA'
-    doLookup(firstDomain.value, 'SOA')
+    doLookup(firstDomain.value, 'SOA', mode.value)
   }
 
   const alertVariant = computed(() => {
@@ -128,6 +141,8 @@ export const setup = (props) => {
   return {
     name,
     type,
+    mode,
+    modes,
     recordTypes,
     result,
     isLoading,
