@@ -6,6 +6,7 @@ import {
 } from '@/components/new/'
 import BaseFormGroupDomains from './BaseFormGroupDomains'
 import TheForm from './TheForm'
+import TheTest from './TheTest'
 import TheView from './TheView'
 
 export {
@@ -19,5 +20,6 @@ export {
   BaseFormGroupDomains        as FormGroupDomains,
 
   TheForm,
+  TheTest,
   TheView
 }

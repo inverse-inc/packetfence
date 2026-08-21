@@ -30,6 +30,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
+	"github.com/miekg/dns"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 )
@@ -106,6 +107,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/connector-detail":
 		s.handleConnectorDetail(w, r)
+		return
+	case apiPrefix + "/dns-lookup":
+		s.handleDnsLookup(w, r)
 		return
 	case apiPrefix + "/reprovision-static-connections":
 		s.handleReprovisionStaticConnections(w, r)
@@ -897,6 +901,69 @@ func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.
 			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
 		}
 	}
+}
+
+// DnsLookupReply is the response of /dns-lookup.
+type DnsLookupReply struct {
+	Reachable bool     `json:"reachable"`
+	Rcode     string   `json:"rcode"`
+	LatencyMs int64    `json:"latency_ms"`
+	Answers   []string `json:"answers"`
+	Error     string   `json:"error,omitempty"`
+}
+
+// handleDnsLookup performs a DNS query against one of this server's local
+// tunnel listeners (a DNS connector's pfconnector_port), exercising the full
+// path: server bind -> chisel tunnel -> connector-remote -> DNS server.
+// Any DNS response (even NXDOMAIN) proves the tunnel and the DNS server are
+// reachable; a timeout means the path is broken somewhere.
+func (s *Server) handleDnsLookup(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	port := req.URL.Query().Get("port")
+	name := req.URL.Query().Get("name")
+	qtypeStr := req.URL.Query().Get("type")
+	if qtypeStr == "" {
+		qtypeStr = "A"
+	}
+	if port == "" || name == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing port or name query parameter"})
+		return
+	}
+	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid port"})
+		return
+	}
+	qtype, ok := dns.StringToType[strings.ToUpper(qtypeStr)]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid DNS record type"})
+		return
+	}
+
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(name), qtype)
+	m.RecursionDesired = true
+
+	client := &dns.Client{Timeout: 5 * time.Second}
+	reply := DnsLookupReply{Answers: []string{}}
+	start := time.Now()
+	in, _, err := client.Exchange(m, "127.0.0.1:"+port)
+	reply.LatencyMs = time.Since(start).Milliseconds()
+	if err != nil {
+		reply.Error = err.Error()
+	} else {
+		reply.Reachable = true
+		reply.Rcode = dns.RcodeToString[in.Rcode]
+		for _, rr := range in.Answer {
+			reply.Answers = append(reply.Answers, rr.String())
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(reply)
 }
 
 // StaticConnectionStatus describes one configured static connection of a
