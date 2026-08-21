@@ -11,15 +11,15 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/utils_test"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var router *httprouter.Router = nil
+var router *chi.Mux = nil
 
 // SQL statements to set up test data
 // Generate 100 mix entries, from -198 hours (8.25 days) to now.
@@ -327,13 +327,13 @@ func execReq(t *testing.T, method, url string, payload any, statusExpected int, 
 	}
 }
 
-func initRouterAndDb() (*httprouter.Router, error) {
+func initRouterAndDb() (*chi.Mux, error) {
 	ctx := context.Background()
 	DB, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("Cannot open db %s", err.Error())
 	}
-	tmpRouter := httprouter.New()
+	tmpRouter := chi.NewRouter()
 	reportHandler := NewDynamicReport(context.Background(), &DB)
 	reportHandler.AddToRouter(tmpRouter)
 	return tmpRouter, nil
