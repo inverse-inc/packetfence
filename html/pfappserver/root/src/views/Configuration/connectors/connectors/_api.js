@@ -49,5 +49,26 @@ export default {
     return apiCall.get('config/connectors/status').then(response => {
       return response.data
     })
+  },
+
+  remoteStatus: id => {
+    return apiCall.get(['pfconnector-remotes', id, 'status']).then(response => {
+      return response.data
+    })
+  },
+  remoteRestart: id => {
+    return apiCall.post(['pfconnector-remotes', id, 'restart']).then(response => {
+      return response.data
+    })
+  },
+  terminalSession: id => {
+    return apiCall.post('terminal', { pfconnector_id: id }).then(response => {
+      return response.data
+    })
+  },
+  terminalAuthorize: (id, uuid) => {
+    return apiCall.get(['terminal', id, 'authorize', uuid]).then(response => {
+      return response.data
+    })
   }
 }
