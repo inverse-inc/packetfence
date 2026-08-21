@@ -85,59 +85,14 @@ const connectorsContainerContextKey = "ConnectorsContainerContextKey"
 
 func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string, localPort string) (string, error) {
 	if cc := ConnectorsContainerFromContext(ctx); cc != nil {
-		keyPfConfPfDnsConnector := pfconfigdriver.PfConfPfDnsConnector{}
-		keyPfConfPfDnsConnector.PfconfigNS = "config::Pf"
-		keyPfConfPfDnsConnector.PfconfigHostnameOverlay = "yes"
-		pfconfigdriver.FetchDecodeSocket(ctx, &keyPfConfPfDnsConnector)
-
 		dstIp := net.ParseIP(toIP)
 		if dstIp == nil {
 			log.Printf("OpenConnectionTo: %s is not a valid IP address, trying to resolve it", toIP)
 			// probably a hostname, try to resolve it
-			dnsServer := keyPfConfPfDnsConnector.PfdnsConnectorServer
-			log.Printf("OpenConnectionTo: using DNS server %s to resolve %s", dnsServer, toIP)
-			dnsServer = replaceMgmtIP(ctx, dnsServer)
-			log.Printf("OpenConnectionTo: replaced management IP in DNS server: %s", dnsServer)
-
-			if dnsServer == "" {
-				// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server
-				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
-				// This allows the code to work in both standalone and Kubernetes environments.
-				dnsServer = os.Getenv("K8S_DNS_SERVER") + ":53"
-				log.Printf("OpenConnectionTo: PFDNS_CONNECTOR_HOST_PORT is not set, using default DNS server %s", dnsServer)
-			}
-
-			host, port, err := net.SplitHostPort(dnsServer)
+			dnsServer, err := PfdnsConnectorServerAddr(ctx)
 			if err != nil {
-				log.Printf("OpenConnectionTo: unable to split host and port %s: %v", dnsServer, err)
+				log.Printf("OpenConnectionTo: %v", err)
 				return "", err
-			}
-			dnsServerIP := net.ParseIP(host) // Ensure dnsServer is a valid IP address
-			if dnsServerIP == nil {
-				log.Printf("OpenConnectionTo: resolved DNS server %s is not a valid IP address", host)
-				// If PFDNS_CONNECTOR_HOST_PORT is a hostname , use the default DNS server
-				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
-				// This allows the code to work in both standalone and Kubernetes environments.
-				kubeDnsServer := os.Getenv("K8S_DNS_SERVER") + ":53"
-				if !(strings.Contains(host, ".svc.cluster.local")) {
-					host = host + ".svc.cluster.local"
-				}
-				ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
-				if err != nil {
-					log.Printf("OpenConnectionTo: unable to resolve %s: %v", host, err)
-					return "", fmt.Errorf("unable to resolve %s: %v", host, err)
-				}
-				if len(ips) == 0 {
-					log.Printf("OpenConnectionTo: no IPs resolved for %s", host)
-					return "", fmt.Errorf("no IPs resolved for %s", host)
-				}
-				log.Printf("OpenConnectionTo: resolved DNS server %s to %s", host, ips[0])
-				dstIp = net.ParseIP(ips[0])
-				if dstIp == nil {
-					log.Printf("OpenConnectionTo: resolved IP %s is not a valid IP address", ips[0])
-					return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
-				}
-				dnsServer = dstIp.String() + ":" + port // Append the DNS port
 			}
 			log.Printf("OpenConnectionTo: using DNS server %s", dnsServer)
 			if len(toIP) == 0 || toIP[len(toIP)-1] != '.' {
@@ -200,6 +155,53 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 func getDnsDestinationIp(ctx context.Context) net.IP {
 	managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
 	return net.ParseIP(managementNetwork.Ip)
+}
+
+// PfdnsConnectorServerAddr resolves the pfdns_connector_server config value
+// to a queryable "ip:port" DNS front-end, replicating the perl
+// pf::factory::connector logic: %mgmtip% replacement, K8S_DNS_SERVER
+// fallback when unset, and kube-DNS resolution when the value is a k8s
+// service name instead of an IP.
+func PfdnsConnectorServerAddr(ctx context.Context) (string, error) {
+	keyPfConfPfDnsConnector := pfconfigdriver.PfConfPfDnsConnector{}
+	keyPfConfPfDnsConnector.PfconfigNS = "config::Pf"
+	keyPfConfPfDnsConnector.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyPfConfPfDnsConnector)
+
+	dnsServer := replaceMgmtIP(ctx, keyPfConfPfDnsConnector.PfdnsConnectorServer)
+	if dnsServer == "" {
+		// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server.
+		// This is useful in Kubernetes environments where the DNS server is
+		// set as an environment variable, so the code works in both
+		// standalone and Kubernetes environments.
+		dnsServer = os.Getenv("K8S_DNS_SERVER") + ":53"
+	}
+
+	host, port, err := net.SplitHostPort(dnsServer)
+	if err != nil {
+		return "", fmt.Errorf("unable to split host and port %s: %v", dnsServer, err)
+	}
+	if net.ParseIP(host) != nil {
+		return dnsServer, nil
+	}
+
+	// The value is a k8s service name: resolve it through kube-DNS
+	kubeDnsServer := os.Getenv("K8S_DNS_SERVER") + ":53"
+	if !strings.Contains(host, ".svc.cluster.local") {
+		host = host + ".svc.cluster.local"
+	}
+	ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
+	if err != nil {
+		return "", fmt.Errorf("unable to resolve %s: %v", host, err)
+	}
+	if len(ips) == 0 {
+		return "", fmt.Errorf("no IPs resolved for %s", host)
+	}
+	resolved := net.ParseIP(ips[0])
+	if resolved == nil {
+		return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
+	}
+	return resolved.String() + ":" + port, nil
 }
 
 func replaceMgmtIP(ctx context.Context, input string) string {

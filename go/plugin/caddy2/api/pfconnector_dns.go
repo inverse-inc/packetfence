@@ -6,10 +6,13 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/miekg/dns"
 )
 
 // pfconnectorDnsLookup performs a DNS query through the tunnel of a DNS
@@ -23,6 +26,7 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 			DnsConnectorID string `json:"dns_connector_id"`
 			Name           string `json:"name"`
 			Type           string `json:"type"`
+			Mode           string `json:"mode"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			http.Error(w, "Cannot parse request body", http.StatusBadRequest)
@@ -34,6 +38,39 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 		}
 		if payload.Type == "" {
 			payload.Type = "A"
+		}
+		if payload.Mode == "" {
+			payload.Mode = "tunnel"
+		}
+
+		// "packetfence" mode: resolve exactly as PacketFence does at
+		// runtime, through the pfdns-connector front-end
+		// (pfdns_connector_server), catching forwarder-level misrouting the
+		// direct tunnel test cannot see.
+		if payload.Mode == "packetfence" {
+			resolver, err := connector.PfdnsConnectorServerAddr(h.ctx)
+			if err != nil {
+				log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to resolve pfdns_connector_server: %s", err))
+				http.Error(w, "Unable to resolve the pfdns-connector front-end address", http.StatusBadGateway)
+				return
+			}
+			lookup := dnsQuery(resolver, payload.Name, payload.Type)
+			reply := map[string]interface{}{
+				"mode":             payload.Mode,
+				"dns_connector_id": payload.DnsConnectorID,
+				"dns_server":       resolver,
+				"pfconnector_port": "-",
+				"connector_id":     "pfdns-connector",
+				"name":             payload.Name,
+				"type":             payload.Type,
+			}
+			for k, v := range lookup {
+				reply[k] = v
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(reply)
+			return
 		}
 
 		dnsConnectors := pfconfigdriver.PfConfDnsConnectors{}
@@ -78,6 +115,7 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 		}
 
 		reply := map[string]interface{}{
+			"mode":             payload.Mode,
 			"dns_connector_id": payload.DnsConnectorID,
 			"dns_server":       dnsIP + ":" + entryStr("port"),
 			"pfconnector_port": pfconnectorPort,
@@ -93,4 +131,41 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(reply)
 	})
+}
+
+// dnsQuery sends one DNS query to server ("ip:port") and returns the result
+// in the same shape as the chisel server's /dns-lookup endpoint.
+func dnsQuery(server, name, qtypeStr string) map[string]interface{} {
+	out := map[string]interface{}{
+		"reachable":  false,
+		"rcode":      "",
+		"latency_ms": int64(0),
+		"answers":    []string{},
+	}
+	qtype, ok := dns.StringToType[strings.ToUpper(qtypeStr)]
+	if !ok {
+		out["error"] = "Invalid DNS record type"
+		return out
+	}
+
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(name), qtype)
+	m.RecursionDesired = true
+
+	client := &dns.Client{Timeout: 5 * time.Second}
+	start := time.Now()
+	in, _, err := client.Exchange(m, server)
+	out["latency_ms"] = time.Since(start).Milliseconds()
+	if err != nil {
+		out["error"] = err.Error()
+		return out
+	}
+	out["reachable"] = true
+	out["rcode"] = dns.RcodeToString[in.Rcode]
+	answers := make([]string, 0, len(in.Answer))
+	for _, rr := range in.Answer {
+		answers = append(answers, rr.String())
+	}
+	out["answers"] = answers
+	return out
 }
