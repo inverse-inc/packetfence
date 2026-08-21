@@ -96,8 +96,13 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		})
 		r.Get("/elasticsearch", m.handleElasticsearch())
 		r.Post("/terminal", m.pfconnectorTerminalGet())
+		r.Get("/terminal/{connectorID}/authorize/{uuid}", m.proxyTerminalAuthorize())
 		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
 		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
+		r.Route("/pfconnector-remotes", func(r chi.Router) {
+			r.Get("/{connectorID}/status", m.pfconnectorRemoteStatus())
+			r.Post("/{connectorID}/restart", m.pfconnectorRemoteRestart())
+		})
 	})
 
 	var DBP **gorm.DB

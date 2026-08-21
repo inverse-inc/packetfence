@@ -50,6 +50,41 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 	})
 }
 
+// proxyTerminalAuthorize activates a terminal session on the
+// connector-remote through a dynreverse tunnel, so the admin's browser never
+// needs direct network access to the remote.
+func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connectorID := chi.URLParam(r, "connectorID")
+		sessionUUID := chi.URLParam(r, "uuid")
+		if connectorID == "" || sessionUUID == "" {
+			http.Error(w, "PFconnector ID and session uuid are required", http.StatusBadRequest)
+			return
+		}
+
+		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+		remoteCon, err := conn.DynReverse(h.ctx, "127.0.0.1:8081")
+		if err != nil {
+			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
+			return
+		}
+
+		res, err := http.Get("http://" + remoteCon.Host + ":" + string(remoteCon.Port) + "/api/v1/authorize/" + sessionUUID)
+		if err != nil {
+			http.Error(w, "Failed to activate terminal on the connector-remote", http.StatusBadGateway)
+			return
+		}
+		defer res.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(res.StatusCode)
+		io.Copy(w, res.Body)
+	})
+}
+
 // pfconnectorTerminalGet creates a one-time terminal session for a
 // connector: it stores terminal:<uuid> -> connector id in the pfconnector
 // Redis (validated by the chisel server's remote-terminal endpoint) and
@@ -60,6 +95,7 @@ func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 			PFconnectorID string `json:"pfconnector_id"`
 		}
 		type reply struct {
+			UUID        string `json:"uuid"`
 			RedirectURL string `json:"redirect_url"`
 		}
 
@@ -98,15 +134,14 @@ func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 			return
 		}
 
+		redirect := reply{UUID: newUUID.String()}
+		// Legacy direct-activation URL, usable when the admin's browser can
+		// reach the remote's IP. The proxied activation
+		// (/api/v1/terminal/{connectorID}/authorize/{uuid}) works everywhere.
 		ips := redisClient.Get(r.Context(), "ips:"+req.PFconnectorID).Val()
 		ipList := strings.Split(ips, ",")
-		if len(ipList) == 0 || ipList[0] == "" {
-			http.Error(w, "No known IP for this PFconnector", http.StatusNotFound)
-			return
-		}
-
-		redirect := reply{
-			RedirectURL: "http://" + ipList[0] + ":8081/api/v1/authorize/" + newUUID.String(),
+		if len(ipList) > 0 && ipList[0] != "" {
+			redirect.RedirectURL = "http://" + ipList[0] + ":8081/api/v1/authorize/" + newUUID.String()
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

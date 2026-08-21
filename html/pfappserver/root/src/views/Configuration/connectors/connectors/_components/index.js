@@ -7,6 +7,7 @@ import {
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
 import BaseFormGroupFingerbankEnvironment from './BaseFormGroupFingerbankEnvironment'
 import TheForm from './TheForm'
+import TheStatus from './TheStatus'
 import TheView from './TheView'
 
 export {
@@ -20,5 +21,6 @@ export {
   BaseFormGroupFingerbankEnvironment  as FormGroupFingerbankEnvironment,
 
   TheForm,
+  TheStatus,
   TheView
 }
