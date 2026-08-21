@@ -101,6 +101,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/pfconnector-info":
 		s.handlePfconnectorInfo(w, r)
 		return
+	case apiPrefix + "/remote-terminal":
+		s.handleRemoteTerm(w, r)
+		return
 	case apiPrefix + "/reprovision-static-connections":
 		s.handleReprovisionStaticConnections(w, r)
 		return
@@ -891,6 +894,50 @@ func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.
 			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
 		}
 	}
+}
+
+// terminalSessionTimeout is the duration a remotely-authorized terminal
+// session stays up before the connector-remote shuts gotty down.
+const terminalSessionTimeout = 360 * time.Second
+
+// handleRemoteTerm validates a one-time terminal session id created by the
+// admin API (terminal:<uuid> in Redis, holding the target connector id).
+// The connector-remote calls this before starting its gotty terminal; the
+// id is deleted on first use.
+func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
+	id := req.URL.Query().Get("id")
+	connectorID := req.URL.Query().Get("connectorid")
+	if id == "" {
+		http.Error(w, "Missing id query parameter", http.StatusBadRequest)
+		return
+	}
+	if connectorID == "" {
+		http.Error(w, "Missing connectorid query parameter", http.StatusBadRequest)
+		return
+	}
+
+	resolvedConnectorID := s.redis.Get(req.Context(), "terminal:"+id)
+	if err := resolvedConnectorID.Err(); err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error retrieving connector ID for terminal session %s: %s", id, err))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if resolvedConnectorID.Val() != connectorID {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Connector ID %s does not match terminal session %s", connectorID, id))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// One-time use: remove the terminal session from Redis
+	s.redis.Del(req.Context(), "terminal:"+id)
+	log.LoggerWContext(req.Context()).Info(fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"authorized": true,
+		"message":    fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID),
+		"timeout":    terminalSessionTimeout.String(),
+	})
 }
 
 // handlePfconnectorInfo stores the IPs a connector-remote reports about
