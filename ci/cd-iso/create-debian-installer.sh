@@ -12,8 +12,11 @@ fi
 function clean() {
   rm -fr isofiles/
   rm -f preseed.cfg
-  chmod a+rw $ISO_IN
-  chmod a+rw $ISO_OUT
+  # Runs on the failure paths too, where neither ISO need exist -- guard so the
+  # real error is not followed by chmod noise.
+  [ -f "$ISO_IN" ] && chmod a+rw "$ISO_IN"
+  [ -f "$ISO_OUT" ] && chmod a+rw "$ISO_OUT"
+  return 0
 }
 
 ISO_IN=${ISO_IN:-debian-$DEBIAN_VERSION-amd64-netinst.iso}
