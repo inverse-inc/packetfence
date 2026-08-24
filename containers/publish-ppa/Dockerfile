@@ -1,5 +1,5 @@
 # Simplified publish-ppa container without external dependencies
-FROM debian:bookworm
+FROM debian:13
 
 ENV DEBIAN_FRONTEND=noninteractive
 

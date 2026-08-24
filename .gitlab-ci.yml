@@ -695,7 +695,7 @@ variables:
 # CHECK JOBS
 ########################################
 run_pipeline_if_necessary:
-  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_TRIXIE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .check_job
   rules:
@@ -729,7 +729,7 @@ pre_ci_test_cleanup:
   needs:
     - job: run_pipeline_if_necessary
       optional: true
-  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_TRIXIE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   rules:
     - when: always
   script:
@@ -938,7 +938,7 @@ build_artifacts_pkg_debian_bookworm:
 
 # build_artifacts_website (devel/branches/release)
 build_artifacts_website:
-  image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
+  image: ${PFBUILD_DEB_TRIXIE_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_website_job
   rules:
@@ -961,7 +961,7 @@ build_artifacts_material:
 
 # build_artifacts_doc (devel/branches/maintenance/release)
 build_artifacts_doc:
-  image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
+  image: ${PFBUILD_DEB_TRIXIE_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_doc_job
   rules:
