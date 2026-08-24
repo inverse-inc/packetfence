@@ -123,7 +123,7 @@ export_public_key() {
 # --- release discovery ------------------------------------------------------
 
 # Emits "<id>/<name>" for every depth-2 directory under RESULT_DIR,
-# e.g. "debian/bookworm", "centos/8". Hidden dirs are ignored.
+# e.g. "debian/trixie", "centos/8". Hidden dirs are ignored.
 find_releases() {
     for base in "$RESULT_DIR" "${PPA_DEPENDENCIES_DIR:-}"; do
         [ -d "$base" ] || continue
