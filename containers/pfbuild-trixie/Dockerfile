@@ -1,6 +1,4 @@
-# TODO(debian13): pin to a Debian 13 point release once one is chosen
-# (e.g. debian:13.1), the way pfbuild-bookworm floats on the suite tag today.
-FROM debian:trixie
+FROM debian:13
 
 ENV PATH=/usr/local/go/bin:$PATH
 

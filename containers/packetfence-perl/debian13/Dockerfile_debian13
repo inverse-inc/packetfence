@@ -1,6 +1,4 @@
-# TODO(debian13): confirm the point release to pin; debian12/ pins 12.0 the
-# same way, so this only needs bumping if a later 13.x is preferred.
-FROM debian:13.0
+FROM debian:13
 
 ARG workdir \
     output_directory
@@ -10,9 +8,14 @@ ENV WORKDIR=${workdir} \
     BASE_DIR=/usr/local/pf/lib/perl_modules
 
 
+# CPAN_VERSION: trixie ships perl 5.40.1, whose bundled CPAN is already 2.36,
+# so installing it explicitly is not a downgrade -- it keeps the client version
+# frozen the way debian12/ does, so install_cpan.py's resolution of the exact
+# dists pinned in dependencies.csv does not drift with the base image.
 ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
     PKG_CONFIG_PATH=/usr/lib/pkgconfig/ \
-    CPAN_BIN_PATH="/usr/bin/cpan" 
+    CPAN_BIN_PATH="/usr/bin/cpan" \
+    CPAN_VERSION=2.36
 
 WORKDIR ${WORKDIR}
 
@@ -42,6 +45,8 @@ RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::HandleConfig->load(doit => 1, au
 # 1. configure CPAN with defaults (answer yes)
 # 2. override default conf to UNINST cpan after upgrade (seems mandatory for EL8)
 RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} > /dev/null 2>&1 && \
+# pin the CPAN client and echo the version the image was built with
+    ${CPAN_BIN_PATH} -i ANDK/CPAN-${CPAN_VERSION}.tar.gz > /dev/null 2>&1 && ${CPAN_BIN_PATH} -D CPAN && \
 # install modules in a specific directory
     set -o nounset -o errexit && (echo o conf makepl_arg "INSTALL_BASE=${BASE_DIR}"; echo o conf commit)|${CPAN_BIN_PATH} && \
 # hard-coded due to quotes
