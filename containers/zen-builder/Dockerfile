@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM debian:13
 
 # Zen appliance builder: packer qemu build against /dev/kvm, then
 # qcow2 -> VMware OVA. ovftool is not redistributable, so
@@ -18,7 +18,7 @@ RUN apt-get update && \
     install -d -m 0755 /etc/apt/keyrings && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg \
         | gpg --dearmor -o /etc/apt/keyrings/hashicorp.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com bookworm main" \
+    echo "deb [signed-by=/etc/apt/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com trixie main" \
         > /etc/apt/sources.list.d/hashicorp.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends packer && \
