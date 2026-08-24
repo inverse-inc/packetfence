@@ -40,7 +40,7 @@ upload_to_linode() {
 mkdir -p ${SF_RESULT_DIR}
 
 echo "===> Build ISO for release $PF_RELEASE"
-docker run --rm -e PF_RELEASE=$PF_RELEASE -e DEBIAN_VERSION=$DEBIAN_VERSION -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/cd-iso debian:12 /cd-iso/create-debian-installer-docker.sh
+docker run --rm -e PF_RELEASE=$PF_RELEASE -e DEBIAN_VERSION=$DEBIAN_VERSION -e DEBIAN_NETINST_SHA256=$DEBIAN_NETINST_SHA256 -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/cd-iso debian:13 /cd-iso/create-debian-installer-docker.sh
 
 echo "===> Upload to Linode"
 upload_to_linode
