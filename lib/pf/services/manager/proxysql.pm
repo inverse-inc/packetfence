@@ -273,8 +273,15 @@ EOT
     #   rule 2 — SELECT            → HG 30 (readers preferred)
     #            writer is also in HG 30 (weight=50) only as fallback
     #            if all pure readers go down ✅
-    #   rule 4 — catch-all                 → HG 10 in normal mode
-    #            scheduler rewrites 1,2,4 during degraded mode
+    #   rule 3 — SELECT on processlist     → HG 10 (writer)
+    #            netdata's mysql collector runs SET SESSION sql_log_bin=OFF
+    #            which locks its session to HG 10; without this rule its
+    #            processlist SELECT matches rule 4 → HG 30 and ProxySQL
+    #            rejects it with error 9006 (locked to hostgroup)
+    #   rule 5 — catch-all                 → HG 10 in normal mode
+    #            scheduler rewrites 1,2,5 during degraded mode
+    #            (rule 3 is deliberately NOT rewritten: a SELECT still works
+    #            on a read-only writer, and replace_pattern would break it)
     # Only generated when we actually have a reader split
     #
     # IMPORTANT: the proxysql.conf template MUST reference [% mysql_query_rules %]
@@ -303,13 +310,21 @@ mysql_query_rules =
     {
         rule_id=3,
         active=1,
+        match_pattern="(information_schema|performance_schema).processlist",
+        destination_hostgroup=$writer_hostgroup,
+        apply=1,
+        comment="processlist SELECT stays on writer — netdata session is locked to HG $writer_hostgroup by SET sql_log_bin"
+    },
+    {
+        rule_id=4,
+        active=1,
         match_pattern="^SELECT",
         destination_hostgroup=$reader_hostgroup,
         apply=1,
         comment="SELECT goes to readers — writer is also in HG $reader_hostgroup as fallback"
     },
     {
-        rule_id=4,
+        rule_id=5,
         active=1,
         match_pattern=".*",
         destination_hostgroup=$writer_hostgroup,
