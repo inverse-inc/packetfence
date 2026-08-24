@@ -936,6 +936,8 @@ portal or admin interface — notably Android older than 5.0, Java 7, and
 Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 ====
 
+== Upgrading from a version prior to X.Y.Z
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
