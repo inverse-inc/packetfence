@@ -12,7 +12,7 @@
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Louis Munro <git@louismunro.com>, 2015,2017
-# lzammit <lzammit@inverse.ca>, 2014-2020
+# lzammit <lzammit@inverse.ca>, 2014-2020,2026
 # 6cd36d5588a56dc96be07a81dccd6094_cfd3212 <65757670ff8e21205c26b30fb18b9c66_844927>, 2019
 # Nicolas Quiniou-Briand <nqb@azyx.fr>, 2019
 # tolivierl1 <thomas.olivier@univ-lille1.fr>, 2019-2020,2025
@@ -214,6 +214,7 @@ msgid "AUDITING_READ"
 msgstr "Audit - Lecture"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/Choice.pm
 msgid "AUP template"
 msgstr "Gabarit de la politique d’utilisation"
 
@@ -1166,7 +1167,6 @@ msgid ""
 msgstr "Contrôle si oui ou non la fonction de limite de trap snmp est activée. La limite de trap snmp est un moyen de limiter les dommages causés par des utilisateurs malveillants ou commutateurs qui envoient trop de trap snmp à PacketFence l’amenant à être surchargé. La limite de trap snmp est contrôlée par les paramètres de la limite de seuil. Activé par défaut."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Country for the certificate"
 msgstr "Pays définit dans le certificat"
 
@@ -1415,7 +1415,6 @@ msgid ""
 msgstr "Définir le FQDN du portail pour ce réseau. Laisser vide pour utiliser le FQDN du serveur PacketFence"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid ""
 "Defines how the common name will be formated. %s will expand to the defined "
 "Common Name Attribute value"
@@ -1461,12 +1460,6 @@ msgid ""
 "Defines what attribute of the node to use as the common name during the "
 "certificate generation"
 msgstr "Définit quel attribut de l’appareil est à utiliser pour le nom d’hôte durant la génération du certificat"
-
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
-msgid ""
-"Defines what attribute of the node to use as the common name during the "
-"certificate generation."
-msgstr "Définit quel attribut de l’appareil est à utiliser pour le nom d’hôte durant la génération du certificat."
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Delay By"
@@ -2086,6 +2079,10 @@ msgstr "Forcer le portail a utiliser HTTPS pour tous les clients du portail. Not
 msgid "Forced Sponsor"
 msgstr "Parrain forcé"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Full RADIUS authorization for VoIP"
+msgstr "Autorisation RADIUS complète pour la VoIP"
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Fully Qualified Device Name"
 msgstr "Nom de domaine pleinement qualifié (FQDN)"
@@ -2693,7 +2690,6 @@ msgid "Load Balance"
 msgstr "Partage de charge"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Locality for the certificate"
 msgstr "Ville définit dans le certificat"
 
@@ -2882,7 +2878,6 @@ msgid "MAC Vendor (OUI)"
 msgstr "Fabriquant MAC (OUI)"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "MAC address"
 msgstr "Adresse MAC"
 
@@ -3325,13 +3320,8 @@ msgid "Options"
 msgstr "Options"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Organization for the certificate"
 msgstr "Organisme définit dans le certificat"
-
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
-msgid "Organizational unit for the certificate"
-msgstr "L’unité organisationnelle définit dans le certificat"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Other"
@@ -3395,6 +3385,14 @@ msgstr "Parser Syslog - Lecture"
 # pf::admin_roles (Actions)
 msgid "PFDETECT_UPDATE"
 msgstr "Parser Syslog - Mise à jour"
+
+# pf::admin_roles (Actions groups)
+msgid "PFTEST"
+msgstr "PFTEST"
+
+# pf::admin_roles (Actions)
+msgid "PFTEST_CREATE"
+msgstr "PFTEST_CREATE"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "PID"
@@ -3555,7 +3553,6 @@ msgid "Password for the MySQL database used by PacketFence."
 msgstr "Mot de passe pour la base de donnée MySQL utilisé par PacketFence."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Password for the username filled in above"
 msgstr "Le mot de passe pour l’utilisateur rempli ci-dessus"
 
@@ -3585,13 +3582,8 @@ msgid ""
 "combination"
 msgstr "Emplacement du certificat de l’AC utilisé pour générer la clé privée/publique du client"
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
-msgid "Path of the CA that will generate your certificates"
-msgstr "Emplacement du certificat de l’AC qui va générer vos certificats"
-
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Path of the RADIUS server authentication certificate"
 msgstr "Emplacement du certificat du serveur RADIUS"
 
@@ -3879,7 +3871,6 @@ msgstr "Veuillez spécifier le nom du profil OCSP."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Please specify the name of the PKI provider"
 msgstr "Veuillez spécifier le nom du fournisseur de certificats"
 
@@ -4380,10 +4371,12 @@ msgid "Request"
 msgstr "Requête"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/Choice.pm
 msgid "Require AUP"
 msgstr "Charte d’utilisation du réseau obligatoire"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/Choice.pm
 msgid "Require the user to accept the AUP"
 msgstr "L’utilisateur doit accepter la politique d’utilisation du réseau"
 
@@ -5230,6 +5223,15 @@ msgstr "Si la translation d’adresse est désactivé, PacketFence utilisera les
 msgid "Site"
 msgstr "Site"
 
+# conf/documentation.conf (radius_configuration.pfacct_socket_recv_buffer)
+msgid ""
+"Size in bytes of the UDP receive buffer (SO_RCVBUF) requested by pfacct on "
+"its accounting socket. Larger values absorb bursts from busy switches and "
+"avoid kernel packet drops (visible as <i>receive buffer errors</i> in "
+"netstat -su). The kernel caps the effective value at net.core.rmem_max. Zero"
+" leaves the OS default in place."
+msgstr "Taille en octets du tampon de réception UDP (SO_RCVBUF) demandé par pfacct sur son socket comptable. Des valeurs plus élevées absorbent les rafales des commutateurs occupés et évitent les chutes de paquets du noyau (visibles comme <i>erreur de buffer de réception</i> dans netstat -su). Le noyau limite la valeur effective à net.core.rmem_max. Zero laisse le système d'exploitation par défaut en place. "
+
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SSL_Inspection.pm
@@ -5317,7 +5319,6 @@ msgid "Starting IP Address"
 msgstr "IP de début"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "State for the certificate"
 msgstr "État du certificat"
 
@@ -5788,6 +5789,12 @@ msgid ""
 " haproxy-db configuration."
 msgstr "L'attribut de configuration MySQL net_write_timeout. Ne changez que si vous savez ce que vous faites. Cela n''affectera qu'un serveur MySQL exécuté localement et la configuration haproxy-db."
 
+# conf/documentation.conf (radius_configuration.pfacct_aaa_notify_workers)
+msgid ""
+"The number of workers forwarding accounting notifications to httpd.aaa. If "
+"zero it will be twice the number of CPUs."
+msgstr "Le nombre de travailleurs transmettant les notifications comptables vers httpd.aaa. Si c'est zéro, ce sera deux fois plus de CPU."
+
 # conf/documentation.conf (radius_configuration.pfacct_workers)
 msgid "The number of workers proccessing accounting packets."
 msgstr "Le nombre de workers qui traitent les paquets d'accounting."
@@ -6067,6 +6074,10 @@ msgstr "L'URL de service pour pfsso"
 msgid "The short name of the billing tier"
 msgstr "Le nom raccourci du plan de facturation"
 
+# conf/documentation.conf (radius_configuration.pfacct_aaa_notify_queue_size)
+msgid "The size of the queue for each AAA notification worker."
+msgstr "La taille de la file d'attente pour chaque travailleur de notification AAA."
+
 # conf/documentation.conf (radius_configuration.pfacct_work_queue_size)
 msgid "The size of the queue for each worker."
 msgstr "La taille de la file d'attente pour chaque worker."
@@ -6106,6 +6117,7 @@ msgid "The template to use"
 msgstr "Le gabarit à utiliser"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/Choice.pm
 msgid "The template to use for the AUP"
 msgstr "Le gabarit à utiliser pour la politique d’utilisation"
 
@@ -6175,14 +6187,6 @@ msgstr "Le port pour unifiedapi"
 msgid "The unique ID of the PKI provider"
 msgstr "L’identifiant unique du fournisseur de certificats"
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
-msgid "The unique id of the PKI provider"
-msgstr "L’identifiant unique du fournisseur de certificats"
-
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
-msgid "The url used to connect to the SCEP PKI service"
-msgstr "L’URL utilisée pour se connecter au service de certificats SCEP"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The username of a Domain Admin to use to join the server to the domain"
 msgstr "Le nom d’utilisateur d’un administrateur du domaine pour joindre le serveur."
@@ -6198,8 +6202,10 @@ msgstr "Le nom d'utilisateur pour se connecter au serveur SMTP"
 # conf/documentation.conf (active_active.virtual_router_id)
 msgid ""
 "The virtual router id for keepalive. Leave untouched unless you have another"
-" keepalive cluster in this network. Must be between 1 and 255."
-msgstr "L’identifiant de routeur virtuel pour keepalive. Laissez intact, sauf si vous avez un autre cluster keepalive dans ce réseau. Doit être entre 1 et 255."
+" keepalive cluster in this network. Must be between 1 and 255. In a multi-"
+"zone (layer 3) cluster, this can be overridden per zone by setting "
+"virtual_router_id in the zone's CLUSTER section of cluster.conf."
+msgstr "L'identifiant virtuel du routeur pour Keepalive. Laissez-le intact à moins d'avoir un autre cluster keepalive dans ce réseau. Ça doit être entre 1 et 255. Dans un cluster multi-zone (couche 3), cela peut être remplacé par zone en définissant virtual_router_id dans la section CLUSTER de cluster.conf de la zone."
 
 # conf/documentation.conf (webservices.host)
 msgid "The webservices host"
@@ -6708,10 +6714,6 @@ msgstr "Nom d'utilisateur du compte ayant accès à la base de données MySQL ut
 msgid "Username to connect to the PKI"
 msgstr "Nom d’utilisateur pour se connecter à l’infrastructure à clés publiques"
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
-msgid "Username to connect to the SCEP PKI Service"
-msgstr "Nom d’utilisateur pour se connecter au service de certificats SCEP"
-
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
 msgid "VLAN ID (must be a number bellow 4096)"
 msgstr "VLAN ID (doit être un nombre inférieur à 4096)"
@@ -6867,6 +6869,16 @@ msgid ""
 "When enabled, PacketFence will unset the role of the device if no "
 "authentication sources returned one."
 msgstr "Lorsqu'il est activé, PacketFence annule le rôle de l'appareil si aucune source d'authentification n'en renvoie un."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid ""
+"When enabled, the RADIUS reply for a VoIP device contains the Voice VSA AND "
+"the full Access-Accept response computed as if the device were a regular "
+"endpoint (VLAN tunnel attributes, role attributes, push/downloadable ACLs, "
+"access-filter rules). The data VLAN returned alongside the Voice VSA may "
+"conflict with the voice VLAN; make sure the switch is configured to accept "
+"both."
+msgstr "Lorsqu'activée, la réponse RADIUS pour un appareil VoIP contient la VSA Voix ET la réponse complète Accès-Acceptation calculée comme si l'appareil était un point de terminaison classique (attributs du tunnel VLAN, attributs de rôle, ACL push/téléchargeables, règles de filtre d'accès). Le VLAN de données renvoyé avec le VSA Voice peut entrer en conflit avec le VLAN vocal ; Assurez-vous que le commutateur est configuré pour accepter les deux."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid ""
@@ -9248,12 +9260,24 @@ msgid "radius_configuration.ntlm_redis_cache"
 msgstr "Cache Redis NTLM"
 
 # conf/documentation.conf
+msgid "radius_configuration.pfacct_aaa_notify_queue_size"
+msgstr "radius_configuration.pfacct_aaa_notify_queue_size"
+
+# conf/documentation.conf
+msgid "radius_configuration.pfacct_aaa_notify_workers"
+msgstr "radius_configuration.pfacct_aaa_notify_workers"
+
+# conf/documentation.conf
 msgid "radius_configuration.pfacct_rate_limit"
 msgstr "radius_configuration.pfacct_rate_limit"
 
 # conf/documentation.conf
 msgid "radius_configuration.pfacct_rate_limit_cache_ttl"
 msgstr "radius_configuration.pfacct_rate_limit_cache_ttl"
+
+# conf/documentation.conf
+msgid "radius_configuration.pfacct_socket_recv_buffer"
+msgstr "radius_configuration.pfacct_socket_recv_buffer"
 
 # conf/documentation.conf
 msgid "radius_configuration.pfacct_work_queue_size"
