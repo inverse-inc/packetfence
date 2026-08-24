@@ -56,6 +56,6 @@ OS_RELEASE_NUM  := $(shell . /etc/os-release 2>/dev/null && printf '%04d' "$${VE
 DEB_PKG_SUFFIX  := +$(CI_COMMIT_DATE)+$(CI_PIPELINE_ID)+$(OS_RELEASE_NUM)+$(CI_COMMIT_REF_TILDE)+$(OS_RELEASE_NAME)
 RPM_PKG_SUFFIX  := $(CI_COMMIT_DATE).$(CI_PIPELINE_ID).$(OS_RELEASE_NUM).$(CI_COMMIT_REF_TILDE)
 
-# centos:8 -> result/centos/8, debian:bookworm -> result/debian/bookworm
+# centos:8 -> result/centos/8, debian:trixie -> result/debian/trixie
 PKG_RESULT_DIR  ?= $(SRC_RESULTDIR)
 PKG_RELEASE_DIR  = $(PKG_RESULT_DIR)/$(OS_RELEASE_ID)/$(OS_RELEASE_NAME)
