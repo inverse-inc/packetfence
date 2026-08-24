@@ -8,7 +8,7 @@ with authenticated rclone before `vagrant up`.
 
 | Box | Base | Bakes | Build (`make`) |
 |-----|------|-------|----------------|
-| `pfdeb12{dev,stable,branch}` | bookworm | PacketFence server | `pfdeb12dev` / `…_generic` |
+| `pfdeb13{dev,stable,branch}` | trixie | PacketFence server | `pfdeb13dev` / `…_generic` |
 | `pfel8{dev,stable,branch}` | generic/rhel8 | PacketFence server | `pfel8dev` / `…_generic` |
 | `pfad11{dev,branch}` | bullseye | Samba4 AD | `pfad11dev` / `…_generic` |
 | `pfnode11{dev,stable,branch}` | bullseye | node + wireless client layer | `pfnode11dev` / `…_generic` |

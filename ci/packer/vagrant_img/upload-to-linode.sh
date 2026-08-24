@@ -5,7 +5,7 @@ set -o nounset -o pipefail -o errexit
 # and maintain a Vagrant-compatible metadata.json for native versioning support.
 #
 # Required env vars:
-#   BOX_NAME                  e.g. pfdeb12dev
+#   BOX_NAME                  e.g. pfdeb13dev
 #   BOX_VERSION               e.g. 15.1.20260519123456
 #   RESULT_DIR                directory where packer wrote the box
 #   RCLONE_ACCESS_KEY_ID
@@ -18,7 +18,7 @@ set -o nounset -o pipefail -o errexit
 #   BOX_DESC      (default: empty; shown as version description in metadata.json)
 #
 # Usage:
-#   BOX_NAME=pfdeb12dev BOX_VERSION=15.1.20260519123456 RESULT_DIR=/var/local/gitlab-runner/vagrant_img \
+#   BOX_NAME=pfdeb13dev BOX_VERSION=15.1.20260519123456 RESULT_DIR=/var/local/gitlab-runner/vagrant_img \
 #     RCLONE_ACCESS_KEY_ID=... RCLONE_SECRET_ACCESS_KEY=... RCLONE_LINODE_URL=... \
 #     ./upload-to-linode.sh
 

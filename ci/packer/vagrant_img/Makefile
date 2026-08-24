@@ -20,11 +20,13 @@ VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
 PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
-# debian/bookworm64 base box — downloaded once, QCOW2 extracted for packer disk_image build
-DEBIAN_BASE_BOX_VERSION ?= 12.20260519.1
-DEBIAN_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bookworm64/versions/$(DEBIAN_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
+# debian/trixie64 base box — downloaded once, QCOW2 extracted for packer disk_image build
+# Keep DEBIAN_BASE_BOX_VERSION in sync with box_version in
+# addons/vagrant/inventory/hosts, which pins the same box for the pristine VMs.
+DEBIAN_BASE_BOX_VERSION ?= 13.20260519.1
+DEBIAN_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/trixie64/versions/$(DEBIAN_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
 DEBIAN_BASE_BOX_CACHE_DIR ?= /tmp/packer-iso
-DEBIAN_BASE_BOX_FILE := $(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.img
+DEBIAN_BASE_BOX_FILE := $(DEBIAN_BASE_BOX_CACHE_DIR)/trixie64.img
 # debian/bullseye64 base box — used for the AD (Samba4) vagrant box build
 BULLSEYE_BASE_BOX_VERSION ?= 11.20241217.1
 BULLSEYE_BASE_BOX_URL ?= https://vagrantcloud.com/debian/boxes/bullseye64/versions/$(BULLSEYE_BASE_BOX_VERSION)/providers/libvirt/amd64/vagrant.box
@@ -58,11 +60,11 @@ download-vagrant-key:
 download-base-image:
 	mkdir -p $(DEBIAN_BASE_BOX_CACHE_DIR)
 	@if [ ! -f "$(DEBIAN_BASE_BOX_FILE)" ]; then \
-		echo "===> Downloading debian/bookworm64 libvirt box v$(DEBIAN_BASE_BOX_VERSION)..."; \
-		curl -fL "$(DEBIAN_BASE_BOX_URL)" -o "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box"; \
+		echo "===> Downloading debian/trixie64 libvirt box v$(DEBIAN_BASE_BOX_VERSION)..."; \
+		curl -fL "$(DEBIAN_BASE_BOX_URL)" -o "$(DEBIAN_BASE_BOX_CACHE_DIR)/trixie64.box"; \
 		echo "===> Extracting QCOW2 from box..."; \
-		tar -xOf "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box" box.img > "$(DEBIAN_BASE_BOX_FILE)"; \
-		rm -f "$(DEBIAN_BASE_BOX_CACHE_DIR)/bookworm64.box"; \
+		tar -xOf "$(DEBIAN_BASE_BOX_CACHE_DIR)/trixie64.box" box.img > "$(DEBIAN_BASE_BOX_FILE)"; \
+		rm -f "$(DEBIAN_BASE_BOX_CACHE_DIR)/trixie64.box"; \
 	else \
 		echo "===> Base image already cached: $(DEBIAN_BASE_BOX_FILE)"; \
 	fi
@@ -146,25 +148,25 @@ pfel8stable:
 
 # Debian builds — host-side entry targets: the packer build itself runs inside
 # the vagrant-build container (see vagrant-in-docker.sh).
-.PHONY: pfdeb12dev
-pfdeb12dev:
+.PHONY: pfdeb13dev
+pfdeb13dev:
 	BOX_NAME=$@ \
 	BOX_VERSION="$(BOX_VERSION)" \
 	BOX_DESC="$(BOX_DESC)" \
 	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
+	BUILD_NAME="$(DEV_GROUP).qemu.debian-13" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	./vagrant-in-docker.sh pfbox
 
-.PHONY: pfdeb12stable
-pfdeb12stable:
+.PHONY: pfdeb13stable
+pfdeb13stable:
 	BOX_NAME=$@ \
 	BOX_VERSION="$(BOX_VERSION)" \
 	BOX_DESC="$(BOX_DESC)" \
 	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	BUILD_NAME="$(STABLE_GROUP).qemu.debian-12" \
+	BUILD_NAME="$(STABLE_GROUP).qemu.debian-13" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	./vagrant-in-docker.sh pfbox
 
@@ -220,16 +222,16 @@ pfad11dev_generic:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	./vagrant-in-docker.sh pfadbox
 
-# Generic debian-12 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
-.PHONY: pfdebian12dev_generic
-pfdebian12dev_generic:
-	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfdebian12dev_generic))
+# Generic debian-13 dev build — BOX_NAME must be provided externally (e.g. for branch builds)
+.PHONY: pfdebian13dev_generic
+pfdebian13dev_generic:
+	$(if $(BOX_NAME),,$(error BOX_NAME is required for pfdebian13dev_generic))
 	BOX_NAME="$(BOX_NAME)" \
 	BOX_VERSION="$(BOX_VERSION)" \
 	BOX_DESC="$(BOX_DESC)" \
 	RESULT_DIR="$(RESULT_DIR)" \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).qemu.debian-12" \
+	BUILD_NAME="$(DEV_GROUP).qemu.debian-13" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	./vagrant-in-docker.sh pfbox
 

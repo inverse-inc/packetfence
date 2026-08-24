@@ -7,7 +7,7 @@ set -o nounset -o pipefail -o errexit
 # The bucket is private; all reads go through authenticated rclone.
 #
 # Required env vars:
-#   BOX_NAME                 e.g. pfdeb12dev
+#   BOX_NAME                 e.g. pfdeb13dev
 #   RCLONE_LINODE_URL        S3 endpoint, e.g. https://us-ord-1.linodeobjects.com
 #   RCLONE_ACCESS_KEY_ID
 #   RCLONE_SECRET_ACCESS_KEY
@@ -21,7 +21,7 @@ set -o nounset -o pipefail -o errexit
 #   WORK_DIR                (default: ~/vagrant_img_cache)
 #
 # Usage:
-#   BOX_NAME=pfdeb12dev RCLONE_LINODE_URL=https://us-ord-1.linodeobjects.com \
+#   BOX_NAME=pfdeb13dev RCLONE_LINODE_URL=https://us-ord-1.linodeobjects.com \
 #     RCLONE_ACCESS_KEY_ID=... RCLONE_SECRET_ACCESS_KEY=... \
 #     ./setup-vagrant-box.sh
 
