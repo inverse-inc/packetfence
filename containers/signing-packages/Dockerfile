@@ -1,11 +1,14 @@
-FROM debian:bookworm
+FROM debian:13
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# dpkg-sig was removed from Debian 12 (bookworm) and is not in bookworm-backports.
-# The bullseye package is Architecture: all (pure Perl) and its runtime deps
-# (perl, gnupg, libdigest-md5-perl, libconfig-file-perl) are all in bookworm,
-# so we fetch the .deb from the Debian archive and let apt resolve its deps.
+# dpkg-sig was removed after Debian 11 (bullseye) and is in neither bookworm nor
+# trixie, backports included. The bullseye package is Architecture: all (pure
+# Perl) and its runtime deps resolve on trixie: perl, gnupg and
+# libconfig-file-perl are packaged, and libdigest-md5-perl -- which has not been
+# a real package since Digest::MD5 moved into core perl -- is satisfied by
+# perl's Provides. So we fetch the .deb from the Debian archive and let apt
+# resolve its deps.
 ARG DPKG_SIG_DEB_URL=https://archive.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
 # SHA256 pinned from the signed bullseye main Packages index (dpkg-sig 0.13.1+nmu4).
 # The .deb is fetched over plain HTTPS, so verify the checksum before installing to
