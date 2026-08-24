@@ -229,8 +229,14 @@ website_deploy() {
 }
 
 
+# Artifacts land in different dirs per deploy type; keep this diagnostic non-fatal.
+case $1 in
+    ppa)     ARTIFACTS_DIR="${PUBLIC_DIR}" ;;
+    website) ARTIFACTS_DIR="website" ;;
+    *)       ARTIFACTS_DIR="${RESULT_DIR}" ;;
+esac
 log_section "Display artifacts"
-tree ${RESULT_DIR}
+tree ${ARTIFACTS_DIR} || true
 
 log_section "Display PacketFence minor release"
 echo "${PF_MINOR_RELEASE}"
