@@ -3,7 +3,7 @@
 # packer qemu build, then qcow2 -> VMware OVA via build-and-upload.sh.
 set -o errexit -o nounset -o pipefail
 
-BUILD_NAME="${1:?usage: build-in-container.sh <build-name> (e.g. debian-12)}"
+BUILD_NAME="${1:?usage: build-in-container.sh <build-name> (e.g. debian-13)}"
 
 ZEN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

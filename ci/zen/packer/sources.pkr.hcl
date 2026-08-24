@@ -1,6 +1,6 @@
 # QEMU/KVM build, run in the zen-builder container; the qcow2 becomes
 # a VMware OVA in ../build-and-upload.sh.
-source "qemu" "debian-12" {
+source "qemu" "debian-13" {
   # the qemu builder uses vm_name verbatim as the disk file name
   vm_name = "${var.vm_name}.qcow2"
   disk_size = "200000"
@@ -14,8 +14,18 @@ source "qemu" "debian-12" {
   disk_interface = "virtio"
   net_device = "virtio-net"
 
-  iso_url = "https://cdimage.debian.org/cdimage/archive/12.4.0/amd64/iso-cd/debian-12.4.0-amd64-netinst.iso"
-  iso_checksum = "64d727dd5785ae5fcfd3ae8ffbede5f40cca96f1580aaa2820e8b99dae989d94"
+  # Point release and checksum come from ci/debian-version.conf, so the ISO
+  # builders and the appliance track one Debian version instead of drifting --
+  # this used to pin 12.4.0 while ci/debian-version.conf said 12.14.0.
+  #
+  # cdimage serves the current point release under release/ and moves it to
+  # archive/ once a newer one ships; packer tries iso_urls in order, so listing
+  # both means a new point release does not break the build.
+  iso_urls = [
+    "https://cdimage.debian.org/cdimage/release/${var.debian_version}/amd64/iso-cd/debian-${var.debian_version}-amd64-netinst.iso",
+    "https://cdimage.debian.org/cdimage/archive/${var.debian_version}/amd64/iso-cd/debian-${var.debian_version}-amd64-netinst.iso",
+  ]
+  iso_checksum = "sha256:${var.debian_netinst_sha256}"
 
   # boot parameters to preseed questions
   # all parameters below can't be moved to preseed file
