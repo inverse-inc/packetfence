@@ -42,7 +42,7 @@ OPTIONS:
                         containers/.local_env). This configures containers to use
                         local builds instead of pulling from the registry.
                         WARNING: When enabled, starting any dockerized service will
-                        rebuild it from scratch, including pfdebian (~3.5GB).
+                        rebuild it from scratch, including pfdebian-trixie (~3.5GB).
                         This requires significant disk space and CPU resources.
 
 ENVIRONMENT VARIABLES:
@@ -320,7 +320,7 @@ if [ "$LOCAL_DEV" = true ]; then
     echo "LOCAL_DEV=$LOCAL_DEV" > containers/.local_env
 
     # Pull base images for local builds
-    for img in pfbuild-debian-bookworm pfdebian radiusd; do
+    for img in pfbuild-debian-trixie pfdebian-trixie radiusd; do
         docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME || \
             docker pull ghcr.io/inverse-inc/packetfence/$img:devel
         docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME packetfence/$img:$TAG_OR_BRANCH_NAME 2>/dev/null || \
