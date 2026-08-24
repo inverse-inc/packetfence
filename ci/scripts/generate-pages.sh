@@ -122,7 +122,7 @@ export_public_key() {
 # --- release discovery ------------------------------------------------------
 
 # Emits "<id>/<name>" for every depth-2 directory under RESULT_DIR,
-# e.g. "debian/bookworm", "centos/8". Hidden dirs are ignored.
+# e.g. "debian/trixie", "centos/8". Hidden dirs are ignored.
 find_releases() {
     [ -d "$RESULT_DIR" ] || return 0
     (cd "$RESULT_DIR" && find . -mindepth 2 -maxdepth 2 -type d \
