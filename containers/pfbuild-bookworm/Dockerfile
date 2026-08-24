@@ -7,7 +7,7 @@ ARG PF_MINOR_RELEASE
 
 # python3 + nacl + requests: addons/packetfence-perl/psono.py fetches build secrets.
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl gnupg devscripts equivs make git \
+    apt-get install -y --no-install-recommends ca-certificates curl gnupg devscripts equivs make git tree \
         python3 python3-nacl python3-requests && \
     install -d -m 0755 /etc/apt/keyrings && \
     curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY \
