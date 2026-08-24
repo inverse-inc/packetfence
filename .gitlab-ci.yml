@@ -467,9 +467,7 @@ variables:
 .build_artifacts_material_job:
   stage: build_artifacts
   needs: !reference [.needs_all_build_images, needs]
-  # Shell executor: generate-material.sh runs a pfconfig sidecar via the host
-  # Docker daemon (like the build_pf_img_* jobs). Host provides docker/git/make
-  # plus python3-nacl/python3-requests/gh (script pre-flights these).
+  # Shell executor: generate-material.sh needs the host Docker daemon.
   dependencies: []
   variables:
     # Git credentials (GIT_USER_NAME, GIT_USER_PASSWORD, GIT_USER_MAIL) set in generate-material.sh from Psono
@@ -908,9 +906,6 @@ build_artifacts_website:
     - !reference [.devel_or_branches_or_release_rules, rules]
 
 # build_artifacts_material (devel/branches/release; no maintenance)
-# Runtime image (pfconfig-material-builder) is standing CI infra built by
-# ci_related, so — like build_artifacts_website with pfbuild — this job trusts
-# the image already exists and is not gated on the image-build flag.
 build_artifacts_material:
   extends:
     - .build_artifacts_material_job
