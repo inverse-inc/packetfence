@@ -16,7 +16,6 @@ configure_and_check() {
     GIT_USER_PASSWORD=${GIT_USER_PASSWORD:-}
     GIT_REPO=${GIT_REPO:-}
     GIT_CI_BRANCH=${GIT_CI_BRANCH:-}
-    GIT_BASE_BRANCH=${GIT_BASE_BRANCH:-main}
 
     # Validate required variables
     if [ -z "${GIT_USER_PASSWORD}" ]; then
@@ -36,6 +35,8 @@ configure_and_check() {
     GIT_REPO_PATH=$(echo "${GIT_REPO}" | cut -d'/' -f2-)
 
     setup_gh_auth
+    # Base branch = repo's real default (publish-to-git clones it), not a hardcoded "main".
+    GIT_BASE_BRANCH=${GIT_BASE_BRANCH:-$(gh repo view "${GIT_REPO_PATH}" --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo main)}
     declare -p GIT_REPO GIT_REPO_PATH GIT_CI_BRANCH GIT_BASE_BRANCH
 }
 
@@ -75,17 +76,19 @@ create_pull_request() {
     local pr_body="Automatic update from branch ${GIT_CI_BRANCH}"
     local pr_url
 
+    # || true: errexit would otherwise abort on a failed gh, skipping the check below.
     pr_url=$(gh pr create \
         --repo "${GIT_REPO_PATH}" \
         --title "${pr_title}" \
         --body "${pr_body}" \
         --head "${GIT_CI_BRANCH}" \
-        --base "${GIT_BASE_BRANCH}" 2>&1)
+        --base "${GIT_BASE_BRANCH}" 2>&1) || true
 
     if [[ "${pr_url}" =~ ^https://github\.com/.*/pull/[0-9]+$ ]]; then
         echo "Pull request created successfully: ${pr_url}"
     else
         echo "Error: Failed to create pull request"
+        echo "${pr_url}"
         echo "Check GitHub PAT permissions and repository access."
         exit 1
     fi
