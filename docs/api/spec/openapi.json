@@ -5986,7 +5986,7 @@
          "ConfigBaseSubTypeFingerbankDeviceChange" : {
             "properties" : {
                "device_class_whitelist" : {
-                  "description" : "Which device class changes are allowed in conjunction with trigger_on_device_class_change Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive, Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming Console</b> = 6</li><li><b>Generic PC</b> = 161388</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b> = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> = 8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone, Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b> = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router, Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>",
+                  "description" : "Which device class changes are allowed in conjunction with trigger_on_device_class_change Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive, Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming Console</b> = 6</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b> = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> = 8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone, Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b> = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router, Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>",
                   "type" : "string"
                },
                "enable" : {
@@ -6002,7 +6002,7 @@
                   "type" : "string"
                },
                "triggers" : {
-                  "description" : "Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change. This setting is independant from trigger_on_device_class_change and allows to specify exactly which transitions should trigger internal::fingerbank_device_change. Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive, Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming Console</b> = 6</li><li><b>Generic PC</b> = 161388</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b> = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> = 8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone, Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b> = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router, Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>",
+                  "description" : "Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change. This setting is independant from trigger_on_device_class_change and allows to specify exactly which transitions should trigger internal::fingerbank_device_change. Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive, Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming Console</b> = 6</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b> = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> = 8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone, Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b> = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router, Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>",
                   "type" : "string"
                }
             },
@@ -7302,7 +7302,7 @@
                   "type" : "string"
                },
                "network_logoff" : {
-                  "description" : "This allows users to access the network logoff page (http://192-53-123-126.ip.linodeusercontent.com/networklogoff) in order to terminate their network access (switch their device back to unregistered)",
+                  "description" : "This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)",
                   "type" : "string"
                },
                "network_logoff_popup" : {
@@ -17786,64 +17786,6 @@
             },
             "type" : "object"
          },
-         "ConfigPkiProviderMetaSubTypeScep" : {
-            "properties" : {
-               "meta" : {
-                  "properties" : {
-                     "ca_cert_path" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "ca_cert_path_upload" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "cn_attribute" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "cn_format" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "country" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "id" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "locality" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "organization" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "organizational_unit" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "password" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "server_cert_path" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "server_cert_path_upload" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "state" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "type" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "url" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "username" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     }
-                  },
-                  "type" : "object"
-               }
-            },
-            "type" : "object"
-         },
          "ConfigPkiProviderSubTypePacketfenceLocal" : {
             "properties" : {
                "ca_cert_path" : {
@@ -17983,80 +17925,6 @@
                },
                "username" : {
                   "description" : "Username to connect to the PKI",
-                  "type" : "string"
-               }
-            },
-            "required" : [
-               "id",
-               "type"
-            ],
-            "type" : "object"
-         },
-         "ConfigPkiProviderSubTypeScep" : {
-            "properties" : {
-               "ca_cert_path" : {
-                  "description" : "Path of the CA that will generate your certificates",
-                  "type" : "string"
-               },
-               "ca_cert_path_upload" : {
-                  "description" : "Ca cert path upload",
-                  "type" : "file"
-               },
-               "cn_attribute" : {
-                  "description" : "Defines what attribute of the node to use as the common name during the certificate generation.",
-                  "type" : "string"
-               },
-               "cn_format" : {
-                  "description" : "Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value",
-                  "type" : "string"
-               },
-               "country" : {
-                  "description" : "Country for the certificate",
-                  "type" : "string"
-               },
-               "id" : {
-                  "description" : "Id",
-                  "type" : "string"
-               },
-               "locality" : {
-                  "description" : "Locality for the certificate",
-                  "type" : "string"
-               },
-               "organization" : {
-                  "description" : "Organization for the certificate",
-                  "type" : "string"
-               },
-               "organizational_unit" : {
-                  "description" : "Organizational unit for the certificate",
-                  "type" : "string"
-               },
-               "password" : {
-                  "description" : "Password for the username filled in above",
-                  "type" : "string"
-               },
-               "server_cert_path" : {
-                  "description" : "Path of the RADIUS server authentication certificate",
-                  "type" : "string"
-               },
-               "server_cert_path_upload" : {
-                  "description" : "Server cert path upload",
-                  "type" : "file"
-               },
-               "state" : {
-                  "description" : "State for the certificate",
-                  "type" : "string"
-               },
-               "type" : {
-                  "default" : "scep",
-                  "description" : "Discriminator `scep`",
-                  "type" : "string"
-               },
-               "url" : {
-                  "description" : "The url used to connect to the SCEP PKI service",
-                  "type" : "string"
-               },
-               "username" : {
-                  "description" : "Username to connect to the SCEP PKI Service",
                   "type" : "string"
                }
             },
