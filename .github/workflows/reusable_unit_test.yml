@@ -37,14 +37,15 @@ jobs:
 
   unit-test-debian:
     name: unit-test
-    if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12'
+    if: startsWith(inputs._IMAGE_TYPE, 'debian')
     runs-on: packetfence-perl-package-build
     container:
-      # The Debian package test uses the private, pre-baked signing image.
-      image: ghcr.io/inverse-inc/packetfence/signing-packages:latest
-      credentials:
-        username: ${{ vars.USER_GITHUB }}
-        password: ${{ secrets.TOKEN_GITHUB }}
+      # A .deb has to be installed on the release it was built for, so the
+      # container tracks _IMAGE_TYPE rather than being one fixed image. These
+      # are the stock public Debian images, so no registry credentials are
+      # needed -- and nothing here depends on the private signing image, which
+      # is a trixie base and could only ever validate Debian 13 packages.
+      image: ${{ inputs._IMAGE_TYPE == 'debian11' && 'debian:11' || inputs._IMAGE_TYPE == 'debian12' && 'debian:12' || 'debian:13' }}
     steps:
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v4.1.7
@@ -52,35 +53,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path: /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || 'package-deb12' }}
-
-      - name: Install the package ${{ inputs._PACKAGE_NAME }} debian
-        run: |
-          ls -la /mnt
-          PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
-          PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
-          wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
-          echo "deb http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
-          apt update
-          set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec bash -c 'apt install -f -y {}' \;
-          echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
-          dpkg -l | grep ${{ inputs._PACKAGE_NAME }}
-
-  unit-test-debian13:
-    name: unit-test
-    if: inputs._IMAGE_TYPE == 'debian13'
-    runs-on: packetfence-perl-package-build
-    container:
-      # A trixie .deb has to be installed on trixie: signing-packages is still
-      # debian:bookworm, so the job above cannot validate Debian 13 packages.
-      # The stock Debian image is public, so no registry credentials are needed.
-      image: debian:13
-    steps:
-      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: package-deb13
-          path: /mnt
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || 'package-deb13' }}
 
       - name: Install the package ${{ inputs._PACKAGE_NAME }} debian
         run: |
@@ -89,12 +62,16 @@ jobs:
           apt-get install -y --no-install-recommends ca-certificates curl gnupg
           PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
           PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
+          # Take the suite from the container instead of hardcoding it: the
+          # repo publishes one suite per codename, and hardcoding meant the
+          # debian11 arm pointed at bookworm.
+          . /etc/os-release
           # apt-key is gone in trixie; use a signed-by keyring, the way the
           # pfbuild-trixie and pfdebian-trixie images do.
           install -d -m 0755 /etc/apt/keyrings
           curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY \
             | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
-          echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} trixie trixie" \
+          echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} ${VERSION_CODENAME} ${VERSION_CODENAME}" \
             > /etc/apt/sources.list.d/packetfence.list
           apt-get update
           set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec bash -c 'apt-get install -f -y {}' \;
