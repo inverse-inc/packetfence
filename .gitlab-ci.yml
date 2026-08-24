@@ -467,7 +467,9 @@ variables:
 .build_artifacts_material_job:
   stage: build_artifacts
   needs: !reference [.needs_all_build_images, needs]
-  image: ${KNK_REGISTRY_URL}/pfconfig-material-builder:${IMAGE_TAG}
+  # Shell executor: generate-material.sh runs a pfconfig sidecar via the host
+  # Docker daemon (like the build_pf_img_* jobs). Host provides docker/git/make
+  # plus python3-nacl/python3-requests/gh (script pre-flights these).
   dependencies: []
   variables:
     # Git credentials (GIT_USER_NAME, GIT_USER_PASSWORD, GIT_USER_MAIL) set in generate-material.sh from Psono
@@ -484,7 +486,7 @@ variables:
     paths:
       - result/switches.json
   tags:
-    - docker
+    - shell-v7
 
 .build_artifacts_doc_job:
   stage: build_artifacts
