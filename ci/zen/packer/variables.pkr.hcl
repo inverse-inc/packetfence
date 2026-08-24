@@ -21,3 +21,12 @@ variable ansible_pfservers_group {
   default = "pfservers"
 }
 
+
+# Debian base image, from ci/debian-version.conf via the Makefile.
+variable debian_version {
+  type = string
+}
+
+variable debian_netinst_sha256 {
+  type = string
+}
