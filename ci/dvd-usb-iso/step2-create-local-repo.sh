@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 2 (container): build the offline APT repository inside debian:bookworm.
+# Stage 2 (container): build the offline APT repository inside debian:13.
 # This avoids the need for sudo or debootstrap/dpkg-dev on the host.
 set -o nounset -o pipefail -o errexit
 
@@ -10,7 +10,7 @@ REPO_DIR="${REPO_DIR:-${WORK_DIR}/repo}"
 
 export PF_RELEASE_VERSION="${PF_RELEASE_VERSION:-15.1}"
 export PF_REPO_TYPE="${PF_REPO_TYPE:-debian-branches}"
-BUILDER_IMAGE="${BUILDER_IMAGE:-debian:bookworm}"
+BUILDER_IMAGE="${BUILDER_IMAGE:-debian:13}"
 
 mkdir -p "${REPO_DIR}"
 

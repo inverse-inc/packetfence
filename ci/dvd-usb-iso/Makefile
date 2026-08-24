@@ -12,7 +12,7 @@ export ISO_OUT
 
 # Build ISO only (no upload). Runs the full containerized pipeline:
 # stage 0 (host wget) -> stage 1 (host docker pull) ->
-# stage 2 (debian:bookworm: debootstrap + apt) -> stage 3 (debian:bookworm: xorriso)
+# stage 2 (debian:13: debootstrap + apt) -> stage 3 (debian:13: xorriso)
 dvd-usb-iso:
 	./build-usb-bootable-iso.sh
 
@@ -40,12 +40,12 @@ help:
 	@echo "  dvd-usb-iso  Build the DVD-USB bootable ISO (full pipeline)"
 	@echo "  upload   Build and upload the ISO to Linode (CI target)"
 	@echo "  stage1   Stage 1: pre-pull Docker images (host)"
-	@echo "  stage2   Stage 2: build offline APT repo (in debian:bookworm)"
-	@echo "  stage3   Stage 3: assemble final ISO (in debian:bookworm)"
+	@echo "  stage2   Stage 2: build offline APT repo (in debian:13)"
+	@echo "  stage3   Stage 3: assemble final ISO (in debian:13)"
 	@echo "  clean    Remove all build artifacts"
 	@echo ""
 	@echo "Useful overrides:"
 	@echo "  PF_VERSION=...        Override the PacketFence version"
 	@echo "  ISO_OUT=...           Output ISO path"
-	@echo "  BUILDER_IMAGE=...     Override builder image (default: debian:bookworm)"
+	@echo "  BUILDER_IMAGE=...     Override builder image (default: debian:13)"
 	@echo "  SKIP_CLEAN=1          Keep work/ between builds (faster rebuilds)"
