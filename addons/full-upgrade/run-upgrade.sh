@@ -82,12 +82,16 @@ function upgrade_packetfence_package() {
   fi
 }
 
+# The published file names come from OS_SUPPORTED in ci/lib/common/functions.sh,
+# which ci/lib/release/publish-to-website.sh iterates at release time. Derive the
+# Debian major from os-release instead of hardcoding it, so a Debian 13 host asks
+# for latest-stable-Debian-13.txt rather than the Debian 12 file.
 function find_latest_stable() {
   OS=""
   if is_rpm_based; then
     OS="RHEL-8"
   elif is_deb_based; then
-    OS="Debian-12"
+    OS="Debian-$(deb_version_id)"
   fi
   curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
 }
@@ -117,7 +121,10 @@ function install_gpg_key(){
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
   install_gpg_key
-  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+  # One suite per codename in the repo, so take it from the host rather than
+  # hardcoding: a trixie box pointed at the bookworm suite installs the wrong
+  # packages, and this file is written onto the machine being upgraded.
+  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO $(deb_codename) $(deb_codename)" > /etc/apt/sources.list.d/packetfence.list
   apt update
   if is_enabled $1; then
     apt-mark hold packetfence-upgrade

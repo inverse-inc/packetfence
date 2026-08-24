@@ -61,6 +61,20 @@ function is_deb_based() {
   which apt > /dev/null 2>&1
 }
 
+# Debian suite codename of the running system, e.g. "bookworm" or "trixie".
+# The PacketFence repo publishes one suite per codename, so anything writing an
+# apt sources line has to ask the host rather than assume.
+function deb_codename() {
+  ( . /etc/os-release && echo "${VERSION_CODENAME}" )
+}
+
+# Debian major version of the running system, e.g. "12" or "13". Used to build
+# the latest-stable-Debian-<major>.txt name published by
+# ci/lib/release/publish-to-website.sh.
+function deb_version_id() {
+  ( . /etc/os-release && echo "${VERSION_ID%%.*}" )
+}
+
 function is_enabled() {
   [ "$1" = "yes" ] || [ "$1" = "enabled" ]
 }
