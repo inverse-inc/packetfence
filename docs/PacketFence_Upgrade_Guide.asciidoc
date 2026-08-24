@@ -43,7 +43,11 @@ supported when changing operating systems.
 |===
 |PacketFence Version |Supported Operating Systems |Migration Required
 
-|14.0 and later
+|15.2 and later
+|Debian 13 (trixie), Debian 12 (bookworm), RHEL 8
+|No - Debian 12 remains supported
+
+|14.0 - 15.1
 |Debian 12 (bookworm), RHEL 8
 |**Yes** - from Debian 11 to Debian 12
 
@@ -904,6 +908,22 @@ Run the following upgrade scripts:
 ----
 
 == Upgrading from a version prior to 15.2.0
+
+=== Debian 13 (trixie) support
+
+PacketFence 15.2 adds Debian 13 (trixie) alongside Debian 12 (bookworm). Debian
+12 continues to receive packages, so **no operating system migration is
+required** by this release.
+
+If you do want to move to Debian 13, it is not an in-place `apt` release
+upgrade: install PacketFence on a fresh Debian 13 machine and move your data
+across with
+<<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import>>,
+the same procedure documented for the Debian 11 to Debian 12 move.
+
+Upgrade PacketFence to 15.2 on your existing Debian 12 installation first, then
+migrate: exporting from one PacketFence version and importing into another is
+not supported.
 
 === TLS hardening on HAProxy and Apache listeners
 
