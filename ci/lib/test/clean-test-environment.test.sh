@@ -37,7 +37,7 @@ timeout 4s \
         PIPELINE_TIMEOUT_TEARDOWN=1s \
         PIPELINE_TIMEOUT_CLEAN=2s \
         JOB_STATUS=1 \
-        CI_JOB_NAME=unit_tests_deb12 \
+        CI_JOB_NAME=unit_tests_deb13 \
         KEEP_VMS=no \
         CI_PIPELINE_SOURCE=push \
         bash "$TARGET" >/dev/null 2>&1 || true
