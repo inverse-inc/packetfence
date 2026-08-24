@@ -1,5 +1,3 @@
-# TODO(debian13): pin to a Debian 13 point release once one is chosen
-# (e.g. debian:13.1), the way pfdebian tracks debian:12 today.
 FROM debian:13
 
 # do not want docs
