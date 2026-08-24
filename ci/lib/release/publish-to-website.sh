@@ -43,4 +43,4 @@ log_section "Generate full upgrade files"
 generate_full_upgrade_files
 
 log_section "Display artifacts"
-tree ${RESULT_DIR}
+ls -lR ${RESULT_DIR}
