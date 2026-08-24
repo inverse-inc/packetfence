@@ -1,9 +1,9 @@
 #!/bin/bash
-# Host-side wrapper invoked by `make zen-deb12`: runs the zen-builder
+# Host-side wrapper invoked by `make zen-deb13`: runs the zen-builder
 # image with /dev/kvm and hands off to build-in-container.sh.
 set -o errexit -o nounset -o pipefail
 
-BUILD_NAME="${1:?usage: zen-in-docker.sh <build-name> (e.g. debian-12)}"
+BUILD_NAME="${1:?usage: zen-in-docker.sh <build-name> (e.g. debian-13)}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -63,6 +63,8 @@ docker run --rm \
   -e PF_VERSION \
   -e PKR_VAR_pf_version \
   -e PKR_VAR_vm_name \
+  -e PKR_VAR_debian_version \
+  -e PKR_VAR_debian_netinst_sha256 \
   -e PKR_ON_ERROR \
   -e VM_NAME \
   -e ANSIBLE_FORCE_COLOR \

@@ -1464,7 +1464,7 @@ build_pf_img_zen:
     url: ${RCLONE_LINODE_URL}/packetfence-zen/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/zen
-    BUILD_TARGET: zen-deb12
+    BUILD_TARGET: zen-deb13
     CLEAN_TARGET: clean_all
     # zen_builder pushes the slug tag in every context; tag pipelines
     # override IMAGE_TAG below (release tags are pushed unslugified).

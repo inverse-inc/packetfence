@@ -13,7 +13,7 @@ packer {
 
 build {
   sources = [
-    "source.qemu.debian-12",
+    "source.qemu.debian-13",
   ]
   provisioner "ansible" {
     playbook_file = "${var.provisioner_dir}/site.yml"
