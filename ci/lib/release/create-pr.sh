@@ -76,13 +76,14 @@ create_pull_request() {
     local pr_body="Automatic update from branch ${GIT_CI_BRANCH}"
     local pr_url
 
-    # || true: errexit would otherwise abort on a failed gh, skipping the check below.
-    pr_url=$(gh pr create \
-        --repo "${GIT_REPO_PATH}" \
-        --title "${pr_title}" \
-        --body "${pr_body}" \
-        --head "${GIT_CI_BRANCH}" \
-        --base "${GIT_BASE_BRANCH}" 2>&1) || true
+    # gh api, not gh pr create: create needs a GitHub remote in cwd (we have GitLab's).
+    pr_url=$(gh api "repos/${GIT_REPO_PATH}/pulls" \
+        --method POST \
+        -f title="${pr_title}" \
+        -f body="${pr_body}" \
+        -f head="${GIT_CI_BRANCH}" \
+        -f base="${GIT_BASE_BRANCH}" \
+        --jq '.html_url' 2>&1) || true
 
     if [[ "${pr_url}" =~ ^https://github\.com/.*/pull/[0-9]+$ ]]; then
         echo "Pull request created successfully: ${pr_url}"

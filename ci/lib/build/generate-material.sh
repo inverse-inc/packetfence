@@ -57,18 +57,20 @@ fetch_git_credentials_from_psono() {
         exit 1
     fi
 
-    export GIT_USER_NAME=$(python3 "${PSONO_SCRIPT}" \
+    # Plain assignment, not export VAR=$(...): the latter masks a psono.py failure from set -e.
+    GIT_USER_NAME=$(python3 "${PSONO_SCRIPT}" \
         --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
         --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
         --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN}" \
         --return_value=username)
 
-    export GIT_USER_PASSWORD=$(python3 "${PSONO_SCRIPT}" \
+    GIT_USER_PASSWORD=$(python3 "${PSONO_SCRIPT}" \
         --api_key_id="${PSONO_WEBSITE_PFCOM_API_KEY_ID}" \
         --api_key_secret_key="${PSONO_WEBSITE_PFCOM_API_SECRET_KEY}" \
         --secret_id="${PSONO_WEBSITE_PFCOM_TOKEN}" \
         --return_value=password)
 
+    export GIT_USER_NAME GIT_USER_PASSWORD
     export GIT_USER_MAIL="${GIT_USER_NAME}@inverse.ca"
     export GIT_CI_BRANCH="ci-release-${CI_PIPELINE_ID}"
 
