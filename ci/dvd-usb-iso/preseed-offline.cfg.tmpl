@@ -1,5 +1,5 @@
 #_preseed_V1
-#### Contents of the preconfiguration file (for bookworm) - OFFLINE USB INSTALLER
+#### Contents of the preconfiguration file (for trixie) - OFFLINE USB INSTALLER
 ### Localization
 # Allow user to choose language, keyboard, and timezone interactively
 # Do NOT preseed these values - user must select them
@@ -107,8 +107,10 @@ tasksel tasksel/first multiselect standard ssh-server
 # PF: install systemd packages explicitly for offline installer
 # PF: include apparmor and klibc-utils to prevent autoremove errors
 # PF: include bind9-dnsutils for DNS utilities needed by PacketFence
-# NOTE: lnav and cgroupfs-mount are NOT on DVD-1, they will be installed
-# from the local pf-repo in postinst-offline.sh after the repo is configured
+# NOTE: lnav is NOT on DVD-1, it will be installed from the local pf-repo in
+# postinst-offline.sh after the repo is configured. cgroupfs-mount used to be
+# fetched the same way but was dropped after bookworm and does not exist in
+# trixie -- systemd has mounted the cgroup hierarchies itself for years.
 d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \

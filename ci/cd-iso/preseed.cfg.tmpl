@@ -1,5 +1,5 @@
 #_preseed_V1
-#### Contents of the preconfiguration file (for bookworm)
+#### Contents of the preconfiguration file (for trixie)
 ### Localization
 # Preseeding only locale sets language, country and locale.
 d-i debian-installer/locale string en_US
@@ -363,8 +363,10 @@ d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           zlib1g-dev wget curl dkms make \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
-                          tmux tcpdump lnav apg sysstat bsd-mailx \
-                          cgroupfs-mount
+                          tmux tcpdump lnav apg sysstat bsd-mailx
+# cgroupfs-mount was dropped after bookworm and is not in trixie; systemd has
+# mounted the cgroup hierarchies itself for years. Listing it here would fail
+# the d-i package install.
 
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade

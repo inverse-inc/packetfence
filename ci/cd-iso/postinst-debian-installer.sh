@@ -8,7 +8,12 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd.service
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm" > \
+# The repo publishes one suite per codename. This script runs inside the system
+# the installer just laid down, so take the codename from it rather than
+# hardcoding one -- the ISO is then self-consistent whatever base it was built
+# on.
+. /etc/os-release
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} ${VERSION_CODENAME} ${VERSION_CODENAME}" > \
 	/etc/apt/sources.list.d/packetfence.list
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 apt-get update

@@ -38,8 +38,9 @@ fi
 PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
 
 # Build URL based on repo type
-# gitlab pipelines use: http://inverse.ca/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
-# branches use: http://inverse.ca/downloads/PacketFence/debian-branches/VERSION bookworm bookworm
+# gitlab pipelines use: http://inverse.ca/downloads/PacketFence/gitlab/PIPELINE_ID/debian <codename> main
+# branches use: http://inverse.ca/downloads/PacketFence/debian-branches/VERSION <codename> <codename>
+# The codename is DEBIAN_CODENAME from ci/debian-version.conf.
 # Note: packetfence packages are in debian-branches repo, fingerbank/docker are in debian repo
 if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
     PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/debian"
@@ -47,7 +48,7 @@ if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
 else
     # Use the PF_REPO_TYPE in the URL (e.g., debian-branches or debian)
     PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
-    PF_REPO_COMPONENT="bookworm"
+    PF_REPO_COMPONENT="${DEBIAN_CODENAME}"
 fi
 
 # URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
@@ -69,20 +70,20 @@ REPO_DIR=$(cd "$(dirname "${REPO_DIR}")" && pwd)/$(basename "${REPO_DIR}")
 
 # Create directory structure for PacketFence packages
 mkdir -p ${REPO_DIR}/pool/main
-mkdir -p ${REPO_DIR}/dists/bookworm/main/binary-amd64
+mkdir -p ${REPO_DIR}/dists/${DEBIAN_CODENAME}/main/binary-amd64
 
 # Create a temporary chroot for package download
 CHROOT_DIR=$(mktemp -d)
 trap 'echo "Cleaning up chroot..."; ${SUDO} rm -rf "${CHROOT_DIR}"' EXIT
 
 echo "===> Creating minimal chroot for package download"
-${SUDO} debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} ${DEBIAN_MIRROR}
+${SUDO} debootstrap --variant=minbase --include=apt,gnupg,ca-certificates ${DEBIAN_CODENAME} ${CHROOT_DIR} ${DEBIAN_MIRROR}
 
 if [ -n "${DEBIAN_SNAPSHOT_DATE:-}" ]; then
     ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list > /dev/null << EOF
-deb [check-valid-until=no] ${DEBIAN_MIRROR} bookworm main
-deb [check-valid-until=no] ${DEBIAN_MIRROR} bookworm-updates main
-deb [check-valid-until=no] https://snapshot.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT_DATE} bookworm-security main
+deb [check-valid-until=no] ${DEBIAN_MIRROR} ${DEBIAN_CODENAME} main
+deb [check-valid-until=no] ${DEBIAN_MIRROR} ${DEBIAN_CODENAME}-updates main
+deb [check-valid-until=no] https://snapshot.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT_DATE} ${DEBIAN_CODENAME}-security main
 EOF
     ${SUDO} tee ${CHROOT_DIR}/etc/apt/apt.conf.d/99snapshot > /dev/null << 'EOF'
 Acquire::Check-Valid-Until "false";
@@ -95,7 +96,7 @@ echo "===> Configuring PacketFence repository in chroot"
 ${SUDO} mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
 ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_REPO_BASE_URL} bookworm ${PF_REPO_COMPONENT}
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_REPO_BASE_URL} ${DEBIAN_CODENAME} ${PF_REPO_COMPONENT}
 EOF
 
 echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
@@ -106,7 +107,7 @@ echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
 if [[ "${PF_REPO_BASE_URL}" != "${PF_DEPS_BASE_URL}" ]]; then
     echo "===> Adding dependencies repository (fingerbank, freeradius, etc.)"
     ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_DEPS_BASE_URL} bookworm bookworm
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_DEPS_BASE_URL} ${DEBIAN_CODENAME} ${DEBIAN_CODENAME}
 EOF
     echo "Configured dependencies repo: ${PF_DEPS_BASE_URL}"
 fi
@@ -152,7 +153,6 @@ PACKAGES="
     vlan
     arping
     lnav
-    cgroupfs-mount
     fping
     ipset
     libcache-bdb-perl
@@ -160,7 +160,7 @@ PACKAGES="
     libdbd-sqlite3-perl
     sqlite3
     libdata-powerset-perl
-    libglib2.0-0
+    libglib2.0-0t64
     libglib2.0-bin
     liblog-log4perl-perl
     libconfig-inifiles-perl
@@ -177,7 +177,7 @@ PACKAGES="
 echo "===> Adding Docker repository for docker-ce packages"
 curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/docker.gpg > /dev/null
 ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/docker.list > /dev/null << EOF
-deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable
+deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian ${DEBIAN_CODENAME} stable
 EOF
 
 # Docker packages to download
@@ -241,16 +241,16 @@ ${SUDO} chown -R $(id -u):$(id -g) ${REPO_DIR}
 # Generate Packages file
 echo "===> Generating Packages index"
 cd ${REPO_DIR}
-dpkg-scanpackages pool/main /dev/null > dists/bookworm/main/binary-amd64/Packages
-gzip -k dists/bookworm/main/binary-amd64/Packages
+dpkg-scanpackages pool/main /dev/null > dists/${DEBIAN_CODENAME}/main/binary-amd64/Packages
+gzip -k dists/${DEBIAN_CODENAME}/main/binary-amd64/Packages
 
 # Create Release file
 echo "===> Generating Release file"
-cat > ${REPO_DIR}/dists/bookworm/Release << EOF
+cat > ${REPO_DIR}/dists/${DEBIAN_CODENAME}/Release << EOF
 Origin: PacketFence USB Installer
 Label: PacketFence USB Installer
-Suite: bookworm
-Codename: bookworm
+Suite: ${DEBIAN_CODENAME}
+Codename: ${DEBIAN_CODENAME}
 Version: ${PF_RELEASE_VERSION}
 Architectures: amd64
 Components: main
@@ -258,7 +258,7 @@ Description: PacketFence offline installation repository
 EOF
 
 # Add checksums to Release file
-cd ${REPO_DIR}/dists/bookworm
+cd ${REPO_DIR}/dists/${DEBIAN_CODENAME}
 FILES="main/binary-amd64/Packages main/binary-amd64/Packages.gz"
 for algo in MD5Sum:md5sum SHA256:sha256sum; do
     name="${algo%:*}"
