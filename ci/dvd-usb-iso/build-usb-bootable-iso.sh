@@ -2,7 +2,7 @@
 # Top-level USB bootable ISO build orchestrator.
 #
 # Runs the build in stages, with the privileged + tooling-heavy parts
-# isolated inside debian:bookworm containers so the host needs only:
+# isolated inside debian:13 containers so the host needs only:
 #   - docker (engine + client)
 #   - wget (for the base DVD download, on host)
 #
@@ -23,7 +23,7 @@ WORK_DIR="${SCRIPT_DIR}/work"
 ISOFILES_DIR="${WORK_DIR}/isofiles"
 REPO_DIR="${WORK_DIR}/repo"
 DOCKER_IMAGES_DIR="${WORK_DIR}/docker-images"
-BUILDER_IMAGE="${BUILDER_IMAGE:-debian:bookworm}"
+BUILDER_IMAGE="${BUILDER_IMAGE:-debian:13}"
 
 # Version info
 PF_VERSION="${PF_VERSION:-$(cut -d' ' -f2 < "${PF_ROOT}/conf/pf-release")}"
@@ -103,9 +103,31 @@ if ! [ -f "${ISO_IN}" ]; then
     fi
     BASE_NAME=$(basename "${ISO_IN}")
     echo "Downloading ${BASE_NAME}... (~3.8 GB, several minutes)"
-    wget --progress=dot:giga \
-        "https://cdimage.debian.org/cdimage/archive/${DEBIAN_VERSION}/amd64/iso-dvd/${BASE_NAME}" \
-        -O "${ISO_IN}"
+    # cdimage serves the current point release under release/ and moves it to
+    # archive/ once a newer one ships, so try both. Stage in a .part file and
+    # only rename after the checksum matches: wget -O leaves a zero-byte file
+    # behind on failure, which the -f test above would treat as a cached ISO.
+    fetched=no
+    for tree in release archive; do
+        if wget --progress=dot:giga \
+            "https://cdimage.debian.org/cdimage/${tree}/${DEBIAN_VERSION}/amd64/iso-dvd/${BASE_NAME}" \
+            -O "${ISO_IN}.part"; then
+            fetched=yes
+            break
+        fi
+    done
+    if [ "${fetched}" != yes ]; then
+        rm -f "${ISO_IN}.part"
+        echo "ERROR: could not fetch ${BASE_NAME} from cdimage.debian.org (tried release/ and archive/)." >&2
+        exit 1
+    fi
+    # Plain HTTPS with no signature check, so verify against ci/debian-version.conf.
+    if ! echo "${DEBIAN_DVD1_SHA256}  ${ISO_IN}.part" | sha256sum -c -; then
+        rm -f "${ISO_IN}.part"
+        echo "ERROR: checksum mismatch on ${BASE_NAME}; refusing to build." >&2
+        exit 1
+    fi
+    mv "${ISO_IN}.part" "${ISO_IN}"
     echo "Base ISO: $(du -h "${ISO_IN}" | cut -f1)"
 else
     echo "Base ISO already present: ${ISO_IN} ($(du -h "${ISO_IN}" | cut -f1))"

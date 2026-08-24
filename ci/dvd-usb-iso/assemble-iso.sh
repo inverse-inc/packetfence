@@ -1,6 +1,6 @@
 #!/bin/bash
 # Stage 3 internals: assemble the final USB-bootable ISO.
-# Designed to run inside a debian:bookworm container as root, but works on
+# Designed to run inside a debian:13 container as root, but works on
 # the host too. Inputs (base DVD, repo, docker images) must already exist.
 #
 # Required env / args:

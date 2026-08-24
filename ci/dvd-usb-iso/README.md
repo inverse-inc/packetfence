@@ -1,6 +1,6 @@
 # PacketFence DVD-USB ISO
 
-Build a self-contained, offline DVD-USB installer for PacketFence on Debian 12 (Bookworm).
+Build a self-contained, offline DVD-USB installer for PacketFence on Debian 13 (Trixie).
 
 The ISO bundles the Debian DVD, all PacketFence packages, dependencies, and pre-downloaded Docker images so that no internet connection is required during installation.
 
@@ -8,7 +8,7 @@ The ISO bundles the Debian DVD, all PacketFence packages, dependencies, and pre-
 
 ### Build machine
 
-- **OS:** Debian 12 / Ubuntu 22.04+ (amd64)
+- **OS:** Debian 13 / Ubuntu 24.04+ (amd64)
 - **Disk space:** ~30 GB free (base ISO ~3.8 GB + work directories + final ISO)
 - **RAM:** 4 GB minimum
 - **Internet:** Required during build to download packages and Docker images
@@ -210,7 +210,7 @@ cat /var/log/packetfence-first-boot.log
 
 ## Build process overview
 
-1. Download base Debian 12 DVD ISO (~3.8 GB)
+1. Download base Debian 13 DVD ISO (~3.8 GB)
 2. Create local APT repository with PacketFence packages and dependencies
 3. Pre-download all PacketFence Docker images (~30 containers)
 4. Extract the base Debian ISO

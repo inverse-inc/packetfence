@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 3 (container): assemble the final ISO inside debian:bookworm.
+# Stage 3 (container): assemble the final ISO inside debian:13.
 # Uses outputs of stage 1 (docker-images archive) and stage 2 (offline APT repo).
 set -o nounset -o pipefail -o errexit
 
@@ -17,7 +17,7 @@ ISO_OUT="${ISO_OUT:-${SCRIPT_DIR}/packetfence-usb-installer.iso}"
 export PF_VERSION="${PF_VERSION:-$(cut -d' ' -f2 < "${PF_ROOT}/conf/pf-release")}"
 export PF_RELEASE="${PF_RELEASE:-$(< "${PF_ROOT}/conf/pf-release")}"
 export PF_RELEASE_VERSION="${PF_RELEASE_VERSION:-$(sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g' <<< "${PF_RELEASE}")}"
-BUILDER_IMAGE="${BUILDER_IMAGE:-debian:bookworm}"
+BUILDER_IMAGE="${BUILDER_IMAGE:-debian:13}"
 
 # Sanity checks on inputs
 [ -f "${ISO_IN}" ]                || { echo "ERROR: base ISO not found: ${ISO_IN}" >&2; exit 1; }
