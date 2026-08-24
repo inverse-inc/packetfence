@@ -903,7 +903,7 @@ Run the following upgrade scripts:
 /usr/local/pf/addons/upgrade/to-15.1-rename-proxysql-backend.pl
 ----
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 15.2.0
 
 === TLS hardening on HAProxy and Apache listeners
 

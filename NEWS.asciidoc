@@ -23,7 +23,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>.
 
-== Version 15.2.0 released on 2026-08-20
+== Version 15.2.0 released on 2026-08-24
 
 === New Features
 
