@@ -1,5 +1,3 @@
-# TODO(debian13): this image previously pinned a point release (debian:12.12-slim);
-# restore that precision once a Debian 13 point release is chosen.
 FROM debian:13-slim
 
 # Switch to root to install packages
