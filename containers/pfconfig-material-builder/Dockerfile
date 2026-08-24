@@ -6,7 +6,7 @@ FROM debian:bookworm-slim
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
         ca-certificates curl gnupg \
-        python3 python3-nacl \
+        python3 python3-nacl python3-requests \
         git make \
         bsdextrautils \
         openssh-client && \
