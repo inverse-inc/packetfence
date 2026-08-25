@@ -73,7 +73,13 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 			return
 		}
 
-		res, err := http.Get("http://" + remoteCon.Host + ":" + string(remoteCon.Port) + "/api/v1/authorize/" + sessionUUID)
+		authorizeURL := "http://" + remoteCon.Host + ":" + string(remoteCon.Port) + "/api/v1/authorize/" + sessionUUID
+		// Relay the TOTP code; it is validated by the connector-remote
+		// against the seed stored on its own filesystem.
+		if code := r.URL.Query().Get("code"); code != "" {
+			authorizeURL += "?code=" + url.QueryEscape(code)
+		}
+		res, err := http.Get(authorizeURL)
 		if err != nil {
 			http.Error(w, "Failed to activate terminal on the connector-remote", http.StatusBadGateway)
 			return
