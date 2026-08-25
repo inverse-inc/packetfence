@@ -2,7 +2,6 @@ package clientapi
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -194,12 +193,9 @@ func (api *API) terminal() (bool, error) {
 
 	log.Println("PFCONNECTOR_TERMINAL is enabled")
 
-	select {
-	case api.commandChan <- Message{Type: StartProcessing}:
-		log.Println("Start command sent successfully")
-	case <-time.After(time.Second * 5):
-		return false, fmt.Errorf("timeout sending start command")
-	}
-
+	// gotty is NOT started here: it only comes up when an authorized
+	// activation (one-time session uuid + TOTP code) reaches enableTerminal.
+	// Starting it at boot would expose a shell through the tunnel proxy
+	// without any activation.
 	return true, nil
 }

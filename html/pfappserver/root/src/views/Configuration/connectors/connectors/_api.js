@@ -66,8 +66,8 @@ export default {
       return response.data
     })
   },
-  terminalAuthorize: (id, uuid) => {
-    return apiCall.get(['terminal', id, 'authorize', uuid]).then(response => {
+  terminalAuthorize: (id, uuid, code) => {
+    return apiCall.get(['terminal', id, 'authorize', uuid], { params: { code } }).then(response => {
       return response.data
     })
   }

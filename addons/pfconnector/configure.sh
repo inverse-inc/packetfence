@@ -42,7 +42,14 @@ fi
 
 echo "FETCH_REMOTES_VIA_API=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 echo "PFCONNECTOR_REMOTE=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
-echo "PFCONNECTOR_TERMINAL=false" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+echo "PFCONNECTOR_TERMINAL=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+# TOTP second factor gating remote terminal activation. Set to false to
+# allow the terminal with only the admin-initiated one-time session.
+echo "PFCONNECTOR_TERMINAL_TOTP=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+
+# The TOTP seed gating remote terminal access (conf/terminal_totp) is
+# generated and displayed as a QR code by the package postinst; the
+# pfconnector-client generates it on first start if it is missing.
 
 # Create a dummy system_init_key file to prevent Docker from creating it as a directory
 if [ ! -f /usr/local/pfconnector-remote/conf/system_init_key ]; then
