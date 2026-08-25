@@ -58,7 +58,7 @@
                 </b-tr>
                 <b-tr>
                   <b-td class="text-muted">{{ $i18n.t('Load (1/5/15m)') }}</b-td>
-                  <b-td>{{ status.system.load1 }} / {{ status.system.load5 }} / {{ status.system.load15 }}</b-td>
+                  <b-td>{{ formatLoad(status.system.load1) }} / {{ formatLoad(status.system.load5) }} / {{ formatLoad(status.system.load15) }}</b-td>
                 </b-tr>
                 <b-tr>
                   <b-td class="text-muted">{{ $i18n.t('CPU') }}</b-td>
@@ -201,6 +201,12 @@ export const setup = (props, context) => {
     return `${value.toFixed(1)}%`
   }
 
+  const formatLoad = value => {
+    if (!value && value !== 0)
+      return '-'
+    return value.toFixed(2)
+  }
+
   const formatUptime = seconds => {
     if (!seconds && seconds !== 0)
       return '-'
@@ -233,6 +239,7 @@ export const setup = (props, context) => {
     openTerminal,
     formatBytes,
     formatPercent,
+    formatLoad,
     formatUptime
   }
 }
