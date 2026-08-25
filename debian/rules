@@ -421,13 +421,13 @@ ifeq ($(DIST),stretch)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 ifeq ($(DIST),bullseye)
-	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl,python3.9-venv'
 endif
 ifeq ($(DIST),bookworm)
-	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl,python3.11-venv'
 endif
 ifeq ($(DIST),trixie)
-	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl,python3.13-venv'
 endif
 	dh_md5sums
 	dh_builddeb
