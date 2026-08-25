@@ -35,6 +35,11 @@ type SystemInfo struct {
 	DiskTotal     uint64  `json:"disk_total"`
 	DiskUsed      uint64  `json:"disk_used"`
 	DiskUsage     float64 `json:"disk_usage_percent"`
+	// TerminalEnabled/TerminalTOTP let the admin UI know whether the remote
+	// terminal is available and whether opening it prompts for a TOTP code.
+	// Informational only: enforcement happens in enableTerminal.
+	TerminalEnabled bool `json:"terminal_enabled"`
+	TerminalTOTP    bool `json:"terminal_totp"`
 }
 
 // systemInfo reports resource usage of the box running the
@@ -42,7 +47,11 @@ type SystemInfo struct {
 // host kernel, so loadavg/meminfo/cpu are host-wide values.
 func systemInfo(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		info := SystemInfo{Version: chshare.BuildVersion}
+		info := SystemInfo{
+			Version:         chshare.BuildVersion,
+			TerminalEnabled: api.TerminalEnabled,
+			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
+		}
 		info.Hostname, _ = os.Hostname()
 
 		if uptime, err := host.Uptime(); err == nil {
