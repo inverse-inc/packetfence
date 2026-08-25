@@ -138,7 +138,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     eapoltest \
     python3-impacket \
     python-is-python3 \
-    python3-venv \
+    python3.13-venv \
     krb5-user \
     sscep \
     libwww-perl \
