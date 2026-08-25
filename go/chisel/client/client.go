@@ -309,9 +309,33 @@ func (c *Client) Start(ctx context.Context) error {
 				}
 			}
 		}()
+	} else {
+		// Binds were provided statically (command line/env), so the
+		// remote-binds polling loop above never runs. Still report our IPs to
+		// the pfconnector server: the admin UI status panel and the remote
+		// terminal need them to reach this connector's local API.
+		go c.reportConnectorInfoLoop(ctx)
 	}
 
 	return nil
+}
+
+// reportConnectorInfoLoop periodically reports this connector's IPs while the
+// tunnel is up. Used when binds are static; the FETCH_REMOTES_VIA_API loop
+// reports on its own cadence instead.
+func (c *Client) reportConnectorInfoLoop(ctx context.Context) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+		if c.tunnel != nil && c.tunnel.IsActive() {
+			c.reportConnectorInfo()
+		}
+	}
 }
 
 // reportConnectorInfo sends the IPs of the default-route interface to the

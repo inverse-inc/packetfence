@@ -11,6 +11,9 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+# pf-release feeds PF_PATCH_RELEASE (config.mk), embedded as the pfconnector
+# build version
+COPY ./conf/pf-release /usr/local/pf/conf/pf-release
 RUN cd /usr/local/pf/go/ &&  make pfconnector
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
