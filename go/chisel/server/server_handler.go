@@ -1047,9 +1047,11 @@ func (s *Server) handleConnectorDetail(w http.ResponseWriter, req *http.Request)
 	json.NewEncoder(w).Encode(reply)
 }
 
-// terminalSessionTimeout is the duration a remotely-authorized terminal
-// session stays up before the connector-remote shuts gotty down.
-const terminalSessionTimeout = 360 * time.Second
+// terminalSessionTimeout is the idle timeout of a remotely-authorized
+// terminal session: the connector-remote shuts gotty down once the terminal
+// has seen no activity (input or output) for this long. Any activity resets
+// the clock.
+const terminalSessionTimeout = 600 * time.Second
 
 // handleRemoteTerm validates a one-time terminal session id created by the
 // admin API (terminal:<uuid> in Redis, holding the target connector id).

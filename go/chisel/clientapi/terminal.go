@@ -17,7 +17,12 @@ import (
 	"github.com/sorenisanerd/gotty/server"
 )
 
-type BashFactory struct{}
+// BashFactory builds the bash slaves served by gotty. activity is the shared
+// last-activity clock (unix nanos) that the idle watcher in enableTerminal
+// reads; every pty read/write bumps it.
+type BashFactory struct {
+	activity *atomic.Int64
+}
 
 func (factory *BashFactory) Name() string {
 	return "bash"
@@ -42,14 +47,23 @@ func (factory *BashFactory) New(params map[string][]string) (server.Slave, error
 	}
 
 	return &BashSlave{
-		command: cmd,
-		pty:     ptmx,
+		command:  cmd,
+		pty:      ptmx,
+		activity: factory.activity,
 	}, nil
 }
 
 type BashSlave struct {
-	command *exec.Cmd
-	pty     *os.File
+	command  *exec.Cmd
+	pty      *os.File
+	activity *atomic.Int64
+}
+
+// touch records terminal activity for the idle-timeout watcher.
+func (slave *BashSlave) touch() {
+	if slave.activity != nil {
+		slave.activity.Store(time.Now().UnixNano())
+	}
 }
 
 func (slave *BashSlave) WindowTitleVariables() map[string]interface{} {
@@ -67,11 +81,16 @@ func (slave *BashSlave) ResizeTerminal(width int, height int) error {
 }
 
 func (slave *BashSlave) Write(data []byte) (int, error) {
+	slave.touch()
 	return slave.pty.Write(data)
 }
 
 func (slave *BashSlave) Read(data []byte) (int, error) {
-	return slave.pty.Read(data)
+	n, err := slave.pty.Read(data)
+	if n > 0 {
+		slave.touch()
+	}
+	return n, err
 }
 
 func (slave *BashSlave) Close() error {
@@ -103,7 +122,7 @@ func (api *API) terminal() (bool, error) {
 	}
 
 	// Create the custom factory
-	factory := &BashFactory{}
+	factory := &BashFactory{activity: api.terminalActivity}
 
 	// Create the GoTTY server
 	gottyServer, err := server.New(factory, options)
