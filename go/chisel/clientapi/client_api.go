@@ -3,6 +3,7 @@ package clientapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -40,6 +41,13 @@ type API struct {
 	// terminalActivity is the unix-nano timestamp of the last terminal
 	// activity (pty read/write). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
+	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
+	// whether activating the terminal requires the TOTP second factor.
+	terminalTOTPRequired bool
+	// terminalTOTP is the connector-local second factor required to activate
+	// the terminal. nil while terminalTOTPRequired means activation is
+	// refused (fail closed).
+	terminalTOTP *terminalTOTP
 }
 
 // MessageType is a command for the gotty terminal lifecycle goroutine.
@@ -80,6 +88,19 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	Api.TerminalEnabled, err = Api.terminal()
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error initializing terminal: %v", err))
+	}
+	if Api.TerminalEnabled {
+		Api.terminalTOTPRequired = terminalTOTPRequired()
+		if Api.terminalTOTPRequired {
+			Api.terminalTOTP, err = newTerminalTOTP(ctx, Api.ConnectorId)
+			if err != nil {
+				// No usable seed means no terminal at all
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Disabling the remote terminal: %v", err))
+				Api.TerminalEnabled = false
+			}
+		} else {
+			log.LoggerWContext(ctx).Warn("PFCONNECTOR_TERMINAL_TOTP is disabled: terminal activation only requires the one-time session uuid")
+		}
 	}
 
 	Api.setupRoutes()
@@ -183,6 +204,10 @@ func (api *API) setupRoutes() {
 // that long.
 func enableTerminal(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if !api.TerminalEnabled {
+			http.Error(res, "The remote terminal is not enabled on this connector", http.StatusForbidden)
+			return
+		}
 		id := chi.URLParam(req, "id")
 		if id == "" {
 			http.Error(res, "Missing terminal ID", http.StatusBadRequest)
@@ -204,6 +229,26 @@ func enableTerminal(api *API) http.HandlerFunc {
 		if j["authorized"] != true {
 			http.Error(res, "Terminal not authorized", http.StatusForbidden)
 			return
+		}
+
+		// Second factor: the 6-digit TOTP code, validated against the seed
+		// stored on this box. The one-time session uuid was already consumed
+		// above, so every code guess costs a fresh session on the server.
+		// Skipped only when PFCONNECTOR_TERMINAL_TOTP is explicitly disabled.
+		if api.terminalTOTPRequired {
+			if api.terminalTOTP == nil {
+				http.Error(res, "Terminal TOTP is not initialized", http.StatusForbidden)
+				return
+			}
+			if err := api.terminalTOTP.validate(req.URL.Query().Get("code")); err != nil {
+				status := http.StatusForbidden
+				if errors.Is(err, errTOTPLocked) {
+					status = http.StatusTooManyRequests
+				}
+				log.LoggerWContext(api.ctx).Warn(fmt.Sprintf("Refused terminal activation for session %s: %v", id, err))
+				http.Error(res, err.Error(), status)
+				return
+			}
 		}
 
 		timeout := 360 * time.Second

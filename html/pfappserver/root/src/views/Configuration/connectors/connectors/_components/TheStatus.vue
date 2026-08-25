@@ -16,7 +16,9 @@
             <icon name="sync" :spin="isLoading" class="mr-1" />{{ $i18n.t('Refresh') }}
           </b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1"
-            :disabled="!status || !status.connected || isTerminalLoading" @click="openTerminal">
+            :disabled="!status || !status.connected || isTerminalLoading || (status.system && status.system.terminal_enabled === false)"
+            :title="(status && status.system && status.system.terminal_enabled === false) ? $i18n.t('The terminal is disabled on this connector (PFCONNECTOR_TERMINAL).') : ''"
+            @click="openTerminal">
             <icon name="terminal" class="mr-1" />{{ $i18n.t('Open Terminal') }}
           </b-button>
           <b-button size="sm" variant="outline-danger"
@@ -107,6 +109,23 @@
       <p v-else-if="!isLoading" class="text-muted mb-0">{{ $i18n.t('Status unavailable.') }}</p>
     </div>
 
+    <b-modal v-model="showTerminalModal"
+      :title="$i18n.t('Open Remote Terminal')"
+      centered
+    >
+      <p>{{ $i18n.t('Enter the 6-digit code from the authenticator enrolled on this connector. The code is validated by the remote connector itself.') }}</p>
+      <b-form @submit.prevent="authorizeTerminal">
+        <b-form-input v-model="terminalCode" class="text-monospace"
+          autofocus autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="123456" />
+      </b-form>
+      <template #modal-footer="{ hide }">
+        <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+        <b-button variant="primary" :disabled="isTerminalLoading || terminalCode.length !== 6" @click="authorizeTerminal">
+          {{ $i18n.t('Open Terminal') }}
+        </b-button>
+      </template>
+    </b-modal>
+
     <b-modal v-model="showRestartModal"
       :title="$i18n.t('Restart Remote Connector')"
       centered
@@ -138,6 +157,8 @@ export const setup = (props, context) => {
   const isLoading = ref(false)
   const isRestarting = ref(false)
   const isTerminalLoading = ref(false)
+  const showTerminalModal = ref(false)
+  const terminalCode = ref('')
   const showRestartModal = ref(false)
   const lastRefresh = ref(null)
 
@@ -170,13 +191,34 @@ export const setup = (props, context) => {
   }
 
   const openTerminal = () => {
+    const { system: { terminal_totp: totpRequired } = {} } = status.value || {}
+    if (totpRequired === false) {
+      // The remote reports TOTP disabled (PFCONNECTOR_TERMINAL_TOTP=false):
+      // no code to prompt for. Enforcement stays on the remote either way.
+      requestTerminal()
+      return
+    }
+    terminalCode.value = ''
+    showTerminalModal.value = true
+  }
+
+  const authorizeTerminal = () => {
+    if (terminalCode.value.length !== 6)
+      return
+    requestTerminal(terminalCode.value)
+  }
+
+  const requestTerminal = code => {
     isTerminalLoading.value = true
     api.terminalSession(props.id).then(session => {
-      return api.terminalAuthorize(props.id, session.uuid).then(() => {
+      return api.terminalAuthorize(props.id, session.uuid, code).then(() => {
+        showTerminalModal.value = false
         window.open(`/api/v1/terminal/${props.id}/`, '_blank')
       })
-    }).catch(() => {
-      $store.dispatch('notification/danger', { message: i18n.t('Unable to open a terminal on the remote connector.') })
+    }).catch(error => {
+      const { response: { data } = {} } = error || {}
+      const detail = (typeof data === 'string' && data.trim()) ? ` (${data.trim()})` : ''
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to open a terminal on the remote connector.') + detail })
     }).finally(() => {
       isTerminalLoading.value = false
     })
@@ -232,11 +274,14 @@ export const setup = (props, context) => {
     isLoading,
     isRestarting,
     isTerminalLoading,
+    showTerminalModal,
+    terminalCode,
     showRestartModal,
     lastRefresh,
     refresh,
     restart,
     openTerminal,
+    authorizeTerminal,
     formatBytes,
     formatPercent,
     formatLoad,
