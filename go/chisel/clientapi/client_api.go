@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -36,6 +37,9 @@ type API struct {
 	statusCache     *connectorStatusCache
 	commandChan     chan Message
 	serverRunning   int32
+	// terminalActivity is the unix-nano timestamp of the last terminal
+	// activity (pty read/write). Pointer so it survives API being copied.
+	terminalActivity *atomic.Int64
 }
 
 // MessageType is a command for the gotty terminal lifecycle goroutine.
@@ -71,6 +75,7 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	Api.statusCache.startRefresher(ctx, tunState)
 
 	Api.commandChan = make(chan Message)
+	Api.terminalActivity = &atomic.Int64{}
 	var err error
 	Api.TerminalEnabled, err = Api.terminal()
 	if err != nil {
@@ -173,7 +178,9 @@ func (api *API) setupRoutes() {
 
 // enableTerminal validates the one-time terminal session id against the
 // pfconnector server (through the tunnel-local 22226 bind) and starts the
-// gotty terminal for the authorized duration.
+// gotty terminal. The authorized duration is an idle timeout: the terminal
+// stays up as long as there is activity and stops once it has been idle for
+// that long.
 func enableTerminal(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
@@ -207,10 +214,25 @@ func enableTerminal(api *API) http.HandlerFunc {
 				timeout = time.Duration(secs) * time.Second
 			}
 		}
+		// Idle timeout: any terminal activity (keystrokes or output) resets
+		// the clock; the terminal is only stopped after `timeout` without any.
+		// Start the clock now so an untouched session still expires.
+		api.terminalActivity.Store(time.Now().UnixNano())
 		go func(timeout time.Duration) {
-			// Stop the terminal once the authorized duration has elapsed
-			time.Sleep(timeout)
-			api.commandChan <- Message{Type: StopProcessing}
+			ticker := time.NewTicker(5 * time.Second)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-api.ctx.Done():
+					return
+				case <-ticker.C:
+				}
+				last := time.Unix(0, api.terminalActivity.Load())
+				if time.Since(last) >= timeout {
+					api.commandChan <- Message{Type: StopProcessing}
+					return
+				}
+			}
 		}(timeout)
 
 		select {
