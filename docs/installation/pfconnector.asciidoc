@@ -99,6 +99,12 @@ The URL can be entered manually in the authenticator or rendered as a QR code (e
 
 Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes of inactivity.
 
+===== Upgrading a Remote Connector
+
+When a connector-remote reports an older version than the PacketFence server, its status panel in the admin interface offers an _Upgrade_ button. Triggering it makes the connector host point its PacketFence apt repository at the server's version (rewriting the version segment of the `inverse.ca/downloads/PacketFence/debian/...` entry in [filename]`/etc/apt/sources.list.d/`), upgrade the packetfence-pfconnector-remote package and restart the connector. Once it reconnects, the status panel reports the new version.
+
+Every package installed this way is still signature-verified against the PacketFence archive keyring, downgrades are refused, and the whole operation is logged on the connector host in [filename]`/usr/local/pfconnector-remote/conf/upgrade.log`.
+
 ===== NTLM Authentication Behind a Connector
 
 When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM authentication requires two additional services to be installed on each pfconnector-remote host where the domain is used:
