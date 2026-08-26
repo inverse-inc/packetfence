@@ -1,0 +1,8 @@
+[Unit]
+Description=Upgrade the PacketFence connector to the requested version
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/pfconnector-remote/upgrade/pfconnector-remote-upgrade.sh
+# apt update + install can legitimately take a while on slow links
+TimeoutStartSec=1800
