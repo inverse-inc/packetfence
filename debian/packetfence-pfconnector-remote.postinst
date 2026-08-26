@@ -45,6 +45,10 @@ case "$1" in
     fi
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-pfconnector-remote-combined.service
+    # Watches conf/upgrade_requested for admin-triggered upgrades from the
+    # PacketFence admin interface
+    /bin/systemctl enable packetfence-pfconnector-upgrade.path
+    /bin/systemctl start packetfence-pfconnector-upgrade.path || true
 
     # Installs configured before the remote terminal existed lack its
     # toggles in pfconnector-client.env (configure.sh only runs at initial

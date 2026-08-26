@@ -102,6 +102,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		r.Route("/pfconnector-remotes", func(r chi.Router) {
 			r.Get("/{connectorID}/status", m.pfconnectorRemoteStatus())
 			r.Post("/{connectorID}/restart", m.pfconnectorRemoteRestart())
+			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())
 			r.Post("/dns-lookup", m.pfconnectorDnsLookup())
 		})
 	})

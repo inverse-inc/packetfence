@@ -21,6 +21,10 @@
             @click="openTerminal">
             <icon name="terminal" class="mr-1" />{{ $i18n.t('Open Terminal') }}
           </b-button>
+          <b-button v-if="status && status.upgrade_available" size="sm" variant="outline-warning" class="mr-1"
+            :disabled="!status.connected || isUpgrading" @click="showUpgradeModal = true">
+            <icon name="arrow-circle-up" class="mr-1" />{{ $i18n.t('Upgrade to {version}', { version: status.central_version }) }}
+          </b-button>
           <b-button size="sm" variant="outline-danger"
             :disabled="!status || !status.connected || isRestarting" @click="showRestartModal = true">
             <icon name="redo" class="mr-1" />{{ $i18n.t('Restart') }}
@@ -126,6 +130,17 @@
       </template>
     </b-modal>
 
+    <b-modal v-model="showUpgradeModal"
+      :title="$i18n.t('Upgrade Remote Connector')"
+      centered
+    >
+      <p>{{ $i18n.t('The remote connector will point its PacketFence package repository at version {version}, upgrade its packetfence-pfconnector-remote package and restart. Network activity through this connector will be interrupted for a short period. Continue?', { version: status ? status.central_version : '' }) }}</p>
+      <template #modal-footer="{ hide }">
+        <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+        <b-button variant="warning" :disabled="isUpgrading" @click="upgrade">{{ $i18n.t('Upgrade') }}</b-button>
+      </template>
+    </b-modal>
+
     <b-modal v-model="showRestartModal"
       :title="$i18n.t('Restart Remote Connector')"
       centered
@@ -156,6 +171,8 @@ export const setup = (props, context) => {
   const errors = ref([])
   const isLoading = ref(false)
   const isRestarting = ref(false)
+  const isUpgrading = ref(false)
+  const showUpgradeModal = ref(false)
   const isTerminalLoading = ref(false)
   const showTerminalModal = ref(false)
   const terminalCode = ref('')
@@ -187,6 +204,19 @@ export const setup = (props, context) => {
     }).finally(() => {
       isRestarting.value = false
       setTimeout(refresh, 5000)
+    })
+  }
+
+  const upgrade = () => {
+    showUpgradeModal.value = false
+    isUpgrading.value = true
+    api.remoteUpgrade(props.id).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Upgrade started. The remote connector will restart and report its new version once done (see conf/upgrade.log on the connector host for details).') })
+    }).catch(() => {
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to trigger the upgrade of the remote connector.') })
+    }).finally(() => {
+      isUpgrading.value = false
+      setTimeout(refresh, 10000)
     })
   }
 
@@ -273,6 +303,8 @@ export const setup = (props, context) => {
     errors,
     isLoading,
     isRestarting,
+    isUpgrading,
+    showUpgradeModal,
     isTerminalLoading,
     showTerminalModal,
     terminalCode,
@@ -280,6 +312,7 @@ export const setup = (props, context) => {
     lastRefresh,
     refresh,
     restart,
+    upgrade,
     openTerminal,
     authorizeTerminal,
     formatBytes,
