@@ -61,6 +61,11 @@ export default {
       return response.data
     })
   },
+  remoteUpgrade: id => {
+    return apiCall.post(['pfconnector-remotes', id, 'upgrade']).then(response => {
+      return response.data
+    })
+  },
   terminalSession: id => {
     return apiCall.post('terminal', { pfconnector_id: id }).then(response => {
       return response.data
