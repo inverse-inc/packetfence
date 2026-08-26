@@ -12,6 +12,8 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
@@ -19,7 +21,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -41,7 +42,8 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type APIHandler struct {
-	router *httprouter.Router
+	router *chi.Mux
+	ctx    context.Context
 }
 
 // Setup the api middleware
@@ -64,19 +66,46 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
-	router := httprouter.New()
+	m.ctx = ctx
+	router := chi.NewRouter()
 	m.router = router
 
-	router.POST("/api/v1/radius_attributes", m.searchRadiusAttributes)
+	m.router.Use(middleware.RequestID)
+	m.router.Use(middleware.RealIP)
+	m.router.Use(middleware.Logger)
+	m.router.Use(middleware.Recoverer)
 
-	router.POST("/api/v1/nodes/fingerbank_communications", m.nodeFingerbankCommunications)
+	m.router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Wrap the response writer to preserve interfaces
+			fw := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			next.ServeHTTP(fw, r)
+		})
+	})
 
-	router.POST("/api/v1/ntlm/test", m.ntlmTest)
-	router.POST("/api/v1/ntlm/event-report", m.eventReport)
-
-	router.POST("/api/v1/fleetdm-events/policy", m.Policy)
-	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
-	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
+	m.router.Route("/api/v1", func(r chi.Router) {
+		r.Post("/radius_attributes", m.searchRadiusAttributes())
+		r.Post("/nodes/fingerbank_communications", m.nodeFingerbankCommunications())
+		r.Route("/ntlm", func(r chi.Router) {
+			r.Post("/test", m.ntlmTest())
+			r.Post("/event-report", m.eventReport())
+		})
+		r.Route("/fleetdm-events", func(r chi.Router) {
+			r.Post("/policy", m.Policy())
+			r.Post("/cve", m.CVE())
+		})
+		r.Get("/elasticsearch", m.handleElasticsearch())
+		r.Post("/terminal", m.pfconnectorTerminalGet())
+		r.Get("/terminal/{connectorID}/authorize/{uuid}", m.proxyTerminalAuthorize())
+		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
+		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
+		r.Route("/pfconnector-remotes", func(r chi.Router) {
+			r.Get("/{connectorID}/status", m.pfconnectorRemoteStatus())
+			r.Post("/{connectorID}/restart", m.pfconnectorRemoteRestart())
+			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())
+			r.Post("/dns-lookup", m.pfconnectorDnsLookup())
+		})
+	})
 
 	var DBP **gorm.DB
 	var DB *gorm.DB
@@ -159,15 +188,15 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 		return next.ServeHTTP(w, r)
 	}
 
-	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
+	routeContext := chi.NewRouteContext()
+	if h.router.Match(routeContext, r.Method, r.URL.Path) {
 		// We always default to application/json
 		w.Header().Set("Content-Type", "application/json")
-		handle(w, r, params)
+		h.router.ServeHTTP(w, r)
 		return nil
-	} else {
-		return next.ServeHTTP(w, r)
 	}
 
+	return next.ServeHTTP(w, r)
 }
 
 func (p *APIHandler) Validate() error {

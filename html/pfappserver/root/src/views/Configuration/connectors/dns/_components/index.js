@@ -5,6 +5,7 @@ import {
   BaseFormGroupInputNumber,
 } from '@/components/new/'
 import BaseFormGroupDomains from './BaseFormGroupDomains'
+import TheTest from './TheTest' // before TheForm: TheForm reads this binding at module-eval time
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -19,5 +20,6 @@ export {
   BaseFormGroupDomains        as FormGroupDomains,
 
   TheForm,
+  TheTest,
   TheView
 }

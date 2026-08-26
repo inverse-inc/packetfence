@@ -4,7 +4,9 @@ CGO_ENABLED=1
 # to change the arch a binary is compiled for.
 # make GOARCH=arm64 pfconnector
 GOARCH=
-build_cmd = CGO_ENABLED=$(CGO_ENABLED) $(if $(GOARCH),GOARCH=$(GOARCH),) $(GO) build $(ARGS)
+# NOTE: $(ARGS) is expanded after -C in the build recipes (go requires -C to
+# be the first flag).
+build_cmd = CGO_ENABLED=$(CGO_ENABLED) $(if $(GOARCH),GOARCH=$(GOARCH),) $(GO) build
 
 .PHONY: all
 all: $(PF_BINARIES) $(PF_GO_CMDS)
@@ -23,13 +25,17 @@ ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 
 pfconnector: CGO_ENABLED=0
+# Embed the PF release as the connector build version (reported by the
+# admin UI remote status panel). Falls back to the in-source default
+# (0.0.0-src) when conf/pf-release isn't available.
+pfconnector: ARGS += $(if $(PF_PATCH_RELEASE),-ldflags "-X github.com/inverse-inc/packetfence/go/chisel/share.BuildVersion=$(PF_PATCH_RELEASE)")
 
 $(ALL_BINARIES):
-	$(build_cmd) -C cmd/$@ -o ../../$@
+	$(build_cmd) -C cmd/$@ $(ARGS) -o ../../$@
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
 $(ALL_BINARIES_RACE):
-	$(build_cmd) -C cmd/$(@:-race=) -o ../../$@ -race
+	$(build_cmd) -C cmd/$(@:-race=) $(ARGS) -o ../../$@ -race
 
 .PHONY: copy
 copy: copy-sbin copy-bin

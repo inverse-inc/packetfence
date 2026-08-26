@@ -12,10 +12,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
 )
 
@@ -101,11 +101,11 @@ func NewDynamicReport(ctx context.Context, dbp **gorm.DB) *DynamicReport {
 	}
 }
 
-func (a *DynamicReport) AddToRouter(r *httprouter.Router) {
-	r.GET("/api/v1.1/reports", a.List)
-	r.GET("/api/v1.1/report/:id", a.GetItem)
-	r.OPTIONS("/api/v1.1/report/:id", a.OptionsItem)
-	r.POST("/api/v1.1/report/:id/search", a.SearchItem)
+func (a *DynamicReport) AddToRouter(r *chi.Mux) {
+	r.Get("/api/v1.1/reports", a.List())
+	r.Get("/api/v1.1/report/{id}", a.GetItem())
+	r.Options("/api/v1.1/report/{id}", a.OptionsItem())
+	r.Post("/api/v1.1/report/{id}/search", a.SearchItem())
 }
 
 const (
@@ -167,100 +167,108 @@ func reportIdForPerlApi(method, path string) string {
 	return id
 }
 
-func (a *DynamicReport) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body ApiBody
-	reports, err := getReports(r)
-	if err != nil {
-		body.QuickError(w, http.StatusInternalServerError, "Cannot get reports from cache: "+err.Error())
-		return
-	}
-	reportsAsArray := slices.Collect(maps.Values(reports))
-	respReports := make([]Report, 0, len(reportsAsArray))
-	for k := range reportsAsArray {
-		tmpReport := Report{}
-		report(&tmpReport, &reportsAsArray[k])
-		respReports = append(respReports, tmpReport)
-	}
-	body.ResponseItems(w, http.StatusOK, respReports)
-}
-
-func (a *DynamicReport) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body ApiBody
-	inReport, shouldReturn := getReportById(w, r, p, &body)
-	if shouldReturn {
-		return
-	}
-	outReport := Report{}
-	report(&outReport, inReport)
-	body.ResponseItem(w, http.StatusOK, outReport)
-}
-
-func (a *DynamicReport) OptionsItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body ApiBody
-	inReport, shouldReturn := getReportById(w, r, p, &body)
-	if shouldReturn {
-		return
-	}
-	var options ReportOptions
-	fillOptionsStruct(a, &options, inReport)
-	body.ResponseRaw(w, http.StatusOK, &options)
-}
-
-func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var body ApiBody
-	inReport, shouldReturn := getReportById(w, r, p, &body)
-	if shouldReturn {
-		return
-	}
-	defer r.Body.Close()
-	if inReport.Type != reportTypeSql {
-		// Should not happen, non sql reports are proxied to the perl API, see rewriteNonSqlReportSearch
-		body.QuickError(w, http.StatusBadRequest, "abstract report are deprecated, only sql reports are supported")
-		return
-	}
-	var payload ReportSearchParams
-	err := json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		body.QuickError(w, http.StatusBadRequest, "cannot parse request: "+err.Error())
-		return
-	}
-	// Validate payload and store binding data into a map for later use
-	options := make(map[string]any)
-	validationErrors := validateSearchPayload(options, payload, inReport)
-	if len(validationErrors) > 0 {
-		for _, e := range validationErrors {
-			body.AddMessageError(e.Error())
+func (a *DynamicReport) List() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body ApiBody
+		reports, err := getReports(r)
+		if err != nil {
+			body.QuickError(w, http.StatusInternalServerError, "Cannot get reports from cache: "+err.Error())
+			return
 		}
-		body.ResponseError(w, http.StatusBadRequest)
-		return
-	}
-	// Create the binding list in order. A binding can appear multiple time at different positions
-	injectedBindings := make([]any, 0)
-	bindingError := false
-	for _, binding := range inReport.Bindings {
-		e, ok := options[binding]
-		if !ok {
-			bindingError = true
-			body.AddMessageError("missing binding: " + binding)
-			continue
+		reportsAsArray := slices.Collect(maps.Values(reports))
+		respReports := make([]Report, 0, len(reportsAsArray))
+		for k := range reportsAsArray {
+			tmpReport := Report{}
+			report(&tmpReport, &reportsAsArray[k])
+			respReports = append(respReports, tmpReport)
 		}
-		injectedBindings = append(injectedBindings, e)
-	}
-	if bindingError {
-		body.ResponseError(w, http.StatusInternalServerError)
-		return
-	}
-	cleanedSql := cleanSql(inReport.Sql)
-	items, err := executeSearchQuery(a.DBP, cleanedSql, injectedBindings)
-	if err != nil {
-		body.QuickError(w, http.StatusInternalServerError, "cannot execute search query: "+err.Error())
-		return
-	}
-	if err := paginateQuery(&body, &items, options); err != nil {
-		body.QuickError(w, http.StatusBadRequest, "cannot paginate results: "+err.Error())
-		return
-	}
-	body.ResponseItems(w, http.StatusOK, items)
+		body.ResponseItems(w, http.StatusOK, respReports)
+	})
+}
+
+func (a *DynamicReport) GetItem() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body ApiBody
+		inReport, shouldReturn := getReportById(w, r, &body)
+		if shouldReturn {
+			return
+		}
+		outReport := Report{}
+		report(&outReport, inReport)
+		body.ResponseItem(w, http.StatusOK, outReport)
+	})
+}
+
+func (a *DynamicReport) OptionsItem() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body ApiBody
+		inReport, shouldReturn := getReportById(w, r, &body)
+		if shouldReturn {
+			return
+		}
+		var options ReportOptions
+		fillOptionsStruct(a, &options, inReport)
+		body.ResponseRaw(w, http.StatusOK, &options)
+	})
+}
+
+func (a *DynamicReport) SearchItem() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body ApiBody
+		inReport, shouldReturn := getReportById(w, r, &body)
+		if shouldReturn {
+			return
+		}
+		defer r.Body.Close()
+		if inReport.Type != reportTypeSql {
+			// Should not happen, non sql reports are proxied to the perl API, see rewriteNonSqlReportSearch
+			body.QuickError(w, http.StatusBadRequest, "abstract report are deprecated, only sql reports are supported")
+			return
+		}
+		var payload ReportSearchParams
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			body.QuickError(w, http.StatusBadRequest, "cannot parse request: "+err.Error())
+			return
+		}
+		// Validate payload and store binding data into a map for later use
+		options := make(map[string]any)
+		validationErrors := validateSearchPayload(options, payload, inReport)
+		if len(validationErrors) > 0 {
+			for _, e := range validationErrors {
+				body.AddMessageError(e.Error())
+			}
+			body.ResponseError(w, http.StatusBadRequest)
+			return
+		}
+		// Create the binding list in order. A binding can appear multiple time at different positions
+		injectedBindings := make([]any, 0)
+		bindingError := false
+		for _, binding := range inReport.Bindings {
+			e, ok := options[binding]
+			if !ok {
+				bindingError = true
+				body.AddMessageError("missing binding: " + binding)
+				continue
+			}
+			injectedBindings = append(injectedBindings, e)
+		}
+		if bindingError {
+			body.ResponseError(w, http.StatusInternalServerError)
+			return
+		}
+		cleanedSql := cleanSql(inReport.Sql)
+		items, err := executeSearchQuery(a.DBP, cleanedSql, injectedBindings)
+		if err != nil {
+			body.QuickError(w, http.StatusInternalServerError, "cannot execute search query: "+err.Error())
+			return
+		}
+		if err := paginateQuery(&body, &items, options); err != nil {
+			body.QuickError(w, http.StatusBadRequest, "cannot paginate results: "+err.Error())
+			return
+		}
+		body.ResponseItems(w, http.StatusOK, items)
+	})
 }
 
 func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
@@ -629,13 +637,13 @@ func getReports(r *http.Request) (map[string]pfconfigdriver.DynamicReport, error
 	return reports.Element, nil
 }
 
-func getReportById(w http.ResponseWriter, r *http.Request, p httprouter.Params, body *ApiBody) (*pfconfigdriver.DynamicReport, bool) {
+func getReportById(w http.ResponseWriter, r *http.Request, body *ApiBody) (*pfconfigdriver.DynamicReport, bool) {
 	reports, err := getReports(r)
 	if err != nil {
 		body.QuickError(w, http.StatusInternalServerError, "Cannot get reports from cache: "+err.Error())
 		return nil, true
 	}
-	id := p.ByName("id")
+	id := chi.URLParam(r, "id")
 	if len(id) == 0 {
 		body.QuickError(w, http.StatusBadRequest, "report id required")
 		return nil, true
