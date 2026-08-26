@@ -45,28 +45,33 @@ case "$1" in
     fi
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-pfconnector-remote-combined.service
-    if [ -n "$2" ]; then
-        if systemctl is-active --quiet "packetfence-pfconnector-remote-combined.service"; then
-            echo "Upgrade detected, restarting packetfence-pfconnector-remote-combined service"
-            /bin/systemctl restart packetfence-pfconnector-remote-combined.service
+
+    # Installs configured before the remote terminal existed lack its
+    # toggles in pfconnector-client.env (configure.sh only runs at initial
+    # setup): default them to enabled on upgrade, before the service
+    # restart below so the restarted connector picks them up.
+    ENV_FILE=/usr/local/pfconnector-remote/conf/pfconnector-client.env
+    if [ -f "$ENV_FILE" ]; then
+        # Guard against a missing trailing newline before appending
+        if [ -s "$ENV_FILE" ] && [ -n "$(tail -c1 "$ENV_FILE")" ]; then
+            echo "" >> "$ENV_FILE"
         fi
-    else
-        /bin/systemctl stop packetfence-pfconnector-remote-combined.service
+        if ! grep -q '^PFCONNECTOR_TERMINAL=' "$ENV_FILE"; then
+            echo "PFCONNECTOR_TERMINAL=true" >> "$ENV_FILE"
+        fi
+        if ! grep -q '^PFCONNECTOR_TERMINAL_TOTP=' "$ENV_FILE"; then
+            echo "PFCONNECTOR_TERMINAL_TOTP=true" >> "$ENV_FILE"
+        fi
     fi
 
-    if ! grep -qE '^100\.64\.0\.1[[:space:]]+containers-gateway\.internal([[:space:]]|$)' /etc/hosts; then
-        # Drop any stale mapping (e.g. the old 127.0.0.1 loopback entry) before adding the connector gateway one
-        sed -i -E '/[[:space:]]containers-gateway\.internal([[:space:]]|$)/d' /etc/hosts
-        echo "" >> /etc/hosts
-        echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
-    fi
-    
     # Generate the TOTP seed gating remote terminal access (validated by the
     # pfconnector-client, kept in conf/terminal_totp) and display it as a QR
     # code to enroll in an authenticator app. Only on first generation, so
-    # upgrades stay quiet once the seed exists. 20 random bytes make a
-    # padding-free base32 secret, the same otpauth format the client would
-    # generate on first start if this file were missing.
+    # upgrades stay quiet once the seed exists. Done before the service
+    # restart below so the connector loads this seed instead of generating
+    # its own. 20 random bytes make a padding-free base32 secret, the same
+    # otpauth format the client would generate on first start if this file
+    # were missing.
     TOTP_FILE=/usr/local/pfconnector-remote/conf/terminal_totp
     if [ ! -s "$TOTP_FILE" ]; then
         TOTP_SECRET=$(head -c 20 /dev/urandom | base32 | tr -d '=\n')
@@ -89,6 +94,22 @@ case "$1" in
         echo "=================================================================="
     fi
 
+    if [ -n "$2" ]; then
+        if systemctl is-active --quiet "packetfence-pfconnector-remote-combined.service"; then
+            echo "Upgrade detected, restarting packetfence-pfconnector-remote-combined service"
+            /bin/systemctl restart packetfence-pfconnector-remote-combined.service
+        fi
+    else
+        /bin/systemctl stop packetfence-pfconnector-remote-combined.service
+    fi
+
+    if ! grep -qE '^100\.64\.0\.1[[:space:]]+containers-gateway\.internal([[:space:]]|$)' /etc/hosts; then
+        # Drop any stale mapping (e.g. the old 127.0.0.1 loopback entry) before adding the connector gateway one
+        sed -i -E '/[[:space:]]containers-gateway\.internal([[:space:]]|$)/d' /etc/hosts
+        echo "" >> /etc/hosts
+        echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
+    fi
+    
     echo ""
     echo "Connector installation completed"
     echo ""
