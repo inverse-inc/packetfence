@@ -107,6 +107,25 @@
               </b-tbody>
             </b-table-simple>
             <p v-else class="text-muted mb-0">{{ $i18n.t('No static connection configured for this connector.') }}</p>
+
+            <h6 class="text-secondary mt-3">{{ $i18n.t('Dynamic Connections') }}</h6>
+            <b-table-simple v-if="status.bound_remotes && status.bound_remotes.length" small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Server Port') }}</b-th>
+                  <b-th>{{ $i18n.t('Protocol') }}</b-th>
+                  <b-th>{{ $i18n.t('Target') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="(remote, index) in status.bound_remotes" :key="index">
+                  <b-td class="text-monospace">{{ remote.local_host }}:{{ remote.local_port }}</b-td>
+                  <b-td>{{ remote.local_proto }}</b-td>
+                  <b-td class="text-monospace">{{ remote.remote_host }}:{{ remote.remote_port }}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+            <p v-else class="text-muted mb-0">{{ $i18n.t('No dynamic connection currently bound for this connector.') }}</p>
           </b-col>
         </b-row>
       </template>
