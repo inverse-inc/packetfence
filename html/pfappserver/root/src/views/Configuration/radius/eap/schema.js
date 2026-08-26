@@ -33,6 +33,7 @@ export default (props) => {
     default_eap_type: yup.string().nullable().label(i18n.t('EAP Type')),
     eap_authentication_types: yup.array().ensure().of(yup.string().nullable().label(i18n.t('EAP Authentication Types'))),
     fast_config: yup.string().nullable().label(i18n.t('Fast Profile')),
+    teap_config: yup.string().nullable().label(i18n.t('TEAP Profile')),
     ignore_unknown_eap_types: yup.string().nullable().label(i18n.t('Ignore Unknown')),
     max_sessions: yup.string().nullable().label(i18n.t('Max Sessions')),
     peap_tlsprofile: yup.string().nullable().label(i18n.t('PEAP Profile')),

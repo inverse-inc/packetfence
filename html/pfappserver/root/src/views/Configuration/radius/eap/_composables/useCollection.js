@@ -78,6 +78,13 @@ export const useSearch = makeSearch('radiusEap', {
       visible: true
     },
     {
+      key: 'teap_config',
+      label: 'TEAP Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true

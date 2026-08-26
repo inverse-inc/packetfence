@@ -1,0 +1,7 @@
+name: clean_pki_mysql_tables 
+testcases:
+- name: remove_pki_cas_Cert_profiles_from_db
+  steps:
+  - type: exec
+    script: mysql pf -e "set foreign_key_checks=0;truncate pki_cas;truncate pki_profiles;truncate pki_certs;"
+

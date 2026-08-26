@@ -48,7 +48,10 @@
     />
 
     <form-group-fast-config namespace="fast_config"
-      :column-label="$i18n.t('Fast Profile')"
+                            :column-label="$i18n.t('Fast Profile')"
+    />
+    <form-group-teap-config namespace="teap_config"
+                            :column-label="$i18n.t('TEAP Profile')"
     />
   </base-form>
 </template>
@@ -69,7 +72,8 @@ import {
   FormGroupTlsTlsprofile,
   FormGroupTtlsTlsprofile,
   FormGroupPeapTlsprofile,
-  FormGroupFastConfig
+  FormGroupFastConfig,
+  FormGroupTeapConfig
 } from './'
 
 const components = {
@@ -85,7 +89,8 @@ const components = {
   FormGroupTlsTlsprofile,
   FormGroupTtlsTlsprofile,
   FormGroupPeapTlsprofile,
-  FormGroupFastConfig
+  FormGroupFastConfig,
+  FormGroupTeapConfig
 }
 
 export const props = {

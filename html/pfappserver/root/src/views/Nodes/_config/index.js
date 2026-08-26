@@ -208,6 +208,18 @@ export const locationLogFields = [
     sortable: true,
     formatter: filters.shortDateTime,
     class: 'text-nowrap'
+  },
+  {
+    key: 'teap_username',
+    label: i18n.t('TEAP Username'),
+    sortable: true,
+    class: 'text-nowrap'
+  },
+  {
+    key: 'teap_machinename',
+    label: i18n.t('TEAP Machine Name'),
+    sortable: true,
+    class: 'text-nowrap'
   }
 ]
 

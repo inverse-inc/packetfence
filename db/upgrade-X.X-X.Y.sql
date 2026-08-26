@@ -189,6 +189,53 @@ call ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
+\! echo "Updating locationlog";
+CALL AddColumnUnlessExists('locationlog', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
+CALL AddColumnUnlessExists('locationlog', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
+
+\! echo "Updating locationlog_history";
+CALL AddColumnUnlessExists('locationlog_history', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
+CALL AddColumnUnlessExists('locationlog_history', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
+
+\! echo "Updating locationlog_insert_in_history_after_insert";
+DELIMITER /
+DROP TRIGGER IF EXISTS locationlog_insert_in_history_after_insert;
+CREATE TRIGGER locationlog_insert_in_history_after_insert AFTER UPDATE on locationlog
+FOR EACH ROW
+BEGIN
+    IF OLD.session_id <=> NEW.session_id THEN
+        INSERT INTO locationlog_history
+        SET
+            mac = OLD.mac,
+            switch = OLD.switch,
+            port = OLD.port,
+            vlan = OLD.vlan,
+            role = OLD.role,
+            connection_type = OLD.connection_type,
+            connection_sub_type = OLD.connection_sub_type,
+            dot1x_username = OLD.dot1x_username,
+            ssid = OLD.ssid,
+            start_time = OLD.start_time,
+            end_time = CASE
+            WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
+            WHEN OLD.end_time > NOW() THEN NOW()
+            ELSE OLD.end_time
+            END,
+            switch_ip = OLD.switch_ip,
+            switch_mac = OLD.switch_mac,
+            switch_id = OLD.switch_id,
+            teap_username = OLD.teap_username,
+            teap_machinename = OLD.teap_machinename,
+            stripped_user_name = OLD.stripped_user_name,
+            realm = OLD.realm,
+            session_id = OLD.session_id,
+            ifDesc = OLD.ifDesc,
+            voip = OLD.voip
+        ;
+  END IF;
+END /
+DELIMITER ;
+
 --
 -- Index switch_observability_acls by mac for the switch_observability_acls_cleanup task
 -- and for per-device ACL lookups
