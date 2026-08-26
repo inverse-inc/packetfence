@@ -1,11 +1,15 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -42,8 +46,10 @@ func (h APIHandler) pfconnectorRemoteStatus() http.HandlerFunc {
 
 		reply := struct {
 			connectorDetail
-			System map[string]interface{} `json:"system"`
-			Errors []string               `json:"errors,omitempty"`
+			System           map[string]interface{} `json:"system"`
+			CentralVersion   string                 `json:"central_version,omitempty"`
+			UpgradeAvailable bool                   `json:"upgrade_available"`
+			Errors           []string               `json:"errors,omitempty"`
 		}{}
 		reply.ConnectorID = connectorID
 		reply.RemoteIPs = []string{}
@@ -69,9 +75,86 @@ func (h APIHandler) pfconnectorRemoteStatus() http.HandlerFunc {
 			}
 		}
 
+		if central, ok := centralPFVersion(); ok {
+			reply.CentralVersion = central
+			if remote, ok := reply.System["version"].(string); ok {
+				reply.UpgradeAvailable = versionLess(remote, central)
+			}
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(reply)
+	})
+}
+
+// pfReleaseFile carries the central PacketFence version ("PacketFence X.Y.Z").
+const pfReleaseFile = "/usr/local/pf/conf/pf-release"
+
+var majorMinorRe = regexp.MustCompile(`(\d+)\.(\d+)`)
+
+// centralPFVersion extracts MAJOR.MINOR from the central pf-release file.
+func centralPFVersion() (string, bool) {
+	raw, err := os.ReadFile(pfReleaseFile)
+	if err != nil {
+		return "", false
+	}
+	m := majorMinorRe.FindString(string(raw))
+	return m, m != ""
+}
+
+// versionLess reports whether the MAJOR.MINOR in a is lower than in b.
+// Unparsable versions (e.g. a dev build's "0.0.0-src" still parses; garbage
+// does not) never report an upgrade.
+func versionLess(a, b string) bool {
+	am := majorMinorRe.FindStringSubmatch(a)
+	bm := majorMinorRe.FindStringSubmatch(b)
+	if am == nil || bm == nil {
+		return false
+	}
+	aMaj, _ := strconv.Atoi(am[1])
+	aMin, _ := strconv.Atoi(am[2])
+	bMaj, _ := strconv.Atoi(bm[1])
+	bMin, _ := strconv.Atoi(bm[2])
+	return aMaj < bMaj || (aMaj == bMaj && aMin < bMin)
+}
+
+// pfconnectorRemoteUpgrade asks the connector-remote to upgrade its package
+// to the central PacketFence version: the connector's host rewrites its
+// PacketFence apt repository to that version and apt-upgrades the
+// packetfence-pfconnector-remote package (signature-verified against the
+// PacketFence archive keyring), then its postinst restarts the connector.
+func (h APIHandler) pfconnectorRemoteUpgrade() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connectorID := chi.URLParam(r, "connectorID")
+		if connectorID == "" {
+			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
+			return
+		}
+
+		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+
+		central, ok := centralPFVersion()
+		if !ok {
+			http.Error(w, "Unable to determine the central PacketFence version", http.StatusInternalServerError)
+			return
+		}
+
+		body, _ := json.Marshal(map[string]string{"version": central})
+		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/system/upgrade", bytes.NewReader(body))
+		if err != nil {
+			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to trigger the upgrade of connector-remote %s: %s", connectorID, err))
+			http.Error(w, "Unable to reach the connector-remote to upgrade it", http.StatusBadGateway)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(res)
 	})
 }
 

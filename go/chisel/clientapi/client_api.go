@@ -188,6 +188,7 @@ func (api *API) setupRoutes() {
 			r.Route("/system", func(r chi.Router) {
 				r.Get("/info", systemInfo(api))
 				r.Post("/restart", systemRestart(api))
+				r.Post("/upgrade", systemUpgrade(api))
 			})
 		})
 		// Not localhost-only: the admin's browser reaches this directly on
