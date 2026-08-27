@@ -40,6 +40,10 @@ type SystemInfo struct {
 	// Informational only: enforcement happens in enableTerminal.
 	TerminalEnabled bool `json:"terminal_enabled"`
 	TerminalTOTP    bool `json:"terminal_totp"`
+	// LogFiles lists the log allowlist keys that can be live-streamed from
+	// this connector right now. The admin UI keys the "View Logs" button on
+	// it; connectors predating the feature simply omit the field.
+	LogFiles []string `json:"log_files,omitempty"`
 }
 
 // systemInfo reports resource usage of the box running the
@@ -51,6 +55,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			Version:         chshare.BuildVersion,
 			TerminalEnabled: api.TerminalEnabled,
 			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
+			LogFiles:        availableLogFiles(api),
 		}
 		info.Hostname, _ = os.Hostname()
 
