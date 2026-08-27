@@ -16,7 +16,10 @@ module.exports = {
       '^/api': {
         target: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`,
         secure: false,
-        changeOrigin: true
+        changeOrigin: true,
+        // The connector live-log stream (and any future /api websocket)
+        // needs the upgrade forwarded by the dev server too.
+        ws: true
       },
       '^/netdata': {
         target: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`,
