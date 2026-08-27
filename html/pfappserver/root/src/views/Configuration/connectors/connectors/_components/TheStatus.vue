@@ -21,6 +21,11 @@
             @click="openTerminal">
             <icon name="terminal" class="mr-1" />{{ $i18n.t('Open Terminal') }}
           </b-button>
+          <b-button v-if="logFiles.length" size="sm" :variant="showLogs ? 'primary' : 'outline-primary'" class="mr-1"
+            :disabled="!status || !status.connected"
+            @click="showLogs = !showLogs">
+            <icon name="scroll" class="mr-1" />{{ $i18n.t('View Logs') }}
+          </b-button>
           <b-button v-if="status && status.upgrade_available" size="sm" variant="outline-warning" class="mr-1"
             :disabled="!status.connected || isUpgrading" @click="showUpgradeModal = true">
             <icon name="arrow-circle-up" class="mr-1" />{{ $i18n.t('Upgrade to {version}', { version: status.central_version }) }}
@@ -132,6 +137,8 @@
       <p v-else-if="!isLoading" class="text-muted mb-0">{{ $i18n.t('Status unavailable.') }}</p>
     </div>
 
+    <the-logs v-if="showLogs && logFiles.length" :id="id" :files="logFiles" />
+
     <b-modal v-model="showTerminalModal"
       :title="$i18n.t('Open Remote Terminal')"
       centered
@@ -173,9 +180,10 @@
   </div>
 </template>
 <script>
-import { onBeforeUnmount, onMounted, ref } from '@vue/composition-api'
+import { computed, onBeforeUnmount, onMounted, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from '../_api'
+import TheLogs from './TheLogs'
 
 export const props = {
   id: {
@@ -197,6 +205,15 @@ export const setup = (props, context) => {
   const terminalCode = ref('')
   const showRestartModal = ref(false)
   const lastRefresh = ref(null)
+  const showLogs = ref(false)
+
+  // The remote advertises its streamable logs in /system/info (log_files).
+  // Connectors predating the feature (or with PFCONNECTOR_LOGS=false) omit
+  // the field: no button, graceful degradation.
+  const logFiles = computed(() => {
+    const { system: { log_files: files } = {} } = status.value || {}
+    return Array.isArray(files) ? files : []
+  })
 
   const refresh = () => {
     if (!props.id)
@@ -329,6 +346,8 @@ export const setup = (props, context) => {
     terminalCode,
     showRestartModal,
     lastRefresh,
+    showLogs,
+    logFiles,
     refresh,
     restart,
     upgrade,
@@ -345,6 +364,9 @@ export const setup = (props, context) => {
 export default {
   name: 'the-status',
   inheritAttrs: false,
+  components: {
+    TheLogs
+  },
   props,
   setup
 }

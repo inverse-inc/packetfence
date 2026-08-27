@@ -31,13 +31,16 @@ type API struct {
 	Router          *chi.Mux
 	ConnectorId     string
 	TerminalEnabled bool
-	ctx             context.Context
-	cancel          context.CancelFunc
-	tunnel          *tunnel.Tunnel
-	mdCache         *multiDomainCache
-	statusCache     *connectorStatusCache
-	commandChan     chan Message
-	serverRunning   int32
+	// LogsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the
+	// live log streaming endpoint is available.
+	LogsEnabled   bool
+	ctx           context.Context
+	cancel        context.CancelFunc
+	tunnel        *tunnel.Tunnel
+	mdCache       *multiDomainCache
+	statusCache   *connectorStatusCache
+	commandChan   chan Message
+	serverRunning int32
 	// terminalActivity is the unix-nano timestamp of the last terminal
 	// activity (pty read/write). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
@@ -84,6 +87,7 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 
 	Api.commandChan = make(chan Message)
 	Api.terminalActivity = &atomic.Int64{}
+	Api.LogsEnabled = logsEnabled()
 	var err error
 	Api.TerminalEnabled, err = Api.terminal()
 	if err != nil {
@@ -190,6 +194,7 @@ func (api *API) setupRoutes() {
 				r.Post("/restart", systemRestart(api))
 				r.Post("/upgrade", systemUpgrade(api))
 			})
+			r.Get("/logs/{name}", tailLog(api))
 		})
 		// Not localhost-only: the admin's browser reaches this directly on
 		// the remote's IP to activate a terminal session authorized by the
