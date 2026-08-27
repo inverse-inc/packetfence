@@ -30,6 +30,18 @@
 
       <div class="d-flex align-items-center flex-nowrap mb-2 flex-shrink-0">
         <b-input-group class="mr-1 log-search flex-grow-1" size="sm">
+          <b-form-input v-model="filterInput" :placeholder="$t('Filter...')"
+            :class="{ 'is-invalid': filterError }" />
+          <b-input-group-append>
+            <b-button :variant="filterIsRegex ? 'secondary' : 'outline-secondary'" @click="filterIsRegex = !filterIsRegex"
+              :title="$i18n.t('Regular Expression')" v-b-tooltip.hover.top.d300>.*</b-button>
+            <b-button variant="outline-secondary" @click="onFilterClear" :disabled="!filterInput">
+              <icon name="times" />
+            </b-button>
+          </b-input-group-append>
+        </b-input-group>
+        <small v-if="filterQuery && !filterError" class="mx-1 text-nowrap text-muted">{{ events.length }} / {{ bufferLines }}</small>
+        <b-input-group class="mr-1 log-search flex-grow-1" size="sm">
           <b-form-input v-model="searchInput" :placeholder="$t('Find...')"
             :class="{ 'is-invalid': searchError }"
             @keydown.enter.exact.prevent="onSearchNext"
@@ -74,7 +86,9 @@
                 <span v-html="highlightEscaped(event.data.raw, idx)" />
               </div>
               <div v-if="!events.length" class="text-muted px-1 py-2">
-                {{ isRunning ? $i18n.t('Waiting for log lines...') : $i18n.t('Select a log file and press Start to stream it live from the remote connector.') }}
+                <template v-if="bufferLines">{{ $i18n.t('No line matches the filter.') }}</template>
+                <template v-else-if="isRunning">{{ $i18n.t('Waiting for log lines...') }}</template>
+                <template v-else>{{ $i18n.t('Select a log file and press Start to stream it live from the remote connector.') }}</template>
               </div>
             </div>
           </div>
@@ -85,6 +99,7 @@
 </template>
 <script>
 import { computed, onBeforeUnmount, ref, watch } from '@vue/composition-api'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import { useLogSearch } from '@/composables/useLogSearch'
 import i18n from '@/utils/locale'
 
@@ -110,7 +125,7 @@ export const setup = (props, context) => {
 
   const selectedFile = ref(null)
   const backfill = ref(100)
-  const events = ref([])
+  const buffer = ref([])
   const isConnecting = ref(false)
   const isRunning = ref(false)
   const wsError = ref(null)
@@ -131,10 +146,47 @@ export const setup = (props, context) => {
     flushTimer = null
     if (!pending.length)
       return
-    const merged = events.value.concat(pending)
+    const merged = buffer.value.concat(pending)
     pending = []
-    events.value = (merged.length > BUFFER_SIZE) ? merged.slice(-BUFFER_SIZE) : merged
+    buffer.value = (merged.length > BUFFER_SIZE) ? merged.slice(-BUFFER_SIZE) : merged
   }
+
+  // Client-side filter over the ring buffer: hides non-matching lines (case-
+  // insensitive substring, or regex when toggled) without restarting the
+  // stream, and applies retroactively to the buffered scrollback. The
+  // debounce keeps the per-keystroke recompute off the 3000-line buffer.
+  const filterInput = ref('')
+  const filterQuery = ref('')
+  const filterIsRegex = ref(false)
+  const filterError = ref(false)
+  useDebouncedWatchHandler([filterInput], () => {
+    filterQuery.value = filterInput.value
+  }, { time: 300, immediate: false })
+  const onFilterClear = () => {
+    filterInput.value = ''
+    filterQuery.value = ''
+  }
+  const filterRegex = computed(() => {
+    filterError.value = false
+    if (!filterQuery.value)
+      return null
+    try {
+      const pattern = filterIsRegex.value
+        ? filterQuery.value
+        : filterQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return new RegExp(pattern, 'i')
+    } catch (e) {
+      filterError.value = true
+      return null
+    }
+  })
+  const events = computed(() => {
+    const re = filterRegex.value
+    if (!re)
+      return buffer.value
+    return buffer.value.filter(event => re.test(event.data.raw || ''))
+  })
+  const bufferLines = computed(() => buffer.value.length)
 
   const stop = () => {
     if (ws) {
@@ -206,7 +258,7 @@ export const setup = (props, context) => {
 
   const onClearEvents = () => {
     pending = []
-    events.value = []
+    buffer.value = []
   }
   const onCopyEvents = () => {
     try {
@@ -247,6 +299,12 @@ export const setup = (props, context) => {
     fileOptions,
     backfill,
     events,
+    bufferLines,
+    filterInput,
+    filterQuery,
+    filterIsRegex,
+    filterError,
+    onFilterClear,
     isConnecting,
     isRunning,
     wsError,
