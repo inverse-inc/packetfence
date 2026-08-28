@@ -88,14 +88,14 @@ The admin interface can open a shell on a pfconnector-remote host (_Open Termina
 
 Opening a terminal requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
 
-The seed is generated on the pfconnector-remote host when the packetfence-pfconnector-remote package is installed or upgraded, and displayed once as a QR code to scan with an authenticator app (the pfconnector-client generates it on first start if it is missing). It never leaves the host: reading it requires local access. To enroll it later, read the otpauth URL on the host:
+The seed is generated on the pfconnector-remote host when the packetfence-pfconnector-remote package is installed or upgraded, and displayed once as a QR code to scan with an authenticator app (the pfconnector-client generates it on first start if it is missing). It never leaves the host: reading it requires local access. To enroll it later, display the QR code again on the host:
 
 [source,bash]
 ----
-cat /usr/local/pfconnector-remote/conf/terminal_totp
+/usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode
 ----
 
-The URL can be entered manually in the authenticator or rendered as a QR code (e.g. `qrencode -t ansiutf8 < /usr/local/pfconnector-remote/conf/terminal_totp`). To rotate the seed (for example when someone who knew it leaves), delete the file, restart the service and re-enroll.
+The otpauth URL it prints (kept in [filename]`/usr/local/pfconnector-remote/conf/terminal_totp`) can also be entered manually in the authenticator. To rotate the seed (for example when someone who knew it leaves), delete the file, restart the service and re-enroll.
 
 Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes of inactivity.
 

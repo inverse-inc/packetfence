@@ -95,6 +95,8 @@ case "$1" in
         fi
         echo "otpauth URL (kept in $TOTP_FILE):"
         cat "$TOTP_FILE"
+        echo ""
+        echo "Run /usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode to display this QR code again."
         echo "=================================================================="
     fi
 
