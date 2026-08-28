@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 17;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Connector;
@@ -63,6 +63,19 @@ $t->post_ok($collection_base_url => json => {
         networks => ["12.36.24.0/24"],
     })
   ->status_is(422);
+
+# Equipment located behind the connector, based on its networks.
+# t/data/firewall_sso.conf has a firewall at 12.36.24.254, inside
+# test_networks' 12.36.24.0/24; nothing else in the test fixtures does.
+$t->get_ok("$base_url/test_networks/equipment")
+  ->status_is(200)
+  ->json_is('/networks/0' => '12.36.24.0/24')
+  ->json_is('/equipment/firewalls/0/id' => '12.36.24.254')
+  ->json_is('/equipment/firewalls/0/type' => 'FortiGate')
+  ->json_is('/equipment/switches' => []);
+
+$t->get_ok("$base_url/not_a_connector/equipment")
+  ->status_is(404);
 
 
 
