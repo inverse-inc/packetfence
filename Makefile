@@ -357,6 +357,7 @@ pfconnector_remote_install:
 	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-upgrade.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-upgrade.service
 	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-upgrade.path $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-upgrade.path
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/totp-qrcode.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-totp-qrcode
 	install -v -d -m0755 $(DESTDIR)/etc/docker
 	install -v -m 0600 $(SRC_ROOT_DIR)/containers/daemon.json $(DESTDIR)/etc/docker/daemon.json
 	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)$(PFCONNECTOR_PREFIX)/config.mk
