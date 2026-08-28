@@ -49,7 +49,8 @@ echo "PFCONNECTOR_TERMINAL_TOTP=true" >> /usr/local/pfconnector-remote/conf/pfco
 
 # The TOTP seed gating remote terminal access (conf/terminal_totp) is
 # generated and displayed as a QR code by the package postinst; the
-# pfconnector-client generates it on first start if it is missing.
+# pfconnector-client generates it on first start if it is missing. Run
+# bin/pfconnector-totp-qrcode to display the enrollment QR code again.
 
 # Create a dummy system_init_key file to prevent Docker from creating it as a directory
 if [ ! -f /usr/local/pfconnector-remote/conf/system_init_key ]; then
