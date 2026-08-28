@@ -7,6 +7,7 @@ import {
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
 import BaseFormGroupFingerbankEnvironment from './BaseFormGroupFingerbankEnvironment'
 import TheStatus from './TheStatus' // before TheForm: TheForm reads this binding at module-eval time
+import TheEquipment from './TheEquipment' // before TheForm: TheForm reads this binding at module-eval time
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -22,5 +23,6 @@ export {
 
   TheForm,
   TheStatus,
+  TheEquipment,
   TheView
 }

@@ -1,0 +1,22 @@
+ConfigConnectorEquipmentList:
+  description: A list of configured equipment located behind a connector.
+  type: array
+  items:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The identifier of the equipment in its own configuration (switch id, source id, domain id, firewall id or DNS connector id).
+      type:
+        type: string
+        description: The type of the equipment as defined in its own configuration.
+        example: Cisco::WLC
+      description:
+        type: string
+        description: A human readable description of the equipment.
+      ips:
+        type: array
+        description: The IP addresses (or CIDR range for switch ranges) of the equipment that are routed through the connector.
+        items:
+          type: string
+          example: 10.0.0.10
