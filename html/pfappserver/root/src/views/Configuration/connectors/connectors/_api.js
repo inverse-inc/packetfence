@@ -50,6 +50,11 @@ export default {
       return response.data
     })
   },
+  equipment: id => {
+    return apiCall.get(['config', 'connector', id, 'equipment']).then(response => {
+      return response.data
+    })
+  },
 
   remoteStatus: id => {
     return apiCall.get(['pfconnector-remotes', id, 'status']).then(response => {

@@ -177,6 +177,51 @@
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
       - Config/Connectors
+"/config/connector/{connector_id}/equipment":
+  description: pf::UnifiedApi::Controller::Config::Connectors
+  get:
+    description: List the configured equipment (switches, authentication sources, Active Directory domains, firewalls, DNS connectors) whose IP addresses are routed through this connector, based on its networks.
+    operationId: api.v1.Config.Connectors.resource.equipment
+    parameters:
+      - description: "`PRIMARY KEY`"
+        in: path
+        name: connector_id
+        required: true
+        schema:
+          type: string
+    responses:
+      "200":
+        content:
+          application/json:
+            schema:
+              properties:
+                networks:
+                  description: The networks configured on the connector.
+                  items:
+                    example: 10.0.0.0/24
+                    type: string
+                  type: array
+                equipment:
+                  properties:
+                    switches:
+                      $ref: "#/components/schemas/ConfigConnectorEquipmentList"
+                    authentication_sources:
+                      $ref: "#/components/schemas/ConfigConnectorEquipmentList"
+                    domains:
+                      $ref: "#/components/schemas/ConfigConnectorEquipmentList"
+                    firewalls:
+                      $ref: "#/components/schemas/ConfigConnectorEquipmentList"
+                    dns_connectors:
+                      $ref: "#/components/schemas/ConfigConnectorEquipmentList"
+                  type: object
+              type: object
+        description: Request successful. Response contains the equipment located behind the connector.
+      "401":
+        $ref: "#/components/responses/Forbidden"
+      "404":
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Config/Connectors
 /config/connectors/status:
   description: pf::UnifiedApi::Controller::Config::Connectors
   get:
