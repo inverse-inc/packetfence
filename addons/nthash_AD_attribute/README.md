@@ -261,9 +261,9 @@ created (Computer too) then you will not have all the NTHASH.
 
 You have 2 solutions:
 
-First one: use ntlm_auth in the case of ldap failled to retreive the NTHASH, in this case you just
+First one: use ntlm_auth in the case of ldap failled to retrieve the NTHASH, in this case you just
 have to configure the PacketFence server to join the domain and with the time you will use less ntlm_auth.
 
-Second choice: Use something like fgdump (http://www.question-defense.com/2010/01/20/dumping-ntlm-hashs-from-windows-with-fgdump) to retreive all the NTHASH of your user and fill the information
+Second choice: Use something like fgdump (http://www.question-defense.com/2010/01/20/dumping-ntlm-hashs-from-windows-with-fgdump) to retrieve all the NTHASH of your user and fill the information
 in the ntPassword attribute of each users.
 
