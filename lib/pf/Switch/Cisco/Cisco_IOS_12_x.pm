@@ -104,7 +104,7 @@ use pf::config qw(
     %ConfigRoles
 );
 use pf::locationlog;
-sub description { 'Cisco IOS v12.2' }
+sub description { 'Cisco IOS 12.2' }
 
 # importing switch constants
 use pf::Switch::constants;

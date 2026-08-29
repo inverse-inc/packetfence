@@ -130,7 +130,7 @@ use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
-sub description { 'Cisco IOS v15.0' }
+sub description { 'Cisco IOS 15.0' }
 
 # CAPABILITIES
 # access technology supported

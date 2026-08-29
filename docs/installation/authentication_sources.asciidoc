@@ -24,25 +24,33 @@ various methods:
 [options="compact"]
  * Active Directory
  * Apache htpasswd file
+ * Azure AD
  * BlackHole
+ * Clickatell
+ * EAP-TLS
+ * eDirectory
+ * Eduroam
  * Email
  * External HTTP API
- * Clickatell
  * Facebook (OAuth 2)
  * Github (OAuth 2)
  * Google (OAuth 2)
+ * Google Workspace LDAP
  * Kerberos
  * Kickbox
  * LDAP
  * LinkedIn (OAuth 2)
  * Null
  * OpenID Connect (OAuth 2)
+ * Password of the day
+ * PayPal
  * RADIUS
+ * SAML
  * SMS
  * Sponsored Email
+ * Stripe
  * Twilio
  * Windows Live (OAuth 2)
- * Password of the day
 
 and many others. PacketFence also authenticates users in its internal SQL
 database. Create authentication sources from the admin interface: _Configuration

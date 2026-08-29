@@ -101,7 +101,7 @@ changes:
 [options="compact"]
  * in Role by VLAN ID, set the registration and guest VLAN ID to 20 - this will ensure unregistered clients are initially put in VLAN 20 and avoid a VLAN change once they properly authenticate from the captive portal
  * make sure `Role by Switch Role` is checked and set the registration role to `registration` - this will ensure the registration access list created in the previous section is returned for unregistered users. This will limit their access to the PacketFence captive portal
- * make sure `Role by Web Auth URL` is checked and set the `registration` URL to `http://172.20.100.2/Cisco::Catalyst_2960`
+ * make sure `Role by Web Auth URL` is checked and set the `registration` URL to `http://172.20.100.2/Cisco::Cisco_IOS_15_0`
 
 Click on `Save` to save all configuration changes.
 
@@ -138,14 +138,14 @@ Click on `Save` to save all configuration changes.
 
 === Testing
 
-First make sure that the Microsoft Windows 7 endpoint is unplugged from the
+First make sure that the Windows 10/11 endpoint is unplugged from the
 Cisco Catalyst 2960 switch. Then, make sure the endpoint is unregistered from
 PacketFence. To do this, from the _Nodes_ configuration module, locate its MAC
 address and click on it. From the node property window, change the `Status` to
 `unregistered`.
 
 Next, we need to disable 802.1X from the network configuration card from the
-Microsoft Windows 7 endpoint. We want to simulate here an authentication by MAC
+Windows 10/11 endpoint. We want to simulate here an authentication by MAC
 address, so we have to disable 802.1X to do this. From Windows` Network
 Connection connection panel, ask for the properties of the LAN interface you
 will use for testing. From the authentication tab, make sure `Enable IEEE 802.1X

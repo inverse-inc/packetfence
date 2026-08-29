@@ -23,7 +23,7 @@ automatically.
 
 This section configures PacketFence as a RADIUS server with 802.1X support
 through Microsoft Active Directory and a Cisco 2960 access switch. The 802.1X
-client is a Microsoft Windows 7 computer connected to the Cisco 2960 switch. The
+client is a Windows 10/11 computer connected to the Cisco 2960 switch. The
 architecture diagram shows component interconnections:
 
 image::getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
@@ -137,7 +137,7 @@ Write the switch configuration to memory.
 PacketFence must be aware of the equipment it manages. From _Configuration ->
 Policies and Access Control -> Network Devices -> Switches_, click on `New
 Switch -> default`. Enter the switch IP address (172.21.2.3 in our example). As
-a switch type, select `Cisco Catalyst 2960` and select `Production` as the Mode.
+a switch type, select `Cisco IOS 15.0` and select `Production` as the Mode.
 From the `Roles` tab, make sure  `Role by VLAN ID` is checked and that the VLAN
 ID associated to the default role is set to the normal VLAN currently in use on
 the network. In our example, it will be VLAN 20. That means that once a 802.1X
@@ -177,20 +177,26 @@ Click on `Create` to save all configuration changes.
 
 === Configuring Microsoft Windows Supplicant
 
-To enable 802.1X on the wired adapter of the Microsoft Windows 7 endpoint,
+To enable 802.1X on the wired adapter of a Windows 10/11 endpoint,
 first enable the `Wired AutoConfig` service. From the
 Microsoft Windows Services control panel, double-click on `Wired AutoConfig`.
 Make sure `Startup type:` is set to `Automatic` and click on `Start` to enable
 the service.
 
-Then, from Windows` Network Connection panel, open the Properties window of the
-LAN interface you will use for testing. From the authentication tab, make sure
-`Enable IEEE 802.1X authentication` is checked. As the authentication method,
-make sure `Microsoft: Protected EAP (PEAP)` is selected. Then, click on
-`Settings` and make sure `Validate server certificate` is unchecked. As
-authentication method, make sure `Secured password (EAP-MSCHAPv2)` is selected.
-Then, click on `Configure ...` and make sure `Automatically use my Windows logon
-name and password (and domain if any)` is unchecked.
+Then, open the authentication settings of the LAN interface you will use for
+testing. On Windows 10/11, go to _Settings -> Network & internet -> Ethernet_,
+select the connection and click `Edit` next to `Authentication settings`.
+Alternatively, open the classic _Control Panel -> Network and Sharing Center ->
+Change adapter settings_, right-click the Ethernet adapter and select
+`Properties`.
+
+From the authentication tab, make sure `Enable IEEE 802.1X authentication` is
+checked. As the authentication method, make sure
+`Microsoft: Protected EAP (PEAP)` is selected. Then, click on `Settings` and
+make sure `Validate server certificate` is unchecked. As authentication method,
+make sure `Secured password (EAP-MSCHAPv2)` is selected. Then, click on
+`Configure ...` and make sure `Automatically use my Windows logon name and
+password (and domain if any)` is unchecked.
 
 Save all changes.
 
@@ -202,14 +208,14 @@ controller was added. From _Status -> Services_, click on the `Restart` button f
 `radiusd` service. PacketFence will take care of restarting that service and the
 `radiusd-acct` and `radiusd-auth` sub-services.
 
-Connect the Microsoft Windows 7 endpoint on port no. 10 from the Cisco Catalyst
+Connect the Windows 10/11 endpoint on port no. 10 from the Cisco Catalyst
 2960 switch. From Microsoft Windows, a popup should appear prompting you for a
 username and password. Enter a valid username and password from the Microsoft
 Active Directory domain - this should trigger 802.1X (EAP-PEAP) authentication.
 
 To see what's happening in PacketFence, click on the _Auditing_ tab from
 PacketFence's admin interface. An entry should appear for the MAC address of
-the Microsoft Windows 7 endpoint. Click on the line with the correct MAC address
+the Windows 10/11 endpoint. Click on the line with the correct MAC address
 to see the RADIUS exchanges. If the 802.1X authentication is successful, `Accept` appears as the `Auth Status`.
 
 If authentication fails or you don't see RADIUS entries, see

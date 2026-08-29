@@ -144,7 +144,7 @@ device to be in the inline subnetwork.
 
 Example with a Cisco switch:
 
-You should be in mode `#conf-t` if not execute `configuration terminal` in your
+You should be in mode `#conf t` if not execute `configuration terminal` in your
 CLI.
 [source,bash]
 ----
