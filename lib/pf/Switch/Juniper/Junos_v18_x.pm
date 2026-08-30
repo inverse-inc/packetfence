@@ -120,28 +120,16 @@ sub radiusDisconnect {
     return;
 }
 
-=head2 setAdminStatus - bounce switch port with radius CoA technique
+=head2 bouncePortRadius - bounce switch port with radius CoA technique
 
 Send a CoA request to bounce switch port
 
 =cut
 
-sub setAdminStatus {
-    my ( $self, $ifIndex ) = @_;
+sub bouncePortRadius {
+    my ( $self, $ifIndex, $mac ) = @_;
     my $logger = $self->logger;
 
-    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
-    my $mac = $locationlog[0]->{'mac'};
-    if (!$mac) {
-        @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
-        $mac = $locationlog[0]->{'mac'};
-    }
-    
-    if (!$mac) {
-        $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
-        return $TRUE;
-    }
 
     if ( !$self->isProductionMode() ) {
         $logger->info("Switch not in production mode... we won't perform port bounce");
@@ -152,7 +140,22 @@ sub setAdminStatus {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
-        return;
+        return $FALSE;
+    }
+
+    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
+    if (!$mac) {
+        my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
+        $mac = $locationlog[0]->{'mac'};
+        if (!$mac) {
+            @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
+            $mac = $locationlog[0]->{'mac'};
+        }
+
+        if (!$mac) {
+            $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
+            return $FALSE;
+        }
     }
 
     $logger->info("bouncing $mac using RADIUS CoA-Request method");
@@ -199,11 +202,8 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 =cut
 
 sub bouncePort {
-    my ($self, $ifIndex) = @_;
-
-    $self->setAdminStatus( $ifIndex );
-
-    return $TRUE;
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->bouncePortRadius( $ifIndex, $mac );
 }
 
 =head1 AUTHOR
