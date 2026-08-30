@@ -7,6 +7,6 @@
     "@babel/preset-env": "^7.26.0",
     "@cypress/webpack-preprocessor": "^5.15.3",
     "babel-loader": "^9.2.1",
-    "webpack": "^5.96.1"
+    "webpack": "^5.97.0"
   }
 }
