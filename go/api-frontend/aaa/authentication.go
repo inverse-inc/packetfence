@@ -93,8 +93,13 @@ func (tam *TokenAuthenticationMiddleware) TouchTokenInfo(ctx context.Context, w 
 	tam.tokenBackend.TouchTokenInfo(token)
 
 	expire := time.Now().Add(15 * time.Minute)
-	cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000, SameSite: 4}
+	cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000,
+		HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode}
 	http.SetCookie(w, &cookie)
+}
+
+func (tam *TokenAuthenticationMiddleware) InvalidateToken(token string) {
+	tam.tokenBackend.InvalidateToken(token)
 }
 
 func (tam *TokenAuthenticationMiddleware) ExtractUserIdentity(r *http.Request) (string, string, bool) {

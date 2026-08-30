@@ -69,7 +69,7 @@
       </b-button>
     </template>
     <template v-slot:description v-if="inputText || inputApiFeedback">
-      <div v-if="inputApiFeedback" v-html="inputApiFeedback" class="text-warning"/>
+      <div v-if="inputApiFeedback" v-safe-html="inputApiFeedback" class="text-warning"/>
       <div v-if="inputText" v-html="inputText"/>
     </template>
     <template v-slot:invalid-feedback v-if="inputInvalidFeedback">

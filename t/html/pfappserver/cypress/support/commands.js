@@ -9,14 +9,14 @@ Cypress.Commands.add('pfSystemLogin', () => {
   })
   */
   return cy.pfUnifiedSystemPassword().then(password => {
-    return cy.request('POST', '/api/v1/login', { username: 'system', password }).then(response => {
-      return window.localStorage.setItem('user-token', response.body.token)
-    })
+    // Cookie auth: /api/v1/login sets the HttpOnly `token` cookie, which Cypress
+    // keeps in its shared cookie jar for subsequent SPA requests. No localStorage.
+    return cy.request('POST', '/api/v1/login', { username: 'system', password })
   })
 })
 
 Cypress.Commands.add('pfLogout', () => {
-  return window.localStorage.removeItem('user-token')
+  return cy.request({ method: 'POST', url: '/api/v1/logout', failOnStatusCode: false })
 })
 
 Cypress.Commands.add('pfUnifiedSystemPassword', () => {

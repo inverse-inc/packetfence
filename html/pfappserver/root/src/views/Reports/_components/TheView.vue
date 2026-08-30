@@ -6,7 +6,7 @@
         <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_reports" />
       </h4>
       <p v-if="description"
-        v-html="description" class="mt-3 mb-0" />
+        v-safe-html="description" class="mt-3 mb-0" />
     </b-card-header>
     <div class="card-body">
       <template v-if="isLoaded">
