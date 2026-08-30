@@ -280,7 +280,7 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    my $role = $self->getRoleByName($args->{'user_role'});
+    my $role = $self->getRoleByName($args->{'user_role'}, $args);
     if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
@@ -290,7 +290,7 @@ sub returnRadiusAccessAccept {
             $redirect_url .= $args->{'session_id'};
             #override role if a role in role map is defined
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-                my $role_map = $self->getRoleByName($args->{'user_role'});
+                my $role_map = $self->getRoleByName($args->{'user_role'}, $args);
                 $role = $role_map if (defined($role_map));
                 # remove the role if any as we push the redirection ACL along with it's role
                 delete $radius_reply_ref->{$self->returnRoleAttribute()};

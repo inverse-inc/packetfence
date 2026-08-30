@@ -54,6 +54,7 @@ use pf::cluster;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
 use pf::roles::custom $ROLES_API_LEVEL;
+use pf::role::pool;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::error::switch;
 use pf::util;
@@ -653,23 +654,28 @@ Get the switch-specific role of a given global role in switches.conf
 =cut
 
 sub getRoleByName {
-    my ($self, $roleName) = @_;
+    my ($self, $roleName, $args) = @_;
     my $logger = $self->logger;
 
 
     if (!defined($self->{'_roles'}) || !defined($self->{'_roles'}{$roleName})) {
         my $parent = _parentRoleForRole($roleName);
         if (defined $parent && length($parent)) {
-            return $self->getRoleByName($parent);
+            return $self->getRoleByName($parent, $args);
         }
-        # VLAN name doesn't exist
+        # role name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $self->{_id});
         return undef;
     }
 
-    # return if found
-    return $self->{'_roles'}->{$roleName} if (defined($self->{'_roles'}->{$roleName}));
+    # return if found, resolving a role pool ("net_a,net_b,...") to a single role
+    # when the node context ($args) is available (RADIUS Access-Accept path)
+    if (defined($self->{'_roles'}->{$roleName})) {
+        my $role = $self->{'_roles'}->{$roleName};
+        return $role if (!defined($args) || $role eq '');
+        return pf::role::pool->new->getRoleFromPool({ %$args, role => $role });
+    }
 
     # otherwise log and return undef
     $logger->trace("(".$self->{_id}.") No parameter ${roleName}Role found in conf/switches.conf");
@@ -3081,7 +3087,7 @@ sub returnRadiusAccessAccept {
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
         $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
-            $role = $self->getRoleByName($args->{'user_role'});
+            $role = $self->getRoleByName($args->{'user_role'}, $args);
         }
         if ( (defined($role) && $role ne "") || $self->usePushACLs ) {
             if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}}) {
