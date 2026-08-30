@@ -26,7 +26,7 @@ use pf::util;
 use pf::node;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
-use Net::Nessus::REST;
+use Net::Nessus::REST_M;
 
 sub description { 'Nessus6 Scanner' }
 
@@ -106,13 +106,13 @@ sub startScan {
 
     my $policy_id = $nessus->get_policy_id(name => $nessus_clientpolicy);
     if ($policy_id eq "") {
-        $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
+        $logger->warn("Nessus policy doesnt exist -> ".$nessus_clientpolicy);
         return $scan_security_event_id;
     }
 
     my $scanner_id = $nessus->get_scanner_id(name => $scanner_name);
     if ($scanner_id eq ""){
-        $logger->warn("Nessus scanner name doesn't exist ".$scanner_id);
+        $logger->warn("Nessus scanner name doesn't exist -> ".$scanner_id);
         return $scan_security_event_id;
     }
 
@@ -120,7 +120,7 @@ sub startScan {
     # is in this function.
     my $policy_uuid = $nessus->get_template_id( name => 'custom', type => 'scan');
     if ($policy_uuid eq ""){
-        $logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
+        $logger->warn("Failled to obtain the uuid for the policy -> ".$policy_uuid);
         return $scan_security_event_id;
     }
 
@@ -143,7 +143,7 @@ sub startScan {
 
     $nessus->launch_scan(scan_id => $scan_id->{id});
 
-    $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
+    $logger->info("executing Nessus scan with this policy ->  ".$nessus_clientpolicy);
     $self->{'_status'} = $pf::scan::STATUS_STARTED;
     $self->statusReportSyncToDb();
 
@@ -155,7 +155,7 @@ sub startScan {
             $logger->info("Nessus scan is older than 1 hour ...");
             return $scan_security_event_id;
         }
-        $logger->info("Nessus is scanning $hostaddr");
+        $logger->info("Nessus is scanning -> $hostaddr");
         sleep 15;
         $counter = $counter + 15;
     }

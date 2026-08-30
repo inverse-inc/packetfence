@@ -55,6 +55,10 @@ msgstr ""
 msgid "A descriptive name for the SMTP server connection. This can be used to identify the SMTP server in logs and notifications."
 msgstr ""
 
+# html/pfappserver/root/node/view.tt
+msgid "SecurityEvents"
+msgstr "Security Events"
+
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "A message that will be added to the e-mail sent to the user regarding this security event."
 msgstr ""
@@ -8763,7 +8767,7 @@ msgstr "Nessus"
 
 # pf::factory::scan (Scans Engine)
 msgid "scan_type_nessus6"
-msgstr "Nessus 6"
+msgstr "Nessus V>=6"
 
 # pf::factory::scan (Scans Engine)
 msgid "scan_type_openvas"
