@@ -10,6 +10,7 @@ export const types = {
   Iboss:            i18n.t('Iboss'),
   JSONRPC:          i18n.t('JSONRPC'),
   JuniperSRX:       i18n.t('JuniperSRX'),
+  Kerio:            i18n.t('Kerio'),
   LightSpeedRocket: i18n.t('LightSpeedRocket'),
   PaloAlto:         i18n.t('PaloAlto'),
   SmoothWall:       i18n.t('SmoothWall'),

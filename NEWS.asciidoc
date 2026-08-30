@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Kerio Control firewall SSO — native per-user SSO via the Kerio Control Administration API (ActiveHosts.login/logout)
+
 === Enhancements
 
 === Bug Fixes
