@@ -32,7 +32,7 @@
     "vue": "2.6.14",
     "vue-awesome": "^4.5.0",
     "vue-browser-acl": "^0.15.4",
-    "vue-eslint-parser": "^9.4.3",
+    "vue-eslint-parser": "^10.2.0",
     "vue-i18n": "^8.28.2",
     "vue-loading-overlay": "3.4.2",
     "vue-multiselect": "2.1.9",
@@ -44,7 +44,7 @@
     "vue2vis": "0.0.18",
     "vuedraggable": "2.24.3",
     "vuex": "3.6.2",
-    "yup": "^0.32.11"
+    "yup": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
