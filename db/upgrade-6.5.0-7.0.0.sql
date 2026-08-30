@@ -305,6 +305,10 @@ BEGIN
 END /
 DELIMITER ;
 
+DROP TABLE IF EXISTS traplog;
+DROP TABLE IF EXISTS soh_filter_rules;
+DROP TABLE IF EXISTS soh_filters;
+
 --
 -- Upgrade the schema version in the DB
 --
