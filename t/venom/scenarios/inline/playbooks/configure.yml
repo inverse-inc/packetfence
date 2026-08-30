@@ -10,8 +10,15 @@
         state: present
       when: ansible_facts['os_family'] == "Debian"
 
-    # cause a failure on RHEL
-    - name: Disable Netfilter on bridge on Debian only
+    # br_netfilter is not loaded by default on RHEL; load it so the
+    # bridge-nf-call sysctls exist before we disable them
+    - name: Load br_netfilter module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+
+    # without this bridged inline DHCP/traffic is punted to iptables and dropped
+    - name: Disable Netfilter on bridge
       ansible.posix.sysctl:
         name: "{{ item }}"
         state: 'present'
@@ -21,7 +28,6 @@
         - net.bridge.bridge-nf-call-ip6tables
         - net.bridge.bridge-nf-call-iptables
         - net.bridge.bridge-nf-call-arptables
-      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install qemu-kvm on el8
       yum:
@@ -36,3 +42,16 @@
         dest: /usr/bin/qemu-system-x86_64
         state: link
       when: ansible_facts['os_family'] == "RedHat"
+
+    # TEMP(diagnostics): tools for the inline l2/l3 capture testcases
+    - name: Install tcpdump for the diagnostics capture
+      ansible.builtin.package:
+        name: tcpdump
+        state: present
+      failed_when: false
+
+    - name: Install conntrack for the diagnostics capture
+      ansible.builtin.package:
+        name: "{{ 'conntrack' if ansible_facts['os_family'] == 'Debian' else 'conntrack-tools' }}"
+        state: present
+      failed_when: false

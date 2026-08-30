@@ -1,0 +1,41 @@
+# TEMP(diagnostics): captures routing/NAT state (default ns + inlinel3 netns)
+# and probes egress the same path the client uses, to pinpoint why the l3
+# client's TCP to the internet times out. Remove once l3 egress is understood.
+name: TEMP diagnostics capture (inline l3)
+testcases:
+  - name: capture_routing_and_nat_state
+    steps:
+      - type: exec
+        script: |
+          set +e
+          d=/usr/local/pf/t/venom/results/inline/l3
+          iptables-save > "$d/diag_iptables.txt" 2>&1
+          ipset list > "$d/diag_ipset.txt" 2>&1
+          { echo "== default ns addr =="; ip -o addr; echo "== routes =="; ip route show table all; \
+            echo "== rules =="; ip rule; } > "$d/diag_net.txt" 2>&1
+          { echo "== netns inlinel3 addr =="; ip netns exec inlinel3 ip -o addr; \
+            echo "== netns routes =="; ip netns exec inlinel3 ip route show table all; \
+            echo "== netns rules =="; ip netns exec inlinel3 ip rule; } > "$d/diag_netns.txt" 2>&1
+          sysctl net.ipv4.ip_forward > "$d/diag_sysctl.txt" 2>&1
+          command -v conntrack >/dev/null && conntrack -L > "$d/diag_conntrack.txt" 2>&1 \
+            || echo "conntrack unavailable" > "$d/diag_conntrack.txt"
+          true
+
+  - name: probe_egress_from_netns_with_capture
+    steps:
+      - type: exec
+        script: |
+          set +e
+          d=/usr/local/pf/t/venom/results/inline/l3
+          ip=151.101.3.5
+          cap=""
+          if command -v tcpdump >/dev/null; then
+            timeout 20 tcpdump -i any -n -w "$d/diag_egress.pcap" "host $ip" >/dev/null 2>&1 &
+            cap=$!
+          fi
+          { echo "== netns curl to $ip:443 (same path as the client) =="; \
+            ip netns exec inlinel3 timeout 15 curl -sk -o /dev/null -w 'http=%{http_code} time=%{time_total}\n' "https://$ip/"; \
+            echo "rc=$?"; } > "$d/diag_egress.txt" 2>&1
+          command -v conntrack >/dev/null && conntrack -L -d "$ip" >> "$d/diag_egress.txt" 2>&1
+          [ -n "$cap" ] && wait "$cap"
+          true

@@ -34,17 +34,27 @@ delete_dir_if_exists() {
     fi
 }
 
-# vagrant redraws "Progress: N%" with carriage returns (no newline), so the whole
-# burst arrives as one line; `tr` splits it so each redraw can be dropped. Covers
-# the vagrant-libvirt volume upload ("Progress: 0%") and box downloads
-# ("name: Progress: 45% (Rate: ...)"). Real output, including colors, passes through.
+# Collapse vagrant Progress: N% redraws to only the latest frame per burst.
 filter_vagrant_progress() {
     local esc=$'\033'
-    tr '\r' '\n' | awk -v esc="$esc" '
-      { clean = $0; gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean) }
-      clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/ { next }   # drop progress redraws
-      clean ~ /^[ \t]*$/ && $0 != clean { next }                                              # drop control-only fragments
-      { print; fflush() }
+    awk -v esc="$esc" '
+      function flush_pending() {
+          if (pending != "") { print pending; pending = ""; fflush() }
+      }
+      {
+          n = split($0, frames, "\r")
+          line = frames[n]
+          clean = line
+          gsub(esc "\\[[0-9;]*[A-Za-z]", "", clean)
+          if (clean ~ /^[ \t]*$/) next
+          if (clean ~ /^[ \t]*([A-Za-z0-9._-]+: )?Progress: [0-9]+%([ \t]*\(.*\))?[ \t]*$/) {
+              pending = line
+              next
+          }
+          flush_pending()
+          print line; fflush()
+      }
+      END { flush_pending() }
     '
 }
 
@@ -186,10 +196,8 @@ run() {
     log_section "Full run took $((total/60))m$((total%60))s"
 }
 
-# The Linode box bucket is private, so Vagrant can't fetch our boxes from box_url
-# directly (403). Pre-fetch them with authenticated rclone, driven by the VM's
-# box_url in the inventory (single source of truth). Public boxes (generic/rhel8,
-# debian/*) have no bucket URL and are fetched by Vagrant directly.
+# The box bucket is private (Vagrant box_url fetch 403s), so pre-fetch our boxes
+# via rclone keyed on the VM's inventory box_url. Public boxes have none -> skip.
 prefetch_private_box() {
     local vm=$1
 
@@ -211,16 +219,18 @@ walk(inv)
 print(hit.get('box_url', ''))
 PY
 )
-    # Public boxes (debian/*, generic/rhel8) have no bucket URL: Vagrant fetches them.
     case "${box_url}" in
         *packetfence-vagrant-box*) ;;
-        *) return 0 ;;
+        *) return 0 ;;   # public box: let Vagrant fetch it
     esac
 
     # Private box: creds are mandatory; fail clearly instead of a later vagrant 403.
-    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset."
-    [ -n "${RCLONE_SECRET_ACCESS_KEY:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_SECRET_ACCESS_KEY is unset."
-    [ -n "${RCLONE_LINODE_URL:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_LINODE_URL is unset."
+    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || \
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset."
+    [ -n "${RCLONE_SECRET_ACCESS_KEY:-}" ] || \
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_SECRET_ACCESS_KEY is unset."
+    [ -n "${RCLONE_LINODE_URL:-}" ] || \
+        die "VM '${vm}' needs private box '${box_url}' but RCLONE_LINODE_URL is unset."
 
     local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
     local box_name                                    # .../<box_name>/metadata.json
@@ -325,14 +335,16 @@ run_tests() {
     # install roles and collections in VENOM_ROOT_DIR
     run_ansible_galaxy_once ${VENOM_ROOT_DIR}/requirements.yml
 
+    mkdir -p "${RESULT_DIR}"
+    local ansible_log="${RESULT_DIR}/ansible-run_tests.log"
     for scenario_name in ${SCENARIOS_TO_RUN}; do
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
             # will find roles and collections in VENOM_ROOT_DIR
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "@${scenario_path}/ansible_inventory.yml"
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "@${scenario_path}/ansible_inventory.yml" 2>&1 | tee -a "${ansible_log}"
         else
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST 2>&1 | tee -a "${ansible_log}"
         fi
     done
 }

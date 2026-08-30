@@ -1,0 +1,33 @@
+# TEMP(diagnostics): captures firewall/net state and the DHCP path while the
+# client is up, to pinpoint where the l2 client's DISCOVER is lost. Remove once
+# the inline l2 failure is understood.
+name: TEMP diagnostics capture (inline l2)
+testcases:
+  - name: capture_firewall_and_net_state
+    steps:
+      - type: exec
+        script: |
+          set +e
+          d=/usr/local/pf/t/venom/results/inline/l2
+          iptables-save > "$d/diag_iptables.txt" 2>&1
+          ipset list > "$d/diag_ipset.txt" 2>&1
+          { echo "== addr =="; ip -o addr; echo "== routes =="; ip route show table all; \
+            echo "== rules =="; ip rule; echo "== bridges =="; bridge link; } > "$d/diag_net.txt" 2>&1
+          sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-arptables \
+            net.bridge.bridge-nf-call-ip6tables > "$d/diag_sysctl.txt" 2>&1
+          true
+
+  - name: capture_dhcp_client_to_pf
+    steps:
+      - type: exec
+        script: |
+          set +e
+          d=/usr/local/pf/t/venom/results/inline/l2
+          command -v tcpdump >/dev/null || { echo "tcpdump missing" > "$d/diag_capture.txt"; exit 0; }
+          # client keeps retrying DHCP; watch the bridge (client side) and inlinel2 (pf side) at once
+          timeout 45 tcpdump -i inlinel2 -n -w "$d/diag_inlinel2_dhcp.pcap" 'udp and (port 67 or port 68)' >/dev/null 2>&1 &
+          p1=$!
+          timeout 45 tcpdump -i blok-br1 -n -w "$d/diag_blok-br1_dhcp.pcap" 'udp and (port 67 or port 68)' >/dev/null 2>&1
+          wait $p1
+          echo "captured" > "$d/diag_capture.txt"
+          true
