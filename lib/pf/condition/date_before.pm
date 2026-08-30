@@ -29,15 +29,19 @@ has value => (
     required => 0,
 );
 
-
-my $date_format = "%Y-%m-%d %H:%M:%S";
-
 sub match {
     my ($self, $arg, $args) = @_;
 
-    my $date_to_compare = $arg;
-    my $date_control = $self->value // strftime $date_format, localtime;
+    my $date_format = "%Y-%m-%d %H:%M:%S";
 
+    my $date_to_compare = $arg;
+    my $date_control;
+    if( !defined($self->value) || $self->value eq 'now' ){
+        $date_control = strftime($date_format, localtime);
+    } else {
+       $date_control = $self->value;
+    }
+    
     $date_to_compare = Time::Piece->strptime($date_to_compare, $date_format);
     $date_control = Time::Piece->strptime($date_control, $date_format);
 
