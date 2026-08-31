@@ -13,9 +13,11 @@
 # VIP; httpd.portal is not tracked (haproxy load-balances the portal across nodes).
 #
 # Peer actions/checks run via delegate_to; VIP presence is interface-independent
-# (ip -o -4 addr show | grep -qw <vip>). Service stop/start via pfcmd (restart uses
-# --ignore-checkup: a transient degraded cluster otherwise fails checkup and the
-# restart no-ops). The wait_vip assertions are the real signal.
+# (ip -o -4 addr show | grep -qw <vip>). Top-level services stop/start via pfcmd
+# (restart uses --ignore-checkup: a transient degraded cluster otherwise fails
+# checkup and the restart no-ops). radiusd-load_balancer is a radiusd submanager
+# child, not a pfcmd-addressable service, so it's driven via systemctl directly.
+# The wait_vip assertions are the real signal.
 
 ########################################################################
 # keepalived on pf1 — only the mgmt VIP leaves pf1; reg/iso stay on pf2
@@ -139,8 +141,10 @@
         - name: "baseline: pf1 holds mgmt VIP"
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
+        # radiusd-load_balancer is a radiusd submanager child, not a pfcmd-addressable
+        # service name, so drive its unit directly (matches cluster_verify_all)
         - name: "Stop radiusd-load_balancer on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer stop || true"
+          ansible.builtin.shell: "timeout -k 30 300 systemctl stop packetfence-radiusd-load_balancer || true"
           changed_when: true
         # check the VIP LEFT pf1 first (failover triggered), then that it landed on pf2
         - name: "mgmt VIP leaves pf1, then lands on pf2"
@@ -155,7 +159,7 @@
           loop: ["{{ cluster_vip.reg }}", "{{ cluster_vip.iso }}"]
       always:
         - name: "Restart radiusd-load_balancer on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart --ignore-checkup || true"
+          ansible.builtin.shell: "timeout -k 30 300 systemctl restart packetfence-radiusd-load_balancer || true"
           changed_when: true
         - name: "mgmt VIP preempts back to pf1"
           include_tasks: tasks/failover/wait_vip.yml
@@ -311,7 +315,7 @@
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
         - name: "Move mgmt VIP to pf2 by stopping radiusd-load_balancer on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer stop || true"
+          ansible.builtin.shell: "timeout -k 30 300 systemctl stop packetfence-radiusd-load_balancer || true"
           changed_when: true
         - name: "mgmt VIP leaves pf1, then lands on pf2"
           include_tasks: tasks/failover/wait_vip.yml
@@ -329,7 +333,7 @@
           delay: 5
       always:
         - name: "Restart radiusd-load_balancer on pf1 (mgmt VIP back to pf1)"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service radiusd-load_balancer restart --ignore-checkup || true"
+          ansible.builtin.shell: "timeout -k 30 300 systemctl restart packetfence-radiusd-load_balancer || true"
           changed_when: true
         - name: "mgmt VIP preempts back to pf1"
           include_tasks: tasks/failover/wait_vip.yml
