@@ -520,9 +520,13 @@ variables:
     - test-shell-v7
 
 # Cluster test family runs in its own stage (heavy 3-VM jobs, opt-in).
+# Pinned to test-cluster-shell-v7: the general test-shell-v7 runners lack the
+# disk space for 3 concurrent PF VMs.
 .test_cluster_job:
   extends: .test_job
   stage: test_cluster
+  tags:
+    - test-cluster-shell-v7
 
 .deploy_packages_job:
   stage: deploy
