@@ -44,11 +44,5 @@ export default {
   },
   delete: id => {
     return apiCall.delete(['config', 'domains_connector', id])
-  },
-
-  lookup: data => {
-    return apiCall.post('pfconnector-remotes/dns-lookup', data).then(response => {
-      return response.data
-    })
   }
 }
