@@ -1425,7 +1425,7 @@ build_pf_img_zen:
     # override IMAGE_TAG below (release tags are pushed unslugified).
     ZEN_BUILDER_IMAGE: ${KNK_REGISTRY_URL}/zen-builder:${IMAGE_TAG}
   tags:
-    - shell-v7
+    - zen-shell-v7
   rules:
     - if: '$CI_COMMIT_TAG'
       when: manual
