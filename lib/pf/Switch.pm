@@ -173,6 +173,7 @@ sub new {
         '_wsTransport'                  => undef,
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
+        '_controllerPort'               => undef,
         '_disconnectPort'               => undef,
         '_coaPort'                      => undef,
         '_uplink'                       => undef,

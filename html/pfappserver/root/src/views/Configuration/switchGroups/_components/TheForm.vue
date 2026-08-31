@@ -306,6 +306,12 @@
                                   :text="$i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.')"
         />
 
+        <form-group-controller-port namespace="controllerPort"
+                                    v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
+                                    :column-label="$i18n.t('Controller Port')"
+                                    :text="$i18n.t('Port to reach the controller API. If empty, the default ports of the module will be used.')"
+        />
+
         <form-group-disconnect-port namespace="disconnectPort"
                                     v-show="supports(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x'])"
                                     :column-label="$i18n.t('Disconnect Port')"
@@ -587,6 +593,7 @@ import {
   FormGroupCliUser,
   FormGroupCoaPort,
   FormGroupControllerIp,
+  FormGroupControllerPort,
   FormGroupDeauthenticationMethod,
   FormGroupDescription,
   FormGroupDisconnectPort,
@@ -674,6 +681,7 @@ const components = {
   FormGroupCliUser,
   FormGroupCoaPort,
   FormGroupControllerIp,
+  FormGroupControllerPort,
   FormGroupDeauthenticationMethod,
   FormGroupDescription,
   FormGroupDisconnectPort,

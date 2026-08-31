@@ -296,7 +296,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPFullAuthorization PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPFullAuthorization PostMfaValidation uplink_dynamic uplink controllerIp controllerPort disconnectPort coaPort) ],
   );
 
 has_field 'SNMPUseConnector' =>
@@ -468,6 +468,16 @@ has_field controllerIp =>
     tags => {
         after_element => \&help,
         help => 'Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only'
+    },
+  );
+
+has_field controllerPort =>
+  (
+    type => 'PosInteger',
+    label => 'Controller Port',
+    tags => {
+        after_element => \&help,
+        help => 'Port to reach the controller API. If empty, the default ports of the module will be used'
     },
   );
 
