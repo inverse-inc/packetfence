@@ -32,8 +32,8 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 			http.Error(w, "Cannot parse request body", http.StatusBadRequest)
 			return
 		}
-		if payload.DnsConnectorID == "" || payload.Name == "" {
-			http.Error(w, "dns_connector_id and name are required", http.StatusBadRequest)
+		if payload.Name == "" {
+			http.Error(w, "name is required", http.StatusBadRequest)
 			return
 		}
 		if payload.Type == "" {
@@ -41,6 +41,13 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 		}
 		if payload.Mode == "" {
 			payload.Mode = "tunnel"
+		}
+		// The pfdns-connector front-end routes by queried domain, so
+		// packetfence mode needs no dns_connector_id; tunnel mode targets
+		// one entry's tunnel and does.
+		if payload.Mode != "packetfence" && payload.DnsConnectorID == "" {
+			http.Error(w, "dns_connector_id is required", http.StatusBadRequest)
+			return
 		}
 
 		// "packetfence" mode: resolve exactly as PacketFence does at
@@ -55,9 +62,13 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 				return
 			}
 			lookup := dnsQuery(resolver, payload.Name, payload.Type)
+			dnsConnectorID := payload.DnsConnectorID
+			if dnsConnectorID == "" {
+				dnsConnectorID = "-"
+			}
 			reply := map[string]interface{}{
 				"mode":             payload.Mode,
-				"dns_connector_id": payload.DnsConnectorID,
+				"dns_connector_id": dnsConnectorID,
 				"dns_server":       resolver,
 				"pfconnector_port": "-",
 				"connector_id":     "pfdns-connector",
