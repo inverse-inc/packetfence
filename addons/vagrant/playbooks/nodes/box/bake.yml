@@ -1,0 +1,4 @@
+---
+# Bakes the node+wireless box by running the real pre-prov; the per-pipeline PPA
+# and packetfence-test are dropped via --extra-vars (build.pkr.hcl).
+- import_playbook: ../../nodes_pre_prov.yml
