@@ -422,6 +422,13 @@ server packetfence {
 			if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 				packetfence-audit-log-reject
 			}
+			elsif (&request:Module-Failure-Message && ("%{request:Module-Failure-Message}" !~ /previously rejected|Failed continuing EAP/)) {
+				# Log EAP failures that happen before the inner tunnel could run (TLS alert
+				# from the supplicant, handshake or framing errors). The first message holds
+				# the root cause; the two excluded ones are all an inner-tunnel rejection
+				# leaves behind, and that attempt was already logged by the inner tunnel.
+				packetfence-audit-log-reject
+			}
 			if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
 				packetfence-audit-log-reject
 			}
