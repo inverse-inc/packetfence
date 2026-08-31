@@ -21,14 +21,12 @@ Vagrant.configure("2") do |config|
   # Number of seconds to wait for establishing an SSH connection to the guest
   config.ssh.connect_timeout = 90
 
-  # Maps a PF VM to its arch base baked box, or nil if not eligible. Cluster
-  # nodes (pf{1,2,3}<arch>dev) reuse the standalone arch box; stable variants
-  # stay on the inventory box. Kept in sync with baked_box_for_pf_vm in
-  # t/venom/test-wrapper.sh.
+  # PF VM -> its arch baked box (nil if none). Matches standalone + pf{1,2,3}
+  # cluster nodes, not localdev/stable. Sync with baked_box_for_pf_vm in test-wrapper.sh.
   baked_base_box = lambda do |server|
     case server
-    when /\Apf.*el8dev\z/   then 'pfel8dev'
-    when /\Apf.*deb12dev\z/ then 'pfdeb12dev'
+    when /\Apf[0-9]?el8dev\z/   then 'pfel8dev'
+    when /\Apf[0-9]?deb12dev\z/ then 'pfdeb12dev'
     end
   end
 

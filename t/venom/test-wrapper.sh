@@ -109,15 +109,13 @@ configure_and_check() {
     export SKIP_CONFIGURATOR_BAKED
 }
 
-# Maps a PF VM to its arch base baked box (echoes the box name, "" if not
-# eligible). Cluster nodes (pf{1,2,3}<arch>dev) reuse the standalone arch box;
-# stable variants are excluded. Kept in sync with baked_base_box in
-# pfservers/Vagrantfile.
+# PF VM -> its arch baked box ("" if none). Matches standalone + pf{1,2,3}
+# cluster nodes, not localdev/stable. Sync with baked_base_box in Vagrantfile.
 baked_box_for_pf_vm() {
     case "$1" in
-        pf*el8dev)   echo "pfel8dev" ;;
-        pf*deb12dev) echo "pfdeb12dev" ;;
-        *)           echo "" ;;
+        pfel8dev|pf[0-9]el8dev)     echo "pfel8dev" ;;
+        pfdeb12dev|pf[0-9]deb12dev) echo "pfdeb12dev" ;;
+        *)                          echo "" ;;
     esac
 }
 
