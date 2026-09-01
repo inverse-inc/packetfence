@@ -425,20 +425,20 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 		if FramedIPAddressExists {
 			framedIP = FramedIPAddress.(string)
 		}
-		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
+		return h.handleInterim(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
 	}
 	if rfc2866.AcctStatusType_Strings[status] == "Stop" {
-		framedIP := ""
-		if FramedIPAddressExists {
-			framedIP = FramedIPAddress.(string)
-		}
-		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
+		// A session's Stop must always reach the AAA layer: locationlog close,
+		// unreg_on_acct_stop and floating-device handling depend on it. Drop
+		// the session's Start key so the next session re-registers.
+		h.RateLimitCache.Delete(keyStart)
+		return true
 	}
 	return false
 }
 
-// handleInterimOrStop encapsulates the duplicated logic for "Interim-Update" and "Stop" status handling in rateLimit.
-func (h *PfAcct) handleInterimOrStop(keyStart string, FramedIPAddress string, FramedIPAddressExists bool, macAddress net.HardwareAddr, macLocValue interface{}) bool {
+// handleInterim encapsulates the "Interim-Update" status handling in rateLimit.
+func (h *PfAcct) handleInterim(keyStart string, FramedIPAddress string, FramedIPAddressExists bool, macAddress net.HardwareAddr, macLocValue interface{}) bool {
 	ip, exists := h.RateLimitCache.Get(keyStart)
 	if exists {
 		if FramedIPAddressExists && FramedIPAddress != ip.(string) {
