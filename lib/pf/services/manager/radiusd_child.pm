@@ -1199,14 +1199,14 @@ sub generate_radiusd_cluster {
     my ($self, $tt) = @_;
     my %tags;
 
-    my $int = $management_network->{'Tint'};
-    my $cfg = $Config{"interface $int"};
-
     $tags{'members'} = '';
     $tags{'config'} ='';
     $tags{'home_server'} ='';
 
-    if ($cluster_enabled) {
+    # management_network stays undef until the mgmt interface is configured (configurator)
+    if ($cluster_enabled && ref($management_network)) {
+        my $int = $management_network->{'Tint'};
+        my $cfg = $Config{"interface $int"};
         my $cluster_ip = isenabled($Config{active_active}{radius_proxy_with_vip}) ? pf::cluster::management_cluster_ip() : $management_network->{Tip};
         my @radius_backend = values %{pf::cluster::members_ips($int)};
 
