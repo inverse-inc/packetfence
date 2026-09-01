@@ -1,3 +1,13 @@
+fingerbank (4.3.5) unstable; urgency=medium
+
+  * Stop re-materializing the config graph on every read_config call: the
+    $LOCAL_CACHED_AT fast path avoids re-deserializing the tied IniFiles
+    object graph from the cache per call, which cost ~35ms CPU and leaked
+    multi-MB per request in httpd.aaa (fix was in the lib since v15.2.0
+    sources but never shipped in a fingerbank package)
+
+ -- Inverse inc. <info@inverse.ca>  Tue, 01 Sep 2026 11:00:00 -0400
+
 fingerbank (4.3.4) unstable; urgency=medium
 
   * Fix collector.port field type from numeric to text to allow the env variable default
