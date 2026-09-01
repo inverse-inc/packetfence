@@ -94,8 +94,38 @@ testcases:
       - result.statuscode ShouldEqual 200
 
 # necessary for EL to apply IP addresses on interfaces not configured before;
-# | true so it's a no-op on Debian (no NetworkManager)
+# || true so it's a no-op on Debian (no NetworkManager)
 - name: restart_network_manager
   steps:
   - type: exec
-    script: "systemctl restart NetworkManager | true"
+    script: "systemctl restart NetworkManager || true"
+
+# The PATCHes above only prove the *live* IP is set; the reg/iso addresses must
+# also survive a reboot, or keepalived FAULTs the portal VRRP instances on the
+# next boot and the portal VIP can never fail over here. That failure surfaces
+# scenarios later (cluster_failover "all VIPs land on pf3"), so assert the
+# persistent config here, where the damage would happen.
+- name: assert_reg_iso_ips_are_persistent
+  steps:
+  - type: exec
+    script: |
+      set -e
+      check() {
+        dev="$1"; ip="$2"
+        if command -v apt-get >/dev/null 2>&1; then
+          file=/etc/network/interfaces
+          pattern="^[[:space:]]*address[[:space:]]\+$ip\$"
+        else
+          file="/etc/sysconfig/network-scripts/ifcfg-$dev"
+          pattern="^IPADDR=$ip\$"
+        fi
+        if ! grep -q "$pattern" "$file"; then
+          echo "$dev: $ip is not persisted in $file"
+          cat "$file"
+          exit 1
+        fi
+      }
+      check '{{.get_name_of_reg_int.reg_interface}}' '{{.configurator.interfaces.reg.ip}}'
+      check '{{.get_name_of_iso_int.iso_interface}}' '{{.configurator.interfaces.iso.ip}}'
+    assertions:
+      - result.code ShouldEqual 0
