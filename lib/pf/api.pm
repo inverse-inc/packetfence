@@ -1684,10 +1684,11 @@ sub firewallsso_accounting : Public {
         my $username = $RAD_REQUEST{'User-Name'} // undef;
         my $session_id = $RAD_REQUEST{'Acct-Session-Id'};
         my $cache = pf::CHI->new(namespace => 'accounting');
-        my $is_stop = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP);
+        my $acct_status_type = $RAD_REQUEST{'Acct-Status-Type'};
+        my $is_start = ($acct_status_type == $ACCOUNTING::START);
+        my $is_stop  = ($acct_status_type == $ACCOUNTING::STOP);
 
         if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
-            $firewallsso_method = "Update";
             if ($node->{unregdate} ne '0000-00-00 00:00:00') {
                 my $time = DateTime::Format::MySQL->parse_datetime($node->{unregdate});
                 $time->set_time_zone("local");
@@ -1700,7 +1701,13 @@ sub firewallsso_accounting : Public {
             }
         }
 
-        $firewallsso_method = $is_stop ? "Stop" : "Update";
+        if ($is_stop) {
+            $firewallsso_method = "Stop";
+        } elsif ($is_start) {
+            $firewallsso_method = "Start";
+        } else {
+            $firewallsso_method = "Update";
+        }
 
         # Cache the node role at session start so that accounting Stop sends the correct role
         # even if the node has re-authenticated with a different role in the meantime.
