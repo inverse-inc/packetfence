@@ -23,6 +23,7 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
 | 40_bootstrap_galera | `generatemariadbconfig`, `MARIADB_ARGS=--force-new-cluster`, start | done |
 | 50_restart_pf_set_default | `pfcmd service pf restart`, `set-default packetfence-cluster`, stop iptables | done |
 | 60_assert_galera_up | Assert `wsrep_on=ON`, status `Primary`, size `1` | done |
+| 70_seed_exec_sync_file | Create an executable helper + register it in `cluster-files.txt` (#8984 sync-permissions coverage) | done |
 
 ## Deferred to later phases
 
@@ -44,3 +45,6 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
   interfaces, not the doc's VLAN subinterfaces.
 - configreload/checkup tolerate non-zero exits here: they warn about the DB
   being unavailable until the cluster is fully up, which the doc says to ignore.
+- `70_seed_exec_sync_file` only creates the source file; the matching
+  assertion runs on the joiners (`cluster_joining_servers/15_assert_synced_exec_perms`).
+  Keep the file path in sync between the two suites.

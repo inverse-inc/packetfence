@@ -1,0 +1,22 @@
+name: First server — seed an executable file for cluster-files.txt sync (#8984)
+testcases:
+# Regression coverage for #8984: cluster sync must preserve the executable bit
+# on files listed in cluster-files.txt. Create an executable helper on pf1 and
+# register its path so joiners pull it during `cluster/sync --from`.
+- name: create_executable_sync_file
+  steps:
+  - type: exec
+    script: "printf '#!/bin/sh\\necho packetfence-8984\\n' > /usr/local/pf/conf/venom_exec_sync_test.sh && chmod 0755 /usr/local/pf/conf/venom_exec_sync_test.sh"
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'test -x /usr/local/pf/conf/venom_exec_sync_test.sh'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: register_file_in_cluster_files
+  steps:
+  - type: exec
+    script: 'grep -qxF /usr/local/pf/conf/venom_exec_sync_test.sh /usr/local/pf/conf/cluster-files.txt 2>/dev/null || echo /usr/local/pf/conf/venom_exec_sync_test.sh >> /usr/local/pf/conf/cluster-files.txt'
+    assertions:
+      - result.code ShouldEqual 0

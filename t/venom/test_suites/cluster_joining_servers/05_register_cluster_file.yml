@@ -1,0 +1,10 @@
+name: Joining servers — register the exec test file before sync (#8984)
+testcases:
+# `cluster/sync --from` pulls the paths listed in THIS node's cluster-files.txt,
+# so the joiner must know about the #8984 test file before the sync step runs.
+- name: register_exec_file_in_cluster_files
+  steps:
+  - type: exec
+    script: 'grep -qxF /usr/local/pf/conf/venom_exec_sync_test.sh /usr/local/pf/conf/cluster-files.txt 2>/dev/null || echo /usr/local/pf/conf/venom_exec_sync_test.sh >> /usr/local/pf/conf/cluster-files.txt'
+    assertions:
+      - result.code ShouldEqual 0
