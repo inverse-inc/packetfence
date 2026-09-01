@@ -104,7 +104,7 @@ scheduler =
      filename="/proxysql-read-only-handler.sh"
      arg1="{\"username\":\"administrator\", \"password\":\"admin\", \"host\":\"127.0.0.1\", \"port\":6032}"
      arg2="{\"username\":\"[% mysql_pf_user %]\", \"password\":\"[% mysql_pf_pass %]\"}"
-     arg3="{\"read_write_hostgroup\":10, \"read_hostgroup\":30, \"rule_ids\":\"1,2,4\"}"
+     arg3="{\"read_write_hostgroup\":10, \"read_hostgroup\":30, \"rule_ids\":\"1,2,5\"}"
      arg4="/proxysql-read-only-handler.log"
   [% ELSE %]
      id=11
