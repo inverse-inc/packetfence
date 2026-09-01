@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	cache "github.com/fdurand/go-cache"
 	"github.com/gorilla/mux"
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
@@ -330,7 +331,31 @@ func (a *API) handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Requ
 	}
 }
 
+// decodedOptionsCache holds the decoded per-network and per-MAC option
+// overrides: decodeOptions runs twice per DHCP transaction and the overrides
+// (usually absent) change only through the admin API, so re-querying
+// key_value_storage per packet is wasted. Overrides added or changed through
+// the API take effect within the cache TTL. Callers only read the returned
+// map, which makes sharing the cached copy safe.
+var decodedOptionsCache = cache.New(time.Minute, 5*time.Minute)
+
+type decodedOptions struct {
+	options map[dhcp.OptionCode][]byte
+	err     error
+}
+
 func decodeOptions(ctx context.Context, b string, db *sql.DB) (map[dhcp.OptionCode][]byte, error) {
+	if cached, found := decodedOptionsCache.Get(b); found {
+		d := cached.(decodedOptions)
+		return d.options, d.err
+	}
+
+	options, err := decodeOptionsUncached(ctx, b, db)
+	decodedOptionsCache.Set(b, decodedOptions{options: options, err: err}, cache.DefaultExpiration)
+	return options, err
+}
+
+func decodeOptionsUncached(ctx context.Context, b string, db *sql.DB) (map[dhcp.OptionCode][]byte, error) {
 	var options []Options
 	_, value := MysqlGet(ctx, b, db)
 	decodedValue := sharedutils.ConvertToByte(value)
