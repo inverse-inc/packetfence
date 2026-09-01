@@ -61,6 +61,7 @@ type PfAcct struct {
 	radiusRequests          []chan<- radiusRequest
 	aaaNotifyQueues         []chan<- aaaNotifyJob
 	aaaNotifyDropped        atomic.Int64
+	balancesInUse           atomic.Bool
 	localSecret             string
 	unifiedSecret           string
 	StatsdOnce              tryableonce.TryableOnce
@@ -105,6 +106,7 @@ func NewPfAcct(logLevel string) *PfAcct {
 
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
+	pfAcct.startBalancesInUseRefresher()
 
 	pfAcct.SetupConfig(ctx)
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, pfAcct.RadiusWorkers, pfAcct.RadiusWorkQueueSize)
