@@ -10,10 +10,11 @@ import (
 )
 
 // The node_current_session upsert only feeds the admin UI's online/offline
-// indicator and the 24h-window cleanup job, so refreshing `updated` once per
-// minute per session carries the same information as refreshing it on every
-// interim update.
-const sessionOnlineRefreshTtl = time.Minute
+// indicator and the 24h-window cleanup job, so refreshing `updated` every few
+// minutes per session carries the same information as refreshing it on every
+// interim update. The window must comfortably exceed the NAS interim-update
+// interval or every interim misses the cache and nothing is saved.
+const sessionOnlineRefreshTtl = 10 * time.Minute
 
 // rateLimitedNodeOnlineOffline wraps updateNodeOnlineOfflineOnline: the
 // Start/Interim upsert runs at most once per sessionOnlineRefreshTtl per
