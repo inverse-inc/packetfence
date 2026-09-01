@@ -58,6 +58,9 @@ type PfAcct struct {
 	SessionOnlineCache        *cache.Cache
 	RateLimit                 bool
 	PfacctRateLimitCacheTtl   int
+	LastSeenCache             *cache.Cache
+	Ip4logCache               *cache.Cache
+	UpdateIplogWithAccounting bool
 	StatsdAddress             string
 	StatsdOption              statsd.Option
 	StatsdClient              *statsd.Client
@@ -263,6 +266,15 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.applyRateLimitConfig(ctx, RadiusConfiguration)
 	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	pfAcct.MacNasCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
+	// A TTL of 0 would make go-cache entries permanent, freezing last_seen and
+	// ip4log after their first write; floor the refresh interval instead.
+	refreshTtl := time.Duration(pfAcct.PfacctRateLimitCacheTtl) * time.Minute
+	if refreshTtl <= 0 {
+		refreshTtl = 5 * time.Minute
+	}
+	pfAcct.LastSeenCache = cache.New(refreshTtl, 10*time.Minute)
+	pfAcct.Ip4logCache = cache.New(refreshTtl, 10*time.Minute)
+	pfAcct.UpdateIplogWithAccounting = sharedutils.IsEnabled(keyConfAdvanced.UpdateIplogWithAccounting)
 	if !pfAcct.ProcessBandwidthAcct {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
 	}
