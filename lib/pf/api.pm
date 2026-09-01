@@ -1615,6 +1615,13 @@ sub handle_accounting_metadata : Public {
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
 
+    # pfacct advertises the primitives it already executed natively for this
+    # packet (X-PacketFence-Handled-Natively); skip them here to avoid
+    # duplicate DB writes. Requests from other sources carry no marker and
+    # keep the full behavior.
+    my %handled_natively = map { $_ => 1 }
+        split(/,/, $RAD_REQUEST->{PF_HEADERS}{'X-PacketFence-Handled-Natively'} // '');
+
     my $return = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
     my $mac = pf::util::clean_mac($RAD_REQUEST->{'Calling-Station-Id'});
     my $acct_status_type = $RAD_REQUEST->{'Acct-Status-Type'};
@@ -1631,7 +1638,7 @@ sub handle_accounting_metadata : Public {
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
         if ($framed_ip) {
-            if (pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting}) && !$handled_natively{ip4log}) {
                 $logger->info("Updating iplog from accounting request");
                 $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
             }

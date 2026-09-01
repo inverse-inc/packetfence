@@ -470,8 +470,12 @@ sub accounting {
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
+    my %handled_natively = map { $_ => 1 }
+        split(/,/, ($headers->{'X-PacketFence-Handled-Natively'} // ''));
+
     # update last_seen of MAC address as some activity from it has been seen
-    node_update_last_seen($mac);
+    # (skipped when pfacct already refreshed it natively for this packet)
+    node_update_last_seen($mac) unless $handled_natively{node_last_seen};
     my $acct_status_type = $radius_request->{'Acct-Status-Type'};
 
     my $isStart  = $acct_status_type  == $ACCOUNTING::START;

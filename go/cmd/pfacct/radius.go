@@ -338,6 +338,9 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 	attr["PF_HEADERS"] = map[string]string{
 		"X-FreeRADIUS-Server":  "packetfence",
 		"X-FreeRADIUS-Section": "accounting",
+		// Primitives this pfacct executes natively for every accounting
+		// packet; the AAA layer skips them to avoid duplicate DB writes.
+		"X-PacketFence-Handled-Natively": "node_last_seen,ip4log",
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
