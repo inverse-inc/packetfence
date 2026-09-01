@@ -1460,9 +1460,15 @@ build_pf_img_dvd_usb_iso:
   extends:
     - .build_pf_img_job
   # The ISO bundles the service Docker images (step1 pulls them from GHCR), so
-  # it must wait for the build_images stage to succeed, not just publish_ppa.
+  # it must wait for those image builds, not just publish_ppa. Naming the two
+  # leaf jobs is enough: they transitively require kaniko -> pfdebian -> radiusd.
+  # A flat list is mandatory here, !reference only builds arrays for
+  # rules/script/stages.
   needs:
-    - !reference [.needs_all_build_images, needs]
+    - job: pfdebian_related
+      optional: true
+    - job: radiusd_related
+      optional: true
     - job: publish_ppa
       optional: true
   environment:
