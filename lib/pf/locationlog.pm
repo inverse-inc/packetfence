@@ -20,6 +20,7 @@ use pf::floatingdevice::custom;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::CHI::Request;
+use pf::constants::switch qw($HOST_MODE_MULTI_AUTH);
 use CHI::Memoize qw(memoize memoized);
 
 use constant LOCATIONLOG => 'locationlog';
@@ -388,22 +389,32 @@ sub locationlog_synchronize {
             return 1;
         }
 
-        my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
-        if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {
-            # there was no locationlog open we must insert a new one
-            $mustInsert = 1;
+        # On a multi-auth port, several endpoints authenticate independently and each one owns its
+        # RADIUS session, so there is no such thing as a conflicting entry on the switchport: the
+        # per-MAC handling above is authoritative. Closing the whole switchport here would end the
+        # sibling endpoints' entries and leave pf::enforcement unable to re-evaluate them
+        # ("Can't re-evaluate access because no open locationlog entry was found").
+        if ( defined($mac) && _is_multi_auth_switchport($switch_id, $switch) ) {
+            $logger->debug("switch $switch is in multi-auth host mode, leaving the other endpoints of ifIndex $ifIndex untouched");
+        }
+        else {
+            my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
+            if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {
+                # there was no locationlog open we must insert a new one
+                $mustInsert = 1;
 
-        } elsif ( (defined($vlan) && ($locationlog_switchport[0]->{vlan} ne $vlan)) # vlan changed
-            || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))
-            || (defined($locationlog_switchport[0]->{role}) && ($locationlog_switchport[0]->{role} ne $role) ) ) { # or Role changed
+            } elsif ( (defined($vlan) && ($locationlog_switchport[0]->{vlan} ne $vlan)) # vlan changed
+                || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))
+                || (defined($locationlog_switchport[0]->{role}) && ($locationlog_switchport[0]->{role} ne $role) ) ) { # or Role changed
 
-            # close entries of same voip status
-            if ($voip_status eq $NO_VOIP) {
-                locationlog_update_end_switchport_no_VoIP($switch, $ifIndex);
-            } else {
-                locationlog_update_end_switchport_only_VoIP($switch, $ifIndex);
+                # close entries of same voip status
+                if ($voip_status eq $NO_VOIP) {
+                    locationlog_update_end_switchport_no_VoIP($switch, $ifIndex);
+                } else {
+                    locationlog_update_end_switchport_only_VoIP($switch, $ifIndex);
+                }
+                $mustInsert = 1;
             }
-            $mustInsert = 1;
         }
     }
 
@@ -413,6 +424,36 @@ sub locationlog_synchronize {
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;
+}
+
+=item * _is_multi_auth_switchport
+
+Returns true when the switch is configured with C<host_mode=multi-auth>, meaning
+several endpoints authenticate independently on the same port and each one must
+keep its own open locationlog entry.
+
+The switch identifiers are tried in order: the C<switch_id> of the switch (the
+key it has in switches.conf) is authoritative, but callers that only know the
+switch IP pass that instead, which is the same key for everything but a switch
+matched through a switch range.
+
+pf::SwitchFactory is loaded lazily: it pulls in pf::Switch, which uses this
+module.
+
+=cut
+
+sub _is_multi_auth_switchport {
+    my (@switch_keys) = @_;
+
+    require pf::SwitchFactory;
+    foreach my $key (@switch_keys) {
+        next if !defined $key || $key eq '';
+        my $switch_config = $pf::SwitchFactory::SwitchConfig{$key};
+        next if !defined $switch_config;
+        return (($switch_config->{host_mode} // '') eq $HOST_MODE_MULTI_AUTH) ? 1 : 0;
+    }
+
+    return 0;
 }
 
 sub locationlog_cleanup {
