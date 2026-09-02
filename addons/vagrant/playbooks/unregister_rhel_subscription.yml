@@ -2,6 +2,8 @@
   name: Unregister RHEL subscription
   become: True
   gather_facts: False
+  # an unreachable VM here must not abort the log collection play that follows
+  ignore_unreachable: True
   tags: unregister
 
   pre_tasks:
