@@ -75,6 +75,11 @@ func (qw *QueueWorkers) runSingleWorkerQueue(q string, r *atomic.Bool) {
 			continue
 		}
 
+		if errors.Is(err, pfqueueclient.ErrTaskExpired) {
+			logWarnf(ctx, "runSingleWorkerQueue: %s", err.Error())
+			continue
+		}
+
 		logErrorf(ctx, "Error runSingleWorkerQueue: %s", err.Error())
 	}
 }
@@ -109,6 +114,11 @@ func (qw *QueueWorkers) runMultiWorkerQueue(r *atomic.Bool) {
 		}
 
 		if errors.Is(err, redis.Nil) {
+			continue
+		}
+
+		if errors.Is(err, pfqueueclient.ErrTaskExpired) {
+			logWarnf(ctx, "runMultiWorkerQueue: %s", err.Error())
 			continue
 		}
 

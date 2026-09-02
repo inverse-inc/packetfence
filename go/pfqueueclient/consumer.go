@@ -34,6 +34,10 @@ func (c *Consumer) Close() {
 const PFQUEUE_COUNTER = "TaskCounters"
 const PFQUEUE_EXPIRED_COUNTER = "ExpiredCounters"
 
+// ErrTaskExpired is returned when a task ID was popped from a queue but its
+// data hash already expired (the queue backlog exceeded the task TTL).
+var ErrTaskExpired = errors.New("task expired before being processed")
+
 type TaskInfo struct {
 	Data         []byte `redis:"data"`
 	StatusUpdate int    `redis:"status_update"`
@@ -63,8 +67,8 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) er
 	}
 
 	if taskInfo.Data == nil {
-		pipe.HIncrBy(ctx, PFQUEUE_EXPIRED_COUNTER, counterID, -1)
-		return fmt.Errorf("Data not found for task %s\n", taskID)
+		c.redis.HIncrBy(ctx, PFQUEUE_EXPIRED_COUNTER, counterID, 1)
+		return fmt.Errorf("%w: %s", ErrTaskExpired, taskID)
 	}
 
 	if taskInfo.StatusUpdate != 0 {
