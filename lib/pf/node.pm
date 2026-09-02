@@ -93,6 +93,7 @@ use pf::config qw(
 use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
+use pf::constants::switch qw($HOST_MODE_SINGLE_HOST);
 use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
@@ -1242,6 +1243,10 @@ sub node_update_last_seen {
 
 Verify, based on open location log for a MAC, if there's more than one endpoint on a switchport.
 
+Only returns something for a switch whose ports are in a multi-host capable mode
+(see C<host_mode> in switches.conf); on a single-host port there is by definition
+a single endpoint.
+
 location_info is an optionnal hashref containing switch ID, switch port and connection type. If provided, there is no need to look them up.
 
 =cut
@@ -1249,8 +1254,6 @@ location_info is an optionnal hashref containing switch ID, switch port and conn
 sub check_multihost {
     my ( $mac, $location_info ) = @_;
     my $logger = get_logger();
-
-    return unless isenabled($Config{'advanced'}{'multihost'});
 
     $mac = clean_mac($mac);
     unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
@@ -1274,6 +1277,15 @@ sub check_multihost {
     # There is no "multihost" capabilities for wireless or inline connections
     if ( ($location_info->{'connection_type'} =~ /^Wireless/)  || ($location_info->{'connection_type'} =~ /^Inline/) ) {
         $logger->debug("Not looking up multihost presence with MAC '$mac' since it is a '$location_info->{'connection_type'}' connection");
+        return;
+    }
+
+    # pf::SwitchFactory is loaded lazily: it pulls in pf::Switch, which uses this module.
+    require pf::SwitchFactory;
+    my $switch_config = $pf::SwitchFactory::SwitchConfig{$location_info->{'switch_id'}};
+    my $host_mode = ($switch_config ? $switch_config->{'host_mode'} : undef) // $HOST_MODE_SINGLE_HOST;
+    if ( $host_mode eq $HOST_MODE_SINGLE_HOST ) {
+        $logger->debug("Not looking up multihost presence with MAC '$mac' since switch ID '$location_info->{'switch_id'}' is in '$host_mode' mode");
         return;
     }
 
