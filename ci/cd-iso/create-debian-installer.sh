@@ -21,7 +21,7 @@ ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 trap clean EXIT
 
 if ! [ -f $ISO_IN ]; then
-	wget https://cdimage.debian.org/cdimage/archive/$DEBIAN_VERSION/amd64/iso-cd/$ISO_IN
+	wget -nv https://cdimage.debian.org/cdimage/archive/$DEBIAN_VERSION/amd64/iso-cd/$ISO_IN
 fi
 
 rm -fr isofiles/
