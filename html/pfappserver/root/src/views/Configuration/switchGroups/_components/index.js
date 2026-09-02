@@ -29,6 +29,7 @@ export {
   BaseFormGroupInput                      as FormGroupCliUser,
   BaseFormGroupInputNumber                as FormGroupCoaPort,
   BaseFormGroupInput                      as FormGroupControllerIp,
+  BaseFormGroupInput                      as FormGroupControllerPort,
   BaseFormGroupChosenOne                  as FormGroupDeauthenticationMethod,
   BaseFormGroupInput                      as FormGroupDescription,
   BaseFormGroupInput                      as FormGroupDisconnectPort,

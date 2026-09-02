@@ -200,10 +200,11 @@ sub _connect {
     $ua->timeout(10);
     $ua->default_header('Content-Type' => "application/json");
 
+    my $controllerPort = $self->{_controllerPort};
     my $base_url = "$transport://$controllerIp";
     my $login_path = "/api/login";
     my $api_prefix = "";
-    my $url = "${base_url}:" . ($transport eq 'http' ? $DEFAULT_HTTP_PORT: $DEFAULT_HTTPS_PORT);
+    my $url = "${base_url}:" . ($controllerPort || ($transport eq 'http' ? $DEFAULT_HTTP_PORT: $DEFAULT_HTTPS_PORT));
 
     my $response = $ua->get($url."/proxy/network/status");
     my $cookie_invalid = $FALSE;
@@ -214,8 +215,8 @@ sub _connect {
         $api_prefix = "/proxy/network";
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
     } else {
-        # Old controller on port 8443
-        $url = "${base_url}:${ALT_DEFAULT_PORT}";
+        # Old controller on port 8443 unless a controller port is configured
+        $url = "${base_url}:" . ($controllerPort || $ALT_DEFAULT_PORT);
         # Check if cookie is still valid for old controller
         $response = $ua->get($url."/api/self");
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
@@ -223,7 +224,7 @@ sub _connect {
     if ($cookie_invalid) {
         # Clear old cookies before re-authenticating to avoid sending invalid session
         $ua->cookie_jar->clear();
-        $response = $ua->post($base_url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
+        $response = $ua->post($url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
 
         unless($response->is_success) {
             $logger->error("Can't login on the Unifi controller: ".$response->status_line);
