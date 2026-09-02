@@ -153,6 +153,15 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		logError(ctx, fmt.Sprintf("Error updating online offline status: %s", err.Error()))
 	}
 
+	h.updateNodeLastSeen(ctx, mac)
+	// Mirrors handle_accounting_metadata: iplog is only fed by packets that
+	// carry a Framed-IP-Address and are not a Stop.
+	if status != rfc2866.AcctStatusType_Value_Stop {
+		if framedIP := rfc2865.FramedIPAddress_Get(r.Packet); framedIP != nil {
+			h.updateIp4log(ctx, mac, framedIP.String())
+		}
+	}
+
 	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
 	if err != nil {
 		timestamp = time.Now()
@@ -329,6 +338,9 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 	attr["PF_HEADERS"] = map[string]string{
 		"X-FreeRADIUS-Server":  "packetfence",
 		"X-FreeRADIUS-Section": "accounting",
+		// Primitives this pfacct executes natively for every accounting
+		// packet; the AAA layer skips them to avoid duplicate DB writes.
+		"X-PacketFence-Handled-Natively": "node_last_seen,ip4log",
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
@@ -737,6 +749,11 @@ type RadiusStatements struct {
 	closeSession                    *sql.Stmt
 	nodeOnlineOffLineStartUpdate    *sql.Stmt
 	nodeOnlineOffLineStop           *sql.Stmt
+	nodeUpdateLastSeen              *sql.Stmt
+	nodeAddSimple                   *sql.Stmt
+	ip4logMac2Ip                    *sql.Stmt
+	ip4logClose                     *sql.Stmt
+	ip4logOpen                      *sql.Stmt
 }
 
 func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
@@ -867,6 +884,27 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.nodeOnlineOffLineStartUpdate, `
 		INSERT INTO node_current_session (mac, last_session_id, updated, is_online) VALUES (?, ?, NOW(), 1)
         ON DUPLICATE KEY UPDATE updated = VALUES(updated), last_session_id = VALUES(last_session_id), is_online =1 ;
+       `)
+
+	setupStmt(db, &rs.nodeUpdateLastSeen, `
+        UPDATE node SET last_seen = NOW() WHERE mac = ?;
+       `)
+
+	setupStmt(db, &rs.nodeAddSimple, `
+        INSERT IGNORE INTO node (mac, pid, last_seen, detect_date, status) VALUES (?, 'default', NOW(), NOW(), 'unreg');
+       `)
+
+	setupStmt(db, &rs.ip4logMac2Ip, `
+        SELECT ip FROM ip4log WHERE mac = ? AND (end_time = '0000-00-00 00:00:00' OR (end_time + INTERVAL 30 SECOND) > NOW()) ORDER BY start_time DESC LIMIT 1;
+       `)
+
+	setupStmt(db, &rs.ip4logClose, `
+        UPDATE ip4log SET end_time = NOW() WHERE ip = ?;
+       `)
+
+	setupStmt(db, &rs.ip4logOpen, `
+        INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), '0000-00-00 00:00:00')
+        ON DUPLICATE KEY UPDATE mac = VALUES(mac), start_time = VALUES(start_time), end_time = VALUES(end_time);
        `)
 
 }
