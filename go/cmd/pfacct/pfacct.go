@@ -53,6 +53,7 @@ type PfAcct struct {
 	AcctSessionCache        *cache.Cache
 	RateLimitCache          *cache.Cache
 	MacNasCache             *cache.Cache
+	SessionOnlineCache      *cache.Cache
 	RateLimit               bool
 	PfacctRateLimitCacheTtl int
 	StatsdAddress           string
@@ -102,6 +103,7 @@ func NewPfAcct(logLevel string) *PfAcct {
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(nodeSessionExpiration, nodeSessionCleanupInterval)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
+	pfAcct.SessionOnlineCache = cache.New(sessionOnlineRefreshTtl, 10*time.Minute)
 
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)

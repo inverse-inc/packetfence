@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	cache "github.com/fdurand/go-cache"
@@ -535,67 +536,94 @@ func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
 }
 
+// ip4logStmts holds the ip4log statements, prepared once: this path runs for
+// every DHCP transaction and used to pay four Prepare/Close round trips per
+// call on top of the queries themselves.
+var ip4logStmts struct {
+	once     sync.Once
+	err      error
+	mac2ip   *sql.Stmt
+	ip2mac   *sql.Stmt
+	ipClose  *sql.Stmt
+	ipInsert *sql.Stmt
+}
+
+// ip4logConflictCache remembers recently confirmed MAC<->IP bindings so a
+// plain renewal skips the two conflict-detection SELECTs; a device showing up
+// with a new IP (or an IP claimed by a new MAC) is a different key and misses
+// the cache, so conflicts are still detected and closed immediately.
+var ip4logConflictCache = cache.New(5*time.Minute, 10*time.Minute)
+
+func prepareIp4logStmts(db *sql.DB) error {
+	ip4logStmts.once.Do(func() {
+		prepare := func(q string) *sql.Stmt {
+			if ip4logStmts.err != nil {
+				return nil
+			}
+			var stmt *sql.Stmt
+			stmt, ip4logStmts.err = db.Prepare(q)
+			return stmt
+		}
+		ip4logStmts.mac2ip = prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+		ip4logStmts.ip2mac = prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
+		ip4logStmts.ipClose = prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
+		ip4logStmts.ipInsert = prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
+	})
+	return ip4logStmts.err
+}
+
 // MysqlUpdateIP4Log update the ip4log table
 func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, db *sql.DB) error {
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	if err := db.PingContext(dbCtx); err != nil {
-		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
-	}
 
-	// Prepare the statements
-	// We use the same context for all the queries
-	// because we want to be sure that all the queries are executed in the same context
-	// and that the context is cancelled if one of the queries fails
-
-	MAC2IP, err := db.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
-	if err != nil {
+	if err := prepareIp4logStmts(db); err != nil {
 		return err
 	}
-	defer MAC2IP.Close()
 
-	IP2MAC, err := db.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
-	if err != nil {
-		return err
-	}
-	defer IP2MAC.Close()
-
-	IPClose, err := db.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
-	if err != nil {
-		return err
-	}
-	defer IPClose.Close()
-
-	IPInsert, err := db.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
-	if err != nil {
-		return err
-	}
-	defer IPInsert.Close()
-	var (
-		oldMAC string
-		oldIP  string
-	)
-	err = MAC2IP.QueryRowContext(dbCtx, mac).Scan(&oldIP)
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
-	}
-	err = IP2MAC.QueryRowContext(dbCtx, ip).Scan(&oldMAC)
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
-	}
-	if len(oldMAC) > 0 && (oldMAC != mac) {
-		_, err = IPClose.ExecContext(dbCtx, ip)
+	conflictKey := mac + "|" + ip
+	if _, known := ip4logConflictCache.Get(conflictKey); !known {
+		var (
+			oldMAC string
+			oldIP  string
+		)
+		err := ip4logStmts.mac2ip.QueryRowContext(dbCtx, mac).Scan(&oldIP)
 		if err != nil {
-			return err
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
+		err = ip4logStmts.ip2mac.QueryRowContext(dbCtx, ip).Scan(&oldMAC)
+		if err != nil {
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
+		if len(oldMAC) > 0 && (oldMAC != mac) {
+			ip4logConflictCache.Delete(oldMAC + "|" + ip)
+			_, err = ip4logStmts.ipClose.ExecContext(dbCtx, ip)
+			if err != nil {
+				return err
+			}
+		}
+		if len(oldIP) > 0 && (oldIP != ip) {
+			ip4logConflictCache.Delete(mac + "|" + oldIP)
+			_, err = ip4logStmts.ipClose.ExecContext(dbCtx, oldIP)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	if len(oldIP) > 0 && (oldIP != ip) {
-		_, err = IPClose.ExecContext(dbCtx, oldIP)
-		if err != nil {
-			return err
-		}
+
+	// The binding stays confirmed for at most half its lease so the checks
+	// re-run at least once per lease even for a quiet, stable client.
+	conflictTtl := duration / 2
+	if conflictTtl > 5*time.Minute {
+		conflictTtl = 5 * time.Minute
 	}
-	_, err = IPInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
+	if conflictTtl < 30*time.Second {
+		conflictTtl = 30 * time.Second
+	}
+	ip4logConflictCache.Set(conflictKey, 1, conflictTtl)
+
+	// Always refresh the entry itself: renewals must push end_time forward.
+	_, err := ip4logStmts.ipInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
@@ -615,8 +643,18 @@ func sanitizeHostname(h string) string {
 // previously-stored non-empty value (possible MAC spoofing). This mirrors the
 // Perl pf::api::detect_computername_change, which PacketFence's DHCP processor
 // no longer runs for networks pfdhcp serves (it defers computername to us).
+// computernameCache remembers the last host name persisted per MAC so the
+// per-packet UPDATE (and the change-detection read) only runs when the value
+// actually changes; a changed host name is a different cache value and goes
+// through immediately.
+var computernameCache = cache.New(5*time.Minute, 10*time.Minute)
+
 func recordComputername(ctx context.Context, mac string, hostname string, db *sql.DB) {
 	if hostname == "" {
+		return
+	}
+
+	if last, found := computernameCache.Get(mac); found && last.(string) == hostname {
 		return
 	}
 
@@ -637,7 +675,9 @@ func recordComputername(ctx context.Context, mac string, hostname string, db *sq
 
 	if err := MysqlUpdateComputername(ctx, mac, hostname, db); err != nil {
 		log.LoggerWContext(ctx).Warn("Unable to update computername for " + mac + ": " + err.Error())
+		return
 	}
+	computernameCache.Set(mac, hostname, cache.DefaultExpiration)
 }
 
 // mysqlGetComputername returns the node's currently stored computername, or ""
