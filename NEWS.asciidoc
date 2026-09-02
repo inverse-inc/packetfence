@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Per-switch port host mode — new `host_mode` parameter on switches and switch groups (`single-host`, `multi-host`, `multi-auth`, `multi-domain`). In `multi-auth`, several endpoints authenticate independently on the same port: PacketFence keeps one locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port
+
 === Enhancements
 
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
@@ -39,6 +41,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on
   - RADIUS: for MAB and PAP requests, when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx) radiusd no longer answers with an Access-Reject but leaves the request unanswered, logging a "NoResponse" row in the RADIUS audit log. An Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart. EAP requests keep the Reject (the EAP conversation cannot be resumed on retransmit). Note: a NAS counts unanswered requests towards its dead-server criteria, so a stalled PacketFence now triggers the switch's fail-over behaviour (e.g. Cisco critical-auth) instead of de-authorizing ports
   - RADIUS: /radius/rest/authorize now answers 503 instead of 401 when the request could not be evaluated (database unavailable, handler exception), so radiusd treats it as a failure rather than a deny; a database outage no longer turns every reauthentication into an Access-Reject
+  - Access re-evaluation no longer fails on a port shared by several authenticated endpoints. A second endpoint authenticating on the port used to close the other endpoints' locationlog entries, after which `pf::enforcement::reevaluate_access` logged "Can't re-evaluate access because no open locationlog entry was found" and never sent their CoA. Set `host_mode=multi-auth` on the switch to keep per-endpoint entries
+  - Removed the `advanced.multihost` configuration parameter, which had no effect since the admin UI rewrite: its only consumer was the old Catalyst node view. It is replaced by the per-switch `host_mode`
 
 === Security Fixes
 
