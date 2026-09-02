@@ -24,16 +24,6 @@ time_phase() {
     echo "[$(date '+%F %T')] ${label}: done in $((secs/60))m$((secs%60))s"
 }
 
-delete_dir_if_exists() {
-    local dir=${1}
-    if [ -d "${dir}" ]; then
-        rm -r ${dir}
-        echo "Directory ${dir} removed"
-    else
-        echo "No ${dir} directory to remove"
-    fi
-}
-
 # vagrant redraws "Progress: N%" with carriage returns (no newline), so the whole
 # burst arrives as one line; `tr` splits it so each redraw can be dropped. Covers
 # the vagrant-libvirt volume upload ("Progress: 0%") and box downloads
@@ -46,6 +36,16 @@ filter_vagrant_progress() {
       clean ~ /^[ \t]*$/ && $0 != clean { next }                                              # drop control-only fragments
       { print; fflush() }
     '
+}
+
+delete_dir_if_exists() {
+    local dir=${1}
+    if [ -d "${dir}" ]; then
+        rm -r ${dir}
+        echo "Directory ${dir} removed"
+    else
+        echo "No ${dir} directory to remove"
+    fi
 }
 
 configure_and_check() {
@@ -84,14 +84,95 @@ configure_and_check() {
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
+    # Baked vagrant box (set by bake_img_vagrant_* CI jobs). When
+    # USE_VAGRANT_BOX=yes, PF VMs (pfel8dev/pfdeb12dev) boot from the
+    # per-pipeline pre-baked box inverse-inc/<vm> registered by
+    # ci/lib/vagrant/setup-vagrant-box.sh, skipping site.yml and the
+    # configurator wizard. Defaults preserve the original behavior.
+    USE_VAGRANT_BOX=${USE_VAGRANT_BOX:-no}
+    VAGRANT_BOX_VERSION=${VAGRANT_BOX_VERSION:-}
+    SKIP_CONFIGURATOR_BAKED=${SKIP_CONFIGURATOR_BAKED:-no}
+    FALLBACK_TO_FULL_PROVISION=${FALLBACK_TO_FULL_PROVISION:-no}
+    SETUP_VAGRANT_BOX_SCRIPT="${VENOM_ROOT_DIR}/../../ci/lib/vagrant/setup-vagrant-box.sh"
+
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p ANSIBLE_INVENTORY RESULT_DIR VENOM_ROOT_DIR
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAMES CLUSTER_NAME INT_TEST_VM_NAMES ALL_VM_NAMES ANSIBLE_VM_LIST
     declare -p SCENARIOS_TO_RUN DESTROY_ALL
+    declare -p USE_VAGRANT_BOX VAGRANT_BOX_VERSION
+    declare -p SKIP_CONFIGURATOR_BAKED FALLBACK_TO_FULL_PROVISION
 
     export ANSIBLE_INVENTORY
     export VENOM_ROOT_DIR
+    export USE_VAGRANT_BOX VAGRANT_BOX_VERSION
+    export SKIP_CONFIGURATOR_BAKED
+}
+
+# PF VMs eligible for the per-pipeline baked box (echoes the VM name, "" if
+# not eligible). Kept in sync with baked_box_vms in pfservers/Vagrantfile.
+baked_box_for_pf_vm() {
+    case "$1" in
+        pfel8dev|pfdeb12dev) echo "$1" ;;
+        *)                   echo "" ;;
+    esac
+}
+
+maybe_fallback_to_full_provision() {
+    local reason=$1
+    if [ "${FALLBACK_TO_FULL_PROVISION}" = "yes" ]; then
+        echo "FALLBACK_TO_FULL_PROVISION=yes — falling back to full site.yml provisioning (reason: ${reason})"
+        USE_VAGRANT_BOX=no
+        export USE_VAGRANT_BOX
+        return 0
+    fi
+    die "Cannot use baked vagrant box: ${reason}. Set FALLBACK_TO_FULL_PROVISION=yes to fall back to site.yml."
+}
+
+# The baked box is normally registered by ci/lib/vagrant/setup-vagrant-box.sh
+# in the CI job's before_script; verify it is present and (re-)run the setup
+# script when it is not (e.g. local runs outside CI).
+register_vagrant_box_or_fallback() {
+    local vm=$1
+    local box=$(baked_box_for_pf_vm "${vm}")
+    [ -n "${box}" ] || return 0
+
+    if [ -z "${VAGRANT_BOX_VERSION}" ]; then
+        maybe_fallback_to_full_provision "VAGRANT_BOX_VERSION is empty"
+        return $?
+    fi
+
+    local box_name="inverse-inc/${box}"
+
+    if vagrant box list | grep -qF "${box_name} (libvirt, ${VAGRANT_BOX_VERSION})"; then
+        log_subsection "Box ${box_name} v${VAGRANT_BOX_VERSION} already registered"
+        return 0
+    fi
+
+    log_subsection "Register box ${box_name} v${VAGRANT_BOX_VERSION}"
+    if ! BOX_NAME="${box}" VAGRANT_BOX_VERSION="${VAGRANT_BOX_VERSION}" "${SETUP_VAGRANT_BOX_SCRIPT}"; then
+        maybe_fallback_to_full_provision "setup-vagrant-box.sh failed for ${box_name}"
+        return $?
+    fi
+}
+
+# After a baked-box `vagrant up`, libvirt assigns fresh MACs so the PF
+# interface→IP bindings baked at configurator time may need re-applying.
+refresh_network_post_import() {
+    local vm=$1
+    log_subsection "Refresh network on ${vm} (post-import boot)"
+    ( cd ${VAGRANT_DIR} ; \
+      ansible-playbook playbooks/refresh_network_post_import.yml -l "${vm}" )
+}
+
+# The bake unregisters RHEL before packaging, so a baked el8 clone boots
+# without yum repos; re-register so scenarios can install packages.
+# No-op on Debian (playbook guards on os_family); teardown unregisters.
+reregister_rhel_post_import() {
+    local vm=$1
+    log_subsection "Re-register RHEL subscription on ${vm} (post-import)"
+    ( cd ${VAGRANT_DIR} ; \
+      ansible-playbook playbooks/register_rhel_subscription.yml -l "${vm}" )
 }
 
 check_free_space() {
@@ -186,15 +267,17 @@ run() {
     log_section "Full run took $((total/60))m$((total%60))s"
 }
 
-# The Linode box bucket is private, so Vagrant can't fetch our boxes from box_url
-# directly (403). Pre-fetch them with authenticated rclone, driven by the VM's
-# box_url in the inventory (single source of truth). Public boxes (generic/rhel8,
-# debian/*) have no bucket URL and are fetched by Vagrant directly.
+# Inventory's box_url for the private bucket (packetfence-vagrant-box) is not
+# fetchable over anonymous HTTPS (403); pre-register the box via authenticated
+# rclone so vagrant never tries the public URL. Public boxes (generic/*,
+# debian/*) have no bucket URL and are left for vagrant to handle.
 prefetch_private_box() {
     local vm=$1
+    local prefetch_script="${VENOM_ROOT_DIR}/../../ci/lib/vagrant/prefetch-base-box.sh"
+    [ -x "${prefetch_script}" ] || return 0
 
-    local box_url
-    box_url=$(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
+    local box_info
+    box_info=$(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
 import sys, yaml
 inv = yaml.safe_load(open(sys.argv[1]))
 target, hit = sys.argv[2], {}
@@ -209,24 +292,29 @@ def walk(node):
             walk(x)
 walk(inv)
 print(hit.get('box_url', ''))
+print(hit.get('box_version', ''))
 PY
 )
-    # Public boxes (debian/*, generic/rhel8) have no bucket URL: Vagrant fetches them.
+    local box_url box_version
+    box_url=$(echo "${box_info}" | sed -n 1p)
+    box_version=$(echo "${box_info}" | sed -n 2p)
+
     case "${box_url}" in
         *packetfence-vagrant-box*) ;;
         *) return 0 ;;
     esac
 
-    # Private box: creds are mandatory; fail clearly instead of a later vagrant 403.
-    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset."
-    [ -n "${RCLONE_SECRET_ACCESS_KEY:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_SECRET_ACCESS_KEY is unset."
-    [ -n "${RCLONE_LINODE_URL:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_LINODE_URL is unset."
+    # Private box: rclone creds are mandatory. Fail clearly instead of letting
+    # vagrant emit an opaque "metadata fetch ... 403".
+    [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || die \
+        "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset (set RCLONE_ACCESS_KEY_ID/RCLONE_SECRET_ACCESS_KEY/RCLONE_LINODE_URL)."
 
-    local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
-    local box_name                                    # .../<box_name>/metadata.json
+    # https://<host>/<box_name>/metadata.json -> <box_name>
+    local box_name
     box_name=$(basename "$(dirname "${box_url}")")
-    echo "===> Pre-fetching private box '${box_name}' for VM '${vm}'"
-    BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
+    log_subsection "Pre-fetching private box '${box_name}'${box_version:+ v${box_version}} for VM '${vm}'"
+    BOX_NAME="${box_name}" BOX_VERSION="${box_version}" "${prefetch_script}" \
+        || die "failed to fetch box ${box_name} for ${vm}"
 }
 
 # start via libvirt without waiting; callers poll readiness with wait_for_ssh
@@ -257,21 +345,69 @@ start_vm() {
     local vm=$1
     local dotfile_path=$2
     declare -p dotfile_path
-    run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
+
+    # baked is non-empty only for baked-box-eligible PF VMs in baked-box mode
+    local baked=""
+    if [ "${USE_VAGRANT_BOX}" = "yes" ]; then
+        baked=$(baked_box_for_pf_vm "${vm}")
+    fi
+
     if [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ]; then
         echo "Machine $vm already exists"
-        start_existing_vm ${vm} ${dotfile_path}
-        wait_for_ssh ${vm}
-        ( cd ${VAGRANT_DIR}; \
-          ansible-playbook site.yml -l $vm )
+        machine_uuid=$(cat ${dotfile_path}/machines/${vm}/libvirt/id)
+        machine_state=$(virsh -c qemu:///system domstate --domain $machine_uuid)
+        if [ "${machine_state}" = "shut off" ]; then
+            echo "Starting $vm using libvirt, provisioning using Ansible (without Vagrant)"
+            virsh -c qemu:///system start --domain $machine_uuid
+            # let time for the VM to boot before using ansible
+            echo "Let time to VM to start before provisioning using Ansible.."
+            sleep 60
+        else
+            echo "Machine already started, Ansible provisioning only"
+        fi
+        if [ -n "${baked}" ]; then
+            # Baked-box mode: PF VM is already fully provisioned + configured.
+            # Re-running site.yml would undo the bake, so only refresh network.
+            ( cd ${VAGRANT_DIR}; \
+              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force )
+            refresh_network_post_import "${vm}"
+            reregister_rhel_post_import "${vm}"
+        else
+            ( cd ${VAGRANT_DIR}; \
+              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
+              ansible-playbook site.yml -l $vm )
+        fi
     else
-        echo "Machine $vm doesn't exist, start with Vagrant"
-        prefetch_private_box ${vm}
-        ( cd ${VAGRANT_DIR} ; \
-          VAGRANT_DOTFILE_PATH=${dotfile_path} \
-                  vagrant up \
-                  ${vm} \
-                  ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
+        echo "Machine $vm doesn't exist, start and provision with Vagrant"
+        if [ -n "${baked}" ]; then
+            register_vagrant_box_or_fallback "${vm}"
+            # register_vagrant_box_or_fallback may have flipped USE_VAGRANT_BOX
+            # to "no" via the fallback path; recompute baked to honor it.
+            baked=""
+            [ "${USE_VAGRANT_BOX}" = "yes" ] && baked=$(baked_box_for_pf_vm "${vm}")
+        fi
+        # Baked artifact replaces the base box — skip prefetch in baked mode.
+        if [ -z "${baked}" ]; then
+            prefetch_private_box "${vm}"
+        fi
+        if [ -n "${baked}" ]; then
+            ( cd ${VAGRANT_DIR} ; \
+              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
+              SKIP_SITE_PROVISION=yes \
+              VAGRANT_DOTFILE_PATH=${dotfile_path} \
+                      vagrant up \
+                      ${vm} \
+                      ${VAGRANT_UP_OPTS} ) 2>&1 | filter_vagrant_progress
+            refresh_network_post_import "${vm}"
+            reregister_rhel_post_import "${vm}"
+        else
+            ( cd ${VAGRANT_DIR} ; \
+              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
+              VAGRANT_DOTFILE_PATH=${dotfile_path} \
+                      vagrant up \
+                      ${vm} \
+                      ${VAGRANT_UP_OPTS} ) 2>&1 | filter_vagrant_progress
+        fi
     fi
 }
 
@@ -279,6 +415,15 @@ start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision PacketFence $vm_names"
     run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
+    # Baked-box mode boots each PF VM from its pre-baked image and only
+    # refreshes the network (no site.yml), so it can't share the parallel
+    # provision path below — start_vm handles the baked flow per VM.
+    if [ "${USE_VAGRANT_BOX}" = "yes" ]; then
+        for vm in ${vm_names}; do
+            start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
+        done
+        return
+    fi
     # boot all nodes first (one parallel vagrant up for the missing ones), then
     # wait for SSH on all and install PacketFence in a single ansible run
     local new_vms=""
@@ -380,9 +525,54 @@ destroy() {
             virsh vol-delete --pool "${pool}" "${vol}" || true
         done
     done
+    # Backstop: catch PF + node VMs the prefix sweep missed (domain name not
+    # matching the prefix), by UUID from this job's dotfiles, before those
+    # dotfiles are deleted below.
+    purge_job_domains
+    cleanup_baked_boxes
     delete_dir_if_exists "${VAGRANT_PF_DOTFILE_PATH}"
     delete_dir_if_exists "${VAGRANT_COMMON_DOTFILE_PATH}"
     delete_ansible_files
+}
+
+# vagrant destroy only removes VMs it still tracks; one left by a failed `up`
+# (--no-destroy-on-error) or an out-of-sync index survives it. Force-remove
+# every domain recorded under this job's dotfile paths, with its storage —
+# scoped by the UUIDs vagrant wrote, so parallel jobs on the runner are safe.
+purge_job_domains() {
+    log_subsection "Force-remove leftover domains tracked by this job"
+    local dotfile id_file uuid
+    for dotfile in "${VAGRANT_PF_DOTFILE_PATH}" "${VAGRANT_COMMON_DOTFILE_PATH}"; do
+        [ -d "${dotfile}/machines" ] || continue
+        while IFS= read -r id_file; do
+            uuid=$(cat "${id_file}" 2>/dev/null) || continue
+            [ -n "${uuid}" ] || continue
+            virsh domstate "${uuid}" >/dev/null 2>&1 || continue
+            echo "Removing leftover domain ${uuid} (${id_file})"
+            virsh destroy "${uuid}" || true
+            virsh undefine "${uuid}" --remove-all-storage --nvram || true
+        done < <(find "${dotfile}/machines" -type f -path '*/libvirt/id' 2>/dev/null)
+    done
+}
+
+# Drop this pipeline's baked vagrant-box record (~5GB in ~/.vagrant.d/boxes/)
+# once its VMs are destroyed. The matching libvirt-pool backing is left
+# for the admin sweep — parallel jobs in this pipeline still reference it.
+cleanup_baked_boxes() {
+    [ "${USE_VAGRANT_BOX}" = "yes" ] || return 0
+    [ -n "${VAGRANT_BOX_VERSION}" ] || return 0
+    log_subsection "Remove this pipeline's baked vagrant boxes"
+    local category vm box box_name
+    source "${VENOM_ROOT_DIR}/../../ci/lib/vagrant/box-category.sh"
+    category=$(vagrant_box_category)
+    for vm in ${PF_VM_NAMES}; do
+        box=$(baked_box_for_pf_vm "${vm}")
+        [ -n "${box}" ] || continue
+        box_name="inverse-inc/${box}-${category}"
+        echo "Removing ${box_name} v${VAGRANT_BOX_VERSION}"
+        vagrant box remove --force --provider libvirt \
+            --box-version "${VAGRANT_BOX_VERSION}" "${box_name}" || true
+    done
 }
 
 configure_and_check

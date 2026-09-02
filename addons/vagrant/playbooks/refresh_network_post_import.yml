@@ -1,0 +1,79 @@
+- hosts: pfservers
+  name: Refresh network on PF VM after booting from a pre-baked vagrant box
+  become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+        - "network"
+
+  # Indices match configurator vars in t/venom/vars/all.yml (dhcp_listener=2,
+  # mgmt=3, reg=4, iso=5, inline=6). Index 1 is loopback. PCI slot order is
+  # deterministic across vagrant up runs so names track indices, but the OS
+  # leaves auto_config:false interfaces (reg/iso/inline) down when they have
+  # no IP — same workaround as configurator step 1.
+  tasks:
+    - name: Bring up PF private network interfaces (mgmt, reg, iso, inline)
+      ansible.builtin.shell: |
+        for idx in 3 4 5 6; do
+          iface=$(ip -o link show | awk -F': ' -v i="${idx}" '$1 == i {print $2}' | awk '{print $1}')
+          if [ -n "${iface}" ]; then
+            ip link set dev "${iface}" up
+          fi
+        done
+      changed_when: False
+
+    - name: Restart NetworkManager to re-apply OS-level interface config
+      ansible.builtin.service:
+        name: NetworkManager
+        state: restarted
+      when: ansible_os_family == 'RedHat'
+
+    - name: Restart networking to re-apply OS-level interface config
+      ansible.builtin.service:
+        name: networking
+        state: restarted
+      when: ansible_os_family == 'Debian'
+      failed_when: False
+
+    # Box booted into multi-user (no PF) so vagrant could get eth0's lease. Now
+    # reachable — bring PF up: base first (for pfcmd), clear the stale bake-time
+    # cache, reload config, then start services. default stays multi-user.
+    - name: Start PacketFence base services (mariadb, redis, pfconfig)
+      ansible.builtin.command: systemctl isolate packetfence-base.target
+      changed_when: True
+
+    # isolate returns before pfconfig opens its socket; wait for it to answer
+    # so the pfcmd calls below don't race it and fail to connect.
+    - name: Wait for pfconfig to answer
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd pfconfig get interfaces::management_network
+      register: pfconfig_ready
+      until: pfconfig_ready.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: False
+
+    - name: Clear stale pfconfig backend cache from bake time
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd pfconfig clear_backend
+      changed_when: True
+
+    - name: Reload PacketFence configuration from disk
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd configreload hard
+      changed_when: True
+
+    - name: Start all PacketFence services
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
+      changed_when: True
+
+    - name: Report PacketFence service status
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf status
+      register: pf_status
+      changed_when: False
+      failed_when: False
+
+    - name: Show PacketFence service status
+      ansible.builtin.debug:
+        var: pf_status.stdout_lines
