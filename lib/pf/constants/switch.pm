@@ -19,9 +19,50 @@ use Readonly;
 
 our @EXPORT_OK = qw(
     $DEFAULT_ACL_TEMPLATE
+    $HOST_MODE_SINGLE_HOST
+    $HOST_MODE_MULTI_HOST
+    $HOST_MODE_MULTI_AUTH
+    $HOST_MODE_MULTI_DOMAIN
+    @HOST_MODES
 );
 
 Readonly::Scalar our $DEFAULT_ACL_TEMPLATE => '${if($allow, "permit", "deny")} $proto ${if($src_host, join(" ", "host", $src_host), "any")} ${if($src_port, join(" ", "eq", $src_port), "")} ${if($dst_host, join(" ", "host", $dst_host), "any")} ${if($dst_port, join(" ", "eq", $dst_port), "")}';
+
+=head2 Port host modes
+
+The host mode configured on the switch ports. Mirrors the Cisco IOS
+C<authentication host-mode> / C<access-session host-mode> values.
+
+Only C<multi-auth> changes PacketFence's behavior:
+
+=over
+
+=item * C<single-host> a single endpoint authenticates on the port.
+
+=item * C<multi-host> the first endpoint authenticates and the others ride the
+authorized port. PacketFence only ever sees the first MAC, so a port-wide
+deauthentication is the correct thing to do.
+
+=item * C<multi-auth> every endpoint authenticates independently and owns its
+RADIUS session. PacketFence keeps one locationlog entry per MAC and
+deauthenticates each endpoint individually.
+
+=item * C<multi-domain> one data endpoint plus one voice endpoint. Already
+covered by the existing VoIP handling.
+
+=back
+
+=cut
+
+Readonly::Scalar our $HOST_MODE_SINGLE_HOST  => 'single-host';
+Readonly::Scalar our $HOST_MODE_MULTI_HOST   => 'multi-host';
+Readonly::Scalar our $HOST_MODE_MULTI_AUTH   => 'multi-auth';
+Readonly::Scalar our $HOST_MODE_MULTI_DOMAIN => 'multi-domain';
+
+Readonly::Array our @HOST_MODES =>
+  (
+   $HOST_MODE_SINGLE_HOST, $HOST_MODE_MULTI_HOST, $HOST_MODE_MULTI_AUTH, $HOST_MODE_MULTI_DOMAIN,
+  );
 
 =head1 AUTHOR
 
