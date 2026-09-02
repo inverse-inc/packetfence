@@ -68,7 +68,7 @@ use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
-use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE $HOST_MODE_SINGLE_HOST $HOST_MODE_MULTI_AUTH);
 use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
 use Cisco::AccessList::Parser;
@@ -181,6 +181,7 @@ sub new {
         '_ExternalPortalEnforcement'    => 'disabled',
         '_VoIPEnabled'                  => undef,
         '_VoIPFullAuthorization'        => 'disabled',
+        '_host_mode'                    => $HOST_MODE_SINGLE_HOST,
         '_roles'                        => undef,
         '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,
@@ -1331,6 +1332,35 @@ sub isVoIPEnabled {
     $logger->warn("VoIP is not supported on this network module") if ($self->{_VoIPEnabled} == $TRUE);
 
     return $FALSE;
+}
+
+=item getHostMode
+
+Returns the host mode configured on the switch ports. See
+L<pf::constants::switch> for the possible values.
+
+=cut
+
+sub getHostMode {
+    my ($self) = @_;
+    return $self->{_host_mode} || $HOST_MODE_SINGLE_HOST;
+}
+
+=item isMultiAuthPort
+
+Returns true when the switch ports are in C<multi-auth> host mode, meaning
+several endpoints authenticate independently on the same port and each one owns
+its RADIUS session.
+
+Callers use this to keep per-MAC state instead of per-port state: one open
+locationlog entry per endpoint, and a per-session CoA/Disconnect instead of a
+port bounce.
+
+=cut
+
+sub isMultiAuthPort {
+    my ($self) = @_;
+    return $self->getHostMode() eq $HOST_MODE_MULTI_AUTH;
 }
 
 =item setVlanAllPort - set the port VLAN for all the non-UpLink ports of a switch

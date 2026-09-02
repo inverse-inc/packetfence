@@ -2976,8 +2976,6 @@ components:
               $ref: '#/components/schemas/Meta'
             locationlog_close_on_accounting_stop:
               $ref: '#/components/schemas/Meta'
-            multihost:
-              $ref: '#/components/schemas/Meta'
             netflow_on_all_networks:
               $ref: '#/components/schemas/Meta'
             openid_attributes:
@@ -3736,9 +3734,6 @@ components:
           type: string
         locationlog_close_on_accounting_stop:
           description: Close the locationlog for a node on accounting stop
-          type: string
-        multihost:
-          description: Ability to manage all active devices from a same switch port
           type: string
         netflow_on_all_networks:
           description: Listen to netflow on all networks
@@ -25314,6 +25309,9 @@ components:
           description: Changing the group requires to save to see the new default
             values
           type: string
+        host_mode:
+          description: Port host mode
+          type: string
         id:
           description: IP Address/MAC Address/Range (CIDR)
           type: string
@@ -25648,6 +25646,9 @@ components:
         disconnectPort:
           description: For Disconnect request, if we have to send to another port
           type: integer
+        host_mode:
+          description: Port host mode
+          type: string
         id:
           description: Group name
           type: string
@@ -25847,6 +25848,8 @@ components:
               $ref: '#/components/schemas/Meta'
             disconnectPort:
               $ref: '#/components/schemas/Meta'
+            host_mode:
+              $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'
             inlineTrigger:
@@ -26024,6 +26027,8 @@ components:
             disconnectPort:
               $ref: '#/components/schemas/Meta'
             group:
+              $ref: '#/components/schemas/Meta'
+            host_mode:
               $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'

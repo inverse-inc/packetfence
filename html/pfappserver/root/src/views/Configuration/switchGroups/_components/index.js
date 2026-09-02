@@ -80,6 +80,7 @@ export {
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
+  BaseFormGroupChosenOne                  as FormGroupHostMode,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
