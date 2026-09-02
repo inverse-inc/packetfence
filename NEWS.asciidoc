@@ -27,9 +27,14 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Per-switch port host mode — new `host_mode` parameter on switches and switch groups (`single-host`, `multi-host`, `multi-auth`, `multi-domain`). In `multi-auth`, several endpoints authenticate independently on the same port: PacketFence keeps one locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port
+
 === Enhancements
 
 === Bug Fixes
+
+  - Access re-evaluation no longer fails on a port shared by several authenticated endpoints. A second endpoint authenticating on the port used to close the other endpoints' locationlog entries, after which `pf::enforcement::reevaluate_access` logged "Can't re-evaluate access because no open locationlog entry was found" and never sent their CoA. Set `host_mode=multi-auth` on the switch to keep per-endpoint entries
+  - Removed the `advanced.multihost` configuration parameter, which had no effect since the admin UI rewrite: its only consumer was the old Catalyst node view. It is replaced by the per-switch `host_mode`
 
 === Security Fixes
 
