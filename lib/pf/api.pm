@@ -32,6 +32,7 @@ use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
 use pf::ConfigStore::Switch();
 use pf::SwitchFactory;
+use pf::Switch::constants;
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -390,8 +391,27 @@ sub ReAssignVlan : Public : Fork {
         _reassignSNMPConnections($switch, $postdata->{'mac'}, $postdata->{'ifIndex'}, $postdata->{'connection_type'} );
     }
     elsif ( $postdata->{'connection_type'} & $pf::config::WIRED) {
+        my $deauthMethod = $switch->{_deauthMethod};
+
+        # On a multi-auth port the SNMP techniques (dot1xPortReauthenticate,
+        # handleReAssignVlanTrapForWiredMacAuth) end up bouncing the port, which would deauthenticate
+        # every other endpoint sharing it. Ask for the RADIUS technique instead: it issues a
+        # CoA/Disconnect scoped to this endpoint's session through its Calling-Station-Id.
+        if ( $switch->isMultiAuthPort() ) {
+            $deauthMethod = $SNMP::RADIUS;
+        }
+
         my ( $switchdeauthMethod, $deauthTechniques )
-            = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata->{'connection_type'} );
+            = $switch->wiredeauthTechniques( $deauthMethod, $postdata->{'connection_type'} );
+
+        if ( $switch->isMultiAuthPort() && ($switchdeauthMethod // '') ne $SNMP::RADIUS ) {
+            $logger->warn(
+                "switch (".$switch->{'_id'}.") is in multi-auth host mode but its module has no RADIUS deauthentication "
+                . "technique for this connection type. Falling back on '".($deauthTechniques // 'none')."', which will "
+                . "disconnect every endpoint on ifIndex ".$postdata->{'ifIndex'}."."
+            );
+        }
+
         $switch->$deauthTechniques( $postdata->{'ifIndex'}, $postdata->{'mac'} );
     }
     else {
