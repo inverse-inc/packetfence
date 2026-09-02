@@ -53,6 +53,8 @@
 - hosts: 'pf[123]*dev'
   name: "A2 — boot all nodes (one at a time, any order)"
   become: True
+  # nodes are powered off (A1); don't SSH-gather facts before boot.yml starts them
+  gather_facts: no
   serial: 1
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
@@ -95,6 +97,7 @@
 - hosts: 'pf[123]*dev'
   name: "B2 — boot all nodes (one at a time, any order)"
   become: True
+  gather_facts: no
   serial: 1
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
@@ -209,6 +212,7 @@
 - hosts: 'pf1*dev'
   name: "D4 — boot node 1; it must NOT start the DB (not safe, no quorum)"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
     not_serving_wait_seconds: 120
@@ -221,6 +225,7 @@
 - hosts: 'pf2*dev'
   name: "D5 — boot node 2; still must NOT reach Primary (no safe peer up)"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
     not_serving_wait_seconds: 120
@@ -233,6 +238,7 @@
 - hosts: 'pf3*dev'
   name: "D6 — boot node 3 (safe); it bootstraps and 1 & 2 rejoin"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
@@ -285,6 +291,7 @@
 - hosts: 'pf3*dev'
   name: "E4 — boot node 3 first; it bootstraps and serves alone"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
@@ -296,6 +303,7 @@
 - hosts: 'pf2*dev'
   name: "E5 — boot node 2; it joins the cluster"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
@@ -307,6 +315,7 @@
 - hosts: 'pf1*dev'
   name: "E6 — boot node 1; it joins the cluster"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
@@ -373,6 +382,7 @@
 - hosts: 'pf1*dev'
   name: "F4 — boot node 1"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
@@ -382,6 +392,7 @@
 - hosts: 'pf2*dev'
   name: "F5 — boot node 2"
   become: True
+  gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
