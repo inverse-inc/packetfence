@@ -3,6 +3,8 @@
 # (docs/cluster/cluster_setup.asciidoc), each phase on the right node group:
 #   0) detect      — is a healthy galera cluster already present?
 #   1) common setup — sysctl + db tools + stop looping services, every node
+#   1a) joiner interfaces — configure reg/iso OS IPs on pf2/pf3 (doc "Other
+#       servers"); required for portal VIP failover to a backup
 #   1b) quiesce joiners — PF stopped on pf2/pf3 until integration
 #   2) first server — configurator + cluster bootstrap (pf1), force-new-cluster
 #   3) joining servers — cluster/sync + mariadb join (pf2, pf3)
@@ -10,6 +12,10 @@
 #   5) wrap up on all — updatesystemd + restart (serial)
 #   6) rolling reboot — reboot each node one at a time (doc's final step)
 #   7) verify on all  — assert cluster health on every node
+#
+# Failover (VIP/role) tests live in the separate cluster_failover scenario;
+# galera recovery (power/ordered-boot) lives in cluster_recovery. Both reuse
+# this bring-up.
 #
 # The bring-up plays (1-5) are DESTRUCTIVE and not safe to re-run on a live
 # cluster (force-new-cluster re-bootstrap, mysql datadir flush). Play 0 detects
@@ -64,6 +70,22 @@
   vars:
     test_suites:
       - cluster_setup_common
+
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: not (cluster_already_healthy | default(false))
+
+# doc "Other servers": the joiners must have their reg/iso IPs on their OS
+# interfaces too, else keepalived FAULTs the portal VRRP instances there and the
+# portal VIP can't fail over. Do it now, before the quiesce, while the joiners'
+# configurator API is still up (pf1 gets this from its full configurator).
+- hosts: 'pf2*dev:pf3*dev'
+  name: Cluster — configure joiner reg/iso interfaces (OS IPs)
+  become: True
+
+  vars:
+    test_suites:
+      - cluster_joiner_interfaces
 
   tasks:
     - import_tasks: run_venom_suites.yml

@@ -327,18 +327,24 @@ run_tests() {
 
     for scenario_name in ${SCENARIOS_TO_RUN}; do
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
+        # expose the vagrant dotfile path so scenarios that power-control VMs
+        # (e.g. cluster_recovery) can resolve the libvirt domain UUID
+        local dotfile_ev="vagrant_pf_dotfile_path=${VAGRANT_PF_DOTFILE_PATH}"
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
             # will find roles and collections in VENOM_ROOT_DIR
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "@${scenario_path}/ansible_inventory.yml"
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" -e "@${scenario_path}/ansible_inventory.yml"
         else
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}"
         fi
     done
 }
 
 teardown() {
     log_section "Teardown"
+    # first: works even when every VM is unreachable, and guarantees RESULT_DIR
+    # is non-empty so the job still uploads artifacts
+    collect_runner_diagnostics
     ansible_teardown
     delete_ansible_files
 }
@@ -347,9 +353,61 @@ ansible_teardown() {
     log_subsection "Ansible teardown (RHEL8 Unregister and Get Logs on all VM)"
     if [ -n "${ANSIBLE_VM_LIST}" ]; then
         ( cd $VAGRANT_DIR ; \
-          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
+          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST ) \
+            || echo "WARN: ansible teardown failed, keeping runner diagnostics"
     else
         echo "No VM detected, nothing to unconfigure"
+    fi
+}
+
+# Runner-side view of the VMs. This is all we get about a VM that stopped
+# answering SSH, since guest-side collection can't run on an unreachable host.
+collect_runner_diagnostics() {
+    log_subsection "Collect runner diagnostics"
+    if [ -z "${RESULT_DIR}" ]; then
+        echo "RESULT_DIR is unset, skipping runner diagnostics"
+        return 0
+    fi
+    local out_dir="${RESULT_DIR}/runner"
+    mkdir -p "${out_dir}"
+
+    {
+        echo "job:       ${CI_JOB_NAME:-localdev} ${CI_JOB_URL:-}"
+        echo "pipeline:  ${CI_PIPELINE_ID}"
+        echo "commit:    ${CI_COMMIT_SHA:-} (${CI_COMMIT_REF_NAME:-})"
+        echo "runner:    $(hostname)"
+        echo "collected: $(date '+%F %T %Z')"
+        echo "vms:       ${ALL_VM_NAMES}"
+        echo "scenarios: ${SCENARIOS_TO_RUN}"
+    } > "${out_dir}/job-summary.txt"
+
+    timeout 30 df -h > "${out_dir}/df.txt" 2>&1 || true
+    timeout 30 free -m > "${out_dir}/free.txt" 2>&1 || true
+    timeout 30 virsh list --all > "${out_dir}/virsh-list.txt" 2>&1 || true
+
+    local prefix="vagrant-${CI_COMMIT_REF_SLUG-${USER}}-"
+    for dom in $(virsh list --all --name 2>/dev/null | grep -F "${prefix}" || true); do
+        collect_domain_diagnostics "${dom}" "${out_dir}"
+    done
+}
+
+collect_domain_diagnostics() {
+    local dom=$1
+    local dom_dir="$2/${dom}"
+    mkdir -p "${dom_dir}"
+    {
+        timeout 30 virsh domstate --domain "${dom}" --reason
+        timeout 30 virsh domblklist --domain "${dom}"
+        timeout 30 virsh domifaddr --domain "${dom}" --source lease
+    } > "${dom_dir}/domain-state.txt" 2>&1 || true
+    timeout 30 virsh dumpxml --domain "${dom}" > "${dom_dir}/domain.xml" 2>&1 || true
+    # a panic or an fsck prompt shows on the console and in no log file
+    timeout 30 virsh screenshot --domain "${dom}" --file "${dom_dir}/console.ppm" \
+        >/dev/null 2>&1 || rm -f "${dom_dir}/console.ppm"
+    # qemu's own log: guest panic, disk errors, OOM kill of the qemu process
+    if ! timeout 30 cat "/var/log/libvirt/qemu/${dom}.log" > "${dom_dir}/qemu.log" 2>/dev/null; then
+        sudo -n timeout 30 cat "/var/log/libvirt/qemu/${dom}.log" \
+             > "${dom_dir}/qemu.log" 2>/dev/null || rm -f "${dom_dir}/qemu.log"
     fi
 }
 
