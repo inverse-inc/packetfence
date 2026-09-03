@@ -20,15 +20,38 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::config::crypt;
+use Devel::Peek ();
+use File::Temp ();
 my $str = qq[~`qwertyuiop[]asdfghjkl;'\\zxcvbnm,./1234567890-=!@#$%^&*()_+] x 3;
 ok ($str eq pf::config::crypt::pf_decrypt(pf::config::crypt::pf_encrypt($str)), "Checking $str");
 $str = '0123456789ABCDEF' x 3;
 ok ($str eq pf::config::crypt::pf_decrypt(pf::config::crypt::pf_encrypt($str)), "Checking $str");
+
+# gcm_decrypt_verify returns a buffer without a NUL terminator. Comparing with
+# eq does not catch it, since that uses the length. Consumers handing the value
+# to a C API expecting a C string do read past the end, so check the buffer
+# itself.
+ok (pv_is_nul_terminated(pf::config::crypt::pf_decrypt(pf::config::crypt::pf_encrypt('0123456789abcdef'))),
+    "Decrypted value is NUL terminated");
+
+sub pv_is_nul_terminated {
+    my ($sv) = @_;
+    my $tmp = File::Temp->new();
+    open(my $olderr, '>&', \*STDERR) or die "dup STDERR: $!";
+    open(STDERR, '>&', $tmp) or die "redirect STDERR: $!";
+    Devel::Peek::Dump($sv);
+    open(STDERR, '>&', $olderr) or die "restore STDERR: $!";
+    open(my $fh, '<', $tmp->filename) or die "read dump: $!";
+    local $/ = undef;
+    my $dump = <$fh>;
+    close($fh);
+    return scalar($dump =~ /^\s*PV = 0x[0-9a-f]+ ".*"\\0\s*$/m);
+}
 
 
 =head1 AUTHOR
