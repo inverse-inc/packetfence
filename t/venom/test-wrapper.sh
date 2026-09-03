@@ -188,13 +188,15 @@ run() {
 
 # The Linode box bucket is private, so Vagrant can't fetch our boxes from box_url
 # directly (403). Pre-fetch them with authenticated rclone, driven by the VM's
-# box_url in the inventory (single source of truth). Public boxes (generic/rhel8,
+# box_url/box_version in the inventory (single source of truth). Public boxes (generic/rhel8,
 # debian/*) have no bucket URL and are fetched by Vagrant directly.
 prefetch_private_box() {
     local vm=$1
 
-    local box_url
-    box_url=$(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
+    local box_url="" box_version=""
+    # "<box_url>|<box_version>": the version must come from the inventory too,
+    # else Vagrant looks up a version we didn't pre-fetch and hits the 403.
+    IFS='|' read -r box_url box_version < <(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
 import sys, yaml
 inv = yaml.safe_load(open(sys.argv[1]))
 target, hit = sys.argv[2], {}
@@ -208,9 +210,9 @@ def walk(node):
         for x in node:
             walk(x)
 walk(inv)
-print(hit.get('box_url', ''))
+print("%s|%s" % (hit.get('box_url', ''), hit.get('box_version', '')))
 PY
-)
+) || true
     # Public boxes (debian/*, generic/rhel8) have no bucket URL: Vagrant fetches them.
     case "${box_url}" in
         *packetfence-vagrant-box*) ;;
@@ -225,8 +227,9 @@ PY
     local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
     local box_name                                    # .../<box_name>/metadata.json
     box_name=$(basename "$(dirname "${box_url}")")
-    echo "===> Pre-fetching private box '${box_name}' for VM '${vm}'"
-    BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
+    echo "===> Pre-fetching private box '${box_name}' for VM '${vm}' (version ${box_version:-latest})"
+    BOX_NAME="${box_name}" BOX_VERSION="${box_version}" "${setup_script}" \
+        || die "failed to fetch box ${box_name} for ${vm}"
 }
 
 # start via libvirt without waiting; callers poll readiness with wait_for_ssh
