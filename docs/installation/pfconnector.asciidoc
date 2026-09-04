@@ -177,6 +177,10 @@ On the pfdhcp side the scopes come from the connectors configuration, not from `
 
 The relay never queues: a request that pfdhcp cannot answer within 1.5 seconds is dropped and the client retransmits.
 
+====== Captive DNS
+
+The *DNS* toggle of a VLAN interface makes the connector itself answer DNS on that interface (UDP and TCP port 53 bound to the interface address): every `A` query gets the interface address with a 60 second TTL, `AAAA` queries get an empty answer so dual-stack devices fall back to IPv4, and other types are refused. There is no recursion and no upstream. This is the captive-portal DNS of the VLAN: whatever a device resolves lands on the connector, where the portal answers. When DHCP is enabled on the same interface and no DNS server is configured in the scope, the clients receive the interface address as DNS server. `PFCONNECTOR_DNS_RESPONDER=false` disables it on a host. The query counters are shown in the _Remote Connector Status_ card.
+
 [NOTE]
 The connector container needs the `NET_ADMIN` capability for this feature. It is granted by the `packetfence-pfconnector-remote` package; on a host where the container is started differently, add `--cap-add=NET_ADMIN` to the `docker run` arguments. Without it, the connector logs the netlink permission error and the interfaces are reported in error.
 
