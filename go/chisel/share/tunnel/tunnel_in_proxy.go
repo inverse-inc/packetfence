@@ -195,6 +195,16 @@ func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
 		return
 	}
 	go ssh.DiscardRequests(reqs)
+	// PROXY protocol handler: tell the far end who the real client is before
+	// piping. Used for the captive portal reached through a connector VLAN,
+	// where the portal maps the client address to a MAC.
+	if p.remote.Handler == ProxyProtocolHandler {
+		if err := writeProxyProtocolHeader(dst, src); err != nil {
+			l.Infof("PROXY header error: %s", err)
+			dst.Close()
+			return
+		}
+	}
 	//then pipe
 	s, r := cio.Pipe(src, dst)
 	l.Debugf("Close (sent %s received %s)", sizestr.ToString(s), sizestr.ToString(r))

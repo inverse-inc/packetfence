@@ -59,6 +59,13 @@
                                 disabled-value="disabled"
     />
 
+    <form-group-connector-proxy-protocol namespace="connector_proxy_protocol"
+                                :column-label="$i18n.t('Connector PROXY protocol')"
+                                :text="$i18n.t('Expose the captive portal to the remote connectors through PROXY protocol listeners (haproxy-portal on ports 8880/8843). The connectors tunnel their ports 80/443 to these listeners and prefix each connection with the address of the device, so the portal sees the device behind the connector instead of the tunnel. Required for the captive portal on a connector VLAN interface. Restart haproxy-portal after changing it.')"
+                                enabled-value="enabled"
+                                disabled-value="disabled"
+    />
+
     <form-group-status-only-on-production namespace="status_only_on_production"
                                           :column-label="$i18n.t('Status URI only on management interface')"
                                           :text="$i18n.t('When enabled the /status page will only be available when accessed on the management interface. Requires to restart httpd.portal in order to apply the change.')"
@@ -142,6 +149,7 @@ import {
   FormGroupRateLimitingThreshold,
   FormGroupRequestTimeout,
   FormGroupSecureRedirect,
+  FormGroupConnectorProxyProtocol,
   FormGroupStatusOnlyOnProduction,
   FormGroupWisprRedirection
 } from './'
@@ -161,6 +169,7 @@ const components = {
   FormGroupRequestTimeout,
   FormGroupLoadbalancersIp,
   FormGroupSecureRedirect,
+  FormGroupConnectorProxyProtocol,
   FormGroupStatusOnlyOnProduction,
   FormGroupDetectionMecanismBypass,
   FormGroupDetectionMecanismUrls,

@@ -745,10 +745,23 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			tun.BindDynamicRemotes(remotes)
 		}()
 
+		// Portal ports. With captive_portal.connector_proxy_protocol the
+		// default targets are haproxy-portal's accept-proxy listeners and the
+		// connector prefixes each connection with a PROXY header (real client
+		// address for the portal). PFCONNECTOR_BINDS_HOST_PORT_80/443 override
+		// the whole target, handler suffix included.
+		portal80 := fmt.Sprintf("%s:80", managementIP)
+		portal443 := fmt.Sprintf("%s:443", managementIP)
+		captivePortal := pfconfigdriver.PfConfCaptivePortal{}
+		if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &captivePortal); err == nil && sharedutils.IsEnabled(captivePortal.ConnectorProxyProtocol) {
+			portal80 = fmt.Sprintf("%s:%s/tcp|%s", managementIP, pfconfigdriver.ConnectorProxyProtocolPorts.HTTP, tunnel.ProxyProtocolHandler)
+			portal443 = fmt.Sprintf("%s:%s/tcp|%s", managementIP, pfconfigdriver.ConnectorProxyProtocolPorts.HTTPS, tunnel.ProxyProtocolHandler)
+		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(gin.H{"binds": []string{
-			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
-			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
+			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", portal80)),
+			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", portal443)),
 			fmt.Sprintf("100.64.0.1:18122:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
 			// Accounting tunnel: FreeRADIUS on the connector owns local UDP 1813 (NAS
 			// accounting) and proxies to this bind, which tunnels to the cloud pfacct.

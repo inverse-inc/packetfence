@@ -1,6 +1,6 @@
 # pfconnector-remote site networking: VLAN interfaces, DHCP-over-HTTPS relay, local DNS (design)
 
-Status: phases 1-3 implemented (VLAN interfaces + static routes, DHCP-over-HTTPS, captive DNS); portal on the VLAN IP not started
+Status: phases 1-4 implemented (VLAN interfaces + static routes, DHCP-over-HTTPS, captive DNS, portal via PROXY protocol)
 Branch context: `feature/pfconnector-site-networking` (off `clouddevel`)
 Author: design notes
 
@@ -426,13 +426,39 @@ Suggested order: config model + netlink first (visible in the UI, testable
 without the cloud side), then pfdhcp endpoint + server forward (testable with
 `curl` and a captured DISCOVER), then the relay agent, then DNS.
 
+## 10b. Component 4: the portal on the VLAN IP — implemented
+
+Nothing new listens: the connector's default remote binds already tunnel
+`80` and `443` on every host address to the portal, so the VLAN interfaces
+serve HTTP/HTTPS as soon as they exist. The gap was the client address: the
+portal reads it from `X-Forwarded-For`, which haproxy-portal fills with its
+TCP peer, i.e. the tunnel exit. Fix: PROXY protocol v2.
+
+- `chisel/share/tunnel`: remote handler `|proxyproto`; the connector-side TCP
+  proxy writes a PROXY v2 header (client source, local destination) on each
+  tunnelled connection before piping.
+- `captive_portal.connector_proxy_protocol` (pf.conf toggle): haproxy-portal
+  adds `portal-{http,https}-connector-<ip>` frontends bound on `8880`/`8843`
+  with `accept-proxy` and the same rules as the plain frontends (rate
+  limiting included, keyed on the real client), and the pfconnector server
+  defaults the 80/443 binds to `<mgmt>:8880/tcp|proxyproto` and
+  `<mgmt>:8843/tcp|proxyproto`. `PFCONNECTOR_BINDS_HOST_PORT_80/443`
+  override the whole target (cloud: the haproxy-portal Service).
+- Dedicated ports rather than `accept-proxy` on 80/443, because a bind with
+  `accept-proxy` requires every peer to send the header and on-premise
+  clients reach 80/443 directly.
+
+Open point carried from §11: the portal classifies client addresses through
+networks.conf lookups; connector scopes are not there. To be verified on a
+real VLAN.
+
 ## 11. Out of scope / follow-ups
 
-- **Captive portal on the VLAN IP.** DNS returning the interface IP is only
-  useful if something answers HTTP/HTTPS there. The natural next step is a
-  reverse proxy in the connector container that forwards `:80/:443` on the
-  VLAN IPs to the cloud portal through the tunnel, with the portal certificate
-  synced the way RADIUS certs are (`sync-radius-certs`). Separate design.
+- **Network type of connector scopes.** Helpers that decide whether an
+  address is in a registration/isolation network read networks.conf and will
+  not recognise connector VLANs. If the portal flow depends on it, add the
+  network type to the interface row and expose connector scopes to those
+  lookups.
 - **IPv6** on the VLANs (SLAAC/DHCPv6). Not planned.
 - **Option 82 / relay agent information.** Not needed, giaddr is sufficient
   for scope selection; can be added to the relay later without protocol
