@@ -46,6 +46,11 @@ my $host_id = $pf::config::cluster::host_id;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
+# haproxy-portal accept-proxy listeners for the remote connectors (PROXY
+# protocol). Must match pfconfigdriver.ConnectorProxyProtocolPorts.
+our $CONNECTOR_PROXY_PROTOCOL_HTTP_PORT  = 8880;
+our $CONNECTOR_PROXY_PROTOCOL_HTTPS_PORT = 8843;
+
 sub generateConfig {
     my ($self,$quick) = @_;
     my $logger = get_logger();
@@ -151,6 +156,45 @@ EOT
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
 
+EOT
+
+            # Remote connectors (captive portal on a connector VLAN) tunnel the
+            # portal ports to these listeners with a PROXY protocol header so
+            # that src is the device behind the connector, not the tunnel exit.
+            # Same rules as the plain frontends; only the bind differs.
+            if (isenabled($Config{captive_portal}{connector_proxy_protocol})) {
+                for my $scheme (qw(http https)) {
+                    my $port = $scheme eq 'http' ? $CONNECTOR_PROXY_PROTOCOL_HTTP_PORT : $CONNECTOR_PROXY_PROTOCOL_HTTPS_PORT;
+                    my $ssl = $scheme eq 'https' ? ' ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem' : '';
+                    $tags{'http'} .= <<"EOT";
+frontend portal-$scheme-connector-$cluster_ip
+        bind $cluster_ip:$port$ssl accept-proxy
+        capture request header Host len 40
+        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.select
+        acl action var(req.action) -m found
+EOT
+                    if($rate_limiting) {
+                    $tags{'http'} .= <<"EOT";
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
+EOT
+                    }
+                    $tags{'http'} .= <<"EOT";
+        http-request add-header X-Forwarded-Proto $scheme
+        use_backend %[var(req.action)]
+        default_backend $cluster_ip-backend
+
+EOT
+                }
+            }
+
+            $tags{'http'} .= <<"EOT";
 
 backend $cluster_ip-backend
         balance source
@@ -166,6 +210,16 @@ EOT
         acl flag_abuser src_inc_gpc0(portal-http-$cluster_ip) --
         acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge $rate_limiting_threshold
         acl flag_abuser src_inc_gpc0(portal-https-$cluster_ip) --
+EOT
+            if (isenabled($Config{captive_portal}{connector_proxy_protocol})) {
+            $tags{'http'} .= <<"EOT";
+        acl abuse  src_http_req_rate(portal-http-connector-$cluster_ip) ge $rate_limiting_threshold
+        acl flag_abuser src_inc_gpc0(portal-http-connector-$cluster_ip) --
+        acl abuse  src_http_req_rate(portal-https-connector-$cluster_ip) ge $rate_limiting_threshold
+        acl flag_abuser src_inc_gpc0(portal-https-connector-$cluster_ip) --
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
         http-response deny if abuse status_501 flag_abuser
 EOT
             }
