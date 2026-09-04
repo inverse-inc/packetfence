@@ -30,11 +30,14 @@ The API, the admin form and pfconfig work with the structured form:
   }, ... ]
   routes     => [ { destination => '10.20.0.0/16', gateway => '10.10.100.254', interface => 'eth0.100' }, ... ]
 
-Words after the address are the DHCP scope: the C<dhcp> flag enables the
-DHCP relay on the interface (dhcp => enabled / disabled) and the following
-C<key=value> words describe the scope pfdhcp serves for it (DHCP-over-HTTPS):
+Words after the address are flags and the DHCP scope: the C<dhcp> flag
+enables the DHCP relay on the interface (dhcp => enabled / disabled), the
+C<dns> flag enables the captive DNS responder that answers every query with
+the interface address (dns_server => enabled / disabled), and the
+C<key=value> words describe the scope pfdhcp serves (DHCP-over-HTTPS):
 C<start>/C<end> (range), C<lease>/C<max_lease> (seconds), C<dns>
-(comma separated), C<gateway> (the interface address when absent), C<domain>.
+(comma separated DNS servers handed to clients), C<gateway> (the interface
+address when absent), C<domain>.
 
 The VLAN interface name is always C<< <parent>.<vlan> >>, which is what the
 connector creates on the host. Interface names are limited to 15 characters
@@ -75,7 +78,8 @@ DESCRIPTION). Returns undef when the line cannot be parsed.
 
 =cut
 
-our %INTERFACE_FLAGS = (dhcp => 'dhcp');
+# bare storage word => structured key ("enabled"/"disabled")
+our %INTERFACE_FLAGS = (dhcp => 'dhcp', dns => 'dns_server');
 # storage word => structured key, in storage order
 our @INTERFACE_KEYS = (
     [start     => 'dhcp_start'],

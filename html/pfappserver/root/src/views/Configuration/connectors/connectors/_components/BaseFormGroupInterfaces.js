@@ -22,6 +22,7 @@ export const props = {
       vlan: null,
       cidr: null,
       dhcp: 'disabled',
+      dns_server: 'disabled',
       dhcp_start: null,
       dhcp_end: null,
       dhcp_default_lease_time: 300,

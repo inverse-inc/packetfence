@@ -183,8 +183,30 @@
           </b-col>
         </b-row>
 
-        <b-row v-if="dhcpRelay.length" class="mt-3">
-          <b-col>
+        <b-row v-if="dhcpRelay.length || dnsServer.length" class="mt-3">
+          <b-col v-if="dnsServer.length" md="5">
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: captive DNS') }}</h6>
+            <b-table-simple small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Interface') }}</b-th>
+                  <b-th>{{ $i18n.t('State') }}</b-th>
+                  <b-th>{{ $i18n.t('Queries') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="srv in dnsServer" :key="srv.interface">
+                  <b-td class="text-monospace">{{ srv.interface }} ({{ srv.ip }})</b-td>
+                  <b-td>
+                    <b-badge :variant="srv.state === 'listening' ? 'success' : 'danger'" :title="srv.error || ''">{{ srv.state }}</b-badge>
+                    <small v-if="srv.error" class="d-block text-danger">{{ srv.error }}</small>
+                  </b-td>
+                  <b-td>{{ srv.queries }}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+          </b-col>
+          <b-col v-if="dhcpRelay.length">
             <h6 class="text-secondary">{{ $i18n.t('Site networking: DHCP relay') }}</h6>
             <b-table-simple small class="mb-0">
               <b-thead>
@@ -303,6 +325,10 @@ export const setup = (props, context) => {
   const dhcpRelay = computed(() => {
     const { system: { dhcp_relay: relay } = {} } = status.value || {}
     return Array.isArray(relay) ? relay : []
+  })
+  const dnsServer = computed(() => {
+    const { system: { dns_server: srv } = {} } = status.value || {}
+    return Array.isArray(srv) ? srv : []
   })
   const siteNetworkVariant = state => {
     switch (state) {
@@ -452,6 +478,7 @@ export const setup = (props, context) => {
     siteNetwork,
     siteNetworkVariant,
     dhcpRelay,
+    dnsServer,
     refresh,
     restart,
     upgrade,
