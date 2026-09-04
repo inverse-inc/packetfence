@@ -29,6 +29,7 @@ export const externalTypes = {
   OpenID:         'OpenID',
   SMS:            'SMS',
   SponsorEmail:   i18n.t('Sponsor'),
+  TeltonikaSMSGateway: 'TeltonikaSMSGateway',
   Twilio:         'Twilio',
   WindowsLive:    'WindowsLive',
 }
