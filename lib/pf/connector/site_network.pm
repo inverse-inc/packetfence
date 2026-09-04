@@ -12,7 +12,7 @@ connectors.conf each VLAN interface and each static route is stored as one
 human readable line, in a multi-line value:
 
   interfaces=<<EOT
-  eth0.100 10.10.100.1/24
+  eth0.100 10.10.100.1/24 dhcp
   eth0.101 10.10.101.1/24
   EOT
   routes=<<EOT
@@ -22,8 +22,11 @@ human readable line, in a multi-line value:
 
 The API, the admin form and pfconfig work with the structured form:
 
-  interfaces => [ { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24' }, ... ]
+  interfaces => [ { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' }, ... ]
   routes     => [ { destination => '10.20.0.0/16', gateway => '10.10.100.254', interface => 'eth0.100' }, ... ]
+
+Words after the address are flags: C<dhcp> enables the DHCP relay to the
+central pfdhcp on that interface (dhcp_relay => enabled / disabled).
 
 The VLAN interface name is always C<< <parent>.<vlan> >>, which is what the
 connector creates on the host. Interface names are limited to 15 characters
@@ -35,6 +38,7 @@ use strict;
 use warnings;
 
 use Exporter qw(import);
+use pf::util qw(isenabled);
 our @EXPORT_OK = qw(
     parse_interface_line format_interface interface_name
     parse_route_line format_route
@@ -58,20 +62,27 @@ sub interface_name {
 
 =head2 parse_interface_line
 
-"eth0.100 10.10.100.1/24" -> { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24' }
+"eth0.100 10.10.100.1/24 dhcp" -> { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' }
 
 Returns undef when the line cannot be parsed.
 
 =cut
 
+our %INTERFACE_FLAGS = (dhcp => 'dhcp_relay');
+
 sub parse_interface_line {
     my ($line) = @_;
     return undef unless defined $line;
-    my ($name, $cidr, @extra) = split(/\s+/, _trim($line));
+    my ($name, $cidr, @flags) = split(/\s+/, _trim($line));
     return undef unless defined $name && defined $cidr;
     my ($parent, $vlan) = $name =~ /^(.+)\.(\d+)$/;
     return undef unless defined $parent;
-    return { parent => $parent, vlan => int($vlan), cidr => $cidr };
+    my $if = { parent => $parent, vlan => int($vlan), cidr => $cidr, map { $_ => 'disabled' } values %INTERFACE_FLAGS };
+    for my $flag (@flags) {
+        my $key = $INTERFACE_FLAGS{$flag} or return undef;
+        $if->{$key} = 'enabled';
+    }
+    return $if;
 }
 
 =head2 format_interface
@@ -82,7 +93,11 @@ Inverse of parse_interface_line.
 
 sub format_interface {
     my ($if) = @_;
-    return interface_name($if) . " " . ($if->{cidr} // '');
+    my @words = (interface_name($if), $if->{cidr} // '');
+    for my $flag (sort keys %INTERFACE_FLAGS) {
+        push @words, $flag if isenabled($if->{ $INTERFACE_FLAGS{$flag} });
+    }
+    return join(' ', @words);
 }
 
 =head2 parse_route_line
