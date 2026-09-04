@@ -13,7 +13,7 @@ Form definition to create or update a connector
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Connector::DomainsConnectors;
 use pfconfig::cached_hash;
-use pf::util qw(valid_ip);
+use pf::util qw(valid_ip isenabled);
 use pf::connector::site_network qw(interface_name $IFNAMSIZ);
 use NetAddr::IP;
 
@@ -97,11 +97,53 @@ has_field 'interfaces.cidr' => (
    ],
 );
 
-has_field 'interfaces.dhcp_relay' => (
+# DHCP scope served by pfdhcp for the VLAN (DHCP-over-HTTPS through the
+# connector). The network and netmask come from the interface address.
+has_field 'interfaces.dhcp' => (
    type => 'Toggle',
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    default => 'disabled',
+);
+
+has_field 'interfaces.dhcp_start' => (
+   type => 'IPAddress',
+   accept => [''],
+);
+
+has_field 'interfaces.dhcp_end' => (
+   type => 'IPAddress',
+   accept => [''],
+);
+
+has_field 'interfaces.dhcp_default_lease_time' => (
+   type => 'PosInteger',
+   default => 300,
+);
+
+has_field 'interfaces.dhcp_max_lease_time' => (
+   type => 'PosInteger',
+   default => 600,
+);
+
+has_field 'interfaces.dns' => (
+   type => 'IPAddresses',
+);
+
+has_field 'interfaces.gateway' => (
+   type => 'IPAddress',
+   accept => [''],
+);
+
+has_field 'interfaces.domain_name' => (
+   type => 'Text',
+   maxlength => 253,
+   apply => [
+       {
+           check => qr/^[A-Za-z0-9.-]*$/,
+           message => 'Domain name may only contain letters, digits, "." and "-"',
+       },
+   ],
 );
 
 has_field 'routes' => (
@@ -174,8 +216,11 @@ sub _valid_host_cidr {
 
 =head2 validate_interfaces
 
-No duplicate VLAN interface within a connector, and the resulting interface
-name must fit in IFNAMSIZ.
+No duplicate VLAN interface within a connector, the resulting interface name
+must fit in IFNAMSIZ, and when DHCP is enabled the scope must be consistent
+with the interface address: range inside the interface's network, start
+before end, interface address outside the range, gateway inside the network,
+default lease not longer than the maximum.
 
 =cut
 
@@ -191,6 +236,42 @@ sub validate_interfaces {
         }
         if ($seen{$name}++) {
             $if_field->field('vlan')->add_error("VLAN interface '$name' is defined multiple times");
+        }
+        next unless isenabled($if->{dhcp});
+        my $addr = NetAddr::IP->new($if->{cidr} // '') or next;
+        my $net = $addr->network;
+        my ($start, $end) = map { defined $_ && length $_ ? NetAddr::IP->new($_) : undef } @{$if}{qw(dhcp_start dhcp_end)};
+        if (!$start) {
+            $if_field->field('dhcp_start')->add_error("DHCP range start is required when DHCP is enabled");
+        }
+        if (!$end) {
+            $if_field->field('dhcp_end')->add_error("DHCP range end is required when DHCP is enabled");
+        }
+        if ($start && $end) {
+            if (!$net->contains($start)) {
+                $if_field->field('dhcp_start')->add_error("DHCP range start is not inside " . $net->cidr);
+            }
+            if (!$net->contains($end)) {
+                $if_field->field('dhcp_end')->add_error("DHCP range end is not inside " . $net->cidr);
+            }
+            if ($start > $end) {
+                $if_field->field('dhcp_end')->add_error("DHCP range end is before the range start");
+            }
+            # compare addresses only: NetAddr::IP orders by address then mask
+            my $host = NetAddr::IP->new($addr->addr);
+            if ($host >= $start && $host <= $end) {
+                $if_field->field('dhcp_start')->add_error("The interface address " . $addr->addr . " must not be inside the DHCP range");
+            }
+        }
+        if (defined $if->{gateway} && length $if->{gateway}) {
+            my $gw = NetAddr::IP->new($if->{gateway});
+            if ($gw && !$net->contains($gw)) {
+                $if_field->field('gateway')->add_error("Gateway is not inside " . $net->cidr);
+            }
+        }
+        my ($lease, $max) = @{$if}{qw(dhcp_default_lease_time dhcp_max_lease_time)};
+        if (defined $lease && defined $max && length $lease && length $max && $lease > $max) {
+            $if_field->field('dhcp_max_lease_time')->add_error("Maximum lease time is shorter than the default lease time");
         }
     }
 }

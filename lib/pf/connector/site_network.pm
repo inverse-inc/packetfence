@@ -12,7 +12,7 @@ connectors.conf each VLAN interface and each static route is stored as one
 human readable line, in a multi-line value:
 
   interfaces=<<EOT
-  eth0.100 10.10.100.1/24 dhcp
+  eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example
   eth0.101 10.10.101.1/24
   EOT
   routes=<<EOT
@@ -22,11 +22,19 @@ human readable line, in a multi-line value:
 
 The API, the admin form and pfconfig work with the structured form:
 
-  interfaces => [ { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' }, ... ]
+  interfaces => [ {
+      parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24',
+      dhcp => 'enabled', dhcp_start => '10.10.100.10', dhcp_end => '10.10.100.250',
+      dhcp_default_lease_time => 300, dhcp_max_lease_time => 600,
+      dns => '8.8.8.8,8.8.4.4', gateway => '10.10.100.254', domain_name => 'site.example',
+  }, ... ]
   routes     => [ { destination => '10.20.0.0/16', gateway => '10.10.100.254', interface => 'eth0.100' }, ... ]
 
-Words after the address are flags: C<dhcp> enables the DHCP relay to the
-central pfdhcp on that interface (dhcp_relay => enabled / disabled).
+Words after the address are the DHCP scope: the C<dhcp> flag enables the
+DHCP relay on the interface (dhcp => enabled / disabled) and the following
+C<key=value> words describe the scope pfdhcp serves for it (DHCP-over-HTTPS):
+C<start>/C<end> (range), C<lease>/C<max_lease> (seconds), C<dns>
+(comma separated), C<gateway> (the interface address when absent), C<domain>.
 
 The VLAN interface name is always C<< <parent>.<vlan> >>, which is what the
 connector creates on the host. Interface names are limited to 15 characters
@@ -62,32 +70,54 @@ sub interface_name {
 
 =head2 parse_interface_line
 
-"eth0.100 10.10.100.1/24 dhcp" -> { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' }
-
-Returns undef when the line cannot be parsed.
+"eth0.100 10.10.100.1/24 dhcp start=... end=..." -> structured hash (see
+DESCRIPTION). Returns undef when the line cannot be parsed.
 
 =cut
 
-our %INTERFACE_FLAGS = (dhcp => 'dhcp_relay');
+our %INTERFACE_FLAGS = (dhcp => 'dhcp');
+# storage word => structured key, in storage order
+our @INTERFACE_KEYS = (
+    [start     => 'dhcp_start'],
+    [end       => 'dhcp_end'],
+    [lease     => 'dhcp_default_lease_time'],
+    [max_lease => 'dhcp_max_lease_time'],
+    [dns       => 'dns'],
+    [gateway   => 'gateway'],
+    [domain    => 'domain_name'],
+);
+my %INTERFACE_KEY_OF = map { $_->[0] => $_->[1] } @INTERFACE_KEYS;
 
 sub parse_interface_line {
     my ($line) = @_;
     return undef unless defined $line;
-    my ($name, $cidr, @flags) = split(/\s+/, _trim($line));
+    my ($name, $cidr, @words) = split(/\s+/, _trim($line));
     return undef unless defined $name && defined $cidr;
     my ($parent, $vlan) = $name =~ /^(.+)\.(\d+)$/;
     return undef unless defined $parent;
-    my $if = { parent => $parent, vlan => int($vlan), cidr => $cidr, map { $_ => 'disabled' } values %INTERFACE_FLAGS };
-    for my $flag (@flags) {
-        my $key = $INTERFACE_FLAGS{$flag} or return undef;
-        $if->{$key} = 'enabled';
+    my $if = {
+        parent => $parent,
+        vlan   => int($vlan),
+        cidr   => $cidr,
+        (map { $_ => 'disabled' } values %INTERFACE_FLAGS),
+        (map { $_->[1] => '' } @INTERFACE_KEYS),
+    };
+    for my $word (@words) {
+        if (my ($k, $v) = $word =~ /^([a-z_]+)=(.*)$/) {
+            my $key = $INTERFACE_KEY_OF{$k} or return undef;
+            $if->{$key} = $v;
+        } else {
+            my $key = $INTERFACE_FLAGS{$word} or return undef;
+            $if->{$key} = 'enabled';
+        }
     }
     return $if;
 }
 
 =head2 format_interface
 
-Inverse of parse_interface_line.
+Inverse of parse_interface_line. The DHCP scope words are only written when
+the flag is enabled.
 
 =cut
 
@@ -96,6 +126,15 @@ sub format_interface {
     my @words = (interface_name($if), $if->{cidr} // '');
     for my $flag (sort keys %INTERFACE_FLAGS) {
         push @words, $flag if isenabled($if->{ $INTERFACE_FLAGS{$flag} });
+    }
+    if (isenabled($if->{dhcp})) {
+        for my $spec (@INTERFACE_KEYS) {
+            my ($word, $key) = @$spec;
+            my $v = $if->{$key};
+            next unless defined $v && length $v;
+            $v =~ s/\s+//g;
+            push @words, "$word=$v";
+        }
     }
     return join(' ', @words);
 }

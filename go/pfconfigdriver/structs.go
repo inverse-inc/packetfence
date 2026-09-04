@@ -1019,13 +1019,26 @@ type ConnectorConfig struct {
 
 // ConnectorInterface is a VLAN interface the pfconnector-remote host creates
 // on top of Parent and holds CIDR on. The interface is named "<Parent>.<Vlan>".
+// When Dhcp is enabled the connector relays DHCP received on the interface to
+// pfdhcp over HTTP (DHCP-over-HTTPS) and pfdhcp serves the scope described by
+// the Dhcp* fields: the network is the one of CIDR, the server identifier the
+// interface address.
 type ConnectorInterface struct {
 	Parent string `json:"parent"`
 	Vlan   int    `json:"vlan"`
 	CIDR   string `json:"cidr"`
-	// DhcpRelay ("enabled"/"disabled"): the connector relays DHCP on this
-	// interface to the central pfdhcp (DHCP-over-HTTPS through the tunnel).
-	DhcpRelay string `json:"dhcp_relay"`
+	// Dhcp: "enabled"/"disabled".
+	Dhcp                 string `json:"dhcp"`
+	DhcpStart            string `json:"dhcp_start"`
+	DhcpEnd              string `json:"dhcp_end"`
+	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
+	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
+	// Dns: comma separated IPv4 addresses handed to clients (option 6).
+	Dns string `json:"dns"`
+	// Gateway (option 3); the interface address when empty.
+	Gateway string `json:"gateway"`
+	// DomainName (option 15), optional.
+	DomainName string `json:"domain_name"`
 }
 
 // Name is the kernel interface name of a VLAN interface.
