@@ -97,6 +97,13 @@ has_field 'interfaces.cidr' => (
    ],
 );
 
+has_field 'interfaces.dhcp_relay' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+);
+
 has_field 'routes' => (
    type => 'Repeatable',
 );
