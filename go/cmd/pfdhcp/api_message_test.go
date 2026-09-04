@@ -175,6 +175,18 @@ func TestConnectorScopeConfDefaultsAndErrors(t *testing.T) {
 	if key != "10.0.5.0" || conf.Gateway != "10.0.5.1" || conf.DhcpDefaultLeaseTime != "300" || conf.DhcpMaxLeaseTime != "600" || conf.IpReserved != "" || !ip.Equal(net.IPv4(10, 0, 5, 1)) {
 		t.Errorf("defaults: %+v key=%s ip=%s", conf, key, ip)
 	}
+	// Captive DNS enabled and no DNS given: clients get the interface address
+	ci.DnsServer = "enabled"
+	conf, _, _, _ = connectorScopeConf(ci)
+	if conf.Dns != "10.0.5.1" {
+		t.Errorf("dns default with dns_server enabled: %q", conf.Dns)
+	}
+	ci.Dns = "1.1.1.1"
+	conf, _, _, _ = connectorScopeConf(ci)
+	if conf.Dns != "1.1.1.1" {
+		t.Errorf("explicit dns overridden: %q", conf.Dns)
+	}
+	ci.Dns, ci.DnsServer = "", ""
 	// Interface address inside the range is kept out of the pool
 	ci.DhcpStart = "10.0.5.1"
 	conf, _, _, _ = connectorScopeConf(ci)

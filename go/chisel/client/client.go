@@ -26,6 +26,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
@@ -81,6 +82,8 @@ type Client struct {
 	siteNetworkVersion string
 	// dhcpRelay serves DHCP-over-HTTPS on the VLAN interfaces flagged for it.
 	dhcpRelay *dhcprelay.Relay
+	// dnsResponder is the captive DNS on the VLAN interfaces flagged for it.
+	dnsResponder *dnsresponder.Responder
 }
 
 // NewClient creates a new client instance
@@ -512,6 +515,7 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 	last := sitenetwork.LastStatus()
 	if reply.Version == c.siteNetworkVersion && (last == nil || last.Errors == 0) {
 		c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, last)
+		c.syncDnsResponder(ctx, reply.Interfaces, last)
 		return
 	}
 
@@ -535,6 +539,42 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 		}
 	}
 	c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, &status)
+	c.syncDnsResponder(ctx, reply.Interfaces, &status)
+}
+
+// syncDnsResponder keeps one captive DNS responder per VLAN interface that is
+// flagged dns_server and currently exists on the host. Runs every poll; Sync
+// is idempotent and restarts failed responders (e.g. the address was not yet
+// on the link). Disabled with PFCONNECTOR_DNS_RESPONDER=false.
+func (c *Client) syncDnsResponder(ctx context.Context, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
+	if v := os.Getenv("PFCONNECTOR_DNS_RESPONDER"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	present := map[string]bool{}
+	if status != nil {
+		for _, st := range status.Interfaces {
+			present[st.Name] = st.State != "error"
+		}
+	}
+	wanted := []dnsresponder.Interface{}
+	for _, iface := range ifaces {
+		if !sharedutils.IsEnabled(iface.DnsServer) || !present[iface.Name()] {
+			continue
+		}
+		ip, _, err := net.ParseCIDR(iface.CIDR)
+		if err != nil {
+			continue
+		}
+		wanted = append(wanted, dnsresponder.Interface{Name: iface.Name(), IP: ip})
+	}
+	if c.dnsResponder == nil {
+		if len(wanted) == 0 {
+			return
+		}
+		c.dnsResponder = dnsresponder.New(dnsresponder.Config{Logger: c.Infof})
+	}
+	c.dnsResponder.Sync(ctx, wanted)
+	dnsresponder.SetLastStatus(c.dnsResponder.Status())
 }
 
 // syncDhcpRelay keeps one DHCP relay listener per VLAN interface that is

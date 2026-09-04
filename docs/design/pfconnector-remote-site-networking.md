@@ -1,6 +1,6 @@
 # pfconnector-remote site networking: VLAN interfaces, DHCP-over-HTTPS relay, local DNS (design)
 
-Status: in progress (phase 1 VLAN interfaces + static routes done; phase 2 DHCP-over-HTTPS in progress)
+Status: phases 1-3 implemented (VLAN interfaces + static routes, DHCP-over-HTTPS, captive DNS); portal on the VLAN IP not started
 Branch context: `feature/pfconnector-site-networking` (off `clouddevel`)
 Author: design notes
 
@@ -61,13 +61,13 @@ from packet-in to packet-out; only its transport is UDP-specific.
      |  GET /api/v1/pfconnector/site-network?connector-id=<id>   (through tunnel)
      |  netlink reconcile: create/modify/delete eth0.<vid>, set addr, up
      |  in-process DHCP relay listener per "dhcp" interface (chisel/share/dhcprelay)
-     |  write Corefile, restart pfdns-site on change                 (phase 3)
+     |  in-process captive DNS per "dns" interface (chisel/share/dnsresponder)
      v
   eth0.100  10.10.100.1/24     eth0.101  10.10.101.1/24   ...
      ^                              ^
      | DHCP :67   DNS :53           |
   +--------------+  +--------------+
-  | dhcprelay    |  | pfdns        |   template plugin: every A -> <vlan ip>
+  | dhcprelay    |  | dnsresponder |   every A -> <vlan ip>
   +--------------+  +--------------+
      |
      |  POST http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=<id>
@@ -273,36 +273,27 @@ must therefore:
   workers is plenty) with no retry inside the relay;
 - log tunnel-down as one line per 30 s, not per packet.
 
-## 5. Component 3: per-VLAN DNS
+## 5. Component 3: per-VLAN DNS — implemented in-process
 
-pfdns is CoreDNS with the `template` plugin compiled in
-(`go/cmd/pfdns/plugin.go`). No new code: the reconcile loop writes one server
-block per interface with `dns=true` and restarts the `pfdns-site` s6 service:
+Like the DHCP relay, the captive DNS is a package inside pfconnector-client
+(`go/chisel/share/dnsresponder`, miekg/dns which is already a dependency)
+rather than a pfdns binary plus a generated Corefile and an s6 service. The
+site-network poll calls `Responder.Sync` with the VLAN interfaces flagged
+`dns` (`dns_server` in the structured form) that exist on the host; each gets
+a UDP and a TCP server bound to the interface address on port 53.
 
-```
-.:53 {
-    bind 10.10.100.1
-    template IN A . {
-        answer "{{ .Name }} 60 IN A 10.10.100.1"
-    }
-    template IN AAAA . {
-        rcode NOERROR
-    }
-    template IN ANY . {
-        rcode NXDOMAIN
-    }
-    log
-}
-```
+Answers: `A` -> the interface address, TTL 60; `AAAA` -> empty NOERROR so
+dual-stack clients fall back to A; other types -> REFUSED; non-query opcodes
+-> NOTIMP. Authoritative, no recursion, no upstream: nothing to amplify and
+no dependency on the tunnel. Binding the interface address (not `0.0.0.0`)
+leaves the host's own resolver and other interfaces untouched; a responder
+whose address is not yet on the link fails and is retried at the next poll.
 
-- `bind` to the VLAN IP means the host's own resolver and the site's other
-  interfaces are untouched.
-- `AAAA` answers empty NOERROR so dual-stack clients do not hang on IPv6.
-- The `pfdns` binary is not in the `radiusd` base image; it is copied in from
-  the `pfdns` build stage in `containers/pfconnector-remote/Dockerfile`.
-- Because `bind` fails if the address does not exist yet, the DNS service is
-  started **after** the netlink reconcile and restarted on every interface
-  change. s6 dependency: `pfdns-site` depends on `pfconnector-client`.
+When DHCP is enabled on the same interface and the scope has no DNS server,
+pfdhcp hands the interface address to the clients (option 6), so a VLAN with
+both toggles is a complete captive VLAN. Counters are exposed in
+`/api/v1/system/info` as `dns_server`. `PFCONNECTOR_DNS_RESPONDER=false`
+disables it.
 
 ## 6. Configuration model
 
