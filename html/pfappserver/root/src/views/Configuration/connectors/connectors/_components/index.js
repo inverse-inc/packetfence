@@ -6,6 +6,8 @@ import {
 } from '@/components/new/'
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
 import BaseFormGroupFingerbankEnvironment from './BaseFormGroupFingerbankEnvironment'
+import BaseFormGroupInterfaces from './BaseFormGroupInterfaces'
+import BaseFormGroupRoutes from './BaseFormGroupRoutes'
 import TheStatus from './TheStatus' // before TheForm: TheForm reads this binding at module-eval time
 import TheEquipment from './TheEquipment' // before TheForm: TheForm reads this binding at module-eval time
 import TheForm from './TheForm'
@@ -20,6 +22,8 @@ export {
   BaseFormGroupInputPassword          as FormGroupSecret,
   BaseFormGroupNetworks               as FormGroupNetworks,
   BaseFormGroupFingerbankEnvironment  as FormGroupFingerbankEnvironment,
+  BaseFormGroupInterfaces             as FormGroupInterfaces,
+  BaseFormGroupRoutes                 as FormGroupRoutes,
 
   TheForm,
   TheStatus,

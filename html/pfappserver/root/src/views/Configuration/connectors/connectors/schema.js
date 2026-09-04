@@ -36,6 +36,70 @@ const schemaFingerbankEnvironments = yup.array().ensure()
   .unique(i18n.t('Duplicate environment variable.'), ({ name }) => name)
   .of(schemaFingerbankEnvironment)
 
+// Site networking: VLAN interfaces and static routes applied on the remote
+// connector host. Mirrors pfappserver::Form::Config::Connector.
+const reInterfaceName = /^[A-Za-z0-9_-]+$/
+const reHostCidr = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/
+
+yup.addMethod(yup.string, 'isHostCidr', function (message) {
+  return this.test({
+    name: 'isHostCidr',
+    message: message || i18n.t('Must be a host IPv4 address with a prefix length (e.g. 10.10.100.1/24).'),
+    test: value => {
+      if (['', null, undefined].includes(value)) return true
+      const m = reHostCidr.exec(value)
+      if (!m) return false
+      const octets = m.slice(1, 5).map(Number)
+      const prefix = Number(m[5])
+      if (octets.some(o => o > 255) || prefix < 1 || prefix > 32) return false
+      if (prefix >= 31) return true
+      const ip = ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0
+      const mask = (0xFFFFFFFF << (32 - prefix)) >>> 0
+      const network = (ip & mask) >>> 0
+      const broadcast = (network | (~mask >>> 0)) >>> 0
+      return ip !== network && ip !== broadcast
+    }
+  })
+})
+
+const schemaInterface = yup.object().shape({
+  parent: yup.string().nullable()
+    .required(i18n.t('Parent interface required.'))
+    .max(10, i18n.t('Maximum 10 characters.'))
+    .matches(reInterfaceName, i18n.t('Letters, digits, "_" and "-" only.')),
+  vlan: yup.string().nullable()
+    .required(i18n.t('VLAN ID required.'))
+    .isVLAN(i18n.t('VLAN ID must be between 1 and 4094.'))
+    .test('vlan-max', i18n.t('VLAN ID must be between 1 and 4094.'), value => ['', null, undefined].includes(value) || +value <= 4094),
+  cidr: yup.string().nullable()
+    .required(i18n.t('IP address required.'))
+    .isHostCidr()
+})
+
+const schemaInterfaces = yup.array().ensure()
+  .unique(i18n.t('Duplicate VLAN interface.'), ({ parent, vlan }) => `${parent}.${vlan}`)
+  .of(schemaInterface)
+
+const schemaRoute = yup.object().shape({
+  destination: yup.string().nullable()
+    .required(i18n.t('Destination required.'))
+    .isCIDR()
+    .test('not-default', i18n.t('The default route cannot be managed from here.'), value => !value || !/\/0$/.test(value)),
+  gateway: yup.string().nullable()
+    .isIpv4()
+    .test('gateway-or-interface', i18n.t('A gateway or an interface is required.'), function (value) {
+      const { interface: dev } = this.parent || {}
+      return !!(value || dev)
+    }),
+  interface: yup.string().nullable()
+    .max(15, i18n.t('Maximum 15 characters.'))
+    .matches(/^[A-Za-z0-9_.-]*$/, i18n.t('Letters, digits, ".", "_" and "-" only.'))
+})
+
+const schemaRoutes = yup.array().ensure()
+  .unique(i18n.t('Duplicate route.'), ({ destination }) => destination)
+  .of(schemaRoute)
+
 export default (props) => {
   const {
     id,
@@ -58,6 +122,8 @@ export default (props) => {
       .required(i18n.t('Secret required.'))
       .label(i18n.t('Secret')),
     networks: schemaNetworks,
-    fingerbank_environment: schemaFingerbankEnvironments
+    fingerbank_environment: schemaFingerbankEnvironments,
+    interfaces: schemaInterfaces,
+    routes: schemaRoutes
   })
 }

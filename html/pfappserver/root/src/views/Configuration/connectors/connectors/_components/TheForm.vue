@@ -74,6 +74,19 @@
           :column-label="$i18n.t('Environment')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('Networking')">
+        <b-alert show variant="info" class="mx-3">
+          {{ $i18n.t('The remote connector creates these VLAN interfaces on its host, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts.') }}
+        </b-alert>
+        <form-group-interfaces namespace="interfaces"
+          :column-label="$i18n.t('VLAN Interfaces')"
+          :text="$i18n.t('One 802.1Q VLAN interface per row, created on top of the parent interface of the connector host and named &quot;parent.vlan&quot; (e.g. eth0.100). The IP address is written with its prefix length (e.g. 10.10.100.1/24).')"
+        />
+        <form-group-routes namespace="routes"
+          :column-label="$i18n.t('Static Routes')"
+          :text="$i18n.t('Optional static routes installed on the connector host. A route needs a gateway, an interface, or both. The default route cannot be managed from here.')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -92,6 +105,8 @@ import {
   FormGroupNetworks,
   FormGroupSecret,
   FormGroupFingerbankEnvironment,
+  FormGroupInterfaces,
+  FormGroupRoutes,
   TheStatus,
   TheEquipment,
 } from './'
@@ -105,6 +120,8 @@ const components = {
   FormGroupNetworks,
   FormGroupSecret,
   FormGroupFingerbankEnvironment,
+  FormGroupInterfaces,
+  FormGroupRoutes,
   TheStatus,
   TheEquipment,
 }
