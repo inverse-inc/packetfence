@@ -12,6 +12,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -53,6 +54,9 @@ type SystemInfo struct {
 	// DhcpRelay lists the DHCP-over-HTTPS relay listeners (one per VLAN
 	// interface flagged dhcp_relay) with their counters.
 	DhcpRelay []dhcprelay.Status `json:"dhcp_relay,omitempty"`
+	// DnsServer lists the captive DNS responders (one per VLAN interface
+	// flagged dns_server) with their query counters.
+	DnsServer []dnsresponder.Status `json:"dns_server,omitempty"`
 }
 
 // systemInfo reports resource usage of the box running the
@@ -67,6 +71,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			LogFiles:        availableLogFiles(api),
 			SiteNetwork:     sitenetwork.LastStatus(),
 			DhcpRelay:       dhcprelay.LastStatus(),
+			DnsServer:       dnsresponder.LastStatus(),
 		}
 		info.Hostname, _ = os.Hostname()
 
