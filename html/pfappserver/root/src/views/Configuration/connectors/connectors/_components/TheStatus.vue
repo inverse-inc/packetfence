@@ -182,6 +182,35 @@
             <p v-else class="text-muted mb-0">{{ $i18n.t('No static route configured for this connector.') }}</p>
           </b-col>
         </b-row>
+
+        <b-row v-if="dhcpRelay.length" class="mt-3">
+          <b-col>
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: DHCP relay') }}</h6>
+            <b-table-simple small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Interface') }}</b-th>
+                  <b-th>{{ $i18n.t('State') }}</b-th>
+                  <b-th>{{ $i18n.t('Requests') }}</b-th>
+                  <b-th>{{ $i18n.t('Replies') }}</b-th>
+                  <b-th>{{ $i18n.t('Dropped') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="relay in dhcpRelay" :key="relay.interface">
+                  <b-td class="text-monospace">{{ relay.interface }} ({{ relay.ip }})</b-td>
+                  <b-td>
+                    <b-badge :variant="relay.state === 'listening' ? 'success' : 'danger'" :title="relay.error || relay.last_error || ''">{{ relay.state }}</b-badge>
+                    <small v-if="relay.error || relay.last_error" class="d-block text-danger">{{ relay.error || relay.last_error }}</small>
+                  </b-td>
+                  <b-td>{{ relay.requests }}</b-td>
+                  <b-td>{{ relay.replies }}</b-td>
+                  <b-td>{{ relay.dropped }}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+          </b-col>
+        </b-row>
       </template>
       <p v-else-if="!isLoading" class="text-muted mb-0">{{ $i18n.t('Status unavailable.') }}</p>
     </div>
@@ -270,6 +299,10 @@ export const setup = (props, context) => {
   const siteNetwork = computed(() => {
     const { system: { site_network: sn } = {} } = status.value || {}
     return sn || null
+  })
+  const dhcpRelay = computed(() => {
+    const { system: { dhcp_relay: relay } = {} } = status.value || {}
+    return Array.isArray(relay) ? relay : []
   })
   const siteNetworkVariant = state => {
     switch (state) {
@@ -418,6 +451,7 @@ export const setup = (props, context) => {
     logFiles,
     siteNetwork,
     siteNetworkVariant,
+    dhcpRelay,
     refresh,
     restart,
     upgrade,
