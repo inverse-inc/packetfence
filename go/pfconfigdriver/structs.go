@@ -1023,6 +1023,9 @@ type ConnectorInterface struct {
 	Parent string `json:"parent"`
 	Vlan   int    `json:"vlan"`
 	CIDR   string `json:"cidr"`
+	// DhcpRelay ("enabled"/"disabled"): the connector relays DHCP on this
+	// interface to the central pfdhcp (DHCP-over-HTTPS through the tunnel).
+	DhcpRelay string `json:"dhcp_relay"`
 }
 
 // Name is the kernel interface name of a VLAN interface.

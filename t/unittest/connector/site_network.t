@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 23;
+use Test::More tests => 26;
 use Test::NoWarnings;
 
 use pf::connector::site_network qw(
@@ -31,15 +31,23 @@ use pf::connector::site_network qw(
 
 is_deeply(
     parse_interface_line("eth0.100 10.10.100.1/24"),
-    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24' },
+    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'disabled' },
     "parse a VLAN interface line"
 );
 
 is_deeply(
     parse_interface_line("  ens192.4094   192.168.1.1/30  "),
-    { parent => 'ens192', vlan => 4094, cidr => '192.168.1.1/30' },
+    { parent => 'ens192', vlan => 4094, cidr => '192.168.1.1/30', dhcp_relay => 'disabled' },
     "surrounding whitespace is ignored"
 );
+
+is_deeply(
+    parse_interface_line("eth0.100 10.10.100.1/24 dhcp"),
+    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' },
+    "dhcp flag"
+);
+is(parse_interface_line("eth0.100 10.10.100.1/24 bogus"), undef, "unknown flag");
+is(format_interface({ parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' }), "eth0.100 10.10.100.1/24 dhcp", "format with dhcp flag");
 
 is(parse_interface_line("eth0 10.10.100.1/24"), undef, "no vlan tag in the name");
 is(parse_interface_line("eth0.100"), undef, "missing address");
@@ -83,8 +91,8 @@ expand_site_network($cfg);
 is_deeply(
     $cfg->{interfaces},
     [
-        { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24' },
-        { parent => 'eth0', vlan => 101, cidr => '10.10.101.1/24' },
+        { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'disabled' },
+        { parent => 'eth0', vlan => 101, cidr => '10.10.101.1/24', dhcp_relay => 'disabled' },
     ],
     "expand interfaces from an array, dropping unparseable lines"
 );

@@ -20,7 +20,8 @@ export const props = {
     default: () => ({
       parent: null,
       vlan: null,
-      cidr: null
+      cidr: null,
+      dhcp_relay: 'disabled'
     })
   }
 }

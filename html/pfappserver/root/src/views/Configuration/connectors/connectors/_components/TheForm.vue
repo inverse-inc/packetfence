@@ -80,7 +80,7 @@
         </b-alert>
         <form-group-interfaces namespace="interfaces"
           :column-label="$i18n.t('VLAN Interfaces')"
-          :text="$i18n.t('One 802.1Q VLAN interface per row, created on top of the parent interface of the connector host and named &quot;parent.vlan&quot; (e.g. eth0.100). The IP address is written with its prefix length (e.g. 10.10.100.1/24).')"
+          :text="$i18n.t('One 802.1Q VLAN interface per row, created on top of the parent interface of the connector host and named &quot;parent.vlan&quot; (e.g. eth0.100). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to relay the DHCP requests received on that VLAN to the PacketFence DHCP server through the connector tunnel.')"
         />
         <form-group-routes namespace="routes"
           :column-label="$i18n.t('Static Routes')"
