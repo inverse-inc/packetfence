@@ -21,7 +21,14 @@ export const props = {
       parent: null,
       vlan: null,
       cidr: null,
-      dhcp_relay: 'disabled'
+      dhcp: 'disabled',
+      dhcp_start: null,
+      dhcp_end: null,
+      dhcp_default_lease_time: 300,
+      dhcp_max_lease_time: 600,
+      dns: null,
+      gateway: null,
+      domain_name: null
     })
   }
 }
