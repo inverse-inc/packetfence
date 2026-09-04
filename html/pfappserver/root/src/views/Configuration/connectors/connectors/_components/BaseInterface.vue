@@ -15,7 +15,7 @@
           :max="4094"
         />
       </b-col>
-      <b-col cols="4" class="base-flex-wrap pr-1">
+      <b-col cols="3" class="base-flex-wrap pr-1">
         <base-input
           :namespace="`${namespace}.cidr`"
           :placeholder="$t('IP address / prefix (e.g. 10.10.100.1/24)')"
@@ -26,6 +26,14 @@
           :namespace="`${namespace}.dhcp`"
           :options="dhcpOptions"
           :title="$t('Serve DHCP on this VLAN: the connector relays the requests to the PacketFence DHCP server, which serves the scope below')"
+          label-right
+        />
+      </b-col>
+      <b-col cols="1" class="base-flex-wrap">
+        <base-input-toggle
+          :namespace="`${namespace}.dns_server`"
+          :options="dnsOptions"
+          :title="$t('Captive DNS on this VLAN: the connector answers every DNS query with the interface address')"
           label-right
         />
       </b-col>
@@ -63,7 +71,7 @@
         <b-col cols="4" class="base-flex-wrap pr-1">
           <base-input
             :namespace="`${namespace}.dns`"
-            :placeholder="$t('DNS servers (comma separated)')"
+            :placeholder="$t('DNS servers (comma separated, defaults to this interface when DNS is enabled)')"
           />
         </b-col>
         <b-col cols="4" class="base-flex-wrap pr-1">
@@ -118,10 +126,15 @@ const setup = (props, context) => {
     { value: 'disabled', label: i18n.t('DHCP') },
     { value: 'enabled', label: i18n.t('DHCP'), color: 'var(--primary)' }
   ]
+  const dnsOptions = [
+    { value: 'disabled', label: i18n.t('DNS') },
+    { value: 'enabled', label: i18n.t('DNS'), color: 'var(--primary)' }
+  ]
 
   return {
     dhcpEnabled,
-    dhcpOptions
+    dhcpOptions,
+    dnsOptions
   }
 }
 

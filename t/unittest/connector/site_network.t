@@ -20,10 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 31;
 use Test::NoWarnings;
 
-my %NO_DHCP = map { $_ => '' } qw(dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time dns gateway domain_name);
+my %NO_DHCP = ((map { $_ => '' } qw(dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time dns gateway domain_name)), dns_server => 'disabled');
 
 use pf::connector::site_network qw(
     parse_interface_line format_interface interface_name
@@ -45,7 +45,7 @@ is_deeply(
 
 my $dhcp_line = "eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example";
 my $dhcp_if = {
-    parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp => 'enabled',
+    parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp => 'enabled', dns_server => 'disabled',
     dhcp_start => '10.10.100.10', dhcp_end => '10.10.100.250',
     dhcp_default_lease_time => '300', dhcp_max_lease_time => '600',
     dns => '8.8.8.8,8.8.4.4', gateway => '10.10.100.254', domain_name => 'site.example',
@@ -60,6 +60,12 @@ is_deeply(
     "absent scope words are empty"
 );
 is(format_interface({ %$dhcp_if, dhcp => 'disabled' }), "eth0.100 10.10.100.1/24", "scope words are dropped when dhcp is disabled");
+is_deeply(
+    parse_interface_line("eth0.100 10.10.100.1/24 dns"),
+    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp => 'disabled', %NO_DHCP, dns_server => 'enabled' },
+    "dns flag alone (bare word, not the dns= scope key)"
+);
+is(format_interface({ %$dhcp_if, dns_server => 'enabled' }), "eth0.100 10.10.100.1/24 dhcp dns start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example", "format with both flags");
 
 is(parse_interface_line("eth0 10.10.100.1/24"), undef, "no vlan tag in the name");
 is(parse_interface_line("eth0.100"), undef, "missing address");

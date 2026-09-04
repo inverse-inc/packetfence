@@ -106,6 +106,15 @@ has_field 'interfaces.dhcp' => (
    default => 'disabled',
 );
 
+# Captive DNS: answer every DNS query received on the interface with the
+# interface address (served by the connector itself).
+has_field 'interfaces.dns_server' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+);
+
 has_field 'interfaces.dhcp_start' => (
    type => 'IPAddress',
    accept => [''],
