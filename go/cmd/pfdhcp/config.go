@@ -424,6 +424,10 @@ func connectorScopeConf(ci pfconfigdriver.ConnectorInterface) (pfconfigdriver.Re
 	ConfNet.DhcpDefaultLeaseTime = orDefault(ci.DhcpDefaultLeaseTime, "300")
 	ConfNet.DhcpMaxLeaseTime = orDefault(ci.DhcpMaxLeaseTime, "600")
 	ConfNet.Dns = ci.Dns
+	if ConfNet.Dns == "" && sharedutils.IsEnabled(ci.DnsServer) {
+		// The connector's captive DNS answers on the interface address.
+		ConfNet.Dns = ip.String()
+	}
 	ConfNet.Gateway = orDefault(ci.Gateway, ip.String())
 	ConfNet.DomainName = ci.DomainName
 	ConfNet.PoolBackend = orDefault(os.Getenv("PFDHCP_CONNECTOR_POOL_BACKEND"), "memory")
