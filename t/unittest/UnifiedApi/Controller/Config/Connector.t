@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 63;
+use Test::More tests => 65;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Connector;
@@ -87,7 +87,7 @@ $t->post_ok($collection_base_url => json => {
         interfaces => [
             { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24", dhcp => "enabled",
               dhcp_start => "10.10.100.10", dhcp_end => "10.10.100.250", dhcp_default_lease_time => 300, dhcp_max_lease_time => 600,
-              dns => "8.8.8.8,8.8.4.4", gateway => "10.10.100.254" },
+              dns => "8.8.8.8,8.8.4.4", gateway => "10.10.100.254", dns_server => "enabled" },
             { parent => "eth0", vlan => 101, cidr => "10.10.101.1/24" },
         ],
         routes => [
@@ -107,6 +107,8 @@ $t->get_ok("$base_url/site-a")
   ->json_is('/item/interfaces/0/dhcp_default_lease_time' => 300)
   ->json_is('/item/interfaces/0/gateway' => '10.10.100.254')
   ->json_is('/item/interfaces/1/dhcp' => 'disabled')
+  ->json_is('/item/interfaces/0/dns_server' => 'enabled')
+  ->json_is('/item/interfaces/1/dns_server' => 'disabled')
   ->json_is('/item/routes/0/gateway' => '10.10.100.254')
   ->json_is('/item/routes/1/interface' => 'eth0.101')
   ->json_is('/item/routes/1/gateway' => '');
@@ -115,7 +117,7 @@ $t->get_ok("$base_url/site-a")
 {
     my $cs = pf::ConfigStore::Connector->new;
     my $raw = $cs->readRaw("site-a");
-    is_deeply($raw->{interfaces}, ["eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254", "eth0.101 10.10.101.1/24"], "interfaces stored one per line");
+    is_deeply($raw->{interfaces}, ["eth0.100 10.10.100.1/24 dhcp dns start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254", "eth0.101 10.10.101.1/24"], "interfaces stored one per line");
     is_deeply($raw->{routes}, ["10.20.0.0/16 via 10.10.100.254 dev eth0.100", "192.168.50.0/24 dev eth0.101"], "routes stored one per line");
 }
 
