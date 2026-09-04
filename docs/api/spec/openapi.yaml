@@ -5518,11 +5518,44 @@ components:
         id:
           description: Id
           type: string
+        interfaces:
+          description: VLAN interfaces created on the remote connector host, named
+            "<parent>.<vlan>"
+          items:
+            description: VLAN interface
+            properties:
+              cidr:
+                description: Host IPv4 address with prefix length (e.g. 10.10.100.1/24)
+                type: string
+              parent:
+                description: Parent (physical) interface name
+                type: string
+              vlan:
+                description: 802.1Q VLAN ID (1-4094)
+                type: integer
+            type: object
+          type: array
         networks:
           description: Networks
           items:
             description: Network
             type: string
+          type: array
+        routes:
+          description: Static routes installed on the remote connector host
+          items:
+            description: Static route
+            properties:
+              destination:
+                description: Destination network in CIDR notation
+                type: string
+              gateway:
+                description: Next hop IPv4 address (optional when an interface is set)
+                type: string
+              interface:
+                description: Output interface (optional when a gateway is set)
+                type: string
+            type: object
           type: array
         secret:
           description: Secret
@@ -5542,7 +5575,11 @@ components:
               $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'
+            interfaces:
+              $ref: '#/components/schemas/Meta'
             networks:
+              $ref: '#/components/schemas/Meta'
+            routes:
               $ref: '#/components/schemas/Meta'
             secret:
               $ref: '#/components/schemas/Meta'
