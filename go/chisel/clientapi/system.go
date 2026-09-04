@@ -11,6 +11,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -44,6 +45,10 @@ type SystemInfo struct {
 	// this connector right now. The admin UI keys the "View Logs" button on
 	// it; connectors predating the feature simply omit the field.
 	LogFiles []string `json:"log_files,omitempty"`
+	// SiteNetwork is the result of the last VLAN interface / static route
+	// reconcile pass (see chisel/share/sitenetwork). Omitted until the first
+	// pass ran; the admin UI shows it in the connector's Networking tab.
+	SiteNetwork *sitenetwork.Status `json:"site_network,omitempty"`
 }
 
 // systemInfo reports resource usage of the box running the
@@ -56,6 +61,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			TerminalEnabled: api.TerminalEnabled,
 			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
 			LogFiles:        availableLogFiles(api),
+			SiteNetwork:     sitenetwork.LastStatus(),
 		}
 		info.Hostname, _ = os.Hostname()
 
