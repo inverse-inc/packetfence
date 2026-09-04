@@ -2,6 +2,7 @@ package chserver
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -160,6 +161,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/site-network":
 		s.handleSiteNetwork(w, r)
+		return
+	case apiPrefix + "/dhcp-message":
+		s.handleDhcpMessage(w, r)
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
@@ -1737,4 +1741,110 @@ func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(reply)
+}
+
+// dhcpMessageContentType mirrors application/dns-message (RFC 8484): the HTTP
+// body is the raw DHCP message, nothing else.
+const dhcpMessageContentType = "application/dhcp-message"
+
+// pfdhcpMessagePath is pfdhcp's DHCP-over-HTTP endpoint.
+const pfdhcpMessagePath = "/api/v1/dhcp/message"
+
+// pfdhcpAPIURL is where pfdhcp's API listens when services_url.pfdhcp is not
+// configured (a PacketFence server: pfdhcp on the same host).
+const pfdhcpAPIURL = "http://127.0.0.1:22222"
+
+var dhcpMessageClient = &http.Client{Timeout: 1500 * time.Millisecond}
+
+// handleDhcpMessage is the server half of DHCP-over-HTTPS:
+// POST /api/v1/pfconnector/dhcp-message?connector-id=<id>, body = the raw
+// DHCP request the connector's relay received on one of its VLAN interfaces
+// with giaddr set to that interface's address. The body is forwarded verbatim
+// to pfdhcp and pfdhcp's reply body (the raw DHCP reply) is returned.
+//
+// Authorization: giaddr must be the address of one of the calling connector's
+// VLAN interfaces with the DHCP relay enabled. A connector can therefore only
+// obtain leases in the scopes it terminates, never in another site's.
+func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		http.Error(w, "Missing connector-id", http.StatusBadRequest)
+		return
+	}
+	body, err := io.ReadAll(io.LimitReader(req.Body, 1501))
+	if err != nil || len(body) < 240 || len(body) > 1500 {
+		http.Error(w, "Body must be a DHCP message (240..1500 bytes)", http.StatusBadRequest)
+		return
+	}
+	if body[0] != 1 { // BOOTREQUEST
+		http.Error(w, "Only BOOTREQUEST messages are relayed", http.StatusBadRequest)
+		return
+	}
+	giaddr := net.IP(body[24:28])
+
+	connectors := pfconfigdriver.Connectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		http.Error(w, fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err), http.StatusInternalServerError)
+		return
+	}
+	connector, found := connectors.Element[connectorId]
+	if !found {
+		http.Error(w, fmt.Sprintf("Unknown connector %s", connectorId), http.StatusNotFound)
+		return
+	}
+	if !connectorRelaysFrom(connector, giaddr) {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("dhcp-message: connector %s sent a DHCP request with giaddr %s which is not one of its DHCP relay interfaces; dropped", connectorId, giaddr))
+		http.Error(w, fmt.Sprintf("giaddr %s is not a DHCP relay interface of connector %s", giaddr, connectorId), http.StatusForbidden)
+		return
+	}
+
+	base := pfdhcpAPIURL
+	servicesURL := pfconfigdriver.PfConfServicesURL{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &servicesURL); err == nil && servicesURL.Pfdhcp != "" {
+		base = strings.TrimRight(servicesURL.Pfdhcp, "/")
+	}
+	upstream, err := http.NewRequestWithContext(req.Context(), http.MethodPost, base+pfdhcpMessagePath, bytes.NewReader(body))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	upstream.Header.Set("Content-Type", dhcpMessageContentType)
+	upstream.Header.Set("X-PacketFence-Connector-Id", connectorId)
+	res, err := dhcpMessageClient.Do(upstream)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("pfdhcp unreachable: %s", err), http.StatusBadGateway)
+		return
+	}
+	defer res.Body.Close()
+	reply, err := io.ReadAll(io.LimitReader(res.Body, 1501))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("pfdhcp reply: %s", err), http.StatusBadGateway)
+		return
+	}
+	if res.StatusCode == http.StatusOK {
+		w.Header().Set("Content-Type", dhcpMessageContentType)
+	} else if ct := res.Header.Get("Content-Type"); ct != "" {
+		w.Header().Set("Content-Type", ct)
+	}
+	w.WriteHeader(res.StatusCode)
+	w.Write(reply)
+}
+
+// connectorRelaysFrom reports whether ip is the address of one of the
+// connector's VLAN interfaces that has the DHCP relay enabled.
+func connectorRelaysFrom(connector pfconfigdriver.ConnectorConfig, ip net.IP) bool {
+	for _, iface := range connector.Interfaces {
+		if !sharedutils.IsEnabled(iface.Dhcp) {
+			continue
+		}
+		ifIP, _, err := net.ParseCIDR(iface.CIDR)
+		if err == nil && ifIP.Equal(ip) {
+			return true
+		}
+	}
+	return false
 }
