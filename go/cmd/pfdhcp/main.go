@@ -138,6 +138,9 @@ func main() {
 	// Initialize VIP maps
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
+	// The synthetic connector interface (DHCP-over-HTTPS) has no VIP to
+	// detect: it always serves.
+	VIP[ConnectorInterfaceName] = true
 
 	// Start VIP detection in background
 	go detectVIPLoop(ctx, dbConnPool)
@@ -681,8 +684,13 @@ retry:
 				}
 			}
 		}
-		// Layer 3 Test
-		pingreply := sharedutils.Ping(setOptionServerIdentifier(srvIP, handler.ip).To4(), dhcp.IPAdd(handler.start, free), I.Name, 1)
+		// Layer 3 Test. Not on the synthetic connector interface: there is no
+		// local NIC to ping from (and Ping fatals on an unknown interface); the
+		// relayed clients are on a remote site anyway.
+		pingreply := false
+		if I.InterfaceType != ConnectorInterfaceType {
+			pingreply = sharedutils.Ping(setOptionServerIdentifier(srvIP, handler.ip).To4(), dhcp.IPAdd(handler.start, free), I.Name, 1)
+		}
 		if pingreply || inarp {
 			// Found in the arp cache or able to ping it
 			ipaddr := dhcp.IPAdd(handler.start, free)
@@ -1005,6 +1013,10 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	for _, v := range DHCPConfig.intsNet {
 		v := v
 		intNametoInterface[v.Name] = &v
+		if v.InterfaceType == ConnectorInterfaceType {
+			// Served through POST /api/v1/dhcp/message, no socket.
+			continue
+		}
 
 		wg.Add(1)
 		go func() {
@@ -1016,6 +1028,9 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	// Start broadcast listeners
 	for _, v := range DHCPConfig.intsNet {
 		v := v
+		if v.InterfaceType == ConnectorInterfaceType {
+			continue
+		}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -1030,6 +1045,8 @@ func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
 	router := mux.NewRouter()
 
 	// API endpoints
+	// DHCP-over-HTTPS: raw DHCP message in, raw DHCP reply out (RFC 8484 style).
+	router.HandleFunc("/api/v1/dhcp/message", api.handleMessage).Methods("POST")
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleMac2Ip).Methods("GET")
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleReleaseIP).Methods("DELETE")
 	router.HandleFunc("/api/v1/dhcp/ip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", api.handleIP2Mac).Methods("GET")
