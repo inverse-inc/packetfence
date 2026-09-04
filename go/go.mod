@@ -217,6 +217,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.2
 	github.com/smallstep/nosql v0.8.0
 	github.com/sorenisanerd/gotty v1.5.0
+	github.com/vishvananda/netlink v1.3.1
 	go.uber.org/zap v1.27.1
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -363,6 +364,7 @@ require (
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/trailofbits/go-mutexasserts v0.0.0-20250514102930-c1f3d2e37561 // indirect
 	github.com/urfave/cli v1.22.17 // indirect
+	github.com/vishvananda/netns v0.0.5 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/goldmark v1.7.16 // indirect
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc // indirect
