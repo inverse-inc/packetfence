@@ -15,11 +15,35 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($connectors_config_file);
+use pf::connector::site_network qw(expand_site_network flatten_site_network);
 extends 'pf::ConfigStore';
 
 sub configFile { $connectors_config_file };
 
 sub pfconfigNamespace { 'config::Connector' }
+
+=head2 cleanupAfterRead
+
+Expand the site networking line lists (interfaces, routes) into structured
+lists. See pf::connector::site_network for the formats.
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $item) = @_;
+    expand_site_network($item);
+}
+
+=head2 cleanupBeforeCommit
+
+Flatten the structured site networking lists back into one line per entry.
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $item) = @_;
+    flatten_site_network($item);
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

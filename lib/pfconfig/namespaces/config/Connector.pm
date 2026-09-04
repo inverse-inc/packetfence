@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw($connectors_config_file);
 use pf::util;
+use pf::connector::site_network qw(expand_site_network);
 
 use base 'pfconfig::namespaces::config';
 
@@ -45,6 +46,8 @@ sub build_child {
     for my $id (keys(%tmp_cfg)) {
         $tmp_cfg{$id}{networks} = $tmp_cfg{$id}{networks} ? [split(/\n/, $tmp_cfg{$id}{networks})] : [];
         $tmp_cfg{$id}{fingerbank_environment} = $tmp_cfg{$id}{fingerbank_environment} ? [split(/\n/, $tmp_cfg{$id}{fingerbank_environment})] : [];
+        # interfaces / routes: one line per entry -> list of hashes
+        expand_site_network($tmp_cfg{$id});
     }
 
     return \%tmp_cfg;
