@@ -25,7 +25,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/proxy"
@@ -69,6 +71,12 @@ type Client struct {
 	stop      func()
 	eg        *errgroup.Group
 	tunnel    *tunnel.Tunnel
+
+	// siteNetwork applies the connector's VLAN interfaces and static routes
+	// to the host; siteNetworkVersion is the last payload version applied so
+	// an unchanged payload costs nothing but the poll.
+	siteNetwork        *sitenetwork.Reconciler
+	siteNetworkVersion string
 }
 
 // NewClient creates a new client instance
@@ -306,6 +314,7 @@ func (c *Client) Start(ctx context.Context) error {
 				}()
 				if tunnelReady {
 					c.reportConnectorInfo()
+					c.reconcileSiteNetwork(ctx)
 				}
 			}
 		}()
@@ -455,4 +464,69 @@ func (c *Client) Close() error {
 		c.stop()
 	}
 	return nil
+}
+
+// siteNetworkReply mirrors the pfconnector server's SiteNetworkReply.
+type siteNetworkReply struct {
+	Version    string                              `json:"version"`
+	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
+	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+}
+
+// reconcileSiteNetwork fetches the connector's desired site networking (VLAN
+// interfaces, addresses, static routes) from the pfconnector server through
+// the tunnel-local bind and applies it to the host with netlink. It runs on
+// the same 5s cadence as the remote-binds poll but only reconciles when the
+// payload version changed, or when the previous pass reported errors (so a
+// parent NIC that shows up late gets its VLANs without a config change).
+// Disabled with PFCONNECTOR_SITE_NETWORK=false.
+func (c *Client) reconcileSiteNetwork(ctx context.Context) {
+	if v := os.Getenv("PFCONNECTOR_SITE_NETWORK"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	connectorID := strings.Split(c.config.Auth, ":")[0]
+	res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
+	if err != nil {
+		c.Debugf("Unable to fetch site network config: %s", err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusNotFound {
+		// Server predates the feature or the connector is unknown: nothing to apply.
+		return
+	}
+	if res.StatusCode != http.StatusOK {
+		c.Debugf("Invalid status code %d received for site network config", res.StatusCode)
+		return
+	}
+	reply := siteNetworkReply{}
+	if err := json.NewDecoder(res.Body).Decode(&reply); err != nil {
+		c.Infof("Unable to parse site network config: %s", err)
+		return
+	}
+
+	last := sitenetwork.LastStatus()
+	if reply.Version == c.siteNetworkVersion && (last == nil || last.Errors == 0) {
+		return
+	}
+
+	if c.siteNetwork == nil {
+		c.siteNetwork = sitenetwork.New()
+	}
+	status := c.siteNetwork.Reconcile(ctx, reply.Version, sitenetwork.Desired{Interfaces: reply.Interfaces, Routes: reply.Routes})
+	sitenetwork.SetLastStatus(status)
+	if reply.Version != c.siteNetworkVersion {
+		c.Infof("Applied site network config %s: %d interface(s), %d route(s), %d error(s)", reply.Version, len(status.Interfaces), len(status.Routes), status.Errors)
+	}
+	c.siteNetworkVersion = reply.Version
+	for _, st := range status.Interfaces {
+		if st.Error != "" {
+			c.Infof("site-network: %s: %s", st.Name, st.Error)
+		}
+	}
+	for _, st := range status.Routes {
+		if st.Error != "" {
+			c.Infof("site-network: route %s: %s", st.Destination, st.Error)
+		}
+	}
 }

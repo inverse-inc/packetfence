@@ -1003,12 +1003,39 @@ type Connectors struct {
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Connector"`
 	PfconfigDecodeInElement string `val:"yes"`
-	Element                 map[string]struct {
-		Secret                string   `json:"secret"`
-		Networks              []string `json:"networks"`
-		Description           string   `json:"description"`
-		FingerbankEnvironment []string `json:"fingerbank_environment"`
-	}
+	Element                 map[string]ConnectorConfig
+}
+
+// ConnectorConfig is one [connector] section of connectors.conf as exposed by
+// the config::Connector pfconfig namespace.
+type ConnectorConfig struct {
+	Secret                string               `json:"secret"`
+	Networks              []string             `json:"networks"`
+	Description           string               `json:"description"`
+	FingerbankEnvironment []string             `json:"fingerbank_environment"`
+	Interfaces            []ConnectorInterface `json:"interfaces"`
+	Routes                []ConnectorRoute     `json:"routes"`
+}
+
+// ConnectorInterface is a VLAN interface the pfconnector-remote host creates
+// on top of Parent and holds CIDR on. The interface is named "<Parent>.<Vlan>".
+type ConnectorInterface struct {
+	Parent string `json:"parent"`
+	Vlan   int    `json:"vlan"`
+	CIDR   string `json:"cidr"`
+}
+
+// Name is the kernel interface name of a VLAN interface.
+func (i ConnectorInterface) Name() string {
+	return fmt.Sprintf("%s.%d", i.Parent, i.Vlan)
+}
+
+// ConnectorRoute is a static route the pfconnector-remote host installs.
+// Gateway and Interface are each optional but at least one is set.
+type ConnectorRoute struct {
+	Destination string `json:"destination"`
+	Gateway     string `json:"gateway"`
+	Interface   string `json:"interface"`
 }
 
 type FingerbankSettingsUpstream struct {

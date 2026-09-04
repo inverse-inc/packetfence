@@ -3,6 +3,8 @@ package chserver
 import (
 	"bufio"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -155,6 +157,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/process-dhcp":
 		s.handleProcessDhcp(w, r)
+		return
+	case apiPrefix + "/site-network":
+		s.handleSiteNetwork(w, r)
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
@@ -1675,4 +1680,61 @@ func (s *Server) handleConnectorHealth(w http.ResponseWriter, req *http.Request)
 		"overall":    overall,
 		"connectors": status,
 	})
+}
+
+// SiteNetworkReply is the desired site networking state of one connector:
+// the VLAN interfaces the pfconnector-remote host must create and hold an IP
+// on, and the static routes it must install. Version is a content hash so the
+// client can skip the reconcile when nothing changed.
+type SiteNetworkReply struct {
+	Version    string                              `json:"version"`
+	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
+	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+}
+
+// handleSiteNetwork serves GET /api/v1/pfconnector/site-network?connector-id=<id>.
+// It is polled by pfconnector-client through the tunnel-local bind on 22226,
+// alongside remote-binds, and reflects the interfaces/routes of the connector
+// in connectors.conf.
+func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id"})
+		return
+	}
+
+	connectors := pfconfigdriver.Connectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err)})
+		return
+	}
+
+	connector, found := connectors.Element[connectorId]
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unknown connector %s", connectorId)})
+		return
+	}
+
+	reply := SiteNetworkReply{
+		Interfaces: connector.Interfaces,
+		Routes:     connector.Routes,
+	}
+	if reply.Interfaces == nil {
+		reply.Interfaces = []pfconfigdriver.ConnectorInterface{}
+	}
+	if reply.Routes == nil {
+		reply.Routes = []pfconfigdriver.ConnectorRoute{}
+	}
+	content, _ := json.Marshal(struct {
+		Interfaces []pfconfigdriver.ConnectorInterface
+		Routes     []pfconfigdriver.ConnectorRoute
+	}{reply.Interfaces, reply.Routes})
+	sum := sha256.Sum256(content)
+	reply.Version = hex.EncodeToString(sum[:8])
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(reply)
 }
