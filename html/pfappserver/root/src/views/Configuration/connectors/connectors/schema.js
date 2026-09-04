@@ -73,7 +73,27 @@ const schemaInterface = yup.object().shape({
     .test('vlan-max', i18n.t('VLAN ID must be between 1 and 4094.'), value => ['', null, undefined].includes(value) || +value <= 4094),
   cidr: yup.string().nullable()
     .required(i18n.t('IP address required.'))
-    .isHostCidr()
+    .isHostCidr(),
+  dhcp: yup.string().nullable(),
+  dhcp_start: yup.string().nullable().isIpv4()
+    .when('dhcp', {
+      is: 'enabled',
+      then: schema => schema.required(i18n.t('Range start required when DHCP is enabled.'))
+    }),
+  dhcp_end: yup.string().nullable().isIpv4()
+    .when('dhcp', {
+      is: 'enabled',
+      then: schema => schema.required(i18n.t('Range end required when DHCP is enabled.'))
+    }),
+  dhcp_default_lease_time: yup.string().nullable()
+    .test('positive', i18n.t('Must be a positive number of seconds.'), value => ['', null, undefined].includes(value) || (+value > 0 && Number.isInteger(+value))),
+  dhcp_max_lease_time: yup.string().nullable()
+    .test('positive', i18n.t('Must be a positive number of seconds.'), value => ['', null, undefined].includes(value) || (+value > 0 && Number.isInteger(+value))),
+  dns: yup.string().nullable()
+    .test('ipv4-list', i18n.t('Comma separated IPv4 addresses.'), value => ['', null, undefined].includes(value) || `${value}`.split(',').every(ip => /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.test(ip.trim()))),
+  gateway: yup.string().nullable().isIpv4(),
+  domain_name: yup.string().nullable()
+    .matches(/^[A-Za-z0-9.-]*$/, i18n.t('Letters, digits, "." and "-" only.'))
 })
 
 const schemaInterfaces = yup.array().ensure()

@@ -20,8 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 29;
 use Test::NoWarnings;
+
+my %NO_DHCP = map { $_ => '' } qw(dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time dns gateway domain_name);
 
 use pf::connector::site_network qw(
     parse_interface_line format_interface interface_name
@@ -31,23 +33,33 @@ use pf::connector::site_network qw(
 
 is_deeply(
     parse_interface_line("eth0.100 10.10.100.1/24"),
-    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'disabled' },
+    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp => 'disabled', %NO_DHCP },
     "parse a VLAN interface line"
 );
 
 is_deeply(
     parse_interface_line("  ens192.4094   192.168.1.1/30  "),
-    { parent => 'ens192', vlan => 4094, cidr => '192.168.1.1/30', dhcp_relay => 'disabled' },
+    { parent => 'ens192', vlan => 4094, cidr => '192.168.1.1/30', dhcp => 'disabled', %NO_DHCP },
     "surrounding whitespace is ignored"
 );
 
-is_deeply(
-    parse_interface_line("eth0.100 10.10.100.1/24 dhcp"),
-    { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' },
-    "dhcp flag"
-);
+my $dhcp_line = "eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example";
+my $dhcp_if = {
+    parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp => 'enabled',
+    dhcp_start => '10.10.100.10', dhcp_end => '10.10.100.250',
+    dhcp_default_lease_time => '300', dhcp_max_lease_time => '600',
+    dns => '8.8.8.8,8.8.4.4', gateway => '10.10.100.254', domain_name => 'site.example',
+};
+is_deeply(parse_interface_line($dhcp_line), $dhcp_if, "dhcp flag and scope words");
+is(format_interface($dhcp_if), $dhcp_line, "format dhcp scope, round trip");
 is(parse_interface_line("eth0.100 10.10.100.1/24 bogus"), undef, "unknown flag");
-is(format_interface({ parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'enabled' }), "eth0.100 10.10.100.1/24 dhcp", "format with dhcp flag");
+is(parse_interface_line("eth0.100 10.10.100.1/24 dhcp bogus=1"), undef, "unknown key");
+is_deeply(
+    parse_interface_line("eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.20"),
+    { %$dhcp_if, dhcp_start => '10.10.100.10', dhcp_end => '10.10.100.20', dhcp_default_lease_time => '', dhcp_max_lease_time => '', dns => '', gateway => '', domain_name => '' },
+    "absent scope words are empty"
+);
+is(format_interface({ %$dhcp_if, dhcp => 'disabled' }), "eth0.100 10.10.100.1/24", "scope words are dropped when dhcp is disabled");
 
 is(parse_interface_line("eth0 10.10.100.1/24"), undef, "no vlan tag in the name");
 is(parse_interface_line("eth0.100"), undef, "missing address");
@@ -91,8 +103,8 @@ expand_site_network($cfg);
 is_deeply(
     $cfg->{interfaces},
     [
-        { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp_relay => 'disabled' },
-        { parent => 'eth0', vlan => 101, cidr => '10.10.101.1/24', dhcp_relay => 'disabled' },
+        { parent => 'eth0', vlan => 100, cidr => '10.10.100.1/24', dhcp => 'disabled', %NO_DHCP },
+        { parent => 'eth0', vlan => 101, cidr => '10.10.101.1/24', dhcp => 'disabled', %NO_DHCP },
     ],
     "expand interfaces from an array, dropping unparseable lines"
 );

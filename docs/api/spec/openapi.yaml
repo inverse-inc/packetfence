@@ -5527,9 +5527,32 @@ components:
               cidr:
                 description: Host IPv4 address with prefix length (e.g. 10.10.100.1/24)
                 type: string
-              dhcp_relay:
-                description: Relay DHCP received on this VLAN to the PacketFence DHCP
-                  server through the connector (enabled/disabled)
+              dhcp:
+                description: Serve DHCP on this VLAN (enabled/disabled). The connector
+                  relays the requests to the PacketFence DHCP server over HTTP, which
+                  serves the scope described by the dhcp_* fields in the network of cidr.
+                type: string
+              dhcp_default_lease_time:
+                description: Default lease time in seconds (300 when empty)
+                type: integer
+              dhcp_end:
+                description: Last address of the DHCP range
+                type: string
+              dhcp_max_lease_time:
+                description: Maximum lease time in seconds (600 when empty)
+                type: integer
+              dhcp_start:
+                description: First address of the DHCP range
+                type: string
+              dns:
+                description: Comma separated DNS servers handed to the clients
+                type: string
+              domain_name:
+                description: Domain name handed to the clients (optional)
+                type: string
+              gateway:
+                description: Gateway handed to the clients (the interface address when
+                  empty)
                 type: string
               parent:
                 description: Parent (physical) interface name
