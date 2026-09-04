@@ -5527,6 +5527,10 @@ components:
               cidr:
                 description: Host IPv4 address with prefix length (e.g. 10.10.100.1/24)
                 type: string
+              dhcp_relay:
+                description: Relay DHCP received on this VLAN to the PacketFence DHCP
+                  server through the connector (enabled/disabled)
+                type: string
               parent:
                 description: Parent (physical) interface name
                 type: string
