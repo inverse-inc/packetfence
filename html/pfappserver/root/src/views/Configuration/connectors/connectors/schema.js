@@ -75,6 +75,7 @@ const schemaInterface = yup.object().shape({
     .required(i18n.t('IP address required.'))
     .isHostCidr(),
   dhcp: yup.string().nullable(),
+  dns_server: yup.string().nullable(),
   dhcp_start: yup.string().nullable().isIpv4()
     .when('dhcp', {
       is: 'enabled',

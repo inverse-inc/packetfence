@@ -1028,7 +1028,10 @@ type ConnectorInterface struct {
 	Vlan   int    `json:"vlan"`
 	CIDR   string `json:"cidr"`
 	// Dhcp: "enabled"/"disabled".
-	Dhcp                 string `json:"dhcp"`
+	Dhcp string `json:"dhcp"`
+	// DnsServer ("enabled"/"disabled"): the connector answers every DNS
+	// query received on the interface with the interface address.
+	DnsServer            string `json:"dns_server"`
 	DhcpStart            string `json:"dhcp_start"`
 	DhcpEnd              string `json:"dhcp_end"`
 	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`

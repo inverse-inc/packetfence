@@ -5545,7 +5545,12 @@ components:
                 description: First address of the DHCP range
                 type: string
               dns:
-                description: Comma separated DNS servers handed to the clients
+                description: Comma separated DNS servers handed to the clients (the
+                  interface address when empty and dns_server is enabled)
+                type: string
+              dns_server:
+                description: Captive DNS on this VLAN (enabled/disabled), the connector
+                  answers every DNS query with the interface address
                 type: string
               domain_name:
                 description: Domain name handed to the clients (optional)
