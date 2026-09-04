@@ -135,7 +135,19 @@ type PfConfCaptivePortal struct {
 	RateLimiting                 string   `json:"rate_limiting"`
 	RateLimitingThreshold        string   `json:"rate_limiting_threshold"`
 	OtherDomainNames             []string `json:"other_domain_names"`
+	// ConnectorProxyProtocol ("enabled"/"disabled"): haproxy-portal exposes
+	// accept-proxy listeners on ConnectorProxyProtocolPorts and the remote
+	// connectors tunnel the portal ports 80/443 to them with a PROXY protocol
+	// header, so the portal sees the address of the device behind the
+	// connector rather than the tunnel exit.
+	ConnectorProxyProtocol string `json:"connector_proxy_protocol"`
 }
+
+// ConnectorProxyProtocolPorts are the haproxy-portal accept-proxy listener
+// ports (http, https) used when captive_portal.connector_proxy_protocol is
+// enabled. Shared between lib/pf/services/manager/haproxy_portal.pm and the
+// pfconnector server's default remote binds.
+var ConnectorProxyProtocolPorts = struct{ HTTP, HTTPS string }{"8880", "8843"}
 
 type PfConfServices struct {
 	StructConfig
