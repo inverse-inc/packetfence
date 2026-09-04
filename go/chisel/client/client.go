@@ -20,10 +20,12 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
@@ -77,6 +79,8 @@ type Client struct {
 	// an unchanged payload costs nothing but the poll.
 	siteNetwork        *sitenetwork.Reconciler
 	siteNetworkVersion string
+	// dhcpRelay serves DHCP-over-HTTPS on the VLAN interfaces flagged for it.
+	dhcpRelay *dhcprelay.Relay
 }
 
 // NewClient creates a new client instance
@@ -507,6 +511,7 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 
 	last := sitenetwork.LastStatus()
 	if reply.Version == c.siteNetworkVersion && (last == nil || last.Errors == 0) {
+		c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, last)
 		return
 	}
 
@@ -529,4 +534,43 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 			c.Infof("site-network: route %s: %s", st.Destination, st.Error)
 		}
 	}
+	c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, &status)
+}
+
+// syncDhcpRelay keeps one DHCP relay listener per VLAN interface that is
+// flagged dhcp_relay and currently exists on the host (state up or down, not
+// error). Runs every poll; Sync is idempotent and restarts failed listeners.
+// Disabled with PFCONNECTOR_DHCP_RELAY=false.
+func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
+	if v := os.Getenv("PFCONNECTOR_DHCP_RELAY"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	present := map[string]bool{}
+	if status != nil {
+		for _, st := range status.Interfaces {
+			present[st.Name] = st.State != "error"
+		}
+	}
+	wanted := []dhcprelay.Interface{}
+	for _, iface := range ifaces {
+		if !sharedutils.IsEnabled(iface.Dhcp) || !present[iface.Name()] {
+			continue
+		}
+		ip, _, err := net.ParseCIDR(iface.CIDR)
+		if err != nil {
+			continue
+		}
+		wanted = append(wanted, dhcprelay.Interface{Name: iface.Name(), IP: ip})
+	}
+	if c.dhcpRelay == nil {
+		if len(wanted) == 0 {
+			return
+		}
+		c.dhcpRelay = dhcprelay.New(dhcprelay.Config{
+			URL:    fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=%s", connectorID),
+			Logger: c.Infof,
+		})
+	}
+	c.dhcpRelay.Sync(ctx, wanted)
+	dhcprelay.SetLastStatus(c.dhcpRelay.Status())
 }

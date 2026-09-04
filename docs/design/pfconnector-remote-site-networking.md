@@ -1,6 +1,6 @@
 # pfconnector-remote site networking: VLAN interfaces, DHCP-over-HTTPS relay, local DNS (design)
 
-Status: in progress (phase 1: VLAN interfaces, static routes, config model, admin tab)
+Status: in progress (phase 1 VLAN interfaces + static routes done; phase 2 DHCP-over-HTTPS in progress)
 Branch context: `feature/pfconnector-site-networking` (off `clouddevel`)
 Author: design notes
 
@@ -60,27 +60,29 @@ from packet-in to packet-out; only its transport is UDP-specific.
   pfconnector-client  (in the pfconnector-remote container, host netns)
      |  GET /api/v1/pfconnector/site-network?connector-id=<id>   (through tunnel)
      |  netlink reconcile: create/modify/delete eth0.<vid>, set addr, up
-     |  write pfdhcp-relay.ini + Corefile, restart s6 services on change
+     |  in-process DHCP relay listener per "dhcp" interface (chisel/share/dhcprelay)
+     |  write Corefile, restart pfdns-site on change                 (phase 3)
      v
   eth0.100  10.10.100.1/24     eth0.101  10.10.101.1/24   ...
      ^                              ^
      | DHCP :67   DNS :53           |
   +--------------+  +--------------+
-  | pfdhcp-relay |  | pfdns        |   template plugin: every A -> <vlan ip>
+  | dhcprelay    |  | pfdns        |   template plugin: every A -> <vlan ip>
   +--------------+  +--------------+
      |
-     |  POST http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message   (tunnel)
+     |  POST http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=<id>
      |  body: raw DHCP request (giaddr = VLAN interface IP)
      v
-  pfconnector-server (cloud)  ---- check giaddr ∈ connector's declared networks
-     |  POST http://pfdhcp:22227/api/v1/dhcp/message
+  pfconnector-server (cloud)  ---- giaddr must be one of the connector's "dhcp" interfaces
+     |  POST <services_url.pfdhcp | http://127.0.0.1:22222>/api/v1/dhcp/message
      v
-  pfdhcp  ServeDHCP()  ->  reply bytes in the HTTP response body
+  pfdhcp  synthetic "connector" interface, ServeDHCP(srvIP = giaddr)
+          -> reply bytes in the HTTP response body
 ```
 
 Nothing new is exposed. The only new cloud-side listener is a route inside
-pfdhcp's existing API on `127.0.0.1:22227` / the pod's API port, reachable
-solely from the pfconnector-server.
+pfdhcp's existing API (port 22222), reachable solely from the
+pfconnector-server.
 
 ## 3. Component 1: VLAN interface management
 
@@ -173,7 +175,7 @@ the cost of one new pfdhcp handler.
 ```
 POST /api/v1/dhcp/message
 Content-Type: application/dhcp-message
-X-PacketFence-Connector-Id: <id>           (set by pfconnector-server, not trusted from the relay)
+X-PacketFence-Connector-Id: <id>           (set by pfconnector-server, informational)
 
 <raw BOOTP/DHCP message, 300..1500 bytes, giaddr = VLAN interface IP>
 
@@ -186,36 +188,39 @@ X-PacketFence-Connector-Id: <id>           (set by pfconnector-server, not trust
 No JSON, no base64: the body *is* the packet. giaddr already carries the only
 routing information pfdhcp needs.
 
-### 4.3 pfdhcp changes (`go/cmd/pfdhcp`)
+### 4.3 pfdhcp changes (`go/cmd/pfdhcp`) — implemented
 
-1. **Route** `POST /api/v1/dhcp/message` in `setupAPIRoutes()` (`main.go:1028`),
-   handler in `api.go`. Parse the body with `dhcp.Packet`, extract message
-   type, call `ServeDHCP`, write `Answer.D` back. This bypasses
-   `workers_pool.go` entirely: the HTTP response is the reply channel, so the
-   giaddr / source-IP / raw-socket branching there is irrelevant.
+1. **Route** `POST /api/v1/dhcp/message` (`api.go: handleMessage`). Parses the
+   body, requires a relayed BOOTREQUEST (giaddr set), calls `ServeDHCP` on the
+   synthetic interface with `srvIP = giaddr` and returns `Answer.D` (200) or
+   204 when pfdhcp has nothing to say. The worker pool and its giaddr /
+   source-IP / raw-socket reply logic are bypassed entirely.
 
-2. **A home for relayed scopes.** Routed networks today attach to the
-   interface whose IP contains `next_hop` (`config.go:146`); no pod interface
-   will. Add one synthetic `Interface{Name: "connector", InterfaceType: "api"}`
-   in `readConfig()` that owns every network flagged as connector-relayed (see
-   §6.2). It has no socket and is never passed to `startNetworkListeners()`.
+2. **Scopes come from connectors.conf, not networks.conf.** Each connector
+   VLAN interface with `dhcp` enabled carries its own scope (range, lease
+   times, DNS, gateway, domain). `buildConnectorInterface` (`config.go`)
+   translates every such interface into a `RessourseNetworkConf` (network and
+   netmask from the interface CIDR, the interface address reserved out of the
+   pool) and feeds the shared `buildPlainScope` helper, extracted from the
+   former inline "plain network" branch so both paths build identical scopes.
 
-3. **Server identifier = giaddr.** `ServeDHCP` sets `answer.SrcIP = I.Ipv4`
-   and the handlers use `I.Ipv4` as option 54 / siaddr. For the HTTP path we
-   shallow-copy the synthetic interface per request with `Ipv4 = p.GIAddr()`.
-   Effect: clients see the connector's VLAN IP as their DHCP server, so unicast
-   RENEW/REBIND go to the relay on port 67 and are forwarded the same way.
-   Without this, renewals would target an unreachable cloud IP and clients
-   would fall back to broadcast after T2.
+3. **Synthetic interface** `Interface{Name: "connector", InterfaceType: "api"}`
+   owns those scopes. It is registered in `intNametoInterface` (so the stats
+   API works) but `startNetworkListeners` opens no socket for it,
+   `VIP["connector"]` is set to true at start-up, and the duplicate-address
+   ping in `handleDiscover` is skipped for it (`sharedutils.Ping` fatals on an
+   unknown interface).
 
-4. **`VIP[I.Name]`** check: register the synthetic name as always-VIP, or make
-   the check skip `InterfaceType == "api"`. Same for `lockTransaction`, which
-   is already per-interface and keeps working.
+4. **Server identifier = giaddr.** `ServeDHCP` already takes a `srvIP`
+   parameter that `setOptionServerIdentifier` prefers over the scope IP; the
+   HTTP handler passes giaddr, so option 54 / siaddr is the connector's VLAN
+   IP and unicast RENEW/REBIND land on the relay. The scope IP itself is also
+   the interface address, so the option-54 check in `handleRequest` passes.
 
-5. **Pool backend.** With more than one pfdhcp replica behind the Service the
-   connector-relayed networks must use the shared pool backend
-   (`pool_backend=mysql`), not `memory`. Enforce it in `readConfig()` for
-   connector networks and log loudly otherwise.
+5. **`PFDHCP_DOH_ONLY=true`** (cloud): no scope is built for the local
+   interfaces and no UDP listener starts; pfdhcp serves only over HTTP.
+   `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` shares connector leases between
+   replicas.
 
 ### 4.4 pfconnector-server change (`go/chisel/server/server_handler.go`)
 
@@ -237,35 +242,25 @@ case apiPrefix + "/dhcp-message":
 - forwards the body verbatim to `http://<pfdhcp service>:22227/api/v1/dhcp/message`
   with a 1.5 s timeout and streams the response back. Size cap 1500 bytes.
 
-### 4.5 Relay agent on the connector host
+### 4.5 Relay agent on the connector host — implemented in-process
 
-Reuse `fdurand/standalone_dhcp`, moved in-tree as `go/cmd/pfdhcp-relay`
-(it already imports `github.com/inverse-inc/packetfence/go/...`, so it
-becomes a normal target of the Go build and ships in the image). Its relay
-mode (`interface.go:71-180`) already:
+Rather than shipping standalone_dhcp as a second daemon with a generated ini,
+the relay is a package inside pfconnector-client
+(`go/chisel/share/dhcprelay`), modelled on standalone_dhcp's relay mode with
+the UDP forward replaced by the HTTP round trip. The client's site-network
+poll calls `Relay.Sync` with the VLAN interfaces flagged `dhcp` that exist on
+the host; Sync starts one listener per interface (UDP/67, `SO_BINDTODEVICE`,
+`SO_REUSEADDR`), stops removed ones and restarts failed ones.
 
-- listens on the VLAN interfaces (`listen=` / `relay=` in the ini), unicast
-  and broadcast;
-- rewrites DISCOVER/REQUEST/RELEASE/DECLINE with `giaddr = interface IP`;
-- turns OFFER/ACK/NAK back into a client-facing reply and sends it with
-  `rawClient.go` (broadcast or unicast depending on the flags/ciaddr).
-
-The change is confined to `workers_pool.go:27-40`: where it currently does
-`sendUnicastDHCP(ans.D, relayIP, ...)`, add a `relay_transport=http` mode that
-POSTs `ans.D` to `http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message`
-and, on `200`, feeds the response body back through the existing
-OFFER/ACK/NAK path. Config:
-
-```ini
-[interfaces]
-relay=eth0.100:http,eth0.101:http
-relay_url=http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message
-relay_timeout=1500ms
-```
-
-Generated by the reconcile loop (§3.3) into
-`/usr/local/pf/var/conf/pfdhcp-relay.ini`; the s6 service is restarted when
-the file's hash changes.
+Per request: set giaddr to the interface address (kept when another relay
+already set it), bump hops, POST to
+`http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=<id>`,
+deliver the reply per RFC 1542 §4.1.2: plain unicast to a client that sent
+from its own address (renew/rebind/inform), otherwise layer-2 broadcast when
+the broadcast flag is set or yiaddr is empty (NAK), otherwise a hand-built
+Ethernet/IP/UDP frame to chaddr / yiaddr (the client cannot be ARPed yet).
+Counters and errors per listener are exposed in `/api/v1/system/info` as
+`dhcp_relay`. `PFCONNECTOR_DHCP_RELAY=false` disables it.
 
 ### 4.6 Timing rules
 
@@ -334,27 +329,23 @@ overlapping CIDRs across connectors; a route needs at least a gateway or an
 interface, and a named interface must be one of the connector's VLAN
 interfaces.
 
-### 6.2 `networks.conf`
+### 6.2 DHCP scope on the interface (no networks.conf change)
 
-The scope for each VLAN is a normal network entry with `dhcpd=enabled`, plus
-one new key:
+The DHCP scope is part of the interface row, so it stays next to the VLAN it
+serves and travels with the connector:
 
 ```ini
-[10.10.100.0]
-netmask=255.255.255.0
-gateway=10.10.100.254          # the site router
-dhcp_start=10.10.100.10
-dhcp_end=10.10.100.250
-dhcpd=enabled
-connector=site-a               # NEW: served via the connector DoH path
-pool_backend=mysql
-dns=10.10.100.1                # the VLAN interface -> pfdns-site
+interfaces=<<EOT
+eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example
+EOT
 ```
 
-`connector=<id>` is what `readConfig()` uses to attach the network to the
-synthetic interface (§4.3 item 2), and what the admin form uses to offer a
-"Served by connector" dropdown on the network page. `dns` should point at the
-VLAN IP so devices resolve everything to the portal.
+Structured form: `dhcp` (enabled/disabled), `dhcp_start`, `dhcp_end`,
+`dhcp_default_lease_time`, `dhcp_max_lease_time`, `dns`, `gateway`,
+`domain_name`. The form checks the range lies inside the interface's network
+and excludes the interface address, and that the gateway is in the network.
+pfdhcp derives network, netmask and server identifier from the interface
+CIDR; nothing is declared in networks.conf.
 
 ### 6.3 Push to the connector
 

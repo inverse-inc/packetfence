@@ -11,6 +11,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
 	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -49,6 +50,9 @@ type SystemInfo struct {
 	// reconcile pass (see chisel/share/sitenetwork). Omitted until the first
 	// pass ran; the admin UI shows it in the connector's Networking tab.
 	SiteNetwork *sitenetwork.Status `json:"site_network,omitempty"`
+	// DhcpRelay lists the DHCP-over-HTTPS relay listeners (one per VLAN
+	// interface flagged dhcp_relay) with their counters.
+	DhcpRelay []dhcprelay.Status `json:"dhcp_relay,omitempty"`
 }
 
 // systemInfo reports resource usage of the box running the
@@ -62,6 +66,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
 			LogFiles:        availableLogFiles(api),
 			SiteNetwork:     sitenetwork.LastStatus(),
+			DhcpRelay:       dhcprelay.LastStatus(),
 		}
 		info.Hostname, _ = os.Hostname()
 
