@@ -13,6 +13,19 @@ mkdir -p "$(dirname "$STATE_FILE")"
 echo "$STATE" > "$STATE_FILE"
 echo "$(date '+%Y/%m/%d %H:%M:%S') ha-notify: VRRP state $STATE (priority ${4:-?})"
 
+# Not master: the site-network VLAN addresses belong to the master. keepalived
+# removes the ones it knows as virtual IPs; also drop any address left on a
+# connector-owned VLAN link (alias pf-connector) that keepalived does not know,
+# e.g. assigned before HA was enabled or while this host had no config cache.
+if [ "$STATE" != "MASTER" ]; then
+    for link in $(ip -o link show type vlan 2>/dev/null | awk -F': ' '{print $2}' | cut -d@ -f1); do
+        ip -d link show "$link" 2>/dev/null | grep -qw "alias pf-connector" || continue
+        if [ -n "$(ip -4 -o addr show dev "$link" 2>/dev/null)" ]; then
+            ip -4 addr flush dev "$link" && echo "$(date '+%Y/%m/%d %H:%M:%S') ha-notify: released the IPv4 address(es) of $link (not master)"
+        fi
+    done
+fi
+
 if [ "$STATE" = "MASTER" ]; then
     (
         for _ in $(seq 1 90); do

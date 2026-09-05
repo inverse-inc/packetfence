@@ -15,8 +15,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -56,6 +58,11 @@ type Config struct {
 	// terminal use the first address to reach this connector. HA mode sets
 	// it to the VIP.
 	PreferredIP string
+	// HA is set by the HA client loop (PFCONNECTOR_HA_VIP): the VLAN
+	// interface addresses of the site network then move with the VIP, so
+	// the site-network config is cached on disk and keepalived is refreshed
+	// whenever it changes (see docs/design/pfconnector-remote-ha.md).
+	HA bool
 }
 
 // TLSConfig for a Client
@@ -89,6 +96,11 @@ type Client struct {
 	dhcpRelay *dhcprelay.Relay
 	// dnsResponder is the captive DNS on the VLAN interfaces flagged for it.
 	dnsResponder *dnsresponder.Responder
+	// siteServicesMu serialises the relay/responder syncs with Close, so a
+	// sync in flight cannot restart listeners that Close just stopped
+	// (HA: the client is closed when the host gives up the VIP).
+	siteServicesMu sync.Mutex
+	closing        bool
 }
 
 // NewClient creates a new client instance
@@ -490,6 +502,21 @@ func (c *Client) Close() error {
 	if c.stop != nil {
 		c.stop()
 	}
+	// The DHCP relay and captive DNS listeners are bound to the VLAN
+	// interface addresses; they are not tied to the context, and on an HA
+	// host those addresses move to the new master with the VIP, so release
+	// them here.
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	c.closing = true
+	if c.dhcpRelay != nil {
+		c.dhcpRelay.Stop()
+		dhcprelay.SetLastStatus(nil)
+	}
+	if c.dnsResponder != nil {
+		c.dnsResponder.Stop()
+		dnsresponder.SetLastStatus(nil)
+	}
 	return nil
 }
 
@@ -557,6 +584,9 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 		c.Infof("Unable to parse site network config: %s", err)
 		return
 	}
+	if reply.Version != c.siteNetworkVersion {
+		c.cacheSiteNetwork(reply)
+	}
 
 	last := sitenetwork.LastStatus()
 	if reply.Version == c.siteNetworkVersion && (last == nil || last.Errors == 0) {
@@ -573,11 +603,15 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 	if reply.Version != c.siteNetworkVersion {
 		c.Infof("Applied site network config %s: %d interface(s), %d route(s), %d error(s)", reply.Version, len(status.Interfaces), len(status.Routes), status.Errors)
 	}
+	versionChanged := reply.Version != c.siteNetworkVersion
 	c.siteNetworkVersion = reply.Version
 	for _, st := range status.Interfaces {
 		if st.Error != "" {
 			c.Infof("site-network: %s: %s", st.Name, st.Error)
 		}
+	}
+	if c.config.HA && versionChanged {
+		c.refreshKeepalived()
 	}
 	for _, st := range status.Routes {
 		if st.Error != "" {
@@ -594,6 +628,11 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 // on the link). Disabled with PFCONNECTOR_DNS_RESPONDER=false.
 func (c *Client) syncDnsResponder(ctx context.Context, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
 	if v := os.Getenv("PFCONNECTOR_DNS_RESPONDER"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	if c.closing {
 		return
 	}
 	present := map[string]bool{}
@@ -631,6 +670,11 @@ func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces [
 	if v := os.Getenv("PFCONNECTOR_DHCP_RELAY"); v == "false" || v == "disabled" || v == "0" {
 		return
 	}
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	if c.closing {
+		return
+	}
 	present := map[string]bool{}
 	if status != nil {
 		for _, st := range status.Interfaces {
@@ -659,4 +703,60 @@ func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces [
 	}
 	c.dhcpRelay.Sync(ctx, wanted)
 	dhcprelay.SetLastStatus(c.dhcpRelay.Status())
+}
+
+// siteNetworkCachePath is where the last site-network payload is kept on the
+// connector host (var/conf is bind-mounted, so it survives restarts). In HA
+// mode configure-keepalived.sh reads it at boot to create the VLAN links and
+// declare their addresses as virtual IPs: a backup host has no tunnel to
+// fetch the config from, yet keepalived must know the VLAN addresses to move
+// them with the VIP.
+var siteNetworkCachePath = sharedutils.EnvOrDefault("PFCONNECTOR_SITE_NETWORK_CACHE", "/usr/local/pf/var/conf/site-network.json")
+
+// cacheSiteNetwork writes the payload to siteNetworkCachePath (atomically).
+func (c *Client) cacheSiteNetwork(reply siteNetworkReply) {
+	data, err := json.MarshalIndent(reply, "", "  ")
+	if err != nil {
+		return
+	}
+	if current, err := os.ReadFile(siteNetworkCachePath); err == nil && bytes.Equal(current, data) {
+		return
+	}
+	tmp := siteNetworkCachePath + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+		c.Debugf("Unable to cache the site network config: %s", err)
+		return
+	}
+	if err := os.Rename(tmp, siteNetworkCachePath); err != nil {
+		c.Debugf("Unable to cache the site network config: %s", err)
+	}
+}
+
+// keepalived integration points inside the connector-remote container.
+const (
+	configureKeepalivedScript = "/usr/local/pf/sbin/configure-keepalived.sh"
+	keepalivedServiceDir      = "/run/service/keepalived"
+	s6svcBinary               = "/command/s6-svc"
+)
+
+// refreshKeepalived re-renders keepalived.conf from the env file and the
+// site-network cache (VLAN interface addresses become virtual IPs) and asks
+// keepalived to reload it, so a VLAN added or removed in the admin UI moves
+// with the VIP from now on. No-op outside the container.
+func (c *Client) refreshKeepalived() {
+	if _, err := os.Stat(configureKeepalivedScript); err != nil {
+		return
+	}
+	if out, err := exec.Command(configureKeepalivedScript).CombinedOutput(); err != nil {
+		c.Infof("HA: unable to refresh keepalived.conf: %s: %s", err, strings.TrimSpace(string(out)))
+		return
+	}
+	if _, err := os.Stat(keepalivedServiceDir); err != nil {
+		return
+	}
+	if out, err := exec.Command(s6svcBinary, "-h", keepalivedServiceDir).CombinedOutput(); err != nil {
+		c.Infof("HA: unable to reload keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+		return
+	}
+	c.Infof("HA: keepalived reloaded with the VLAN interface addresses of site network config %s", c.siteNetworkVersion)
 }
