@@ -55,7 +55,7 @@ from packet-in to packet-out; only its transport is UDP-specific.
      v
   connectors.conf  [<id>] interfaces=...               (pfconfig)
      |
-     |  polled every 5s together with remote-binds
+     |  polled every 5s on its own ticker (remote-binds blocks while bound)
      v
   pfconnector-client  (in the pfconnector-remote container, host netns)
      |  GET /api/v1/pfconnector/site-network?connector-id=<id>   (through tunnel)
@@ -341,7 +341,9 @@ CIDR; nothing is declared in networks.conf.
 ### 6.3 Push to the connector
 
 New server route `GET /api/v1/pfconnector/site-network?connector-id=<id>`
-(`server_handler.go`), same shape and same 5 s poll as `remote-binds`:
+(`server_handler.go`), same shape as `remote-binds`, polled every 5 s by a dedicated
+client goroutine (`siteNetworkLoop`; the `remote-binds` loop cannot host it because
+`BindRemotes` blocks for as long as the binds are up):
 
 ```json
 {
@@ -369,6 +371,14 @@ the server; the connector keeps nothing but the last applied payload in
   interface, state: applied|error, error}`.
 - `TheStatus.vue` (`html/pfappserver/root/src/views/Configuration/connectors/_components/`)
   renders it as a small table under the existing service status.
+- `SystemInfo` also gains `host_interfaces`: the connector host's interfaces
+  (`{name, up, addresses[], main}`, loopback excluded; `main` marks the
+  interface holding the IPv4 default route, listed first). `TheForm.vue`
+  fetches the remote status once and provides them to the Networking tab: the
+  parent of a VLAN interface is chosen among the non-VLAN names (still
+  taggable) and a new row is preset to the main interface; the interface of a
+  static route is chosen among host interfaces plus the VLAN interfaces
+  configured in the form.
 - The connector form gets a `BaseFormGroupInterfaces.js` modelled on the
   existing `BaseFormGroupNetworks.js`.
 - pfdhcp's existing `GET /api/v1/dhcp/stats/connector/<network>` works
