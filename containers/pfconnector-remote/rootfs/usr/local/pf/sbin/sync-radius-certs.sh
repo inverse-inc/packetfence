@@ -2,12 +2,24 @@
 
 set -e
 
+# Oneshots run without the container env: load pfconnector-client.env.
+. /usr/local/pf/sbin/pfconnector-env.sh
+
 RADIUS_SSL=/usr/local/pf/conf/ssl
 CRT_FILE="$RADIUS_SSL"/radius_default_tls-common.crt
 CA_FILE="$RADIUS_SSL"/radius_default_tls-common.pem
 KEY_FILE="$RADIUS_SSL"/radius_default_tls-common.key
 
-RET=$(curl -s -f "http://localhost:22226/api/v1/pfconnector/remote-radius-conf")
+if ! RET=$(curl -s -f "http://localhost:22226/api/v1/pfconnector/remote-radius-conf"); then
+    # HA backup host: no tunnel until it takes the VIP; the certs synced by a
+    # previous run (or copied from the peer) stay valid.
+    if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && [ -s "$CRT_FILE" ] && [ -s "$KEY_FILE" ] && [ -s "$CA_FILE" ]; then
+        echo "WARNING: pfconnector API unreachable, keeping the existing RADIUS certs"
+        exit 0
+    fi
+    echo "Error: unable to fetch the RADIUS certs from the pfconnector API" >&2
+    exit 1
+fi
 
 CA=$(echo "$RET" | jq -r '.ca')
 KEY=$(echo "$RET" | jq -r '.private_key')

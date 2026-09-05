@@ -43,6 +43,7 @@ var logFiles = map[string]string{
 	"radiusd-auth":         "/usr/local/pf/logs/radiusd-auth.log",
 	"fingerbank-collector": "/usr/local/pf/logs/fingerbank-collector.log",
 	"connector-cache":      "/usr/local/pf/logs/connector-cache.log",
+	"keepalived":           "/usr/local/pf/logs/keepalived.log",
 	"upgrade":              "/usr/local/pf/conf/upgrade.log",
 }
 

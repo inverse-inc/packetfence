@@ -47,6 +47,29 @@ echo "PFCONNECTOR_TERMINAL=true" >> /usr/local/pfconnector-remote/conf/pfconnect
 # allow the terminal with only the admin-initiated one-time session.
 echo "PFCONNECTOR_TERMINAL_TOTP=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 
+# High availability: two hosts share this connector id; a VRRP virtual IP
+# moves between them and only the VIP owner holds the tunnel. Switches, the
+# captive portal redirection and DHCP relays must point at the VIP.
+# See docs/design/pfconnector-remote-ha.md.
+if prompt "Is this host part of a high-availability pair (VRRP virtual IP)?"; then
+  echo -n "Virtual IP with prefix length (e.g. 10.0.0.250/24): "
+  read ha_vip
+  echo "PFCONNECTOR_HA_VIP=$ha_vip" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+  default_iface=$(ip route get 1.1.1.1 2>/dev/null | awk '/dev/ {for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
+  echo -n "Interface carrying the VIP [${default_iface:-eth0}]: "
+  read ha_iface
+  echo "PFCONNECTOR_HA_INTERFACE=${ha_iface:-${default_iface:-eth0}}" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+  echo -n "VRRP priority, use 100 on the first host and 90 on the second [100]: "
+  read ha_priority
+  echo "PFCONNECTOR_HA_PRIORITY=${ha_priority:-100}" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+  echo -n "Peer host IP for unicast VRRP (leave empty for multicast): "
+  read ha_peer
+  if [ -n "$ha_peer" ]; then
+    echo "PFCONNECTOR_HA_PEER=$ha_peer" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+  fi
+  echo "Copy conf/terminal_totp from the first host to the second so one terminal enrollment works for both."
+fi
+
 # The TOTP seed gating remote terminal access (conf/terminal_totp) is
 # generated and displayed as a QR code by the package postinst; the
 # pfconnector-client generates it on first start if it is missing. Run
