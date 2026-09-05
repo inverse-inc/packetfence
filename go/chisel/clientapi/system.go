@@ -89,7 +89,7 @@ func hostInterfaces() []HostInterface {
 	main := defaultRouteInterface()
 	out := []HostInterface{}
 	for _, iface := range ifaces {
-		if iface.Flags&net.FlagLoopback != 0 {
+		if iface.Flags&net.FlagLoopback != 0 || isContainerInterface(iface.Name) {
 			continue
 		}
 		hi := HostInterface{Name: iface.Name, Up: iface.Flags&net.FlagUp != 0, Addresses: []string{}, Main: iface.Name == main}
@@ -107,6 +107,15 @@ func hostInterfaces() []HostInterface {
 		return out[i].Name < out[j].Name
 	})
 	return out
+}
+
+// isContainerInterface reports whether name is an interface of the container
+// runtime on the connector host (Docker's default bridge, the bridges of its
+// user-defined networks and the container-side veth pairs). They are not
+// site-facing and would only clutter the parent/interface choices in the
+// admin UI.
+func isContainerInterface(name string) bool {
+	return name == "docker0" || strings.HasPrefix(name, "br-") || strings.HasPrefix(name, "veth")
 }
 
 // defaultRouteInterface returns the name of the interface holding the IPv4
