@@ -8,6 +8,10 @@
             <b-badge v-if="status" :variant="status.connected ? 'success' : 'danger'" class="ml-2">
               {{ status.connected ? $i18n.t('Connected') : $i18n.t('Disconnected') }}
             </b-badge>
+            <b-badge v-if="ha" :variant="haPeersAlive.length ? 'info' : 'warning'" class="ml-1"
+              :title="haPeersAlive.length ? $i18n.t('High availability: {n} backup host(s) alive', { n: haPeersAlive.length }) : $i18n.t('High availability: no backup host reporting')">
+              {{ $i18n.t('HA') }} · {{ ha.vip }}
+            </b-badge>
           </h6>
           <small v-if="lastRefresh" class="text-muted">{{ $i18n.t('Last refreshed') }}: {{ lastRefresh }}</small>
         </b-col>
@@ -86,6 +90,45 @@
               </b-tbody>
             </b-table-simple>
             <p v-else class="text-muted mb-0">{{ $i18n.t('System information unavailable.') }}</p>
+
+            <template v-if="ha">
+              <h6 class="text-secondary mt-3">{{ $i18n.t('High Availability') }}</h6>
+              <p class="mb-1 small text-muted">
+                {{ $i18n.t('Virtual IP {vip}: the host holding it runs the tunnel; the others report to it over the site network. Configure switches, portal redirection and DHCP relays with the virtual IP.', { vip: ha.vip }) }}
+              </p>
+              <b-table-simple small class="mb-0">
+                <b-thead>
+                  <b-tr>
+                    <b-th>{{ $i18n.t('Host') }}</b-th>
+                    <b-th>{{ $i18n.t('Role') }}</b-th>
+                    <b-th>{{ $i18n.t('Version') }}</b-th>
+                    <b-th>{{ $i18n.t('Since / Last seen') }}</b-th>
+                    <b-th>{{ $i18n.t('Status') }}</b-th>
+                  </b-tr>
+                </b-thead>
+                <b-tbody>
+                  <b-tr>
+                    <b-td class="text-monospace">{{ ha.hostname || status.system.hostname }}</b-td>
+                    <b-td>{{ $i18n.t('master') }}</b-td>
+                    <b-td>{{ status.system.version }}</b-td>
+                    <b-td>{{ formatDate(ha.since) }}</b-td>
+                    <b-td><b-badge variant="success">{{ $i18n.t('holds the VIP') }}</b-badge></b-td>
+                  </b-tr>
+                  <b-tr v-for="peer in ha.peers" :key="peer.hostname">
+                    <b-td class="text-monospace">{{ peer.hostname }} <small class="text-muted">{{ peer.address }}</small></b-td>
+                    <b-td>{{ $i18n.t(peer.state || 'backup') }}<template v-if="peer.priority"> <small class="text-muted">({{ $i18n.t('priority') }} {{ peer.priority }})</small></template></b-td>
+                    <b-td>{{ peer.version }}</b-td>
+                    <b-td>{{ formatDate(peer.last_seen) }}</b-td>
+                    <b-td>
+                      <b-badge :variant="peer.alive ? 'success' : 'danger'">{{ peer.alive ? $i18n.t('alive') : $i18n.t('not reporting') }}</b-badge>
+                    </b-td>
+                  </b-tr>
+                </b-tbody>
+              </b-table-simple>
+              <b-alert :show="!haPeersAlive.length" variant="warning" class="mt-2 mb-0 py-1 small">
+                {{ $i18n.t('No backup host is reporting to the master: a failure of this host would interrupt the service.') }}
+              </b-alert>
+            </template>
           </b-col>
           <b-col md="6">
             <h6 class="text-secondary">{{ $i18n.t('Static Connections') }}</h6>
@@ -442,6 +485,21 @@ export const setup = (props, context) => {
     return value.toFixed(2)
   }
 
+  // HA state reported by the master (the only host with a tunnel); peers are
+  // the backups heard through their LAN heartbeats.
+  const ha = computed(() => {
+    const { system: { ha: state } = {} } = status.value || {}
+    return (state && state.enabled) ? state : null
+  })
+  const haPeersAlive = computed(() => ((ha.value && ha.value.peers) || []).filter(peer => peer.alive))
+
+  const formatDate = value => {
+    if (!value)
+      return '-'
+    const date = new Date(value)
+    return isNaN(date.getTime()) ? '-' : date.toLocaleString()
+  }
+
   const formatUptime = seconds => {
     if (!seconds && seconds !== 0)
       return '-'
@@ -484,6 +542,9 @@ export const setup = (props, context) => {
     upgrade,
     openTerminal,
     authorizeTerminal,
+    ha,
+    haPeersAlive,
+    formatDate,
     formatBytes,
     formatPercent,
     formatLoad,

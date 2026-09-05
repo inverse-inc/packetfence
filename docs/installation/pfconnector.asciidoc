@@ -105,6 +105,41 @@ When a connector-remote reports an older version than the PacketFence server, it
 
 Every package installed this way is still signature-verified against the PacketFence archive keyring, downgrades are refused, and the whole operation is logged on the connector host in [filename]`/usr/local/pfconnector-remote/conf/upgrade.log`.
 
+===== High Availability
+
+Two (or more) connector hosts can serve the same site as an active/passive pair. They are installed with the *same* connector ID and secret and share a virtual IP (VIP) moved between them with VRRP (keepalived runs inside the connector container). Only the host holding the VIP opens the tunnel to PacketFence; the others stand by, and the switches, the captive portal redirection and the DHCP relays are configured with the VIP so nothing on the site refers to a particular host.
+
+Prerequisites:
+
+ * the hosts are on the same layer-2 network, with one free IP address on it for the VIP;
+ * VRRP traffic is allowed between the hosts (IP protocol 112 to 224.0.0.18, or unicast to the peers, see below);
+ * one connector is created in the admin interface for the whole group, exactly as for a single host.
+
+Install the package on every host as described in the Installation section above, using the same Connector ID and secret. When `pfconnector-configure` asks whether the host is part of a high-availability pair, answer `y` and provide:
+
+ * the VIP with its prefix length, for example `10.0.0.250/24`;
+ * the interface carrying the VIP (the interface of the default route is proposed);
+ * the VRRP priority: `100` on the first host, `90` on the second, `80` on a third, and so on;
+ * optionally the IP addresses of the other hosts, comma separated, to use unicast VRRP instead of multicast.
+
+These answers are stored in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` as `PFCONNECTOR_HA_VIP`, `PFCONNECTOR_HA_INTERFACE`, `PFCONNECTOR_HA_PRIORITY` and `PFCONNECTOR_HA_PEER`; `PFCONNECTOR_HA_VRID` (default `51`) must only be changed when another VRRP group uses that id on the same network. Restart the packetfence-pfconnector-remote-combined service after editing the file.
+
+Copy [filename]`/usr/local/pfconnector-remote/conf/terminal_totp` from the first host to the others so a single authenticator enrollment opens the remote terminal on whichever host is active.
+
+Then point the network at the VIP: use it as the RADIUS server address on the switches and access points, as the target of the captive portal redirection and as the DHCP relay (IP helper) destination. Requests are answered from the VIP.
+
+How it behaves:
+
+ * The host with the highest priority takes the VIP and connects the tunnel; the connector shows as connected in the admin interface. The other hosts report to it over the local network every few seconds.
+ * The connector's status panel shows an _HA_ badge with the VIP and a _High Availability_ table listing the active host and every standby host with its version and the time of its last report. A warning appears when no standby host is reporting.
+ * When the active host fails, VRRP elects the next one within about three seconds; it takes the VIP, opens the tunnel and is fully proxying RADIUS to PacketFence within roughly ten to twenty seconds. In between, its local FreeRADIUS answers in degraded mode (MAB accepted, EAP terminated with the certificates issued by PacketFence, cached authorizations replayed), exactly as a single connector does when its tunnel drops.
+ * A recovered host does not take the VIP back (`nopreempt`), which avoids a second interruption. To move the service back, stop the keepalived service on the active host or restart its container.
+ * A host whose FreeRADIUS stops answering lowers its VRRP priority and gives the VIP away. Loss of connectivity to PacketFence does not trigger a failover, since all hosts would be affected alike.
+
+The active host's keepalived log is available in the admin interface log viewer and on the host in [filename]`/usr/local/pfconnector-remote/logs/keepalived.log`; the VRRP state is in [filename]`/usr/local/pfconnector-remote/var/run/ha_state`.
+
+NOTE: A standby host that never held the VIP cannot fetch the RADIUS configuration from PacketFence at boot (it has no tunnel), so its FreeRADIUS starts only when it first becomes active, a few seconds after taking the VIP. Once it has been active once, the configuration is cached on the host and later boots start FreeRADIUS immediately.
+
 ===== NTLM Authentication Behind a Connector
 
 When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM authentication requires two additional services to be installed on each pfconnector-remote host where the domain is used:
