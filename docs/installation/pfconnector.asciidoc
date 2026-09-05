@@ -135,6 +135,7 @@ How it behaves:
  * When the active host fails, VRRP elects the next one within about three seconds; it takes the VIP, opens the tunnel and is fully proxying RADIUS to PacketFence within roughly ten to twenty seconds. In between, its local FreeRADIUS answers in degraded mode (MAB accepted, EAP terminated with the certificates issued by PacketFence, cached authorizations replayed), exactly as a single connector does when its tunnel drops.
  * A recovered host does not take the VIP back (`nopreempt`), which avoids a second interruption. To move the service back, stop the keepalived service on the active host or restart its container.
  * A host whose FreeRADIUS stops answering lowers its VRRP priority and gives the VIP away. Loss of connectivity to PacketFence does not trigger a failover, since all hosts would be affected alike.
+ * The VLAN interfaces configured in the connector's _Networking_ tab exist on every host, but their addresses (the VLAN gateway, DHCP relay source and captive DNS address) are virtual IPs that move with the connector VIP, so the DHCP and DNS service of the VLANs follows the active host.
 
 The active host's keepalived log is available in the admin interface log viewer and on the host in [filename]`/usr/local/pfconnector-remote/logs/keepalived.log`; the VRRP state is in [filename]`/usr/local/pfconnector-remote/var/run/ha_state`.
 

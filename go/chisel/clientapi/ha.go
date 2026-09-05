@@ -138,7 +138,7 @@ func HAStatusSnapshot() *HAStatus {
 		p.Alive = now.Sub(p.LastSeen) < haPeerTimeout
 		copied.Peers = append(copied.Peers, p)
 	}
-	sort.Slice(copied.Peers, func(i, j int) bool { return copied.Peers[i].Hostname < copied.Peers[j].Hostname })
+	sort.Slice(copied.Peers, func(i, j int) bool { return copied.Peers[i].Address < copied.Peers[j].Address })
 	return &copied
 }
 
@@ -229,8 +229,9 @@ func haHeartbeat(api *API) http.HandlerFunc {
 		if i := strings.LastIndex(addr, ":"); i > 0 {
 			addr = addr[:i]
 		}
+		// Keyed by sender address: cloned VMs often share a hostname.
 		haStatusMu.Lock()
-		haPeers[hb.Hostname] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now()}
+		haPeers[addr] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now()}
 		haStatusMu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
