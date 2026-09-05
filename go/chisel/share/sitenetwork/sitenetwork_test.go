@@ -133,15 +133,24 @@ func (f *fakeNetlink) RouteListFiltered(family int, filter *netlink.Route, mask 
 
 func (f *fakeNetlink) RouteReplace(route *netlink.Route) error {
 	f.writes = append(f.writes, "RouteReplace "+routeKey(route))
+	// Like the kernel: a gateway route installed without a device gets the
+	// output device resolved from the gateway.
+	stored := *route
+	if stored.LinkIndex == 0 && stored.Gw != nil {
+		stored.LinkIndex = resolvedLinkIndex
+	}
 	for i, r := range f.routes {
-		if routeKey(&r) == routeKey(route) {
-			f.routes[i] = *route
+		if routeMatches(route, &r) {
+			f.routes[i] = stored
 			return nil
 		}
 	}
-	f.routes = append(f.routes, *route)
+	f.routes = append(f.routes, stored)
 	return nil
 }
+
+// resolvedLinkIndex is the device the fake kernel picks for gateway routes.
+const resolvedLinkIndex = 2
 
 func (f *fakeNetlink) RouteDel(route *netlink.Route) error {
 	f.writes = append(f.writes, "RouteDel "+routeKey(route))
@@ -348,5 +357,40 @@ func TestReconcileParentDownIsReported(t *testing.T) {
 	}
 	if st.Interfaces[0].State != "down" {
 		t.Errorf("state = %s, want down", st.Interfaces[0].State)
+	}
+}
+
+// A gateway route configured without an interface must survive the pass: the
+// installed route carries the kernel-resolved device and must still be
+// recognised as ours (regression: the reconciler deleted its own route).
+func TestGatewayRouteWithoutInterfaceIsKept(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	desired := Desired{Routes: []pfconfigdriver.ConnectorRoute{{Destination: "192.168.123.0/24", Gateway: "10.0.0.254"}}}
+	status := r.Reconcile(context.Background(), "v1", desired)
+	if status.Errors != 0 || len(status.Routes) != 1 || status.Routes[0].State != "applied" {
+		t.Fatalf("unexpected status: %+v", status)
+	}
+	found := false
+	for _, rt := range f.routes {
+		if rt.Protocol == RouteProtocol && rt.Dst != nil && rt.Dst.String() == "192.168.123.0/24" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("route missing after reconcile; writes: %v", f.writes)
+	}
+	for _, w := range f.writes {
+		if len(w) >= 8 && w[:8] == "RouteDel" {
+			t.Fatalf("the reconciler deleted its own route: %v", f.writes)
+		}
+	}
+	// Second pass: idempotent, still no deletion.
+	f.writes = nil
+	r.Reconcile(context.Background(), "v1", desired)
+	for _, w := range f.writes {
+		if len(w) >= 8 && w[:8] == "RouteDel" {
+			t.Fatalf("second pass deleted the route: %v", f.writes)
+		}
 	}
 }
