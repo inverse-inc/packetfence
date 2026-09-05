@@ -5515,6 +5515,18 @@ components:
                 type: string
             type: object
           type: array
+        ha_interface:
+          description: High availability - interface carrying the virtual IP on
+            the connector hosts (default - the interface of the default route)
+          type: string
+        ha_vip:
+          description: High availability - virtual IP with prefix length shared
+            by the connector-remote hosts (e.g. 10.0.0.250/24); empty disables HA
+          type: string
+        ha_vrid:
+          description: High availability - VRRP virtual router id (1-255,
+            default 51)
+          type: integer
         id:
           description: Id
           type: string

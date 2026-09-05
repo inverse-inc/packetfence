@@ -60,6 +60,38 @@ has_field 'fingerbank_environment.contains' => (
    type => 'EnvVar',
 );
 
+# High availability of the connector-remote hosts: every host installed with
+# this connector's id and secret joins a VRRP group and the one holding the
+# virtual IP runs the tunnel. The hosts learn these values through the tunnel
+# and cache them (docs/design/pfconnector-remote-ha.md). Empty ha_vip = HA off.
+has_field 'ha_vip' => (
+   type => 'Text',
+   apply => [
+       {
+           check => \&_valid_host_cidr,
+           message => 'The virtual IP must be an IPv4 host address with its prefix length, e.g. 10.0.0.250/24',
+       },
+   ],
+);
+
+has_field 'ha_vrid' => (
+   type => 'PosInteger',
+   default => 51,
+   range_start => 1,
+   range_end => 255,
+);
+
+has_field 'ha_interface' => (
+   type => 'Text',
+   maxlength => $IFNAMSIZ,
+   apply => [
+       {
+           check => qr/^[A-Za-z0-9_.-]*$/,
+           message => 'Interface name may only contain letters, digits, ".", "_" and "-"',
+       },
+   ],
+);
+
 # Site networking: VLAN interfaces the connector host creates and holds an IP
 # on, plus static routes. See pf::connector::site_network for the storage
 # format. The VLAN interface is named "<parent>.<vlan>".

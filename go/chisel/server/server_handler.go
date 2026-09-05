@@ -1782,6 +1782,18 @@ type SiteNetworkReply struct {
 	Version    string                              `json:"version"`
 	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
 	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+	// HA is the VRRP configuration shared by the hosts of this connector
+	// (empty VIP = HA off). Delivered with the site network so the client
+	// caches it on disk: a host learns it on its first connection and the
+	// backups, which have no tunnel, read it from the cache.
+	HA SiteNetworkHA `json:"ha"`
+}
+
+// SiteNetworkHA mirrors the ha_* fields of connectors.conf.
+type SiteNetworkHA struct {
+	VIP       string `json:"vip"`
+	VRID      string `json:"vrid"`
+	Interface string `json:"interface"`
 }
 
 // handleSiteNetwork serves GET /api/v1/pfconnector/site-network?connector-id=<id>.
@@ -1816,6 +1828,7 @@ func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
 	reply := SiteNetworkReply{
 		Interfaces: connector.Interfaces,
 		Routes:     connector.Routes,
+		HA:         SiteNetworkHA{VIP: connector.HaVip, VRID: connector.HaVrid, Interface: connector.HaInterface},
 	}
 	if reply.Interfaces == nil {
 		reply.Interfaces = []pfconfigdriver.ConnectorInterface{}
@@ -1826,7 +1839,8 @@ func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
 	content, _ := json.Marshal(struct {
 		Interfaces []pfconfigdriver.ConnectorInterface
 		Routes     []pfconfigdriver.ConnectorRoute
-	}{reply.Interfaces, reply.Routes})
+		HA         SiteNetworkHA
+	}{reply.Interfaces, reply.Routes, reply.HA})
 	sum := sha256.Sum256(content)
 	reply.Version = hex.EncodeToString(sum[:8])
 

@@ -10,7 +10,11 @@ set -euo pipefail
 CONF=/etc/keepalived/keepalived.conf
 
 if [ -z "${PFCONNECTOR_HA_VIP:-}" ]; then
-    echo "configure-keepalived: PFCONNECTOR_HA_VIP not set, HA disabled"
+    # No VIP in the env file nor in the cached connector configuration: HA is
+    # off (or not learnt yet). Drop a config left by an earlier HA setup so
+    # keepalived does not start from it.
+    rm -f "$CONF"
+    echo "configure-keepalived: no virtual IP configured (env or admin UI), HA disabled"
     exit 0
 fi
 
