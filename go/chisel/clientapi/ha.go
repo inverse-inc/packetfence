@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"sort"
@@ -127,6 +128,14 @@ func HAKey(secret string) []byte {
 	return sum[:]
 }
 
+// ClearHAState forgets the HA status and peers (HA disabled on the connector).
+func ClearHAState() {
+	haStatusMu.Lock()
+	defer haStatusMu.Unlock()
+	haStatus = nil
+	haPeers = map[string]HAPeer{}
+}
+
 // HAStatusSnapshot returns a copy of the HA status with the peers' liveness
 // evaluated now, or nil when HA is off.
 func HAStatusSnapshot() *HAStatus {
@@ -234,6 +243,13 @@ func haHeartbeat(api *API) http.HandlerFunc {
 		if i := strings.LastIndex(addr, ":"); i > 0 {
 			addr = addr[:i]
 		}
+		// A host that just took the VIP while its client still thought it was
+		// backup posts to itself: not a peer.
+		if isLocalAddress(addr) {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(`{"status":"self"}`))
+			return
+		}
 		// Keyed by sender address: cloned VMs often share a hostname.
 		haStatusMu.Lock()
 		haPeers[addr] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now(), CacheSyncState: hb.CacheSyncState}
@@ -241,6 +257,25 @@ func haHeartbeat(api *API) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
 	})
+}
+
+// isLocalAddress reports whether addr is assigned to one of this host's
+// interfaces (the container runs with --network=host).
+func isLocalAddress(addr string) bool {
+	ip := net.ParseIP(strings.Trim(addr, "[]"))
+	if ip == nil {
+		return false
+	}
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return false
+	}
+	for _, a := range addrs {
+		if n, ok := a.(*net.IPNet); ok && n.IP.Equal(ip) {
+			return true
+		}
+	}
+	return false
 }
 
 // LocalHeartbeat builds this host's heartbeat.

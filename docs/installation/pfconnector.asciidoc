@@ -115,14 +115,16 @@ Prerequisites:
  * VRRP traffic is allowed between the hosts (IP protocol 112 to 224.0.0.18, or unicast to the peers, see below);
  * one connector is created in the admin interface for the whole group, exactly as for a single host.
 
-Install the package on every host as described in the Installation section above, using the same Connector ID and secret. When `pfconnector-configure` asks whether the host is part of a high-availability pair, answer `y` and provide:
+Install the package on every host as described in the Installation section above, using the same Connector ID, secret and server URL. Nothing HA-specific is configured on the hosts.
 
- * the VIP with its prefix length, for example `10.0.0.250/24`;
- * the interface carrying the VIP (the interface of the default route is proposed);
- * the VRRP priority: `100` on the first host, `90` on the second, `80` on a third, and so on;
- * optionally the IP addresses of the other hosts, comma separated, to use unicast VRRP instead of multicast.
+Then, in the admin interface, edit the connector (_Configuration->System Configuration->Connectors_), _Networking_ tab, _High availability_ block, and set:
 
-These answers are stored in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` as `PFCONNECTOR_HA_VIP`, `PFCONNECTOR_HA_INTERFACE`, `PFCONNECTOR_HA_PRIORITY` and `PFCONNECTOR_HA_PEER`; `PFCONNECTOR_HA_VRID` (default `51`) must only be changed when another VRRP group uses that id on the same network. Restart the packetfence-pfconnector-remote-combined service after editing the file.
+ * the _Virtual IP_ with its prefix length, for example `10.0.0.250/24`, on the network the hosts share;
+ * optionally the _VRRP virtual router id_ (default `51`; change it only when another VRRP group uses that id on the same network) and the _Interface_ carrying the virtual IP (default: the interface of the default route on each host).
+
+Each host learns these settings through its tunnel and keeps them in [filename]`/usr/local/pfconnector-remote/var/conf/site-network.json`, so a standby host, which has no tunnel, still knows them after a reboot. Within a few seconds of saving, the hosts form the VRRP group, one of them takes the virtual IP and keeps the tunnel, the others close theirs. Leaving the virtual IP empty returns every host to standalone operation.
+
+Optional per-host settings in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (restart the packetfence-pfconnector-remote-combined service after editing it): `PFCONNECTOR_HA_PRIORITY` to prefer a host (equal priorities are broken by the higher host address), `PFCONNECTOR_HA_PEER` with the other hosts' addresses, comma separated, for unicast VRRP instead of multicast, and `PFCONNECTOR_HA_VIP` (with `PFCONNECTOR_HA_VRID`, `PFCONNECTOR_HA_INTERFACE`) to pin the virtual IP on a host regardless of the connector configuration.
 
 Copy [filename]`/usr/local/pfconnector-remote/conf/terminal_totp` from the first host to the others so a single authenticator enrollment opens the remote terminal on whichever host is active.
 

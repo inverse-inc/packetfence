@@ -134,6 +134,11 @@ func (c *Client) connectionOnce(ctx context.Context) (connected, retry bool, err
 		return false, false, errors.New(string(configerr))
 	}
 	c.Infof("Connected (Latency %s)", time.Since(t0))
+	// Site-network config (and the HA settings it carries) right away.
+	select {
+	case c.siteNetworkKick <- struct{}{}:
+	default:
+	}
 	//connected, handover ssh connection for tunnel to use, and block
 	retry = true
 	err = c.tunnel.BindSSH(ctx, sshConn, reqs, chans)
