@@ -86,6 +86,27 @@
           :column-label="$i18n.t('Static Routes')"
           :text="$i18n.t('Optional static routes installed on the connector host. A route needs a gateway, an interface, or both. The default route cannot be managed from here.')"
         />
+
+        <b-alert show variant="info" class="mx-3 mt-3">
+          {{ $i18n.t('High availability: install this connector on two or more hosts with the same ID and secret and set a virtual IP here. The hosts form a VRRP group; the one holding the virtual IP runs the tunnel and the others stand by, mirror its credential cache and take over within seconds. Configure switches, portal redirection and DHCP relays with the virtual IP. Leave it empty for a single host.') }}
+        </b-alert>
+        <form-group-ha-vip namespace="ha_vip"
+          :column-label="$i18n.t('Virtual IP')"
+          :text="$i18n.t('IPv4 address with prefix length, on the network the connector hosts share (e.g. 10.0.0.250/24). The VLAN interface addresses above move with it.')"
+        />
+        <form-group-ha-vrid namespace="ha_vrid"
+          :column-label="$i18n.t('VRRP virtual router id')"
+          :min="1" :max="255"
+          :text="$i18n.t('1 to 255, default 51. Change it only when another VRRP group uses the same id on that network.')"
+        />
+        <form-group-ha-interface namespace="ha_interface"
+          :column-label="$i18n.t('Interface')"
+          :options="haInterfaceOptions"
+          :taggable="true"
+          :tag-placeholder="$i18n.t('Use this interface name')"
+          :placeholder="$i18n.t('Default: the interface of the default route')"
+          :text="$i18n.t('Interface carrying the virtual IP and the VRRP advertisements on the connector hosts.')"
+        />
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -108,6 +129,9 @@ import {
   FormGroupFingerbankEnvironment,
   FormGroupInterfaces,
   FormGroupRoutes,
+  FormGroupHaVip,
+  FormGroupHaVrid,
+  FormGroupHaInterface,
   TheStatus,
   TheEquipment,
 } from './'
@@ -123,6 +147,9 @@ const components = {
   FormGroupFingerbankEnvironment,
   FormGroupInterfaces,
   FormGroupRoutes,
+  FormGroupHaVip,
+  FormGroupHaVrid,
+  FormGroupHaInterface,
   TheStatus,
   TheEquipment,
 }
@@ -163,6 +190,12 @@ export const setup = (props, context) => {
   // empty while the connector is disconnected, new or predates the feature.
   const hostInterfaces = ref([])
   provide('connectorHostInterfaces', hostInterfaces)
+  // Choices for the interface carrying the HA virtual IP: the host's
+  // non-VLAN interfaces, main (default route) one first.
+  const haInterfaceOptions = computed(() => (hostInterfaces.value || [])
+    .filter(({ name }) => name && !name.includes('.'))
+    .map(({ name, main }) => ({ text: main ? `${name} (${i18n.t('main')})` : name, value: name }))
+  )
   onMounted(() => {
     if (props.isNew || props.isClone || !props.id)
       return
@@ -196,6 +229,7 @@ export const setup = (props, context) => {
 
   return {
     schema,
+    haInterfaceOptions,
     showInstallModal,
     installCommand,
     onCopyInstallCommand

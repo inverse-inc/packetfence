@@ -1026,7 +1026,14 @@ type ConnectorConfig struct {
 	Description           string               `json:"description"`
 	FingerbankEnvironment []string             `json:"fingerbank_environment"`
 	Interfaces            []ConnectorInterface `json:"interfaces"`
-	Routes                []ConnectorRoute     `json:"routes"`
+	// High availability of the connector-remote hosts (VRRP virtual IP shared
+	// by every host of this connector; docs/design/pfconnector-remote-ha.md).
+	// Empty HaVip = HA off. HaVrid/HaInterface are optional (51 / the host's
+	// default-route interface). Strings: connectors.conf values.
+	HaVip       string           `json:"ha_vip"`
+	HaVrid      string           `json:"ha_vrid"`
+	HaInterface string           `json:"ha_interface"`
+	Routes      []ConnectorRoute `json:"routes"`
 }
 
 // ConnectorInterface is a VLAN interface the pfconnector-remote host creates

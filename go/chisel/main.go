@@ -462,29 +462,102 @@ func client(args []string) {
 	go cos.GoStats()
 	ctx := cos.InterruptContext()
 
-	if vip := os.Getenv("PFCONNECTOR_HA_VIP"); vip != "" {
-		runHAClient(ctx, &config, vip, *verbose)
-		return
+	// The side-car API on :8081 lives for the whole process, across the plain
+	// and HA modes below; it only needs to be told which tunnel to report on.
+	secret := ""
+	if i := strings.Index(config.Auth, ":"); i >= 0 {
+		secret = config.Auth[i+1:]
 	}
-
-	//ready
-	c, err := chclient.NewClient(&config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	c.Debug = *verbose
-	if err := c.Start(ctx); err != nil {
-		log.Fatal(err)
-	}
-	go func(ctx context.Context) {
-		api := clientapi.NewApi(ctx, config.Auth, c.GetTunnel())
+	clientapi.SetHASecret(secret)
+	api := clientapi.NewApi(ctx, config.Auth, nil)
+	go func() {
 		// The side-car API failing should not be fatal to the tunnel client.
 		if err := api.Start(ctx, ":8081"); err != nil {
 			log.Printf("clientapi: %v", err)
 		}
-	}(ctx)
-	if err := c.Wait(); err != nil {
+	}()
+
+	// High availability (docs/design/pfconnector-remote-ha.md): the VIP is
+	// set on the connector in the admin UI and reaches the host through the
+	// site-network payload, cached on disk; PFCONNECTOR_HA_VIP in the env
+	// file overrides it. Without a VIP the client runs plain and switches to
+	// the VIP-gated mode as soon as it learns one; with a VIP it starts gated
+	// (a backup has no tunnel to learn anything, hence the cache) and falls
+	// back to plain if the admin disables HA.
+	envOverride := chclient.HAConfigFromEnv() != nil
+	haCfg := chclient.ResolveHAConfig()
+	if haCfg != nil {
+		chclient.ApplyKeepalived(log.Printf)
+	}
+	for ctx.Err() == nil {
+		if haCfg == nil {
+			haCfg = runPlainClient(ctx, &config, api, envOverride, *verbose)
+			if haCfg != nil {
+				log.Printf("HA: virtual IP %s configured on the connector, switching to the VIP-gated mode", haCfg.VIP)
+				chclient.ApplyKeepalived(log.Printf)
+			}
+			continue
+		}
+		next := runHAClient(ctx, &config, api, *haCfg, secret, envOverride, *verbose)
+		if ctx.Err() != nil {
+			return
+		}
+		if next == nil {
+			log.Printf("HA: virtual IP removed from the connector, switching to the plain mode")
+			clientapi.ClearHAState()
+		} else {
+			log.Printf("HA: virtual IP changed to %s", next.VIP)
+		}
+		chclient.ApplyKeepalived(log.Printf)
+		haCfg = next
+	}
+}
+
+// runPlainClient runs the tunnel client as a standalone connector-remote. It
+// returns when the connector configuration received through the tunnel
+// carries a virtual IP (the caller then switches to runHAClient), or nil when
+// ctx is done. A fatal client error still exits the process, as before.
+func runPlainClient(ctx context.Context, config *chclient.Config, api clientapi.API, envOverride bool, verbose bool) *chclient.HAConfig {
+	haCh := make(chan chclient.HAConfig, 1)
+	config.HA = false
+	config.PreferredIP = ""
+	config.OnHAConfig = nil
+	if !envOverride {
+		config.OnHAConfig = func(ha chclient.HAConfig) {
+			if ha.Enabled() {
+				select {
+				case haCh <- ha:
+				default:
+				}
+			}
+		}
+	}
+	c, err := chclient.NewClient(config)
+	if err != nil {
 		log.Fatal(err)
+	}
+	c.Debug = verbose
+	if err := c.Start(ctx); err != nil {
+		log.Fatal(err)
+	}
+	api.SetTunnel(c.GetTunnel())
+	done := make(chan error, 1)
+	go func() { done <- c.Wait() }()
+	defer api.SetTunnel(nil)
+	select {
+	case <-ctx.Done():
+		c.Close()
+		<-done
+		return nil
+	case err := <-done:
+		if err != nil && ctx.Err() == nil {
+			log.Fatal(err)
+		}
+		return nil
+	case ha := <-haCh:
+		c.Close()
+		<-done
+		return &ha
 	}
 }
 
@@ -493,33 +566,42 @@ func client(args []string) {
 // the peer's loss, so a 1s poll adds little to the failover time.
 const haVIPPollInterval = time.Second
 
-// runHAClient is the client main loop when PFCONNECTOR_HA_VIP is set (see
-// docs/design/pfconnector-remote-ha.md). Two hosts run the same connector;
-// only the one holding the VRRP virtual IP may hold the tunnel, otherwise the
-// cloud sees two tunnels for one connector id and the newest one silently
-// wins. The side-car API on :8081 runs on both hosts the whole time: the
+// runHAClient is the client main loop while a virtual IP is configured (see
+// docs/design/pfconnector-remote-ha.md). Several hosts run the same
+// connector; only the one holding the VRRP virtual IP may hold the tunnel,
+// otherwise the cloud sees two tunnels for one connector id and the newest
+// one silently wins. The side-car API runs on every host the whole time: a
 // backup answers the degraded realm to its local FreeRADIUS and reports its
-// HA state to the admin UI.
-func runHAClient(ctx context.Context, config *chclient.Config, vipValue string, verbose bool) {
-	vip, err := chclient.ParseVIP(vipValue)
+// HA state to the master. It returns the new HA configuration when the admin
+// changes the VIP, nil when HA is disabled or ctx is done.
+func runHAClient(ctx context.Context, config *chclient.Config, api clientapi.API, cfg chclient.HAConfig, secret string, envOverride bool, verbose bool) *chclient.HAConfig {
+	vip, err := chclient.ParseVIP(cfg.VIP)
 	if err != nil {
-		log.Fatalf("PFCONNECTOR_HA_VIP: %v", err)
+		log.Printf("HA: %v; running without HA", err)
+		return nil
 	}
 	config.PreferredIP = vip.String()
 	config.HA = true
-	log.Printf("HA mode: the tunnel follows the VIP %s", vip)
-	secret := ""
-	if i := strings.Index(config.Auth, ":"); i >= 0 {
-		secret = config.Auth[i+1:]
-	}
-	clientapi.SetHASecret(secret)
-
-	api := clientapi.NewApi(ctx, config.Auth, nil)
-	go func() {
-		if err := api.Start(ctx, ":8081"); err != nil {
-			log.Printf("clientapi: %v", err)
+	// Mode changes are driven by the connector configuration, unless the
+	// env file pins the VIP.
+	haCh := make(chan *chclient.HAConfig, 1)
+	config.OnHAConfig = nil
+	if !envOverride {
+		config.OnHAConfig = func(ha chclient.HAConfig) {
+			var next *chclient.HAConfig
+			if ha.Enabled() {
+				if ha == cfg {
+					return
+				}
+				next = &ha
+			}
+			select {
+			case haCh <- next:
+			default:
+			}
 		}
-	}()
+	}
+	log.Printf("HA mode: the tunnel follows the VIP %s", vip)
 
 	vipPresent := func() bool {
 		present, err := chclient.VIPPresent(vip)
@@ -608,7 +690,7 @@ func runHAClient(ctx context.Context, config *chclient.Config, vipValue string, 
 		acquired := waitFor(true)
 		stopHeartbeat()
 		if !acquired {
-			return
+			return nil
 		}
 		log.Printf("HA: VIP %s acquired, starting the tunnel", vip)
 		clientapi.SetHAState(vip.String(), "master")
@@ -633,10 +715,15 @@ func runHAClient(ctx context.Context, config *chclient.Config, vipValue string, 
 			case <-ctx.Done():
 				c.Close()
 				<-done
-				return
+				return nil
 			case err := <-done:
 				log.Printf("HA: tunnel client stopped (%v), restarting", err)
 				break master
+			case next := <-haCh:
+				c.Close()
+				<-done
+				api.SetTunnel(nil)
+				return next
 			case <-time.After(haVIPPollInterval):
 				if !vipPresent() {
 					log.Printf("HA: VIP %s released, stopping the tunnel", vip)

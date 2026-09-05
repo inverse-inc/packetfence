@@ -59,11 +59,15 @@ type Config struct {
 	// terminal use the first address to reach this connector. HA mode sets
 	// it to the VIP.
 	PreferredIP string
-	// HA is set by the HA client loop (PFCONNECTOR_HA_VIP): the VLAN
-	// interface addresses of the site network then move with the VIP, so
-	// the site-network config is cached on disk and keepalived is refreshed
-	// whenever it changes (see docs/design/pfconnector-remote-ha.md).
+	// HA is set by the HA client loop: the VLAN interface addresses of the
+	// site network then move with the VIP, so keepalived is refreshed
+	// whenever the site-network config changes (docs/design/pfconnector-remote-ha.md).
 	HA bool
+	// OnHAConfig, when set, is called with the HA block of every site-network
+	// payload whose HA block differs from the previous one. main uses it to
+	// switch between the plain and the VIP-gated modes when the admin
+	// enables or disables HA on the connector.
+	OnHAConfig func(HAConfig)
 }
 
 // TLSConfig for a Client
@@ -102,6 +106,12 @@ type Client struct {
 	// (HA: the client is closed when the host gives up the VIP).
 	siteServicesMu sync.Mutex
 	closing        bool
+	// lastHA/haSeen back notifyHAConfig.
+	lastHA HAConfig
+	haSeen bool
+	// siteNetworkKick is signalled by connectionOnce when the SSH connection
+	// is established so siteNetworkLoop fetches the config at once.
+	siteNetworkKick chan struct{}
 }
 
 // NewClient creates a new client instance
@@ -132,8 +142,9 @@ func NewClient(c *Config) (*Client, error) {
 	hasSocks := false
 	hasStdio := false
 	client := &Client{
-		Logger: cio.NewLogger("client"),
-		config: c,
+		Logger:          cio.NewLogger("client"),
+		config:          c,
+		siteNetworkKick: make(chan struct{}, 1),
 		computed: settings.Config{
 			Version: chshare.BuildVersion,
 		},
@@ -530,6 +541,7 @@ type siteNetworkReply struct {
 	Version    string                              `json:"version"`
 	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
 	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+	HA         HAConfig                            `json:"ha"`
 }
 
 // siteNetworkPollInterval is how often the connector fetches its desired site
@@ -569,6 +581,11 @@ func (c *Client) siteNetworkLoop(ctx context.Context) {
 	if v := os.Getenv("PFCONNECTOR_SITE_NETWORK"); v == "false" || v == "disabled" || v == "0" {
 		return
 	}
+	// A fresh connection is served at once (siteNetworkKick, signalled by
+	// connectionOnce): two hosts of an HA group that both start plain (same
+	// connector id) get their tunnels replaced by each other about once a
+	// second until they learn the VIP, so the payload must be fetched in the
+	// first moments of a connection, not at the next 5s tick.
 	ticker := time.NewTicker(siteNetworkPollInterval)
 	defer ticker.Stop()
 	for {
@@ -576,9 +593,22 @@ func (c *Client) siteNetworkLoop(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-		}
-		if c.tunnel != nil && c.tunnel.IsActive() {
-			c.reconcileSiteNetwork(ctx)
+			if c.tunnel != nil && c.tunnel.IsActive() {
+				c.reconcileSiteNetwork(ctx)
+			}
+		case <-c.siteNetworkKick:
+			// BindSSH marks the tunnel active right after the kick; give it
+			// a moment rather than racing it.
+			for i := 0; i < 40 && !(c.tunnel != nil && c.tunnel.IsActive()); i++ {
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(50 * time.Millisecond):
+				}
+			}
+			if c.tunnel != nil && c.tunnel.IsActive() {
+				c.reconcileSiteNetwork(ctx)
+			}
 		}
 	}
 }
@@ -612,6 +642,7 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 	}
 	if reply.Version != c.siteNetworkVersion {
 		c.cacheSiteNetwork(reply)
+		c.notifyHAConfig(reply.HA)
 	}
 
 	last := sitenetwork.LastStatus()
@@ -740,6 +771,20 @@ func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces [
 // them with the VIP.
 var siteNetworkCachePath = sharedutils.EnvOrDefault("PFCONNECTOR_SITE_NETWORK_CACHE", "/usr/local/pf/var/conf/site-network.json")
 
+// notifyHAConfig calls Config.OnHAConfig when the HA block changed since the
+// previous payload (or on the first payload).
+func (c *Client) notifyHAConfig(ha HAConfig) {
+	if c.config.OnHAConfig == nil {
+		return
+	}
+	if c.haSeen && c.lastHA == ha {
+		return
+	}
+	c.haSeen = true
+	c.lastHA = ha
+	c.config.OnHAConfig(ha)
+}
+
 // cacheSiteNetwork writes the payload to siteNetworkCachePath (atomically).
 func (c *Client) cacheSiteNetwork(reply siteNetworkReply) {
 	data, err := json.MarshalIndent(reply, "", "  ")
@@ -762,28 +807,50 @@ func (c *Client) cacheSiteNetwork(reply siteNetworkReply) {
 // keepalived integration points inside the connector-remote container.
 const (
 	configureKeepalivedScript = "/usr/local/pf/sbin/configure-keepalived.sh"
+	keepalivedConfPath        = "/etc/keepalived/keepalived.conf"
 	keepalivedServiceDir      = "/run/service/keepalived"
 	s6svcBinary               = "/command/s6-svc"
 )
 
-// refreshKeepalived re-renders keepalived.conf from the env file and the
-// site-network cache (VLAN interface addresses become virtual IPs) and asks
-// keepalived to reload it, so a VLAN added or removed in the admin UI moves
-// with the VIP from now on. No-op outside the container.
-func (c *Client) refreshKeepalived() {
+// ApplyKeepalived re-renders keepalived.conf from the env file and the cached
+// site-network payload (HA block and VLAN interface addresses), then brings
+// keepalived in line: started or reloaded when a VIP is configured, stopped
+// when none is (the generator removes the config file in that case). No-op
+// outside the connector-remote container. Returns whether HA is configured.
+func ApplyKeepalived(logf func(string, ...interface{})) bool {
 	if _, err := os.Stat(configureKeepalivedScript); err != nil {
-		return
+		return false
 	}
 	if out, err := exec.Command(configureKeepalivedScript).CombinedOutput(); err != nil {
-		c.Infof("HA: unable to refresh keepalived.conf: %s: %s", err, strings.TrimSpace(string(out)))
-		return
+		logf("HA: unable to render keepalived.conf: %s: %s", err, strings.TrimSpace(string(out)))
+		return false
 	}
+	_, confErr := os.Stat(keepalivedConfPath)
+	configured := confErr == nil
 	if _, err := os.Stat(keepalivedServiceDir); err != nil {
-		return
+		return configured
 	}
-	if out, err := exec.Command(s6svcBinary, "-h", keepalivedServiceDir).CombinedOutput(); err != nil {
-		c.Infof("HA: unable to reload keepalived: %s: %s", err, strings.TrimSpace(string(out)))
-		return
+	if configured {
+		// -u starts it if it was down (or marked "once"), -h reloads a running one.
+		if out, err := exec.Command(s6svcBinary, "-u", keepalivedServiceDir).CombinedOutput(); err != nil {
+			logf("HA: unable to start keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+		}
+		if out, err := exec.Command(s6svcBinary, "-h", keepalivedServiceDir).CombinedOutput(); err != nil {
+			logf("HA: unable to reload keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+		}
+		return true
 	}
-	c.Infof("HA: keepalived reloaded with the VLAN interface addresses of site network config %s", c.siteNetworkVersion)
+	if out, err := exec.Command(s6svcBinary, "-d", keepalivedServiceDir).CombinedOutput(); err != nil {
+		logf("HA: unable to stop keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+	}
+	return false
+}
+
+// refreshKeepalived is called by the master after applying a new site-network
+// version: a VLAN added or removed in the admin UI becomes (or stops being) a
+// virtual IP from now on.
+func (c *Client) refreshKeepalived() {
+	if ApplyKeepalived(c.Infof) {
+		c.Infof("HA: keepalived reloaded with the VLAN interface addresses of site network config %s", c.siteNetworkVersion)
+	}
 }
