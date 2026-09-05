@@ -565,10 +565,46 @@ func runHAClient(ctx context.Context, config *chclient.Config, vipValue string, 
 		}
 	}
 
+	// While backup, mirror the master's credential cache so a takeover does
+	// not start with an empty cache (phase 4, clientapi/hacache.go).
+	cacheSync := func(ctx context.Context) {
+		if v := os.Getenv("PFCONNECTOR_HA_CACHE_SYNC"); v == "false" || v == "disabled" || v == "0" {
+			return
+		}
+		ticker := time.NewTicker(clientapi.HACacheSyncInterval)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			// Let the heartbeat establish the master first.
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(3 * time.Second):
+			}
+			if err := clientapi.SyncCacheFromMaster(ctx, vip.String(), secret); err != nil {
+				failures++
+				if failures == 1 || failures%30 == 0 {
+					log.Printf("HA: cache sync from the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			} else {
+				if failures > 0 {
+					log.Printf("HA: cache sync from the master on %s restored", vip)
+				}
+				failures = 0
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
 	for {
 		clientapi.SetHAState(vip.String(), "backup")
 		hbCtx, stopHeartbeat := context.WithCancel(ctx)
 		go heartbeat(hbCtx)
+		go cacheSync(hbCtx)
 		acquired := waitFor(true)
 		stopHeartbeat()
 		if !acquired {
