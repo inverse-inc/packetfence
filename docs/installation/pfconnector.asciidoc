@@ -75,16 +75,16 @@ If you configured a HTTP certificate signed by a public CA on PacketFence webadm
 
 A configuration file will be created in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env`
 
-Finally, restart the packetfence-pfconnector-remote service:
+Finally, restart the packetfence-pfconnector-remote-combined service:
 
 [source,bash]
 ----
-systemctl restart packetfence-pfconnector-remote
+systemctl restart packetfence-pfconnector-remote-combined
 ----
    
 ===== Remote Terminal Access
 
-The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote service after changing it).
+The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote-combined service after changing it).
 
 Opening a terminal requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
 
@@ -280,11 +280,11 @@ apt install -y -o Dpkg::Options::="--force-confnew" packetfence-pfconnector-remo
 The installation of `packetfence-pfconnector-remote` will remove your previous
 installation and import your configuration.
 
-Finally, restart the `packetfence-pfconnector-remote` service:
+Finally, restart the `packetfence-pfconnector-remote-combined` service:
 
 [source,bash]
 ----
-systemctl restart packetfence-pfconnector-remote
+systemctl restart packetfence-pfconnector-remote-combined
 ----
 
 ===== Upgrade (for versions 12.1.0 and later)
@@ -319,7 +319,7 @@ PacketFence Connector should have been restarted at end of the process. You can 
 
 [source,bash]
 ----
-systemctl status packetfence-pfconnector-remote
+systemctl status packetfence-pfconnector-remote-combined
 ----
 
 ===== Static Ports
