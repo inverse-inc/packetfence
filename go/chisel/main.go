@@ -506,6 +506,7 @@ func runHAClient(ctx context.Context, config *chclient.Config, vipValue string, 
 		log.Fatalf("PFCONNECTOR_HA_VIP: %v", err)
 	}
 	config.PreferredIP = vip.String()
+	config.HA = true
 	log.Printf("HA mode: the tunnel follows the VIP %s", vip)
 	secret := ""
 	if i := strings.Index(config.Auth, ":"); i >= 0 {

@@ -65,6 +65,38 @@ for i in "${!PEERS[@]}"; do
     fi
 done
 
+# Site network VLAN interfaces (feature merged from pfconnector-site-networking):
+# their addresses are the VLAN gateway / DHCP relay source / captive DNS and
+# must move with the VIP. The client caches the last site-network payload in
+# SITE_NETWORK_CACHE; create the VLAN links here (a backup host has no tunnel
+# to fetch the config and keepalived needs the interfaces to exist) and
+# declare each address as a virtual IP of the same VRRP instance. Links are
+# tagged like the Go reconciler does (alias pf-connector).
+SITE_NETWORK_CACHE="${PFCONNECTOR_SITE_NETWORK_CACHE:-/usr/local/pf/var/conf/site-network.json}"
+VLAN_VIPS=()
+if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
+    if ENTRIES=$(jq -r '.interfaces[]? | select(.parent != null and .vlan != null and .cidr != null) | "\(.parent) \(.vlan) \(.cidr)"' "$SITE_NETWORK_CACHE" 2>/dev/null); then
+        while read -r parent vlan cidr; do
+            [ -n "$parent" ] && [ -n "$vlan" ] && [ -n "$cidr" ] || continue
+            name="$parent.$vlan"
+            if ! ip link show "$name" >/dev/null 2>&1; then
+                if ip link show "$parent" >/dev/null 2>&1; then
+                    ip link add link "$parent" name "$name" type vlan id "$vlan" && ip link set "$name" alias pf-connector \
+                        && echo "configure-keepalived: created VLAN interface $name" \
+                        || echo "configure-keepalived: unable to create VLAN interface $name" >&2
+                else
+                    echo "configure-keepalived: parent interface $parent of $name not found, skipping its address" >&2
+                    continue
+                fi
+            fi
+            ip link set "$name" up 2>/dev/null || true
+            ip link show "$name" >/dev/null 2>&1 && VLAN_VIPS+=("$cidr dev $name")
+        done <<< "$ENTRIES"
+    else
+        echo "configure-keepalived: $SITE_NETWORK_CACHE is not valid JSON, ignoring it" >&2
+    fi
+fi
+
 mkdir -p /etc/keepalived
 {
     cat <<CONF_EOF
@@ -100,8 +132,11 @@ vrrp_instance PF_CONNECTOR {
     }
     virtual_ipaddress {
         $VIP dev $IFACE
-    }
 CONF_EOF
+    for vlan_vip in "${VLAN_VIPS[@]}"; do
+        echo "        $vlan_vip"
+    done
+    echo "    }"
     if [ "${#PEERS[@]}" -gt 0 ]; then
         SRC=$(ip -4 -o addr show dev "$IFACE" scope global | awk '{print $4}' | cut -d/ -f1 | head -n1)
         [ -n "$SRC" ] && echo "    unicast_src_ip $SRC"
@@ -121,4 +156,4 @@ CONF_EOF
 } > "$CONF"
 chmod 600 "$CONF"
 
-echo "configure-keepalived: vip=$VIP iface=$IFACE vrid=$VRID priority=$PRIORITY peers=${PEERS[*]:-multicast}"
+echo "configure-keepalived: vip=$VIP iface=$IFACE vrid=$VRID priority=$PRIORITY peers=${PEERS[*]:-multicast} vlan_vips=${#VLAN_VIPS[@]}"
