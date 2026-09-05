@@ -1,0 +1,13 @@
+#!/bin/sh
+# postrm script for packetfence-pfconnector-remote
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# Counterpart of the rm_conffile call in preinst/postinst (see preinst).
+if [ -x /usr/bin/dpkg-maintscript-helper ]; then
+    dpkg-maintscript-helper rm_conffile /etc/systemd/system/packetfence-pfconnector-remote.service -- "$@"
+fi
+
+exit 0
