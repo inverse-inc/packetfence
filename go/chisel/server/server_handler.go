@@ -571,12 +571,30 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		//block
 		return tunnel.BindRemotes(ctx, serverInbound)
 	})
+	instanceAddr := fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String())
 	if user != nil {
 		l.Infof("Connector %s has just connected to this server", user.Name)
 		settings.ClearActiveDynReverseConnector(ctx, user.Name)
-		activeTunnels.Store(user.Name, tunnel)
 		tunnel.ConnectorID = user.Name
-		res := s.redis.Set(ctx, fmt.Sprintf("%s%s", s.redisTunnelsNamespace, user.Name), fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String()), 0)
+		// The newest tunnel for a connector id is authoritative. With an HA
+		// pair (docs/design/pfconnector-remote-ha.md) the host that just took
+		// the VIP connects while the old master may still hold its tunnel:
+		// close it so its listeners (fingerbank reverse port, static remotes)
+		// are released and every lookup path follows the new tunnel.
+		// (the local variable "tunnel" shadows the package, hence the
+		// interface assertion)
+		if prev, loaded := activeTunnels.Swap(user.Name, tunnel); loaded && prev != any(tunnel) {
+			if prevTun, ok := prev.(interface {
+				IsActive() bool
+				Close() error
+			}); ok && prevTun.IsActive() {
+				l.Infof("Connector %s reconnected while a previous tunnel was active; closing the previous one", user.Name)
+				if err := prevTun.Close(); err != nil {
+					l.Infof("Unable to close the previous tunnel of connector %s: %s", user.Name, err)
+				}
+			}
+		}
+		res := s.redis.Set(ctx, s.redisTunnelsNamespace+user.Name, instanceAddr, 0)
 		if res.Err() != nil {
 			l.Infof("Unable to write tunnel info to Redis: %s", res.Err())
 		}
@@ -587,6 +605,30 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	} else {
 		l.Debugf("Closed connection")
 	}
+	if user != nil {
+		s.releaseTunnel(user.Name, tunnel, instanceAddr)
+	}
+}
+
+// releaseTunnel forgets a closed tunnel, but only what still points to it: a
+// newer tunnel for the same connector id (reconnect, HA failover) may already
+// have replaced the activeTunnels entry and the Redis instance key, and must
+// not be wiped by the old connection's teardown. Runs after the request
+// context is cancelled, hence its own short-lived context.
+func (s *Server) releaseTunnel(connectorID string, tun *tunnel.Tunnel, instanceAddr string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if !activeTunnels.CompareAndDelete(connectorID, tun) {
+		return
+	}
+	settings.ClearActiveDynReverseConnector(ctx, connectorID)
+	key := s.redisTunnelsNamespace + connectorID
+	if current, err := s.redis.Get(ctx, key).Result(); err == nil && current == instanceAddr {
+		if err := s.redis.Del(ctx, key).Err(); err != nil {
+			s.Infof("Unable to remove the tunnel info of connector %s from Redis: %s", connectorID, err)
+		}
+	}
+	s.Infof("Connector %s disconnected from this server", connectorID)
 }
 
 func (s *Server) pfconnectorHost(req *http.Request) string {
@@ -625,7 +667,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	}
 
 	connectorId := payload.ConnectorID
-	if o, ok := activeTunnels.Load(connectorId); ok {
+	if o, ok := activeTunnels.Load(connectorId); ok && o.(*tunnel.Tunnel).IsActive() {
 		for i := 0; i < DYNREVERSE_BIND_ATTEMPTS; i++ {
 			tun := o.(*tunnel.Tunnel)
 			to := payload.To
