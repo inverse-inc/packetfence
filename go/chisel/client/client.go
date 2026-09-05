@@ -321,7 +321,6 @@ func (c *Client) Start(ctx context.Context) error {
 				}()
 				if tunnelReady {
 					c.reportConnectorInfo()
-					c.reconcileSiteNetwork(ctx)
 				}
 			}
 		}()
@@ -332,6 +331,11 @@ func (c *Client) Start(ctx context.Context) error {
 		// terminal need them to reach this connector's local API.
 		go c.reportConnectorInfoLoop(ctx)
 	}
+
+	// Site networking has its own ticker: it must not live in the remote-binds
+	// loop above because BindRemotes blocks for as long as the binds are up,
+	// so that loop only iterates when the tunnel drops.
+	go c.siteNetworkLoop(ctx)
 
 	return nil
 }
@@ -480,19 +484,45 @@ type siteNetworkReply struct {
 	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
 }
 
-// reconcileSiteNetwork fetches the connector's desired site networking (VLAN
-// interfaces, addresses, static routes) from the pfconnector server through
-// the tunnel-local bind and applies it to the host with netlink. It runs on
-// the same 5s cadence as the remote-binds poll but only reconciles when the
-// payload version changed, or when the previous pass reported errors (so a
-// parent NIC that shows up late gets its VLANs without a config change).
+// siteNetworkPollInterval is how often the connector fetches its desired site
+// networking from the pfconnector server; the reconcile itself only runs when
+// the payload changed or the last pass had errors.
+const siteNetworkPollInterval = 5 * time.Second
+
+// siteNetworkClient bounds the site-network fetch so a stalled tunnel cannot
+// wedge the loop (http.DefaultClient has no timeout).
+var siteNetworkClient = &http.Client{Timeout: 10 * time.Second}
+
+// siteNetworkLoop runs reconcileSiteNetwork every siteNetworkPollInterval
+// while the tunnel is up, in both remote-binds modes (API-fetched or static).
 // Disabled with PFCONNECTOR_SITE_NETWORK=false.
-func (c *Client) reconcileSiteNetwork(ctx context.Context) {
+func (c *Client) siteNetworkLoop(ctx context.Context) {
 	if v := os.Getenv("PFCONNECTOR_SITE_NETWORK"); v == "false" || v == "disabled" || v == "0" {
 		return
 	}
+	ticker := time.NewTicker(siteNetworkPollInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+		if c.tunnel != nil && c.tunnel.IsActive() {
+			c.reconcileSiteNetwork(ctx)
+		}
+	}
+}
+
+// reconcileSiteNetwork fetches the connector's desired site networking (VLAN
+// interfaces, addresses, static routes) from the pfconnector server through
+// the tunnel-local bind and applies it to the host with netlink. It is called
+// by siteNetworkLoop but only reconciles when the payload version changed, or
+// when the previous pass reported errors (so a parent NIC that shows up late
+// gets its VLANs without a config change).
+func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 	connectorID := strings.Split(c.config.Auth, ":")[0]
-	res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
+	res, err := siteNetworkClient.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
 	if err != nil {
 		c.Debugf("Unable to fetch site network config: %s", err)
 		return
