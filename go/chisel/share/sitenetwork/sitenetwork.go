@@ -307,7 +307,7 @@ func (r *Reconciler) ownedLinks(ctx context.Context) []string {
 func (r *Reconciler) reconcileRoutes(ctx context.Context, desired []pfconfigdriver.ConnectorRoute, errCount int) ([]RouteStatus, int) {
 	logger := log.LoggerWContext(ctx)
 	statuses := []RouteStatus{}
-	wanted := map[string]*netlink.Route{}
+	wanted := []*netlink.Route{}
 
 	for _, d := range desired {
 		st := RouteStatus{Destination: d.Destination, Gateway: d.Gateway, Interface: d.Interface, State: "error"}
@@ -318,7 +318,7 @@ func (r *Reconciler) reconcileRoutes(ctx context.Context, desired []pfconfigdriv
 			errCount++
 			continue
 		}
-		wanted[routeKey(route)] = route
+		wanted = append(wanted, route)
 		if err := r.nl.RouteReplace(route); err != nil {
 			st.Error = fmt.Sprintf("unable to install route: %s", err)
 			statuses = append(statuses, st)
@@ -337,7 +337,14 @@ func (r *Reconciler) reconcileRoutes(ctx context.Context, desired []pfconfigdriv
 	}
 	for i := range existing {
 		route := existing[i]
-		if _, keep := wanted[routeKey(&route)]; keep {
+		keep := false
+		for _, w := range wanted {
+			if routeMatches(w, &route) {
+				keep = true
+				break
+			}
+		}
+		if keep {
 			continue
 		}
 		if err := r.nl.RouteDel(&route); err != nil {
@@ -380,6 +387,24 @@ func (r *Reconciler) buildRoute(d pfconfigdriver.ConnectorRoute) (*netlink.Route
 		return nil, errors.New("a route needs a gateway, an interface, or both")
 	}
 	return route, nil
+}
+
+// routeMatches reports whether an installed route is the one we wanted. The
+// kernel resolves the output device of a gateway route we install without
+// one, so the installed route carries a LinkIndex the desired route lacks:
+// only compare the link when the configuration named an interface. Comparing
+// keys blindly made the reconciler delete the route it had just installed.
+func routeMatches(wanted, installed *netlink.Route) bool {
+	if (wanted.Dst == nil) != (installed.Dst == nil) {
+		return false
+	}
+	if wanted.Dst != nil && wanted.Dst.String() != installed.Dst.String() {
+		return false
+	}
+	if !wanted.Gw.Equal(installed.Gw) {
+		return false
+	}
+	return wanted.LinkIndex == 0 || wanted.LinkIndex == installed.LinkIndex
 }
 
 // routeKey identifies a route by destination, gateway and link, which is what
