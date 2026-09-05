@@ -209,6 +209,7 @@ func (api *API) setupRoutes() {
 		// Not localhost-only: the backup hosts of an HA group post their
 		// heartbeat to the master on the VIP (HMAC-authenticated, see ha.go).
 		r.Post("/ha/heartbeat", haHeartbeat(api))
+		r.Get("/ha/cache-snapshot", haCacheSnapshot(api))
 	})
 }
 
