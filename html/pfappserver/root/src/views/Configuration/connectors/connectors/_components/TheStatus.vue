@@ -94,7 +94,7 @@
             <template v-if="ha">
               <h6 class="text-secondary mt-3">{{ $i18n.t('High Availability') }}</h6>
               <p class="mb-1 small text-muted">
-                {{ $i18n.t('Virtual IP {vip}: the host holding it runs the tunnel; the others report to it over the site network. Configure switches, portal redirection and DHCP relays with the virtual IP.', { vip: ha.vip }) }}
+                {{ $i18n.t('Virtual IP {vip}: the host holding it runs the tunnel; the others report to it over the site network and mirror its credential cache. Configure switches, portal redirection and DHCP relays with the virtual IP.', { vip: ha.vip }) }}
               </p>
               <b-table-simple small class="mb-0">
                 <b-thead>
@@ -103,6 +103,7 @@
                     <b-th>{{ $i18n.t('Role') }}</b-th>
                     <b-th>{{ $i18n.t('Version') }}</b-th>
                     <b-th>{{ $i18n.t('Since / Last seen') }}</b-th>
+                    <b-th>{{ $i18n.t('Cache') }}</b-th>
                     <b-th>{{ $i18n.t('Status') }}</b-th>
                   </b-tr>
                 </b-thead>
@@ -112,6 +113,7 @@
                     <b-td>{{ $i18n.t('master') }}</b-td>
                     <b-td>{{ status.system.version }}</b-td>
                     <b-td>{{ formatDate(ha.since) }}</b-td>
+                    <b-td><span class="text-muted">{{ $i18n.t('source') }}</span></b-td>
                     <b-td><b-badge variant="success">{{ $i18n.t('holds the VIP') }}</b-badge></b-td>
                   </b-tr>
                   <b-tr v-for="peer in ha.peers" :key="peer.hostname">
@@ -119,6 +121,14 @@
                     <b-td>{{ $i18n.t(peer.state || 'backup') }}<template v-if="peer.priority"> <small class="text-muted">({{ $i18n.t('priority') }} {{ peer.priority }})</small></template></b-td>
                     <b-td>{{ peer.version }}</b-td>
                     <b-td>{{ formatDate(peer.last_seen) }}</b-td>
+                    <b-td>
+                      <template v-if="peer.cache_synced_at">
+                        <b-badge :variant="peer.cache_sync_error ? 'warning' : 'light'" class="border" :title="peer.cache_sync_error || ''">
+                          {{ $i18n.t('{n} entries', { n: peer.cache_rows || 0 }) }} · {{ formatDate(peer.cache_synced_at) }}
+                        </b-badge>
+                      </template>
+                      <b-badge v-else variant="warning" :title="peer.cache_sync_error || ''">{{ $i18n.t('not synced') }}</b-badge>
+                    </b-td>
                     <b-td>
                       <b-badge :variant="peer.alive ? 'success' : 'danger'">{{ peer.alive ? $i18n.t('alive') : $i18n.t('not reporting') }}</b-badge>
                     </b-td>
