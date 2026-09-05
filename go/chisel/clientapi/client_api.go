@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -33,10 +34,15 @@ type API struct {
 	TerminalEnabled bool
 	// LogsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the
 	// live log streaming endpoint is available.
-	LogsEnabled   bool
-	ctx           context.Context
-	cancel        context.CancelFunc
+	LogsEnabled bool
+	ctx         context.Context
+	cancel      context.CancelFunc
+	// tunnel is the chisel tunnel of the running client; nil while there is
+	// none. Guarded by tunnelMu because HA mode swaps it whenever the VIP
+	// moves (SetTunnel). Pointer to the mutex so it survives API being
+	// copied by value.
 	tunnel        *tunnel.Tunnel
+	tunnelMu      *sync.RWMutex
 	mdCache       *multiDomainCache
 	statusCache   *connectorStatusCache
 	commandChan   chan Message
@@ -75,13 +81,13 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	Api.Router = chi.NewRouter()
 	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
+	Api.tunnelMu = &sync.RWMutex{}
 	Api.tunnel = tun
 	Api.mdCache = newMultiDomainCache("")
 	Api.statusCache = newConnectorStatusCache("")
-	var tunState tunnelState
-	if Api.tunnel != nil {
-		tunState = Api.tunnel
-	}
+	// The refreshers look the tunnel up on every tick (not the value captured
+	// here) so they follow SetTunnel in HA mode.
+	tunState := &apiTunnelState{api: &Api}
 	Api.mdCache.startRefresher(ctx, tunState)
 	Api.statusCache.startRefresher(ctx, tunState)
 
@@ -200,6 +206,9 @@ func (api *API) setupRoutes() {
 		// the remote's IP to activate a terminal session authorized by the
 		// pfconnector server (one-time uuid check via remote-terminal).
 		r.Get("/authorize/{id}", enableTerminal(api))
+		// Not localhost-only: the backup hosts of an HA group post their
+		// heartbeat to the master on the VIP (HMAC-authenticated, see ha.go).
+		r.Post("/ha/heartbeat", haHeartbeat(api))
 	})
 }
 
@@ -789,7 +798,7 @@ func radiusAuthorize(api *API) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 
 		realm := "degraded"
-		if api.tunnel != nil && api.tunnel.IsActive() {
+		if api.TunnelActive() {
 			realm = "remote"
 			if api.statusCache != nil {
 				if connectorID, ok := connectorForRequest(api, r); ok {

@@ -66,6 +66,9 @@ type SystemInfo struct {
 	// offers them as choices for the parent of a VLAN interface and for the
 	// interface of a static route.
 	HostInterfaces []HostInterface `json:"host_interfaces,omitempty"`
+	// HA is the VRRP high-availability state of this host (PFCONNECTOR_HA_VIP);
+	// omitted when HA is not configured.
+	HA *HAStatus `json:"ha,omitempty"`
 }
 
 // HostInterface is one network interface of the connector host.
@@ -150,6 +153,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			DhcpRelay:       dhcprelay.LastStatus(),
 			DnsServer:       dnsresponder.LastStatus(),
 			HostInterfaces:  hostInterfaces(),
+			HA:              HAStatusSnapshot(),
 		}
 		info.Hostname, _ = os.Hostname()
 

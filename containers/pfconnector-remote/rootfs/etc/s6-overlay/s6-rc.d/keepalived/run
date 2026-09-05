@@ -1,0 +1,11 @@
+#!/command/with-contenv bash
+# VRRP for the connector-remote HA pair (docs/design/pfconnector-remote-ha.md).
+# Without PFCONNECTOR_HA_VIP the service marks itself "run once" and exits so
+# s6 does not restart it.
+exec 2>&1
+if [ -z "${PFCONNECTOR_HA_VIP:-}" ]; then
+    echo "keepalived: PFCONNECTOR_HA_VIP not set, HA disabled"
+    s6-svc -O /run/service/keepalived
+    exit 0
+fi
+exec /usr/sbin/keepalived --dont-fork --log-console --log-detail --use-file /etc/keepalived/keepalived.conf

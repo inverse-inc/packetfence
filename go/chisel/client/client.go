@@ -51,6 +51,11 @@ type Config struct {
 	TLS              TLSConfig
 	DialContext      func(ctx context.Context, network, addr string) (net.Conn, error)
 	SrcIP            string
+	// PreferredIP, when set and held by the default-route interface, is
+	// reported first to the pfconnector server: the admin UI and the remote
+	// terminal use the first address to reach this connector. HA mode sets
+	// it to the VIP.
+	PreferredIP string
 }
 
 // TLSConfig for a Client
@@ -284,7 +289,14 @@ func (c *Client) Start(ctx context.Context) error {
 	if os.Getenv("FETCH_REMOTES_VIA_API") == "true" {
 		go func() {
 			for {
-				time.Sleep(5 * time.Second)
+				// Stop with the client: in HA mode (PFCONNECTOR_HA_VIP) the
+				// client is closed and re-created whenever the VIP moves, and a
+				// leftover loop would rebind the remotes of a dead tunnel.
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(5 * time.Second):
+				}
 				tunnelReady := func() bool {
 					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
 					if err != nil {
@@ -374,6 +386,10 @@ func (c *Client) reportConnectorInfo() {
 		return
 	}
 	for _, ip := range defaultIPs {
+		if c.config.PreferredIP != "" && ip.String() == c.config.PreferredIP {
+			clientInfo.IPs = append([]string{ip.String()}, clientInfo.IPs...)
+			continue
+		}
 		clientInfo.IPs = append(clientInfo.IPs, ip.String())
 	}
 
