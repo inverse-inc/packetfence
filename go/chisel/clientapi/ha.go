@@ -80,6 +80,8 @@ type HAPeer struct {
 	LastSeen time.Time `json:"last_seen"`
 	// Alive is true when a heartbeat arrived within haPeerTimeout.
 	Alive bool `json:"alive"`
+	// Cache mirror state reported by the peer (phase 4, hacache.go).
+	CacheSyncState
 }
 
 // haPeerTimeout is how long a peer stays "alive" after its last heartbeat.
@@ -109,12 +111,14 @@ func SetHAState(vip, state string) {
 	haStatus = &HAStatus{Enabled: true, VIP: vip, Hostname: hostname, State: state, Since: time.Now()}
 }
 
-// SetHASecret derives the key that authenticates heartbeats between the
-// hosts of the group from the connector secret, which they all share.
+// SetHASecret derives the keys that authenticate heartbeats and protect cache
+// snapshots between the hosts of the group from the connector secret, which
+// they all share.
 func SetHASecret(secret string) {
 	haStatusMu.Lock()
 	defer haStatusMu.Unlock()
 	haKey = HAKey(secret)
+	setHACacheKey(secret)
 }
 
 // HAKey derives the heartbeat HMAC key from the connector secret.
@@ -150,6 +154,7 @@ type HAHeartbeat struct {
 	State     string `json:"state"`
 	Priority  string `json:"priority,omitempty"`
 	Timestamp int64  `json:"ts"`
+	CacheSyncState
 }
 
 // haSignatureHeader carries hex(HMAC-SHA256(key, body)).
@@ -231,7 +236,7 @@ func haHeartbeat(api *API) http.HandlerFunc {
 		}
 		// Keyed by sender address: cloned VMs often share a hostname.
 		haStatusMu.Lock()
-		haPeers[addr] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now()}
+		haPeers[addr] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now(), CacheSyncState: hb.CacheSyncState}
 		haStatusMu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
@@ -242,9 +247,10 @@ func haHeartbeat(api *API) http.HandlerFunc {
 func LocalHeartbeat(state string) HAHeartbeat {
 	hostname, _ := os.Hostname()
 	return HAHeartbeat{
-		Hostname: hostname,
-		Version:  chshare.BuildVersion,
-		State:    state,
-		Priority: os.Getenv("PFCONNECTOR_HA_PRIORITY"),
+		Hostname:       hostname,
+		Version:        chshare.BuildVersion,
+		State:          state,
+		Priority:       os.Getenv("PFCONNECTOR_HA_PRIORITY"),
+		CacheSyncState: cacheSyncSnapshot(),
 	}
 }
