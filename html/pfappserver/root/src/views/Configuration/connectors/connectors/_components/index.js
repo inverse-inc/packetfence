@@ -1,7 +1,9 @@
 import { BaseViewCollectionItem } from '../../../_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
+  BaseFormGroupInputNumber,
   BaseFormGroupInputPassword
 } from '@/components/new/'
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
@@ -24,6 +26,9 @@ export {
   BaseFormGroupFingerbankEnvironment  as FormGroupFingerbankEnvironment,
   BaseFormGroupInterfaces             as FormGroupInterfaces,
   BaseFormGroupRoutes                 as FormGroupRoutes,
+  BaseFormGroupInput                  as FormGroupHaVip,
+  BaseFormGroupInputNumber            as FormGroupHaVrid,
+  BaseFormGroupChosenOne              as FormGroupHaInterface,
 
   TheForm,
   TheStatus,

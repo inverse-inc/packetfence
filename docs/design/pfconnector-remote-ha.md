@@ -70,6 +70,36 @@ Connector host (`addons/pfconnector`, `containers/pfconnector-remote`):
 Both hosts carry the same `conf/pfconnector-client.env` (same `AUTH`,
 same `HOST`) plus the HA variables below. The cloud sees one connector.
 
+### 3.1.1 The VIP is configured on the connector, in the admin UI
+
+`connectors.conf` carries `ha_vip` (IPv4/prefix, empty = HA off), `ha_vrid`
+(default 51) and `ha_interface` (default: the host's default-route
+interface), edited in the connector form (Networking tab, "High availability"
+block; `pf::ConfigStore::Connector`, `config::Connector`, the form and the API
+spec). They reach the hosts inside the site-network payload (`ha` block,
+part of its version hash) and are cached on disk with it
+(`var/conf/site-network.json`), because a backup has no tunnel to fetch them.
+
+Bootstrap: a host with neither `PFCONNECTOR_HA_VIP` in its env file nor a
+cached VIP runs the plain client (as a single connector-remote does), and
+`Config.OnHAConfig` fires when a payload with a VIP arrives: main closes the
+client, renders and starts keepalived (`chclient.ApplyKeepalived`:
+`configure-keepalived.sh` then `s6-svc -u/-h`) and enters the VIP-gated
+`runHAClient`. Two fresh hosts both connect for the few seconds until VRRP
+elects a master; the server's replace-and-close policy (3.4) copes, then the
+loser's gate closes its tunnel. When the admin removes the VIP, the master's
+hook fires again: main closes the client, stops keepalived (the generator
+removes `keepalived.conf` when no VIP is known) and returns to the plain
+mode; a changed VIP re-enters the gated mode with the new address. Backups
+only learn changes when they next become master (they have no tunnel); the
+env override (`PFCONNECTOR_HA_VIP`) pins a host and ignores the connector
+value. The side-car API is created once per process and follows the mode
+switches through `SetTunnel`. `pfconnector-env.sh` exports the cached
+`PFCONNECTOR_HA_*` for the s6 scripts, and the keepalived longrun exits
+"once" until a VIP is known. Per-host settings remaining in the env file:
+`PFCONNECTOR_HA_PRIORITY` (optional; equal priorities are broken by the
+higher IP address) and `PFCONNECTOR_HA_PEER`.
+
 ### 3.2 keepalived, inside the combined container
 
 keepalived runs as an s6 longrun in `pfconnector-remote-combined`, next to the
@@ -358,6 +388,23 @@ its HA fallback → `|| true`.
 Phase 4 on the same pair: a credential inserted in the master's `pfcc.db`
 appeared on the backup 56 s later, its deletion was mirrored 49 s later; the
 peer's `cache_rows`/`cache_synced_at` are relayed by the cloud status API.
+
+Admin-configured VIP (3.1.1), same pair, hosts with no `PFCONNECTOR_HA_*` in
+their env file, `ha_vip=10.0.0.250/24` set on the connector (connectors.conf
+edited on akadev; the cloud's Perl API predates the form fields), the
+pfconnector-server binary of this branch swapped into akadev's container:
+both hosts start plain, connect, learn the VIP within a second of connecting
+and switch to the gated mode; keepalived elects a master (VIP + VLAN
+address), the other stands by and heartbeats. Two lessons: (1) two plain
+hosts with one id flap about once a second (the server replaces the previous
+tunnel on every handshake), so the site-network fetch is triggered from the
+connection path itself (`siteNetworkKick`), not from a periodic sample that
+misses sub-second connections; (2) a host that takes the VIP before its
+client notices posts a heartbeat to itself, now ignored (`isLocalAddress`).
+Disabling HA: the master learns it at its next poll and returns to plain
+(keepalived stopped, VIP released, VLAN address re-assigned by the plain
+reconciler); the backup, which has no tunnel, takes the VIP first, connects,
+learns the removal at once and returns to plain too.
 
 Not exercised: hard host failure (VRRP timeout adds ~3 s), the server-side
 "close the previous tunnel" path (graceful failovers close the old tunnel

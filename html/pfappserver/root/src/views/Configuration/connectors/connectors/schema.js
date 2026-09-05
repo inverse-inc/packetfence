@@ -145,6 +145,13 @@ export default (props) => {
     networks: schemaNetworks,
     fingerbank_environment: schemaFingerbankEnvironments,
     interfaces: schemaInterfaces,
-    routes: schemaRoutes
+    routes: schemaRoutes,
+    ha_vip: yup.string().nullable()
+      .isHostCidr(i18n.t('The virtual IP must be an IPv4 host address with its prefix length, e.g. 10.0.0.250/24.')),
+    ha_vrid: yup.string().nullable()
+      .test('vrid-range', i18n.t('The VRRP virtual router id must be between 1 and 255.'), value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= 1 && +value <= 255)),
+    ha_interface: yup.string().nullable()
+      .max(15, i18n.t('Maximum 15 characters.'))
+      .matches(/^[A-Za-z0-9_.-]*$/, i18n.t('Letters, digits, ".", "_" and "-" only.'))
   })
 }
