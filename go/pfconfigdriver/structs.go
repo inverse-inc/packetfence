@@ -135,7 +135,19 @@ type PfConfCaptivePortal struct {
 	RateLimiting                 string   `json:"rate_limiting"`
 	RateLimitingThreshold        string   `json:"rate_limiting_threshold"`
 	OtherDomainNames             []string `json:"other_domain_names"`
+	// ConnectorProxyProtocol ("enabled"/"disabled"): haproxy-portal exposes
+	// accept-proxy listeners on ConnectorProxyProtocolPorts and the remote
+	// connectors tunnel the portal ports 80/443 to them with a PROXY protocol
+	// header, so the portal sees the address of the device behind the
+	// connector rather than the tunnel exit.
+	ConnectorProxyProtocol string `json:"connector_proxy_protocol"`
 }
+
+// ConnectorProxyProtocolPorts are the haproxy-portal accept-proxy listener
+// ports (http, https) used when captive_portal.connector_proxy_protocol is
+// enabled. Shared between lib/pf/services/manager/haproxy_portal.pm and the
+// pfconnector server's default remote binds.
+var ConnectorProxyProtocolPorts = struct{ HTTP, HTTPS string }{"8880", "8843"}
 
 type PfConfServices struct {
 	StructConfig
@@ -1003,12 +1015,58 @@ type Connectors struct {
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Connector"`
 	PfconfigDecodeInElement string `val:"yes"`
-	Element                 map[string]struct {
-		Secret                string   `json:"secret"`
-		Networks              []string `json:"networks"`
-		Description           string   `json:"description"`
-		FingerbankEnvironment []string `json:"fingerbank_environment"`
-	}
+	Element                 map[string]ConnectorConfig
+}
+
+// ConnectorConfig is one [connector] section of connectors.conf as exposed by
+// the config::Connector pfconfig namespace.
+type ConnectorConfig struct {
+	Secret                string               `json:"secret"`
+	Networks              []string             `json:"networks"`
+	Description           string               `json:"description"`
+	FingerbankEnvironment []string             `json:"fingerbank_environment"`
+	Interfaces            []ConnectorInterface `json:"interfaces"`
+	Routes                []ConnectorRoute     `json:"routes"`
+}
+
+// ConnectorInterface is a VLAN interface the pfconnector-remote host creates
+// on top of Parent and holds CIDR on. The interface is named "<Parent>.<Vlan>".
+// When Dhcp is enabled the connector relays DHCP received on the interface to
+// pfdhcp over HTTP (DHCP-over-HTTPS) and pfdhcp serves the scope described by
+// the Dhcp* fields: the network is the one of CIDR, the server identifier the
+// interface address.
+type ConnectorInterface struct {
+	Parent string `json:"parent"`
+	Vlan   int    `json:"vlan"`
+	CIDR   string `json:"cidr"`
+	// Dhcp: "enabled"/"disabled".
+	Dhcp string `json:"dhcp"`
+	// DnsServer ("enabled"/"disabled"): the connector answers every DNS
+	// query received on the interface with the interface address.
+	DnsServer            string `json:"dns_server"`
+	DhcpStart            string `json:"dhcp_start"`
+	DhcpEnd              string `json:"dhcp_end"`
+	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
+	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
+	// Dns: comma separated IPv4 addresses handed to clients (option 6).
+	Dns string `json:"dns"`
+	// Gateway (option 3); the interface address when empty.
+	Gateway string `json:"gateway"`
+	// DomainName (option 15), optional.
+	DomainName string `json:"domain_name"`
+}
+
+// Name is the kernel interface name of a VLAN interface.
+func (i ConnectorInterface) Name() string {
+	return fmt.Sprintf("%s.%d", i.Parent, i.Vlan)
+}
+
+// ConnectorRoute is a static route the pfconnector-remote host installs.
+// Gateway and Interface are each optional but at least one is set.
+type ConnectorRoute struct {
+	Destination string `json:"destination"`
+	Gateway     string `json:"gateway"`
+	Interface   string `json:"interface"`
 }
 
 type FingerbankSettingsUpstream struct {

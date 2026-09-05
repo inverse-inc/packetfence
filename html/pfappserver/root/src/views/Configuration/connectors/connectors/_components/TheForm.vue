@@ -74,12 +74,26 @@
           :column-label="$i18n.t('Environment')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('Networking')">
+        <b-alert show variant="info" class="mx-3">
+          {{ $i18n.t('The remote connector creates these VLAN interfaces on its host, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts.') }}
+        </b-alert>
+        <form-group-interfaces namespace="interfaces"
+          :column-label="$i18n.t('VLAN Interfaces')"
+          :text="$i18n.t('One 802.1Q VLAN interface per row, created on top of the parent interface of the connector host and named &quot;parent.vlan&quot; (e.g. eth0.100). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to serve addresses on that VLAN: the connector relays the requests to the PacketFence DHCP server through its tunnel, and the server hands out the range configured here (the network is the one of the interface address). Enable DNS to make the connector answer every DNS query received on that VLAN with the interface address (captive-portal DNS).')"
+        />
+        <form-group-routes namespace="routes"
+          :column-label="$i18n.t('Static Routes')"
+          :text="$i18n.t('Optional static routes installed on the connector host. A route needs a gateway, an interface, or both. The default route cannot be managed from here.')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
 <script>
-import { computed, ref } from '@vue/composition-api'
+import { computed, onMounted, provide, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import api from '../_api'
 import {
   BaseForm,
   BaseFormTab
@@ -92,6 +106,8 @@ import {
   FormGroupNetworks,
   FormGroupSecret,
   FormGroupFingerbankEnvironment,
+  FormGroupInterfaces,
+  FormGroupRoutes,
   TheStatus,
   TheEquipment,
 } from './'
@@ -105,6 +121,8 @@ const components = {
   FormGroupNetworks,
   FormGroupSecret,
   FormGroupFingerbankEnvironment,
+  FormGroupInterfaces,
+  FormGroupRoutes,
   TheStatus,
   TheEquipment,
 }
@@ -139,6 +157,22 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const showInstallModal = ref(false)
+
+  // Network interfaces of the connector host, as reported by the connector
+  // (system info host_interfaces). Offered as choices in the Networking tab;
+  // empty while the connector is disconnected, new or predates the feature.
+  const hostInterfaces = ref([])
+  provide('connectorHostInterfaces', hostInterfaces)
+  onMounted(() => {
+    if (props.isNew || props.isClone || !props.id)
+      return
+    api.remoteStatus(props.id).then(response => {
+      const { system: { host_interfaces: interfaces = [] } = {} } = response || {}
+      hostInterfaces.value = interfaces
+    }).catch(() => {
+      hostInterfaces.value = []
+    })
+  })
 
   const installCommand = computed(() => {
     const { id, secret } = props.form || {}

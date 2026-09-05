@@ -20,12 +20,17 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/proxy"
@@ -69,6 +74,16 @@ type Client struct {
 	stop      func()
 	eg        *errgroup.Group
 	tunnel    *tunnel.Tunnel
+
+	// siteNetwork applies the connector's VLAN interfaces and static routes
+	// to the host; siteNetworkVersion is the last payload version applied so
+	// an unchanged payload costs nothing but the poll.
+	siteNetwork        *sitenetwork.Reconciler
+	siteNetworkVersion string
+	// dhcpRelay serves DHCP-over-HTTPS on the VLAN interfaces flagged for it.
+	dhcpRelay *dhcprelay.Relay
+	// dnsResponder is the captive DNS on the VLAN interfaces flagged for it.
+	dnsResponder *dnsresponder.Responder
 }
 
 // NewClient creates a new client instance
@@ -317,6 +332,11 @@ func (c *Client) Start(ctx context.Context) error {
 		go c.reportConnectorInfoLoop(ctx)
 	}
 
+	// Site networking has its own ticker: it must not live in the remote-binds
+	// loop above because BindRemotes blocks for as long as the binds are up,
+	// so that loop only iterates when the tunnel drops.
+	go c.siteNetworkLoop(ctx)
+
 	return nil
 }
 
@@ -455,4 +475,172 @@ func (c *Client) Close() error {
 		c.stop()
 	}
 	return nil
+}
+
+// siteNetworkReply mirrors the pfconnector server's SiteNetworkReply.
+type siteNetworkReply struct {
+	Version    string                              `json:"version"`
+	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
+	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+}
+
+// siteNetworkPollInterval is how often the connector fetches its desired site
+// networking from the pfconnector server; the reconcile itself only runs when
+// the payload changed or the last pass had errors.
+const siteNetworkPollInterval = 5 * time.Second
+
+// siteNetworkClient bounds the site-network fetch so a stalled tunnel cannot
+// wedge the loop (http.DefaultClient has no timeout).
+var siteNetworkClient = &http.Client{Timeout: 10 * time.Second}
+
+// siteNetworkLoop runs reconcileSiteNetwork every siteNetworkPollInterval
+// while the tunnel is up, in both remote-binds modes (API-fetched or static).
+// Disabled with PFCONNECTOR_SITE_NETWORK=false.
+func (c *Client) siteNetworkLoop(ctx context.Context) {
+	if v := os.Getenv("PFCONNECTOR_SITE_NETWORK"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	ticker := time.NewTicker(siteNetworkPollInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+		if c.tunnel != nil && c.tunnel.IsActive() {
+			c.reconcileSiteNetwork(ctx)
+		}
+	}
+}
+
+// reconcileSiteNetwork fetches the connector's desired site networking (VLAN
+// interfaces, addresses, static routes) from the pfconnector server through
+// the tunnel-local bind and applies it to the host with netlink. It is called
+// by siteNetworkLoop but only reconciles when the payload version changed, or
+// when the previous pass reported errors (so a parent NIC that shows up late
+// gets its VLANs without a config change).
+func (c *Client) reconcileSiteNetwork(ctx context.Context) {
+	connectorID := strings.Split(c.config.Auth, ":")[0]
+	res, err := siteNetworkClient.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
+	if err != nil {
+		c.Debugf("Unable to fetch site network config: %s", err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusNotFound {
+		// Server predates the feature or the connector is unknown: nothing to apply.
+		return
+	}
+	if res.StatusCode != http.StatusOK {
+		c.Debugf("Invalid status code %d received for site network config", res.StatusCode)
+		return
+	}
+	reply := siteNetworkReply{}
+	if err := json.NewDecoder(res.Body).Decode(&reply); err != nil {
+		c.Infof("Unable to parse site network config: %s", err)
+		return
+	}
+
+	last := sitenetwork.LastStatus()
+	if reply.Version == c.siteNetworkVersion && (last == nil || last.Errors == 0) {
+		c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, last)
+		c.syncDnsResponder(ctx, reply.Interfaces, last)
+		return
+	}
+
+	if c.siteNetwork == nil {
+		c.siteNetwork = sitenetwork.New()
+	}
+	status := c.siteNetwork.Reconcile(ctx, reply.Version, sitenetwork.Desired{Interfaces: reply.Interfaces, Routes: reply.Routes})
+	sitenetwork.SetLastStatus(status)
+	if reply.Version != c.siteNetworkVersion {
+		c.Infof("Applied site network config %s: %d interface(s), %d route(s), %d error(s)", reply.Version, len(status.Interfaces), len(status.Routes), status.Errors)
+	}
+	c.siteNetworkVersion = reply.Version
+	for _, st := range status.Interfaces {
+		if st.Error != "" {
+			c.Infof("site-network: %s: %s", st.Name, st.Error)
+		}
+	}
+	for _, st := range status.Routes {
+		if st.Error != "" {
+			c.Infof("site-network: route %s: %s", st.Destination, st.Error)
+		}
+	}
+	c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, &status)
+	c.syncDnsResponder(ctx, reply.Interfaces, &status)
+}
+
+// syncDnsResponder keeps one captive DNS responder per VLAN interface that is
+// flagged dns_server and currently exists on the host. Runs every poll; Sync
+// is idempotent and restarts failed responders (e.g. the address was not yet
+// on the link). Disabled with PFCONNECTOR_DNS_RESPONDER=false.
+func (c *Client) syncDnsResponder(ctx context.Context, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
+	if v := os.Getenv("PFCONNECTOR_DNS_RESPONDER"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	present := map[string]bool{}
+	if status != nil {
+		for _, st := range status.Interfaces {
+			present[st.Name] = st.State != "error"
+		}
+	}
+	wanted := []dnsresponder.Interface{}
+	for _, iface := range ifaces {
+		if !sharedutils.IsEnabled(iface.DnsServer) || !present[iface.Name()] {
+			continue
+		}
+		ip, _, err := net.ParseCIDR(iface.CIDR)
+		if err != nil {
+			continue
+		}
+		wanted = append(wanted, dnsresponder.Interface{Name: iface.Name(), IP: ip})
+	}
+	if c.dnsResponder == nil {
+		if len(wanted) == 0 {
+			return
+		}
+		c.dnsResponder = dnsresponder.New(dnsresponder.Config{Logger: c.Infof})
+	}
+	c.dnsResponder.Sync(ctx, wanted)
+	dnsresponder.SetLastStatus(c.dnsResponder.Status())
+}
+
+// syncDhcpRelay keeps one DHCP relay listener per VLAN interface that is
+// flagged dhcp_relay and currently exists on the host (state up or down, not
+// error). Runs every poll; Sync is idempotent and restarts failed listeners.
+// Disabled with PFCONNECTOR_DHCP_RELAY=false.
+func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
+	if v := os.Getenv("PFCONNECTOR_DHCP_RELAY"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	present := map[string]bool{}
+	if status != nil {
+		for _, st := range status.Interfaces {
+			present[st.Name] = st.State != "error"
+		}
+	}
+	wanted := []dhcprelay.Interface{}
+	for _, iface := range ifaces {
+		if !sharedutils.IsEnabled(iface.Dhcp) || !present[iface.Name()] {
+			continue
+		}
+		ip, _, err := net.ParseCIDR(iface.CIDR)
+		if err != nil {
+			continue
+		}
+		wanted = append(wanted, dhcprelay.Interface{Name: iface.Name(), IP: ip})
+	}
+	if c.dhcpRelay == nil {
+		if len(wanted) == 0 {
+			return
+		}
+		c.dhcpRelay = dhcprelay.New(dhcprelay.Config{
+			URL:    fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=%s", connectorID),
+			Logger: c.Infof,
+		})
+	}
+	c.dhcpRelay.Sync(ctx, wanted)
+	dhcprelay.SetLastStatus(c.dhcpRelay.Status())
 }

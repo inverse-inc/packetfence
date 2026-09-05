@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 65;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Connector;
@@ -76,6 +76,110 @@ $t->get_ok("$base_url/test_networks/equipment")
 
 $t->get_ok("$base_url/not_a_connector/equipment")
   ->status_is(404);
+
+# Site networking: VLAN interfaces and static routes round trip through the
+# one-line-per-entry storage format (pf::connector::site_network).
+$t->post_ok($collection_base_url => json => {
+        id => "site-a",
+        secret => "secret",
+        description => "Site A",
+        networks => ["10.10.0.0/16"],
+        interfaces => [
+            { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24", dhcp => "enabled",
+              dhcp_start => "10.10.100.10", dhcp_end => "10.10.100.250", dhcp_default_lease_time => 300, dhcp_max_lease_time => 600,
+              dns => "8.8.8.8,8.8.4.4", gateway => "10.10.100.254", dns_server => "enabled" },
+            { parent => "eth0", vlan => 101, cidr => "10.10.101.1/24" },
+        ],
+        routes => [
+            { destination => "10.20.0.0/16", gateway => "10.10.100.254", interface => "eth0.100" },
+            { destination => "192.168.50.0/24", gateway => "", interface => "eth0.101" },
+        ],
+    })
+  ->status_is(201);
+
+$t->get_ok("$base_url/site-a")
+  ->status_is(200)
+  ->json_is('/item/interfaces/0/parent' => 'eth0')
+  ->json_is('/item/interfaces/0/vlan' => 100)
+  ->json_is('/item/interfaces/1/cidr' => '10.10.101.1/24')
+  ->json_is('/item/interfaces/0/dhcp' => 'enabled')
+  ->json_is('/item/interfaces/0/dhcp_start' => '10.10.100.10')
+  ->json_is('/item/interfaces/0/dhcp_default_lease_time' => 300)
+  ->json_is('/item/interfaces/0/gateway' => '10.10.100.254')
+  ->json_is('/item/interfaces/1/dhcp' => 'disabled')
+  ->json_is('/item/interfaces/0/dns_server' => 'enabled')
+  ->json_is('/item/interfaces/1/dns_server' => 'disabled')
+  ->json_is('/item/routes/0/gateway' => '10.10.100.254')
+  ->json_is('/item/routes/1/interface' => 'eth0.101')
+  ->json_is('/item/routes/1/gateway' => '');
+
+# The on-disk format is human readable: one "name cidr" / "dst via gw dev if" line per entry.
+{
+    my $cs = pf::ConfigStore::Connector->new;
+    my $raw = $cs->readRaw("site-a");
+    is_deeply($raw->{interfaces}, ["eth0.100 10.10.100.1/24 dhcp dns start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254", "eth0.101 10.10.101.1/24"], "interfaces stored one per line");
+    is_deeply($raw->{routes}, ["10.20.0.0/16 via 10.10.100.254 dev eth0.100", "192.168.50.0/24 dev eth0.101"], "routes stored one per line");
+}
+
+# Duplicate VLAN interface within a connector
+$t->patch_ok("$base_url/site-a" => json => {
+        interfaces => [
+            { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24" },
+            { parent => "eth0", vlan => 100, cidr => "10.10.200.1/24" },
+        ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/defined multiple times/);
+
+# Network address instead of a host address
+$t->patch_ok("$base_url/site-a" => json => {
+        interfaces => [ { parent => "eth0", vlan => 100, cidr => "10.10.100.0/24" } ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/host IPv4 address/);
+
+# DHCP scope checks: range must be inside the interface network and exclude
+# the interface address; start is required when enabled.
+$t->patch_ok("$base_url/site-a" => json => {
+        interfaces => [ { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24", dhcp => "enabled", dhcp_start => "10.10.200.10", dhcp_end => "10.10.200.20" } ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/not inside 10.10.100.0\/24/);
+$t->patch_ok("$base_url/site-a" => json => {
+        interfaces => [ { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24", dhcp => "enabled", dhcp_start => "10.10.100.1", dhcp_end => "10.10.100.250" } ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/must not be inside the DHCP range/);
+$t->patch_ok("$base_url/site-a" => json => {
+        interfaces => [ { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24", dhcp => "enabled", dhcp_end => "10.10.100.250" } ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/range start is required/);
+# Disabled DHCP ignores the scope fields entirely
+$t->patch_ok("$base_url/site-a" => json => {
+        interfaces => [ { parent => "eth0", vlan => 100, cidr => "10.10.100.1/24", dhcp => "disabled", dhcp_start => "10.10.200.10" } ],
+    })
+  ->status_is(200);
+
+# A route needs a gateway or an interface, and never the default route
+$t->patch_ok("$base_url/site-a" => json => {
+        routes => [ { destination => "10.30.0.0/16", gateway => "", interface => "" } ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/needs a gateway, an interface, or both/);
+$t->patch_ok("$base_url/site-a" => json => {
+        routes => [ { destination => "0.0.0.0/0", gateway => "10.10.100.254", interface => "" } ],
+    })
+  ->status_is(422)
+  ->json_like('/errors/0/message' => qr/default route/);
+
+# Clearing both lists removes the keys
+$t->patch_ok("$base_url/site-a" => json => { interfaces => [], routes => [] })
+  ->status_is(200);
+$t->get_ok("$base_url/site-a")
+  ->status_is(200)
+  ->json_is('/item/interfaces' => [])
+  ->json_is('/item/routes' => []);
 
 
 

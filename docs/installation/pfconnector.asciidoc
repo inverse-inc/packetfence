@@ -158,6 +158,36 @@ The _Networks_ field is critical: it tells PacketFence which IP ranges are behin
 [NOTE]
 Each connector in the list shows a colored status icon: green (connected), yellow (unknown), or red (disconnected). This reflects whether the connector's tunnel is currently active.
 
+====== Site Networking: VLAN Interfaces and Static Routes
+
+The _Networking_ tab of a connector lets the remote connector host terminate VLANs at the site. Everything configured here is applied by the connector itself, within a few seconds of saving, and re-applied every time the connector starts, so it survives a reboot of the host without any manual network configuration.
+
+* *VLAN Interfaces* -- One row per 802.1Q VLAN interface to create on the connector host. Each row has a *Parent interface* (the physical NIC of the host, e.g. `eth0`), a *VLAN ID* (1-4094) and an *IP address* written with its prefix length (e.g. `10.10.100.1/24`). The interface is named `parent.vlan` (e.g. `eth0.100`). The parent interface must exist on the host and must carry the VLAN as tagged traffic from the switch. The *DHCP* toggle turns the VLAN into a DHCP scope served by PacketFence: the connector relays the DHCP requests received on that VLAN to the PacketFence DHCP server through its tunnel (DHCP-over-HTTPS, see below), and the server hands out the range configured on the row: *Range start* and *Range end* (inside the network of the interface address, which itself must stay outside the range), *Default lease* and *Max lease* in seconds, *DNS servers*, *Gateway* (the interface address when empty) and an optional *Domain name*.
+* *Static Routes* -- Optional routes to install on the host, each with a *Destination* network, and a *Gateway* and/or an *Interface*. The default route cannot be managed from here.
+
+The connector tags the interfaces it creates (interface alias `pf-connector`) and the routes it installs (routing protocol 201) and only ever modifies or removes objects carrying those tags. VLAN interfaces or routes configured by hand on the host are never touched, and an interface name that already exists without the tag is reported as an error instead of being taken over.
+
+The observed state (interface up/down, address, per-item errors such as a missing parent interface) is shown in the _Remote Connector Status_ card of the connector, under _Site networking_.
+
+====== DHCP-over-HTTPS
+
+No DHCP packet crosses the tunnel as UDP. The connector listens on UDP/67 on every VLAN interface with DHCP enabled, sets `giaddr` to the interface address like a classic relay agent, and POSTs the raw DHCP message to the pfconnector server (`/api/v1/pfconnector/dhcp-message`), which checks that `giaddr` is one of that connector's DHCP interfaces and forwards it to pfdhcp (`POST /api/v1/dhcp/message`, `services_url.pfdhcp` or `http://127.0.0.1:22222`). The raw DHCP reply comes back in the HTTP response and the connector delivers it to the client (broadcast or layer-2 unicast, unicast for renewals). The DHCP server identifier advertised to the clients is the VLAN interface address, so renewals also go through the relay.
+
+On the pfdhcp side the scopes come from the connectors configuration, not from `networks.conf`, and are served by a synthetic `connector` interface that has no socket: `/api/v1/dhcp/stats/connector` lists them. Set `PFDHCP_DOH_ONLY=true` in pfdhcp's environment (the cloud deployment) to serve exclusively over HTTP, with no scope on the local interfaces. `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` shares the leases between several pfdhcp instances. On the connector, `PFCONNECTOR_DHCP_RELAY=false` disables the relay.
+
+The relay never queues: a request that pfdhcp cannot answer within 1.5 seconds is dropped and the client retransmits.
+
+====== Captive portal on the VLAN
+
+Ports 80 and 443 of the connector host are already tunnelled to the PacketFence captive portal, on every address of the host, so the VLAN interfaces answer HTTP and HTTPS as soon as they exist and the captive DNS sends every name there. What the tunnel loses is the address of the device: the portal would see every device as the tunnel exit and could not map the request to a MAC. Enable _Configuration -> System Configuration -> Captive Portal -> Connector PROXY protocol_ (`captive_portal.connector_proxy_protocol`) and restart `haproxy-portal`: haproxy-portal then listens on `8880` (HTTP) and `8843` (HTTPS) with `accept-proxy`, the connectors tunnel their ports 80/443 to these listeners with a PROXY protocol v2 header carrying the device address, and the portal identifies the device through `X-Forwarded-For` as usual. With a cloud deployment, `PFCONNECTOR_BINDS_HOST_PORT_80` / `_443` on the pfconnector server must point to the accept-proxy listeners with the `/tcp|proxyproto` suffix (e.g. `haproxy-portal:8880/tcp|proxyproto`).
+
+====== Captive DNS
+
+The *DNS* toggle of a VLAN interface makes the connector itself answer DNS on that interface (UDP and TCP port 53 bound to the interface address): every `A` query gets the interface address with a 60 second TTL, `AAAA` queries get an empty answer so dual-stack devices fall back to IPv4, and other types are refused. There is no recursion and no upstream. This is the captive-portal DNS of the VLAN: whatever a device resolves lands on the connector, where the portal answers. When DHCP is enabled on the same interface and no DNS server is configured in the scope, the clients receive the interface address as DNS server. `PFCONNECTOR_DNS_RESPONDER=false` disables it on a host. The query counters are shown in the _Remote Connector Status_ card.
+
+[NOTE]
+The connector container needs the `NET_ADMIN` capability for this feature. It is granted by the `packetfence-pfconnector-remote` package; on a host where the container is started differently, add `--cap-add=NET_ADMIN` to the `docker run` arguments. Without it, the connector logs the netlink permission error and the interfaces are reported in error.
+
 ====== Associating a Domain Name with a Connector
 
 To route traffic for resources that are defined by hostname (such as LDAP sources or Active Directory servers) through a pfconnector, two steps are required:

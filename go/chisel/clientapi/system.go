@@ -1,16 +1,23 @@
 package clientapi
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"sort"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -44,6 +51,80 @@ type SystemInfo struct {
 	// this connector right now. The admin UI keys the "View Logs" button on
 	// it; connectors predating the feature simply omit the field.
 	LogFiles []string `json:"log_files,omitempty"`
+	// SiteNetwork is the result of the last VLAN interface / static route
+	// reconcile pass (see chisel/share/sitenetwork). Omitted until the first
+	// pass ran; the admin UI shows it in the connector's Networking tab.
+	SiteNetwork *sitenetwork.Status `json:"site_network,omitempty"`
+	// DhcpRelay lists the DHCP-over-HTTPS relay listeners (one per VLAN
+	// interface flagged dhcp_relay) with their counters.
+	DhcpRelay []dhcprelay.Status `json:"dhcp_relay,omitempty"`
+	// DnsServer lists the captive DNS responders (one per VLAN interface
+	// flagged dns_server) with their query counters.
+	DnsServer []dnsresponder.Status `json:"dns_server,omitempty"`
+	// HostInterfaces lists the network interfaces of the connector host (the
+	// container runs with --network=host), loopback excluded. The admin UI
+	// offers them as choices for the parent of a VLAN interface and for the
+	// interface of a static route.
+	HostInterfaces []HostInterface `json:"host_interfaces,omitempty"`
+}
+
+// HostInterface is one network interface of the connector host.
+type HostInterface struct {
+	Name      string   `json:"name"`
+	Up        bool     `json:"up"`
+	Addresses []string `json:"addresses"` // CIDR notation, IPv4 and IPv6
+	// Main is set on the interface holding the IPv4 default route: the one the
+	// connector reaches PacketFence through and the natural parent for the
+	// site VLANs. The admin UI lists it first and preselects it.
+	Main bool `json:"main"`
+}
+
+// hostInterfaces returns the host's interfaces, main one first then sorted by
+// name, loopback excluded. Errors are swallowed: the field is informational.
+func hostInterfaces() []HostInterface {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return nil
+	}
+	main := defaultRouteInterface()
+	out := []HostInterface{}
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+		hi := HostInterface{Name: iface.Name, Up: iface.Flags&net.FlagUp != 0, Addresses: []string{}, Main: iface.Name == main}
+		if addrs, err := iface.Addrs(); err == nil {
+			for _, a := range addrs {
+				hi.Addresses = append(hi.Addresses, a.String())
+			}
+		}
+		out = append(out, hi)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Main != out[j].Main {
+			return out[i].Main
+		}
+		return out[i].Name < out[j].Name
+	})
+	return out
+}
+
+// defaultRouteInterface returns the name of the interface holding the IPv4
+// default route (/proc/net/route, destination 0.0.0.0), or "" when none.
+func defaultRouteInterface() string {
+	file, err := os.Open("/proc/net/route")
+	if err != nil {
+		return ""
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) >= 2 && fields[1] == "00000000" {
+			return fields[0]
+		}
+	}
+	return ""
 }
 
 // systemInfo reports resource usage of the box running the
@@ -56,6 +137,10 @@ func systemInfo(api *API) http.HandlerFunc {
 			TerminalEnabled: api.TerminalEnabled,
 			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
 			LogFiles:        availableLogFiles(api),
+			SiteNetwork:     sitenetwork.LastStatus(),
+			DhcpRelay:       dhcprelay.LastStatus(),
+			DnsServer:       dnsresponder.LastStatus(),
+			HostInterfaces:  hostInterfaces(),
 		}
 		info.Hostname, _ = os.Hostname()
 

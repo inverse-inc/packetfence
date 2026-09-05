@@ -5518,11 +5518,76 @@ components:
         id:
           description: Id
           type: string
+        interfaces:
+          description: VLAN interfaces created on the remote connector host, named
+            "<parent>.<vlan>"
+          items:
+            description: VLAN interface
+            properties:
+              cidr:
+                description: Host IPv4 address with prefix length (e.g. 10.10.100.1/24)
+                type: string
+              dhcp:
+                description: Serve DHCP on this VLAN (enabled/disabled). The connector
+                  relays the requests to the PacketFence DHCP server over HTTP, which
+                  serves the scope described by the dhcp_* fields in the network of cidr.
+                type: string
+              dhcp_default_lease_time:
+                description: Default lease time in seconds (300 when empty)
+                type: integer
+              dhcp_end:
+                description: Last address of the DHCP range
+                type: string
+              dhcp_max_lease_time:
+                description: Maximum lease time in seconds (600 when empty)
+                type: integer
+              dhcp_start:
+                description: First address of the DHCP range
+                type: string
+              dns:
+                description: Comma separated DNS servers handed to the clients (the
+                  interface address when empty and dns_server is enabled)
+                type: string
+              dns_server:
+                description: Captive DNS on this VLAN (enabled/disabled), the connector
+                  answers every DNS query with the interface address
+                type: string
+              domain_name:
+                description: Domain name handed to the clients (optional)
+                type: string
+              gateway:
+                description: Gateway handed to the clients (the interface address when
+                  empty)
+                type: string
+              parent:
+                description: Parent (physical) interface name
+                type: string
+              vlan:
+                description: 802.1Q VLAN ID (1-4094)
+                type: integer
+            type: object
+          type: array
         networks:
           description: Networks
           items:
             description: Network
             type: string
+          type: array
+        routes:
+          description: Static routes installed on the remote connector host
+          items:
+            description: Static route
+            properties:
+              destination:
+                description: Destination network in CIDR notation
+                type: string
+              gateway:
+                description: Next hop IPv4 address (optional when an interface is set)
+                type: string
+              interface:
+                description: Output interface (optional when a gateway is set)
+                type: string
+            type: object
           type: array
         secret:
           description: Secret
@@ -5542,7 +5607,11 @@ components:
               $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'
+            interfaces:
+              $ref: '#/components/schemas/Meta'
             networks:
+              $ref: '#/components/schemas/Meta'
+            routes:
               $ref: '#/components/schemas/Meta'
             secret:
               $ref: '#/components/schemas/Meta'

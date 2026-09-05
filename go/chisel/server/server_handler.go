@@ -2,7 +2,10 @@ package chserver
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -155,6 +158,12 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/process-dhcp":
 		s.handleProcessDhcp(w, r)
+		return
+	case apiPrefix + "/site-network":
+		s.handleSiteNetwork(w, r)
+		return
+	case apiPrefix + "/dhcp-message":
+		s.handleDhcpMessage(w, r)
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, credcachePathPrefix) {
@@ -736,10 +745,23 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			tun.BindDynamicRemotes(remotes)
 		}()
 
+		// Portal ports. With captive_portal.connector_proxy_protocol the
+		// default targets are haproxy-portal's accept-proxy listeners and the
+		// connector prefixes each connection with a PROXY header (real client
+		// address for the portal). PFCONNECTOR_BINDS_HOST_PORT_80/443 override
+		// the whole target, handler suffix included.
+		portal80 := fmt.Sprintf("%s:80", managementIP)
+		portal443 := fmt.Sprintf("%s:443", managementIP)
+		captivePortal := pfconfigdriver.PfConfCaptivePortal{}
+		if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &captivePortal); err == nil && sharedutils.IsEnabled(captivePortal.ConnectorProxyProtocol) {
+			portal80 = fmt.Sprintf("%s:%s/tcp|%s", managementIP, pfconfigdriver.ConnectorProxyProtocolPorts.HTTP, tunnel.ProxyProtocolHandler)
+			portal443 = fmt.Sprintf("%s:%s/tcp|%s", managementIP, pfconfigdriver.ConnectorProxyProtocolPorts.HTTPS, tunnel.ProxyProtocolHandler)
+		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(gin.H{"binds": []string{
-			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
-			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
+			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", portal80)),
+			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", portal443)),
 			fmt.Sprintf("100.64.0.1:18122:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
 			// Accounting tunnel: FreeRADIUS on the connector owns local UDP 1813 (NAS
 			// accounting) and proxies to this bind, which tunnels to the cloud pfacct.
@@ -1675,4 +1697,167 @@ func (s *Server) handleConnectorHealth(w http.ResponseWriter, req *http.Request)
 		"overall":    overall,
 		"connectors": status,
 	})
+}
+
+// SiteNetworkReply is the desired site networking state of one connector:
+// the VLAN interfaces the pfconnector-remote host must create and hold an IP
+// on, and the static routes it must install. Version is a content hash so the
+// client can skip the reconcile when nothing changed.
+type SiteNetworkReply struct {
+	Version    string                              `json:"version"`
+	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
+	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+}
+
+// handleSiteNetwork serves GET /api/v1/pfconnector/site-network?connector-id=<id>.
+// It is polled by pfconnector-client through the tunnel-local bind on 22226,
+// alongside remote-binds, and reflects the interfaces/routes of the connector
+// in connectors.conf.
+func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id"})
+		return
+	}
+
+	connectors := pfconfigdriver.Connectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err)})
+		return
+	}
+
+	connector, found := connectors.Element[connectorId]
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unknown connector %s", connectorId)})
+		return
+	}
+
+	reply := SiteNetworkReply{
+		Interfaces: connector.Interfaces,
+		Routes:     connector.Routes,
+	}
+	if reply.Interfaces == nil {
+		reply.Interfaces = []pfconfigdriver.ConnectorInterface{}
+	}
+	if reply.Routes == nil {
+		reply.Routes = []pfconfigdriver.ConnectorRoute{}
+	}
+	content, _ := json.Marshal(struct {
+		Interfaces []pfconfigdriver.ConnectorInterface
+		Routes     []pfconfigdriver.ConnectorRoute
+	}{reply.Interfaces, reply.Routes})
+	sum := sha256.Sum256(content)
+	reply.Version = hex.EncodeToString(sum[:8])
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(reply)
+}
+
+// dhcpMessageContentType mirrors application/dns-message (RFC 8484): the HTTP
+// body is the raw DHCP message, nothing else.
+const dhcpMessageContentType = "application/dhcp-message"
+
+// pfdhcpMessagePath is pfdhcp's DHCP-over-HTTP endpoint.
+const pfdhcpMessagePath = "/api/v1/dhcp/message"
+
+// pfdhcpAPIURL is where pfdhcp's API listens when services_url.pfdhcp is not
+// configured (a PacketFence server: pfdhcp on the same host).
+const pfdhcpAPIURL = "http://127.0.0.1:22222"
+
+var dhcpMessageClient = &http.Client{Timeout: 1500 * time.Millisecond}
+
+// handleDhcpMessage is the server half of DHCP-over-HTTPS:
+// POST /api/v1/pfconnector/dhcp-message?connector-id=<id>, body = the raw
+// DHCP request the connector's relay received on one of its VLAN interfaces
+// with giaddr set to that interface's address. The body is forwarded verbatim
+// to pfdhcp and pfdhcp's reply body (the raw DHCP reply) is returned.
+//
+// Authorization: giaddr must be the address of one of the calling connector's
+// VLAN interfaces with the DHCP relay enabled. A connector can therefore only
+// obtain leases in the scopes it terminates, never in another site's.
+func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		http.Error(w, "Missing connector-id", http.StatusBadRequest)
+		return
+	}
+	body, err := io.ReadAll(io.LimitReader(req.Body, 1501))
+	if err != nil || len(body) < 240 || len(body) > 1500 {
+		http.Error(w, "Body must be a DHCP message (240..1500 bytes)", http.StatusBadRequest)
+		return
+	}
+	if body[0] != 1 { // BOOTREQUEST
+		http.Error(w, "Only BOOTREQUEST messages are relayed", http.StatusBadRequest)
+		return
+	}
+	giaddr := net.IP(body[24:28])
+
+	connectors := pfconfigdriver.Connectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		http.Error(w, fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err), http.StatusInternalServerError)
+		return
+	}
+	connector, found := connectors.Element[connectorId]
+	if !found {
+		http.Error(w, fmt.Sprintf("Unknown connector %s", connectorId), http.StatusNotFound)
+		return
+	}
+	if !connectorRelaysFrom(connector, giaddr) {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("dhcp-message: connector %s sent a DHCP request with giaddr %s which is not one of its DHCP relay interfaces; dropped", connectorId, giaddr))
+		http.Error(w, fmt.Sprintf("giaddr %s is not a DHCP relay interface of connector %s", giaddr, connectorId), http.StatusForbidden)
+		return
+	}
+
+	base := pfdhcpAPIURL
+	servicesURL := pfconfigdriver.PfConfServicesURL{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &servicesURL); err == nil && servicesURL.Pfdhcp != "" {
+		base = strings.TrimRight(servicesURL.Pfdhcp, "/")
+	}
+	upstream, err := http.NewRequestWithContext(req.Context(), http.MethodPost, base+pfdhcpMessagePath, bytes.NewReader(body))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	upstream.Header.Set("Content-Type", dhcpMessageContentType)
+	upstream.Header.Set("X-PacketFence-Connector-Id", connectorId)
+	res, err := dhcpMessageClient.Do(upstream)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("pfdhcp unreachable: %s", err), http.StatusBadGateway)
+		return
+	}
+	defer res.Body.Close()
+	reply, err := io.ReadAll(io.LimitReader(res.Body, 1501))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("pfdhcp reply: %s", err), http.StatusBadGateway)
+		return
+	}
+	if res.StatusCode == http.StatusOK {
+		w.Header().Set("Content-Type", dhcpMessageContentType)
+	} else if ct := res.Header.Get("Content-Type"); ct != "" {
+		w.Header().Set("Content-Type", ct)
+	}
+	w.WriteHeader(res.StatusCode)
+	w.Write(reply)
+}
+
+// connectorRelaysFrom reports whether ip is the address of one of the
+// connector's VLAN interfaces that has the DHCP relay enabled.
+func connectorRelaysFrom(connector pfconfigdriver.ConnectorConfig, ip net.IP) bool {
+	for _, iface := range connector.Interfaces {
+		if !sharedutils.IsEnabled(iface.Dhcp) {
+			continue
+		}
+		ifIP, _, err := net.ParseCIDR(iface.CIDR)
+		if err == nil && ifIP.Equal(ip) {
+			return true
+		}
+	}
+	return false
 }

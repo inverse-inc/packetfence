@@ -133,6 +133,106 @@
             <p v-else class="text-muted mb-0">{{ $i18n.t('No dynamic connection currently bound for this connector.') }}</p>
           </b-col>
         </b-row>
+
+        <b-row v-if="siteNetwork" class="mt-3">
+          <b-col md="6">
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: VLAN interfaces') }}</h6>
+            <b-table-simple v-if="siteNetwork.interfaces && siteNetwork.interfaces.length" small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Interface') }}</b-th>
+                  <b-th>{{ $i18n.t('Address') }}</b-th>
+                  <b-th>{{ $i18n.t('State') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="iface in siteNetwork.interfaces" :key="iface.name">
+                  <b-td class="text-monospace">{{ iface.name }}</b-td>
+                  <b-td class="text-monospace">{{ iface.cidr }}</b-td>
+                  <b-td>
+                    <b-badge :variant="siteNetworkVariant(iface.state)" :title="iface.error || ''">{{ iface.state }}</b-badge>
+                    <small v-if="iface.error" class="d-block text-danger">{{ iface.error }}</small>
+                  </b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+            <p v-else class="text-muted mb-0">{{ $i18n.t('No VLAN interface configured for this connector.') }}</p>
+          </b-col>
+          <b-col md="6">
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: static routes') }}</h6>
+            <b-table-simple v-if="siteNetwork.routes && siteNetwork.routes.length" small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Destination') }}</b-th>
+                  <b-th>{{ $i18n.t('Via') }}</b-th>
+                  <b-th>{{ $i18n.t('State') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="(route, index) in siteNetwork.routes" :key="index">
+                  <b-td class="text-monospace">{{ route.destination }}</b-td>
+                  <b-td class="text-monospace">{{ [route.gateway, route.interface].filter(v => v).join(' dev ') }}</b-td>
+                  <b-td>
+                    <b-badge :variant="siteNetworkVariant(route.state)" :title="route.error || ''">{{ route.state }}</b-badge>
+                    <small v-if="route.error" class="d-block text-danger">{{ route.error }}</small>
+                  </b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+            <p v-else class="text-muted mb-0">{{ $i18n.t('No static route configured for this connector.') }}</p>
+          </b-col>
+        </b-row>
+
+        <b-row v-if="dhcpRelay.length || dnsServer.length" class="mt-3">
+          <b-col v-if="dnsServer.length" md="5">
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: captive DNS') }}</h6>
+            <b-table-simple small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Interface') }}</b-th>
+                  <b-th>{{ $i18n.t('State') }}</b-th>
+                  <b-th>{{ $i18n.t('Queries') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="srv in dnsServer" :key="srv.interface">
+                  <b-td class="text-monospace">{{ srv.interface }} ({{ srv.ip }})</b-td>
+                  <b-td>
+                    <b-badge :variant="srv.state === 'listening' ? 'success' : 'danger'" :title="srv.error || ''">{{ srv.state }}</b-badge>
+                    <small v-if="srv.error" class="d-block text-danger">{{ srv.error }}</small>
+                  </b-td>
+                  <b-td>{{ srv.queries }}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+          </b-col>
+          <b-col v-if="dhcpRelay.length">
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: DHCP relay') }}</h6>
+            <b-table-simple small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Interface') }}</b-th>
+                  <b-th>{{ $i18n.t('State') }}</b-th>
+                  <b-th>{{ $i18n.t('Requests') }}</b-th>
+                  <b-th>{{ $i18n.t('Replies') }}</b-th>
+                  <b-th>{{ $i18n.t('Dropped') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="relay in dhcpRelay" :key="relay.interface">
+                  <b-td class="text-monospace">{{ relay.interface }} ({{ relay.ip }})</b-td>
+                  <b-td>
+                    <b-badge :variant="relay.state === 'listening' ? 'success' : 'danger'" :title="relay.error || relay.last_error || ''">{{ relay.state }}</b-badge>
+                    <small v-if="relay.error || relay.last_error" class="d-block text-danger">{{ relay.error || relay.last_error }}</small>
+                  </b-td>
+                  <b-td>{{ relay.requests }}</b-td>
+                  <b-td>{{ relay.replies }}</b-td>
+                  <b-td>{{ relay.dropped }}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+          </b-col>
+        </b-row>
       </template>
       <p v-else-if="!isLoading" class="text-muted mb-0">{{ $i18n.t('Status unavailable.') }}</p>
     </div>
@@ -214,6 +314,33 @@ export const setup = (props, context) => {
     const { system: { log_files: files } = {} } = status.value || {}
     return Array.isArray(files) ? files : []
   })
+
+  // Result of the connector's last VLAN interface / static route reconcile
+  // pass (/system/info site_network). Absent on connectors predating the
+  // feature or before the first pass ran.
+  const siteNetwork = computed(() => {
+    const { system: { site_network: sn } = {} } = status.value || {}
+    return sn || null
+  })
+  const dhcpRelay = computed(() => {
+    const { system: { dhcp_relay: relay } = {} } = status.value || {}
+    return Array.isArray(relay) ? relay : []
+  })
+  const dnsServer = computed(() => {
+    const { system: { dns_server: srv } = {} } = status.value || {}
+    return Array.isArray(srv) ? srv : []
+  })
+  const siteNetworkVariant = state => {
+    switch (state) {
+      case 'up':
+      case 'applied':
+        return 'success'
+      case 'down':
+        return 'warning'
+      default:
+        return 'danger'
+    }
+  }
 
   const refresh = () => {
     if (!props.id)
@@ -348,6 +475,10 @@ export const setup = (props, context) => {
     lastRefresh,
     showLogs,
     logFiles,
+    siteNetwork,
+    siteNetworkVariant,
+    dhcpRelay,
+    dnsServer,
     refresh,
     restart,
     upgrade,

@@ -873,6 +873,13 @@ ip_address=66.70.255.147
 # Enable or not the network detection feature after registration
 network_detection=enabled
 #
+# captive_portal.connector_proxy_protocol
+#
+# Expose the captive portal to the remote connectors through PROXY protocol
+# listeners (haproxy-portal on ports 8880/8843) so that the portal sees the
+# device behind the connector. Required for the portal on a connector VLAN.
+connector_proxy_protocol=disabled
+#
 # captive_portal.network_detection_ip
 #
 # This IP is used as the webserver who hosts the common/network-access-detection.gif which is used to detect if network
