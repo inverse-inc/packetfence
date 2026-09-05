@@ -109,7 +109,7 @@
                 </b-thead>
                 <b-tbody>
                   <b-tr>
-                    <b-td class="text-monospace">{{ ha.hostname || status.system.hostname }}</b-td>
+                    <b-td class="text-monospace">{{ ha.hostname || status.system.hostname }} <small v-if="ha.address" class="text-muted">{{ ha.address }}</small></b-td>
                     <b-td>{{ $i18n.t('master') }}</b-td>
                     <b-td>{{ status.system.version }}</b-td>
                     <b-td>{{ formatDate(ha.since) }}</b-td>

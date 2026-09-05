@@ -61,6 +61,9 @@ type HAStatus struct {
 	Enabled  bool   `json:"enabled"`
 	VIP      string `json:"vip"`
 	Hostname string `json:"hostname"`
+	// Address is this host's own address on the default-route interface (the
+	// VIP excluded), shown next to the hostname like the peers' addresses.
+	Address string `json:"address"`
 	// State is "master" while this host holds the VIP and runs the tunnel,
 	// "backup" otherwise.
 	State string    `json:"state"`
@@ -109,7 +112,32 @@ func SetHAState(vip, state string) {
 		return
 	}
 	hostname, _ := os.Hostname()
-	haStatus = &HAStatus{Enabled: true, VIP: vip, Hostname: hostname, State: state, Since: time.Now()}
+	haStatus = &HAStatus{Enabled: true, VIP: vip, Hostname: hostname, Address: primaryAddress(vip), State: state, Since: time.Now()}
+}
+
+// primaryAddress returns the first IPv4 address of the default-route
+// interface that is not the VIP, or "" when unknown.
+func primaryAddress(vip string) string {
+	name := defaultRouteInterface()
+	if name == "" {
+		return ""
+	}
+	iface, err := net.InterfaceByName(name)
+	if err != nil {
+		return ""
+	}
+	addrs, err := iface.Addrs()
+	if err != nil {
+		return ""
+	}
+	for _, a := range addrs {
+		n, ok := a.(*net.IPNet)
+		if !ok || n.IP.To4() == nil || n.IP.String() == vip {
+			continue
+		}
+		return n.IP.String()
+	}
+	return ""
 }
 
 // SetHASecret derives the keys that authenticate heartbeats and protect cache
