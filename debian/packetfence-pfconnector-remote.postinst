@@ -21,6 +21,12 @@ set -e
 LC_CTYPE=C
 export LC_CTYPE
 
+# Finish removing the legacy packetfence-pfconnector-remote.service conffile
+# (see preinst). Must run for every argument, before the case below.
+if [ -x /usr/bin/dpkg-maintscript-helper ]; then
+    dpkg-maintscript-helper rm_conffile /etc/systemd/system/packetfence-pfconnector-remote.service -- "$@"
+fi
+
 case "$1" in
     configure)
     if [ ! -f /usr/local/pfconnector-remote/raddb/certs/server.pem ]; then
@@ -38,11 +44,15 @@ case "$1" in
     fi
     # get containers image and tag them locally
     /usr/local/pfconnector-remote/containers/manage-images.sh
-    # stop and disable legacy pfconnector-remote service in favor of the combined one
+    # stop and disable the legacy pfconnector-remote unit in favor of the
+    # combined one (its file is removed as an obsolete conffile, see preinst)
     if systemctl is-enabled --quiet "packetfence-pfconnector-remote.service" 2>/dev/null; then
         /bin/systemctl stop packetfence-pfconnector-remote.service 2>/dev/null || true
         /bin/systemctl disable packetfence-pfconnector-remote.service 2>/dev/null || true
     fi
+    # The unit file itself is removed by dpkg-maintscript-helper (above); a
+    # modified copy is kept as .dpkg-bak. Forget its failed state either way.
+    /bin/systemctl reset-failed packetfence-pfconnector-remote.service 2>/dev/null || true
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-pfconnector-remote-combined.service
     # Watches conf/upgrade_requested for admin-triggered upgrades from the
