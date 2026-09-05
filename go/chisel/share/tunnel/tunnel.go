@@ -287,3 +287,18 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 func (t *Tunnel) IsActive() bool {
 	return t.activeConn != nil
 }
+
+// Close terminates the active SSH connection, if any. BindSSH then returns,
+// the caller's errgroup cancels and every listener bound for this tunnel is
+// released. Used by the server when a connector reconnects while a previous
+// tunnel for the same id is still up (HA failover, see
+// docs/design/pfconnector-remote-ha.md).
+func (t *Tunnel) Close() error {
+	t.activeConnMut.RLock()
+	c := t.activeConn
+	t.activeConnMut.RUnlock()
+	if c == nil {
+		return nil
+	}
+	return c.Close()
+}
