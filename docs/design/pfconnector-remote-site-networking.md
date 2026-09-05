@@ -371,8 +371,8 @@ the server; the connector keeps nothing but the last applied payload in
   interface, state: applied|error, error}`.
 - `TheStatus.vue` (`html/pfappserver/root/src/views/Configuration/connectors/_components/`)
   renders it as a small table under the existing service status.
-- `SystemInfo` also gains `host_interfaces`: the connector host's interfaces
-  (`{name, up, addresses[], main}`, loopback excluded; `main` marks the
+- `SystemInfo` also gains `host_interfaces`: the connector host's interfaces (loopback and the container runtime's docker0/br-*/veth* excluded)
+  (`{name, up, addresses[], main}`; `main` marks the
   interface holding the IPv4 default route, listed first). `TheForm.vue`
   fetches the remote status once and provides them to the Networking tab: the
   parent of a VLAN interface is chosen among the non-VLAN names (still
