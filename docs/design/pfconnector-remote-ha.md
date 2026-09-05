@@ -294,9 +294,21 @@ configure on switches; several unicast peers (`PFCONNECTOR_HA_PEER` is a
 comma-separated list); `docs/installation/pfconnector.asciidoc` section
 "High availability" written from the failover test.
 
-Phase 4 (later) – warm caches: periodic copy of `pfcc.db` and the NT-key cache
-to the peer over the LAN, or cloud-side push to every tunnel of the id when
-option 3 lands.
+Phase 4 – warm caches (`go/chisel/clientapi/hacache.go`): connector-cache's
+SQLite (`pfcc.db`: `device` = cached RADIUS replies, `credential` = NT keys)
+is filled on the master only. Every `PFCONNECTOR_HA_CACHE_SYNC_INTERVAL`
+(default 1 min, `PFCONNECTOR_HA_CACHE_SYNC=false` disables) a backup GETs
+`/api/v1/ha/cache-snapshot?ts=` on the VIP, signed like the heartbeat; the
+master (only while master) takes a consistent copy with the SQLite online
+backup (`sqlite3 .backup`, WAL-safe) and returns it encrypted with
+AES-256-GCM under `SHA256("pfconnector-ha-cache:" + secret)` since it carries
+NT hashes. The backup mirrors it into its live database with the sqlite3 CLI
+(`INSERT OR REPLACE` plus deletion of rows absent from the snapshot, per
+table with a primary key, tables present on both sides only) while
+connector-cache keeps running. The outcome (`cache_synced_at`,
+`cache_sync_error`, `cache_rows`) travels in the heartbeat and the status
+panel shows it per peer. Cloud-side push to every tunnel of the id remains
+the option-3 alternative.
 
 ## 5. Test results
 
@@ -342,6 +354,10 @@ VLAN address (keepalived did not know it) → `ha-notify.sh` now flushes the
 IPv4 addresses of connector-owned VLAN links whenever the host is not
 master; `configure-raddb.sh` exited under `set -e` on the failed curl before
 its HA fallback → `|| true`.
+
+Phase 4 on the same pair: a credential inserted in the master's `pfcc.db`
+appeared on the backup 56 s later, its deletion was mirrored 49 s later; the
+peer's `cache_rows`/`cache_synced_at` are relayed by the cloud status API.
 
 Not exercised: hard host failure (VRRP timeout adds ~3 s), the server-side
 "close the previous tunnel" path (graceful failovers close the old tunnel
