@@ -91,8 +91,9 @@
   </base-form>
 </template>
 <script>
-import { computed, ref } from '@vue/composition-api'
+import { computed, onMounted, provide, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import api from '../_api'
 import {
   BaseForm,
   BaseFormTab
@@ -156,6 +157,22 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const showInstallModal = ref(false)
+
+  // Network interfaces of the connector host, as reported by the connector
+  // (system info host_interfaces). Offered as choices in the Networking tab;
+  // empty while the connector is disconnected, new or predates the feature.
+  const hostInterfaces = ref([])
+  provide('connectorHostInterfaces', hostInterfaces)
+  onMounted(() => {
+    if (props.isNew || props.isClone || !props.id)
+      return
+    api.remoteStatus(props.id).then(response => {
+      const { system: { host_interfaces: interfaces = [] } = {} } = response || {}
+      hostInterfaces.value = interfaces
+    }).catch(() => {
+      hostInterfaces.value = []
+    })
+  })
 
   const installCommand = computed(() => {
     const { id, secret } = props.form || {}
