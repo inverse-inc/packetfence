@@ -186,6 +186,37 @@ backup is reporting. An HA badge in the connectors *list* was considered and
 dropped: the list status endpoint only relays the server's connector-status
 map and would need a per-connector system-info round-trip.
 
+### 3.3.2 Site network VLAN interfaces under HA
+
+With `feature/pfconnector-site-networking` merged, the connector host also
+terminates site VLANs: `<parent>.<vlan>` links carrying an address that is
+the VLAN gateway, the DHCP relay source (`giaddr`) and the captive DNS
+address. Under HA that address must exist on exactly one host and move with
+the VIP, with gratuitous ARP so clients follow it. So it is a VRRP virtual IP
+too, in the same `vrrp_instance` as the main VIP:
+
+- The client caches the last site-network payload in
+  `/usr/local/pf/var/conf/site-network.json` (bind-mounted, survives
+  restarts).
+- `configure-keepalived.sh` reads the cache: it creates the VLAN links that
+  are missing (a backup has no tunnel to fetch the config, and keepalived
+  needs the `dev` to exist), tags them `pf-connector` like the Go reconciler,
+  and lists each `<cidr> dev <name>` under `virtual_ipaddress`.
+- When the master applies a new site-network version, the client re-runs
+  `configure-keepalived.sh` and reloads keepalived (`s6-svc -h`), so a VLAN
+  added or removed in the admin UI becomes (or stops being) a virtual IP
+  immediately. The Go reconciler still assigns the address on the master
+  (a brand-new VLAN has no stale ARP entries; keepalived then owns it).
+- On failover keepalived adds the VLAN addresses on the new master with
+  gratuitous ARPs and removes them from the old one; the DHCP relay and DNS
+  responders are part of the client, which only runs on the master, and the
+  new master's client starts them on the VLAN addresses once present.
+- A backup that never held the VIP has no cache: its VLAN links are created
+  by the reconciler on its first activation, then cached for later boots.
+
+Static routes stay with the master's reconciler (they need the VLAN
+address as source).
+
 ### 3.4 Server: same-id lifecycle made safe
 
 These fixes are needed for HA and are correct on their own:
@@ -290,7 +321,32 @@ Lesson: s6 oneshot `up` scripts run without the container environment, so
 every script that needs `PFCONNECTOR_HA_*` sources
 `/usr/local/pf/sbin/pfconnector-env.sh`, which loads pfconnector-client.env.
 
-Still to run: the two-host failover (5.1) once a second VM is available.
+Two hosts, 2026-09-05, 10.0.0.251 (priority 100) and 10.0.0.237 (priority
+90), VIP 10.0.0.250/24, site VLAN `ens18.22 10.22.0.1/24` configured on the
+connector, images built from this branch on both hosts:
+
+- Fresh start of the pair: one master, one backup; the backup boots without
+  tunnel and still has FreeRADIUS up from the cached files, keepalived up,
+  heartbeat alive on the master, `ha.peers` relayed by the admin status API
+  on the cloud side.
+- Restart of the master: the backup is MASTER within 1 s (graceful VRRP
+  release), tunnel connected at t+2 s, VLAN address 10.22.0.1 and portal
+  binds 80/443 at t+6 s; the site-network reconcile re-applies and
+  keepalived is reloaded with the VLAN virtual IP. The returning host is
+  BACKUP (nopreempt) with no VLAN address and FreeRADIUS running; its cached
+  keepalived.conf lists the VLAN virtual IP.
+- Same in the other direction.
+
+Bugs found by this test: a backup that had been master before HA kept its
+VLAN address (keepalived did not know it) → `ha-notify.sh` now flushes the
+IPv4 addresses of connector-owned VLAN links whenever the host is not
+master; `configure-raddb.sh` exited under `set -e` on the failed curl before
+its HA fallback → `|| true`.
+
+Not exercised: hard host failure (VRRP timeout adds ~3 s), the server-side
+"close the previous tunnel" path (graceful failovers close the old tunnel
+first; the cloud used for the test still ran a pfconnector-server without
+phase 1).
 
 ## 5.1 Test plan (two hosts)
 
