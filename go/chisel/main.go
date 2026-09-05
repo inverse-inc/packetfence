@@ -456,17 +456,23 @@ func client(args []string) {
 	if *hostname != "" {
 		config.Headers.Set("Host", *hostname)
 	}
+	if *pid {
+		generatePidFile()
+	}
+	go cos.GoStats()
+	ctx := cos.InterruptContext()
+
+	if vip := os.Getenv("PFCONNECTOR_HA_VIP"); vip != "" {
+		runHAClient(ctx, &config, vip, *verbose)
+		return
+	}
+
 	//ready
 	c, err := chclient.NewClient(&config)
 	if err != nil {
 		log.Fatal(err)
 	}
 	c.Debug = *verbose
-	if *pid {
-		generatePidFile()
-	}
-	go cos.GoStats()
-	ctx := cos.InterruptContext()
 	if err := c.Start(ctx); err != nil {
 		log.Fatal(err)
 	}
@@ -479,5 +485,130 @@ func client(args []string) {
 	}(ctx)
 	if err := c.Wait(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+// haVIPPollInterval is how often the HA loop checks whether this host holds
+// the VIP. keepalived moves the address in about a second after detecting
+// the peer's loss, so a 1s poll adds little to the failover time.
+const haVIPPollInterval = time.Second
+
+// runHAClient is the client main loop when PFCONNECTOR_HA_VIP is set (see
+// docs/design/pfconnector-remote-ha.md). Two hosts run the same connector;
+// only the one holding the VRRP virtual IP may hold the tunnel, otherwise the
+// cloud sees two tunnels for one connector id and the newest one silently
+// wins. The side-car API on :8081 runs on both hosts the whole time: the
+// backup answers the degraded realm to its local FreeRADIUS and reports its
+// HA state to the admin UI.
+func runHAClient(ctx context.Context, config *chclient.Config, vipValue string, verbose bool) {
+	vip, err := chclient.ParseVIP(vipValue)
+	if err != nil {
+		log.Fatalf("PFCONNECTOR_HA_VIP: %v", err)
+	}
+	config.PreferredIP = vip.String()
+	log.Printf("HA mode: the tunnel follows the VIP %s", vip)
+	secret := ""
+	if i := strings.Index(config.Auth, ":"); i >= 0 {
+		secret = config.Auth[i+1:]
+	}
+	clientapi.SetHASecret(secret)
+
+	api := clientapi.NewApi(ctx, config.Auth, nil)
+	go func() {
+		if err := api.Start(ctx, ":8081"); err != nil {
+			log.Printf("clientapi: %v", err)
+		}
+	}()
+
+	vipPresent := func() bool {
+		present, err := chclient.VIPPresent(vip)
+		if err != nil {
+			log.Printf("HA: unable to list interface addresses: %v", err)
+			return false
+		}
+		return present
+	}
+	waitFor := func(want bool) bool {
+		for {
+			if vipPresent() == want {
+				return true
+			}
+			select {
+			case <-ctx.Done():
+				return false
+			case <-time.After(haVIPPollInterval):
+			}
+		}
+	}
+
+	// While backup, tell the master we are here (admin UI shows the group).
+	heartbeat := func(ctx context.Context) {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			if err := clientapi.SendHeartbeat(ctx, vip.String(), secret, clientapi.LocalHeartbeat("backup")); err != nil {
+				failures++
+				if failures == 1 || failures%60 == 0 {
+					log.Printf("HA: heartbeat to the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			} else if failures > 0 {
+				log.Printf("HA: heartbeat to the master on %s restored", vip)
+				failures = 0
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
+	for {
+		clientapi.SetHAState(vip.String(), "backup")
+		hbCtx, stopHeartbeat := context.WithCancel(ctx)
+		go heartbeat(hbCtx)
+		acquired := waitFor(true)
+		stopHeartbeat()
+		if !acquired {
+			return
+		}
+		log.Printf("HA: VIP %s acquired, starting the tunnel", vip)
+		clientapi.SetHAState(vip.String(), "master")
+
+		c, err := chclient.NewClient(config)
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.Debug = verbose
+		if err := c.Start(ctx); err != nil {
+			log.Printf("HA: unable to start the tunnel client: %v", err)
+			time.Sleep(haVIPPollInterval)
+			continue
+		}
+		api.SetTunnel(c.GetTunnel())
+
+		done := make(chan error, 1)
+		go func() { done <- c.Wait() }()
+	master:
+		for {
+			select {
+			case <-ctx.Done():
+				c.Close()
+				<-done
+				return
+			case err := <-done:
+				log.Printf("HA: tunnel client stopped (%v), restarting", err)
+				break master
+			case <-time.After(haVIPPollInterval):
+				if !vipPresent() {
+					log.Printf("HA: VIP %s released, stopping the tunnel", vip)
+					c.Close()
+					<-done
+					break master
+				}
+			}
+		}
+		api.SetTunnel(nil)
 	}
 }

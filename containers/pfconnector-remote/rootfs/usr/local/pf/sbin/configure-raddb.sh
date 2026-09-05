@@ -2,6 +2,9 @@
 
 set -e
 
+# Oneshots run without the container env: load pfconnector-client.env.
+. /usr/local/pf/sbin/pfconnector-env.sh
+
 RADDB_TEMPLATE="/usr/local/pf/raddb/sites-available/packetfence"
 RADDB_PACKETFENCE="/usr/local/pf/raddb/sites-enabled/packetfence"
 PFCONNECTOR_CONF="/usr/local/pf/conf/pfconnector-client.env"
@@ -10,6 +13,13 @@ PFCONNECTOR_CONF="/usr/local/pf/conf/pfconnector-client.env"
 RADIUS_SECRET=$(curl -s http://localhost:22226/api/v1/pfconnector/radius-secret)
 
 if [ -z "$RADIUS_SECRET" ]; then
+    # HA backup host (docs/design/pfconnector-remote-ha.md): no tunnel until
+    # it takes the VIP. Keep the config rendered by a previous run; the
+    # secret and the connector id do not change.
+    if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && [ -s "$RADDB_PACKETFENCE" ]; then
+        echo "WARNING: pfconnector API unreachable, keeping the previously rendered $RADDB_PACKETFENCE"
+        exit 0
+    fi
     echo "ERROR: Could not fetch radius secret from pfconnector API" >&2
     exit 1
 fi

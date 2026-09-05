@@ -2,6 +2,9 @@
 
 set -e
 
+# Oneshots run without the container env: load pfconnector-client.env.
+. /usr/local/pf/sbin/pfconnector-env.sh
+
 CLIENTS_DIR=/usr/local/pf/raddb/dynamic-clients
 ENV_FILE="/usr/local/pf/conf/pfconnector-client.env"
 
@@ -18,7 +21,16 @@ PFCONNECTOR_API="http://localhost:22226/api/v1/pfconnector/remote-radius-nas?CON
 mkdir -p "$CLIENTS_DIR"
 
 # Fetch NAS entries from pfconnector API
-NAS_JSON=$(curl -sf "$PFCONNECTOR_API")
+if ! NAS_JSON=$(curl -sf "$PFCONNECTOR_API"); then
+    # HA backup host: no tunnel until it takes the VIP; keep the client files
+    # of a previous run so FreeRADIUS starts with the known switches.
+    if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && [ -n "$(ls -A "$CLIENTS_DIR" 2>/dev/null)" ]; then
+        echo "WARNING: pfconnector API unreachable, keeping the existing NAS client files"
+        exit 0
+    fi
+    echo "Error: unable to fetch the NAS list from the pfconnector API" >&2
+    exit 1
+fi
 if [ -z "$NAS_JSON" ]; then
     echo "No NAS entries received"
     exit 0
