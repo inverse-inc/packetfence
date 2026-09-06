@@ -59,6 +59,10 @@ case "$1" in
     # PacketFence admin interface
     /bin/systemctl enable packetfence-pfconnector-upgrade.path
     /bin/systemctl start packetfence-pfconnector-upgrade.path || true
+    # Watches conf/install_requested for PacketFence packages requested from
+    # the admin interface (NTLM authentication services)
+    /bin/systemctl enable packetfence-pfconnector-install.path
+    /bin/systemctl start packetfence-pfconnector-install.path || true
 
     # Installs configured before the remote terminal existed lack its
     # toggles in pfconnector-client.env (configure.sh only runs at initial

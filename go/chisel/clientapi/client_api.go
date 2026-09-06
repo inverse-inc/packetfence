@@ -213,6 +213,7 @@ func (api *API) setupRoutes() {
 				r.Get("/info", systemInfo(api))
 				r.Post("/restart", systemRestart(api))
 				r.Post("/upgrade", systemUpgrade(api))
+				r.Post("/install", systemInstall(api))
 			})
 			r.Get("/logs/{name}", tailLog(api))
 		})
