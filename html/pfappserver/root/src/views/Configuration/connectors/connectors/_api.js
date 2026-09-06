@@ -76,6 +76,11 @@ export default {
       return response.data
     })
   },
+  remoteHaSwitch: (id, to) => {
+    return apiCall.post(['pfconnector-remotes', id, 'ha', 'switch'], { to }).then(response => {
+      return response.data
+    })
+  },
   forIp: ip => {
     return apiCall.getQuiet(['pfconnector-remotes', 'for-ip', ip]).then(response => {
       return response.data

@@ -101,6 +101,10 @@ if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
     fi
 fi
 
+BOOST_FILE=/usr/local/pfconnector-remote/var/run/ha_boost
+mkdir -p "$(dirname "$BOOST_FILE")"
+[ -f "$BOOST_FILE" ] || echo 0 > "$BOOST_FILE"
+
 mkdir -p /etc/keepalived
 {
     cat <<CONF_EOF
@@ -114,6 +118,15 @@ global_defs {
 # FreeRADIUS answering on its status port. A host whose RADIUS is broken
 # lowers its priority and gives the VIP away. Cloud reachability is
 # deliberately not tracked: both hosts lose it together.
+# Priority boost written by the pfconnector-client when the admin makes this
+# host the active one from the admin interface (ha/switch): the file value is
+# added to the priority for the election that follows the master yielding.
+vrrp_track_file ha_boost {
+    file $BOOST_FILE
+    weight 1
+    init_file 0
+}
+
 vrrp_script chk_radiusd {
     script "/usr/local/pf/sbin/ha-check.sh"
     interval 2
@@ -153,6 +166,9 @@ CONF_EOF
     cat <<CONF_EOF
     track_script {
         chk_radiusd
+    }
+    track_file {
+        ha_boost
     }
     notify /usr/local/pf/sbin/ha-notify.sh
 }
