@@ -3,8 +3,6 @@ import StoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheTabsConnectors')
 import ConnectorsRoutes from './connectors/_router'
-import ConnectorsDnsRoutes from './dns/_router'
-import ConnectorsDomainsRoutes from './domains/_router'
 
 export const beforeEnter = (to, from, next = () => { }) => {
   if (!store.state.$_connectors)
@@ -20,7 +18,5 @@ export default [
     props: () => ({ tab: 'connectorsConnectors' }),
     beforeEnter
   },
-  ...ConnectorsRoutes,
-  ...ConnectorsDnsRoutes,
-  ...ConnectorsDomainsRoutes
+  ...ConnectorsRoutes
 ]

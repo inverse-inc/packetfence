@@ -1,5 +1,5 @@
 import { BaseFormGroupArray, BaseFormGroupArrayProps } from '@/components/new'
-import BaseDns from './BaseDns'
+import BaseDnsServer from './BaseDnsServer'
 import i18n from '@/utils/locale'
 
 export const props = {
@@ -7,31 +7,27 @@ export const props = {
 
   buttonLabel: {
     type: String,
-    default: i18n.t('Add Domain')
+    default: i18n.t('Add DNS Server')
   },
-  // overload :showIndex
-  showIndex: false,
-
   // overload :childComponent
   childComponent: {
     type: Object,
-    default: () => BaseDns
+    default: () => BaseDnsServer
   },
-
   // overload :defaultItem
   defaultItem: {
     type: Object,
     default: () => ({
-      domain: null,
       ip: null,
-      port: null,
-      pfconnector_port: null
+      port: 53,
+      tunnel_port: null,
+      domains: []
     })
   }
 }
 
 export default {
-  name: 'base-form-group-domains',
+  name: 'base-form-group-dns-servers',
   extends: BaseFormGroupArray,
   props
 }
