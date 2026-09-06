@@ -33,8 +33,8 @@
               <b-tr>
                 <b-th>{{ $i18n.t('Identifier') }}</b-th>
                 <b-th>{{ $i18n.t('Type') }}</b-th>
-                <b-th>{{ $i18n.t('Description') }}</b-th>
-                <b-th>{{ $i18n.t('IP Address(es)') }}</b-th>
+                <b-th>{{ group.descriptionLabel || $i18n.t('Description') }}</b-th>
+                <b-th v-if="group.ipsLabel">{{ group.ipsLabel }}</b-th>
               </b-tr>
             </b-thead>
             <b-tbody>
@@ -45,7 +45,7 @@
                 </b-td>
                 <b-td>{{ item.type }}</b-td>
                 <b-td>{{ item.description }}</b-td>
-                <b-td class="text-monospace">{{ item.ips.join(', ') }}</b-td>
+                <b-td v-if="group.ipsLabel" class="text-monospace">{{ item.ips.join(', ') }}</b-td>
               </b-tr>
             </b-tbody>
           </b-table-simple>
@@ -98,14 +98,17 @@ export const setup = props => {
       dns_connectors = []
     } = equipment.value || {}
     return [
+      // The address column (ipsLabel) is only shown where the identifier is
+      // not the address itself: sources are named and may resolve to several
+      // IPs, AD domains are named after the domain.
       { title: i18n.t('Switches'), routeName: 'switch', items: switches },
-      { title: i18n.t('Authentication Sources'), routeName: 'source', items: authentication_sources },
+      { title: i18n.t('Authentication Sources'), routeName: 'source', items: authentication_sources, ipsLabel: i18n.t('IP Address(es)') },
       // Domain UI ids are host-scoped section names, not the bare domain id
       // the config hash exposes: no reliable deep-link.
-      { title: i18n.t('Active Directory Domains'), routeName: null, items: domains },
+      { title: i18n.t('Active Directory Domains'), routeName: null, items: domains, ipsLabel: i18n.t('IP Address') },
       { title: i18n.t('Firewalls'), routeName: 'firewall', items: firewalls },
       // DNS servers are configured on the connector itself (Configuration > DNS)
-      { title: i18n.t('DNS Servers'), routeName: null, items: dns_connectors }
+      { title: i18n.t('DNS Servers'), routeName: null, items: dns_connectors, descriptionLabel: i18n.t('Domains') }
     ].filter(group => group.items.length)
   })
 
