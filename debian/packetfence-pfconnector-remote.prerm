@@ -1,0 +1,29 @@
+#!/bin/sh
+# prerm script for packetfence-pfconnector-remote
+#
+# see: dh_installdeb(1)
+
+set -e
+
+case "$1" in
+    remove|deconfigure)
+        # Stop the connector before its files go away; the NTLM remote units
+        # are PartOf the combined service and stop with it.
+        for unit in packetfence-pfconnector-install.path packetfence-pfconnector-upgrade.path \
+                    packetfence-pfconnector-install.service packetfence-pfconnector-upgrade.service \
+                    packetfence-pfconnector-remote-combined.service; do
+            /bin/systemctl stop "$unit" 2>/dev/null || true
+            /bin/systemctl disable "$unit" 2>/dev/null || true
+            /bin/systemctl reset-failed "$unit" 2>/dev/null || true
+        done
+        rm -f /usr/local/pfconnector-remote/conf/upgrade_requested /usr/local/pfconnector-remote/conf/install_requested
+    ;;
+    upgrade|failed-upgrade)
+    ;;
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
