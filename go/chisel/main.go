@@ -517,7 +517,7 @@ func client(args []string) {
 // returns when the connector configuration received through the tunnel
 // carries a virtual IP (the caller then switches to runHAClient), or nil when
 // ctx is done. A fatal client error still exits the process, as before.
-func runPlainClient(ctx context.Context, config *chclient.Config, api clientapi.API, envOverride bool, verbose bool) *chclient.HAConfig {
+func runPlainClient(ctx context.Context, config *chclient.Config, api *clientapi.API, envOverride bool, verbose bool) *chclient.HAConfig {
 	haCh := make(chan chclient.HAConfig, 1)
 	config.HA = false
 	config.PreferredIP = ""
@@ -574,7 +574,7 @@ const haVIPPollInterval = time.Second
 // backup answers the degraded realm to its local FreeRADIUS and reports its
 // HA state to the master. It returns the new HA configuration when the admin
 // changes the VIP, nil when HA is disabled or ctx is done.
-func runHAClient(ctx context.Context, config *chclient.Config, api clientapi.API, cfg chclient.HAConfig, secret string, envOverride bool, verbose bool) *chclient.HAConfig {
+func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.API, cfg chclient.HAConfig, secret string, envOverride bool, verbose bool) *chclient.HAConfig {
 	vip, err := chclient.ParseVIP(cfg.VIP)
 	if err != nil {
 		log.Printf("HA: %v; running without HA", err)
