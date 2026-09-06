@@ -212,6 +212,41 @@ func (h APIHandler) pfconnectorRemoteInstall() http.HandlerFunc {
 	})
 }
 
+// pfconnectorRemoteHaSwitch asks the master of an HA group to hand the
+// virtual IP over to another host of the group ({"to": "<peer address>"}),
+// so host-level actions (install, terminal, logs, upgrade) then reach that
+// host. The switch is a controlled failover: a few seconds of degraded mode.
+func (h APIHandler) pfconnectorRemoteHaSwitch() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connectorID := chi.URLParam(r, "connectorID")
+		if connectorID == "" {
+			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
+			return
+		}
+		var req struct {
+			To string `json:"to"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || net.ParseIP(req.To) == nil {
+			http.Error(w, "The address of the host to make active is required", http.StatusBadRequest)
+			return
+		}
+		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+		body, _ := json.Marshal(map[string]string{"to": req.To})
+		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/ha/switch", bytes.NewReader(body))
+		if err != nil {
+			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to switch the active host of connector %s to %s: %s", connectorID, req.To, err))
+			http.Error(w, fmt.Sprintf("Unable to switch the active host: %s", err), http.StatusBadGateway)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
+	})
+}
+
 // pfconnectorForIP tells which connector serves an IP address (connectors.conf
 // networks, top-down), so the domain form can point at the connector whose
 // host needs the NTLM packages for a domain controller behind it.

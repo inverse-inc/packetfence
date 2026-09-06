@@ -167,6 +167,12 @@
                     </b-td>
                     <b-td>
                       <b-badge :variant="peer.alive ? 'success' : 'danger'">{{ peer.alive ? $i18n.t('alive') : $i18n.t('not reporting') }}</b-badge>
+                      <b-button v-if="peer.alive" size="sm" variant="outline-primary" class="ml-2 py-0"
+                        :disabled="!status.connected || isSwitching"
+                        :title="$i18n.t('Move the virtual IP and the tunnel to this host. Host-level actions (install, terminal, logs, upgrade) then apply to it.')"
+                        @click="switchTarget = peer; showSwitchModal = true">
+                        <icon name="exchange-alt" class="mr-1" />{{ $i18n.t('Make active') }}
+                      </b-button>
                     </b-td>
                   </b-tr>
                 </b-tbody>
@@ -364,6 +370,17 @@
       <template #modal-footer="{ hide }">
         <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
         <b-button variant="primary" :disabled="isInstalling" @click="installNtlm">{{ $i18n.t('Install') }}</b-button>
+      </template>
+    </b-modal>
+
+    <b-modal v-model="showSwitchModal"
+      :title="$i18n.t('Make Another Host Active')"
+      centered
+    >
+      <p>{{ $i18n.t('The virtual IP and the tunnel will move to {host} ({address}). This is a controlled failover: RADIUS is answered in degraded mode for a few seconds while the new host connects. Continue?', { host: switchTarget ? switchTarget.hostname : '', address: switchTarget ? switchTarget.address : '' }) }}</p>
+      <template #modal-footer="{ hide }">
+        <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+        <b-button variant="primary" :disabled="isSwitching" @click="switchActive">{{ $i18n.t('Make active') }}</b-button>
       </template>
     </b-modal>
 
@@ -610,6 +627,35 @@ export const setup = (props, context) => {
   })
   const haPeersAlive = computed(() => ((ha.value && ha.value.peers) || []).filter(peer => peer.alive))
 
+  // Hand the VIP over to another host of the group (controlled failover).
+  const isSwitching = ref(false)
+  const showSwitchModal = ref(false)
+  const switchTarget = ref(null)
+  const switchActive = () => {
+    showSwitchModal.value = false
+    if (!switchTarget.value) return
+    isSwitching.value = true
+    const target = switchTarget.value.address
+    api.remoteHaSwitch(props.id, target).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Switch started: {address} is taking the virtual IP. The panel updates once its tunnel is up.', { address: target }) })
+    }).catch(error => {
+      const { response: { data } = {} } = error || {}
+      const detail = (typeof data === 'string' && data.trim()) ? ` (${data.trim()})` : ''
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to switch the active host.') + detail })
+    }).finally(() => {
+      // The old master's tunnel drops within a second; the new one is up a
+      // few seconds later. Refresh a few times to follow.
+      let polls = 0
+      const poll = setInterval(() => {
+        refresh()
+        if (++polls >= 6) {
+          clearInterval(poll)
+          isSwitching.value = false
+        }
+      }, 5000)
+    })
+  }
+
   const formatDate = value => {
     if (!value)
       return '-'
@@ -672,6 +718,10 @@ export const setup = (props, context) => {
     authorizeTerminal,
     ha,
     haPeersAlive,
+    isSwitching,
+    showSwitchModal,
+    switchTarget,
+    switchActive,
     formatDate,
     formatBytes,
     formatPercent,

@@ -694,6 +694,9 @@ func runHAClient(ctx context.Context, config *chclient.Config, api clientapi.API
 		}
 		log.Printf("HA: VIP %s acquired, starting the tunnel", vip)
 		clientapi.SetHAState(vip.String(), "master")
+		// A boost granted for a switch has done its job; back to the base
+		// priority (nopreempt keeps us master).
+		clientapi.SetHABoost(0)
 
 		c, err := chclient.NewClient(config)
 		if err != nil {
