@@ -258,6 +258,20 @@ At runtime, PacketFence forwards any DNS query for `*.inverse.local` to `10.5.1.
 
 NOTE: Before 16.0 the same information lived in two separate tabs, _Connectors -> Domains_ (domain to connector) and _Connectors -> DNS_ (DNS servers with a hand-picked tunnel port). The upgrade folds them into the connectors' DNS servers automatically and keeps the old files with a `.migrated` suffix.
 
+====== Fingerbank API Through the Connector
+
+The Fingerbank Collector running on the connector host queries the Fingerbank API directly, using the host's own Internet access. When the site does not allow it, the collector can reach Fingerbank through the tunnel instead: every connector opens `127.0.0.1:8443`, a TCP forward that PacketFence dials to `api-ss.fingerbank.org:443` from the cloud side (the _Ports Open on the Connector_ table of the connector's _Status_ tab lists it). TLS stays end to end between the collector and Fingerbank; PacketFence never sees the requests.
+
+A connector created in the admin UI has this enabled: its *Environment* (_Configuration_ tab, _Fingerbank_) is pre-filled with
+
+----
+FINGERBANK_API_HOST=api-ss.fingerbank.org
+FINGERBANK_API_HOST_OVERRIDE_IP=127.0.0.1
+FINGERBANK_API_PORT=8443
+----
+
+Remove the three lines to let the collector query Fingerbank directly again, or add them to a connector created before 16.0 to opt it in. The collector reads its environment when the connector container starts, so restart `packetfence-pfconnector-remote.service` on the connector host after a change. The forward target can be changed with `PFCONNECTOR_BINDS_HOST_PORT_8443` in the pfconnector server environment.
+
 ===== Upgrade (for version prior to 12.1.0)
 
 PacketFence Connector released with PacketFence 12.0.0 was not packaged.

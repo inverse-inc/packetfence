@@ -742,6 +742,10 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 }
 
 var baseFingerbankPort = 23000
+
+// fingerbankAPIEgress is the default target of the connector's 127.0.0.1:8443
+// bind (PFCONNECTOR_BINDS_HOST_PORT_8443 overrides it).
+var fingerbankAPIEgress = "api-ss.fingerbank.org:443"
 var maxCheckedInConnectors = 256
 
 func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
@@ -814,6 +818,14 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
 			fmt.Sprintf("containers-gateway.internal:3306:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_3306", fmt.Sprintf("%s:3306", managementIP))),
 			fmt.Sprintf("containers-gateway.internal:6379:%s", sharedutils.EnvOrDefault("REDIS_CACHE_HOST_PORT", fmt.Sprintf("%s:6379", "127.0.0.1"))),
+			// Fingerbank API egress for the connector's collector: a TCP forward to
+			// Fingerbank dialed from the cloud side, for connector hosts without
+			// their own Internet access. TLS stays end to end (the collector keeps
+			// SNI/Host = FINGERBANK_API_HOST). The admin UI pre-fills a new
+			// connector's fingerbank_environment to use it (FINGERBANK_API_HOST=
+			// api-ss.fingerbank.org, FINGERBANK_API_HOST_OVERRIDE_IP=127.0.0.1,
+			// FINGERBANK_API_PORT=8443); older connectors opt in by adding them.
+			fmt.Sprintf("127.0.0.1:8443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_8443", fingerbankAPIEgress)),
 		}})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
