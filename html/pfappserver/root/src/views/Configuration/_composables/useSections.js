@@ -139,13 +139,7 @@ export const useSections = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
-        { name: i18n.t('Connectors'),
-          items: [
-            { name: i18n.t('Connectors'), path: '/configuration/connectors/connectors' },
-            { name: i18n.t('Domains'), path: '/configuration/connectors/domains' },
-            { name: i18n.t('DNS'), path: '/configuration/connectors/dns' }
-          ]
-        },
+        { name: i18n.t('Connectors'), path: '/configuration/connectors' },
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },

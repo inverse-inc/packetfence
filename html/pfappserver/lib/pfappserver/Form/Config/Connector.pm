@@ -245,7 +245,8 @@ has_field 'dns_servers.domains.contains' => (
    type => 'Text',
    apply => [
        {
-           check => qr/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+\.?$/,
+           # one or more labels: "inverse" is as valid as "inverse.local"
+           check => qr/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.?$/,
            message => 'Invalid domain name',
        },
    ],
