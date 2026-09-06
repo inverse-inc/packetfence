@@ -247,6 +247,32 @@ too, in the same `vrrp_instance` as the main VIP:
 Static routes stay with the master's reconciler (they need the VLAN
 address as source).
 
+### 3.3.3 Making another host active from the admin UI
+
+Every host-level action (install of the NTLM services, terminal, logs,
+upgrade, restart) reaches the host holding the VIP, so choosing a host means
+moving the VIP. The status panel offers "Make active" on every reporting
+standby host (`clientapi/haswitch.go`):
+
+1. cloud `POST /pfconnector-remotes/{id}/ha/switch {"to": <peer addr>}` →
+   master `POST /api/v1/ha/switch` (localhost-only, through the tunnel); the
+   master checks it is master and that the peer reported alive;
+2. the master asks the peer to boost its VRRP priority
+   (`POST http://<peer>:8081/api/v1/ha/boost`, HMAC-signed like the
+   heartbeat): the peer writes 150 into `var/run/ha_boost`, the file
+   keepalived tracks (`vrrp_track_file ha_boost`, weight 1, created with 0
+   by the generator), so it wins the election among the backups when there
+   are more than two hosts;
+3. the master answers, then yields: it stops its keepalived for 6 s (VIP and
+   VLAN addresses released, its client gate closes the tunnel), and restarts
+   it, which comes back BACKUP (`nopreempt`);
+4. the boosted peer becomes MASTER, connects, and clears its boost once it
+   holds the VIP (base priority again; nopreempt keeps it master). A boost
+   that never led to a takeover expires after 60 s.
+
+A controlled failover, i.e. the same few seconds of degraded RADIUS as an
+outage.
+
 ### 3.4 Server: same-id lifecycle made safe
 
 These fixes are needed for HA and are correct on their own:

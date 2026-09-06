@@ -216,6 +216,7 @@ func (api *API) setupRoutes() {
 				r.Post("/install", systemInstall(api))
 			})
 			r.Get("/logs/{name}", tailLog(api))
+			r.Post("/ha/switch", haSwitch(api))
 		})
 		// Not localhost-only: the admin's browser reaches this directly on
 		// the remote's IP to activate a terminal session authorized by the
@@ -224,6 +225,7 @@ func (api *API) setupRoutes() {
 		// Not localhost-only: the backup hosts of an HA group post their
 		// heartbeat to the master on the VIP (HMAC-authenticated, see ha.go).
 		r.Post("/ha/heartbeat", haHeartbeat(api))
+		r.Post("/ha/boost", haBoost(api))
 		r.Get("/ha/cache-snapshot", haCacheSnapshot(api))
 	})
 }
