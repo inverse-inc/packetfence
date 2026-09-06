@@ -49,5 +49,10 @@ COPY --from=go-builder /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnect
 
 # Copy s6 service definitions
 COPY containers/pfconnector-remote/rootfs /
+# keepalived (enable_script_security) refuses, and silently disables, track
+# and notify scripts that are group- or world-writable; the HA health check
+# and VLAN address release would then never run. Do not depend on the modes
+# of the build context.
+RUN chmod 0755 /usr/local/pf/sbin/*.sh /etc/s6-overlay/s6-rc.d/*/run 2>/dev/null || true
 
 ENTRYPOINT ["/init"]
