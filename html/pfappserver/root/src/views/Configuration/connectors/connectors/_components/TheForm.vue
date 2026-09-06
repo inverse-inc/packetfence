@@ -107,6 +107,16 @@
               :text="$i18n.t('Interface carrying the virtual IP and the VRRP advertisements on the connector hosts.')"
             />
           </base-form-tab>
+          <base-form-tab :title="$i18n.t('DNS')">
+            <b-alert show variant="info" class="mx-3">
+              {{ $i18n.t('DNS servers of the site reachable through this connector, with the domains each one is authoritative for. PacketFence forwards the queries for those domains to the server through the tunnel, and uses them to route hostnames under those domains (LDAP sources, Active Directory servers) to this connector. A domain can be served through one connector only. The tunnel port is allocated automatically.') }}
+            </b-alert>
+            <form-group-dns-servers namespace="dns_servers"
+              :column-label="$i18n.t('DNS Servers')"
+              :text="$i18n.t('One row per DNS server: its IP address on the remote site, its port (53 by default), the domains it serves (type a name and press enter) and, optionally, a fixed tunnel port in the 30000-30999 range.')"
+            />
+            <the-dns-test v-if="!isNew && !isClone && id" :id="id" :form="form" />
+          </base-form-tab>
         </b-tabs>
       </base-form-tab>
     </b-tabs>
@@ -133,8 +143,10 @@ import {
   FormGroupHaVip,
   FormGroupHaVrid,
   FormGroupHaInterface,
+  FormGroupDnsServers,
   TheStatus,
   TheEquipment,
+  TheDnsTest,
 } from './'
 
 const components = {
@@ -151,8 +163,10 @@ const components = {
   FormGroupHaVip,
   FormGroupHaVrid,
   FormGroupHaInterface,
+  FormGroupDnsServers,
   TheStatus,
   TheEquipment,
+  TheDnsTest,
 }
 
 export const props = {

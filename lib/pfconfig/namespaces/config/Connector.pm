@@ -21,6 +21,7 @@ use pfconfig::namespaces::config;
 use pf::file_paths qw($connectors_config_file);
 use pf::util;
 use pf::connector::site_network qw(expand_site_network);
+use pf::connector::dns qw(expand_dns_servers);
 
 use base 'pfconfig::namespaces::config';
 
@@ -31,6 +32,9 @@ sub init {
     $self->{unified_api_system_user} = $self->{cache}->get_cache('resource::unified_api_system_user');
     $self->{child_resources} = [
         'resource::connectors_ordered',
+        # derived from the connectors' dns_servers (see pf::connector::dns)
+        'config::DnsConnectors',
+        'config::DomainsConnectors',
     ];
 }
 
@@ -46,8 +50,9 @@ sub build_child {
     for my $id (keys(%tmp_cfg)) {
         $tmp_cfg{$id}{networks} = $tmp_cfg{$id}{networks} ? [split(/\n/, $tmp_cfg{$id}{networks})] : [];
         $tmp_cfg{$id}{fingerbank_environment} = $tmp_cfg{$id}{fingerbank_environment} ? [split(/\n/, $tmp_cfg{$id}{fingerbank_environment})] : [];
-        # interfaces / routes: one line per entry -> list of hashes
+        # interfaces / routes / dns_servers: one line per entry -> list of hashes
         expand_site_network($tmp_cfg{$id});
+        expand_dns_servers($tmp_cfg{$id});
     }
 
     return \%tmp_cfg;
