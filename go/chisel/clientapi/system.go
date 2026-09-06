@@ -51,6 +51,9 @@ type SystemInfo struct {
 	// this connector right now. The admin UI keys the "View Logs" button on
 	// it; connectors predating the feature simply omit the field.
 	LogFiles []string `json:"log_files,omitempty"`
+	// HostPackages is the state of the PacketFence packages the admin can
+	// install on the connector host (NTLM authentication services).
+	HostPackages HostPackages `json:"host_packages"`
 	// SiteNetwork is the result of the last VLAN interface / static route
 	// reconcile pass (see chisel/share/sitenetwork). Omitted until the first
 	// pass ran; the admin UI shows it in the connector's Networking tab.
@@ -149,6 +152,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			TerminalEnabled: api.TerminalEnabled,
 			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
 			LogFiles:        availableLogFiles(api),
+			HostPackages:    hostPackages(),
 			SiteNetwork:     sitenetwork.LastStatus(),
 			DhcpRelay:       dhcprelay.LastStatus(),
 			DnsServer:       dnsresponder.LastStatus(),

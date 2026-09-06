@@ -27,6 +27,12 @@ args="$args -v /usr/local/pfconnector-remote/raddb/:/usr/local/pf/raddb/"
 # fingerbank-collector mounts
 args="$args -v /usr/local/pfconnector-remote/db:/usr/local/collector-remote/db"
 
+# Host package database, read-only: the pfconnector-client reports the
+# PacketFence packages installed on the host (NTLM authentication services)
+# to the admin interface. The directory, not the status file: dpkg rewrites
+# the file (write + rename) and a bind-mounted file would keep the old inode.
+args="$args -v /var/lib/dpkg:/usr/local/pf/var/host/dpkg:ro"
+
 # connector-cache sqlite DB (persist across container restarts)
 args="$args -v /usr/local/pfconnector-remote/var/lib/packetfence-connector-cache:/usr/local/packetfence-connector-cache"
 

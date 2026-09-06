@@ -71,6 +71,16 @@ export default {
       return response.data
     })
   },
+  remoteInstall: (id, packages) => {
+    return apiCall.post(['pfconnector-remotes', id, 'install'], { packages }).then(response => {
+      return response.data
+    })
+  },
+  forIp: ip => {
+    return apiCall.getQuiet(['pfconnector-remotes', 'for-ip', ip]).then(response => {
+      return response.data
+    })
+  },
   terminalSession: id => {
     return apiCall.post('terminal', { pfconnector_id: id }).then(response => {
       return response.data

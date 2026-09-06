@@ -87,6 +87,8 @@
                               disabled-value="0"
     />
 
+        <the-connector-ntlm :ad-server="form.ad_server" :use-connector="form.use_connector" />
+
         <form-group-registration namespace="registration"
                                  :column-label="$i18n.t('Allow on registration')"
                                  :text="$i18n.t('If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.')"
@@ -241,8 +243,10 @@ import {
   FormGroupEncryption,
 
 } from './'
+import TheConnectorNtlm from './TheConnectorNtlm'
 
 const components = {
+  TheConnectorNtlm,
   BaseForm,
   BaseFormTab,
 
