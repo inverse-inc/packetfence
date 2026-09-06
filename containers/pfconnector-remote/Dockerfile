@@ -29,6 +29,15 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz && \
     rm -f /tmp/s6-overlay-*.tar.xz
 
+# The PacketFence packages (connector-cache, ntlm-wrapper, collector) come
+# from the PacketFence repository of the code's own release line (MAJOR.MINOR
+# of conf/pf-release, overridable with PF_VERSION), replacing the entry the
+# base image carries for its own tag, so the image follows the version of the
+# code it is built from and always gets the newest connector-cache published
+# for that release line.
+ARG PF_VERSION=
+COPY conf/pf-release /tmp/pf-release
+
 # Install packages needed by radiusd-auth and fingerbank-collector
 # fingerbank-collector-remote postinst (via dh_systemd_enable) calls systemctl
 # directly, which fails without systemd. Replace systemctl with a no-op during
@@ -37,8 +46,13 @@ RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.
     ln -sf /bin/true /usr/bin/systemctl && \
     printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d && \
     chmod +x /usr/sbin/policy-rc.d && \
+    PF_VERSION="${PF_VERSION:-$(sed -n 's/^PacketFence \([0-9]*\.[0-9]*\).*/\1/p' /tmp/pf-release)}" && \
+    test -n "$PF_VERSION" && \
+    sed -i '/inverse\.ca\/downloads\/PacketFence\//d' /etc/apt/sources.list.d/*.list && \
+    echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://www.inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list && \
+    rm -f /tmp/pf-release && \
     apt-get update && \
-    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache=0.1.3-1 sqlite3 keepalived && \
+    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache sqlite3 keepalived && \
     { apt-get remove -y fingerbank-collector 2>/dev/null || true; } && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     rm -f /usr/sbin/policy-rc.d /usr/bin/systemctl && \
