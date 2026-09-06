@@ -104,7 +104,8 @@ export const setup = props => {
       // the config hash exposes: no reliable deep-link.
       { title: i18n.t('Active Directory Domains'), routeName: null, items: domains },
       { title: i18n.t('Firewalls'), routeName: 'firewall', items: firewalls },
-      { title: i18n.t('DNS Connectors'), routeName: 'connectorsDn', items: dns_connectors }
+      // DNS servers are configured on the connector itself (Configuration > DNS)
+      { title: i18n.t('DNS Servers'), routeName: null, items: dns_connectors }
     ].filter(group => group.items.length)
   })
 

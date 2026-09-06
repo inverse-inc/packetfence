@@ -419,8 +419,6 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_mfas_routes($root);
     $self->setup_api_v1_config_connectors_routes($root);
-    $self->setup_api_v1_config_domains_connectors_routes($root);
-    $self->setup_api_v1_config_dns_connectors_routes($root);
     return;
 }
 
@@ -2243,46 +2241,6 @@ sub setup_api_v1_config_connectors_routes {
 
     $collection_route->register_sub_action({ action => 'status', method => 'GET' });
     $resource_route->register_sub_action({ action => 'equipment', method => 'GET' });
-
-    return ($collection_route, $resource_route);
-}
-
-=head2 setup_api_v1_config_dns_connectors_routes
-
-setup_api_v1_config_dns_connectors_routes
-
-=cut
-
-sub setup_api_v1_config_dns_connectors_routes {
-    my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_config_routes(
-        $root,
-        "Config::Connectors::DnsConnectors",
-        "/dns_connectors",
-        "/dns_connector/#dns_connectors_id",
-        "api.v1.Config.DnsConnectors"
-    );
-
-    return ($collection_route, $resource_route);
-}
-
-=head2 setup_api_v1_config_domains_connectors_routes
-
-setup_api_v1_config_domains_connectors_routes
-
-=cut
-
-sub setup_api_v1_config_domains_connectors_routes {
-    my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_config_routes(
-        $root,
-        "Config::Connectors::DomainsConnectors",
-        "/domains_connectors",
-        "/domains_connector/#domains_connectors_id",
-        "api.v1.Config.DomainsConnectors"
-    );
 
     return ($collection_route, $resource_route);
 }

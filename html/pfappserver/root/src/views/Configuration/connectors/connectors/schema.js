@@ -101,6 +101,27 @@ const schemaInterfaces = yup.array().ensure()
   .unique(i18n.t('Duplicate VLAN interface.'), ({ parent, vlan }) => `${parent}.${vlan}`)
   .of(schemaInterface)
 
+const reDomainName = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+\.?$/
+
+// DNS servers behind the connector (Configuration > DNS): the domains listed
+// under a server are what PacketFence forwards to it through the tunnel.
+const schemaDnsServer = yup.object().shape({
+  ip: yup.string().nullable()
+    .required(i18n.t('DNS server IP required.'))
+    .isIpv4(),
+  port: yup.string().nullable()
+    .test('port-range', i18n.t('Port must be between 1 and 65535.'), value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= 1 && +value <= 65535)),
+  tunnel_port: yup.string().nullable()
+    .test('tunnel-port-range', i18n.t('Tunnel port must be between 30000 and 30999 (leave empty for automatic).'), value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= 30000 && +value <= 30999)),
+  domains: yup.array().ensure()
+    .min(1, i18n.t('At least one domain served by this DNS server is required.'))
+    .of(yup.string().nullable().matches(reDomainName, i18n.t('Invalid domain name.')))
+})
+
+const schemaDnsServers = yup.array().ensure()
+  .unique(i18n.t('Duplicate DNS server.'), ({ ip, port }) => `${ip}:${port || 53}`)
+  .of(schemaDnsServer)
+
 const schemaRoute = yup.object().shape({
   destination: yup.string().nullable()
     .required(i18n.t('Destination required.'))
@@ -146,6 +167,7 @@ export default (props) => {
     fingerbank_environment: schemaFingerbankEnvironments,
     interfaces: schemaInterfaces,
     routes: schemaRoutes,
+    dns_servers: schemaDnsServers,
     ha_vip: yup.string().nullable()
       .isHostCidr(i18n.t('The virtual IP must be an IPv4 host address with its prefix length, e.g. 10.0.0.250/24.')),
     ha_vrid: yup.string().nullable()
