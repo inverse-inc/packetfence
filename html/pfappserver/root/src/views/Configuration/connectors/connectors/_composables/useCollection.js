@@ -19,6 +19,22 @@ export const useItemTitle = (props) => {
   })
 }
 
+// Environment handed to the Fingerbank Collector of a new connector: send its
+// Fingerbank API queries through the tunnel (the connector's 127.0.0.1:8443
+// bind, forwarded by PacketFence to api-ss.fingerbank.org:443) rather than
+// through the connector host's own Internet access. Kept here rather than in
+// the form meta: the API reports every list field with an empty default.
+export const fingerbankEnvironmentDefaults = [
+  'FINGERBANK_API_HOST=api-ss.fingerbank.org',
+  'FINGERBANK_API_HOST_OVERRIDE_IP=127.0.0.1',
+  'FINGERBANK_API_PORT=8443'
+]
+
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta) => {
+  return { ...useDefaultsFromMeta(meta), fingerbank_environment: [...fingerbankEnvironmentDefaults] }
+}
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
