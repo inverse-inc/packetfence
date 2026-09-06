@@ -88,7 +88,7 @@ systemctl restart packetfence-pfconnector-remote-combined
 
 ===== Remote Terminal Access
 
-The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote-combined service after changing it).
+The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ in the connector's _Status_ tab). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote-combined service after changing it).
 
 Opening a terminal requires the _Connectors_ update admin action (the connector's other actions need the read one). It also requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
 
@@ -105,7 +105,7 @@ Five consecutive invalid codes lock terminal activation for 5 minutes, each code
 
 ===== Upgrading a Remote Connector
 
-When a connector-remote reports an older version than the PacketFence server, its status panel in the admin interface offers an _Upgrade_ button. Triggering it makes the connector host point its PacketFence apt repository at the server's version (rewriting the version segment of the `inverse.ca/downloads/PacketFence/debian/...` entry in [filename]`/etc/apt/sources.list.d/`), upgrade the packetfence-pfconnector-remote package and restart the connector. Once it reconnects, the status panel reports the new version.
+When a connector-remote reports an older version than the PacketFence server, its _Status_ tab in the admin interface offers an _Upgrade_ button. Triggering it makes the connector host point its PacketFence apt repository at the server's version (rewriting the version segment of the `inverse.ca/downloads/PacketFence/debian/...` entry in [filename]`/etc/apt/sources.list.d/`), upgrade the packetfence-pfconnector-remote package and restart the connector. Once it reconnects, the _Status_ tab reports the new version.
 
 Every package installed this way is still signature-verified against the PacketFence archive keyring, downgrades are refused, and the whole operation is logged on the connector host in [filename]`/usr/local/pfconnector-remote/conf/upgrade.log`.
 
@@ -121,7 +121,7 @@ Prerequisites:
 
 Install the package on every host as described in the Installation section above, using the same Connector ID, secret and server URL. Nothing HA-specific is configured on the hosts.
 
-Then, in the admin interface, edit the connector (_Configuration->System Configuration->Connectors_), _Networking_ tab, _High availability_ block, and set:
+Then, in the admin interface, edit the connector (_Configuration->System Configuration->Connectors_), _Configuration_ tab, _Networking_, _High availability_ block, and set:
 
  * the _Virtual IP_ with its prefix length, for example `10.0.0.250/24`, on the network the hosts share;
  * optionally the _VRRP virtual router id_ (default `51`; change it only when another VRRP group uses that id on the same network) and the _Interface_ carrying the virtual IP (default: the interface of the default route on each host).
@@ -137,12 +137,12 @@ Then point the network at the VIP: use it as the RADIUS server address on the sw
 How it behaves:
 
  * The host with the highest priority takes the VIP and connects the tunnel; the connector shows as connected in the admin interface. The other hosts report to it over the local network every few seconds.
- * The connector's status panel shows an _HA_ badge with the VIP and a _High Availability_ table listing the active host and every standby host with its version and the time of its last report. A warning appears when no standby host is reporting.
+ * The connector's _Status_ tab shows an _HA_ badge with the VIP and a _High Availability_ table listing the active host and every standby host with its version and the time of its last report. A warning appears when no standby host is reporting.
  * When the active host fails, VRRP elects the next one within about three seconds; it takes the VIP, opens the tunnel and is fully proxying RADIUS to PacketFence within roughly ten to twenty seconds. In between, its local FreeRADIUS answers in degraded mode (MAB accepted, EAP terminated with the certificates issued by PacketFence, cached authorizations replayed), exactly as a single connector does when its tunnel drops.
- * A recovered host does not take the VIP back (`nopreempt`), which avoids a second interruption. To make another host the active one, use _Make active_ next to that host in the _High Availability_ table of the status panel: the virtual IP and the tunnel move to it within a few seconds (a controlled failover, RADIUS is answered in degraded mode meanwhile). Host-level actions (installing the NTLM services, the terminal, the logs, the upgrade) always apply to the active host, so make a host active first to act on it.
+ * A recovered host does not take the VIP back (`nopreempt`), which avoids a second interruption. To make another host the active one, use _Make active_ next to that host in the _High Availability_ table of the _Status_ tab: the virtual IP and the tunnel move to it within a few seconds (a controlled failover, RADIUS is answered in degraded mode meanwhile). Host-level actions (installing the NTLM services, the terminal, the logs, the upgrade) always apply to the active host, so make a host active first to act on it.
  * A host whose FreeRADIUS stops answering lowers its VRRP priority and gives the VIP away. Loss of connectivity to PacketFence does not trigger a failover, since all hosts would be affected alike.
- * The VLAN interfaces configured in the connector's _Networking_ tab exist on every host, but their addresses (the VLAN gateway, DHCP relay source and captive DNS address) are virtual IPs that move with the connector VIP, so the DHCP and DNS service of the VLANs follows the active host.
- * The standby hosts mirror the active host's credential cache (cached RADIUS authorizations and the NT keys used for PEAP when PacketFence is unreachable) every minute over the local network, encrypted with a key derived from the connector secret, so a host that takes over answers in degraded mode with a warm cache. The status panel shows the number of cached entries and the time of the last mirror for every standby host.
+ * The VLAN interfaces configured under _Configuration_, _Networking_ exist on every host, but their addresses (the VLAN gateway, DHCP relay source and captive DNS address) are virtual IPs that move with the connector VIP, so the DHCP and DNS service of the VLANs follows the active host.
+ * The standby hosts mirror the active host's credential cache (cached RADIUS authorizations and the NT keys used for PEAP when PacketFence is unreachable) every minute over the local network, encrypted with a key derived from the connector secret, so a host that takes over answers in degraded mode with a warm cache. The _Status_ tab shows the number of cached entries and the time of the last mirror for every standby host.
 
 The active host's keepalived log is available in the admin interface log viewer and on the host in [filename]`/usr/local/pfconnector-remote/logs/keepalived.log`; the VRRP state is in [filename]`/usr/local/pfconnector-remote/var/run/ha_state`.
 
@@ -157,7 +157,7 @@ When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domai
 
 IMPORTANT: When using the NT Key cache for 802.1X EAP-PEAP with a domain behind a pfconnector, `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves such a domain. Each remote instance handles authentication using its local cache when the main domain controller behind the pfconnector-remote is unreachable or when the pfconnector-remote loses connectivity to the main PacketFence server.
 
-Install them from the admin interface: the connector's status panel (_Configuration->System Configuration->Connectors_, edit the connector) has an _NTLM Authentication Services_ block showing whether the two packages are installed on the host and whether the join service is running, with an _Install NTLM Services_ button. The same block appears in the domain form when _Use Connector_ is enabled and an Active Directory IP is entered: it names the connector serving that address and offers the install, so the services can be put in place right before joining the domain. The connector host downloads the packages from the PacketFence repository of its own version (signature-verified, no connector restart) and logs the result in [filename]`/usr/local/pfconnector-remote/conf/install.log`, also available in the log viewer as _install_.
+Install them from the admin interface: the connector's _Status_ tab (_Configuration->System Configuration->Connectors_, edit the connector) has an _NTLM Authentication Services_ block showing whether the two packages are installed on the host and whether the join service is running, with an _Install NTLM Services_ button. The same block appears in the domain form when _Use Connector_ is enabled and an Active Directory IP is entered: it names the connector serving that address and offers the install, so the services can be put in place right before joining the domain. The connector host downloads the packages from the PacketFence repository of its own version (signature-verified, no connector restart) and logs the result in [filename]`/usr/local/pfconnector-remote/conf/install.log`, also available in the log viewer as _install_.
 
 They can also be installed by hand on the host:
 
@@ -205,7 +205,7 @@ Each connector in the list shows a colored status icon: green (connected), yello
 
 ====== Site Networking: VLAN Interfaces and Static Routes
 
-The _Networking_ tab of a connector lets the remote connector host terminate VLANs at the site. Everything configured here is applied by the connector itself, within a few seconds of saving, and re-applied every time the connector starts, so it survives a reboot of the host without any manual network configuration.
+The _Networking_ section of a connector's _Configuration_ tab lets the remote connector host terminate VLANs at the site. Everything configured here is applied by the connector itself, within a few seconds of saving, and re-applied every time the connector starts, so it survives a reboot of the host without any manual network configuration.
 
 * *VLAN Interfaces* -- One row per 802.1Q VLAN interface to create on the connector host. Each row has a *Parent interface* (the physical NIC of the host, e.g. `eth0`), a *VLAN ID* (1-4094) and an *IP address* written with its prefix length (e.g. `10.10.100.1/24`). The interface is named `parent.vlan` (e.g. `eth0.100`). The parent interface must exist on the host and must carry the VLAN as tagged traffic from the switch. The *DHCP* toggle turns the VLAN into a DHCP scope served by PacketFence: the connector relays the DHCP requests received on that VLAN to the PacketFence DHCP server through its tunnel (DHCP-over-HTTPS, see below), and the server hands out the range configured on the row: *Range start* and *Range end* (inside the network of the interface address, which itself must stay outside the range), *Default lease* and *Max lease* in seconds, *DNS servers*, *Gateway* (the interface address when empty) and an optional *Domain name*.
 * *Static Routes* -- Optional routes to install on the host, each with a *Destination* network, and a *Gateway* and/or an *Interface*. The default route cannot be managed from here.
