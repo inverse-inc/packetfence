@@ -35,6 +35,9 @@ case "$1" in
         remove_containers_and_images
         # Configuration, caches, logs and the terminal TOTP seed
         rm -rf /usr/local/pfconnector-remote
+        # The containers-gateway.internal mapping added by our postinst (the
+        # NTLM packages depend on us, so they are gone by now)
+        sed -i -E '/[[:space:]]containers-gateway\.internal([[:space:]]|$)/d' /etc/hosts 2>/dev/null || true
         /bin/systemctl daemon-reload 2>/dev/null || true
     ;;
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
