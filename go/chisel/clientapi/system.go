@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/inverse-inc/go-utils/sharedutils"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -72,6 +74,57 @@ type SystemInfo struct {
 	// HA is the VRRP high-availability state of this host (PFCONNECTOR_HA_VIP);
 	// omitted when HA is not configured.
 	HA *HAStatus `json:"ha,omitempty"`
+	// ConnectorCache is the connector-cache service's own statistics
+	// (GET /api/v1/manage/stats on 127.0.0.1:12142); omitted when the
+	// service does not answer.
+	ConnectorCache *ConnectorCacheStats `json:"connector_cache,omitempty"`
+}
+
+// ConnectorCacheStats mirrors connector-cache's ManageStats (its JSON keys
+// are the Go field names).
+type ConnectorCacheStats struct {
+	// MemAlloc is the Go heap currently allocated, MemSys what the runtime
+	// obtained from the OS, both in bytes.
+	MemAlloc int64 `json:"mem_alloc"`
+	MemSys   int64 `json:"mem_sys"`
+	// DBSize is the SQLite file size in bytes.
+	DBSize int64 `json:"db_size"`
+	// DevicesInDB is the RADIUS attribute cache row count, CredentialInDB the
+	// credential (NT key) cache row count.
+	DevicesInDB    int `json:"devices_in_db"`
+	CredentialInDB int `json:"credential_in_db"`
+	// KeysInRatelimit is the number of live keys in the in-memory rate limiter.
+	KeysInRatelimit int `json:"keys_in_ratelimit"`
+}
+
+// connectorCacheStatsURL is where connector-cache answers on the host
+// network namespace (the client's credcache proxy uses the same address).
+var connectorCacheStatsURL = sharedutils.EnvOrDefault("PFCONNECTOR_CONNECTOR_CACHE_STATS_URL", "http://127.0.0.1:12142/api/v1/manage/stats")
+
+var connectorCacheStatsClient = &http.Client{Timeout: 500 * time.Millisecond}
+
+// connectorCacheStats fetches the cache statistics; nil when unavailable.
+func connectorCacheStats() *ConnectorCacheStats {
+	res, err := connectorCacheStatsClient.Get(connectorCacheStatsURL)
+	if err != nil {
+		return nil
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil
+	}
+	var raw struct {
+		MemAlloc        int64
+		MemSys          int64
+		DBSize          int64
+		DevicesInDB     int
+		CredentialInDB  int
+		KeysInRatelimit int
+	}
+	if err := json.NewDecoder(io.LimitReader(res.Body, 64*1024)).Decode(&raw); err != nil {
+		return nil
+	}
+	return &ConnectorCacheStats{MemAlloc: raw.MemAlloc, MemSys: raw.MemSys, DBSize: raw.DBSize, DevicesInDB: raw.DevicesInDB, CredentialInDB: raw.CredentialInDB, KeysInRatelimit: raw.KeysInRatelimit}
 }
 
 // HostInterface is one network interface of the connector host.
@@ -158,6 +211,7 @@ func systemInfo(api *API) http.HandlerFunc {
 			DnsServer:       dnsresponder.LastStatus(),
 			HostInterfaces:  hostInterfaces(),
 			HA:              HAStatusSnapshot(),
+			ConnectorCache:  connectorCacheStats(),
 		}
 		info.Hostname, _ = os.Hostname()
 
