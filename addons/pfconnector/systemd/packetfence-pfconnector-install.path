@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for PacketFence connector package install requests
+
+[Path]
+PathExists=/usr/local/pfconnector-remote/conf/install_requested
+Unit=packetfence-pfconnector-install.service
+
+[Install]
+WantedBy=multi-user.target

@@ -45,6 +45,7 @@ var logFiles = map[string]string{
 	"connector-cache":      "/usr/local/pf/logs/connector-cache.log",
 	"keepalived":           "/usr/local/pf/logs/keepalived.log",
 	"upgrade":              "/usr/local/pf/conf/upgrade.log",
+	"install":              "/usr/local/pf/conf/install.log",
 }
 
 // logsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the log

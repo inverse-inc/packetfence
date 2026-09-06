@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -155,6 +156,80 @@ func (h APIHandler) pfconnectorRemoteUpgrade() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(res)
+	})
+}
+
+// installablePackages mirrors the allowlist of the connector-remote's
+// /api/v1/system/install: the NTLM authentication services needed when an
+// Active Directory domain is behind the connector.
+var installablePackages = map[string]bool{
+	"packetfence-ntlm-auth-api-remote":  true,
+	"packetfence-ntlm-auth-join-remote": true,
+}
+
+// pfconnectorRemoteInstall asks the connector-remote's host to apt-install
+// PacketFence packages from the allowlist (the host script re-checks it and
+// apt verifies the signatures). The install is asynchronous: the status
+// endpoint reports the host's package state and the install log.
+func (h APIHandler) pfconnectorRemoteInstall() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connectorID := chi.URLParam(r, "connectorID")
+		if connectorID == "" {
+			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
+			return
+		}
+		var req struct {
+			Packages []string `json:"packages"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || len(req.Packages) == 0 {
+			http.Error(w, "A list of packages is required", http.StatusBadRequest)
+			return
+		}
+		for _, p := range req.Packages {
+			if !installablePackages[p] {
+				http.Error(w, fmt.Sprintf("Package %q cannot be installed on a connector-remote from here", p), http.StatusBadRequest)
+				return
+			}
+		}
+
+		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+
+		body, _ := json.Marshal(map[string][]string{"packages": req.Packages})
+		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/system/install", bytes.NewReader(body))
+		if err != nil {
+			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to trigger the package install on connector-remote %s: %s", connectorID, err))
+			http.Error(w, "Unable to reach the connector-remote to install the packages", http.StatusBadGateway)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(res)
+	})
+}
+
+// pfconnectorForIP tells which connector serves an IP address (connectors.conf
+// networks, top-down), so the domain form can point at the connector whose
+// host needs the NTLM packages for a domain controller behind it.
+func (h APIHandler) pfconnectorForIP() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip := net.ParseIP(chi.URLParam(r, "ip"))
+		if ip == nil {
+			http.Error(w, "A valid IP address is required", http.StatusBadRequest)
+			return
+		}
+		conn := connector.NewConnectorsContainer(h.ctx).ForIP(h.ctx, ip)
+		w.Header().Set("Content-Type", "application/json")
+		if conn == nil || conn.PfconfigHashNS == "local_connector" {
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(map[string]interface{}{"message": "No connector serves this IP address", "ip": ip.String()})
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]interface{}{"connector_id": conn.PfconfigHashNS, "ip": ip.String()})
 	})
 }
 

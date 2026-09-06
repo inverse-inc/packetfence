@@ -91,6 +91,42 @@
             </b-table-simple>
             <p v-else class="text-muted mb-0">{{ $i18n.t('System information unavailable.') }}</p>
 
+            <template v-if="hostPackages">
+              <h6 class="text-secondary mt-3">{{ $i18n.t('NTLM Authentication Services') }}</h6>
+              <p class="mb-1 small text-muted">
+                {{ $i18n.t('Needed on this host when an Active Directory domain is behind the connector: the join service creates the machine account and the API service answers NTLM authentications locally.') }}
+              </p>
+              <b-table-simple small class="mb-1">
+                <b-tbody>
+                  <b-tr v-for="pkg in hostPackages.packages" :key="pkg.name">
+                    <b-td class="text-monospace">{{ pkg.name }}</b-td>
+                    <b-td>
+                      <b-badge v-if="!hostPackages.available" variant="secondary">{{ $i18n.t('unknown') }}</b-badge>
+                      <b-badge v-else-if="pkg.installed" variant="success">{{ $i18n.t('installed') }} <small>{{ pkg.version }}</small></b-badge>
+                      <b-badge v-else variant="light" class="border">{{ $i18n.t('not installed') }}</b-badge>
+                    </b-td>
+                  </b-tr>
+                  <b-tr>
+                    <b-td class="text-muted">{{ $i18n.t('Join service') }}</b-td>
+                    <b-td>
+                      <b-badge :variant="hostPackages.ntlm_join_remote_listening ? 'success' : 'light'" :class="{ border: !hostPackages.ntlm_join_remote_listening }">
+                        {{ hostPackages.ntlm_join_remote_listening ? $i18n.t('running') : $i18n.t('not running') }}
+                      </b-badge>
+                    </b-td>
+                  </b-tr>
+                </b-tbody>
+              </b-table-simple>
+              <p v-if="hostPackages.install_state" class="mb-1 small" :class="installStateClass">
+                {{ $i18n.t('Last install request') }}: {{ hostPackages.install_state }}
+              </p>
+              <b-button v-if="!ntlmInstalled" size="sm" variant="outline-primary"
+                :disabled="!status.connected || isInstalling || installInProgress"
+                :title="!hostPackages.available ? $i18n.t('The host package state is unknown (older connector package); the install can still be requested.') : ''"
+                @click="showInstallModal = true">
+                <icon name="download" class="mr-1" />{{ $i18n.t('Install NTLM Services') }}
+              </b-button>
+            </template>
+
             <template v-if="ha">
               <h6 class="text-secondary mt-3">{{ $i18n.t('High Availability') }}</h6>
               <p class="mb-1 small text-muted">
@@ -320,6 +356,17 @@
       </template>
     </b-modal>
 
+    <b-modal v-model="showInstallModal"
+      :title="$i18n.t('Install NTLM Authentication Services')"
+      centered
+    >
+      <p>{{ $i18n.t('The connector host will install the packetfence-ntlm-auth-join-remote and packetfence-ntlm-auth-api-remote packages from the PacketFence repository of its own version (signature-verified). The connector itself is not restarted. Continue?') }}</p>
+      <template #modal-footer="{ hide }">
+        <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+        <b-button variant="primary" :disabled="isInstalling" @click="installNtlm">{{ $i18n.t('Install') }}</b-button>
+      </template>
+    </b-modal>
+
     <b-modal v-model="showRestartModal"
       :title="$i18n.t('Restart Remote Connector')"
       centered
@@ -435,6 +482,52 @@ export const setup = (props, context) => {
     })
   }
 
+  // NTLM authentication services on the connector host (host_packages in
+  // the system info; install through the host's trigger file, asynchronous).
+  const hostPackages = computed(() => {
+    const { system: { host_packages: hp } = {} } = status.value || {}
+    return (hp && hp.packages) ? hp : null
+  })
+  const ntlmInstalled = computed(() => {
+    const hp = hostPackages.value
+    return !!hp && hp.available && hp.packages.length > 0 && hp.packages.every(pkg => pkg.installed)
+  })
+  const installInProgress = computed(() => {
+    const state = (hostPackages.value || {}).install_state || ''
+    return /^(requested|installing)/.test(state)
+  })
+  const installStateClass = computed(() => {
+    const state = (hostPackages.value || {}).install_state || ''
+    if (/^failed/.test(state)) return 'text-danger'
+    if (/^done/.test(state)) return 'text-success'
+    return 'text-muted'
+  })
+  const isInstalling = ref(false)
+  const showInstallModal = ref(false)
+  let installPoll = null
+  const installNtlm = () => {
+    showInstallModal.value = false
+    isInstalling.value = true
+    api.remoteInstall(props.id, ['packetfence-ntlm-auth-join-remote']).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Install started on the connector host. The package state below updates as it progresses (details in the "install" log).') })
+      // Follow the install more closely than the regular refresh for a while.
+      let polls = 0
+      if (installPoll) clearInterval(installPoll)
+      installPoll = setInterval(() => {
+        refresh()
+        if (++polls >= 30 || ntlmInstalled.value) {
+          clearInterval(installPoll)
+          installPoll = null
+        }
+      }, 10000)
+    }).catch(() => {
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to trigger the install on the connector host.') })
+    }).finally(() => {
+      isInstalling.value = false
+      setTimeout(refresh, 3000)
+    })
+  }
+
   const upgrade = () => {
     showUpgradeModal.value = false
     isUpgrading.value = true
@@ -541,6 +634,8 @@ export const setup = (props, context) => {
   onBeforeUnmount(() => {
     if (refreshInterval)
       clearInterval(refreshInterval)
+    if (installPoll)
+      clearInterval(installPoll)
     refreshTimers.forEach(timer => clearTimeout(timer))
     refreshTimers.clear()
   })
@@ -551,6 +646,13 @@ export const setup = (props, context) => {
     isLoading,
     isRestarting,
     isUpgrading,
+    hostPackages,
+    ntlmInstalled,
+    installInProgress,
+    installStateClass,
+    isInstalling,
+    showInstallModal,
+    installNtlm,
     showUpgradeModal,
     isTerminalLoading,
     showTerminalModal,

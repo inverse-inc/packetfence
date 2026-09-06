@@ -153,7 +153,9 @@ When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domai
 
 IMPORTANT: When using the NT Key cache for 802.1X EAP-PEAP with a domain behind a pfconnector, `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves such a domain. Each remote instance handles authentication using its local cache when the main domain controller behind the pfconnector-remote is unreachable or when the pfconnector-remote loses connectivity to the main PacketFence server.
 
-Install them alongside the pfconnector:
+Install them from the admin interface: the connector's status panel (_Configuration->System Configuration->Connectors_, edit the connector) has an _NTLM Authentication Services_ block showing whether the two packages are installed on the host and whether the join service is running, with an _Install NTLM Services_ button. The same block appears in the domain form when _Use Connector_ is enabled and an Active Directory IP is entered: it names the connector serving that address and offers the install, so the services can be put in place right before joining the domain. The connector host downloads the packages from the PacketFence repository of its own version (signature-verified, no connector restart) and logs the result in [filename]`/usr/local/pfconnector-remote/conf/install.log`, also available in the log viewer as _install_.
+
+They can also be installed by hand on the host:
 
 [source,bash]
 ----
