@@ -2,7 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="d-flex align-items-center mb-0">
-        {{ $t('Connector') }}
+        {{ $t('Connectors') }}
       </h4>
     </b-card-header>
     <div class="card-body">

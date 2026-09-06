@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheTabsConnectors')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationSystem" */ './connectors/_components/TheSearch')
 import ConnectorsRoutes from './connectors/_router'
 
 export const beforeEnter = (to, from, next = () => { }) => {
@@ -11,11 +11,12 @@ export const beforeEnter = (to, from, next = () => { }) => {
 }
 
 export default [
+  // The connectors list is the section: DNS servers and domains live on each
+  // connector, so there is nothing else to tab between.
   {
     path: 'connectors',
     name: 'connectors',
-    component: TheTabs,
-    props: () => ({ tab: 'connectorsConnectors' }),
+    component: TheSearch,
     beforeEnter
   },
   ...ConnectorsRoutes
