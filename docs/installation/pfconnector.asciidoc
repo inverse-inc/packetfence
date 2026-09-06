@@ -238,7 +238,7 @@ The connector container needs the `NET_ADMIN` capability for this feature. It is
 Resources defined by hostname (LDAP sources, Active Directory servers) and DNS names of the remote site are resolved through the connector when the site's DNS servers are declared on it. Edit the connector (_Configuration->System Configuration->Connectors_), _Configuration_ tab, _DNS_, and add one row per DNS server:
 
 * *DNS server IP* and *Port* -- The DNS server on the remote site (port `53` by default).
-* *Domains served* -- The domain names this server is authoritative for (type a name and press enter). Listing a domain here is what associates it with this connector: a domain can be served through one connector only.
+* *Domains served* -- The domain names this server is authoritative for (type a name and press enter). Listing a domain here is what associates it with this connector: a domain can be served through one connector only, but several DNS servers of that connector may serve the same domain, in which case PacketFence forwards to all of them and fails over between them.
 * *Tunnel port* -- Optional. The pfconnector server port forwarded to the DNS server, in the range `30000-30999`; it is allocated automatically when left empty.
 
 PacketFence then forwards every query for those domains to the server through the connector tunnel (pfdns-connector), and a resource whose hostname falls under one of them, with *Use Connector* enabled, is reached through this connector. The server IP must also fall within the connector's *Networks*.
