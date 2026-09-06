@@ -10,4 +10,39 @@ if [ -x /usr/bin/dpkg-maintscript-helper ]; then
     dpkg-maintscript-helper rm_conffile /etc/systemd/system/packetfence-pfconnector-remote.service -- "$@"
 fi
 
+# Remove the connector container and every local copy of its image (the
+# pulled registry tag and the local tags manage-images.sh creates). Docker
+# itself stays: it is a dependency, not ours to remove.
+remove_containers_and_images() {
+    command -v docker >/dev/null 2>&1 || return 0
+    docker rm -f pfconnector-remote-combined >/dev/null 2>&1 || true
+    # By image ID: covers the pulled and local tags and untagged (<none>) leftovers
+    images=$(docker images --format '{{.Repository}} {{.ID}}' 2>/dev/null \
+        | awk '$1 ~ /^(packetfence|ghcr\.io\/inverse-inc\/packetfence)\/pfconnector-remote(-combined)?$/ {print $2}' | sort -u || true)
+    if [ -n "$images" ]; then
+        # shellcheck disable=SC2086
+        docker rmi -f $images >/dev/null 2>&1 || true
+        echo "Removed the pfconnector-remote container images"
+    fi
+}
+
+case "$1" in
+    remove)
+        remove_containers_and_images
+        /bin/systemctl daemon-reload 2>/dev/null || true
+    ;;
+    purge)
+        remove_containers_and_images
+        # Configuration, caches, logs and the terminal TOTP seed
+        rm -rf /usr/local/pfconnector-remote
+        /bin/systemctl daemon-reload 2>/dev/null || true
+    ;;
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
 exit 0
