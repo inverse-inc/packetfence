@@ -82,7 +82,9 @@ type Service struct {
 	Name string `json:"service"`
 }
 
-func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
+// NewApi returns a pointer: the route closures, the cache refreshers and the
+// callers (SetTunnel from the HA loop) must all see the same instance.
+func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) *API {
 	Api := API{}
 	Api.Router = chi.NewRouter()
 	Api.ctx = ctx
@@ -122,7 +124,7 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 
 	Api.setupRoutes()
 
-	return Api
+	return &Api
 }
 
 func (api *API) setupRoutes() {
