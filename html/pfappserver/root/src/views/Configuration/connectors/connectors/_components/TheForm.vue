@@ -48,7 +48,7 @@
         <the-equipment :id="id" />
       </b-tab>
       <base-form-tab :title="$i18n.t('Configuration')">
-        <b-tabs pills nav-wrapper-class="mb-3 mx-3">
+        <b-tabs nav-wrapper-class="mb-3 mx-3">
           <base-form-tab :title="$i18n.t('Connector')" active>
             <form-group-identifier namespace="id"
               :column-label="$i18n.t('Connector ID')"
