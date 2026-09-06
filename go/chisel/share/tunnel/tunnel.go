@@ -72,6 +72,9 @@ type BoundRemoteInfo struct {
 	LocalProto string `json:"local_proto"`
 	RemoteHost string `json:"remote_host"`
 	RemotePort string `json:"remote_port"`
+	// Handler is the "|<handler>" suffix of the bind (radius, proxyproto),
+	// empty for a raw forward.
+	Handler string `json:"handler,omitempty"`
 }
 
 func (t *Tunnel) registerProxy(p *Proxy) {
@@ -101,9 +104,18 @@ func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
 			LocalProto: p.remote.LocalProto,
 			RemoteHost: p.remote.RemoteHost,
 			RemotePort: p.remote.RemotePort,
+			Handler:    handlerOf(p.remote.Handler),
 		})
 	}
 	return out
+}
+
+// handlerOf hides the default "raw" handler.
+func handlerOf(h string) string {
+	if h == "raw" {
+		return ""
+	}
+	return h
 }
 
 // New Tunnel from the given Config

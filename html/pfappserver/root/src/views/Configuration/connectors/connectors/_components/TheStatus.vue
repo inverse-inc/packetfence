@@ -214,7 +214,27 @@
             </template>
           </b-col>
           <b-col md="6">
-            <h6 class="text-secondary">{{ $i18n.t('Static Connections') }}</h6>
+            <h6 class="text-secondary">{{ $i18n.t('Ports Open on the Connector') }}</h6>
+            <p class="mb-1 small text-muted">{{ $i18n.t('Listeners the connector opened on its host for the tunnel, and the PacketFence destination each one forwards to.') }}</p>
+            <b-table-simple v-if="localBinds.length" small class="mb-0">
+              <b-thead>
+                <b-tr>
+                  <b-th>{{ $i18n.t('Connector Port') }}</b-th>
+                  <b-th>{{ $i18n.t('Protocol') }}</b-th>
+                  <b-th>{{ $i18n.t('Destination') }}</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr v-for="(bind, index) in localBinds" :key="index">
+                  <b-td class="text-monospace">{{ bind.local_host || '0.0.0.0' }}:{{ bind.local_port }}</b-td>
+                  <b-td>{{ bind.local_proto || 'tcp' }}<small v-if="bind.handler" class="text-muted ml-1">({{ bind.handler }})</small></b-td>
+                  <b-td class="text-monospace">{{ bind.remote_host }}:{{ bind.remote_port }}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+            <p v-else class="text-muted mb-0">{{ $i18n.t('No listener reported by the connector.') }}</p>
+
+            <h6 class="text-secondary mt-3">{{ $i18n.t('Static Connections') }}</h6>
             <b-table-simple v-if="status.static_connections && status.static_connections.length" small class="mb-0">
               <b-thead>
                 <b-tr>
@@ -240,7 +260,7 @@
             <p v-else class="text-muted mb-0">{{ $i18n.t('No static connection configured for this connector.') }}</p>
 
             <h6 class="text-secondary mt-3">{{ $i18n.t('Dynamic Connections') }}</h6>
-            <b-table-simple v-if="status.bound_remotes && status.bound_remotes.length" small class="mb-0">
+            <b-table-simple v-if="dynamicRemotes.length" small class="mb-0">
               <b-thead>
                 <b-tr>
                   <b-th>{{ $i18n.t('Server Port') }}</b-th>
@@ -249,7 +269,7 @@
                 </b-tr>
               </b-thead>
               <b-tbody>
-                <b-tr v-for="(remote, index) in status.bound_remotes" :key="index">
+                <b-tr v-for="(remote, index) in dynamicRemotes" :key="index">
                   <b-td class="text-monospace">{{ remote.local_host }}:{{ remote.local_port }}</b-td>
                   <b-td>{{ remote.local_proto }}</b-td>
                   <b-td class="text-monospace">{{ remote.remote_host }}:{{ remote.remote_port }}</b-td>
@@ -530,6 +550,21 @@ export const setup = (props, context) => {
     })
   }
 
+  // bound_remotes lists every reverse bind the server holds for this
+  // connector, the static ones included; show only the dynamic ones here,
+  // the static ones have their own table.
+  const dynamicRemotes = computed(() => {
+    const { bound_remotes: remotes = [], static_connections: statics = [] } = status.value || {}
+    const staticKeys = new Set((statics || []).map(s => `${s.local_port}/${(s.local_proto || 'tcp').toLowerCase()}`))
+    return (remotes || []).filter(r => !staticKeys.has(`${r.local_port}/${(r.local_proto || 'tcp').toLowerCase()}`))
+  })
+
+  // Listeners the connector opened on its host (local_binds in the system info).
+  const localBinds = computed(() => {
+    const { system: { local_binds: binds } = {} } = status.value || {}
+    return Array.isArray(binds) ? binds : []
+  })
+
   // connector-cache statistics (connector_cache in the system info).
   const cacheStats = computed(() => {
     const { system: { connector_cache: cc } = {} } = status.value || {}
@@ -729,6 +764,8 @@ export const setup = (props, context) => {
     isLoading,
     isRestarting,
     isUpgrading,
+    dynamicRemotes,
+    localBinds,
     cacheStats,
     hostPackages,
     ntlmInstalled,
