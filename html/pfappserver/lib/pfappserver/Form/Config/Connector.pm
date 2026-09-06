@@ -367,10 +367,11 @@ interfaces) or be a plain host interface name.
 
 =head2 validate_dns_servers
 
-Each DNS server needs at least one domain; a domain is served by one DNS
-server of one connector only (across all connectors); the tunnel port, when
-given, is unique across the connectors' DNS servers and the RADIUS sources
-reached through a connector.
+Each DNS server needs at least one domain; a domain is served through one
+connector only, but several DNS servers of that connector may serve it
+(pfdns-connector forwards to all of them with failover); the tunnel port,
+when given, is unique across the connectors' DNS servers and the RADIUS
+sources reached through a connector.
 
 =cut
 
@@ -405,10 +406,10 @@ sub validate_dns_servers {
         }
         for my $d (@domains) {
             my $owner = $domain_seen{ lc $d };
-            if (defined $owner) {
-                $s_field->field('domains')->add_error("Domain '$d' is already served through " . ($owner eq $id ? "another DNS server of this connector" : "connector '$owner'"));
+            if (defined $owner && $owner ne $id) {
+                $s_field->field('domains')->add_error("Domain '$d' is already served through connector '$owner'");
             }
-            $domain_seen{ lc $d } = $id;
+            $domain_seen{ lc $d } //= $id;
         }
         my $tp = $s->{tunnel_port};
         if (defined $tp && length $tp) {
