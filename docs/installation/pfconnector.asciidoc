@@ -233,64 +233,30 @@ The *DNS* toggle of a VLAN interface makes the connector itself answer DNS on th
 [NOTE]
 The connector container needs the `NET_ADMIN` capability for this feature. It is granted by the `packetfence-pfconnector-remote` package; on a host where the container is started differently, add `--cap-add=NET_ADMIN` to the `docker run` arguments. Without it, the connector logs the netlink permission error and the interfaces are reported in error.
 
-====== Associating a Domain Name with a Connector
+====== DNS Servers Behind a Connector
 
-To route traffic for resources that are defined by hostname (such as LDAP sources or Active Directory servers) through a pfconnector, two steps are required:
+Resources defined by hostname (LDAP sources, Active Directory servers) and DNS names of the remote site are resolved through the connector when the site's DNS servers are declared on it. Edit the connector (_Configuration->System Configuration->Connectors_), _Configuration_ tab, _DNS_, and add one row per DNS server:
 
-*Step 1 -- Map the domain to a connector*
+* *DNS server IP* and *Port* -- The DNS server on the remote site (port `53` by default).
+* *Domains served* -- The domain names this server is authoritative for (type a name and press enter). Listing a domain here is what associates it with this connector: a domain can be served through one connector only.
+* *Tunnel port* -- Optional. The pfconnector server port forwarded to the DNS server, in the range `30000-30999`; it is allocated automatically when left empty.
 
-In the _Connectors -> Domains_ tab, create an entry:
+PacketFence then forwards every query for those domains to the server through the connector tunnel (pfdns-connector), and a resource whose hostname falls under one of them, with *Use Connector* enabled, is reached through this connector. The server IP must also fall within the connector's *Networks*.
 
-* *Domain* -- The DNS domain name (e.g. `inverse.local`).
-* *Connector* -- Select the connector instance that serves this domain from the dropdown.
-
-This tells PacketFence which connector tunnel to use when communicating with hosts under this domain.
-
-*Step 2 -- Enable connector usage on the resource*
-
-In the resource configuration (e.g. an LDAP source defined under _Configuration -> Domains_), ensure the server hostname falls under the domain configured above, and set *Use Connector* to `Enabled`.
-
-Additionally, the server IP must fall within one of the CIDR ranges defined in the connector's _Networks_ field. PacketFence matches the IP to find the correct connector and routes the traffic through its tunnel.
-
-.Workflow example
-====
-A typical setup for an Active Directory domain `inverse.local` behind the "Amsterdam Office" connector:
-
-. In _Configuration -> Connectors -> Connectors_, the "Amsterdam Office" connector has `Networks` set to `10.0.0.0/8, 192.168.1.0/24`.
-. In _Configuration -> Connectors -> Domains_, create an entry: Domain `inverse.local`, Connector "Amsterdam Office".
-. In _Configuration -> Domains_, edit the `inverse.local` domain:
-  * *Active Directory server* is set to `10.5.1.10` (which is within `10.0.0.0/8`).
-  * *Use Connector* is set to `Enabled`.
-
-At runtime, when PacketFence needs to perform an LDAP bind or search against the host `dc01.inverse.local`, it resolves the domain `inverse.local` to the "Amsterdam Office" connector, matches `10.5.1.10` against the connector's networks, and routes the LDAP traffic through its tunnel.
-====
-
-====== Configuring DNS Resolution Through a Connector
-
-If DNS servers on the remote site need to be reachable through the connector (for example, to resolve Active Directory hostnames), configure DNS connectors in the _Connectors -> DNS_ tab:
-
-* *Identifier* -- A name for this DNS connector entry.
-* *IP* -- The IP address of the DNS server on the remote side.
-* *Port* -- The port the DNS server listens on (typically `53`).
-* *Connector Port* -- A port in the range `30000-30999` allocated for this DNS forwarder. This port must be unique across all DNS connector entries.
-* *Domains* -- One or more domain names this DNS server is authoritative for. These domains must first be defined in the _Connectors -> Domains_ tab.
-
-The DNS connector establishes a port forward through the connector tunnel: DNS queries sent to `127.0.0.1:<connector_port>` on the PacketFence server are forwarded to `<ip>:<port>` on the remote side. PacketFence automatically routes DNS queries for the listed domains through the appropriate connector's DNS forwarder.
+The _Test DNS Resolution_ panel under the list sends a query through the selected server's tunnel, or resolves it the way PacketFence does, and shows the answer and latency; _Test Server_ asks the server for the SOA record of the first domain it serves. Save the connector before testing: the test uses the saved servers.
 
 .Workflow example
 ====
 For an Active Directory deployment where the DNS server `10.5.1.53` is behind the "Amsterdam Office" connector and handles the `inverse.local` domain:
 
-. Ensure `inverse.local` is defined in _Configuration -> Connectors -> Domains_ and linked to the "Amsterdam Office" connector.
-. In _Configuration -> Connectors -> DNS_, create an entry:
-  * *Identifier*: `amsterdam-dns`
-  * *IP*: `10.5.1.53`
-  * *Port*: `53`
-  * *Connector Port*: `30001`
-  * *Domains*: select `inverse.local`
+. In _Configuration -> Connectors_, the "Amsterdam Office" connector has `Networks` set to `10.0.0.0/8, 192.168.1.0/24`.
+. In its _Configuration_ tab, _DNS_, add a DNS server: IP `10.5.1.53`, port `53`, domains `inverse.local`.
+. In _Configuration -> Domains_, edit the `inverse.local` domain: *Active Directory server* set to `10.5.1.10` (within `10.0.0.0/8`) and *Use Connector* enabled.
 
-PacketFence will then forward any DNS query for `*.inverse.local` to `10.5.1.53:53` through the connector tunnel.
+At runtime, PacketFence forwards any DNS query for `*.inverse.local` to `10.5.1.53:53` through the connector tunnel, and an LDAP bind against `dc01.inverse.local` resolves the name through it and reaches the host through the "Amsterdam Office" connector.
 ====
+
+NOTE: Before 16.0 the same information lived in two separate tabs, _Connectors -> Domains_ (domain to connector) and _Connectors -> DNS_ (DNS servers with a hand-picked tunnel port). The upgrade folds them into the connectors' DNS servers automatically and keeps the old files with a `.migrated` suffix.
 
 ===== Upgrade (for version prior to 12.1.0)
 

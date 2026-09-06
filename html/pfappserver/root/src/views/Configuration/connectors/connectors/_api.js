@@ -81,6 +81,11 @@ export default {
       return response.data
     })
   },
+  dnsLookup: data => {
+    return apiCall.post('pfconnector-remotes/dns-lookup', data).then(response => {
+      return response.data
+    })
+  },
   forIp: ip => {
     return apiCall.getQuiet(['pfconnector-remotes', 'for-ip', ip]).then(response => {
       return response.data

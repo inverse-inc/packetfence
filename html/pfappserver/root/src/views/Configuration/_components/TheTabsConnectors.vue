@@ -14,21 +14,11 @@
 
 <script>
 import ConnectorsSearch from '../connectors/connectors/_components/TheSearch'
-import DnsSearch from '../connectors/dns/_components/TheSearch'
-import DomainsSearch from '../connectors/domains/_components/TheSearch'
 
 const tabs = {
   connectorsConnectors: {
     title: 'Connectors', // i18n defer
     component: ConnectorsSearch
-  },
-  connectorsDomains: {
-    title: 'Domains', // i18n defer
-    component: DomainsSearch
-  },
-  connectorsDns: {
-    title: 'DNS', // i18n defer
-    component: DnsSearch
   }
 }
 

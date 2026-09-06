@@ -11,10 +11,10 @@ Form definition to create or update a connector
 =cut
 
 use HTML::FormHandler::Moose;
-use pf::ConfigStore::Connector::DomainsConnectors;
 use pfconfig::cached_hash;
 use pf::util qw(valid_ip isenabled);
 use pf::connector::site_network qw(interface_name $IFNAMSIZ);
+use pf::connector::dns qw($TUNNEL_PORT_MIN $TUNNEL_PORT_MAX);
 use NetAddr::IP;
 
 tie my %ConnectorConfig, "pfconfig::cached_hash" , "config::Connector";
@@ -212,6 +212,45 @@ has_field 'routes.interface' => (
    ],
 );
 
+# DNS servers behind the connector and the domains each one serves. See
+# pf::connector::dns for the storage format. The tunnel port is allocated by
+# the ConfigStore when left empty.
+has_field 'dns_servers' => (
+   type => 'Repeatable',
+);
+
+has_field 'dns_servers.ip' => (
+   type => 'IPAddress',
+   required => 1,
+);
+
+has_field 'dns_servers.port' => (
+   type => 'PosInteger',
+   default => 53,
+   range_start => 1,
+   range_end => 65535,
+);
+
+has_field 'dns_servers.tunnel_port' => (
+   type => 'PosInteger',
+   range_start => $TUNNEL_PORT_MIN,
+   range_end => $TUNNEL_PORT_MAX,
+);
+
+has_field 'dns_servers.domains' => (
+   type => 'Repeatable',
+);
+
+has_field 'dns_servers.domains.contains' => (
+   type => 'Text',
+   apply => [
+       {
+           check => qr/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+\.?$/,
+           message => 'Invalid domain name',
+       },
+   ],
+);
+
 sub validate_networks {
     my ($self, $field) = @_;
     my $networks = $field->value;
@@ -324,6 +363,61 @@ and an interface it names must exist on the connector (one of its VLAN
 interfaces) or be a plain host interface name.
 
 =cut
+
+=head2 validate_dns_servers
+
+Each DNS server needs at least one domain; a domain is served by one DNS
+server of one connector only (across all connectors); the tunnel port, when
+given, is unique across the connectors' DNS servers and the RADIUS sources
+reached through a connector.
+
+=cut
+
+sub validate_dns_servers {
+    my ($self, $field) = @_;
+    my $id = $self->field('id')->value // '';
+    my (%domain_seen, %port_seen);
+    # domains and tunnel ports already taken by the other connectors
+    for my $other_id (grep { $_ ne $id && $_ ne 'local_connector' } keys %ConnectorConfig) {
+        for my $s (@{ $ConnectorConfig{$other_id}{dns_servers} // [] }) {
+            next unless ref($s) eq 'HASH';
+            $domain_seen{ lc $_ } = $other_id for @{ $s->{domains} // [] };
+            $port_seen{ $s->{tunnel_port} } = $other_id if defined $s->{tunnel_port} && length $s->{tunnel_port};
+        }
+    }
+    tie my %auth, 'pfconfig::cached_hash', 'config::Authentication';
+    for my $source_id (keys %auth) {
+        my $p = ref($auth{$source_id}) eq 'HASH' ? $auth{$source_id}{pfconnector_port} : undef;
+        $port_seen{$p} = "RADIUS source $source_id" if defined $p && length $p;
+    }
+    my %server_seen;
+    for my $s_field ($field->fields) {
+        my $s = $s_field->value;
+        next unless ref($s) eq 'HASH' && defined $s->{ip};
+        my $key = join(':', $s->{ip}, $s->{port} // 53);
+        if ($server_seen{$key}++) {
+            $s_field->field('ip')->add_error("DNS server $key is listed twice");
+        }
+        my @domains = grep { defined && length } @{ $s->{domains} // [] };
+        if (!@domains) {
+            $s_field->field('domains')->add_error("At least one domain must be served by this DNS server");
+        }
+        for my $d (@domains) {
+            my $owner = $domain_seen{ lc $d };
+            if (defined $owner) {
+                $s_field->field('domains')->add_error("Domain '$d' is already served through " . ($owner eq $id ? "another DNS server of this connector" : "connector '$owner'"));
+            }
+            $domain_seen{ lc $d } = $id;
+        }
+        my $tp = $s->{tunnel_port};
+        if (defined $tp && length $tp) {
+            if (defined $port_seen{$tp}) {
+                $s_field->field('tunnel_port')->add_error("Tunnel port $tp is already used by $port_seen{$tp}");
+            }
+            $port_seen{$tp} = $id;
+        }
+    }
+}
 
 sub validate_routes {
     my ($self, $field) = @_;
