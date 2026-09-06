@@ -91,6 +91,37 @@
             </b-table-simple>
             <p v-else class="text-muted mb-0">{{ $i18n.t('System information unavailable.') }}</p>
 
+            <template v-if="cacheStats">
+              <h6 class="text-secondary mt-3">{{ $i18n.t('Connector Cache') }}</h6>
+              <p class="mb-1 small text-muted">
+                {{ $i18n.t('The local cache service: cached RADIUS authorizations and credentials replayed when PacketFence is unreachable, and the RADIUS rate limiter.') }}
+              </p>
+              <b-table-simple small borderless class="mb-0">
+                <b-tbody>
+                  <b-tr>
+                    <b-td class="text-muted">{{ $i18n.t('Cached RADIUS authorizations') }}</b-td>
+                    <b-td>{{ cacheStats.devices_in_db }}</b-td>
+                  </b-tr>
+                  <b-tr>
+                    <b-td class="text-muted">{{ $i18n.t('Cached credentials') }}</b-td>
+                    <b-td>{{ cacheStats.credential_in_db }}</b-td>
+                  </b-tr>
+                  <b-tr>
+                    <b-td class="text-muted">{{ $i18n.t('Rate limiter keys') }}</b-td>
+                    <b-td>{{ cacheStats.keys_in_ratelimit }}</b-td>
+                  </b-tr>
+                  <b-tr>
+                    <b-td class="text-muted">{{ $i18n.t('Database size') }}</b-td>
+                    <b-td>{{ formatBytes(cacheStats.db_size) }}</b-td>
+                  </b-tr>
+                  <b-tr>
+                    <b-td class="text-muted">{{ $i18n.t('Memory') }}</b-td>
+                    <b-td>{{ formatBytes(cacheStats.mem_alloc) }} <small class="text-muted">{{ $i18n.t('allocated') }}</small> / {{ formatBytes(cacheStats.mem_sys) }} <small class="text-muted">{{ $i18n.t('from the OS') }}</small></b-td>
+                  </b-tr>
+                </b-tbody>
+              </b-table-simple>
+            </template>
+
             <template v-if="hostPackages">
               <h6 class="text-secondary mt-3">{{ $i18n.t('NTLM Authentication Services') }}</h6>
               <p class="mb-1 small text-muted">
@@ -499,6 +530,12 @@ export const setup = (props, context) => {
     })
   }
 
+  // connector-cache statistics (connector_cache in the system info).
+  const cacheStats = computed(() => {
+    const { system: { connector_cache: cc } = {} } = status.value || {}
+    return cc || null
+  })
+
   // NTLM authentication services on the connector host (host_packages in
   // the system info; install through the host's trigger file, asynchronous).
   const hostPackages = computed(() => {
@@ -693,6 +730,7 @@ export const setup = (props, context) => {
     isLoading,
     isRestarting,
     isUpgrading,
+    cacheStats,
     hostPackages,
     ntlmInstalled,
     installInProgress,
