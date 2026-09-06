@@ -101,7 +101,8 @@ const schemaInterfaces = yup.array().ensure()
   .unique(i18n.t('Duplicate VLAN interface.'), ({ parent, vlan }) => `${parent}.${vlan}`)
   .of(schemaInterface)
 
-const reDomainName = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+\.?$/
+// one or more labels: "inverse" is as valid as "inverse.local"
+const reDomainName = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.?$/
 
 // DNS servers behind the connector (Configuration > DNS): the domains listed
 // under a server are what PacketFence forwards to it through the tunnel.
