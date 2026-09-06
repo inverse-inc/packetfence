@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -20,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
+	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -74,6 +76,11 @@ type SystemInfo struct {
 	// HA is the VRRP high-availability state of this host (PFCONNECTOR_HA_VIP);
 	// omitted when HA is not configured.
 	HA *HAStatus `json:"ha,omitempty"`
+	// LocalBinds are the listeners this connector opened on its host for the
+	// tunnel: the remote-binds (80/443 portal, 1812/1813/1815 RADIUS, 9096,
+	// 3306/6379 for the local containers...) and the static 22226 API binds,
+	// each with the cloud-side destination it forwards to.
+	LocalBinds []tunnel.BoundRemoteInfo `json:"local_binds"`
 	// ConnectorCache is the connector-cache service's own statistics
 	// (GET /api/v1/manage/stats on 127.0.0.1:12142); omitted when the
 	// service does not answer.
@@ -212,6 +219,19 @@ func systemInfo(api *API) http.HandlerFunc {
 			HostInterfaces:  hostInterfaces(),
 			HA:              HAStatusSnapshot(),
 			ConnectorCache:  connectorCacheStats(),
+			LocalBinds:      []tunnel.BoundRemoteInfo{},
+		}
+		if tun := api.Tunnel(); tun != nil {
+			binds := tun.BoundRemotes()
+			sort.Slice(binds, func(i, j int) bool {
+				pi, _ := strconv.Atoi(binds[i].LocalPort)
+				pj, _ := strconv.Atoi(binds[j].LocalPort)
+				if pi != pj {
+					return pi < pj
+				}
+				return binds[i].LocalHost < binds[j].LocalHost
+			})
+			info.LocalBinds = binds
 		}
 		info.Hostname, _ = os.Hostname()
 
