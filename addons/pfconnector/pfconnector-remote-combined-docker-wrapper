@@ -4,6 +4,21 @@ source /usr/local/pfconnector-remote/containers/systemd-service
 
 name=pfconnector-remote-combined
 
+# The package ships an empty pfconnector-client.env; pfconnector-configure (or
+# the admin-interface install command) fills it in. Without AUTH/HOST the
+# container would start and the connector would crash-loop with a misleading
+# "Unable to setup the PF_SYSTEM_INIT secret" panic (PFCONNECTOR_REMOTE unset),
+# so refuse early with a message that says what to do.
+ENV_FILE=/usr/local/pfconnector-remote/conf/pfconnector-client.env
+if ! grep -qE '^AUTH=.+:.+' "$ENV_FILE" 2>/dev/null || ! grep -qE '^HOST=.+' "$ENV_FILE" 2>/dev/null; then
+  echo "pfconnector-remote is not configured: $ENV_FILE has no AUTH/HOST. Run /usr/local/pfconnector-remote/bin/pfconnector-configure (or the install command shown in the PacketFence admin interface) and start the service again." >&2
+  exit 1
+fi
+if ! grep -qE '^PFCONNECTOR_REMOTE=' "$ENV_FILE"; then
+  # Configs written by hand or by older tooling: the connector needs this flag
+  echo "PFCONNECTOR_REMOTE=true" >> "$ENV_FILE"
+fi
+
 args=`base_args $name`
 
 # pfconnector-client env vars
