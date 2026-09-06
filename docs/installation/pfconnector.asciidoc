@@ -82,6 +82,10 @@ Finally, restart the packetfence-pfconnector-remote-combined service:
 systemctl restart packetfence-pfconnector-remote-combined
 ----
    
+===== Removing a Remote Connector
+
+`apt remove packetfence-pfconnector-remote` (and the NTLM packages, removed first as they depend on it) stops the services, and removes the containers and their images; configuration, logs and caches stay in [filename]`/usr/local/pfconnector-remote` and [filename]`/usr/local/ntlm-auth-api`. `apt purge` removes those directories too, including the terminal TOTP seed.
+
 ===== Remote Terminal Access
 
 The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote-combined service after changing it).
