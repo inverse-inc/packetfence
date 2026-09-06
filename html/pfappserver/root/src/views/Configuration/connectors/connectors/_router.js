@@ -2,7 +2,7 @@ import store from '@/store'
 import StoreModule from '../_store'
 import FingerbankStoreModule from '../../fingerbank/_store'
 
-const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../../_components/TheTabsConnectors')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
@@ -28,11 +28,12 @@ export const useRouter = $router => {
 
 
 export default [
+  // Historical path of the list, kept for existing links; same page as
+  // the 'connectors' section route.
   {
     path: 'connectors/connectors',
     name: 'connectorsConnectors',
-    component: TheTabs,
-    props: () => ({ tab: 'connectorsConnectors' }),
+    component: TheSearch,
     beforeEnter
   },
   {
