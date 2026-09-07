@@ -32,7 +32,42 @@ type topologyConnector struct {
 	// Stats mirrors tunnel.StatsSnapshot; nil when no server holds a tunnel
 	// for the connector or the server could not be reached.
 	Stats map[string]interface{} `json:"stats,omitempty"`
+	// HA mirrors the "ha" block of the active host's system info (VIP,
+	// active host, standby peers with their liveness); only for connected
+	// connectors with a VIP, and cached a few seconds since it costs a
+	// round trip to the site.
+	HA    map[string]interface{} `json:"ha,omitempty"`
 	Error string                 `json:"error,omitempty"`
+}
+
+// haCacheEntry is a cached "ha" block of one connector.
+type haCacheEntry struct {
+	at time.Time
+	ha map[string]interface{}
+}
+
+var (
+	haCache    sync.Map // connector id -> haCacheEntry
+	haCacheTTL = 15 * time.Second
+)
+
+// connectorHA returns the HA block of a connected connector's active host,
+// from the cache when fresh enough. nil when the host has no HA or does not
+// answer.
+func (h APIHandler) connectorHA(conn *connector.Connector, id string) map[string]interface{} {
+	if v, ok := haCache.Load(id); ok {
+		if e := v.(haCacheEntry); time.Since(e.at) < haCacheTTL {
+			return e.ha
+		}
+	}
+	var ha map[string]interface{}
+	if info, err := h.callConnectorRemoteAPI(conn, "GET", "/api/v1/system/info", nil); err == nil {
+		if block, ok := info["ha"].(map[string]interface{}); ok {
+			ha = block
+		}
+	}
+	haCache.Store(id, haCacheEntry{at: time.Now(), ha: ha})
+	return ha
 }
 
 type topologyReply struct {
@@ -85,8 +120,6 @@ func (h APIHandler) pfconnectorTopology() http.HandlerFunc {
 				defer cancel()
 				detail := connectorDetail{}
 				err := conn.ServerCall(cctx, "GET", "/api/v1/pfconnector/connector-detail?connector-id="+url.QueryEscape(id), &detail)
-				mu.Lock()
-				defer mu.Unlock()
 				if err != nil {
 					// A connector that has never connected has no server
 					// entry: not connected, no error worth showing.
@@ -98,8 +131,13 @@ func (h APIHandler) pfconnectorTopology() http.HandlerFunc {
 						node.RemoteIPs = detail.RemoteIPs
 					}
 					node.Stats = detail.Stats
+					if node.Connected && node.HaVip != "" {
+						node.HA = h.connectorHA(conn, id)
+					}
 				}
+				mu.Lock()
 				reply.Connectors[i] = node
+				mu.Unlock()
 				return nil
 			})
 		}

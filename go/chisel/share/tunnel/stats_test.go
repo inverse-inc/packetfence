@@ -43,3 +43,43 @@ func TestStatsMeterAndSnapshot(t *testing.T) {
 		t.Error("never-connected stats must not report connected_at")
 	}
 }
+
+type rwcBuffer struct {
+	in  []byte
+	out []byte
+}
+
+func (b *rwcBuffer) Read(p []byte) (int, error)  { n := copy(p, b.in); b.in = b.in[n:]; return n, nil }
+func (b *rwcBuffer) Write(p []byte) (int, error) { b.out = append(b.out, p...); return len(p), nil }
+func (b *rwcBuffer) Close() error                { return nil }
+
+// Channels are counted per destination, in both directions, and the
+// snapshot lists them sorted with reverse channels flagged.
+func TestStatsPerService(t *testing.T) {
+	s := NewStats()
+	radius := s.service(serviceKey("10.0.0.1:1812", "udp", "radius"))
+	radius.open()
+	stream := radius.meter(&rwcBuffer{in: []byte("hello")})
+	buf := make([]byte, 16)
+	stream.Read(buf)
+	stream.Write([]byte("ok"))
+	radius.close()
+
+	collector := s.service(reverseKey + "127.0.0.1:4723")
+	collector.open()
+	collector.meter(&rwcBuffer{}).Write([]byte("abc"))
+
+	snap := s.snapshot(1)
+	if len(snap.Services) != 2 {
+		t.Fatalf("services = %+v", snap.Services)
+	}
+	if snap.Services[0].Destination != "10.0.0.1:1812/udp|radius" || snap.Services[0].BytesIn != 5 || snap.Services[0].BytesOut != 2 || snap.Services[0].Active != 0 || snap.Services[0].Connections != 1 || snap.Services[0].Reverse {
+		t.Errorf("radius service = %+v", snap.Services[0])
+	}
+	if snap.Services[1].Destination != "127.0.0.1:4723" || !snap.Services[1].Reverse || snap.Services[1].BytesOut != 3 || snap.Services[1].Active != 1 {
+		t.Errorf("collector service = %+v", snap.Services[1])
+	}
+	if serviceKey("host:80", "", "") != "host:80" || serviceKey("host:80", "tcp", "proxyproto") != "host:80/tcp|proxyproto" {
+		t.Error("serviceKey format")
+	}
+}
