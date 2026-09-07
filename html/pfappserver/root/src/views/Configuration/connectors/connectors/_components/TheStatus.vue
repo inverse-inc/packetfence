@@ -195,6 +195,10 @@
                         </b-badge>
                       </template>
                       <b-badge v-else variant="warning" :title="peer.cache_sync_error || ''">{{ $i18n.t('not synced') }}</b-badge>
+                      <b-badge v-if="peer.totp_seed_synced" variant="light" class="border ml-1"
+                        :title="$i18n.t('This host adopted the terminal TOTP seed of the active host: the same authenticator enrollment opens the terminal on it.')">{{ $i18n.t('TOTP seed') }}</b-badge>
+                      <b-badge v-else variant="warning" class="ml-1"
+                        :title="$i18n.t('This host has not adopted the terminal TOTP seed of the active host yet (it syncs every minute over the local network).')">{{ $i18n.t('TOTP seed') }}</b-badge>
                     </b-td>
                     <b-td>
                       <b-badge :variant="peer.alive ? 'success' : 'danger'">{{ peer.alive ? $i18n.t('alive') : $i18n.t('not reporting') }}</b-badge>

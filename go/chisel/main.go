@@ -2,6 +2,7 @@ package chiselmain
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -682,11 +683,48 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 		}
 	}
 
+	// While backup, adopt the master's terminal TOTP seed so one authenticator
+	// enrolment opens the terminal on whichever host is active
+	// (clientapi/hatotp.go). Independent of the cache sync toggle.
+	totpSync := func(ctx context.Context) {
+		ticker := time.NewTicker(clientapi.HACacheSyncInterval)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(3 * time.Second):
+			}
+			changed, err := api.SyncTOTPSeedFromMaster(ctx, vip.String(), secret)
+			switch {
+			case errors.Is(err, clientapi.ErrTOTPSeedUnavailable):
+				// The master has none to share: keep ours, quietly.
+			case err != nil:
+				failures++
+				if failures == 1 || failures%30 == 0 {
+					log.Printf("HA: terminal TOTP seed sync from the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			default:
+				failures = 0
+				if changed {
+					log.Printf("HA: adopted the terminal TOTP seed of the active host on %s; the authenticator enrolled there now opens the terminal on this host", vip)
+				}
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
 	for {
 		clientapi.SetHAState(vip.String(), "backup")
 		hbCtx, stopHeartbeat := context.WithCancel(ctx)
 		go heartbeat(hbCtx)
 		go cacheSync(hbCtx)
+		go totpSync(hbCtx)
 		acquired := waitFor(true)
 		stopHeartbeat()
 		if !acquired {

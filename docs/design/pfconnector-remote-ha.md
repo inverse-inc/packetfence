@@ -45,8 +45,9 @@ Connector host (`addons/pfconnector`, `containers/pfconnector-remote`):
   loopback/docker0 path to the tunnel and is never seen by the NAS. It stays
   host-specific.
 - EAP certificates and NAS secrets are fetched from the cloud: identical on
-  both hosts. The connector-cache SQLite (`pfcc.db`), the collector DB and the
-  terminal TOTP seed are per host.
+  both hosts. The connector-cache SQLite (`pfcc.db`) and the collector DB are
+  per host; the terminal TOTP seed is generated per host but the standbys
+  adopt the master's (below).
 - Offline "degraded" mode exists: when the tunnel is down FreeRADIUS accepts
   MAB locally, replays cached Access-Accepts and does PEAP inner auth with the
   local NTLM cache.
@@ -318,7 +319,7 @@ acknowledged locally and lost for that window, as today when the tunnel drops.
 | File | Handling |
 |---|---|
 | `conf/pfconnector-client.env` | identical on both hosts except `PFCONNECTOR_HA_PRIORITY` (and `PFCONNECTOR_HA_PEER` when unicast) |
-| `conf/terminal_totp` | copy from the first host so one enrolment QR code works for both; otherwise each host has its own seed and the admin enrols twice |
+| `conf/terminal_totp` | synced: a backup pulls the master's seed over the LAN (`GET /api/v1/ha/totp-seed` on the VIP, HMAC-signed timestamp, AES-256-GCM body under SHA256("pfconnector-ha-totp:"+secret), refused to loopback/local callers so central cannot fetch it through the tunnel), rewrites its file and reloads the second factor when it differs (`clientapi/hatotp.go`). One enrolment QR code works for the whole group; the heartbeat reports `totp_seed_synced` |
 | `var/lib/packetfence-connector-cache/pfcc.db` | per host, cold on the backup; the master fills it. Sync is a later iteration |
 | `db/collector_endpoints*.db` | per host, rebuilt from traffic |
 | `conf/ssl`, `raddb/dynamic-clients` | fetched from the cloud at start on each host |

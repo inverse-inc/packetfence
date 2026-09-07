@@ -148,6 +148,7 @@ func SetHASecret(secret string) {
 	defer haStatusMu.Unlock()
 	haKey = HAKey(secret)
 	setHACacheKey(secret)
+	setHATOTPKey(secret)
 }
 
 // HAKey derives the heartbeat HMAC key from the connector secret.
