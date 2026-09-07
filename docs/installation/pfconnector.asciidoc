@@ -86,7 +86,7 @@ systemctl restart packetfence-pfconnector-remote-combined
 
 The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote-combined service after changing it).
 
-Opening a terminal requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
+Opening a terminal requires the _Connectors_ update admin action (the connector's other actions need the read one). It also requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
 
 The seed is generated on the pfconnector-remote host when the packetfence-pfconnector-remote package is installed or upgraded, and displayed once as a QR code to scan with an authenticator app (the pfconnector-client generates it on first start if it is missing). It never leaves the host: reading it requires local access. To enroll it later, display the QR code again on the host:
 

@@ -25,6 +25,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
@@ -286,7 +287,7 @@ func (c *Client) Start(ctx context.Context) error {
 			for {
 				time.Sleep(5 * time.Second)
 				tunnelReady := func() bool {
-					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
+					res, err := c.serverAPIGet(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
 					if err != nil {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
 						return false
@@ -319,18 +320,16 @@ func (c *Client) Start(ctx context.Context) error {
 					}
 					return true
 				}()
-				if tunnelReady {
-					c.reportConnectorInfo()
-				}
+				_ = tunnelReady
 			}
 		}()
-	} else {
-		// Binds were provided statically (command line/env), so the
-		// remote-binds polling loop above never runs. Still report our IPs to
-		// the pfconnector server: the admin UI status panel and the remote
-		// terminal need them to reach this connector's local API.
-		go c.reportConnectorInfoLoop(ctx)
 	}
+	// Report our IPs to the pfconnector server on a ticker of its own (the
+	// admin UI status panel and the remote terminal need them to reach this
+	// connector's local API). It cannot live in the remote-binds loop above:
+	// BindRemotes blocks for as long as the binds are up, so that loop only
+	// iterates when the tunnel drops and a report placed after it never runs.
+	go c.reportConnectorInfoLoop(ctx)
 
 	// Site networking has its own ticker: it must not live in the remote-binds
 	// loop above because BindRemotes blocks for as long as the binds are up,
@@ -383,7 +382,13 @@ func (c *Client) reportConnectorInfo() {
 		return
 	}
 
-	res, err := http.Post("http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", "application/json", bytes.NewBuffer(clientInfoJSON))
+	req, err := http.NewRequest(http.MethodPost, "http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", bytes.NewBuffer(clientInfoJSON))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(connauth.Header, c.connectorAuth())
+	res, err := serverAPIClient.Do(req)
 	if err != nil {
 		fmt.Printf("failed to send client info: %v\n", err)
 		return
@@ -489,6 +494,27 @@ type siteNetworkReply struct {
 // the payload changed or the last pass had errors.
 const siteNetworkPollInterval = 5 * time.Second
 
+// connectorAuth signs a request to the pfconnector server's tunnel-local API
+// as this connector (chisel/share/connauth): config.Auth is "<id>:<secret>".
+func (c *Client) connectorAuth() string {
+	id, secret, _ := strings.Cut(c.config.Auth, ":")
+	return connauth.Sign(id, secret, time.Now())
+}
+
+// serverAPIClient bounds every call to the tunnel-local server API so a
+// stalled tunnel cannot pin a goroutine forever.
+var serverAPIClient = &http.Client{Timeout: 10 * time.Second}
+
+// serverAPIGet is a signed GET on the tunnel-local server API.
+func (c *Client) serverAPIGet(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set(connauth.Header, c.connectorAuth())
+	return serverAPIClient.Do(req)
+}
+
 // siteNetworkClient bounds the site-network fetch so a stalled tunnel cannot
 // wedge the loop (http.DefaultClient has no timeout).
 var siteNetworkClient = &http.Client{Timeout: 10 * time.Second}
@@ -522,7 +548,7 @@ func (c *Client) siteNetworkLoop(ctx context.Context) {
 // gets its VLANs without a config change).
 func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 	connectorID := strings.Split(c.config.Auth, ":")[0]
-	res, err := siteNetworkClient.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
+	res, err := c.serverAPIGet(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
 	if err != nil {
 		c.Debugf("Unable to fetch site network config: %s", err)
 		return
@@ -637,8 +663,9 @@ func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces [
 			return
 		}
 		c.dhcpRelay = dhcprelay.New(dhcprelay.Config{
-			URL:    fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=%s", connectorID),
-			Logger: c.Infof,
+			URL:        fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=%s", connectorID),
+			AuthHeader: c.connectorAuth,
+			Logger:     c.Infof,
 		})
 	}
 	c.dhcpRelay.Sync(ctx, wanted)

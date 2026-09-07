@@ -28,7 +28,9 @@ const ALLOW_ANY = "*"
 var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
-	adminRoleMapping{prefix: apiPrefix + "/terminal", role: ALLOW_ANY},
+	// A shell on the connector host: the strongest connector action, for
+	// every method (the websocket upgrade is a GET).
+	adminRoleMapping{prefix: apiPrefix + "/terminal", role: "CONNECTORS", roleSuffix: "_UPDATE"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/dns-lookup", role: "CONNECTORS", roleSuffix: "_READ"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS"},
 
@@ -90,6 +92,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 
 	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/admin_roles", role: "ADMIN_ROLES"},
+	adminRoleMapping{prefix: configApiPrefix + "/connector/", role: "CONNECTORS"},
+	adminRoleMapping{prefix: configApiPrefix + "/connectors", role: "CONNECTORS"},
 	adminRoleMapping{prefix: configApiPrefix + "/base/", role: "CONFIGURATION_MAIN"},
 	adminRoleMapping{prefix: configApiPrefix + "/bases", role: "CONFIGURATION_MAIN"},
 	adminRoleMapping{prefix: configApiPrefix + "/billing_tier/", role: "BILLING_TIER"},

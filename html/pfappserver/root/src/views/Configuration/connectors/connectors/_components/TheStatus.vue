@@ -357,6 +357,18 @@ export const setup = (props, context) => {
     })
   }
 
+  // Delayed refreshes after an action, cleared on unmount.
+  const refreshTimers = new Set()
+  const scheduleRefresh = ms => {
+    const timer = setTimeout(() => {
+      refreshTimers.delete(timer)
+      refresh()
+    }, ms)
+    refreshTimers.add(timer)
+  }
+
+  const escapeHtml = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+
   const restart = () => {
     showRestartModal.value = false
     isRestarting.value = true
@@ -366,7 +378,7 @@ export const setup = (props, context) => {
       $store.dispatch('notification/danger', { message: i18n.t('Unable to restart the remote connector.') })
     }).finally(() => {
       isRestarting.value = false
-      setTimeout(refresh, 5000)
+      scheduleRefresh(5000)
     })
   }
 
@@ -379,7 +391,7 @@ export const setup = (props, context) => {
       $store.dispatch('notification/danger', { message: i18n.t('Unable to trigger the upgrade of the remote connector.') })
     }).finally(() => {
       isUpgrading.value = false
-      setTimeout(refresh, 10000)
+      scheduleRefresh(10000)
     })
   }
 
@@ -406,11 +418,14 @@ export const setup = (props, context) => {
     api.terminalSession(props.id).then(session => {
       return api.terminalAuthorize(props.id, session.uuid, code).then(() => {
         showTerminalModal.value = false
-        window.open(`/api/v1/terminal/${props.id}/`, '_blank')
+        // noopener: the terminal page is authored by the remote host (served
+        // sandboxed by the API); it must not get a handle on this window.
+        window.open(`/api/v1/terminal/${encodeURIComponent(props.id)}/`, '_blank', 'noopener,noreferrer')
       })
     }).catch(error => {
       const { response: { data } = {} } = error || {}
-      const detail = (typeof data === 'string' && data.trim()) ? ` (${data.trim()})` : ''
+      // Notifications render HTML: the remote's error text must be escaped.
+      const detail = (typeof data === 'string' && data.trim()) ? ` (${escapeHtml(data.trim())})` : ''
       $store.dispatch('notification/danger', { message: i18n.t('Unable to open a terminal on the remote connector.') + detail })
     }).finally(() => {
       isTerminalLoading.value = false
@@ -459,6 +474,8 @@ export const setup = (props, context) => {
   onBeforeUnmount(() => {
     if (refreshInterval)
       clearInterval(refreshInterval)
+    refreshTimers.forEach(timer => clearTimeout(timer))
+    refreshTimers.clear()
   })
 
   return {
