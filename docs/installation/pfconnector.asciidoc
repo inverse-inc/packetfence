@@ -206,6 +206,14 @@ The _Networks_ field is critical: it tells PacketFence which IP ranges are behin
 [NOTE]
 Each connector in the list shows a colored status icon: green (connected), yellow (unknown), or red (disconnected). This reflects whether the connector's tunnel is currently active.
 
+====== Connectors Topology
+
+The _Topology_ button of the connectors list opens a live map of the connectors: PacketFence on the left, one node per connector on the right, linked by its tunnel. A link is green while the tunnel is up, red when a connector that has connected before is down, grey for a connector that never connected. Its width and the speed of its animation follow the current throughput of the tunnel, and its label shows the keepalive round trip to the connector and the rate in each direction (from and to the site). Hovering a connector shows its addresses, the time its tunnel came up, the open channels and the total bytes carried. The standby hosts of a connector in high availability appear as small satellites next to it, green when they report and their FreeRADIUS answers, orange when their FreeRADIUS is down, red when they stopped reporting.
+
+Clicking a connector (or its link) opens a details panel: the traffic broken down by service (RADIUS authentication and accounting, captive portal, MySQL, Redis, Fingerbank API, the DNS and RADIUS source tunnels, the reverse channels PacketFence opens toward the connector such as the Fingerbank collector), each with its current rate in both directions, active connections and totals, and the high-availability hosts with their role and state. _Open connector_ leads to the connector's _Status_ tab. The map refreshes every few seconds and can be paused.
+
+The rates measure the tunnel only: RADIUS, portal, DNS and the other services PacketFence exchanges with the site. Traffic the connector handles locally (degraded-mode answers, the collector's direct Fingerbank queries unless routed through the tunnel) is not part of it.
+
 ====== Site Networking: VLAN Interfaces and Static Routes
 
 The _Networking_ section of a connector's _Configuration_ tab lets the remote connector host terminate VLANs at the site. Everything configured here is applied by the connector itself, within a few seconds of saving, and re-applied every time the connector starts, so it survives a reboot of the host without any manual network configuration.

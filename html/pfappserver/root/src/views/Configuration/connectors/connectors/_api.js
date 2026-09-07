@@ -61,6 +61,11 @@ export default {
       return response.data
     })
   },
+  topology: () => {
+    return apiCall.get(['pfconnector-remotes', 'topology']).then(response => {
+      return response.data
+    })
+  },
   remoteRestart: id => {
     return apiCall.post(['pfconnector-remotes', id, 'restart']).then(response => {
       return response.data
