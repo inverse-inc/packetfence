@@ -418,8 +418,7 @@ export const setup = (props, context) => {
     api.terminalSession(props.id).then(session => {
       return api.terminalAuthorize(props.id, session.uuid, code).then(() => {
         showTerminalModal.value = false
-        // noopener: the terminal page is authored by the remote host (served
-        // sandboxed by the API); it must not get a handle on this window.
+        // noopener: the terminal page has no business with this window.
         window.open(`/api/v1/terminal/${encodeURIComponent(props.id)}/`, '_blank', 'noopener,noreferrer')
       })
     }).catch(error => {
