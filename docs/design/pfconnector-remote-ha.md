@@ -142,9 +142,17 @@ vrrp_instance PF_CONNECTOR {
 ```
 
 `ha-check.sh` returns non-zero when FreeRADIUS is not answering on its
-status port `127.0.0.1:18121`: a host whose RADIUS is broken lowers its
-priority and gives the VIP away. Cloud reachability is deliberately **not**
-tracked: both hosts lose it together and the degraded mode is the answer.
+status port `127.0.0.1:18121`. keepalived's `weight -20` lowers the master's
+advertised priority, but with `nopreempt` a backup never preempts on a
+lower-priority advertisement, so the weight alone cannot move the VIP (it only
+shapes the election that follows a master's disappearance). The client
+therefore runs the same check itself on every host (`clientapi/hahealth.go`,
+every 2 s, 3 failures): standbys report the result in their heartbeat
+(`radius_ok`), and a master whose check fails yields the VIP (`yieldVIP`, as
+for "Make active") when a standby is alive with `radius_ok`; with no such
+standby it keeps the VIP, since moving it would not help. Cloud reachability
+is deliberately **not** tracked: both hosts lose it together and the degraded
+mode is the answer.
 
 `ha-notify.sh` writes the VRRP state (`MASTER`/`BACKUP`/`FAULT`) to
 `/usr/local/pfconnector-remote/var/run/ha_state` and logs it (the client gates

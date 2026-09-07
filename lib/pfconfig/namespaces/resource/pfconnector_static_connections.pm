@@ -71,8 +71,14 @@ sub build {
     for my $id ( keys %{ $self->{_dns_connectors_config} } ) {
         my $data = $self->{_dns_connectors_config}{$id};
         my $port = $data->{'pfconnector_port'};
-        next unless defined $port;
-        my $connector = $self->find_connector( $data->{ip} );
+        next unless defined $port && length $port;
+        # The connector holding the tunnel is the one the server is configured
+        # on (config::DnsConnectors carries it, and the domains route there);
+        # locating the IP in the connectors' networks is only a fallback for
+        # entries predating the field.
+        my $connector = ( defined $data->{connector} && length $data->{connector} )
+          ? $data->{connector}
+          : $self->find_connector( $data->{ip} );
         # No local bind host: bind 0.0.0.0 so the pfconnector server listens on
         # all interfaces (matches the RADIUS/NTLM branches). In k8s the front-end
         # IP is provided by the pfconnector Service, and binding a specific

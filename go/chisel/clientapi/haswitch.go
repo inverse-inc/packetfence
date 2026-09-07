@@ -3,6 +3,8 @@ package clientapi
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -64,7 +66,7 @@ func haBoost(api *API) http.HandlerFunc {
 		enabled := haStatus != nil
 		key := haKey
 		haStatusMu.RUnlock()
-		if !enabled || len(key) == 0 {
+		if !enabled || len(key) == 0 || !peerRequest(r) {
 			http.NotFound(w, r)
 			return
 		}
@@ -73,7 +75,7 @@ func haBoost(api *API) http.HandlerFunc {
 			http.Error(w, "unable to read body", http.StatusBadRequest)
 			return
 		}
-		want := SignHeartbeat(key, body)
+		want := boostSignature(key, body)
 		got := r.Header.Get(haSignatureHeader)
 		if len(got) != len(want) || !hmac.Equal([]byte(got), []byte(want)) {
 			log.LoggerWContext(api.ctx).Warn(fmt.Sprintf("HA boost request from %s refused: bad signature", r.RemoteAddr))
@@ -120,6 +122,16 @@ func haBoost(api *API) http.HandlerFunc {
 	})
 }
 
+// boostSignature signs a boost body; its own domain so a captured heartbeat
+// (which also unmarshals into haBoostRequest, with Boost=0) cannot be
+// replayed to cancel a pending boost.
+func boostSignature(key, body []byte) string {
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte("boost:"))
+	mac.Write(body)
+	return hex.EncodeToString(mac.Sum(nil))
+}
+
 // sendBoost asks a peer to boost its priority.
 func sendBoost(peer string, key []byte, boost int) error {
 	body, _ := json.Marshal(haBoostRequest{Boost: boost, Timestamp: time.Now().Unix()})
@@ -128,7 +140,7 @@ func sendBoost(peer string, key []byte, boost int) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(haSignatureHeader, SignHeartbeat(key, body))
+	req.Header.Set(haSignatureHeader, boostSignature(key, body))
 	res, err := haHeartbeatClient.Do(req)
 	if err != nil {
 		return err

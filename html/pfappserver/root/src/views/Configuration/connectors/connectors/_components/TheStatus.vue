@@ -598,6 +598,7 @@ export const setup = (props, context) => {
   const isInstalling = ref(false)
   const showInstallModal = ref(false)
   let installPoll = null
+  let switchPoll = null
   const installNtlm = () => {
     showInstallModal.value = false
     isInstalling.value = true
@@ -723,10 +724,12 @@ export const setup = (props, context) => {
       // The old master's tunnel drops within a second; the new one is up a
       // few seconds later. Refresh a few times to follow.
       let polls = 0
-      const poll = setInterval(() => {
+      if (switchPoll) clearInterval(switchPoll)
+      switchPoll = setInterval(() => {
         refresh()
         if (++polls >= 6) {
-          clearInterval(poll)
+          clearInterval(switchPoll)
+          switchPoll = null
           isSwitching.value = false
         }
       }, 5000)
@@ -759,6 +762,8 @@ export const setup = (props, context) => {
       clearInterval(refreshInterval)
     if (installPoll)
       clearInterval(installPoll)
+    if (switchPoll)
+      clearInterval(switchPoll)
     refreshTimers.forEach(timer => clearTimeout(timer))
     refreshTimers.clear()
   })
