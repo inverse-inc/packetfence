@@ -101,6 +101,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
 		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
 		r.Route("/pfconnector-remotes", func(r chi.Router) {
+			r.Get("/topology", m.pfconnectorTopology())
 			r.Get("/{connectorID}/status", m.pfconnectorRemoteStatus())
 			r.Post("/{connectorID}/restart", m.pfconnectorRemoteRestart())
 			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())

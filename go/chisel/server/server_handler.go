@@ -365,7 +365,10 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		l.Debugf("Failed to upgrade (%s)", err)
 		return
 	}
-	conn := cnet.NewWebSocketConn(wsConn)
+	// Meter the transport from the first byte: the tunnel that will own these
+	// counters only exists after the handshake.
+	stats := tunnel.NewStats()
+	conn := stats.MeterConn(cnet.NewWebSocketConn(wsConn))
 	// perform SSH handshake on net.Conn
 	l.Debugf("Handshaking with %s...", req.RemoteAddr)
 	sshConn, chans, reqs, err := ssh.NewServerConn(conn, s.sshConfig)
@@ -555,6 +558,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		Socks:        s.config.Socks5,
 		KeepAlive:    s.config.KeepAlive,
 		RadiusSecret: unifiedApiSystemUser.Pass,
+		Stats:        stats,
 	})
 	//bind
 	eg, ctx := errgroup.WithContext(req.Context())
@@ -1064,6 +1068,9 @@ type ConnectorDetailReply struct {
 	RemoteIPs         []string                 `json:"remote_ips"`
 	StaticConnections []StaticConnectionStatus `json:"static_connections"`
 	BoundRemotes      []tunnel.BoundRemoteInfo `json:"bound_remotes"`
+	// Stats are the tunnel's transport counters (bytes, keepalive RTT, open
+	// channels); absent when this server holds no tunnel for the connector.
+	Stats *tunnel.StatsSnapshot `json:"stats,omitempty"`
 }
 
 // handleConnectorDetail reports, for one connector: whether its tunnel is
@@ -1091,6 +1098,8 @@ func (s *Server) handleConnectorDetail(w http.ResponseWriter, req *http.Request)
 		tun = o.(*tunnel.Tunnel)
 		reply.Connected = tun.IsActive()
 		reply.BoundRemotes = tun.BoundRemotes()
+		stats := tun.Stats()
+		reply.Stats = &stats
 	}
 
 	if ips := s.redis.Get(req.Context(), "ips:"+connectorID).Val(); ips != "" {
