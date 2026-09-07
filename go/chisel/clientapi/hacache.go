@@ -293,6 +293,9 @@ type CacheSyncState struct {
 	SyncedAt *time.Time `json:"cache_synced_at,omitempty"`
 	Error    string     `json:"cache_sync_error,omitempty"`
 	Rows     int        `json:"cache_rows"`
+	// TOTPSeedSynced: this host's terminal TOTP seed matched the master's at
+	// the last check (hatotp.go), so the master's enrolment works here too.
+	TOTPSeedSynced bool `json:"totp_seed_synced"`
 }
 
 var (
@@ -322,6 +325,8 @@ func SyncCacheFromMaster(ctx context.Context, vip, secret string) error {
 // cacheSyncSnapshot returns the current cache sync state.
 func cacheSyncSnapshot() CacheSyncState {
 	cacheSyncMu.RLock()
-	defer cacheSyncMu.RUnlock()
-	return cacheSyncState
+	state := cacheSyncState
+	cacheSyncMu.RUnlock()
+	state.TOTPSeedSynced = totpSeedInSync()
+	return state
 }
