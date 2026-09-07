@@ -109,6 +109,8 @@ When a connector-remote reports an older version than the PacketFence server, it
 
 Every package installed this way is still signature-verified against the PacketFence archive keyring, downgrades are refused, and the whole operation is logged on the connector host in [filename]`/usr/local/pfconnector-remote/conf/upgrade.log`.
 
+NOTE: Connectors installed before the collector moved into the connector container ran fingerbank-collector-remote on the host. The upgrade removes that package and stops its `packetfence-fingerbank-collector` service, which would otherwise keep the collector replication port (UDP 1192) busy; run `apt purge fingerbank-collector-remote` afterwards to drop its leftover unit file.
+
 ===== High Availability
 
 Two (or more) connector hosts can serve the same site as an active/passive pair. They are installed with the *same* connector ID and secret and share a virtual IP (VIP) moved between them with VRRP (keepalived runs inside the connector container). Only the host holding the VIP opens the tunnel to PacketFence; the others stand by, and the switches, the captive portal redirection and the DHCP relays are configured with the VIP so nothing on the site refers to a particular host.
