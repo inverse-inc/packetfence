@@ -1,11 +1,16 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,6 +19,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/redis/go-redis/v9"
+	"github.com/sorenisanerd/gotty/bindata"
 )
 
 // stripAdminCredentials removes the admin's API credentials from a request
@@ -27,15 +33,64 @@ func stripAdminCredentials(req *http.Request) {
 	req.Header.Del("X-PacketFence-Admin-Roles")
 }
 
-// terminalPageCSP isolates the terminal page. gotty's HTML and JavaScript are
-// authored by the connector-remote but served from the admin origin (this
-// proxy path); a sandbox without allow-same-origin gives that document an
-// opaque origin, so it cannot read the admin's local storage, cookies or
-// opener while still running its scripts and opening its websocket.
-const terminalPageCSP = "sandbox allow-scripts allow-forms"
+// The terminal page. gotty's HTML, scripts and stylesheets are served from
+// the gotty module embedded in this binary, never from the connector-remote:
+// the remote host is only semi-trusted and its page would run in the admin
+// origin (with access to the admin's token). Only two things come from the
+// remote, through the tunnel: the websocket carrying the terminal itself and
+// auth_token.js, the per-activation credential gotty expects in the websocket
+// handshake, which is validated against a strict pattern before it is
+// relayed. config.js is a constant.
+var (
+	gottyStatic http.Handler
+	// gottyAuthTokenJS is the only shape auth_token.js may have (the
+	// credential is hex, see chisel/clientapi/terminal.go).
+	gottyAuthTokenJS = regexp.MustCompile(`^var gotty_auth_token = '[A-Za-z0-9:_.-]{1,256}';$`)
+)
 
-// proxyTerminal reverse proxies /api/v1/terminal/{connectorID}/* to the
-// connector-remote's local API (:8081) through an on-demand dynreverse
+const gottyIndexHTML = `<!doctype html>
+<html>
+<head>
+  <title>pfconnector-remote</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./css/index.css" />
+  <link rel="stylesheet" href="./css/xterm.css" />
+  <link rel="stylesheet" href="./css/xterm_customize.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div id="terminal"></div>
+  <script src="./auth_token.js"></script>
+  <script src="./config.js"></script>
+  <script src="./js/gotty.js"></script>
+</body>
+</html>
+`
+
+func init() {
+	static, err := fs.Sub(bindata.Fs, "static")
+	if err != nil {
+		panic("gotty static assets: " + err.Error())
+	}
+	gottyStatic = http.FileServer(http.FS(static))
+}
+
+// terminalStaticPath reports whether rest (the path after the connector id)
+// is one of gotty's static assets served from the embedded module.
+func terminalStaticPath(rest string) bool {
+	switch {
+	case strings.HasPrefix(rest, "js/"), strings.HasPrefix(rest, "css/"):
+		return !strings.Contains(rest, "..")
+	case rest == "favicon.ico", rest == "icon.svg", rest == "icon_192.png", rest == "manifest.json":
+		return true
+	}
+	return false
+}
+
+// proxyTerminal serves /api/v1/terminal/{connectorID}/*: the terminal page
+// and its assets from this binary, and the websocket and auth_token.js from
+// the connector-remote's local API (:8081) through an on-demand dynreverse
 // tunnel, which in turn proxies to the remote's gotty terminal.
 func (h APIHandler) proxyTerminal() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,14 +99,37 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
 			return
 		}
+		// The rest of the path after the connector id, as routed by chi
+		// (empty for /terminal/{connectorID}/).
+		rest := chi.URLParam(r, "*")
+		switch {
+		case rest == "":
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set("X-Frame-Options", "DENY")
+			w.Header().Set("Cache-Control", "no-store")
+			w.Write([]byte(gottyIndexHTML))
+			return
+		case rest == "config.js":
+			w.Header().Set("Content-Type", "application/javascript")
+			w.Write([]byte("var gotty_term = 'xterm';"))
+			return
+		case terminalStaticPath(rest):
+			w.Header().Del("Content-Type")
+			r.URL.Path = "/" + rest
+			r.URL.RawPath = ""
+			gottyStatic.ServeHTTP(w, r)
+			return
+		case rest == "ws", rest == "auth_token.js":
+			// Proxied below.
+		default:
+			http.NotFound(w, r)
+			return
+		}
 		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
 		}
-		// The rest of the path after the connector id, as routed by chi
-		// (empty for /terminal/{connectorID}/).
-		rest := chi.URLParam(r, "*")
 		r.URL.Path = "/api/v1/terminal/" + rest
 		r.URL.RawPath = ""
 		r.Host = "127.0.0.1:8081"
@@ -71,14 +149,25 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 		director := proxy.Director
 		proxy.Director = func(req *http.Request) {
 			director(req)
+			// The remote does not need the browser's compression preference,
+			// and a plain body is what the check below reads.
+			req.Header.Del("Accept-Encoding")
 			stripAdminCredentials(req)
 		}
-		proxy.ModifyResponse = func(res *http.Response) error {
-			if strings.HasPrefix(res.Header.Get("Content-Type"), "text/html") {
-				res.Header.Set("Content-Security-Policy", terminalPageCSP)
-				res.Header.Set("X-Frame-Options", "DENY")
+		if rest == "auth_token.js" {
+			proxy.ModifyResponse = func(res *http.Response) error {
+				body, err := io.ReadAll(io.LimitReader(res.Body, 4096))
+				res.Body.Close()
+				if err != nil || res.StatusCode != http.StatusOK || !gottyAuthTokenJS.Match(bytes.TrimSpace(body)) {
+					return fmt.Errorf("unexpected auth_token.js from the connector-remote (status %d)", res.StatusCode)
+				}
+				res.Body = io.NopCloser(bytes.NewReader(body))
+				res.ContentLength = int64(len(body))
+				res.Header.Set("Content-Length", strconv.Itoa(len(body)))
+				res.Header.Set("Content-Type", "application/javascript")
+				res.Header.Set("Cache-Control", "no-store")
+				return nil
 			}
-			return nil
 		}
 		proxy.ServeHTTP(w, r)
 	})
