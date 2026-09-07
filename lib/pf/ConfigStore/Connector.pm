@@ -84,7 +84,9 @@ sub allocate_dns_tunnel_ports {
         next if defined $s->{tunnel_port} && length $s->{tunnel_port};
         my $port = $TUNNEL_PORT_MIN;
         $port++ while $used{$port} && $port <= $TUNNEL_PORT_MAX;
-        last if $port > $TUNNEL_PORT_MAX;
+        # Silently leaving the port empty would commit a malformed static bind.
+        die "No free tunnel port left in $TUNNEL_PORT_MIN-$TUNNEL_PORT_MAX for the DNS server $s->{ip}\n"
+          if $port > $TUNNEL_PORT_MAX;
         $s->{tunnel_port} = $port;
         $used{$port} = 1;
     }

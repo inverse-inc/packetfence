@@ -297,6 +297,8 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 }
 
 func (t *Tunnel) IsActive() bool {
+	t.activeConnMut.RLock()
+	defer t.activeConnMut.RUnlock()
 	return t.activeConn != nil
 }
 
