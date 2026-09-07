@@ -25,6 +25,7 @@ type connectorDetail struct {
 	RemoteIPs         []string                 `json:"remote_ips"`
 	StaticConnections []map[string]interface{} `json:"static_connections"`
 	BoundRemotes      []map[string]interface{} `json:"bound_remotes"`
+	Stats             map[string]interface{}   `json:"stats,omitempty"`
 }
 
 // pfconnectorRemoteStatus aggregates everything the admin UI shows about one

@@ -8,6 +8,9 @@
     <div class="card-body">
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew">{{ $t('New Connector') }}</b-button>
+        <b-button variant="outline-secondary" class="ml-1" @click="goToTopology">
+          <icon name="project-diagram" class="mr-1" />{{ $t('Topology') }}
+        </b-button>
       </base-search>
       <base-table-sortable ref="tableRef"
         :busy="isLoading"
