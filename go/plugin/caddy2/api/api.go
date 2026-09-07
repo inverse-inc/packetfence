@@ -71,7 +71,8 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	m.router = router
 
 	m.router.Use(middleware.RequestID)
-	m.router.Use(middleware.RealIP)
+	// No middleware.RealIP: it would rewrite RemoteAddr from a client-supplied
+	// X-Forwarded-For header.
 	m.router.Use(middleware.Logger)
 	m.router.Use(middleware.Recoverer)
 
@@ -191,8 +192,15 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 		return next.ServeHTTP(w, r)
 	}
 
+	// chi routes on RawPath when the URL has percent-encoded characters:
+	// match on the same string, or an encoded path could match here and
+	// then 404 inside the router instead of falling through to the Perl API.
+	routePath := r.URL.RawPath
+	if routePath == "" {
+		routePath = r.URL.Path
+	}
 	routeContext := chi.NewRouteContext()
-	if h.router.Match(routeContext, r.Method, r.URL.Path) {
+	if h.router.Match(routeContext, r.Method, routePath) {
 		// We always default to application/json
 		w.Header().Set("Content-Type", "application/json")
 		h.router.ServeHTTP(w, r)

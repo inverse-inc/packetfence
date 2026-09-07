@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"syscall"
 	"testing"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -126,9 +127,29 @@ func (f *fakeNetlink) RouteListFiltered(family int, filter *netlink.Route, mask 
 		if mask&netlink.RT_FILTER_PROTOCOL != 0 && r.Protocol != filter.Protocol {
 			continue
 		}
+		if mask&netlink.RT_FILTER_DST != 0 && !ipNetEqual(r.Dst, filter.Dst) {
+			continue
+		}
 		out = append(out, r)
 	}
 	return out, nil
+}
+
+// RouteAdd is exclusive like the kernel's: a route for the same destination
+// (whatever its protocol) already exists -> EEXIST.
+func (f *fakeNetlink) RouteAdd(route *netlink.Route) error {
+	for _, r := range f.routes {
+		if ipNetEqual(r.Dst, route.Dst) {
+			return syscall.EEXIST
+		}
+	}
+	f.writes = append(f.writes, "RouteAdd "+routeKey(route))
+	stored := *route
+	if stored.LinkIndex == 0 && stored.Gw != nil {
+		stored.LinkIndex = resolvedLinkIndex
+	}
+	f.routes = append(f.routes, stored)
+	return nil
 }
 
 func (f *fakeNetlink) RouteReplace(route *netlink.Route) error {
@@ -391,6 +412,62 @@ func TestGatewayRouteWithoutInterfaceIsKept(t *testing.T) {
 	for _, w := range f.writes {
 		if len(w) >= 8 && w[:8] == "RouteDel" {
 			t.Fatalf("second pass deleted the route: %v", f.writes)
+		}
+	}
+}
+
+// A destination already routed by something else (an operator's static
+// route, the kernel's connected route) is never taken over: the connector
+// route is reported as an error and the foreign route survives, including
+// the later reconcile that no longer wants that destination.
+func TestReconcileNeverReplacesForeignRoute(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	ctx := context.Background()
+
+	d := desired()
+	_, dst, _ := net.ParseCIDR(d.Routes[0].Destination)
+	foreign := netlink.Route{Dst: dst, Gw: net.ParseIP("10.0.0.254").To4(), Protocol: 4}
+	f.routes = append(f.routes, foreign)
+
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors == 0 {
+		t.Fatalf("expected an error for the route colliding with the foreign one: %+v", st)
+	}
+	found := false
+	for _, rs := range st.Routes {
+		if rs.Destination == d.Routes[0].Destination {
+			found = true
+			if rs.State != "error" || rs.Error == "" {
+				t.Errorf("colliding route status = %+v, want error", rs)
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("no status for %s: %+v", d.Routes[0].Destination, st.Routes)
+	}
+	for _, w := range f.writes {
+		if w == "RouteReplace "+routeKey(&foreign) {
+			t.Errorf("foreign route was replaced: %v", f.writes)
+		}
+	}
+	kept := false
+	for _, rt := range f.routes {
+		if rt.Dst.String() == dst.String() && rt.Protocol == 4 && rt.Gw.Equal(foreign.Gw) {
+			kept = true
+		}
+	}
+	if !kept {
+		t.Fatalf("foreign route lost: %+v", f.routes)
+	}
+
+	// Drop the colliding destination from the desired state: the foreign
+	// route is not a connector route, so it must not be deleted as stale.
+	d.Routes = d.Routes[1:]
+	r.Reconcile(ctx, "v2", d)
+	for _, w := range f.writes {
+		if w == "RouteDel "+routeKey(&foreign) {
+			t.Errorf("foreign route deleted as stale: %v", f.writes)
 		}
 	}
 }

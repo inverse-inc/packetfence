@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -21,6 +22,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
+	gottyserver "github.com/sorenisanerd/gotty/server"
 )
 
 const credcacheRoutePrefix = "/api/v1/credcache"
@@ -44,6 +46,11 @@ type API struct {
 	// terminalActivity is the unix-nano timestamp of the last terminal
 	// activity (pty read/write). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
+	// gottyOptions are the running terminal server's options; Credential is
+	// regenerated for every activation (see terminal.go) and the gotty proxy
+	// below presents it, so only requests through this API reach the shell.
+	gottyOptions   *gottyserver.Options
+	terminalCredMu *sync.RWMutex
 	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
 	// whether activating the terminal requires the TOTP second factor.
 	terminalTOTPRequired bool
@@ -87,6 +94,7 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 
 	Api.commandChan = make(chan Message)
 	Api.terminalActivity = &atomic.Int64{}
+	Api.terminalCredMu = &sync.RWMutex{}
 	Api.LogsEnabled = logsEnabled()
 	var err error
 	Api.TerminalEnabled, err = Api.terminal()
@@ -154,6 +162,13 @@ func (api *API) setupRoutes() {
 			req.Header.Set("X-Forwarded-Host", req.Host)
 			req.Header.Set("Origin", "http://"+gottyURL.Host)
 		}
+		// gotty requires the per-activation credential (basic auth on the
+		// page and its assets; the token it serves is echoed in the
+		// websocket handshake). Anything reaching 127.0.0.1:8022 without it
+		// gets 401.
+		if user, pass, ok := strings.Cut(api.terminalCredential(), ":"); ok {
+			req.SetBasicAuth(user, pass)
+		}
 	}
 	gottyProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Terminal proxy error: %v", err))
@@ -203,6 +218,25 @@ func (api *API) setupRoutes() {
 	})
 }
 
+// totpCodeHeader carries the TOTP code (mirrors the pfconnector-server's
+// TOTPCodeHeader).
+const totpCodeHeader = "X-PF-TOTP-Code"
+
+// terminalActivationClient bounds the session check through the tunnel: the
+// activation endpoint is reachable on the LAN, so a stalled tunnel must not
+// let callers pile up hung handlers.
+var terminalActivationClient = &http.Client{Timeout: 10 * time.Second}
+
+// terminalCredential returns the current gotty credential ("user:pass").
+func (api *API) terminalCredential() string {
+	api.terminalCredMu.RLock()
+	defer api.terminalCredMu.RUnlock()
+	if api.gottyOptions == nil {
+		return ""
+	}
+	return api.gottyOptions.Credential
+}
+
 // enableTerminal validates the one-time terminal session id against the
 // pfconnector server (through the tunnel-local 22226 bind) and starts the
 // gotty terminal. The authorized duration is an idle timeout: the terminal
@@ -220,7 +254,8 @@ func enableTerminal(api *API) http.HandlerFunc {
 			return
 		}
 
-		r, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?connectorid=%s&id=%s", api.ConnectorId, id))
+		query := url.Values{"connectorid": {api.ConnectorId}, "id": {id}}
+		r, err := terminalActivationClient.Get("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?" + query.Encode())
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
 			return
@@ -246,7 +281,13 @@ func enableTerminal(api *API) http.HandlerFunc {
 				http.Error(res, "Terminal TOTP is not initialized", http.StatusForbidden)
 				return
 			}
-			if err := api.terminalTOTP.validate(req.URL.Query().Get("code")); err != nil {
+			// The code comes in a header (query strings end up in access
+			// logs); the query is accepted from older servers.
+			code := req.Header.Get(totpCodeHeader)
+			if code == "" {
+				code = req.URL.Query().Get("code")
+			}
+			if err := api.terminalTOTP.validate(code); err != nil {
 				status := http.StatusForbidden
 				if errors.Is(err, errTOTPLocked) {
 					status = http.StatusTooManyRequests

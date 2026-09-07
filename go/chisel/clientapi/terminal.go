@@ -2,6 +2,8 @@ package clientapi
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"log"
 	"os"
 	"os/exec"
@@ -15,6 +17,15 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/sorenisanerd/gotty/server"
 )
+
+// randomToken returns n random bytes as hex.
+func randomToken(n int) string {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		log.Fatal("Unable to generate the terminal credential:", err)
+	}
+	return hex.EncodeToString(b)
+}
 
 // BashFactory builds the bash slaves served by gotty. activity is the shared
 // last-activity clock (unix nanos) that the idle watcher in enableTerminal
@@ -109,7 +120,8 @@ func (api *API) terminal() (bool, error) {
 		EnableReconnect: true,
 		ReconnectTime:   10,
 		MaxConnection:   0,
-		EnableBasicAuth: false,
+		// Credential is set per activation (StartProcessing below).
+		EnableBasicAuth: true,
 		Credential:      "",
 		EnableTLS:       false,
 		TitleFormat:     "pfconnector-remote",
@@ -128,6 +140,7 @@ func (api *API) terminal() (bool, error) {
 	if err != nil {
 		log.Fatal("Error creating GoTTY server:", err)
 	}
+	api.gottyOptions = options
 
 	var serverCtx context.Context
 	var serverCancel context.CancelFunc
@@ -146,6 +159,13 @@ func (api *API) terminal() (bool, error) {
 					}
 
 					atomic.StoreInt32(&api.serverRunning, 1)
+					// Fresh credential for this activation: gotty reads it
+					// when Run starts (basic auth) and on every websocket
+					// handshake (auth token); the proxy in client_api.go
+					// presents it, so a local process without it is refused.
+					api.terminalCredMu.Lock()
+					options.Credential = "pfconnector:" + randomToken(24)
+					api.terminalCredMu.Unlock()
 
 					serverCtx, serverCancel = context.WithCancel(api.ctx)
 

@@ -83,6 +83,10 @@ sub generateConfig {
     my $rate_limiting_threshold = $Config{captive_portal}{rate_limiting_threshold};
 
     my $i = 0;
+    # The PROXY protocol frontends are emitted once: pfconnector-server dials
+    # them on the management address (or a k8s Service), not on the portal
+    # interface, so they listen on every address.
+    my $connector_frontends_emitted = 0;
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
@@ -162,13 +166,14 @@ EOT
             # portal ports to these listeners with a PROXY protocol header so
             # that src is the device behind the connector, not the tunnel exit.
             # Same rules as the plain frontends; only the bind differs.
-            if (isenabled($Config{captive_portal}{connector_proxy_protocol})) {
+            if (!$connector_frontends_emitted && isenabled($Config{captive_portal}{connector_proxy_protocol})) {
+                $connector_frontends_emitted = 1;
                 for my $scheme (qw(http https)) {
                     my $port = $scheme eq 'http' ? $CONNECTOR_PROXY_PROTOCOL_HTTP_PORT : $CONNECTOR_PROXY_PROTOCOL_HTTPS_PORT;
                     my $ssl = $scheme eq 'https' ? ' ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem' : '';
                     $tags{'http'} .= <<"EOT";
 frontend portal-$scheme-connector-$cluster_ip
-        bind $cluster_ip:$port$ssl accept-proxy
+        bind *:$port$ssl accept-proxy
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src

@@ -233,8 +233,14 @@ case apiPrefix + "/dhcp-message":
 
 `handleDhcpMessage`:
 
-- reads the connector id from the tunnel session (same source as
-  `handleRemoteBinds`), never from a header sent by the client;
+- takes the connector id from the `connector-id` query parameter, like
+  `handleRemoteBinds`, and authenticates it: the request must carry
+  `X-PF-Connector-Auth`, a timestamp plus an HMAC-SHA256 of the id and the
+  timestamp under that connector's secret (`chisel/share/connauth`, 5 min
+  skew). Every connector's requests reach 22226 through a tunnel and look
+  alike to the server, so without the signature one connector could relay
+  into another's scopes. The same check gates `site-network` and the IP
+  report (`pfconnector-info`);
 - parses giaddr out of the body (fixed offset 24, no full decode needed) and
   checks it is contained in one of the CIDRs of that connector's `interfaces`
   (§6.1). Anything else is `403` and a rate-limited log line. This is the
