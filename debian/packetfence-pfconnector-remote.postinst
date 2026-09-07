@@ -114,6 +114,22 @@ case "$1" in
         echo "=================================================================="
     fi
 
+    # The collector used to run on the host (fingerbank-collector-remote's
+    # packetfence-fingerbank-collector.service). That package has no prerm,
+    # so when the Conflicts above has apt remove it the process keeps
+    # running and holds the replication port (UDP 1192) the collector inside
+    # the connector container needs. Stop it before (re)starting the
+    # container; the unit file is that package's conffile and goes away with
+    # "apt purge fingerbank-collector-remote".
+    for unit in packetfence-fingerbank-collector.service packetfence-fingerbank-collector-remote.service; do
+        if systemctl is-active --quiet "$unit" || systemctl is-enabled --quiet "$unit" 2>/dev/null; then
+            echo "Stopping the host $unit: the collector now runs inside the connector container"
+            /bin/systemctl stop "$unit" 2>/dev/null || true
+            /bin/systemctl disable "$unit" 2>/dev/null || true
+        fi
+        /bin/systemctl reset-failed "$unit" 2>/dev/null || true
+    done
+
     if [ -n "$2" ]; then
         if systemctl is-active --quiet "packetfence-pfconnector-remote-combined.service"; then
             echo "Upgrade detected, restarting packetfence-pfconnector-remote-combined service"
