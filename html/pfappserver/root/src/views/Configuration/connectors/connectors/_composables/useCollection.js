@@ -22,12 +22,16 @@ export const useItemTitle = (props) => {
 // Environment handed to the Fingerbank Collector of a new connector: send its
 // Fingerbank API queries through the tunnel (the connector's 127.0.0.1:8443
 // bind, forwarded by PacketFence to api-ss.fingerbank.org:443) rather than
-// through the connector host's own Internet access. Kept here rather than in
-// the form meta: the API reports every list field with an empty default.
+// through the connector host's own Internet access, and forward the DHCP
+// packets it captures on the site to PacketFence (pfdhcplistener replacement:
+// fingerprinting and IP tracking of the devices behind the connector). Kept
+// here rather than in the form meta: the API reports every list field with an
+// empty default.
 export const fingerbankEnvironmentDefaults = [
   { name: 'FINGERBANK_API_HOST', value: 'api-ss.fingerbank.org' },
   { name: 'FINGERBANK_API_HOST_OVERRIDE_IP', value: '127.0.0.1' },
-  { name: 'FINGERBANK_API_PORT', value: '8443' }
+  { name: 'FINGERBANK_API_PORT', value: '8443' },
+  { name: 'COLLECTOR_DHCP_FORWARD_ENABLED', value: 'true' }
 ]
 
 import { useDefaultsFromMeta } from '@/composables/useMeta'
