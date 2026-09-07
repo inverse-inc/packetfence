@@ -69,12 +69,7 @@ func haTOTPSeed(api *API) http.HandlerFunc {
 			http.NotFound(w, r)
 			return
 		}
-		addr := r.RemoteAddr
-		if i := strings.LastIndex(addr, ":"); i > 0 {
-			addr = addr[:i]
-		}
-		ip := net.ParseIP(strings.Trim(addr, "[]"))
-		if ip == nil || ip.IsLoopback() || isLocalAddress(addr) {
+		if !peerRequest(r) {
 			// Tunnel traffic (central) and this host itself: not a peer.
 			http.NotFound(w, r)
 			return

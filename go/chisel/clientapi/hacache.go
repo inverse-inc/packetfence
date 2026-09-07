@@ -158,7 +158,11 @@ func ImportCacheSnapshot(dbPath string, snapshot []byte) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("sqlite3 import: %w: %s", err, strings.TrimSpace(string(out)))
 	}
-	// The count is the last output line (PRAGMA busy_timeout echoes its value).
+	// The count is the last output line (PRAGMA busy_timeout echoes its value,
+	// which would be taken for the count when no table was mirrored).
+	if len(counts) == 0 {
+		return 0, nil
+	}
 	lines := strings.Fields(strings.TrimSpace(string(out)))
 	rows := 0
 	if len(lines) > 0 {
@@ -213,7 +217,7 @@ func haCacheSnapshot(api *API) http.HandlerFunc {
 		key := haKey
 		secretKey := haCacheKeyValue
 		haStatusMu.RUnlock()
-		if !enabled || len(key) == 0 || len(secretKey) == 0 {
+		if !enabled || len(key) == 0 || len(secretKey) == 0 || !peerRequest(r) {
 			http.NotFound(w, r)
 			return
 		}

@@ -551,8 +551,15 @@ func runPlainClient(ctx context.Context, config *chclient.Config, api *clientapi
 		<-done
 		return nil
 	case err := <-done:
-		if err != nil && ctx.Err() == nil {
-			log.Fatal(err)
+		if ctx.Err() == nil {
+			// Wait only returns while the context lives when the client gave
+			// up (non-retryable error: bad secret, rejected config) or failed
+			// hard. Exit as the client always did, so s6 restarts the service
+			// at its own pace instead of this loop reconnecting in a tight loop.
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Fatal("tunnel client gave up (see the messages above)")
 		}
 		return nil
 	case ha := <-haCh:
@@ -576,6 +583,10 @@ const haVIPPollInterval = time.Second
 // HA state to the master. It returns the new HA configuration when the admin
 // changes the VIP, nil when HA is disabled or ctx is done.
 func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.API, cfg chclient.HAConfig, secret string, envOverride bool, verbose bool) *chclient.HAConfig {
+	// Every host checks its FreeRADIUS; a master with a broken one yields the
+	// VIP to a healthy standby (clientapi/hahealth.go).
+	go clientapi.MonitorRadiusHealth(ctx, log.Printf)
+
 	vip, err := chclient.ParseVIP(cfg.VIP)
 	if err != nil {
 		log.Printf("HA: %v; running without HA", err)
@@ -758,8 +769,16 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 				<-done
 				return nil
 			case err := <-done:
-				log.Printf("HA: tunnel client stopped (%v), restarting", err)
-				break master
+				// Same as the plain client: Wait returning here means the
+				// client gave up or failed hard; a dropped tunnel is retried
+				// inside the client and never gets here. Close releases the
+				// site listeners (DHCP relay, captive DNS), then exit so s6
+				// restarts the service at its own pace.
+				c.Close()
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Fatal("HA: tunnel client gave up (see the messages above)")
 			case next := <-haCh:
 				c.Close()
 				<-done
