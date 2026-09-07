@@ -61,8 +61,10 @@ type API struct {
 	terminalTOTPRequired bool
 	// terminalTOTP is the connector-local second factor required to activate
 	// the terminal. nil while terminalTOTPRequired means activation is
-	// refused (fail closed).
-	terminalTOTP *terminalTOTP
+	// refused (fail closed). Guarded by terminalTOTPMu: a standby host of an
+	// HA group replaces it when it adopts the active host's seed (hatotp.go).
+	terminalTOTP   *terminalTOTP
+	terminalTOTPMu sync.RWMutex
 }
 
 // MessageType is a command for the gotty terminal lifecycle goroutine.
@@ -229,6 +231,7 @@ func (api *API) setupRoutes() {
 		r.Post("/ha/heartbeat", haHeartbeat(api))
 		r.Post("/ha/boost", haBoost(api))
 		r.Get("/ha/cache-snapshot", haCacheSnapshot(api))
+		r.Get("/ha/totp-seed", haTOTPSeed(api))
 	})
 }
 
@@ -291,7 +294,8 @@ func enableTerminal(api *API) http.HandlerFunc {
 		// above, so every code guess costs a fresh session on the server.
 		// Skipped only when PFCONNECTOR_TERMINAL_TOTP is explicitly disabled.
 		if api.terminalTOTPRequired {
-			if api.terminalTOTP == nil {
+			second := api.currentTerminalTOTP()
+			if second == nil {
 				http.Error(res, "Terminal TOTP is not initialized", http.StatusForbidden)
 				return
 			}
@@ -301,7 +305,7 @@ func enableTerminal(api *API) http.HandlerFunc {
 			if code == "" {
 				code = req.URL.Query().Get("code")
 			}
-			if err := api.terminalTOTP.validate(code); err != nil {
+			if err := second.validate(code); err != nil {
 				status := http.StatusForbidden
 				if errors.Is(err, errTOTPLocked) {
 					status = http.StatusTooManyRequests
