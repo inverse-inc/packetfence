@@ -111,6 +111,9 @@ case "$1" in
         cat "$TOTP_FILE"
         echo ""
         echo "Run /usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode to display this QR code again."
+        echo "If this host joins an existing high-availability group, it adopts the"
+        echo "seed of the active host instead: enroll that one (or run the command"
+        echo "above after the host has joined)."
         echo "=================================================================="
     fi
 
