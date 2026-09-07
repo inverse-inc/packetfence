@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"io"
 	"net"
 	"net/http"
@@ -51,6 +52,13 @@ type Config struct {
 	Timeout time.Duration
 	// Logger, optional.
 	Logger func(format string, args ...interface{})
+	// AuthHeader, optional, returns the value of the connauth header proving
+	// to the server which connector is relaying (chisel/share/connauth).
+	AuthHeader func() string
+	// MaxInFlight bounds the requests being relayed at once, over all
+	// interfaces; further requests are dropped (the client retransmits).
+	// Default 128.
+	MaxInFlight int
 }
 
 // Interface is one VLAN interface to relay on.
@@ -75,6 +83,7 @@ type Status struct {
 type Relay struct {
 	cfg       Config
 	client    *http.Client
+	inflight  chan struct{}
 	mu        sync.Mutex
 	listeners map[string]*listener
 	// Hooks for tests: open the sockets and send replies.
@@ -90,9 +99,13 @@ func New(cfg Config) *Relay {
 	if cfg.Logger == nil {
 		cfg.Logger = func(string, ...interface{}) {}
 	}
+	if cfg.MaxInFlight <= 0 {
+		cfg.MaxInFlight = 128
+	}
 	return &Relay{
 		cfg:       cfg,
 		client:    &http.Client{Timeout: cfg.Timeout},
+		inflight:  make(chan struct{}, cfg.MaxInFlight),
 		listeners: map[string]*listener{},
 		openConn:  openBroadcastConn,
 		sendL2:    sendLayer2,
@@ -260,7 +273,27 @@ func (l *listener) serve(ctx context.Context) {
 		if p.OpCode() != dhcp.BootRequest || p.HLen() > 16 {
 			continue
 		}
-		go l.relayOne(ctx, p, addr)
+		// Ethernet clients only: the reply is delivered to chaddr as a MAC.
+		if p.HType() == 1 && p.HLen() != 6 {
+			continue
+		}
+		// RFC 1542 4.1.1: a relay agent discards requests whose hops field
+		// exceeds 16.
+		if p.Hops() > 16 {
+			continue
+		}
+		// One goroutine and tunnel round trip per request, bounded: a flood on
+		// the VLAN must not become a request storm into the tunnel. Dropped
+		// requests are retransmitted by the client.
+		select {
+		case l.relay.inflight <- struct{}{}:
+			go func() {
+				defer func() { <-l.relay.inflight }()
+				l.relayOne(ctx, p, addr)
+			}()
+		default:
+			l.dropped.Add(1)
+		}
 	}
 }
 
@@ -270,15 +303,12 @@ func (l *listener) relayOne(ctx context.Context, p dhcp.Packet, from net.Addr) {
 	logger := l.relay.cfg.Logger
 	mac := p.CHAddr().String()
 
-	// giaddr: set to our address when the client talked to us directly.
-	// A request that already carries a giaddr came through another relay;
-	// keep it, the central server still needs it to select the scope.
-	if p.GIAddr().Equal(net.IPv4zero) {
-		p.SetGIAddr(l.iface.IP.To4())
-	}
-	if p.Hops() < 255 {
-		p.SetHops(p.Hops() + 1)
-	}
+	// giaddr: always our address on this VLAN. This is a first-hop relay on a
+	// directly attached network, so a request already carrying a giaddr was
+	// forged by a host on the VLAN (to be served from another scope of this
+	// connector); the server selects the scope from giaddr, so overwrite it.
+	p.SetGIAddr(l.iface.IP.To4())
+	p.SetHops(p.Hops() + 1)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, l.relay.cfg.URL, bytes.NewReader(p))
 	if err != nil {
@@ -286,6 +316,9 @@ func (l *listener) relayOne(ctx context.Context, p dhcp.Packet, from net.Addr) {
 		return
 	}
 	req.Header.Set("Content-Type", ContentType)
+	if l.relay.cfg.AuthHeader != nil {
+		req.Header.Set(connauth.Header, l.relay.cfg.AuthHeader())
+	}
 	res, err := l.relay.client.Do(req)
 	if err != nil {
 		l.noteError(err)

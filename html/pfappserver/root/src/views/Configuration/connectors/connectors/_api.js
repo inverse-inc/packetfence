@@ -77,7 +77,8 @@ export default {
     })
   },
   terminalAuthorize: (id, uuid, code) => {
-    return apiCall.get(['terminal', id, 'authorize', uuid], { params: { code } }).then(response => {
+    // The TOTP code travels in a header: query strings end up in access logs.
+    return apiCall.get(['terminal', id, 'authorize', uuid], { headers: { 'X-PF-TOTP-Code': code || '' } }).then(response => {
       return response.data
     })
   }

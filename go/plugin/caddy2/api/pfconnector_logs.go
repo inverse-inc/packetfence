@@ -19,8 +19,8 @@ import (
 // authorization from the aaa layer.
 func (h APIHandler) proxyConnectorLogs() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		connectorID := chi.URLParam(r, "connectorID")
-		name := chi.URLParam(r, "name")
+		connectorID, _ := url.PathUnescape(chi.URLParam(r, "connectorID"))
+		name, _ := url.PathUnescape(chi.URLParam(r, "name"))
 		if connectorID == "" || name == "" {
 			http.Error(w, "PFconnector ID and log name are required", http.StatusBadRequest)
 			return
@@ -32,7 +32,12 @@ func (h APIHandler) proxyConnectorLogs() http.HandlerFunc {
 		r.Header.Set("X-Forwarded-For", "127.0.0.1")
 
 		conn := connector.NewConnectorsContainer(h.ctx)
-		remoteCon, err := conn.Get(h.ctx, connectorID).DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
+		connectorConf := conn.Get(h.ctx, connectorID)
+		if connectorConf == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+		remoteCon, err := connectorConf.DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
 		if err != nil {
 			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
 			return
@@ -45,6 +50,11 @@ func (h APIHandler) proxyConnectorLogs() http.HandlerFunc {
 		}
 		w.Header().Del("Content-Type")
 		proxy := httputil.NewSingleHostReverseProxy(logsURL)
+		director := proxy.Director
+		proxy.Director = func(req *http.Request) {
+			director(req)
+			stripAdminCredentials(req)
+		}
 		proxy.ServeHTTP(w, r)
 	})
 }

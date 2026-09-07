@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -84,6 +85,7 @@ type Netlink interface {
 	AddrReplace(link netlink.Link, addr *netlink.Addr) error
 	AddrDel(link netlink.Link, addr *netlink.Addr) error
 	RouteListFiltered(family int, filter *netlink.Route, mask uint64) ([]netlink.Route, error)
+	RouteAdd(route *netlink.Route) error
 	RouteReplace(route *netlink.Route) error
 	RouteDel(route *netlink.Route) error
 }
@@ -110,6 +112,7 @@ func (realNetlink) AddrDel(link netlink.Link, addr *netlink.Addr) error {
 func (realNetlink) RouteListFiltered(family int, filter *netlink.Route, mask uint64) ([]netlink.Route, error) {
 	return netlink.RouteListFiltered(family, filter, mask)
 }
+func (realNetlink) RouteAdd(route *netlink.Route) error     { return netlink.RouteAdd(route) }
 func (realNetlink) RouteReplace(route *netlink.Route) error { return netlink.RouteReplace(route) }
 func (realNetlink) RouteDel(route *netlink.Route) error     { return netlink.RouteDel(route) }
 
@@ -319,7 +322,7 @@ func (r *Reconciler) reconcileRoutes(ctx context.Context, desired []pfconfigdriv
 			continue
 		}
 		wanted = append(wanted, route)
-		if err := r.nl.RouteReplace(route); err != nil {
+		if err := r.installRoute(route); err != nil {
 			st.Error = fmt.Sprintf("unable to install route: %s", err)
 			statuses = append(statuses, st)
 			errCount++
@@ -355,6 +358,43 @@ func (r *Reconciler) reconcileRoutes(ctx context.Context, desired []pfconfigdriv
 		logger.Info(fmt.Sprintf("site-network: deleted route %s", routeKey(&route)))
 	}
 	return statuses, errCount
+}
+
+// installRoute adds a connector route, or updates the connector's own route
+// for that destination. A replace keyed on the destination alone would take
+// over a foreign route (an operator's static route, the kernel's connected
+// route of the VLAN) and the next reconcile would then delete it as stale: a
+// destination already routed by anything but the connector is an error and
+// is left untouched.
+func (r *Reconciler) installRoute(route *netlink.Route) error {
+	err := r.nl.RouteAdd(route)
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, syscall.EEXIST) && !errors.Is(err, os.ErrExist) {
+		return err
+	}
+	existing, lerr := r.nl.RouteListFiltered(netlink.FAMILY_V4, &netlink.Route{Dst: route.Dst, Table: route.Table}, netlink.RT_FILTER_DST|netlink.RT_FILTER_TABLE)
+	if lerr != nil {
+		return fmt.Errorf("route exists and cannot be inspected: %w", lerr)
+	}
+	for i := range existing {
+		if !ipNetEqual(existing[i].Dst, route.Dst) {
+			continue
+		}
+		if existing[i].Protocol != RouteProtocol {
+			return fmt.Errorf("destination already routed outside the connector configuration (protocol %d), not touching it", existing[i].Protocol)
+		}
+		return r.nl.RouteReplace(route)
+	}
+	return err
+}
+
+func ipNetEqual(a, b *net.IPNet) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return a.String() == b.String()
 }
 
 // buildRoute turns a configured route into a netlink route tagged with
