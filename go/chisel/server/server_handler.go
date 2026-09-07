@@ -25,6 +25,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/cluster"
@@ -953,9 +954,12 @@ func (s *Server) handleDnsLookup(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing port or name query parameter"})
 		return
 	}
-	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+	// Only the static tunnel ports of the DNS connectors (30000-30999, see
+	// pf::ConfigStore::Connector) are legitimate targets: this endpoint must
+	// not become a probe of the server's other loopback services.
+	if p, err := strconv.ParseUint(port, 10, 16); err != nil || p < 30000 || p > 30999 {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid port"})
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid port: a DNS connector tunnel port (30000-30999) is expected"})
 		return
 	}
 	qtype, ok := dns.StringToType[strings.ToUpper(qtypeStr)]
@@ -1119,19 +1123,48 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 // itself (POSTed through the tunnel after its remote binds are up) under
 // ips:<connector-id> in Redis, so the terminal API can build a URL that
 // reaches the remote's local API directly.
+// authenticateConnector checks that a request on the tunnel-local API really
+// comes from connectorId: the connauth header must be signed with that
+// connector's secret (see chisel/share/connauth). Every connector's requests
+// reach this API through a tunnel and look alike, so without it any
+// connector could act as another one. Writes the error reply itself.
+func (s *Server) authenticateConnector(w http.ResponseWriter, req *http.Request, connectorId string) bool {
+	connectors := pfconfigdriver.Connectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+		http.Error(w, "Unable to fetch the connectors configuration", http.StatusInternalServerError)
+		return false
+	}
+	connector, found := connectors.Element[connectorId]
+	if !found {
+		http.Error(w, fmt.Sprintf("Unknown connector %s", connectorId), http.StatusNotFound)
+		return false
+	}
+	if err := connauth.Verify(connectorId, connector.Secret, req.Header.Get(connauth.Header), time.Now()); err != nil {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("Request for connector %s to %s refused: %s", connectorId, req.URL.Path, err))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return false
+	}
+	return true
+}
+
 func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request) {
 	clientInfo := struct {
 		IPs         []string `json:"ips"`
 		ConnectorID string   `json:"connector_id"`
 	}{}
 
-	if err := json.NewDecoder(req.Body).Decode(&clientInfo); err != nil {
+	if err := json.NewDecoder(io.LimitReader(req.Body, 64<<10)).Decode(&clientInfo); err != nil {
 		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error decoding client info: %s", err))
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 	if clientInfo.ConnectorID == "" {
 		http.Error(w, "Missing connector_id", http.StatusBadRequest)
+		return
+	}
+	// The reported addresses end up in the admin's terminal redirect URL:
+	// only the connector itself may set them.
+	if !s.authenticateConnector(w, req, clientInfo.ConnectorID) {
 		return
 	}
 	ips := strings.Join(clientInfo.IPs, ",")
@@ -1720,6 +1753,9 @@ func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id"})
 		return
 	}
+	if !s.authenticateConnector(w, req, connectorId) {
+		return
+	}
 
 	connectors := pfconfigdriver.Connectors{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
@@ -1786,6 +1822,11 @@ func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
 	connectorId := req.URL.Query().Get("connector-id")
 	if connectorId == "" {
 		http.Error(w, "Missing connector-id", http.StatusBadRequest)
+		return
+	}
+	// The giaddr check below only proves the relay address belongs to the
+	// named connector; prove the caller is that connector.
+	if !s.authenticateConnector(w, req, connectorId) {
 		return
 	}
 	body, err := io.ReadAll(io.LimitReader(req.Body, 1501))

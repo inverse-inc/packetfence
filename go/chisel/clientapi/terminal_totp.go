@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 	"sync"
@@ -79,12 +80,22 @@ func terminalTOTPRequired() bool {
 // first use. An error means the terminal must stay disabled (fail closed).
 func newTerminalTOTP(ctx context.Context, connectorID string) (*terminalTOTP, error) {
 	path := terminalTOTPFile()
-	if raw, err := os.ReadFile(path); err == nil && strings.TrimSpace(string(raw)) != "" {
+	raw, err := os.ReadFile(path)
+	switch {
+	case err == nil && strings.TrimSpace(string(raw)) != "":
 		key, err := otp.NewKeyFromURL(strings.TrimSpace(string(raw)))
 		if err != nil {
 			return nil, fmt.Errorf("invalid TOTP seed in %s: %w", path, err)
 		}
 		return &terminalTOTP{key: key}, nil
+	case err == nil:
+		// Empty file: treat as absent and generate.
+	case errors.Is(err, fs.ErrNotExist):
+		// First start: generate below.
+	default:
+		// Permission error, unmounted conf dir...: generating now would
+		// shadow the enrolled seed. Fail closed (terminal stays disabled).
+		return nil, fmt.Errorf("reading the TOTP seed %s: %w", path, err)
 	}
 
 	key, err := totp.Generate(totp.GenerateOpts{
