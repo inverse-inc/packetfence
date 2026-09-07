@@ -179,9 +179,10 @@ sub equipment {
     my @dns_connectors;
     for my $dns_id (sort keys %ConfigDnsConnectors) {
         my $data = $ConfigDnsConnectors{$dns_id};
-        next unless $matches->($data->{ip});
-        # the namespace key is "<connector>:<ip>:<port>"; the connector is the
-        # one whose equipment is listed, so show the server as "<ip>:<port>"
+        # DNS servers are configured on a connector: list the ones of this
+        # connector, wherever their IP falls (the key is
+        # "<connector>:<ip>:<port>", so show the server as "<ip>:<port>")
+        next unless ( $data->{connector} // '' ) eq $connector_id;
         push @dns_connectors, {
             id          => join(':', $data->{ip}, ($data->{port} // 53)),
             description => join(', ', grep { length } split(/\s*,\s*/, $data->{domains} // '')),

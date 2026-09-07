@@ -70,7 +70,13 @@ if (-f $dns_file) {
 
 for my $connector (sort keys %servers_of) {
     my @existing = grep { length } map { s/^\s+|\s+$//gr } split(/\n/, $connectors->val($connector, 'dns_servers') // '');
-    my @lines = (@existing, @{ $servers_of{$connector} });
+    # Idempotent: a server already on the connector (same ip:port, e.g. from an
+    # earlier run whose rename below failed) is not added twice.
+    my %present = map { my $s = parse_dns_server_line($_); $s ? ( "$s->{ip}:$s->{port}" => 1 ) : () } @existing;
+    my @new = grep { my $s = parse_dns_server_line($_); !( $s && $present{"$s->{ip}:$s->{port}"} ) } @{ $servers_of{$connector} };
+    $servers_of{$connector} = \@new;
+    next unless @new;
+    my @lines = (@existing, @new);
     if ($connectors->exists($connector, 'dns_servers')) {
         $connectors->setval($connector, 'dns_servers', @lines);
     } else {
@@ -85,8 +91,14 @@ for my $domain (sort keys %domain_to_connector) {
     print "Dropping domain mapping '$domain' -> '$domain_to_connector{$domain}': no DNS server served it\n";
 }
 
+my $failed = 0;
 for my $f ($dns_file, $domains_file) {
     next unless -f $f;
-    rename $f, "$f.migrated" or warn "Unable to rename $f: $!\n";
-    print "Renamed $f to $f.migrated\n";
+    if (rename $f, "$f.migrated") {
+        print "Renamed $f to $f.migrated\n";
+    } else {
+        warn "Unable to rename $f: $!\n";
+        $failed = 1;
+    }
 }
+exit $failed;

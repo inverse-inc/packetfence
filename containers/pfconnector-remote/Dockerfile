@@ -64,9 +64,13 @@ COPY --from=go-builder /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnect
 # Copy s6 service definitions
 COPY containers/pfconnector-remote/rootfs /
 # keepalived (enable_script_security) refuses, and silently disables, track
-# and notify scripts that are group- or world-writable; the HA health check
-# and VLAN address release would then never run. Do not depend on the modes
-# of the build context.
-RUN chmod 0755 /usr/local/pf/sbin/*.sh /etc/s6-overlay/s6-rc.d/*/run 2>/dev/null || true
+# and notify scripts that are group- or world-writable, or that live under a
+# directory that is; the HA health check and VLAN address release would then
+# never run. The CI build context has world-writable directories (COPY keeps
+# their modes), so fix the scripts and every directory on their path, and
+# drop the world-writable bit from the whole PacketFence tree.
+RUN chmod 0755 /usr /usr/local /usr/local/pf /usr/local/pf/sbin /etc /etc/s6-overlay && \
+    find /usr/local/pf /etc/s6-overlay -type d -perm /o+w -exec chmod o-w {} + && \
+    chmod 0755 /usr/local/pf/sbin/*.sh /etc/s6-overlay/s6-rc.d/*/run 2>/dev/null || true
 
 ENTRYPOINT ["/init"]

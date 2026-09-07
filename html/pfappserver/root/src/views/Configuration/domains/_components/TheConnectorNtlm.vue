@@ -100,19 +100,25 @@ const setup = (props, context) => {
     })
   }
 
+  // Sequence number of the latest lookup: a slow answer for a previous
+  // address must not overwrite the result for the current one.
+  let lookupSeq = 0
   const lookup = () => {
     lookupError.value = null
     connectorId.value = null
     remote.value = null
     if (!visible.value) return
+    const seq = ++lookupSeq
     isLooking.value = true
     connectorsApi.forIp(props.adServer).then(response => {
+      if (seq !== lookupSeq) return
       connectorId.value = response.connector_id
       return refreshRemote()
     }).catch(() => {
+      if (seq !== lookupSeq) return
       lookupError.value = i18n.t('No connector serves {ip}: add this network to a connector first, or the domain cannot be reached.', { ip: props.adServer })
     }).finally(() => {
-      isLooking.value = false
+      if (seq === lookupSeq) isLooking.value = false
     })
   }
 

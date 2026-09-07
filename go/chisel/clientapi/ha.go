@@ -68,6 +68,8 @@ type HAStatus struct {
 	// "backup" otherwise.
 	State string    `json:"state"`
 	Since time.Time `json:"since"`
+	// RadiusOK is this host's own FreeRADIUS check result (hahealth.go).
+	RadiusOK bool `json:"radius_ok"`
 	// Peers are the other hosts of the pair as seen through their LAN
 	// heartbeats to this host (only meaningful on the master: the backups
 	// send, the master listens on the VIP).
@@ -84,6 +86,9 @@ type HAPeer struct {
 	LastSeen time.Time `json:"last_seen"`
 	// Alive is true when a heartbeat arrived within haPeerTimeout.
 	Alive bool `json:"alive"`
+	// RadiusOK is the peer's own FreeRADIUS check result (hahealth.go): a
+	// master with a broken FreeRADIUS only yields the VIP to a peer with true.
+	RadiusOK bool `json:"radius_ok"`
 	// Cache mirror state reported by the peer (phase 4, hacache.go).
 	CacheSyncState
 }
@@ -174,6 +179,7 @@ func HAStatusSnapshot() *HAStatus {
 		return nil
 	}
 	copied := *haStatus
+	copied.RadiusOK = RadiusHealthy()
 	copied.Peers = []HAPeer{}
 	now := time.Now()
 	for _, p := range haPeers {
@@ -192,6 +198,7 @@ type HAHeartbeat struct {
 	State     string `json:"state"`
 	Priority  string `json:"priority,omitempty"`
 	Timestamp int64  `json:"ts"`
+	RadiusOK  bool   `json:"radius_ok"`
 	CacheSyncState
 }
 
@@ -281,11 +288,26 @@ func haHeartbeat(api *API) http.HandlerFunc {
 		}
 		// Keyed by sender address: cloned VMs often share a hostname.
 		haStatusMu.Lock()
-		haPeers[addr] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now(), CacheSyncState: hb.CacheSyncState}
+		haPeers[addr] = HAPeer{Hostname: hb.Hostname, Address: addr, Version: hb.Version, State: hb.State, Priority: hb.Priority, LastSeen: time.Now(), RadiusOK: hb.RadiusOK, CacheSyncState: hb.CacheSyncState}
 		haStatusMu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
 	})
+}
+
+// peerRequest reports whether r comes from another host of the group over
+// the LAN. Requests from loopback or from one of this host's own addresses are
+// not peers: the central server reaches this API through the tunnel as
+// loopback traffic, and a host that just took the VIP may still address
+// itself. Endpoints that hand out state to the group (cache snapshot, TOTP
+// seed, priority boost) must only answer peers.
+func peerRequest(r *http.Request) bool {
+	addr := r.RemoteAddr
+	if i := strings.LastIndex(addr, ":"); i > 0 {
+		addr = addr[:i]
+	}
+	ip := net.ParseIP(strings.Trim(addr, "[]"))
+	return ip != nil && !ip.IsLoopback() && !isLocalAddress(addr)
 }
 
 // isLocalAddress reports whether addr is assigned to one of this host's
@@ -315,6 +337,7 @@ func LocalHeartbeat(state string) HAHeartbeat {
 		Version:        chshare.BuildVersion,
 		State:          state,
 		Priority:       os.Getenv("PFCONNECTOR_HA_PRIORITY"),
+		RadiusOK:       RadiusHealthy(),
 		CacheSyncState: cacheSyncSnapshot(),
 	}
 }
