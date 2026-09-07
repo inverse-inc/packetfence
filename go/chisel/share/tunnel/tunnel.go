@@ -29,6 +29,9 @@ type Config struct {
 	RadiusSecret string
 	RadiusProxy  *radius_proxy.Proxy
 	KeepAlive    time.Duration
+	// Stats, optional: counters shared with a transport metered before the
+	// tunnel existed (see Stats.MeterConn). Created when nil.
+	Stats *Stats
 	// The source IP for the packets that come into the remote
 	SrcIP net.IP
 }
@@ -50,6 +53,7 @@ type Tunnel struct {
 	proxyCount int
 	//internals
 	connStats   cnet.ConnCount
+	stats       *Stats
 	socksServer *socks5.Server
 
 	connectionCtx context.Context
@@ -120,9 +124,13 @@ func handlerOf(h string) string {
 
 // New Tunnel from the given Config
 func New(c Config) *Tunnel {
+	if c.Stats == nil {
+		c.Stats = NewStats()
+	}
 	c.Logger = c.Logger.Fork("tun")
 	t := &Tunnel{
 		Config: c,
+		stats:  c.Stats,
 	}
 	radiusProxy, stop, err := radius_proxy.NewRadiusProxyFromKubernetes(c.Logger, c.RadiusSecret)
 
@@ -168,6 +176,7 @@ func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Reque
 	}
 	t.activeConn = c
 	t.activeConnMut.Unlock()
+	t.stats.connected(time.Now())
 	t.activatingConn.Done()
 	//optional keepalive loop against this connection
 	if t.Config.KeepAlive > 0 {
@@ -283,10 +292,12 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 	//ping forever
 	for {
 		time.Sleep(t.Config.KeepAlive)
+		start := time.Now()
 		_, b, err := sshConn.SendRequest("ping", true, nil)
 		if err != nil {
 			break
 		}
+		t.stats.recordRTT(time.Since(start))
 		if len(b) > 0 && !bytes.Equal(b, []byte("pong")) {
 			t.Debugf("strange ping response")
 			break
