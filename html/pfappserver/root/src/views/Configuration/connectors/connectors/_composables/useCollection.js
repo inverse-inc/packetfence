@@ -25,14 +25,14 @@ export const useItemTitle = (props) => {
 // through the connector host's own Internet access. Kept here rather than in
 // the form meta: the API reports every list field with an empty default.
 export const fingerbankEnvironmentDefaults = [
-  'FINGERBANK_API_HOST=api-ss.fingerbank.org',
-  'FINGERBANK_API_HOST_OVERRIDE_IP=127.0.0.1',
-  'FINGERBANK_API_PORT=8443'
+  { name: 'FINGERBANK_API_HOST', value: 'api-ss.fingerbank.org' },
+  { name: 'FINGERBANK_API_HOST_OVERRIDE_IP', value: '127.0.0.1' },
+  { name: 'FINGERBANK_API_PORT', value: '8443' }
 ]
 
 import { useDefaultsFromMeta } from '@/composables/useMeta'
 export const useItemDefaults = (meta) => {
-  return { ...useDefaultsFromMeta(meta), fingerbank_environment: [...fingerbankEnvironmentDefaults] }
+  return { ...useDefaultsFromMeta(meta), fingerbank_environment: fingerbankEnvironmentDefaults.map(e => ({ ...e })) }
 }
 
 export { useRouter } from '../_router'
