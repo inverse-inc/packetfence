@@ -1,0 +1,18 @@
+---
+# With the other two nodes down, this lone node loses galera quorum and, per
+# docs/cluster/understanding_the_galera_cluster_synchronization.asciidoc, drops
+# to read-only (wsrep_cluster_status leaves Primary; reads work via dirty-reads,
+# writes are rejected).
+- name: "Wait for {{ inventory_hostname }} to lose galera quorum (non-Primary)"
+  ansible.builtin.shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_cluster_status'\" 2>/dev/null | awk '{print $2}'"
+  register: _wsrep_status
+  changed_when: false
+  until: _wsrep_status.stdout not in ['Primary', '']
+  retries: 24
+  delay: 5
+
+- name: "Confirm a write is rejected on {{ inventory_hostname }} (read-only)"
+  ansible.builtin.shell: "mysql -uroot -e 'CREATE DATABASE venom_ro_probe' 2>/dev/null"
+  register: _ro_write
+  changed_when: false
+  failed_when: _ro_write.rc == 0

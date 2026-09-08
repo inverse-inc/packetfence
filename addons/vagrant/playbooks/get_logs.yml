@@ -2,6 +2,8 @@
   name: Get Venom logs on all VM
   become: True
   gather_facts: False
+  # a VM that died mid-run must not stop us collecting from the others
+  ignore_unreachable: True
   tags: logs
 
   vars:
@@ -16,6 +18,14 @@
         - "network"
 
   tasks:
+    # Written inside the Venom results dir so sanitization and archiving pick
+    # them up; also makes that dir exist when the run failed before Venom, so
+    # an archive is produced (and uploaded) even then.
+    - name: Collect system diagnostics
+      ansible.builtin.script:
+        cmd: 'files/collect-diagnostics.sh {{ venom_dir }}/results/diagnostics-{{ inventory_hostname }}'
+      failed_when: false
+
     - name: Sanitize logs
       shell: '{{ venom_dir }}/utils/sanitize-venom-logs.sh'
       args:
@@ -37,3 +47,12 @@
         flat: True
       failed_when: false
       when: venom_zip_file_stat.stat.exists
+
+    # sanitize-venom-logs.sh runs under no_log, so its own log is the only way
+    # to see why an archive is missing
+    - name: Get sanitization log on runner
+      fetch:
+        src: '{{ venom_dir }}/sanitize-venom-logs.log'
+        dest: '{{ result_dir }}/sanitize-{{ inventory_hostname }}.log'
+        flat: True
+      failed_when: false

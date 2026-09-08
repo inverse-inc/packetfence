@@ -36,7 +36,7 @@ three nodes.
 ## Notes
 
 - All assertions are local-only (UNIX socket mysql, systemctl) — no
-  network reachability assumed. The VIP HTTP checks live in a future
-  testcase set, added once keepalived is verified up.
+  network reachability assumed. VIP migration and portal-over-VIP checks
+  live in the separate `cluster_failover` scenario, which runs after this.
 - mysql uses `-uroot` over the UNIX socket; no password handling
   needed (per `docs/cluster/troubleshooting_a_cluster.asciidoc:65`).

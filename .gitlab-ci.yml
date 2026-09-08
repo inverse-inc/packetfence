@@ -518,9 +518,13 @@ variables:
     - test-shell-v7
 
 # Cluster test family runs in its own stage (heavy 3-VM jobs, opt-in).
+# Pinned to test-cluster-shell-v7: the general test-shell-v7 runners lack the
+# disk space for 3 concurrent PF VMs.
 .test_cluster_job:
   extends: .test_job
   stage: test_cluster
+  tags:
+    - test-cluster-shell-v7
 
 .deploy_packages_job:
   stage: deploy
@@ -1135,6 +1139,24 @@ cluster_configurator_deb12:
     - .cluster_test_rules
 
 cluster_configurator_el8:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_cluster_job
+    - .test_script_job
+    - .cluster_test_rules
+
+# Recovery family (A-E): builds the cluster then runs cluster_recovery in the
+# same job/VMs. Slow (~1h+); same TEST_CLUSTER gate as the configurator jobs.
+cluster_recovery_deb12:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_cluster_job
+    - .test_script_job
+    - .cluster_test_rules
+
+cluster_recovery_el8:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:

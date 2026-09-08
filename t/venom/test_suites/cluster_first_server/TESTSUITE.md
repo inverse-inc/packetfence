@@ -18,7 +18,7 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
 |------|----------|--------|
 | 00_mariadb_standalone | Ensure `packetfence-mariadb` starts standalone | done |
 | 10_create_galera_user | Create `pfcluster` mysql user (@'%' + @'localhost') | done |
-| 20_pf_conf_cluster_settings | pf.conf `[database]`/`[active_active]`/`[webservices]`/`[advanced]`/`[services]` + pfconfig.conf `[mysql]`; restart packetfence-config + configreload | done |
+| 20_pf_conf_cluster_settings | pf.conf `[database]`/`[active_active]`/`[webservices]`/`[advanced]`/`[services]` + pfconfig.conf `[mysql]`; drop the dhcp-listener interface; restart packetfence-config + configreload | done |
 | 30_write_cluster_conf | `cluster.conf` 3-node IP map; configreload + checkup | done |
 | 40_bootstrap_galera | `generatemariadbconfig`, `MARIADB_ARGS=--force-new-cluster`, start | done |
 | 50_restart_pf_set_default | `pfcmd service pf restart`, `set-default packetfence-cluster`, stop iptables | done |
@@ -44,3 +44,12 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
   interfaces, not the doc's VLAN subinterfaces.
 - configreload/checkup tolerate non-zero exits here: they warn about the DB
   being unavailable until the cluster is fully up, which the doc says to ignore.
+  `30_write_cluster_conf` still fails on any *other* checkup FATAL, since those
+  are cluster.conf/pf.conf problems and `|| true` would otherwise hide them.
+- pfconfig.conf `[mysql]` host/port are set key by key, not appended: the
+  configurator already creates that section (user/pass/db, no host), so an
+  append guarded on `[mysql]` is skipped and `host` stays `localhost`.
+- The dhcp-listener interface is removed from PF's interface list here: checkup
+  requires a cluster.conf entry for every pf.conf interface, and giving the
+  vagrant/libvirt management NIC a CLUSTER VIP would sit on the runner's own
+  SSH path. Doing it before `cluster/sync` propagates it to the joiners.
