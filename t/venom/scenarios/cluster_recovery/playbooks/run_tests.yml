@@ -149,14 +149,7 @@
         reboot_command: "systemctl reboot --force"
       when: "'C' in recovery_scenarios"
 
-    - name: "Wait for the boot transaction to settle"
-      ansible.builtin.command: systemctl is-system-running
-      register: _boot_settled
-      changed_when: false
-      until: _boot_settled.stdout in ['running', 'degraded']
-      retries: 60
-      delay: 10
-      failed_when: _boot_settled.stdout not in ['running', 'degraded']
+    - import_tasks: tasks/wait_boot_settled.yml
       when: "'C' in recovery_scenarios"
 
     - name: "Wait for THIS node to re-Sync into galera before the next reboot"
@@ -216,6 +209,9 @@
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
     not_serving_wait_seconds: 120
+    # the DB is meant to stay down here, so packetfence.target never completes
+    # and waiting for the boot transaction would just burn the retry budget
+    boot_wait_settled: false
   tasks:
     - block:
         - import_tasks: tasks/boot.yml
@@ -229,6 +225,7 @@
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
     not_serving_wait_seconds: 120
+    boot_wait_settled: false
   tasks:
     - block:
         - import_tasks: tasks/boot.yml
@@ -254,6 +251,10 @@
       - cluster_verify_all
   tasks:
     - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'D' in recovery_scenarios"
+    # nodes 1 & 2 booted with boot_wait_settled disabled and their transaction
+    # only unblocks once node 3 bootstraps the DB — settle them before verifying
+    - import_tasks: tasks/wait_boot_settled.yml
       when: "'D' in recovery_scenarios"
     - import_tasks: run_venom_suites.yml
       when: "'D' in recovery_scenarios"

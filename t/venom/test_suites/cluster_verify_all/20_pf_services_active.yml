@@ -3,11 +3,16 @@ testcases:
 # Real PF systemd unit names (all packetfence-* prefixed). radiusd uses an
 # underscore: packetfence-radiusd-load_balancer. Each check retries so a
 # service still settling after the wrapup restart doesn't flake the assertion.
+#
+# 4 minutes, not the 70s this used to allow: the callers wait for the boot
+# transaction to settle first, but a PF boot needs ~110s to reach
+# packetfence.target on an idle node and radiusd-load_balancer is the last unit
+# in, so the previous budget was shorter than a healthy boot on its own.
 - name: packetfence_mariadb_active
   steps:
   - type: exec
     script: 'systemctl is-active packetfence-mariadb'
-    retry: 6
+    retry: 24
     delay: 10
     assertions:
       - result.systemout ShouldEqual active
@@ -17,7 +22,7 @@ testcases:
   steps:
   - type: exec
     script: 'systemctl is-active packetfence-keepalived'
-    retry: 6
+    retry: 24
     delay: 10
     assertions:
       - result.systemout ShouldEqual active
@@ -27,7 +32,7 @@ testcases:
   steps:
   - type: exec
     script: 'systemctl is-active packetfence-radiusd-load_balancer'
-    retry: 6
+    retry: 24
     delay: 10
     assertions:
       - result.systemout ShouldEqual active
