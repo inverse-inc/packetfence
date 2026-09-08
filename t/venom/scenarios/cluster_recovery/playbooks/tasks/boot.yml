@@ -15,3 +15,10 @@
   ansible.builtin.wait_for_connection:
     timeout: 420
     delay: 10
+
+# Returning at SSH also made the callers' serial:1 meaningless: all three nodes
+# ended up booting their PF stacks concurrently. Skipped where the boot is
+# expected NOT to complete (scenario D: the DB deliberately never serves, so
+# packetfence.target is never reached).
+- import_tasks: wait_boot_settled.yml
+  when: boot_wait_settled | default(true) | bool
