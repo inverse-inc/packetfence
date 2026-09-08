@@ -1,19 +1,29 @@
-// Package sitenetwork reconciles the host's VLAN interfaces, addresses and
-// static routes with the desired state pushed by the pfconnector server for a
-// connector (see the connector's "Networking" tab in the admin UI and
-// docs/design/pfconnector-remote-site-networking.md).
+// Package sitenetwork reconciles the host's VLAN interfaces, interface
+// addresses and static routes with the desired state pushed by the
+// pfconnector server for a connector (see the connector's "Networking" tab in
+// the admin UI and docs/design/pfconnector-remote-site-networking.md).
 //
 // The pfconnector-remote container runs with --network=host and NET_ADMIN, so
 // netlink calls made here act on the host network namespace.
 //
+// Two kinds of interface entries: a VLAN interface (Vlan > 0) the connector
+// creates on top of a parent link, and a plain interface (Vlan == 0), an
+// existing link of the host such as a second NIC, that the connector only
+// addresses. The host's main interface (the one holding the default route,
+// through which the tunnel runs) is never addressed.
+//
 // Ownership rules, so we never touch what the operator configured by hand:
 //   - every link we create carries the alias LinkAlias; only aliased links are
 //     ever deleted or re-addressed;
+//   - every address we put on a plain interface carries the label
+//     AddressLabel(name); only labelled addresses are ever removed from a link
+//     we did not create;
 //   - every route we install carries the routing protocol RouteProtocol; only
 //     routes with that protocol are ever deleted.
 package sitenetwork
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -37,13 +47,59 @@ const LinkAlias = "pf-connector"
 // free for local use; 201 is not registered in /etc/iproute2/rt_protos.
 const RouteProtocol = 201
 
+// addressLabelSuffix is appended to the link name to label the addresses the
+// connector assigns on plain (not connector-created) interfaces.
+const addressLabelSuffix = ":pf"
+
+// AddressLabel is the IFA_LABEL the connector puts on the addresses it
+// assigns on the plain interface name ("<name>:pf", the classic alias form
+// that ip(8) and keepalived accept). Empty when the label would not fit in
+// IFNAMSIZ; such an address is still assigned but cannot be told apart from
+// the operator's, so it is never removed automatically.
+func AddressLabel(name string) string {
+	label := name + addressLabelSuffix
+	if len(label) > syscall.IFNAMSIZ-1 {
+		return ""
+	}
+	return label
+}
+
+// DefaultRouteInterface returns the name of the interface holding the IPv4
+// default route (/proc/net/route, destination 0.0.0.0), or "" when none. That
+// is the host's main interface: the one the connector reaches PacketFence
+// through.
+func DefaultRouteInterface() string {
+	file, err := os.Open("/proc/net/route")
+	if err != nil {
+		return ""
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) >= 2 && fields[1] == "00000000" {
+			return fields[0]
+		}
+	}
+	return ""
+}
+
+// IsContainerInterface reports whether name is an interface of the container
+// runtime on the connector host (Docker's default bridge, the bridges of its
+// user-defined networks and the container-side veth pairs). They are not
+// site-facing: never addressed, and hidden from the admin UI choices.
+func IsContainerInterface(name string) bool {
+	return name == "docker0" || strings.HasPrefix(name, "br-") || strings.HasPrefix(name, "veth")
+}
+
 // Desired is the state to converge to.
 type Desired struct {
 	Interfaces []pfconfigdriver.ConnectorInterface
 	Routes     []pfconfigdriver.ConnectorRoute
 }
 
-// InterfaceStatus is the observed state of one desired VLAN interface.
+// InterfaceStatus is the observed state of one desired interface entry. Vlan
+// is 0 for a plain interface (an existing link the connector only addresses).
 type InterfaceStatus struct {
 	Name    string `json:"name"`
 	Parent  string `json:"parent"`
@@ -119,16 +175,19 @@ func (realNetlink) RouteDel(route *netlink.Route) error     { return netlink.Rou
 // Reconciler converges the host with a Desired state.
 type Reconciler struct {
 	nl Netlink
+	// MainInterface names the host's main interface, which plain interface
+	// entries may never address. Defaults to DefaultRouteInterface.
+	MainInterface func() string
 }
 
 // New returns a Reconciler backed by the real netlink socket.
 func New() *Reconciler {
-	return &Reconciler{nl: realNetlink{}}
+	return &Reconciler{nl: realNetlink{}, MainInterface: DefaultRouteInterface}
 }
 
 // NewWithNetlink returns a Reconciler backed by the given Netlink (tests).
 func NewWithNetlink(nl Netlink) *Reconciler {
-	return &Reconciler{nl: nl}
+	return &Reconciler{nl: nl, MainInterface: DefaultRouteInterface}
 }
 
 // Reconcile applies desired to the host. It is idempotent: running it twice
@@ -138,14 +197,28 @@ func (r *Reconciler) Reconcile(ctx context.Context, version string, desired Desi
 	status := Status{Version: version, Interfaces: []InterfaceStatus{}, Routes: []RouteStatus{}}
 
 	wanted := map[string]bool{}
+	plainAddrs := map[string]*netlink.Addr{} // link name -> address we want on a plain interface
 	for _, iface := range desired.Interfaces {
 		wanted[iface.Name()] = true
-		st := r.reconcileInterface(ctx, iface)
+		var st InterfaceStatus
+		if iface.IsVlan() {
+			st = r.reconcileInterface(ctx, iface)
+		} else {
+			var addr *netlink.Addr
+			st, addr = r.reconcilePlainInterface(ctx, iface)
+			if addr != nil {
+				plainAddrs[iface.Name()] = addr
+			}
+		}
 		if st.State == "error" {
 			status.Errors++
 		}
 		status.Interfaces = append(status.Interfaces, st)
 	}
+
+	// Remove the labelled addresses we put on plain interfaces that are no
+	// longer desired.
+	status.Errors += r.cleanupPlainAddresses(ctx, plainAddrs)
 
 	// Remove the VLAN links we created that are no longer desired.
 	for _, name := range r.ownedLinks(ctx) {
@@ -286,6 +359,155 @@ func (r *Reconciler) reconcileInterface(ctx context.Context, iface pfconfigdrive
 		st.Error = fmt.Sprintf("parent interface %s is down", iface.Parent)
 	}
 	return st
+}
+
+// reconcilePlainInterface puts the desired IPv4 address, labelled as ours, on
+// an existing link of the host and brings the link up. The link is never
+// created or deleted, other addresses on it are never touched, and the host's
+// main interface (default route, tunnel), loopback, container and
+// connector-created links are refused. Returns the address it wants on the
+// link (nil when refused) so the caller can clean up stale labelled ones.
+func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfigdriver.ConnectorInterface) (InterfaceStatus, *netlink.Addr) {
+	name := iface.Name()
+	st := InterfaceStatus{Name: name, Parent: iface.Parent, CIDR: iface.CIDR, State: "error"}
+	logger := log.LoggerWContext(ctx)
+
+	if name == "" || len(name) > syscall.IFNAMSIZ-1 {
+		st.Error = fmt.Sprintf("invalid interface name %q", name)
+		return st, nil
+	}
+	addr, err := netlink.ParseAddr(iface.CIDR)
+	if err != nil || addr.IP.To4() == nil {
+		st.Error = fmt.Sprintf("invalid IPv4 address %q", iface.CIDR)
+		return st, nil
+	}
+	addr.Label = AddressLabel(name)
+
+	main := ""
+	if r.MainInterface != nil {
+		main = r.MainInterface()
+	}
+	if main != "" && name == main {
+		st.Error = fmt.Sprintf("%s is the main interface of the host (default route); the connector does not change its configuration", name)
+		return st, nil
+	}
+	if IsContainerInterface(name) {
+		st.Error = fmt.Sprintf("%s belongs to the container runtime; not configuring it", name)
+		return st, nil
+	}
+
+	link, err := r.nl.LinkByName(name)
+	switch {
+	case isNotFound(err):
+		st.Error = fmt.Sprintf("interface %s not found on the host", name)
+		return st, nil
+	case err != nil:
+		st.Error = fmt.Sprintf("unable to look up %s: %s", name, err)
+		return st, nil
+	}
+	if link.Attrs().Flags&net.FlagLoopback != 0 {
+		st.Error = fmt.Sprintf("%s is the loopback interface", name)
+		return st, nil
+	}
+	if link.Attrs().Alias == LinkAlias {
+		st.Error = fmt.Sprintf("%s is a VLAN interface created by the connector; configure it as a VLAN interface", name)
+		return st, nil
+	}
+
+	addrs, err := r.nl.AddrList(link, netlink.FAMILY_V4)
+	if err != nil {
+		st.Error = fmt.Sprintf("unable to list addresses of %s: %s", name, err)
+		return st, addr
+	}
+	have := false
+	for _, a := range addrs {
+		if a.IPNet != nil && a.IP.Equal(addr.IP) && maskEqual(a.Mask, addr.Mask) {
+			have = true
+			continue
+		}
+		// A previous address of ours on this link (label match) is replaced;
+		// anything else on the link is the operator's and stays.
+		if addr.Label != "" && a.Label == addr.Label {
+			if err := r.nl.AddrDel(link, &netlink.Addr{IPNet: a.IPNet}); err != nil {
+				logger.Warn(fmt.Sprintf("site-network: unable to remove stale address %s from %s: %s", a.IPNet, name, err))
+			} else {
+				logger.Info(fmt.Sprintf("site-network: removed address %s from %s", a.IPNet, name))
+			}
+		}
+	}
+	if !have {
+		if err := r.nl.AddrReplace(link, addr); err != nil {
+			st.Error = fmt.Sprintf("unable to assign %s to %s: %s", iface.CIDR, name, err)
+			return st, addr
+		}
+		if addr.Label == "" {
+			logger.Warn(fmt.Sprintf("site-network: assigned %s to %s without a label (name too long): it will not be removed automatically when unconfigured", iface.CIDR, name))
+		} else {
+			logger.Info(fmt.Sprintf("site-network: assigned %s to %s", iface.CIDR, name))
+		}
+	}
+
+	if link.Attrs().Flags&net.FlagUp == 0 {
+		if err := r.nl.LinkSetUp(link); err != nil {
+			st.Error = fmt.Sprintf("unable to bring %s up: %s", name, err)
+			return st, addr
+		}
+		logger.Info(fmt.Sprintf("site-network: brought %s up", name))
+		// The operational state read before the link was up is stale.
+		if fresh, err := r.nl.LinkByName(name); err == nil {
+			link = fresh
+		}
+	}
+
+	st.State = "up"
+	if link.Attrs().OperState == netlink.OperDown {
+		st.State = "down"
+		st.Error = fmt.Sprintf("%s has no carrier", name)
+	}
+	return st, addr
+}
+
+// cleanupPlainAddresses removes, from every link the connector did not
+// create, the IPv4 addresses labelled as ours that are not the one wanted on
+// that link. Returns the number of failures.
+func (r *Reconciler) cleanupPlainAddresses(ctx context.Context, wanted map[string]*netlink.Addr) int {
+	logger := log.LoggerWContext(ctx)
+	links, err := r.nl.LinkList()
+	if err != nil {
+		logger.Error(fmt.Sprintf("site-network: unable to list links: %s", err))
+		return 1
+	}
+	failures := 0
+	for _, link := range links {
+		name := link.Attrs().Name
+		if link.Attrs().Alias == LinkAlias {
+			continue // connector-created VLAN links are handled by reconcileInterface
+		}
+		label := AddressLabel(name)
+		if label == "" {
+			continue
+		}
+		addrs, err := r.nl.AddrList(link, netlink.FAMILY_V4)
+		if err != nil {
+			continue
+		}
+		want := wanted[name]
+		for _, a := range addrs {
+			if a.Label != label || a.IPNet == nil {
+				continue
+			}
+			if want != nil && a.IP.Equal(want.IP) && maskEqual(a.Mask, want.Mask) {
+				continue
+			}
+			if err := r.nl.AddrDel(link, &netlink.Addr{IPNet: a.IPNet}); err != nil {
+				logger.Error(fmt.Sprintf("site-network: unable to remove stale address %s from %s: %s", a.IPNet, name, err))
+				failures++
+				continue
+			}
+			logger.Info(fmt.Sprintf("site-network: removed address %s from %s (no longer configured)", a.IPNet, name))
+		}
+	}
+	return failures
 }
 
 // ownedLinks returns the names of the VLAN links tagged with LinkAlias.

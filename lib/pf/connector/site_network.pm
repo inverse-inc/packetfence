@@ -3,17 +3,18 @@ package pf::connector::site_network;
 =head1 NAME
 
 pf::connector::site_network - on-disk <-> structured representation of a
-connector's site networking (VLAN interfaces and static routes)
+connector's site networking (interfaces and static routes)
 
 =head1 DESCRIPTION
 
-A connector can terminate VLANs on the pfconnector-remote host. In
-connectors.conf each VLAN interface and each static route is stored as one
-human readable line, in a multi-line value:
+A connector can terminate VLANs on the pfconnector-remote host and address
+its secondary network interfaces. In connectors.conf each interface and each
+static route is stored as one human readable line, in a multi-line value:
 
   interfaces=<<EOT
   eth0.100 10.10.100.1/24 dhcp start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example
   eth0.101 10.10.101.1/24
+  ens192 192.168.50.1/24 dhcp start=192.168.50.10 end=192.168.50.250
   EOT
   routes=<<EOT
   10.20.0.0/16 via 10.10.100.254 dev eth0.100
@@ -27,6 +28,8 @@ The API, the admin form and pfconfig work with the structured form:
       dhcp => 'enabled', dhcp_start => '10.10.100.10', dhcp_end => '10.10.100.250',
       dhcp_default_lease_time => 300, dhcp_max_lease_time => 600,
       dns => '8.8.8.8,8.8.4.4', gateway => '10.10.100.254', domain_name => 'site.example',
+  }, {
+      parent => 'ens192', vlan => undef, cidr => '192.168.50.1/24', ...
   }, ... ]
   routes     => [ { destination => '10.20.0.0/16', gateway => '10.10.100.254', interface => 'eth0.100' }, ... ]
 
@@ -39,9 +42,14 @@ C<start>/C<end> (range), C<lease>/C<max_lease> (seconds), C<dns>
 (comma separated DNS servers handed to clients), C<gateway> (the interface
 address when absent), C<domain>.
 
-The VLAN interface name is always C<< <parent>.<vlan> >>, which is what the
-connector creates on the host. Interface names are limited to 15 characters
-by the kernel (IFNAMSIZ), so the parent name is at most 10 characters.
+A name of the form C<< <parent>.<vlan> >> is an 802.1Q VLAN interface the
+connector creates on the host on top of C<parent>. A name without a VLAN
+suffix (C<vlan> undef in the structured form) is an existing interface of the
+host, e.g. a second NIC, that the connector only addresses: it never creates
+or deletes it, and the connector refuses to touch the host's main interface
+(the one holding the default route, which carries the tunnel). Interface
+names are limited to 15 characters by the kernel (IFNAMSIZ), so the parent of
+a VLAN interface is at most 10 characters.
 
 =cut
 
@@ -51,7 +59,7 @@ use warnings;
 use Exporter qw(import);
 use pf::util qw(isenabled);
 our @EXPORT_OK = qw(
-    parse_interface_line format_interface interface_name
+    parse_interface_line format_interface interface_name is_vlan_interface
     parse_route_line format_route
     expand_site_network flatten_site_network
     $IFNAMSIZ
@@ -62,19 +70,34 @@ our $IFNAMSIZ = 15;
 
 =head2 interface_name
 
-Name of the VLAN interface created for a structured interface entry.
+Kernel name of the interface a structured entry describes: C<parent.vlan>
+for a VLAN interface, the parent itself when C<vlan> is empty.
 
 =cut
 
 sub interface_name {
     my ($if) = @_;
-    return "$if->{parent}.$if->{vlan}";
+    my $vlan = $if->{vlan};
+    return $if->{parent} unless defined $vlan && length $vlan && $vlan != 0;
+    return "$if->{parent}.$vlan";
+}
+
+=head2 is_vlan_interface
+
+True when a structured entry is a VLAN interface (has a VLAN id).
+
+=cut
+
+sub is_vlan_interface {
+    my ($if) = @_;
+    return interface_name($if) ne ($if->{parent} // '');
 }
 
 =head2 parse_interface_line
 
 "eth0.100 10.10.100.1/24 dhcp start=... end=..." -> structured hash (see
-DESCRIPTION). Returns undef when the line cannot be parsed.
+DESCRIPTION). A name without a ".<vlan>" suffix is the interface itself
+(vlan => undef). Returns undef when the line cannot be parsed.
 
 =cut
 
@@ -98,10 +121,14 @@ sub parse_interface_line {
     my ($name, $cidr, @words) = split(/\s+/, _trim($line));
     return undef unless defined $name && defined $cidr;
     my ($parent, $vlan) = $name =~ /^(.+)\.(\d+)$/;
-    return undef unless defined $parent;
+    if (!defined $parent) {
+        # no VLAN suffix: the interface itself; a dot in the name is garbage
+        return undef if $name =~ /[^A-Za-z0-9_-]/;
+        ($parent, $vlan) = ($name, undef);
+    }
     my $if = {
         parent => $parent,
-        vlan   => int($vlan),
+        vlan   => defined $vlan ? int($vlan) : undef,
         cidr   => $cidr,
         (map { $_ => 'disabled' } values %INTERFACE_FLAGS),
         (map { $_->[1] => '' } @INTERFACE_KEYS),

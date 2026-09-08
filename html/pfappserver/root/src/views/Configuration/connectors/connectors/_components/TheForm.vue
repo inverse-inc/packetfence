@@ -75,11 +75,11 @@
           </base-form-tab>
           <base-form-tab :title="$i18n.t('Networking')">
             <b-alert show variant="info" class="mx-3">
-              {{ $i18n.t('The remote connector creates these VLAN interfaces on its host, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts.') }}
+              {{ $i18n.t('The remote connector creates these VLAN interfaces on its host or addresses its secondary interfaces, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts. The main interface of the host (the one carrying the tunnel) is never reconfigured.') }}
             </b-alert>
             <form-group-interfaces namespace="interfaces"
-              :column-label="$i18n.t('VLAN Interfaces')"
-              :text="$i18n.t('One 802.1Q VLAN interface per row, created on top of the parent interface of the connector host and named &quot;parent.vlan&quot; (e.g. eth0.100). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to serve addresses on that VLAN: the connector relays the requests to the PacketFence DHCP server through its tunnel, and the server hands out the range configured here (the network is the one of the interface address). Enable DNS to make the connector answer every DNS query received on that VLAN with the interface address (captive-portal DNS).')"
+              :column-label="$i18n.t('Interfaces')"
+              :text="$i18n.t('One interface per row. With a VLAN ID, an 802.1Q VLAN interface is created on top of the chosen interface of the connector host and named &quot;interface.vlan&quot; (e.g. eth0.100); without one, the address is assigned to the chosen interface itself (a secondary network card of the host, e.g. ens192; the main interface cannot be chosen). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to serve addresses on that network: the connector relays the requests to the PacketFence DHCP server through its tunnel, and the server hands out the range configured here (the network is the one of the interface address). Enable DNS to make the connector answer every DNS query received on that interface with the interface address (captive-portal DNS).')"
             />
             <form-group-routes namespace="routes"
               :column-label="$i18n.t('Static Routes')"
@@ -91,7 +91,7 @@
             </b-alert>
             <form-group-ha-vip namespace="ha_vip"
               :column-label="$i18n.t('Virtual IP')"
-              :text="$i18n.t('IPv4 address with prefix length, on the network the connector hosts share (e.g. 10.0.0.250/24). The VLAN interface addresses above move with it.')"
+              :text="$i18n.t('IPv4 address with prefix length, on the network the connector hosts share (e.g. 10.0.0.250/24). The interface addresses above move with it.')"
             />
             <form-group-ha-vrid namespace="ha_vrid"
               :column-label="$i18n.t('VRRP virtual router id')"

@@ -6,16 +6,20 @@
       <b-col cols="3" class="base-flex-wrap pr-1">
         <base-input-chosen-one
           :namespace="`${namespace}.parent`"
-          :placeholder="$t('Parent interface (e.g. eth0)')"
+          :placeholder="$t('Interface (e.g. eth0)')"
           :options="parentOptions"
           :taggable="true"
           :tag-placeholder="$t('Use this interface name')"
         />
+        <small v-if="mainInterfaceLocked" class="d-block text-danger">
+          {{ $t('{name} is the main interface of the connector host and cannot be reconfigured: set a VLAN ID to create a VLAN on it, or choose another interface.', { name: mainInterfaceLocked }) }}
+        </small>
       </b-col>
       <b-col cols="2" class="base-flex-wrap pr-1">
         <base-input-number
           :namespace="`${namespace}.vlan`"
-          :placeholder="$t('VLAN ID')"
+          :placeholder="$t('VLAN ID (none)')"
+          :title="$t('802.1Q VLAN ID of the VLAN interface to create on top of the interface. Leave empty to assign the address to the interface itself.')"
           :min="1"
           :max="4094"
         />
@@ -30,20 +34,20 @@
         <base-input-toggle class="mr-4"
           :namespace="`${namespace}.dhcp`"
           :options="dhcpOptions"
-          :title="$t('Serve DHCP on this VLAN: the connector relays the requests to the PacketFence DHCP server, which serves the scope below')"
+          :title="$t('Serve DHCP on this interface: the connector relays the requests to the PacketFence DHCP server, which serves the scope below')"
           label-right
         />
         <base-input-toggle
           :namespace="`${namespace}.dns_server`"
           :options="dnsOptions"
-          :title="$t('Captive DNS on this VLAN: the connector answers every DNS query with the interface address')"
+          :title="$t('Captive DNS on this interface: the connector answers every DNS query with the interface address')"
           label-right
         />
       </b-col>
     </b-row>
     <b-collapse :visible="dhcpEnabled">
       <div v-if="dhcpEnabled" class="mt-2 pl-3 border-left">
-        <small class="text-muted d-block mb-1">{{ $t('DHCP scope served on this VLAN (the network is the one of the interface address)') }}</small>
+        <small class="text-muted d-block mb-1">{{ $t('DHCP scope served on this interface (the network is the one of the interface address)') }}</small>
         <b-row align-v="start" no-gutters>
           <b-col cols="3" class="pr-2">
             <label class="base-interface-field-label">{{ $t('Range start') }}</label>
@@ -137,19 +141,35 @@ const setup = (props, context) => {
     return dhcp === 'enabled'
   })
 
-  // Parent candidates: the interfaces reported by the connector host that are
-  // not themselves VLAN sub-interfaces ("<name>.<vlan>"), the main one (the
-  // interface holding the host's default route) first. Any name can still be
-  // typed in (taggable), e.g. while the connector is disconnected.
+  // Interface candidates: the interfaces reported by the connector host that
+  // are not themselves VLAN sub-interfaces ("<name>.<vlan>"), the main one
+  // (the interface holding the host's default route, through which the tunnel
+  // runs) first. Any name can still be typed in (taggable), e.g. while the
+  // connector is disconnected.
   const hostInterfaces = inject('connectorHostInterfaces', ref([]))
   const parentCandidates = computed(() => (hostInterfaces.value || [])
     .filter(({ name }) => name && !name.includes('.'))
   )
+  // Without a VLAN ID the row reconfigures the interface itself, which is
+  // refused for the main interface (by the connector too): hide it then.
+  const hasVlan = computed(() => {
+    const { vlan } = unref(inputValue) || {}
+    return !['', null, undefined, 0, '0'].includes(vlan)
+  })
   const parentOptions = computed(() => parentCandidates.value
+    .filter(({ main }) => hasVlan.value || !main)
     .map(({ name, main }) => ({ text: main ? `${name} (${i18n.t('main')})` : name, value: name }))
   )
+  // Name of the main interface when the row would reconfigure it (no VLAN
+  // ID), so the row can say why the connector will refuse it.
+  const mainInterfaceLocked = computed(() => {
+    const { parent } = unref(inputValue) || {}
+    const main = parentCandidates.value.find(({ main }) => main)
+    return (!hasVlan.value && main && parent === main.name) ? main.name : null
+  })
 
-  // A new row gets the main interface as parent; the user can still change it.
+  // A new row gets the main interface as parent (a VLAN on it is the common
+  // case); the user can still change it.
   const presetParent = () => {
     const { parent } = unref(inputValue) || {}
     const main = parentCandidates.value.find(({ main }) => main)
@@ -171,6 +191,7 @@ const setup = (props, context) => {
     dhcpEnabled,
     dhcpOptions,
     dnsOptions,
+    mainInterfaceLocked,
     parentOptions
   }
 }

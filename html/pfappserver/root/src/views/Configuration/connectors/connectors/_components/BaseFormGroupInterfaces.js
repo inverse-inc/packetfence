@@ -7,7 +7,7 @@ export const props = {
 
   buttonLabel: {
     type: String,
-    default: i18n.t('Add VLAN Interface')
+    default: i18n.t('Add Interface')
   },
   // overload :childComponent
   childComponent: {

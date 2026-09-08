@@ -1036,8 +1036,10 @@ type ConnectorConfig struct {
 	Routes      []ConnectorRoute `json:"routes"`
 }
 
-// ConnectorInterface is a VLAN interface the pfconnector-remote host creates
-// on top of Parent and holds CIDR on. The interface is named "<Parent>.<Vlan>".
+// ConnectorInterface is an interface the pfconnector-remote host holds CIDR
+// on: with Vlan > 0 a VLAN interface the host creates on top of Parent, named
+// "<Parent>.<Vlan>"; with Vlan == 0 the existing host interface Parent itself
+// (a secondary NIC; the host's main interface is refused by the connector).
 // When Dhcp is enabled the connector relays DHCP received on the interface to
 // pfdhcp over HTTP (DHCP-over-HTTPS) and pfdhcp serves the scope described by
 // the Dhcp* fields: the network is the one of CIDR, the server identifier the
@@ -1063,9 +1065,19 @@ type ConnectorInterface struct {
 	DomainName string `json:"domain_name"`
 }
 
-// Name is the kernel interface name of a VLAN interface.
+// Name is the kernel interface name: "<Parent>.<Vlan>" for a VLAN interface,
+// Parent itself for a plain interface.
 func (i ConnectorInterface) Name() string {
+	if !i.IsVlan() {
+		return i.Parent
+	}
 	return fmt.Sprintf("%s.%d", i.Parent, i.Vlan)
+}
+
+// IsVlan reports whether the entry is a VLAN interface the host creates
+// (true) or an existing host interface it only addresses (false).
+func (i ConnectorInterface) IsVlan() bool {
+	return i.Vlan > 0
 }
 
 // ConnectorRoute is a static route the pfconnector-remote host installs.
