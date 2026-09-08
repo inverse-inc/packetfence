@@ -112,6 +112,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/connector-detail":
 		s.handleConnectorDetail(w, r)
 		return
+	case apiPrefix + "/traffic-history":
+		s.handleTrafficHistory(w, r)
+		return
 	case apiPrefix + "/dns-lookup":
 		s.handleDnsLookup(w, r)
 		return
