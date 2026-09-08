@@ -202,17 +202,24 @@ func (ne *NetworkEvent) GetDstRole(ctx context.Context, db *sql.DB) (string, str
 	return ne.getRoleFromInventory(ctx, db, ne.DestInventoryitem)
 }
 
-func (ne *NetworkEvent) getRoleFromInventory(ctx context.Context, db *sql.DB, item *InventoryItem) (string, string) {
-	if item == nil {
-		return "", ""
-	}
-
-	if len(item.ExternalIDS) == 0 {
-		return "", ""
+// inventoryMac returns the MAC of an inventory item, or "" when the item is
+// missing or carries no usable MAC.
+func inventoryMac(item *InventoryItem) string {
+	if item == nil || len(item.ExternalIDS) == 0 {
+		return ""
 	}
 
 	mac := item.ExternalIDS[0]
 	if mac == "" || mac == "00:00:00:00:00:00" {
+		return ""
+	}
+
+	return mac
+}
+
+func (ne *NetworkEvent) getRoleFromInventory(ctx context.Context, db *sql.DB, item *InventoryItem) (string, string) {
+	mac := inventoryMac(item)
+	if mac == "" {
 		return "", ""
 	}
 
