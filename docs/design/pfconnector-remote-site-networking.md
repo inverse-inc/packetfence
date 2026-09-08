@@ -139,6 +139,31 @@ RouteReplace(each in wanted - have); RouteDel(each in have - wanted)
   missing the item is reported as `error` in status (§7) and skipped.
 - Failure is per-interface; one bad entry must not block the others.
 
+#### Plain interfaces (no VLAN id)
+
+An interface row without a VLAN id (`vlan` null, storage line
+`ens192 192.168.50.1/24 ...`, `ConnectorInterface.Vlan == 0`,
+`Name() == Parent`) addresses an existing host link, typically a second NIC
+cabled to an access VLAN. The reconciler (`reconcilePlainInterface`):
+
+- refuses the host's main interface (`DefaultRouteInterface()`, the
+  default-route/tunnel NIC, also flagged `main` in `host_interfaces`), the
+  loopback, container-runtime links and connector-created VLAN links; the UI
+  hides the main interface from the choices when the VLAN id is empty;
+- never creates or deletes the link; brings it up (`LinkSetUp`);
+- assigns the address with `IFA_LABEL` = `AddressLabel(name)` = `<name>:pf`
+  and only ever removes addresses carrying that label (a previous address of
+  ours on the link, or every labelled address of a link that is no longer
+  configured, `cleanupPlainAddresses`). The operator's addresses on the same
+  link are untouched. A name longer than 12 characters cannot be labelled:
+  the address is assigned but never removed automatically (logged).
+- state `down` = link has no carrier.
+
+DHCP relay, captive DNS, pfdhcp scopes and the giaddr check work on
+`Name()`/`CIDR` and are unchanged. Under HA the address is a keepalived
+virtual IP like the VLAN ones (`<cidr> dev <name> label <name>:pf`) and
+`ha-notify.sh` flushes the labelled addresses on non-master hosts.
+
 ### 3.4 What we deliberately do not do
 
 - No NAT, no forwarding, no default gateway changes. Static routes are only

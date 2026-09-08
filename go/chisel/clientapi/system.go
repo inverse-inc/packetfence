@@ -1,10 +1,8 @@
 package clientapi
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"io"
 	"net"
 	"net/http"
@@ -12,9 +10,10 @@ import (
 	"os/exec"
 	"sort"
 	"strconv"
-	"strings"
 	"syscall"
 	"time"
+
+	"github.com/inverse-inc/go-utils/sharedutils"
 
 	"github.com/inverse-inc/go-utils/log"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
@@ -152,10 +151,10 @@ func hostInterfaces() []HostInterface {
 	if err != nil {
 		return nil
 	}
-	main := defaultRouteInterface()
+	main := sitenetwork.DefaultRouteInterface()
 	out := []HostInterface{}
 	for _, iface := range ifaces {
-		if iface.Flags&net.FlagLoopback != 0 || isContainerInterface(iface.Name) {
+		if iface.Flags&net.FlagLoopback != 0 || sitenetwork.IsContainerInterface(iface.Name) {
 			continue
 		}
 		hi := HostInterface{Name: iface.Name, Up: iface.Flags&net.FlagUp != 0, Addresses: []string{}, Main: iface.Name == main}
@@ -173,33 +172,6 @@ func hostInterfaces() []HostInterface {
 		return out[i].Name < out[j].Name
 	})
 	return out
-}
-
-// isContainerInterface reports whether name is an interface of the container
-// runtime on the connector host (Docker's default bridge, the bridges of its
-// user-defined networks and the container-side veth pairs). They are not
-// site-facing and would only clutter the parent/interface choices in the
-// admin UI.
-func isContainerInterface(name string) bool {
-	return name == "docker0" || strings.HasPrefix(name, "br-") || strings.HasPrefix(name, "veth")
-}
-
-// defaultRouteInterface returns the name of the interface holding the IPv4
-// default route (/proc/net/route, destination 0.0.0.0), or "" when none.
-func defaultRouteInterface() string {
-	file, err := os.Open("/proc/net/route")
-	if err != nil {
-		return ""
-	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		fields := strings.Fields(scanner.Text())
-		if len(fields) >= 2 && fields[1] == "00000000" {
-			return fields[0]
-		}
-	}
-	return ""
 }
 
 // systemInfo reports resource usage of the box running the

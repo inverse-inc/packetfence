@@ -92,9 +92,12 @@ has_field 'ha_interface' => (
    ],
 );
 
-# Site networking: VLAN interfaces the connector host creates and holds an IP
-# on, plus static routes. See pf::connector::site_network for the storage
-# format. The VLAN interface is named "<parent>.<vlan>".
+# Site networking: interfaces the connector host holds an IP on, plus static
+# routes. A row with a VLAN id is an 802.1Q VLAN interface the connector
+# creates on top of the parent, named "<parent>.<vlan>"; a row without one
+# addresses the parent interface itself (a secondary NIC of the host; the
+# connector refuses the main interface). See pf::connector::site_network for
+# the storage format.
 has_field 'interfaces' => (
    type => 'Repeatable',
 );
@@ -102,18 +105,18 @@ has_field 'interfaces' => (
 has_field 'interfaces.parent' => (
    type => 'Text',
    required => 1,
-   maxlength => $IFNAMSIZ - 5, # room for ".4094"
+   maxlength => $IFNAMSIZ, # a VLAN interface's parent is checked in validate_interfaces
    apply => [
        {
            check => qr/^[A-Za-z0-9_-]+$/,
-           message => 'Parent interface name may only contain letters, digits, "_" and "-"',
+           message => 'Interface name may only contain letters, digits, "_" and "-"',
        },
    ],
 );
 
+# Empty: the address goes on the parent interface itself.
 has_field 'interfaces.vlan' => (
    type => 'PosInteger',
-   required => 1,
    range_start => 1,
    range_end => 4094,
 );
@@ -297,8 +300,8 @@ sub _valid_host_cidr {
 
 =head2 validate_interfaces
 
-No duplicate VLAN interface within a connector, the resulting interface name
-must fit in IFNAMSIZ, and when DHCP is enabled the scope must be consistent
+No duplicate interface within a connector, the resulting interface name must
+fit in IFNAMSIZ, and when DHCP is enabled the scope must be consistent
 with the interface address: range inside the interface's network, start
 before end, interface address outside the range, gateway inside the network,
 default lease not longer than the maximum.
@@ -310,13 +313,13 @@ sub validate_interfaces {
     my %seen;
     for my $if_field ($field->fields) {
         my $if = $if_field->value;
-        next unless ref($if) eq 'HASH' && defined $if->{parent} && defined $if->{vlan};
+        next unless ref($if) eq 'HASH' && defined $if->{parent};
         my $name = interface_name($if);
         if (length($name) > $IFNAMSIZ) {
             $if_field->field('parent')->add_error("Interface name '$name' is longer than $IFNAMSIZ characters");
         }
         if ($seen{$name}++) {
-            $if_field->field('vlan')->add_error("VLAN interface '$name' is defined multiple times");
+            $if_field->field('vlan')->add_error("Interface '$name' is defined multiple times");
         }
         next unless isenabled($if->{dhcp});
         my $addr = NetAddr::IP->new($if->{cidr} // '') or next;
@@ -424,7 +427,7 @@ sub validate_dns_servers {
 sub validate_routes {
     my ($self, $field) = @_;
     my %vlan_ifs = map { interface_name($_) => 1 }
-      grep { ref($_) eq 'HASH' && defined $_->{parent} && defined $_->{vlan} }
+      grep { ref($_) eq 'HASH' && defined $_->{parent} }
       @{ $self->field('interfaces')->value // [] };
     my %seen;
     for my $route_field ($field->fields) {

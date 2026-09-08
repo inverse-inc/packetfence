@@ -36,8 +36,9 @@ const schemaFingerbankEnvironments = yup.array().ensure()
   .unique(i18n.t('Duplicate environment variable.'), ({ name }) => name)
   .of(schemaFingerbankEnvironment)
 
-// Site networking: VLAN interfaces and static routes applied on the remote
-// connector host. Mirrors pfappserver::Form::Config::Connector.
+// Site networking: interfaces (VLAN interfaces to create, or existing host
+// interfaces to address when the VLAN ID is empty) and static routes applied
+// on the remote connector host. Mirrors pfappserver::Form::Config::Connector.
 const reInterfaceName = /^[A-Za-z0-9_-]+$/
 const reHostCidr = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/
 
@@ -64,11 +65,18 @@ yup.addMethod(yup.string, 'isHostCidr', function (message) {
 
 const schemaInterface = yup.object().shape({
   parent: yup.string().nullable()
-    .required(i18n.t('Parent interface required.'))
-    .max(10, i18n.t('Maximum 10 characters.'))
-    .matches(reInterfaceName, i18n.t('Letters, digits, "_" and "-" only.')),
+    .required(i18n.t('Interface required.'))
+    .max(15, i18n.t('Maximum 15 characters.'))
+    .matches(reInterfaceName, i18n.t('Letters, digits, "_" and "-" only.'))
+    // the VLAN interface name "<parent>.<vlan>" must fit in 15 characters
+    .test('vlan-name-length', i18n.t('Interface name "{name}" is longer than 15 characters.', { name: '' }), function (value) {
+      const { vlan } = this.parent || {}
+      if (['', null, undefined].includes(vlan) || !value)
+        return true
+      return `${value}.${vlan}`.length <= 15 || this.createError({ message: i18n.t('Interface name "{name}" is longer than 15 characters.', { name: `${value}.${vlan}` }) })
+    }),
+  // empty: the address goes on the interface itself
   vlan: yup.string().nullable()
-    .required(i18n.t('VLAN ID required.'))
     .isVLAN(i18n.t('VLAN ID must be between 1 and 4094.'))
     .test('vlan-max', i18n.t('VLAN ID must be between 1 and 4094.'), value => ['', null, undefined].includes(value) || +value <= 4094),
   cidr: yup.string().nullable()
@@ -98,7 +106,7 @@ const schemaInterface = yup.object().shape({
 })
 
 const schemaInterfaces = yup.array().ensure()
-  .unique(i18n.t('Duplicate VLAN interface.'), ({ parent, vlan }) => `${parent}.${vlan}`)
+  .unique(i18n.t('Duplicate interface.'), ({ parent, vlan }) => (['', null, undefined].includes(vlan) ? `${parent}` : `${parent}.${vlan}`))
   .of(schemaInterface)
 
 // one or more labels: "inverse" is as valid as "inverse.local"
