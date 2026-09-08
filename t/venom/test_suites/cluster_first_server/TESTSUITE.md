@@ -44,6 +44,8 @@ with `--force-new-cluster`. Maps to `docs/cluster/cluster_setup.asciidoc`.
   interfaces, not the doc's VLAN subinterfaces.
 - configreload/checkup tolerate non-zero exits here: they warn about the DB
   being unavailable until the cluster is fully up, which the doc says to ignore.
+  `30_write_cluster_conf` still fails on any *other* checkup FATAL, since those
+  are cluster.conf/pf.conf problems and `|| true` would otherwise hide them.
 - pfconfig.conf `[mysql]` host/port are set key by key, not appended: the
   configurator already creates that section (user/pass/db, no host), so an
   append guarded on `[mysql]` is skipped and `host` stays `localhost`.
