@@ -5,7 +5,6 @@
 
   vars:
     test_suites:
-      - configurator
       - global_config_virtualswitch
       - pfacct_bandwidth_virtualswitch
       - pfacct_bandwidth_virtualswitch/teardown

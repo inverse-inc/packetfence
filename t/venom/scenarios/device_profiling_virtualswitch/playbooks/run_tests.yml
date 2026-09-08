@@ -5,7 +5,6 @@
 
   vars:
     test_suites:
-      - configurator
       - global_config_virtualswitch
       - device_profiling_virtualswitch
       - device_profiling_virtualswitch/teardown

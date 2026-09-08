@@ -1,0 +1,29 @@
+- hosts: pfservers
+  name: Dump PacketFence exportable backup from the configurator VM
+  become: True
+  gather_facts: False
+  tags: pf_export
+
+  vars:
+    # Local destination on the runner. Mirrors get_logs.yml's result_dir
+    # convention so the wrapping shell helper can pick the file up.
+    result_dir: '{{ lookup("env", "RESULT_DIR") | default("result", true) }}'
+    # In-VM staging path for the backup tarball before fetch.
+    pf_export_remote_path: /tmp/pf-export.tgz
+
+  tasks:
+    - name: Run exportable-backup.sh inside the VM
+      shell: '/usr/local/pf/addons/exportable-backup.sh -f {{ pf_export_remote_path }}'
+      args:
+        executable: /bin/bash
+
+    - name: Fetch backup tarball to the runner
+      fetch:
+        src: '{{ pf_export_remote_path }}'
+        dest: '{{ result_dir }}/pf-export.tgz'
+        flat: True
+
+    - name: Remove tarball from the VM
+      file:
+        path: '{{ pf_export_remote_path }}'
+        state: absent

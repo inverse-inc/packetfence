@@ -5,7 +5,6 @@
 
   vars:
     test_suites:
-      - configurator
       - global_config_virtualswitch
       - security_event_acct_virtualswitch
       - security_event_acct_virtualswitch/teardown
