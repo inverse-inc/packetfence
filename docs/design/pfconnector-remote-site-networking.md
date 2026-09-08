@@ -149,7 +149,8 @@ cabled to an access VLAN. The reconciler (`reconcilePlainInterface`):
 - refuses the host's main interface (`DefaultRouteInterface()`, the
   default-route/tunnel NIC, also flagged `main` in `host_interfaces`), the
   loopback, container-runtime links and connector-created VLAN links; the UI
-  hides the main interface from the choices when the VLAN id is empty;
+  keeps the main interface in the choices (a VLAN on it is the common case)
+  but labels it "VLAN only" and shows a note when the VLAN id is empty;
 - never creates or deletes the link; brings it up (`LinkSetUp`);
 - assigns the address with `IFA_LABEL` = `AddressLabel(name)` = `<name>:pf`
   and only ever removes addresses carrying that label (a previous address of
