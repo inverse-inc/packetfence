@@ -11,8 +11,12 @@ fi
 
 if [ -f /var/lib/dbus/machine-id ]
 then
-    truncate --size=0 /run/machine-id
+    truncate --size=0 /var/lib/dbus/machine-id
 fi
+
+# Drop the base box's SSH host keys so each box regenerates its own on first
+# boot; virt-sysprep's default ssh-hostkeys op did this before the qemu move.
+rm -f /etc/ssh/ssh_host_*
 
 # for debian based systems ensure host keys regenerated on boot +
 # custom fix

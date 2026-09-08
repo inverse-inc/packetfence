@@ -85,6 +85,13 @@ build {
 
   # Local .box output picked up by upload-to-linode.sh (Linode Object Storage
   # replaced Vagrant Cloud for distribution).
+  # In-guest sysprep (replaces the old vagrant-libvirt virt-sysprep --run step):
+  # reset machine-id, drop the base box's SSH host keys, arrange regeneration.
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    script          = "${var.provisioner_dir}/shell/sysprep.sh"
+  }
+
   post-processors {
     post-processor "vagrant" {
       output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
@@ -127,6 +134,13 @@ build {
     use_proxy            = false
   }
 
+  # In-guest sysprep (replaces the old vagrant-libvirt virt-sysprep --run step):
+  # reset machine-id, drop the base box's SSH host keys, arrange regeneration.
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    script          = "${var.provisioner_dir}/shell/sysprep.sh"
+  }
+
   post-processors {
     post-processor "vagrant" {
       output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
@@ -167,6 +181,13 @@ build {
       "--extra-vars", "{\"gitlab_buildpkg_tools__deb_pkgs\":[\"wpasupplicant\",\"sscep\",\"rsync\"]}",
     ]
     use_proxy = false
+  }
+
+  # In-guest sysprep (replaces the old vagrant-libvirt virt-sysprep --run step):
+  # reset machine-id, drop the base box's SSH host keys, arrange regeneration.
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    script          = "${var.provisioner_dir}/shell/sysprep.sh"
   }
 
   post-processors {
@@ -240,6 +261,13 @@ build {
 
   # Local .box output picked up by upload-to-linode.sh (Linode Object Storage
   # replaced Vagrant Cloud for distribution).
+  # In-guest sysprep (replaces the old vagrant-libvirt virt-sysprep --run step):
+  # reset machine-id, drop the base box's SSH host keys, arrange regeneration.
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
+    script          = "${var.provisioner_dir}/shell/sysprep.sh"
+  }
+
   post-processors {
     post-processor "vagrant" {
       output              = "${var.output_dir}/${var.pfserver_name}-{{.Provider}}.box"
