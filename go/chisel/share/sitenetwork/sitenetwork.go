@@ -702,6 +702,34 @@ func isNotFound(err error) bool {
 	return strings.Contains(err.Error(), "not found")
 }
 
+// LinkOwnership reports what the connector owns on the host link name: whether
+// the link itself was created by the connector (alias LinkAlias; every IPv4
+// address on such a link is the connector's) and, otherwise, which IPv4
+// addresses carry the connector's label (AddressLabel). Used by the
+// connector's system info so the admin UI can tell the operator's
+// configuration from the connector's. Errors yield false and no addresses.
+func LinkOwnership(name string) (managedLink bool, managedAddrs []string) {
+	link, err := netlink.LinkByName(name)
+	if err != nil {
+		return false, nil
+	}
+	managedLink = link.Attrs().Alias == LinkAlias
+	addrs, err := netlink.AddrList(link, netlink.FAMILY_V4)
+	if err != nil {
+		return managedLink, nil
+	}
+	label := AddressLabel(name)
+	for _, a := range addrs {
+		if a.IPNet == nil {
+			continue
+		}
+		if managedLink || (label != "" && a.Label == label) {
+			managedAddrs = append(managedAddrs, a.IPNet.String())
+		}
+	}
+	return managedLink, managedAddrs
+}
+
 // lastStatus is the result of the most recent reconcile pass, exposed to the
 // connector's local API (/api/v1/system/info) for the admin UI status panel.
 var (
