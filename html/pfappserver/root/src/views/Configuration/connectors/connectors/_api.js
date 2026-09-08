@@ -66,6 +66,14 @@ export default {
       return response.data
     })
   },
+  traffic: (since, connector = null) => {
+    const params = { since }
+    if (connector)
+      params.connector = connector
+    return apiCall.get(['pfconnector-remotes', 'traffic'], { params }).then(response => {
+      return response.data
+    })
+  },
   remoteRestart: id => {
     return apiCall.post(['pfconnector-remotes', id, 'restart']).then(response => {
       return response.data
