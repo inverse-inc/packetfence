@@ -150,15 +150,17 @@ const setup = (props, context) => {
   const parentCandidates = computed(() => (hostInterfaces.value || [])
     .filter(({ name }) => name && !name.includes('.'))
   )
-  // Without a VLAN ID the row reconfigures the interface itself, which is
-  // refused for the main interface (by the connector too): hide it then.
+  // The main interface is always offered: a VLAN on it is the common case and
+  // the interface is chosen before the VLAN ID is typed. Without a VLAN ID the
+  // row would reconfigure the interface itself, which the connector refuses
+  // for the main one: the row says so (mainInterfaceLocked) instead of hiding
+  // the choice.
   const hasVlan = computed(() => {
     const { vlan } = unref(inputValue) || {}
     return !['', null, undefined, 0, '0'].includes(vlan)
   })
   const parentOptions = computed(() => parentCandidates.value
-    .filter(({ main }) => hasVlan.value || !main)
-    .map(({ name, main }) => ({ text: main ? `${name} (${i18n.t('main')})` : name, value: name }))
+    .map(({ name, main }) => ({ text: main ? `${name} (${i18n.t('main, VLAN only')})` : name, value: name }))
   )
   // Name of the main interface when the row would reconfigure it (no VLAN
   // ID), so the row can say why the connector will refuse it.
