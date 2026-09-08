@@ -69,19 +69,44 @@ for i in "${!PEERS[@]}"; do
     fi
 done
 
-# Site network VLAN interfaces (feature merged from pfconnector-site-networking):
+# Site network interfaces (feature merged from pfconnector-site-networking):
 # their addresses are the VLAN gateway / DHCP relay source / captive DNS and
 # must move with the VIP. The client caches the last site-network payload in
-# SITE_NETWORK_CACHE; create the VLAN links here (a backup host has no tunnel
-# to fetch the config and keepalived needs the interfaces to exist) and
-# declare each address as a virtual IP of the same VRRP instance. Links are
-# tagged like the Go reconciler does (alias pf-connector).
+# SITE_NETWORK_CACHE. A row with a VLAN id is a VLAN link the connector
+# creates: create it here too (a backup host has no tunnel to fetch the config
+# and keepalived needs the interfaces to exist), tagged like the Go reconciler
+# does (alias pf-connector). A row without a VLAN id addresses an existing
+# host interface: it must exist and must not be the interface carrying the
+# VIP/default route (the Go reconciler refuses the main interface as well);
+# its address gets the "<name>:pf" label the reconciler uses so ha-notify.sh
+# can tell it from the operator's addresses. Each address is declared as a
+# virtual IP of the same VRRP instance.
 SITE_NETWORK_CACHE="${PFCONNECTOR_SITE_NETWORK_CACHE:-/usr/local/pf/var/conf/site-network.json}"
+MAIN_IFACE=$(ip route get 1.1.1.1 2>/dev/null | awk '/dev/ {for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
 VLAN_VIPS=()
 if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
-    if ENTRIES=$(jq -r '.interfaces[]? | select(.parent != null and .vlan != null and .cidr != null) | "\(.parent) \(.vlan) \(.cidr)"' "$SITE_NETWORK_CACHE" 2>/dev/null); then
+    if ENTRIES=$(jq -r '.interfaces[]? | select(.parent != null and .cidr != null) | "\(.parent) \(.vlan // 0) \(.cidr)"' "$SITE_NETWORK_CACHE" 2>/dev/null); then
         while read -r parent vlan cidr; do
             [ -n "$parent" ] && [ -n "$vlan" ] && [ -n "$cidr" ] || continue
+            if [ "$vlan" = "0" ]; then
+                # plain host interface
+                if [ "$parent" = "$MAIN_IFACE" ] || [ "$parent" = "$IFACE" ]; then
+                    echo "configure-keepalived: $parent is the main interface of the host, not adding $cidr to it" >&2
+                    continue
+                fi
+                if ! ip link show "$parent" >/dev/null 2>&1; then
+                    echo "configure-keepalived: interface $parent not found, skipping its address" >&2
+                    continue
+                fi
+                ip link set "$parent" up 2>/dev/null || true
+                label="$parent:pf"
+                if [ "${#label}" -le 15 ]; then
+                    VLAN_VIPS+=("$cidr dev $parent label $label")
+                else
+                    VLAN_VIPS+=("$cidr dev $parent")
+                fi
+                continue
+            fi
             name="$parent.$vlan"
             if ! ip link show "$name" >/dev/null 2>&1; then
                 if ip link show "$parent" >/dev/null 2>&1; then
@@ -176,4 +201,4 @@ CONF_EOF
 } > "$CONF"
 chmod 600 "$CONF"
 
-echo "configure-keepalived: vip=$VIP iface=$IFACE vrid=$VRID priority=$PRIORITY peers=${PEERS[*]:-multicast} vlan_vips=${#VLAN_VIPS[@]}"
+echo "configure-keepalived: vip=$VIP iface=$IFACE vrid=$VRID priority=$PRIORITY peers=${PEERS[*]:-multicast} site_vips=${#VLAN_VIPS[@]}"
