@@ -159,8 +159,21 @@ const setup = (props, context) => {
     const { vlan } = unref(inputValue) || {}
     return !['', null, undefined, 0, '0'].includes(vlan)
   })
+  // Each choice shows what the interface already carries: its IPv4 addresses
+  // (an address configured by the OS or by hand stays untouched, the row adds
+  // to it) or that it is down, so a second NIC can be told from a used one.
   const parentOptions = computed(() => parentCandidates.value
-    .map(({ name, main }) => ({ text: main ? `${name} (${i18n.t('main, VLAN only')})` : name, value: name }))
+    .map(({ name, main, up, addresses = [] }) => {
+      const notes = []
+      if (main)
+        notes.push(i18n.t('main, VLAN only'))
+      const ipv4 = addresses.filter(address => /^\d+\.\d+\.\d+\.\d+\//.test(address))
+      if (ipv4.length)
+        notes.push(ipv4.join(', '))
+      else
+        notes.push(up ? i18n.t('no address') : i18n.t('no address, down'))
+      return { text: `${name} (${notes.join('; ')})`, value: name }
+    })
   )
   // Name of the main interface when the row would reconfigure it (no VLAN
   // ID), so the row can say why the connector will refuse it.

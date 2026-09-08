@@ -68,9 +68,9 @@ type SystemInfo struct {
 	// flagged dns_server) with their query counters.
 	DnsServer []dnsresponder.Status `json:"dns_server,omitempty"`
 	// HostInterfaces lists the network interfaces of the connector host (the
-	// container runs with --network=host), loopback excluded. The admin UI
-	// offers them as choices for the parent of a VLAN interface and for the
-	// interface of a static route.
+	// container runs with --network=host), loopback excluded, with their
+	// addresses. The admin UI shows them in the connector's Networking tab
+	// and offers them as choices for the interface rows and static routes.
 	HostInterfaces []HostInterface `json:"host_interfaces,omitempty"`
 	// HA is the VRRP high-availability state of this host (PFCONNECTOR_HA_VIP);
 	// omitted when HA is not configured.
@@ -142,6 +142,13 @@ type HostInterface struct {
 	// connector reaches PacketFence through and the natural parent for the
 	// site VLANs. The admin UI lists it first and preselects it.
 	Main bool `json:"main"`
+	// Managed is set on a VLAN link the connector created (alias
+	// pf-connector); ManagedAddresses are the IPv4 addresses the connector
+	// assigned (all of them on a managed link, the "<name>:pf" labelled ones
+	// elsewhere). Everything else was configured by the operating system or
+	// the operator and is never touched by the connector.
+	Managed          bool     `json:"managed"`
+	ManagedAddresses []string `json:"managed_addresses"`
 }
 
 // hostInterfaces returns the host's interfaces, main one first then sorted by
@@ -157,11 +164,15 @@ func hostInterfaces() []HostInterface {
 		if iface.Flags&net.FlagLoopback != 0 || sitenetwork.IsContainerInterface(iface.Name) {
 			continue
 		}
-		hi := HostInterface{Name: iface.Name, Up: iface.Flags&net.FlagUp != 0, Addresses: []string{}, Main: iface.Name == main}
+		hi := HostInterface{Name: iface.Name, Up: iface.Flags&net.FlagUp != 0, Addresses: []string{}, Main: iface.Name == main, ManagedAddresses: []string{}}
 		if addrs, err := iface.Addrs(); err == nil {
 			for _, a := range addrs {
 				hi.Addresses = append(hi.Addresses, a.String())
 			}
+		}
+		if managed, managedAddrs := sitenetwork.LinkOwnership(iface.Name); managed || len(managedAddrs) > 0 {
+			hi.Managed = managed
+			hi.ManagedAddresses = append(hi.ManagedAddresses, managedAddrs...)
 		}
 		out = append(out, hi)
 	}

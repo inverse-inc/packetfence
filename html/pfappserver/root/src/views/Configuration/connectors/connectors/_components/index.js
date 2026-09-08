@@ -12,6 +12,7 @@ import BaseFormGroupInterfaces from './BaseFormGroupInterfaces'
 import BaseFormGroupRoutes from './BaseFormGroupRoutes'
 import BaseFormGroupDnsServers from './BaseFormGroupDnsServers'
 import TheStatus from './TheStatus' // before TheForm: TheForm reads this binding at module-eval time
+import TheHostInterfaces from './TheHostInterfaces' // before TheForm: same reason
 import TheEquipment from './TheEquipment' // before TheForm: TheForm reads this binding at module-eval time
 import TheDnsTest from './TheDnsTest' // before TheForm: same reason
 import TheForm from './TheForm'
@@ -35,6 +36,7 @@ export {
 
   TheForm,
   TheStatus,
+  TheHostInterfaces,
   TheEquipment,
   TheDnsTest,
   TheView
