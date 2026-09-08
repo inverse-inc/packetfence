@@ -70,6 +70,33 @@
           <span>{{ $t('Link width and animation follow the tunnel throughput; the label shows the keepalive round trip and the rate from / to the site. Click a connector for the details. Refreshed every {s} seconds.', { s: pollSeconds }) }}</span>
         </div>
 
+        <!-- traffic history -->
+        <b-row class="mt-3">
+          <b-col lg="8" class="mb-3 mb-lg-0">
+            <b-card no-body class="h-100">
+              <b-card-header class="d-flex align-items-center py-2">
+                <strong class="flex-grow-1">{{ $t('Tunnel traffic') }} <small class="text-muted">{{ selected ? selected.label : $t('all connectors') }}</small></strong>
+                <b-button-group size="sm">
+                  <b-button v-for="w in trafficWindows" :key="w.seconds" :variant="w.seconds === trafficWindow ? 'primary' : 'outline-secondary'" @click="trafficWindow = w.seconds">{{ w.label }}</b-button>
+                </b-button-group>
+              </b-card-header>
+              <div class="card-body p-2">
+                <div v-show="hasTraffic" ref="trafficRef" class="topology-chart"></div>
+                <p v-show="!hasTraffic" class="text-muted small text-center my-4">{{ $t('Collecting the history: the servers sample the tunnels every few seconds, the chart appears with the first samples.') }}</p>
+              </div>
+            </b-card>
+          </b-col>
+          <b-col lg="4">
+            <b-card no-body class="h-100">
+              <b-card-header class="py-2"><strong>{{ $t('Top services') }} <small class="text-muted">{{ $t('over the window') }}</small></strong></b-card-header>
+              <div class="card-body p-2">
+                <div v-show="hasTraffic" ref="servicesRef" class="topology-chart"></div>
+                <p v-show="!hasTraffic" class="text-muted small text-center my-4">{{ $t('No traffic recorded yet.') }}</p>
+              </div>
+            </b-card>
+          </b-col>
+        </b-row>
+
         <!-- details of the selected connector -->
         <b-card v-if="selected" class="mt-3" no-body>
           <b-card-header class="d-flex align-items-center py-2">
@@ -132,13 +159,22 @@
   </b-card>
 </template>
 <script>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import bytes from '@/utils/bytes'
+import plotly, { config as plotlyConfig } from '@/utils/plotly'
 import api from '../_api'
 import { useRouter } from '../_composables/useCollection'
 
 const pollSeconds = 3
+// The history is refreshed less often than the live map: the servers sample
+// every 5 s, so 15 s adds a few points per refresh.
+const trafficPollSeconds = 15
+const trafficWindows = [
+  { seconds: 300, label: '5 min' },
+  { seconds: 900, label: '15 min' },
+  { seconds: 3600, label: '1 h' }
+]
 
 // Layout constants (SVG user units; the viewBox scales to the card width).
 const WIDTH = 1000
@@ -246,6 +282,115 @@ const setup = (props, context) => {
   watch(paused, value => { if (!value) refresh() })
 
   const select = id => { selectedId.value = (selectedId.value === id) ? null : id }
+
+  // Traffic history (rates recorded by the pfconnector servers).
+  const trafficWindow = ref(900)
+  const traffic = ref({}) // connector id -> series {t, in, out, services}
+  const trafficRef = ref(null)
+  const servicesRef = ref(null)
+  const hasTraffic = computed(() => Object.values(traffic.value).some(s => s && s.t && s.t.length))
+
+  const refreshTraffic = () => {
+    return api.traffic(trafficWindow.value).then(reply => {
+      traffic.value = reply.connectors || {}
+    }).catch(() => {
+      traffic.value = {}
+    }).then(() => nextTick(renderCharts))
+  }
+
+  // Series to chart: the selected connector's, or all connectors summed per
+  // 5 s bucket (the pods sample at slightly different instants).
+  const chartedSeries = () => {
+    const all = traffic.value
+    if (selectedId.value && all[selectedId.value])
+      return all[selectedId.value]
+    const buckets = new Map()
+    const services = {}
+    Object.values(all).forEach(s => {
+      if (!s || !s.t) return
+      const step = s.interval_s || 5
+      s.t.forEach((t, i) => {
+        const b = Math.floor(t / step) * step
+        const cur = buckets.get(b) || { in: 0, out: 0 }
+        cur.in += s.in[i] || 0
+        cur.out += s.out[i] || 0
+        buckets.set(b, cur)
+      })
+      Object.entries(s.services || {}).forEach(([dest, ss]) => {
+        const key = `${ss.reverse ? '<' : ''}${dest}`
+        const acc = services[key] || (services[key] = { reverse: !!ss.reverse, bytes: 0 })
+        ss.in.forEach((v, i) => { acc.bytes += ((v || 0) + (ss.out[i] || 0)) * step })
+      })
+    })
+    const t = [...buckets.keys()].sort((a, b) => a - b)
+    return { t, in: t.map(b => buckets.get(b).in), out: t.map(b => buckets.get(b).out), interval_s: 5, aggregatedServices: services }
+  }
+
+  const servicesTotals = series => {
+    if (series.aggregatedServices)
+      return Object.entries(series.aggregatedServices).map(([key, v]) => ({ dest: key.replace(/^</, ''), reverse: v.reverse, bytes: v.bytes }))
+    const step = series.interval_s || 5
+    return Object.entries(series.services || {}).map(([dest, ss]) => ({
+      dest, reverse: !!ss.reverse,
+      bytes: ss.in.reduce((sum, v, i) => sum + ((v || 0) + (ss.out[i] || 0)) * step, 0)
+    }))
+  }
+
+  const chartLayout = {
+    margin: { l: 60, r: 10, t: 10, b: 40 },
+    height: 260,
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    legend: { orientation: 'h', y: 1.12 },
+    hovermode: 'x unified'
+  }
+
+  const renderCharts = () => {
+    if (!hasTraffic.value || !trafficRef.value || !servicesRef.value)
+      return
+    const series = chartedSeries()
+    const x = series.t.map(t => new Date(t * 1000))
+    const { locale } = i18n
+    plotly.react(trafficRef.value, [
+      { x, y: series.in, name: i18n.t('From site'), type: 'scatter', mode: 'lines', fill: 'tozeroy', line: { color: '#0d6efd', width: 1.5 }, hovertemplate: '%{y:.3~s}B/s' },
+      { x, y: series.out, name: i18n.t('To site'), type: 'scatter', mode: 'lines', fill: 'tozeroy', line: { color: '#28a745', width: 1.5 }, hovertemplate: '%{y:.3~s}B/s' }
+    ], {
+      ...chartLayout,
+      xaxis: { type: 'date', tickformat: '%H:%M' },
+      yaxis: { rangemode: 'tozero', tickformat: '~s', ticksuffix: 'B/s', fixedrange: true }
+    }, { ...plotlyConfig, displayModeBar: false, scrollZoom: false, locale })
+
+    const top = servicesTotals(series).filter(s => s.bytes > 0).sort((a, b) => a.bytes - b.bytes).slice(-10)
+    plotly.react(servicesRef.value, [{
+      type: 'bar', orientation: 'h',
+      x: top.map(s => s.bytes),
+      y: top.map(s => `${serviceName(s.dest, s.reverse)}${s.reverse ? ' ⟵' : ''}`),
+      text: top.map(s => `${bytes.toHuman(s.bytes, 1, true)}B`),
+      textposition: 'auto',
+      hovertext: top.map(s => s.dest),
+      hoverinfo: 'text+x',
+      marker: { color: '#6c757d' }
+    }], {
+      ...chartLayout,
+      margin: { l: 170, r: 10, t: 10, b: 40 },
+      showlegend: false,
+      xaxis: { tickformat: '~s', ticksuffix: 'B', fixedrange: true },
+      yaxis: { automargin: true, fixedrange: true }
+    }, { ...plotlyConfig, displayModeBar: false, scrollZoom: false, locale })
+  }
+
+  let trafficInterval = null
+  onMounted(() => {
+    refreshTraffic()
+    trafficInterval = setInterval(() => { if (!paused.value) refreshTraffic() }, trafficPollSeconds * 1000)
+  })
+  onBeforeUnmount(() => {
+    if (trafficInterval) clearInterval(trafficInterval)
+    if (trafficRef.value) plotly.purge(trafficRef.value)
+    if (servicesRef.value) plotly.purge(servicesRef.value)
+  })
+  watch(trafficWindow, () => refreshTraffic())
+  watch(selectedId, () => nextTick(renderCharts))
 
   const connectedCount = computed(() => connectors.value.filter(c => c.connected).length)
 
@@ -394,6 +539,11 @@ const setup = (props, context) => {
     selectedId,
     selected,
     select,
+    trafficWindows,
+    trafficWindow,
+    trafficRef,
+    servicesRef,
+    hasTraffic,
     goToCollection,
     goToItem
   }
@@ -421,6 +571,7 @@ export default {
     path.flowing { animation: topology-flow 1s linear infinite; }
   }
   .legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  .topology-chart { width: 100%; min-height: 260px; }
 }
 @keyframes topology-flow {
   from { stroke-dashoffset: 36; }
