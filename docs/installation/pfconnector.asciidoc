@@ -212,6 +212,8 @@ The _Topology_ button of the connectors list opens a live map of the connectors:
 
 Clicking a connector (or its link) opens a details panel: the traffic broken down by service (RADIUS authentication and accounting, captive portal, MySQL, Redis, Fingerbank API, the DNS and RADIUS source tunnels, the reverse channels PacketFence opens toward the connector such as the Fingerbank collector), each with its current rate in both directions, active connections and totals, and the high-availability hosts with their role and state. _Open connector_ leads to the connector's _Status_ tab. The map refreshes every few seconds and can be paused.
 
+Below the map, _Tunnel traffic_ charts the throughput over the last 5, 15 or 60 minutes, for all connectors together or for the selected one, and _Top services_ ranks the services by the bytes they carried over the same window. The history is recorded in memory by the pfconnector servers (one sample every 5 seconds, kept for an hour) and starts over when a server restarts or a connector reconnects to another server.
+
 The rates measure the tunnel only: RADIUS, portal, DNS and the other services PacketFence exchanges with the site. Traffic the connector handles locally (degraded-mode answers, the collector's direct Fingerbank queries unless routed through the tunnel) is not part of it.
 
 ====== Site Networking: VLAN Interfaces and Static Routes
