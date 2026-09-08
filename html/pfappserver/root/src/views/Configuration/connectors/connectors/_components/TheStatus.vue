@@ -286,7 +286,7 @@
 
         <b-row v-if="siteNetwork" class="mt-3">
           <b-col md="6">
-            <h6 class="text-secondary">{{ $i18n.t('Site networking: VLAN interfaces') }}</h6>
+            <h6 class="text-secondary">{{ $i18n.t('Site networking: interfaces') }}</h6>
             <b-table-simple v-if="siteNetwork.interfaces && siteNetwork.interfaces.length" small class="mb-0">
               <b-thead>
                 <b-tr>
@@ -306,7 +306,7 @@
                 </b-tr>
               </b-tbody>
             </b-table-simple>
-            <p v-else class="text-muted mb-0">{{ $i18n.t('No VLAN interface configured for this connector.') }}</p>
+            <p v-else class="text-muted mb-0">{{ $i18n.t('No interface configured for this connector.') }}</p>
           </b-col>
           <b-col md="6">
             <h6 class="text-secondary">{{ $i18n.t('Site networking: static routes') }}</h6>

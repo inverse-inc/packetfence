@@ -20,13 +20,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 31;
+use Test::More tests => 39;
 use Test::NoWarnings;
 
 my %NO_DHCP = ((map { $_ => '' } qw(dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time dns gateway domain_name)), dns_server => 'disabled');
 
 use pf::connector::site_network qw(
-    parse_interface_line format_interface interface_name
+    parse_interface_line format_interface interface_name is_vlan_interface
     parse_route_line format_route
     expand_site_network flatten_site_network
 );
@@ -67,7 +67,21 @@ is_deeply(
 );
 is(format_interface({ %$dhcp_if, dns_server => 'enabled' }), "eth0.100 10.10.100.1/24 dhcp dns start=10.10.100.10 end=10.10.100.250 lease=300 max_lease=600 dns=8.8.8.8,8.8.4.4 gateway=10.10.100.254 domain=site.example", "format with both flags");
 
-is(parse_interface_line("eth0 10.10.100.1/24"), undef, "no vlan tag in the name");
+# a name without a VLAN suffix is the host interface itself
+is_deeply(
+    parse_interface_line("ens192 192.168.50.1/24"),
+    { parent => 'ens192', vlan => undef, cidr => '192.168.50.1/24', dhcp => 'disabled', %NO_DHCP },
+    "plain interface line (no VLAN suffix)"
+);
+my $plain_dhcp = { parent => 'ens192', vlan => undef, cidr => '192.168.50.1/24', dhcp => 'enabled', %NO_DHCP, dhcp_start => '192.168.50.10', dhcp_end => '192.168.50.250' };
+is(format_interface($plain_dhcp), "ens192 192.168.50.1/24 dhcp start=192.168.50.10 end=192.168.50.250", "format a plain interface with a DHCP scope");
+is_deeply(parse_interface_line(format_interface($plain_dhcp)), $plain_dhcp, "plain interface round trip");
+is(format_interface({ parent => 'ens192', vlan => '', cidr => '192.168.50.1/24' }), "ens192 192.168.50.1/24", "empty string vlan (form input) is the interface itself");
+is(format_interface({ parent => 'ens192', vlan => 0, cidr => '192.168.50.1/24' }), "ens192 192.168.50.1/24", "vlan 0 is the interface itself");
+is(interface_name({ parent => 'ens192', vlan => undef }), "ens192", "plain interface name");
+ok(!is_vlan_interface({ parent => 'ens192', vlan => undef }), "plain interface is not a VLAN interface");
+ok(is_vlan_interface({ parent => 'ens192', vlan => 10 }), "VLAN interface is a VLAN interface");
+is(parse_interface_line("foo.bar 10.10.100.1/24"), undef, "a dot without a numeric VLAN suffix is garbage");
 is(parse_interface_line("eth0.100"), undef, "missing address");
 is(parse_interface_line(""), undef, "empty line");
 is(parse_interface_line(undef), undef, "undef line");

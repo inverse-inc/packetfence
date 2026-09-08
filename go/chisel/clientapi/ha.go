@@ -17,6 +17,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
+
 	"github.com/inverse-inc/go-utils/log"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
@@ -123,7 +125,7 @@ func SetHAState(vip, state string) {
 // primaryAddress returns the first IPv4 address of the default-route
 // interface that is not the VIP, or "" when unknown.
 func primaryAddress(vip string) string {
-	name := defaultRouteInterface()
+	name := sitenetwork.DefaultRouteInterface()
 	if name == "" {
 		return ""
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 	"syscall"
 	"testing"
 
@@ -470,4 +471,151 @@ func TestReconcileNeverReplacesForeignRoute(t *testing.T) {
 			t.Errorf("foreign route deleted as stale: %v", f.writes)
 		}
 	}
+}
+
+// withMain pins the fake host's main (default route) interface.
+func withMain(r *Reconciler, name string) *Reconciler {
+	r.MainInterface = func() string { return name }
+	return r
+}
+
+// A row without a VLAN id addresses an existing link: the address is added
+// with our label, the link is brought up, nothing is created, and a second
+// pass writes nothing.
+func TestPlainInterfaceAssignsLabelledAddressAndIsIdempotent(t *testing.T) {
+	f := newFake()
+	f.addDevice("ens192", false)
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+	d := Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "192.168.50.1/24"}}}
+
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors != 0 {
+		t.Fatalf("expected no errors, got %+v", st)
+	}
+	if st.Interfaces[0].Name != "ens192" || st.Interfaces[0].Vlan != 0 || st.Interfaces[0].State != "up" || st.Interfaces[0].Created {
+		t.Errorf("status: %+v", st.Interfaces[0])
+	}
+	if len(f.links) != 2 {
+		t.Errorf("a plain interface must not create links: %d links", len(f.links))
+	}
+	addrs := f.addrs["ens192"]
+	if len(addrs) != 1 || addrs[0].IPNet.String() != "192.168.50.1/24" || addrs[0].Label != "ens192:pf" {
+		t.Fatalf("addresses on ens192: %+v", addrs)
+	}
+	if f.links["ens192"].Attrs().Flags&net.FlagUp == 0 {
+		t.Errorf("ens192 not brought up")
+	}
+
+	f.writes = nil
+	st = r.Reconcile(ctx, "v1", d)
+	if st.Errors != 0 || len(f.writes) != 0 {
+		t.Errorf("second pass: errors=%d writes=%v", st.Errors, f.writes)
+	}
+}
+
+// The main interface (default route, tunnel), a missing link and a
+// connector-created VLAN link are refused without touching anything.
+func TestPlainInterfaceRefusesMainMissingAndOwnedLinks(t *testing.T) {
+	f := newFake()
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+	// create a connector VLAN first so it exists as an owned link
+	r.Reconcile(ctx, "v0", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "eth0", Vlan: 100, CIDR: "10.10.100.1/24"}}})
+
+	d := Desired{Interfaces: []pfconfigdriver.ConnectorInterface{
+		{Parent: "eth0", CIDR: "10.0.0.5/24"},        // main interface
+		{Parent: "ens224", CIDR: "10.1.0.1/24"},      // missing
+		{Parent: "docker0", CIDR: "10.2.0.1/24"},     // container runtime
+		{Parent: "eth0.100", CIDR: "10.10.100.1/24"}, // our VLAN link (not parseable as plain by the server, but be safe)
+	}}
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors != 4 {
+		t.Fatalf("expected 4 errors, got %d: %+v", st.Errors, st.Interfaces)
+	}
+	if len(f.addrs["eth0"]) != 0 {
+		t.Errorf("main interface was addressed: %+v", f.addrs["eth0"])
+	}
+	for i, want := range []string{"main interface", "not found", "container runtime", "created by the connector"} {
+		if st.Interfaces[i].State != "error" || !strings.Contains(st.Interfaces[i].Error, want) {
+			t.Errorf("entry %d: %+v (want %q)", i, st.Interfaces[i], want)
+		}
+	}
+}
+
+// Only our labelled addresses are replaced or removed; the operator's stay.
+func TestPlainInterfaceReplacesOwnAddressAndKeepsForeign(t *testing.T) {
+	f := newFake()
+	f.addDevice("ens192", true)
+	foreign := mustAddr("10.9.9.9/24")
+	old := mustAddr("192.168.50.1/24")
+	old.Label = "ens192:pf"
+	f.addrs["ens192"] = []netlink.Addr{*foreign, *old}
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+
+	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "192.168.60.1/24"}}})
+	if st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	if got := addrSet(f.addrs["ens192"]); !got["10.9.9.9/24"] || !got["192.168.60.1/24"] || got["192.168.50.1/24"] || len(got) != 2 {
+		t.Errorf("addresses after replace: %v", got)
+	}
+
+	// Row removed: our address goes, the operator's stays.
+	st = r.Reconcile(ctx, "v2", Desired{})
+	if st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	if got := addrSet(f.addrs["ens192"]); !got["10.9.9.9/24"] || len(got) != 1 {
+		t.Errorf("addresses after removal: %v", got)
+	}
+}
+
+// A name too long for the "<name>:pf" label is assigned unlabelled and left
+// alone afterwards (documented limitation).
+func TestPlainInterfaceLongNameHasNoLabel(t *testing.T) {
+	if AddressLabel("ens192") != "ens192:pf" || AddressLabel("enxaabbccddeeff") != "" || AddressLabel("enx123456789") != "enx123456789:pf" {
+		t.Fatalf("AddressLabel")
+	}
+	f := newFake()
+	f.addDevice("enxaabbccddeeff", true)
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "enxaabbccddeeff", CIDR: "10.5.0.1/24"}}})
+	if st.Errors != 0 || len(f.addrs["enxaabbccddeeff"]) != 1 || f.addrs["enxaabbccddeeff"][0].Label != "" {
+		t.Fatalf("long name: %+v %+v", st, f.addrs["enxaabbccddeeff"])
+	}
+	r.Reconcile(ctx, "v2", Desired{})
+	if len(f.addrs["enxaabbccddeeff"]) != 1 {
+		t.Errorf("an unlabelled address must never be removed")
+	}
+}
+
+func TestConnectorInterfaceName(t *testing.T) {
+	if (pfconfigdriver.ConnectorInterface{Parent: "eth0", Vlan: 100}).Name() != "eth0.100" {
+		t.Errorf("vlan name")
+	}
+	if n := (pfconfigdriver.ConnectorInterface{Parent: "ens192"}).Name(); n != "ens192" {
+		t.Errorf("plain name = %q", n)
+	}
+	if (pfconfigdriver.ConnectorInterface{Parent: "ens192"}).IsVlan() || !(pfconfigdriver.ConnectorInterface{Parent: "eth0", Vlan: 1}).IsVlan() {
+		t.Errorf("IsVlan")
+	}
+}
+
+func mustAddr(cidr string) *netlink.Addr {
+	a, err := netlink.ParseAddr(cidr)
+	if err != nil {
+		panic(err)
+	}
+	return a
+}
+
+func addrSet(addrs []netlink.Addr) map[string]bool {
+	out := map[string]bool{}
+	for _, a := range addrs {
+		out[a.IPNet.String()] = true
+	}
+	return out
 }

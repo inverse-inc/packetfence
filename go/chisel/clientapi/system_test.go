@@ -1,6 +1,10 @@
 package clientapi
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
+)
 
 // Docker's interfaces are not offered as site interfaces; everything else is.
 func TestIsContainerInterface(t *testing.T) {
@@ -15,8 +19,8 @@ func TestIsContainerInterface(t *testing.T) {
 		"br0":           false, // an operator bridge, not a docker network
 		"vlan100":       false,
 	} {
-		if got := isContainerInterface(name); got != want {
-			t.Errorf("isContainerInterface(%q) = %v, want %v", name, got, want)
+		if got := sitenetwork.IsContainerInterface(name); got != want {
+			t.Errorf("sitenetwork.IsContainerInterface(%q) = %v, want %v", name, got, want)
 		}
 	}
 }
