@@ -159,20 +159,17 @@ const setup = (props, context) => {
     const { vlan } = unref(inputValue) || {}
     return !['', null, undefined, 0, '0'].includes(vlan)
   })
-  // Each choice shows what the interface already carries: its IPv4 addresses
-  // (an address configured by the OS or by hand stays untouched, the row adds
-  // to it) or that it is down, so a second NIC can be told from a used one.
+  // Each choice only flags what matters for the pick: the main interface
+  // (VLAN only) and interfaces that are down. The addresses each interface
+  // carries are listed in the Host interfaces table of the tab.
   const parentOptions = computed(() => parentCandidates.value
-    .map(({ name, main, up, addresses = [] }) => {
+    .map(({ name, main, up }) => {
       const notes = []
       if (main)
         notes.push(i18n.t('main, VLAN only'))
-      const ipv4 = addresses.filter(address => /^\d+\.\d+\.\d+\.\d+\//.test(address))
-      if (ipv4.length)
-        notes.push(ipv4.join(', '))
-      else
-        notes.push(up ? i18n.t('no address') : i18n.t('no address, down'))
-      return { text: `${name} (${notes.join('; ')})`, value: name }
+      if (!up)
+        notes.push(i18n.t('down'))
+      return { text: notes.length ? `${name} (${notes.join(', ')})` : name, value: name }
     })
   )
   // Name of the main interface when the row would reconfigure it (no VLAN
