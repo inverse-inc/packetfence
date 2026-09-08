@@ -160,6 +160,11 @@ cabled to an access VLAN. The reconciler (`reconcilePlainInterface`):
   the address is assigned but never removed automatically (logged).
 - state `down` = link has no carrier.
 
+`HostInterface` in system/info carries `managed` (link alias pf-connector)
+and `managed_addresses` (`sitenetwork.LinkOwnership`) so the Networking tab's
+host-interfaces table (`TheHostInterfaces.vue`) and the row choices can show
+what the host already carries and which of it is the connector's.
+
 DHCP relay, captive DNS, pfdhcp scopes and the giaddr check work on
 `Name()`/`CIDR` and are unchanged. Under HA the address is a keepalived
 virtual IP like the VLAN ones (`<cidr> dev <name> label <name>:pf`) and

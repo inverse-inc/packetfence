@@ -77,6 +77,7 @@
             <b-alert show variant="info" class="mx-3">
               {{ $i18n.t('The remote connector creates these VLAN interfaces on its host or addresses its secondary interfaces, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts. The main interface of the host (the one carrying the tunnel) is never reconfigured.') }}
             </b-alert>
+            <the-host-interfaces v-if="!isNew && !isClone && id" :interfaces="hostInterfaces" class="mx-3 mb-3" />
             <form-group-interfaces namespace="interfaces"
               :column-label="$i18n.t('Interfaces')"
               :text="$i18n.t('One interface per row. With a VLAN ID, an 802.1Q VLAN interface is created on top of the chosen interface of the connector host and named &quot;interface.vlan&quot; (e.g. eth0.100); without one, the address is assigned to the chosen interface itself (a secondary network card of the host, e.g. ens192; the main interface accepts VLANs only). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to serve addresses on that network: the connector relays the requests to the PacketFence DHCP server through its tunnel, and the server hands out the range configured here (the network is the one of the interface address). Enable DNS to make the connector answer every DNS query received on that interface with the interface address (captive-portal DNS).')"
@@ -145,6 +146,7 @@ import {
   FormGroupHaInterface,
   FormGroupDnsServers,
   TheStatus,
+  TheHostInterfaces,
   TheEquipment,
   TheDnsTest,
 } from './'
@@ -165,6 +167,7 @@ const components = {
   FormGroupHaInterface,
   FormGroupDnsServers,
   TheStatus,
+  TheHostInterfaces,
   TheEquipment,
   TheDnsTest,
 }
@@ -244,6 +247,7 @@ export const setup = (props, context) => {
 
   return {
     schema,
+    hostInterfaces,
     haInterfaceOptions,
     showInstallModal,
     installCommand,
