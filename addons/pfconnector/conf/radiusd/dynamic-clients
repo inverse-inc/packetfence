@@ -3,7 +3,9 @@ client dynamic {
         ipaddr = 0.0.0.0/0
         dynamic_clients = dynamic_clients_server
         directory = ${confdir}/dynamic-clients/
-        lifetime = 0
+        # Re-read the synced client file when it changes, at most once
+        # per lifetime; a client whose file is unchanged is simply renewed.
+        lifetime = 300
 }
 
 server dynamic_clients_server {

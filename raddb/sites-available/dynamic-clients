@@ -69,7 +69,13 @@ client dynamic {
 	#  If the lifetime is "0", then the dynamic client is never
 	#  deleted.  The only way to delete the client is to re-start
 	#  the server.
-	lifetime = "0"
+	#
+	#  PacketFence resolves clients from the radius_nas table in the
+	#  dynamic_clients virtual server below (several SQL queries per
+	#  lookup).  A finite lifetime keeps that lookup off the per-packet
+	#  path while still picking up a changed secret or type from
+	#  radius_nas within this many seconds.
+	lifetime = 300
 }
 
 #

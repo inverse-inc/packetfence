@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds instead of being re-resolved from the database on every packet
+
 === Bug Fixes
 
 === Security Fixes
