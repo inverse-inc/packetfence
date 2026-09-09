@@ -94,51 +94,15 @@ configure_and_check() {
     export VENOM_ROOT_DIR
 }
 
+# Space for a full run, on each volume it lands on. The shared preflight owns
+# the measure/reclaim/re-measure loop and keeps the reclaim CI-only.
 check_free_space() {
-    # https://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
-    # "the block size currently defaults to 1024 bytes"
-    # 30GiB (1,073,741,824 * 30 ) = 32,212,254,720
-    # size necessary to run a full test with pf*dev, switch, ad, wireless and node0*
-    # it's a bit over than necessary because ad, switch and wireless could have been
-    # already provisioned
-    MANDATORY_SPACE='32212254'
-    AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
-
-    # Low on space: reclaim from old/unused images, then re-measure.
-    if (( AVAILABLE_SPACE <= MANDATORY_SPACE )); then
-        reclaim_disk_space
-        AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
-    fi
-
-    if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
-        echo "Enough space on system to run tests."
-    else
-        die "There is not enough space on system to run tests, even after cleanup. Skipping tests."
-    fi
-}
-
-# Reclaim disk on low space. Only touches things not in use (concurrent jobs
-# stay safe); does not delete /var/lib/libvirt/images base volumes.
-reclaim_disk_space() {
-    log_subsection "Low disk space: reclaiming from old/unused images"
-    local vm
-
-    for vm in $(virsh list --inactive --name); do
-        echo "Undefining shut-off VM: $vm"
-        virsh undefine "$vm" --remove-all-storage || true
-    done
-    for vm in $(virsh list --name --state-paused); do
-        echo "Destroying paused VM: $vm"
-        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
-    done
-
-    ( cd "${VAGRANT_DIR}" && vagrant box prune --force ) || true
-
-    local cache="${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache}"
-    if [ -d "${cache}" ]; then
-        find "${cache}" -maxdepth 1 -type f \( -name '*.box' -o -name '*.box.md5sums.txt' \) \
-             -atime +3 -print -delete || true
-    fi
+    local preflight="${CI_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib}/ensure-runner-disk-free.sh"
+    RUNNER_MIN_FREE_GB="${VENOM_MIN_FREE_GB:-30}" \
+    RUNNER_DISK_CHECK_PATHS="${VAGRANT_HOME:-${HOME}/.vagrant.d} \
+${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache} \
+${LIBVIRT_IMAGES_DIR:-/var/lib/libvirt/images}" \
+        "${preflight}" || die "Not enough space to run tests. Skipping tests."
 }
 
 run_ansible_galaxy() {
@@ -229,19 +193,43 @@ PY
     BOX_NAME="${box_name}" "${setup_script}" || die "failed to fetch box ${box_name} for ${vm}"
 }
 
-# start via libvirt without waiting; callers poll readiness with wait_for_ssh
+# start via libvirt without waiting; callers poll readiness with wait_for_ssh.
+# Non-zero means the saved domain is unusable, not that the run is over.
 start_existing_vm() {
     local vm=$1
     local dotfile_path=$2
     local machine_uuid machine_state
-    machine_uuid=$(cat "${dotfile_path}/machines/${vm}/libvirt/id")
-    machine_state=$(virsh -c qemu:///system domstate --domain "${machine_uuid}")
+    machine_uuid=$(cat "${dotfile_path}/machines/${vm}/libvirt/id" 2>/dev/null) || return 1
+    machine_state=$(virsh -c qemu:///system domstate --domain "${machine_uuid}" 2>/dev/null) || return 1
     if [ "${machine_state}" = "shut off" ]; then
         echo "Starting ${vm} using libvirt"
-        virsh -c qemu:///system start --domain "${machine_uuid}"
+        virsh -c qemu:///system start --domain "${machine_uuid}" || return 1
     else
         echo "Machine already started"
     fi
+}
+
+# Forget a VM we cannot boot so Vagrant builds it again from scratch.
+discard_stale_vm() {
+    local vm=$1 dotfile_path=$2 machine_uuid
+    machine_uuid=$(cat "${dotfile_path}/machines/${vm}/libvirt/id" 2>/dev/null || true)
+    if [ -n "${machine_uuid}" ]; then
+        virsh -c qemu:///system destroy --domain "${machine_uuid}" >/dev/null 2>&1 || true
+        virsh -c qemu:///system undefine --domain "${machine_uuid}" \
+              --remove-all-storage >/dev/null 2>&1 || true
+    fi
+    rm -rf "${dotfile_path}/machines/${vm}"
+}
+
+# A reclaim on this or another job's behalf can leave a saved domain gone or
+# its backing file deleted. Rebuild then, re-download included, don't fail.
+vm_is_usable() {
+    local vm=$1 dotfile_path=$2
+    [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ] || return 1
+    start_existing_vm "${vm}" "${dotfile_path}" && return 0
+    echo "Machine ${vm} exists but won't boot, discarding it"
+    discard_stale_vm "${vm}" "${dotfile_path}"
+    return 1
 }
 
 # wait for SSH and default route (mgmt SSH answers before eth0 DHCP is done)
@@ -258,9 +246,8 @@ start_vm() {
     local dotfile_path=$2
     declare -p dotfile_path
     run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
-    if [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ]; then
+    if vm_is_usable ${vm} ${dotfile_path}; then
         echo "Machine $vm already exists"
-        start_existing_vm ${vm} ${dotfile_path}
         wait_for_ssh ${vm}
         ( cd ${VAGRANT_DIR}; \
           ansible-playbook site.yml -l $vm )
@@ -283,9 +270,8 @@ start_and_provision_pf_vm() {
     # wait for SSH on all and install PacketFence in a single ansible run
     local new_vms=""
     for vm in ${vm_names}; do
-        if [ -e "${VAGRANT_PF_DOTFILE_PATH}/machines/${vm}/libvirt/id" ]; then
+        if vm_is_usable ${vm} ${VAGRANT_PF_DOTFILE_PATH}; then
             echo "Machine $vm already exists"
-            start_existing_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
         else
             echo "Machine $vm doesn't exist, will start with Vagrant"
             prefetch_private_box ${vm}
