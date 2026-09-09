@@ -1,0 +1,45 @@
+---
+# Debian suites past EOL stop getting refreshed Release files (bullseye-security
+# expired on 2026-09-07), which makes every "apt update" on them fail.
+- name: Gather distribution only
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "distribution"
+  when: ansible_distribution_release is not defined
+
+- name: Neutralize apt sources of EOL Debian suites
+  when:
+    - ansible_distribution == 'Debian'
+    - ansible_distribution_release in (apt_eol_deb_releases
+        | default(['stretch', 'buster', 'bullseye']))
+  block:
+    - name: Accept expired Release files
+      ansible.builtin.copy:
+        dest: '/etc/apt/apt.conf.d/99-eol-check-valid-until'
+        content: |
+          Acquire::Check-Valid-Until "false";
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: List apt source files
+      ansible.builtin.find:
+        paths: '/etc/apt'
+        patterns:
+          - 'sources.list'
+          - '*.list'
+        recurse: True
+      register: apt_eol_sources
+
+    # security.debian.org drops EOL suites without warning, and archive.debian.org
+    # has no replacement for them, so stop fetching what can no longer change.
+    - name: Comment out the frozen security suite
+      ansible.builtin.replace:
+        path: '{{ item.path }}'
+        regexp: '^(deb(-src)?\s+(\[[^]]*\]\s+)?\S+\s+\S*-security\b.*)$'
+        replace: '# \1'
+      loop: '{{ apt_eol_sources.files }}'
+      loop_control:
+        label: '{{ item.path }}'
