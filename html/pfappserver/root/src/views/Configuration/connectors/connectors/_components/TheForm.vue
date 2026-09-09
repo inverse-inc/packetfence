@@ -47,6 +47,9 @@
       <b-tab v-if="!isNew && !isClone && id" :title="$i18n.t('Equipment')">
         <the-equipment :id="id" />
       </b-tab>
+      <b-tab v-if="!isNew && !isClone && id" :title="$i18n.t('Cache')">
+        <the-cache :id="id" />
+      </b-tab>
       <base-form-tab :title="$i18n.t('Configuration')">
         <b-tabs nav-wrapper-class="mb-3 mx-3">
           <base-form-tab :title="$i18n.t('Connector')" active>
@@ -148,6 +151,7 @@ import {
   TheStatus,
   TheHostInterfaces,
   TheEquipment,
+  TheCache,
   TheDnsTest,
 } from './'
 
@@ -169,6 +173,7 @@ const components = {
   TheStatus,
   TheHostInterfaces,
   TheEquipment,
+  TheCache,
   TheDnsTest,
 }
 
