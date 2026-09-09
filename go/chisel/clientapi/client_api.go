@@ -224,6 +224,8 @@ func (api *API) setupRoutes() {
 			})
 			r.Get("/logs/{name}", tailLog(api))
 			r.Post("/ha/switch", haSwitch(api))
+			// Management of the local connector-cache service (see cache.go).
+			mountCacheRoutes(r, api)
 		})
 		// Not localhost-only: the admin's browser reaches this directly on
 		// the remote's IP to activate a terminal session authorized by the

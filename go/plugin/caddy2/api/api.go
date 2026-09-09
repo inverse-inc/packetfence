@@ -108,6 +108,8 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())
 			r.Post("/{connectorID}/install", m.pfconnectorRemoteInstall())
 			r.Post("/{connectorID}/ha/switch", m.pfconnectorRemoteHaSwitch())
+			// connector-cache management (see pfconnector_cache.go)
+			m.mountPfconnectorCacheRoutes(r)
 			r.Get("/for-ip/{ip}", m.pfconnectorForIP())
 			// HandleFunc (like the terminal routes) so the websocket
 			// upgrade GET flows through to the reverse proxy untouched.
