@@ -222,6 +222,11 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 		if code != "" {
 			req.Header.Set(TOTPCodeHeader, code)
 		}
+		// Who is opening the shell, for the session's recordings (the aaa
+		// layer sets the username from the validated token).
+		if admin := r.Header.Get("X-PacketFence-Username"); admin != "" {
+			req.Header.Set(AdminUserHeader, admin)
+		}
 		res, err := terminalAuthorizeClient.Do(req)
 		if err != nil {
 			http.Error(w, "Failed to activate terminal on the connector-remote", http.StatusBadGateway)

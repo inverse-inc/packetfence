@@ -51,7 +51,7 @@ func TestAsciicastRecorderWritesV2(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "terminal")
 	cfg := terminalRecordingConfig{Enabled: true, RecordInput: false, Dir: dir}
 
-	rec, err := newAsciicastRecorder(cfg, "connector-1", "0b1f6b9a-7f5c-4a3e-9c2d-1e2f3a4b5c6d")
+	rec, err := newAsciicastRecorder(cfg, "connector-1", "0b1f6b9a-7f5c-4a3e-9c2d-1e2f3a4b5c6d", "admin@example.com")
 	if err != nil {
 		t.Fatalf("newAsciicastRecorder: %v", err)
 	}
@@ -104,7 +104,7 @@ func TestAsciicastRecorderWritesV2(t *testing.T) {
 
 func TestAsciicastRecorderInputOptIn(t *testing.T) {
 	cfg := terminalRecordingConfig{Enabled: true, RecordInput: true, Dir: t.TempDir()}
-	rec, err := newAsciicastRecorder(cfg, "c", "s")
+	rec, err := newAsciicastRecorder(cfg, "c", "s", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestAsciicastRecorderInputOptIn(t *testing.T) {
 // the file, and nothing pending must be lost at close.
 func TestAsciicastRecorderSplitUTF8(t *testing.T) {
 	cfg := terminalRecordingConfig{Enabled: true, Dir: t.TempDir()}
-	rec, err := newAsciicastRecorder(cfg, "c", "s")
+	rec, err := newAsciicastRecorder(cfg, "c", "s", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,11 +172,11 @@ func TestSplitIncompleteUTF8(t *testing.T) {
 
 func TestAsciicastRecorderNameCollision(t *testing.T) {
 	cfg := terminalRecordingConfig{Enabled: true, Dir: t.TempDir()}
-	a, err := newAsciicastRecorder(cfg, "c", "same")
+	a, err := newAsciicastRecorder(cfg, "c", "same", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := newAsciicastRecorder(cfg, "c", "same")
+	b, err := newAsciicastRecorder(cfg, "c", "same", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -187,7 +187,7 @@ func TestAsciicastRecorderNameCollision(t *testing.T) {
 	b.Close()
 
 	// A session id that is not a plain token is not trusted in a file name.
-	c, err := newAsciicastRecorder(cfg, "c", "../evil")
+	c, err := newAsciicastRecorder(cfg, "c", "../evil", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,7 +203,7 @@ func TestAsciicastRecorderUnwritableDir(t *testing.T) {
 		t.Fatal(err)
 	}
 	cfg := terminalRecordingConfig{Enabled: true, Dir: file}
-	if _, err := newAsciicastRecorder(cfg, "c", "s"); err == nil {
+	if _, err := newAsciicastRecorder(cfg, "c", "s", ""); err == nil {
 		t.Error("expected an error when the recordings dir cannot be created")
 	}
 }
@@ -240,7 +240,7 @@ func TestBashFactoryRecording(t *testing.T) {
 		recording:   terminalRecordingConfig{Enabled: true, Dir: dir},
 		connectorID: "c",
 	}
-	factory.setSession("sess-1")
+	factory.setSession("sess-1", "admin@example.com")
 	slave, err := factory.New(map[string][]string{})
 	if err != nil {
 		t.Fatalf("New: %v", err)
@@ -296,7 +296,7 @@ func TestBashFactoryRecording(t *testing.T) {
 func TestBashSlaveRecordsRealShell(t *testing.T) {
 	dir := t.TempDir()
 	factory := &BashFactory{recording: terminalRecordingConfig{Enabled: true, Dir: dir}, connectorID: "c"}
-	factory.setSession("e2e")
+	factory.setSession("e2e", "")
 	slave, err := factory.New(map[string][]string{"arg": {"--norc", "--noprofile"}})
 	if err != nil {
 		t.Fatalf("New: %v", err)

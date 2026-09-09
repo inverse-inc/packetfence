@@ -30,6 +30,12 @@
             @click="showLogs = !showLogs">
             <icon name="scroll" class="mr-1" />{{ $i18n.t('View Logs') }}
           </b-button>
+          <b-button v-if="recordingsAvailable" size="sm" :variant="showRecordings ? 'primary' : 'outline-primary'" class="mr-1"
+            :disabled="!status || !status.connected"
+            :title="$i18n.t('Replay or download the recorded terminal sessions of this connector.')"
+            @click="showRecordings = !showRecordings">
+            <icon name="play" class="mr-1" />{{ $i18n.t('Recordings') }}
+          </b-button>
           <b-button v-if="status && status.upgrade_available" size="sm" variant="outline-warning" class="mr-1"
             :disabled="!status.connected || isUpgrading" @click="showUpgradeModal = true">
             <icon name="arrow-circle-up" class="mr-1" />{{ $i18n.t('Upgrade to {version}', { version: status.central_version }) }}
@@ -388,6 +394,7 @@
     </div>
 
     <the-logs v-if="showLogs && logFiles.length" :id="id" :files="logFiles" />
+    <the-terminal-recordings v-if="showRecordings && recordingsAvailable" :id="id" />
 
     <b-modal v-model="showTerminalModal"
       :title="$i18n.t('Open Remote Terminal')"
@@ -456,6 +463,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from '../_api'
 import TheLogs from './TheLogs'
+import TheTerminalRecordings from './TheTerminalRecordings'
 
 export const props = {
   id: {
@@ -478,6 +486,14 @@ export const setup = (props, context) => {
   const showRestartModal = ref(false)
   const lastRefresh = ref(null)
   const showLogs = ref(false)
+  const showRecordings = ref(false)
+
+  // The remote advertises recorded terminal sessions in /system/info
+  // (terminal_recordings); older connectors omit the field.
+  const recordingsAvailable = computed(() => {
+    const { system: { terminal_recordings: available } = {} } = status.value || {}
+    return available === true
+  })
 
   // The remote advertises its streamable logs in /system/info (log_files).
   // Connectors predating the feature (or with PFCONNECTOR_LOGS=false) omit
@@ -790,6 +806,8 @@ export const setup = (props, context) => {
     showRestartModal,
     lastRefresh,
     showLogs,
+    showRecordings,
+    recordingsAvailable,
     logFiles,
     siteNetwork,
     siteNetworkVariant,
@@ -819,7 +837,8 @@ export default {
   name: 'the-status',
   inheritAttrs: false,
   components: {
-    TheLogs
+    TheLogs,
+    TheTerminalRecordings
   },
   props,
   setup

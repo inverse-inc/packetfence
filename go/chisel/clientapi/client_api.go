@@ -65,6 +65,14 @@ type API struct {
 	// HA group replaces it when it adopts the active host's seed (hatotp.go).
 	terminalTOTP   *terminalTOTP
 	terminalTOTPMu sync.RWMutex
+	// terminalRecording is the session recording policy (environment),
+	// shared by the gotty slave factory and the recordings routes.
+	terminalRecording terminalRecordingConfig
+}
+
+// terminalRunning reports whether a terminal session is currently active.
+func (api *API) terminalRunning() bool {
+	return atomic.LoadInt32(&api.serverRunning) == 1
 }
 
 // MessageType is a command for the gotty terminal lifecycle goroutine.
@@ -79,8 +87,10 @@ const (
 type Message struct {
 	Type MessageType
 	// Session is the activation uuid (StartProcessing only); it names the
-	// session's recordings.
-	Session string
+	// session's recordings. AdminUser is the PacketFence admin who
+	// activated it (may be empty), stored in the recordings' header.
+	Session   string
+	AdminUser string
 }
 
 type Service struct {
@@ -108,6 +118,7 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) *API {
 	Api.terminalActivity = &atomic.Int64{}
 	Api.terminalCredMu = &sync.RWMutex{}
 	Api.LogsEnabled = logsEnabled()
+	Api.terminalRecording = terminalRecordingConfigFromEnv()
 	var err error
 	Api.TerminalEnabled, err = Api.terminal()
 	if err != nil {
@@ -226,6 +237,8 @@ func (api *API) setupRoutes() {
 			r.Post("/ha/switch", haSwitch(api))
 			// Management of the local connector-cache service (see cache.go).
 			mountCacheRoutes(r, api)
+			// Terminal session recordings (see terminal_recordings.go).
+			mountTerminalRecordingRoutes(r, api)
 		})
 		// Not localhost-only: the admin's browser reaches this directly on
 		// the remote's IP to activate a terminal session authorized by the
@@ -243,6 +256,11 @@ func (api *API) setupRoutes() {
 // totpCodeHeader carries the TOTP code (mirrors the pfconnector-server's
 // TOTPCodeHeader).
 const totpCodeHeader = "X-PF-TOTP-Code"
+
+// adminUserHeader carries the PacketFence admin username activating a
+// terminal session (mirrors the server's AdminUserHeader); it labels the
+// session's recordings.
+const adminUserHeader = "X-PF-Admin-User"
 
 // terminalActivationClient bounds the session check through the tunnel: the
 // activation endpoint is reachable on the LAN, so a stalled tunnel must not
@@ -350,8 +368,12 @@ func enableTerminal(api *API) http.HandlerFunc {
 			}
 		}(timeout)
 
+		// The admin who activates the session, relayed by the PacketFence
+		// server (never trusted for anything but labelling the recording).
+		adminUser := strings.TrimSpace(req.Header.Get(adminUserHeader))
+
 		select {
-		case api.commandChan <- Message{Type: StartProcessing, Session: id}:
+		case api.commandChan <- Message{Type: StartProcessing, Session: id, AdminUser: adminUser}:
 			log.LoggerWContext(api.ctx).Info("Terminal start command sent successfully")
 		case <-time.After(time.Second * 5):
 			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)

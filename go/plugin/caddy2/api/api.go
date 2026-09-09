@@ -98,6 +98,10 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		r.Get("/elasticsearch", m.handleElasticsearch())
 		r.Post("/terminal", m.pfconnectorTerminalGet())
 		r.Get("/terminal/{connectorID}/authorize/{uuid}", m.proxyTerminalAuthorize())
+		// Session recordings (see pfconnector_terminal_recordings.go); the
+		// static segment wins over the terminal catch-all below.
+		r.Get("/terminal/{connectorID}/recordings", m.pfconnectorTerminalRecordings())
+		r.Get("/terminal/{connectorID}/recordings/{name}", m.proxyTerminalRecording())
 		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
 		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
 		r.Route("/pfconnector-remotes", func(r chi.Router) {
