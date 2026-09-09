@@ -1,0 +1,23 @@
+---
+# Debian suites past EOL stop getting refreshed Release files (bullseye-security
+# expired on 2026-09-07), which makes every "apt update" on them fail.
+- name: Gather distribution only
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - "distribution"
+  when: ansible_distribution_release is not defined
+
+- name: Accept expired Release files on EOL Debian suites
+  ansible.builtin.copy:
+    dest: '/etc/apt/apt.conf.d/99-eol-check-valid-until'
+    content: |
+      Acquire::Check-Valid-Until "false";
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  when:
+    - ansible_distribution == 'Debian'
+    - ansible_distribution_release in (apt_eol_deb_releases
+        | default(['stretch', 'buster', 'bullseye']))

@@ -60,6 +60,8 @@
       gather_subset:
         - "!all"
 
+  - import_tasks: ../../tasks/apt_accept_eol_release.yml
+
   roles:
     - role: apt_preferences
 
