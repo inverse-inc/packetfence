@@ -136,6 +136,34 @@ export default {
       return response.data
     })
   },
+  // Terminal session recordings (asciicast files kept on the remote). Under
+  // /terminal: reading a transcript needs the same right as opening a shell.
+  terminalRecordings: id => {
+    return apiCall.getQuiet(['terminal', id, 'recordings']).then(response => {
+      return response.data
+    })
+  },
+  terminalRecording: (id, name) => {
+    // An asciicast is one JSON document per line, not a JSON body: keep the
+    // raw text (quiet like getQuiet, errors keep their {message}).
+    return apiCall.request({
+      method: 'get',
+      url: ['terminal', id, 'recordings', name].map(segment => encodeURIComponent(segment)).join('/'),
+      responseType: 'text',
+      transformResponse: [data => {
+        try {
+          const parsed = JSON.parse(data)
+          if (parsed && typeof parsed === 'object' && parsed.message)
+            return { quiet: true, ...parsed }
+        } catch (e) {
+          // the recording itself
+        }
+        return { quiet: true, text: data }
+      }]
+    }).then(response => {
+      return response.data.text
+    })
+  },
   terminalSession: id => {
     return apiCall.post('terminal', { pfconnector_id: id }).then(response => {
       return response.data

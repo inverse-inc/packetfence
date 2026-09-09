@@ -35,18 +35,28 @@ type BashFactory struct {
 	activity    *atomic.Int64
 	recording   terminalRecordingConfig
 	connectorID string
-	// session is the activation uuid of the current terminal session, set
-	// by the lifecycle goroutine on StartProcessing; it names the recording.
-	session atomic.Value
+	// session is the activation uuid of the current terminal session and
+	// adminUser the PacketFence admin who activated it, set by the lifecycle
+	// goroutine on StartProcessing; they identify the recording.
+	session   atomic.Value
+	adminUser atomic.Value
 }
 
-// setSession records the activation uuid the next slaves belong to.
-func (factory *BashFactory) setSession(id string) {
+// setSession records the activation the next slaves belong to.
+func (factory *BashFactory) setSession(id, adminUser string) {
 	factory.session.Store(id)
+	factory.adminUser.Store(adminUser)
 }
 
 func (factory *BashFactory) currentSession() string {
 	if v, ok := factory.session.Load().(string); ok {
+		return v
+	}
+	return ""
+}
+
+func (factory *BashFactory) currentAdminUser() string {
+	if v, ok := factory.adminUser.Load().(string); ok {
 		return v
 	}
 	return ""
@@ -74,7 +84,7 @@ func (factory *BashFactory) New(params map[string][]string) (server.Slave, error
 	var recorder *asciicastRecorder
 	if factory.recording.Enabled {
 		var err error
-		recorder, err = newAsciicastRecorder(factory.recording, factory.connectorID, factory.currentSession())
+		recorder, err = newAsciicastRecorder(factory.recording, factory.connectorID, factory.currentSession(), factory.currentAdminUser())
 		if err != nil {
 			log.Printf("Refusing the terminal session: %v", err)
 			return nil, err
@@ -185,7 +195,7 @@ func (api *API) terminal() (bool, error) {
 	// Create the custom factory
 	factory := &BashFactory{
 		activity:    api.terminalActivity,
-		recording:   terminalRecordingConfigFromEnv(),
+		recording:   api.terminalRecording,
 		connectorID: api.ConnectorId,
 	}
 	if factory.recording.Enabled {
@@ -218,7 +228,7 @@ func (api *API) terminal() (bool, error) {
 					}
 
 					atomic.StoreInt32(&api.serverRunning, 1)
-					factory.setSession(msg.Session)
+					factory.setSession(msg.Session, msg.AdminUser)
 					// Fresh credential for this activation: gotty reads it
 					// when Run starts (basic auth) and on every websocket
 					// handshake (auth token); the proxy in client_api.go

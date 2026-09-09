@@ -99,11 +99,18 @@ type asciicastRecorder struct {
 	events  int
 }
 
+// recordingAdminUser restricts the admin username stored in the header.
+var recordingAdminUser = regexp.MustCompile(`^[A-Za-z0-9@._+ -]{1,128}$`)
+
 // newAsciicastRecorder creates <dir>/<UTC start>-<session>.cast and writes
-// the header. The session is the activation uuid (or "unknown").
-func newAsciicastRecorder(cfg terminalRecordingConfig, connectorID, session string) (*asciicastRecorder, error) {
+// the header. The session is the activation uuid (or "unknown"); adminUser
+// is the PacketFence admin who activated it (empty when unknown).
+func newAsciicastRecorder(cfg terminalRecordingConfig, connectorID, session, adminUser string) (*asciicastRecorder, error) {
 	if !recordingSessionName.MatchString(session) {
 		session = "unknown"
+	}
+	if !recordingAdminUser.MatchString(adminUser) {
+		adminUser = ""
 	}
 	if err := os.MkdirAll(cfg.Dir, 0o700); err != nil {
 		return nil, fmt.Errorf("creating the terminal recordings directory %s: %w", cfg.Dir, err)
@@ -136,6 +143,10 @@ func newAsciicastRecorder(cfg terminalRecordingConfig, connectorID, session stri
 		Timestamp: start.Unix(),
 		Title:     fmt.Sprintf("pfconnector-remote %s terminal session %s", connectorID, session),
 		Env:       map[string]string{"TERM": "xterm-256color", "SHELL": "/bin/bash"},
+	}
+	if adminUser != "" {
+		header.Title += " by " + adminUser
+		header.Env["PF_ADMIN_USER"] = adminUser
 	}
 	if err := r.writeJSONLine(header); err != nil {
 		file.Close()
