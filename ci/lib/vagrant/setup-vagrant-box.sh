@@ -19,6 +19,7 @@ set -o nounset -o pipefail -o errexit
 #   PROVIDER                (default: libvirt)
 #   VAGRANT_BOX_LOCAL_NAME  (default: inverse-inc/${BOX_NAME})
 #   WORK_DIR                (default: ~/vagrant_img_cache)
+#   KEEP_BOX_ARCHIVE        keep the .box after unpacking (default: no)
 #
 # Usage:
 #   BOX_NAME=pfdeb12dev RCLONE_LINODE_URL=https://us-ord-1.linodeobjects.com \
@@ -32,6 +33,16 @@ WORK_DIR=${WORK_DIR:-${HOME}/vagrant_img_cache}
 BOX_VERSION=${BOX_VERSION:-}
 
 VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
+
+# Drop the archive however we exit: beside the unpacked box it doubles each
+# box's footprint, and on an ENOSPC failure it is what filled the volume.
+META_BODY=""
+ARCHIVE=""
+on_exit() {
+    rm -f ${META_BODY}
+    [ "${KEEP_BOX_ARCHIVE:-no}" = yes ] || rm -f ${ARCHIVE} ${ARCHIVE:+${ARCHIVE}.md5sums.txt}
+}
+trap on_exit EXIT
 
 # Configure rclone via env-var remote so credentials never appear on the
 # command line (visible to `ps`, debug traces, etc.).
@@ -66,7 +77,6 @@ else
     echo "===> Resolving latest box version for ${BOX_NAME}"
     # Newest entry is versions[0]; upload-to-linode.sh prepends on each build.
     META_BODY=$(mktemp)
-    trap 'rm -f "${META_BODY}"' EXIT
     if ! rclone copyto "${METADATA_REMOTE}" "${META_BODY}"; then
         echo "ERROR: failed to fetch ${METADATA_REMOTE}"
         exit 1
@@ -77,6 +87,7 @@ fi
 
 # Box file matches the layout written by upload-to-linode.sh: <box>/<version>.box
 BOX_FILENAME="${BOX_VERSION}.box"
+ARCHIVE="${WORK_DIR}/${BOX_FILENAME}"
 
 # Skip download if the same version is already installed locally
 if [ -f "${VERSION_MARKER}" ] && [ "$(cat "${VERSION_MARKER}")" = "${BOX_VERSION}" ]; then
@@ -104,6 +115,30 @@ echo "===> Verifying checksum"
 
 echo "===> Removing any existing local box for ${VAGRANT_BOX_LOCAL_NAME} (${PROVIDER})"
 vagrant box remove "${VAGRANT_BOX_LOCAL_NAME}" --provider "${PROVIDER}" --all --force || true
+
+# `box remove` leaves the pool volume behind, so every prefetch of a new
+# version orphans the last one until a disk emergency collects it.
+prune_superseded_pool_volumes() {
+    local escaped="${VAGRANT_BOX_LOCAL_NAME//\//-VAGRANTSLASH-}"
+    local ver_re pool vol
+    if virsh -c qemu:///system list --state-running --name 2>/dev/null | grep -q '^vagrant-'; then
+        echo "     a vagrant domain is running, leaving the pool alone"
+        return 0
+    fi
+    ver_re=$(printf '%s' "${BOX_VERSION}" | sed 's/[.[\*^$]/\\&/g')
+    for pool in $(virsh -c qemu:///system pool-list 2>/dev/null | awk 'NR>2 && $1 {print $1}'); do
+        for vol in $(virsh -c qemu:///system vol-list --pool "${pool}" 2>/dev/null \
+                       | awk 'NR>2 && $1 {print $1}' \
+                       | grep -F "${escaped}_vagrant_box_image_" \
+                       | grep -vE "_vagrant_box_image_${ver_re}([_.]|$)" || true); do
+            echo "     removing superseded pool volume ${vol}"
+            virsh -c qemu:///system vol-delete --pool "${pool}" "${vol}" || true
+        done
+    done
+}
+
+echo "===> Removing superseded pool volumes for ${VAGRANT_BOX_LOCAL_NAME}"
+prune_superseded_pool_volumes
 
 # Synthesize metadata.json so vagrant registers the box at BOX_VERSION;
 # adding the bare .box would register as v0 and trigger a re-fetch from box_url.
