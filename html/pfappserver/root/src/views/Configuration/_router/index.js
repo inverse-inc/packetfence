@@ -50,6 +50,7 @@ import NetworksRoutes from '../networks/_router'
 import SnmpTrapsRoutes from '../snmpTraps/_router'
 import FloatingDevicesRoutes from '../floatingDevices/_router'
 import SslCertificatesRoutes from '../sslCertificates/_router'
+import ConnectorsRoutes from '../connectors/_router'
 
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheSectionSystemConfiguration')
@@ -65,7 +66,6 @@ import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminLoginRoutes from '../adminLogin/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
-import ConnectorsRoutes from '../connectors/_router'
 import KafkaRoutes from '../kafka/_router'
 
 import store from '@/store'
@@ -76,8 +76,6 @@ export const beforeEnter = (to, from, next = () => { }) => {
   }
   next()
 }
-
-const can = () => !store.getters['system/isSaas']
 
 const route = {
   path: '/configuration',
@@ -158,12 +156,10 @@ const route = {
      */
     {
       path: 'network_configuration',
-      component: NetworkConfigurationSection,
-      meta: {
-        can
-      }
+      component: NetworkConfigurationSection
     },
     ...NetworksRoutes,
+    ...ConnectorsRoutes,
     ...FloatingDevicesRoutes,
     ...SnmpTrapsRoutes,
 
@@ -187,7 +183,6 @@ const route = {
     ...AdminLoginRoutes,
     ...AdminRolesRoutes,
     ...SslCertificatesRoutes,
-    ...ConnectorsRoutes,
     ...KafkaRoutes,
   ]
 }

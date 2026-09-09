@@ -2,9 +2,9 @@ import store from '@/store'
 import StoreModule from '../_store'
 import FingerbankStoreModule from '../../fingerbank/_store'
 
-const TheSearch = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheSearch')
-const TheView = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheView')
-const TheTopology = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheTopology')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheView')
+const TheTopology = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheTopology')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_connectors)
