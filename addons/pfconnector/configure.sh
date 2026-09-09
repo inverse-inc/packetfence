@@ -46,6 +46,10 @@ echo "PFCONNECTOR_TERMINAL=true" >> /usr/local/pfconnector-remote/conf/pfconnect
 # TOTP second factor gating remote terminal activation. Set to false to
 # allow the terminal with only the admin-initiated one-time session.
 echo "PFCONNECTOR_TERMINAL_TOTP=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+# Terminal sessions are recorded (asciicast v2) under logs/terminal/ by
+# default. Overrides: PFCONNECTOR_TERMINAL_RECORD=false to disable,
+# PFCONNECTOR_TERMINAL_RECORD_INPUT=true to also record keystrokes,
+# PFCONNECTOR_TERMINAL_RECORDINGS_DIR for another (persisted) directory.
 
 # High availability: install this connector on two (or more) hosts with the
 # same ID, secret and URL, then set the virtual IP on the connector in the

@@ -103,6 +103,18 @@ The otpauth URL it prints (kept in [filename]`/usr/local/pfconnector-remote/conf
 
 Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes of inactivity.
 
+====== Session recording
+
+Every terminal session is recorded on the pfconnector-remote host in the https://docs.asciinema.org/manual/asciicast/v2/[asciicast v2] format, one file per browser connection, under [filename]`/usr/local/pfconnector-remote/logs/terminal/` (the container's `/usr/local/pf/logs/terminal`). The file name carries the UTC start time and the one-time session id that activated the terminal, for example `20260909T134631Z-0b1f6b9a-7f5c-4a3e-9c2d-1e2f3a4b5c6d.cast`, and the pfconnector-client log names the file when a session starts and ends. Recordings are readable by root only (mode 600) and can be replayed with `asciinema play <file>` or any asciinema player.
+
+The recording holds everything displayed in the terminal (the output, including the echo of what was typed) and the terminal size changes. Keystrokes themselves are not recorded by default, so a password typed at a prompt that does not echo it stays out of the file. The behaviour is controlled in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (restart the packetfence-pfconnector-remote-combined service after changing it):
+
+* `PFCONNECTOR_TERMINAL_RECORD` (default `true`): set to `false` to disable recording. While enabled, a session whose recording cannot be created (for example a full disk) is refused rather than left unrecorded.
+* `PFCONNECTOR_TERMINAL_RECORD_INPUT` (default `false`): set to `true` to also record keystrokes as asciicast input events.
+* `PFCONNECTOR_TERMINAL_RECORDINGS_DIR`: in-container directory of the recordings; keep it under a persisted mount such as `/usr/local/pf/logs`.
+
+Recordings are not rotated or removed automatically; retention is up to the host administrator.
+
 ===== Upgrading a Remote Connector
 
 When a connector-remote reports an older version than the PacketFence server, its _Status_ tab in the admin interface offers an _Upgrade_ button. Triggering it makes the connector host point its PacketFence apt repository at the server's version (rewriting the version segment of the `inverse.ca/downloads/PacketFence/debian/...` entry in [filename]`/etc/apt/sources.list.d/`), upgrade the packetfence-pfconnector-remote package and restart the connector. Once it reconnects, the _Status_ tab reports the new version.
