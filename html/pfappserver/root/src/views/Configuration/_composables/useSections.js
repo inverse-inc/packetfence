@@ -100,9 +100,9 @@ export const useSections = () => {
       path: '/configuration/network_configuration',
       icon: 'project-diagram',
       collapsable: true,
-      class: 'no-saas',
       items: [
         { name: i18n.t('Networks'),
+          class: 'no-saas',
           items: [
             { name: i18n.t('Network Settings'), path: '/configuration/network' },
             { name: i18n.t('Interfaces'), path: '/configuration/interfaces' },
@@ -111,8 +111,9 @@ export const useSections = () => {
             { name: i18n.t('Device Parking'), path: '/configuration/parking' }
           ]
         },
-        { name: i18n.t('SNMP'), path: '/configuration/snmp_traps' },
-        { name: i18n.t('Floating Devices'), path: '/configuration/floating_devices' }
+        { name: i18n.t('Connectors'), path: '/configuration/connectors' },
+        { name: i18n.t('SNMP'), path: '/configuration/snmp_traps', class: 'no-saas' },
+        { name: i18n.t('Floating Devices'), path: '/configuration/floating_devices', class: 'no-saas' }
       ]
     },
     {
@@ -139,7 +140,6 @@ export const useSections = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
-        { name: i18n.t('Connectors'), path: '/configuration/connectors' },
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },

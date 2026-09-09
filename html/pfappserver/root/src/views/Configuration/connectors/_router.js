@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheSearch = () => import(/* webpackChunkName: "ConfigurationSystem" */ './connectors/_components/TheSearch')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './connectors/_components/TheSearch')
 import ConnectorsRoutes from './connectors/_router'
 
 export const beforeEnter = (to, from, next = () => { }) => {
