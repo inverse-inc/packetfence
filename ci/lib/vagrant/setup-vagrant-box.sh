@@ -89,9 +89,21 @@ fi
 BOX_FILENAME="${BOX_VERSION}.box"
 ARCHIVE="${WORK_DIR}/${BOX_FILENAME}"
 
+# True if this exact name+provider+version is installed. Machine-readable
+# because `vagrant box list` pads the name column to its longest entry, so a
+# fixed-string match on "<name> (<provider>," stops working as boxes pile up.
+box_installed() {
+    vagrant box list --machine-readable 2>/dev/null \
+        | awk -F, -v n="${VAGRANT_BOX_LOCAL_NAME}" -v p="${PROVIDER}" -v v="${BOX_VERSION}" '
+            $3=="box-name"     {name=$4}
+            $3=="box-provider" {prov=$4}
+            $3=="box-version" && name==n && prov==p && $4==v {found=1}
+            END {exit !found}'
+}
+
 # Skip download if the same version is already installed locally
 if [ -f "${VERSION_MARKER}" ] && [ "$(cat "${VERSION_MARKER}")" = "${BOX_VERSION}" ]; then
-    if vagrant box list | grep -qF "${VAGRANT_BOX_LOCAL_NAME} (${PROVIDER},"; then
+    if box_installed; then
         echo "===> Box ${VAGRANT_BOX_LOCAL_NAME} (${PROVIDER}) version ${BOX_VERSION} already present, skipping download"
         vagrant box list
         exit 0
