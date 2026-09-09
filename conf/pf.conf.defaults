@@ -1491,6 +1491,15 @@ pfacct_aaa_notify_workers=0
 #
 # The size of the queue for each AAA notification worker.
 pfacct_aaa_notify_queue_size=1000
+# radius_configuration.radiusd_max_servers
+#
+# Maximum number of worker threads in the radiusd-auth and radiusd-load_balancer
+# thread pools (FreeRADIUS "max_servers"). It also caps the number of concurrent
+# REST connections radiusd keeps open to httpd.aaa, so it bounds how many
+# authorizations can be in flight at once. When httpd.aaa latency spikes, a pool
+# that is too small makes requests wait for a free connection until
+# max_request_time and get rejected. Requires a restart of radiusd to be effective.
+radiusd_max_servers=128
 
 [dns_configuration]
 #
