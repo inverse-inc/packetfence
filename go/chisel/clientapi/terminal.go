@@ -29,9 +29,27 @@ func randomToken(n int) string {
 
 // BashFactory builds the bash slaves served by gotty. activity is the shared
 // last-activity clock (unix nanos) that the idle watcher in enableTerminal
-// reads; every pty read/write bumps it.
+// reads; every pty read/write bumps it. Every slave (one per websocket
+// connection) is recorded as an asciicast when recording is enabled.
 type BashFactory struct {
-	activity *atomic.Int64
+	activity    *atomic.Int64
+	recording   terminalRecordingConfig
+	connectorID string
+	// session is the activation uuid of the current terminal session, set
+	// by the lifecycle goroutine on StartProcessing; it names the recording.
+	session atomic.Value
+}
+
+// setSession records the activation uuid the next slaves belong to.
+func (factory *BashFactory) setSession(id string) {
+	factory.session.Store(id)
+}
+
+func (factory *BashFactory) currentSession() string {
+	if v, ok := factory.session.Load().(string); ok {
+		return v
+	}
+	return ""
 }
 
 func (factory *BashFactory) Name() string {
@@ -51,8 +69,24 @@ func (factory *BashFactory) New(params map[string][]string) (server.Slave, error
 		cmd.Dir = usr.HomeDir
 	}
 
+	// Fail closed: when recording is on, a shell without its transcript is
+	// refused rather than silently unrecorded.
+	var recorder *asciicastRecorder
+	if factory.recording.Enabled {
+		var err error
+		recorder, err = newAsciicastRecorder(factory.recording, factory.connectorID, factory.currentSession())
+		if err != nil {
+			log.Printf("Refusing the terminal session: %v", err)
+			return nil, err
+		}
+		log.Printf("Recording terminal session to %s", recorder.Path())
+	}
+
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
+		if recorder != nil {
+			recorder.Close()
+		}
 		return nil, err
 	}
 
@@ -60,6 +94,7 @@ func (factory *BashFactory) New(params map[string][]string) (server.Slave, error
 		command:  cmd,
 		pty:      ptmx,
 		activity: factory.activity,
+		recorder: recorder,
 	}, nil
 }
 
@@ -67,6 +102,8 @@ type BashSlave struct {
 	command  *exec.Cmd
 	pty      *os.File
 	activity *atomic.Int64
+	// recorder is nil when recording is disabled.
+	recorder *asciicastRecorder
 }
 
 // touch records terminal activity for the idle-timeout watcher.
@@ -84,6 +121,9 @@ func (slave *BashSlave) WindowTitleVariables() map[string]interface{} {
 }
 
 func (slave *BashSlave) ResizeTerminal(width int, height int) error {
+	if slave.recorder != nil {
+		slave.recorder.Resize(width, height)
+	}
 	return pty.Setsize(slave.pty, &pty.Winsize{
 		Rows: uint16(height),
 		Cols: uint16(width),
@@ -92,6 +132,9 @@ func (slave *BashSlave) ResizeTerminal(width int, height int) error {
 
 func (slave *BashSlave) Write(data []byte) (int, error) {
 	slave.touch()
+	if slave.recorder != nil {
+		slave.recorder.Input(data)
+	}
 	return slave.pty.Write(data)
 }
 
@@ -99,6 +142,9 @@ func (slave *BashSlave) Read(data []byte) (int, error) {
 	n, err := slave.pty.Read(data)
 	if n > 0 {
 		slave.touch()
+		if slave.recorder != nil {
+			slave.recorder.Output(data[:n])
+		}
 	}
 	return n, err
 }
@@ -107,7 +153,11 @@ func (slave *BashSlave) Close() error {
 	if slave.command != nil && slave.command.Process != nil {
 		slave.command.Process.Signal(syscall.SIGTERM)
 	}
-	return slave.pty.Close()
+	err := slave.pty.Close()
+	if slave.recorder != nil {
+		slave.recorder.Close()
+	}
+	return err
 }
 
 func (api *API) terminal() (bool, error) {
@@ -133,7 +183,16 @@ func (api *API) terminal() (bool, error) {
 	}
 
 	// Create the custom factory
-	factory := &BashFactory{activity: api.terminalActivity}
+	factory := &BashFactory{
+		activity:    api.terminalActivity,
+		recording:   terminalRecordingConfigFromEnv(),
+		connectorID: api.ConnectorId,
+	}
+	if factory.recording.Enabled {
+		log.Printf("Terminal sessions are recorded (asciicast) under %s (input recorded: %v)", factory.recording.Dir, factory.recording.RecordInput)
+	} else {
+		log.Println("PFCONNECTOR_TERMINAL_RECORD is disabled: terminal sessions are not recorded")
+	}
 
 	// Create the GoTTY server
 	gottyServer, err := server.New(factory, options)
@@ -159,6 +218,7 @@ func (api *API) terminal() (bool, error) {
 					}
 
 					atomic.StoreInt32(&api.serverRunning, 1)
+					factory.setSession(msg.Session)
 					// Fresh credential for this activation: gotty reads it
 					// when Run starts (basic auth) and on every websocket
 					// handshake (auth token); the proxy in client_api.go
