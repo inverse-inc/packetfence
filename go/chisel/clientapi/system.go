@@ -104,9 +104,12 @@ type ConnectorCacheStats struct {
 }
 
 // connectorCacheStatsURL is where connector-cache answers on the host
-// network namespace (the client's credcache proxy uses the same address).
-var connectorCacheStatsURL = sharedutils.EnvOrDefault("PFCONNECTOR_CONNECTOR_CACHE_STATS_URL", "http://127.0.0.1:12142/api/v1/manage/stats")
+// network namespace (derived from connectorCacheURL, see cache.go; the
+// dedicated variable is kept for deployments that override it).
+var connectorCacheStatsURL = sharedutils.EnvOrDefault("PFCONNECTOR_CONNECTOR_CACHE_STATS_URL", connectorCacheURL+"/manage/stats")
 
+// connectorCacheStatsClient is short: the stats are a side dish of
+// /system/info and must not slow the status panel down.
 var connectorCacheStatsClient = &http.Client{Timeout: 500 * time.Millisecond}
 
 // connectorCacheStats fetches the cache statistics; nil when unavailable.
@@ -119,18 +122,15 @@ func connectorCacheStats() *ConnectorCacheStats {
 	if res.StatusCode != http.StatusOK {
 		return nil
 	}
-	var raw struct {
-		MemAlloc        int64
-		MemSys          int64
-		DBSize          int64
-		DevicesInDB     int
-		CredentialInDB  int
-		KeysInRatelimit int
-	}
-	if err := json.NewDecoder(io.LimitReader(res.Body, 64*1024)).Decode(&raw); err != nil {
+	raw, err := io.ReadAll(io.LimitReader(res.Body, 64*1024))
+	if err != nil {
 		return nil
 	}
-	return &ConnectorCacheStats{MemAlloc: raw.MemAlloc, MemSys: raw.MemSys, DBSize: raw.DBSize, DevicesInDB: raw.DevicesInDB, CredentialInDB: raw.CredentialInDB, KeysInRatelimit: raw.KeysInRatelimit}
+	stats, err := decodeConnectorCacheStats(raw)
+	if err != nil {
+		return nil
+	}
+	return stats
 }
 
 // HostInterface is one network interface of the connector host.
