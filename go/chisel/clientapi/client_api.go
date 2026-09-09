@@ -78,6 +78,9 @@ const (
 // Message carries a command for the terminal lifecycle goroutine.
 type Message struct {
 	Type MessageType
+	// Session is the activation uuid (StartProcessing only); it names the
+	// session's recordings.
+	Session string
 }
 
 type Service struct {
@@ -346,7 +349,7 @@ func enableTerminal(api *API) http.HandlerFunc {
 		}(timeout)
 
 		select {
-		case api.commandChan <- Message{Type: StartProcessing}:
+		case api.commandChan <- Message{Type: StartProcessing, Session: id}:
 			log.LoggerWContext(api.ctx).Info("Terminal start command sent successfully")
 		case <-time.After(time.Second * 5):
 			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)
