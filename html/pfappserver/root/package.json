@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@vue/composition-api": "^1.7.2",
+    "asciinema-player": "^3.17.0",
     "autoprefixer": "10.4.5",
     "axios": "1.7.8",
     "bootstrap": "4.6.1",

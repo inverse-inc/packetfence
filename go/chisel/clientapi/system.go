@@ -50,6 +50,11 @@ type SystemInfo struct {
 	// Informational only: enforcement happens in enableTerminal.
 	TerminalEnabled bool `json:"terminal_enabled"`
 	TerminalTOTP    bool `json:"terminal_totp"`
+	// TerminalRecordings tells the admin UI that terminal sessions are
+	// recorded on this connector and the recordings can be listed and
+	// replayed (GET /api/v1/terminal-recordings). Connectors predating the
+	// feature omit the field.
+	TerminalRecordings bool `json:"terminal_recordings,omitempty"`
 	// LogFiles lists the log allowlist keys that can be live-streamed from
 	// this connector right now. The admin UI keys the "View Logs" button on
 	// it; connectors predating the feature simply omit the field.
@@ -191,18 +196,19 @@ func hostInterfaces() []HostInterface {
 func systemInfo(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		info := SystemInfo{
-			Version:         chshare.BuildVersion,
-			TerminalEnabled: api.TerminalEnabled,
-			TerminalTOTP:    api.TerminalEnabled && api.terminalTOTPRequired,
-			LogFiles:        availableLogFiles(api),
-			HostPackages:    hostPackages(),
-			SiteNetwork:     sitenetwork.LastStatus(),
-			DhcpRelay:       dhcprelay.LastStatus(),
-			DnsServer:       dnsresponder.LastStatus(),
-			HostInterfaces:  hostInterfaces(),
-			HA:              HAStatusSnapshot(),
-			ConnectorCache:  connectorCacheStats(),
-			LocalBinds:      []tunnel.BoundRemoteInfo{},
+			Version:            chshare.BuildVersion,
+			TerminalEnabled:    api.TerminalEnabled,
+			TerminalRecordings: api.TerminalEnabled && api.terminalRecording.Enabled,
+			TerminalTOTP:       api.TerminalEnabled && api.terminalTOTPRequired,
+			LogFiles:           availableLogFiles(api),
+			HostPackages:       hostPackages(),
+			SiteNetwork:        sitenetwork.LastStatus(),
+			DhcpRelay:          dhcprelay.LastStatus(),
+			DnsServer:          dnsresponder.LastStatus(),
+			HostInterfaces:     hostInterfaces(),
+			HA:                 HAStatusSnapshot(),
+			ConnectorCache:     connectorCacheStats(),
+			LocalBinds:         []tunnel.BoundRemoteInfo{},
 		}
 		if tun := api.Tunnel(); tun != nil {
 			binds := tun.BoundRemotes()
