@@ -94,6 +94,38 @@ export default {
       return response.data
     })
   },
+  // connector-cache management on the remote (quiet variants: the
+  // component shows the relayed {"message"} itself).
+  remoteCacheStats: id => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'cache', 'stats']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheConfig: id => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'cache', 'config']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheConfigUpdate: (id, toUpdate) => {
+    return apiCall.putQuiet(['pfconnector-remotes', id, 'cache', 'config'], { to_update: toUpdate }).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheOptimize: id => {
+    return apiCall.postQuiet(['pfconnector-remotes', id, 'cache', 'optimize-db']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheClean: id => {
+    return apiCall.postQuiet(['pfconnector-remotes', id, 'cache', 'clean']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheRestart: id => {
+    return apiCall.postQuiet(['pfconnector-remotes', id, 'cache', 'restart']).then(response => {
+      return response.data
+    })
+  },
   dnsLookup: data => {
     return apiCall.post('pfconnector-remotes/dns-lookup', data).then(response => {
       return response.data
