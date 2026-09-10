@@ -30,9 +30,35 @@ use pf::node;
 use LWP::UserAgent;
 use HTTP::Request;
 use JQ::XS;
-use JSON::MaybeXS qw(decode_json);
+use JSON::MaybeXS qw(decode_json encode_json);
+use POSIX qw(:sys_wait_h);
 use List::MoreUtils qw(any);
 use Scalar::Util qw(blessed);
+
+=head1 CONSTANTS
+
+=head2 $MAX_RESPONSE_SIZE
+
+Largest response body handed to the jq query. A jq program runs to completion
+inside libjq and cannot be interrupted from Perl, so the input it is given is
+bounded instead.
+
+=cut
+
+our $MAX_RESPONSE_SIZE = 8 * 1024 * 1024;
+
+=head2 Error kinds
+
+The kind of failure reported by L</evaluate_jq>: C<$ERR_JSON> when the payload
+is not valid JSON, C<$ERR_QUERY> when the jq program does not compile and
+C<$ERR_JQ> for a jq runtime error. Only C<$ERR_QUERY> is a configuration
+error; the other two describe what the server answered.
+
+=cut
+
+our $ERR_JSON  = 'json';
+our $ERR_QUERY = 'query';
+our $ERR_JQ    = 'jq';
 
 =head1 Attributes
 
@@ -143,6 +169,30 @@ The device passes when the query returns a truthy value.
 
 has jq_query => (is => 'rw', required => $TRUE);
 
+=head2 jq
+
+The compiled jq program of L</jq_query>. The query is a constant of the
+configuration and authorize runs on the RADIUS path, so it is compiled once
+per provisioner instead of on every call.
+
+=cut
+
+has jq => (is => 'lazy');
+
+sub _build_jq {
+    my ($self) = @_;
+    return JQ::XS->new($self->jq_query);
+}
+
+=head2 lwp_client
+
+The LWP::UserAgent of this provisioner, built once so requests to the same
+server can reuse a connection.
+
+=cut
+
+has lwp_client => (is => 'lazy', builder => 'get_lwp_client');
+
 has url_tmpl => (is => 'lazy');
 
 sub _build_url_tmpl {
@@ -221,9 +271,18 @@ sub make_request {
             $r->authorization_basic($self->username, $self->password // '');
         }
 
-        # set after basic auth so an explicit Authorization header wins
+        # set after basic auth so an explicit Authorization header wins.
+        # The first occurrence of a name replaces (so it beats basic auth),
+        # any repeat of that same name is appended rather than overwriting it.
+        my %seen;
         for my $h (@{ $self->header_tmpls }) {
-            $r->header($h->[0]->process($vars), $h->[1]->process($vars));
+            my $name  = $h->[0]->process($vars);
+            my $value = $h->[1]->process($vars);
+            if ($seen{lc $name}++) {
+                $r->push_header($name, $value);
+            } else {
+                $r->header($name, $value);
+            }
         }
 
         if (defined $self->body_tmpl && $method =~ /^(?:POST|PUT|PATCH)$/) {
@@ -279,24 +338,144 @@ sub get_lwp_client {
 
 Evaluate a jq query (JQ::XS) against a JSON string.
 Callable as a class method so the admin API tester can reuse it.
-Returns ($pass, \@results, undef) on success, (undef, undef, $error) on
-failure (invalid JSON, invalid query or a jq runtime error).
+Returns ($pass, \@results, undef, undef) on success and
+(undef, undef, $error, $kind) on failure, where $kind is one of $ERR_JSON,
+$ERR_QUERY or $ERR_JQ so the caller can tell a configuration error from a bad
+payload.
+An already compiled JQ::XS program can be passed as the fourth argument to
+avoid recompiling $query.
 jq truthiness: a result passes unless every result is null or false (an empty
 result set fails).
 
 =cut
 
 sub evaluate_jq {
-    my ($class, $json_text, $query) = @_;
-    my @results = eval { JQ::XS->new($query)->process(decode_json($json_text)) };
+    my ($proto, $json_text, $query, $jq) = @_;
+    if (defined $json_text && length($json_text) > $MAX_RESPONSE_SIZE) {
+        return (undef, undef, "payload is larger than $MAX_RESPONSE_SIZE bytes", $ERR_JSON);
+    }
+
+    my $data = eval { decode_json($json_text) };
     if ($@) {
-        my $err = $@;
-        chomp $err;
-        return (undef, undef, $err);
+        return (undef, undef, _clean_err($@), $ERR_JSON);
+    }
+
+    if (!defined $jq) {
+        $jq = eval { JQ::XS->new($query) };
+        if ($@) {
+            return (undef, undef, _clean_err($@), $ERR_QUERY);
+        }
+    }
+
+    my @results = eval { $jq->process($data) };
+    if ($@) {
+        return (undef, undef, _clean_err($@), $ERR_JQ);
     }
 
     my $pass = (any { _jq_truthy($_) } @results) ? $TRUE : $FALSE;
-    return ($pass, \@results, undef);
+    return ($pass, \@results, undef, undef);
+}
+
+sub _clean_err {
+    my ($err) = @_;
+    $err = "$err";
+    chomp $err;
+    # drop the "at <file> line <n>." Perl adds: it is noise in a log line and
+    # this text is shown to the admin by the tester
+    $err =~ s/ at \S+ line \d+\.?$//;
+    return $err;
+}
+
+=head2 evaluate_jq_guarded
+
+Same as L</evaluate_jq> but bounded in time. A jq program cannot be
+interrupted once it is running inside libjq, so the evaluation is done in a
+child process that is killed when it overruns $timeout seconds (5 by default).
+Used by the admin tester, where the query is arbitrary and untrusted.
+
+=cut
+
+sub evaluate_jq_guarded {
+    my ($proto, $json_text, $query, $timeout) = @_;
+    $timeout = 5 if !defined $timeout || $timeout !~ /^\d+$/ || $timeout == 0;
+    my ($reader, $writer);
+    if (!pipe($reader, $writer)) {
+        return (undef, undef, "cannot create a pipe: $!", $ERR_JQ);
+    }
+
+    {
+        my $pid = fork();
+        if (!defined $pid) {
+            close $reader;
+            close $writer;
+            return (undef, undef, "cannot fork: $!", $ERR_JQ);
+        }
+
+        if ($pid == 0) {
+            # child: report back and leave without running the parent's END
+            # blocks or tearing down its inherited handles
+            close $reader;
+            my ($pass, $results, $err, $kind) = $proto->evaluate_jq($json_text, $query);
+            eval {
+                print {$writer} encode_json({
+                    pass    => (defined $pass ? ($pass ? 1 : 0) : undef),
+                    results => $results,
+                    error   => $err,
+                    kind    => $kind,
+                });
+            };
+            close $writer;
+            POSIX::_exit(0);
+        }
+
+        close $writer;
+        my $payload;
+        my $ok = eval {
+            local $SIG{ALRM} = sub { die "timeout\n" };
+            alarm $timeout;
+            local $/;
+            $payload = <$reader>;
+            alarm 0;
+            1;
+        };
+        alarm 0;
+        close $reader;
+        if (!$ok) {
+            kill 'KILL', $pid;
+            waitpid($pid, 0);
+            return (undef, undef, "the query did not complete within ${timeout}s", $ERR_JQ);
+        }
+
+        waitpid($pid, 0);
+        my $out = eval { decode_json($payload // '') };
+        if (!defined $out) {
+            return (undef, undef, "the query could not be evaluated", $ERR_JQ);
+        }
+
+        if (defined $out->{error}) {
+            return (undef, undef, $out->{error}, $out->{kind});
+        }
+
+        return (($out->{pass} ? $TRUE : $FALSE), ($out->{results} // []), undef, undef);
+    }
+}
+
+=head2 _log_uri
+
+The request URI with its query string redacted: it can carry an API key or a
+token and this ends up in the logs.
+
+=cut
+
+sub _log_uri {
+    my ($uri) = @_;
+    my $safe = eval {
+        my $u = $uri->clone;
+        my $had_query = defined $u->query;
+        $u->query(undef);
+        "$u" . ($had_query ? '?<redacted>' : '');
+    };
+    return defined $safe ? $safe : '<unparseable uri>';
 }
 
 sub _jq_truthy {
@@ -323,17 +502,26 @@ sub authorize {
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
 
-    my $res = $self->get_lwp_client->request($req);
+    my $res = $self->lwp_client->request($req);
     if (!$res->is_success) {
-        $logger->error("Provisioner " . $self->id . " failed to communicate with " . $req->uri . ": " . $res->status_line);
+        $logger->error("Provisioner " . $self->id . " failed to communicate with " . _log_uri($req->uri) . " for $mac: " . $res->status_line);
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
 
-    my ($pass, $results, $jq_err) = $self->evaluate_jq($res->decoded_content, $self->jq_query);
-    if (defined $jq_err) {
-        # The server answered, a broken query or payload is a configuration error, not a communication error
-        $logger->error("Provisioner " . $self->id . " failed to evaluate its jq query for $mac: $jq_err");
+    my $jq = eval { $self->jq };
+    if (!defined $jq) {
+        # a query that does not compile is a configuration error
+        $logger->error("Provisioner " . $self->id . " has an invalid jq query: " . _clean_err($@));
         return $FALSE;
+    }
+
+    my ($pass, $results, $jq_err, $err_kind) = $self->evaluate_jq($res->decoded_content, undef, $jq);
+    if (defined $jq_err) {
+        $logger->error("Provisioner " . $self->id . " failed to evaluate its jq query for $mac: $jq_err");
+        # Only a query that does not compile is a configuration error. An
+        # unparseable payload or a jq runtime error describes what the server
+        # answered, so it must not de-authorize the device.
+        return $err_kind eq $ERR_QUERY ? $FALSE : $pf::provisioner::COMMUNICATION_FAILED;
     }
 
     $node_info //= node_view($mac);
@@ -341,7 +529,10 @@ sub authorize {
         $mac,
         {
             node_info       => $node_info,
-            generic_http    => $results->[0],
+            generic_http    => {
+                result  => $results->[0],
+                results => $results,
+            },
             compliant_check => ($pass ? 1 : 0),
         },
         ($pass ? $TRUE : $FALSE)

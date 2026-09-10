@@ -20,10 +20,11 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 32;
+use Test::More tests => 44;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
+use URI;
 
 use pf::constants;
 # Do not `use pf::provisioner;` here: loading the base class before the
@@ -141,7 +142,11 @@ my $provisioner = new_ok(
     is($p->authorize($TEST_MAC, $TEST_NODE_INFO), $FALSE, "authorize returns false when the jq query does not pass");
 
     $response = HTTP::Response->new(200, 'OK', ['Content-Type' => 'text/plain'], 'oops not json');
-    is($p->authorize($TEST_MAC, $TEST_NODE_INFO), $FALSE, "authorize returns false when the response is not valid JSON");
+    is($p->authorize($TEST_MAC, $TEST_NODE_INFO), $pf::provisioner::COMMUNICATION_FAILED, "authorize returns COMMUNICATION_FAILED when the response is not valid JSON");
+
+    $response = HTTP::Response->new(200, 'OK', ['Content-Type' => 'application/json'], '{"status":"enrolled"}');
+    my $bad_query = make_provisioner(jq_query => '.a | bad_func_xyz');
+    is($bad_query->authorize($TEST_MAC, $TEST_NODE_INFO), $FALSE, "authorize returns false when the jq query does not compile");
 
     $response = HTTP::Response->new(500, 'Internal Server Error', [], '');
     is($p->authorize($TEST_MAC, $TEST_NODE_INFO), $pf::provisioner::COMMUNICATION_FAILED, "authorize returns COMMUNICATION_FAILED on a server error");
@@ -151,6 +156,57 @@ my $provisioner = new_ok(
 
     my $bad_template = make_provisioner(url => 'https://mdm.example.com/${undefined_func()}');
     is($bad_template->authorize($TEST_MAC, $TEST_NODE_INFO), $pf::provisioner::COMMUNICATION_FAILED, "authorize returns COMMUNICATION_FAILED on a template error");
+}
+
+{
+    # the ERR_* / MAX_RESPONSE_SIZE package variables are each named once here
+    no warnings 'once';
+    my (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('not json', '.a');
+    is($kind, $pf::provisioner::generic_http::ERR_JSON, "an unparseable payload is reported as a json error");
+
+    (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', '.a | bad_func_xyz');
+    is($kind, $pf::provisioner::generic_http::ERR_QUERY, "a query that does not compile is reported as a query error");
+
+    (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":"x"}', '.a | tonumber');
+    is($kind, $pf::provisioner::generic_http::ERR_JQ, "a jq runtime error is reported as a jq error");
+
+    local $pf::provisioner::generic_http::MAX_RESPONSE_SIZE = 10;
+    (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":"0123456789"}', '.a');
+    is($kind, $pf::provisioner::generic_http::ERR_JSON, "a payload over MAX_RESPONSE_SIZE is refused");
+}
+
+{
+    my $p = make_provisioner(headers => qq[Cookie: a=1\nCookie: b=2]);
+    my ($req, $err) = $p->make_request($TEST_MAC, $TEST_NODE_INFO);
+    my @cookies = $req->header('Cookie');
+    is(scalar(@cookies), 2, "a repeated header is not collapsed");
+    is(join('|', @cookies), 'a=1|b=2', "a repeated header keeps the configured order");
+}
+
+{
+    is(
+        pf::provisioner::generic_http::_log_uri(URI->new('https://mdm.example.com/api?mac=aa&api_key=SECRET')),
+        'https://mdm.example.com/api?<redacted>',
+        "the query string is redacted from the logged uri"
+    );
+    is(
+        pf::provisioner::generic_http::_log_uri(URI->new('https://mdm.example.com/api')),
+        'https://mdm.example.com/api',
+        "a uri without a query string is logged as is"
+    );
+}
+
+{
+    my $p = make_provisioner();
+    is($p->jq, $p->jq, "the compiled jq program is built once and reused");
+}
+
+{
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded('{"status":"enrolled"}', '.status == "enrolled"');
+    ok($pass, "the guarded evaluation passes a matching query");
+
+    ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded('{}', '[range(100000000)] | length', 1);
+    like($err // '', qr/did not complete within/, "the guarded evaluation kills a query that does not terminate");
 }
 
 =head1 AUTHOR
