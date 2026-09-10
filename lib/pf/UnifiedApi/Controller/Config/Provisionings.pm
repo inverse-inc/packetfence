@@ -69,9 +69,12 @@ sub type_lookup {
 
 fields_to_mask
 
+headers and body are templates that commonly carry an API token
+(Authorization: Bearer ...), so they are masked in the audit record.
+
 =cut
 
-sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token) }
+sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token headers body) }
 
 =head2 test_jq
 
@@ -87,13 +90,18 @@ sub test_jq {
         return $self->render_error(400, "Bad Request : $error");
     }
 
+    if (ref($data) ne 'HASH') {
+        return $self->render_error(400, "Bad Request : a JSON object is expected");
+    }
+
     my $query = $data->{jq_query} // '';
     my $json  = $data->{json} // '';
     if ($query eq '' || $json eq '') {
         return $self->render_error(422, "Both jq_query and json must be provided");
     }
 
-    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq($json, $query);
+    # the query is arbitrary here, so bound how long it may run
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded($json, $query);
     if (defined $err) {
         return $self->render_error(422, "jq evaluation failed: $err");
     }

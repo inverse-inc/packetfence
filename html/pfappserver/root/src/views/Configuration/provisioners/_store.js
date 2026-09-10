@@ -37,7 +37,7 @@ const state = () => {
 }
 
 const getters = {
-  isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
+  isWaiting: state => [types.LOADING, types.DRYRUN, types.DELETING].includes(state.itemStatus),
   isLoading: state => state.itemStatus === types.LOADING
 }
 
@@ -115,7 +115,7 @@ const actions = {
     })
   },
   testJq: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
+    commit('ITEM_REQUEST', types.DRYRUN)
     return api.testJq(data).then(response => {
       commit('ITEM_SUCCESS')
       return response
