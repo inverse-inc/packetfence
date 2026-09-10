@@ -73,6 +73,18 @@ has 'net_type' => ('is' => 'ro');
 has 'inline_sub_connection_type' => ('is' => 'ro');
 has 'dhcp' => ('is' => 'ro');
 
+# Set by pf::api::process_dhcp_event for packets forwarded by a connector's
+# fingerbank-collector. PacketFence is never the DHCP server of a remote site,
+# so without it a DHCPACK would only be acted on with
+# network.force_listener_update_on_ack, a global toggle meant for the UDP
+# reflector setup; renewals (unicast REQUEST without option 50 + ACK) would
+# never refresh ip4log.
+has 'update_ip4log_on_ack' => ('is' => 'ro', default => 0);
+
+# Cleared by pf::api::process_dhcp_event: the DHCP servers a connector sees
+# are the remote site's legitimate servers, not rogues on a PacketFence VLAN.
+has 'rogue_dhcp_detection' => ('is' => 'ro', default => 1);
+
 has 'accessControl' => (is => 'ro', builder => '_build_accessControl');
 has 'dhcp_networks' => (is => 'ro', builder => '_build_DHCP_networks');
 has 'managed_networks' => (is => 'ro', builder => '_build_managed_networks');
@@ -458,6 +470,7 @@ sub parse_dhcp_ack {
     # Packet also has to be valid
     my $is_dhcp = $self->pf_is_dhcp($client_ip);
     if( $is_dhcp ||
+        $self->update_ip4log_on_ack ||
         isenabled $Config{network}{force_listener_update_on_ack} ){
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length, is_dhcp => $is_dhcp) );
         $self->apiClient->notify('update_switch_role_network', ( mac => $client_mac, ip => $client_ip, mask => $client_mask, lease_length => $lease_length) ) unless (isdisabled($Config{'network'}{'learn_network_cidr_by_role'}));
@@ -631,6 +644,7 @@ sub rogue_dhcp_handling {
     my ($self, $dhcp_srv_ip, $dhcp_srv_mac, $offered_ip, $client_mac, $relay_ip) = @_;
 
     return if (isdisabled($Config{'network'}{'rogue_dhcp_detection'}));
+    return unless ($self->rogue_dhcp_detection);
 
     # if server ip is empty, it means that the client is asking for it's old IP and this should be legit
     if (!defined($dhcp_srv_ip)) {
