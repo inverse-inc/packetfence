@@ -125,6 +125,18 @@ sub _generateConfig {
     $self->generate_radiusd_certificates($tt);
 }
 
+=head2 _management_ip
+
+Management VIP, falling back to IP, and to '' while the management network is
+still unset (configurator).
+
+=cut
+
+sub _management_ip {
+    return '' unless ref($management_network);
+    return $management_network->tag('vip') // $management_network->tag('ip') // '';
+}
+
 
 =head2 generate_radiusd_sitesconf
 Generates the packetfence and packetfence-tunnel configuration file
@@ -204,7 +216,7 @@ EOT
     if (pf::cluster::isSlaveMode()) {
 
         $tags{'remote'} = "YES";
-        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'management_ip'} = _management_ip();
 
         $tags{'members'} = '';
         $tags{'config'} ='';
@@ -338,7 +350,7 @@ sub generate_radiusd_mainconf {
 
     $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
     $tags{'install_dir'} = $install_dir;
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'management_ip'} = _management_ip();
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
     $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
@@ -397,7 +409,7 @@ sub generate_radiusd_authconf {
     my %tags;
     my @listen_ips;
     if ($cluster_enabled) {
-        my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        my $ip = _management_ip();
         push @listen_ips, $ip;
 
     } else {
@@ -425,7 +437,7 @@ sub generate_radiusd_acctconf {
     my %tags;
     my @listen_ips;
     if ($cluster_enabled) {
-        my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        my $ip = _management_ip();
         push @listen_ips, $ip;
 
     } else {
@@ -449,7 +461,7 @@ sub generate_radiusd_eduroamconf {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
         $tags{'template'}    = "$conf_dir/radiusd/eduroam.conf";
         if ($cluster_enabled) {
-            my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+            my $ip = _management_ip();
             $tags{'listen'} .= << "EOT";
 listen {
     ipaddr = *
@@ -677,7 +689,7 @@ sub generate_radiusd_cliconf {
     if (@cli_switches > 0) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
         if ($cluster_enabled) {
-            my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+            my $ip = _management_ip();
 
 $tags{'listen'} .= <<"EOT";
 listen {
@@ -1115,7 +1127,7 @@ EOT
     }
 
     if(isenabled($Config{services}{pfacct})) {
-        my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        my $management_ip = _management_ip();
         my $port = '1813';
         if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
             $port = '1823';
@@ -1187,14 +1199,14 @@ sub generate_radiusd_cluster {
     my ($self, $tt) = @_;
     my %tags;
 
-    my $int = $management_network->{'Tint'};
-    my $cfg = $Config{"interface $int"};
-
     $tags{'members'} = '';
     $tags{'config'} ='';
     $tags{'home_server'} ='';
 
-    if ($cluster_enabled) {
+    # management_network stays undef until the mgmt interface is configured (configurator)
+    if ($cluster_enabled && ref($management_network)) {
+        my $int = $management_network->{'Tint'};
+        my $cfg = $Config{"interface $int"};
         my $cluster_ip = isenabled($Config{active_active}{radius_proxy_with_vip}) ? pf::cluster::management_cluster_ip() : $management_network->{Tip};
         my @radius_backend = values %{pf::cluster::members_ips($int)};
 
