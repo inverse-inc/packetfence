@@ -34,6 +34,8 @@ Depends: ${misc:Depends}, vlan,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  jq,
+# Perl binding for libjq, used by the generic_http provisioner
+ libjq-xs-perl,
  mariadb-server,
  mariadb-client,
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
