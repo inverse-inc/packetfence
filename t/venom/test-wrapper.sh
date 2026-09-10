@@ -96,12 +96,14 @@ configure_and_check() {
 
 # Space for a full run, on each volume it lands on. The shared preflight owns
 # the measure/reclaim/re-measure loop and keeps the reclaim CI-only.
+# The store floor has to cover an archive and the image it unpacks to at once;
+# the pool is a different volume, so it carries its own.
 check_free_space() {
     local preflight="${CI_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib}/ensure-runner-disk-free.sh"
-    RUNNER_MIN_FREE_GB="${VENOM_MIN_FREE_GB:-30}" \
+    RUNNER_MIN_FREE_GB="${VENOM_MIN_FREE_GB:-45}" \
     RUNNER_DISK_CHECK_PATHS="${VAGRANT_HOME:-${HOME}/.vagrant.d} \
 ${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache} \
-${LIBVIRT_IMAGES_DIR:-/var/lib/libvirt/images}" \
+${LIBVIRT_IMAGES_DIR:-/var/lib/libvirt/images}:${VENOM_MIN_FREE_POOL_GB:-35}" \
         "${preflight}" || die "Not enough space to run tests. Skipping tests."
 }
 
@@ -154,13 +156,11 @@ run() {
 # directly (403). Pre-fetch them with authenticated rclone, driven by the VM's
 # box_url/box_version in the inventory (single source of truth). Public boxes (generic/rhel8,
 # debian/*) have no bucket URL and are fetched by Vagrant directly.
-prefetch_private_box() {
+# "<box_url>|<box_version>" for a VM: the version must come from the inventory
+# too, else Vagrant looks up a version we didn't pre-fetch and hits the 403.
+inventory_box_ref() {
     local vm=$1
-
-    local box_url="" box_version=""
-    # "<box_url>|<box_version>": the version must come from the inventory too,
-    # else Vagrant looks up a version we didn't pre-fetch and hits the 403.
-    IFS='|' read -r box_url box_version < <(python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
+    python3 - "${ANSIBLE_INVENTORY}/hosts" "${vm}" <<'PY' 2>/dev/null || true
 import sys, yaml
 inv = yaml.safe_load(open(sys.argv[1]))
 target, hit = sys.argv[2], {}
@@ -176,12 +176,22 @@ def walk(node):
 walk(inv)
 print("%s|%s" % (hit.get('box_url', ''), hit.get('box_version', '')))
 PY
-) || true
-    # Public boxes (debian/*, generic/rhel8) have no bucket URL: Vagrant fetches them.
-    case "${box_url}" in
-        *packetfence-vagrant-box*) ;;
-        *) return 0 ;;
+}
+
+# Ours to fetch and to drop. Empty name = a public box, Vagrant's business.
+private_box_name() {
+    case "$1" in
+        *packetfence-vagrant-box*) basename "$(dirname "$1")" ;;
     esac
+}
+
+prefetch_private_box() {
+    local vm=$1
+
+    local box_url="" box_version="" box_name=""
+    IFS='|' read -r box_url box_version < <(inventory_box_ref "${vm}")
+    box_name=$(private_box_name "${box_url}")
+    [ -n "${box_name}" ] || return 0
 
     # Private box: creds are mandatory; fail clearly instead of a later vagrant 403.
     [ -n "${RCLONE_ACCESS_KEY_ID:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_ACCESS_KEY_ID is unset."
@@ -189,8 +199,6 @@ PY
     [ -n "${RCLONE_LINODE_URL:-}" ] || die "VM '${vm}' needs private box '${box_url}' but RCLONE_LINODE_URL is unset."
 
     local setup_script="${VAGRANT_LIB_DIR:-${VENOM_ROOT_DIR}/../../ci/lib/vagrant}/setup-vagrant-box.sh"
-    local box_name                                    # .../<box_name>/metadata.json
-    box_name=$(basename "$(dirname "${box_url}")")
     echo "===> Pre-fetching private box '${box_name}' for VM '${vm}' (version ${box_version:-latest})"
     BOX_NAME="${box_name}" BOX_VERSION="${box_version}" "${setup_script}" \
         || die "failed to fetch box ${box_name} for ${vm}"
@@ -350,6 +358,45 @@ delete_ansible_files() {
     delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
 }
 
+# Each box lands twice, in the store and as a pool volume, and nothing else
+# drops either: retire what this job fetched. CI-only -- a dev keeps their boxes.
+remove_used_boxes() {
+    log_subsection "Remove boxes used by this job"
+    if [ -z "${CI:-}" ] && [ "${FORCE_TEST_BOX_CLEANUP:-}" != yes ]; then
+        echo "Not in CI -- keeping boxes (set FORCE_TEST_BOX_CLEANUP=yes to override)"
+        return 0
+    fi
+    if [ "${KEEP_TEST_BOXES:-no}" = yes ]; then
+        echo "KEEP_TEST_BOXES=yes -- keeping boxes"
+        return 0
+    fi
+    # A sibling job's domain would lose the backing file under it.
+    if virsh -c qemu:///system list --all --name 2>/dev/null | grep -q '^vagrant-'; then
+        echo "Another vagrant domain is still defined, leaving boxes alone"
+        return 0
+    fi
+    local img_cache="${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache}"
+    local vm box_url box_name prefix pool vol
+    for vm in ${ALL_VM_NAMES}; do
+        IFS='|' read -r box_url _ < <(inventory_box_ref "${vm}")
+        box_name=$(private_box_name "${box_url}")
+        [ -n "${box_name}" ] || continue
+        echo "Removing box inverse-inc/${box_name} (used by ${vm})"
+        vagrant box remove "inverse-inc/${box_name}" --provider libvirt --all --force || true
+        # box remove never touches the pool copy.
+        prefix="inverse-inc-VAGRANTSLASH-${box_name}_vagrant_box_image_"
+        for pool in $(virsh -c qemu:///system pool-list --name 2>/dev/null || true); do
+            for vol in $(virsh -c qemu:///system vol-list --pool "${pool}" 2>/dev/null \
+                           | awk 'NR>2 && $1 {print $1}' | grep -F "${prefix}" || true); do
+                echo "Deleting box volume ${vol} (pool ${pool})"
+                virsh -c qemu:///system vol-delete --pool "${pool}" "${vol}" || true
+            done
+        done
+        # Markers claim the box is installed; stale ones skip the next prefetch.
+        rm -f "${img_cache}/${box_name}.version" "${img_cache}/${box_name}.local.metadata.json"
+    done
+}
+
 # Cleaning = no test VMs, no leftover disk. vagrant destroy misses orphans
 # (dotfile-only; DOMAIN_PREFIX's random hex never reclaims them), so sweep
 # libvirt directly, scoped to the Vagrantfile prefix. Networks are shared/reused.
@@ -372,6 +419,7 @@ destroy() {
     delete_dir_if_exists "${VAGRANT_PF_DOTFILE_PATH}"
     delete_dir_if_exists "${VAGRANT_COMMON_DOTFILE_PATH}"
     delete_ansible_files
+    remove_used_boxes
 }
 
 configure_and_check

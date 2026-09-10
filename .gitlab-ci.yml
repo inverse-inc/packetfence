@@ -636,8 +636,8 @@ variables:
           exit 0
         fi
       fi
-    # What this runner is holding, and what a reclaim would free on it. Dry-run,
-    # so nothing is deleted; only useful on the host about to run the test.
+    # Inventory only -- deletes nothing; the reclaim that does is floor-gated
+    # in check_free_space.
     - ${CILIBDIR}/vagrant/cleanup-runner-disk.sh || true
     # || EXIT_CODE=$? prevents script to finish at first command
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
