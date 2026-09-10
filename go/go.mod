@@ -295,7 +295,7 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
-	github.com/google/cel-go v0.28.1 // indirect
+	github.com/google/cel-go v0.29.0 // indirect
 	github.com/google/certificate-transparency-go v1.1.8-0.20240110162603-74a5dd331745 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
