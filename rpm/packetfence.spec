@@ -71,6 +71,8 @@ Requires: perl(Sub::Exporter)
 Requires: perl(Cisco::AccessList::Parser)
 Requires: perl(Email::Address::XS)
 Requires: jq
+# Perl binding for libjq, used by the generic_http provisioner
+Requires: perl(JQ::XS)
 
 Requires: perl(Net::SSLeay)
 Requires: perl(Data::Dump)

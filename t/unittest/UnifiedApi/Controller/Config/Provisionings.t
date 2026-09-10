@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 72;
+use Test::More tests => 78;
 use Test::Mojo;
 
 #This test will running last
@@ -151,6 +151,23 @@ $t->post_ok($collection_base_url => json => {
     jq_query => '.devices[0].status == "enrolled"',
 })->status_is(201);
 
+# an unescaped '$' in a template is rejected: it would be read as a variable
+# and silently dropped from the rendered value
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_baddollar_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    headers  => 'Authorization: Bearer sk-abc$def',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badurl_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?token=abc$def',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
 # a jq query that does not compile is rejected on update
 $t->patch_ok("$base_url/$bracket_id" => json => {
     jq_query => '.devices[',
@@ -183,6 +200,10 @@ $t->post_ok("$collection_base_url/test_jq" => json => {
 })->status_is(422);
 
 $t->post_ok("$collection_base_url/test_jq", {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
+# valid JSON that is not an object is a bad request, not a 500
+$t->post_ok("$collection_base_url/test_jq", {'Content-Type' => 'application/json'} => '[1,2]')
   ->status_is(400);
 
 =head1 AUTHOR

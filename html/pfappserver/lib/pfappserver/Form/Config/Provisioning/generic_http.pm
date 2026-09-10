@@ -12,6 +12,7 @@ Form definition of the generic HTTP provisioner
 
 use HTML::FormHandler::Moose;
 use JQ::XS;
+use pf::mini_template;
 use pf::provisioner::generic_http;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
@@ -27,22 +28,25 @@ has_field 'url' =>
   (
    type => 'Text',
    required => 1,
+   validate_method => \&validate_template,
    tags => { after_element => \&help,
-             help => 'The URL of the request. This is a template: $mac is the MAC address of the device and $node.&lt;attribute&gt; (ex: $node.pid, $node.category) are the attributes of the node.' },
+             help => 'The URL of the request. This is a template: $mac is the MAC address of the device and $node.&lt;attribute&gt; (ex: $node.pid, $node.category) are the attributes of the node. A literal &#39;$&#39; must be doubled (&#39;$$&#39;), otherwise it is read as a variable and dropped.' },
   );
 
 has_field 'headers' =>
   (
    type => 'TextArea',
+   validate_method => \&validate_headers,
    tags => { after_element => \&help,
-             help => 'The headers of the request, one "Name: value" per line. Names and values are templates like the URL.' },
+             help => 'The headers of the request, one "Name: value" per line. Names and values are templates like the URL. A literal &#39;$&#39; must be doubled (&#39;$$&#39;), otherwise it is read as a variable and dropped.' },
   );
 
 has_field 'body' =>
   (
    type => 'TextArea',
+   validate_method => \&validate_template,
    tags => { after_element => \&help,
-             help => 'The body of the request, sent for POST, PUT and PATCH requests. This is a template like the URL.' },
+             help => 'The body of the request, sent for POST, PUT and PATCH requests. This is a template like the URL. A literal &#39;$&#39; must be doubled (&#39;$$&#39;), otherwise it is read as a variable and dropped.' },
   );
 
 has_field 'content_type' =>
@@ -146,6 +150,74 @@ has_field 'jq_query' =>
    tags => { after_element => \&help,
              help => 'The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails.' },
   );
+
+=head2 validate_template
+
+Ensure a template compiles and only references the variables the provisioner
+provides. An unescaped literal '$' is otherwise read as a variable reference
+and silently dropped from the rendered value, so a token containing a '$' is
+sent corrupted.
+
+=cut
+
+our %VALID_TMPL_VARS = (mac => 1, node => 1);
+
+sub validate_template {
+    my ($field) = @_;
+    my $value = $field->value;
+    return if !defined $value || $value eq '';
+    check_template($field, $value);
+}
+
+=head2 validate_headers
+
+Validate the name and the value of every configured header line
+
+=cut
+
+sub validate_headers {
+    my ($field) = @_;
+    my $value = $field->value;
+    return if !defined $value || $value eq '';
+    my $n = 0;
+    for my $line (split /\r?\n/, $value) {
+        $n++;
+        next if $line =~ /^\s*$/;
+        my ($name, $val) = $line =~ /^\s*([^:]+?)\s*:\s*(.*)$/;
+        if (!defined $name) {
+            $field->add_error("Line $n is not a valid header, expecting 'Name: value'");
+            next;
+        }
+
+        check_template($field, $name, "Line $n: ");
+        check_template($field, $val, "Line $n: ");
+    }
+}
+
+=head2 check_template
+
+Add an error to $field when $value is not a usable pf::mini_template
+
+=cut
+
+sub check_template {
+    my ($field, $value, $prefix) = @_;
+    $prefix //= '';
+    my $tmpl = eval { pf::mini_template->new($value) };
+    if (my $err = $@) {
+        $err =~ s/\n.*//s;
+        $err =~ s/([\[\]])/~$1/g;
+        $field->add_error("${prefix}invalid template: $err. A literal '\$' must be written '\$\$'.");
+        return;
+    }
+
+    my @unknown = sort grep { !$VALID_TMPL_VARS{$_} } keys %{ $tmpl->{info}{vars} // {} };
+    if (@unknown) {
+        my $names = join(', ', map { "\$$_" } @unknown);
+        $names =~ s/([\[\]])/~$1/g;
+        $field->add_error("${prefix}unknown template variable(s): $names. Only \$mac and \$node.<attribute> are available; a literal '\$' must be written '\$\$'.");
+    }
+}
 
 =head2 validate_jq_query
 

@@ -44,6 +44,15 @@ For example:
 
   https://mdm.example.com/api/v1/devices?mac=$mac
 
+Because `$` introduces a variable, a literal `$` must be doubled. This matters
+for API tokens, which often contain one:
+
+  Authorization: Bearer sk-abc$$def
+
+written with a single `$`, the `$def` would be read as an (empty) variable and
+the token would be sent truncated. The provisioner refuses to save a URL,
+header or body that references a variable other than `$mac` and `$node.*`.
+
 The *headers* are defined one per line using the `Name: value` syntax. Both
 the name and the value are templates. For example:
 
