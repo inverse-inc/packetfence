@@ -4643,11 +4643,18 @@ sub check_if_radius_request_psk_matches {
     );
 }
 
+# Same statement as go/db/switch_observability.go MarkSwitchAsSeen: a plain
+# upsert (no CTE, no VALUES()) so it runs on both MariaDB and MySQL, with the
+# same rows semantics: 1 = inserted, 2 = refreshed, 0 = row exists and is
+# still fresh (left untouched).
 my $sql_mark_as_seen = <<"SQL";
 INSERT INTO switch_observability (switch_id, visibility_timestamp)
-WITH cte AS (SELECT ? as switch_id)
-SELECT switch_id, NOW() FROM cte LEFT JOIN switch_observability USING (switch_id) WHERE visibility_timestamp IS NULL OR DATE_SUB(NOW(), INTERVAL ? MINUTE) > visibility_timestamp
-ON DUPLICATE KEY UPDATE visibility_timestamp = VALUES(visibility_timestamp);
+VALUES (?, NOW())
+ON DUPLICATE KEY UPDATE visibility_timestamp = IF(
+    visibility_timestamp IS NULL OR visibility_timestamp < DATE_SUB(NOW(), INTERVAL ? MINUTE),
+    NOW(),
+    visibility_timestamp
+);
 SQL
 
 sub mark_as_seen {
