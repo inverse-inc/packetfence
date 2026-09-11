@@ -9,12 +9,17 @@ import (
 var (
 	switchObservabilityCacheTTLInMinutes = 1
 	switchObservabilityCacheTTL          = time.Duration(switchObservabilityCacheTTLInMinutes) * time.Minute
+	switchObservabilityErrorBackoff      = 10 * time.Second
 	switchObservabilityCache             = NewShardedCache[time.Time](16)
 )
 
 // MarkSwitchAsSeen upserts the switch_observability table setting visibility_timestamp to NOW().
 // It uses an in-memory cache to skip the DB update if the switch was already updated within the last minute.
 func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
+	if switchID == "" {
+		return fmt.Errorf("empty switch ID")
+	}
+
 	if len(switchID) > 255 {
 		return fmt.Errorf("%s: is too large to be a switch ID", switchID)
 	}
@@ -27,16 +32,29 @@ func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
 	}
 	shard.Unlock()
 
+	// No CTE here on purpose: this runs against MariaDB and MySQL (5.7 has no
+	// CTE support, and INSERT ... WITH ... SELECT is not portable). VALUES() in
+	// ON DUPLICATE KEY UPDATE is also avoided since MySQL 8.0.20+ deprecates it.
+	// A plain upsert keeps the same RowsAffected semantics: 1 = inserted,
+	// 2 = updated, 0 = row exists and is still fresh (left untouched).
 	results, err := db.Exec(
 		`INSERT INTO switch_observability (switch_id, visibility_timestamp)
-		WITH cte AS (SELECT ? as switch_id)
-		SELECT switch_id, NOW() FROM cte LEFT JOIN switch_observability USING (switch_id) WHERE visibility_timestamp IS NULL OR DATE_SUB(NOW(), INTERVAL ? MINUTE) > visibility_timestamp
-		ON DUPLICATE KEY UPDATE visibility_timestamp = VALUES(visibility_timestamp)`,
+		VALUES (?, NOW())
+		ON DUPLICATE KEY UPDATE visibility_timestamp = IF(
+			visibility_timestamp IS NULL OR visibility_timestamp < DATE_SUB(NOW(), INTERVAL ? MINUTE),
+			NOW(),
+			visibility_timestamp
+		)`,
 		switchID,
 		switchObservabilityCacheTTLInMinutes,
 	)
 
 	if err != nil {
+		// Remember the failure for a short while so a broken database does not
+		// get hit (and logged) again on every single flow batch / accounting request.
+		shard.Lock()
+		shard.Set(switchID, time.Now().Add(-1*(switchObservabilityCacheTTL-switchObservabilityErrorBackoff)))
+		shard.Unlock()
 		return err
 	}
 

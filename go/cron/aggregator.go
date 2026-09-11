@@ -435,8 +435,13 @@ loop:
 		case pfflowsArray := <-ChanPfFlow:
 			for _, pfflows := range pfflowsArray {
 				log.LogInfof(ctx, "Received %d flows of FlowType %s", len(*pfflows.Flows), flowType(pfflows.Header.FlowType))
-				if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
-					log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
+				// The agent address is the exporter (switch) IP. Older collectors do not
+				// fill it in for NetFlow/IPFIX, in which case it prints as "invalid IP"
+				// and must not be recorded as a switch.
+				if pfflows.Header.AgentAddr.IsValid() {
+					if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
+						log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
+					}
 				}
 				for _, f := range *pfflows.Flows {
 					if stmt != nil {
