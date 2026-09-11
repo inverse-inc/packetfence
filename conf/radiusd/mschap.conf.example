@@ -192,6 +192,8 @@ mschap {
 	# An optional retry message.
 #	retry_msg = "Re-enter (or reset) the password"
 }
+
+
 mschap chrooted_mschap {
 	#
 	#  If you are using /etc/smbpasswd, see the 'passwd'
@@ -375,6 +377,33 @@ mschap chrooted_mschap {
 
 	# An optional retry message.
 #	retry_msg = "Re-enter (or reset) the password"
+}
+
+mschap chrooted_mschap_mppe {
+	use_mppe = yes
+	require_encryption = yes
+	require_strong = yes
+	ntlm_auth = "/usr/local/pf/bin/ntlm_auth_wrapper -p [% statsd_port %] -a %{PacketFence-NTLM-Auth-Host} -t %{PacketFence-NTLM-Auth-Port} -- \
+	        --request-nt-key --mac=%{%{Calling-Station-Id}:-''} --username=%{%{control:AD-Samaccountname}:-%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
+
+	ntlm_auth_timeout = 3
+
+	pool {
+		start = ${thread[pool].start_servers}
+		min = ${thread[pool].min_spare_servers}
+		max = ${thread[pool].max_servers}
+		spare = ${thread[pool].max_spare_servers}
+		uses = 0
+		retry_delay = 30
+		lifetime = 86400
+		cleanup_interval = 300
+		idle_timeout = 600
+	}
+
+	passchange {
+	}
+
+	allow_retry = no
 }
 
 mschap chrooted_mschap_machine {

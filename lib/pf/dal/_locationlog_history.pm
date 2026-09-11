@@ -54,6 +54,8 @@ BEGIN {
         session_id
         ifDesc
         voip
+        teap_username
+        teap_machinename
     );
 
     %DEFAULTS = (
@@ -77,6 +79,8 @@ BEGIN {
         session_id => undef,
         ifDesc => undef,
         voip => 'no',
+        teap_username => '',
+        teap_machinename => '',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -99,6 +103,8 @@ BEGIN {
         session_id
         ifDesc
         voip
+        teap_username
+        teap_machinename
     );
 
     %FIELDS_META = (
@@ -232,6 +238,18 @@ BEGIN {
                 'yes' => 1,
             },
         },
+        teap_username => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        teap_machinename => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -260,6 +278,8 @@ BEGIN {
         locationlog_history.session_id
         locationlog_history.ifDesc
         locationlog_history.voip
+        locationlog_history.teap_username
+        locationlog_history.teap_machinename
     );
 
 }

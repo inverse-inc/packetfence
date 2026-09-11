@@ -1250,6 +1250,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/radiusd/fast.conf
 %config                 /usr/local/pf/conf/radiusd/fast.conf.defaults
                         /usr/local/pf/conf/radiusd/fast.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/teap.conf
+%config                 /usr/local/pf/conf/radiusd/teap.conf.defaults
+                        /usr/local/pf/conf/radiusd/teap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/ocsp.conf
 %config                 /usr/local/pf/conf/radiusd/ocsp.conf.defaults
                         /usr/local/pf/conf/radiusd/ocsp.conf.example

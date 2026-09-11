@@ -17,3 +17,13 @@ ecdh_curve = prime256v1
 tls_min_version = 1.2
 tls_max_version = 1.2
 ocsp=default
+
+[tls-eap-teap]
+certificate_profile=radius
+dh_file = ${certdir}/dh
+ca_path = ${cadir}
+cipher_list = ALL:!EXPORT:!eNULL:!SSLv2
+ecdh_curve = prime256v1
+tls_min_version = 1.2
+tls_max_version = 1.2
+ocsp=default
