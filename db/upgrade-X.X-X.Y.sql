@@ -198,6 +198,14 @@ CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acl
     'KEY `switch_observability_acls_mac_enforcement` (`mac`,`enforcement_timestamp`)');
 
 --
+-- Remove phantom switch_observability rows written by 15.1 / 15.2: the flow
+-- aggregator upserted the agent address even when the collector had not set
+-- it ("invalid IP") or when it was 0.0.0.0, and pfacct accepted an empty id.
+--
+\! echo "Removing phantom switch_observability rows...";
+DELETE FROM switch_observability WHERE switch_id IN ('', 'invalid IP', '0.0.0.0');
+
+--
 -- Record the authentication source type alongside the source id in auth_log
 --
 \! echo "Adding column source_type to auth_log...";
