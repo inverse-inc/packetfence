@@ -436,9 +436,10 @@ loop:
 			for _, pfflows := range pfflowsArray {
 				log.LogInfof(ctx, "Received %d flows of FlowType %s", len(*pfflows.Flows), flowType(pfflows.Header.FlowType))
 				// The agent address is the exporter (switch) IP. Older collectors do not
-				// fill it in for NetFlow/IPFIX, in which case it prints as "invalid IP"
-				// and must not be recorded as a switch.
-				if pfflows.Header.AgentAddr.IsValid() {
+				// fill it in for NetFlow/IPFIX, in which case it prints as "invalid IP",
+				// and an sFlow exporter without an agent-ip sends 0.0.0.0; neither must
+				// be recorded as a switch.
+				if addr := pfflows.Header.AgentAddr; addr.IsValid() && !addr.IsUnspecified() {
 					if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
 						log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
 					}

@@ -16,8 +16,11 @@ var (
 // MarkSwitchAsSeen upserts the switch_observability table setting visibility_timestamp to NOW().
 // It uses an in-memory cache to skip the DB update if the switch was already updated within the last minute.
 func MarkSwitchAsSeen(db *sql.DB, switchID string) error {
+	// Nothing to record for an empty ID (e.g. a radius_nas row with an empty
+	// nasname). Returning an error here would bypass the cache and the error
+	// backoff below and be logged on every single accounting request.
 	if switchID == "" {
-		return fmt.Errorf("empty switch ID")
+		return nil
 	}
 
 	if len(switchID) > 255 {
