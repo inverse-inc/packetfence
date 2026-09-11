@@ -34,6 +34,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Bug Fixes
 
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
+  - RADIUS: when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx), radiusd no longer answers with an Access-Reject but stays silent so the NAS retries or fails over; an Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart or stall
 
 === Security Fixes
 
