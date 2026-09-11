@@ -59,6 +59,10 @@ TraceEnable off
 # Limit mod_perl to 1024MB of RAM
 PerlModule Apache2::Resource
 PerlSetEnv PERL_RLIMIT_AS 1024
+# Make LOG_LEVEL (set on the container / systemd unit) visible to mod_perl.
+# Plain environment variables are not available to Perl code running under
+# Apache; without this the log4perl config falls back to INFO.
+PerlPassEnv LOG_LEVEL
 PerlChildInitHandler Apache2::Resource
 
 [% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
