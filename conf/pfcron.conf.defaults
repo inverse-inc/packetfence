@@ -1126,7 +1126,7 @@ schedule=@every 1m
 # kafka_brokers
 #
 # Kafka Brokers to read from
-kafka_brokers=containers-gateway.internal:9095
+kafka_brokers=[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:9095
 #
 # read_topic
 #
