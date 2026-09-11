@@ -31,6 +31,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - RADIUS: when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx), radiusd no longer answers with an Access-Reject but stays silent so the NAS retries or fails over; an Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart or stall
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
