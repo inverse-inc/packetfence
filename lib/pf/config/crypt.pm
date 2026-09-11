@@ -108,7 +108,12 @@ sub pf_decrypt_with_key {
     }
 
     my $tags = decode_tags($data);
-    return gcm_decrypt_verify('AES', $key, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
+    my $plain = gcm_decrypt_verify('AES', $key, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
+    return undef unless defined $plain;
+    # gcm_decrypt_verify returns a buffer that is not NUL terminated. Consumers
+    # that hand the value to a C API expecting a C string read past its end, so
+    # return a copy that carries the terminator.
+    return sprintf("%s", $plain);
 }
 
 =head1 AUTHOR
