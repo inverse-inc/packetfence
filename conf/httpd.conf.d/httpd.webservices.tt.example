@@ -57,6 +57,10 @@
 
 [% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
 
+# Make LOG_LEVEL (set on the container / systemd unit) visible to mod_perl.
+# Plain environment variables are not available to Perl code running under
+# Apache; without this the log4perl config falls back to INFO.
+PerlPassEnv LOG_LEVEL
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
