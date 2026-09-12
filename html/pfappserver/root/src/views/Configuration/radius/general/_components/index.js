@@ -32,6 +32,7 @@ export {
   BaseFormGroupInputNumber as FormGroupPfacctWorkQueueSize,
   BaseFormGroupSwitch as FormGroupPfacctRateLimit,
   BaseFormGroupInputNumber as FormGroupPfacctRateLimitCacheTtl,
+  BaseFormGroupInputNumber as FormGroupRadiusdMaxServers,
 
   BaseViewResource as BaseView,
   TheForm,
