@@ -938,6 +938,28 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== RADIUS dynamic clients are now cached for 300 seconds
+
+[filename]`/usr/local/pf/raddb/sites-available/dynamic-clients` now sets
+`lifetime = 300` instead of `lifetime = "0"`. With the previous value every
+RADIUS packet re-resolved its switch from the `radius_nas` table (three SQL
+queries per packet); switches are now cached for five minutes, so a changed
+secret or type in the switch configuration takes up to five minutes to apply
+to an already-known switch.
+
+If you never modified that file, the package upgrade updates it automatically
+and the new value is applied when radiusd restarts at the end of the upgrade.
+
+If you customized it, the package manager keeps your version and ships the new
+default alongside (`.rpmnew` on RHEL, dpkg conffile prompt on Debian). Set
+`lifetime = 300` (or any positive number of seconds) in the `client dynamic`
+block of your file, then restart:
+
+[source,bash]
+----
+systemctl restart packetfence-radiusd-auth
+----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
