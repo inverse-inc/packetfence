@@ -165,7 +165,32 @@ func (j *PfFlowJob) newReader(ctx context.Context, dialer *kafka.Dialer) *kafka.
 		ErrorLogger: kafka.LoggerFunc(func(msg string, args ...interface{}) {
 			log.LogErrorf(ctx, "kafka reader: "+msg, args...)
 		}),
+		// Return OffsetOutOfRange from ReadMessage instead of retrying the
+		// fetch forever, so Run() can repair a stranded group offset as soon
+		// as the broker reports it rather than after readTimeout of silence.
+		OffsetOutOfRangeError: true,
 	})
+}
+
+// strandedCheckInterval bounds how long a stranded partition can go unnoticed
+// while other partitions of the topic keep delivering messages (the idle-read
+// path only fires when the whole topic is silent).
+const strandedCheckInterval = 5 * time.Minute
+
+// repairCooldown is how long Run() waits before retrying a failed offset
+// reset, so a reset that cannot succeed (see commitGroupOffsets) does not
+// close and rebuild the reader every readTimeout.
+const repairCooldown = 5 * time.Minute
+
+// isStrandedOffset reports whether a committed group offset lies past the end
+// of its partition, which happens when the topic was deleted and recreated
+// behind the consumer: kafka-go then fetches from an offset that does not
+// exist and never advances. lastOffset <= 0 means the log end is unknown or
+// the partition is empty and is never treated as stranded (an empty answer
+// from ListOffsets must not rewind a healthy group to 0); committed < 0 means
+// the group has no offset for the partition.
+func isStrandedOffset(committed, lastOffset int64) bool {
+	return lastOffset > 0 && committed > lastOffset
 }
 
 // WaitForTopic polls the broker until the topic appears or the context times out
@@ -239,27 +264,10 @@ func (j *PfFlowJob) staleGroupOffsets(ctx context.Context, client *kafka.Client)
 		return nil, nil
 	}
 
-	offsetRequests := make([]kafka.OffsetRequest, 0, len(partitions))
-	for _, p := range partitions {
-		offsetRequests = append(offsetRequests, kafka.LastOffsetOf(p))
-	}
-
-	listed, err := client.ListOffsets(ctx, &kafka.ListOffsetsRequest{
-		Topics: map[string][]kafka.OffsetRequest{j.ReadTopic: offsetRequests},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	lastOffsets := map[int]int64{}
-	for _, po := range listed.Topics[j.ReadTopic] {
-		if po.Error != nil {
-			return nil, po.Error
-		}
-
-		lastOffsets[po.Partition] = po.LastOffset
-	}
-
+	// Committed offsets first, log ends second. Both only grow, so a commit
+	// by another group member landing between the two calls can only make
+	// the log end larger than what was committed, never the reverse; the
+	// opposite order produced false "reset behind the consumer" alarms.
 	fetched, err := client.OffsetFetch(ctx, &kafka.OffsetFetchRequest{
 		GroupID: j.GroupID,
 		Topics:  map[string][]int{j.ReadTopic: partitions},
@@ -272,32 +280,59 @@ func (j *PfFlowJob) staleGroupOffsets(ctx context.Context, client *kafka.Client)
 		return nil, fetched.Error
 	}
 
+	offsetRequests := make([]kafka.OffsetRequest, 0, 2*len(partitions))
+	for _, p := range partitions {
+		offsetRequests = append(offsetRequests, kafka.FirstOffsetOf(p), kafka.LastOffsetOf(p))
+	}
+
+	listed, err := client.ListOffsets(ctx, &kafka.ListOffsetsRequest{
+		Topics: map[string][]kafka.OffsetRequest{j.ReadTopic: offsetRequests},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	logOffsets := map[int]kafka.PartitionOffsets{}
+	for _, po := range listed.Topics[j.ReadTopic] {
+		if po.Error != nil {
+			return nil, po.Error
+		}
+
+		logOffsets[po.Partition] = po
+	}
+
 	stale := []kafka.OffsetCommit{}
 	for _, p := range fetched.Topics[j.ReadTopic] {
 		if p.Error != nil {
 			return nil, p.Error
 		}
 
-		last, ok := lastOffsets[p.Partition]
-		if !ok || p.CommittedOffset <= last {
+		lo, ok := logOffsets[p.Partition]
+		if !ok || !isStrandedOffset(p.CommittedOffset, lo.LastOffset) {
 			continue
 		}
 
+		// Everything on the recreated partition is still unread: restart from
+		// its first offset rather than skipping to the end.
+		target := max(lo.FirstOffset, 0)
 		log.LogErrorf(
 			ctx,
-			"consumer group %s offset %d on %s/%d is past the log end offset %d (topic reset behind the consumer), resetting to %d",
-			j.GroupID, p.CommittedOffset, j.ReadTopic, p.Partition, last, last,
+			"consumer group %s offset %d on %s/%d is past the log end offset %d (topic recreated behind the consumer), resetting to %d",
+			j.GroupID, p.CommittedOffset, j.ReadTopic, p.Partition, lo.LastOffset, target,
 		)
-		stale = append(stale, kafka.OffsetCommit{Partition: p.Partition, Offset: last})
+		stale = append(stale, kafka.OffsetCommit{Partition: p.Partition, Offset: target})
 	}
 
 	return stale, nil
 }
 
-// commitGroupOffsets commits offsets for the group outside of any generation.
-// The broker only accepts that while the group is empty, so the reader must
-// have been closed (and have left the group) first; retry to cover the leave
-// propagating.
+// commitGroupOffsets commits offsets for the group outside of any generation
+// (GenerationID -1, the admin / simple-consumer path). The broker only accepts
+// that while the consumer group is Empty, so this process's reader must have
+// been closed (and have left the group) first; the retries cover the leave
+// propagating. It cannot succeed while another member is in the group, e.g. a
+// second pfcron instance consuming the same topic: the caller then backs off
+// for repairCooldown instead of rebuilding the reader every readTimeout.
 func (j *PfFlowJob) commitGroupOffsets(ctx context.Context, client *kafka.Client, commits []kafka.OffsetCommit) error {
 	var err error
 	for attempt := 0; attempt < 5; attempt++ {
@@ -358,6 +393,40 @@ func (j *PfFlowJob) Run() {
 	WaitForTopic(dialer, ctx, j.Brokers[0], j.ReadTopic)
 	client := j.kafkaClient()
 
+	nextStrandedCheck := time.Now().Add(strandedCheckInterval)
+	var repairBlockedUntil time.Time
+
+	// repairStrandedOffsets looks for group offsets past their partition's log
+	// end and resets them. It returns true when a reset was attempted (the
+	// reader is closed either way in that case).
+	repairStrandedOffsets := func(reason string) bool {
+		nextStrandedCheck = time.Now().Add(strandedCheckInterval)
+		if time.Now().Before(repairBlockedUntil) {
+			log.LogDebugf(ctx, "consumer group %s offset repair (%s) skipped, previous attempt failed, retrying after %s", j.GroupID, reason, repairBlockedUntil.Format(time.RFC3339))
+			return false
+		}
+
+		stale, err := j.staleGroupOffsets(ctx, client)
+		if err != nil {
+			log.LogWarnf(ctx, "unable to check consumer group %s offsets (%s): %s", j.GroupID, reason, err.Error())
+			return false
+		}
+
+		if len(stale) == 0 {
+			return false
+		}
+
+		closeReader()
+		if err := j.commitGroupOffsets(ctx, client, stale); err != nil {
+			repairBlockedUntil = time.Now().Add(repairCooldown)
+			log.LogErrorf(ctx, "failed to reset consumer group %s offsets: %s (the reset is only accepted while the group is empty; another consumer of %s in the same group, e.g. a second pfcron instance, prevents it; next attempt after %s)", j.GroupID, err.Error(), j.ReadTopic, repairBlockedUntil.Format(time.RFC3339))
+			return true
+		}
+
+		log.LogInfof(ctx, "consumer group %s offsets reset on %d partition(s) of %s", j.GroupID, len(stale), j.ReadTopic)
+		return true
+	}
+
 	for {
 		// Create or recreate the reader
 		if r == nil {
@@ -377,22 +446,20 @@ func (j *PfFlowJob) Run() {
 				// No message for a whole readTimeout: either the topic is idle
 				// or the group offset is stranded past the end of a recreated
 				// topic, which kafka-go never recovers from on its own.
-				stale, err := j.staleGroupOffsets(ctx, client)
-				if err != nil {
-					log.LogWarnf(ctx, "unable to check consumer group %s offsets: %s", j.GroupID, err.Error())
-					continue
-				}
-
-				if len(stale) == 0 {
+				if !repairStrandedOffsets("idle topic") {
 					log.LogDebugf(ctx, "no message on %s for %s", j.ReadTopic, readTimeout)
-					continue
 				}
 
+				continue
+			}
+
+			if errors.Is(err, kafka.OffsetOutOfRange) {
+				// The broker told us directly that our offset does not exist
+				// (OffsetOutOfRangeError in the reader config): repair now
+				// instead of waiting for readTimeout of silence.
+				log.LogErrorf(ctx, "consumer group %s offset out of range on %s: %s", j.GroupID, j.ReadTopic, err.Error())
 				closeReader()
-				if err := j.commitGroupOffsets(ctx, client, stale); err != nil {
-					log.LogErrorf(ctx, "failed to reset consumer group %s offsets: %s", j.GroupID, err.Error())
-				}
-
+				repairStrandedOffsets("offset out of range")
 				continue
 			}
 
@@ -420,6 +487,14 @@ func (j *PfFlowJob) Run() {
 			log.LogInfof(ctx, "Successfully reconnected to Kafka after %d errors", consecutiveErrors)
 			consecutiveErrors = 0
 			reconnectDelay = 1 * time.Second
+		}
+
+		// A partition can be stranded while the others keep delivering, in
+		// which case the idle-read path above never fires; check periodically.
+		// The message just read is processed below either way; if a reset
+		// closed the reader, the next iteration recreates it.
+		if time.Now().After(nextStrandedCheck) {
+			repairStrandedOffsets("periodic check")
 		}
 
 		pfFlows := &PfFlows{}
