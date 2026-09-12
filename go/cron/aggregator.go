@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/db"
 )
 
 type EventKey struct {
@@ -390,14 +389,16 @@ func logPfFlow(ctx context.Context, header *PfFlowHeader, f *PfFlow) {
 }
 
 func (a *Aggregator) handleEvents() {
-	ctx := context.Background()
+	// A context carrying a logger: with a bare context every Log*f call
+	// rebuilds a logger (including a syslog dial) before filtering the line.
+	ctx := log.LoggerNewContext(context.Background())
 	ticker := time.NewTicker(a.timeout)
 	defer ticker.Stop()
 
 	go a.flusher(ctx)
 	defer close(a.flushChan)
 
-	stats := windowStats{}
+	stats := newWindowStats()
 loop:
 	for {
 		select {
@@ -407,17 +408,14 @@ loop:
 					continue
 				}
 
-				log.LogDebugf(ctx, "Received %d flows of FlowType %s", len(*pfflows.Flows), flowType(pfflows.Header.FlowType))
 				stats.messages++
 				stats.flows += len(*pfflows.Flows)
-				// The agent address is the exporter (switch) IP. Older collectors do not
-				// fill it in for NetFlow/IPFIX, in which case it prints as "invalid IP",
-				// and an sFlow exporter without an agent-ip sends 0.0.0.0; neither must
-				// be recorded as a switch.
-				if addr := pfflows.Header.AgentAddr; a.db != nil && addr.IsValid() && !addr.IsUnspecified() {
-					if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
-						log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
-					}
+				// The agent address is the exporter (switch) IP. Older collectors
+				// leave it unset for NetFlow/IPFIX ("invalid IP") and an sFlow
+				// exporter without an agent-ip sends 0.0.0.0; neither is a switch.
+				// Marked as seen once per window by the flusher, off this goroutine.
+				if addr := pfflows.Header.AgentAddr; addr.IsValid() && !addr.IsUnspecified() {
+					stats.noteAgent(addr.String())
 				}
 
 				for _, f := range *pfflows.Flows {
@@ -431,21 +429,25 @@ loop:
 			}
 		case <-ticker.C:
 			if len(a.events) == 0 {
-				stats = windowStats{}
+				if stats.messages > 0 {
+					log.LogDebugf(ctx, "pfflow aggregator: %d messages carried no flows this window", stats.messages)
+				}
+				stats = newWindowStats()
 				continue
 			}
 
 			batch := flushBatch{events: a.events, stats: stats, tickedAt: time.Now()}
 			a.events = make(map[EventKey][]PfFlow, len(batch.events))
-			stats = windowStats{}
+			stats = newWindowStats()
 
-			// Hand the window to the flusher. If the previous flush is still
-			// running we block here (bounded memory), which is visible as
+			// Hand the window to the flusher. The channel holds one window, so
+			// this only blocks when the flusher is already a full window behind;
+			// then ingestion pauses (bounded memory) and the delay shows up as
 			// consumer lag rather than silent loss.
 			select {
 			case a.flushChan <- batch:
 			default:
-				log.LogWarnf(ctx, "pfflow aggregator: previous flush still running, pausing ingestion until it completes")
+				log.LogWarnf(ctx, "pfflow aggregator: flusher is one window (%s) behind, pausing ingestion until the previous flush completes", a.timeout)
 				a.flushChan <- batch
 			}
 		case <-a.stop:
