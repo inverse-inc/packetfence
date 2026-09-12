@@ -21,6 +21,12 @@ const sessionOnlineRefreshTtl = 10 * time.Minute
 // (MAC, session), while Stop always executes (it flips is_online off) and
 // drops the cache entry so a same-session Start afterwards re-marks the node
 // online immediately.
+//
+// The cache records that the upsert ran, not that the row still exists, so a
+// node_current_session row removed behind pfacct's back (node_current_session
+// has no foreign key to node, so deleting a node leaves the row for the 24h
+// cleanup job) is not recreated until the entry expires; the admin UI renders
+// the missing row as "unknown" rather than online for at most that long.
 func (h *PfAcct) rateLimitedNodeOnlineOffline(status rfc2866.AcctStatusType, m mac.Mac, sessionID uint64) error {
 	key := m.String() + "|" + strconv.FormatUint(sessionID, 10)
 
