@@ -279,20 +279,7 @@ post-auth {
 		}
 	}
 	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-ShortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
-		rest {
-			# httpd.aaa unreachable, timed out or answering 5xx: do not reply at all.
-			# Letting the section fail would send an Access-Reject, which tears down
-			# a session the NAS had already authorized (seen: every httpd.aaa restart
-			# disconnected thousands of devices on periodic reauth). Silence lets the
-			# NAS retry or fail over instead.
-			fail = 1
-		}
-		if (fail) {
-			update control {
-				&Response-Packet-Type := Do-Not-Respond
-			}
-			handled
-		}
+		rest
 	}
 	update {
 		&request:User-Password := "******"
@@ -630,20 +617,7 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
-	rest {
-		# httpd.aaa unreachable, timed out or answering 5xx: do not reply at all.
-		# Letting the section fail would send an Access-Reject, which tears down
-		# a session the NAS had already authorized (seen: every httpd.aaa restart
-		# disconnected thousands of devices on periodic reauth). Silence lets the
-		# NAS retry or fail over instead.
-		fail = 1
-	}
-	if (fail) {
-		update control {
-			&Response-Packet-Type := Do-Not-Respond
-		}
-		handled
-	}
+	rest
 	update {
 		&request:User-Password := "******"
 	}

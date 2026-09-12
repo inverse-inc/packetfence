@@ -392,23 +392,8 @@ server packetfence {
 		# If the request has not been handled inside the inner-tunnel
 		# send it to packetfence
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-			rest {
-				# httpd.aaa unreachable, timed out or answering 5xx: do not reply at all.
-				# Letting the section fail would send an Access-Reject, which tears down
-				# a session the NAS had already authorized (seen: every httpd.aaa restart
-				# disconnected thousands of devices on periodic reauth). Silence lets the
-				# NAS retry or fail over instead.
-				fail = 1
-			}
-			if (fail) {
-				update control {
-					&Response-Packet-Type := Do-Not-Respond
-				}
-				handled
-			}
-			update {
-				&request:User-Password := "******"
-			}
+			# rest + failure policy (see raddb/policy.d/packetfence)
+			packetfence-post-auth-rest
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 				packetfence-audit-log-reject
 				reject

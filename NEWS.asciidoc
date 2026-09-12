@@ -31,7 +31,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
-  - RADIUS: when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx), radiusd no longer answers with an Access-Reject but stays silent so the NAS retries or fails over; an Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart or stall
+  - RADIUS: for MAB and PAP requests, when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx) radiusd no longer answers with an Access-Reject but leaves the request unanswered, logging a "NoResponse" row in the RADIUS audit log. An Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart. EAP requests keep the Reject (the EAP conversation cannot be resumed on retransmit). Note: a NAS counts unanswered requests towards its dead-server criteria, so a stalled PacketFence now triggers the switch's fail-over behaviour (e.g. Cisco critical-auth) instead of de-authorizing ports
+  - RADIUS: /radius/rest/authorize now answers 503 instead of 401 when the request could not be evaluated (database unavailable, handler exception), so radiusd treats it as a failure rather than a deny; a database outage no longer turns every reauthentication into an Access-Reject
 
 === Security Fixes
 
