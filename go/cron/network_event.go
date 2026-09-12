@@ -1,16 +1,12 @@
 package maint
 
 import (
-	"context"
-	"database/sql"
 	"errors"
 	"net/netip"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/inverse-inc/go-utils/log"
 )
 
 var UUID = ""
@@ -53,10 +49,6 @@ type NetworkEvent struct {
 	EndTime             uint64                  `json:"end-time"`
 	Count               int                     `json:"count"`
 	ReportingEntity     *ReportingEntity        `json:"reporting-entity"` //   integration-specific e.g. broker-id, cloud-app
-}
-
-func (n *NetworkEvent) UpdateEnforcementInfo(ctx context.Context, db *sql.DB) {
-	UpdateNetworkEvent(ctx, db, n)
 }
 
 var GlobalReportingEntity = ReportingEntity{
@@ -194,41 +186,19 @@ type NetworkTranslationInfo struct {
 	Type     NetworkTranslationType `json:"type"`
 }
 
-func (ne *NetworkEvent) GetSrcRole(ctx context.Context, db *sql.DB) (string, string) {
-	return ne.getRoleFromInventory(ctx, db, ne.SourceInventoryItem)
-}
-
-func (ne *NetworkEvent) GetDstRole(ctx context.Context, db *sql.DB) (string, string) {
-	return ne.getRoleFromInventory(ctx, db, ne.DestInventoryitem)
-}
-
-func (ne *NetworkEvent) getRoleFromInventory(ctx context.Context, db *sql.DB, item *InventoryItem) (string, string) {
-	if item == nil {
-		return "", ""
-	}
-
-	if len(item.ExternalIDS) == 0 {
-		return "", ""
+// inventoryMac returns the MAC of an inventory item, or "" when the item is
+// missing or carries no usable MAC.
+func inventoryMac(item *InventoryItem) string {
+	if item == nil || len(item.ExternalIDS) == 0 {
+		return ""
 	}
 
 	mac := item.ExternalIDS[0]
 	if mac == "" || mac == "00:00:00:00:00:00" {
-		return "", ""
+		return ""
 	}
 
-	query := `SELECT name FROM node_category WHERE category_id IN (SELECT category_id FROM node WHERE mac = ?);`
-	role := ""
-	err := db.QueryRowContext(ctx, query, mac).Scan(&role)
-	if err == sql.ErrNoRows {
-		return mac, ""
-	}
-
-	if err != nil {
-		log.LogError(ctx, err.Error())
-		return mac, ""
-	}
-
-	return mac, role
+	return mac
 }
 
 type NetworkTranslationType string

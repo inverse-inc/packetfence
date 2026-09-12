@@ -246,9 +246,10 @@ type PolicyLookup struct {
 	ImplictPolices []Policy
 }
 
-func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) *EnforcementInfo {
-	srcMac, srcRole := ne.GetSrcRole(ctx, db)
-	dstMac, dstRole := ne.GetDstRole(ctx, db)
+// LookupWithRoles resolves the enforcement info of an event whose node roles
+// were already looked up, so callers can batch the role queries for many
+// events (see UpdateNetworkEvents).
+func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
 	if ei := l.LookupByMac(srcMac, ne); ei != nil {
 		return ei
 	}
@@ -346,12 +347,59 @@ func StorePolicyLookup(p *PolicyLookup) {
 	storePolicyLookup.Store(p)
 }
 
-func UpdateNetworkEvent(ctx context.Context, db *sql.DB, ne *NetworkEvent) {
-	lookup := GetPolicyLookup()
-	ei := lookup.Lookup(ctx, db, ne)
-	if ei != nil {
-		ne.EnforcementInfo = ei
+const nodeRolesLookupChunk = 1000
+
+// roleKey normalizes a MAC for the nodeRoles map. node.mac is compared
+// case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map is not, and
+// MACs filled in from ip4log keep whatever case the writer used.
+func roleKey(mac string) string {
+	return strings.ToLower(mac)
+}
+
+// UpdateNetworkEvents sets the enforcement info of every event, resolving the
+// node roles with one query per chunk of distinct MACs instead of two queries
+// per event.
+func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent) {
+	macSet := make(map[string]struct{}, len(events))
+	for _, ne := range events {
+		if mac := inventoryMac(ne.SourceInventoryItem); mac != "" {
+			macSet[roleKey(mac)] = struct{}{}
+		}
+
+		if mac := inventoryMac(ne.DestInventoryitem); mac != "" {
+			macSet[roleKey(mac)] = struct{}{}
+		}
 	}
+
+	macs := make([]string, 0, len(macSet))
+	for mac := range macSet {
+		macs = append(macs, mac)
+	}
+
+	roles := nodeRoles(ctx, db, macs)
+	lookup := GetPolicyLookup()
+	for _, ne := range events {
+		srcMac := inventoryMac(ne.SourceInventoryItem)
+		dstMac := inventoryMac(ne.DestInventoryitem)
+		if ei := lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)]); ei != nil {
+			ne.EnforcementInfo = ei
+		}
+	}
+}
+
+// nodeRoles maps each known MAC (lower-cased, see roleKey) to its role name
+// ("" when the node has no role). MACs absent from the node table are absent
+// from the result, which also yields "" on lookup, the same as the per-event
+// query did. macs must already be roleKey-normalized.
+func nodeRoles(ctx context.Context, db *sql.DB, macs []string) map[string]string {
+	if db == nil {
+		return map[string]string{}
+	}
+
+	roles, _ := queryStringPairs(ctx, db, "nodeRoles",
+		`SELECT LOWER(node.mac), COALESCE(node_category.name, '') FROM node LEFT JOIN node_category ON node_category.category_id = node.category_id WHERE node.mac IN (`,
+		macs, nodeRolesLookupChunk)
+	return roles
 }
 
 func init() {
