@@ -491,7 +491,14 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					options[key] = value
 				}
 			}
-			GlobalOptions = options
+			// Copy rather than alias: the network, device and pffilter overrides
+			// below write into GlobalOptions, while the reply is assembled with
+			// options[dhcp.OptionParameterRequestList], which has to stay the
+			// configured request list rather than whatever an override set.
+			GlobalOptions = make(dhcp.Options, len(options))
+			for key, value := range options {
+				GlobalOptions[key] = value
+			}
 			leaseDuration := handler.leaseDuration
 			// Add network options
 			AddDevicesOptions(NetScope.IP.String(), &leaseDuration, GlobalOptions, db)
@@ -751,7 +758,14 @@ reply:
 			options[key] = value
 		}
 	}
-	GlobalOptions = options
+	// Copy rather than alias: the network, device and pffilter overrides
+	// below write into GlobalOptions, while the reply is assembled with
+	// options[dhcp.OptionParameterRequestList], which has to stay the
+	// configured request list rather than whatever an override set.
+	GlobalOptions = make(dhcp.Options, len(options))
+	for key, value := range options {
+		GlobalOptions[key] = value
+	}
 	leaseDuration := handler.leaseDuration
 
 	// Add network options on the fly
