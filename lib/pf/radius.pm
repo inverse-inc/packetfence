@@ -214,7 +214,7 @@ sub authorize {
         # registration VLAN and saving it at CLEANUP would clobber the real
         # row once the DB comes back; fail the request so the NAS retries.
         $logger->error("Unable to read node $mac from the database ($status_code). This request will be failed to avoid altering the access of the device.");
-        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable", RADIUS_FAILURE => 'database') ];
         goto AUDIT;
     }
     $node_obj->_load_locationlog;
@@ -985,7 +985,7 @@ sub vpn {
             # Node unreadable (e.g. DB down): fail instead of proceeding with
             # a fabricated default node that would be saved over the real row.
             $logger->error("Unable to read node $mac from the database ($status_code). This request will be failed to avoid altering the access of the device.");
-            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable") ];
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable", RADIUS_FAILURE => 'database') ];
         }
         $node_obj->_load_locationlog;
         if ($status_code != $STATUS::CREATED) {

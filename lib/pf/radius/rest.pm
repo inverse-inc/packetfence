@@ -17,7 +17,7 @@ use warnings;
 
 use pf::log;
 use Apache2::Const -compile =>
-  qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
+  qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR HTTP_SERVICE_UNAVAILABLE);
 use pf::api::error;
 use pf::radius::constants;
 use MIME::Base64 qw(decode_base64);
@@ -31,9 +31,21 @@ Format a PacketFence RADIUS response to the format expected by the FreeRADIUS RE
 sub format_response {
     my ($response) = @_;
 
+    # No result at all: the handler died (caught in pf::api) or returned
+    # nothing. That is an infrastructure failure, not a policy decision, so
+    # answer 5xx: rlm_rest maps it to "fail", which the radiusd post-auth
+    # policy treats differently from a 401 "reject".
+    unless (ref($response) eq 'ARRAY' && @$response && defined $response->[0]) {
+        get_logger->error("RADIUS REST handler returned no result, answering 503");
+        die pf::api::error->new(status => Apache2::Const::HTTP_SERVICE_UNAVAILABLE, response => { 'control:PacketFence-Authorization-Status' => 'allow' });
+    }
+
     my $radius_return = shift @$response;
     my %mapped_object = @$response;
     my $radius_audit = delete $mapped_object{"RADIUS_AUDIT"} // {};
+    # Set by pf::radius when the request could not be evaluated for reasons
+    # unrelated to the device (e.g. database unavailable).
+    my $failure = delete $mapped_object{"RADIUS_FAILURE"};
     my %audit;
     while (my ($key, $value) = each %$radius_audit) {
         $audit{"control:$key"} = $value;
@@ -49,6 +61,14 @@ sub format_response {
     if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
         $response->{'control:PacketFence-Authorization-Status'} = 'deny';
         $radius_return = $RADIUS::RLM_MODULE_OK
+    }
+
+    if ($radius_return == $RADIUS::RLM_MODULE_FAIL && $failure) {
+        # Infrastructure failure: 503 -> rlm_rest "fail". A 401 would be a
+        # "reject" and turn e.g. a database outage into Access-Rejects that
+        # tear down every session being reauthenticated.
+        get_logger->error("RADIUS request could not be evaluated ($failure failure), answering 503");
+        die pf::api::error->new(status => Apache2::Const::HTTP_SERVICE_UNAVAILABLE, response => $response);
     }
 
     unless ($radius_return == $RADIUS::RLM_MODULE_OK || $radius_return == $RADIUS::RLM_MODULE_NOOP || $radius_return == $RADIUS::RLM_MODULE_UPDATED || $radius_return == $RADIUS::RLM_MODULE_HANDLED) {
