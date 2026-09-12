@@ -237,3 +237,58 @@ packetfence-base64-password {
     }
 }
 
+#
+#  Audit row for a request that was deliberately left unanswered (see
+#  packetfence-post-auth-rest): keeps an httpd.aaa outage visible in the
+#  RADIUS audit log instead of a gap.
+#
+packetfence-audit-log-no-response {
+    if (&User-Name && (&User-Name == "dummy")) {
+        noop
+    }
+    else {
+        request-timing
+        %{redis:RPUSH RADIUS_AUDIT_LOG '%{base64:["NoResponse",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time Packet-Src-IP-Address}]}'}
+    }
+}
+
+#
+#  Post-auth call to httpd.aaa (/radius/rest/authorize) with a failure policy.
+#
+#  rlm_rest returns "fail" when httpd.aaa is unreachable, times out or answers
+#  5xx (which /radius/rest/authorize does for infrastructure failures such as
+#  an unavailable database). Letting the section fail sent an Access-Reject,
+#  which a NAS treats as authoritative: on a periodic reauthentication it tears
+#  down a session it had already authorized. Every httpd.aaa restart did that
+#  to thousands of devices.
+#
+#  MAB / PAP (no EAP): the request is left unanswered (do_not_respond). The
+#  NAS retransmits and, if PacketFence stays silent long enough, marks the
+#  server dead and applies its own fail-over policy (critical-auth on Cisco);
+#  the existing session is untouched.
+#
+#  EAP: the Reject is kept. rlm_eap has already freed the conversation when
+#  post-auth runs, so a retransmit cannot be resumed; silence would only delay
+#  the Reject while getting the server marked dead. Deliberate denials
+#  (PacketFence-Authorization-Status = deny, 401) are unaffected either way.
+#
+packetfence-post-auth-rest {
+    rest {
+        fail = 1
+    }
+    if (fail) {
+        update {
+            &request:User-Password := "******"
+        }
+        if (&EAP-Type) {
+            reject
+        }
+        else {
+            packetfence-audit-log-no-response
+            do_not_respond
+        }
+    }
+    update {
+        &request:User-Password := "******"
+    }
+}
