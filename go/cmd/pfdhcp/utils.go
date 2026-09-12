@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	cache "github.com/fdurand/go-cache"
@@ -535,71 +536,188 @@ func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
 }
 
+// ip4logStatements holds the ip4log statements, prepared once: this path runs
+// for every DHCP transaction and used to pay four Prepare/Close round trips
+// per call on top of the queries themselves.
+type ip4logStatements struct {
+	mac2ip   *sql.Stmt
+	ip2mac   *sql.Stmt
+	ipClose  *sql.Stmt
+	ipInsert *sql.Stmt
+}
+
+func (s *ip4logStatements) close() {
+	for _, stmt := range []*sql.Stmt{s.mac2ip, s.ip2mac, s.ipClose, s.ipInsert} {
+		if stmt != nil {
+			stmt.Close()
+		}
+	}
+}
+
+var (
+	ip4logStmtsMu sync.RWMutex
+	ip4logStmtsDb *sql.DB
+	ip4logStmts   *ip4logStatements
+)
+
+// ip4logStatementsFor returns the statements prepared against db, preparing
+// them on first use and again if a different handle is passed.
+//
+// A failure is deliberately not memoised: sql.Open does not connect, so the
+// first Prepare is also the first connection attempt, and memoising its error
+// (as a sync.Once would) left every later ip4log write failing for the life of
+// the process when pfdhcp happened to start before the database was accepting
+// connections.
+func ip4logStatementsFor(db *sql.DB) (*ip4logStatements, error) {
+	ip4logStmtsMu.RLock()
+	if ip4logStmts != nil && ip4logStmtsDb == db {
+		stmts := ip4logStmts
+		ip4logStmtsMu.RUnlock()
+		return stmts, nil
+	}
+	ip4logStmtsMu.RUnlock()
+
+	ip4logStmtsMu.Lock()
+	defer ip4logStmtsMu.Unlock()
+	// Another goroutine may have prepared them while we waited for the lock.
+	if ip4logStmts != nil && ip4logStmtsDb == db {
+		return ip4logStmts, nil
+	}
+
+	var err error
+	prepare := func(query string) *sql.Stmt {
+		if err != nil {
+			return nil
+		}
+		var stmt *sql.Stmt
+		stmt, err = db.Prepare(query)
+		return stmt
+	}
+
+	stmts := &ip4logStatements{}
+	stmts.mac2ip = prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	stmts.ip2mac = prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
+	stmts.ipClose = prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
+	stmts.ipInsert = prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
+	if err != nil {
+		stmts.close()
+		return nil, err
+	}
+
+	if ip4logStmts != nil {
+		ip4logStmts.close()
+	}
+	ip4logStmtsDb, ip4logStmts = db, stmts
+	return stmts, nil
+}
+
+// ip4logConflictCache remembers recently confirmed MAC<->IP bindings so a
+// plain renewal skips the two conflict-detection SELECTs; a device showing up
+// with a new IP (or an IP claimed by a new MAC) is a different key and misses
+// the cache, so conflicts are still detected and closed immediately.
+//
+// The cache only knows about what pfdhcp itself wrote. ip4log is also written
+// by pfacct (radius_accounting -> update_ip4log) and by the Perl DHCP
+// processor for networks pfdhcp does not serve, and neither can invalidate it;
+// the upsert below covers that case, since a row another writer removed comes
+// back as an INSERT rather than an UPDATE.
+var ip4logConflictCache = cache.New(ip4logConflictTtlMax, 10*time.Minute)
+
+const (
+	ip4logConflictTtlMax = 5 * time.Minute
+	ip4logConflictTtlMin = 30 * time.Second
+)
+
+func ip4logConflictKey(mac string, ip string) string {
+	return mac + "|" + ip
+}
+
+// ip4logConflictTtl keeps a binding confirmed for at most half its lease, so
+// the checks re-run at least once per lease even for a quiet, stable client.
+func ip4logConflictTtl(lease time.Duration) time.Duration {
+	ttl := lease / 2
+	if ttl > ip4logConflictTtlMax {
+		ttl = ip4logConflictTtlMax
+	}
+
+	if ttl < ip4logConflictTtlMin {
+		ttl = ip4logConflictTtlMin
+	}
+
+	return ttl
+}
+
+func ip4logBindingConfirmed(mac string, ip string) bool {
+	_, found := ip4logConflictCache.Get(ip4logConflictKey(mac, ip))
+	return found
+}
+
+func confirmIp4logBinding(mac string, ip string, lease time.Duration) {
+	ip4logConflictCache.Set(ip4logConflictKey(mac, ip), 1, ip4logConflictTtl(lease))
+}
+
+func forgetIp4logBinding(mac string, ip string) {
+	ip4logConflictCache.Delete(ip4logConflictKey(mac, ip))
+}
+
 // MysqlUpdateIP4Log update the ip4log table
 func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, db *sql.DB) error {
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	if err := db.PingContext(dbCtx); err != nil {
-		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
-	}
 
-	// Prepare the statements
-	// We use the same context for all the queries
-	// because we want to be sure that all the queries are executed in the same context
-	// and that the context is cancelled if one of the queries fails
-
-	MAC2IP, err := db.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	stmts, err := ip4logStatementsFor(db)
 	if err != nil {
 		return err
 	}
-	defer MAC2IP.Close()
 
-	IP2MAC, err := db.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
-	if err != nil {
-		return err
-	}
-	defer IP2MAC.Close()
+	if !ip4logBindingConfirmed(mac, ip) {
+		var (
+			oldMAC string
+			oldIP  string
+		)
+		if err := stmts.mac2ip.QueryRowContext(dbCtx, mac).Scan(&oldIP); err != nil {
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
 
-	IPClose, err := db.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
-	if err != nil {
-		return err
-	}
-	defer IPClose.Close()
+		if err := stmts.ip2mac.QueryRowContext(dbCtx, ip).Scan(&oldMAC); err != nil {
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
 
-	IPInsert, err := db.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
-	if err != nil {
-		return err
-	}
-	defer IPInsert.Close()
-	var (
-		oldMAC string
-		oldIP  string
-	)
-	err = MAC2IP.QueryRowContext(dbCtx, mac).Scan(&oldIP)
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
-	}
-	err = IP2MAC.QueryRowContext(dbCtx, ip).Scan(&oldMAC)
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
-	}
-	if len(oldMAC) > 0 && (oldMAC != mac) {
-		_, err = IPClose.ExecContext(dbCtx, ip)
-		if err != nil {
-			return err
+		if len(oldMAC) > 0 && (oldMAC != mac) {
+			forgetIp4logBinding(oldMAC, ip)
+			if _, err := stmts.ipClose.ExecContext(dbCtx, ip); err != nil {
+				return err
+			}
+		}
+
+		if len(oldIP) > 0 && (oldIP != ip) {
+			forgetIp4logBinding(mac, oldIP)
+			if _, err := stmts.ipClose.ExecContext(dbCtx, oldIP); err != nil {
+				return err
+			}
 		}
 	}
-	if len(oldIP) > 0 && (oldIP != ip) {
-		_, err = IPClose.ExecContext(dbCtx, oldIP)
-		if err != nil {
-			return err
-		}
-	}
-	_, err = IPInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
+
+	// Always refresh the entry itself: renewals must push end_time forward.
+	res, err := stmts.ipInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
 	if err != nil {
+		// Do not confirm a binding whose row may not have been written: the
+		// next transaction must re-run the checks rather than trust the cache.
+		forgetIp4logBinding(mac, ip)
 		log.LoggerWContext(ctx).Info(err.Error())
+		return err
 	}
-	return err
+
+	// RowsAffected is 1 only when the row was inserted, i.e. the entry this
+	// binding relies on was missing because another writer closed or deleted
+	// it. Re-run the conflict checks next time instead of trusting the cache.
+	if rows, rerr := res.RowsAffected(); rerr == nil && rows == 1 {
+		forgetIp4logBinding(mac, ip)
+	} else {
+		confirmIp4logBinding(mac, ip, duration)
+	}
+
+	return nil
 }
 
 // sanitizeHostname cleans a DHCP option-12 (host name) value for storage and
@@ -615,8 +733,18 @@ func sanitizeHostname(h string) string {
 // previously-stored non-empty value (possible MAC spoofing). This mirrors the
 // Perl pf::api::detect_computername_change, which PacketFence's DHCP processor
 // no longer runs for networks pfdhcp serves (it defers computername to us).
+// computernameCache remembers the last host name persisted per MAC so the
+// per-packet UPDATE (and the change-detection read) only runs when the value
+// actually changes; a changed host name is a different cache value and goes
+// through immediately.
+var computernameCache = cache.New(5*time.Minute, 10*time.Minute)
+
 func recordComputername(ctx context.Context, mac string, hostname string, db *sql.DB) {
 	if hostname == "" {
+		return
+	}
+
+	if last, found := computernameCache.Get(mac); found && last.(string) == hostname {
 		return
 	}
 
@@ -637,7 +765,9 @@ func recordComputername(ctx context.Context, mac string, hostname string, db *sq
 
 	if err := MysqlUpdateComputername(ctx, mac, hostname, db); err != nil {
 		log.LoggerWContext(ctx).Warn("Unable to update computername for " + mac + ": " + err.Error())
+		return
 	}
+	computernameCache.Set(mac, hostname, cache.DefaultExpiration)
 }
 
 // mysqlGetComputername returns the node's currently stored computername, or ""
