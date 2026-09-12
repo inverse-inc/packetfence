@@ -3,8 +3,11 @@ client dynamic {
         ipaddr = 0.0.0.0/0
         dynamic_clients = dynamic_clients_server
         directory = ${confdir}/dynamic-clients/
-        # Re-read the synced client file when it changes, at most once
-        # per lifetime; a client whose file is unchanged is simply renewed.
+        # Client files are written by the sync-radius-nas oneshot at container
+        # start and not modified afterwards, so at expiry FreeRADIUS only
+        # stat()s the file and renews the entry.  Same value as the server side;
+        # do not use "0": the PacketFence FreeRADIUS build deletes lifetime-0
+        # dynamic clients after every request.
         lifetime = 300
 }
 
