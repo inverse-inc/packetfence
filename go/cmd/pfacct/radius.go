@@ -379,8 +379,9 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 // enqueueAAANotify hands a radius_accounting notification to the MAC-sharded
 // notifier pool without blocking the accounting worker. If the target queue is
 // saturated the notification is dropped and counted (see reportAAADrops)
-// rather than stalling the worker, since node online/offline status has already
-// been written to the DB by the time we get here.
+// rather than stalling the worker, since everything the worker owns (node
+// online/offline status, node.last_seen, the ip4log entry) has already been
+// written to the DB by the time we get here.
 func (h *PfAcct) enqueueAAANotify(ctx context.Context, m mac.Mac, attr map[string]interface{}) {
 	queueIndex := djb2Hash(m[:]) % uint64(len(h.aaaNotifyQueues))
 	select {
