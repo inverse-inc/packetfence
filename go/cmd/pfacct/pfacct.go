@@ -166,9 +166,10 @@ func makeAAANotifiers(h *PfAcct, workers, backlog int) []chan<- aaaNotifyJob {
 
 // reportAAADrops periodically logs how many radius_accounting notifications
 // were dropped because the notifier queues were saturated. Drops here do not
-// affect node online/offline status (written synchronously by the accounting
-// workers); they only mean some accounting side effects (ip4log, locationlog,
-// triggers) were skipped while httpd.aaa could not keep up.
+// affect what the accounting workers write themselves (node online/offline
+// status, node.last_seen, the ip4log entry); they only mean the side effects
+// that still live in httpd.aaa (locationlog, firewall SSO, scans, Fingerbank)
+// were skipped while it could not keep up.
 func (pfAcct *PfAcct) reportAAADrops() {
 	go func() {
 		for {
