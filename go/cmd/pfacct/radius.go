@@ -191,8 +191,11 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		}
 	}
 
-	h.handleTimeBalance(r, switchInfo, unique_session_id)
-	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
+	// Skipped entirely while no node carries a balance (see balance_gate.go)
+	if h.balancesInUse.Load() {
+		h.handleTimeBalance(r, switchInfo, unique_session_id)
+		h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
+	}
 	h.sendRadiusAccounting(rr, switchInfo)
 }
 
@@ -219,6 +222,13 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 			if timebalance < 0 {
 				timebalance = 0
 			}
+		} else if cap, capped := h.untrackedChargeCap(); capped && timebalance > cap {
+			// No cache entry because the balance accounting was gated off for
+			// part of this session (see balance_gate.go). The offset recorded
+			// when the node stopped being unregistered was never captured, so
+			// charging the whole AcctSessionTime would bill time pfacct never
+			// accounted for; charge only what elapsed since the gate reopened.
+			timebalance = cap
 		}
 
 		ok, err := h.NodeTimeBalanceSubtract(mac, timebalance)
@@ -253,6 +263,10 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 					timebalance = 0
 				}
 			}
+		} else if cap, capped := h.untrackedChargeCap(); capped && timebalance > cap {
+			// See the Stop branch above: without a cache entry the gated-off
+			// part of the session must not count towards the threshold.
+			timebalance = cap
 		}
 
 		if timebalance > 0 {
