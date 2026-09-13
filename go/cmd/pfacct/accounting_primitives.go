@@ -23,11 +23,16 @@ func (h *PfAcct) updateNodeLastSeen(ctx context.Context, m mac.Mac) {
 	if _, found := h.LastSeenCache.Get(key); found {
 		return
 	}
-	h.LastSeenCache.Set(key, 1, cache.DefaultExpiration)
 
 	if _, err := h.nodeUpdateLastSeen.Exec(key); err != nil {
+		// The key is only cached once the write lands, so a transient failure
+		// is retried by the next packet instead of freezing last_seen for a
+		// full TTL.
 		logError(ctx, "nodeUpdateLastSeen: "+err.Error())
+		return
 	}
+
+	h.LastSeenCache.Set(key, 1, cache.DefaultExpiration)
 }
 
 // updateIp4log mirrors pf::api::update_ip4log for accounting packets: close
@@ -51,12 +56,17 @@ func (h *PfAcct) updateIp4log(ctx context.Context, m mac.Mac, framedIP string) {
 	if _, found := h.Ip4logCache.Get(key); found {
 		return
 	}
-	h.Ip4logCache.Set(key, 1, cache.DefaultExpiration)
+
+	// The key is only cached once every statement below has succeeded, so a
+	// transient failure (or a partially applied update) is retried by the next
+	// packet instead of freezing this MAC/IP pair for a full TTL.
+	complete := true
 
 	var oldIP string
 	err := h.ip4logMac2Ip.QueryRow(macStr).Scan(&oldIP)
 	if err != nil && err != sql.ErrNoRows {
 		logError(ctx, "ip4logMac2Ip: "+err.Error())
+		complete = false
 	}
 
 	if oldIP != "" && oldIP != framedIP {
@@ -64,14 +74,21 @@ func (h *PfAcct) updateIp4log(ctx context.Context, m mac.Mac, framedIP string) {
 		h.Ip4logCache.Delete(macStr + "|" + oldIP)
 		if _, err := h.ip4logClose.Exec(oldIP); err != nil {
 			logError(ctx, "ip4logClose: "+err.Error())
+			complete = false
 		}
 	}
 
 	if _, err := h.nodeAddSimple.Exec(macStr); err != nil {
 		logError(ctx, "nodeAddSimple: "+err.Error())
+		complete = false
 	}
 
 	if _, err := h.ip4logOpen.Exec(macStr, framedIP); err != nil {
 		logError(ctx, "ip4logOpen: "+err.Error())
+		complete = false
+	}
+
+	if complete {
+		h.Ip4logCache.Set(key, 1, cache.DefaultExpiration)
 	}
 }
