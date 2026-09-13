@@ -28,6 +28,7 @@ import (
 const DefaultTimeDuration = 5 * time.Minute
 const DefaultRadiusWorkQueueSize = 1000
 const DefaultAAANotifyQueueSize = 1000
+const DefaultRateLimitCacheTtl = 5
 
 type radiusRequest struct {
 	w          radius.ResponseWriter
@@ -230,9 +231,17 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 	pfAcct.ProcessBandwidthAcct = sharedutils.IsEnabled(RadiusConfiguration.ProcessBandwidthAccounting)
 	pfAcct.RateLimit = sharedutils.IsEnabled(RadiusConfiguration.PfacctRateLimit)
-	pfAcct.PfacctRateLimitCacheTtl = 5
+	pfAcct.PfacctRateLimitCacheTtl = DefaultRateLimitCacheTtl
 	if i, err := strconv.Atoi(RadiusConfiguration.PfacctRateLimitCacheTtl); err == nil {
 		pfAcct.PfacctRateLimitCacheTtl = i
+	}
+	// go-cache treats a non-positive duration as "never expires", which would
+	// pin every session in the rate-limit caches for the lifetime of the
+	// process: after its first Start a device would never be forwarded to
+	// httpd.aaa again except on a Stop.
+	if pfAcct.PfacctRateLimitCacheTtl <= 0 {
+		logWarn(ctx, fmt.Sprintf("Invalid pfacct_rate_limit_cache_ttl '%s', defaulting to %d minutes", RadiusConfiguration.PfacctRateLimitCacheTtl, DefaultRateLimitCacheTtl))
+		pfAcct.PfacctRateLimitCacheTtl = DefaultRateLimitCacheTtl
 	}
 	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	pfAcct.MacNasCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
