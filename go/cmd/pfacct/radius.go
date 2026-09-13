@@ -153,15 +153,6 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		logError(ctx, fmt.Sprintf("Error updating online offline status: %s", err.Error()))
 	}
 
-	h.updateNodeLastSeen(ctx, mac)
-	// Mirrors handle_accounting_metadata: iplog is only fed by packets that
-	// carry a Framed-IP-Address and are not a Stop.
-	if status != rfc2866.AcctStatusType_Value_Stop {
-		if framedIP := rfc2865.FramedIPAddress_Get(r.Packet); framedIP != nil {
-			h.updateIp4log(ctx, mac, framedIP.String())
-		}
-	}
-
 	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
 	if err != nil {
 		timestamp = time.Now()
@@ -177,6 +168,19 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 				),
 			)
 			return
+		}
+	}
+
+	// Deliberately below the stale Event-Timestamp guard above: a packet the
+	// rest of the pipeline discards must not refresh last_seen or re-open an
+	// ip4log entry either (it is never forwarded to the AAA layer, so the two
+	// sides stay in agreement).
+	h.updateNodeLastSeen(ctx, mac)
+	// Mirrors handle_accounting_metadata: iplog is only fed by packets that
+	// carry a Framed-IP-Address and are not a Stop.
+	if status != rfc2866.AcctStatusType_Value_Stop {
+		if framedIP := rfc2865.FramedIPAddress_Get(r.Packet); framedIP != nil {
+			h.updateIp4log(ctx, mac, framedIP.String())
 		}
 	}
 
@@ -332,15 +336,29 @@ func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo) 
 	h.sendRadiusAccountingCall(rr.r, rr.mac)
 }
 
+// handledNatively lists the per-packet primitives this pfacct just executed
+// itself, so the AAA layer can skip them instead of writing the same rows a
+// second time (see pf::api::handle_accounting_metadata and
+// pf::radius::accounting). Only claim what we actually do: the configuration
+// is read once at startup, so a pfacct that has not picked up a freshly
+// enabled update_iplog_with_accounting must let httpd.aaa keep doing the
+// ip4log work rather than have both sides skip it.
+func (h *PfAcct) handledNatively() string {
+	handled := "node_last_seen"
+	if h.UpdateIplogWithAccounting {
+		handled += ",ip4log"
+	}
+
+	return handled
+}
+
 func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
-		"X-FreeRADIUS-Server":  "packetfence",
-		"X-FreeRADIUS-Section": "accounting",
-		// Primitives this pfacct executes natively for every accounting
-		// packet; the AAA layer skips them to avoid duplicate DB writes.
-		"X-PacketFence-Handled-Natively": "node_last_seen,ip4log",
+		"X-FreeRADIUS-Server":            "packetfence",
+		"X-FreeRADIUS-Section":           "accounting",
+		"X-PacketFence-Handled-Natively": h.handledNatively(),
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {

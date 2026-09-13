@@ -101,3 +101,18 @@ func TestUpdateIp4log(t *testing.T) {
 		t.Fatalf("ip4log written while update_iplog_with_accounting is disabled")
 	}
 }
+
+func TestHandledNatively(t *testing.T) {
+	// The AAA layer skips exactly what this header claims, so pfacct must not
+	// claim ip4log while update_iplog_with_accounting is off for it: both
+	// sides would then skip the write.
+	pfAcct := &PfAcct{}
+	if got := pfAcct.handledNatively(); got != "node_last_seen" {
+		t.Fatalf("handledNatively with the iplog update disabled: got '%s'", got)
+	}
+
+	pfAcct.UpdateIplogWithAccounting = true
+	if got := pfAcct.handledNatively(); got != "node_last_seen,ip4log" {
+		t.Fatalf("handledNatively with the iplog update enabled: got '%s'", got)
+	}
+}
