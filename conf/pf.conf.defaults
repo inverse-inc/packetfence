@@ -1044,7 +1044,9 @@ pfperl_api_processes=8
 #
 # advanced.update_iplog_with_accounting
 #
-# Use the information included in the accounting to update the iplog
+# Use the information included in the accounting to update the iplog.
+# Note: pfacct performs this update itself and reads this option once at
+# startup, so restart pfacct for a change to this option to take effect.
 update_iplog_with_accounting=disabled
 #
 # advanced.update_iplog_with_authentication
@@ -1473,7 +1475,11 @@ pfacct_work_queue_size = 1000
 pfacct_rate_limit=disabled
 # radius_configuration.pfacct_rate_limit_cache_ttl
 #
-# If rate limiting on pfacct is enabled,  the Time to Live value in minutes represent the time of the accounting cache
+# Time to Live in minutes of the pfacct accounting caches. When
+# radius_configuration.pfacct_rate_limit is enabled it is how long pfacct
+# suppresses forwarding a repeated accounting packet to httpd.aaa. Independently
+# of that option, it is also how often pfacct refreshes node.last_seen and the
+# ip4log entry of a given device.
 pfacct_rate_limit_cache_ttl=5
 # radius_configuration.pfacct_socket_recv_buffer
 #

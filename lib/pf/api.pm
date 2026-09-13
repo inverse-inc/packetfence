@@ -1596,7 +1596,7 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $remapped_radius_request = pf::radius::rest::format_request($radius_request);
 
-    my $return = $class->handle_accounting_metadata($remapped_radius_request);
+    my $return = $class->handle_accounting_metadata($remapped_radius_request, $headers);
 
     my $radius = new pf::radius::custom();
     eval {
@@ -1613,9 +1613,18 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 }
 
 sub handle_accounting_metadata : Public {
-    my ($class, $RAD_REQUEST) = @_;
+    my ($class, $RAD_REQUEST, $headers) = @_;
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
+
+    # pfacct advertises the primitives it already executed natively for this
+    # packet (X-PacketFence-Handled-Natively); skip them here to avoid
+    # duplicate DB writes. Requests from other sources carry no marker and
+    # keep the full behavior. The JSON-RPC path carries the headers inside the
+    # request (PF_HEADERS), the REST path passes them alongside it.
+    $headers //= $RAD_REQUEST->{PF_HEADERS} // {};
+    my %handled_natively = map { $_ => 1 }
+        split(/,/, $headers->{'X-PacketFence-Handled-Natively'} // '');
 
     my $return = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
     my $mac = pf::util::clean_mac($RAD_REQUEST->{'Calling-Station-Id'});
@@ -1633,7 +1642,7 @@ sub handle_accounting_metadata : Public {
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
         if ($framed_ip) {
-            if (pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting}) && !$handled_natively{ip4log}) {
                 $logger->info("Updating iplog from accounting request");
                 $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
             }
