@@ -8,6 +8,7 @@ import (
 	"net"
 	"runtime"
 	"strconv"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -39,41 +40,44 @@ type radiusRequest struct {
 
 type PfAcct struct {
 	RadiusStatements
-	TimeDuration            time.Duration
-	Db                      *sql.DB
-	AllowedNetworks         []net.IPNet
-	NetFlowPort             string
-	NetFlowAddress          string
-	Management              pfconfigdriver.ManagementNetwork
-	AAAClient               *jsonrpc2.Client
-	LoggerCtx               context.Context
-	Dispatcher              *Dispatcher
-	SwitchInfoCache         *cache.Cache
-	NodeSessionCache        *cache.Cache
-	AcctSessionCache        *cache.Cache
-	RateLimitCache          *cache.Cache
-	MacNasCache             *cache.Cache
-	RateLimit               bool
-	PfacctRateLimitCacheTtl int
-	StatsdAddress           string
-	StatsdOption            statsd.Option
-	StatsdClient            *statsd.Client
-	radiusRequests          []chan<- radiusRequest
-	aaaNotifyQueues         []chan<- aaaNotifyJob
-	aaaNotifyDropped        atomic.Int64
-	balancesInUse           atomic.Bool
-	localSecret             string
-	unifiedSecret           string
-	StatsdOnce              tryableonce.TryableOnce
-	isProxied               bool
-	radiusdAcctEnabled      bool
-	AllNetworks             bool
-	ProcessBandwidthAcct    bool
-	RadiusWorkers           int
-	RadiusWorkQueueSize     int
-	SocketRecvBuffer        int
-	AAANotifyWorkers        int
-	AAANotifyQueueSize      int
+	TimeDuration              time.Duration
+	Db                        *sql.DB
+	AllowedNetworks           []net.IPNet
+	NetFlowPort               string
+	NetFlowAddress            string
+	Management                pfconfigdriver.ManagementNetwork
+	AAAClient                 *jsonrpc2.Client
+	LoggerCtx                 context.Context
+	Dispatcher                *Dispatcher
+	SwitchInfoCache           *cache.Cache
+	NodeSessionCache          *cache.Cache
+	AcctSessionCache          *cache.Cache
+	RateLimitCache            *cache.Cache
+	MacNasCache               *cache.Cache
+	RateLimit                 bool
+	PfacctRateLimitCacheTtl   int
+	StatsdAddress             string
+	StatsdOption              statsd.Option
+	StatsdClient              *statsd.Client
+	radiusRequests            []chan<- radiusRequest
+	aaaNotifyQueues           []chan<- aaaNotifyJob
+	aaaNotifyDropped          atomic.Int64
+	balancesInUse             atomic.Bool
+	balancesEnabledAt         atomic.Int64
+	balancesRefresherStop     chan struct{}
+	balancesRefresherStopOnce sync.Once
+	localSecret               string
+	unifiedSecret             string
+	StatsdOnce                tryableonce.TryableOnce
+	isProxied                 bool
+	radiusdAcctEnabled        bool
+	AllNetworks               bool
+	ProcessBandwidthAcct      bool
+	RadiusWorkers             int
+	RadiusWorkQueueSize       int
+	SocketRecvBuffer          int
+	AAANotifyWorkers          int
+	AAANotifyQueueSize        int
 }
 
 func NewPfAcct(logLevel string) *PfAcct {
@@ -106,6 +110,9 @@ func NewPfAcct(logLevel string) *PfAcct {
 
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
+	// Fail open until the first probe answers, and so that a deployment which
+	// has balances from the start never looks like a shut-to-open transition.
+	pfAcct.balancesInUse.Store(true)
 	pfAcct.startBalancesInUseRefresher()
 
 	pfAcct.SetupConfig(ctx)
