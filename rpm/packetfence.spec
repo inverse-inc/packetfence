@@ -318,6 +318,8 @@ Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.3.3, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
+# fingerbank-collector-remote ships /etc/systemd/system/packetfence-fingerbank-collector.service, which shadows the on-prem unit from fingerbank-collector
+Conflicts: fingerbank-collector-remote
 #Requires: perl(File::Tempdir)
 
 # For NTLM-Auth
