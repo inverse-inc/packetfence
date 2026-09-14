@@ -116,6 +116,11 @@
                                        :text="$i18n.t('Time to Live value in minutes, should be a little bit more than the Interim Update value. Requires a restart of pfacct to be effective')"
     />
 
+    <form-group-radiusd-max-servers namespace="radiusd_max_servers"
+                                    :column-label="$i18n.t('RADIUS worker threads')"
+                                    :text="$i18n.t('Maximum number of FreeRADIUS worker threads (max_servers). Also caps the concurrent REST connections to httpd.aaa. Requires a restart of radiusd to be effective')"
+    />
+
     <form-group-radius-attributes namespace="radius_attributes"
                                   :column-label="$i18n.t('RADIUS attributes')"
                                   :text="$i18n.t('List of RADIUS attributes that can be used in the sources configuration.')"
@@ -174,6 +179,7 @@ import {
   FormGroupPfacctRateLimit,
   FormGroupPfacctRateLimitCacheTtl,
   FormGroupProcessBandwidthAccounting,
+  FormGroupRadiusdMaxServers,
   FormGroupRadiusAttributes,
   FormGroupRecordAccountingInSql,
   FormGroupUsernameAttributes
@@ -204,7 +210,8 @@ const components = {
   FormGroupPfacctWorkers,
   FormGroupPfacctWorkQueueSize,
   FormGroupPfacctRateLimit,
-  FormGroupPfacctRateLimitCacheTtl
+  FormGroupPfacctRateLimitCacheTtl,
+  FormGroupRadiusdMaxServers
 }
 
 export const props = {

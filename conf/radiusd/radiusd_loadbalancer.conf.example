@@ -476,7 +476,7 @@ thread pool {
 	#
 	#  For more information, see 'max_request_time', above.
 	#
-	max_servers = 64
+	max_servers = [% max_servers %]
 
 	#  Server-pool size regulation.  Rather than making you guess
 	#  how many servers you need, FreeRADIUS dynamically adapts to

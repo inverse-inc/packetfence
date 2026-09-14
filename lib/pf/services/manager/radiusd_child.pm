@@ -345,6 +345,8 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{aaa_host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
+    # thread pool max_servers; also caps the rlm_rest connection pool to httpd.aaa
+    $tags{'max_servers'} = $Config{radius_configuration}{radiusd_max_servers} || 128;
 
     $tt->process("$conf_dir/radiusd/radiusd.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_loadbalancer.conf", \%tags, "$install_dir/raddb/radiusd_loadbalancer.conf") or die $tt->error();

@@ -721,6 +721,7 @@ type PfConfRadiusConfiguration struct {
 	PfacctSocketRecvBuffer             string   `json:"pfacct_socket_recv_buffer"`
 	PfacctAAANotifyWorkers             string   `json:"pfacct_aaa_notify_workers"`
 	PfacctAAANotifyQueueSize           string   `json:"pfacct_aaa_notify_queue_size"`
+	RadiusdMaxServers                  string   `json:"radiusd_max_servers"`
 }
 
 type PfQueueConfig struct {
