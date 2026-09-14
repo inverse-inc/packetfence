@@ -1631,14 +1631,14 @@ each PacketFence server of your cluster:
   radius-server host 192.168.1.5 key useStrongerSecret authentication accounting
   aaa group server radius packetfence
    server 192.168.1.5
-   source-interface Vlan40
 
-NOTE: `source-interface` fixes the source IP address of the RADIUS requests. The
-IP address you configure in PacketFence for this switch must be the address of
-that interface (here the `Vlan40` SVI), not the one of `mgmt0`. If you prefer to
-reach PacketFence through the management port, use `use-vrf management` in the
-server group instead of `source-interface`, since `mgmt0` lives in the
-`management` VRF.
+NOTE: Do not configure `source-interface` in the server group. The switch then
+sources its RADIUS requests from the interface used to reach PacketFence. The IP
+address you declare for this switch in PacketFence must be that source address,
+otherwise PacketFence does not recognize the NAS and the requests are dropped.
+Check it with `show radius-server` and, on the PacketFence side, in the RADIUS
+audit log. If you reach PacketFence through the management port, add `use-vrf
+management` to the server group, since `mgmt0` lives in the `management` VRF.
 
 Use the group for 802.1X authentication and accounting:
 
