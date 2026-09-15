@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	cache "github.com/fdurand/go-cache"
@@ -535,71 +536,177 @@ func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
 }
 
+// ip4logStatements holds the statements MysqlUpdateIP4Log uses. They are
+// prepared once for the lifetime of the connection pool instead of on every
+// DHCPACK: at 50k endpoints on a 300s lease pfdhcp was issuing four
+// db.Prepare (plus four Close) per lease renewal, which alone accounted for
+// most of its query volume.
+type ip4logStatements struct {
+	db       *sql.DB
+	mac2ip   *sql.Stmt
+	ip2mac   *sql.Stmt
+	ipClose  *sql.Stmt
+	ipInsert *sql.Stmt
+	ipTouch  *sql.Stmt
+}
+
+func (s *ip4logStatements) close() {
+	for _, stmt := range []*sql.Stmt{s.mac2ip, s.ip2mac, s.ipClose, s.ipInsert, s.ipTouch} {
+		if stmt != nil {
+			stmt.Close()
+		}
+	}
+}
+
+// ip4logLastWriteEntry records the lease MysqlUpdateIP4Log last wrote a full
+// ip4log row for, and when that full write happened.
+type ip4logLastWriteEntry struct {
+	ip       string
+	fullSync time.Time
+}
+
+const (
+	// ip4logFullSyncInterval bounds how long the renewal fast path may be used
+	// before MysqlUpdateIP4Log goes through the full mapping check again. It
+	// keeps us in sync with any other writer of the ip4log table (pfdns, the
+	// Perl stack on networks pfdhcp does not serve, an HA peer) without paying
+	// for the lookups on every single renewal.
+	ip4logFullSyncInterval = 15 * time.Minute
+)
+
+var (
+	ip4logStmtsLock sync.Mutex
+	ip4logStmts     *ip4logStatements
+)
+
+// ip4logStatementsFor returns the prepared statements for this pool, preparing
+// them on first use. A failure is never memoized: the next packet retries,
+// which matters when the database is briefly unavailable at startup.
+func ip4logStatementsFor(db *sql.DB) (*ip4logStatements, error) {
+	ip4logStmtsLock.Lock()
+	defer ip4logStmtsLock.Unlock()
+
+	if ip4logStmts != nil && ip4logStmts.db == db {
+		return ip4logStmts, nil
+	}
+
+	s := &ip4logStatements{db: db}
+	var err error
+	for _, prep := range []struct {
+		stmt  **sql.Stmt
+		query string
+	}{
+		{&s.mac2ip, "SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1"},
+		{&s.ip2mac, "SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC"},
+		{&s.ipClose, "UPDATE ip4log SET end_time = NOW() WHERE ip = ?"},
+		{&s.ipInsert, "INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)"},
+		{&s.ipTouch, "UPDATE ip4log SET end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ? AND mac = ?"},
+	} {
+		if *prep.stmt, err = db.Prepare(prep.query); err != nil {
+			s.close()
+			return nil, err
+		}
+	}
+
+	// pfdhcp holds a single pool for the life of the process, so this only
+	// replaces a set built against a pool nothing uses anymore (tests).
+	if ip4logStmts != nil {
+		ip4logStmts.close()
+	}
+	ip4logStmts = s
+	return s, nil
+}
+
 // MysqlUpdateIP4Log update the ip4log table
 func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, db *sql.DB) error {
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	if err := db.PingContext(dbCtx); err != nil {
-		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
-	}
 
-	// Prepare the statements
-	// We use the same context for all the queries
-	// because we want to be sure that all the queries are executed in the same context
-	// and that the context is cancelled if one of the queries fails
-
-	MAC2IP, err := db.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	// No explicit ping here: database/sql reconnects on its own and
+	// keepDatabaseAlive already pings the pool every few seconds, so doing it
+	// per DHCPACK was one wasted round trip per lease.
+	stmts, err := ip4logStatementsFor(db)
 	if err != nil {
 		return err
 	}
-	defer MAC2IP.Close()
 
-	IP2MAC, err := db.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
-	if err != nil {
-		return err
+	// Renewal fast path: the endpoint still holds the address we last wrote a
+	// row for, so neither the IP nor the MAC mapping can have changed and the
+	// only thing left to do is push end_time further out. That is one UPDATE
+	// instead of two SELECT, up to two UPDATE and one INSERT.
+	if ip4logRenewalOnly(mac, ip, time.Now()) {
+		res, err := stmts.ipTouch.ExecContext(dbCtx, duration.Seconds(), ip, mac)
+		if err != nil {
+			log.LoggerWContext(ctx).Info(err.Error())
+			return err
+		}
+		if affected, err := res.RowsAffected(); err == nil && affected > 0 {
+			return nil
+		}
+		// Nothing was updated: the row is gone, another MAC took the address,
+		// or we already wrote this exact end_time (two packets in the same
+		// second). Fall through to the full path, which is always correct.
 	}
-	defer IP2MAC.Close()
 
-	IPClose, err := db.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
-	if err != nil {
-		return err
-	}
-	defer IPClose.Close()
-
-	IPInsert, err := db.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
-	if err != nil {
-		return err
-	}
-	defer IPInsert.Close()
 	var (
 		oldMAC string
 		oldIP  string
 	)
-	err = MAC2IP.QueryRowContext(dbCtx, mac).Scan(&oldIP)
-	if err != nil {
+	if err := stmts.mac2ip.QueryRowContext(dbCtx, mac).Scan(&oldIP); err != nil && err != sql.ErrNoRows {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
-	err = IP2MAC.QueryRowContext(dbCtx, ip).Scan(&oldMAC)
-	if err != nil {
+	if err := stmts.ip2mac.QueryRowContext(dbCtx, ip).Scan(&oldMAC); err != nil && err != sql.ErrNoRows {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
 	if len(oldMAC) > 0 && (oldMAC != mac) {
-		_, err = IPClose.ExecContext(dbCtx, ip)
-		if err != nil {
+		if _, err := stmts.ipClose.ExecContext(dbCtx, ip); err != nil {
 			return err
 		}
 	}
 	if len(oldIP) > 0 && (oldIP != ip) {
-		_, err = IPClose.ExecContext(dbCtx, oldIP)
-		if err != nil {
+		if _, err := stmts.ipClose.ExecContext(dbCtx, oldIP); err != nil {
 			return err
 		}
 	}
-	_, err = IPInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
+	_, err = stmts.ipInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
+		return err
 	}
-	return err
+
+	setIP4LogLastWrite(mac, ip, duration)
+	return nil
+}
+
+// ip4logRenewalOnly reports whether this (mac, ip) is a renewal of the lease we
+// last wrote a full ip4log row for, recently enough that we still trust the
+// mapping and can settle for extending end_time.
+func ip4logRenewalOnly(mac string, ip string, now time.Time) bool {
+	entry, ok := ip4logLastWrite(mac)
+	return ok && entry.ip == ip && now.Sub(entry.fullSync) < ip4logFullSyncInterval
+}
+
+// ip4logLastWrite returns the lease we last wrote a full ip4log row for.
+func ip4logLastWrite(mac string) (ip4logLastWriteEntry, bool) {
+	if GlobalIP4LogCache == nil {
+		return ip4logLastWriteEntry{}, false
+	}
+	value, found := GlobalIP4LogCache.Get(mac)
+	if !found {
+		return ip4logLastWriteEntry{}, false
+	}
+	entry, ok := value.(ip4logLastWriteEntry)
+	return entry, ok
+}
+
+// setIP4LogLastWrite arms the renewal fast path for this lease. The entry
+// expires with the lease so a device that stops renewing goes through the full
+// path again when it comes back.
+func setIP4LogLastWrite(mac string, ip string, duration time.Duration) {
+	if GlobalIP4LogCache == nil {
+		return
+	}
+	GlobalIP4LogCache.Set(mac, ip4logLastWriteEntry{ip: ip, fullSync: time.Now()}, duration)
 }
 
 // sanitizeHostname cleans a DHCP option-12 (host name) value for storage and

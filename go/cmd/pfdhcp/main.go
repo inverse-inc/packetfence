@@ -68,6 +68,10 @@ var (
 	GlobalFilterCache             *cache.Cache
 	GlobalTransactionCache        *cache.Cache
 	RequestGlobalTransactionCache *cache.Cache
+	// GlobalIP4LogCache remembers, per MAC, the lease we last wrote a full
+	// ip4log row for, so a renewal of the same lease only has to extend
+	// end_time. See MysqlUpdateIP4Log.
+	GlobalIP4LogCache *cache.Cache
 
 	// VIP management
 	VIP   map[string]bool
@@ -98,6 +102,7 @@ func initializeCaches() {
 	GlobalTransactionCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	RequestGlobalTransactionCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
+	GlobalIP4LogCache = cache.New(ipCacheDuration, ipCacheCleanupInterval)
 }
 
 func main() {
