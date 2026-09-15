@@ -171,6 +171,19 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		}
 	}
 
+	// Deliberately below the stale Event-Timestamp guard above: a packet the
+	// rest of the pipeline discards must not refresh last_seen or re-open an
+	// ip4log entry either (it is never forwarded to the AAA layer, so the two
+	// sides stay in agreement).
+	h.updateNodeLastSeen(ctx, mac)
+	// Mirrors handle_accounting_metadata: iplog is only fed by packets that
+	// carry a Framed-IP-Address and are not a Stop.
+	if status != rfc2866.AcctStatusType_Value_Stop {
+		if framedIP := rfc2865.FramedIPAddress_Get(r.Packet); framedIP != nil {
+			h.updateIp4log(ctx, mac, framedIP.String())
+		}
+	}
+
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(0)
 	if h.ProcessBandwidthAcct {
@@ -323,12 +336,29 @@ func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo) 
 	h.sendRadiusAccountingCall(rr.r, rr.mac)
 }
 
+// handledNatively lists the per-packet primitives this pfacct just executed
+// itself, so the AAA layer can skip them instead of writing the same rows a
+// second time (see pf::api::handle_accounting_metadata and
+// pf::radius::accounting). Only claim what we actually do: the configuration
+// is read once at startup, so a pfacct that has not picked up a freshly
+// enabled update_iplog_with_accounting must let httpd.aaa keep doing the
+// ip4log work rather than have both sides skip it.
+func (h *PfAcct) handledNatively() string {
+	handled := "node_last_seen"
+	if h.UpdateIplogWithAccounting {
+		handled += ",ip4log"
+	}
+
+	return handled
+}
+
 func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
-		"X-FreeRADIUS-Server":  "packetfence",
-		"X-FreeRADIUS-Section": "accounting",
+		"X-FreeRADIUS-Server":            "packetfence",
+		"X-FreeRADIUS-Section":           "accounting",
+		"X-PacketFence-Handled-Natively": h.handledNatively(),
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
@@ -349,8 +379,9 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 // enqueueAAANotify hands a radius_accounting notification to the MAC-sharded
 // notifier pool without blocking the accounting worker. If the target queue is
 // saturated the notification is dropped and counted (see reportAAADrops)
-// rather than stalling the worker, since node online/offline status has already
-// been written to the DB by the time we get here.
+// rather than stalling the worker, since everything the worker owns (node
+// online/offline status, node.last_seen, the ip4log entry) has already been
+// written to the DB by the time we get here.
 func (h *PfAcct) enqueueAAANotify(ctx context.Context, m mac.Mac, attr map[string]interface{}) {
 	queueIndex := djb2Hash(m[:]) % uint64(len(h.aaaNotifyQueues))
 	select {
@@ -737,6 +768,11 @@ type RadiusStatements struct {
 	closeSession                    *sql.Stmt
 	nodeOnlineOffLineStartUpdate    *sql.Stmt
 	nodeOnlineOffLineStop           *sql.Stmt
+	nodeUpdateLastSeen              *sql.Stmt
+	nodeAddSimple                   *sql.Stmt
+	ip4logMac2Ip                    *sql.Stmt
+	ip4logClose                     *sql.Stmt
+	ip4logOpen                      *sql.Stmt
 }
 
 func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
@@ -867,6 +903,27 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.nodeOnlineOffLineStartUpdate, `
 		INSERT INTO node_current_session (mac, last_session_id, updated, is_online) VALUES (?, ?, NOW(), 1)
         ON DUPLICATE KEY UPDATE updated = VALUES(updated), last_session_id = VALUES(last_session_id), is_online =1 ;
+       `)
+
+	setupStmt(db, &rs.nodeUpdateLastSeen, `
+        UPDATE node SET last_seen = NOW() WHERE mac = ?;
+       `)
+
+	setupStmt(db, &rs.nodeAddSimple, `
+        INSERT IGNORE INTO node (mac, pid, last_seen, detect_date, status) VALUES (?, 'default', NOW(), NOW(), 'unreg');
+       `)
+
+	setupStmt(db, &rs.ip4logMac2Ip, `
+        SELECT ip FROM ip4log WHERE mac = ? AND (end_time = '0000-00-00 00:00:00' OR (end_time + INTERVAL 30 SECOND) > NOW()) ORDER BY start_time DESC LIMIT 1;
+       `)
+
+	setupStmt(db, &rs.ip4logClose, `
+        UPDATE ip4log SET end_time = NOW() WHERE ip = ?;
+       `)
+
+	setupStmt(db, &rs.ip4logOpen, `
+        INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), '0000-00-00 00:00:00')
+        ON DUPLICATE KEY UPDATE mac = VALUES(mac), start_time = VALUES(start_time), end_time = VALUES(end_time);
        `)
 
 }
