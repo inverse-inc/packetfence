@@ -263,9 +263,9 @@ all:
               memory: 16384
               disk_size: 130
             pfdeb12dev:
-              box: inverse-inc/pfdeb12stable
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12stable/metadata.json
-              box_version: 15.2.20260825121358
+              box: inverse-inc/pfdeb12branch
+              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb12branch/metadata.json
+              box_version: 15.2-ci-2851370643
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
