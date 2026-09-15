@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -660,4 +661,29 @@ func TestPolicyLoad(t *testing.T) {
 		t.Fatalf("LookupByRoles does not match %s", diff)
 	}
 
+}
+
+func TestRoleKeyIsCaseInsensitive(t *testing.T) {
+	// node.mac is compared case-insensitively by MariaDB but a Go map is not;
+	// MACs filled in from ip4log keep whatever case the writer used.
+	if roleKey("AA:BB:CC:DD:EE:FF") != roleKey("aa:bb:cc:dd:ee:ff") {
+		t.Fatal("roleKey must normalize case")
+	}
+	if roleKey("aa:bb:cc:dd:ee:ff") != "aa:bb:cc:dd:ee:ff" {
+		t.Fatal("roleKey must leave a lower-case MAC unchanged")
+	}
+}
+
+func TestUpdateNetworkEventsWithoutDatabase(t *testing.T) {
+	// No database: roles resolve to "" and the lookup must still run (and not
+	// panic) so that MAC/implicit policies keep applying.
+	StorePolicyLookup(&PolicyLookup{}) // no pfconfig in unit tests
+	ne := &NetworkEvent{
+		SourceInventoryItem: &InventoryItem{ExternalIDS: []string{"AA:BB:CC:DD:EE:01"}},
+		DestInventoryitem:   &InventoryItem{ExternalIDS: []string{"aa:bb:cc:dd:ee:02"}},
+	}
+	UpdateNetworkEvents(context.Background(), nil, []*NetworkEvent{ne})
+	if ne.EnforcementInfo != nil {
+		t.Fatalf("no policies loaded: expected no enforcement info, got %+v", ne.EnforcementInfo)
+	}
 }
