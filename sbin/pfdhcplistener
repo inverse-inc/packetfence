@@ -354,7 +354,7 @@ sub process_pkt {
                     $logger->trace("Rate limit key : $rate_limit_key");
                 }
 
-                my $rate_limiting = $Config{network}->{dhcp_rate_limiting} // 300;
+                my $rate_limiting = normalize_time($Config{network}->{dhcp_rate_limiting} // 300);
                 # We send the packet to be processed if:
                 #  - there is no rate limit key (packet doesn't contain info to be rate-limited)
                 #  - there is no rate limiting configured
@@ -363,7 +363,10 @@ sub process_pkt {
                     my $apiclient = api_client();
                     $apiclient->notify_hashed($dhcp_mac, 'process_dhcpv4', %args);
                     if(defined($rate_limit_key) && $rate_limiting != 0) {
-                        $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
+                        # Jitter the suppression window (+/- 25%): endpoints whose leases
+                        # renew in lockstep would otherwise all leave the cache in the same
+                        # second and re-flood pfqueue in one synchronized wave every cycle.
+                        $rate_limit_cache->set($rate_limit_key, 1, add_jitter($rate_limiting, int($rate_limiting / 4)));
                     }
                 }
                 else {
