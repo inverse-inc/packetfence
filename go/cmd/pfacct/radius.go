@@ -148,7 +148,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
 	unique_session_id := h.accountingUniqueSessionId(r)
-	err := h.updateNodeOnlineOfflineOnline(status, mac, unique_session_id)
+	err := h.rateLimitedNodeOnlineOffline(status, mac, unique_session_id)
 	if err != nil {
 		logError(ctx, fmt.Sprintf("Error updating online offline status: %s", err.Error()))
 	}

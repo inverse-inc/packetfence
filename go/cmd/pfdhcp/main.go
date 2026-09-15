@@ -491,7 +491,14 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					options[key] = value
 				}
 			}
-			GlobalOptions = options
+			// Copy rather than alias: the network, device and pffilter overrides
+			// below write into GlobalOptions, while the reply is assembled with
+			// options[dhcp.OptionParameterRequestList], which has to stay the
+			// configured request list rather than whatever an override set.
+			GlobalOptions = make(dhcp.Options, len(options))
+			for key, value := range options {
+				GlobalOptions[key] = value
+			}
 			leaseDuration := handler.leaseDuration
 			// Add network options
 			AddDevicesOptions(NetScope.IP.String(), &leaseDuration, GlobalOptions, db)
@@ -534,7 +541,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			// Update Global Caches
 			GlobalIPCache.Set(reqIP.String(), answer.MAC.String(), cacheDuration)
 			GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
-			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, db)
+			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, leaseDuration, db)
 			if err != nil {
 				log.LoggerWContext(ctx).Info(err.Error() + " mac=" + clientMac)
 			}
@@ -751,7 +758,14 @@ reply:
 			options[key] = value
 		}
 	}
-	GlobalOptions = options
+	// Copy rather than alias: the network, device and pffilter overrides
+	// below write into GlobalOptions, while the reply is assembled with
+	// options[dhcp.OptionParameterRequestList], which has to stay the
+	// configured request list rather than whatever an override set.
+	GlobalOptions = make(dhcp.Options, len(options))
+	for key, value := range options {
+		GlobalOptions[key] = value
+	}
 	leaseDuration := handler.leaseDuration
 
 	// Add network options on the fly
