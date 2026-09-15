@@ -1563,11 +1563,11 @@ enforcement.
 PacketFence role enforcement.
 |===
 
-WARNING: MAC Authentication Bypass is only supported on the Nexus 9300-FX3, GX,
-GX2, H2R and H1 platforms *from NX-OS 10.5(2)F*. On these switches, an earlier
-release does 802.1X but not MAB, which rules out every device without a
-supplicant. Use 10.5(2)F or later, as the 10.6(3) release this section was
-validated on.
+WARNING: On the Nexus 9300-FX3, GX, GX2, H2R and H1 platforms, MAC
+Authentication Bypass is only supported *from NX-OS 10.5(2)F*. On those
+switches, an earlier release does 802.1X but not MAB, which rules out every device
+without a supplicant. Use 10.5(2)F or later on these platforms, as the 10.6(3)
+release this section was validated on.
 
 IMPORTANT: Do not confuse the *N9K-C9348GC-FXP* with the *N9K-C9348GC-FX3*. The
 names differ by two characters but the capabilities do not compare. Cisco states
