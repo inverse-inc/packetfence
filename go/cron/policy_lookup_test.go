@@ -2,7 +2,6 @@ package maint
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/netip"
 	"testing"
@@ -375,15 +374,15 @@ func TestMatcher(t *testing.T) {
 		},
 		{
 			in:  "#deny udp any host 11:11:11:11:11:11 eq ",
-			err: fmt.Errorf("Invalid Syntax"),
+			err: fmt.Errorf("Invalid Syntax: '#deny udp any host 11:11:11:11:11:11 eq '"),
 		},
 		{
 			in:  "#deny",
-			err: fmt.Errorf("Invalid Syntax"),
+			err: fmt.Errorf("Invalid Syntax: '#deny'"),
 		},
 		{
 			in:  "",
-			err: fmt.Errorf("Invalid Syntax"),
+			err: fmt.Errorf("Invalid Syntax: ''"),
 		},
 	}
 
@@ -392,9 +391,15 @@ func TestMatcher(t *testing.T) {
 		if err != nil {
 			if test.err == nil {
 				t.Errorf("Parse error acl '%s': %s", test.in, err.Error())
+			} else if err.Error() != test.err.Error() {
+				t.Errorf("Parse acl '%s' error is '%s' expected '%s'", test.in, err.Error(), test.err.Error())
 			}
 
-			errors.Is(err, test.err)
+			continue
+		}
+
+		if test.err != nil {
+			t.Errorf("Parse acl '%s' succeeded expected error '%s'", test.in, test.err.Error())
 			continue
 		}
 
@@ -435,6 +440,16 @@ func TestMatchNetworkEvent(t *testing.T) {
 				DestPort:   18,
 				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
 				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			true,
+		},
+		{
+			"permit tcp any any",
+			NetworkEvent{
+				DestPort:   0,
+				SourceIp:   netip.AddrFrom4([4]byte{0, 0, 0, 0}),
+				DestIp:     netip.AddrFrom4([4]byte{0, 0, 0, 0}),
 				IpProtocol: IpProtocolTcp,
 			},
 			true,
@@ -627,6 +642,76 @@ const RolesPoliciesMapJSON = `
       ]
     }
   ]
+}
+`
+
+const RolesPoliciesMapJSON2 = `
+{
+  "ByRoles": {
+    "Camera": [
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 5,
+            "verdict": "allow",
+            "dc-inventory-revision": 1789490934,
+            "rule-id": "87eefb01-d99f-4e16-81c9-8b81e94b7cb1/rule1"
+          }
+        ],
+        "acls": [
+          "permit tcp any any",
+          "permit udp any any"
+        ]
+      },
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 5,
+            "verdict": "allow",
+            "dc-inventory-revision": 1789490934,
+            "rule-id": "e15f009c-7179-4ad4-a759-e0d8846d90a6/rule2"
+          }
+        ],
+        "acls": [
+          "permit tcp any any eq 443",
+          "permit udp any any eq 443"
+        ]
+      }
+    ]
+  },
+  "ImplictPolices": [
+    {
+      "enforcement_info": [
+        {
+          "policy-revision": 5,
+          "verdict": "allow",
+          "dc-inventory-revision": 1789490934,
+          "rule-id": "implicit IOT DNS/IMPLICIT IOT RULES"
+        }
+      ],
+      "acls": [
+        "permit udp any host 8.8.8.8 eq 53",
+        "permit tcp any host 8.8.8.8 eq 53",
+        "permit udp any host 8.8.4.4 eq 53",
+        "permit tcp any host 8.8.4.4 eq 53"
+      ]
+    },
+    {
+      "enforcement_info": [
+        {
+          "policy-revision": 5,
+          "verdict": "allow",
+          "dc-inventory-revision": 1789490934,
+          "rule-id": "implicit IOT DHCP/IMPLICIT IOT RULES"
+		 }
+      ],
+      "acls": [
+        "permit udp any any eq 67",
+        "permit udp any any eq 68"
+      ]
+    }
+  ],
+  "NodesPolicies": {}
 }
 `
 
