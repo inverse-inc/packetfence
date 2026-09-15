@@ -1623,10 +1623,25 @@ Enable the required features:
   feature interface-vlan
 
 On NX-OS, `feature dot1x` enables 802.1X globally, there is no separate
-`dot1x system-auth-control` step to perform.
+`dot1x system-auth-control` step to perform. `feature interface-vlan` is not
+needed by 802.1X itself, it is needed to create the SVI that gives the switch
+the IP address it uses to reach PacketFence.
 
-Declare the PacketFence RADIUS server. Repeat the `radius-server host` line for
-each PacketFence server of your cluster:
+On a Nexus 9000, the interfaces are routed (L3) ports by default, and 802.1X is
+only supported on L2 access ports. Make the ports switchports globally:
+
+  system default switchport
+
+IMPORTANT: Without this, the `dot1x` commands of the 'MAC Authentication
+Bypass' section below are refused on the interface. The alternative is to
+configure `switchport` on each access port individually, as the interface
+examples of this section do. `show running-config` does not display the
+per-interface `switchport` command when `system default switchport` is
+configured.
+
+Declare the PacketFence RADIUS server. When PacketFence runs in cluster mode,
+this is the virtual IP of the cluster, not the address of the individual
+servers, so a single entry is enough:
 
   radius-server host 192.168.1.5 key useStrongerSecret authentication accounting
   aaa group server radius packetfence
@@ -1647,11 +1662,18 @@ Use the group for 802.1X authentication and accounting:
   dot1x radius-accounting
 
 CoA configuration, used by PacketFence to reauthenticate or bounce a device
-after a role change:
+after a role change. The `client` is the address PacketFence sends the CoA
+from, which is the same virtual IP in a cluster:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
    port 3799
+
+NOTE: A cluster only sends its CoA from the virtual IP while
+`active_active.centralized_deauth` and `active_active.use_vip_for_deauth` are
+both enabled, which is the default. If you disable either of them, each server
+sends the CoA from its own IP address and you have to declare one `client` line
+per server of the cluster, otherwise the switch silently ignores the CoA.
 
 ===== MAC Authentication Bypass
 
@@ -1733,14 +1755,13 @@ role returns a VLAN that differs from the access VLAN of the port.
 
 ===== NetFlow
 
-The Nexus 9000 can export NetFlow v9 to PacketFence, either to `pfacct` for
-bandwidth accounting or to the Fingerbank collector for traffic based profiling.
+The Nexus 9000 can export NetFlow v9 to the Fingerbank collector, which uses the
+flows for traffic based device profiling.
 
   feature netflow
   flow exporter PACKETFENCE-EXPORTER
    destination 192.168.1.5
    transport udp 2055
-   source Vlan40
    version 9
   flow record PACKETFENCE-RECORD
    match ipv4 source address
@@ -1761,10 +1782,9 @@ Then apply the monitor on the interfaces to account:
   interface Ethernet1/1
    ip flow monitor PACKETFENCE-MONITOR input
 
-The destination port depends on the consumer: the Fingerbank collector listens
-on `udp/2055` and `pfacct` listens on `udp/2056`. Refer to the 'pfacct: track
-bandwidth usage' section of the Installation Guide for the PacketFence side of
-the configuration.
+The `destination` is the address of the Fingerbank collector and the transport
+port is the `udp/2055` it listens on. Refer to the Fingerbank collector
+documentation for the collector side of the configuration.
 
 ===== Troubleshooting
 
