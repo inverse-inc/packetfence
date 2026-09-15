@@ -17,7 +17,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -55,13 +54,13 @@ func run() {
 	}
 }
 
-//test
+// test
 func test() {
 	testTunnel("2001", 500)
 	testTunnel("2001", 50000)
 }
 
-//benchmark
+// benchmark
 func bench() {
 	benchSizes("3000")
 	benchSizes("2001")
@@ -86,7 +85,7 @@ func testTunnel(port string, size int) {
 		fatal(err)
 	}
 
-	n, err := io.Copy(ioutil.Discard, resp.Body)
+	n, err := io.Copy(io.Discard, resp.Body)
 	if err != nil {
 		fatal(err)
 	}
@@ -136,7 +135,7 @@ func fatalf(f string, args ...interface{}) {
 	panic(fmt.Sprintf(f, args...))
 }
 
-//global setup
+// global setup
 func main() {
 
 	fs := makeFileServer()

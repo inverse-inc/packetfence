@@ -3,7 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -87,14 +87,14 @@ func doSearch(body string) *httptest.ResponseRecorder {
 		bytes.NewBufferString(body),
 	)
 	w := httptest.NewRecorder()
-	h.searchRadiusAttributes(w, req, nil)
+	h.searchRadiusAttributes()(w, req)
 	return w
 }
 
 func TestHttpRequest(t *testing.T) {
 	w := doSearch(`{"query":{"op":"equals", "field": "name", "value": "User-Name" }}`)
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	searchResults := RadiusAttributesResults{}
 	json.Unmarshal(body, &searchResults)
 	if len(searchResults.Items) == 0 {
@@ -109,7 +109,7 @@ func TestHttpRequest(t *testing.T) {
 
 	w = doSearch(`{}`)
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	body, _ = io.ReadAll(resp.Body)
 	searchResults = RadiusAttributesResults{}
 	json.Unmarshal(body, &searchResults)
 	if len(searchResults.Items) != len(radiusAttributes) {
@@ -118,7 +118,7 @@ func TestHttpRequest(t *testing.T) {
 
 	w = doSearch(`{"query":{"op":"equals", "field": "nme", "value": "User-Name" }}`)
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	body, _ = io.ReadAll(resp.Body)
 	searchResults = RadiusAttributesResults{}
 	json.Unmarshal(body, &searchResults)
 	if len(searchResults.Items) != 0 {

@@ -49,5 +49,130 @@ export default {
     return apiCall.get('config/connectors/status').then(response => {
       return response.data
     })
+  },
+  equipment: id => {
+    return apiCall.get(['config', 'connector', id, 'equipment']).then(response => {
+      return response.data
+    })
+  },
+
+  remoteStatus: id => {
+    return apiCall.get(['pfconnector-remotes', id, 'status']).then(response => {
+      return response.data
+    })
+  },
+  topology: () => {
+    return apiCall.get(['pfconnector-remotes', 'topology']).then(response => {
+      return response.data
+    })
+  },
+  traffic: (since, connector = null) => {
+    const params = { since }
+    if (connector)
+      params.connector = connector
+    return apiCall.get(['pfconnector-remotes', 'traffic'], { params }).then(response => {
+      return response.data
+    })
+  },
+  remoteRestart: id => {
+    return apiCall.post(['pfconnector-remotes', id, 'restart']).then(response => {
+      return response.data
+    })
+  },
+  remoteUpgrade: id => {
+    return apiCall.post(['pfconnector-remotes', id, 'upgrade']).then(response => {
+      return response.data
+    })
+  },
+  remoteInstall: (id, packages) => {
+    return apiCall.post(['pfconnector-remotes', id, 'install'], { packages }).then(response => {
+      return response.data
+    })
+  },
+  remoteHaSwitch: (id, to) => {
+    return apiCall.post(['pfconnector-remotes', id, 'ha', 'switch'], { to }).then(response => {
+      return response.data
+    })
+  },
+  // connector-cache management on the remote (quiet variants: the
+  // component shows the relayed {"message"} itself).
+  remoteCacheStats: id => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'cache', 'stats']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheConfig: id => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'cache', 'config']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheConfigUpdate: (id, toUpdate) => {
+    return apiCall.putQuiet(['pfconnector-remotes', id, 'cache', 'config'], { to_update: toUpdate }).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheOptimize: id => {
+    return apiCall.postQuiet(['pfconnector-remotes', id, 'cache', 'optimize-db']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheClean: id => {
+    return apiCall.postQuiet(['pfconnector-remotes', id, 'cache', 'clean']).then(response => {
+      return response.data
+    })
+  },
+  remoteCacheRestart: id => {
+    return apiCall.postQuiet(['pfconnector-remotes', id, 'cache', 'restart']).then(response => {
+      return response.data
+    })
+  },
+  dnsLookup: data => {
+    return apiCall.post('pfconnector-remotes/dns-lookup', data).then(response => {
+      return response.data
+    })
+  },
+  forIp: ip => {
+    return apiCall.getQuiet(['pfconnector-remotes', 'for-ip', ip]).then(response => {
+      return response.data
+    })
+  },
+  // Terminal session recordings (asciicast files kept on the remote). Under
+  // /terminal: reading a transcript needs the same right as opening a shell.
+  terminalRecordings: id => {
+    return apiCall.getQuiet(['terminal', id, 'recordings']).then(response => {
+      return response.data
+    })
+  },
+  terminalRecording: (id, name) => {
+    // An asciicast is one JSON document per line, not a JSON body: keep the
+    // raw text (quiet like getQuiet, errors keep their {message}).
+    return apiCall.request({
+      method: 'get',
+      url: ['terminal', id, 'recordings', name].map(segment => encodeURIComponent(segment)).join('/'),
+      responseType: 'text',
+      transformResponse: [data => {
+        try {
+          const parsed = JSON.parse(data)
+          if (parsed && typeof parsed === 'object' && parsed.message)
+            return { quiet: true, ...parsed }
+        } catch (e) {
+          // the recording itself
+        }
+        return { quiet: true, text: data }
+      }]
+    }).then(response => {
+      return response.data.text
+    })
+  },
+  terminalSession: id => {
+    return apiCall.post('terminal', { pfconnector_id: id }).then(response => {
+      return response.data
+    })
+  },
+  terminalAuthorize: (id, uuid, code) => {
+    // The TOTP code travels in a header: query strings end up in access logs.
+    return apiCall.get(['terminal', id, 'authorize', uuid], { headers: { 'X-PF-TOTP-Code': code || '' } }).then(response => {
+      return response.data
+    })
   }
 }

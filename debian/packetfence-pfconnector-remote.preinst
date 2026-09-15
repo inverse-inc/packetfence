@@ -1,0 +1,18 @@
+#!/bin/sh
+# preinst script for packetfence-pfconnector-remote
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# The pre-combined layout shipped /etc/systemd/system/packetfence-pfconnector-remote.service
+# as a conffile. The package no longer installs it, so dpkg keeps it as an
+# obsolete conffile on upgraded hosts, where "systemctl stop
+# packetfence-pfconnector-remote" then does nothing useful. Remove it the
+# dpkg way (preinst/postinst/postrm all call the helper); the connector runs
+# under packetfence-pfconnector-remote-combined.service.
+if [ -x /usr/bin/dpkg-maintscript-helper ]; then
+    dpkg-maintscript-helper rm_conffile /etc/systemd/system/packetfence-pfconnector-remote.service -- "$@"
+fi
+
+exit 0

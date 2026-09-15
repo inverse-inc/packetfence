@@ -353,7 +353,14 @@ pfconnector_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
 	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/remove-unpackaged-pfconnector.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/remove-unpackaged-pfconnector.sh
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/pfconnector-remote-upgrade.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/pfconnector-remote-upgrade.sh
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-upgrade.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-upgrade.service
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-upgrade.path $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-upgrade.path
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/pfconnector-remote-install.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/pfconnector-remote-install.sh
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-install.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-install.service
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-install.path $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-install.path
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/totp-qrcode.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-totp-qrcode
 	install -v -d -m0755 $(DESTDIR)/etc/docker
 	install -v -m 0600 $(SRC_ROOT_DIR)/containers/daemon.json $(DESTDIR)/etc/docker/daemon.json
 	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)$(PFCONNECTOR_PREFIX)/config.mk

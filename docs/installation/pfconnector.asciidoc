@@ -75,13 +75,94 @@ If you configured a HTTP certificate signed by a public CA on PacketFence webadm
 
 A configuration file will be created in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env`
 
-Finally, restart the packetfence-pfconnector-remote service:
+Finally, restart the packetfence-pfconnector-remote-combined service:
 
 [source,bash]
 ----
-systemctl restart packetfence-pfconnector-remote
+systemctl restart packetfence-pfconnector-remote-combined
 ----
    
+===== Removing a Remote Connector
+
+`apt remove packetfence-pfconnector-remote` (and the NTLM packages, removed first as they depend on it) stops the services, and removes the containers and their images; configuration, logs and caches stay in [filename]`/usr/local/pfconnector-remote` and [filename]`/usr/local/ntlm-auth-api`. `apt purge` removes those directories too, including the terminal TOTP seed.
+
+===== Remote Terminal Access
+
+The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ in the connector's _Status_ tab). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote-combined service after changing it).
+
+Opening a terminal requires the _Connectors_ update admin action (the connector's other actions need the read one). It also requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
+
+The seed is generated on the pfconnector-remote host when the packetfence-pfconnector-remote package is installed or upgraded, and displayed once as a QR code to scan with an authenticator app (the pfconnector-client generates it on first start if it is missing). It never leaves the host: reading it requires local access. To enroll it later, display the QR code again on the host:
+
+[source,bash]
+----
+/usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode
+----
+
+The otpauth URL it prints (kept in [filename]`/usr/local/pfconnector-remote/conf/terminal_totp`) can also be entered manually in the authenticator. To rotate the seed (for example when someone who knew it leaves), delete the file, restart the service and re-enroll.
+
+Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes of inactivity.
+
+====== Session recording
+
+Every terminal session is recorded on the pfconnector-remote host in the https://docs.asciinema.org/manual/asciicast/v2/[asciicast v2] format, one file per browser connection, under [filename]`/usr/local/pfconnector-remote/logs/terminal/` (the container's `/usr/local/pf/logs/terminal`). The file name carries the UTC start time and the one-time session id that activated the terminal, for example `20260909T134631Z-0b1f6b9a-7f5c-4a3e-9c2d-1e2f3a4b5c6d.cast`, and the pfconnector-client log names the file when a session starts and ends. Recordings are readable by root only (mode 600) and can be replayed with `asciinema play <file>` or any asciinema player.
+
+The recording holds everything displayed in the terminal (the output, including the echo of what was typed) and the terminal size changes. Keystrokes themselves are not recorded by default, so a password typed at a prompt that does not echo it stays out of the file. The behaviour is controlled in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (restart the packetfence-pfconnector-remote-combined service after changing it):
+
+* `PFCONNECTOR_TERMINAL_RECORD` (default `true`): set to `false` to disable recording. While enabled, a session whose recording cannot be created (for example a full disk) is refused rather than left unrecorded.
+* `PFCONNECTOR_TERMINAL_RECORD_INPUT` (default `false`): set to `true` to also record keystrokes as asciicast input events.
+* `PFCONNECTOR_TERMINAL_RECORDINGS_DIR`: in-container directory of the recordings; keep it under a persisted mount such as `/usr/local/pf/logs`.
+
+Recordings are not rotated or removed automatically; retention is up to the host administrator.
+
+===== Upgrading a Remote Connector
+
+When a connector-remote reports an older version than the PacketFence server, its _Status_ tab in the admin interface offers an _Upgrade_ button. Triggering it makes the connector host point its PacketFence apt repository at the server's version (rewriting the version segment of the `inverse.ca/downloads/PacketFence/debian/...` entry in [filename]`/etc/apt/sources.list.d/`), upgrade the packetfence-pfconnector-remote package and restart the connector. Once it reconnects, the _Status_ tab reports the new version.
+
+Every package installed this way is still signature-verified against the PacketFence archive keyring, downgrades are refused, and the whole operation is logged on the connector host in [filename]`/usr/local/pfconnector-remote/conf/upgrade.log`.
+
+NOTE: Connectors installed before the collector moved into the connector container ran fingerbank-collector-remote on the host. The upgrade removes that package and stops its `packetfence-fingerbank-collector` service, which would otherwise keep the collector replication port (UDP 1192) busy; run `apt purge fingerbank-collector-remote` afterwards to drop its leftover unit file.
+
+===== High Availability
+
+Two (or more) connector hosts can serve the same site as an active/passive pair. They are installed with the *same* connector ID and secret and share a virtual IP (VIP) moved between them with VRRP (keepalived runs inside the connector container). Only the host holding the VIP opens the tunnel to PacketFence; the others stand by, and the switches, the captive portal redirection and the DHCP relays are configured with the VIP so nothing on the site refers to a particular host.
+
+Prerequisites:
+
+ * the hosts are on the same layer-2 network, with one free IP address on it for the VIP;
+ * VRRP traffic is allowed between the hosts (IP protocol 112 to 224.0.0.18, or unicast to the peers, see below);
+ * one connector is created in the admin interface for the whole group, exactly as for a single host.
+
+Install the package on every host as described in the Installation section above, using the same Connector ID, secret and server URL. Nothing HA-specific is configured on the hosts.
+
+Then, in the admin interface, edit the connector (_Configuration->System Configuration->Connectors_), _Configuration_ tab, _Networking_, _High availability_ block, and set:
+
+ * the _Virtual IP_ with its prefix length, for example `10.0.0.250/24`, on the network the hosts share;
+ * optionally the _VRRP virtual router id_ (default `51`; change it only when another VRRP group uses that id on the same network) and the _Interface_ carrying the virtual IP (default: the interface of the default route on each host).
+
+Each host learns these settings through its tunnel and keeps them in [filename]`/usr/local/pfconnector-remote/var/conf/site-network.json`, so a standby host, which has no tunnel, still knows them after a reboot. Within a few seconds of saving, the hosts form the VRRP group, one of them takes the virtual IP and keeps the tunnel, the others close theirs. Leaving the virtual IP empty returns every host to standalone operation.
+
+Optional per-host settings in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (restart the packetfence-pfconnector-remote-combined service after editing it): `PFCONNECTOR_HA_PRIORITY` to prefer a host (equal priorities are broken by the higher host address), `PFCONNECTOR_HA_PEER` with the other hosts' addresses, comma separated, for unicast VRRP instead of multicast, and `PFCONNECTOR_HA_VIP` (with `PFCONNECTOR_HA_VRID`, `PFCONNECTOR_HA_INTERFACE`) to pin the virtual IP on a host regardless of the connector configuration.
+
+The terminal TOTP seed (see Remote Terminal Access) is shared by the group: the standby hosts adopt the seed of the active host over the local network within a minute of joining, so the authenticator enrolled with the first host's QR code opens the remote terminal on whichever host is active. The QR code displayed when the package is installed on an additional host becomes obsolete once that host has joined; `pfconnector-totp-qrcode` on any host shows the shared one. The _High Availability_ table of the _Status_ tab flags a standby host that has not adopted the seed yet. To rotate the seed, delete [filename]`/usr/local/pfconnector-remote/conf/terminal_totp` on the active host and restart its service: the new seed propagates to the standby hosts.
+
+Then point the network at the VIP: use it as the RADIUS server address on the switches and access points, as the target of the captive portal redirection and as the DHCP relay (IP helper) destination. Requests are answered from the VIP.
+
+How it behaves:
+
+ * The host with the highest priority takes the VIP and connects the tunnel; the connector shows as connected in the admin interface. The other hosts report to it over the local network every few seconds.
+ * The connector's _Status_ tab shows an _HA_ badge with the VIP and a _High Availability_ table listing the active host and every standby host with its version and the time of its last report. A warning appears when no standby host is reporting.
+ * When the active host fails, VRRP elects the next one within about three seconds; it takes the VIP, opens the tunnel and is fully proxying RADIUS to PacketFence within roughly ten to twenty seconds. In between, its local FreeRADIUS answers in degraded mode (MAB accepted, EAP terminated with the certificates issued by PacketFence, cached authorizations replayed), exactly as a single connector does when its tunnel drops.
+ * A recovered host does not take the VIP back (`nopreempt`), which avoids a second interruption. To make another host the active one, use _Make active_ next to that host in the _High Availability_ table of the _Status_ tab: the virtual IP and the tunnel move to it within a few seconds (a controlled failover, RADIUS is answered in degraded mode meanwhile). Host-level actions (installing the NTLM services, the terminal, the logs, the upgrade) always apply to the active host, so make a host active first to act on it.
+ * Every host checks its FreeRADIUS every two seconds. When the active host's FreeRADIUS stops answering (three consecutive failed checks) and a standby host reports a working one, the active host hands the VIP over to it; with no such standby it keeps the VIP, since moving it would not help. Loss of connectivity to PacketFence does not trigger a failover, since all hosts would be affected alike.
+ * A host that takes the VIP after standing by refreshes the RADIUS secret, certificates, NAS list and collector configuration from PacketFence and restarts the corresponding service if they changed meanwhile.
+ * The interfaces configured under _Configuration_, _Networking_ exist on every host, but their addresses (the VLAN gateway, DHCP relay source and captive DNS address) are virtual IPs that move with the connector VIP, so the DHCP and DNS service of those networks follows the active host.
+ * The standby hosts mirror the active host's credential cache (cached RADIUS authorizations and the NT keys used for PEAP when PacketFence is unreachable) every minute over the local network, encrypted with a key derived from the connector secret, so a host that takes over answers in degraded mode with a warm cache. The _Status_ tab shows the number of cached entries and the time of the last mirror for every standby host.
+
+The active host's keepalived log is available in the admin interface log viewer and on the host in [filename]`/usr/local/pfconnector-remote/logs/keepalived.log`; the VRRP state is in [filename]`/usr/local/pfconnector-remote/var/run/ha_state`.
+
+NOTE: A standby host that never held the VIP cannot fetch the RADIUS configuration from PacketFence at boot (it has no tunnel), so its FreeRADIUS starts only when it first becomes active, a few seconds after taking the VIP. Once it has been active once, the configuration is cached on the host and later boots start FreeRADIUS immediately.
+
 ===== NTLM Authentication Behind a Connector
 
 When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM authentication requires two additional services to be installed on each pfconnector-remote host where the domain is used:
@@ -91,7 +172,9 @@ When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domai
 
 IMPORTANT: When using the NT Key cache for 802.1X EAP-PEAP with a domain behind a pfconnector, `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves such a domain. Each remote instance handles authentication using its local cache when the main domain controller behind the pfconnector-remote is unreachable or when the pfconnector-remote loses connectivity to the main PacketFence server.
 
-Install them alongside the pfconnector:
+Install them from the admin interface: the connector's _Status_ tab (_Configuration->System Configuration->Connectors_, edit the connector) has an _NTLM Authentication Services_ block showing whether the two packages are installed on the host and whether the join service is running, with an _Install NTLM Services_ button. The same block appears in the domain form when _Use Connector_ is enabled and an Active Directory IP is entered: it names the connector serving that address and offers the install, so the services can be put in place right before joining the domain. The connector host downloads the packages from the PacketFence repository of its own version (signature-verified, no connector restart) and logs the result in [filename]`/usr/local/pfconnector-remote/conf/install.log`, also available in the log viewer as _install_.
+
+They can also be installed by hand on the host:
 
 [source,bash]
 ----
@@ -135,64 +218,85 @@ The _Networks_ field is critical: it tells PacketFence which IP ranges are behin
 [NOTE]
 Each connector in the list shows a colored status icon: green (connected), yellow (unknown), or red (disconnected). This reflects whether the connector's tunnel is currently active.
 
-====== Associating a Domain Name with a Connector
+====== Connectors Topology
 
-To route traffic for resources that are defined by hostname (such as LDAP sources or Active Directory servers) through a pfconnector, two steps are required:
+The _Topology_ button of the connectors list opens a live map of the connectors: PacketFence on the left, one node per connector on the right, linked by its tunnel. A link is green while the tunnel is up, red when a connector that has connected before is down, grey for a connector that never connected. Its width and the speed of its animation follow the current throughput of the tunnel, and its label shows the keepalive round trip to the connector and the rate in each direction (from and to the site). Hovering a connector shows its addresses, the time its tunnel came up, the open channels and the total bytes carried. The standby hosts of a connector in high availability appear as small satellites next to it, green when they report and their FreeRADIUS answers, orange when their FreeRADIUS is down, red when they stopped reporting.
 
-*Step 1 -- Map the domain to a connector*
+Clicking a connector (or its link) opens a details panel: the traffic broken down by service (RADIUS authentication and accounting, captive portal, MySQL, Redis, Fingerbank API, the DNS and RADIUS source tunnels, the reverse channels PacketFence opens toward the connector such as the Fingerbank collector), each with its current rate in both directions, active connections and totals, and the high-availability hosts with their role and state. _Open connector_ leads to the connector's _Status_ tab. The map refreshes every few seconds and can be paused.
 
-In the _Connectors -> Domains_ tab, create an entry:
+Below the map, _Tunnel traffic_ charts the throughput over the last 5, 15 or 60 minutes, for all connectors together or for the selected one, and _Top services_ ranks the services by the bytes they carried over the same window. The history is recorded in memory by the pfconnector servers (one sample every 5 seconds, kept for an hour) and starts over when a server restarts or a connector reconnects to another server.
 
-* *Domain* -- The DNS domain name (e.g. `inverse.local`).
-* *Connector* -- Select the connector instance that serves this domain from the dropdown.
+The rates measure the tunnel only: RADIUS, portal, DNS and the other services PacketFence exchanges with the site. Traffic the connector handles locally (degraded-mode answers, the collector's direct Fingerbank queries unless routed through the tunnel) is not part of it.
 
-This tells PacketFence which connector tunnel to use when communicating with hosts under this domain.
+====== Site Networking: Interfaces and Static Routes
 
-*Step 2 -- Enable connector usage on the resource*
+The _Networking_ section of a connector's _Configuration_ tab lets the remote connector host terminate VLANs at the site and address its secondary network interfaces. It opens with a live *Host interfaces* table (name, state, addresses) of the connector host as reported by the connector, with the main interface and everything the connector itself created or assigned marked _connector_; addresses without that mark were configured by the operating system or by hand and are never touched. The same addresses are shown next to each interface in the choices of the rows below, so an interface that already carries an address can be told from a spare one. The table is empty while the connector is disconnected and, with high availability, shows the active host. Everything configured here is applied by the connector itself, within a few seconds of saving, and re-applied every time the connector starts, so it survives a reboot of the host without any manual network configuration.
 
-In the resource configuration (e.g. an LDAP source defined under _Configuration -> Domains_), ensure the server hostname falls under the domain configured above, and set *Use Connector* to `Enabled`.
+* *Interfaces* -- One row per interface. Each row has an *Interface* (a network card of the host, e.g. `eth0`), an optional *VLAN ID* (1-4094) and an *IP address* written with its prefix length (e.g. `10.10.100.1/24`). With a VLAN ID, the connector creates the 802.1Q VLAN interface `interface.vlan` (e.g. `eth0.100`) on top of the chosen interface, which must exist on the host and carry the VLAN as tagged traffic from the switch. Without a VLAN ID, the connector assigns the address to the chosen interface itself and brings it up: this is how a second network card of the host (e.g. `ens192`, cabled to an access VLAN) gets its address, the interface being otherwise left unconfigured by the operating system. The main interface of the host (the one holding the default route, through which the tunnel reaches PacketFence) cannot be reconfigured this way: the admin interface flags it as VLAN only and the connector refuses it with an error in the status. VLAN interfaces on top of the main interface are of course allowed. The *DHCP* toggle turns the network into a DHCP scope served by PacketFence: the connector relays the DHCP requests received on that VLAN to the PacketFence DHCP server through its tunnel (DHCP-over-HTTPS, see below), and the server hands out the range configured on the row: *Range start* and *Range end* (inside the network of the interface address, which itself must stay outside the range), *Default lease* and *Max lease* in seconds, *DNS servers*, *Gateway* (the interface address when empty) and an optional *Domain name*.
+* *Static Routes* -- Optional routes to install on the host, each with a *Destination* network, and a *Gateway* and/or an *Interface*. The default route cannot be managed from here.
 
-Additionally, the server IP must fall within one of the CIDR ranges defined in the connector's _Networks_ field. PacketFence matches the IP to find the correct connector and routes the traffic through its tunnel.
+The connector tags the VLAN interfaces it creates (interface alias `pf-connector`), the addresses it assigns to existing interfaces (address label `interface:pf`, e.g. `ens192:pf`) and the routes it installs (routing protocol 201), and only ever modifies or removes objects carrying those tags. Interfaces, addresses or routes configured by hand on the host are never touched, and a VLAN interface name that already exists without the tag is reported as an error instead of being taken over. The label cannot be applied to an interface whose name is longer than 12 characters; its address is still assigned but is then not removed automatically when the row is deleted.
 
-.Workflow example
-====
-A typical setup for an Active Directory domain `inverse.local` behind the "Amsterdam Office" connector:
+The observed state (interface up/down, address, per-item errors such as a missing parent interface) is shown in the _Remote Connector Status_ card of the connector, under _Site networking_.
 
-. In _Configuration -> Connectors -> Connectors_, the "Amsterdam Office" connector has `Networks` set to `10.0.0.0/8, 192.168.1.0/24`.
-. In _Configuration -> Connectors -> Domains_, create an entry: Domain `inverse.local`, Connector "Amsterdam Office".
-. In _Configuration -> Domains_, edit the `inverse.local` domain:
-  * *Active Directory server* is set to `10.5.1.10` (which is within `10.0.0.0/8`).
-  * *Use Connector* is set to `Enabled`.
+====== DHCP-over-HTTPS
 
-At runtime, when PacketFence needs to perform an LDAP bind or search against the host `dc01.inverse.local`, it resolves the domain `inverse.local` to the "Amsterdam Office" connector, matches `10.5.1.10` against the connector's networks, and routes the LDAP traffic through its tunnel.
-====
+No DHCP packet crosses the tunnel as UDP. The connector listens on UDP/67 on every VLAN interface with DHCP enabled, sets `giaddr` to the interface address like a classic relay agent, and POSTs the raw DHCP message to the pfconnector server (`/api/v1/pfconnector/dhcp-message`), which checks that `giaddr` is one of that connector's DHCP interfaces and forwards it to pfdhcp (`POST /api/v1/dhcp/message`, `services_url.pfdhcp` or `http://127.0.0.1:22222`). The raw DHCP reply comes back in the HTTP response and the connector delivers it to the client (broadcast or layer-2 unicast, unicast for renewals). The DHCP server identifier advertised to the clients is the VLAN interface address, so renewals also go through the relay.
 
-====== Configuring DNS Resolution Through a Connector
+On the pfdhcp side the scopes come from the connectors configuration, not from `networks.conf`, and are served by a synthetic `connector` interface that has no socket: `/api/v1/dhcp/stats/connector` lists them. Set `PFDHCP_DOH_ONLY=true` in pfdhcp's environment (the cloud deployment) to serve exclusively over HTTP, with no scope on the local interfaces. `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` shares the leases between several pfdhcp instances. On the connector, `PFCONNECTOR_DHCP_RELAY=false` disables the relay.
 
-If DNS servers on the remote site need to be reachable through the connector (for example, to resolve Active Directory hostnames), configure DNS connectors in the _Connectors -> DNS_ tab:
+The relay never queues: a request that pfdhcp cannot answer within 1.5 seconds is dropped and the client retransmits.
 
-* *Identifier* -- A name for this DNS connector entry.
-* *IP* -- The IP address of the DNS server on the remote side.
-* *Port* -- The port the DNS server listens on (typically `53`).
-* *Connector Port* -- A port in the range `30000-30999` allocated for this DNS forwarder. This port must be unique across all DNS connector entries.
-* *Domains* -- One or more domain names this DNS server is authoritative for. These domains must first be defined in the _Connectors -> Domains_ tab.
+====== Captive portal on the VLAN
 
-The DNS connector establishes a port forward through the connector tunnel: DNS queries sent to `127.0.0.1:<connector_port>` on the PacketFence server are forwarded to `<ip>:<port>` on the remote side. PacketFence automatically routes DNS queries for the listed domains through the appropriate connector's DNS forwarder.
+Ports 80 and 443 of the connector host are already tunnelled to the PacketFence captive portal, on every address of the host, so the VLAN interfaces answer HTTP and HTTPS as soon as they exist and the captive DNS sends every name there. What the tunnel loses is the address of the device: the portal would see every device as the tunnel exit and could not map the request to a MAC. Enable _Configuration -> System Configuration -> Captive Portal -> Connector PROXY protocol_ (`captive_portal.connector_proxy_protocol`) and restart `haproxy-portal`: haproxy-portal then listens on `8880` (HTTP) and `8843` (HTTPS) with `accept-proxy`, the connectors tunnel their ports 80/443 to these listeners with a PROXY protocol v2 header carrying the device address, and the portal identifies the device through `X-Forwarded-For` as usual. With a cloud deployment, `PFCONNECTOR_BINDS_HOST_PORT_80` / `_443` on the pfconnector server must point to the accept-proxy listeners with the `/tcp|proxyproto` suffix (e.g. `haproxy-portal:8880/tcp|proxyproto`).
+
+====== Captive DNS
+
+The *DNS* toggle of a VLAN interface makes the connector itself answer DNS on that interface (UDP and TCP port 53 bound to the interface address): every `A` query gets the interface address with a 60 second TTL, `AAAA` queries get an empty answer so dual-stack devices fall back to IPv4, and other types are refused. There is no recursion and no upstream. This is the captive-portal DNS of the VLAN: whatever a device resolves lands on the connector, where the portal answers. When DHCP is enabled on the same interface and no DNS server is configured in the scope, the clients receive the interface address as DNS server. `PFCONNECTOR_DNS_RESPONDER=false` disables it on a host. The query counters are shown in the _Remote Connector Status_ card.
+
+[NOTE]
+The connector container needs the `NET_ADMIN` capability for this feature. It is granted by the `packetfence-pfconnector-remote` package; on a host where the container is started differently, add `--cap-add=NET_ADMIN` to the `docker run` arguments. Without it, the connector logs the netlink permission error and the interfaces are reported in error.
+
+====== DNS Servers Behind a Connector
+
+Resources defined by hostname (LDAP sources, Active Directory servers) and DNS names of the remote site are resolved through the connector when the site's DNS servers are declared on it. Edit the connector (_Configuration->System Configuration->Connectors_), _Configuration_ tab, _DNS_, and add one row per DNS server:
+
+* *DNS server IP* and *Port* -- The DNS server on the remote site (port `53` by default).
+* *Domains served* -- The domain names this server is authoritative for (type a name and press enter). Listing a domain here is what associates it with this connector: a domain can be served through one connector only, but several DNS servers of that connector may serve the same domain, in which case PacketFence forwards to all of them and fails over between them.
+* *Tunnel port* -- Optional. The pfconnector server port forwarded to the DNS server, in the range `30000-30999`; it is allocated automatically when left empty.
+
+PacketFence then forwards every query for those domains to the server through the connector tunnel (pfdns-connector), and a resource whose hostname falls under one of them, with *Use Connector* enabled, is reached through this connector. The server IP must also fall within the connector's *Networks*.
+
+The _Test DNS Resolution_ panel under the list sends a query through the selected server's tunnel, or resolves it the way PacketFence does, and shows the answer and latency; _Test Server_ asks the server for the SOA record of the first domain it serves. Save the connector before testing: the test uses the saved servers.
 
 .Workflow example
 ====
 For an Active Directory deployment where the DNS server `10.5.1.53` is behind the "Amsterdam Office" connector and handles the `inverse.local` domain:
 
-. Ensure `inverse.local` is defined in _Configuration -> Connectors -> Domains_ and linked to the "Amsterdam Office" connector.
-. In _Configuration -> Connectors -> DNS_, create an entry:
-  * *Identifier*: `amsterdam-dns`
-  * *IP*: `10.5.1.53`
-  * *Port*: `53`
-  * *Connector Port*: `30001`
-  * *Domains*: select `inverse.local`
+. In _Configuration -> Connectors_, the "Amsterdam Office" connector has `Networks` set to `10.0.0.0/8, 192.168.1.0/24`.
+. In its _Configuration_ tab, _DNS_, add a DNS server: IP `10.5.1.53`, port `53`, domains `inverse.local`.
+. In _Configuration -> Domains_, edit the `inverse.local` domain: *Active Directory server* set to `10.5.1.10` (within `10.0.0.0/8`) and *Use Connector* enabled.
 
-PacketFence will then forward any DNS query for `*.inverse.local` to `10.5.1.53:53` through the connector tunnel.
+At runtime, PacketFence forwards any DNS query for `*.inverse.local` to `10.5.1.53:53` through the connector tunnel, and an LDAP bind against `dc01.inverse.local` resolves the name through it and reaches the host through the "Amsterdam Office" connector.
 ====
+
+NOTE: Before 16.0 the same information lived in two separate tabs, _Connectors -> Domains_ (domain to connector) and _Connectors -> DNS_ (DNS servers with a hand-picked tunnel port). The upgrade folds them into the connectors' DNS servers automatically and keeps the old files with a `.migrated` suffix.
+
+====== Fingerbank API Through the Connector
+
+The Fingerbank Collector running on the connector host queries the Fingerbank API directly, using the host's own Internet access. When the site does not allow it, the collector can reach Fingerbank through the tunnel instead: every connector opens `127.0.0.1:8443`, a TCP forward that PacketFence dials to `api-ss.fingerbank.org:443` from the cloud side (the _Ports Open on the Connector_ table of the connector's _Status_ tab lists it). TLS stays end to end between the collector and Fingerbank; PacketFence never sees the requests.
+
+A connector created in the admin UI has this enabled: its *Environment* (_Configuration_ tab, _Fingerbank_) is pre-filled with
+
+----
+FINGERBANK_API_HOST=api-ss.fingerbank.org
+FINGERBANK_API_HOST_OVERRIDE_IP=127.0.0.1
+FINGERBANK_API_PORT=8443
+COLLECTOR_DHCP_FORWARD_ENABLED=true
+----
+
+The last line makes the collector forward the DHCP packets it captures on the site to PacketFence (the pfdhcplistener replacement), so the devices behind the connector are fingerprinted and their IP addresses tracked. Remove the Fingerbank API lines to let the collector query Fingerbank directly again, or add the lines to a connector created before 16.0 to opt it in. The collector reads its environment when the connector container starts, so restart `packetfence-pfconnector-remote.service` on the connector host after a change. The forward target can be changed with `PFCONNECTOR_BINDS_HOST_PORT_8443` in the pfconnector server environment.
 
 ===== Upgrade (for version prior to 12.1.0)
 
@@ -227,11 +331,11 @@ apt install -y -o Dpkg::Options::="--force-confnew" packetfence-pfconnector-remo
 The installation of `packetfence-pfconnector-remote` will remove your previous
 installation and import your configuration.
 
-Finally, restart the `packetfence-pfconnector-remote` service:
+Finally, restart the `packetfence-pfconnector-remote-combined` service:
 
 [source,bash]
 ----
-systemctl restart packetfence-pfconnector-remote
+systemctl restart packetfence-pfconnector-remote-combined
 ----
 
 ===== Upgrade (for versions 12.1.0 and later)
@@ -266,7 +370,7 @@ PacketFence Connector should have been restarted at end of the process. You can 
 
 [source,bash]
 ----
-systemctl status packetfence-pfconnector-remote
+systemctl status packetfence-pfconnector-remote-combined
 ----
 
 ===== Static Ports

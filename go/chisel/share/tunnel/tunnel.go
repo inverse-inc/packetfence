@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -29,6 +29,9 @@ type Config struct {
 	RadiusSecret string
 	RadiusProxy  *radius_proxy.Proxy
 	KeepAlive    time.Duration
+	// Stats, optional: counters shared with a transport metered before the
+	// tunnel existed (see Stats.MeterConn). Created when nil.
+	Stats *Stats
 	// The source IP for the packets that come into the remote
 	SrcIP net.IP
 }
@@ -50,6 +53,7 @@ type Tunnel struct {
 	proxyCount int
 	//internals
 	connStats   cnet.ConnCount
+	stats       *Stats
 	socksServer *socks5.Server
 
 	connectionCtx context.Context
@@ -58,13 +62,75 @@ type Tunnel struct {
 	ConnectorID       string
 	radiusProxy       *radius_proxy.Proxy
 	k8ControllerDrop  chan struct{}
+
+	//registry of currently bound inbound proxies, used to report which
+	//static/dynamic ports are effectively listening for this tunnel
+	boundProxiesMut sync.Mutex
+	boundProxies    map[*Proxy]struct{}
+}
+
+// BoundRemoteInfo describes one currently bound inbound proxy.
+type BoundRemoteInfo struct {
+	LocalHost  string `json:"local_host"`
+	LocalPort  string `json:"local_port"`
+	LocalProto string `json:"local_proto"`
+	RemoteHost string `json:"remote_host"`
+	RemotePort string `json:"remote_port"`
+	// Handler is the "|<handler>" suffix of the bind (radius, proxyproto),
+	// empty for a raw forward.
+	Handler string `json:"handler,omitempty"`
+}
+
+func (t *Tunnel) registerProxy(p *Proxy) {
+	t.boundProxiesMut.Lock()
+	if t.boundProxies == nil {
+		t.boundProxies = map[*Proxy]struct{}{}
+	}
+	t.boundProxies[p] = struct{}{}
+	t.boundProxiesMut.Unlock()
+}
+
+func (t *Tunnel) unregisterProxy(p *Proxy) {
+	t.boundProxiesMut.Lock()
+	delete(t.boundProxies, p)
+	t.boundProxiesMut.Unlock()
+}
+
+// BoundRemotes returns the remotes of every currently bound inbound proxy.
+func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
+	t.boundProxiesMut.Lock()
+	defer t.boundProxiesMut.Unlock()
+	out := make([]BoundRemoteInfo, 0, len(t.boundProxies))
+	for p := range t.boundProxies {
+		out = append(out, BoundRemoteInfo{
+			LocalHost:  p.remote.LocalHost,
+			LocalPort:  p.remote.LocalPort,
+			LocalProto: p.remote.LocalProto,
+			RemoteHost: p.remote.RemoteHost,
+			RemotePort: p.remote.RemotePort,
+			Handler:    handlerOf(p.remote.Handler),
+		})
+	}
+	return out
+}
+
+// handlerOf hides the default "raw" handler.
+func handlerOf(h string) string {
+	if h == "raw" {
+		return ""
+	}
+	return h
 }
 
 // New Tunnel from the given Config
 func New(c Config) *Tunnel {
+	if c.Stats == nil {
+		c.Stats = NewStats()
+	}
 	c.Logger = c.Logger.Fork("tun")
 	t := &Tunnel{
 		Config: c,
+		stats:  c.Stats,
 	}
 	radiusProxy, stop, err := radius_proxy.NewRadiusProxyFromKubernetes(c.Logger, c.RadiusSecret)
 
@@ -81,7 +147,7 @@ func New(c Config) *Tunnel {
 	//setup socks server (not listening on any port!)
 	extra := ""
 	if c.Socks {
-		sl := log.New(ioutil.Discard, "", 0)
+		sl := log.New(io.Discard, "", 0)
 		if t.Logger.Debug {
 			sl = log.New(os.Stdout, "[socks]", log.Ldate|log.Ltime)
 		}
@@ -110,6 +176,7 @@ func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Reque
 	}
 	t.activeConn = c
 	t.activeConnMut.Unlock()
+	t.stats.connected(time.Now())
 	t.activatingConn.Done()
 	//optional keepalive loop against this connection
 	if t.Config.KeepAlive > 0 {
@@ -209,7 +276,9 @@ func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) er
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, proxy := range proxies {
 		p := proxy
+		t.registerProxy(p)
 		eg.Go(func() error {
+			defer t.unregisterProxy(p)
 			return p.Run(ctx)
 		})
 	}
@@ -223,10 +292,12 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 	//ping forever
 	for {
 		time.Sleep(t.Config.KeepAlive)
+		start := time.Now()
 		_, b, err := sshConn.SendRequest("ping", true, nil)
 		if err != nil {
 			break
 		}
+		t.stats.recordRTT(time.Since(start))
 		if len(b) > 0 && !bytes.Equal(b, []byte("pong")) {
 			t.Debugf("strange ping response")
 			break
@@ -237,5 +308,22 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 }
 
 func (t *Tunnel) IsActive() bool {
+	t.activeConnMut.RLock()
+	defer t.activeConnMut.RUnlock()
 	return t.activeConn != nil
+}
+
+// Close terminates the active SSH connection, if any. BindSSH then returns,
+// the caller's errgroup cancels and every listener bound for this tunnel is
+// released. Used by the server when a connector reconnects while a previous
+// tunnel for the same id is still up (HA failover, see
+// docs/design/pfconnector-remote-ha.md).
+func (t *Tunnel) Close() error {
+	t.activeConnMut.RLock()
+	c := t.activeConn
+	t.activeConnMut.RUnlock()
+	if c == nil {
+		return nil
+	}
+	return c.Close()
 }

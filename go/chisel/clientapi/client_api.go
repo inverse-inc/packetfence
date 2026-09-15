@@ -3,6 +3,7 @@ package clientapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -19,6 +22,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
+	gottyserver "github.com/sorenisanerd/gotty/server"
 )
 
 const credcacheRoutePrefix = "/api/v1/credcache"
@@ -26,37 +30,117 @@ const defaultCredcacheTarget = "http://127.0.0.1:12142/api/v1/credcache/"
 
 // Handler struct
 type API struct {
-	Router      *chi.Mux
-	ConnectorId string
+	Router          *chi.Mux
+	ConnectorId     string
+	TerminalEnabled bool
+	// LogsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the
+	// live log streaming endpoint is available.
+	LogsEnabled bool
 	ctx         context.Context
 	cancel      context.CancelFunc
-	tunnel      *tunnel.Tunnel
-	mdCache     *multiDomainCache
-	statusCache *connectorStatusCache
+	// tunnel is the chisel tunnel of the running client; nil while there is
+	// none. Guarded by tunnelMu because HA mode swaps it whenever the VIP
+	// moves (SetTunnel). Pointer to the mutex so it survives API being
+	// copied by value.
+	tunnel        *tunnel.Tunnel
+	tunnelMu      *sync.RWMutex
+	mdCache       *multiDomainCache
+	statusCache   *connectorStatusCache
+	commandChan   chan Message
+	serverRunning int32
+	// terminalActivity is the unix-nano timestamp of the last terminal
+	// activity (pty read/write). Pointer so it survives API being copied.
+	terminalActivity *atomic.Int64
+	// gottyOptions are the running terminal server's options; Credential is
+	// regenerated for every activation (see terminal.go) and the gotty proxy
+	// below presents it, so only requests through this API reach the shell.
+	gottyOptions   *gottyserver.Options
+	terminalCredMu *sync.RWMutex
+	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
+	// whether activating the terminal requires the TOTP second factor.
+	terminalTOTPRequired bool
+	// terminalTOTP is the connector-local second factor required to activate
+	// the terminal. nil while terminalTOTPRequired means activation is
+	// refused (fail closed). Guarded by terminalTOTPMu: a standby host of an
+	// HA group replaces it when it adopts the active host's seed (hatotp.go).
+	terminalTOTP   *terminalTOTP
+	terminalTOTPMu sync.RWMutex
+	// terminalRecording is the session recording policy (environment),
+	// shared by the gotty slave factory and the recordings routes.
+	terminalRecording terminalRecordingConfig
+}
+
+// terminalRunning reports whether a terminal session is currently active.
+func (api *API) terminalRunning() bool {
+	return atomic.LoadInt32(&api.serverRunning) == 1
+}
+
+// MessageType is a command for the gotty terminal lifecycle goroutine.
+type MessageType int
+
+const (
+	StartProcessing MessageType = iota
+	StopProcessing
+)
+
+// Message carries a command for the terminal lifecycle goroutine.
+type Message struct {
+	Type MessageType
+	// Session is the activation uuid (StartProcessing only); it names the
+	// session's recordings. AdminUser is the PacketFence admin who
+	// activated it (may be empty), stored in the recordings' header.
+	Session   string
+	AdminUser string
 }
 
 type Service struct {
 	Name string `json:"service"`
 }
 
-func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
+// NewApi returns a pointer: the route closures, the cache refreshers and the
+// callers (SetTunnel from the HA loop) must all see the same instance.
+func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) *API {
 	Api := API{}
 	Api.Router = chi.NewRouter()
 	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
+	Api.tunnelMu = &sync.RWMutex{}
 	Api.tunnel = tun
 	Api.mdCache = newMultiDomainCache("")
 	Api.statusCache = newConnectorStatusCache("")
-	var tunState tunnelState
-	if Api.tunnel != nil {
-		tunState = Api.tunnel
-	}
+	// The refreshers look the tunnel up on every tick (not the value captured
+	// here) so they follow SetTunnel in HA mode.
+	tunState := &apiTunnelState{api: &Api}
 	Api.mdCache.startRefresher(ctx, tunState)
 	Api.statusCache.startRefresher(ctx, tunState)
 
+	Api.commandChan = make(chan Message)
+	Api.terminalActivity = &atomic.Int64{}
+	Api.terminalCredMu = &sync.RWMutex{}
+	Api.LogsEnabled = logsEnabled()
+	Api.terminalRecording = terminalRecordingConfigFromEnv()
+	var err error
+	Api.TerminalEnabled, err = Api.terminal()
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error initializing terminal: %v", err))
+	}
+	if Api.TerminalEnabled {
+		Api.terminalTOTPRequired = terminalTOTPRequired()
+		if Api.terminalTOTPRequired {
+			Api.terminalTOTP, err = newTerminalTOTP(ctx, Api.ConnectorId)
+			if err != nil {
+				// No usable seed means no terminal at all
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Disabling the remote terminal: %v", err))
+				Api.TerminalEnabled = false
+			}
+		} else {
+			log.LoggerWContext(ctx).Warn("PFCONNECTOR_TERMINAL_TOTP is disabled: terminal activation only requires the one-time session uuid")
+		}
+	}
+
 	Api.setupRoutes()
 
-	return Api
+	return &Api
 }
 
 func (api *API) setupRoutes() {
@@ -84,9 +168,52 @@ func (api *API) setupRoutes() {
 		})
 	})
 
+	// Reverse proxy in front of the local gotty terminal server
+	gottyURL, err := url.Parse("http://localhost:8022")
+	if err != nil {
+		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Error parsing gotty URL: %v", err))
+	}
+
+	gottyProxy := httputil.NewSingleHostReverseProxy(gottyURL)
+	originalDirector := gottyProxy.Director
+	gottyProxy.Director = func(req *http.Request) {
+		originalDirector(req)
+		req.Host = gottyURL.Host
+
+		if strings.ToLower(req.Header.Get("Upgrade")) == "websocket" {
+			req.Header.Set("X-Forwarded-Proto", "http")
+			req.Header.Set("X-Forwarded-Host", req.Host)
+			req.Header.Set("Origin", "http://"+gottyURL.Host)
+		}
+		// gotty requires the per-activation credential (basic auth on the
+		// page and its assets; the token it serves is echoed in the
+		// websocket handshake). Anything reaching 127.0.0.1:8022 without it
+		// gets 401.
+		if user, pass, ok := strings.Cut(api.terminalCredential(), ":"); ok {
+			req.SetBasicAuth(user, pass)
+		}
+	}
+	gottyProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Terminal proxy error: %v", err))
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte("The terminal is temporarily unavailable. Please try again in a few moments."))
+	}
+
 	api.Router.Route("/api/v1", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(localhostOnly)
+
+			r.HandleFunc("/terminal/*", func(w http.ResponseWriter, r *http.Request) {
+				r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal")
+				if r.URL.Path == "" {
+					r.URL.Path = "/"
+				}
+				gottyProxy.ServeHTTP(w, r)
+			})
+			r.HandleFunc("/terminal", func(w http.ResponseWriter, r *http.Request) {
+				http.Redirect(w, r, "/api/v1/terminal/", http.StatusMovedPermanently)
+			})
 
 			r.Route("/service", func(r chi.Router) {
 				r.Post("/all", statusAll(api))
@@ -100,7 +227,162 @@ func (api *API) setupRoutes() {
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
 			r.Handle("/credcache", credcacheProxy())
+			r.Route("/system", func(r chi.Router) {
+				r.Get("/info", systemInfo(api))
+				r.Post("/restart", systemRestart(api))
+				r.Post("/upgrade", systemUpgrade(api))
+				r.Post("/install", systemInstall(api))
+			})
+			r.Get("/logs/{name}", tailLog(api))
+			r.Post("/ha/switch", haSwitch(api))
+			// Management of the local connector-cache service (see cache.go).
+			mountCacheRoutes(r, api)
+			// Terminal session recordings (see terminal_recordings.go).
+			mountTerminalRecordingRoutes(r, api)
 		})
+		// Not localhost-only: the admin's browser reaches this directly on
+		// the remote's IP to activate a terminal session authorized by the
+		// pfconnector server (one-time uuid check via remote-terminal).
+		r.Get("/authorize/{id}", enableTerminal(api))
+		// Not localhost-only: the backup hosts of an HA group post their
+		// heartbeat to the master on the VIP (HMAC-authenticated, see ha.go).
+		r.Post("/ha/heartbeat", haHeartbeat(api))
+		r.Post("/ha/boost", haBoost(api))
+		r.Get("/ha/cache-snapshot", haCacheSnapshot(api))
+		r.Get("/ha/totp-seed", haTOTPSeed(api))
+	})
+}
+
+// totpCodeHeader carries the TOTP code (mirrors the pfconnector-server's
+// TOTPCodeHeader).
+const totpCodeHeader = "X-PF-TOTP-Code"
+
+// adminUserHeader carries the PacketFence admin username activating a
+// terminal session (mirrors the server's AdminUserHeader); it labels the
+// session's recordings.
+const adminUserHeader = "X-PF-Admin-User"
+
+// terminalActivationClient bounds the session check through the tunnel: the
+// activation endpoint is reachable on the LAN, so a stalled tunnel must not
+// let callers pile up hung handlers.
+var terminalActivationClient = &http.Client{Timeout: 10 * time.Second}
+
+// terminalCredential returns the current gotty credential ("user:pass").
+func (api *API) terminalCredential() string {
+	api.terminalCredMu.RLock()
+	defer api.terminalCredMu.RUnlock()
+	if api.gottyOptions == nil {
+		return ""
+	}
+	return api.gottyOptions.Credential
+}
+
+// enableTerminal validates the one-time terminal session id against the
+// pfconnector server (through the tunnel-local 22226 bind) and starts the
+// gotty terminal. The authorized duration is an idle timeout: the terminal
+// stays up as long as there is activity and stops once it has been idle for
+// that long.
+func enableTerminal(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if !api.TerminalEnabled {
+			http.Error(res, "The remote terminal is not enabled on this connector", http.StatusForbidden)
+			return
+		}
+		id := chi.URLParam(req, "id")
+		if id == "" {
+			http.Error(res, "Missing terminal ID", http.StatusBadRequest)
+			return
+		}
+
+		query := url.Values{"connectorid": {api.ConnectorId}, "id": {id}}
+		r, err := terminalActivationClient.Get("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?" + query.Encode())
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer r.Body.Close()
+		if r.StatusCode != http.StatusOK {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %s", r.Status), http.StatusInternalServerError)
+			return
+		}
+		var j map[string]interface{}
+		json.NewDecoder(r.Body).Decode(&j)
+		if j["authorized"] != true {
+			http.Error(res, "Terminal not authorized", http.StatusForbidden)
+			return
+		}
+
+		// Second factor: the 6-digit TOTP code, validated against the seed
+		// stored on this box. The one-time session uuid was already consumed
+		// above, so every code guess costs a fresh session on the server.
+		// Skipped only when PFCONNECTOR_TERMINAL_TOTP is explicitly disabled.
+		if api.terminalTOTPRequired {
+			second := api.currentTerminalTOTP()
+			if second == nil {
+				http.Error(res, "Terminal TOTP is not initialized", http.StatusForbidden)
+				return
+			}
+			// The code comes in a header (query strings end up in access
+			// logs); the query is accepted from older servers.
+			code := req.Header.Get(totpCodeHeader)
+			if code == "" {
+				code = req.URL.Query().Get("code")
+			}
+			if err := second.validate(code); err != nil {
+				status := http.StatusForbidden
+				if errors.Is(err, errTOTPLocked) {
+					status = http.StatusTooManyRequests
+				}
+				log.LoggerWContext(api.ctx).Warn(fmt.Sprintf("Refused terminal activation for session %s: %v", id, err))
+				http.Error(res, err.Error(), status)
+				return
+			}
+		}
+
+		timeout := 360 * time.Second
+		if t, ok := j["timeout"].(string); ok && t != "" {
+			if d, err := time.ParseDuration(t); err == nil {
+				timeout = d
+			} else if secs, err := strconv.Atoi(t); err == nil {
+				timeout = time.Duration(secs) * time.Second
+			}
+		}
+		// Idle timeout: any terminal activity (keystrokes or output) resets
+		// the clock; the terminal is only stopped after `timeout` without any.
+		// Start the clock now so an untouched session still expires.
+		api.terminalActivity.Store(time.Now().UnixNano())
+		go func(timeout time.Duration) {
+			ticker := time.NewTicker(5 * time.Second)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-api.ctx.Done():
+					return
+				case <-ticker.C:
+				}
+				last := time.Unix(0, api.terminalActivity.Load())
+				if time.Since(last) >= timeout {
+					api.commandChan <- Message{Type: StopProcessing}
+					return
+				}
+			}
+		}(timeout)
+
+		// The admin who activates the session, relayed by the PacketFence
+		// server (never trusted for anything but labelling the recording).
+		adminUser := strings.TrimSpace(req.Header.Get(adminUserHeader))
+
+		select {
+		case api.commandChan <- Message{Type: StartProcessing, Session: id, AdminUser: adminUser}:
+			log.LoggerWContext(api.ctx).Info("Terminal start command sent successfully")
+		case <-time.After(time.Second * 5):
+			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(`{"message": "Terminal is enabled"}`))
 	})
 }
 
@@ -593,7 +875,7 @@ func radiusAuthorize(api *API) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 
 		realm := "degraded"
-		if api.tunnel != nil && api.tunnel.IsActive() {
+		if api.TunnelActive() {
 			realm = "remote"
 			if api.statusCache != nil {
 				if connectorID, ok := connectorForRequest(api, r); ok {

@@ -178,6 +178,8 @@ func (s *Server) StartContext(ctx context.Context, host, port string) error {
 
 	s.setupRedisClient(ctx)
 	s.connectorStatus.Start(ctx)
+	// Tunnel traffic history for the topology charts (traffic_history.go).
+	go trafficHist.run(ctx)
 
 	return s.httpServer.GoServe(ctx, l, h)
 }

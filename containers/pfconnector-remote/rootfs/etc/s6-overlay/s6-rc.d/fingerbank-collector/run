@@ -1,3 +1,4 @@
 #!/command/execlineb -P
 with-contenv
+fdmove -c 2 1
 /bin/bash -c "source /usr/local/collector-remote/conf/collector.env && exec /usr/local/collector-remote/bin/fingerbank-collector"

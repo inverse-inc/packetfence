@@ -1,0 +1,621 @@
+package sitenetwork
+
+import (
+	"context"
+	"fmt"
+	"net"
+	"strings"
+	"syscall"
+	"testing"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/vishvananda/netlink"
+)
+
+// fakeNetlink is an in-memory model of the pieces of rtnetlink the
+// reconciler touches: links (with addresses) and routes.
+type fakeNetlink struct {
+	links     map[string]netlink.Link
+	addrs     map[string][]netlink.Addr // by link name
+	routes    []netlink.Route
+	nextIndex int
+	writes    []string // log of mutating calls, to assert idempotency
+	failAdd   bool
+}
+
+func newFake() *fakeNetlink {
+	f := &fakeNetlink{links: map[string]netlink.Link{}, addrs: map[string][]netlink.Addr{}, nextIndex: 1}
+	f.addDevice("eth0", true)
+	return f
+}
+
+func (f *fakeNetlink) addDevice(name string, up bool) {
+	attrs := netlink.NewLinkAttrs()
+	attrs.Name = name
+	attrs.Index = f.nextIndex
+	f.nextIndex++
+	if up {
+		attrs.Flags = net.FlagUp
+		attrs.OperState = netlink.OperUp
+	}
+	f.links[name] = &netlink.Device{LinkAttrs: attrs}
+}
+
+func (f *fakeNetlink) nameOf(index int) string {
+	for name, l := range f.links {
+		if l.Attrs().Index == index {
+			return name
+		}
+	}
+	return ""
+}
+
+func (f *fakeNetlink) LinkList() ([]netlink.Link, error) {
+	out := []netlink.Link{}
+	for _, l := range f.links {
+		out = append(out, l)
+	}
+	return out, nil
+}
+
+func (f *fakeNetlink) LinkByName(name string) (netlink.Link, error) {
+	if l, ok := f.links[name]; ok {
+		return l, nil
+	}
+	return nil, fmt.Errorf("Link %s not found", name)
+}
+
+func (f *fakeNetlink) LinkAdd(link netlink.Link) error {
+	f.writes = append(f.writes, "LinkAdd "+link.Attrs().Name)
+	if f.failAdd {
+		return fmt.Errorf("operation not permitted")
+	}
+	vlan, ok := link.(*netlink.Vlan)
+	if !ok {
+		return fmt.Errorf("fake only supports vlan links")
+	}
+	attrs := vlan.LinkAttrs
+	attrs.Index = f.nextIndex
+	f.nextIndex++
+	f.links[attrs.Name] = &netlink.Vlan{LinkAttrs: attrs, VlanId: vlan.VlanId}
+	return nil
+}
+
+func (f *fakeNetlink) LinkDel(link netlink.Link) error {
+	f.writes = append(f.writes, "LinkDel "+link.Attrs().Name)
+	delete(f.links, link.Attrs().Name)
+	delete(f.addrs, link.Attrs().Name)
+	return nil
+}
+
+func (f *fakeNetlink) LinkSetUp(link netlink.Link) error {
+	f.writes = append(f.writes, "LinkSetUp "+link.Attrs().Name)
+	link.Attrs().Flags |= net.FlagUp
+	return nil
+}
+
+func (f *fakeNetlink) LinkSetAlias(link netlink.Link, alias string) error {
+	f.writes = append(f.writes, "LinkSetAlias "+link.Attrs().Name)
+	link.Attrs().Alias = alias
+	return nil
+}
+
+func (f *fakeNetlink) AddrList(link netlink.Link, family int) ([]netlink.Addr, error) {
+	return f.addrs[link.Attrs().Name], nil
+}
+
+func (f *fakeNetlink) AddrReplace(link netlink.Link, addr *netlink.Addr) error {
+	f.writes = append(f.writes, fmt.Sprintf("AddrReplace %s %s", link.Attrs().Name, addr.IPNet))
+	f.addrs[link.Attrs().Name] = append(f.addrs[link.Attrs().Name], *addr)
+	return nil
+}
+
+func (f *fakeNetlink) AddrDel(link netlink.Link, addr *netlink.Addr) error {
+	f.writes = append(f.writes, fmt.Sprintf("AddrDel %s %s", link.Attrs().Name, addr.IPNet))
+	kept := []netlink.Addr{}
+	for _, a := range f.addrs[link.Attrs().Name] {
+		if a.IPNet.String() != addr.IPNet.String() {
+			kept = append(kept, a)
+		}
+	}
+	f.addrs[link.Attrs().Name] = kept
+	return nil
+}
+
+func (f *fakeNetlink) RouteListFiltered(family int, filter *netlink.Route, mask uint64) ([]netlink.Route, error) {
+	out := []netlink.Route{}
+	for _, r := range f.routes {
+		if mask&netlink.RT_FILTER_PROTOCOL != 0 && r.Protocol != filter.Protocol {
+			continue
+		}
+		if mask&netlink.RT_FILTER_DST != 0 && !ipNetEqual(r.Dst, filter.Dst) {
+			continue
+		}
+		out = append(out, r)
+	}
+	return out, nil
+}
+
+// RouteAdd is exclusive like the kernel's: a route for the same destination
+// (whatever its protocol) already exists -> EEXIST.
+func (f *fakeNetlink) RouteAdd(route *netlink.Route) error {
+	for _, r := range f.routes {
+		if ipNetEqual(r.Dst, route.Dst) {
+			return syscall.EEXIST
+		}
+	}
+	f.writes = append(f.writes, "RouteAdd "+routeKey(route))
+	stored := *route
+	if stored.LinkIndex == 0 && stored.Gw != nil {
+		stored.LinkIndex = resolvedLinkIndex
+	}
+	f.routes = append(f.routes, stored)
+	return nil
+}
+
+func (f *fakeNetlink) RouteReplace(route *netlink.Route) error {
+	f.writes = append(f.writes, "RouteReplace "+routeKey(route))
+	// Like the kernel: a gateway route installed without a device gets the
+	// output device resolved from the gateway.
+	stored := *route
+	if stored.LinkIndex == 0 && stored.Gw != nil {
+		stored.LinkIndex = resolvedLinkIndex
+	}
+	for i, r := range f.routes {
+		if routeMatches(route, &r) {
+			f.routes[i] = stored
+			return nil
+		}
+	}
+	f.routes = append(f.routes, stored)
+	return nil
+}
+
+// resolvedLinkIndex is the device the fake kernel picks for gateway routes.
+const resolvedLinkIndex = 2
+
+func (f *fakeNetlink) RouteDel(route *netlink.Route) error {
+	f.writes = append(f.writes, "RouteDel "+routeKey(route))
+	kept := []netlink.Route{}
+	for _, r := range f.routes {
+		if routeKey(&r) != routeKey(route) {
+			kept = append(kept, r)
+		}
+	}
+	f.routes = kept
+	return nil
+}
+
+func desired() Desired {
+	return Desired{
+		Interfaces: []pfconfigdriver.ConnectorInterface{
+			{Parent: "eth0", Vlan: 100, CIDR: "10.10.100.1/24"},
+			{Parent: "eth0", Vlan: 101, CIDR: "10.10.101.1/24"},
+		},
+		Routes: []pfconfigdriver.ConnectorRoute{
+			{Destination: "10.20.0.0/16", Gateway: "10.10.100.254", Interface: "eth0.100"},
+			{Destination: "192.168.50.0/24", Interface: "eth0.101"},
+		},
+	}
+}
+
+func TestReconcileCreatesAndIsIdempotent(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	ctx := context.Background()
+
+	st := r.Reconcile(ctx, "v1", desired())
+	if st.Errors != 0 {
+		t.Fatalf("expected no errors, got %d: %+v", st.Errors, st)
+	}
+	for _, name := range []string{"eth0.100", "eth0.101"} {
+		l, ok := f.links[name]
+		if !ok {
+			t.Fatalf("%s not created", name)
+		}
+		vlan := l.(*netlink.Vlan)
+		if vlan.Attrs().Alias != LinkAlias {
+			t.Errorf("%s alias = %q, want %q", name, vlan.Attrs().Alias, LinkAlias)
+		}
+		if vlan.Attrs().ParentIndex != f.links["eth0"].Attrs().Index {
+			t.Errorf("%s parent index = %d", name, vlan.Attrs().ParentIndex)
+		}
+		if vlan.Attrs().Flags&net.FlagUp == 0 {
+			t.Errorf("%s not up", name)
+		}
+		if len(f.addrs[name]) != 1 {
+			t.Errorf("%s has %d addresses, want 1", name, len(f.addrs[name]))
+		}
+	}
+	if f.links["eth0.100"].(*netlink.Vlan).VlanId != 100 {
+		t.Errorf("wrong vlan id")
+	}
+	if len(f.routes) != 2 {
+		t.Fatalf("expected 2 routes, got %d", len(f.routes))
+	}
+	for _, rt := range f.routes {
+		if rt.Protocol != RouteProtocol {
+			t.Errorf("route %s protocol = %d, want %d", routeKey(&rt), rt.Protocol, RouteProtocol)
+		}
+	}
+	if f.routes[0].Gw.String() != "10.10.100.254" || f.nameOf(f.routes[0].LinkIndex) != "eth0.100" {
+		t.Errorf("first route wrong: %+v", f.routes[0])
+	}
+	if f.routes[1].Gw != nil || f.nameOf(f.routes[1].LinkIndex) != "eth0.101" {
+		t.Errorf("second route wrong: %+v", f.routes[1])
+	}
+
+	// Second pass with the same input must not write anything except the
+	// RouteReplace calls, which are the idempotent "make sure it is there"
+	// primitive and never remove or alter state.
+	f.writes = nil
+	st = r.Reconcile(ctx, "v1", desired())
+	if st.Errors != 0 {
+		t.Fatalf("second pass errors: %+v", st)
+	}
+	for _, w := range f.writes {
+		if len(w) < 12 || w[:12] != "RouteReplace" {
+			t.Errorf("unexpected write on idempotent pass: %s", w)
+		}
+	}
+}
+
+func TestReconcileRemovesStaleAndKeepsForeign(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	ctx := context.Background()
+	r.Reconcile(ctx, "v1", desired())
+
+	// A VLAN the operator created by hand: no alias. Must be left alone.
+	attrs := netlink.NewLinkAttrs()
+	attrs.Name = "eth0.200"
+	attrs.Index = f.nextIndex
+	f.nextIndex++
+	attrs.ParentIndex = f.links["eth0"].Attrs().Index
+	f.links["eth0.200"] = &netlink.Vlan{LinkAttrs: attrs, VlanId: 200}
+
+	// A static route the operator installed: kernel protocol, must survive.
+	_, dst, _ := net.ParseCIDR("172.16.0.0/12")
+	f.routes = append(f.routes, netlink.Route{Dst: dst, Gw: net.ParseIP("10.0.0.1").To4(), Protocol: 4})
+
+	// Drop eth0.101 and its route from the desired state.
+	d := desired()
+	d.Interfaces = d.Interfaces[:1]
+	d.Routes = d.Routes[:1]
+	st := r.Reconcile(ctx, "v2", d)
+	if st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	if _, ok := f.links["eth0.101"]; ok {
+		t.Errorf("stale eth0.101 not removed")
+	}
+	if _, ok := f.links["eth0.200"]; !ok {
+		t.Errorf("foreign eth0.200 was removed")
+	}
+	if len(st.Removed) != 1 || st.Removed[0] != "eth0.101" {
+		t.Errorf("Removed = %v", st.Removed)
+	}
+	if len(f.routes) != 2 {
+		t.Fatalf("expected connector route + operator route, got %d: %+v", len(f.routes), f.routes)
+	}
+	for _, rt := range f.routes {
+		if rt.Dst.String() == "192.168.50.0/24" {
+			t.Errorf("stale connector route kept")
+		}
+	}
+}
+
+func TestReconcileReplacesAddressAndRecreatesOnTagChange(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	ctx := context.Background()
+	r.Reconcile(ctx, "v1", desired())
+
+	d := desired()
+	d.Interfaces[0].CIDR = "10.10.100.2/24" // new address, same link
+	d.Interfaces[1].Vlan = 111              // eth0.111: new link, eth0.101 goes away
+	d.Routes[1].Interface = "eth0.111"
+	st := r.Reconcile(ctx, "v2", d)
+	if st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	addrs := f.addrs["eth0.100"]
+	if len(addrs) != 1 || addrs[0].IPNet.String() != "10.10.100.2/24" {
+		t.Errorf("eth0.100 addrs = %v", addrs)
+	}
+	if _, ok := f.links["eth0.111"]; !ok {
+		t.Errorf("eth0.111 not created")
+	}
+	if _, ok := f.links["eth0.101"]; ok {
+		t.Errorf("eth0.101 not removed")
+	}
+}
+
+func TestReconcileReportsPerItemErrors(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	ctx := context.Background()
+
+	d := Desired{
+		Interfaces: []pfconfigdriver.ConnectorInterface{
+			{Parent: "eth9", Vlan: 100, CIDR: "10.10.100.1/24"}, // missing parent
+			{Parent: "eth0", Vlan: 101, CIDR: "10.10.101.1/24"}, // fine
+			{Parent: "eth0", Vlan: 102, CIDR: "10.10.102.0/24"}, // fine at this layer (form rejects network addr)
+		},
+		Routes: []pfconfigdriver.ConnectorRoute{
+			{Destination: "0.0.0.0/0", Gateway: "10.10.101.254"},    // default route refused
+			{Destination: "10.30.0.0/16"},                           // neither gw nor dev
+			{Destination: "10.40.0.0/16", Interface: "nonexistent"}, // bad dev
+			{Destination: "10.50.0.0/16", Gateway: "10.10.101.254"}, // fine
+		},
+	}
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors != 4 {
+		t.Fatalf("expected 4 errors, got %d: %+v", st.Errors, st)
+	}
+	if st.Interfaces[0].State != "error" || st.Interfaces[1].State != "up" {
+		t.Errorf("interface states: %+v", st.Interfaces)
+	}
+	if _, ok := f.links["eth0.101"]; !ok {
+		t.Errorf("a bad entry blocked a good one")
+	}
+	if st.Routes[3].State != "applied" || len(f.routes) != 1 {
+		t.Errorf("good route not applied: %+v (%d routes)", st.Routes, len(f.routes))
+	}
+	for i := range 3 {
+		if st.Routes[i].State != "error" || st.Routes[i].Error == "" {
+			t.Errorf("route %d should be an error: %+v", i, st.Routes[i])
+		}
+	}
+}
+
+func TestReconcileParentDownIsReported(t *testing.T) {
+	f := newFake()
+	f.addDevice("eth1", false)
+	r := NewWithNetlink(f)
+	st := r.Reconcile(context.Background(), "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "eth1", Vlan: 5, CIDR: "10.0.5.1/24"}}})
+	if st.Errors != 0 {
+		t.Fatalf("a down parent is not an error: %+v", st)
+	}
+	if st.Interfaces[0].State != "down" {
+		t.Errorf("state = %s, want down", st.Interfaces[0].State)
+	}
+}
+
+// A gateway route configured without an interface must survive the pass: the
+// installed route carries the kernel-resolved device and must still be
+// recognised as ours (regression: the reconciler deleted its own route).
+func TestGatewayRouteWithoutInterfaceIsKept(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	desired := Desired{Routes: []pfconfigdriver.ConnectorRoute{{Destination: "192.168.123.0/24", Gateway: "10.0.0.254"}}}
+	status := r.Reconcile(context.Background(), "v1", desired)
+	if status.Errors != 0 || len(status.Routes) != 1 || status.Routes[0].State != "applied" {
+		t.Fatalf("unexpected status: %+v", status)
+	}
+	found := false
+	for _, rt := range f.routes {
+		if rt.Protocol == RouteProtocol && rt.Dst != nil && rt.Dst.String() == "192.168.123.0/24" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("route missing after reconcile; writes: %v", f.writes)
+	}
+	for _, w := range f.writes {
+		if len(w) >= 8 && w[:8] == "RouteDel" {
+			t.Fatalf("the reconciler deleted its own route: %v", f.writes)
+		}
+	}
+	// Second pass: idempotent, still no deletion.
+	f.writes = nil
+	r.Reconcile(context.Background(), "v1", desired)
+	for _, w := range f.writes {
+		if len(w) >= 8 && w[:8] == "RouteDel" {
+			t.Fatalf("second pass deleted the route: %v", f.writes)
+		}
+	}
+}
+
+// A destination already routed by something else (an operator's static
+// route, the kernel's connected route) is never taken over: the connector
+// route is reported as an error and the foreign route survives, including
+// the later reconcile that no longer wants that destination.
+func TestReconcileNeverReplacesForeignRoute(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	ctx := context.Background()
+
+	d := desired()
+	_, dst, _ := net.ParseCIDR(d.Routes[0].Destination)
+	foreign := netlink.Route{Dst: dst, Gw: net.ParseIP("10.0.0.254").To4(), Protocol: 4}
+	f.routes = append(f.routes, foreign)
+
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors == 0 {
+		t.Fatalf("expected an error for the route colliding with the foreign one: %+v", st)
+	}
+	found := false
+	for _, rs := range st.Routes {
+		if rs.Destination == d.Routes[0].Destination {
+			found = true
+			if rs.State != "error" || rs.Error == "" {
+				t.Errorf("colliding route status = %+v, want error", rs)
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("no status for %s: %+v", d.Routes[0].Destination, st.Routes)
+	}
+	for _, w := range f.writes {
+		if w == "RouteReplace "+routeKey(&foreign) {
+			t.Errorf("foreign route was replaced: %v", f.writes)
+		}
+	}
+	kept := false
+	for _, rt := range f.routes {
+		if rt.Dst.String() == dst.String() && rt.Protocol == 4 && rt.Gw.Equal(foreign.Gw) {
+			kept = true
+		}
+	}
+	if !kept {
+		t.Fatalf("foreign route lost: %+v", f.routes)
+	}
+
+	// Drop the colliding destination from the desired state: the foreign
+	// route is not a connector route, so it must not be deleted as stale.
+	d.Routes = d.Routes[1:]
+	r.Reconcile(ctx, "v2", d)
+	for _, w := range f.writes {
+		if w == "RouteDel "+routeKey(&foreign) {
+			t.Errorf("foreign route deleted as stale: %v", f.writes)
+		}
+	}
+}
+
+// withMain pins the fake host's main (default route) interface.
+func withMain(r *Reconciler, name string) *Reconciler {
+	r.MainInterface = func() string { return name }
+	return r
+}
+
+// A row without a VLAN id addresses an existing link: the address is added
+// with our label, the link is brought up, nothing is created, and a second
+// pass writes nothing.
+func TestPlainInterfaceAssignsLabelledAddressAndIsIdempotent(t *testing.T) {
+	f := newFake()
+	f.addDevice("ens192", false)
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+	d := Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "192.168.50.1/24"}}}
+
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors != 0 {
+		t.Fatalf("expected no errors, got %+v", st)
+	}
+	if st.Interfaces[0].Name != "ens192" || st.Interfaces[0].Vlan != 0 || st.Interfaces[0].State != "up" || st.Interfaces[0].Created {
+		t.Errorf("status: %+v", st.Interfaces[0])
+	}
+	if len(f.links) != 2 {
+		t.Errorf("a plain interface must not create links: %d links", len(f.links))
+	}
+	addrs := f.addrs["ens192"]
+	if len(addrs) != 1 || addrs[0].IPNet.String() != "192.168.50.1/24" || addrs[0].Label != "ens192:pf" {
+		t.Fatalf("addresses on ens192: %+v", addrs)
+	}
+	if f.links["ens192"].Attrs().Flags&net.FlagUp == 0 {
+		t.Errorf("ens192 not brought up")
+	}
+
+	f.writes = nil
+	st = r.Reconcile(ctx, "v1", d)
+	if st.Errors != 0 || len(f.writes) != 0 {
+		t.Errorf("second pass: errors=%d writes=%v", st.Errors, f.writes)
+	}
+}
+
+// The main interface (default route, tunnel), a missing link and a
+// connector-created VLAN link are refused without touching anything.
+func TestPlainInterfaceRefusesMainMissingAndOwnedLinks(t *testing.T) {
+	f := newFake()
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+	// create a connector VLAN first so it exists as an owned link
+	r.Reconcile(ctx, "v0", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "eth0", Vlan: 100, CIDR: "10.10.100.1/24"}}})
+
+	d := Desired{Interfaces: []pfconfigdriver.ConnectorInterface{
+		{Parent: "eth0", CIDR: "10.0.0.5/24"},        // main interface
+		{Parent: "ens224", CIDR: "10.1.0.1/24"},      // missing
+		{Parent: "docker0", CIDR: "10.2.0.1/24"},     // container runtime
+		{Parent: "eth0.100", CIDR: "10.10.100.1/24"}, // our VLAN link (not parseable as plain by the server, but be safe)
+	}}
+	st := r.Reconcile(ctx, "v1", d)
+	if st.Errors != 4 {
+		t.Fatalf("expected 4 errors, got %d: %+v", st.Errors, st.Interfaces)
+	}
+	if len(f.addrs["eth0"]) != 0 {
+		t.Errorf("main interface was addressed: %+v", f.addrs["eth0"])
+	}
+	for i, want := range []string{"main interface", "not found", "container runtime", "created by the connector"} {
+		if st.Interfaces[i].State != "error" || !strings.Contains(st.Interfaces[i].Error, want) {
+			t.Errorf("entry %d: %+v (want %q)", i, st.Interfaces[i], want)
+		}
+	}
+}
+
+// Only our labelled addresses are replaced or removed; the operator's stay.
+func TestPlainInterfaceReplacesOwnAddressAndKeepsForeign(t *testing.T) {
+	f := newFake()
+	f.addDevice("ens192", true)
+	foreign := mustAddr("10.9.9.9/24")
+	old := mustAddr("192.168.50.1/24")
+	old.Label = "ens192:pf"
+	f.addrs["ens192"] = []netlink.Addr{*foreign, *old}
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+
+	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "192.168.60.1/24"}}})
+	if st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	if got := addrSet(f.addrs["ens192"]); !got["10.9.9.9/24"] || !got["192.168.60.1/24"] || got["192.168.50.1/24"] || len(got) != 2 {
+		t.Errorf("addresses after replace: %v", got)
+	}
+
+	// Row removed: our address goes, the operator's stays.
+	st = r.Reconcile(ctx, "v2", Desired{})
+	if st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	if got := addrSet(f.addrs["ens192"]); !got["10.9.9.9/24"] || len(got) != 1 {
+		t.Errorf("addresses after removal: %v", got)
+	}
+}
+
+// A name too long for the "<name>:pf" label is assigned unlabelled and left
+// alone afterwards (documented limitation).
+func TestPlainInterfaceLongNameHasNoLabel(t *testing.T) {
+	if AddressLabel("ens192") != "ens192:pf" || AddressLabel("enxaabbccddeeff") != "" || AddressLabel("enx123456789") != "enx123456789:pf" {
+		t.Fatalf("AddressLabel")
+	}
+	f := newFake()
+	f.addDevice("enxaabbccddeeff", true)
+	r := withMain(NewWithNetlink(f), "eth0")
+	ctx := context.Background()
+	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "enxaabbccddeeff", CIDR: "10.5.0.1/24"}}})
+	if st.Errors != 0 || len(f.addrs["enxaabbccddeeff"]) != 1 || f.addrs["enxaabbccddeeff"][0].Label != "" {
+		t.Fatalf("long name: %+v %+v", st, f.addrs["enxaabbccddeeff"])
+	}
+	r.Reconcile(ctx, "v2", Desired{})
+	if len(f.addrs["enxaabbccddeeff"]) != 1 {
+		t.Errorf("an unlabelled address must never be removed")
+	}
+}
+
+func TestConnectorInterfaceName(t *testing.T) {
+	if (pfconfigdriver.ConnectorInterface{Parent: "eth0", Vlan: 100}).Name() != "eth0.100" {
+		t.Errorf("vlan name")
+	}
+	if n := (pfconfigdriver.ConnectorInterface{Parent: "ens192"}).Name(); n != "ens192" {
+		t.Errorf("plain name = %q", n)
+	}
+	if (pfconfigdriver.ConnectorInterface{Parent: "ens192"}).IsVlan() || !(pfconfigdriver.ConnectorInterface{Parent: "eth0", Vlan: 1}).IsVlan() {
+		t.Errorf("IsVlan")
+	}
+}
+
+func mustAddr(cidr string) *netlink.Addr {
+	a, err := netlink.ParseAddr(cidr)
+	if err != nil {
+		panic(err)
+	}
+	return a
+}
+
+func addrSet(addrs []netlink.Addr) map[string]bool {
+	out := map[string]bool{}
+	for _, a := range addrs {
+		out[a.IPNet.String()] = true
+	}
+	return out
+}

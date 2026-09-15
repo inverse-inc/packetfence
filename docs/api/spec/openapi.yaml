@@ -5502,6 +5502,30 @@ components:
         description:
           description: Description
           type: string
+        dns_servers:
+          description: DNS servers behind the connector, with the domains each one
+            is authoritative for; PacketFence forwards those domains' queries to
+            the server through the connector tunnel
+          items:
+            description: DNS server
+            properties:
+              domains:
+                description: Domain names served by this DNS server
+                items:
+                  type: string
+                type: array
+              ip:
+                description: IP address of the DNS server on the remote site
+                type: string
+              port:
+                description: Port of the DNS server (default 53)
+                type: integer
+              tunnel_port:
+                description: pfconnector server port forwarded to the DNS server
+                  (30000-30999); allocated automatically when empty
+                type: integer
+            type: object
+          type: array
         fingerbank_environment:
           description: Fingerbank environment
           items:
@@ -5515,14 +5539,91 @@ components:
                 type: string
             type: object
           type: array
+        ha_interface:
+          description: High availability - interface carrying the virtual IP on
+            the connector hosts (default - the interface of the default route)
+          type: string
+        ha_vip:
+          description: High availability - virtual IP with prefix length shared
+            by the connector-remote hosts (e.g. 10.0.0.250/24); empty disables HA
+          type: string
+        ha_vrid:
+          description: High availability - VRRP virtual router id (1-255,
+            default 51)
+          type: integer
         id:
           description: Id
           type: string
+        interfaces:
+          description: VLAN interfaces created on the remote connector host, named
+            "<parent>.<vlan>"
+          items:
+            description: VLAN interface
+            properties:
+              cidr:
+                description: Host IPv4 address with prefix length (e.g. 10.10.100.1/24)
+                type: string
+              dhcp:
+                description: Serve DHCP on this VLAN (enabled/disabled). The connector
+                  relays the requests to the PacketFence DHCP server over HTTP, which
+                  serves the scope described by the dhcp_* fields in the network of cidr.
+                type: string
+              dhcp_default_lease_time:
+                description: Default lease time in seconds (300 when empty)
+                type: integer
+              dhcp_end:
+                description: Last address of the DHCP range
+                type: string
+              dhcp_max_lease_time:
+                description: Maximum lease time in seconds (600 when empty)
+                type: integer
+              dhcp_start:
+                description: First address of the DHCP range
+                type: string
+              dns:
+                description: Comma separated DNS servers handed to the clients (the
+                  interface address when empty and dns_server is enabled)
+                type: string
+              dns_server:
+                description: Captive DNS on this VLAN (enabled/disabled), the connector
+                  answers every DNS query with the interface address
+                type: string
+              domain_name:
+                description: Domain name handed to the clients (optional)
+                type: string
+              gateway:
+                description: Gateway handed to the clients (the interface address when
+                  empty)
+                type: string
+              parent:
+                description: Parent (physical) interface name
+                type: string
+              vlan:
+                description: 802.1Q VLAN ID (1-4094)
+                type: integer
+            type: object
+          type: array
         networks:
           description: Networks
           items:
             description: Network
             type: string
+          type: array
+        routes:
+          description: Static routes installed on the remote connector host
+          items:
+            description: Static route
+            properties:
+              destination:
+                description: Destination network in CIDR notation
+                type: string
+              gateway:
+                description: Next hop IPv4 address (optional when an interface is set)
+                type: string
+              interface:
+                description: Output interface (optional when a gateway is set)
+                type: string
+            type: object
           type: array
         secret:
           description: Secret
@@ -5542,7 +5643,11 @@ components:
               $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'
+            interfaces:
+              $ref: '#/components/schemas/Meta'
             networks:
+              $ref: '#/components/schemas/Meta'
+            routes:
               $ref: '#/components/schemas/Meta'
             secret:
               $ref: '#/components/schemas/Meta'
@@ -5555,98 +5660,6 @@ components:
         status:
           type: integer
       type: object
-    ConfigConnectorsDnsConnector:
-      properties:
-        domains:
-          description: Domain(s) name
-          items:
-            description: Domain(s) name
-            type: string
-          type: array
-        id:
-          description: Dns Name
-          type: string
-        ip:
-          description: IP of the dns server
-          type: string
-        pfconnector_port:
-          description: pfconnector port to reach out the dns server
-          type: string
-        port:
-          description: Port of the dns server
-          type: string
-      required:
-      - id
-      type: object
-    ConfigConnectorsDnsConnectorMeta:
-      properties:
-        meta:
-          properties:
-            domains:
-              $ref: '#/components/schemas/Meta'
-            id:
-              $ref: '#/components/schemas/Meta'
-            ip:
-              $ref: '#/components/schemas/Meta'
-            pfconnector_port:
-              $ref: '#/components/schemas/Meta'
-            port:
-              $ref: '#/components/schemas/Meta'
-          type: object
-      type: object
-    ConfigConnectorsDnsConnectorWrapped:
-      properties:
-        item:
-          $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-        status:
-          type: integer
-      type: object
-    ConfigConnectorsDnsConnectorsList:
-      allOf:
-      - $ref: '#/components/schemas/Iterable'
-      - properties:
-          items:
-            items:
-              $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-            type: array
-        type: object
-    ConfigConnectorsDomainsConnector:
-      properties:
-        connector:
-          description: Connector
-          type: string
-        id:
-          description: Domain Name
-          type: string
-      required:
-      - id
-      type: object
-    ConfigConnectorsDomainsConnectorMeta:
-      properties:
-        meta:
-          properties:
-            connector:
-              $ref: '#/components/schemas/Meta'
-            id:
-              $ref: '#/components/schemas/Meta'
-          type: object
-      type: object
-    ConfigConnectorsDomainsConnectorWrapped:
-      properties:
-        item:
-          $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-        status:
-          type: integer
-      type: object
-    ConfigConnectorsDomainsConnectorsList:
-      allOf:
-      - $ref: '#/components/schemas/Iterable'
-      - properties:
-          items:
-            items:
-              $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-            type: array
-        type: object
     ConfigConnectorsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
@@ -36399,337 +36412,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
       - Config/Connectors
-  /api/v1/config/dns_connector/{dns_connectors_id}:
-    delete:
-      description: Delete an item.
-      operationId: api.v1.Config.DnsConnectors.resource.remove
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: dns_connectors_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/Deleted'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-    description: Configure dns connectors
-    get:
-      description: Get an item.
-      operationId: api.v1.Config.DnsConnectors.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: dns_connectors_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-    options:
-      description: Get meta for an item.
-      operationId: api.v1.Config.DnsConnectors.resource.resource_options
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: dns_connectors_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorMeta'
-          description: Request successful. Response contains meta for a resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-    patch:
-      description: Update an item.
-      operationId: api.v1.Config.DnsConnectors.resource.update
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: dns_connectors_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-      responses:
-        '201':
-          $ref: '#/components/responses/Updated'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Config/Connectors/DnsConnectors
-    put:
-      description: Replace an item.
-      operationId: api.v1.Config.DnsConnectors.resource.replace
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: dns_connectors_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Config/Connectors/DnsConnectors
-  /api/v1/config/dns_connectors:
-    description: Configure dns connectors
-    get:
-      description: List all items.
-      operationId: api.v1.Config.DnsConnectors.list
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorsList'
-          description: Request successful. Response contains a list of resources.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - Config/Connectors/DnsConnectors
-    options:
-      description: Get meta for a new item.
-      operationId: api.v1.Config.DnsConnectors.options
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorMeta'
-          description: Request successful. Response contains meta for a resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-    post:
-      description: Create a new item.
-      operationId: api.v1.Config.DnsConnectors.create
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Config/Connectors/DnsConnectors
-  /api/v1/config/dns_connectors/bulk_delete:
-    description: Configure dns connectors
-    post:
-      description: Delete one or more items.
-      operationId: api.v1.Config.DnsConnectors.bulk_delete
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                items:
-                  items:
-                    description: '`PRIMARY KEY`'
-                    type: string
-                  type: array
-              type: object
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-  /api/v1/config/dns_connectors/bulk_import:
-    description: Configure dns connectors
-    post:
-      description: Create one or more items.
-      operationId: api.v1.Config.DnsConnectors.bulk_import
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                items:
-                  items:
-                    $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-                  type: array
-              type: object
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-  /api/v1/config/dns_connectors/bulk_update:
-    description: Configure dns connectors
-    patch:
-      description: Update one or more items.
-      operationId: api.v1.Config.DnsConnectors.bulk_update
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                items:
-                  items:
-                    $ref: '#/components/schemas/ConfigConnectorsDnsConnector'
-                  type: array
-              type: object
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
-  /api/v1/config/dns_connectors/search:
-    description: Configure dns connectors
-    post:
-      description: Search all items.
-      operationId: api.v1.Config.DnsConnectors.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              limit: 25
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
-                    items:
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        description: Search for items.
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorsList'
-          description: Request successful. Response contains a list of resources.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - Config/Connectors/DnsConnectors
-  /api/v1/config/dns_connectors/sort_items:
-    description: Configure dns connectors
-    patch:
-      description: Sort items.
-      operationId: api.v1.Config.DnsConnectors.sort_items
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDnsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DnsConnectors
   /api/v1/config/domain/{domain_id}:
     delete:
       description: Delete an item.
@@ -37382,337 +37064,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
       - Config/Domains
-  /api/v1/config/domains_connector/{domains_connectors_id}:
-    delete:
-      description: Delete an item.
-      operationId: api.v1.Config.DomainsConnectors.resource.remove
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: domains_connectors_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/Deleted'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-    description: Configure domains connectors
-    get:
-      description: Get an item.
-      operationId: api.v1.Config.DomainsConnectors.resource.get
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: domains_connectors_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-    options:
-      description: Get meta for an item.
-      operationId: api.v1.Config.DomainsConnectors.resource.resource_options
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: domains_connectors_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorMeta'
-          description: Request successful. Response contains meta for a resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-    patch:
-      description: Update an item.
-      operationId: api.v1.Config.DomainsConnectors.resource.update
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: domains_connectors_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-      responses:
-        '201':
-          $ref: '#/components/responses/Updated'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Config/Connectors/DomainsConnectors
-    put:
-      description: Replace an item.
-      operationId: api.v1.Config.DomainsConnectors.resource.replace
-      parameters:
-      - description: '`PRIMARY KEY`'
-        in: path
-        name: domains_connectors_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Config/Connectors/DomainsConnectors
-  /api/v1/config/domains_connectors:
-    description: Configure domains connectors
-    get:
-      description: List all items.
-      operationId: api.v1.Config.DomainsConnectors.list
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorsList'
-          description: Request successful. Response contains a list of resources.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - Config/Connectors/DomainsConnectors
-    options:
-      description: Get meta for a new item.
-      operationId: api.v1.Config.DomainsConnectors.options
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorMeta'
-          description: Request successful. Response contains meta for a resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-    post:
-      description: Create a new item.
-      operationId: api.v1.Config.DomainsConnectors.create
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-      - Config/Connectors/DomainsConnectors
-  /api/v1/config/domains_connectors/bulk_delete:
-    description: Configure domains connectors
-    post:
-      description: Delete one or more items.
-      operationId: api.v1.Config.DomainsConnectors.bulk_delete
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                items:
-                  items:
-                    description: '`PRIMARY KEY`'
-                    type: string
-                  type: array
-              type: object
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-  /api/v1/config/domains_connectors/bulk_import:
-    description: Configure domains connectors
-    post:
-      description: Create one or more items.
-      operationId: api.v1.Config.DomainsConnectors.bulk_import
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                items:
-                  items:
-                    $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-                  type: array
-              type: object
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-  /api/v1/config/domains_connectors/bulk_update:
-    description: Configure domains connectors
-    patch:
-      description: Update one or more items.
-      operationId: api.v1.Config.DomainsConnectors.bulk_update
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                items:
-                  items:
-                    $ref: '#/components/schemas/ConfigConnectorsDomainsConnector'
-                  type: array
-              type: object
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
-  /api/v1/config/domains_connectors/search:
-    description: Configure domains connectors
-    post:
-      description: Search all items.
-      operationId: api.v1.Config.DomainsConnectors.search
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              cursor: 0
-              limit: 25
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Search'
-              - properties:
-                  cursor:
-                    type: string
-                  fields:
-                    items:
-                      type: string
-                    type: array
-                  limit:
-                    maximum: 1000
-                    minimum: 1
-                    type: integer
-                  sort:
-                    items:
-                      type: string
-                    type: array
-                required:
-                - fields
-                - sort
-        description: Search for items.
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorsList'
-          description: Request successful. Response contains a list of resources.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-      tags:
-      - Config/Connectors/DomainsConnectors
-  /api/v1/config/domains_connectors/sort_items:
-    description: Configure domains connectors
-    patch:
-      description: Sort items.
-      operationId: api.v1.Config.DomainsConnectors.sort_items
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfigConnectorsDomainsConnectorWrapped'
-          description: Request successful. Response contains a specific resource.
-        '401':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-      - Config/Connectors/DomainsConnectors
   /api/v1/config/event_handler/{event_handler_id}:
     delete:
       description: Delete an item.

@@ -1,0 +1,204 @@
+#!/bin/bash
+# Render /etc/keepalived/keepalived.conf for the connector-remote HA pair from
+# the PFCONNECTOR_HA_* variables of pfconnector-client.env.
+# See docs/design/pfconnector-remote-ha.md.
+set -euo pipefail
+
+# Oneshots run without the container env: load pfconnector-client.env.
+. /usr/local/pf/sbin/pfconnector-env.sh
+
+CONF=/etc/keepalived/keepalived.conf
+
+if [ -z "${PFCONNECTOR_HA_VIP:-}" ]; then
+    # No VIP in the env file nor in the cached connector configuration: HA is
+    # off (or not learnt yet). Drop a config left by an earlier HA setup so
+    # keepalived does not start from it.
+    rm -f "$CONF"
+    echo "configure-keepalived: no virtual IP configured (env or admin UI), HA disabled"
+    exit 0
+fi
+
+VIP="$PFCONNECTOR_HA_VIP"
+if ! [[ "$VIP" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$ ]]; then
+    echo "configure-keepalived: PFCONNECTOR_HA_VIP '$VIP' is not an IPv4 address[/prefix]" >&2
+    exit 1
+fi
+
+IFACE="${PFCONNECTOR_HA_INTERFACE:-}"
+if [ -z "$IFACE" ]; then
+    IFACE=$(ip route get 1.1.1.1 | awk '/dev/ {for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
+fi
+if [ -z "$IFACE" ] || ! ip link show "$IFACE" >/dev/null 2>&1; then
+    echo "configure-keepalived: interface '$IFACE' not found (set PFCONNECTOR_HA_INTERFACE)" >&2
+    exit 1
+fi
+
+VRID="${PFCONNECTOR_HA_VRID:-51}"
+PRIORITY="${PFCONNECTOR_HA_PRIORITY:-100}"
+for v in "$VRID" "$PRIORITY"; do
+    if ! [[ "$v" =~ ^[0-9]+$ ]]; then
+        echo "configure-keepalived: VRID/priority must be numeric" >&2
+        exit 1
+    fi
+done
+if [ "$VRID" -lt 1 ] || [ "$VRID" -gt 255 ]; then
+    echo "configure-keepalived: PFCONNECTOR_HA_VRID must be 1-255" >&2
+    exit 1
+fi
+
+# VRRP auth_pass is at most 8 characters. Unless given, derive it from the
+# connector secret so both hosts of the pair get the same value without any
+# extra configuration.
+AUTH_PASS="${PFCONNECTOR_HA_AUTH_PASS:-}"
+if [ -z "$AUTH_PASS" ]; then
+    SECRET="${AUTH#*:}"
+    AUTH_PASS=$(printf '%s' "vrrp:$SECRET" | sha256sum | cut -c1-8)
+fi
+AUTH_PASS="${AUTH_PASS:0:8}"
+
+# Unicast peers: comma-separated host IPs of the other members (an HA group
+# may have more than two hosts). Empty = multicast VRRP.
+PEERS=()
+IFS=',' read -r -a PEERS <<< "${PFCONNECTOR_HA_PEER:-}"
+for i in "${!PEERS[@]}"; do
+    PEERS[$i]="${PEERS[$i]// /}"
+    [ -n "${PEERS[$i]}" ] || { unset "PEERS[$i]"; continue; }
+    if ! [[ "${PEERS[$i]}" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]; then
+        echo "configure-keepalived: PFCONNECTOR_HA_PEER entry '${PEERS[$i]}' is not an IPv4 address" >&2
+        exit 1
+    fi
+done
+
+# Site network interfaces (feature merged from pfconnector-site-networking):
+# their addresses are the VLAN gateway / DHCP relay source / captive DNS and
+# must move with the VIP. The client caches the last site-network payload in
+# SITE_NETWORK_CACHE. A row with a VLAN id is a VLAN link the connector
+# creates: create it here too (a backup host has no tunnel to fetch the config
+# and keepalived needs the interfaces to exist), tagged like the Go reconciler
+# does (alias pf-connector). A row without a VLAN id addresses an existing
+# host interface: it must exist and must not be the interface carrying the
+# VIP/default route (the Go reconciler refuses the main interface as well);
+# its address gets the "<name>:pf" label the reconciler uses so ha-notify.sh
+# can tell it from the operator's addresses. Each address is declared as a
+# virtual IP of the same VRRP instance.
+SITE_NETWORK_CACHE="${PFCONNECTOR_SITE_NETWORK_CACHE:-/usr/local/pf/var/conf/site-network.json}"
+MAIN_IFACE=$(ip route get 1.1.1.1 2>/dev/null | awk '/dev/ {for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
+VLAN_VIPS=()
+if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
+    if ENTRIES=$(jq -r '.interfaces[]? | select(.parent != null and .cidr != null) | "\(.parent) \(.vlan // 0) \(.cidr)"' "$SITE_NETWORK_CACHE" 2>/dev/null); then
+        while read -r parent vlan cidr; do
+            [ -n "$parent" ] && [ -n "$vlan" ] && [ -n "$cidr" ] || continue
+            if [ "$vlan" = "0" ]; then
+                # plain host interface
+                if [ "$parent" = "$MAIN_IFACE" ] || [ "$parent" = "$IFACE" ]; then
+                    echo "configure-keepalived: $parent is the main interface of the host, not adding $cidr to it" >&2
+                    continue
+                fi
+                if ! ip link show "$parent" >/dev/null 2>&1; then
+                    echo "configure-keepalived: interface $parent not found, skipping its address" >&2
+                    continue
+                fi
+                ip link set "$parent" up 2>/dev/null || true
+                label="$parent:pf"
+                if [ "${#label}" -le 15 ]; then
+                    VLAN_VIPS+=("$cidr dev $parent label $label")
+                else
+                    VLAN_VIPS+=("$cidr dev $parent")
+                fi
+                continue
+            fi
+            name="$parent.$vlan"
+            if ! ip link show "$name" >/dev/null 2>&1; then
+                if ip link show "$parent" >/dev/null 2>&1; then
+                    ip link add link "$parent" name "$name" type vlan id "$vlan" && ip link set "$name" alias pf-connector \
+                        && echo "configure-keepalived: created VLAN interface $name" \
+                        || echo "configure-keepalived: unable to create VLAN interface $name" >&2
+                else
+                    echo "configure-keepalived: parent interface $parent of $name not found, skipping its address" >&2
+                    continue
+                fi
+            fi
+            ip link set "$name" up 2>/dev/null || true
+            ip link show "$name" >/dev/null 2>&1 && VLAN_VIPS+=("$cidr dev $name")
+        done <<< "$ENTRIES"
+    else
+        echo "configure-keepalived: $SITE_NETWORK_CACHE is not valid JSON, ignoring it" >&2
+    fi
+fi
+
+BOOST_FILE=/usr/local/pfconnector-remote/var/run/ha_boost
+mkdir -p "$(dirname "$BOOST_FILE")"
+[ -f "$BOOST_FILE" ] || echo 0 > "$BOOST_FILE"
+
+mkdir -p /etc/keepalived
+{
+    cat <<CONF_EOF
+# Generated by configure-keepalived.sh from pfconnector-client.env; edits are lost.
+global_defs {
+    router_id pfconnector-remote
+    script_user root
+    enable_script_security
+}
+
+# FreeRADIUS answering on its status port. A host whose RADIUS is broken
+# lowers its priority and gives the VIP away. Cloud reachability is
+# deliberately not tracked: both hosts lose it together.
+# Priority boost written by the pfconnector-client when the admin makes this
+# host the active one from the admin interface (ha/switch): the file value is
+# added to the priority for the election that follows the master yielding.
+vrrp_track_file ha_boost {
+    file $BOOST_FILE
+    weight 1
+    init_file 0
+}
+
+vrrp_script chk_radiusd {
+    script "/usr/local/pf/sbin/ha-check.sh"
+    interval 2
+    timeout 3
+    fall 3
+    rise 2
+    weight -20
+}
+
+vrrp_instance PF_CONNECTOR {
+    state BACKUP
+    nopreempt
+    interface $IFACE
+    virtual_router_id $VRID
+    priority $PRIORITY
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass $AUTH_PASS
+    }
+    virtual_ipaddress {
+        $VIP dev $IFACE
+CONF_EOF
+    for vlan_vip in "${VLAN_VIPS[@]}"; do
+        echo "        $vlan_vip"
+    done
+    echo "    }"
+    if [ "${#PEERS[@]}" -gt 0 ]; then
+        SRC=$(ip -4 -o addr show dev "$IFACE" scope global | awk '{print $4}' | cut -d/ -f1 | head -n1)
+        [ -n "$SRC" ] && echo "    unicast_src_ip $SRC"
+        echo "    unicast_peer {"
+        for peer in "${PEERS[@]}"; do
+            echo "        $peer"
+        done
+        echo "    }"
+    fi
+    cat <<CONF_EOF
+    track_script {
+        chk_radiusd
+    }
+    track_file {
+        ha_boost
+    }
+    notify /usr/local/pf/sbin/ha-notify.sh
+}
+CONF_EOF
+} > "$CONF"
+chmod 600 "$CONF"
+
+echo "configure-keepalived: vip=$VIP iface=$IFACE vrid=$VRID priority=$PRIORITY peers=${PEERS[*]:-multicast} site_vips=${#VLAN_VIPS[@]}"

@@ -53,7 +53,7 @@
                       </b-collapse>
                     </template>
                     <!-- non-collapsable section with items (2nd level) -->
-                    <b-nav class="section-sidenav my-2" v-else :key="item.path" vertical>
+                    <b-nav class="section-sidenav my-2" v-else :key="item.path" :class="item.class" vertical>
                         <div class="section-sidenav-group">
                           <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
                         </div>

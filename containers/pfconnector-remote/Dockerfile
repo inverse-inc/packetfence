@@ -13,6 +13,9 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+# pf-release feeds PF_PATCH_RELEASE (config.mk), embedded as the pfconnector
+# build version
+COPY ./conf/pf-release /usr/local/pf/conf/pf-release
 RUN cd /usr/local/pf/go/ && make pfconnector
 
 # Stage 1: Runtime image with s6-overlay
@@ -26,6 +29,15 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz && \
     rm -f /tmp/s6-overlay-*.tar.xz
 
+# The PacketFence packages (connector-cache, ntlm-wrapper, collector) come
+# from the PacketFence repository of the code's own release line (MAJOR.MINOR
+# of conf/pf-release, overridable with PF_VERSION), replacing the entry the
+# base image carries for its own tag, so the image follows the version of the
+# code it is built from and always gets the newest connector-cache published
+# for that release line.
+ARG PF_VERSION=
+COPY conf/pf-release /tmp/pf-release
+
 # Install packages needed by radiusd-auth and fingerbank-collector
 # fingerbank-collector-remote postinst (via dh_systemd_enable) calls systemctl
 # directly, which fails without systemd. Replace systemctl with a no-op during
@@ -34,9 +46,14 @@ RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.
     ln -sf /bin/true /usr/bin/systemctl && \
     printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d && \
     chmod +x /usr/sbin/policy-rc.d && \
+    PF_VERSION="${PF_VERSION:-$(sed -n 's/^PacketFence \([0-9]*\.[0-9]*\).*/\1/p' /tmp/pf-release)}" && \
+    test -n "$PF_VERSION" && \
+    sed -i '/inverse\.ca\/downloads\/PacketFence\//d' /etc/apt/sources.list.d/*.list && \
+    echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://www.inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list && \
+    rm -f /tmp/pf-release && \
     apt-get update && \
-    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache=0.1.3-1 sqlite3 && \
-    apt-get remove -y fingerbank-collector 2>/dev/null || true && \
+    apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache sqlite3 keepalived && \
+    { apt-get remove -y fingerbank-collector 2>/dev/null || true; } && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     rm -f /usr/sbin/policy-rc.d /usr/bin/systemctl && \
     if [ -f /usr/bin/systemctl.real ]; then mv /usr/bin/systemctl.real /usr/bin/systemctl; fi
@@ -46,5 +63,14 @@ COPY --from=go-builder /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnect
 
 # Copy s6 service definitions
 COPY containers/pfconnector-remote/rootfs /
+# keepalived (enable_script_security) refuses, and silently disables, track
+# and notify scripts that are group- or world-writable, or that live under a
+# directory that is; the HA health check and VLAN address release would then
+# never run. The CI build context has world-writable directories (COPY keeps
+# their modes), so fix the scripts and every directory on their path, and
+# drop the world-writable bit from the whole PacketFence tree.
+RUN chmod 0755 /usr /usr/local /usr/local/pf /usr/local/pf/sbin /etc /etc/s6-overlay && \
+    find /usr/local/pf /etc/s6-overlay -type d -perm /o+w -exec chmod o-w {} + && \
+    chmod 0755 /usr/local/pf/sbin/*.sh /etc/s6-overlay/s6-rc.d/*/run 2>/dev/null || true
 
 ENTRYPOINT ["/init"]

@@ -2,9 +2,9 @@ package chiselmain
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -92,7 +92,7 @@ var commonHelp = `
 
 func generatePidFile() {
 	pid := []byte(strconv.Itoa(os.Getpid()))
-	if err := ioutil.WriteFile("chisel.pid", pid, 0644); err != nil {
+	if err := os.WriteFile("chisel.pid", pid, 0644); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -457,28 +457,342 @@ func client(args []string) {
 	if *hostname != "" {
 		config.Headers.Set("Host", *hostname)
 	}
-	//ready
-	c, err := chclient.NewClient(&config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	c.Debug = *verbose
 	if *pid {
 		generatePidFile()
 	}
 	go cos.GoStats()
 	ctx := cos.InterruptContext()
-	if err := c.Start(ctx); err != nil {
-		log.Fatal(err)
+
+	// The side-car API on :8081 lives for the whole process, across the plain
+	// and HA modes below; it only needs to be told which tunnel to report on.
+	secret := ""
+	if i := strings.Index(config.Auth, ":"); i >= 0 {
+		secret = config.Auth[i+1:]
 	}
-	go func(ctx context.Context) {
-		api := clientapi.NewApi(ctx, config.Auth, c.GetTunnel())
+	clientapi.SetHASecret(secret)
+	api := clientapi.NewApi(ctx, config.Auth, nil)
+	go func() {
 		// The side-car API failing should not be fatal to the tunnel client.
 		if err := api.Start(ctx, ":8081"); err != nil {
 			log.Printf("clientapi: %v", err)
 		}
-	}(ctx)
-	if err := c.Wait(); err != nil {
+	}()
+
+	// High availability (docs/design/pfconnector-remote-ha.md): the VIP is
+	// set on the connector in the admin UI and reaches the host through the
+	// site-network payload, cached on disk; PFCONNECTOR_HA_VIP in the env
+	// file overrides it. Without a VIP the client runs plain and switches to
+	// the VIP-gated mode as soon as it learns one; with a VIP it starts gated
+	// (a backup has no tunnel to learn anything, hence the cache) and falls
+	// back to plain if the admin disables HA.
+	envOverride := chclient.HAConfigFromEnv() != nil
+	haCfg := chclient.ResolveHAConfig()
+	if haCfg != nil {
+		chclient.ApplyKeepalived(log.Printf)
+	}
+	for ctx.Err() == nil {
+		if haCfg == nil {
+			haCfg = runPlainClient(ctx, &config, api, envOverride, *verbose)
+			if haCfg != nil {
+				log.Printf("HA: virtual IP %s configured on the connector, switching to the VIP-gated mode", haCfg.VIP)
+				chclient.ApplyKeepalived(log.Printf)
+			}
+			continue
+		}
+		next := runHAClient(ctx, &config, api, *haCfg, secret, envOverride, *verbose)
+		if ctx.Err() != nil {
+			return
+		}
+		if next == nil {
+			log.Printf("HA: virtual IP removed from the connector, switching to the plain mode")
+			clientapi.ClearHAState()
+		} else {
+			log.Printf("HA: virtual IP changed to %s", next.VIP)
+		}
+		chclient.ApplyKeepalived(log.Printf)
+		haCfg = next
+	}
+}
+
+// runPlainClient runs the tunnel client as a standalone connector-remote. It
+// returns when the connector configuration received through the tunnel
+// carries a virtual IP (the caller then switches to runHAClient), or nil when
+// ctx is done. A fatal client error still exits the process, as before.
+func runPlainClient(ctx context.Context, config *chclient.Config, api *clientapi.API, envOverride bool, verbose bool) *chclient.HAConfig {
+	haCh := make(chan chclient.HAConfig, 1)
+	config.HA = false
+	config.PreferredIP = ""
+	config.OnHAConfig = nil
+	if !envOverride {
+		config.OnHAConfig = func(ha chclient.HAConfig) {
+			if ha.Enabled() {
+				select {
+				case haCh <- ha:
+				default:
+				}
+			}
+		}
+	}
+	c, err := chclient.NewClient(config)
+	if err != nil {
 		log.Fatal(err)
+	}
+	c.Debug = verbose
+	if err := c.Start(ctx); err != nil {
+		log.Fatal(err)
+	}
+	api.SetTunnel(c.GetTunnel())
+	done := make(chan error, 1)
+	go func() { done <- c.Wait() }()
+	defer api.SetTunnel(nil)
+	select {
+	case <-ctx.Done():
+		c.Close()
+		<-done
+		return nil
+	case err := <-done:
+		if ctx.Err() == nil {
+			// Wait only returns while the context lives when the client gave
+			// up (non-retryable error: bad secret, rejected config) or failed
+			// hard. Exit as the client always did, so s6 restarts the service
+			// at its own pace instead of this loop reconnecting in a tight loop.
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Fatal("tunnel client gave up (see the messages above)")
+		}
+		return nil
+	case ha := <-haCh:
+		c.Close()
+		<-done
+		return &ha
+	}
+}
+
+// haVIPPollInterval is how often the HA loop checks whether this host holds
+// the VIP. keepalived moves the address in about a second after detecting
+// the peer's loss, so a 1s poll adds little to the failover time.
+const haVIPPollInterval = time.Second
+
+// runHAClient is the client main loop while a virtual IP is configured (see
+// docs/design/pfconnector-remote-ha.md). Several hosts run the same
+// connector; only the one holding the VRRP virtual IP may hold the tunnel,
+// otherwise the cloud sees two tunnels for one connector id and the newest
+// one silently wins. The side-car API runs on every host the whole time: a
+// backup answers the degraded realm to its local FreeRADIUS and reports its
+// HA state to the master. It returns the new HA configuration when the admin
+// changes the VIP, nil when HA is disabled or ctx is done.
+func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.API, cfg chclient.HAConfig, secret string, envOverride bool, verbose bool) *chclient.HAConfig {
+	// Every host checks its FreeRADIUS; a master with a broken one yields the
+	// VIP to a healthy standby (clientapi/hahealth.go).
+	go clientapi.MonitorRadiusHealth(ctx, log.Printf)
+
+	vip, err := chclient.ParseVIP(cfg.VIP)
+	if err != nil {
+		log.Printf("HA: %v; running without HA", err)
+		return nil
+	}
+	config.PreferredIP = vip.String()
+	config.HA = true
+	// Mode changes are driven by the connector configuration, unless the
+	// env file pins the VIP.
+	haCh := make(chan *chclient.HAConfig, 1)
+	config.OnHAConfig = nil
+	if !envOverride {
+		config.OnHAConfig = func(ha chclient.HAConfig) {
+			var next *chclient.HAConfig
+			if ha.Enabled() {
+				if ha == cfg {
+					return
+				}
+				next = &ha
+			}
+			select {
+			case haCh <- next:
+			default:
+			}
+		}
+	}
+	log.Printf("HA mode: the tunnel follows the VIP %s", vip)
+
+	vipPresent := func() bool {
+		present, err := chclient.VIPPresent(vip)
+		if err != nil {
+			log.Printf("HA: unable to list interface addresses: %v", err)
+			return false
+		}
+		return present
+	}
+	waitFor := func(want bool) bool {
+		for {
+			if vipPresent() == want {
+				return true
+			}
+			select {
+			case <-ctx.Done():
+				return false
+			case <-time.After(haVIPPollInterval):
+			}
+		}
+	}
+
+	// While backup, tell the master we are here (admin UI shows the group).
+	heartbeat := func(ctx context.Context) {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			if err := clientapi.SendHeartbeat(ctx, vip.String(), secret, clientapi.LocalHeartbeat("backup")); err != nil {
+				failures++
+				if failures == 1 || failures%60 == 0 {
+					log.Printf("HA: heartbeat to the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			} else if failures > 0 {
+				log.Printf("HA: heartbeat to the master on %s restored", vip)
+				failures = 0
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
+	// While backup, mirror the master's credential cache so a takeover does
+	// not start with an empty cache (phase 4, clientapi/hacache.go).
+	cacheSync := func(ctx context.Context) {
+		if v := os.Getenv("PFCONNECTOR_HA_CACHE_SYNC"); v == "false" || v == "disabled" || v == "0" {
+			return
+		}
+		ticker := time.NewTicker(clientapi.HACacheSyncInterval)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			// Let the heartbeat establish the master first.
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(3 * time.Second):
+			}
+			if err := clientapi.SyncCacheFromMaster(ctx, vip.String(), secret); err != nil {
+				failures++
+				if failures == 1 || failures%30 == 0 {
+					log.Printf("HA: cache sync from the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			} else {
+				if failures > 0 {
+					log.Printf("HA: cache sync from the master on %s restored", vip)
+				}
+				failures = 0
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
+	// While backup, adopt the master's terminal TOTP seed so one authenticator
+	// enrolment opens the terminal on whichever host is active
+	// (clientapi/hatotp.go). Independent of the cache sync toggle.
+	totpSync := func(ctx context.Context) {
+		ticker := time.NewTicker(clientapi.HACacheSyncInterval)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(3 * time.Second):
+			}
+			changed, err := api.SyncTOTPSeedFromMaster(ctx, vip.String(), secret)
+			switch {
+			case errors.Is(err, clientapi.ErrTOTPSeedUnavailable):
+				// The master has none to share: keep ours, quietly.
+			case err != nil:
+				failures++
+				if failures == 1 || failures%30 == 0 {
+					log.Printf("HA: terminal TOTP seed sync from the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			default:
+				failures = 0
+				if changed {
+					log.Printf("HA: adopted the terminal TOTP seed of the active host on %s; the authenticator enrolled there now opens the terminal on this host", vip)
+				}
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
+	for {
+		clientapi.SetHAState(vip.String(), "backup")
+		hbCtx, stopHeartbeat := context.WithCancel(ctx)
+		go heartbeat(hbCtx)
+		go cacheSync(hbCtx)
+		go totpSync(hbCtx)
+		acquired := waitFor(true)
+		stopHeartbeat()
+		if !acquired {
+			return nil
+		}
+		log.Printf("HA: VIP %s acquired, starting the tunnel", vip)
+		clientapi.SetHAState(vip.String(), "master")
+		// A boost granted for a switch has done its job; back to the base
+		// priority (nopreempt keeps us master).
+		clientapi.SetHABoost(0)
+
+		c, err := chclient.NewClient(config)
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.Debug = verbose
+		if err := c.Start(ctx); err != nil {
+			log.Printf("HA: unable to start the tunnel client: %v", err)
+			time.Sleep(haVIPPollInterval)
+			continue
+		}
+		api.SetTunnel(c.GetTunnel())
+
+		done := make(chan error, 1)
+		go func() { done <- c.Wait() }()
+	master:
+		for {
+			select {
+			case <-ctx.Done():
+				c.Close()
+				<-done
+				return nil
+			case err := <-done:
+				// Same as the plain client: Wait returning here means the
+				// client gave up or failed hard; a dropped tunnel is retried
+				// inside the client and never gets here. Close releases the
+				// site listeners (DHCP relay, captive DNS), then exit so s6
+				// restarts the service at its own pace.
+				c.Close()
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Fatal("HA: tunnel client gave up (see the messages above)")
+			case next := <-haCh:
+				c.Close()
+				<-done
+				api.SetTunnel(nil)
+				return next
+			case <-time.After(haVIPPollInterval):
+				if !vipPresent() {
+					log.Printf("HA: VIP %s released, stopping the tunnel", vip)
+					c.Close()
+					<-done
+					break master
+				}
+			}
+		}
+		api.SetTunnel(nil)
 	}
 }

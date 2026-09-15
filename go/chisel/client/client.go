@@ -1,6 +1,8 @@
 package chclient
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"crypto/md5"
 	"crypto/tls"
@@ -9,22 +11,29 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
+	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/sitenetwork"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/proxy"
@@ -45,6 +54,20 @@ type Config struct {
 	TLS              TLSConfig
 	DialContext      func(ctx context.Context, network, addr string) (net.Conn, error)
 	SrcIP            string
+	// PreferredIP, when set and held by the default-route interface, is
+	// reported first to the pfconnector server: the admin UI and the remote
+	// terminal use the first address to reach this connector. HA mode sets
+	// it to the VIP.
+	PreferredIP string
+	// HA is set by the HA client loop: the VLAN interface addresses of the
+	// site network then move with the VIP, so keepalived is refreshed
+	// whenever the site-network config changes (docs/design/pfconnector-remote-ha.md).
+	HA bool
+	// OnHAConfig, when set, is called with the HA block of every site-network
+	// payload whose HA block differs from the previous one. main uses it to
+	// switch between the plain and the VIP-gated modes when the admin
+	// enables or disables HA on the connector.
+	OnHAConfig func(HAConfig)
 }
 
 // TLSConfig for a Client
@@ -68,6 +91,27 @@ type Client struct {
 	stop      func()
 	eg        *errgroup.Group
 	tunnel    *tunnel.Tunnel
+
+	// siteNetwork applies the connector's VLAN interfaces and static routes
+	// to the host; siteNetworkVersion is the last payload version applied so
+	// an unchanged payload costs nothing but the poll.
+	siteNetwork        *sitenetwork.Reconciler
+	siteNetworkVersion string
+	// dhcpRelay serves DHCP-over-HTTPS on the VLAN interfaces flagged for it.
+	dhcpRelay *dhcprelay.Relay
+	// dnsResponder is the captive DNS on the VLAN interfaces flagged for it.
+	dnsResponder *dnsresponder.Responder
+	// siteServicesMu serialises the relay/responder syncs with Close, so a
+	// sync in flight cannot restart listeners that Close just stopped
+	// (HA: the client is closed when the host gives up the VIP).
+	siteServicesMu sync.Mutex
+	closing        bool
+	// lastHA/haSeen back notifyHAConfig.
+	lastHA HAConfig
+	haSeen bool
+	// siteNetworkKick is signalled by connectionOnce when the SSH connection
+	// is established so siteNetworkLoop fetches the config at once.
+	siteNetworkKick chan struct{}
 }
 
 // NewClient creates a new client instance
@@ -98,8 +142,9 @@ func NewClient(c *Config) (*Client, error) {
 	hasSocks := false
 	hasStdio := false
 	client := &Client{
-		Logger: cio.NewLogger("client"),
-		config: c,
+		Logger:          cio.NewLogger("client"),
+		config:          c,
+		siteNetworkKick: make(chan struct{}, 1),
 		computed: settings.Config{
 			Version: chshare.BuildVersion,
 		},
@@ -117,7 +162,7 @@ func NewClient(c *Config) (*Client, error) {
 			tc.InsecureSkipVerify = true
 		} else if c.TLS.CA != "" {
 			rootCAs := x509.NewCertPool()
-			if b, err := ioutil.ReadFile(c.TLS.CA); err != nil {
+			if b, err := os.ReadFile(c.TLS.CA); err != nil {
 				return nil, fmt.Errorf("Failed to load file: %s", c.TLS.CA)
 			} else if ok := rootCAs.AppendCertsFromPEM(b); !ok {
 				return nil, fmt.Errorf("Failed to decode PEM: %s", c.TLS.CA)
@@ -268,17 +313,24 @@ func (c *Client) Start(ctx context.Context) error {
 	if os.Getenv("FETCH_REMOTES_VIA_API") == "true" {
 		go func() {
 			for {
-				time.Sleep(5 * time.Second)
-				func() {
-					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
+				// Stop with the client: in HA mode (PFCONNECTOR_HA_VIP) the
+				// client is closed and re-created whenever the VIP moves, and a
+				// leftover loop would rebind the remotes of a dead tunnel.
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(5 * time.Second):
+				}
+				tunnelReady := func() bool {
+					res, err := c.serverAPIGet(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
 					if err != nil {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
-						return
+						return false
 					}
 					defer res.Body.Close()
 					if res.StatusCode != http.StatusOK {
 						fmt.Printf("Invalid status code %d received for remote binds\n", res.StatusCode)
-						return
+						return false
 					}
 					apiRemotes := struct {
 						Binds []string
@@ -286,7 +338,7 @@ func (c *Client) Start(ctx context.Context) error {
 					err = json.NewDecoder(res.Body).Decode(&apiRemotes)
 					if err != nil {
 						fmt.Printf("Unable to parse remote binds from pfconnector API: %s\n", err)
-						return
+						return false
 					}
 					remotes := []*settings.Remote{}
 					for _, remoteStr := range apiRemotes.Binds {
@@ -301,12 +353,128 @@ func (c *Client) Start(ctx context.Context) error {
 					if err != nil {
 						fmt.Println("Error binding remotes obtained from the pfconnector server", err)
 					}
+					return true
 				}()
+				_ = tunnelReady
 			}
 		}()
 	}
+	// Report our IPs to the pfconnector server on a ticker of its own (the
+	// admin UI status panel and the remote terminal need them to reach this
+	// connector's local API). It cannot live in the remote-binds loop above:
+	// BindRemotes blocks for as long as the binds are up, so that loop only
+	// iterates when the tunnel drops and a report placed after it never runs.
+	go c.reportConnectorInfoLoop(ctx)
+
+	// Site networking has its own ticker: it must not live in the remote-binds
+	// loop above because BindRemotes blocks for as long as the binds are up,
+	// so that loop only iterates when the tunnel drops.
+	go c.siteNetworkLoop(ctx)
 
 	return nil
+}
+
+// reportConnectorInfoLoop periodically reports this connector's IPs while the
+// tunnel is up. Used when binds are static; the FETCH_REMOTES_VIA_API loop
+// reports on its own cadence instead.
+func (c *Client) reportConnectorInfoLoop(ctx context.Context) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+		if c.tunnel != nil && c.tunnel.IsActive() {
+			c.reportConnectorInfo()
+		}
+	}
+}
+
+// reportConnectorInfo sends the IPs of the default-route interface to the
+// pfconnector server (through the tunnel-local bind on 22226) so the server
+// can expose how to reach this connector's local API.
+func (c *Client) reportConnectorInfo() {
+	clientInfo := struct {
+		IPs         []string `json:"ips"`
+		ConnectorID string   `json:"connector_id"`
+	}{
+		ConnectorID: strings.Split(c.config.Auth, ":")[0],
+	}
+	defaultIPs, err := getDefaultInterfaceIPs()
+	if err != nil {
+		fmt.Printf("failed to get default interface IPs: %v\n", err)
+		return
+	}
+	for _, ip := range defaultIPs {
+		if c.config.PreferredIP != "" && ip.String() == c.config.PreferredIP {
+			clientInfo.IPs = append([]string{ip.String()}, clientInfo.IPs...)
+			continue
+		}
+		clientInfo.IPs = append(clientInfo.IPs, ip.String())
+	}
+
+	clientInfoJSON, err := json.Marshal(clientInfo)
+	if err != nil {
+		fmt.Printf("failed to marshal client info: %v\n", err)
+		return
+	}
+
+	req, err := http.NewRequest(http.MethodPost, "http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", bytes.NewBuffer(clientInfoJSON))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(connauth.Header, c.connectorAuth())
+	res, err := serverAPIClient.Do(req)
+	if err != nil {
+		fmt.Printf("failed to send client info: %v\n", err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		fmt.Printf("unexpected status code %d sending client info\n", res.StatusCode)
+	}
+}
+
+// getDefaultInterfaceIPs returns the IP addresses of the interface holding
+// the default route.
+func getDefaultInterfaceIPs() ([]net.IP, error) {
+	file, err := os.Open("/proc/net/route")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) >= 2 && fields[1] == "00000000" { // Destination 0.0.0.0
+			iface, err := net.InterfaceByName(fields[0])
+			if err != nil {
+				return nil, fmt.Errorf("failed to get interface %s: %w", fields[0], err)
+			}
+			ifaceIPs, err := iface.Addrs()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get addresses for interface %s: %w", fields[0], err)
+			}
+			ips := make([]net.IP, 0, len(ifaceIPs))
+			for _, addr := range ifaceIPs {
+				if ipnet, ok := addr.(*net.IPNet); ok {
+					ips = append(ips, ipnet.IP)
+				}
+			}
+			if len(ips) == 0 {
+				return nil, fmt.Errorf("no IP addresses found for interface %s", fields[0])
+			}
+			return ips, nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return nil, fmt.Errorf("no default route found")
 }
 
 func (c *Client) setProxy(u *url.URL, d *websocket.Dialer) error {
@@ -350,5 +518,339 @@ func (c *Client) Close() error {
 	if c.stop != nil {
 		c.stop()
 	}
+	// The DHCP relay and captive DNS listeners are bound to the VLAN
+	// interface addresses; they are not tied to the context, and on an HA
+	// host those addresses move to the new master with the VIP, so release
+	// them here.
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	c.closing = true
+	if c.dhcpRelay != nil {
+		c.dhcpRelay.Stop()
+		dhcprelay.SetLastStatus(nil)
+	}
+	if c.dnsResponder != nil {
+		c.dnsResponder.Stop()
+		dnsresponder.SetLastStatus(nil)
+	}
 	return nil
+}
+
+// siteNetworkReply mirrors the pfconnector server's SiteNetworkReply.
+type siteNetworkReply struct {
+	Version    string                              `json:"version"`
+	Interfaces []pfconfigdriver.ConnectorInterface `json:"interfaces"`
+	Routes     []pfconfigdriver.ConnectorRoute     `json:"routes"`
+	HA         HAConfig                            `json:"ha"`
+}
+
+// siteNetworkPollInterval is how often the connector fetches its desired site
+// networking from the pfconnector server; the reconcile itself only runs when
+// the payload changed or the last pass had errors.
+const siteNetworkPollInterval = 5 * time.Second
+
+// connectorAuth signs a request to the pfconnector server's tunnel-local API
+// as this connector (chisel/share/connauth): config.Auth is "<id>:<secret>".
+func (c *Client) connectorAuth() string {
+	id, secret, _ := strings.Cut(c.config.Auth, ":")
+	return connauth.Sign(id, secret, time.Now())
+}
+
+// serverAPIClient bounds every call to the tunnel-local server API so a
+// stalled tunnel cannot pin a goroutine forever.
+var serverAPIClient = &http.Client{Timeout: 10 * time.Second}
+
+// serverAPIGet is a signed GET on the tunnel-local server API.
+func (c *Client) serverAPIGet(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set(connauth.Header, c.connectorAuth())
+	return serverAPIClient.Do(req)
+}
+
+// siteNetworkClient bounds the site-network fetch so a stalled tunnel cannot
+// wedge the loop (http.DefaultClient has no timeout).
+var siteNetworkClient = &http.Client{Timeout: 10 * time.Second}
+
+// siteNetworkLoop runs reconcileSiteNetwork every siteNetworkPollInterval
+// while the tunnel is up, in both remote-binds modes (API-fetched or static).
+// Disabled with PFCONNECTOR_SITE_NETWORK=false.
+func (c *Client) siteNetworkLoop(ctx context.Context) {
+	if v := os.Getenv("PFCONNECTOR_SITE_NETWORK"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	// A fresh connection is served at once (siteNetworkKick, signalled by
+	// connectionOnce): two hosts of an HA group that both start plain (same
+	// connector id) get their tunnels replaced by each other about once a
+	// second until they learn the VIP, so the payload must be fetched in the
+	// first moments of a connection, not at the next 5s tick.
+	ticker := time.NewTicker(siteNetworkPollInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if c.tunnel != nil && c.tunnel.IsActive() {
+				c.reconcileSiteNetwork(ctx)
+			}
+		case <-c.siteNetworkKick:
+			// BindSSH marks the tunnel active right after the kick; give it
+			// a moment rather than racing it.
+			for i := 0; i < 40 && !(c.tunnel != nil && c.tunnel.IsActive()); i++ {
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(50 * time.Millisecond):
+				}
+			}
+			if c.tunnel != nil && c.tunnel.IsActive() {
+				c.reconcileSiteNetwork(ctx)
+			}
+		}
+	}
+}
+
+// reconcileSiteNetwork fetches the connector's desired site networking (VLAN
+// interfaces, addresses, static routes) from the pfconnector server through
+// the tunnel-local bind and applies it to the host with netlink. It is called
+// by siteNetworkLoop but only reconciles when the payload version changed, or
+// when the previous pass reported errors (so a parent NIC that shows up late
+// gets its VLANs without a config change).
+func (c *Client) reconcileSiteNetwork(ctx context.Context) {
+	connectorID := strings.Split(c.config.Auth, ":")[0]
+	res, err := c.serverAPIGet(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/site-network?connector-id=%s", connectorID))
+	if err != nil {
+		c.Debugf("Unable to fetch site network config: %s", err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusNotFound {
+		// Server predates the feature or the connector is unknown: nothing to apply.
+		return
+	}
+	if res.StatusCode != http.StatusOK {
+		c.Debugf("Invalid status code %d received for site network config", res.StatusCode)
+		return
+	}
+	reply := siteNetworkReply{}
+	if err := json.NewDecoder(res.Body).Decode(&reply); err != nil {
+		c.Infof("Unable to parse site network config: %s", err)
+		return
+	}
+	if reply.Version != c.siteNetworkVersion {
+		c.cacheSiteNetwork(reply)
+		c.notifyHAConfig(reply.HA)
+	}
+
+	last := sitenetwork.LastStatus()
+	if reply.Version == c.siteNetworkVersion && (last == nil || last.Errors == 0) {
+		c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, last)
+		c.syncDnsResponder(ctx, reply.Interfaces, last)
+		return
+	}
+
+	if c.siteNetwork == nil {
+		c.siteNetwork = sitenetwork.New()
+	}
+	status := c.siteNetwork.Reconcile(ctx, reply.Version, sitenetwork.Desired{Interfaces: reply.Interfaces, Routes: reply.Routes})
+	sitenetwork.SetLastStatus(status)
+	if reply.Version != c.siteNetworkVersion {
+		c.Infof("Applied site network config %s: %d interface(s), %d route(s), %d error(s)", reply.Version, len(status.Interfaces), len(status.Routes), status.Errors)
+	}
+	versionChanged := reply.Version != c.siteNetworkVersion
+	c.siteNetworkVersion = reply.Version
+	for _, st := range status.Interfaces {
+		if st.Error != "" {
+			c.Infof("site-network: %s: %s", st.Name, st.Error)
+		}
+	}
+	if c.config.HA && versionChanged {
+		c.refreshKeepalived()
+	}
+	for _, st := range status.Routes {
+		if st.Error != "" {
+			c.Infof("site-network: route %s: %s", st.Destination, st.Error)
+		}
+	}
+	c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, &status)
+	c.syncDnsResponder(ctx, reply.Interfaces, &status)
+}
+
+// syncDnsResponder keeps one captive DNS responder per VLAN interface that is
+// flagged dns_server and currently exists on the host. Runs every poll; Sync
+// is idempotent and restarts failed responders (e.g. the address was not yet
+// on the link). Disabled with PFCONNECTOR_DNS_RESPONDER=false.
+func (c *Client) syncDnsResponder(ctx context.Context, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
+	if v := os.Getenv("PFCONNECTOR_DNS_RESPONDER"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	if c.closing {
+		return
+	}
+	present := map[string]bool{}
+	if status != nil {
+		for _, st := range status.Interfaces {
+			present[st.Name] = st.State != "error"
+		}
+	}
+	wanted := []dnsresponder.Interface{}
+	for _, iface := range ifaces {
+		if !sharedutils.IsEnabled(iface.DnsServer) || !present[iface.Name()] {
+			continue
+		}
+		ip, _, err := net.ParseCIDR(iface.CIDR)
+		if err != nil {
+			continue
+		}
+		wanted = append(wanted, dnsresponder.Interface{Name: iface.Name(), IP: ip})
+	}
+	if c.dnsResponder == nil {
+		if len(wanted) == 0 {
+			return
+		}
+		c.dnsResponder = dnsresponder.New(dnsresponder.Config{Logger: c.Infof})
+	}
+	c.dnsResponder.Sync(ctx, wanted)
+	dnsresponder.SetLastStatus(c.dnsResponder.Status())
+}
+
+// syncDhcpRelay keeps one DHCP relay listener per VLAN interface that is
+// flagged dhcp_relay and currently exists on the host (state up or down, not
+// error). Runs every poll; Sync is idempotent and restarts failed listeners.
+// Disabled with PFCONNECTOR_DHCP_RELAY=false.
+func (c *Client) syncDhcpRelay(ctx context.Context, connectorID string, ifaces []pfconfigdriver.ConnectorInterface, status *sitenetwork.Status) {
+	if v := os.Getenv("PFCONNECTOR_DHCP_RELAY"); v == "false" || v == "disabled" || v == "0" {
+		return
+	}
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	if c.closing {
+		return
+	}
+	present := map[string]bool{}
+	if status != nil {
+		for _, st := range status.Interfaces {
+			present[st.Name] = st.State != "error"
+		}
+	}
+	wanted := []dhcprelay.Interface{}
+	for _, iface := range ifaces {
+		if !sharedutils.IsEnabled(iface.Dhcp) || !present[iface.Name()] {
+			continue
+		}
+		ip, _, err := net.ParseCIDR(iface.CIDR)
+		if err != nil {
+			continue
+		}
+		wanted = append(wanted, dhcprelay.Interface{Name: iface.Name(), IP: ip})
+	}
+	if c.dhcpRelay == nil {
+		if len(wanted) == 0 {
+			return
+		}
+		c.dhcpRelay = dhcprelay.New(dhcprelay.Config{
+			URL:        fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/dhcp-message?connector-id=%s", connectorID),
+			AuthHeader: c.connectorAuth,
+			Logger:     c.Infof,
+		})
+	}
+	c.dhcpRelay.Sync(ctx, wanted)
+	dhcprelay.SetLastStatus(c.dhcpRelay.Status())
+}
+
+// siteNetworkCachePath is where the last site-network payload is kept on the
+// connector host (var/conf is bind-mounted, so it survives restarts). In HA
+// mode configure-keepalived.sh reads it at boot to create the VLAN links and
+// declare their addresses as virtual IPs: a backup host has no tunnel to
+// fetch the config from, yet keepalived must know the VLAN addresses to move
+// them with the VIP.
+var siteNetworkCachePath = sharedutils.EnvOrDefault("PFCONNECTOR_SITE_NETWORK_CACHE", "/usr/local/pf/var/conf/site-network.json")
+
+// notifyHAConfig calls Config.OnHAConfig when the HA block changed since the
+// previous payload (or on the first payload).
+func (c *Client) notifyHAConfig(ha HAConfig) {
+	if c.config.OnHAConfig == nil {
+		return
+	}
+	if c.haSeen && c.lastHA == ha {
+		return
+	}
+	c.haSeen = true
+	c.lastHA = ha
+	c.config.OnHAConfig(ha)
+}
+
+// cacheSiteNetwork writes the payload to siteNetworkCachePath (atomically).
+func (c *Client) cacheSiteNetwork(reply siteNetworkReply) {
+	data, err := json.MarshalIndent(reply, "", "  ")
+	if err != nil {
+		return
+	}
+	if current, err := os.ReadFile(siteNetworkCachePath); err == nil && bytes.Equal(current, data) {
+		return
+	}
+	tmp := siteNetworkCachePath + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+		c.Debugf("Unable to cache the site network config: %s", err)
+		return
+	}
+	if err := os.Rename(tmp, siteNetworkCachePath); err != nil {
+		c.Debugf("Unable to cache the site network config: %s", err)
+	}
+}
+
+// keepalived integration points inside the connector-remote container.
+const (
+	configureKeepalivedScript = "/usr/local/pf/sbin/configure-keepalived.sh"
+	keepalivedConfPath        = "/etc/keepalived/keepalived.conf"
+	keepalivedServiceDir      = "/run/service/keepalived"
+	s6svcBinary               = "/command/s6-svc"
+)
+
+// ApplyKeepalived re-renders keepalived.conf from the env file and the cached
+// site-network payload (HA block and VLAN interface addresses), then brings
+// keepalived in line: started or reloaded when a VIP is configured, stopped
+// when none is (the generator removes the config file in that case). No-op
+// outside the connector-remote container. Returns whether HA is configured.
+func ApplyKeepalived(logf func(string, ...interface{})) bool {
+	if _, err := os.Stat(configureKeepalivedScript); err != nil {
+		return false
+	}
+	if out, err := exec.Command(configureKeepalivedScript).CombinedOutput(); err != nil {
+		logf("HA: unable to render keepalived.conf: %s: %s", err, strings.TrimSpace(string(out)))
+		return false
+	}
+	_, confErr := os.Stat(keepalivedConfPath)
+	configured := confErr == nil
+	if _, err := os.Stat(keepalivedServiceDir); err != nil {
+		return configured
+	}
+	if configured {
+		// -u starts it if it was down (or marked "once"), -h reloads a running one.
+		if out, err := exec.Command(s6svcBinary, "-u", keepalivedServiceDir).CombinedOutput(); err != nil {
+			logf("HA: unable to start keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+		}
+		if out, err := exec.Command(s6svcBinary, "-h", keepalivedServiceDir).CombinedOutput(); err != nil {
+			logf("HA: unable to reload keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+		}
+		return true
+	}
+	if out, err := exec.Command(s6svcBinary, "-d", keepalivedServiceDir).CombinedOutput(); err != nil {
+		logf("HA: unable to stop keepalived: %s: %s", err, strings.TrimSpace(string(out)))
+	}
+	return false
+}
+
+// refreshKeepalived is called by the master after applying a new site-network
+// version: a VLAN added or removed in the admin UI becomes (or stops being) a
+// virtual IP from now on.
+func (c *Client) refreshKeepalived() {
+	if ApplyKeepalived(c.Infof) {
+		c.Infof("HA: keepalived reloaded with the VLAN interface addresses of site network config %s", c.siteNetworkVersion)
+	}
 }

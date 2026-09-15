@@ -1,0 +1,26 @@
+#!/bin/sh
+# prerm script for packetfence-ntlm-auth-api-remote
+#
+# see: dh_installdeb(1)
+
+set -e
+
+case "$1" in
+    remove|deconfigure)
+        # The controller and every per-domain instance it started
+        for unit in $(/bin/systemctl list-units --all --no-legend --plain 'packetfence-ntlm-auth-api-domain-remote@*.service' 2>/dev/null | awk '{print $1}'); do
+            /bin/systemctl stop "$unit" 2>/dev/null || true
+        done
+        /bin/systemctl stop packetfence-ntlm-auth-api-remote.service 2>/dev/null || true
+        /bin/systemctl disable packetfence-ntlm-auth-api-remote.service 2>/dev/null || true
+        /bin/systemctl reset-failed packetfence-ntlm-auth-api-remote.service 2>/dev/null || true
+    ;;
+    upgrade|failed-upgrade)
+    ;;
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
