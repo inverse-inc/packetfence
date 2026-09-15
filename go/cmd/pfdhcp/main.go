@@ -541,7 +541,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			// Update Global Caches
 			GlobalIPCache.Set(reqIP.String(), answer.MAC.String(), cacheDuration)
 			GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
-			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, db)
+			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, leaseDuration, db)
 			if err != nil {
 				log.LoggerWContext(ctx).Info(err.Error() + " mac=" + clientMac)
 			}

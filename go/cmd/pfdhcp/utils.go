@@ -568,7 +568,11 @@ var (
 // (as a sync.Once would) left every later ip4log write failing for the life of
 // the process when pfdhcp happened to start before the database was accepting
 // connections.
-func ip4logStatementsFor(db *sql.DB) (*ip4logStatements, error) {
+//
+// That same first-connection property is why preparation runs under ctx: it
+// happens while the write lock is held, so an unreachable database would
+// otherwise park every DHCP worker here for as long as the outage lasts.
+func ip4logStatementsFor(ctx context.Context, db *sql.DB) (*ip4logStatements, error) {
 	ip4logStmtsMu.RLock()
 	if ip4logStmts != nil && ip4logStmtsDb == db {
 		stmts := ip4logStmts
@@ -590,7 +594,7 @@ func ip4logStatementsFor(db *sql.DB) (*ip4logStatements, error) {
 			return nil
 		}
 		var stmt *sql.Stmt
-		stmt, err = db.Prepare(query)
+		stmt, err = db.PrepareContext(ctx, query)
 		return stmt
 	}
 
@@ -634,6 +638,9 @@ func ip4logConflictKey(mac string, ip string) string {
 
 // ip4logConflictTtl keeps a binding confirmed for at most half its lease, so
 // the checks re-run at least once per lease even for a quiet, stable client.
+// The lease passed here is the client's own, not the longer ip4log validity
+// the caller derives from it: a TTL longer than T1 would be refreshed by every
+// renewal and the entry would never expire.
 func ip4logConflictTtl(lease time.Duration) time.Duration {
 	ttl := lease / 2
 	if ttl > ip4logConflictTtlMax {
@@ -661,25 +668,45 @@ func forgetIp4logBinding(mac string, ip string) {
 }
 
 // MysqlUpdateIP4Log update the ip4log table
-func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, db *sql.DB) error {
+//
+// duration is how long the ip4log entry stays valid (the lease plus the
+// caller's grace period) and lease is the client's own lease, which is what
+// the conflict cache is keyed on in time.
+func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, lease time.Duration, db *sql.DB) error {
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	stmts, err := ip4logStatementsFor(db)
+	stmts, err := ip4logStatementsFor(dbCtx, db)
 	if err != nil {
 		return err
 	}
 
-	if !ip4logBindingConfirmed(mac, ip) {
+	// Only a cache miss runs the checks, and only a miss whose reads both
+	// answered may confirm the binding afterwards: re-confirming on a hit would
+	// push the entry's deadline forward on every renewal and the checks would
+	// never run again for a steadily renewing client.
+	checksRan := !ip4logBindingConfirmed(mac, ip)
+	if checksRan {
 		var (
 			oldMAC string
 			oldIP  string
 		)
 		if err := stmts.mac2ip.QueryRowContext(dbCtx, mac).Scan(&oldIP); err != nil {
+			// No row is the normal answer for a device we have not seen yet;
+			// anything else means the check did not happen and must not be
+			// cached away.
+			if err != sql.ErrNoRows {
+				checksRan = false
+			}
+
 			log.LoggerWContext(ctx).Info(err.Error())
 		}
 
 		if err := stmts.ip2mac.QueryRowContext(dbCtx, ip).Scan(&oldMAC); err != nil {
+			if err != sql.ErrNoRows {
+				checksRan = false
+			}
+
 			log.LoggerWContext(ctx).Info(err.Error())
 		}
 
@@ -713,8 +740,8 @@ func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time
 	// it. Re-run the conflict checks next time instead of trusting the cache.
 	if rows, rerr := res.RowsAffected(); rerr == nil && rows == 1 {
 		forgetIp4logBinding(mac, ip)
-	} else {
-		confirmIp4logBinding(mac, ip, duration)
+	} else if checksRan {
+		confirmIp4logBinding(mac, ip, lease)
 	}
 
 	return nil
@@ -733,10 +760,13 @@ func sanitizeHostname(h string) string {
 // previously-stored non-empty value (possible MAC spoofing). This mirrors the
 // Perl pf::api::detect_computername_change, which PacketFence's DHCP processor
 // no longer runs for networks pfdhcp serves (it defers computername to us).
-// computernameCache remembers the last host name persisted per MAC so the
-// per-packet UPDATE (and the change-detection read) only runs when the value
-// actually changes; a changed host name is a different cache value and goes
-// through immediately.
+// computernameCache remembers the last host name known to be stored per MAC so
+// the per-packet write only runs when the value actually changes; a changed
+// host name is a different cache value and goes through immediately. Only a
+// value read back from an existing node row is cached: the node is often
+// created after the DHCP transaction that named it, and caching a host name
+// whose UPDATE matched no row would keep it out of the database for the
+// lifetime of the entry, which is the delay this code exists to remove.
 var computernameCache = cache.New(5*time.Minute, 10*time.Minute)
 
 func recordComputername(ctx context.Context, mac string, hostname string, db *sql.DB) {
@@ -748,17 +778,27 @@ func recordComputername(ctx context.Context, mac string, hostname string, db *sq
 		return
 	}
 
-	// Only pay for the extra read + detection when the feature is enabled
-	// (disabled by default); otherwise just persist the value cheaply.
+	old, nodeExists := mysqlGetComputername(ctx, mac, db)
+	if !nodeExists {
+		// Nothing to update and nothing worth remembering: the node row is
+		// usually created moments later, and the next transaction writes the
+		// host name then.
+		return
+	}
+
+	if old == hostname {
+		computernameCache.Set(mac, hostname, cache.DefaultExpiration)
+		return
+	}
+
+	// Change detection is disabled by default; the read it needs is the one we
+	// just did either way.
 	netConf := pfconfigdriver.GetType[pfconfigdriver.PfConfNetwork](ctx)
-	if sharedutils.IsEnabled(netConf.HostnameChangeDetection) {
-		old := mysqlGetComputername(ctx, mac, db)
-		if old != "" && old != hostname {
-			log.LoggerWContext(ctx).Warn("Computername change detected (" + old + " -> " + hostname + ") for " + mac + ". Possible MAC spoofing.")
-			if AAAClient != nil {
-				if err := AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", "internal", "mac", mac, "tid", "hostname_change"}); err != nil {
-					log.LoggerWContext(ctx).Error("Unable to trigger hostname_change security event for " + mac + ": " + err.Error())
-				}
+	if old != "" && sharedutils.IsEnabled(netConf.HostnameChangeDetection) {
+		log.LoggerWContext(ctx).Warn("Computername change detected (" + old + " -> " + hostname + ") for " + mac + ". Possible MAC spoofing.")
+		if AAAClient != nil {
+			if err := AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", "internal", "mac", mac, "tid", "hostname_change"}); err != nil {
+				log.LoggerWContext(ctx).Error("Unable to trigger hostname_change security event for " + mac + ": " + err.Error())
 			}
 		}
 	}
@@ -767,12 +807,15 @@ func recordComputername(ctx context.Context, mac string, hostname string, db *sq
 		log.LoggerWContext(ctx).Warn("Unable to update computername for " + mac + ": " + err.Error())
 		return
 	}
+
 	computernameCache.Set(mac, hostname, cache.DefaultExpiration)
 }
 
-// mysqlGetComputername returns the node's currently stored computername, or ""
-// if the node does not exist or has none.
-func mysqlGetComputername(ctx context.Context, mac string, db *sql.DB) string {
+// mysqlGetComputername returns the node's currently stored computername and
+// whether the node row exists at all; a node with no computername yet reads
+// back as ("", true). A read error reports the node as missing, which only
+// costs the caller a retry on the next transaction.
+func mysqlGetComputername(ctx context.Context, mac string, db *sql.DB) (string, bool) {
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	var computername sql.NullString
@@ -781,9 +824,10 @@ func mysqlGetComputername(ctx context.Context, mac string, db *sql.DB) string {
 		if err != sql.ErrNoRows {
 			log.LoggerWContext(ctx).Error("Unable to read computername for " + mac + ": " + err.Error())
 		}
-		return ""
+		return "", false
 	}
-	return computername.String
+
+	return computername.String, true
 }
 
 // MysqlUpdateComputername records the DHCP option-12 host name as the node's
