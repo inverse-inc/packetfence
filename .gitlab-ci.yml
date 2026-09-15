@@ -410,7 +410,8 @@ variables:
     - export PF_MINOR_RELEASE="$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)/)' conf/pf-release)"
     - export BOX_VERSION="${PF_MINOR_RELEASE}.$(date -u +%Y%m%d%H%M%S)"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${BOX_VERSION}"
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME} BOX_VERSION=${BOX_VERSION}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
+        "${VAGRANT_BUILD_TARGET:-${BOX_NAME}}" BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
@@ -1511,12 +1512,13 @@ build_pf_img_vagrant_devel_debian_bookworm:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# Maintenance branches: stable box namespace, shared with tag releases.
+# Maintenance branches: dependencies only, using the stable box namespace.
 build_pf_img_vagrant_maintenance_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_job
   variables:
     BOX_NAME: pfdeb12stable
+    VAGRANT_BUILD_TARGET: pfdebian12_dependencies
   needs:
     - job: deploy_packages
       parallel:
@@ -1547,7 +1549,7 @@ build_pf_img_vagrant_branch_debian_bookworm:
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfdebian12dev_generic
+        pfdebian12_dependencies
   needs:
     - job: publish_ppa
       artifacts: false
@@ -1739,12 +1741,13 @@ build_pf_img_vagrant_devel_el8:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# EL 8 maintenance branches: stable namespace, shared with tag releases.
+# EL 8 maintenance branches: dependencies only, using the stable box namespace.
 build_pf_img_vagrant_maintenance_el8:
   extends:
     - .build_pf_img_vagrant_job
   variables:
     BOX_NAME: pfel8stable
+    VAGRANT_BUILD_TARGET: pfel8_dependencies
   needs:
     - job: deploy_packages
       parallel:
@@ -1775,7 +1778,7 @@ build_pf_img_vagrant_branch_el8:
     - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
-        pfel8dev_generic
+        pfel8_dependencies
   needs:
     - job: publish_ppa
       artifacts: false

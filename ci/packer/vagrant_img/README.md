@@ -13,6 +13,18 @@ with authenticated rclone before `vagrant up`.
 | `pfad11{dev,branch}` | bullseye | Samba4 AD | `pfad11dev` / `…_generic` |
 | `pfnode11{dev,stable,branch}` | bullseye | node + wireless client layer | `pfnode11dev` / `…_generic` |
 
+## PacketFence maintenance boxes
+
+Maintenance CI jobs build dependencies only, like devel. They set
+`VAGRANT_BUILD_TARGET` to `pfdebian12_dependencies` or `pfel8_dependencies` while
+retaining the `pfdeb12stable` / `pfel8stable` output names. Release-tag jobs
+still use the stable Make targets, which install PacketFence in the box.
+
+After publishing a new maintenance box, update the corresponding `box_version`
+pins in `addons/vagrant/inventory/hosts` before running tests. Existing boxes
+are unaffected. Maintenance and release-tag builds share the stable namespace,
+so keep maintenance tests pinned to the intended dependency-only versions.
+
 ## pfnode11 — shared node + wireless box
 
 One box backs `node01/02/03` and `wireless01` (all `debian/bullseye64`). The
