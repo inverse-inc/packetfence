@@ -45,6 +45,9 @@ use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
+use pf::locationlog qw(locationlog_view_open_mac);
+use pf::factory::connector;
+use URI;
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -79,8 +82,11 @@ our %RECORD_RESULT_ATTR_MAP = (
 use fingerbank::Config;
 $fingerbank::Config::CACHE = cache();
 
-my $collector;
-my $collector_ua;
+# Collectors and their LWP clients, keyed by a suffix that identifies the targeted
+# collector ("local" for the configured/clustered collector, or a connector id for a
+# collector co-located with a specific pfconnector).
+my %collectors;
+my %collector_uas;
 my $api_client;
 
 =head1 METHODS
@@ -225,16 +231,118 @@ Currently done via a call to the Fingerbank collector
 
 =cut
 
+=head2 _collector_for_mac
+
+Given a MAC address, resolve the fingerbank collector that should be queried for it.
+
+When the device is behind a pfconnector (determined from its open locationlog entry's
+switch IP), this returns a collector pointing at the collector co-located with that
+pfconnector so we only query the relevant collector instead of fanning out across all
+of them. Otherwise (no open session, local device, tunnel down or any error) it falls
+back to the configured/clustered collector.
+
+Returns a list of ($collector, $collector_ua, $cache_suffix). The suffix is used to key
+the cached collectors/UAs and the cached HTTP::Request objects (which embed the
+collector host:port and must not leak across collectors).
+
+=cut
+
+sub _collector_for_mac {
+    my ($mac) = @_;
+
+    my $suffix = _collector_suffix_for_mac($mac);
+
+    $collectors{$suffix} //= ($suffix eq "local")
+        ? fingerbank::Collector->new_from_config
+        : _build_connector_collector($suffix);
+
+    # _build_connector_collector may have failed and returned undef: fall back to local
+    unless (defined $collectors{$suffix}) {
+        $suffix = "local";
+        $collectors{$suffix} //= fingerbank::Collector->new_from_config;
+    }
+
+    $collector_uas{$suffix} //= $collectors{$suffix}->get_lwp_client();
+
+    return ($collectors{$suffix}, $collector_uas{$suffix}, $suffix);
+}
+
+=head2 _collector_suffix_for_mac
+
+Determine the collector suffix ("local" or a connector id) for a MAC based on its open
+locationlog entry and the connector that handles its switch IP.
+
+=cut
+
+sub _collector_suffix_for_mac {
+    my ($mac) = @_;
+
+    my $entry = eval { locationlog_view_open_mac($mac) };
+    return "local" unless($entry);
+
+    my $switch_ip = $entry->{switch_ip} || $entry->{switch};
+    return "local" unless($switch_ip);
+
+    my $connector = eval { pf::factory::connector->for_ip($switch_ip) };
+    return "local" unless($connector && $connector->id && $connector->id ne "local_connector");
+
+    return $connector->id;
+}
+
+=head2 _build_connector_collector
+
+Build a fingerbank::Collector pointing at the collector co-located with the pfconnector
+identified by the given connector id. Returns undef on any failure so the caller falls
+back to the configured collector.
+
+=cut
+
+sub _build_connector_collector {
+    my ($connector_id) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $connector = eval { pf::factory::connector->new($connector_id) };
+    unless($connector) {
+        $logger->debug("Unable to instantiate connector '$connector_id' for fingerbank collector lookup: $@");
+        return undef;
+    }
+
+    my $res = eval {
+        $connector->connectorServerApiClient->call("GET", "/api/v1/pfconnector/fingerbank-collector-endpoint?connector-id=".$connector_id, undef);
+    };
+    if(!$res || !$res->{endpoint}) {
+        $logger->debug("Unable to obtain a dedicated fingerbank collector endpoint for connector '$connector_id'. Falling back to the configured collector. ".($@ // ""));
+        return undef;
+    }
+
+    my $uri = URI->new($res->{endpoint});
+    my $host = $uri->host;
+
+    # Override the host value if this is a container so that it always goes through the local
+    # containers interface, the same way pf::connector::dynreverse does.
+    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && $ENV{PF_SAAS} ne 'yes') ) {
+        $host = "containers-gateway.internal";
+    }
+
+    $logger->debug("Using dedicated fingerbank collector $host:".$uri->port." for connector '$connector_id'");
+
+    return fingerbank::Collector->new(
+        cache     => $fingerbank::Config::CACHE,
+        host      => $host,
+        port      => $uri->port,
+        use_https => ($uri->scheme eq 'https' ? 'enabled' : 'disabled'),
+    );
+}
+
 sub endpoint_attributes {
     my ($mac) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
 
     return undef unless(valid_mac($mac));
 
-    $collector //= fingerbank::Collector->new_from_config;
-    $collector_ua //= $collector->get_lwp_client();
-    
-    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$mac", sub {
+    my ($collector, $collector_ua, $suffix) = _collector_for_mac($mac);
+
+    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$suffix::$mac", sub {
         $collector->build_request("GET", "/endpoint_data/$mac");
     });
     _refresh_collector_auth($req);
@@ -290,10 +398,9 @@ sub update_collector_endpoint_data {
 
     return undef unless(valid_mac($mac));
 
-    $collector //= fingerbank::Collector->new_from_config;
-    $collector_ua //= $collector->get_lwp_client();
-    
-    my $req = cache()->compute("pf::fingerbank::update_collector_endpoint_data::request::$mac", sub {
+    my ($collector, $collector_ua, $suffix) = _collector_for_mac($mac);
+
+    my $req = cache()->compute("pf::fingerbank::update_collector_endpoint_data::request::$suffix::$mac", sub {
         $collector->build_request("PATCH", "/endpoint_data/$mac");
     });
     _refresh_collector_auth($req);
@@ -737,8 +844,8 @@ Clear the cache in a thread environment
 =cut
 
 sub CLONE {
-    $collector_ua = undef;
-    $collector = undef;
+    %collector_uas = ();
+    %collectors = ();
     $api_client = undef;
 }
 
