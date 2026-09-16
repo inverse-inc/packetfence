@@ -79,27 +79,50 @@ sub generateConfig {
 
     # Cloud single-backend capacity tiers.
     #
-    # In cloud, 100+ clients share one Cloud SQL instance with a capped
-    # max_connections, so each client must cap what it can take. max_connections
-    # is a mysql_servers attribute (not a hostgroup one), so each tier is a
-    # hostgroup holding its own row pointing at the SAME backend host:port with
-    # its own cap; the query rule that routes to it carries the query timeout.
-    # Queries are sorted into tiers by the pf::db / sqlcomment routing remark
-    # (/* pf:<service>[:<unit>] */, see PR #9097).
+    # In cloud, 100+ clients share one Cloud SQL instance, so each client must
+    # cap what it can take. max_connections is a mysql_servers attribute (not a
+    # hostgroup one), so each tier is a hostgroup holding its own row pointing at
+    # the SAME backend host:port with its own cap; the query rule that routes to
+    # it carries the query timeout. Queries are sorted into tiers by the pf::db /
+    # sqlcomment routing remark (/* pf:<service>[:<unit>] */, see PR #9097).
+    #
+    # Sizing the backend caps -- the shared ceiling comes first:
+    #
+    #   Cloud SQL for MySQL allows 4000 concurrent connections on every machine
+    #   type except db-f1-micro / db-g1-small, and each one costs the instance
+    #   1-4 MB. Google does not publish the per-tier table; 4000 is the figure
+    #   consistently reported in the field. Reserving ~20% for admin, monitoring,
+    #   replication and migrations leaves ~3200 to divide among tenants, so a
+    #   tenant gets ~26 backend connections at 120 tenants. The tiers below total
+    #   22, which keeps the fleet under the ceiling past 180 tenants.
+    #
+    # That budget is far more than the workload needs. In a general log capture,
+    # one EAP-TLS authentication issued 21 decorated httpd.aaa queries, all
+    # serialized on a single connection and all inside one second. They are
+    # indexed point lookups (mac, pid, nasname), so at ~1 ms per round trip to a
+    # same-region Cloud SQL that is ~21 ms of database time per authentication --
+    # one backend connection sustains roughly 47 auth/s. The steady background is
+    # ~5 q/s from the monitoring agent plus ~0.4 q/s from pfstats. So 12
+    # connections in the large tier carry ~550 auth/s per tenant, well beyond
+    # what a single instance sees, and the caps bind only on runaway behaviour.
     #
     # Timeouts are log-spaced downward from the 360s network timeout, which is
     # the ceiling: large keeps it, medium and catch-all are progressively clamped.
     my $medium_hostgroup = 11;
     my $large_hostgroup  = 12;
     my %tier = (
-        small  => { hg => $writer_hostgroup, max_connections => 5,  timeout_ms => 40_000  },
-        medium => { hg => $medium_hostgroup, max_connections => 15, timeout_ms => 120_000 },
-        large  => { hg => $large_hostgroup,  max_connections => 50, timeout_ms => 360_000 },
+        small  => { hg => $writer_hostgroup, max_connections => 4,  timeout_ms => 40_000  },
+        medium => { hg => $medium_hostgroup, max_connections => 6,  timeout_ms => 120_000 },
+        large  => { hg => $large_hostgroup,  max_connections => 12, timeout_ms => 360_000 },
     );
     my $cloud_tiers = 0;  # flag: single-backend cloud mode, generate the tier rules
 
-    # Frontend connection cap (mysql_variables max_connections). Lowered in
-    # cloud mode so a single client cannot hold thousands of frontend sessions.
+    # Frontend connection cap (mysql_variables max_connections), i.e. sessions
+    # from PF services into ProxySQL. These never reach Cloud SQL -- multiplexing
+    # hands a pooled backend connection over only for the duration of a statement
+    # -- so this is a leak guard, not a database protection. A lightly loaded
+    # instance in the capture held ~11 concurrent sessions; a busy one with every
+    # service running holds well under 200.
     $tags{'frontend_max_connections'} = 2048;
     $tags{'mysql_cloud_variables'} = "";
     $tags{'mysql_user_max_connections'} = "";
@@ -174,15 +197,19 @@ EOT
             # applied here (not via the admin interface) because the container
             # starts proxysql with --initial, which re-reads this generated file
             # and discards any runtime/on-disk changes.
-            $tags{'frontend_max_connections'} = 512;
+            $tags{'frontend_max_connections'} = 200;
             $tags{'mysql_cloud_variables'} = << "EOT";
     wait_timeout=300000
     connection_max_age_ms=300000
 EOT
-            # Per-client frontend cap: unlike the backend caps above (where
-            # ProxySQL holds a query until a pooled connection frees), exceeding
-            # this is an intentional reject — it is the noisy-neighbour throttle.
-            $tags{'mysql_user_max_connections'} = ", max_connections = 200";
+            # Per-user frontend cap, kept below the global one above so that it is
+            # the binding limit: a leak then fails as "max_connections exceeded"
+            # for this user rather than as a generic frontend rejection, and the
+            # spare headroom covers a second account (migration, admin) without
+            # reconfiguring. Unlike the backend caps -- where ProxySQL holds the
+            # query until a pooled connection frees -- exceeding this is an
+            # intentional reject: it is the noisy-neighbour throttle.
+            $tags{'mysql_user_max_connections'} = ", max_connections = 150";
         } else {
             $single_server = 0;
             $tags{'replication'} = $TRUE;
