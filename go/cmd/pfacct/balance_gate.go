@@ -6,6 +6,12 @@ import (
 
 const balancesInUseRefreshInterval = 5 * time.Minute
 
+// balanceGateNow is time.Now, indirected so a test can observe what is already
+// published when the instant is read. The ordering in setBalancesInUse is the
+// whole point of that field, and the window a wrong order opens is far too
+// narrow to catch by racing goroutines against it.
+var balanceGateNow = time.Now
+
 // anyNodeBalancesQuery probes whether any node carries a time or bandwidth
 // balance. One predicate rather than two EXISTS subqueries: neither column is
 // indexed, and the case this gate optimises for (no balances anywhere) is the
@@ -51,9 +57,33 @@ func (h *PfAcct) setBalancesInUse(inUse bool) {
 		return
 	}
 
-	if !h.balancesInUse.Swap(true) {
-		h.balancesEnabledAt.Store(time.Now().Unix())
+	// Record the instant before publishing the gate, never after: a worker that
+	// sees balancesInUse true while balancesEnabledAt is still 0 gets no cap
+	// from untrackedChargeCap and charges the whole AcctSessionTime -- the very
+	// over-charge the cap exists to prevent. Only refreshBalancesInUse calls
+	// this, from the refresher goroutine or before it starts, so a plain
+	// load/store pair is enough; a CAS would still leave the same window.
+	if h.balancesInUse.Load() {
+		return
 	}
+
+	h.balancesEnabledAt.Store(balanceGateNow().Unix())
+	h.balancesInUse.Store(true)
+}
+
+// capCharge clamps a charge to what may be billed since the balance gate last
+// reopened. While the gate was shut pfacct processed no accounting at all, so
+// neither the raw AcctSessionTime nor an offset kept from before the shutdown
+// says anything about that period; charging it would zero a balance that was
+// only just assigned. Returns the charge untouched until the gate has actually
+// reopened after being shut (see untrackedChargeCap), so a deployment that has
+// carried balances all along is unaffected.
+func (h *PfAcct) capCharge(charge int64) int64 {
+	if cap, capped := h.untrackedChargeCap(); capped && charge > cap {
+		return cap
+	}
+
+	return charge
 }
 
 // untrackedChargeCap returns the most that may be charged for a session pfacct
@@ -66,7 +96,7 @@ func (h *PfAcct) untrackedChargeCap() (int64, bool) {
 		return 0, false
 	}
 
-	elapsed := time.Now().Unix() - since
+	elapsed := balanceGateNow().Unix() - since
 	if elapsed < 0 {
 		elapsed = 0
 	}
