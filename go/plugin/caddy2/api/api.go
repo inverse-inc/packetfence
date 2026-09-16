@@ -108,6 +108,10 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 				}
 				if DB != nil && err == nil {
 					sqlDB, err = DB.DB()
+					// gorm.Open builds its own *sql.DB, bypassing
+					// db.ConnectURI, so the pool would otherwise run with Go's
+					// defaults: unlimited connections that are never recycled.
+					db.SetPoolLimits(sqlDB)
 					err := sqlDB.Ping()
 					if err == nil {
 						done = true

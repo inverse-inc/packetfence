@@ -85,6 +85,14 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
 			time.Sleep(time.Duration(5) * time.Second)
 		} else {
+			// gorm.Open builds its own *sql.DB, bypassing db.ConnectURI, so the
+			// pool would otherwise run with Go's defaults: unlimited
+			// connections that are never recycled.
+			if sqlDB, dbErr := Database.DB(); dbErr == nil {
+				db.SetPoolLimits(sqlDB)
+			} else {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Could not apply pool limits: %s", dbErr))
+			}
 			successDBConnect = true
 		}
 	}
