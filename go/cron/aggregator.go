@@ -1,16 +1,13 @@
 package maint
 
 import (
-	"cmp"
 	"context"
 	"database/sql"
 	"fmt"
-	"math"
 	"net/netip"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/db"
 )
 
 type EventKey struct {
@@ -33,6 +30,7 @@ func NewAggregator(o *AggregatorOptions) *Aggregator {
 		PfFlowsChan:      ChanPfFlow,
 		Heuristics:       o.Heuristics,
 		db:               o.Db,
+		flushChan:        make(chan flushBatch, 1),
 	}
 }
 
@@ -57,37 +55,12 @@ type Aggregator struct {
 	timeout          time.Duration
 	Heuristics       bool
 	db               *sql.DB
+	flushChan        chan flushBatch
 }
 
 func emptyMac(mac string) bool {
 	return mac == "00:00:00:00:00:00" || mac == ""
 }
-
-func updateMacs(ctx context.Context, f *PfFlow, stmt *sql.Stmt) {
-	if !emptyMac(f.SrcMac) && !emptyMac(f.DstMac) {
-		return
-	}
-
-	var srcMac, dstMac string
-	err := stmt.QueryRowContext(ctx, f.SrcIp.String(), f.DstIp.String()).Scan(&srcMac, &dstMac)
-	if err != nil {
-		log.LogErrorf(ctx, "updateMacs Database Error: %s", err.Error())
-	}
-
-	if emptyMac(f.SrcMac) {
-		f.SrcMac = srcMac
-	}
-
-	if emptyMac(f.DstMac) {
-		f.DstMac = dstMac
-	}
-}
-
-const updateMacsSql = `
-SELECT
-	COALESCE((SELECT mac FROM ip4log WHERE ip = ?), "00:00:00:00:00:00") as src_mac,
-	COALESCE((SELECT mac FROM ip4log WHERE ip = ?), "00:00:00:00:00:00") as dst_mac;
-`
 
 func flowType(t uint16) string {
 	switch t {
@@ -416,102 +389,67 @@ func logPfFlow(ctx context.Context, header *PfFlowHeader, f *PfFlow) {
 }
 
 func (a *Aggregator) handleEvents() {
-	ctx := context.Background()
+	// A context carrying a logger: with a bare context every Log*f call
+	// rebuilds a logger (including a syslog dial) before filtering the line.
+	ctx := log.LoggerNewContext(context.Background())
 	ticker := time.NewTicker(a.timeout)
-	stmt, err := new(sql.Stmt), error(nil)
-	//	if a.db != nil {
-	stmt, err = a.db.PrepareContext(ctx, updateMacsSql)
-	if err != nil {
-		log.LogErrorf(ctx, "handleEvents Database Error: %s %s", updateMacsSql, err.Error())
-		stmt = nil
-	} else {
-		defer stmt.Close()
-	}
-	//	}
+	defer ticker.Stop()
 
+	go a.flusher(ctx)
+	defer close(a.flushChan)
+
+	stats := newWindowStats()
 loop:
 	for {
 		select {
-		case pfflowsArray := <-ChanPfFlow:
+		case pfflowsArray := <-a.PfFlowsChan:
 			for _, pfflows := range pfflowsArray {
-				log.LogInfof(ctx, "Received %d flows of FlowType %s", len(*pfflows.Flows), flowType(pfflows.Header.FlowType))
-				// The agent address is the exporter (switch) IP. Older collectors do not
-				// fill it in for NetFlow/IPFIX, in which case it prints as "invalid IP",
-				// and an sFlow exporter without an agent-ip sends 0.0.0.0; neither must
-				// be recorded as a switch.
-				if addr := pfflows.Header.AgentAddr; addr.IsValid() && !addr.IsUnspecified() {
-					if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
-						log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
-					}
+				if pfflows.Flows == nil {
+					continue
 				}
-				for _, f := range *pfflows.Flows {
-					if stmt != nil {
-						updateMacs(ctx, &f, stmt)
-					}
 
-					key := f.Key(&pfflows.Header)
-					val := a.events[key]
+				stats.messages++
+				stats.flows += len(*pfflows.Flows)
+				// The agent address is the exporter (switch) IP. Older collectors
+				// leave it unset for NetFlow/IPFIX ("invalid IP") and an sFlow
+				// exporter without an agent-ip sends 0.0.0.0; neither is a switch.
+				// Marked as seen once per window by the flusher, off this goroutine.
+				if addr := pfflows.Header.AgentAddr; addr.IsValid() && !addr.IsUnspecified() {
+					stats.noteAgent(addr.String())
+				}
+
+				for _, f := range *pfflows.Flows {
 					if a.Heuristics {
 						f.Heuristics()
 					}
 
-					a.events[key] = append(val, f)
+					key := f.Key(&pfflows.Header)
+					a.events[key] = append(a.events[key], f)
 				}
 			}
 		case <-ticker.C:
-			networkEvents := []*NetworkEvent{}
-			for _, events := range a.events {
-				startTime := int64(math.MaxInt64)
-				endTime := int64(0)
-				connectionCount := uint64(0)
-				var networkEvent *NetworkEvent
-				for _, e := range events {
-					networkEvent = e.ToNetworkEvent()
-					if networkEvent != nil {
-						break
-					}
+			if len(a.events) == 0 {
+				if stats.messages > 0 {
+					log.LogDebugf(ctx, "pfflow aggregator: %d messages carried no flows this window", stats.messages)
 				}
-
-				if networkEvent == nil {
-					continue
-				}
-
-				ports := map[AggregatorSession]struct{}{}
-				for _, e := range events {
-					startTime = min(startTime, e.StartTime)
-					endTime = max(endTime, e.EndTime)
-					sessionKey := e.SessionKey()
-					if _, ok := ports[sessionKey]; !ok {
-						ports[sessionKey] = struct{}{}
-						connectionCount += e.ConnectionCount
-					}
-				}
-
-				networkEvent.Count = cmp.Or(int(connectionCount), len(ports))
-				if startTime != 0 {
-					networkEvent.StartTime = uint64(startTime)
-				}
-
-				if endTime != 0 {
-					networkEvent.EndTime = uint64(endTime)
-				}
-
-				if networkEvent.EndTime == 0 {
-					networkEvent.EndTime = networkEvent.StartTime
-				}
-
-				networkEvents = append(networkEvents, networkEvent)
+				stats = newWindowStats()
+				continue
 			}
 
-			for _, e := range networkEvents {
-				e.UpdateEnforcementInfo(ctx, a.db)
-			}
+			batch := flushBatch{events: a.events, stats: stats, tickedAt: time.Now()}
+			a.events = make(map[EventKey][]PfFlow, len(batch.events))
+			stats = newWindowStats()
 
-			if len(networkEvents) > 0 && a.networkEventChan != nil {
-				a.networkEventChan <- networkEvents
+			// Hand the window to the flusher. The channel holds one window, so
+			// this only blocks when the flusher is already a full window behind;
+			// then ingestion pauses (bounded memory) and the delay shows up as
+			// consumer lag rather than silent loss.
+			select {
+			case a.flushChan <- batch:
+			default:
+				log.LogWarnf(ctx, "pfflow aggregator: flusher is one window (%s) behind, pausing ingestion until the previous flush completes", a.timeout)
+				a.flushChan <- batch
 			}
-
-			clear(a.events)
 		case <-a.stop:
 			break loop
 		}
