@@ -1591,6 +1591,7 @@ build_pf_img_vagrant_ad_maintenance_debian_bullseye:
     - .build_pf_img_vagrant_job
   variables:
     BOX_NAME: pfad11stable
+    VAGRANT_BUILD_TARGET: pfad11dev_generic
   needs:
     - job: deploy_packages
       parallel:
