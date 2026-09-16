@@ -83,37 +83,46 @@ sub generateConfig {
     # cap what it can take. max_connections is a mysql_servers attribute (not a
     # hostgroup one), so each tier is a hostgroup holding its own row pointing at
     # the SAME backend host:port with its own cap; the query rule that routes to
-    # it carries the query timeout. Queries are sorted into tiers by the pf::db /
-    # sqlcomment routing remark (/* pf:<service>[:<unit>] */, see PR #9097).
+    # it carries the query timeout. Most queries are sorted into tiers by the
+    # pf::db / sqlcomment routing remark (/* pf:<service>[:<unit>] */, see PR
+    # #9097); FreeRADIUS has no such hook, so its tier is matched on its own
+    # table names instead (see the rules further down).
     #
     # Sizing the backend caps -- the shared ceiling comes first:
     #
     #   Cloud SQL for MySQL allows 4000 concurrent connections on every machine
     #   type except db-f1-micro / db-g1-small, and each one costs the instance
     #   1-4 MB. Google does not publish the per-tier table; 4000 is the figure
-    #   consistently reported in the field. Reserving ~20% for admin, monitoring,
-    #   replication and migrations leaves ~3200 to divide among tenants, so a
-    #   tenant gets ~26 backend connections at 120 tenants. The tiers below total
-    #   22, which keeps the fleet under the ceiling past 180 tenants.
+    #   consistently reported in the field.
     #
-    # That budget is far more than the workload needs. In a general log capture,
+    # The workload itself needs very little of that. In a general log capture,
     # one EAP-TLS authentication issued 21 decorated httpd.aaa queries, all
     # serialized on a single connection and all inside one second. They are
     # indexed point lookups (mac, pid, nasname), so at ~1 ms per round trip to a
     # same-region Cloud SQL that is ~21 ms of database time per authentication --
     # one backend connection sustains roughly 47 auth/s. The steady background is
-    # ~5 q/s from the monitoring agent plus ~0.4 q/s from pfstats. So 12
-    # connections in the large tier carry ~550 auth/s per tenant, well beyond
-    # what a single instance sees, and the caps bind only on runaway behaviour.
+    # ~5 q/s from the monitoring agent plus ~0.4 q/s from pfstats.
+    #
+    # The caps are set well above that because connections that cannot be
+    # multiplexed are pinned to one frontend session and drop out of the pool
+    # entirely: Go services prepare server-side (no interpolateParams) and some
+    # hold *sql.Stmt for the process lifetime, and the admin API's
+    # SQL_CALC_FOUND_ROWS pins by design. Until that is fixed, headroom is what
+    # keeps a tenant from starving. These are ceilings, not reservations --
+    # ProxySQL opens backend connections on demand and free_connections_pct (10%)
+    # keeps only a small idle pool -- so the 38 below is a deliberate overcommit
+    # across 100+ tenants, reachable only if many peak at once.
     #
     # Timeouts are log-spaced downward from the 360s network timeout, which is
     # the ceiling: large keeps it, medium and catch-all are progressively clamped.
     my $medium_hostgroup = 11;
     my $large_hostgroup  = 12;
+    my $radius_hostgroup = 13;
     my %tier = (
-        small  => { hg => $writer_hostgroup, max_connections => 4,  timeout_ms => 40_000  },
-        medium => { hg => $medium_hostgroup, max_connections => 6,  timeout_ms => 120_000 },
-        large  => { hg => $large_hostgroup,  max_connections => 12, timeout_ms => 360_000 },
+        small  => { hg => $writer_hostgroup, max_connections => 6,  timeout_ms => 40_000  },
+        radius => { hg => $radius_hostgroup, max_connections => 6,  timeout_ms => 40_000  },
+        medium => { hg => $medium_hostgroup, max_connections => 10, timeout_ms => 120_000 },
+        large  => { hg => $large_hostgroup,  max_connections => 16, timeout_ms => 360_000 },
     );
     my $cloud_tiers = 0;  # flag: single-backend cloud mode, generate the tier rules
 
@@ -186,7 +195,7 @@ EOT
             # per capacity tier (same address:port, different hostgroup) so each
             # tier gets its own connection cap. Queries reach the right tier via
             # the routing remark rules generated further down.
-            foreach my $name (qw(small medium large)) {
+            foreach my $name (qw(small radius medium large)) {
                 my $t = $tier{$name};
                 $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=$t->{hg}, max_connections=$t->{max_connections}, weight=100, use_ssl=$ssl },
@@ -198,9 +207,16 @@ EOT
             # starts proxysql with --initial, which re-reads this generated file
             # and discards any runtime/on-disk changes.
             $tags{'frontend_max_connections'} = 200;
+            # auto_increment_delay_multiplex defaults to 5, which pins a backend
+            # connection for 5 queries after every auto-increment INSERT -- a
+            # constant tax at PF's insert rate. Safe to disable: the only two
+            # last_insert_id callers (pf::security_event, pf::Survey) read
+            # mysql_insertid from the OK packet, and nothing issues
+            # SELECT LAST_INSERT_ID() as a separate statement.
             $tags{'mysql_cloud_variables'} = << "EOT";
     wait_timeout=300000
     connection_max_age_ms=300000
+    auto_increment_delay_multiplex=0
 EOT
             # Per-user frontend cap, kept below the global one above so that it is
             # the binding limit: a leak then fails as "max_connections exceeded"
@@ -414,8 +430,17 @@ EOT
         # match, so the catch-all clamp must come last. rule_ids start at 21 to
         # stay clear of 1..4 (rewritten at runtime by proxysql-read-only-handler.sh)
         # and of the legacy 100..400 rules.
+        #
+        # FreeRADIUS is the exception: rlm_sql offers no hook to prepend the
+        # remark, so its traffic is matched on its own table names. The "^[^/]*"
+        # prefix is what keeps that safe -- a decorated query starts with '/', so
+        # [^/]* can only match zero characters and the table name would have to
+        # appear at position 0, which it never does. Decorated queries that
+        # legitimately touch radacct (pfacct's writes, pfcron's maintenance) are
+        # therefore left to their own tiers.
         my $large_pattern  = "^/\\\\* pf:(httpd\\\\.aaa|pfacct)[ :]";
         my $medium_pattern = "^/\\\\* pf:((pfhttpd|httpd\\\\.webservices|pfperl-api)[ :]|pfqueue[^:]*:api )";
+        my $radius_pattern = "^[^/]*(radius_nas|radacct)";
         $tags{'mysql_query_rules'} = << "EOT";
 mysql_query_rules =
 (
@@ -439,6 +464,15 @@ mysql_query_rules =
     },
     {
         rule_id=23,
+        active=1,
+        match_pattern="$radius_pattern",
+        destination_hostgroup=$tier{radius}{hg},
+        timeout=$tier{radius}{timeout_ms},
+        apply=1,
+        comment="RADIUS tier: undecorated FreeRADIUS rlm_sql traffic, matched by table"
+    },
+    {
+        rule_id=24,
         active=1,
         match_pattern=".",
         destination_hostgroup=$tier{small}{hg},
