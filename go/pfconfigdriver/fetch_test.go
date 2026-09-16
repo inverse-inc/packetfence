@@ -274,6 +274,31 @@ func TestIsValidWithPfconfigClockAhead(t *testing.T) {
 	}
 }
 
+// A reply that carries no last touch cache decodes as zero, which IsValid reads as "nothing was
+// ever loaded" and would send every resource of the process back to pfconfig at once.
+func TestUpdateLastTouchCacheIgnoresMissingValue(t *testing.T) {
+	origLastTouchCache := globalMeta.getLastTouchCache()
+	defer globalMeta.setLastTouchCache(origLastTouchCache)
+
+	globalMeta.setLastTouchCache(1234)
+
+	if updateLastTouchCache(ctx, 0, "config::Pf") {
+		t.Error("A reply without a last touch cache should not be stored")
+	}
+
+	if globalMeta.getLastTouchCache() != 1234 {
+		t.Error("A reply without a last touch cache replaced the one we had")
+	}
+
+	if !updateLastTouchCache(ctx, 5678, "config::Pf") {
+		t.Error("A reply with a last touch cache should be stored")
+	}
+
+	if globalMeta.getLastTouchCache() != 5678 {
+		t.Error("The last touch cache of the reply wasn't stored")
+	}
+}
+
 // The replies to a keys query carry the last touch cache in a nested response. Not decoding it
 // resets the global one to zero, which invalidates every pfconfig resource of the process.
 func TestFetchKeysKeepsLastTouchCache(t *testing.T) {
