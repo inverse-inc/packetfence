@@ -175,12 +175,13 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	// rest of the pipeline discards must not refresh last_seen or re-open an
 	// ip4log entry either (it is never forwarded to the AAA layer, so the two
 	// sides stay in agreement).
-	h.updateNodeLastSeen(ctx, mac)
+	var native nativePrimitives
+	native.nodeLastSeen = h.updateNodeLastSeen(ctx, mac)
 	// Mirrors handle_accounting_metadata: iplog is only fed by packets that
 	// carry a Framed-IP-Address and are not a Stop.
 	if status != rfc2866.AcctStatusType_Value_Stop {
 		if framedIP := rfc2865.FramedIPAddress_Get(r.Packet); framedIP != nil {
-			h.updateIp4log(ctx, mac, framedIP.String())
+			native.ip4log = h.updateIp4log(ctx, mac, framedIP.String())
 		}
 	}
 
@@ -206,7 +207,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 
 	h.handleTimeBalance(r, switchInfo, unique_session_id)
 	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
-	h.sendRadiusAccounting(rr, switchInfo)
+	h.sendRadiusAccounting(rr, switchInfo, native)
 }
 
 func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, unique_session uint64) {
@@ -332,33 +333,47 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 	return hash.Sum64()
 }
 
-func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo) {
-	h.sendRadiusAccountingCall(rr.r, rr.mac)
+func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo, native nativePrimitives) {
+	h.sendRadiusAccountingCall(rr.r, rr.mac, native)
 }
 
-// handledNatively lists the per-packet primitives this pfacct just executed
-// itself, so the AAA layer can skip them instead of writing the same rows a
-// second time (see pf::api::handle_accounting_metadata and
-// pf::radius::accounting). Only claim what we actually do: the configuration
-// is read once at startup, so a pfacct that has not picked up a freshly
-// enabled update_iplog_with_accounting must let httpd.aaa keep doing the
-// ip4log work rather than have both sides skip it.
-func (h *PfAcct) handledNatively() string {
-	handled := "node_last_seen"
-	if h.UpdateIplogWithAccounting {
-		handled += ",ip4log"
+// nativePrimitives records which per-packet primitives this pfacct performed
+// itself for one accounting packet, so the AAA layer can skip them instead of
+// writing the same rows a second time (see pf::api::handle_accounting_metadata
+// and pf::radius::accounting).
+//
+// It is per packet, not per configuration: a primitive whose write failed, or
+// that pfacct declined for this packet, is not advertised, and httpd.aaa then
+// runs it exactly as it did before this branch. Claiming it from the startup
+// toggle alone would make both sides skip the work and lose that packet.
+type nativePrimitives struct {
+	nodeLastSeen bool
+	ip4log       bool
+}
+
+// header renders the marker for X-PacketFence-Handled-Natively. The empty
+// string means "nothing was handled here"; both Perl consumers split it into a
+// set, so an empty header leaves every primitive to them.
+func (n nativePrimitives) header() string {
+	handled := make([]string, 0, 2)
+	if n.nodeLastSeen {
+		handled = append(handled, "node_last_seen")
 	}
 
-	return handled
+	if n.ip4log {
+		handled = append(handled, "ip4log")
+	}
+
+	return strings.Join(handled, ",")
 }
 
-func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
+func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac, native nativePrimitives) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
 		"X-FreeRADIUS-Server":            "packetfence",
 		"X-FreeRADIUS-Section":           "accounting",
-		"X-PacketFence-Handled-Natively": h.handledNatively(),
+		"X-PacketFence-Handled-Natively": native.header(),
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {

@@ -59,6 +59,7 @@ type PfAcct struct {
 	RateLimit                 bool
 	PfacctRateLimitCacheTtl   int
 	UpdateIplogWithAccounting bool
+	Mac2ipLookup              bool
 	StatsdAddress             string
 	StatsdOption              statsd.Option
 	StatsdClient              *statsd.Client
@@ -247,6 +248,19 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.LastSeenCache = cache.New(refreshTtl, 10*time.Minute)
 	pfAcct.Ip4logCache = cache.New(refreshTtl, 10*time.Minute)
 	pfAcct.UpdateIplogWithAccounting = sharedutils.IsEnabled(keyConfAdvanced.UpdateIplogWithAccounting)
+
+	// When pfdhcp.mac2ip_lookup is on, pf::ip4log::mac2ip resolves the previous
+	// IP through the pfdhcp API before falling back to SQL. pfacct has only the
+	// SQL half, so it hands the whole ip4log primitive back to httpd.aaa rather
+	// than close a different entry than update_ip4log would; see updateIp4log.
+	keyConfPfdhcp := pfconfigdriver.PfConfPfdhcp{}
+	keyConfPfdhcp.PfconfigNS = "config::Pf"
+	keyConfPfdhcp.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfPfdhcp)
+	pfAcct.Mac2ipLookup = sharedutils.IsEnabled(keyConfPfdhcp.Mac2ipLookup)
+	if pfAcct.UpdateIplogWithAccounting && pfAcct.Mac2ipLookup {
+		logInfo(ctx, "pfdhcp.mac2ip_lookup is enabled: leaving the ip4log accounting updates to httpd.aaa")
+	}
 	if !pfAcct.ProcessBandwidthAcct {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
 	}
