@@ -77,6 +77,33 @@ sub generateConfig {
     my $reader_hostgroup  = 30;
     my $has_reader_split  = 0;  # flag: only generate query rules / replication hostgroups when we actually have a reader HG
 
+    # Cloud single-backend capacity tiers.
+    #
+    # In cloud, 100+ clients share one Cloud SQL instance with a capped
+    # max_connections, so each client must cap what it can take. max_connections
+    # is a mysql_servers attribute (not a hostgroup one), so each tier is a
+    # hostgroup holding its own row pointing at the SAME backend host:port with
+    # its own cap; the query rule that routes to it carries the query timeout.
+    # Queries are sorted into tiers by the pf::db / sqlcomment routing remark
+    # (/* pf:<service>[:<unit>] */, see PR #9097).
+    #
+    # Timeouts are log-spaced downward from the 360s network timeout, which is
+    # the ceiling: large keeps it, medium and catch-all are progressively clamped.
+    my $medium_hostgroup = 11;
+    my $large_hostgroup  = 12;
+    my %tier = (
+        small  => { hg => $writer_hostgroup, max_connections => 5,  timeout_ms => 40_000  },
+        medium => { hg => $medium_hostgroup, max_connections => 15, timeout_ms => 120_000 },
+        large  => { hg => $large_hostgroup,  max_connections => 50, timeout_ms => 360_000 },
+    );
+    my $cloud_tiers = 0;  # flag: single-backend cloud mode, generate the tier rules
+
+    # Frontend connection cap (mysql_variables max_connections). Lowered in
+    # cloud mode so a single client cannot hold thousands of frontend sessions.
+    $tags{'frontend_max_connections'} = 2048;
+    $tags{'mysql_cloud_variables'} = "";
+    $tags{'mysql_user_max_connections'} = "";
+
     # Monitor and shunning variables — ensure reliable auto-detection of dead servers:
     #   monitor_ping_max_failures=3  → SHUNNED after 3 missed pings (~6 sec with 2s interval)
     #   shun_recovery_time_sec=60    → stays shunned 60s before retry
@@ -108,9 +135,8 @@ EOT
     monitor_password="$DB_Config->{pass}"
 EOT
 
-    $tags{'mysql_users'} = << "EOT";
-        { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = $writer_hostgroup, transaction_persistent = 0, active = 1 },
-EOT
+    # NOTE: mysql_users is generated after the backend branching below, since the
+    # per-user frontend cap depends on whether we ended up in cloud tier mode.
 
     my $i = 100;
     my $database_proxysql = $pf::config::Config{database_proxysql};
@@ -131,11 +157,32 @@ EOT
 
         if (scalar(@backends) <= 1) {
             $single_server = 1;
+            $cloud_tiers = 1;
             my $backend = $backends[0] // '';
-            # Single server: only HG 10 needed, no reader split
-            $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
+            # Single server: no reader split. The one backend is registered once
+            # per capacity tier (same address:port, different hostgroup) so each
+            # tier gets its own connection cap. Queries reach the right tier via
+            # the routing remark rules generated further down.
+            foreach my $name (qw(small medium large)) {
+                my $t = $tier{$name};
+                $tags{mysql_servers} .= << "EOT";
+    { address="$backend" , port=$port , hostgroup=$t->{hg}, max_connections=$t->{max_connections}, weight=100, use_ssl=$ssl },
 EOT
+            }
+
+            # Connection hygiene for the shared Cloud SQL instance. These are
+            # applied here (not via the admin interface) because the container
+            # starts proxysql with --initial, which re-reads this generated file
+            # and discards any runtime/on-disk changes.
+            $tags{'frontend_max_connections'} = 512;
+            $tags{'mysql_cloud_variables'} = << "EOT";
+    wait_timeout=300000
+    connection_max_age_ms=300000
+EOT
+            # Per-client frontend cap: unlike the backend caps above (where
+            # ProxySQL holds a query until a pooled connection frees), exceeding
+            # this is an intentional reject — it is the noisy-neighbour throttle.
+            $tags{'mysql_user_max_connections'} = ", max_connections = 200";
         } else {
             $single_server = 0;
             $tags{'replication'} = $TRUE;
@@ -235,6 +282,10 @@ EOT
         }
     }
 
+    $tags{'mysql_users'} = << "EOT";
+        { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = $writer_hostgroup, transaction_persistent = 0, active = 1$tags{'mysql_user_max_connections'} },
+EOT
+
     $tags{'scheduler'} = $TRUE;
     $tags{'scheduler'} = $FALSE if (($database_proxysql->{scheduler} // '') ne 'default');
     $tags{'scheduler'} = $FALSE if ($tags{'replication'});
@@ -275,12 +326,15 @@ EOT
     #            if all pure readers go down ✅
     #   rule 4 — catch-all                 → HG 10 in normal mode
     #            scheduler rewrites 1,2,4 during degraded mode
-    # Only generated when we actually have a reader split
+    # Only generated when we actually have a reader split, and never for a
+    # single server (the template used to enforce the latter with an
+    # "UNLESS single_server" wrapper; it lives here now because cloud tier mode
+    # is single_server yet still needs rules).
     #
     # IMPORTANT: the proxysql.conf template MUST reference [% mysql_query_rules %]
     # instead of a hardcoded mysql_query_rules block, otherwise this tag is ignored.
     # Also ensure rule_ids here do not conflict with any remaining rules in the template.
-    if ($has_reader_split) {
+    if ($has_reader_split && !$tags{'single_server'}) {
         $tags{'mysql_query_rules'} = << "EOT";
 mysql_query_rules =
 (
@@ -315,6 +369,55 @@ mysql_query_rules =
         destination_hostgroup=$writer_hostgroup,
         apply=1,
         comment="Catch-all traffic goes to writer in normal mode; scheduler rewrites in degraded mode"
+    }
+)
+EOT
+    } elsif ($cloud_tiers) {
+        # Capacity tiers for the shared cloud database, routed by the pf::db /
+        # sqlcomment routing remark: "/* pf:<service>[:<unit>] */ <SQL>".
+        #
+        # These must use match_pattern: match_digest strips comments (see the
+        # pf_query_comment POD in lib/pf/db.pm). The tag charset allows '.', '-'
+        # and '/', which are regex metacharacters, hence the escaping. A tag ends
+        # either with " */" or with ":<unit>", so "[ :]" after a service name
+        # matches both while preventing prefix collisions (pfhttpd vs pfhttpd2).
+        # Backslashes are doubled here because libconfig unescapes one level.
+        #
+        # Rules are evaluated by ascending rule_id and apply=1 stops at the first
+        # match, so the catch-all clamp must come last. rule_ids start at 21 to
+        # stay clear of 1..4 (rewritten at runtime by proxysql-read-only-handler.sh)
+        # and of the legacy 100..400 rules.
+        my $large_pattern  = "^/\\\\* pf:(httpd\\\\.aaa|pfacct)[ :]";
+        my $medium_pattern = "^/\\\\* pf:((pfhttpd|httpd\\\\.webservices|pfperl-api)[ :]|pfqueue[^:]*:api )";
+        $tags{'mysql_query_rules'} = << "EOT";
+mysql_query_rules =
+(
+    {
+        rule_id=21,
+        active=1,
+        match_pattern="$large_pattern",
+        destination_hostgroup=$tier{large}{hg},
+        timeout=$tier{large}{timeout_ms},
+        apply=1,
+        comment="Large capacity tier: RADIUS auth and accounting"
+    },
+    {
+        rule_id=22,
+        active=1,
+        match_pattern="$medium_pattern",
+        destination_hostgroup=$tier{medium}{hg},
+        timeout=$tier{medium}{timeout_ms},
+        apply=1,
+        comment="Medium capacity tier: frontend and API traffic"
+    },
+    {
+        rule_id=23,
+        active=1,
+        match_pattern=".",
+        destination_hostgroup=$tier{small}{hg},
+        timeout=$tier{small}{timeout_ms},
+        apply=1,
+        comment="Catch-all tier: clamps connections and query time for everything else"
     }
 )
 EOT
