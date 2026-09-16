@@ -30,9 +30,7 @@
       :text="$i18n.t('The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.')"
     />
 
-    <!-- hidden in cloud: the database is remote, so this does nothing there, and
-         it is the ceiling the ProxySQL connection tiers are planned against -->
-    <form-group-max-connections namespace="max_connections" class="no-saas"
+    <form-group-max-connections namespace="max_connections"
       :column-label="$i18n.t('Max connections')"
       :text="$i18n.t('The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.')"
     />

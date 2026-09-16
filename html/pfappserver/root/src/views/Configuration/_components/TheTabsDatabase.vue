@@ -22,15 +22,19 @@ const tabs = {
     title: 'General Configuration', // i18n defer
     component: DatabaseGeneralView
   },
+  // Both tabs are hidden in cloud. Every setting under Advanced applies only to
+  // a locally running MySQL server, and in cloud the database is remote; ProxySQL
+  // is set for the customer there. Between them they also carry the two inputs
+  // the connection tiers are planned from, so they are not the customer's to
+  // change: see compute_tier_connections in lib/pf/services/manager/proxysql.pm.
   database_advanced: {
     title: 'Advanced Configuration', // i18n defer
-    component: DatabaseAdvancedView
+    component: DatabaseAdvancedView,
+    titleLinkClass: 'no-saas'
   },
   database_proxysql: {
     title: 'ProxySQL Configuration', // i18n defer
     component: DatabaseProxySQLView,
-    // In cloud these are set for the customer and drive the connection limits
-    // their instance is held to, so the tab is hidden rather than editable.
     titleLinkClass: 'no-saas'
   }
 }
