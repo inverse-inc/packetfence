@@ -99,6 +99,62 @@ func TestUntrackedChargeCap(t *testing.T) {
 	}
 }
 
+// balancesEnabledAt has to be stored before the gate is published: a worker
+// that sees the gate open while the instant is still 0 gets no cap from
+// untrackedChargeCap and charges the whole AcctSessionTime. Racing a goroutine
+// against that window does not work -- it is a couple of instructions wide and
+// such a test passes against the wrong order -- so observe the order directly,
+// through what is already published when the instant is read.
+func TestBalancesEnabledAtIsStoredBeforeTheGateOpens(t *testing.T) {
+	h := &PfAcct{}
+	h.balancesInUse.Store(true)
+	h.setBalancesInUse(false)
+
+	gateAlreadyOpen := false
+	balanceGateNow = func() time.Time {
+		gateAlreadyOpen = h.balancesInUse.Load()
+		return time.Now()
+	}
+	t.Cleanup(func() { balanceGateNow = time.Now })
+
+	h.setBalancesInUse(true)
+
+	if gateAlreadyOpen {
+		t.Error("the gate was published before balancesEnabledAt was stored, leaving a window with no charge cap")
+	}
+	if h.balancesEnabledAt.Load() == 0 {
+		t.Error("reopening the gate did not record the instant")
+	}
+}
+
+// The cap has to bite whether or not a NodeSessionCache entry survived the
+// shutdown: an entry outlives a gate-shut window shorter than its idle timeout,
+// and the offset it carries predates the shutdown.
+func TestCapCharge(t *testing.T) {
+	neverShut := &PfAcct{}
+	neverShut.balancesInUse.Store(true)
+	neverShut.setBalancesInUse(true)
+	if got := neverShut.capCharge(86400); got != 86400 {
+		t.Errorf("capCharge = %d on a gate that was never shut, want the charge untouched (86400)", got)
+	}
+
+	reopened := &PfAcct{}
+	reopened.balancesInUse.Store(true)
+	reopened.setBalancesInUse(false)
+	reopened.setBalancesInUse(true)
+
+	// A whole day of session time, of which only the moments since the gate
+	// reopened were ever accounted for.
+	if got := reopened.capCharge(86400); got > 5 {
+		t.Errorf("capCharge = %d just after the gate reopened, want ~0", got)
+	}
+
+	// A charge already within the cap is left alone rather than raised to it.
+	if got := reopened.capCharge(0); got != 0 {
+		t.Errorf("capCharge = %d for a zero charge, want 0", got)
+	}
+}
+
 func TestStopBalancesInUseRefresher(t *testing.T) {
 	// Never started: must not panic on a nil channel.
 	(&PfAcct{}).stopBalancesInUseRefresher()
