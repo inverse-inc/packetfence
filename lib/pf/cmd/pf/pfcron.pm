@@ -131,7 +131,9 @@ sub _run {
         Log::Log4perl::MDC->put('pf_unit', $task_id);
         my $ok  = eval { $task->run(); 1 };
         my $err = $@;
-        Log::Log4perl::MDC->remove('pf_unit');
+        # NOT MDC->remove('pf_unit'): remove() ignores its argument and empties
+        # the whole context, which would also drop proc/tid/ip/mac.
+        delete Log::Log4perl::MDC->get_context->{pf_unit};
         die $err unless $ok;
     } else {
         exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
