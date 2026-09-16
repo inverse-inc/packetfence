@@ -66,12 +66,19 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 // whole backend budget is a few dozen connections split across capacity tiers
 // (see lib/pf/services/manager/proxysql.pm), and ProxySQL multiplexes: a
 // frontend connection only borrows a backend one for the duration of a
-// statement. That keeps the frontend count cheap -- except for connections
-// ProxySQL cannot multiplex, which are pinned to one backend for as long as
-// they live. Any connection that has executed a *sql.Stmt is in that category,
-// so idle connections are held in smaller numbers and are now actually reaped:
-// without SetConnMaxIdleTime they were kept forever and each one pinned a
-// backend connection that no other service could use.
+// statement, so frontend connections stay cheap and can outnumber the pool.
+//
+// What does pin a backend connection for as long as it lives is session state
+// ProxySQL cannot hand to another client mid-flight: an open transaction, a
+// user variable, a temporary table, a table lock. Long-lived *sql.Stmt values
+// are NOT in that category -- ProxySQL keys its statement cache globally and
+// re-prepares on whichever backend it hands out, which was measured with twelve
+// concurrent clients each holding a statement open over a hostgroup capped at
+// six backend connections.
+//
+// The limits are still modest because a frontend connection costs a slot
+// against the per-user cap, and idle ones are now reaped: SetConnMaxIdleTime
+// was never called before, so a handle kept its idle connections forever.
 func SetPoolLimits(db *sql.DB) {
 	db.SetMaxIdleConns(2)
 	db.SetMaxOpenConns(25)

@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 29;
 use Test::NoWarnings;
 
 use pf::services::manager::proxysql;
@@ -74,9 +74,22 @@ cmp_ok($plan->{large}, '>', $plan->{medium}, "large tier outranks medium");
 cmp_ok($plan->{medium}, '>', $plan->{small}, "medium tier outranks catch-all");
 
 # Edge cases.
+my $tight = plan_for(tenants => 400);
+is(total_of($tight), 8, "a budget that exactly seats every tier at the floor is still honoured");
+cmp_ok((sort { $a <=> $b } values %$tight)[0], '>=', 2, "no tier drops below the floor");
+
 my $starved = plan_for(tenants => 100_000);
-is($starved->{small}, 2, "min_per_tier floors a tier that would otherwise round to zero");
-cmp_ok((sort { $a <=> $b } values %$starved)[0], '>=', 2, "no tier ever drops below the floor");
+is_deeply($starved, {}, "a budget too small to seat every tier at the floor yields no plan");
+
+# The floor must never push the tiers past the budget: that would hand back a
+# plan adding up to more than the database allows.
+for my $tenants (1, 50, 120, 200, 300, 399, 400, 401, 500, 1000) {
+    my $plan = plan_for(tenants => $tenants);
+    next unless keys %$plan;
+    my $budget = int(int(4000 * 80 / 100) / $tenants);
+    cmp_ok(total_of($plan), '<=', $budget, "tenants=$tenants: tiers stay within the budget")
+        or diag("plan: " . join(', ', map { "$_=$plan->{$_}" } sort keys %$plan));
+}
 
 my $zero_weight = pf::services::manager::proxysql::compute_tier_connections(
     { db_max_connections => 4000, tenants => 120, reserve_pct => 20, min_per_tier => 2 },

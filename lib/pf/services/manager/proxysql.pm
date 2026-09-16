@@ -105,27 +105,52 @@ fleet only approaches the ceiling if many tenants peak at once.
 sub compute_tier_connections {
     my ($capacity, $weights) = @_;
 
-    my $usable = int($capacity->{db_max_connections} * (100 - $capacity->{reserve_pct}) / 100);
-    my $budget = int($usable / $capacity->{tenants});
+    my @names = keys %$weights;
+    return {} unless @names;
 
     my $total_weight = 0;
     $total_weight += $_ for values %$weights;
     return {} unless $total_weight > 0;
 
+    my $usable = int($capacity->{db_max_connections} * (100 - $capacity->{reserve_pct}) / 100);
+    my $budget = int($usable / $capacity->{tenants});
+    my $floor  = $capacity->{min_per_tier};
+
+    # Every tier needs at least the floor, so a budget that cannot cover all of
+    # them together has no valid split. Say so rather than handing back tiers
+    # that add up to more than the database allows -- the caller falls back to
+    # the untiered single-hostgroup path.
+    return {} if $budget < $floor * scalar(@names);
+
     my (%conns, $assigned);
     $assigned = 0;
-    for my $name (keys %$weights) {
+    for my $name (@names) {
         my $n = int($budget * $weights->{$name} / $total_weight);
-        $n = $capacity->{min_per_tier} if $n < $capacity->{min_per_tier};
         $conns{$name} = $n;
         $assigned += $n;
     }
 
     # Give the flooring remainder to the heaviest tier rather than losing it.
-    my $remainder = $budget - $assigned;
-    if ($remainder > 0) {
-        my ($heaviest) = sort { $weights->{$b} <=> $weights->{$a} || $a cmp $b } keys %$weights;
-        $conns{$heaviest} += $remainder;
+    my @heaviest_first = sort { $weights->{$b} <=> $weights->{$a} || $a cmp $b } @names;
+    $conns{$heaviest_first[0]} += $budget - $assigned if $budget > $assigned;
+
+    # Raise anything the weights left below the floor, paying for it out of the
+    # largest tiers so the total still matches the budget. The guard above
+    # guarantees there is enough to go round: the tiers sum to the budget, and
+    # budget - floor*n >= 0 is exactly the spare above the floors.
+    my $deficit = 0;
+    for my $name (@names) {
+        next if $conns{$name} >= $floor;
+        $deficit += $floor - $conns{$name};
+        $conns{$name} = $floor;
+    }
+    for my $name (sort { $conns{$b} <=> $conns{$a} || $a cmp $b } @names) {
+        last if $deficit <= 0;
+        my $spare = $conns{$name} - $floor;
+        next if $spare <= 0;
+        my $take = ($spare < $deficit) ? $spare : $deficit;
+        $conns{$name} -= $take;
+        $deficit      -= $take;
     }
 
     return \%conns;
@@ -223,7 +248,19 @@ sub generateConfig {
         medium => { hg => $medium_hostgroup, timeout_ms => 120_000 },
         large  => { hg => $large_hostgroup,  timeout_ms => 360_000 },
     );
-    $tier{$_}{max_connections} = $tier_conns->{$_} for keys %tier;
+
+    # An empty plan means the budget cannot seat every tier at its floor, i.e.
+    # %capacity has been retuned past what the tiers can express. Fall back to the
+    # untiered single-hostgroup layout rather than emitting a plan that would
+    # oversubscribe the database.
+    my $tiers_fit = (keys %$tier_conns) == (keys %tier);
+    if (!$tiers_fit) {
+        $logger->error(
+            "proxysql capacity plan cannot seat " . scalar(keys %tier) . " tiers at "
+            . "min_per_tier=$capacity{min_per_tier} from $capacity{db_max_connections} "
+            . "connections shared by $capacity{tenants} tenants; falling back to a single hostgroup");
+    }
+    $tier{$_}{max_connections} = $tier_conns->{$_} for grep { $tiers_fit } keys %tier;
 
     # Frontend sessions (PF services into ProxySQL) never reach the database:
     # multiplexing lends a pooled backend connection out only for the duration of
@@ -232,7 +269,7 @@ sub generateConfig {
     # backend budget, since a frontend count far above that ratio means
     # something is holding sessions it should have returned.
     my $backend_budget = 0;
-    $backend_budget += $tier{$_}{max_connections} for keys %tier;
+    $backend_budget += $tier{$_}{max_connections} // 0 for keys %tier;
     my $cloud_frontend_max = $backend_budget * $capacity{frontend_ratio};
     $cloud_frontend_max = $capacity{frontend_max} if $cloud_frontend_max > $capacity{frontend_max};
     my $cloud_user_max     = int($cloud_frontend_max * $capacity{user_pct} / 100);
@@ -301,8 +338,15 @@ EOT
 
         if (scalar(@backends) <= 1) {
             $single_server = 1;
-            $cloud_tiers = 1;
+            $cloud_tiers = $tiers_fit;
             my $backend = $backends[0] // '';
+            if (!$cloud_tiers) {
+                # Unsatisfiable capacity plan (logged above): fall back to one
+                # hostgroup and no tier rules, exactly as before the tiers existed.
+                $tags{mysql_servers} .= << "EOT";
+    { address="$backend" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
+EOT
+            } else {
             # Single server: no reader split. The one backend is registered once
             # per capacity tier (same address:port, different hostgroup) so each
             # tier gets its own connection cap. Queries reach the right tier via
@@ -345,6 +389,7 @@ EOT
             # query until a pooled connection frees -- exceeding this is an
             # intentional reject: it is the noisy-neighbour throttle.
             $tags{'mysql_user_max_connections'} = ", max_connections = $cloud_user_max";
+            }
         } else {
             $single_server = 0;
             $tags{'replication'} = $TRUE;
