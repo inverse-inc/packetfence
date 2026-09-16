@@ -279,10 +279,18 @@ packetfence-audit-log-no-response {
 #  down a session it had already authorized. Every httpd.aaa restart did that
 #  to thousands of devices.
 #
-#  MAB / PAP (no EAP): the request is left unanswered (do_not_respond). The
-#  NAS retransmits and, if PacketFence stays silent long enough, marks the
-#  server dead and applies its own fail-over policy (critical-auth on Cisco);
-#  the existing session is untouched.
+#  Everything without EAP is left unanswered (do_not_respond). The NAS
+#  retransmits and, if PacketFence stays silent long enough, marks the server
+#  dead and applies its own fail-over policy (critical-auth on Cisco); the
+#  existing session is untouched.
+#
+#  That is what MAB and PAP need: they are what a switch reauthenticates a live
+#  session with, and a Reject there drops a port that was already authorized.
+#  It also catches direct Auth-Type CHAP and MS-CHAP (packetfence.example,
+#  Auth-Type sections), which is intentional: with a non-Wireless/Ethernet
+#  NAS-Port-Type those are interactive CLI and VPN logins, one-shot rather than
+#  a reauthentication of an established session, so nothing is torn down either
+#  way and the person simply retries -- they are already waiting on a prompt.
 #
 #  EAP: the Reject is kept. rlm_eap has already freed the conversation when
 #  post-auth runs, so a retransmit cannot be resumed; silence would only delay
