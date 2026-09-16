@@ -180,6 +180,27 @@ func (pfAcct *PfAcct) reportAAADrops() {
 	}()
 }
 
+// applyRateLimitConfig maps the radius_configuration section onto the fields
+// the accounting path reads. It is a method of its own so the wiring is
+// testable: the bug this branch fixes was exactly this assignment going
+// missing, and no test that drives rateLimit directly can notice that.
+func (pfAcct *PfAcct) applyRateLimitConfig(ctx context.Context, cfg pfconfigdriver.PfConfRadiusConfiguration) {
+	pfAcct.RateLimit = sharedutils.IsEnabled(cfg.PfacctRateLimit)
+	pfAcct.PfacctRateLimitCacheTtl = DefaultRateLimitCacheTtl
+	if i, err := strconv.Atoi(cfg.PfacctRateLimitCacheTtl); err == nil {
+		pfAcct.PfacctRateLimitCacheTtl = i
+	}
+
+	// go-cache treats a non-positive duration as "never expires", which would
+	// pin every session in the rate-limit caches for the lifetime of the
+	// process: after its first Start a device would never be forwarded to
+	// httpd.aaa again except on a Stop.
+	if pfAcct.PfacctRateLimitCacheTtl <= 0 {
+		logWarn(ctx, fmt.Sprintf("Invalid pfacct_rate_limit_cache_ttl '%s', defaulting to %d minutes", cfg.PfacctRateLimitCacheTtl, DefaultRateLimitCacheTtl))
+		pfAcct.PfacctRateLimitCacheTtl = DefaultRateLimitCacheTtl
+	}
+}
+
 func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	numOfCpus := runtime.NumCPU()
 	var keyConfNet pfconfigdriver.PfconfigKeys
@@ -230,19 +251,7 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 	pfAcct.ProcessBandwidthAcct = sharedutils.IsEnabled(RadiusConfiguration.ProcessBandwidthAccounting)
-	pfAcct.RateLimit = sharedutils.IsEnabled(RadiusConfiguration.PfacctRateLimit)
-	pfAcct.PfacctRateLimitCacheTtl = DefaultRateLimitCacheTtl
-	if i, err := strconv.Atoi(RadiusConfiguration.PfacctRateLimitCacheTtl); err == nil {
-		pfAcct.PfacctRateLimitCacheTtl = i
-	}
-	// go-cache treats a non-positive duration as "never expires", which would
-	// pin every session in the rate-limit caches for the lifetime of the
-	// process: after its first Start a device would never be forwarded to
-	// httpd.aaa again except on a Stop.
-	if pfAcct.PfacctRateLimitCacheTtl <= 0 {
-		logWarn(ctx, fmt.Sprintf("Invalid pfacct_rate_limit_cache_ttl '%s', defaulting to %d minutes", RadiusConfiguration.PfacctRateLimitCacheTtl, DefaultRateLimitCacheTtl))
-		pfAcct.PfacctRateLimitCacheTtl = DefaultRateLimitCacheTtl
-	}
+	pfAcct.applyRateLimitConfig(ctx, RadiusConfiguration)
 	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	pfAcct.MacNasCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	if !pfAcct.ProcessBandwidthAcct {
