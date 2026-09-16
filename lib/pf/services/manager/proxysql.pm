@@ -51,6 +51,86 @@ our $DB_Config;
 
 tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
+=head2 compute_tier_connections
+
+Work out the per-tier C<max_connections> for one tenant from the capacity of the
+database it shares.
+
+Takes a hashref of inputs and a hashref of relative tier weights, and returns a
+hashref of tier name to connection count. Plug your own numbers into C<%capacity>
+in C<generateConfig> and regenerate; nothing else needs editing.
+
+Inputs:
+
+=over
+
+=item * C<db_max_connections> -- what the shared database will accept. Cloud SQL
+for MySQL allows 4000 on every machine type except db-f1-micro and db-g1-small,
+each costing the instance 1-4 MB. Google does not publish the per-tier table;
+4000 is the figure consistently reported in the field. Confirm yours with
+C<SHOW VARIABLES LIKE 'max_connections'>.
+
+=item * C<tenants> -- how many PF instances share that database.
+
+=item * C<reserve_pct> -- percentage held back for admin sessions, monitoring,
+replication and migrations, so tenants never consume the whole ceiling.
+
+=item * C<min_per_tier> -- floor applied after the split, so a small budget or a
+light weight cannot reduce a tier to zero.
+
+=back
+
+The arithmetic:
+
+    usable = db_max_connections * (100 - reserve_pct) / 100
+    budget = usable / tenants                       # one tenant's total
+    tier   = budget * weight / sum(weights)         # split by weight, floored
+
+Any remainder left by the flooring is given to the heaviest tier, so the tiers
+add up to the budget rather than quietly losing connections to rounding.
+
+Worked example, with the values shipped below:
+
+    4000 * 0.80 = 3200 usable; 3200 / 120 tenants = 26 per tenant
+    weights 2:2:3:5 (sum 12) -> small 4, radius 4, medium 6, large 10
+    remainder 2 -> large 12
+    total 26
+
+These are ceilings, not reservations: ProxySQL opens backend connections on
+demand and C<mysql-free_connections_pct> keeps only a small idle pool, so the
+fleet only approaches the ceiling if many tenants peak at once.
+
+=cut
+
+sub compute_tier_connections {
+    my ($capacity, $weights) = @_;
+
+    my $usable = int($capacity->{db_max_connections} * (100 - $capacity->{reserve_pct}) / 100);
+    my $budget = int($usable / $capacity->{tenants});
+
+    my $total_weight = 0;
+    $total_weight += $_ for values %$weights;
+    return {} unless $total_weight > 0;
+
+    my (%conns, $assigned);
+    $assigned = 0;
+    for my $name (keys %$weights) {
+        my $n = int($budget * $weights->{$name} / $total_weight);
+        $n = $capacity->{min_per_tier} if $n < $capacity->{min_per_tier};
+        $conns{$name} = $n;
+        $assigned += $n;
+    }
+
+    # Give the flooring remainder to the heaviest tier rather than losing it.
+    my $remainder = $budget - $assigned;
+    if ($remainder > 0) {
+        my ($heaviest) = sort { $weights->{$b} <=> $weights->{$a} || $a cmp $b } keys %$weights;
+        $conns{$heaviest} += $remainder;
+    }
+
+    return \%conns;
+}
+
 sub generateConfig {
     my ($self,$quick) = @_;
     my $tt = Template->new(ABSOLUTE => 1);
@@ -88,42 +168,56 @@ sub generateConfig {
     # #9097); FreeRADIUS has no such hook, so its tier is matched on its own
     # table names instead (see the rules further down).
     #
-    # Sizing the backend caps -- the shared ceiling comes first:
-    #
-    #   Cloud SQL for MySQL allows 4000 concurrent connections on every machine
-    #   type except db-f1-micro / db-g1-small, and each one costs the instance
-    #   1-4 MB. Google does not publish the per-tier table; 4000 is the figure
-    #   consistently reported in the field.
-    #
-    # The workload itself needs very little of that. In a general log capture,
-    # one EAP-TLS authentication issued 21 decorated httpd.aaa queries, all
-    # serialized on a single connection and all inside one second. They are
-    # indexed point lookups (mac, pid, nasname), so at ~1 ms per round trip to a
-    # same-region Cloud SQL that is ~21 ms of database time per authentication --
-    # one backend connection sustains roughly 47 auth/s. The steady background is
-    # ~5 q/s from the monitoring agent plus ~0.4 q/s from pfstats.
-    #
-    # The caps are set well above that because connections that cannot be
-    # multiplexed are pinned to one frontend session and drop out of the pool
-    # entirely: Go services prepare server-side (no interpolateParams) and some
-    # hold *sql.Stmt for the process lifetime, and the admin API's
-    # SQL_CALC_FOUND_ROWS pins by design. Until that is fixed, headroom is what
-    # keeps a tenant from starving. These are ceilings, not reservations --
-    # ProxySQL opens backend connections on demand and free_connections_pct (10%)
-    # keeps only a small idle pool -- so the 38 below is a deliberate overcommit
-    # across 100+ tenants, reachable only if many peak at once.
+    # The connection caps are NOT hand-picked -- they are derived from the four
+    # numbers in %capacity below by compute_tier_connections(). To retune a
+    # deployment, change those numbers and regenerate; see that sub's
+    # documentation for the arithmetic and a worked example.
     #
     # Timeouts are log-spaced downward from the 360s network timeout, which is
     # the ceiling: large keeps it, medium and catch-all are progressively clamped.
     my $medium_hostgroup = 11;
     my $large_hostgroup  = 12;
     my $radius_hostgroup = 13;
-    my %tier = (
-        small  => { hg => $writer_hostgroup, max_connections => 6,  timeout_ms => 40_000  },
-        radius => { hg => $radius_hostgroup, max_connections => 6,  timeout_ms => 40_000  },
-        medium => { hg => $medium_hostgroup, max_connections => 10, timeout_ms => 120_000 },
-        large  => { hg => $large_hostgroup,  max_connections => 16, timeout_ms => 360_000 },
+
+    my %capacity = (
+        db_max_connections => 4000,  # what the shared database will accept
+        tenants            => 120,   # PF instances sharing it (100+ today, sized for growth)
+        reserve_pct        => 20,    # held back for admin, monitoring, replication, migrations
+        min_per_tier       => 2,     # floor, so a tier can never be starved to nothing
+        frontend_ratio     => 8,     # frontend sessions allowed per backend connection
+        user_pct           => 75,    # per-user share of the frontend cap
     );
+
+    # Relative share of a tenant's budget. Large carries RADIUS authentication
+    # and accounting, medium the frontend and API, and the remaining two are
+    # background and undecorated traffic.
+    my %tier_weight = (
+        small  => 2,
+        radius => 2,
+        medium => 3,
+        large  => 5,
+    );
+
+    my $tier_conns = compute_tier_connections(\%capacity, \%tier_weight);
+
+    my %tier = (
+        small  => { hg => $writer_hostgroup, timeout_ms => 40_000  },
+        radius => { hg => $radius_hostgroup, timeout_ms => 40_000  },
+        medium => { hg => $medium_hostgroup, timeout_ms => 120_000 },
+        large  => { hg => $large_hostgroup,  timeout_ms => 360_000 },
+    );
+    $tier{$_}{max_connections} = $tier_conns->{$_} for keys %tier;
+
+    # Frontend sessions (PF services into ProxySQL) never reach the database:
+    # multiplexing lends a pooled backend connection out only for the duration of
+    # a statement, so they can safely outnumber the backend pool. These caps are
+    # a leak guard, not a database protection -- sized as a multiple of the
+    # backend budget, since a frontend count far above that ratio means
+    # something is holding sessions it should have returned.
+    my $backend_budget = 0;
+    $backend_budget += $tier{$_}{max_connections} for keys %tier;
+    my $cloud_frontend_max = $backend_budget * $capacity{frontend_ratio};
+    my $cloud_user_max     = int($cloud_frontend_max * $capacity{user_pct} / 100);
     my $cloud_tiers = 0;  # flag: single-backend cloud mode, generate the tier rules
 
     # Frontend connection cap (mysql_variables max_connections), i.e. sessions
@@ -195,10 +289,17 @@ EOT
             # per capacity tier (same address:port, different hostgroup) so each
             # tier gets its own connection cap. Queries reach the right tier via
             # the routing remark rules generated further down.
+            # Record the capacity plan in the generated file so an operator
+            # reading it can see where these numbers came from.
+            $tags{mysql_servers} .= sprintf(
+                "    # capacity plan: %d ceiling - %d%% reserved = %d usable, / %d tenants = %d per tenant\n",
+                $capacity{db_max_connections}, $capacity{reserve_pct},
+                int($capacity{db_max_connections} * (100 - $capacity{reserve_pct}) / 100),
+                $capacity{tenants}, $backend_budget);
             foreach my $name (qw(small radius medium large)) {
                 my $t = $tier{$name};
                 $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=$port , hostgroup=$t->{hg}, max_connections=$t->{max_connections}, weight=100, use_ssl=$ssl },
+    { address="$backend" , port=$port , hostgroup=$t->{hg}, max_connections=$t->{max_connections}, weight=100, use_ssl=$ssl }, # $name tier (weight $tier_weight{$name})
 EOT
             }
 
@@ -206,7 +307,7 @@ EOT
             # applied here (not via the admin interface) because the container
             # starts proxysql with --initial, which re-reads this generated file
             # and discards any runtime/on-disk changes.
-            $tags{'frontend_max_connections'} = 200;
+            $tags{'frontend_max_connections'} = $cloud_frontend_max;
             # auto_increment_delay_multiplex defaults to 5, which pins a backend
             # connection for 5 queries after every auto-increment INSERT -- a
             # constant tax at PF's insert rate. Safe to disable: the only two
@@ -225,7 +326,7 @@ EOT
             # reconfiguring. Unlike the backend caps -- where ProxySQL holds the
             # query until a pooled connection frees -- exceeding this is an
             # intentional reject: it is the noisy-neighbour throttle.
-            $tags{'mysql_user_max_connections'} = ", max_connections = 150";
+            $tags{'mysql_user_max_connections'} = ", max_connections = $cloud_user_max";
         } else {
             $single_server = 0;
             $tags{'replication'} = $TRUE;
