@@ -179,13 +179,30 @@ sub generateConfig {
     my $large_hostgroup  = 12;
     my $radius_hostgroup = 13;
 
+    # PF_SAAS marks a cloud deployment (the same flag pf::UnifiedApi::Controller::
+    # SystemSummary reports to the admin UI). It decides which database we are
+    # planning against, and that is the only thing that differs between the two:
+    #
+    #   cloud   -- many tenants share one Cloud SQL instance, which allows 4000
+    #              connections on every machine type except db-f1-micro and
+    #              db-g1-small. Not published by Google; confirm with
+    #              SHOW VARIABLES LIKE 'max_connections'.
+    #   on-prem -- the database is the one PacketFence configures itself, so its
+    #              ceiling is database_advanced.max_connections, and this instance
+    #              is its only user.
+    my $is_saas = isenabled($ENV{PF_SAAS});
+
     my %capacity = (
-        db_max_connections => 4000,  # what the shared database will accept
-        tenants            => 120,   # PF instances sharing it (100+ today, sized for growth)
-        reserve_pct        => 20,    # held back for admin, monitoring, replication, migrations
-        min_per_tier       => 2,     # floor, so a tier can never be starved to nothing
-        frontend_ratio     => 8,     # frontend sessions allowed per backend connection
-        user_pct           => 75,    # per-user share of the frontend cap
+        reserve_pct    => 20,   # held back for admin, monitoring, replication, migrations
+        min_per_tier   => 2,    # floor, so a tier can never be starved to nothing
+        frontend_ratio => 8,    # frontend sessions allowed per backend connection
+        frontend_max   => 2048, # ceiling on that, matching ProxySQL's own default
+        user_pct       => 75,   # per-user share of the frontend cap
+        $is_saas
+            ? ( db_max_connections => 4000,
+                tenants            => 120 )   # 100+ today, sized for growth
+            : ( db_max_connections => $Config{database_advanced}{max_connections} || 1000,
+                tenants            => 1 ),
     );
 
     # Relative share of a tenant's budget. Large carries RADIUS authentication
@@ -217,6 +234,7 @@ sub generateConfig {
     my $backend_budget = 0;
     $backend_budget += $tier{$_}{max_connections} for keys %tier;
     my $cloud_frontend_max = $backend_budget * $capacity{frontend_ratio};
+    $cloud_frontend_max = $capacity{frontend_max} if $cloud_frontend_max > $capacity{frontend_max};
     my $cloud_user_max     = int($cloud_frontend_max * $capacity{user_pct} / 100);
     my $cloud_tiers = 0;  # flag: single-backend cloud mode, generate the tier rules
 

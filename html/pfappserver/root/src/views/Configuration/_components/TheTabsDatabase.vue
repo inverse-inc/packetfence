@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab v-for="(tab, index) in tabs" :key="index"
-        :title="$t(tab.title)" @click="tabIndex = index">
+        :title="$t(tab.title)" :title-link-class="tab.titleLinkClass" @click="tabIndex = index">
         <component :is="tab.component" />
       </b-tab>
     </b-tabs>
@@ -28,7 +28,10 @@ const tabs = {
   },
   database_proxysql: {
     title: 'ProxySQL Configuration', // i18n defer
-    component: DatabaseProxySQLView
+    component: DatabaseProxySQLView,
+    // In cloud these are set for the customer and drive the connection limits
+    // their instance is held to, so the tab is hidden rather than editable.
+    titleLinkClass: 'no-saas'
   }
 }
 

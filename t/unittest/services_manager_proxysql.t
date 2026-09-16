@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 21;
 use Test::NoWarnings;
 
 use pf::services::manager::proxysql;
@@ -83,3 +83,15 @@ my $zero_weight = pf::services::manager::proxysql::compute_tier_connections(
     {},
 );
 is_deeply($zero_weight, {}, "no weights yields no tiers rather than dividing by zero");
+
+# On-prem: the database is the one PacketFence configures itself, so the ceiling
+# is database_advanced.max_connections and this instance is its only user.
+my $onprem = plan_for(db_max_connections => 1000, tenants => 1);
+is(total_of($onprem), 800, "on-prem: 1000 ceiling less 20% reserved, all of it for one instance");
+is($onprem->{large},  334, "on-prem: large tier");
+is($onprem->{medium}, 200, "on-prem: medium tier");
+cmp_ok(total_of($onprem), '<', 1000, "on-prem: the plan stays under what the local server accepts");
+
+# The ceiling tracks the setting rather than assuming the 1000 default.
+my $onprem_2k = plan_for(db_max_connections => 2000, tenants => 1);
+is(total_of($onprem_2k), 1600, "on-prem: raising max_connections raises the budget with it");
