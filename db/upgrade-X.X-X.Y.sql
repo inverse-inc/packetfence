@@ -213,6 +213,52 @@ CALL AddColumnUnlessExists('auth_log', 'source_type',
     'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
 
 --
+-- Record the authentication source on the node itself.
+--
+-- pf::radius already resolves the matched source id and already treats it as a
+-- node attribute (%NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES maps source =>
+-- PacketFence-Source), but it was only ever forwarded to radius_audit_log and
+-- never persisted. person.source cannot serve this purpose: person is 1:N with
+-- node (many devices share a pid, commonly 'default'), so it is last-write-wins
+-- across a person's devices.
+--
+-- Not backfillable: existing rows keep NULL / "". Consumers must treat an empty
+-- source_type as UNCLASSIFIED, never as a guest or a non-guest.
+--
+\! echo "Adding columns source and source_type to node...";
+CALL AddColumnUnlessExists('node', 'source',
+    'VARCHAR(255) DEFAULT NULL AFTER `bypass_acls`');
+CALL AddColumnUnlessExists('node', 'source_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
+
+--
+-- Indexes for the usage-counting queries, and for the captive portal write path.
+--
+-- auth_log_completion covers the UPDATE issued by pf::auth_log::invalidate_previous
+-- and record_completed_guest/_oauth (WHERE process_name/source/mac ORDER BY
+-- attempted_at DESC LIMIT 1), which has no usable index today: measured as a
+-- full scan of every row on the synchronous path of every portal login. With 8
+-- concurrent completions on a 5M-row auth_log a single UPDATE ran 322s and the
+-- others timed out (ER_LOCK_WAIT_TIMEOUT); with the index the same workload
+-- completes in 5.5s.
+--
+-- attempted_at must remain the last part and must be reached through full-length
+-- equalities: prefix key parts are excluded from const_key_parts, which would
+-- reintroduce the filesort this index exists to remove.
+--
+\! echo "Adding index auth_log_completion to auth_log...";
+CALL AddIndexUnlessExists('auth_log', 'auth_log_completion',
+    'KEY `auth_log_completion` (`mac`,`source`,`process_name`,`attempted_at`)');
+
+\! echo "Adding index auth_log_billing to auth_log...";
+CALL AddIndexUnlessExists('auth_log', 'auth_log_billing',
+    'KEY `auth_log_billing` (`status`,`completed_at`,`source_type`,`mac`)');
+
+\! echo "Adding index node_status_last_seen to node...";
+CALL AddIndexUnlessExists('node', 'node_status_last_seen',
+    'KEY `node_status_last_seen` (`status`,`last_seen`,`pid`)');
+
+--
 -- Clean up the helper / validation procedures
 --
 DROP PROCEDURE IF EXISTS ValidateVersion;

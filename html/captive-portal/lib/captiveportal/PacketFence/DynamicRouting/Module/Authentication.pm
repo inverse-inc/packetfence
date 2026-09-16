@@ -410,6 +410,14 @@ sub update_person_from_fields {
 
     # not sure we should set the portal + source here...
     person_modify($options{pid}, %{$self->app->session->{saved_fields}}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
+
+    # Record the source on the node as well as on the person. person is 1:N with
+    # node -- many devices share a pid, commonly 'default' -- so person.source is
+    # last-write-wins across a user's devices and cannot say how any given device
+    # was registered. node.source can.
+    if (defined($self->source) && defined($self->current_mac)) {
+        node_modify($self->current_mac, source => $self->source->id, source_type => $self->source->type);
+    }
 }
 
 =head1 AUTHOR
