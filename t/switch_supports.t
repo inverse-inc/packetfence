@@ -429,6 +429,8 @@ is(pf::Switch::Ubiquiti::EdgeSwitch->new->supportsLldp, 1, "pf::Switch::Ubiquiti
 is(pf::Switch::Ubiquiti::Unifi->new->supportsWirelessMacAuth, 1, "pf::Switch::Ubiquiti::Unifi supportsWirelessMacAuth still works");
 is(pf::Switch::Ubiquiti::Unifi->new->supportsExternalPortal, 1, "pf::Switch::Ubiquiti::Unifi supportsExternalPortal still works");
 is(pf::Switch::Ubiquiti::Unifi->new->supportsWirelessDot1x, 1, "pf::Switch::Ubiquiti::Unifi supportsWirelessDot1x still works");
+is(pf::Switch::Ubiquiti::Unifi->new->supportsWiredDot1x, 1, "pf::Switch::Ubiquiti::Unifi supportsWiredDot1x still works");
+is(pf::Switch::Ubiquiti::Unifi->new->supportsRadiusDynamicVlanAssignment, 1, "pf::Switch::Ubiquiti::Unifi supportsRadiusDynamicVlanAssignment still works");
 is(pf::Switch::WirelessModuleTemplate->new->supportsWirelessMacAuth, 1, "pf::Switch::WirelessModuleTemplate supportsWirelessMacAuth still works");
 is(pf::Switch::WirelessModuleTemplate->new->supportsWirelessDot1x, 1, "pf::Switch::WirelessModuleTemplate supportsWirelessDot1x still works");
 is(pf::Switch::Xirrus->new->supportsWirelessMacAuth, 1, "pf::Switch::Xirrus supportsWirelessMacAuth still works");
