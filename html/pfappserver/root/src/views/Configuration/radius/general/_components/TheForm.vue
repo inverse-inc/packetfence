@@ -117,6 +117,7 @@
     />
 
     <form-group-radiusd-max-servers namespace="radiusd_max_servers"
+                                    min="1"
                                     :column-label="$i18n.t('RADIUS worker threads')"
                                     :text="$i18n.t('Maximum number of FreeRADIUS worker threads (max_servers). Also caps the concurrent REST connections to httpd.aaa. Requires a restart of radiusd to be effective')"
     />
