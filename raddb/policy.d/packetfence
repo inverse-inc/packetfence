@@ -247,6 +247,23 @@ packetfence-audit-log-no-response {
         noop
     }
     else {
+        #  rlm_rest does not process the body of a 5xx answer ("Process body no",
+        #  see the status code table in conf/radiusd/rest.conf), so none of the
+        #  control:PacketFence-* pairs that the Accept and Reject rows carry are
+        #  set on this path. Most of them cannot be: role, status, profile,
+        #  source, ifIndex and connection type are what PacketFence decided, and
+        #  here it never evaluated the request. Fill in the two radiusd knows
+        #  first-hand so the row is not emptier than it has to be; the rest are
+        #  left to the consumer's N/A default rather than guessed at.
+        update control {
+            #  Absolute timestamp, the same shape PacketFence returns on success;
+            #  request-timing below turns it into the elapsed time.
+            &PacketFence-Request-Time := "%l"
+            #  packetfence-nas-ip-address has already guaranteed this is set
+            #  (Packet-Src-IP-Address when the NAS omits it), and it is the
+            #  address PacketFence itself keys the switch lookup on.
+            &PacketFence-Switch-Ip-Address := "%{request:NAS-IP-Address}"
+        }
         request-timing
         %{redis:RPUSH RADIUS_AUDIT_LOG '%{base64:["NoResponse",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time Packet-Src-IP-Address}]}'}
     }
