@@ -247,7 +247,9 @@ sub init_cache {
 
     $self->{cache} = pfconfig::config->new->get_backend;
     $self->{memory}       = {};
-    $self->{memorized_at} = {};
+    # Timestamp of the control file that was in effect when each namespace was
+    # loaded in $self->{memory}. See is_valid
+    $self->{control_timestamp} = {};
     $self->{last_touch_cache} = time;
 }
 
@@ -271,7 +273,7 @@ sub touch_cache {
 =head2 get_cache
 
 Gets a namespace either in the L1, L2 or L3 (builds it)
-Will use the memorized_at hash to know if it's still valid
+Will use the control_timestamp hash to know if it's still valid
 It should not have to build the L3 since that's the slowest. The L3 should be built externally and this should only have to call the L2
 
 =cut
@@ -285,13 +287,17 @@ sub get_cache {
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}{$what};
     unless (defined($memory) && $self->is_valid($what)) {
+        # Read the control file timestamp before loading. If the namespace gets
+        # expired while we are loading it, we keep the timestamp from before the
+        # expiration and reload on the next access instead of missing the change
+        my $control_timestamp = $self->control_file_timestamp($what);
         my $cached = $self->{cache}->get($what);
         # raw memory is expired but cache is not
         if ($cached) {
             $logger->debug("Getting $what from cache backend");
             $memory = $cached;
             $self->{memory}{$what} = $cached;
-            $self->{memorized_at}{$what} = time;
+            $self->{control_timestamp}{$what} = $control_timestamp;
         } else {
             # everything is expired. need to rebuild completely
             $memory = $self->cache_resource($what);
@@ -388,24 +394,37 @@ sub cache_resource {
     }
     $self->{memory}->{$what}       = $result;
     delete $self->{memory}->{"$ordered_prefix$what"};
-    $self->{memorized_at}->{$what} = time;
+    # Read the control file timestamp after it has been touched above so it is the
+    # one of the expiration we just did
+    $self->{control_timestamp}->{$what} = $self->control_file_timestamp($what);
 
     return $result;
 
 }
 
+=head2 control_file_timestamp
+
+Returns the modification timestamp of the control file of a namespace
+Returns undef when the control file doesn't exist
+
+=cut
+
+sub control_file_timestamp {
+    my ( $self, $what ) = @_;
+    return ( stat( pfconfig::util::control_file_path($what) ) )[9];
+}
+
 =head2 is_valid
 
 Method that is used to determine if the object has been refreshed in pfconfig
-Uses the control files in var/control and the memorized_at hash to know if a namespace has expired
+Uses the control files in var/control and the control_timestamp hash to know if a namespace has expired
 
 =cut
 
 sub is_valid {
     my ( $self, $what ) = @_;
     my $logger         = get_logger;
-    my $control_file   = pfconfig::util::control_file_path($what);
-    my $file_timestamp = ( stat($control_file) )[9];
+    my $file_timestamp = $self->control_file_timestamp($what);
 
     unless ( defined($file_timestamp) ) {
         $logger->warn(
@@ -415,14 +434,21 @@ sub is_valid {
         return 0;
     }
 
-    my $memory_timestamp = $self->{memorized_at}->{$what} // 0;
+    my $memory_timestamp = $self->{control_timestamp}->{$what};
     $logger->trace(
-        "Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what"
+        sub {
+            "Control file has timestamp $file_timestamp and memory was loaded with timestamp "
+                . ( $memory_timestamp // 'none' ) . " for key $what";
+        }
     );
 
-    # if the timestamp of the file is after the one we have in memory
-    # then we are expired
-    if ( $memory_timestamp >= $file_timestamp ) {
+    # The control file is touched every time the namespace is expired, so any change
+    # of its timestamp means what we have in memory is stale.
+    # Only timestamps of the control file are compared with each other, never with the
+    # local time: the file is touched by whichever process expired the namespace, and
+    # its clock can be ahead of ours (another container, another cluster member) or
+    # step backwards, which would otherwise keep the namespace expired forever
+    if ( defined($memory_timestamp) && $memory_timestamp == $file_timestamp ) {
         $logger->trace("Memory configuration is still valid for key $what");
         return 1;
     }
@@ -460,7 +486,7 @@ sub expire {
     my $logger = get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
-        delete $self->{memorized_at}->{$what};
+        delete $self->{control_timestamp}->{$what};
         $self->touch_cache($what);
     }
     else {

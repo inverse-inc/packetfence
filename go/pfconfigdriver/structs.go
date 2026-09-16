@@ -16,6 +16,8 @@ type PfconfigObject interface {
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
 	GetLastTouchCache() float64
+	GetLoadedTouchCache() float64
+	SetLoadedTouchCache(float64)
 }
 
 // A basic StructConfig that contains the loaded at time which ensures FetchDecodeSocketCache will refresh the struct when needed
@@ -23,6 +25,7 @@ type PfconfigObject interface {
 type StructConfig struct {
 	LastTouchCache             float64 `json:"last_touch_cache"`
 	PfconfigLoadedAt           time.Time
+	LoadedTouchCache           float64
 	PfconfigHostnameOverlay    string `val:"no"`
 	PfconfigClusterNameOverlay string `val:"no"`
 }
@@ -39,6 +42,16 @@ func (ps *StructConfig) GetLoadedAt() time.Time {
 
 func (ps *StructConfig) GetLastTouchCache() float64 {
 	return ps.LastTouchCache
+}
+
+// Set the last touch cache that pfconfig reported when the struct was loaded
+func (ps *StructConfig) SetLoadedTouchCache(lastTouchCache float64) {
+	ps.LoadedTouchCache = lastTouchCache
+}
+
+// Get the last touch cache that pfconfig reported when the struct was loaded
+func (ps *StructConfig) GetLoadedTouchCache() float64 {
+	return ps.LoadedTouchCache
 }
 
 // pfconfig replies with the «struct» nested in an element key of a hash
@@ -259,7 +272,7 @@ type PfconfigKeys struct {
 	Keys           []string
 	Response       struct {
 		Keys           []string
-		LastTouchCache float64
+		LastTouchCache float64 `json:"last_touch_cache"`
 	}
 }
 
@@ -271,6 +284,7 @@ type PfconfigKeysInt interface {
 
 func (pk *PfconfigKeys) SetKeysFromResponse() {
 	pk.Keys = pk.Response.Keys
+	pk.LastTouchCache = pk.Response.LastTouchCache
 }
 
 func (pk *PfconfigKeys) GetKeys() *[]string {

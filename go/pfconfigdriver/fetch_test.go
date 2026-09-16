@@ -243,6 +243,59 @@ func TestCreateQuery(t *testing.T) {
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply
+// pfconfig reports its last touch cache with its own clock, which can be ahead of ours when it
+// runs in another container or on another cluster member. Only the values reported by pfconfig
+// are compared with each other, otherwise every resource stays invalid and gets reloaded on
+// every single access as soon as the clocks differ.
+func TestIsValidWithPfconfigClockAhead(t *testing.T) {
+	origLastTouchCache := globalMeta.getLastTouchCache()
+	origReloadedTouchCache := globalMeta.getReloadedTouchCache()
+	defer func() {
+		globalMeta.setLastTouchCache(origLastTouchCache)
+		globalMeta.setReloadedTouchCache(origReloadedTouchCache)
+	}()
+
+	now := float64(time.Now().UnixMicro() / 1000000)
+	globalMeta.setReloadedTouchCache(now)
+	globalMeta.setLastTouchCache(now + 3600)
+
+	var general PfConfGeneral
+	general.SetLoadedAt(time.Now())
+	general.SetLoadedTouchCache(globalMeta.getLastTouchCache())
+
+	if !IsValid(ctx, &general) {
+		t.Error("Resource should still be valid when pfconfig's clock is ahead of ours")
+	}
+
+	globalMeta.setLastTouchCache(now + 3601)
+
+	if IsValid(ctx, &general) {
+		t.Error("Resource should be invalid once pfconfig reports a new last touch cache")
+	}
+}
+
+// The replies to a keys query carry the last touch cache in a nested response. Not decoding it
+// resets the global one to zero, which invalidates every pfconfig resource of the process.
+func TestFetchKeysKeepsLastTouchCache(t *testing.T) {
+	var general PfConfGeneral
+	if err := FetchDecodeSocket(ctx, &general); err != nil {
+		t.Fatal(err)
+	}
+
+	keys := PfconfigKeys{PfconfigNS: "config::Pf"}
+	if err := FetchDecodeSocket(ctx, &keys); err != nil {
+		t.Fatal(err)
+	}
+
+	if globalMeta.getLastTouchCache() == 0 {
+		t.Error("Fetching the keys of a namespace reset the last touch cache")
+	}
+
+	if !IsValid(ctx, &general) {
+		t.Error("Resource was invalidated by a keys fetch although nothing was expired")
+	}
+}
+
 func BenchmarkFetchSocketSerealSimple(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn"}`+"\n")

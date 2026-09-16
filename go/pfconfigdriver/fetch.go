@@ -337,9 +337,12 @@ func FindClusterName(ctx context.Context) string {
 	return myClusterName
 }
 
-// Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
-// If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
-// If the namespace control file doesn't exist, the resource is considered invalid
+// Checks whether the last touch cache that pfconfig reported when the PfconfigObject was loaded
+// (set by FetchDecodeSocket) is still the one pfconfig reports now.
+// pfconfig touches that value every time a namespace is expired, so any change of it means the
+// resource isn't valid anymore. Only the values reported by pfconfig are compared with each
+// other, never with our own clock, so this holds when pfconfig runs with a different clock than
+// we do (another container, another cluster member) or when a clock steps backwards.
 func IsValid(ctx context.Context, o PfconfigObject) bool {
 	q := createQuery(ctx, o)
 	ns := q.basens
@@ -349,7 +352,7 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 		return false
 	} else if float64(time.Now().UnixMicro()/1000000)-globalMeta.getReloadedTouchCache() > globalMeta.getPhoneInAtLeast() {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(globalMeta.getPhoneInAtLeast()), ns))
-	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= globalMeta.getLastTouchCache() {
+	} else if o.GetLoadedTouchCache() == globalMeta.getLastTouchCache() {
 		return true
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
@@ -425,6 +428,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
 	o.SetLoadedAt(time.Now())
+	o.SetLoadedTouchCache(globalMeta.getLastTouchCache())
 
 	return nil
 }
