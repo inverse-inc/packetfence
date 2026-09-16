@@ -9,6 +9,9 @@
       gather_subset:
         - "!all"
 
+  # Packer invokes this playbook directly, without linux_servers/apt_update.yml.
+  - import_tasks: ../tasks/apt_accept_eol_release.yml
+
   tasks:
   - name: Check if samba4ad configuration is there
     ansible.builtin.lineinfile:
@@ -49,13 +52,17 @@
       register: disable_ipv6
 
     - name: Install prerequisites for Samba packages
-      ansible.builtin.package:
-        name: '{{ item }}'
+      ansible.builtin.apt:
+        name:
+          - gnupg
+          - lsb-release
+          - python3-pexpect
         state: 'present'
-      loop:
-      - gnupg
-      - lsb-release
-      - python3-pexpect
+        update_cache: yes
+      register: samba_prerequisites
+      retries: 3
+      delay: 10
+      until: samba_prerequisites is succeeded
 
     - name: Reboot
       include_tasks: ./tasks/samba4ad_reboot_tasks.yml
