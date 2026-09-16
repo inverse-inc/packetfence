@@ -1,4 +1,5 @@
 import store from '@/store'
+import { onPremOnly } from '@/utils/router'
 import BasesStoreModule from '../bases/_store'
 
 const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheTabsMain')
@@ -21,6 +22,6 @@ export default [
       can
     },
     props: () => ({ tab: 'services' }),
-    beforeEnter
+    beforeEnter: onPremOnly(beforeEnter)
   }
 ]

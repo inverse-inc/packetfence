@@ -69,6 +69,7 @@ import ConnectorsRoutes from '../connectors/_router'
 import KafkaRoutes from '../kafka/_router'
 
 import store from '@/store'
+import { onPremOnly } from '@/utils/router'
 import BasesStoreModule from '../bases/_store'
 export const beforeEnter = (to, from, next = () => { }) => {
   if (!store.state.$_bases) {
@@ -161,7 +162,8 @@ const route = {
       component: NetworkConfigurationSection,
       meta: {
         can
-      }
+      },
+      beforeEnter: onPremOnly(beforeEnter)
     },
     ...NetworksRoutes,
     ...FloatingDevicesRoutes,
