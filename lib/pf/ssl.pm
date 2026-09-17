@@ -369,11 +369,13 @@ sub verify_chain {
     $bundle .= "\n$cert_str\n";
     write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
+    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)" 2>&1`;
+    my $status = $?;
     unlink $tmpinter;
 
-    if($? != 0) {
-        get_logger->error("Chain verification failed");
+    if($status != 0) {
+        $result //= "Unable to run OpenSSL certificate verification";
+        get_logger->error("Chain verification failed: $result");
         return ($FALSE, $result);
     }
     else {
