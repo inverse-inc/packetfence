@@ -42,7 +42,7 @@ sub run {
     my ($servers_map, $version_map) = pf::cluster::get_all_config_version();
 
     # Making sure we have all available data for the decision and that there are multiple versions detected
-    if(defined($last_healthy_at) && defined($last_config_checked) && keys(%$version_map) > 1) { 
+    if(defined($last_healthy_at) && defined($last_config_checked) && keys(%$version_map) > 1) {
         my $unhealthy_for = $now - $last_healthy_at;
         # This timestamp is only ever written by this task from the node local clock, so it can
         # only be in the future if that clock stepped backwards. Restart the grace period from

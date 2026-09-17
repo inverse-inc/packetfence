@@ -248,6 +248,7 @@ func TestCreateQuery(t *testing.T) {
 // are compared with each other, otherwise every resource stays invalid and gets reloaded on
 // every single access as soon as the clocks differ.
 func TestIsValidWithPfconfigClockAhead(t *testing.T) {
+	preservePfconfigMetadata(t)
 	origLastTouchCache := globalMeta.getLastTouchCache()
 	origReloadedTouchCache := globalMeta.getReloadedTouchCache()
 	defer func() {

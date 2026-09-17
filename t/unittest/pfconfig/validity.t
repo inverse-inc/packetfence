@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 21;
 
 use Test::NoWarnings;
 
@@ -53,6 +53,40 @@ is($touched_at, $manager->control_file_timestamp($ns),
 
 $load->();
 ok($manager->is_valid($ns), "valid again once reloaded");
+
+# Simulate another writer touching the file after our futimens but before
+# touch_cache returns. The returned marker must still describe our own write.
+{
+    no warnings qw(redefine once);
+    my $touch = \&pfconfig::manager::touch_file;
+    my $own_timestamp;
+    local *pfconfig::manager::touch_file = sub {
+        $own_timestamp = $touch->(@_);
+        my $later = time + 60;
+        utime($later, $later, $_[0]) or die "cannot touch $_[0]: $!";
+        return $own_timestamp;
+    };
+    local *pfconfig::manager::config_builder = sub { return { value => 'built' } };
+    local $manager->{pfconfig_server} = 1;
+    $manager->cache_resource($ns);
+    is($manager->{control_timestamp}{$ns}, $own_timestamp,
+        "a concurrent touch is not recorded as our expiration");
+    ok(!$manager->is_valid($ns), "a concurrent expiration leaves the loaded resource invalid");
+}
+
+# An external builder cannot identify the timestamp of its remote expiration.
+# It must reload from L2 before treating its memory entry as current.
+{
+    no warnings qw(redefine once);
+    local *pfconfig::manager::config_builder = sub { return { value => 'external' } };
+    local *pfconfig::git_storage::is_enabled = sub { return 0 };
+    local *pfconfig::util::socket_expire = sub { $manager->touch_cache($ns); return 1 };
+    local $manager->{pfconfig_server} = 0;
+    $manager->cache_resource($ns);
+    ok(!$manager->is_valid($ns), "external build does not adopt an unverified control timestamp");
+    is_deeply($manager->get_cache($ns), { value => 'external' }, "external build is reloaded from L2");
+    ok($manager->is_valid($ns), "the L2 reload establishes a valid control timestamp");
+}
 
 # The process that expired the namespace has a clock an hour ahead of ours
 my $ahead = time + 3600;

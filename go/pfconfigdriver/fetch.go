@@ -228,15 +228,7 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 // Like decodeJsonInterface but returns the error instead of panicking, so an
 // empty/scalar element (e.g. an unset management_network) can't crash the daemon.
 func decodeJsonInterfaceErr(ctx context.Context, b []byte, o interface{}) error {
-	decoder := json.NewDecoder(bytes.NewReader(b))
-	for {
-		if err := decoder.Decode(&o); err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-	}
-	return nil
+	return json.Unmarshal(b, o)
 }
 
 func listPfconfigFields(ctx context.Context, t reflect.Type, previousFields []string) []string {
@@ -409,7 +401,10 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	transferMetadata(ctx, &o, &newo)
 
-	reflect.ValueOf(o).Elem().Set(reflect.ValueOf(newo).Elem())
+	// Decode into a fresh object. A failed refresh must preserve the caller's
+	// previous configuration and its validity metadata.
+	destination := o
+	o = newo
 
 	query := createQuery(ctx, o)
 
@@ -419,23 +414,29 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	if query.method == "keys" {
 		if cs, ok := o.(PfconfigKeysInt); ok {
-			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetResponse())
+			if err := decodeJsonInterfaceErr(ctx, jsonResponse, cs.GetResponse()); err != nil {
+				return fmt.Errorf("could not decode keys for %s: %w", query.GetIdentifier(), err)
+			}
 			cs.SetKeysFromResponse()
 			lastTouchCache = o.GetLastTouchCache()
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
-		decodeInterface(ctx, query.encoding, jsonResponse, &o)
+		if err := decodeJsonInterfaceErr(ctx, jsonResponse, o); err != nil {
+			return fmt.Errorf("could not decode response for %s: %w", query.GetIdentifier(), err)
+		}
 		lastTouchCache = o.GetLastTouchCache()
 	} else {
 		receiver := &PfconfigElementResponse{}
-		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
+		if err := decodeJsonInterfaceErr(ctx, jsonResponse, receiver); err != nil {
+			return fmt.Errorf("could not decode response for %s: %w", query.GetIdentifier(), err)
+		}
 		lastTouchCache = receiver.LastTouchCache
 
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
-			if err := decodeJsonInterfaceErr(ctx, b, &o); err != nil {
+			if err := decodeJsonInterfaceErr(ctx, b, o); err != nil {
 				return fmt.Errorf("could not decode element in response for %s: %w. Response was: %s", query.GetIdentifier(), err, jsonResponse)
 			}
 		} else {
@@ -456,6 +457,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	// Stamping from the global instead would let a fetch that overlaps this one move it, and this
 	// resource would then carry a touch cache that its own reply was not built with
 	o.SetLoadedTouchCache(loadedTouchCache)
+	reflect.ValueOf(destination).Elem().Set(reflect.ValueOf(o).Elem())
 
 	return nil
 }

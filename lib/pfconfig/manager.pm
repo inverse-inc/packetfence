@@ -268,9 +268,9 @@ sub touch_cache {
     $what = normalize_namespace_query($what);
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
-    touch_file($filename);
+    my $timestamp = touch_file($filename);
     $self->{last_touch_cache} = $pfconfig::cached::LAST_TOUCH_CACHE = $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
-    return ( stat($filename) )[9];
+    return $timestamp;
 }
 
 =head2 get_cache
@@ -398,8 +398,9 @@ sub cache_resource {
         if(!pfconfig::git_storage->is_enabled) {
             pfconfig::util::socket_expire(namespace => $what, light => 1);
         }
-        # The expiration was done by pfconfig, so the control file is the only place to read it
-        $control_timestamp = $self->control_file_timestamp($what);
+        # We do not know the timestamp written by the remote expiration. Leave
+        # this memory entry invalid; the next access reloads L2 with a timestamp
+        # captured before reading it, rather than adopting a concurrent touch.
     }
     $self->{memory}->{$what}       = $result;
     delete $self->{memory}->{"$ordered_prefix$what"};
