@@ -22,9 +22,15 @@ free_gb() { df -B1G --output=avail "$1" 2>/dev/null | awk 'NR==2 {print $1+0}'; 
 
 # Nearest existing ancestor, so df has a target for a path not created yet.
 existing_ancestor() {
-    local p=$1
-    while [ ! -e "${p}" ] && [ -n "${p}" ]; do p=${p%/*}; done
-    echo "${p:-/}"
+    local p=$1 parent
+    while [ -n "${p}" ] && [ ! -e "${p}" ]; do
+        parent=${p%/*}
+        [ "${parent}" = "${p}" ] && break   # slashless: trims to itself, would spin
+        p=${parent}
+    done
+    # Nothing on the path existed: use the volume it would land on.
+    [ -e "${p}" ] || case $1 in /*) p=/ ;; *) p=. ;; esac
+    echo "${p}"
 }
 
 # stderr: per-volume report; stdout: under-floor paths for the caller to
