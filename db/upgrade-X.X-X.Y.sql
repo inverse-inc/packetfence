@@ -206,6 +206,16 @@ CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acl
 DELETE FROM switch_observability WHERE switch_id IN ('', 'invalid IP', '0.0.0.0');
 
 --
+-- Bound the metadata-lock wait for every ALTER below. lock_wait_timeout defaults
+-- to 86400s, so a single blocked ALTER TABLE would park every later query on the
+-- table behind its metadata lock for up to a day. Fail fast instead -- the
+-- Add*UnlessExists helpers make a retry safe -- and stagger the rollout across
+-- tenants rather than running them all at once.
+--
+\! echo "Bounding metadata-lock wait for the metering ALTERs...";
+SET SESSION lock_wait_timeout = 5;
+
+--
 -- Record the authentication source type alongside the source id in auth_log
 --
 \! echo "Adding column source_type to auth_log...";
@@ -255,6 +265,12 @@ CALL AddColumnUnlessExists('auth_log', 'source_base_type',
 
 --
 -- Indexes for the usage-counting queries, and for the captive portal write path.
+--
+-- Each index is added by its own guarded ALTER (AddIndexUnlessExists) so a partial
+-- prior run re-runs cleanly -- combining them into one ALTER would fail the retry
+-- once any single index already existed. So this is three separate builds and three
+-- metadata-lock windows, not one combined ALTER; each is bounded by the
+-- lock_wait_timeout set above, and the rollout should be staggered across tenants.
 --
 -- auth_log_completion covers the UPDATE issued by pf::auth_log::invalidate_previous
 -- and record_completed_guest/_oauth (WHERE process_name/source/mac ORDER BY
