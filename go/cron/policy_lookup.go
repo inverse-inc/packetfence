@@ -20,7 +20,12 @@ import (
 var AnyPrefix = netip.MustParsePrefix("0.0.0.0/0")
 
 func ParseAcl(acl string) (Matcher, error) {
-	parts := strings.Fields(acl)
+	str := strings.TrimSpace(acl)
+	//Remove comment
+	if i := strings.LastIndex(str, "#"); i > 0 {
+		str = str[:i]
+	}
+	parts := strings.Fields(str)
 	if len(parts) == 0 {
 		return Matcher{}, fmt.Errorf("Invalid Syntax")
 	}
@@ -151,7 +156,7 @@ type Matcher struct {
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
-	return m.Port == ne.DestPort && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
+	return (m.Port == 0 || m.Port == ne.DestPort) && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
 }
 
 func (m *Matcher) matchDest(ne *NetworkEvent) bool {
