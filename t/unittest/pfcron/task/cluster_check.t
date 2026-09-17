@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 #This test will running last
 use Test::NoWarnings;
@@ -75,6 +75,9 @@ is(run_task(unhealthy_for => $threshold + 60, versions => { 1 => ['a', 'b'] }), 
 
 is(run_task(unhealthy_for => $threshold + 60, checked_ago => 3 * $task->interval), 0,
     "a state that hasn't been checked for more than 2 intervals is considered healthy again");
+
+is(run_task(unhealthy_for => -100), 0,
+    "a healthy timestamp from a member with a clock ahead of ours is clamped and never resolves");
 
 =head1 AUTHOR
 

@@ -44,6 +44,9 @@ sub run {
     # Making sure we have all available data for the decision and that there are multiple versions detected
     if(defined($last_healthy_at) && defined($last_config_checked) && keys(%$version_map) > 1) { 
         my $unhealthy_for = $now - $last_healthy_at;
+        # The healthy timestamp can have been written by another cluster member with a clock
+        # ahead of ours, which would make this negative and stall the resolution forever
+        $unhealthy_for = 0 if $unhealthy_for < 0;
         my $last_config_checked_interval = $now - $last_config_checked;
         
         # If we haven't checked the state in the last 2 intervals, we'll ignore any conflicts and get the latest state
