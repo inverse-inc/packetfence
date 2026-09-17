@@ -170,6 +170,7 @@ CREATE TABLE node (
   `bypass_acls` MEDIUMTEXT DEFAULT NULL,
   `source` varchar(255) default NULL,
   `source_type` varchar(255) NOT NULL default "",
+  `source_base_type` varchar(255) NOT NULL default "",
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -1243,12 +1244,13 @@ CREATE TABLE auth_log (
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
   `source_type` varchar(255) NOT NULL default "",
+  `source_base_type` varchar(255) NOT NULL default "",
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
   KEY attempted_at (attempted_at),
   KEY completed_at (completed_at),
   KEY auth_log_completion (mac, source, process_name, attempted_at),
-  KEY auth_log_billing (status, completed_at, source_type, mac)
+  KEY auth_log_billing (status, completed_at, source_base_type, mac)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

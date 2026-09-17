@@ -232,6 +232,28 @@ CALL AddColumnUnlessExists('node', 'source_type',
     'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
 
 --
+-- Record the source FAMILY alongside the concrete type.
+--
+-- source_type is the leaf: a Facebook login records 'Facebook', a Github login
+-- 'Github', and so on. Anything that wants to ask "was this a social login?" has
+-- to enumerate every provider that exists, and quietly gets the wrong answer the
+-- next time one is added.
+--
+-- source_base_type is the family, taken from the class hierarchy
+-- (pf::Authentication::Source::base_type): all six OAuth providers record
+-- 'OAuth', AD/EDIR/GoogleWorkspaceLDAP record 'LDAP', Paypal/Stripe record
+-- 'Billing'. A new provider inherits its family the moment it is written.
+--
+-- Not backfillable: existing rows keep "". Consumers must treat an empty value
+-- as UNCLASSIFIED, never as a match or a non-match.
+--
+\! echo "Adding column source_base_type to node and auth_log...";
+CALL AddColumnUnlessExists('node', 'source_base_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source_type`');
+CALL AddColumnUnlessExists('auth_log', 'source_base_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source_type`');
+
+--
 -- Indexes for the usage-counting queries, and for the captive portal write path.
 --
 -- auth_log_completion covers the UPDATE issued by pf::auth_log::invalidate_previous
@@ -250,9 +272,20 @@ CALL AddColumnUnlessExists('node', 'source_type',
 CALL AddIndexUnlessExists('auth_log', 'auth_log_completion',
     'KEY `auth_log_completion` (`mac`,`source`,`process_name`,`attempted_at`)');
 
+--
+-- The third column is source_base_type, not source_type. Filtering on a column
+-- the index does not contain does not merely lose covering -- measured on 5M
+-- rows, the optimizer dropped completed_at from the range entirely, degrading to
+-- a ref on status alone (70% of the table) and taking the query from 1.1s to
+-- over two minutes. Both columns will not fit: 1022 + 6 + 1022 + 1022 + 69 =
+-- 3141 bytes exceeds InnoDB's 3072 key limit.
+--
+-- Nothing else loses an index path by this: the report.conf reports that display
+-- source_type use date_field=attempted_at and are served by KEY attempted_at.
+--
 \! echo "Adding index auth_log_billing to auth_log...";
 CALL AddIndexUnlessExists('auth_log', 'auth_log_billing',
-    'KEY `auth_log_billing` (`status`,`completed_at`,`source_type`,`mac`)');
+    'KEY `auth_log_billing` (`status`,`completed_at`,`source_base_type`,`mac`)');
 
 \! echo "Adding index node_status_last_seen to node...";
 CALL AddIndexUnlessExists('node', 'node_status_last_seen',

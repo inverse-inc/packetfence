@@ -380,7 +380,10 @@ sub authorize {
         # therefore meaningless to anything that has not read authentication.conf,
         # so consumers cannot classify a device from the id alone.
         my $matched_source = pf::authentication::getAuthenticationSource($role->{'source'});
-        $args->{'node_info'}{'source_type'} = $matched_source ? $matched_source->type : '';
+        $args->{'node_info'}{'source_type'}      = $matched_source ? $matched_source->type      : '';
+        # The family (OAuth, LDAP, Billing...), so consumers can classify a source
+        # without enumerating every concrete type that exists.
+        $args->{'node_info'}{'source_base_type'} = $matched_source ? $matched_source->base_type : '';
     }
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};

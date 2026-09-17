@@ -66,6 +66,7 @@ BEGIN {
         bypass_acls
         source
         source_type
+        source_base_type
     );
 
     %DEFAULTS = (
@@ -102,6 +103,7 @@ BEGIN {
         bypass_acls => undef,
         source => undef,
         source_type => '',
+        source_base_type => '',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -138,6 +140,7 @@ BEGIN {
         bypass_acls
         source
         source_type
+        source_base_type
     );
 
     %FIELDS_META = (
@@ -347,6 +350,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        source_base_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -387,6 +396,7 @@ BEGIN {
         node.bypass_acls
         node.source
         node.source_type
+        node.source_base_type
     );
 
 }

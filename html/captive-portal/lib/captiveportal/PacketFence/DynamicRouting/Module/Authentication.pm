@@ -416,7 +416,10 @@ sub update_person_from_fields {
     # last-write-wins across a user's devices and cannot say how any given device
     # was registered. node.source can.
     if (defined($self->source) && defined($self->current_mac)) {
-        node_modify($self->current_mac, source => $self->source->id, source_type => $self->source->type);
+        node_modify($self->current_mac,
+            source           => $self->source->id,
+            source_type      => $self->source->type,
+            source_base_type => $self->source->base_type);
     }
 }
 

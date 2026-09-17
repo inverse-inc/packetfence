@@ -30,7 +30,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 18;
 use Utils;
 use pf::dal::node;
 use pf::node;
@@ -57,11 +57,13 @@ node_modify($mac, source => ..., source_type => ...) alongside person_modify.
     my $mac = Utils::test_mac();
     ok( node_add_simple($mac), "$mac added" );
 
-    ok( node_modify( $mac, source => 'sms1', source_type => 'SMS' ), "node_modify returned success" );
+    ok( node_modify( $mac, source => 'sms1', source_type => 'SMS', source_base_type => 'SMS' ),
+        "node_modify returned success" );
 
     my $node = fetch($mac);
-    is( $node->{source},      'sms1', "source persisted by node_modify" );
-    is( $node->{source_type}, 'SMS',  "source_type persisted by node_modify" );
+    is( $node->{source},           'sms1', "source persisted by node_modify" );
+    is( $node->{source_type},      'SMS',  "source_type persisted by node_modify" );
+    is( $node->{source_base_type}, 'SMS',  "source_base_type persisted by node_modify" );
 }
 
 =head2 the RADIUS path
@@ -77,13 +79,17 @@ covers whether the object assignment alone is sufficient.
     my ( $status, $obj ) = pf::dal::node->find_or_create( { mac => $mac } );
     ok( is_success($status), "$mac created" );
 
-    $obj->{source}      = 'ad1';
-    $obj->{source_type} = 'AD';
+    $obj->{source}           = 'ad1';
+    $obj->{source_type}      = 'AD';
+    # AD is an LDAPSource subclass, so its family is LDAP -- this is the value
+    # that lets a consumer match every directory source without listing them.
+    $obj->{source_base_type} = 'LDAP';
     ok( is_success( $obj->save ), "save returned success" );
 
     my $node = fetch($mac);
-    is( $node->{source},      'ad1', "source persisted by direct assignment + save" );
-    is( $node->{source_type}, 'AD',  "source_type persisted by direct assignment + save" );
+    is( $node->{source},           'ad1',  "source persisted by direct assignment + save" );
+    is( $node->{source_type},      'AD',   "source_type persisted by direct assignment + save" );
+    is( $node->{source_base_type}, 'LDAP', "source_base_type persisted by direct assignment + save" );
 }
 
 =head2 node_register
@@ -102,12 +108,14 @@ source_type is not deleted, which risks a half-written row.
     # reached" when no role is supplied, and node_register bails before the node
     # write. 'default' has max_nodes_per_pid = 0 (unlimited).
     my ($ok) = node_register( $mac, 'someuser@example.com',
-        category => 'default', source => 'sponsor1', source_type => 'SponsorEmail' );
+        category => 'default', source => 'sponsor1', source_type => 'SponsorEmail',
+        source_base_type => 'SponsorEmail' );
     ok( $ok, "node_register succeeded" );
 
     my $node = fetch($mac);
-    is( $node->{source},      'sponsor1',     "source survives node_register" );
-    is( $node->{source_type}, 'SponsorEmail', "source_type survives node_register" );
+    is( $node->{source},           'sponsor1',     "source survives node_register" );
+    is( $node->{source_type},      'SponsorEmail', "source_type survives node_register" );
+    is( $node->{source_base_type}, 'SponsorEmail', "source_base_type survives node_register" );
 }
 
 =head2 source_type is NOT NULL
