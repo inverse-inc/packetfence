@@ -44,9 +44,14 @@ sub run {
     # Making sure we have all available data for the decision and that there are multiple versions detected
     if(defined($last_healthy_at) && defined($last_config_checked) && keys(%$version_map) > 1) { 
         my $unhealthy_for = $now - $last_healthy_at;
-        # The healthy timestamp can have been written by another cluster member with a clock
-        # ahead of ours, which would make this negative and stall the resolution forever
-        $unhealthy_for = 0 if $unhealthy_for < 0;
+        # This timestamp is only ever written by this task from the node local clock, so it can
+        # only be in the future if that clock stepped backwards. Restart the grace period from
+        # now rather than hold a negative value for the whole duration of the step
+        if($unhealthy_for < 0) {
+            get_logger->warn("The healthy configuration timestamp is in the future, the clock has stepped backwards. Restarting the grace period");
+            $unhealthy_for = 0;
+            $cache->set('last_config_healthy_timestamp', $now);
+        }
         my $last_config_checked_interval = $now - $last_config_checked;
         
         # If we haven't checked the state in the last 2 intervals, we'll ignore any conflicts and get the latest state

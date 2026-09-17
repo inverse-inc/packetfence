@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 #This test will running last
 use Test::NoWarnings;
@@ -77,7 +77,10 @@ is(run_task(unhealthy_for => $threshold + 60, checked_ago => 3 * $task->interval
     "a state that hasn't been checked for more than 2 intervals is considered healthy again");
 
 is(run_task(unhealthy_for => -100), 0,
-    "a healthy timestamp from a member with a clock ahead of ours is clamped and never resolves");
+    "a healthy timestamp in the future is clamped and never resolves");
+
+ok($cache->get('last_config_healthy_timestamp') >= time - 1,
+    "and the grace period restarts from now instead of staying in the future");
 
 =head1 AUTHOR
 
