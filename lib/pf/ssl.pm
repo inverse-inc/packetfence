@@ -405,13 +405,17 @@ sub verify_chain {
     my $status;
     my $result = safe_pf_run(
         "openssl", "verify", "-verbose", "-CAfile", $cafile, $certfile,
-        { redirect_stderr_to_stdout => 1, status_ref => \$status },
+        # Keep diagnostics for usage/file errors (1) and verification failures
+        # (2); the status check below still rejects the chain.
+        { redirect_stderr_to_stdout => 1, status_ref => \$status,
+          accepted_exit_status => [1, 2] },
     );
     unlink $cafile;
     unlink $certfile;
 
     if (!defined($status) || $status != 0) {
-        get_logger->error("Chain verification failed");
+        $result //= "Unable to run OpenSSL certificate verification";
+        get_logger->error("Chain verification failed: $result");
         return ($FALSE, $result);
     }
     else {
