@@ -39,8 +39,13 @@ VERSION_MARKER="${WORK_DIR}/${BOX_NAME}.version"
 META_BODY=""
 ARCHIVE=""
 on_exit() {
-    rm -f ${META_BODY}
-    [ "${KEEP_BOX_ARCHIVE:-no}" = yes ] || rm -f ${ARCHIVE} ${ARCHIVE:+${ARCHIVE}.md5sums.txt}
+    # Best-effort: a cleanup failure must not mask the status that got us here.
+    local status=$?
+    [ -z "${META_BODY}" ] || rm -f "${META_BODY}" || :
+    if [ "${KEEP_BOX_ARCHIVE:-no}" != yes ] && [ -n "${ARCHIVE}" ]; then
+        rm -f "${ARCHIVE}" "${ARCHIVE}.md5sums.txt" || :
+    fi
+    return "${status}"
 }
 trap on_exit EXIT
 
