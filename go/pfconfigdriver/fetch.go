@@ -445,11 +445,17 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	// Only a reply we could decode updates the last touch cache, so a failed fetch above leaves
 	// the resources that are loaded alone instead of sending all of them back to pfconfig
-	updateLastTouchCache(ctx, lastTouchCache, query.GetIdentifier())
+	loadedTouchCache := lastTouchCache
+	if !updateLastTouchCache(ctx, lastTouchCache, query.GetIdentifier()) {
+		// The reply carried none, so the global is the only value we can stamp this one with
+		loadedTouchCache = globalMeta.getLastTouchCache()
+	}
 
 	globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
 	o.SetLoadedAt(time.Now())
-	o.SetLoadedTouchCache(globalMeta.getLastTouchCache())
+	// Stamping from the global instead would let a fetch that overlaps this one move it, and this
+	// resource would then carry a touch cache that its own reply was not built with
+	o.SetLoadedTouchCache(loadedTouchCache)
 
 	return nil
 }
