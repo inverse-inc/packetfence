@@ -18,6 +18,32 @@ func TestMatcher(t *testing.T) {
 	}{
 		{
 
+			in: "permit tcp any any",
+			out: Matcher{
+
+				Action: "permit",
+				Proto:  IpProtocol("tcp"),
+				Port:   0,
+				SrcNet: AnyPrefix,
+				DstNet: AnyPrefix,
+				Op:     "",
+			},
+		},
+		{
+
+			in: "permit tcp any any #Supports comments",
+			out: Matcher{
+
+				Action: "permit",
+				Proto:  IpProtocol("tcp"),
+				Port:   0,
+				SrcNet: AnyPrefix,
+				DstNet: AnyPrefix,
+				Op:     "",
+			},
+		},
+		{
+
 			in: "permit tcp any any eq 18",
 			out: Matcher{
 
@@ -447,9 +473,9 @@ func TestMatchNetworkEvent(t *testing.T) {
 		{
 			"permit tcp any any",
 			NetworkEvent{
-				DestPort:   0,
-				SourceIp:   netip.AddrFrom4([4]byte{0, 0, 0, 0}),
-				DestIp:     netip.AddrFrom4([4]byte{0, 0, 0, 0}),
+				DestPort:   12,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
 				IpProtocol: IpProtocolTcp,
 			},
 			true,
@@ -746,3 +772,37 @@ func TestPolicyLoad(t *testing.T) {
 	}
 
 }
+
+/*
+func TestPolicyLookup(t *testing.T) {
+	lookup := PolicyLookup{}
+	err := json.Unmarshal([]byte(RolesPoliciesMapJSON2), &lookup)
+	if err != nil {
+		t.Fatalf("json.Unmarshal: %v", err)
+	}
+
+	lookup.UpdateMatchers()
+	ne := NetworkEvent{
+		DestPort:   222,
+		SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+		DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+		IpProtocol: IpProtocolUdp,
+		DestInventoryitem: &InventoryItem{
+			ExternalIDS: []string{"00:50:56:9d:44:ca"},
+		},
+	}
+
+	if diff := cmp.Diff(
+		lookup.LookupByRoles("IoT-Lighting", &ne),
+		&EnforcementInfo{
+			RuleID:              "d2cdcbd9-5acd-4021-ba96-fdecbbf77473/",
+			Verdict:             "allow",
+			PolicyRevision:      66,
+			DcInventoryRevision: 1727715416,
+		},
+	); diff != "" {
+		t.Fatalf("LookupByRoles does not match %s", diff)
+	}
+
+}
+*/
