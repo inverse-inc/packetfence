@@ -34,10 +34,21 @@ use Test::More tests => 18;
 use Utils;
 use pf::dal::node;
 use pf::node;
+use pf::api::queue;
 use pf::error qw(is_success);
 
 #This test will running last
 use Test::NoWarnings;
+
+# node_register and the node create hook enqueue jobs onto the pfqueue redis
+# (trigger_security_event / node_discovered). This test is about what lands in
+# the node row, not the queue, so stub the enqueue to a no-op -- exactly as
+# t/unittest/dal.t does -- rather than requiring a live redis on :6380.
+{
+    no warnings 'redefine';
+    *pf::api::queue::notify         = sub { };
+    *pf::api::queue::notify_delayed = sub { };
+}
 
 # Re-read a node straight from the database.
 sub fetch {
