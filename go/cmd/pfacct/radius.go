@@ -362,6 +362,35 @@ func (h *PfAcct) enqueueAAANotify(ctx context.Context, m mac.Mac, attr map[strin
 	h.SendGauge(fmt.Sprintf("pfacct.aaaNotify[%d]", queueIndex), len(h.aaaNotifyQueues[queueIndex]))
 }
 
+// rateLimitTtl is how long a session stays registered in the rate-limit
+// caches. SetupConfig already floors the configured value, but go-cache reads
+// a non-positive duration as "never expires", so guard it here too: a PfAcct
+// built without SetupConfig would otherwise pin every session forever.
+func (h *PfAcct) rateLimitTtl() time.Duration {
+	if h.PfacctRateLimitCacheTtl <= 0 {
+		return DefaultRateLimitCacheTtl * time.Minute
+	}
+
+	return time.Duration(h.PfacctRateLimitCacheTtl) * time.Minute
+}
+
+// recordLocation notes where this MAC is now and drops the Start key cached
+// for the location it came from, so that roaming back within the TTL is not
+// mistaken for a repeat and suppressed -- locationlog would then never be
+// refreshed for the location it returned to.
+//
+// It belongs on every path that moves a MAC, not just on Start: a device that
+// roams and is only seen again through an Interim-Update registers the new
+// location here too, and leaving the old Start key behind is what made a later
+// Start on the original NAS look like a duplicate.
+func (h *PfAcct) recordLocation(macAddress mac.Mac, callingStationId string, macLocValue interface{}) {
+	if old, exists := h.MacNasCache.Get(macAddress.String()); exists && old != macLocValue {
+		h.RateLimitCache.Delete("Start" + "-" + old.(string) + "-" + callingStationId)
+	}
+
+	h.MacNasCache.Set(macAddress.String(), macLocValue, h.rateLimitTtl())
+}
+
 func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatusType) bool {
 
 	NasIp, NasIPExists := attr["NAS-IP-Address"]
@@ -378,8 +407,6 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 	} else {
 		macAddress, _ = mac.NewFromString(CallingStationId.(string))
 	}
-
-	macOldLocation, macOldLocationExists := h.MacNasCache.Get(macAddress.String())
 
 	// Generate the keys
 	if CalledStationIdExists {
@@ -399,21 +426,19 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 		ip, exists := h.RateLimitCache.Get(key)
 		if !exists {
 			if FramedIPAddressExists {
-				h.RateLimitCache.Set(key, FramedIPAddress.(string), time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				h.RateLimitCache.Set(key, FramedIPAddress.(string), h.rateLimitTtl())
 			} else {
-				h.RateLimitCache.Set(key, "0.0.0.0", time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				h.RateLimitCache.Set(key, "0.0.0.0", h.rateLimitTtl())
 			}
-			// Purge old Start entry
-			if macOldLocationExists && macOldLocation != macLocValue {
-				// Replace the location
-				h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-				h.RateLimitCache.Delete("Start" + "-" + macOldLocation.(string) + "-" + CallingStationId.(string))
-			}
+			// Unconditionally: the location has to be recorded on a device's
+			// very first Start too, otherwise MacNasCache stays empty and the
+			// purge can never fire.
+			h.recordLocation(macAddress, CallingStationId.(string), macLocValue)
 			return true
 		} else {
 			if FramedIPAddressExists && FramedIPAddress != ip.(string) {
-				h.RateLimitCache.Set(key, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-				h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				h.RateLimitCache.Set(key, FramedIPAddress, h.rateLimitTtl())
+				h.recordLocation(macAddress, CallingStationId.(string), macLocValue)
 				return true
 			} else {
 				return false
@@ -425,30 +450,43 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 		if FramedIPAddressExists {
 			framedIP = FramedIPAddress.(string)
 		}
-		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
+		return h.handleInterim(keyStart, framedIP, FramedIPAddressExists, macAddress, CallingStationId.(string), macLocValue)
 	}
 	if rfc2866.AcctStatusType_Strings[status] == "Stop" {
-		framedIP := ""
-		if FramedIPAddressExists {
-			framedIP = FramedIPAddress.(string)
-		}
-		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
+		// A session's Stop must always reach the AAA layer: locationlog close,
+		// unreg_on_acct_stop and floating-device handling depend on it. Drop
+		// the session's Start key so the next session re-registers.
+		h.RateLimitCache.Delete(keyStart)
+		return true
 	}
 	return false
 }
 
-// handleInterimOrStop encapsulates the duplicated logic for "Interim-Update" and "Stop" status handling in rateLimit.
-func (h *PfAcct) handleInterimOrStop(keyStart string, FramedIPAddress string, FramedIPAddressExists bool, macAddress net.HardwareAddr, macLocValue interface{}) bool {
+// handleInterim encapsulates the "Interim-Update" status handling in rateLimit.
+func (h *PfAcct) handleInterim(keyStart string, FramedIPAddress string, FramedIPAddressExists bool, macAddress mac.Mac, callingStationId string, macLocValue interface{}) bool {
 	ip, exists := h.RateLimitCache.Get(keyStart)
-	if exists {
-		if FramedIPAddressExists && FramedIPAddress != ip.(string) {
-			h.RateLimitCache.Set(keyStart, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-			h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-			return true
-		} else {
-			return false
+	if !exists {
+		// Nothing cached for this session: either it started before pfacct
+		// did, or the key aged out while the session kept running - sessions
+		// routinely outlive the TTL. Registering it and letting this packet
+		// through costs one forwarded Interim-Update per session per TTL and
+		// re-arms the IP change detection below; dropping it would silence
+		// the session, and any later IP change with it, for good.
+		registered := "0.0.0.0"
+		if FramedIPAddressExists {
+			registered = FramedIPAddress
 		}
+		h.RateLimitCache.Set(keyStart, registered, h.rateLimitTtl())
+		h.recordLocation(macAddress, callingStationId, macLocValue)
+		return true
 	}
+
+	if FramedIPAddressExists && FramedIPAddress != ip.(string) {
+		h.RateLimitCache.Set(keyStart, FramedIPAddress, h.rateLimitTtl())
+		h.recordLocation(macAddress, callingStationId, macLocValue)
+		return true
+	}
+
 	return false
 }
 
