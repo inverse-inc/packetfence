@@ -573,6 +573,18 @@ type ClusterSummary struct {
 	MultiZoneEnabled int `json:"multi_zone_enabled"`
 }
 
+// PfConfPfdhcp is the [pfdhcp] section of pf.conf. mac2ip_lookup decides
+// whether pf::ip4log::mac2ip asks pfdhcp for a MAC's current IP before falling
+// back to the SQL table, which changes which ip4log entry update_ip4log closes.
+type PfConfPfdhcp struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"pfdhcp"`
+	Mac2ipLookup   string `json:"mac2ip_lookup"`
+	Ip2macLookup   string `json:"ip2mac_lookup"`
+}
+
 type PfConfAdvanced struct {
 	StructConfig
 	PfconfigMethod                   string   `val:"hash_element"`

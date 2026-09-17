@@ -39,41 +39,45 @@ type radiusRequest struct {
 
 type PfAcct struct {
 	RadiusStatements
-	TimeDuration            time.Duration
-	Db                      *sql.DB
-	AllowedNetworks         []net.IPNet
-	NetFlowPort             string
-	NetFlowAddress          string
-	Management              pfconfigdriver.ManagementNetwork
-	AAAClient               *jsonrpc2.Client
-	LoggerCtx               context.Context
-	Dispatcher              *Dispatcher
-	SwitchInfoCache         *cache.Cache
-	NodeSessionCache        *cache.Cache
-	AcctSessionCache        *cache.Cache
-	RateLimitCache          *cache.Cache
-	MacNasCache             *cache.Cache
-	SessionOnlineCache      *cache.Cache
-	RateLimit               bool
-	PfacctRateLimitCacheTtl int
-	StatsdAddress           string
-	StatsdOption            statsd.Option
-	StatsdClient            *statsd.Client
-	radiusRequests          []chan<- radiusRequest
-	aaaNotifyQueues         []chan<- aaaNotifyJob
-	aaaNotifyDropped        atomic.Int64
-	localSecret             string
-	unifiedSecret           string
-	StatsdOnce              tryableonce.TryableOnce
-	isProxied               bool
-	radiusdAcctEnabled      bool
-	AllNetworks             bool
-	ProcessBandwidthAcct    bool
-	RadiusWorkers           int
-	RadiusWorkQueueSize     int
-	SocketRecvBuffer        int
-	AAANotifyWorkers        int
-	AAANotifyQueueSize      int
+	TimeDuration              time.Duration
+	Db                        *sql.DB
+	AllowedNetworks           []net.IPNet
+	NetFlowPort               string
+	NetFlowAddress            string
+	Management                pfconfigdriver.ManagementNetwork
+	AAAClient                 *jsonrpc2.Client
+	LoggerCtx                 context.Context
+	Dispatcher                *Dispatcher
+	SwitchInfoCache           *cache.Cache
+	NodeSessionCache          *cache.Cache
+	AcctSessionCache          *cache.Cache
+	RateLimitCache            *cache.Cache
+	MacNasCache               *cache.Cache
+	SessionOnlineCache        *cache.Cache
+	LastSeenCache             *cache.Cache
+	Ip4logCache               *cache.Cache
+	RateLimit                 bool
+	PfacctRateLimitCacheTtl   int
+	UpdateIplogWithAccounting bool
+	Mac2ipLookup              bool
+	StatsdAddress             string
+	StatsdOption              statsd.Option
+	StatsdClient              *statsd.Client
+	radiusRequests            []chan<- radiusRequest
+	aaaNotifyQueues           []chan<- aaaNotifyJob
+	aaaNotifyDropped          atomic.Int64
+	localSecret               string
+	unifiedSecret             string
+	StatsdOnce                tryableonce.TryableOnce
+	isProxied                 bool
+	radiusdAcctEnabled        bool
+	AllNetworks               bool
+	ProcessBandwidthAcct      bool
+	RadiusWorkers             int
+	RadiusWorkQueueSize       int
+	SocketRecvBuffer          int
+	AAANotifyWorkers          int
+	AAANotifyQueueSize        int
 }
 
 func NewPfAcct(logLevel string) *PfAcct {
@@ -165,9 +169,10 @@ func makeAAANotifiers(h *PfAcct, workers, backlog int) []chan<- aaaNotifyJob {
 
 // reportAAADrops periodically logs how many radius_accounting notifications
 // were dropped because the notifier queues were saturated. Drops here do not
-// affect node online/offline status (written synchronously by the accounting
-// workers); they only mean some accounting side effects (ip4log, locationlog,
-// triggers) were skipped while httpd.aaa could not keep up.
+// affect what the accounting workers write themselves (node online/offline
+// status, node.last_seen, the ip4log entry); they only mean the side effects
+// that still live in httpd.aaa (locationlog, firewall SSO, scans, Fingerbank)
+// were skipped while it could not keep up.
 func (pfAcct *PfAcct) reportAAADrops() {
 	go func() {
 		for {
@@ -234,6 +239,28 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	}
 	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	pfAcct.MacNasCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
+	// A TTL of 0 would make go-cache entries permanent, freezing last_seen and
+	// ip4log after their first write; floor the refresh interval instead.
+	refreshTtl := time.Duration(pfAcct.PfacctRateLimitCacheTtl) * time.Minute
+	if refreshTtl <= 0 {
+		refreshTtl = 5 * time.Minute
+	}
+	pfAcct.LastSeenCache = cache.New(refreshTtl, 10*time.Minute)
+	pfAcct.Ip4logCache = cache.New(refreshTtl, 10*time.Minute)
+	pfAcct.UpdateIplogWithAccounting = sharedutils.IsEnabled(keyConfAdvanced.UpdateIplogWithAccounting)
+
+	// When pfdhcp.mac2ip_lookup is on, pf::ip4log::mac2ip resolves the previous
+	// IP through the pfdhcp API before falling back to SQL. pfacct has only the
+	// SQL half, so it hands the whole ip4log primitive back to httpd.aaa rather
+	// than close a different entry than update_ip4log would; see updateIp4log.
+	keyConfPfdhcp := pfconfigdriver.PfConfPfdhcp{}
+	keyConfPfdhcp.PfconfigNS = "config::Pf"
+	keyConfPfdhcp.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfPfdhcp)
+	pfAcct.Mac2ipLookup = sharedutils.IsEnabled(keyConfPfdhcp.Mac2ipLookup)
+	if pfAcct.UpdateIplogWithAccounting && pfAcct.Mac2ipLookup {
+		logInfo(ctx, "pfdhcp.mac2ip_lookup is enabled: leaving the ip4log accounting updates to httpd.aaa")
+	}
 	if !pfAcct.ProcessBandwidthAcct {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
 	}
