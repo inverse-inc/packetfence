@@ -257,6 +257,8 @@ sub init_cache {
 
 Updates the timestamp on the control file
 That sends the signal that the raw memory is expired
+Returns the timestamp of the expiration it just did, so a caller can record that one rather
+than whichever one the control file carries by the time it gets around to reading it itself
 
 =cut
 
@@ -268,6 +270,7 @@ sub touch_cache {
     $filename = untaint_chain($filename);
     touch_file($filename);
     $self->{last_touch_cache} = $pfconfig::cached::LAST_TOUCH_CACHE = $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
+    return ( stat($filename) )[9];
 }
 
 =head2 get_cache
@@ -384,19 +387,23 @@ sub cache_resource {
     } else {
         $logger->trace("Cache write gave : $cache_w");
     }
+    my $control_timestamp;
     if($self->{pfconfig_server}) {
-        $self->touch_cache($what);
+        # Keep the timestamp of the expiration we just did instead of reading the control file
+        # again below, where an expiration by another process would be taken for ours and make
+        # this result look like it already accounts for it
+        $control_timestamp = $self->touch_cache($what);
     }
     else {
         if(!pfconfig::git_storage->is_enabled) {
             pfconfig::util::socket_expire(namespace => $what, light => 1);
         }
+        # The expiration was done by pfconfig, so the control file is the only place to read it
+        $control_timestamp = $self->control_file_timestamp($what);
     }
     $self->{memory}->{$what}       = $result;
     delete $self->{memory}->{"$ordered_prefix$what"};
-    # Read the control file timestamp after it has been touched above so it is the
-    # one of the expiration we just did
-    $self->{control_timestamp}->{$what} = $self->control_file_timestamp($what);
+    $self->{control_timestamp}->{$what} = $control_timestamp;
 
     return $result;
 

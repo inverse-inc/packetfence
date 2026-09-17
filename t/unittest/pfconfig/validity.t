@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 
 use Test::NoWarnings;
 
@@ -46,8 +46,10 @@ ok(-f $control_file, "the missing control file got created");
 $load->();
 ok($manager->is_valid($ns), "valid once loaded");
 
-$manager->touch_cache($ns);
+my $touched_at = $manager->touch_cache($ns);
 ok(!$manager->is_valid($ns), "invalid after the namespace was expired");
+is($touched_at, $manager->control_file_timestamp($ns),
+    "touch_cache reports the timestamp of the expiration it did, which is what cache_resource records");
 
 $load->();
 ok($manager->is_valid($ns), "valid again once reloaded");
