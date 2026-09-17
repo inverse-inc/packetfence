@@ -158,28 +158,21 @@ $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_ce
 sub generate_radius_bundle {
     my ($name) = @_;
     my $dir = File::Temp::tempdir(CLEANUP => 1);
-    # The CA is signed through "x509 -req" rather than "req -x509" so that the
-    # extensions below are the only ones present. "req -x509" adds its own
-    # basicConstraints, which would end up duplicated and make OpenSSL reject
-    # the certificate as an issuer.
-    write_file("$dir/ca.ext", "basicConstraints=critical,CA:TRUE\n"
-        . "keyUsage=critical,keyCertSign,cRLSign\n"
-        . "subjectKeyIdentifier=hash\n");
     write_file("$dir/server.ext", "basicConstraints=critical,CA:FALSE\n"
         . "keyUsage=critical,digitalSignature,keyEncipherment\n"
         . "extendedKeyUsage=serverAuth\n");
     my @commands = (
         ['genrsa', '-out', "$dir/ca.key", '2048'],
-        ['req', '-new', '-batch', '-key', "$dir/ca.key",
-         '-subj', "/CN=$name CA", '-out', "$dir/ca.csr"],
-        ['x509', '-req', '-in', "$dir/ca.csr", '-signkey', "$dir/ca.key",
-         '-set_serial', '1', '-sha256', '-days', '30',
-         '-extfile', "$dir/ca.ext", '-out', "$dir/ca.crt"],
+        ['req', '-new', '-x509', '-batch', '-key', "$dir/ca.key",
+         '-sha256', '-days', '30', '-subj', "/CN=$name CA",
+         '-addext', 'basicConstraints=critical,CA:TRUE',
+         '-addext', 'keyUsage=critical,keyCertSign,cRLSign',
+         '-out', "$dir/ca.crt"],
         ['genrsa', '-out', "$dir/server.key", '2048'],
         ['req', '-new', '-batch', '-key', "$dir/server.key",
          '-subj', "/CN=$name server", '-out', "$dir/server.csr"],
         ['x509', '-req', '-in', "$dir/server.csr", '-CA', "$dir/ca.crt",
-         '-CAkey', "$dir/ca.key", '-set_serial', '2', '-sha256',
+         '-CAkey', "$dir/ca.key", '-set_serial', '1', '-sha256',
          '-days', '30', '-extfile', "$dir/server.ext", '-out', "$dir/server.crt"],
     );
     for my $args (@commands) {

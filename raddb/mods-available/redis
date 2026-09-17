@@ -10,7 +10,7 @@
 redis {
 	#  Host where the redis server is located.
 	#  We recommend using ONLY 127.0.0.1 !
-	server = containers-gateway.internal
+	server = 127.0.0.1
 
 	#  The default port.
 	port = 6379
@@ -95,10 +95,10 @@ redis {
 redis redis_ntlm {
 	#  Host where the redis server is located.
 	#  We recommend using ONLY 127.0.0.1 !
-        server = containers-gateway.internal
+	server = 127.0.0.1
 
-        #  The default port.
-        port = 6383
+	#  The default port.
+	port = 6383
 
 	#  The password used to authenticate to the server.
 	#  We recommend using a strong password.
