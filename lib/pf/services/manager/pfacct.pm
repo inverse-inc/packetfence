@@ -69,9 +69,12 @@ sub generate_container_environments {
     my $port_save;
     my $listeningIp = "";
     if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
-        my $management_ip = $management_network->tag('ip');
-        $port = "-p $management_ip:1823:1813/udp";
-        $port_save = "1823"
+        $port_save = "1823";
+        # management_network stays undef until the mgmt interface is configured (configurator)
+        if (ref($management_network)) {
+            my $management_ip = $management_network->tag('ip');
+            $port = "-p $management_ip:1823:1813/udp";
+        }
     }
     if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
         $port = "-p 1833:1813/udp";

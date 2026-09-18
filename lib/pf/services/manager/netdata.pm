@@ -66,10 +66,15 @@ sub generateConfig {
     my $logger = get_logger();
     my %tags;
 
+    # management_network stays undef until the mgmt interface is configured (configurator)
+    my $has_mgmt = ref($management_network) ? 1 : 0;
+    my $mgmt_ip  = $has_mgmt ? $management_network->tag('ip')  : '';
+    my $mgmt_vip = $has_mgmt ? $management_network->tag('vip') : undef;
+
     $tags{'hosts_cluster_members'} = '';
-    if ($cluster_enabled) {
+    if ($cluster_enabled && $has_mgmt) {
         my $int = $management_network->tag('int');
-        $tags{'hosts_cluster_members'} = join(",", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
+        $tags{'hosts_cluster_members'} = join(",", grep( {$_ ne $mgmt_ip} values %{pf::cluster::members_ips($int)}));
     }
 
     $tags{'hosts_dns'} = join(",", @{pf::util::dns::get_resolv_dns_servers()});
@@ -163,10 +168,7 @@ EOT
     }
 
     $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
-    $tags{'management_ip'}
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
+    $tags{'management_ip'} = $mgmt_vip // $mgmt_ip;
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
@@ -175,7 +177,7 @@ EOT
     } else {
         $tags{'db_dsn'} = "$Config{'database'}{'user'}:$Config{'database'}{'pass'}\@tcp($tags{'management_ip'}:$Config{'database'}{'port'})/$Config{'database'}{'db'}";
     }
-    $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $management_network->tag('vip') || $management_network->tag('ip');
+    $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $mgmt_vip || $mgmt_ip;
     $tags{'statsd_listen_port'} = $Config{'advanced'}{'statsd_listen_port'};
 
     parse_template( \%tags, "$conf_dir/monitoring/netdata.conf", "$generated_conf_dir/monitoring/netdata.conf" );
