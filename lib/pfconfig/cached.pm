@@ -127,8 +127,8 @@ sub get_from_subcache {
             return $res;
         }
         else {
-            $self->{_subcache}    = {};
-            $self->{memorized_at} = time;
+            $self->{_subcache} = {};
+            delete $self->{memorized_touch_cache};
             return undef;
         }
     }
@@ -143,7 +143,10 @@ Sets an element in the subcache so it can be reused across accesses
 
 sub set_in_subcache {
     my ($self, $key, $result) = @_;
-    $self->{memorized_at} //= time;
+    # $LAST_TOUCH_CACHE has just been refreshed by the fetch that gave us $result.
+    # Keeping the first value seen since the subcache was emptied means that a touch
+    # that happened while the subcache was being filled invalidates all of it
+    $self->{memorized_touch_cache} //= $LAST_TOUCH_CACHE;
     $self->{_subcache}{$key} = $result;
 }
 
@@ -236,7 +239,7 @@ sub _get_from_socket {
             print STDERR "$what $response";
             die $@;
         }
-        $LAST_TOUCH_CACHE = $result->{last_touch_cache} // 0;
+        $LAST_TOUCH_CACHE = $result->{last_touch_cache} // $LAST_TOUCH_CACHE;
         $RELOADED_TOUCH_CACHE = time;
     }
     else {
@@ -280,7 +283,7 @@ sub is_valid {
 
     my $phone_in_at_least = $pfconfig::constants::LAST_TOUCH_CACHE_STALENESS;
 
-    my $memory_timestamp = $self->{memorized_at} // 0;
+    my $memorized_touch_cache = $self->{memorized_touch_cache};
 
     if($LAST_TOUCH_CACHE == 0) {
         $logger->debug("Memory configuration was never loaded. Considering $what as invalid do the initial load.");
@@ -290,7 +293,11 @@ sub is_valid {
         $logger->debug("LAST_TOUCH_CACHE is more than $phone_in_at_least seconds old. Considering $what as invalid to reload it.");
         return 0;
     }
-    elsif ( $memory_timestamp >= $LAST_TOUCH_CACHE ) {
+    # pfconfig sends its last touch cache in every reply, so a change of that value
+    # means something was expired since we filled the subcache. Comparing the two
+    # values we got from pfconfig instead of comparing one of them to our own clock
+    # keeps this working when pfconfig runs with a different clock than we do
+    elsif ( defined($memorized_touch_cache) && $memorized_touch_cache == $LAST_TOUCH_CACHE ) {
         $logger->trace( sub { "Memory configuration is still valid for key $what in local cached object" });
         return 1;
     }
