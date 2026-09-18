@@ -389,7 +389,12 @@ sub generate_radiusd_redisconf {
     $tags{'redis_ntlm_cache_host'} = $Config{services}{redis_ntlm_cache_host} || "127.0.0.1";
     $tags{'redis_ntlm_cache_port'} = $Config{services}{redis_ntlm_cache_port} || "6383";
 
-    $tt->process("$conf_dir/radiusd/redis.conf", \%tags, "$install_dir/raddb/mods-enabled/redis") or die $tt->error();
+    my $output = "$install_dir/raddb/mods-enabled/redis";
+    # this path used to be a symlink to mods-available/redis, writing through it
+    # would clobber the stock module config instead of generating a new file
+    unlink($output) if -l $output;
+
+    $tt->process("$conf_dir/radiusd/redis.conf", \%tags, $output) or die $tt->error();
 }
 
 sub generate_radiusd_authconf {
