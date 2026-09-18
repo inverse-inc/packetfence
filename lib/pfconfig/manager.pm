@@ -387,21 +387,17 @@ sub cache_resource {
     } else {
         $logger->trace("Cache write gave : $cache_w");
     }
+    if (!$self->{pfconfig_server} && !pfconfig::git_storage->is_enabled) {
+        pfconfig::util::socket_expire(namespace => $what, light => 1);
+    }
     my $control_timestamp;
-    if($self->{pfconfig_server}) {
-        # Keep the timestamp of the expiration we just did instead of reading the control file
-        # again below, where an expiration by another process would be taken for ours and make
-        # this result look like it already accounts for it
+    if ($self->{pfconfig_server} || !$cache_w) {
+        # Keep our own expiration marker, including when bootstrap has no L2.
+        # Reading it back could adopt a concurrent writer's expiration.
         $control_timestamp = $self->touch_cache($what);
     }
-    else {
-        if(!pfconfig::git_storage->is_enabled) {
-            pfconfig::util::socket_expire(namespace => $what, light => 1);
-        }
-        # We do not know the timestamp written by the remote expiration. Leave
-        # this memory entry invalid; the next access reloads L2 with a timestamp
-        # captured before reading it, rather than adopting a concurrent touch.
-    }
+    # External builds successfully written to L2 stay invalid until reloaded:
+    # we do not know the timestamp of their remote expiration.
     $self->{memory}->{$what}       = $result;
     delete $self->{memory}->{"$ordered_prefix$what"};
     $self->{control_timestamp}->{$what} = $control_timestamp;
@@ -658,4 +654,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

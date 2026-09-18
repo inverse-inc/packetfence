@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 
 use Test::NoWarnings;
 
@@ -87,6 +87,52 @@ ok($manager->is_valid($ns), "valid again once reloaded");
     is_deeply($manager->get_cache($ns), { value => 'external' }, "external build is reloaded from L2");
     ok($manager->is_valid($ns), "the L2 reload establishes a valid control timestamp");
 }
+
+subtest 'external builds remain usable before the database is configured' => sub {
+    {
+        package BootstrapUnavailableCache;
+        sub get { $_[0]->{reads}++; return undef }
+        sub set { $_[0]->{writes}++; return undef }
+    }
+    no warnings qw(redefine once);
+    my $builds = 0;
+    my $expirations = 0;
+    my $backend = bless { reads => 0, writes => 0 }, 'BootstrapUnavailableCache';
+    local $manager->{cache} = $backend;
+    local $manager->{pfconfig_server} = 0;
+    local *pfconfig::manager::config_builder = sub { return { build => ++$builds } };
+    local *pfconfig::git_storage::is_enabled = sub { return 0 };
+    local *pfconfig::util::socket_expire = sub {
+        $expirations++;
+        $manager->touch_cache($ns);
+        return 1;
+    };
+    delete $manager->{memory}{$ns};
+    is_deeply($manager->get_cache($ns), { build => 1 }, 'build succeeds without L2');
+    for (1 .. 3) {
+        is_deeply($manager->get_cache($ns), { build => 1 }, 'reuse the bootstrap configuration');
+    }
+    is($builds, 1, 'repeated reads do not rebuild configuration');
+    is($backend->{reads}, 1, 'repeated reads do not retry the unavailable database');
+    is($backend->{writes}, 1, 'only the initial build attempts an L2 write');
+    is($expirations, 1, 'the server still receives the expiration');
+
+    my $later = time + 60;
+    utime($later, $later, $control_file) or die "cannot touch $control_file: $!";
+    ok(!$manager->is_valid($ns), 'another expiration invalidates the bootstrap configuration');
+    is_deeply($manager->get_cache($ns), { build => 2 }, 'reload configuration after expiration');
+    ok($manager->is_valid($ns), 'the rebuilt configuration is reusable');
+
+    my $touch = \&pfconfig::manager::touch_file;
+    local *pfconfig::manager::touch_file = sub {
+        my $own_timestamp = $touch->(@_);
+        utime($later, $later, $_[0]) or die "cannot touch $_[0]: $!";
+        return $own_timestamp;
+    };
+    $manager->cache_resource($ns);
+    ok(!$manager->is_valid($ns), 'fallback does not adopt a concurrent expiration');
+    done_testing;
+};
 
 # The process that expired the namespace has a clock an hour ahead of ours
 my $ahead = time + 3600;
