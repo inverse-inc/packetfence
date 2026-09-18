@@ -121,7 +121,7 @@
     />
 
     <form-group-jq-query :column-label="$i18n.t('JQ query')"
-                         :text="$i18n.t('The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails.')"
+                         :text="$i18n.t('The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails. The query runs with no access to the process environment (env and $ENV are empty) and cannot include or import jq modules from disk.')"
                          namespace="jq_query"
     />
 
