@@ -646,7 +646,11 @@ sub node_register {
                     'source'  => $info{'source'},
                     'portal'  => $info{'portal'},
     );
-    delete $info{'source'};
+    # 'portal' is not a node column, so it must not reach node_modify. 'source' is
+    # kept: node.source records which authentication source registered *this
+    # device*, which person.source cannot express -- person is 1:N with node, so it
+    # is last-write-wins across all of a user's devices. Dropping it here left rows
+    # with source_type set and source NULL, since source_type was never stripped.
     delete $info{'portal'};
 
     # if it's for auto-registration and mac is already registered, we are done
