@@ -13,7 +13,7 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-sass": "^3.1.0",
     "inuitcss": "^6.0.0",
-    "postcss": "^8.4.31",
+    "postcss": "^8.5.26",
     "postcss-custom-properties": "^13.0.0",
     "sass": "^1.81.0",
     "time-grunt": "^2.0.0"
