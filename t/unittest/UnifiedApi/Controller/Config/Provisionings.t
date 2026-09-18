@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 78;
+use Test::More tests => 85;
 use Test::Mojo;
 
 #This test will running last
@@ -142,6 +142,15 @@ $t->post_ok($collection_base_url => json => {
     jq_query => '.devices | bogus_fn',
 })->status_is(422);
 
+# a query that would pull definitions in from a .jq file on disk is rejected
+# with the same validation, rather than at the first authorization
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_include_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    jq_query => 'include "evil"; .status == "enrolled"',
+})->status_is(422);
+
 # a valid query using brackets compiles and saves
 my $bracket_id = "id_generic_http_brackets_$$";
 $t->post_ok($collection_base_url => json => {
@@ -194,6 +203,19 @@ $t->post_ok("$collection_base_url/test_jq" => json => {
     jq_query => '.status',
     json     => 'not json',
 })->status_is(422);
+
+# the tester compiles the query the way the provisioner does: no modules from
+# disk, and no reading the environment of the process answering the request
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => 'include "evil"; .status',
+    json     => '{"status":"enrolled"}',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => 'env.PATH',
+    json     => '{}',
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->false);
 
 $t->post_ok("$collection_base_url/test_jq" => json => {
     jq_query => '.status',

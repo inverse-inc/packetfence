@@ -11,7 +11,6 @@ Form definition of the generic HTTP provisioner
 =cut
 
 use HTML::FormHandler::Moose;
-use JQ::XS;
 use pf::mini_template;
 use pf::provisioner::generic_http;
 extends 'pfappserver::Form::Config::Provisioning';
@@ -148,7 +147,7 @@ has_field 'jq_query' =>
    required => 1,
    validate_method => \&validate_jq_query,
    tags => { after_element => \&help,
-             help => 'The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails.' },
+             help => 'The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails. The query runs with no access to the process environment (env and $ENV are empty) and cannot include or import jq modules from disk.' },
   );
 
 =head2 validate_template
@@ -221,7 +220,10 @@ sub check_template {
 
 =head2 validate_jq_query
 
-Ensure the jq query compiles before saving
+Ensure the jq query compiles before saving. It is compiled the way the
+provisioner compiles one, so a query that the restrictions of
+L<pf::provisioner::generic_http/compile_jq> rule out -- an C<include> or an
+C<import> -- is refused here rather than at the first authorization.
 
 =cut
 
@@ -229,10 +231,12 @@ sub validate_jq_query {
     my ($field) = @_;
     my $query = $field->value;
     return if !defined $query || $query eq '';
-    eval { JQ::XS->new($query) };
+    eval { pf::provisioner::generic_http->compile_jq($query) };
     if (my $err = $@) {
         $err =~ s/\n.*//s;
         $err =~ s/\s*at <top-level>.*//s;
+        # the "at <file> line <n>." of a croak from the jq bindings
+        $err =~ s/\s*at \S+ line \d+\.?$//;
         $err =~ s/^jq compile error:\s*//;
         # escape maketext brackets so add_error does not interpret them
         $err =~ s/([\[\]])/~$1/g;

@@ -10,9 +10,12 @@ pf::provisioner::generic_http
 
 Generic HTTP provisioner. The HTTP request (URL, headers, body) is defined in
 the configuration as pf::mini_template templates. The response body is
-evaluated with a jq query (JQ::XS, backed by libjq); the device is authorized
-when the query returns a truthy value (jq semantics: only C<null> and C<false>
-are falsy).
+evaluated with a jq query (JQ::XS, with jq compiled into it); the device is
+authorized when the query returns a truthy value (jq semantics: only C<null>
+and C<false> are falsy).
+
+The query comes from the configuration rather than from the code, so it is
+compiled with what it may reach cut down: see L</compile_jq>.
 
 =cut
 
@@ -181,7 +184,85 @@ has jq => (is => 'lazy');
 
 sub _build_jq {
     my ($self) = @_;
-    return JQ::XS->new($self->jq_query);
+    return $self->compile_jq($self->jq_query);
+}
+
+=head2 $JQ_PROLOGUE
+
+Prepended to a query before it is compiled, to keep it away from the
+environment of the process evaluating it -- which on this path holds the
+database and API credentials of the daemon. A jq program reads the environment
+through two independent names, C<$ENV>, which jq resolves while the program is
+compiled, and the C<env> builtin, which reads it afresh on every call. libjq
+has no switch for either, so both are shadowed here instead: jq only
+substitutes the real environment for C<$ENV> when nothing has bound that name
+already, and a C<def> shadows a builtin for everything lexically after it.
+Inside the parentheses the query is wrapped in, C<env> and C<$ENV> are both an
+empty object.
+
+=cut
+
+our $JQ_PROLOGUE = 'def env: {}; {} as $ENV | (';
+
+=head2 compile_jq
+
+Compile a jq query the way this provisioner runs one, and croak with the jq
+compile error when it does not compile. Callable as a class method, so the
+admin GUI validates a query against the same restrictions that apply to it at
+run time:
+
+=over
+
+=item * it is wrapped in L</$JQ_PROLOGUE>, which puts the process environment
+out of reach;
+
+=item * C<allow_includes> is off, so the query cannot pull definitions in from
+C<.jq> files on disk;
+
+=item * C<HOME> is taken out of the environment while it compiles, because jq
+imports F<~/.jq> into every program it compiles whether or not the program
+asks for it, and neither of the above prevents that one -- it is not in the
+program text, and it carries its own search path;
+
+=item * C<halt_error> is raised as an exception rather than passing for an
+empty result.
+
+=back
+
+=cut
+
+sub compile_jq {
+    my ($proto, $query) = @_;
+    $query = '' if !defined $query;
+    delete local $ENV{HOME};
+    # jq's grammar only accepts include and import at the very start of a
+    # program, which the prologue takes over, so ask JQ::XS about the query as
+    # written: it refuses a directive exactly, where the wrapped program gets
+    # only as far as a syntax error pointing at the prologue. The match is not
+    # the decision, just a way to skip this compile for a query that cannot
+    # hold a directive at all.
+    if ($query =~ /\b(?:include|import)\b/) {
+        JQ::XS->new($query, allow_includes => $FALSE);
+    }
+
+    my $jq = eval {
+        JQ::XS->new(
+            $JQ_PROLOGUE . "\n" . $query . "\n" . ')',
+            allow_includes    => $FALSE,
+            die_on_halt_error => $TRUE,
+        );
+    };
+    if ($@) {
+        # the prologue holds the first line of what jq compiled, so put the
+        # line numbers jq reports back onto the query as it was written. Only
+        # this compile saw the wrapper: an error from the one above is about
+        # the query itself and its line numbers already line up.
+        my $err = $@;
+        $err =~ s/(at <top-level>, line )(\d+)/$1 . ($2 - 1)/ge if !ref $err;
+        die $err;
+    }
+
+    return $jq;
 }
 
 =head2 lwp_client
@@ -342,8 +423,11 @@ Returns ($pass, \@results, undef, undef) on success and
 (undef, undef, $error, $kind) on failure, where $kind is one of $ERR_JSON,
 $ERR_QUERY or $ERR_JQ so the caller can tell a configuration error from a bad
 payload.
-An already compiled JQ::XS program can be passed as the fourth argument to
-avoid recompiling $query.
+$query is compiled with L</compile_jq>: a query loading a C<.jq> file from disk
+is refused there and reported as $ERR_QUERY, and one reaching for the process
+environment finds an empty object rather than the environment. An already
+compiled JQ::XS program can be passed as the fourth argument to avoid
+recompiling $query; it has to come from L</compile_jq> too.
 jq truthiness: a result passes unless every result is null or false (an empty
 result set fails).
 
@@ -361,7 +445,7 @@ sub evaluate_jq {
     }
 
     if (!defined $jq) {
-        $jq = eval { JQ::XS->new($query) };
+        $jq = eval { $proto->compile_jq($query) };
         if ($@) {
             return (undef, undef, _clean_err($@), $ERR_QUERY);
         }
@@ -370,6 +454,13 @@ sub evaluate_jq {
     my @results = eval { $jq->process($data) };
     if ($@) {
         return (undef, undef, _clean_err($@), $ERR_JQ);
+    }
+
+    if ($jq->halted) {
+        # halt stops the program where it stands with nothing to show for it,
+        # which would otherwise be indistinguishable from a query that ran to
+        # the end and simply did not match
+        return (undef, undef, "the query halted before producing a result", $ERR_JQ);
     }
 
     my $pass = (any { _jq_truthy($_) } @results) ? $TRUE : $FALSE;

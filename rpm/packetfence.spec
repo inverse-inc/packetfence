@@ -71,8 +71,9 @@ Requires: perl(Sub::Exporter)
 Requires: perl(Cisco::AccessList::Parser)
 Requires: perl(Email::Address::XS)
 Requires: jq
-# Perl binding for libjq, used by the generic_http provisioner
-Requires: perl(JQ::XS)
+# Perl binding for libjq, used by the generic_http provisioner. 2.00 is what
+# compiles a query with includes refused and jq itself compiled in.
+Requires: perl(JQ::XS) >= 2.00
 
 Requires: perl(Net::SSLeay)
 Requires: perl(Data::Dump)
