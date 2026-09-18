@@ -34,8 +34,9 @@ Depends: ${misc:Depends}, vlan,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  jq,
-# Perl binding for libjq, used by the generic_http provisioner
- libjq-xs-perl,
+# Perl binding for libjq, used by the generic_http provisioner. 2.00 is what
+# compiles a query with includes refused and jq itself compiled in.
+ libjq-xs-perl (>= 2.00),
  mariadb-server,
  mariadb-client,
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,

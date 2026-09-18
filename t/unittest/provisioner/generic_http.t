@@ -20,11 +20,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 44;
+use Test::More tests => 65;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
 use URI;
+use File::Temp qw(tempdir);
+# used to show what an unrestricted jq program can do, next to what the
+# provisioner's own compile stops it doing
+use JQ::XS;
 
 use pf::constants;
 # Do not `use pf::provisioner;` here: loading the base class before the
@@ -207,6 +211,81 @@ my $provisioner = new_ok(
 
     ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded('{}', '[range(100000000)] | length', 1);
     like($err // '', qr/did not complete within/, "the guarded evaluation kills a query that does not terminate");
+}
+
+{
+    # a query comes from the configuration, and the process evaluating it
+    # holds the database and API credentials of the daemon
+    local $ENV{PF_TEST_JQ_SECRET} = 'hunter2';
+
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', 'env.PF_TEST_JQ_SECRET');
+    is($err, undef, "a query naming env still compiles");
+    is($results->[0], undef, "env.<name> does not reach the process environment");
+    ok(!$pass, "a query reaching for an environment variable does not pass");
+
+    (undef, $results, $err) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', '$ENV.PF_TEST_JQ_SECRET');
+    is($results->[0], undef, "\$ENV.<name> does not reach the process environment");
+
+    (undef, $results) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', 'env');
+    is_deeply($results->[0], {}, "env is an empty object");
+
+    (undef, $results) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', '$ENV');
+    is_deeply($results->[0], {}, "\$ENV is an empty object");
+
+    my @raw = JQ::XS->new('env.PF_TEST_JQ_SECRET')->process({});
+    is($raw[0], 'hunter2', "control: a jq program compiled without care does read the environment");
+}
+
+{
+    no warnings 'once';
+    my (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', 'include "evil"; .a');
+    is($kind, $pf::provisioner::generic_http::ERR_QUERY, "a query with an include does not compile");
+    like($err, qr/not allowed/, "the include is refused rather than looked for on disk");
+
+    (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', 'import "evil" as e {search:"/tmp"}; .a');
+    is($kind, $pf::provisioner::generic_http::ERR_QUERY, "a query with an import does not compile");
+
+    my ($pass) = pf::provisioner::generic_http->evaluate_jq('{"include":1}', '.include == 1');
+    ok($pass, "a query merely using the word include still compiles");
+}
+
+{
+    # jq imports ~/.jq into every program it compiles, whether or not the
+    # program asks for it, so that file can redefine what a query means
+    my $home = tempdir(CLEANUP => 1);
+    open(my $fh, '>', "$home/.jq") or die "cannot write the test ~/.jq: $!";
+    print {$fh} qq[def length: "PWNED";\n];
+    close($fh);
+    local $ENV{HOME} = $home;
+
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq('{"a":[1,2,3]}', '.a | length');
+    is($err, undef, "a query compiles with a ~/.jq present");
+    is($results->[0], 3, "~/.jq is not imported into the query");
+
+    my @raw = JQ::XS->new('[1,2,3] | length')->process({});
+    is($raw[0], 'PWNED', "control: jq does import ~/.jq into a program compiled without care");
+}
+
+{
+    no warnings 'once';
+    my (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', 'halt');
+    is($kind, $pf::provisioner::generic_http::ERR_JQ, "a query that halts is reported as an error");
+    like($err, qr/halted/, "the halt is named in the error rather than read as a failed check");
+
+    (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', '"boom" | halt_error');
+    is($kind, $pf::provisioner::generic_http::ERR_JQ, "a query that calls halt_error is reported as an error");
+    like($err, qr/boom/, "the halt_error message is reported");
+}
+
+{
+    my (undef, undef, $err) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', ".a\n| bad_func_xyz");
+    like($err, qr/line 2\b/, "a compile error points at the line of the query as it was written");
+    unlike($err, qr/\$ENV/, "the error does not quote the prologue back at the admin");
+
+    # this one is reported by the compile that checks for a directive, which
+    # never saw the prologue, so its line numbers must be left alone
+    (undef, undef, $err) = pf::provisioner::generic_http->evaluate_jq('{"a":1}', '.include | bad_func_xyz');
+    like($err, qr/line 1\b/, "a query holding the word include keeps its line numbers");
 }
 
 =head1 AUTHOR
