@@ -1475,6 +1475,380 @@ On each interface:
   switchport mode access 
   switchport access vlan 4 
 
+==== Nexus 9000 Series (NX-OS)
+
+PacketFence supports the Nexus 9000 series in MAC Authentication Bypass (MAB)
+and 802.1X, with RADIUS dynamic VLAN assignment, downloadable ACLs and RADIUS
+Change of Authorization (CoA) for deauthentication.
+
+The configuration below was validated on a *Nexus 9000 C9348GC-FX3* running
+*NX-OS 10.6(3)*. It applies to the other Nexus 9300/9500 platforms, but the
+supported feature set varies a lot from one model and one release to another, so
+read the 'Supported models and NX-OS releases' section first. The TCAM carving
+of the 'Downloadable ACLs' section is also platform dependent.
+
+In PacketFence, add the switch with the type *Cisco IOS 15.5*
+(`Cisco::Cisco_IOS_15_5`) and set the deauthentication method to *RADIUS*.
+
+IMPORTANT: NX-OS is not IOS. The following IOS features used elsewhere in this
+chapter are *not* available on the Nexus 9000 and must not be configured on it:
+web authentication / URL redirection (`Role by Web Auth URL`), the
+`ip device tracking` command, the voice VLAN (`switchport voice vlan`) and the
+`device-traffic-class=voice` VSA, port-security based enforcement and
+linkUp/linkDown traps. The 'VoIP enabled' checkbox must therefore be left
+unchecked in the switch configuration.
+
+IMPORTANT: You have to choose *either* VLAN assignment *or* downloadable ACLs.
+Cisco states that "DACL and dynamic VLAN are not supported together on the same
+port", so do not return the `Tunnel-*` attributes and ACLs for the same role.
+Note that the restriction is per port, not per session: a port cannot host a
+role enforced by VLAN and another one enforced by ACL at the same time, even
+with `multi-auth`. Pick the enforcement model that suits your network and keep
+it consistent across all the roles of the switch:
+
+[options="compact"]
+* *VLAN enforcement*: leave 'Role by access list' unchecked in the 'Roles' tab
+  and map each role to a VLAN. This is the default and the simplest model.
+* *ACL enforcement*: the port stays in the VLAN configured with `switchport
+  access vlan`, and each role is a set of ACLs. Set the VLAN of every role to
+  the access VLAN of the port, or leave the role VLANs empty, so that
+  PacketFence does not return any `Tunnel-*` attribute.
+
+===== Supported models and NX-OS releases
+
+802.1X and MAC Authentication Bypass were added progressively to the Nexus 9000
+line, and some models do not support the features PacketFence relies on at all.
+Check your platform in the table below before configuring anything. The
+reference is the 'Guidelines and Limitations for 802.1X' section of the
+https://www.cisco.com/c/en/us/td/docs/dcn/nx-os/nexus9000/106x/configuration/security/cisco-nexus-9000-series-nx-os-security-configuration-guide-release-106x/m-configuring-8021x.html[Cisco
+Nexus 9000 Series NX-OS Security Configuration Guide].
+
+[options="header",cols="3,2,2,4",grid="rows"]
+|===
+|Platform
+|802.1X since
+|MAB since
+|Notes
+
+|Nexus 9300-EX / FX / FX2
+|9.2(1)
+|9.2(1)
+|Only platforms for which Cisco documents dynamic VLAN assignment.
+
+|Nexus 9300-FX3, including the C9348GC-FX3
+|9.3(5)
+|10.5(2)F
+|MAB requires 10.5(2)F, see the warning below.
+
+|Nexus 9300-GX
+|10.1(2)
+|10.5(2)F
+|Same MAB requirement.
+
+|Nexus 9300-GX2, H2R, H1 (C9364D-GX2A, C9332D-GX2B)
+|10.2(1)F
+|10.5(2)F
+|Same MAB requirement.
+
+|Nexus 9508 with N9K-X9788TC-FX or N9K-X97160YC-EX line cards
+|not supported
+|10.3(2)F
+|*No DACL, no dynamic VLAN, no CoA, MAB only.* Not usable for PacketFence role
+enforcement.
+
+|Nexus N9K-C9348GC-**FXP**
+|not supported
+|supported
+|*No DACL, no dynamic VLAN, no CoA, MAB only, no EAP.* Not usable for
+PacketFence role enforcement.
+|===
+
+WARNING: On the Nexus 9300-FX3, GX, GX2, H2R and H1 platforms, MAC
+Authentication Bypass is only supported *from NX-OS 10.5(2)F*. On those
+switches, an earlier release does 802.1X but not MAB, which rules out every device
+without a supplicant. Use 10.5(2)F or later on these platforms, as the 10.6(3)
+release this section was validated on.
+
+IMPORTANT: Do not confuse the *N9K-C9348GC-FXP* with the *N9K-C9348GC-FX3*. The
+names differ by two characters but the capabilities do not compare. Cisco states
+that "Cisco Nexus N9K-C9348GC-FXP switches and C9508 switches with
+N9K-X9788TC-FX and N9K-X97160YC-EX line cards do not support DVLAN, DACL,
+FEX-AA, VXLAN and mac-move, CoA, only MAB as authentication method (no EAP), and
+support is for access port with single access VLAN". On those, PacketFence can
+authenticate a device by its MAC address but cannot assign a role, push an ACL,
+or deauthenticate it with a CoA, so the port stays in its statically configured
+VLAN whatever PacketFence decides. The FX3 used in this section does support
+802.1X, MAB, dynamic VLAN assignment, DACLs and CoA.
+
+NOTE: Cisco documents dynamic VLAN assignment as "supported only on Cisco Nexus
+9300-FX/EX/FX2 Platform switches", a bullet that has not been updated as the
+newer platforms were added, while the same guide adds 802.1X and MAB support for
+the FX3, GX and GX2. VLAN assignment does work on an FX3 running 10.6(3). If you
+deploy on a GX, GX2, H2R or H1, validate VLAN enforcement on one port before
+rolling it out, and fall back on ACL enforcement if it does not apply.
+
+===== Port and topology restrictions
+
+These restrictions apply to every Nexus 9000 model and constrain where
+PacketFence can enforce:
+
+[options="compact"]
+* 802.1X runs on *physical access ports with a single access VLAN* only. It is
+  not supported on L3 (routed) ports, PVLAN ports, trunk ports for MAB and EAP
+  clients, subinterfaces, or the port-channel interface itself.
+* 802.1X is *not supported on vPC ports and MCT*, nor on transit topology
+  setups.
+* On port-channel members, only *multi-host* mode is supported and MAB is not
+  supported at all. Only static port channels are supported, not LACP ones.
+* `single-host` mode is not supported on trunk interfaces or on port-channel
+  members.
+* 802.1X cannot be combined with port-security, CTS, MACsec PSK, IP Source
+  Guard, uRPF, or `mac-learn disable`, which are all mutually exclusive with it.
+* Enable 802.1X only on STP edge ports (`spanning-tree port type edge`),
+  otherwise STP disputes occur, since BPDUs are only allowed after a successful
+  authentication.
+* Web authorization, guest VLANs and IP telephony are listed as unsupported,
+  which is why the captive portal and the voice VLAN cannot be used here.
+
+NOTE: Cisco also documents that "during a switch reload, 802.1X does not
+generate RADIUS accounting stops". After a reload of the switch, PacketFence
+will therefore still consider the previous sessions as online until they are
+reauthenticated or until the `locationlog` entries expire.
+
+===== Global settings
+
+Enable the required features:
+
+  feature dot1x
+  feature interface-vlan
+
+On NX-OS, `feature dot1x` enables 802.1X globally, there is no separate
+`dot1x system-auth-control` step to perform. `feature interface-vlan` is not
+needed by 802.1X itself, it is needed to create the SVI that gives the switch
+the IP address it uses to reach PacketFence.
+
+On a Nexus 9000, the interfaces are routed (L3) ports by default, and 802.1X is
+only supported on L2 access ports. Make the ports switchports globally:
+
+  system default switchport
+
+IMPORTANT: Without this, the `dot1x` commands of the 'MAC Authentication
+Bypass' section below are refused on the interface. The alternative is to
+configure `switchport` on each access port individually, as the interface
+examples of this section do. `show running-config` does not display the
+per-interface `switchport` command when `system default switchport` is
+configured.
+
+Declare the PacketFence RADIUS server. When PacketFence runs in cluster mode,
+this is the virtual IP of the cluster, not the address of the individual
+servers, so a single entry is enough:
+
+  radius-server host 192.168.1.5 key useStrongerSecret authentication accounting
+  aaa group server radius packetfence
+   server 192.168.1.5
+
+NOTE: The IP address you declare for this switch in PacketFence must be the
+address the switch sources its RADIUS requests from, otherwise PacketFence does
+not recognize the NAS and the requests are dropped. Check it on the PacketFence
+side in the RADIUS audit log. If you reach PacketFence through the management
+port, add `use-vrf management` to the server group, since `mgmt0` lives in the
+`management` VRF.
+
+Use the group for 802.1X authentication and accounting:
+
+  aaa authentication dot1x default group packetfence
+  aaa accounting dot1x default group packetfence
+  dot1x radius-accounting
+
+CoA configuration, used by PacketFence to reauthenticate or bounce a device
+after a role change. The `client` is the address PacketFence sends the CoA
+from, which is the same virtual IP in a cluster:
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+   port 3799
+
+NOTE: A cluster only sends its CoA from the virtual IP while
+`active_active.centralized_deauth` and `active_active.use_vip_for_deauth` are
+both enabled, which is the default. If you disable either of them, each server
+sends the CoA from its own IP address and you have to declare one `client` line
+per server of the cluster, otherwise the switch silently ignores the CoA.
+
+===== MAC Authentication Bypass
+
+On each access interface:
+
+  interface Ethernet1/1
+   switchport
+   switchport mode access
+   switchport access vlan 40
+   spanning-tree port type edge
+   dot1x pae authenticator
+   dot1x port-control auto
+   dot1x host-mode multi-auth
+   dot1x mac-auth-bypass
+   dot1x authentication order mab
+   dot1x re-authentication
+
+The `switchport access vlan` statement sets the VLAN used before the RADIUS
+answer and when PacketFence is unreachable. It is overridden by the VLAN
+returned by PacketFence.
+
+`dot1x host-mode multi-auth` authenticates every MAC address seen on the port
+independently, which is the recommended mode. `multi-host` (only the first MAC
+is authenticated, the others are then allowed) and `single-host` are also
+supported.
+
+With `dot1x re-authentication` alone, the switch uses its local
+reauthentication period, 3600 seconds by default. To change it:
+
+  dot1x timeout re-authperiod 10800
+
+If PacketFence returns a `Session-Timeout` attribute together with a
+`Termination-Action` of `RADIUS-Request`, that value is used instead.
+`show dot1x interface ethernet 1/1 details` tells you which one is in effect, by
+displaying either `(Locally configured)` or `(From Authentication Server)` next
+to `ReAuthPeriod`.
+
+===== 802.1X only
+
+Use the same interface configuration as for MAC Authentication Bypass, but
+remove the MAB statements:
+
+  no dot1x mac-auth-bypass
+  no dot1x authentication order mab
+
+===== 802.1X with MAC Authentication fallback
+
+Use the same interface configuration as for MAC Authentication Bypass and change
+the authentication order so that 802.1X is tried first and MAB is used as a
+fallback:
+
+  dot1x authentication order dot1x mab
+
+===== Downloadable ACLs
+
+The Nexus 9000 supports the ACLs pushed by PacketFence in the RADIUS answer
+(_Role by access list_ in the 'Roles' tab of the switch configuration), but the
+ingress downloadable ACL TCAM region is not carved by default and its size is
+zero on a factory configuration. You must take space from another region, for
+example the ingress router ACL region:
+
+  hardware access-list tcam region ing-racl 1792
+  hardware access-list tcam region ing-dacl 512
+
+WARNING: TCAM carving requires a `copy running-config startup-config` followed
+by a `reload` of the switch to take effect. The size of the regions must be a
+multiple of 256 and the total must fit in the TCAM banks of the platform, so
+another region has to be shrunk by the same amount, as `ing-racl` is above. Check
+the result with `show hardware access-list tcam region`.
+
+Once the region is carved, enable _Role by access list_ in the 'Roles' tab of
+the switch configuration in PacketFence and define one access list per role, as
+described in the 'Dynamic ACLs' section of the Cisco IOS 15.5 documentation
+above.
+
+As stated at the beginning of this section, DACL and dynamic VLAN are not
+supported together on the same port. When you enforce with ACLs, make sure no
+role returns a VLAN that differs from the access VLAN of the port.
+
+===== NetFlow
+
+The Nexus 9000 can export NetFlow v9 to the Fingerbank collector, which uses the
+flows for traffic based device profiling.
+
+  feature netflow
+  flow exporter PACKETFENCE-EXPORTER
+   destination 192.168.1.5
+   transport udp 2055
+   version 9
+  flow record PACKETFENCE-RECORD
+   match ipv4 source address
+   match ipv4 destination address
+   match ip protocol
+   match transport source-port
+   match transport destination-port
+   collect counter bytes
+   collect counter packets
+   collect timestamp sys-uptime first
+   collect timestamp sys-uptime last
+  flow monitor PACKETFENCE-MONITOR
+   record PACKETFENCE-RECORD
+   exporter PACKETFENCE-EXPORTER
+
+Then apply the monitor on the interfaces to account:
+
+  interface Ethernet1/1
+   ip flow monitor PACKETFENCE-MONITOR input
+
+The `destination` is the address of the Fingerbank collector and the transport
+port is the `udp/2055` it listens on. Refer to the Fingerbank collector
+documentation for the collector side of the configuration.
+
+===== Troubleshooting
+
+Check the state of the sessions and of the RADIUS servers:
+
+  show dot1x all summary
+  show dot1x interface ethernet 1/1 details
+  show mac address-table interface ethernet 1/1
+  show radius-server
+  show hardware access-list tcam region
+
+`show dot1x interface` is the most useful one, it shows the result of the
+authorization for each MAC address seen on the port. A device registered by
+PacketFence through MAB, with an ACL enforced role, looks like this:
+
+----
+Nexus-9k# show dot1x interface ethernet 1/1 details
+
+Dot1x Info for Ethernet1/1
+-----------------------------------
+                      PAE = AUTHENTICATOR
+              PortControl = AUTO
+                 HostMode = MULTI AUTH
+         ReAuthentication = Enabled
+             ReAuthPeriod = 3600 (Locally configured)
+          Mac-Auth-Bypass = Enabled
+       AuthenticationOpen = Disabled
+
+Dot1x Authenticator Client List
+-------------------------------
+               Supplicant = B8:27:EB:E8:40:43
+                   Domain = DATA
+            Auth SM State = AUTHENTICATED
+       Auth BEND SM State = IDLE
+              Port Status = AUTHORIZED
+    Authentication Method = MAB
+         Authenticated By = Remote Server
+             ReAuthPeriod = 3600
+             ReAuthAction = Reauthenticate
+         TimeToNextReauth = 2742
+                Auth-Vlan = 40
+             DACL-Applied = True
+----
+
+The fields to look at are:
+
+[options="compact"]
+* `Port Status`, which must be `AUTHORIZED`
+* `Authentication Method`, `MAB` or `Dot1x`, and `Authenticated By`, which must
+  be `Remote Server` and not `Guest VLAN` or `Auth-Fail Vlan`
+* `Auth-Vlan`, the VLAN the MAC address ends up in
+* `DACL-Applied`, `True` when the ACLs returned by PacketFence were installed.
+  If it stays `False` while a role with ACLs is assigned, check the `ing-dacl`
+  TCAM carving described above
+
+The 802.1X and AAA events are logged in the switch log:
+
+  show logging logfile | include DOT1X
+  show logging logfile | include RADIUS
+
+And, on a lab switch only, the live exchange can be followed with:
+
+  debug dot1x all
+  debug radius all
+
 ==== EAP-FAST authentication Support
 
 PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and
