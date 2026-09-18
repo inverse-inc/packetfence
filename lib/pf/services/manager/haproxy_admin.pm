@@ -71,6 +71,18 @@ sub generateConfig {
     my $httpd_admin_dispatcher_host = $httpd_admin_dispatcher_uri->host;
     my $httpd_admin_dispatcher_port = $httpd_admin_dispatcher_uri->port;
 
+    # Content-Security-Policy + X-Content-Type-Options for the admin interface,
+    # gated on the (previously unwired) advanced.admin_csp_security_headers toggle.
+    # Emitted at the admin frontend so it covers the SPA static assets, the API
+    # and netdata alike. script-src needs 'unsafe-eval' (messageformat/vue-i18n)
+    # and style needs 'unsafe-inline' (Vue/bootstrap runtime style injection).
+    my $csp_headers = '';
+    if (isenabled($Config{advanced}{admin_csp_security_headers})) {
+        $csp_headers =
+            qq{        http-response set-header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';"\n}
+          . qq{        http-response set-header X-Content-Type-Options nosniff\n};
+    }
+
     my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
@@ -169,7 +181,7 @@ frontend admin-https-$mgmt_cluster_ip
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
         http-request add-header X-Forwarded-Proto https
-        http-request lua.change_host
+$csp_headers        http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
         #acl url_api  path_beg /api
@@ -253,7 +265,7 @@ frontend admin-https-all
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
         http-request add-header X-Forwarded-Proto https
-        http-request lua.change_host
+$csp_headers        http-request lua.change_host
         http-response set-header X-Frame-Options SAMEORIGIN
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
