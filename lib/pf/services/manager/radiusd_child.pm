@@ -345,6 +345,14 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{aaa_host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
+    # thread pool max_servers; also caps the rlm_rest connection pool to httpd.aaa
+    # Only a positive integer is usable: radiusd refuses to start on 0 or a negative
+    # value, so anything else (unset, empty, junk) falls back to the default. Don't
+    # test truthiness here, it would silently turn a configured "0" into the default.
+    my $max_servers = $Config{radius_configuration}{radiusd_max_servers};
+    $tags{'max_servers'} = (defined($max_servers) && $max_servers =~ /^\d+$/ && $max_servers > 0)
+        ? $max_servers
+        : 128;
 
     $tt->process("$conf_dir/radiusd/radiusd.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_loadbalancer.conf", \%tags, "$install_dir/raddb/radiusd_loadbalancer.conf") or die $tt->error();
