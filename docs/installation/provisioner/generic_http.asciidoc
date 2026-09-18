@@ -95,9 +95,18 @@ and the following one authorizes it as soon as at least one device matched:
 
   .devices | length > 0
 
-NOTE: The query is evaluated with libjq (through the JQ::XS Perl library), so
-the full jq language is available. An invalid query or a JSON parsing error is
-logged and treated as a failed check.
+NOTE: The query is evaluated with jq (through the JQ::XS Perl library), so the
+full jq language is available, with two restrictions. The query cannot pull
+definitions in from `.jq` files on disk: an `include` or an `import` is refused
+when the provisioner is saved. And it cannot read the environment of the
+process evaluating it, which holds the credentials of the daemon: `env` and
+`$ENV` are both an empty object, so `env.FOO` and `$ENV.FOO` are `null`
+whatever `FOO` holds.
+
+NOTE: A query that does not compile is logged and treated as a failed check. A
+response that is not valid JSON and a jq runtime error are logged as a
+communication failure instead, so a server answering something unexpected does
+not deauthorize the device.
 
 ===== Testing the jq query
 
