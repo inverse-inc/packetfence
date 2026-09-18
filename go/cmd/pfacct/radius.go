@@ -191,8 +191,11 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		}
 	}
 
-	h.handleTimeBalance(r, switchInfo, unique_session_id)
-	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
+	// Skipped entirely while no node carries a balance (see balance_gate.go)
+	if h.balancesInUse.Load() {
+		h.handleTimeBalance(r, switchInfo, unique_session_id)
+		h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
+	}
 	h.sendRadiusAccounting(rr, switchInfo)
 }
 
@@ -220,6 +223,13 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 				timebalance = 0
 			}
 		}
+		// The balance accounting may have been gated off for part of this
+		// session (see balance_gate.go), and that period must not be billed:
+		// pfacct processed no accounting for it. It applies with or without a
+		// cache entry -- an entry survives a gate shutdown shorter than the
+		// NodeSessionCache idle timeout, and its offset predates the shutdown,
+		// so AcctSessionTime - offset still spans the whole gated-off period.
+		timebalance = h.capCharge(timebalance)
 
 		ok, err := h.NodeTimeBalanceSubtract(mac, timebalance)
 		if err != nil {
@@ -254,6 +264,11 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 				}
 			}
 		}
+		// See the Stop branch above: the gated-off part of the session must not
+		// count towards the threshold either. softNodeTimeBalanceUpdate zeroes
+		// the balance as soon as the figure reaches it, so an inflated one does
+		// not merely over-charge, it triggers the security event immediately.
+		timebalance = h.capCharge(timebalance)
 
 		if timebalance > 0 {
 			ok, err := h.SoftNodeTimeBalanceUpdate(mac, timebalance)
