@@ -51,7 +51,16 @@ sub cleanupAfterRead {
     if ($data->{type} eq 'google_workspace_chromebook') {
         my $service_account = $data->{service_account};
         if (ref($service_account) eq 'ARRAY') {
-            $data->{service_account} = join("\n", @{$service_account}) 
+            $data->{service_account} = join("\n", @{$service_account})
+        }
+    }
+
+    if ($data->{type} eq 'generic_http') {
+        for my $k (qw(headers body)) {
+            my $value = $data->{$k};
+            if (ref($value) eq 'ARRAY') {
+                $data->{$k} = join("\n", @{$value});
+            }
         }
     }
 }
