@@ -123,3 +123,91 @@ display access-user
 display radius-server
 test-aaa user password radius-template packetfence pap
 ----
+
+==== CloudEngine S5735 running YunShan OS (V600)
+
+The CloudEngine models running YunShan OS (V600) use the unified-mode NAC
+configuration and are declared in PacketFence as `Huawei::S5735`. That switch
+type additionally supports dynamic ACLs: the access list of the role is pushed
+inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no
+ACL has to exist on the switch beforehand. Enable `Access list mapping` on the
+switch entry to turn it on.
+
+Global configuration:
+
+----
+radius local-ip <switch management ip>
+
+radius-server template packetfence
+ radius-server shared-key cipher <secret>
+ radius-server authentication <packetfence ip> 1812 weight 80
+ radius-server accounting <packetfence ip> 1813 weight 80
+ radius-server retransmit 3 timeout 5
+ undo radius-server user-name domain-included
+
+radius-server session-manage <packetfence ip> shared-key cipher <secret>
+
+aaa
+ authentication-scheme packetfence
+  authentication-mode radius
+ accounting-scheme packetfence
+  accounting-mode radius
+ domain packetfence
+  authentication-scheme packetfence
+  accounting-scheme packetfence
+  radius-server packetfence
+----
+
+NOTE: `radius local-ip` is what starts the listener used for
+deauthentication. Without it the switch answers ICMP port unreachable on UDP
+3799 and every Disconnect-Request from PacketFence times out, even though
+`radius-server session-manage` is configured.
+
+Access profiles and interface:
+
+----
+dot1x-access-profile name packetfence
+ dot1x authentication-method eap
+
+mac-access-profile name packetfence
+
+authentication-profile name packetfence
+ dot1x-access-profile packetfence
+ mac-access-profile packetfence
+ authentication dot1x-mac-bypass
+ access-domain packetfence force
+ authentication mode multi-authen
+
+interface GE1/0/1
+ port link-type hybrid
+ port hybrid pvid vlan <default vlan>
+ port hybrid untagged vlan <every vlan PacketFence may assign>
+ authentication-profile packetfence
+----
+
+NOTE: the port has to be `hybrid`. On an `access` port the endpoint
+authenticates but the VLAN returned by PacketFence is never applied, and every
+VLAN PacketFence can return must be listed in `port hybrid untagged vlan`.
+
+===== Dynamic ACL behaviour
+
+The rules PacketFence sends look like `$1 permit tcp dst 192.168.1.10/32 443`,
+one per instance of the attribute, and they are evaluated in ascending rule
+number, first match wins.
+
+Three behaviours are worth knowing when troubleshooting:
+
+* The switch applies the attribute from the *Access-Accept* only. A CoA-Request
+  carrying `HW-Data-Filter` is answered CoA-ACK but the rules are not applied,
+  which is why access re-evaluation disconnects the endpoint so it
+  authenticates again.
+* A rule the switch cannot parse makes it discard *the whole access list*
+  silently, leaving the endpoint with unrestricted access. PacketFence
+  therefore drops a rule it cannot express rather than sending it.
+* There is no implicit deny: an endpoint matching no rule is permitted.
+  PacketFence appends a catch-all deny to every access list to keep the
+  semantics of the Cisco syntax the access lists are written in.
+
+`display access-user interface <interface> detail` shows
+`DACL group name(Effective)` when an access list is installed; the line is
+absent when the switch discarded it.
