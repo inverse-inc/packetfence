@@ -37,13 +37,13 @@ var (
 // produced rootPEM goes into Profile.AcmeAttestationRoots so the
 // validator's resolveAttestationRoots accepts it.
 type appleFixture struct {
-	rootCert    *x509.Certificate
-	rootPEM     []byte
-	leafCert    *x509.Certificate
-	leafDER     []byte
-	chainCBOR   []byte // the CBOR-encoded attestation object the device would post
-	udid        string
-	serial      string
+	rootCert  *x509.Certificate
+	rootPEM   []byte
+	leafCert  *x509.Certificate
+	leafDER   []byte
+	chainCBOR []byte // the CBOR-encoded attestation object the device would post
+	udid      string
+	serial    string
 }
 
 // buildAppleFixture mints a minimal root and an attestation leaf
@@ -146,8 +146,8 @@ func TestDeviceAttest01_Happy(t *testing.T) {
 	thumb := mustThumbprint(t, client.jwk)
 
 	// We don't know the challenge token until new-order runs, but the
-	// nonce binding is SHA256(token || "." || thumbprint). Trick: run
-	// the order first to capture the token, then build the fixture.
+	// nonce binding is SHA256(token). Trick: run the order first to
+	// capture the token, then build the fixture.
 	// runDeviceAttestFlow does both halves; here we inline so we can
 	// thread the token through to the fixture.
 
@@ -202,9 +202,9 @@ func TestDeviceAttest01_Happy(t *testing.T) {
 	}
 	chall := authzBody.Challenges[0]
 
-	// Step 3: build the fixture with the correct nonce SHA256(token.thumb)
+	// Step 3: build the fixture with the correct nonce SHA256(token)
 	// and install its root on the profile.
-	digest := sha256.Sum256([]byte(chall.Token + "." + thumb))
+	digest := sha256.Sum256([]byte(chall.Token))
 	fix := buildAppleFixture(t, digest[:], udid, "")
 	if err := env.DB.Model(&models.Profile{}).Where("name = ?", profName).
 		Update("acme_attestation_roots", string(fix.rootPEM)).Error; err != nil {
@@ -344,7 +344,7 @@ func TestDeviceAttest01_IdentifierMismatch(t *testing.T) {
 	chall := ab.Challenges[0]
 
 	// Correct nonce but wrong UDID on the leaf.
-	digest := sha256.Sum256([]byte(chall.Token + "." + thumb))
+	digest := sha256.Sum256([]byte(chall.Token))
 	fix := buildAppleFixture(t, digest[:], "different-udid", "different-serial")
 	_ = env.DB.Model(&models.Profile{}).Where("name = ?", profName).
 		Update("acme_attestation_roots", string(fix.rootPEM))
@@ -398,7 +398,7 @@ func TestDeviceAttest01_UntrustedRoot(t *testing.T) {
 	_ = json.NewDecoder(azResp.Body).Decode(&ab)
 	chall := ab.Challenges[0]
 
-	digest := sha256.Sum256([]byte(chall.Token + "." + thumb))
+	digest := sha256.Sum256([]byte(chall.Token))
 	fix := buildAppleFixture(t, digest[:], udid, "")
 	// Intentionally DO NOT install fix.rootPEM. The profile column
 	// stays empty -> resolveAttestationRoots errors out -> validator
