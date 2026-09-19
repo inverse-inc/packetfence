@@ -3,6 +3,7 @@ package acme
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	chi "github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
@@ -104,29 +105,30 @@ func baseURL(r *http.Request) string {
 // and the bare /acme variant), so the prefix has to come from the
 // router rather than be hard-coded.
 func acmeMountPath(r *http.Request) string {
-	// The chi RouteContext.RoutePath fragment after the /acme/ matches
-	// is "/{profile}/...". We want everything from the start of the
-	// request path up to the "/{profile}" segment, which we can find
-	// by chopping the suffix.
 	urlPath := r.URL.Path
 	profile := chi.URLParam(r, "profile")
 	if profile == "" {
 		return urlPath
 	}
-	idx := lastIndex(urlPath, "/"+profile)
-	if idx < 0 {
-		return urlPath
-	}
-	return urlPath[:idx]
-}
-
-// lastIndex is strings.LastIndex without pulling in the package for one
-// call (the only other strings use in this file would be EqualFold).
-func lastIndex(s, sep string) int {
-	for i := len(s) - len(sep); i >= 0; i-- {
-		if s[i:i+len(sep)] == sep {
-			return i
+	// chi's route pattern for this request carries the literal
+	// "/{profile}" placeholder where the profile name sits (e.g.
+	// "/api/v1/pki/acme/{profile}/order/{id}"), so the mount prefix is
+	// everything before it. Searching the request path for the profile
+	// name instead would misfire whenever the name is a prefix of a
+	// later segment ("a" vs "/account", "pki" vs "/pki/acme").
+	if rctx := chi.RouteContext(r.Context()); rctx != nil {
+		if pat := rctx.RoutePattern(); pat != "" {
+			if i := strings.Index(pat, "/{profile}"); i >= 0 {
+				if prefix := pat[:i]; strings.HasPrefix(urlPath, prefix+"/"+profile) {
+					return prefix
+				}
+			}
 		}
 	}
-	return -1
+	// Fallback for a request routed some other way: first whole
+	// segment equal to the profile name.
+	if i := strings.Index(urlPath+"/", "/"+profile+"/"); i >= 0 {
+		return urlPath[:i]
+	}
+	return urlPath
 }
