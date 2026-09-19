@@ -1465,6 +1465,15 @@ CREATE TABLE `pki_profiles` (
   `scep_server_enabled` bigint(20) DEFAULT 0,
   `allow_duplicated_cn` bigint(20) unsigned DEFAULT 0,
   `maximum_duplicated_cn` bigint(20) DEFAULT 0,
+  `renewal_mail_days` longtext DEFAULT NULL,
+  `acme_enabled` bigint(20) DEFAULT 0,
+  `acme_allowed_identifiers` longtext DEFAULT NULL,
+  `acme_eab_required` bigint(20) DEFAULT 1,
+  `acme_attestation_formats` longtext DEFAULT NULL,
+  `acme_attestation_roots` longtext DEFAULT NULL,
+  `acme_account_expiry` bigint(20) DEFAULT 365,
+  `acme_order_expiry` bigint(20) DEFAULT 7,
+  `acme_authz_expiry` bigint(20) DEFAULT 24,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ca_name` (`ca_name`),
@@ -1510,6 +1519,8 @@ CREATE TABLE `pki_certs` (
   `scep` tinyint(1) DEFAULT 0,
   `csr` tinyint(1) DEFAULT 0,
   `alert` tinyint(1) DEFAULT 0,
+  `alerted_days` longtext DEFAULT NULL,
+  `acme_account_id` bigint(20) unsigned DEFAULT NULL,
   `subject` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `cn_serial` (`cn`(127),`serial_number`(127)) USING HASH,
@@ -1522,6 +1533,7 @@ CREATE TABLE `pki_certs` (
   KEY `organisation` (`organisation`),
   KEY `profile_id` (`profile_id`),
   KEY `not_before` (`not_before`),
+  KEY `idx_pki_certs_acme_account_id` (`acme_account_id`),
   CONSTRAINT `fk_pki_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
@@ -1574,6 +1586,146 @@ CREATE TABLE `pki_revoked_certs` (
   KEY `organisation` (`organisation`),
   CONSTRAINT `fk_pki_revoked_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_revoked_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_acme_accounts`
+--
+
+CREATE TABLE `pki_acme_accounts` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `profile_id` bigint(20) unsigned NOT NULL,
+  `key_id` varchar(256) DEFAULT NULL,
+  `key_thumbprint` varchar(64) DEFAULT NULL,
+  `jwk` longtext DEFAULT NULL,
+  `status` varchar(16) DEFAULT 'valid',
+  `contact` text DEFAULT NULL,
+  `external_account_key_id` varchar(64) DEFAULT NULL,
+  `expires_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acme_account_keyid` (`key_id`),
+  KEY `acme_account_thumbprint` (`key_thumbprint`),
+  KEY `idx_pki_acme_accounts_profile_id` (`profile_id`),
+  KEY `idx_pki_acme_accounts_external_account_key_id` (`external_account_key_id`),
+  KEY `idx_pki_acme_accounts_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_accounts_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_acme_nonces`
+--
+
+CREATE TABLE `pki_acme_nonces` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `expires_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acme_nonce_token` (`token`),
+  KEY `idx_pki_acme_nonces_expires_at` (`expires_at`),
+  KEY `idx_pki_acme_nonces_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_acme_orders`
+--
+
+CREATE TABLE `pki_acme_orders` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `status` varchar(16) DEFAULT 'pending',
+  `expires_at` datetime(3) DEFAULT NULL,
+  `not_before` datetime(3) DEFAULT NULL,
+  `not_after` datetime(3) DEFAULT NULL,
+  `identifiers` text DEFAULT NULL,
+  `authz_ids` text DEFAULT NULL,
+  `cert_serial_number` varchar(80) DEFAULT NULL,
+  `error` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pki_acme_orders_account_id` (`account_id`),
+  KEY `idx_pki_acme_orders_expires_at` (`expires_at`),
+  KEY `idx_pki_acme_orders_cert_serial_number` (`cert_serial_number`),
+  KEY `idx_pki_acme_orders_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_orders_account` FOREIGN KEY (`account_id`) REFERENCES `pki_acme_accounts` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_acme_authzs`
+--
+
+CREATE TABLE `pki_acme_authzs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `order_id` bigint(20) unsigned NOT NULL,
+  `identifier_type` varchar(32) DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `status` varchar(16) DEFAULT 'pending',
+  `expires_at` datetime(3) DEFAULT NULL,
+  `wildcard` tinyint(1) DEFAULT 0,
+  `attested_spki` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pki_acme_authzs_account_id` (`account_id`),
+  KEY `idx_pki_acme_authzs_order_id` (`order_id`),
+  KEY `idx_pki_acme_authzs_expires_at` (`expires_at`),
+  KEY `idx_pki_acme_authzs_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_authzs_account` FOREIGN KEY (`account_id`) REFERENCES `pki_acme_accounts` (`id`),
+  CONSTRAINT `fk_pki_acme_authzs_order` FOREIGN KEY (`order_id`) REFERENCES `pki_acme_orders` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_acme_challenges`
+--
+
+CREATE TABLE `pki_acme_challenges` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `authz_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(32) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `status` varchar(16) DEFAULT 'pending',
+  `validated` datetime(3) DEFAULT NULL,
+  `error` text DEFAULT NULL,
+  `retry_after` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pki_acme_challenges_authz_id` (`authz_id`),
+  KEY `idx_pki_acme_challenges_token` (`token`),
+  KEY `idx_pki_acme_challenges_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_challenges_authz` FOREIGN KEY (`authz_id`) REFERENCES `pki_acme_authzs` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_acme_eab_keys`
+--
+
+CREATE TABLE `pki_acme_eab_keys` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `profile_id` bigint(20) unsigned NOT NULL,
+  `key_id` varchar(64) DEFAULT NULL,
+  `hmac_key` varchar(128) DEFAULT NULL,
+  `reference` varchar(128) DEFAULT NULL,
+  `bound_account_id` bigint(20) unsigned DEFAULT NULL,
+  `bound_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acme_eab_keyid` (`key_id`),
+  KEY `idx_pki_acme_eab_keys_profile_id` (`profile_id`),
+  KEY `idx_pki_acme_eab_keys_bound_account_id` (`bound_account_id`),
+  KEY `idx_pki_acme_eab_keys_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_eab_keys_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

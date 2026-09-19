@@ -88,19 +88,19 @@ type (
 		// thresholds (in days before expiry) at which a renewal email
 		// should be sent — e.g. "14,7,1". When empty, the single
 		// DaysBeforeRenewalMail value is used in legacy one-shot mode.
-		RenewalMailDays       string                  `json:"renewal_mail_days,omitempty"`
-		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty" gorm:"default:Certificate expiration"`
-		RenewalMailFrom       string                  `json:"renewal_mail_from,omitempty"`
-		RenewalMailHeader     string                  `json:"renewal_mail_header,omitempty"`
-		RenewalMailFooter     string                  `json:"renewal_mail_footer,omitempty"`
-		RevokedValidUntil     int                     `json:"revoked_valid_until,omitempty,string" gorm:"default:14"`
-		CloudEnabled          int                     `json:"cloud_enabled,omitempty"`
-		CloudService          string                  `json:"cloud_service,omitempty"`
-		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty" gorm:"default:0"`
-		ScepServer            SCEPServer              `json:"-"`
-		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
-		AllowDuplicatedCN     int                     `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
-		MaximumDuplicatedCN   int                     `json:"maximum_duplicated_cn,omitempty,string" gorm:"default:0"`
+		RenewalMailDays     string     `json:"renewal_mail_days,omitempty"`
+		RenewalMailSubject  string     `json:"renewal_mail_subject,omitempty" gorm:"default:Certificate expiration"`
+		RenewalMailFrom     string     `json:"renewal_mail_from,omitempty"`
+		RenewalMailHeader   string     `json:"renewal_mail_header,omitempty"`
+		RenewalMailFooter   string     `json:"renewal_mail_footer,omitempty"`
+		RevokedValidUntil   int        `json:"revoked_valid_until,omitempty,string" gorm:"default:14"`
+		CloudEnabled        int        `json:"cloud_enabled,omitempty"`
+		CloudService        string     `json:"cloud_service,omitempty"`
+		ScepServerEnabled   int        `json:"scep_server_enabled,omitempty" gorm:"default:0"`
+		ScepServer          SCEPServer `json:"-"`
+		ScepServerID        uint       `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
+		AllowDuplicatedCN   int        `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
+		MaximumDuplicatedCN int        `json:"maximum_duplicated_cn,omitempty,string" gorm:"default:0"`
 
 		// ACME (RFC 8555) — issuance over Apple's managed-device flow
 		// and any other ACMEv2 client. Mirrors the SCEP* cluster above.
@@ -154,8 +154,12 @@ type (
 		// profile's RenewalMailDays list) have already triggered an
 		// email for this cert; stored as comma-separated ints. Stays
 		// empty in the legacy single-threshold path.
-		AlertedDays        string          `json:"alerted_days,omitempty"`
-		Subject            string          `json:"-"`
+		AlertedDays string `json:"alerted_days,omitempty"`
+		// AcmeAccountID back-links a cert issued through ACME finalize
+		// to the account that ordered it, so /cert and /revoke-cert can
+		// enforce RFC 8555 ownership. Zero for SCEP / admin-issued certs.
+		AcmeAccountID uint   `json:"-" gorm:"index"`
+		Subject       string `json:"-"`
 	}
 
 	// CSR struct
@@ -291,7 +295,6 @@ const dbError = "A database error occured. See log for details."
 // 12 ExtKeyUsageMicrosoftCommercialCodeSigning
 // 13 ExtKeyUsageMicrosoftKernelCodeSigning
 
-
 func ProfileAttributes(prof Profile) map[string]string {
 	var attributes map[string]string
 	attributes = make(map[string]string)
@@ -344,4 +347,3 @@ func ProfileAttributes(prof Profile) map[string]string {
 	}
 	return attributes
 }
-

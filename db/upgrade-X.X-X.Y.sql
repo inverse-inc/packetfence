@@ -213,6 +213,169 @@ CALL AddColumnUnlessExists('auth_log', 'source_type',
     'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
 
 --
+-- pfpki: configurable renewal-mail schedule (Profile.RenewalMailDays /
+-- Cert.AlertedDays)
+--
+\! echo "Adding column renewal_mail_days to pki_profiles...";
+CALL AddColumnUnlessExists('pki_profiles', 'renewal_mail_days',
+    'longtext DEFAULT NULL AFTER `maximum_duplicated_cn`');
+
+\! echo "Adding column alerted_days to pki_certs...";
+CALL AddColumnUnlessExists('pki_certs', 'alerted_days',
+    'longtext DEFAULT NULL AFTER `alert`');
+
+--
+-- pfpki: ACME account back-link on issued certs (ownership check for
+-- ACME cert download / revoke-cert)
+--
+\! echo "Adding column acme_account_id to pki_certs...";
+CALL AddColumnUnlessExists('pki_certs', 'acme_account_id',
+    'bigint(20) unsigned DEFAULT NULL AFTER `alerted_days`');
+CALL AddIndexUnlessExists('pki_certs', 'idx_pki_certs_acme_account_id',
+    'KEY `idx_pki_certs_acme_account_id` (`acme_account_id`)');
+
+--
+-- pfpki: ACME (RFC 8555) per-profile settings
+--
+\! echo "Adding ACME columns to pki_profiles...";
+CALL AddColumnUnlessExists('pki_profiles', 'acme_enabled',
+    'bigint(20) DEFAULT 0 AFTER `renewal_mail_days`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_allowed_identifiers',
+    'longtext DEFAULT NULL AFTER `acme_enabled`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_eab_required',
+    'bigint(20) DEFAULT 1 AFTER `acme_allowed_identifiers`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_attestation_formats',
+    'longtext DEFAULT NULL AFTER `acme_eab_required`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_attestation_roots',
+    'longtext DEFAULT NULL AFTER `acme_attestation_formats`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_account_expiry',
+    'bigint(20) DEFAULT 365 AFTER `acme_attestation_roots`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_order_expiry',
+    'bigint(20) DEFAULT 7 AFTER `acme_account_expiry`');
+CALL AddColumnUnlessExists('pki_profiles', 'acme_authz_expiry',
+    'bigint(20) DEFAULT 24 AFTER `acme_order_expiry`');
+
+--
+-- pfpki: ACME state tables
+--
+\! echo "Creating ACME tables...";
+CREATE TABLE IF NOT EXISTS `pki_acme_accounts` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `profile_id` bigint(20) unsigned NOT NULL,
+  `key_id` varchar(256) DEFAULT NULL,
+  `key_thumbprint` varchar(64) DEFAULT NULL,
+  `jwk` longtext DEFAULT NULL,
+  `status` varchar(16) DEFAULT 'valid',
+  `contact` text DEFAULT NULL,
+  `external_account_key_id` varchar(64) DEFAULT NULL,
+  `expires_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acme_account_keyid` (`key_id`),
+  KEY `acme_account_thumbprint` (`key_thumbprint`),
+  KEY `idx_pki_acme_accounts_profile_id` (`profile_id`),
+  KEY `idx_pki_acme_accounts_external_account_key_id` (`external_account_key_id`),
+  KEY `idx_pki_acme_accounts_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_accounts_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE IF NOT EXISTS `pki_acme_nonces` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `expires_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acme_nonce_token` (`token`),
+  KEY `idx_pki_acme_nonces_expires_at` (`expires_at`),
+  KEY `idx_pki_acme_nonces_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE IF NOT EXISTS `pki_acme_orders` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `status` varchar(16) DEFAULT 'pending',
+  `expires_at` datetime(3) DEFAULT NULL,
+  `not_before` datetime(3) DEFAULT NULL,
+  `not_after` datetime(3) DEFAULT NULL,
+  `identifiers` text DEFAULT NULL,
+  `authz_ids` text DEFAULT NULL,
+  `cert_serial_number` varchar(80) DEFAULT NULL,
+  `error` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pki_acme_orders_account_id` (`account_id`),
+  KEY `idx_pki_acme_orders_expires_at` (`expires_at`),
+  KEY `idx_pki_acme_orders_cert_serial_number` (`cert_serial_number`),
+  KEY `idx_pki_acme_orders_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_orders_account` FOREIGN KEY (`account_id`) REFERENCES `pki_acme_accounts` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE IF NOT EXISTS `pki_acme_authzs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `order_id` bigint(20) unsigned NOT NULL,
+  `identifier_type` varchar(32) DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `status` varchar(16) DEFAULT 'pending',
+  `expires_at` datetime(3) DEFAULT NULL,
+  `wildcard` tinyint(1) DEFAULT 0,
+  `attested_spki` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pki_acme_authzs_account_id` (`account_id`),
+  KEY `idx_pki_acme_authzs_order_id` (`order_id`),
+  KEY `idx_pki_acme_authzs_expires_at` (`expires_at`),
+  KEY `idx_pki_acme_authzs_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_authzs_account` FOREIGN KEY (`account_id`) REFERENCES `pki_acme_accounts` (`id`),
+  CONSTRAINT `fk_pki_acme_authzs_order` FOREIGN KEY (`order_id`) REFERENCES `pki_acme_orders` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE IF NOT EXISTS `pki_acme_challenges` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `authz_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(32) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `status` varchar(16) DEFAULT 'pending',
+  `validated` datetime(3) DEFAULT NULL,
+  `error` text DEFAULT NULL,
+  `retry_after` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pki_acme_challenges_authz_id` (`authz_id`),
+  KEY `idx_pki_acme_challenges_token` (`token`),
+  KEY `idx_pki_acme_challenges_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_challenges_authz` FOREIGN KEY (`authz_id`) REFERENCES `pki_acme_authzs` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE IF NOT EXISTS `pki_acme_eab_keys` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `profile_id` bigint(20) unsigned NOT NULL,
+  `key_id` varchar(64) DEFAULT NULL,
+  `hmac_key` varchar(128) DEFAULT NULL,
+  `reference` varchar(128) DEFAULT NULL,
+  `bound_account_id` bigint(20) unsigned DEFAULT NULL,
+  `bound_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acme_eab_keyid` (`key_id`),
+  KEY `idx_pki_acme_eab_keys_profile_id` (`profile_id`),
+  KEY `idx_pki_acme_eab_keys_bound_account_id` (`bound_account_id`),
+  KEY `idx_pki_acme_eab_keys_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_pki_acme_eab_keys_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
 -- Clean up the helper / validation procedures
 --
 DROP PROCEDURE IF EXISTS ValidateVersion;
