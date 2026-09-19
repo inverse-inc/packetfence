@@ -30,9 +30,9 @@ type JobSetupConfig interface {
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
-	"fingerbank_data_update":       NewFingerbankDataUpdate,
-	"certificates_check":           NewCertificatesCheck,
-	"pki_certificates_check":       NewPkiCertificatesCheck,
+	"fingerbank_data_update":        NewFingerbankDataUpdate,
+	"certificates_check":            NewCertificatesCheck,
+	"pki_certificates_check":        NewPkiCertificatesCheck,
 	"pki_process_cloud_revocations": NewPkiProcessCloudRevocations,
 	"file_logger":                  NewFileLogger,
 	"cleanup_chi_database_cache":   NewChiCleanup,
@@ -51,9 +51,13 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	// declare DB-level FKs. Nonces use the window=0 fast path because
 	// they're already past expires_at to be candidates.
 	"pki_acme_state_cleanup": MakeMultiWindowSqlJobSetupConfig(
-		`DELETE c FROM pki_acme_challenges c INNER JOIN pki_acme_authzs a ON c.authz_id = a.id WHERE a.expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
-		`DELETE FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
-		`DELETE FROM pki_acme_orders WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
+		// Single-table DELETEs only: MySQL/MariaDB reject LIMIT on a
+		// multi-table DELETE. Children go first, and each parent delete is
+		// guarded by NOT EXISTS so a batch that only got through part of
+		// the children never orphans rows behind the FK.
+		`DELETE FROM pki_acme_challenges WHERE authz_id IN (SELECT id FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND)) LIMIT ?`,
+		`DELETE FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) AND NOT EXISTS (SELECT 1 FROM pki_acme_challenges c WHERE c.authz_id = pki_acme_authzs.id) LIMIT ?`,
+		`DELETE FROM pki_acme_orders WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) AND NOT EXISTS (SELECT 1 FROM pki_acme_authzs a WHERE a.order_id = pki_acme_orders.id) LIMIT ?`,
 		`DELETE FROM pki_acme_nonces WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
 	"auth_log_cleanup":             MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
