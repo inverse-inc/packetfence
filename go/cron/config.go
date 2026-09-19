@@ -20,23 +20,23 @@ type JobSetupConfig interface {
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
-	"fingerbank_data_update":       NewFingerbankDataUpdate,
-	"certificates_check":           NewCertificatesCheck,
-	"pki_certificates_check":       NewPkiCertificatesCheck,
+	"fingerbank_data_update":        NewFingerbankDataUpdate,
+	"certificates_check":            NewCertificatesCheck,
+	"pki_certificates_check":        NewPkiCertificatesCheck,
 	"pki_process_cloud_revocations": NewPkiProcessCloudRevocations,
-	"file_logger":                  NewFileLogger,
-	"cleanup_chi_database_cache":   NewChiCleanup,
-	"bandwidth_maintenance":        NewBandwidthMaintenance,
-	"ip4log_cleanup":               NewIp4logCleanup,
-	"ip6log_cleanup":               NewIp6logCleanup,
-	"flush_dns_audit_log":          NewFlushDNSAuditLog,
-	"pfflow":                       NewPfFlowJob,
-	"purge_binary_logs":            MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
-	"admin_api_audit_log_cleanup":  MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	"file_logger":                   NewFileLogger,
+	"cleanup_chi_database_cache":    NewChiCleanup,
+	"bandwidth_maintenance":         NewBandwidthMaintenance,
+	"ip4log_cleanup":                NewIp4logCleanup,
+	"ip6log_cleanup":                NewIp6logCleanup,
+	"flush_dns_audit_log":           NewFlushDNSAuditLog,
+	"pfflow":                        NewPfFlowJob,
+	"purge_binary_logs":             MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
+	"admin_api_audit_log_cleanup":   MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	// Anchored on valid_until (the original cert's natural expiry) so OCSP
 	// still answers "Revoked" for any cert that could otherwise plausibly
 	// be presented to a verifier. Admin's `window` is grace beyond that.
-	"pki_revoked_certs_cleanup":    MakeWindowSqlJobSetupConfig(`DELETE FROM pki_revoked_certs WHERE valid_until < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	"pki_revoked_certs_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM pki_revoked_certs WHERE valid_until < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	// ACME state grows quickly under churn: every device enrollment
 	// produces one order, one or more authzs, one challenge per authz,
 	// plus a transient nonce. We sweep the four expirable tables in
@@ -45,9 +45,13 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	// declare DB-level FKs. Nonces use the window=0 fast path because
 	// they're already past expires_at to be candidates.
 	"pki_acme_state_cleanup": MakeMultiWindowSqlJobSetupConfig(
-		`DELETE c FROM pki_acme_challenges c INNER JOIN pki_acme_authzs a ON c.authz_id = a.id WHERE a.expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
-		`DELETE FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
-		`DELETE FROM pki_acme_orders WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
+		// Single-table DELETEs only: MySQL/MariaDB reject LIMIT on a
+		// multi-table DELETE. Children go first, and each parent delete is
+		// guarded by NOT EXISTS so a batch that only got through part of
+		// the children never orphans rows behind the FK.
+		`DELETE FROM pki_acme_challenges WHERE authz_id IN (SELECT id FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND)) LIMIT ?`,
+		`DELETE FROM pki_acme_authzs WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) AND NOT EXISTS (SELECT 1 FROM pki_acme_challenges c WHERE c.authz_id = pki_acme_authzs.id) LIMIT ?`,
+		`DELETE FROM pki_acme_orders WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) AND NOT EXISTS (SELECT 1 FROM pki_acme_authzs a WHERE a.order_id = pki_acme_orders.id) LIMIT ?`,
 		`DELETE FROM pki_acme_nonces WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
 	"auth_log_cleanup":             MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
