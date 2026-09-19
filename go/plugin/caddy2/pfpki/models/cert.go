@@ -422,18 +422,76 @@ type AcmeIdentifier struct {
 	Value string
 }
 
+// ValidateACMECSR enforces RFC 8555 §7.4 on a finalize CSR: every name
+// the certificate would carry must be an identifier the order was
+// authorized for. The CSR may use a strict subset (some clients drop
+// SANs they no longer want) but any name not in the order is a hard
+// reject — this is the security boundary that prevents a device that
+// proved ownership of example.com from minting a cert for
+// example.bank, or from adding an email / URI SAN it never proved.
+//
+//   - CN:           a dns (case-insensitive), ip or permanent-identifier
+//   - DNS SANs:     dns identifiers
+//   - IP SANs:      ip identifiers
+//   - email SANs:   email identifiers (none can be ordered today)
+//   - URI SANs:     always rejected, ACME has no URI identifier type
+//
+// Other Subject attributes are ignored here: SignCSRForACME takes them
+// from the profile, never from the CSR.
+func ValidateACMECSR(csr *x509.CertificateRequest, identifiers []AcmeIdentifier) error {
+	var dns, ip, email, permanent []string
+	for _, id := range identifiers {
+		switch id.Type {
+		case "dns":
+			dns = append(dns, id.Value)
+		case "ip":
+			ip = append(ip, id.Value)
+		case "email":
+			email = append(email, id.Value)
+		case "permanent-identifier":
+			permanent = append(permanent, id.Value)
+		}
+	}
+	if cn := strings.TrimSpace(csr.Subject.CommonName); cn != "" {
+		if !containsFold(dns, cn) && !containsString(ip, cn) && !containsString(permanent, cn) {
+			return fmt.Errorf("CSR CN %q not in order identifiers", cn)
+		}
+	}
+	for _, name := range csr.DNSNames {
+		if !containsFold(dns, name) {
+			return fmt.Errorf("CSR DNS SAN %q not in order identifiers", name)
+		}
+	}
+	for _, addr := range csr.IPAddresses {
+		if !containsString(ip, addr.String()) {
+			return fmt.Errorf("CSR IP SAN %q not in order identifiers", addr.String())
+		}
+	}
+	for _, mail := range csr.EmailAddresses {
+		if !containsFold(email, mail) {
+			return fmt.Errorf("CSR email SAN %q not in order identifiers", mail)
+		}
+	}
+	if len(csr.URIs) > 0 {
+		return fmt.Errorf("CSR URI SAN %q not allowed", csr.URIs[0].String())
+	}
+	return nil
+}
+
 // SignCSRForACME issues a cert against the given profile for an
-// ACME-finalize call. It is the single integration point the user
-// asked about: ACME's identifier set (already validated against the
-// order) is verified against the CSR's CN+SANs, then the cert is
-// signed with the profile's CA and persisted to pki_certs.
+// ACME-finalize call. It is the single integration point between the
+// ACME server and pfpki issuance: the CSR is validated against the
+// order's identifiers (ValidateACMECSR), the Subject is built from the
+// profile the way SCEP / admin issuance does (only the CN comes from
+// the CSR), then the cert is signed with the profile's CA and persisted
+// to pki_certs with accountID as its ACME owner.
 //
 // Returns the newly-inserted Cert row (with ID + SerialNumber
 // populated) or an error suitable for an ACME problem document.
 //
 // Callers must hand a profile loaded with `Preload("Ca")` so the CA
 // cert/key are accessible.
-func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byte, identifiers []AcmeIdentifier) (*Cert, error) {
+func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byte, identifiers []AcmeIdentifier, accountID uint) (*Cert, error) {
 	csr, err := x509.ParseCertificateRequest(csrDER)
 	if err != nil {
 		return nil, fmt.Errorf("parse CSR: %w", err)
@@ -441,27 +499,8 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 	if err := csr.CheckSignature(); err != nil {
 		return nil, fmt.Errorf("CSR self-signature: %w", err)
 	}
-
-	// Validate CSR identifiers ⊆ order identifiers. We allow the CSR
-	// to use a strict subset (some clients drop SANs they no longer
-	// want) but a SAN not in the order is a hard reject — this is the
-	// security boundary that prevents a device that proved ownership
-	// of example.com from minting a cert for example.bank.
-	allowedDNS, allowedIP := partitionIdentifiers(identifiers)
-	if cn := strings.TrimSpace(csr.Subject.CommonName); cn != "" {
-		if !containsString(allowedDNS, cn) && !containsString(allowedIP, cn) {
-			return nil, fmt.Errorf("CSR CN %q not in order identifiers", cn)
-		}
-	}
-	for _, dns := range csr.DNSNames {
-		if !containsString(allowedDNS, dns) {
-			return nil, fmt.Errorf("CSR DNS SAN %q not in order identifiers", dns)
-		}
-	}
-	for _, ip := range csr.IPAddresses {
-		if !containsString(allowedIP, ip.String()) {
-			return nil, fmt.Errorf("CSR IP SAN %q not in order identifiers", ip.String())
-		}
+	if err := ValidateACMECSR(csr, identifiers); err != nil {
+		return nil, err
 	}
 
 	// Atomically allocate a serial.
@@ -477,14 +516,19 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 		return nil, fmt.Errorf("compute SKID: %w", err)
 	}
 
-	// Build the cert template. KeyUsage / ExtKeyUsage / Digest come
-	// from the profile, just like the existing CSR.New path.
+	// Build the cert template. Subject attributes, KeyUsage,
+	// ExtKeyUsage and Digest come from the profile, just like the
+	// existing CSR.New path; the CSR only contributes the CN and the
+	// validated SANs.
+	attributes := ProfileAttributes(prof)
+	subject := certutils.MakeSubject(pkix.Name{}, attributes)
+	subject.CommonName = strings.TrimSpace(csr.Subject.CommonName)
 	keyUsage := x509.KeyUsage(certutils.Keyusage(strings.Split(strDeref(prof.KeyUsage), "|")))
 	extKeyUsage := certutils.Extkeyusage(strings.Split(strDeref(prof.ExtendedKeyUsage), "|"))
 
 	tmpl := &x509.Certificate{
 		SerialNumber:       serial,
-		Subject:            csr.Subject,
+		Subject:            subject,
 		NotBefore:          time.Now().UTC(),
 		NotAfter:           time.Now().AddDate(0, 0, prof.Validity).UTC(),
 		SignatureAlgorithm: certutils.CompatibleSigAlgo(*prof.Ca.KeyType, prof.Digest),
@@ -494,7 +538,6 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 		DNSNames:           csr.DNSNames,
 		IPAddresses:        csr.IPAddresses,
 		EmailAddresses:     csr.EmailAddresses,
-		URIs:               csr.URIs,
 	}
 	if prof.OCSPUrl != "" {
 		tmpl.OCSPServer = []string{prof.OCSPUrl}
@@ -517,8 +560,8 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 		return nil, err
 	}
 
-	dnMap := certutils.GetDNFromCert(csr.Subject)
-	cnForRow := strings.TrimSpace(csr.Subject.CommonName)
+	dnMap := certutils.GetDNFromCert(subject)
+	cnForRow := subject.CommonName
 	if cnForRow == "" {
 		// ACME profiles often issue with empty CN + only SANs; pick
 		// the first DNS SAN for the row's index column.
@@ -560,7 +603,8 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 		IPAddresses:        strings.Join(ipStrings, ","),
 		Scep:               &notfalse,
 		Csr:                &notTrue,
-		Subject:            csr.Subject.String(),
+		Subject:            subject.String(),
+		AcmeAccountID:      accountID,
 		DB:                 db,
 		Ctx:                ctx,
 	}
@@ -568,20 +612,6 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 		return nil, fmt.Errorf("persist cert: %w", err)
 	}
 	return &row, nil
-}
-
-// partitionIdentifiers splits an ACME identifier slice into DNS and
-// IP buckets so SAN validation can be done in two simple slice scans.
-func partitionIdentifiers(ids []AcmeIdentifier) (dns, ip []string) {
-	for _, id := range ids {
-		switch id.Type {
-		case "dns":
-			dns = append(dns, id.Value)
-		case "ip":
-			ip = append(ip, id.Value)
-		}
-	}
-	return
 }
 
 func strDeref(s *string) string {
@@ -601,6 +631,46 @@ func containsString(xs []string, want string) bool {
 		}
 	}
 	return false
+}
+
+// containsFold is containsString for DNS names and mail addresses,
+// where case is not significant.
+func containsFold(xs []string, want string) bool {
+	for _, x := range xs {
+		if strings.EqualFold(x, want) {
+			return true
+		}
+	}
+	return false
+}
+
+// serialCandidates returns the stored forms a serial presented by an
+// external system may correspond to. pki_certs stores big.Int.String()
+// (decimal), while Intune and most X.509 tooling show hex, sometimes
+// with colon or space separators or a 0x prefix.
+func serialCandidates(serial string) []string {
+	s := strings.TrimSpace(serial)
+	if s == "" {
+		return nil
+	}
+	seen := map[string]bool{}
+	var out []string
+	add := func(v string) {
+		if v != "" && !seen[v] {
+			seen[v] = true
+			out = append(out, v)
+		}
+	}
+	add(s)
+	if n, ok := new(big.Int).SetString(s, 10); ok {
+		add(n.String())
+	}
+	h := strings.NewReplacer(":", "", " ", "", "-", "").Replace(s)
+	h = strings.TrimPrefix(strings.TrimPrefix(h, "0x"), "0X")
+	if n, ok := new(big.Int).SetString(h, 16); ok {
+		add(n.String())
+	}
+	return out
 }
 
 // RevokeBySerial looks up a leaf by serial number under the given CA
@@ -813,8 +883,8 @@ func nextDueRenewalThreshold(now time.Time, cert Cert, prof Profile) (threshold 
 
 // thresholdCrossed reports whether `now` is within `T` days of NotAfter.
 func thresholdCrossed(now, notAfter time.Time, T int) bool {
-	return now.Add(time.Duration(T) * 24 * time.Hour).After(notAfter) ||
-		now.Add(time.Duration(T) * 24 * time.Hour).Equal(notAfter)
+	return now.Add(time.Duration(T)*24*time.Hour).After(notAfter) ||
+		now.Add(time.Duration(T)*24*time.Hour).Equal(notAfter)
 }
 
 // parseRenewalThresholds returns the configured thresholds sorted in
