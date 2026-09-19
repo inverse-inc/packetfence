@@ -198,38 +198,39 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	_ = json.NewEncoder(w).Encode(types.Errors{Status: status, Message: msg})
 }
 
-// AcmeEABMobileConfig serves
-// GET /api/v1/pki/profile/{id}/acme/eab/{eab_id}/mobileconfig
+// AcmeMobileConfig serves
+// GET /api/v1/pki/profile/{id}/acme/mobileconfig[?client_identifier=...]
 //
-// Returns a ready-to-import .mobileconfig payload containing a single
-// com.apple.security.acme block, wired to:
+// Returns a ready-to-import .mobileconfig containing a single
+// com.apple.security.acme payload wired to this installation's ACME
+// directory URL for the profile. Apple's ACME client authenticates with
+// device attestation only (it has no External Account Binding support),
+// so the endpoint refuses profiles that are not set up for the Apple
+// flow rather than emit a payload that can never enroll:
 //
-//   - This installation's ACME directory URL for the profile.
-//   - The (KeyID, HMACKey) pair of the named EAB row.
+//   - ACME enabled
+//   - "permanent-identifier" among the allowed identifier types
+//   - "apple" among the attestation formats
+//   - EAB not required
 //
-// The operator hands this file to their MDM tool (Jamf/Intune/etc.) as
-// the certificate payload template for the device fleet. Per-device
-// MDM systems typically substitute the device's UDID into the
-// SubjectAltName field at deploy time; we leave that placeholder in
-// the plist for the MDM template language to fill.
+// ClientIdentifier is what the device sends as the permanent-identifier
+// value, and device-attest-01 matches it against the UDID or serial
+// number in the attestation chain, so it has to resolve per device.
+// MDMs do that with a substitution variable at deploy time; the
+// default is Jamf's $SERIALNUMBER and ?client_identifier= overrides it
+// for other MDMs.
 //
 // Why we ship the plain mobileconfig rather than a signed one: signing
 // would require the operator's own MDM CA, and Apple's MDM stack
 // signs/encrypts the payload before delivery to the device. PacketFence
 // is the template source, not the signer.
 //
-// Format reference: Apple's Configuration Profile Reference,
-// CertificatePayload → ACME (com.apple.security.acme).
-func AcmeEABMobileConfig(pfpki *types.Handler) http.HandlerFunc {
+// Format reference: Apple Device Management, Configuration Profiles,
+// ACMECertificate (com.apple.security.acme).
+func AcmeMobileConfig(pfpki *types.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		profileID, ok := eabProfileID(w, r)
 		if !ok {
-			return
-		}
-		vars := types.Params(r, "eab_id")
-		eabID, err := strconv.ParseUint(vars["eab_id"], 10, 64)
-		if err != nil {
-			writeJSONError(w, http.StatusBadRequest, "bad eab_id")
 			return
 		}
 		var prof models.Profile
@@ -241,33 +242,60 @@ func AcmeEABMobileConfig(pfpki *types.Handler) http.HandlerFunc {
 			writeJSONError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		var eab models.AcmeExternalAccountKey
-		if err := pfpki.DB.Where("id = ? AND profile_id = ?", eabID, profileID).
-			First(&eab).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				writeJSONError(w, http.StatusNotFound, "no such EAB key")
-				return
-			}
-			writeJSONError(w, http.StatusInternalServerError, err.Error())
+		if problems := appleACMEProfileProblems(prof); len(problems) > 0 {
+			writeJSONError(w, http.StatusConflict,
+				"profile is not set up for Apple ACME enrollment: "+strings.Join(problems, "; "))
 			return
 		}
 
-		// Reconstruct the ACME directory URL the device will hit.
-		// Falls back to /acme/{profile}/directory on this host header
-		// — same logic the ACME handler uses via baseURL().
+		clientIdentifier := strings.TrimSpace(r.URL.Query().Get("client_identifier"))
+		if clientIdentifier == "" {
+			clientIdentifier = "$SERIALNUMBER"
+		}
+
+		// Reconstruct the ACME directory URL the device will hit —
+		// same logic the ACME handler uses via baseURL().
 		directoryURL := acmeDirectoryURL(r, prof.Name)
 
-		plist := buildACMEMobileConfig(prof.Name, directoryURL, eab.KeyID, eab.HMACKey)
+		plist := buildACMEMobileConfig(prof.Name, directoryURL, clientIdentifier)
 
-		writeAdminAuditFromRequest(pfpki, r, "pfpki.AcmeEABMobileConfig",
-			strconv.FormatUint(eabID, 10), http.StatusOK,
-			map[string]any{"profile_id": profileID, "key_id": eab.KeyID})
+		writeAdminAuditFromRequest(pfpki, r, "pfpki.AcmeMobileConfig",
+			strconv.FormatUint(uint64(profileID), 10), http.StatusOK,
+			map[string]any{"profile_id": profileID, "client_identifier": clientIdentifier})
 
 		w.Header().Set("Content-Type", "application/x-apple-aspen-config")
 		w.Header().Set("Content-Disposition",
 			fmt.Sprintf(`attachment; filename="pfpki-acme-%s.mobileconfig"`, sanitizeFilename(prof.Name)))
 		_, _ = w.Write([]byte(plist))
 	}
+}
+
+// appleACMEProfileProblems lists what keeps prof from enrolling Apple
+// devices through ACME; empty means the profile is ready.
+func appleACMEProfileProblems(prof models.Profile) []string {
+	var problems []string
+	if prof.AcmeEnabled != 1 {
+		problems = append(problems, "ACME is not enabled")
+	}
+	if !csvContains(prof.AcmeAllowedIdentifiers, "permanent-identifier") {
+		problems = append(problems, `"permanent-identifier" is not an allowed identifier type`)
+	}
+	if !csvContains(prof.AcmeAttestationFormats, "apple") {
+		problems = append(problems, `"apple" is not an enabled attestation format`)
+	}
+	if prof.AcmeEabRequired == 1 {
+		problems = append(problems, "External Account Binding is required, which Apple's ACME client does not support")
+	}
+	return problems
+}
+
+func csvContains(csv, want string) bool {
+	for _, part := range strings.Split(csv, ",") {
+		if strings.TrimSpace(part) == want {
+			return true
+		}
+	}
+	return false
 }
 
 // acmeDirectoryURL mirrors the URL pfpki/acme/directory.go::baseURL
@@ -293,16 +321,12 @@ func acmeDirectoryURL(r *http.Request, profileName string) string {
 // fully fixed and small; the variable bits are XML-escaped via the
 // helper at the bottom.
 //
-// The payload requests an RSA-2048 cert per Apple's reference; that's
-// what most enrollments use, and pfpki supports it. The HardwareBound
-// field is true — Apple's ACME device-attest-01 requires the key be
-// generated by the Secure Enclave and attested, which is the whole
-// reason we built this flow.
-//
-// SubjectAltName: the placeholder %SerialNumber% is what the operator's
-// MDM stack will substitute at deploy time. We can't fill it here
-// because pfpki doesn't know the target device.
-func buildACMEMobileConfig(profileName, directoryURL, keyID, hmacKey string) string {
+// Attest requires HardwareBound, and a hardware-bound key must be an
+// ECSECPrimeRandom key of 256 or 384 bits (the Secure Enclave does not
+// do RSA), so that is what the payload asks for; the CA signs whatever
+// key the device presents. The Subject CN carries the client
+// identifier, which is the only name the order authorizes.
+func buildACMEMobileConfig(profileName, directoryURL, clientIdentifier string) string {
 	payloadUUID := strings.ToUpper(uuid.NewString())
 	rootUUID := strings.ToUpper(uuid.NewString())
 	return `<?xml version="1.0" encoding="UTF-8"?>
@@ -325,37 +349,32 @@ func buildACMEMobileConfig(profileName, directoryURL, keyID, hmacKey string) str
       <key>DirectoryURL</key>
       <string>` + xmlEscape(directoryURL) + `</string>
       <key>ClientIdentifier</key>
-      <string>` + xmlEscape(keyID) + `</string>
-      <key>KeySize</key>
-      <integer>2048</integer>
+      <string>` + xmlEscape(clientIdentifier) + `</string>
       <key>KeyType</key>
-      <string>RSA</string>
+      <string>ECSECPrimeRandom</string>
+      <key>KeySize</key>
+      <integer>256</integer>
       <key>HardwareBound</key>
       <true/>
       <key>Attest</key>
       <true/>
-      <key>ExtendedKeyUsage</key>
-      <array>
-        <string>1.3.6.1.5.5.7.3.2</string>
-      </array>
+      <key>KeyIsExtractable</key>
+      <false/>
       <key>Subject</key>
       <array>
         <array>
           <array>
             <string>CN</string>
-            <string>%HardwareUUID%</string>
+            <string>` + xmlEscape(clientIdentifier) + `</string>
           </array>
         </array>
       </array>
-      <key>SubjectAltName</key>
-      <dict>
-        <key>ntPrincipalName</key>
-        <string>%HardwareUUID%</string>
-      </dict>
       <key>UsageFlags</key>
       <integer>1</integer>
-      <key>ClientSecret</key>
-      <string>` + xmlEscape(hmacKey) + `</string>
+      <key>ExtendedKeyUsage</key>
+      <array>
+        <string>1.3.6.1.5.5.7.3.2</string>
+      </array>
     </dict>
   </array>
   <key>PayloadDisplayName</key>
