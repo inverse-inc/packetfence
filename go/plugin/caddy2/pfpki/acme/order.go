@@ -2,9 +2,11 @@ package acme
 
 import (
 	"crypto/rand"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -71,15 +73,28 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 		// rejects every type. The default profile-create form should
 		// pre-seed "dns,ip" so this isn't a footgun in production.
 		allowed := splitCSV(jc.Profile.AcmeAllowedIdentifiers)
-		for _, ident := range payload.Identifiers {
+		attestation := splitCSV(jc.Profile.AcmeAttestationFormats)
+		for i := range payload.Identifiers {
+			ident := &payload.Identifiers[i]
+			ident.Value = strings.TrimSpace(ident.Value)
 			if !contains(allowed, ident.Type) {
 				_ = WriteProblem(w, http.StatusBadRequest, ErrRejectedIdentifier,
 					"identifier type "+strconv.Quote(ident.Type)+" not allowed on this profile")
 				return
 			}
-			// Empty values are always invalid regardless of type.
-			if strings.TrimSpace(ident.Value) == "" {
-				_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "identifier value is empty")
+			// The value ends up in a URL the server fetches (http-01)
+			// and in the CN of a cert we sign; validate it before it is
+			// persisted anywhere.
+			if err := validateIdentifier(ident.Type, ident.Value); err != nil {
+				_ = WriteProblem(w, http.StatusBadRequest, ErrRejectedIdentifier, err.Error())
+				return
+			}
+			// permanent-identifier can only be proven by device
+			// attestation; without a format on the profile no challenge
+			// could ever validate it (http-01 would treat it as a host).
+			if ident.Type == "permanent-identifier" && !contains(attestation, "apple") {
+				_ = WriteProblem(w, http.StatusBadRequest, ErrRejectedIdentifier,
+					"permanent-identifier requires an attestation format on this profile")
 				return
 			}
 		}
@@ -176,13 +191,18 @@ type finalizePayload struct {
 //   - Order must exist and belong to the JWS account.
 //   - Order must be in `ready` state (all authzs valid).
 //   - Posted CSR must be parseable and self-signature-valid.
-//   - CSR's CN/SANs must be a subset of the order's identifiers.
+//   - CSR's CN/SANs must be a subset of the order's identifiers, and
+//     for a device-attest-01 order the CSR key must be the attested key.
 //
-// On success, the cert is signed via models.SignCSRForACME (the
-// single integration seam with the existing pfpki issuance code), the
-// order's CertSerialNumber + status flip in one transaction, and we
-// return the updated order body. The client then polls /order/{id}
-// until status==valid and downloads the cert from /cert/{serial}.
+// Every CSR check runs before the order changes state, so a client
+// that sent a bad CSR can retry against the same order (Boulder
+// behaves the same way). Once the checks pass the order is flipped
+// ready → processing atomically; a concurrent finalize for the same
+// order sees zero rows affected and is refused, so one order can never
+// produce two certificates. The cert is then signed via
+// models.SignCSRForACME (the single integration seam with the existing
+// pfpki issuance code) and the order moves to valid with the cert
+// serial recorded; a signing failure moves it to invalid (§7.1.6).
 func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 	inner := func(w http.ResponseWriter, r *http.Request) {
 		jc := fromCtx(r.Context())
@@ -233,6 +253,15 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, "csr field is not URL-safe base64: "+err.Error())
 			return
 		}
+		csr, err := x509.ParseCertificateRequest(csrDER)
+		if err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, "parse CSR: "+err.Error())
+			return
+		}
+		if err := csr.CheckSignature(); err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, "CSR self-signature: "+err.Error())
+			return
+		}
 
 		// Decode identifiers from storage into the shape SignCSRForACME
 		// expects (no acme→models import dependency).
@@ -244,18 +273,43 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 		for i, x := range raw {
 			ids[i] = models.AcmeIdentifier{Type: x.Type, Value: x.Value}
 		}
-
-		cert, err := models.SignCSRForACME(h.DB, r.Context(), prof, csrDER, ids)
-		if err != nil {
+		if err := models.ValidateACMECSR(csr, ids); err != nil {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, err.Error())
+			return
+		}
+		if err := checkAttestedKey(h.DB, order.ID, csr); err != nil {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, err.Error())
 			return
 		}
 
-		// Order transition: ready → valid + record the cert serial so
-		// /cert/{serial} can resolve it later.
+		// ready → processing, atomically.
+		res := h.DB.Model(&models.AcmeOrder{}).
+			Where("id = ? AND status = ?", order.ID, "ready").
+			Update("status", "processing")
+		if res.Error != nil {
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, res.Error.Error())
+			return
+		}
+		if res.RowsAffected != 1 {
+			_ = WriteProblem(w, http.StatusForbidden, ErrOrderNotReady, "order is already being finalized")
+			return
+		}
+
+		cert, err := models.SignCSRForACME(h.DB, r.Context(), prof, csrDER, ids, jc.Account.ID)
+		if err != nil {
+			problem := Problem{Type: ErrServerInternal, Detail: err.Error(), Status: http.StatusInternalServerError}
+			pb, _ := json.Marshal(problem)
+			_ = h.DB.Model(&models.AcmeOrder{}).Where("id = ?", order.ID).
+				Updates(map[string]any{"status": "invalid", "error": string(pb)}).Error
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
+			return
+		}
+
+		// Order transition: processing → valid + record the cert serial
+		// so /cert/{serial} can resolve it later.
 		if err := h.DB.Model(&models.AcmeOrder{}).Where("id = ?", order.ID).
 			Updates(map[string]any{
-				"status":            "valid",
+				"status":             "valid",
 				"cert_serial_number": cert.SerialNumber,
 			}).Error; err != nil {
 			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
@@ -272,6 +326,37 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 		_ = json.NewEncoder(w).Encode(buildOrderResponse(r, jc.Profile.Name, &order, parseAuthzIDs(order.AuthzIDs)))
 	}
 	return jwsMiddleware(h, jwsRequireKID, inner)
+}
+
+// checkAttestedKey enforces the device-attest-01 key binding at
+// finalize: every permanent-identifier authz on the order recorded the
+// SubjectPublicKeyInfo of the key the attestation chain vouched for,
+// and the CSR must carry that same key. Without this a device could
+// attest a Secure Enclave key and then have an unrelated, exportable
+// key certified.
+func checkAttestedKey(db *gorm.DB, orderID uint, csr *x509.CertificateRequest) error {
+	var authzs []models.AcmeAuthz
+	if err := db.Where("order_id = ? AND identifier_type = ?", orderID, "permanent-identifier").
+		Find(&authzs).Error; err != nil {
+		return err
+	}
+	if len(authzs) == 0 {
+		return nil
+	}
+	spki, err := x509.MarshalPKIXPublicKey(csr.PublicKey)
+	if err != nil {
+		return fmt.Errorf("CSR public key: %w", err)
+	}
+	want := base64.StdEncoding.EncodeToString(spki)
+	for _, a := range authzs {
+		if a.AttestedSPKI == "" {
+			return errors.New("permanent-identifier authorization carries no attested key")
+		}
+		if a.AttestedSPKI != want {
+			return errors.New("CSR public key does not match the attested device key")
+		}
+	}
+	return nil
 }
 
 // orderByIDHandler is the RFC 8555 §6.3 POST-as-GET read of an order.

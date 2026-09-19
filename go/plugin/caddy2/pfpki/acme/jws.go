@@ -90,7 +90,8 @@ func expectedRequestURL(r *http.Request) string {
 // an unverified context.
 //
 // mode controls whether the request must carry `jwk` (new-account /
-// key rollover / revoke-by-cert-key) or `kid` (every other endpoint).
+// key rollover), `kid` (every other endpoint) or may carry either
+// (revoke-cert).
 func jwsMiddleware(h *types.Handler, mode jwsMode, next func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prof, ok := loadProfile(w, r, h)
@@ -172,13 +173,19 @@ func jwsMiddleware(h *types.Handler, mode jwsMode, next func(http.ResponseWriter
 
 		jctx := &jwsContext{Profile: prof, Alg: protected.Alg}
 
-		switch mode {
-		case jwsRequireJWK:
-			if !hasJWK {
-				_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed,
-					"this endpoint requires the JWK form")
-				return
-			}
+		if mode == jwsRequireJWK && !hasJWK {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed,
+				"this endpoint requires the JWK form")
+			return
+		}
+		if mode == jwsRequireKID && !hasKID {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed,
+				"this endpoint requires the kid form")
+			return
+		}
+
+		switch {
+		case hasJWK:
 			jctx.JWK = protected.JWK
 			payload, verr := sig.Verify(protected.JWK)
 			if verr != nil {
@@ -188,12 +195,7 @@ func jwsMiddleware(h *types.Handler, mode jwsMode, next func(http.ResponseWriter
 			}
 			jctx.Payload = payload
 
-		case jwsRequireKID:
-			if !hasKID {
-				_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed,
-					"this endpoint requires the kid form")
-				return
-			}
+		default:
 			acct, jwk, lookupErr := lookupAccountByKID(h, prof.ID, protected.KID)
 			if errors.Is(lookupErr, gorm.ErrRecordNotFound) {
 				_ = WriteProblem(w, http.StatusUnauthorized, ErrAccountDoesNotExist,
@@ -231,6 +233,11 @@ type jwsMode int
 const (
 	jwsRequireJWK jwsMode = iota + 1
 	jwsRequireKID
+	// jwsAllowEither accepts both forms; the handler tells them apart by
+	// jc.Account, which is nil in the jwk case. RFC 8555 §7.6 lets
+	// revoke-cert be signed by either the account key or the
+	// certificate's own key.
+	jwsAllowEither
 )
 
 // lookupAccountByKID resolves an ACME `kid` URL (e.g.
