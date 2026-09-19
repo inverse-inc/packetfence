@@ -141,7 +141,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Get("/{id}/acme/eab", handlers.AcmeEABList(PFPki))
 			r.Post("/{id}/acme/eab", handlers.AcmeEABCreate(PFPki))
 			r.Delete("/{id}/acme/eab/{eab_id}", handlers.AcmeEABDelete(PFPki))
-			r.Get("/{id}/acme/eab/{eab_id}/mobileconfig", handlers.AcmeEABMobileConfig(PFPki))
+			r.Get("/{id}/acme/mobileconfig", handlers.AcmeMobileConfig(PFPki))
 
 		})
 		// Certs api endpoint

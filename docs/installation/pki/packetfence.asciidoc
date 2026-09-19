@@ -353,13 +353,17 @@ open the *ACME* tab, and set:
 * *Attestation formats* — `apple` to enable device-attest-01 against
   Apple's attestation chain. Leaving this empty disables device
   attestation and the server falls back to http-01.
-* *Require External Account Binding* — keep this on for any production
-  fleet. EAB is what pins each enrollment to a key the operator
-  pre-shared with the device via MDM.
+* *Require External Account Binding* — keep this on for generic ACME
+  clients (certbot, acme.sh, step). EAB is what pins each enrollment
+  to a key the operator pre-shared with the device. Turn it *off* on a
+  template used for Apple managed devices: Apple's ACME client has no
+  EAB support, and device attestation is what authenticates it there.
 * *Attestation root CAs (PEM)* — optional override of the embedded
-  Apple Enterprise Attestation Root CA. Required during the initial
-  release until the embedded root is verified against Apple's published
-  fingerprint.
+  Apple Enterprise Attestation Root CA (SHA-256
+  `CC:F5:9E:F8:FC:B3:01:7D:97:F8:B5:FA:6F:A9:0E:7A:3F:92:83:F7:6B:55:AC:6C:F6:ED:A8:B8:B9:49:F0:5B`,
+  valid until 2047). Leave empty unless Apple publishes a new root or
+  you are testing with an attestation chain of your own; a value here
+  replaces the embedded root.
 * *Account / Order / Authorization expiry* — defaults are usually
   fine. The pki_acme_state_cleanup pfcron task drops rows past these
   expiries so the pki_acme_* tables don't grow unbounded.
@@ -388,14 +392,25 @@ MDM payload before enrollment.
 
 ===== Generate an Apple MDM profile
 
-PacketFence renders a ready-to-import `.mobileconfig` payload bound to
-a specific (template, EAB) pair:
+For a template set up for Apple devices (ACME enabled,
+`permanent-identifier` allowed, `apple` attestation format, EAB not
+required), PacketFence renders a ready-to-import `.mobileconfig`
+payload:
 
- curl -OJ https://<pf>/api/v1/pki/profile/<id>/acme/eab/<eab_id>/mobileconfig
+ curl -OJ https://<pf>/api/v1/pki/profile/<id>/acme/mobileconfig
 
-Hand the downloaded file to Jamf, Intune, or your MDM tool of choice
-as the certificate payload template. Device-specific substitutions
-like `%HardwareUUID%` are left for the MDM to fill at deploy time.
+The endpoint refuses (HTTP 409) a template that does not meet those
+conditions, since the resulting payload could never enroll.
+
+The payload requests a hardware-bound, attested EC P-256 key and puts
+the *client identifier* in the certificate CN. The device sends that
+identifier as the `permanent-identifier` of its order, and the
+attestation check matches it against the device's UDID or serial
+number, so it must resolve to one of those per device. The default
+`$SERIALNUMBER` is Jamf's substitution variable; pass
+`?client_identifier=<variable>` to use the one your MDM substitutes at
+deploy time. Hand the downloaded file to your MDM as the certificate
+payload template.
 
 ===== Cleanup task
 
@@ -412,7 +427,7 @@ churn beyond a few thousand enrollments per hour.
 Account creation, EAB mint/revoke, and certificate revocation flow
 through `admin_api_audit_log` with the action names
 `acme.account.create`, `pfpki.AcmeEABCreate`, `pfpki.AcmeEABDelete`,
-and `acme.cert.revoke`. ACME-side rows are attributed to the synthetic
+`pfpki.AcmeMobileConfig` and `acme.cert.revoke`. ACME-side rows are attributed to the synthetic
 `UserName` `acme:<template_name>/<account_key_id>` so per-template
 traffic can be queried.
 

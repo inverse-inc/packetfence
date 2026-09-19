@@ -104,19 +104,39 @@ func TestAcmeEAB_FullCycle(t *testing.T) {
 	}
 }
 
-// TestAcmeEAB_MobileConfig confirms the .mobileconfig endpoint serves
-// the right Content-Type, embeds the EAB key + directory URL, and
-// scrubs profile-name separators from the suggested filename.
-func TestAcmeEAB_MobileConfig(t *testing.T) {
+// TestAcme_MobileConfig confirms the .mobileconfig endpoint refuses a
+// profile that is not set up for the Apple flow, and once it is,
+// serves the right Content-Type with the directory URL, the client
+// identifier, a hardware-bound EC key request and no EAB material
+// (Apple's ACME client has none).
+func TestAcme_MobileConfig(t *testing.T) {
 	env := testutil.NewEnv(t)
 	caRow := mustCreateCAFromHTTP(t, env, "mc-ca", certutils.KEY_RSA, 2048, x509.SHA256WithRSA)
 	prof := mustCreateProfileFromHTTP(t, env, "mc-prof", caRow, certutils.KEY_RSA, 2048, x509.SHA256WithRSA)
 
-	mintURL := fmt.Sprintf("%s/api/v1/pki/profile/%d/acme/eab", env.Server.URL, prof.ID)
-	eab := mintEAB(t, mintURL, "")
+	mcURL := fmt.Sprintf("%s/api/v1/pki/profile/%d/acme/mobileconfig", env.Server.URL, prof.ID)
 
-	mcURL := fmt.Sprintf("%s/%d/mobileconfig", mintURL, eab.ID)
+	// Fresh profile: ACME off, EAB required → refused.
 	resp, err := http.Get(mcURL)
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusConflict {
+		t.Fatalf("unconfigured profile: status=%d, want 409", resp.StatusCode)
+	}
+
+	if err := env.DB.Model(&models.Profile{}).Where("id = ?", prof.ID).
+		Updates(map[string]any{
+			"acme_enabled":             1,
+			"acme_allowed_identifiers": "permanent-identifier",
+			"acme_attestation_formats": "apple",
+			"acme_eab_required":        0,
+		}).Error; err != nil {
+		t.Fatalf("configure profile: %v", err)
+	}
+
+	resp, err = http.Get(mcURL + "?client_identifier=ABC123")
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
@@ -133,13 +153,16 @@ func TestAcmeEAB_MobileConfig(t *testing.T) {
 		"<string>com.apple.security.acme</string>",
 		"<key>DirectoryURL</key>",
 		"/api/v1/pki/acme/mc-prof/directory",
-		"<string>" + eab.KeyID + "</string>",
-		"<string>" + eab.HMAC + "</string>",
-		"<true/>", // HardwareBound + Attest
+		"<key>ClientIdentifier</key>\n      <string>ABC123</string>",
+		"<string>ECSECPrimeRandom</string>",
+		"<key>Attest</key>\n      <true/>",
 	} {
 		if !strings.Contains(s, want) {
 			t.Fatalf("payload missing %q\n--- full payload ---\n%s", want, s)
 		}
+	}
+	if strings.Contains(s, "ClientSecret") {
+		t.Fatalf("payload carries EAB material Apple cannot use\n%s", s)
 	}
 }
 
