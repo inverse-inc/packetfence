@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -58,7 +59,7 @@ func (c Cert) New() (types.Info, error) {
 		// re-enrolls the device. Without pulling that queue we'd reject
 		// the new request as a duplicate CN. Try to drain the queue
 		// now; if it produces any local revocations, retry.
-		if applied := drainCloudRevocations(c.Ctx, prof, c.DB); applied > 0 {
+		if applied := drainCloudRevocationsThrottled(c.Ctx, prof, c.DB); applied > 0 {
 			_, err = revokeNeeded(c.Cn, &prof, prof.DaysBeforeRenewal, c.DB)
 		}
 	}
@@ -682,7 +683,7 @@ func serialCandidates(serial string) []string {
 // forever).
 func (c Cert) RevokeBySerial(caName, serial string, reason int) (bool, error) {
 	var cert Cert
-	q := c.DB.Where("ca_name = ? AND serial_number = ?", caName, serial).First(&cert)
+	q := c.DB.Where("ca_name = ? AND serial_number IN ?", caName, serialCandidates(serial)).First(&cert)
 	if q.Error != nil {
 		if errors.Is(q.Error, gorm.ErrRecordNotFound) {
 			return false, nil
@@ -733,28 +734,64 @@ func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
 	helper := Cert{DB: db, Ctx: ctx}
 	var localApplied int
 	revoke := func(ctx context.Context, req cloud.RevocationRequest) cloud.RevocationResult {
-		issuer := req.IssuerName
-		if issuer == "" {
-			issuer = prof.Ca.Cn
-		}
-		found, err := helper.RevokeBySerial(issuer, req.SerialNumber, req.Reason)
+		// The queue was requested for prof.Ca by name, so that is the
+		// CA to match on; Intune's issuerName is a full DN, not the
+		// ca_name column value.
+		found, err := helper.RevokeBySerial(prof.Ca.Cn, req.SerialNumber, req.Reason)
 		switch {
 		case err != nil:
 			log.LoggerWContext(ctx).Error("drainCloudRevocations: " + err.Error())
 			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false, ErrorDescription: err.Error()}
-		case !found:
-			// Cert not in our store — count as a success for the
-			// cloud side so it stops re-sending. Locally a no-op.
-			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: true}
-		default:
+		case found:
 			localApplied++
 			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: true}
 		}
+		// No live cert matched. If it is already in pki_revoked_certs
+		// the request is satisfied; otherwise report a failure so
+		// Intune keeps the item visible instead of us silently
+		// discarding a revocation we never applied.
+		var revokedCount int64
+		_ = db.Model(&RevokedCert{}).
+			Where("ca_name = ? AND serial_number IN ?", prof.Ca.Cn, serialCandidates(req.SerialNumber)).
+			Count(&revokedCount).Error
+		if revokedCount > 0 {
+			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: true}
+		}
+		msg := fmt.Sprintf("certificate serial %s not found under CA %q in PacketFence PKI (issuer %q)",
+			req.SerialNumber, prof.Ca.Cn, req.IssuerName)
+		log.LoggerWContext(ctx).Warn("drainCloudRevocations: " + msg)
+		return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false, ErrorDescription: msg}
 	}
 	if _, err := rp.ProcessRevocations(ctx, prof.Ca.Cn, revoke); err != nil {
 		log.LoggerWContext(ctx).Warn("drainCloudRevocations: ProcessRevocations: " + err.Error())
 	}
 	return localApplied
+}
+
+// cloudDrainMinInterval bounds how often the SCEP duplicate-subject
+// path may drain the cloud queue for one profile. A drain is a token
+// fetch plus two HTTPS round trips to the tenant, run synchronously
+// inside the SCEP request; without a floor, every re-enrolling device
+// (or anyone replaying a duplicate-CN request) would hammer Intune.
+const cloudDrainMinInterval = 30 * time.Second
+
+var (
+	cloudDrainMu   sync.Mutex
+	cloudDrainLast = map[uint]time.Time{}
+)
+
+// drainCloudRevocationsThrottled is drainCloudRevocations with the
+// per-profile floor above; the scheduled sweep calls the unthrottled
+// variant directly.
+func drainCloudRevocationsThrottled(ctx context.Context, prof Profile, db *gorm.DB) int {
+	cloudDrainMu.Lock()
+	if time.Since(cloudDrainLast[prof.ID]) < cloudDrainMinInterval {
+		cloudDrainMu.Unlock()
+		return 0
+	}
+	cloudDrainLast[prof.ID] = time.Now()
+	cloudDrainMu.Unlock()
+	return drainCloudRevocations(ctx, prof, db)
 }
 
 // ProcessCloudRevocations iterates every cloud-enabled profile and asks
