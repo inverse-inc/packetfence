@@ -1,6 +1,7 @@
 package acme
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -29,9 +30,9 @@ import (
 //	authz:     pending → valid (when any challenge of the authz becomes valid)
 //	order:     pending → ready  (when all authzs on the order are valid)
 //
-// On validator failure we move challenge → invalid + record the
-// problem doc; the authz/order stay pending so the client can retry
-// with a fresh nonce.
+// On validator failure the challenge, its authz and the order all move
+// to invalid with the problem doc recorded (RFC 8555 §7.1.6); the
+// client must start a new order, a failed challenge cannot be retried.
 func challengeByIDHandler(h *types.Handler) http.HandlerFunc {
 	inner := func(w http.ResponseWriter, r *http.Request) {
 		jc := fromCtx(r.Context())
@@ -132,6 +133,7 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 	}
 
 	var validateErr error
+	var attestedSPKI string
 	switch ch.Type {
 	case "http-01":
 		validateErr = http01Validate(r.Context(), authz.Value, ch.Token, thumbprint)
@@ -153,7 +155,11 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 			validateErr = errors.New("device-attest-01: attObj is not URL-safe base64: " + err.Error())
 			break
 		}
-		validateErr = deviceAttest01Validate(*jc.Profile, cborBytes, ch.Token, thumbprint, authz.Value)
+		var spki []byte
+		spki, validateErr = deviceAttest01Validate(*jc.Profile, cborBytes, ch.Token, authz.Value)
+		if validateErr == nil {
+			attestedSPKI = base64.StdEncoding.EncodeToString(spki)
+		}
 	default:
 		validateErr = errors.New("unsupported challenge type: " + ch.Type)
 	}
@@ -167,11 +173,24 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 				Status: http.StatusUnauthorized,
 			}
 			pb, _ := json.Marshal(problem)
-			return tx.Model(&models.AcmeChallenge{}).Where("id = ?", ch.ID).
+			if err := tx.Model(&models.AcmeChallenge{}).Where("id = ?", ch.ID).
 				Updates(map[string]any{
 					"status": "invalid",
 					"error":  string(pb),
-				}).Error
+				}).Error; err != nil {
+				return err
+			}
+			// §7.1.6: an invalid challenge invalidates its authz, and an
+			// invalid authz invalidates the order. Leaving them pending
+			// would strand the order forever, since the challenge can no
+			// longer be triggered.
+			if err := tx.Model(&models.AcmeAuthz{}).Where("id = ?", authz.ID).
+				Update("status", "invalid").Error; err != nil {
+				return err
+			}
+			return tx.Model(&models.AcmeOrder{}).
+				Where("id = ? AND status IN ?", authz.OrderID, []string{"pending", "ready"}).
+				Updates(map[string]any{"status": "invalid", "error": string(pb)}).Error
 		}
 		// Challenge succeeded → mark it valid + bump the authz to
 		// valid. The order's status update happens in a second pass
@@ -180,8 +199,12 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 			Updates(map[string]any{"status": "valid", "validated": now}).Error; err != nil {
 			return err
 		}
+		authzUpdate := map[string]any{"status": "valid"}
+		if attestedSPKI != "" {
+			authzUpdate["attested_spki"] = attestedSPKI
+		}
 		if err := tx.Model(&models.AcmeAuthz{}).Where("id = ?", authz.ID).
-			Update("status", "valid").Error; err != nil {
+			Updates(authzUpdate).Error; err != nil {
 			return err
 		}
 		return maybePromoteOrder(tx, authz.OrderID)
