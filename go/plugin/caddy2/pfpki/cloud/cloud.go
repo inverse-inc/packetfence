@@ -13,24 +13,36 @@ type Cloud interface {
 	FailureReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error
 }
 
-// RevocationRequest carries one pending revocation that the cloud
-// provider has handed back to us. SerialNumber is the canonical key
-// against pki_certs/pki_revoked_certs; Thumbprint is a verification
-// hint when present (Intune supplies it).
+// RevocationRequest carries one pending revocation the cloud provider
+// handed back to us, in provider-neutral form. SerialNumber is the key
+// against pki_certs/pki_revoked_certs: Intune echoes the serial we
+// reported at issuance (cert.SerialNumber.String(), decimal). The feed
+// carries no revocation reason.
 type RevocationRequest struct {
-	RequestID    string
-	SerialNumber string
-	Thumbprint   string
-	Reason       int
-	IssuerName   string
+	RequestID       string // opaque, must be echoed in the result
+	SerialNumber    string
+	IssuerName      string
+	CAConfiguration string
 }
+
+// CARequestError* are Intune's CARequestErrorCodes (carequest/
+// CARequestErrorCodes.java in microsoft/Intune-Resource-Access). A
+// result with Succeeded=true must carry None; one with
+// Succeeded=false must carry a non-None code.
+const (
+	CARequestErrorNone                = "0"
+	CARequestErrorNonRetryable        = "4000"
+	CARequestErrorCertificateNotFound = "4004"
+	CARequestErrorRetryable           = "4100"
+)
 
 // RevocationResult is the per-request outcome the caller hands back to
 // the cloud provider, so it can stop re-sending the same item.
 type RevocationResult struct {
-	RequestID        string
-	Succeeded        bool
-	ErrorDescription string
+	RequestID    string
+	Succeeded    bool
+	ErrorCode    string // a CARequestError* value; ignored when Succeeded
+	ErrorMessage string
 }
 
 // RevokeFunc is supplied by the caller (pfpki) and is called once per
