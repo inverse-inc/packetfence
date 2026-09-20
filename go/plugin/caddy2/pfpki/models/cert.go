@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -53,16 +52,6 @@ func (c Cert) New() (types.Info, error) {
 
 	// Check if the certificate is allowed to be revoked
 	_, err := revokeNeeded(c.Cn, &prof, prof.DaysBeforeRenewal, c.DB)
-	if err != nil && isDuplicateSubjectError(err) && prof.CloudEnabled == 1 {
-		// SCEP renewal flow: Intune revokes the old cert in its own
-		// queue rather than asking us over SCEP, then immediately
-		// re-enrolls the device. Without pulling that queue we'd reject
-		// the new request as a duplicate CN. Try to drain the queue
-		// now; if it produces any local revocations, retry.
-		if applied := drainCloudRevocationsThrottled(c.Ctx, prof, c.DB); applied > 0 {
-			_, err = revokeNeeded(c.Cn, &prof, prof.DaysBeforeRenewal, c.DB)
-		}
-	}
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -716,11 +705,12 @@ func isDuplicateSubjectError(err error) bool {
 // drainCloudRevocations downloads any pending revocations the cloud
 // provider has queued for prof.Ca and applies them locally. Returns the
 // number of revocations that resulted in a matching pfpki cert being
-// revoked — the caller uses this to decide whether retrying revokeNeeded
-// is worthwhile.
+// revoked. It runs from the pki_process_cloud_revocations task and the
+// manual endpoint only: Intune's 60-minute cool-down after each
+// download makes it useless on the SCEP request path, which handles
+// re-enrollment by superseding (see CA.HasCN).
 //
-// All error paths log and return 0; we never want a cloud-side hiccup to
-// break SCEP enrollment for unrelated certs.
+// All error paths log and return 0.
 func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
 	vcloud, err := cloud.Create(ctx, "intune", prof.CloudService)
 	if err != nil {
@@ -737,11 +727,12 @@ func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
 		// The queue was requested for prof.Ca by name, so that is the
 		// CA to match on; Intune's issuerName is a full DN, not the
 		// ca_name column value.
-		found, err := helper.RevokeBySerial(prof.Ca.Cn, req.SerialNumber, req.Reason)
+		found, err := helper.RevokeBySerial(prof.Ca.Cn, req.SerialNumber, cloudRevocationReason)
 		switch {
 		case err != nil:
 			log.LoggerWContext(ctx).Error("drainCloudRevocations: " + err.Error())
-			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false, ErrorDescription: err.Error()}
+			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false,
+				ErrorCode: cloud.CARequestErrorRetryable, ErrorMessage: err.Error()}
 		case found:
 			localApplied++
 			return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: true}
@@ -760,7 +751,8 @@ func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
 		msg := fmt.Sprintf("certificate serial %s not found under CA %q in PacketFence PKI (issuer %q)",
 			req.SerialNumber, prof.Ca.Cn, req.IssuerName)
 		log.LoggerWContext(ctx).Warn("drainCloudRevocations: " + msg)
-		return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false, ErrorDescription: msg}
+		return cloud.RevocationResult{RequestID: req.RequestID, Succeeded: false,
+			ErrorCode: cloud.CARequestErrorCertificateNotFound, ErrorMessage: msg}
 	}
 	if _, err := rp.ProcessRevocations(ctx, prof.Ca.Cn, revoke); err != nil {
 		log.LoggerWContext(ctx).Warn("drainCloudRevocations: ProcessRevocations: " + err.Error())
@@ -768,31 +760,10 @@ func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
 	return localApplied
 }
 
-// cloudDrainMinInterval bounds how often the SCEP duplicate-subject
-// path may drain the cloud queue for one profile. A drain is a token
-// fetch plus two HTTPS round trips to the tenant, run synchronously
-// inside the SCEP request; without a floor, every re-enrolling device
-// (or anyone replaying a duplicate-CN request) would hammer Intune.
-const cloudDrainMinInterval = 30 * time.Second
-
-var (
-	cloudDrainMu   sync.Mutex
-	cloudDrainLast = map[uint]time.Time{}
-)
-
-// drainCloudRevocationsThrottled is drainCloudRevocations with the
-// per-profile floor above; the scheduled sweep calls the unthrottled
-// variant directly.
-func drainCloudRevocationsThrottled(ctx context.Context, prof Profile, db *gorm.DB) int {
-	cloudDrainMu.Lock()
-	if time.Since(cloudDrainLast[prof.ID]) < cloudDrainMinInterval {
-		cloudDrainMu.Unlock()
-		return 0
-	}
-	cloudDrainLast[prof.ID] = time.Now()
-	cloudDrainMu.Unlock()
-	return drainCloudRevocations(ctx, prof, db)
-}
+// cloudRevocationReason is the RFC 5280 CRLReason recorded for a
+// revocation pulled from the cloud queue. Intune's feed carries no
+// reason, so "unspecified" (0) is the only honest value.
+const cloudRevocationReason = 0
 
 // ProcessCloudRevocations iterates every cloud-enabled profile and asks
 // its provider for any pending revocation requests, applying them

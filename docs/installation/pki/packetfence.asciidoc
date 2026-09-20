@@ -325,6 +325,57 @@ associated to the template and put it in Intune as a "trusted certificate"
 Then set the SCEP URL to http://ip_address/scep/template_name or
 https://ip_address/scep/template_name
 
+===== Certificate revocation requests from Intune
+
+When a SCEP profile is changed in Intune, or a device is retired, Intune
+revokes the device's existing certificate — but not over SCEP: the
+revocation is queued on the Intune side, and the certificate authority
+is expected to download and process that queue (Microsoft's
+`IntuneRevocationClient` in the Intune-Resource-Access reference
+implementation). Intune then asks the device to re-enroll within
+seconds. Without processing the queue, the re-enrollment fails on
+_Certificate with this Subject already exist_ until the old
+certificate is deleted by hand.
+
+PacketFence handles this in two complementary ways.
+
+* *Re-enrollment supersedes the existing certificate.* Intune's queue
+  cannot be consulted at re-enrollment time: Intune enforces a
+  60-minute cool-down after every download, during which the queue
+  returns nothing. Instead, when a SCEP request on a cloud-enabled
+  template has passed Intune's challenge validation — which means
+  Intune vouches that the device is still targeted by the profile — and
+  a valid certificate with the same Common Name exists, PacketFence
+  revokes that certificate (reason _superseded_) and issues the new
+  one. No manual deletion is needed and the device enrolls on its
+  first attempt.
+* *Scheduled queue processing.* The `pki_process_cloud_revocations`
+  maintenance task (_Configuration -> System Configuration ->
+  Maintenance_) downloads the revocation queue of every cloud-enabled
+  template, using the Azure application registration configured on the
+  template's *Cloud Service* (the same permissions as SCEP validation:
+  _Microsoft Intune API / SCEP challenge validation_ and
+  _Application.Read.All_). It is disabled by default; enable it with an
+  hourly schedule, which matches Intune's cool-down. It catches
+  revocations of devices that never re-enroll (retired or wiped
+  devices), so their certificates are revoked in the PKI and refused
+  by OCSP instead of staying valid until expiry, and it acknowledges
+  the certificates already superseded at re-enrollment. The same sweep
+  can be triggered by hand:
++
+ curl -X POST https://<pf-fqdn>/api/v1/pki/process_cloud_revocations
++
+which returns the number of local revocations applied.
+
+Each downloaded request is acknowledged back to Intune with its
+outcome, so Intune stops re-sending it. A request whose serial number
+matches no certificate issued by the template's CA — and that is not
+already in the revoked certificates — is reported to Intune as
+_certificate not found_ rather than silently acknowledged, so a
+mismatch stays visible on the Intune side. Revocations applied this
+way carry the CRL reason _unspecified_ (Intune's queue provides no
+reason).
+
 ==== ACME (RFC 8555) and Apple Managed Device Attestation
 
 PacketFence PKI includes an ACME server (RFC 8555). Its main purpose is
