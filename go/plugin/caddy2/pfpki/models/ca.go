@@ -16,6 +16,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -434,7 +435,54 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 	if err := c.DB.Where("name = ?", options[0]).First(&prof).Error; err != nil {
 		return false, err
 	}
-	return revokeNeeded(cn, &prof, allowTime, c.DB)
+	ok, err := revokeNeeded(cn, &prof, allowTime, c.DB)
+	if err != nil && isDuplicateSubjectError(err) && prof.CloudEnabled == 1 && c.Cloud != nil {
+		// Intune reissue flow. When a SCEP profile changes, or a device
+		// is re-targeted, Intune revokes the device's current
+		// certificate in its own queue (not over SCEP) and asks the
+		// device to enroll again within seconds. The queue cannot be
+		// consulted in time: Intune enforces a 60-minute cool-down
+		// after every download. But this request already passed
+		// Intune's challenge validation (c.Cloud is only set on that
+		// path), which means Intune itself vouches that the device is
+		// still targeted by the profile — so the certificate it holds
+		// is superseded by definition. Revoke it locally and issue;
+		// the scheduled queue sweep later finds it already revoked and
+		// acknowledges Intune's request.
+		n, rerr := supersedeCertsForCloudReissue(c.Ctx, cn, &prof, c.DB)
+		if rerr != nil {
+			return false, rerr
+		}
+		if n > 0 {
+			log.LoggerWContext(c.Ctx).Info(fmt.Sprintf(
+				"SCEP: superseded %d certificate(s) with CN %q under profile %q for a cloud-validated re-enrollment", n, cn, prof.Name))
+			ok, err = revokeNeeded(cn, &prof, allowTime, c.DB)
+		}
+	}
+	return ok, err
+}
+
+// supersedeCertsForCloudReissue revokes (reason: superseded) every live
+// certificate with the given CN under prof and returns how many it
+// revoked. Used by HasCN for cloud-validated SCEP re-enrollments.
+func supersedeCertsForCloudReissue(ctx context.Context, cn string, prof *Profile, db *gorm.DB) (int, error) {
+	var certs []Cert
+	if err := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&certs).Error; err != nil {
+		return 0, err
+	}
+	revoked := 0
+	for i := range certs {
+		certs[i].DB = db
+		certs[i].Ctx = ctx
+		if _, err := certs[i].Revoke(map[string]string{
+			"id":     strconv.Itoa(int(certs[i].ID)),
+			"reason": strconv.Itoa(ocsp.Superseded),
+		}); err != nil {
+			return revoked, err
+		}
+		revoked++
+	}
+	return revoked, nil
 }
 
 // revokeNeeded decides whether a fresh leaf with the given CN can be issued
