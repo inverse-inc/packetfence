@@ -19,6 +19,24 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
 
+// MaxRequestBody is the upper bound for request bodies on the pfpki API.
+// JSON CRUD payloads are well under 64 KiB; SCEP PKIOperation messages and
+// CSRs run a few KB at most. 1 MiB is generous and still prevents a single
+// streaming client from exhausting memory.
+const MaxRequestBody = 1 << 20
+
+// LimitRequestBody is a chi-compatible middleware that wraps req.Body with
+// http.MaxBytesReader. Reads past the limit return an error and (for HTTP/1)
+// terminate the connection.
+func LimitRequestBody(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Body != nil {
+			r.Body = http.MaxBytesReader(w, r.Body, MaxRequestBody)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func SearchCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
@@ -595,6 +613,12 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 		case "GET":
 			Information.Status = http.StatusOK
 			vars := types.Params(req, "id", "profile", "cn")
+			// Optional admin-supplied password from query string. It is
+			// renamed to "mail_password" so Cert.Download doesn't confuse
+			// it with the binary-download trigger.
+			if pw := req.URL.Query().Get("password"); pw != "" {
+				vars["mail_password"] = pw
+			}
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -784,6 +808,39 @@ func GetRevokedByID(pfpki *types.Handler) http.HandlerFunc {
 			break
 		}
 		manageAnswer(Information, Error, pfpki, res, req, nil)
+	})
+}
+
+// ProcessCloudRevocations triggers a sweep of every cloud-enabled
+// profile's revocation queue (currently only Intune's
+// CARevocationRequests). Safe to call manually after a SCEP enrollment
+// fails with "Certificate with this Subject already exist", or on a
+// schedule (e.g. via a pfcron job).
+func ProcessCloudRevocations(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewCertModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
+
+		Error := types.Errors{Status: 0}
+		switch req.Method {
+		case "GET", "POST":
+			Information.Status = http.StatusOK
+			Information, err = o.ProcessCloudRevocations()
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, nil, "pfpki.ProcessCloudRevocations")
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 

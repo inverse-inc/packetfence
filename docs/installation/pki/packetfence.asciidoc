@@ -325,3 +325,445 @@ associated to the template and put it in Intune as a "trusted certificate"
 Then set the SCEP URL to http://ip_address/scep/template_name or
 https://ip_address/scep/template_name
 
+===== Certificate revocation requests from Intune
+
+When a SCEP profile is changed in Intune, or a device is retired, Intune
+revokes the device's existing certificate — but not over SCEP: the
+revocation is queued on the Intune side, and the certificate authority
+is expected to download and process that queue (Microsoft's
+`IntuneRevocationClient` in the Intune-Resource-Access reference
+implementation). Intune then asks the device to re-enroll within
+seconds. Without processing the queue, the re-enrollment fails on
+_Certificate with this Subject already exist_ until the old
+certificate is deleted by hand.
+
+PacketFence handles this in two complementary ways.
+
+* *Re-enrollment supersedes the existing certificate.* Intune's queue
+  cannot be consulted at re-enrollment time: Intune enforces a
+  60-minute cool-down after every download, during which the queue
+  returns nothing. Instead, when a SCEP request on a cloud-enabled
+  template has passed Intune's challenge validation — which means
+  Intune vouches that the device is still targeted by the profile — and
+  a valid certificate with the same Common Name exists, PacketFence
+  revokes that certificate (reason _superseded_) and issues the new
+  one. No manual deletion is needed and the device enrolls on its
+  first attempt.
+* *Scheduled queue processing.* The `pki_process_cloud_revocations`
+  maintenance task (_Configuration -> System Configuration ->
+  Maintenance_) downloads the revocation queue of every cloud-enabled
+  template, using the Azure application registration configured on the
+  template's *Cloud Service* (the same permissions as SCEP validation:
+  _Microsoft Intune API / SCEP challenge validation_ and
+  _Application.Read.All_). It is disabled by default; enable it with an
+  hourly schedule, which matches Intune's cool-down. It catches
+  revocations of devices that never re-enroll (retired or wiped
+  devices), so their certificates are revoked in the PKI and refused
+  by OCSP instead of staying valid until expiry, and it acknowledges
+  the certificates already superseded at re-enrollment. The same sweep
+  can be triggered by hand:
++
+ curl -X POST https://<pf-fqdn>/api/v1/pki/process_cloud_revocations
++
+which returns the number of local revocations applied.
+
+Each downloaded request is acknowledged back to Intune with its
+outcome, so Intune stops re-sending it. A request whose serial number
+matches no certificate issued by the template's CA — and that is not
+already in the revoked certificates — is reported to Intune as
+_certificate not found_ rather than silently acknowledged, so a
+mismatch stays visible on the Intune side. Revocations applied this
+way carry the CRL reason _unspecified_ (Intune's queue provides no
+reason).
+
+==== ACME (RFC 8555) and Apple Managed Device Attestation
+
+PacketFence PKI includes an ACME server (RFC 8555). Its main purpose is
+to issue EAP-TLS client certificates to Apple devices managed by an MDM
+(Jamf Pro, Microsoft Intune, ...) using Apple's *Managed Device
+Attestation*: the device proves to PacketFence, through a certificate
+chain signed by Apple, that it is a genuine Apple device with a given
+serial number, and that the key being certified lives in its Secure
+Enclave. This is the `device-attest-01` challenge (RFC 9447). No
+shared secret, no SCEP challenge password and no user interaction are
+involved, and the resulting private key cannot be exported from the
+device.
+
+The same server also accepts generic ACME clients (certbot, acme.sh,
+step, ...) with the standard `http-01` challenge and External Account
+Binding; see <<_generic_acme_clients>>.
+
+===== How it works
+
+[options="compact"]
+. The MDM pushes a configuration profile with an *ACME certificate*
+  payload whose directory URL points at PacketFence, and whose client
+  identifier is the device's serial number.
+. The device creates an ACME account and an order for that identifier
+  on PacketFence. PacketFence answers with a `device-attest-01`
+  challenge carrying a random token.
+. The device generates a hardware-bound key and asks Apple's
+  attestation service to attest it. Apple returns a certificate chain
+  that embeds SHA-256(token), the device serial number and UDID.
+. PacketFence verifies the chain against the *Apple Enterprise
+  Attestation Root CA*, checks the token, checks that the serial number
+  matches the order, and records the attested key.
+. The device sends a CSR. PacketFence refuses it unless it carries the
+  attested key and only the authorized name, then signs it with the
+  template's CA. The certificate lands in the PKI like any other.
+. The device uses the certificate for EAP-TLS against PacketFence
+  RADIUS. Trust on the RADIUS side is the template's CA.
+
+Every step of (4) and (5) is enforced server-side. A device that fails
+attestation gets an ACME problem document and its order is
+invalidated; a CSR that is refused leaves the order open so the device
+can retry with a correct one.
+
+===== Requirements
+
+[options="compact"]
+* Devices: iOS/iPadOS 16 or later, macOS 14 or later (macOS 13.x has
+  the ACME payload but not attestation), tvOS 16 or later. Attestation
+  needs a Secure Enclave (all iPhones/iPads in scope, Apple silicon or
+  T2 Macs). Devices must be MDM-enrolled; Automated Device Enrollment
+  is recommended.
+* An MDM able to deliver a `com.apple.security.acme` payload: Jamf Pro
+  has a native *ACME Certificate* payload; Intune delivers it through a
+  *custom configuration profile*.
+* Devices must reach `https://<pf-fqdn>/api/v1/pki/acme/...` at
+  enrollment time, and Apple's attestation service on the Internet.
+  Enrollment usually happens before the device has its Wi-Fi
+  certificate, so plan for cellular, an onboarding SSID, or wired
+  access to PacketFence.
+* Apple requires the directory URL to be HTTPS with a certificate the
+  device trusts. Use a publicly trusted certificate on the PacketFence
+  web interface, or push your internal root to the devices first.
+* If PacketFence sits behind a reverse proxy or load balancer, it must
+  pass `X-Forwarded-Host` and `X-Forwarded-Proto`: every URL in the
+  ACME dialogue is built from the request and must match what the
+  device signed.
+
+===== Configure PacketFence
+
+====== Step 1 — Certificate Authority and template
+
+Create a CA and a template as described earlier in this guide, with:
+
+[options="compact"]
+* *Key usage*: `Digital Signature` (and `Key Encipherment` for RSA
+  CAs).
+* *Extended key usage*: `clientAuth`.
+* *Validity*: the lifetime of the device certificates (365 days is
+  common; the MDM re-enrolls before expiry).
+* *Digest*: the signature algorithm used to sign device certificates.
+  The template's *Key type* and *Key size* do not apply to ACME — the
+  device generates its own key (EC P-256 or P-384 when hardware bound)
+  and PacketFence signs whatever key was attested.
+
+IMPORTANT: The Subject of an ACME-issued certificate is built from the
+template (Organisation, Organisational unit, Country, ...) and only
+the *Common Name* comes from the device. The device cannot add
+Subject attributes, e-mail or URI SANs of its own.
+
+====== Step 2 — ACME tab of the template
+
+Open the template (_Configuration -> Integration -> PKI ->
+Templates_), *ACME* tab:
+
+[cols="1,2",options="header"]
+|===
+| Setting | Value for Apple Managed Device Attestation
+| *Enable ACME* | On.
+| *Allowed identifier types* | `permanent-identifier`. This is the only identifier type Apple devices order. Add `dns,ip` only if generic ACME clients also use this template.
+| *Attestation formats* | `apple`. Without it, a `permanent-identifier` order is refused, since no other challenge can prove it.
+| *Require External Account Binding* | *Off*. Apple's ACME client has no EAB support; on an Apple template attestation is the authentication. Keep it on for templates used by generic ACME clients.
+| *Attestation root CAs (PEM)* | Leave empty. PacketFence embeds the Apple Enterprise Attestation Root CA (SHA-256 `CC:F5:9E:F8:FC:B3:01:7D:97:F8:B5:FA:6F:A9:0E:7A:3F:92:83:F7:6B:55:AC:6C:F6:ED:A8:B8:B9:49:F0:5B`, valid until 2047). A value here *replaces* the embedded root; use it only if Apple publishes a new root or for lab attestation chains of your own.
+| *Account / Order / Authorization expiry* | Defaults (365 days / 7 days / 24 hours) are fine. They bound how long ACME state is kept before the cleanup task drops it.
+|===
+
+The template's ACME directory is then:
+
+ https://<pf-fqdn>/api/v1/pki/acme/<template_name>/directory
+
+This URL is deliberately unauthenticated at the web-server level:
+every ACME request is signed by the device (JWS) and validated by the
+PKI itself.
+
+====== Step 3 — RADIUS trust for EAP-TLS
+
+RADIUS must trust the template's CA to accept the device
+certificates. Copy the CA certificate (PEM) shown at the bottom of the
+CA page in _Configuration -> Integration -> PKI -> Certificate
+Authorities_, then:
+
+[options="compact"]
+. _Configuration -> System Configuration -> RADIUS -> SSL
+  Certificates_: create a certificate profile whose *CA* is the
+  PacketFence PKI CA (the server certificate/key stay those of your
+  RADIUS server; they do not have to come from the same CA, but the
+  devices must trust the CA that issued them — see the MDM sections
+  below).
+. _RADIUS -> TLS Profiles_: create a TLS profile that uses that
+  certificate profile. Optionally create an _OCSP Profile_ pointing at
+  `https://<pf-fqdn>/api/v1/pki/ocsp` and attach it, so a certificate
+  revoked in the PKI is refused at the next authentication instead of
+  at expiry.
+. _RADIUS -> EAP Profiles_: create an EAP profile with `tls` as the
+  default EAP type, using that TLS profile.
+. _Configuration -> Policies and Access Control -> Domains -> Realms_:
+  attach the EAP profile to the realm the devices authenticate in
+  (`null`/default realm when the EAP identity carries no realm).
+. Restart RADIUS: `systemctl restart packetfence-radiusd-auth`.
+
+Refer to the _Advanced RADIUS Configuration_ guide, section _RADIUS
+EAP Profiles_, for details on these profiles.
+
+Then create the authentication source and connection profile that turn a
+valid certificate into a role:
+
+[options="compact"]
+* _Configuration -> Policies and Access Control -> Authentication
+  Sources -> New internal source -> EAPTLS_, with a rule assigning the
+  role and access duration. Rules can match on the certificate
+  attributes (`TLS-Client-Cert-Common-Name`, which is the device serial
+  number with the MDM settings below, `TLS-Client-Cert-Issuer`,
+  `TLS-Client-Cert-Subject`, ...); a catch-all rule is enough to start.
+* _Configuration -> Policies and Access Control -> Connection
+  Profiles_: a profile filtered on *Sub Connection Type* `EAP-TLS`
+  using that source, with *Automatically register devices* enabled.
+
+====== Step 4 — Maintenance tasks
+
+Enable in _Configuration -> System Configuration -> Maintenance_:
+
+[options="compact"]
+* `pki_acme_state_cleanup`: sweeps expired nonces, challenges,
+  authorizations and orders (hourly, 1 hour grace window by default).
+  ACME state grows with every enrollment; without this task the
+  `pki_acme_*` tables grow unbounded.
+* `pki_revoked_certs_cleanup` (optional): drops revoked certificates
+  once their natural expiry is well past.
+
+====== Step 5 — Get the MDM payload
+
+For Intune (and any MDM that takes a `.mobileconfig`), PacketFence
+renders the Apple ACME payload for the template:
+
+ curl -OJ "https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/mobileconfig?client_identifier=<variable>"
+
+`<template_id>` is the numeric id shown in the template list. The
+endpoint answers `409` with the reason if the template is not set up
+as in Step 2, since such a payload could never enroll. The payload
+requests an attested, hardware-bound EC P-256 key, sets the
+certificate Common Name to the client identifier, and asks for the
+`clientAuth` extended key usage.
+
+`client_identifier` is what the device sends as its
+`permanent-identifier`. PacketFence compares it to the serial number
+(or UDID) found in Apple's attestation, so it must be substituted
+*per device* by the MDM: `{{serialnumber}}` for Intune,
+`$SERIALNUMBER` for Jamf Pro (the default when the parameter is
+omitted). A fixed value would enroll only the one device with that
+serial.
+
+Jamf Pro administrators can use the native payload instead of this
+file; see the next section.
+
+===== Configure Jamf Pro
+
+Jamf Pro ships a native *ACME Certificate* payload. Create one
+configuration profile (per platform: _Computers_ or _Devices ->
+Configuration Profiles_) with three payloads:
+
+*Certificate* payload — the PacketFence PKI CA certificate (the PEM
+copied in Step 3, saved as a `.pem` file), and the CA of your RADIUS
+server certificate if different. This is what lets the device trust the RADIUS server during
+EAP-TLS.
+
+*ACME Certificate* payload:
+
+[cols="1,2",options="header"]
+|===
+| Field | Value
+| ACME directory URL | `https://<pf-fqdn>/api/v1/pki/acme/<template_name>/directory`
+| Client identifier | `$SERIALNUMBER`
+| Key type | `ECSECPrimeRandom`
+| Key size | `256` or `384`
+| Hardware bound | Enabled
+| Attest | Enabled
+| Subject | `CN=$SERIALNUMBER` — must be the same variable as the client identifier: PacketFence only signs a Common Name equal to the authorized identifier. (`$UDID` for both fields also works.)
+| Subject alternative name | Leave empty. DNS, e-mail or URI SANs are not authorized by a `permanent-identifier` order and the CSR would be refused.
+| Extended key usage | `1.3.6.1.5.5.7.3.2` (client authentication)
+| Usage flags | Digital signature (`1`)
+| Key is extractable | Disabled
+| Allow all apps access | Disabled, unless a third-party VPN client needs the identity
+| Redistribute profile | A number of days before expiry (for example 30). Jamf re-pushes the profile and the device enrolls a fresh certificate through ACME; this is how renewal works.
+|===
+
+*Network* (Wi-Fi) payload — your SSID, security type *WPA2/WPA3
+Enterprise*, protocol *EAP-TLS*, *Identity certificate* set to the ACME
+Certificate payload of this profile, and the PacketFence CA selected
+under *Trust* (with the RADIUS server name if you restrict trusted
+server names).
+
+Scope the profile to the devices and deploy. On the first device, check
+the PacketFence side as described in <<_verify_and_troubleshoot>>.
+
+===== Configure Microsoft Intune
+
+Intune has no certificate profile type for a third-party ACME server
+(its built-in certificate profiles are SCEP, PKCS and Cloud PKI). The
+ACME payload is delivered as an iOS/iPadOS or macOS *custom
+configuration profile*, in which Intune substitutes device tokens.
+
+NOTE: Intune's own enrollment certificate may also be issued with ACME
+and attestation; that is Intune's internal ACME service and is
+unrelated to the device certificates issued by PacketFence.
+
+. Download the payload from PacketFence with the Intune token:
++
+ curl -OJ "https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/mobileconfig?client_identifier=%7B%7Bserialnumber%7D%7D"
++
+(`%7B%7Bserialnumber%7D%7D` is `{{serialnumber}}` URL-encoded. The
+token is case-sensitive.)
+. Because Intune's built-in Wi-Fi profile cannot reference a
+  certificate from a custom profile, add the Wi-Fi payload to the same
+  file, referencing the ACME payload as identity and the PacketFence
+  CA as trust anchor. Add both dictionaries to the `PayloadContent`
+  array, with the CA certificate as a `com.apple.security.root`
+  payload:
++
+[source,xml]
+----
+<dict>
+  <key>PayloadType</key><string>com.apple.security.root</string>
+  <key>PayloadVersion</key><integer>1</integer>
+  <key>PayloadIdentifier</key><string>com.packetfence.ca</string>
+  <key>PayloadUUID</key><string>11111111-1111-1111-1111-111111111111</string>
+  <key>PayloadDisplayName</key><string>PacketFence PKI CA</string>
+  <key>PayloadContent</key>
+  <data>
+  <!-- base64 of the CA certificate in DER form:
+       openssl x509 -in ca.pem -outform DER | base64 -->
+  </data>
+</dict>
+<dict>
+  <key>PayloadType</key><string>com.apple.wifi.managed</string>
+  <key>PayloadVersion</key><integer>1</integer>
+  <key>PayloadIdentifier</key><string>com.packetfence.wifi</string>
+  <key>PayloadUUID</key><string>22222222-2222-2222-2222-222222222222</string>
+  <key>PayloadDisplayName</key><string>Corporate Wi-Fi</string>
+  <key>SSID_STR</key><string>CORP-SSID</string>
+  <key>AutoJoin</key><true/>
+  <key>EncryptionType</key><string>WPA2</string>
+  <key>EAPClientConfiguration</key>
+  <dict>
+    <key>AcceptEAPTypes</key><array><integer>13</integer></array>
+    <key>TLSTrustedServerNames</key><array><string>radius.example.com</string></array>
+    <key>PayloadCertificateAnchorUUID</key>
+    <array><string>11111111-1111-1111-1111-111111111111</string></array>
+  </dict>
+  <!-- PayloadUUID of the com.apple.security.acme payload in this file -->
+  <key>PayloadCertificateUUID</key><string>ACME-PAYLOAD-UUID</string>
+</dict>
+----
++
+`PayloadCertificateUUID` must be the `PayloadUUID` of the ACME payload
+PacketFence generated; `PayloadCertificateAnchorUUID` the UUID of the
+root payload (the CA that issued your RADIUS server certificate, if
+that is not the PKI CA). EAP type 13 is EAP-TLS.
+. In the Intune admin center: _Devices -> Configuration -> Create ->
+  iOS/iPadOS_ (or _macOS_) _-> Templates -> Custom_, upload the file,
+  assign it to the device group. For macOS, choose the *device*
+  deployment channel.
+. Renewal: Intune re-applies a custom profile when it changes. To force
+  re-enrollment before expiry, edit the profile (for example the
+  `PayloadDisplayName`) so it is redeployed; the device then enrolls a
+  new certificate. Plan this against the template's *Validity*.
+
+===== Verify and troubleshoot
+
+After the first device enrolls:
+
+[options="compact"]
+* The certificate appears in _Configuration -> Integration -> PKI ->
+  Certificates_ with the device serial number as Common Name and the
+  template's Subject attributes.
+* `admin_api_audit_log` records `acme.account.create` and, later,
+  `acme.cert.revoke`, attributed to `acme:<template_name>/<account>`.
+* The `pki_acme_orders` row for the device is in status `valid`.
+
+Common failures, as reported to the device (the MDM shows the ACME
+error on the profile installation status) and in the pfpki service log
+(`journalctl -u packetfence-pfpki`):
+
+[cols="1,2",options="header"]
+|===
+| Symptom | Cause
+| `409` when downloading the mobileconfig | The template is not set up as in Step 2; the response says which condition is missing.
+| `rejectedIdentifier`: `permanent-identifier requires an attestation format` | *Attestation formats* does not contain `apple`.
+| `rejectedIdentifier`: `identifier type "permanent-identifier" not allowed` | *Allowed identifier types* does not contain `permanent-identifier`.
+| `externalAccountRequired` | *Require External Account Binding* is on for an Apple template.
+| `device-attest-01: verify chain` | The attestation chain does not chain to the configured root. Clear *Attestation root CAs (PEM)* to use the embedded Apple root, or check the value you pasted.
+| `device-attest-01: identifier mismatch: order=... udid=... serial=...` | The client identifier sent by the device is not its serial number or UDID: the MDM did not substitute the variable (fixed value, wrong token spelling — Intune tokens are case-sensitive).
+| `device-attest-01: nonce does not match` | The attestation was produced for another challenge (replay, or the device retried against a stale order). The device must start a new order.
+| `badCSR`: `CSR CN ... not in order identifiers` / `... SAN ... not in order identifiers` | The payload's Subject or SAN uses a different variable than the client identifier, or adds SANs. Set `CN=<same variable>` and no SAN.
+| `badCSR`: `CSR public key does not match the attested device key` | The device presented a CSR for a key other than the attested one; usually a payload without *Hardware bound*/*Attest*.
+| `protected.url mismatch` | URLs rebuilt by PacketFence differ from what the device signed: a reverse proxy is not passing `X-Forwarded-Host`/`X-Forwarded-Proto`, or the directory URL uses a name different from the one PacketFence sees.
+| RADIUS rejects with a TLS error although the certificate was issued | The RADIUS TLS profile does not trust the PKI CA (Step 3), or the device does not trust the RADIUS server certificate (missing CA payload on the device).
+|===
+
+===== Renewal and revocation
+
+A renewal is a new enrollment: the MDM redistributes the profile, the
+device runs the full attestation flow again and receives a new
+certificate with a new serial number. The previous certificate stays
+valid until it expires, or until it is revoked from the PKI (revoking
+it also makes OCSP answer *revoked* for it). The template's *Days
+before renewal* and the renewal e-mails do not apply to ACME-issued
+certificates.
+
+A device can also revoke its own certificate through ACME
+(`revoke-cert`), either with its account key or with the certificate
+key; it can never revoke another device's certificate.
+
+===== Generic ACME clients
+
+The same server accepts standard ACME clients for hosts that need a
+certificate from the PacketFence PKI (a RADIUS peer, a printer, an
+internal web service):
+
+[options="compact"]
+* *Allowed identifier types*: `dns` and/or `ip`. The challenge is
+  `http-01`: PacketFence fetches
+  `http://<identifier>/.well-known/acme-challenge/<token>` on port 80
+  (redirects to 443 are followed). It refuses loopback, link-local and
+  other non-routable targets.
+* *Require External Account Binding*: keep it *on*, otherwise any host
+  that can answer an HTTP request for a name can obtain a certificate
+  for it. Mint a key pair per client:
++
+ # Mint — the hmac is returned once and never again
+ curl -X POST https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/eab \
+      -H 'Content-Type: application/json' -d '{"reference": "printer-42"}'
+ # List (hmac blanked) / revoke
+ curl https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/eab
+ curl -X DELETE https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/eab/<eab_id>
++
+and pass `key_id` / `hmac` to the client (`certbot --eab-kid ...
+--eab-hmac-key ...`, `step ca certificate --acme ... --eab-key-id ...
+--eab-key-secret ...`). Each key binds to the first account that uses
+it.
+* The certificate Common Name and DNS/IP SANs must be identifiers of
+  the order; the Subject attributes come from the template.
+
+===== Audit log
+
+Account creation, EAB mint/revoke, mobileconfig downloads and
+certificate revocation flow through `admin_api_audit_log` with the
+action names `acme.account.create`, `pfpki.AcmeEABCreate`,
+`pfpki.AcmeEABDelete`, `pfpki.AcmeMobileConfig` and
+`acme.cert.revoke`. ACME-side rows are attributed to the synthetic
+`UserName` `acme:<template_name>/<account_key_id>` so per-template
+traffic can be queried. EAB secrets are never written to the audit
+log.

@@ -770,6 +770,117 @@ window=1D
 # Local task
 local=0
 
+[pki_process_cloud_revocations]
+#
+# type
+#
+# Task type
+type=pki_process_cloud_revocations
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Polls each cloud-enabled (Intune) profile for pending CA revocation requests and applies them to the pfpki database. The same logic runs inline when a SCEP enrollment hits "Certificate with this Subject already exist"; this scheduled run is a safety net for devices that never re-enroll after Intune revokes them.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
+#
+# local
+#
+# Local task
+local=0
+
+[pki_revoked_certs_cleanup]
+#
+# type
+#
+# Task type
+type=pki_revoked_certs_cleanup
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Controls the cleanup of the pki_revoked_certs table. Revoked certificates whose original validity ended more than the window ago will be removed. Set the window long enough that no still-trusted-by-date client could plausibly present the cert; otherwise an OCSP query for it will return Unknown instead of Revoked.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 24h
+#
+# batch
+#
+# How many pki_revoked_certs entries to clean up in one run
+batch=1000
+#
+# timeout
+#
+# How long a pki_revoked_certs_cleanup job can run
+timeout=30s
+#
+# window
+#
+# How long to keep a pki_revoked_certs row past the original cert's natural expiry before deleting it
+window=30d
+#
+# local
+#
+# Local task
+local=0
+
+[pki_acme_state_cleanup]
+#
+# type
+#
+# Task type
+type=pki_acme_state_cleanup
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Controls the cleanup of expired ACME state (nonces, authorizations, orders, and their challenges). Without this task running, the pki_acme_* tables grow without bound under enrollment churn. The window is grace beyond each row's natural ACME expiry; keep short — once a nonce/authz/order has expired, retaining the row gives no protocol benefit.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
+#
+# batch
+#
+# How many ACME state rows to clean up per statement per run
+batch=1000
+#
+# timeout
+#
+# How long a pki_acme_state_cleanup job can run
+timeout=30s
+#
+# window
+#
+# How long to keep an expired ACME row past its expires_at before deleting it
+window=1h
+#
+# local
+#
+# Local task
+local=0
+
 [admin_api_audit_log_cleanup]
 #
 # type
