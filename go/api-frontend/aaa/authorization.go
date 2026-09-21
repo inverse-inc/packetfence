@@ -71,6 +71,11 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefixV1_1 + "/reports", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefixV1_1 + "/report/", role: "REPORTS"},
 
+	adminRoleMapping{prefix: apiPrefix + "/pfchatbot/write/", role: "CHATBOT", roleSuffix: "_WRITE"},
+	adminRoleMapping{prefix: apiPrefix + "/pfchatbot/write", role: "CHATBOT", roleSuffix: "_WRITE"},
+	adminRoleMapping{prefix: apiPrefix + "/pfchatbot/", role: "CHATBOT", roleSuffix: "_READ"},
+	adminRoleMapping{prefix: apiPrefix + "/pfchatbot", role: "CHATBOT", roleSuffix: "_READ"},
+
 	adminRoleMapping{prefix: apiPrefix + "/dynamic_reports", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefix + "/dynamic_report/", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefix + "/radius_audit_log/", role: "RADIUS_LOG"},
