@@ -54,7 +54,7 @@
       ansible.netcommon.cli_command:
         command: "{{ item }}"
       loop: "{{ ['system-view'] + lookup('file', acl_config).splitlines() }}"
-      when: ansible_network_os == 'h3c_open.comware.comware'
+      when: ansible_network_os == 'packetfence.comware.comware'
 
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]

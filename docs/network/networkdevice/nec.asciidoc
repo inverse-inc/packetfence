@@ -233,8 +233,9 @@ the session.
 Instead of defining the ACL by hand on every switch, enable _Use PushACLs_ on
 the switch and give it CLI credentials (`cliUser` / `cliPwd`). PacketFence then
 translates each role's ACL into Comware `rule` syntax and pushes it to the
-switch through the `pfsetacls` service (the `h3c_open.comware` Ansible
-collection over SSH), creating one named advanced ACL per role. The RADIUS reply
+switch through the `pfsetacls` service over SSH, using PacketFence's bundled
+`packetfence.comware` Ansible collection, and creating one named advanced ACL per
+role. The RADIUS reply
 still references the ACL by name through `Filter-Id`. The switch account used by
 PushACLs must have write (network-admin) rights.
 
@@ -250,10 +251,12 @@ Ansible run times out.
 generated inventory already passes `HostKeyAlgorithms=+ssh-rsa` (and uses the
 paramiko connection) to get past this.
 
-The `h3c_open.comware` collection's terminal plugin also needs its prompt
-patterns to recognise the Comware config-view prompt `[...]` (ends in `]`, not
-`#`); PacketFence drives the push with `cli_command` rather than `cli_config`
-for the same reason.
+PacketFence ships its own `packetfence.comware` Ansible collection (a corrected
+Comware terminal + cliconf plugin) for this, because the public `h3c_open.comware`
+collection's plugins mis-handle Comware (prompt patterns do not match the
+config-view prompt `[...]`, and `cli_config`'s enable-mode logic does not apply
+to Comware). PacketFence copies the bundled collection into the per-switch
+`pf_collections` directory and drives the push with `cli_command`.
 ====
 
 ===== CLI login
