@@ -26,7 +26,7 @@ type CertificatesCheck struct {
 }
 
 func (j *CertificatesCheck) RunWithContext(ctx context.Context) {
-	j.VerifyCertFiles(j.Certificates)
+	j.VerifyCertFiles(ctx, j.Certificates)
 }
 
 type UnVerifyFileCert struct {
@@ -46,10 +46,10 @@ func NewCertificatesCheck(config map[string]interface{}) JobSetupConfig {
 }
 
 func (j *CertificatesCheck) Run() {
-	j.VerifyCertFiles(j.Certificates)
+	j.RunWithContext(context.Background())
 }
 
-func (j *CertificatesCheck) VerifyCertFiles(files []string) {
+func (j *CertificatesCheck) VerifyCertFiles(ctx context.Context, files []string) {
 	certErrors := []error{}
 	for _, file := range files {
 		if err := j.VerifyFile(file); err != nil {
@@ -57,7 +57,7 @@ func (j *CertificatesCheck) VerifyCertFiles(files []string) {
 		}
 	}
 
-	j.SendEmails(certErrors)
+	j.SendEmails(ctx, certErrors)
 }
 
 func (j *CertificatesCheck) VerifyFile(file string) error {
@@ -107,8 +107,7 @@ func (j *CertificatesCheck) VerifyCert(file string, cert *x509.Certificate, now 
 	return nil
 }
 
-func (j *CertificatesCheck) SendEmails(messages []error) {
-	ctx := context.Background()
+func (j *CertificatesCheck) SendEmails(ctx context.Context, messages []error) {
 	empty := struct{}{}
 	apiClient := unifiedapiclient.NewFromConfig(ctx)
 	payload := map[string]string{"subject": "SSL certificate expiration"}

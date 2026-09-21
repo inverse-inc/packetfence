@@ -33,9 +33,13 @@ func MakeBatchSqlJobSetupConfig(sql string) func(config map[string]interface{}) 
 	}
 }
 
-func (c *BatchSqlCleanup) Run() {
-	count, _ := BatchSql(context.Background(), c.Timeout, c.Sql, c.Batch)
+func (c *BatchSqlCleanup) RunWithContext(ctx context.Context) {
+	count, _ := BatchSql(ctx, c.Timeout, c.Sql, c.Batch)
 	if count > -1 {
-		log.LogInfo(context.Background(), fmt.Sprintf("%s cleaned items %d", c.Name(), count))
+		log.LogInfo(ctx, fmt.Sprintf("%s cleaned items %d", c.Name(), count))
 	}
+}
+
+func (c *BatchSqlCleanup) Run() {
+	c.RunWithContext(context.Background())
 }
