@@ -135,34 +135,35 @@ user; enable the voice VLAN on the port so the tagged traffic is accepted.
    lldp tlv-enable med-tlv network-policy 100
    quit
 
-===== Roles (Filter-Id)
+===== Roles and dynamic ACLs (Filter-Id)
 
-When _Role by Switch Role_ is enabled for the switch in PacketFence, the value
-configured for a role is returned in the `Filter-Id` attribute. Comware 7
-interprets it as an ACL number, an ACL name or a user profile name. The ACL or
-user profile must exist on the switch:
+Comware 7 applies a per-session authorization ACL only when the RADIUS reply
+references an ACL that already exists on the switch. It uses the standard
+`Filter-Id` attribute, read as an ACL number, an ACL name or a user profile
+name. It does *not* honor inline ACL rules in the vendor `H3C-Av-Pair`
+attribute, so PacketFence assigns ACLs by reference.
 
-  acl advanced 3001
-   rule 0 permit ip destination 192.168.1.5 0
-   rule 5 deny ip
+Enable _Role by Switch Role_ for the switch in PacketFence and set the numbered
+ACL as the switch role for each PacketFence role. Define the ACL on the switch:
+
+  acl advanced 3999
+   name pf-user-acl
+   rule 0 permit udp destination-port eq dns
+   rule 5 permit udp destination-port eq bootps
+   rule 10 permit udp destination-port eq bootpc
+   rule 15 permit tcp destination 192.168.1.5 0 destination-port eq 443
+   rule 20 deny ip
    quit
 
-Then set `3001` as the switch role for the matching PacketFence role.
+Set `3999` as the switch role for the matching PacketFence role. On the next
+authentication the session is authorized into the assigned VLAN and the ACL is
+applied. Verify it on the switch:
 
-===== Dynamic ACLs
+  display mac-authentication connection interface GigabitEthernet1/0/1
+  display dot1x connection interface GigabitEthernet1/0/1
 
-When _Role by Access List_ is enabled for the switch, PacketFence sends the
-ACL of the role inline in the RADIUS Access-Accept, one rule per `H3C-Av-Pair`
-attribute in the form `ip:inacl#<N>=<rule>`. Rules use the Cisco IOS extended
-ACL syntax, for example:
-
-  permit udp any any eq 53
-  permit tcp any host 192.168.1.5 eq 443
-  deny ip any any
-
-Only inbound rules are supported (rules prefixed with `out|` are ignored).
-Use `display mac-authentication connection` or `display dot1x connection` on
-the switch to see the authorization ACL applied to a session.
+The output shows `Authorization untagged VLAN` and `Authorization ACL ID` for
+the session.
 
 ===== CLI login
 

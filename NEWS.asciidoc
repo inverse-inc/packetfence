@@ -27,7 +27,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
-  - Support for NEC QX-S series switches (Comware 7): MAC authentication, 802.1X, dynamic VLAN assignment, role assignment through Filter-Id, dynamic ACLs through H3C-Av-Pair, VoIP, RADIUS disconnect and CLI login
+  - Support for NEC QX-S series switches (Comware 7): MAC authentication, 802.1X (including EAP-TLS), dynamic VLAN assignment, dynamic ACL assignment through Filter-Id (numbered ACL), VoIP voice VLAN, RADIUS disconnect and CLI login. Validated on a QX-S4148GT-4G-PW running Comware 7.2.8
 
 === Enhancements
 

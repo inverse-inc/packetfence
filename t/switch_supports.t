@@ -397,7 +397,6 @@ is(pf::Switch::NEC::QX_S->new->supportsWiredDot1x, 1, "pf::Switch::NEC::QX_S sup
 is(pf::Switch::NEC::QX_S->new->supportsRadiusDynamicVlanAssignment, 1, "pf::Switch::NEC::QX_S supportsRadiusDynamicVlanAssignment still works");
 is(pf::Switch::NEC::QX_S->new->supportsRadiusVoip, 1, "pf::Switch::NEC::QX_S supportsRadiusVoip still works");
 is(pf::Switch::NEC::QX_S->new->supportsRoleBasedEnforcement, 1, "pf::Switch::NEC::QX_S supportsRoleBasedEnforcement still works");
-is(pf::Switch::NEC::QX_S->new->supportsAccessListBasedEnforcement, 1, "pf::Switch::NEC::QX_S supportsAccessListBasedEnforcement still works");
 is(pf::Switch::Mojo->new->supportsWirelessDot1x, 1, "pf::Switch::Mojo supportsWirelessDot1x still works");
 is(pf::Switch::Motorola->new->supportsWirelessMacAuth, 1, "pf::Switch::Motorola supportsWirelessMacAuth still works");
 is(pf::Switch::Motorola->new->supportsWirelessDot1x, 1, "pf::Switch::Motorola supportsWirelessDot1x still works");
