@@ -121,8 +121,13 @@
     />
 
     <form-group-jq-query :column-label="$i18n.t('JQ query')"
-                         :text="$i18n.t('The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails. The query runs with no access to the process environment (env and $ENV are empty) and cannot include or import jq modules from disk.')"
+                         :text="$i18n.t('The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails. The device is available to the query as the variables $mac and $node (ex: $node.pid, $node.category). The query runs with no access to the process environment (env and $ENV are empty) and cannot include or import jq modules from disk.')"
                          namespace="jq_query"
+    />
+
+    <form-group-jq-test-mac :column-label="$i18n.t('Test node')"
+                            :text="$i18n.t('Optional MAC address of an existing node to test the JQ query against. Its attributes are given to the query as $node, and the MAC address as $mac.')"
+                            namespace="test_mac"
     />
 
     <form-group-jq-test :column-label="$i18n.t('Test JQ query')"
@@ -149,6 +154,7 @@ import {
   FormGroupIdentifier,
   FormGroupJqQuery,
   FormGroupJqTest,
+  FormGroupJqTestMac,
   FormGroupMethod,
   FormGroupOses,
   FormGroupPassword,
@@ -178,6 +184,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupJqQuery,
   FormGroupJqTest,
+  FormGroupJqTestMac,
   FormGroupMethod,
   FormGroupOses,
   FormGroupPassword,

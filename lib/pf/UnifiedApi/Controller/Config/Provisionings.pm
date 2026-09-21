@@ -23,7 +23,9 @@ has 'form_class' => 'pfappserver::Form::Config::Provisioning';
 has 'primary_key' => 'provisioning_id';
 
 use pf::ConfigStore::Provisioning;
+use pf::node qw(node_view);
 use pf::provisioner::generic_http;
+use pf::util qw(clean_mac);
 use pfappserver::Form::Config::Provisioning;
 use pfappserver::Form::Config::Provisioning::accept;
 use pfappserver::Form::Config::Provisioning::airwatch;
@@ -81,6 +83,10 @@ sub fields_to_mask { qw(access_token refresh_token password passcode private_key
 Evaluate a jq query against a sample JSON payload.
 Used by the admin GUI to test the jq query of a generic_http provisioner.
 
+The query can be tested against a node, the way the provisioner runs one: see
+L</test_jq_vars>. The node it was given back is returned with the result, so
+the admin can see which attributes C<$node> held.
+
 =cut
 
 sub test_jq {
@@ -100,8 +106,13 @@ sub test_jq {
         return $self->render_error(422, "Both jq_query and json must be provided");
     }
 
+    my ($vars, $vars_err) = $self->test_jq_vars($data);
+    if (defined $vars_err) {
+        return $self->render_error(422, $vars_err);
+    }
+
     # the query is arbitrary here, so bound how long it may run
-    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded($json, $query);
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded($json, $query, undef, $vars);
     if (defined $err) {
         return $self->render_error(422, "jq evaluation failed: $err");
     }
@@ -111,8 +122,55 @@ sub test_jq {
         json => {
             passes  => ($pass ? $self->json_true : $self->json_false),
             results => $results,
+            mac     => $vars->{mac},
+            node    => $vars->{node},
         }
     );
+}
+
+=head2 test_jq_vars
+
+Build the jq variables of a test from the request body: a node given as a JSON
+object in C<node>, or the node of the MAC address in C<mac> looked up in the
+database. Neither is required -- without them C<$mac> and C<$node> are null,
+which is what a query that does not use them has always seen.
+
+A MAC that no node matches is not an error: the query runs with C<$node> null
+and the caller sees a null node in the answer, which is also what the
+provisioner would do for an unknown device.
+
+Returns (\%vars, undef), or (undef, $error) when the request describes a node
+it cannot build.
+
+=cut
+
+sub test_jq_vars {
+    my ($self, $data) = @_;
+    my $mac = $data->{mac};
+    undef $mac if defined $mac && $mac eq '';
+    if (defined $mac) {
+        my $cleaned = clean_mac($mac);
+        if (!$cleaned) {
+            return (undef, "'$mac' is not a valid MAC address");
+        }
+
+        $mac = $cleaned;
+    }
+
+    my $node = $data->{node};
+    if (defined $node) {
+        if (ref($node) ne 'HASH') {
+            return (undef, "node must be a JSON object");
+        }
+
+        # a node given outright stands in for the lookup, so a query can be
+        # tested against attributes no node carries yet
+        $mac //= $node->{mac};
+    } elsif (defined $mac) {
+        $node = node_view($mac);
+    }
+
+    return (pf::provisioner::generic_http->jq_vars($mac, $node), undef);
 }
 
 =head1 AUTHOR
