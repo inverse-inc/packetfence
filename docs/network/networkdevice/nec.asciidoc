@@ -187,11 +187,23 @@ together:
 
 ===== Roles and dynamic ACLs (Filter-Id)
 
+[NOTE]
+====
+Inline (downloadable) ACLs are *not supported* on Comware wired switches. Only
+the `Filter-Id` attribute is honored: it references an ACL that must already be
+defined on the switch (by ACL number, ACL name or user profile). ACL rules sent
+inline in a vendor attribute (`H3C-Av-Pair` or `Cisco-AVPair`, for example
+`ip:inacl#N=...`) are accepted in the RADIUS reply but silently ignored by the
+switch and are not enforced. This is a platform characteristic of Comware wired
+switches across firmware versions, not a PacketFence limitation. The inline
+"defined-acl-rule" form documented by H3C applies only to some access
+controllers for wireless 802.1X / MAC authentication.
+====
+
 Comware 7 applies a per-session authorization ACL only when the RADIUS reply
 references an ACL that already exists on the switch. It uses the standard
 `Filter-Id` attribute, read as an ACL number, an ACL name or a user profile
-name. It does *not* honor inline ACL rules in the vendor `H3C-Av-Pair`
-attribute, so PacketFence assigns ACLs by reference.
+name, so PacketFence assigns ACLs by reference.
 
 Enable _Role by Switch Role_ for the switch in PacketFence and set the numbered
 ACL as the switch role for each PacketFence role. Define the ACL on the switch:
