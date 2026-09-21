@@ -387,12 +387,34 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 		macs = append(macs, mac)
 	}
 
-	roles := nodeRoles(ctx, db, macs)
-	lookup := GetPolicyLookup()
+	roles, complete := nodeRoles(ctx, db, macs)
+	if !complete {
+		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based and implicit policies are not applied to its %d network events, MAC policies still are", len(events))
+	}
+
+	applyEnforcement(GetPolicyLookup(), events, roles, complete)
+}
+
+// applyEnforcement sets the enforcement info of every event from the
+// pre-resolved roles. When rolesComplete is false a role query failed for
+// some chunk of MACs and an absent role can no longer be told from "no role":
+// only the MAC policies, which do not depend on the lookup, are applied, and
+// the role-based and implicit policies are skipped rather than evaluated with
+// a role that may be wrong. Events then go out without enforcement info for
+// this window, as they do when no policy matches.
+func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[string]string, rolesComplete bool) {
 	for _, ne := range events {
 		srcMac := inventoryMac(ne.SourceInventoryItem)
 		dstMac := inventoryMac(ne.DestInventoryitem)
-		if ei := lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)]); ei != nil {
+
+		var ei *EnforcementInfo
+		if rolesComplete {
+			ei = lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)])
+		} else if ei = lookup.LookupByMac(srcMac, ne); ei == nil {
+			ei = lookup.LookupByMac(dstMac, ne)
+		}
+
+		if ei != nil {
 			ne.EnforcementInfo = ei
 		}
 	}
@@ -401,16 +423,17 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 // nodeRoles maps each known MAC (lower-cased, see roleKey) to its role name
 // ("" when the node has no role). MACs absent from the node table are absent
 // from the result, which also yields "" on lookup, the same as the per-event
-// query did. macs must already be roleKey-normalized.
-func nodeRoles(ctx context.Context, db *sql.DB, macs []string) map[string]string {
+// query did. macs must already be roleKey-normalized. The boolean is false
+// when a chunk query failed, in which case up to nodeRolesLookupChunk MACs
+// are missing from the map for a reason other than "unknown node".
+func nodeRoles(ctx context.Context, db *sql.DB, macs []string) (map[string]string, bool) {
 	if db == nil {
-		return map[string]string{}
+		return map[string]string{}, true
 	}
 
-	roles, _ := queryStringPairs(ctx, db, "nodeRoles",
+	return queryStringPairs(ctx, db, "nodeRoles",
 		`SELECT LOWER(node.mac), COALESCE(node_category.name, '') FROM node LEFT JOIN node_category ON node_category.category_id = node.category_id WHERE node.mac IN (`,
 		macs, nodeRolesLookupChunk)
-	return roles
 }
 
 func init() {

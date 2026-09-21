@@ -428,11 +428,11 @@ loop:
 				}
 			}
 		case <-ticker.C:
-			if len(a.events) == 0 {
-				if stats.messages > 0 {
-					log.LogDebugf(ctx, "pfflow aggregator: %d messages carried no flows this window", stats.messages)
-				}
-				stats = newWindowStats()
+			// Nothing arrived this window. A window whose messages carried no
+			// flows (template/options-only NetFlow packets, an idle switch) is
+			// still handed to the flusher so that its exporters are marked as
+			// seen; MarkSwitchAsSeen used to run per message, unconditionally.
+			if stats.messages == 0 {
 				continue
 			}
 

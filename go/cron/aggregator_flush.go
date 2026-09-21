@@ -51,6 +51,12 @@ func (a *Aggregator) flusher(ctx context.Context) {
 func (a *Aggregator) flush(ctx context.Context, batch flushBatch) {
 	start := time.Now()
 	a.markSwitchesSeen(ctx, batch.stats.agents)
+	if len(batch.events) == 0 {
+		// Only exporters to record this window (see handleEvents).
+		log.LogDebugf(ctx, "pfflow aggregator: %d messages carried no flows this window, %d exporter(s) marked as seen", batch.stats.messages, len(batch.stats.agents))
+		return
+	}
+
 	ipsLookedUp := resolveMissingMacs(ctx, a.db, batch.events)
 	macDone := time.Now()
 
