@@ -130,23 +130,38 @@ how a phone tags its own voice traffic. The switch owns the voice VLAN number,
 so PacketFence does not assign it.
 
   interface GigabitEthernet1/0/1
+   port hybrid vlan 100 tagged
    voice-vlan 100 enable
+   mac-authentication host-mode multi-vlan
    mac-authentication max-user 2
    dot1x max-user 2
    lldp tlv-enable med-tlv network-policy 100
    quit
 
-Enable the voice VLAN on the port with `voice-vlan <id> enable`, but do not add
-the voice VLAN to the port statically as `port hybrid vlan <id> tagged`: a static
-tagged membership conflicts with the RADIUS voice authorization and the phone
-session fails to come up. The phone learns the voice VLAN through LLDP-MED (the
-`network-policy` TLV above) and tags its voice traffic accordingly. On the
-switch the session shows as:
+Three settings make a phone and a data device authenticate together on the same
+port:
+
+[options="compact"]
+* `voice-vlan 100 enable` turns the voice VLAN on for the port.
+* `port hybrid vlan 100 tagged` permits the phone's tagged voice traffic to
+  ingress so MAC Authentication can trigger on it. (The phone learns VLAN 100
+  from the `network-policy` LLDP-MED TLV and tags accordingly.)
+* `mac-authentication host-mode multi-vlan` lets the switch authenticate the
+  phone on the tagged voice VLAN while the data device authenticates untagged on
+  the access VLAN. Without it the tagged phone is not authenticated.
+
+The data device is authorized untagged on its access VLAN and the phone is
+authorized tagged on the voice VLAN. On the switch both sessions show up
+together:
 
   display mac-authentication connection interface GigabitEthernet1/0/1
-    ...
-    Authorization untagged VLAN: N/A
-    Authorization tagged VLAN: 100
+    Total connections: 2
+    User MAC address: xxxx-xxxx-xxxx    (data)
+      Authorization untagged VLAN: 40
+      Authorization ACL ID: 3999
+    User MAC address: yyyy-yyyy-yyyy    (phone)
+      Authorization untagged VLAN: N/A
+      Authorization tagged VLAN: 100
 
 ===== Roles and dynamic ACLs (Filter-Id)
 
