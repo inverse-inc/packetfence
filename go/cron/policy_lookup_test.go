@@ -44,6 +44,19 @@ func TestMatcher(t *testing.T) {
 		},
 		{
 
+			in: "permit tcp any any #Supports #comments",
+			out: Matcher{
+
+				Action: "permit",
+				Proto:  IpProtocol("tcp"),
+				Port:   0,
+				SrcNet: AnyPrefix,
+				DstNet: AnyPrefix,
+				Op:     "",
+			},
+		},
+		{
+
 			in: "permit tcp any any eq 18",
 			out: Matcher{
 
@@ -388,6 +401,18 @@ func TestMatcher(t *testing.T) {
 		},
 		{
 			in: "#deny udp any host 11:11:11:11:11:11 eq 789",
+			out: Matcher{
+				Action: "deny",
+				DstMac: mac.Mac{0x11, 0x11, 0x11, 0x11, 0x11, 0x11},
+				Proto:  IpProtocol("udp"),
+				Port:   789,
+				SrcNet: AnyPrefix,
+				DstNet: AnyPrefix,
+				Op:     "eq",
+			},
+		},
+		{
+			in: "#deny udp any host 11:11:11:11:11:11 eq 789 # Comment",
 			out: Matcher{
 				Action: "deny",
 				DstMac: mac.Mac{0x11, 0x11, 0x11, 0x11, 0x11, 0x11},
