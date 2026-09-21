@@ -238,6 +238,24 @@ collection over SSH), creating one named advanced ACL per role. The RADIUS reply
 still references the ACL by name through `Filter-Id`. The switch account used by
 PushACLs must have write (network-admin) rights.
 
+[NOTE]
+====
+Two environment requirements for the Comware push, learned in testing on the
+QX-S 7.2.8:
+
+. *Disable paging on the switch's VTY lines* (`line vty 0 63` then
+`screen-length 0`), otherwise the SSH session pauses at `---- More ----` and the
+Ansible run times out.
+. *Old firmware offers only an `ssh-rsa` host key*, which modern SSH rejects. The
+generated inventory already passes `HostKeyAlgorithms=+ssh-rsa` (and uses the
+paramiko connection) to get past this.
+
+The `h3c_open.comware` collection's terminal plugin also needs its prompt
+patterns to recognise the Comware config-view prompt `[...]` (ends in `]`, not
+`#`); PacketFence drives the push with `cli_command` rather than `cli_config`
+for the same reason.
+====
+
 ===== CLI login
 
 To let PacketFence authenticate switch administrators, add the RADIUS scheme to
