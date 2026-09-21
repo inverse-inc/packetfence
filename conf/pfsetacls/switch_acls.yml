@@ -47,6 +47,11 @@
         state: replaced[% END %]
       when: ansible_network_os == 'arista.eos.eos'
 
+    - name: Load new acl into NEC/Comware switch
+      ansible.netcommon.cli_config:
+        config: "{{ lookup('file', acl_config) }}"
+      when: ansible_network_os == 'h3c_open.comware.comware'
+
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]
     - name: remove acl on interface
