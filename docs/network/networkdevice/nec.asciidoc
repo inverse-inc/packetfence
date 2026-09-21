@@ -120,10 +120,32 @@ PacketFence (`aa-bb-cc-dd-ee-ff`).
 With both methods enabled on a port, the switch first tries 802.1X and falls
 back to MAC Authentication when the device does not answer the EAP requests.
 
+===== Interface configuration (802.1X only)
+
+Use this when only 802.1X supplicants connect to the port. A device without a
+supplicant is not authenticated; add the `mac-authentication` lines from the
+previous section to fall back to MAC Authentication for those devices.
+
+  interface GigabitEthernet1/0/1
+   port link-type hybrid
+   port hybrid vlan 1 untagged
+   port hybrid pvid vlan 1
+   mac-vlan enable
+   stp edged-port
+   dot1x
+   dot1x port-method macbased
+   dot1x mandatory-domain packetfence
+   dot1x re-authenticate
+   undo dot1x handshake
+   undo dot1x multicast-trigger
+   dot1x unicast-trigger
+   quit
+
 ===== Interface configuration (with VoIP)
 
-Add the following to the previous interface configuration, `100` being the voice
-VLAN. For a VoIP phone PacketFence returns only the `device-traffic-class=voice`
+Layer the following on top of any of the interface configurations above (MAC
+Authentication, 802.1X, or the fallback combination) to admit a VoIP phone on
+the same port, `100` being the voice VLAN. For a VoIP phone PacketFence returns only the `device-traffic-class=voice`
 attribute (no VLAN): Comware classifies the session as a voice user and
 authorizes it in the port's configured voice VLAN as a *tagged* VLAN, which is
 how a phone tags its own voice traffic. The switch owns the voice VLAN number,
