@@ -1,0 +1,180 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== NEC
+
+==== QX-S Series (Comware 7)
+
+NEC QX-S series switches run a Comware 7 based firmware. The `NEC::QX_S` switch
+type was developed and tested on a QX-S4148GT-4G-PW running Comware Software
+version 7.2.8 and supports the following technologies:
+
+[options="compact"]
+* MAC Authentication (with or without VoIP)
+* 802.1X (with or without VoIP)
+* 802.1X with MAC Authentication fallback
+* RADIUS dynamic VLAN assignment
+* Role assignment through the `Filter-Id` attribute (ACL number, ACL name or user profile already defined on the switch)
+* Dynamic ACLs (rules sent in the RADIUS reply through the `H3C-Av-Pair` attribute)
+* RADIUS Disconnect (dynamic-author server)
+* RADIUS CLI login
+
+In the examples below, `192.168.1.5` is the PacketFence server and
+`192.168.40.21` is the switch management address.
+
+===== RADIUS scheme and ISP domain
+
+  radius scheme packetfence
+   primary authentication 192.168.1.5 1812 key simple useStrongerSecret
+   primary accounting 192.168.1.5 1813 key simple useStrongerSecret
+   user-name-format without-domain
+   nas-ip 192.168.40.21
+   quit
+  domain packetfence
+   authentication lan-access radius-scheme packetfence
+   authorization lan-access radius-scheme packetfence
+   accounting lan-access radius-scheme packetfence
+   quit
+  domain default enable packetfence
+
+===== RADIUS Disconnect (dynamic-author)
+
+Comware 7 listens for RFC 3576 Disconnect-Request on UDP port 3799 once a
+dynamic-author server is configured. This is what PacketFence uses to
+re-evaluate the access of a device (registration, security event, role change).
+
+  radius dynamic-author server
+   client ip 192.168.1.5 key simple useStrongerSecret
+   quit
+
+===== SNMP
+
+Read access is used by PacketFence to translate the RADIUS `NAS-Port-Id` into an
+interface index on IRF stacks and to gather interface information. On a
+standalone switch the ifIndex matches the port number, so PacketFence still
+works when SNMP is unreachable.
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent sys-info version v2c
+
+===== Global configuration
+
+  dot1x
+  dot1x authentication-method eap
+  mac-authentication
+  mac-authentication domain packetfence
+  mac-authentication user-name-format mac-address with-hyphen lowercase
+  lldp global enable
+
+The MAC Authentication username format above matches the format expected by
+PacketFence (`aa-bb-cc-dd-ee-ff`).
+
+===== Interface configuration (MAC Authentication)
+
+  interface GigabitEthernet1/0/1
+   port link-type hybrid
+   port hybrid vlan 1 untagged
+   port hybrid pvid vlan 1
+   mac-vlan enable
+   stp edged-port
+   mac-authentication
+   mac-authentication re-authenticate
+   quit
+
+===== Interface configuration (802.1X with MAC Authentication fallback)
+
+  interface GigabitEthernet1/0/1
+   port link-type hybrid
+   port hybrid vlan 1 untagged
+   port hybrid pvid vlan 1
+   mac-vlan enable
+   stp edged-port
+   dot1x
+   dot1x port-method macbased
+   dot1x mandatory-domain packetfence
+   dot1x re-authenticate
+   undo dot1x handshake
+   undo dot1x multicast-trigger
+   dot1x unicast-trigger
+   mac-authentication
+   mac-authentication re-authenticate
+   quit
+
+With both methods enabled on a port, the switch first tries 802.1X and falls
+back to MAC Authentication when the device does not answer the EAP requests.
+
+===== Interface configuration (with VoIP)
+
+Add the following to the previous interface configuration, `100` being the voice
+VLAN. PacketFence returns the voice VLAN together with the
+`device-traffic-class=voice` attribute so the switch treats the phone as a voice
+user; enable the voice VLAN on the port so the tagged traffic is accepted.
+
+  interface GigabitEthernet1/0/1
+   port hybrid vlan 100 tagged
+   voice-vlan 100 enable
+   mac-authentication max-user 2
+   dot1x max-user 2
+   lldp tlv-enable med-tlv network-policy 100
+   quit
+
+===== Roles (Filter-Id)
+
+When _Role by Switch Role_ is enabled for the switch in PacketFence, the value
+configured for a role is returned in the `Filter-Id` attribute. Comware 7
+interprets it as an ACL number, an ACL name or a user profile name. The ACL or
+user profile must exist on the switch:
+
+  acl advanced 3001
+   rule 0 permit ip destination 192.168.1.5 0
+   rule 5 deny ip
+   quit
+
+Then set `3001` as the switch role for the matching PacketFence role.
+
+===== Dynamic ACLs
+
+When _Role by Access List_ is enabled for the switch, PacketFence sends the
+ACL of the role inline in the RADIUS Access-Accept, one rule per `H3C-Av-Pair`
+attribute in the form `ip:inacl#<N>=<rule>`. Rules use the Cisco IOS extended
+ACL syntax, for example:
+
+  permit udp any any eq 53
+  permit tcp any host 192.168.1.5 eq 443
+  deny ip any any
+
+Only inbound rules are supported (rules prefixed with `out|` are ignored).
+Use `display mac-authentication connection` or `display dot1x connection` on
+the switch to see the authorization ACL applied to a session.
+
+===== CLI login
+
+To let PacketFence authenticate switch administrators, add the RADIUS scheme to
+the default domain for login users and enable scheme authentication on the
+VTY lines. PacketFence returns the `network-admin` user role for write access
+and `network-operator` for read access.
+
+  domain packetfence
+   authentication login radius-scheme packetfence local
+   authorization login radius-scheme packetfence local
+   quit
+  line vty 0 63
+   authentication-mode scheme
+   quit
