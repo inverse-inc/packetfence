@@ -62,7 +62,6 @@ use warnings;
 use base ('pf::Switch::H3C::Comware_v7');
 
 use pf::constants;
-use pf::constants::role qw($VOICE_ROLE);
 use pf::config qw(
     $MAC
     $PORT
@@ -127,19 +126,23 @@ sub returnRoleAttribute {
 
 =item getVoipVsa
 
-Returns the RADIUS attributes for VoIP phones: the voice VLAN plus the Comware
-C<device-traffic-class=voice> pair so the switch treats the session as a voice user
-and places the phone in the voice VLAN configured on the port.
+Returns the RADIUS attribute that classifies the session as a voice user.
+Comware then authorizes the phone in the port's configured voice VLAN as a
+tagged VLAN; PacketFence does not assign the VLAN itself.
 
 =cut
 
 sub getVoipVsa {
     my ($self) = @_;
+    # On Comware 7, device-traffic-class=voice alone classifies the session as a
+    # voice user and authorizes it in the voice VLAN configured on the port
+    # (voice-vlan <id> enable), applied as a TAGGED VLAN - which is how an IP
+    # phone tags its own voice traffic. We deliberately do NOT return the Tunnel
+    # (VLAN) attributes here: assigning the voice VLAN untagged would be wrong for
+    # a phone, and the switch already knows its voice VLAN. Verified on a
+    # QX-S4148GT-4G-PW: this yields "Authorization tagged VLAN: <voice vlan>".
     return (
-        'Tunnel-Type'             => $RADIUS::VLAN,
-        'Tunnel-Medium-Type'      => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID' => $self->getVlanByName($VOICE_ROLE) . "",
-        $AV_PAIR_ATTRIBUTE        => 'device-traffic-class=voice',
+        $AV_PAIR_ATTRIBUTE => 'device-traffic-class=voice',
     );
 }
 
