@@ -83,6 +83,7 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     RadiusVoip
     RoleBasedEnforcement
+    PushACLs
     Flow
 );
 
@@ -243,6 +244,89 @@ sub returnAuthorizeRead {
 }
 
 =back
+
+=item acl_chewer
+
+Translate PacketFence's Cisco-style ACL lines into Comware C<rule> syntax so the
+ACL can be pushed to the switch (PushACLs). Any C<in|>/C<out|> direction prefix
+is preserved; PacketFence strips it when it renders the per-role ACL file.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $out = '';
+    while ($acl =~ /([^\n]+)\n?/g) {
+        my $line = $1;
+        my $prefix = '';
+        if ($line =~ /^(in\||out\|)(.*)/) {
+            $prefix = $1;
+            $line   = $2;
+        }
+        my $rule = $self->_cisco_to_comware_rule($line);
+        next unless defined $rule;
+        $out .= $prefix . $rule . "\n";
+    }
+    return $out;
+}
+
+=item _comware_addr
+
+Consume the leading address tokens of a Cisco ACL line and return the Comware
+address form: C<any> stays C<any>, C<host X> becomes C<X 0>, and C<X wildcard>
+is kept as is.
+
+=cut
+
+sub _comware_addr {
+    my ($self, $t) = @_;
+    return undef unless @$t;
+    my $tok = shift @$t;
+    return 'any'         if $tok eq 'any';
+    return (shift @$t) . ' 0' if $tok eq 'host';
+    my $wc = (@$t && $t->[0] =~ /^\d+\.\d+\.\d+\.\d+$/) ? shift @$t : '0';
+    return "$tok $wc";
+}
+
+=item _cisco_to_comware_rule
+
+Translate a single Cisco extended-ACL line (permit/deny) into a Comware
+advanced-ACL C<rule> line. Handles ip/tcp/udp/icmp, any/host/wildcard source and
+destination, and eq/neq/gt/lt/range ports. Returns undef for lines it cannot map
+(remarks, blanks) so they are skipped.
+
+=cut
+
+sub _cisco_to_comware_rule {
+    my ($self, $line) = @_;
+    $line =~ s/^\s+//;
+    $line =~ s/\s+$//;
+    return undef if $line eq '' || $line =~ /^(remark|#)/i;
+    my @t = split /\s+/, $line;
+    my $action = shift @t;
+    return undef unless defined $action && ($action eq 'permit' || $action eq 'deny');
+    my $proto = shift @t;
+    return undef unless defined $proto;
+    my $rule = "rule $action $proto";
+    my $tcpudp = ($proto eq 'tcp' || $proto eq 'udp');
+
+    my $src = $self->_comware_addr(\@t);
+    $rule .= " source $src" if defined $src && $src ne 'any';
+    if ($tcpudp && @t && $t[0] =~ /^(eq|neq|gt|lt|range)$/) {
+        my $op = shift @t;
+        $rule .= " source-port $op " . shift(@t);
+        $rule .= " " . shift(@t) if ($op eq 'range' && @t);
+    }
+
+    my $dst = $self->_comware_addr(\@t);
+    $rule .= " destination $dst" if defined $dst && $dst ne 'any';
+    if ($tcpudp && @t && $t[0] =~ /^(eq|neq|gt|lt|range)$/) {
+        my $op = shift @t;
+        $rule .= " destination-port $op " . shift(@t);
+        $rule .= " " . shift(@t) if ($op eq 'range' && @t);
+    }
+    return $rule;
+}
 
 =head1 AUTHOR
 

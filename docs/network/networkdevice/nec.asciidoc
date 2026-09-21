@@ -227,6 +227,17 @@ applied. Verify it on the switch:
 The output shows `Authorization untagged VLAN` and `Authorization ACL ID` for
 the session.
 
+
+====== Letting PacketFence push the ACL (PushACLs)
+
+Instead of defining the ACL by hand on every switch, enable _Use PushACLs_ on
+the switch and give it CLI credentials (`cliUser` / `cliPwd`). PacketFence then
+translates each role's ACL into Comware `rule` syntax and pushes it to the
+switch through the `pfsetacls` service (the `h3c_open.comware` Ansible
+collection over SSH), creating one named advanced ACL per role. The RADIUS reply
+still references the ACL by name through `Filter-Id`. The switch account used by
+PushACLs must have write (network-admin) rights.
+
 ===== CLI login
 
 To let PacketFence authenticate switch administrators, add the RADIUS scheme to
