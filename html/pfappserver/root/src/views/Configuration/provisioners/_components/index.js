@@ -62,6 +62,7 @@ export {
   BaseFormGroupInput                        as FormGroupIosAgentDownloadUri,
   BaseFormGroupTextarea                     as FormGroupJqQuery,
   BaseFormGroupJqTest                       as FormGroupJqTest,
+  BaseFormGroupInput                        as FormGroupJqTestMac,
   BaseFormGroupInput                        as FormGroupIosDownloadUri,
   BaseFormGroupInput                        as FormGroupLoginUrl,
   BaseFormGroupInput                        as FormGroupMacOsxAgentDownloadUri,

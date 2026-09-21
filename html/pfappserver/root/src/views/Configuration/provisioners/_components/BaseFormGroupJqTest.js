@@ -19,12 +19,20 @@ export const props = {
   test: {
     type: Function,
     default: (value, form) => {
-      const { jq_query } = form
-      return store.dispatch('$_provisionings/testJq', { jq_query, json: value }).then(response => {
-        const { passes, results } = response
+      const { jq_query, test_mac } = form
+      return store.dispatch('$_provisionings/testJq', { jq_query, json: value, mac: test_mac || undefined }).then(response => {
+        const { passes, results, mac, node } = response
         let html = []
         html.push('<pre style="color: inherit;">')
         html.push(`<strong>${escapeHtml(passes ? i18n.t('Passes') : i18n.t('Does not pass'))}</strong><br/>`)
+        if (mac) {
+          // show what the query was given, so the attributes it reads can be
+          // checked against the node it actually ran against
+          html.push(`$mac: <code>${escapeHtml(mac)}</code><br/>`)
+          html.push(`$node: <code>${node
+            ? escapeHtml(JSON.stringify(node))
+            : escapeHtml(i18n.t('null - no node matches this MAC address'))}</code><br/>`)
+        }
         html.push(`${escapeHtml(i18n.t('Results'))}: <code>${escapeHtml(JSON.stringify(results))}</code>`)
         html.push('</pre>')
         return html.join('')

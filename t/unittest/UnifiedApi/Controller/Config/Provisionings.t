@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 85;
+use Test::More tests => 101;
 use Test::Mojo;
 
 #This test will running last
@@ -219,6 +219,46 @@ $t->post_ok("$collection_base_url/test_jq" => json => {
 
 $t->post_ok("$collection_base_url/test_jq" => json => {
     jq_query => '.status',
+})->status_is(422);
+
+# a test node is handed to the query as $mac and $node, and comes back with
+# the result so the admin can see which attributes it held
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.mac == $mac and .owner == $node.pid',
+    json     => '{"mac":"aa:bb:cc:dd:ee:ff","owner":"bob"}',
+    mac      => 'AA-BB-CC-DD-EE-FF',
+    node     => { pid => 'bob' },
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->true)
+  ->json_is('/mac' => 'aa:bb:cc:dd:ee:ff')
+  ->json_is('/node/pid' => 'bob');
+
+# a node given on its own names the mac itself
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '$mac',
+    json     => '{}',
+    node     => { mac => 'aa:bb:cc:dd:ee:ff', pid => 'bob' },
+})->status_is(200)
+  ->json_is('/mac' => 'aa:bb:cc:dd:ee:ff');
+
+# and without either, both variables are null
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '[$mac, $node]',
+    json     => '{}',
+})->status_is(200)
+  ->json_is('/results/0' => [undef, undef])
+  ->json_is('/node' => undef);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => '{"status":"enrolled"}',
+    mac      => 'not a mac',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => '{"status":"enrolled"}',
+    node     => 'not an object',
 })->status_is(422);
 
 $t->post_ok("$collection_base_url/test_jq", {'Content-Type' => 'application/json'} => '{')

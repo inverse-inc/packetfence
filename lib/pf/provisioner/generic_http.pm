@@ -12,7 +12,8 @@ Generic HTTP provisioner. The HTTP request (URL, headers, body) is defined in
 the configuration as pf::mini_template templates. The response body is
 evaluated with a jq query (JQ::XS, with jq compiled into it); the device is
 authorized when the query returns a truthy value (jq semantics: only C<null>
-and C<false> are falsy).
+and C<false> are falsy). The query is given the device as the jq named
+arguments C<$mac> and C<$node>, the same two the request templates get.
 
 The query comes from the configuration rather than from the code, so it is
 compiled with what it may reach cut down: see L</compile_jq>.
@@ -172,21 +173,6 @@ The device passes when the query returns a truthy value.
 
 has jq_query => (is => 'rw', required => $TRUE);
 
-=head2 jq
-
-The compiled jq program of L</jq_query>. The query is a constant of the
-configuration and authorize runs on the RADIUS path, so it is compiled once
-per provisioner instead of on every call.
-
-=cut
-
-has jq => (is => 'lazy');
-
-sub _build_jq {
-    my ($self) = @_;
-    return $self->compile_jq($self->jq_query);
-}
-
 =head2 $JQ_PROLOGUE
 
 Prepended to a query before it is compiled, to keep it away from the
@@ -200,9 +186,26 @@ already, and a C<def> shadows a builtin for everything lexically after it.
 Inside the parentheses the query is wrapped in, C<env> and C<$ENV> are both an
 empty object.
 
+It is one line, so that the line numbers jq reports for a compile error still
+point at the query as the admin wrote it.
+
 =cut
 
 our $JQ_PROLOGUE = 'def env: {}; {} as $ENV | (';
+
+=head2 jq_vars
+
+The variables a jq query is given for a device: C<$mac>, its MAC address, and
+C<$node>, its node attributes (C<undef> when the node is not known, which the
+query sees as C<null>). The same two the request templates get. Callable as a
+class method, so the admin tester builds them the same way.
+
+=cut
+
+sub jq_vars {
+    my ($proto, $mac, $node_info) = @_;
+    return { mac => $mac, node => $node_info };
+}
 
 =head2 compile_jq
 
@@ -215,6 +218,14 @@ run time:
 
 =item * it is wrapped in L</$JQ_PROLOGUE>, which puts the process environment
 out of reach;
+
+=item * $vars, the L</jq_vars> of the device, are passed as jq named
+arguments, the way C<jq --arg> passes them, which is what makes C<$mac> and
+C<$node> (and C<$ARGS.named>) the device the query is being run for. jq binds
+named arguments while a program is compiled, so a program is compiled for one
+device rather than once per provisioner. Without $vars both are null, which
+is enough to compile a query that names them and is what the form validating
+one passes;
 
 =item * C<allow_includes> is off, so the query cannot pull definitions in from
 C<.jq> files on disk;
@@ -232,17 +243,20 @@ empty result.
 =cut
 
 sub compile_jq {
-    my ($proto, $query) = @_;
+    my ($proto, $query, $vars) = @_;
     $query = '' if !defined $query;
+    $vars //= $proto->jq_vars(undef, undef);
     delete local $ENV{HOME};
     # jq's grammar only accepts include and import at the very start of a
     # program, which the prologue takes over, so ask JQ::XS about the query as
     # written: it refuses a directive exactly, where the wrapped program gets
     # only as far as a syntax error pointing at the prologue. The match is not
     # the decision, just a way to skip this compile for a query that cannot
-    # hold a directive at all.
+    # hold a directive at all. It needs the variables as much as the real
+    # compile does, or a query merely holding the word include -- .include ==
+    # $mac -- would be turned down here for an undefined variable.
     if ($query =~ /\b(?:include|import)\b/) {
-        JQ::XS->new($query, allow_includes => $FALSE);
+        JQ::XS->new($query, allow_includes => $FALSE, vars => $vars);
     }
 
     my $jq = eval {
@@ -250,6 +264,7 @@ sub compile_jq {
             $JQ_PROLOGUE . "\n" . $query . "\n" . ')',
             allow_includes    => $FALSE,
             die_on_halt_error => $TRUE,
+            vars              => $vars,
         );
     };
     if ($@) {
@@ -423,18 +438,18 @@ Returns ($pass, \@results, undef, undef) on success and
 (undef, undef, $error, $kind) on failure, where $kind is one of $ERR_JSON,
 $ERR_QUERY or $ERR_JQ so the caller can tell a configuration error from a bad
 payload.
-$query is compiled with L</compile_jq>: a query loading a C<.jq> file from disk
-is refused there and reported as $ERR_QUERY, and one reaching for the process
-environment finds an empty object rather than the environment. An already
-compiled JQ::XS program can be passed as the fourth argument to avoid
-recompiling $query; it has to come from L</compile_jq> too.
+$query is compiled with L</compile_jq> for the L</jq_vars> in $vars, which it
+reads as C<$mac> and C<$node>; both are null when $vars is not given. A query
+loading a C<.jq> file from disk is refused by that compile and reported as
+$ERR_QUERY, and one reaching for the process environment finds an empty
+object rather than the environment.
 jq truthiness: a result passes unless every result is null or false (an empty
 result set fails).
 
 =cut
 
 sub evaluate_jq {
-    my ($proto, $json_text, $query, $jq) = @_;
+    my ($proto, $json_text, $query, $vars) = @_;
     if (defined $json_text && length($json_text) > $MAX_RESPONSE_SIZE) {
         return (undef, undef, "payload is larger than $MAX_RESPONSE_SIZE bytes", $ERR_JSON);
     }
@@ -444,11 +459,9 @@ sub evaluate_jq {
         return (undef, undef, _clean_err($@), $ERR_JSON);
     }
 
-    if (!defined $jq) {
-        $jq = eval { $proto->compile_jq($query) };
-        if ($@) {
-            return (undef, undef, _clean_err($@), $ERR_QUERY);
-        }
+    my $jq = eval { $proto->compile_jq($query, $vars) };
+    if ($@) {
+        return (undef, undef, _clean_err($@), $ERR_QUERY);
     }
 
     my @results = eval { $jq->process($data) };
@@ -484,10 +497,14 @@ interrupted once it is running inside libjq, so the evaluation is done in a
 child process that is killed when it overruns $timeout seconds (5 by default).
 Used by the admin tester, where the query is arbitrary and untrusted.
 
+$vars, the L</jq_vars> the query is given, is passed to the child by the fork
+itself and needs nothing of the caller in return, so only the outcome of the
+evaluation comes back over the pipe.
+
 =cut
 
 sub evaluate_jq_guarded {
-    my ($proto, $json_text, $query, $timeout) = @_;
+    my ($proto, $json_text, $query, $timeout, $vars) = @_;
     $timeout = 5 if !defined $timeout || $timeout !~ /^\d+$/ || $timeout == 0;
     my ($reader, $writer);
     if (!pipe($reader, $writer)) {
@@ -506,7 +523,7 @@ sub evaluate_jq_guarded {
             # child: report back and leave without running the parent's END
             # blocks or tearing down its inherited handles
             close $reader;
-            my ($pass, $results, $err, $kind) = $proto->evaluate_jq($json_text, $query);
+            my ($pass, $results, $err, $kind) = $proto->evaluate_jq($json_text, $query, $vars);
             eval {
                 print {$writer} encode_json({
                     pass    => (defined $pass ? ($pass ? 1 : 0) : undef),
@@ -580,13 +597,20 @@ sub _jq_truthy {
 
 =head2 authorize
 
-Send the templated request and evaluate the response with the jq query
+Send the templated request and evaluate the response with the jq query, which
+is given the device as C<$mac> and C<$node>. jq binds those while a program is
+compiled (see L</compile_jq>), so the query is compiled here for the device
+being checked rather than once for the provisioner.
 
 =cut
 
 sub authorize {
     my ($self, $mac, $node_info) = @_;
     my $logger = $self->logger;
+    # the jq query is given the node as $node, so it is looked up once here
+    # rather than only when a request template happens to reference it -- a
+    # successful check needs it for the enforcement below anyway
+    $node_info //= node_view($mac);
     my ($req, $err) = $self->make_request($mac, $node_info);
     if (defined $err) {
         $logger->error("Cannot build the request of provisioner " . $self->id . " for $mac: $err");
@@ -599,23 +623,22 @@ sub authorize {
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
 
-    my $jq = eval { $self->jq };
-    if (!defined $jq) {
-        # a query that does not compile is a configuration error
-        $logger->error("Provisioner " . $self->id . " has an invalid jq query: " . _clean_err($@));
-        return $FALSE;
-    }
-
-    my ($pass, $results, $jq_err, $err_kind) = $self->evaluate_jq($res->decoded_content, undef, $jq);
+    my ($pass, $results, $jq_err, $err_kind) = $self->evaluate_jq(
+        $res->decoded_content, $self->jq_query, $self->jq_vars($mac, $node_info),
+    );
     if (defined $jq_err) {
-        $logger->error("Provisioner " . $self->id . " failed to evaluate its jq query for $mac: $jq_err");
         # Only a query that does not compile is a configuration error. An
         # unparseable payload or a jq runtime error describes what the server
         # answered, so it must not de-authorize the device.
-        return $err_kind eq $ERR_QUERY ? $FALSE : $pf::provisioner::COMMUNICATION_FAILED;
+        if ($err_kind eq $ERR_QUERY) {
+            $logger->error("Provisioner " . $self->id . " has an invalid jq query: $jq_err");
+            return $FALSE;
+        }
+
+        $logger->error("Provisioner " . $self->id . " failed to evaluate its jq query for $mac: $jq_err");
+        return $pf::provisioner::COMMUNICATION_FAILED;
     }
 
-    $node_info //= node_view($mac);
     return $self->handleAuthorizeEnforce(
         $mac,
         {
