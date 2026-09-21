@@ -1390,6 +1390,15 @@ pf::util::is_prod_interface() returns false and DHCP packets do not trigger
 per-packet post-registration conformity scans (which is how pfdhcplistener
 behaved on a normal 'internal' capture interface).
 
+PacketFence is never the DHCP server of the remote site, so the processor is
+told to act on DHCPACKs (update_ip4log_on_ack): a REQUEST only carries the IP
+in option 50 during the initial exchange, renewals are a unicast REQUEST
+without it followed by the ACK, and without the ACK ip4log would never be
+refreshed. Rogue DHCP detection is turned off for the same reason: the servers
+the collector sees are the site's legitimate ones, and flagging every remote
+site's DHCP server as rogue would raise a security event and an e-mail per
+site.
+
 Expects: version (4 or 6), payload (base64 UDP payload), and optionally
 src_mac, dst_mac, src_ip, dst_ip. DHCPv6 is delegated to process_dhcpv6, whose
 processor base64-decodes the payload itself.
@@ -1470,6 +1479,9 @@ sub process_dhcp_event : Public {
         interface_ip   => undef,
         interface_vlan => $pf::config::NO_VLAN,
         net_type       => 'internal',
+        # See the POD above: act on ACKs, trust the site's DHCP servers.
+        update_ip4log_on_ack => 1,
+        rogue_dhcp_detection => 0,
     );
     $processor->process_packet();
 
