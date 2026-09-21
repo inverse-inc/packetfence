@@ -147,7 +147,7 @@ has_field 'jq_query' =>
    required => 1,
    validate_method => \&validate_jq_query,
    tags => { after_element => \&help,
-             help => 'The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails. The query runs with no access to the process environment (env and $ENV are empty) and cannot include or import jq modules from disk.' },
+             help => 'The jq query applied to the JSON response. The device is authorized when the query returns a truthy value: every result that is not null or false passes, an empty result fails. The device is available to the query as the variables $mac and $node (ex: $node.pid, $node.category). The query runs with no access to the process environment (env and $ENV are empty) and cannot include or import jq modules from disk.' },
   );
 
 =head2 validate_template

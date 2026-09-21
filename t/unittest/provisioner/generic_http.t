@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 65;
+use Test::More tests => 76;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
@@ -135,6 +135,54 @@ my $provisioner = new_ok(
 }
 
 {
+    # the device is handed to the query as $mac and $node, the same two the
+    # request templates get
+    my $C = "pf::provisioner::generic_http";
+    my $vars = $C->jq_vars($TEST_MAC, $TEST_NODE_INFO);
+
+    my ($pass, $results, $err) = $C->evaluate_jq(qq[{"devices":[{"mac":"$TEST_MAC"}]}], '.devices | any(.mac == $mac)', $vars);
+    is($err, undef, "a query using \$mac compiles");
+    ok($pass, "\$mac holds the mac of the device");
+
+    ($pass, $results, $err) = $C->evaluate_jq('{"owner":"bob"}', '.owner == $node.pid', $vars);
+    ok($pass, "\$node holds the attributes of the node");
+
+    (undef, $results) = $C->evaluate_jq('{"a":1}', '$node.category', $vars);
+    is($results->[0], 'gaming', "an attribute of \$node is readable");
+
+    # they are jq named arguments, as --arg passes them
+    (undef, $results) = $C->evaluate_jq('{"a":1}', '$ARGS.named.mac', $vars);
+    is($results->[0], $TEST_MAC, "the variables are passed as jq named arguments");
+
+    # a query naming them still compiles when there is no device to give it,
+    # which is what the form validating a query relies on
+    (undef, $results, $err) = $C->evaluate_jq('{"a":1}', '[$mac, $node]');
+    is($err, undef, "a query using the variables compiles without any");
+    is_deeply($results->[0], [undef, undef], "both variables are null when no device is given");
+
+    # jq binds named arguments while a program is compiled, so each device
+    # gets its own compile rather than the values of whoever came first
+    (undef, $results) = $C->evaluate_jq('{}', '$node.pid', $C->jq_vars($TEST_MAC, { pid => 'bob' }));
+    is($results->[0], 'bob', "a query is compiled for the device it is run for");
+
+    (undef, $results) = $C->evaluate_jq('{}', '$node.pid', $C->jq_vars('11:22:33:44:55:66', { pid => 'alice' }));
+    is($results->[0], 'alice', "and for the next device rather than keeping the first");
+}
+
+{
+    my $mock = Test::MockModule->new('LWP::UserAgent');
+    my $response = HTTP::Response->new(200, 'OK', ['Content-Type' => 'application/json'],
+        qq[{"devices":[{"mac":"$TEST_MAC","owner":"bob"}]}]);
+    $mock->mock(request => sub { return $response });
+
+    my $query = '.devices | any(.mac == $mac and .owner == $node.pid)';
+    is(make_provisioner(jq_query => $query)->authorize($TEST_MAC, $TEST_NODE_INFO), $TRUE,
+        "authorize gives the device to the query as \$mac and \$node");
+    is(make_provisioner(jq_query => $query)->authorize('11:22:33:44:55:66', { pid => 'bob' }), $FALSE,
+        "a device the response does not name does not pass");
+}
+
+{
     my $mock = Test::MockModule->new('LWP::UserAgent');
 
     my $response = HTTP::Response->new(200, 'OK', ['Content-Type' => 'application/json'], '{"status":"enrolled"}');
@@ -201,11 +249,6 @@ my $provisioner = new_ok(
 }
 
 {
-    my $p = make_provisioner();
-    is($p->jq, $p->jq, "the compiled jq program is built once and reused");
-}
-
-{
     my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded('{"status":"enrolled"}', '.status == "enrolled"');
     ok($pass, "the guarded evaluation passes a matching query");
 
@@ -247,6 +290,14 @@ my $provisioner = new_ok(
 
     my ($pass) = pf::provisioner::generic_http->evaluate_jq('{"include":1}', '.include == 1');
     ok($pass, "a query merely using the word include still compiles");
+
+    # that query is compiled once on its own to tell a directive from the word,
+    # and that compile needs the variables as much as the real one does
+    ($pass) = pf::provisioner::generic_http->evaluate_jq(
+        qq[{"include":"$TEST_MAC"}], '.include == $mac',
+        pf::provisioner::generic_http->jq_vars($TEST_MAC, $TEST_NODE_INFO),
+    );
+    ok($pass, "a query holding the word include and naming a variable still compiles");
 }
 
 {
