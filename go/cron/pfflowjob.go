@@ -18,14 +18,14 @@ var ChanPfFlow chan []*PfFlows = make(chan []*PfFlows, 1000)
 
 type PfFlowJob struct {
 	Task
-	ReadTopic       string
-	Brokers         []string
-	GroupID         string
-	UUID            string
-	UserName        string
-	Password        string
-	FilterEvents    int
-	fingerprintChan chan []*PfFlows
+	ReadTopic    string
+	Brokers      []string
+	GroupID      string
+	UUID         string
+	UserName     string
+	Password     string
+	FilterEvents int
+	config       map[string]interface{}
 }
 
 func defaultFromConfig[T any](config map[string]interface{}, name string, defaultVal T) T {
@@ -66,18 +66,15 @@ func defaultIntConfig(config map[string]interface{}, name string, defaultVal int
 
 func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 	hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
-	SetupKafka(config)
-
-	fingerbankChan := SetupFingerPrintingJob(config)
 	return &PfFlowJob{
-		Task:            SetupTask(config),
-		Brokers:         hosts,
-		GroupID:         config["group_id"].(string),
-		ReadTopic:       config["read_topic"].(string),
-		UUID:            config["uuid"].(string),
-		UserName:        config["kafka_user"].(string),
-		Password:        config["kafka_pass"].(string),
-		fingerprintChan: fingerbankChan,
+		Task:      SetupTask(config),
+		Brokers:   hosts,
+		GroupID:   config["group_id"].(string),
+		ReadTopic: config["read_topic"].(string),
+		UUID:      config["uuid"].(string),
+		UserName:  config["kafka_user"].(string),
+		Password:  config["kafka_pass"].(string),
+		config:    config,
 	}
 }
 
@@ -151,6 +148,11 @@ func (j *PfFlowJob) Run() {
 }
 
 func (j *PfFlowJob) RunWithContext(ctx context.Context) {
+	// Both start long lived goroutines and block until the database is
+	// reachable, so they run here rather than when the job is built.
+	SetupKafka(j.config)
+	fingerprintChan := SetupFingerPrintingJob(j.config)
+
 	var r *kafka.Reader
 	maxReconnectDelay := 60 * time.Second
 	reconnectDelay := 1 * time.Second
@@ -234,9 +236,9 @@ func (j *PfFlowJob) RunWithContext(ctx context.Context) {
 		}
 
 		ChanPfFlow <- []*PfFlows{pfFlows}
-		if j.fingerprintChan != nil {
+		if fingerprintChan != nil {
 			// Send the flows to the fingerprint channel
-			j.fingerprintChan <- []*PfFlows{pfFlows}
+			fingerprintChan <- []*PfFlows{pfFlows}
 		}
 	}
 }
