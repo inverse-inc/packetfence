@@ -38,7 +38,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Saved searches in every admin sidebar section, collapsible (#9570, #9571)
   - New pfcron task `pki_revoked_certs_cleanup` (disabled by default) purges expired revoked PKI certificates (#9436)
   - The pfacct netflow processor can be disabled (#9418)
-  - Support for NEC QX-S series switches (Comware 7): MAC authentication, 802.1X (including EAP-TLS), dynamic VLAN assignment, dynamic ACL assignment through Filter-Id (numbered ACL), VoIP voice VLAN, RADIUS disconnect and CLI login. Validated on a QX-S4148GT-4G-PW running Comware 7.2.8
+  - Support for NEC QX-S series switches (Comware 7): MAC authentication, 802.1X (including EAP-TLS), dynamic VLAN assignment, dynamic ACL assignment through Filter-Id (numbered ACL), VoIP (device-traffic-class=voice, tagged voice VLAN), RADIUS disconnect and CLI login. Validated on a QX-S4148GT-4G-PW running Comware 7.2.8
 
 === Enhancements
 
