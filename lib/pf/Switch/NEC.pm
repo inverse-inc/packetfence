@@ -8,8 +8,8 @@ pf::Switch::NEC - Object oriented module to access and configure NEC QX-S series
 
 NEC QX-S series switches run a Comware 7 based firmware, so this module builds
 on L<pf::Switch::H3C::Comware_v7> and adds the RADIUS authorization features of
-Comware 7: role (Filter-Id) assignment, dynamic ACLs through the H3C-Av-Pair
-attribute, voice VLAN tagging, RADIUS CLI login and NAS-Port-Id parsing.
+Comware 7: role assignment, dynamic ACLs, voice VLAN tagging, RADIUS CLI login
+and NAS-Port-Id parsing.
 
 =head1 STATUS
 
@@ -25,15 +25,13 @@ Developed and tested on a QX-S4148GT-4G-PW running Comware Software version 7.2.
 
 =item MAC Authentication
 
-=item 802.1X
+=item 802.1X (including EAP-TLS)
 
 =item RADIUS dynamic VLAN assignment
 
-=item Role assignment (Filter-Id: ACL number, ACL name or user profile pre-configured on the switch)
+=item Dynamic ACL assignment (Filter-Id referencing a numbered ACL)
 
-=item Dynamic ACLs (H3C-Av-Pair C<ip:inacl#N=rule>)
-
-=item Voice over IP (voice VLAN + C<device-traffic-class=voice>)
+=item Voice over IP (voice VLAN + device-traffic-class=voice)
 
 =item RADIUS Disconnect (dynamic-author server)
 
@@ -42,6 +40,19 @@ Developed and tested on a QX-S4148GT-4G-PW running Comware Software version 7.2.
 =back
 
 =back
+
+=head1 DYNAMIC ACLs
+
+Comware 7 on the QX-S applies a per-session authorization ACL only when the
+RADIUS reply references an ACL that already exists on the switch, through the
+standard C<Filter-Id> attribute (an ACL number, an ACL name or a user profile).
+It does B<not> honor inline ACL rules carried in the vendor C<H3C-Av-Pair>
+attribute (C<ip:inacl#N=...>), which this firmware silently ignores.
+
+Enforcement therefore goes through role-based enforcement: enable "Role by
+Switch Role" and set the numbered ACL (for example C<3999>) as the switch role
+for each PacketFence role. The ACL itself is pre-configured on the switch, or
+provisioned to it out of band.
 
 =cut
 
@@ -57,7 +68,6 @@ use pf::config qw(
     $PORT
     $WIRED_802_1X
     $WIRED_MAC_AUTH
-    %ConfigRoles
 );
 use pf::radius::constants;
 use pf::Switch::constants;
@@ -74,7 +84,6 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     RadiusVoip
     RoleBasedEnforcement
-    AccessListBasedEnforcement
     Flow
 );
 
@@ -116,84 +125,11 @@ sub returnRoleAttribute {
     return 'Filter-Id';
 }
 
-=item returnInAccessListAttribute
-
-Comware 7 accepts inbound dynamic ACL rules through the H3C-Av-Pair attribute
-using the C<ip:inacl#E<lt>NE<gt>=E<lt>ruleE<gt>> syntax (Cisco IOS style rules).
-
-=cut
-
-sub returnInAccessListAttribute {
-    my ($self) = @_;
-    return 'ip:inacl#';
-}
-
-=item returnRadiusAccessAccept
-
-Prepares the RADIUS Access-Accept response for the network device.
-
-Overrides the default implementation to add the dynamic ACLs as H3C-Av-Pair attributes.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    $args->{'unfiltered'} = $TRUE;
-    $args->{'compute_acl'} = $FALSE;
-    $self->compute_action(\$args);
-    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
-    my $status = shift @super_reply;
-    my %radius_reply = @super_reply;
-    my $radius_reply_ref = \%radius_reply;
-    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
-
-    my @av_pairs = ();
-    if (defined($radius_reply_ref->{$AV_PAIR_ATTRIBUTE})) {
-        my $existing = $radius_reply_ref->{$AV_PAIR_ATTRIBUTE};
-        @av_pairs = ref($existing) eq 'ARRAY' ? @$existing : ($existing);
-    }
-
-    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
-            if ($access_list) {
-                my $acl_num = 1;
-                while($access_list =~ /([^\n]+)\n?/g){
-                    my $acl = $1;
-                    if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
-                        next;
-                    }
-                    my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num, $acl);
-                    if (!$test) {
-                        $logger->debug("(".$self->{'_id'}.") Skipping unsupported access list entry : $acl");
-                        next;
-                    }
-                    push(@av_pairs, $formated_acl);
-                    $acl_num++;
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
-                }
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
-            }
-        }
-    }
-
-    if (@av_pairs) {
-        $radius_reply_ref->{$AV_PAIR_ATTRIBUTE} = \@av_pairs;
-    }
-
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-    return [$status, %$radius_reply_ref];
-}
-
 =item getVoipVsa
 
 Returns the RADIUS attributes for VoIP phones: the voice VLAN plus the Comware
 C<device-traffic-class=voice> pair so the switch treats the session as a voice user
-and tags the assigned VLAN as the voice VLAN on the port.
+and places the phone in the voice VLAN configured on the port.
 
 =cut
 
