@@ -22,8 +22,10 @@ var AnyPrefix = netip.MustParsePrefix("0.0.0.0/0")
 func ParseAcl(acl string) (Matcher, error) {
 	str := strings.TrimSpace(acl)
 	//Remove comment
-	if i := strings.LastIndex(str, "#"); i > 0 {
-		str = str[:i]
+	if len(str) > 1 {
+		if i := strings.IndexRune(str[1:], '#'); i >= 0 {
+			str = str[:i+1]
+		}
 	}
 	parts := strings.Fields(str)
 	if len(parts) == 0 {
