@@ -1,7 +1,7 @@
 /api/v1/config/provisionings/test_jq:
   description: pf::UnifiedApi::Controller::Config::Provisionings
   post:
-    description: Evaluate a jq query against a sample JSON payload. Used to test the jq query of a generic_http provisioner.
+    description: Evaluate a jq query against a sample JSON payload, optionally against a node. Used to test the jq query of a generic_http provisioner.
     operationId: api.v1.Config::Provisionings.test_jq
     parameters: []
     responses:
@@ -18,6 +18,14 @@
                   description: The raw results of the jq query.
                   type: array
                   items: {}
+                mac:
+                  description: The MAC address the query was given as $mac, null when none was requested.
+                  type: string
+                  nullable: true
+                node:
+                  description: The node the query was given as $node, null when none was requested or when no node matched the MAC address.
+                  type: object
+                  nullable: true
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
@@ -35,6 +43,12 @@
               json:
                 description: The sample JSON payload to evaluate the query against.
                 type: string
+              mac:
+                description: Optional MAC address of the node to test the query against. The node is looked up in the database and the query is given it as $mac and $node.
+                type: string
+              node:
+                description: Optional node attributes to test the query against, given to the query as $node. Stands in for the lookup of `mac`.
+                type: object
             required:
               - jq_query
               - json
