@@ -17,8 +17,9 @@
     delay: 10
 
 # Returning at SSH also made the callers' serial:1 meaningless: all three nodes
-# ended up booting their PF stacks concurrently. Skipped where the boot is
-# expected NOT to complete (scenario D: the DB deliberately never serves, so
-# packetfence.target is never reached).
+# ended up booting their PF stacks concurrently. Skipped wherever the boot
+# cannot complete while this play runs: the DB blocks on galera quorum, so it
+# never reaches packetfence.target with the cluster down (A2/B2) or with no
+# bootstrapped peer up yet (D4/D5). Those callers settle after quorum instead.
 - import_tasks: wait_boot_settled.yml
   when: boot_wait_settled | default(true) | bool

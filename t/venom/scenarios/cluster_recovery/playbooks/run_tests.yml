@@ -58,6 +58,9 @@
   serial: 1
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
+    # the whole cluster is down, so the first node's DB waits for a quorum that
+    # only the later nodes can supply — settling here would deadlock serial:1
+    boot_wait_settled: false
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'A' in recovery_scenarios"
@@ -69,6 +72,9 @@
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
     - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'A' in recovery_scenarios"
+    # quorum unblocks the boot transactions A2 left running
+    - import_tasks: tasks/wait_boot_settled.yml
       when: "'A' in recovery_scenarios"
 
 - hosts: 'pf[123]*dev'
@@ -101,6 +107,8 @@
   serial: 1
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
+    # same deadlock as A2: no node can settle until the cluster regains quorum
+    boot_wait_settled: false
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'B' in recovery_scenarios"
@@ -112,6 +120,9 @@
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
     - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'B' in recovery_scenarios"
+    # quorum unblocks the boot transactions B2 left running
+    - import_tasks: tasks/wait_boot_settled.yml
       when: "'B' in recovery_scenarios"
 
 - hosts: 'pf[123]*dev'
