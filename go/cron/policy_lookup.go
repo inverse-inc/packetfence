@@ -20,9 +20,16 @@ import (
 var AnyPrefix = netip.MustParsePrefix("0.0.0.0/0")
 
 func ParseAcl(acl string) (Matcher, error) {
-	parts := strings.Fields(acl)
+	str := strings.TrimSpace(acl)
+	//Remove comment
+	if len(str) > 1 {
+		if i := strings.IndexRune(str[1:], '#'); i >= 0 {
+			str = str[:i+1]
+		}
+	}
+	parts := strings.Fields(str)
 	if len(parts) == 0 {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 
 	i := 0
@@ -30,7 +37,7 @@ func ParseAcl(acl string) (Matcher, error) {
 	hasDstMac := false
 	switch parts[i] {
 	default:
-		return Matcher{}, fmt.Errorf("Invalid Action")
+		return Matcher{}, fmt.Errorf("Invalid Action: '%s'", acl)
 	case "permit", "deny":
 		matcher.Action = parts[i]
 	case "#permit", "#deny":
@@ -40,28 +47,28 @@ func ParseAcl(acl string) (Matcher, error) {
 
 	i++
 	if i >= len(parts) {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 
 	switch parts[i] {
 	default:
-		return Matcher{}, fmt.Errorf("Invalid Proto")
+		return Matcher{}, fmt.Errorf("Invalid Proto: '%s'", acl)
 	case "tcp", "udp", "icmp":
 		matcher.Proto = IpProtocol(parts[i])
 	}
 
 	i++
 	if i >= len(parts) {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 	if parts[i] != "any" {
-		return Matcher{}, fmt.Errorf("Invalid Src Address")
+		return Matcher{}, fmt.Errorf("Invalid Src Address: '%s'", acl)
 	}
 
 	matcher.SrcNet = AnyPrefix
 	i++
 	if i >= len(parts) {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 
 	switch parts[i] {
@@ -69,20 +76,20 @@ func ParseAcl(acl string) (Matcher, error) {
 
 		ip, err := netip.ParseAddr(parts[i])
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address '%s': %w", acl, err)
 		}
 
 		i++
 		if i >= len(parts) {
-			return Matcher{}, fmt.Errorf("Invalid Syntax")
+			return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 		}
 		mask, err := netip.ParseAddr(parts[i])
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address '%s': %w", acl, err)
 		}
 
 		if !mask.Is4() {
-			return Matcher{}, fmt.Errorf("Invalid Dst Wildcard Invalid Syntax")
+			return Matcher{}, fmt.Errorf("Invalid Dst Wildcard Invalid Syntax: '%s'", acl)
 		}
 
 		mask4 := mask.As4()
@@ -97,12 +104,12 @@ func ParseAcl(acl string) (Matcher, error) {
 	case "host":
 		i++
 		if i >= len(parts) {
-			return Matcher{}, fmt.Errorf("Invalid Syntax")
+			return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 		}
 		if hasDstMac {
 			destMac, err := mac.NewFromString(parts[i])
 			if err != nil {
-				return Matcher{}, fmt.Errorf("Invalid Dst Mac: %w", err)
+				return Matcher{}, fmt.Errorf("Invalid Dst Mac '%s': %w", acl, err)
 			}
 
 			matcher.DstNet = AnyPrefix
@@ -112,7 +119,7 @@ func ParseAcl(acl string) (Matcher, error) {
 
 		p, err := netip.ParsePrefix(parts[i] + "/32")
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address '%s': %w", acl, err)
 		}
 
 		matcher.DstNet = p
@@ -122,16 +129,16 @@ func ParseAcl(acl string) (Matcher, error) {
 	if i < len(parts) {
 		switch parts[i] {
 		default:
-			return Matcher{}, fmt.Errorf("Invalid port operation")
+			return Matcher{}, fmt.Errorf("Invalid port operation: '%s'", acl)
 		case "eq":
 			matcher.Op = parts[i]
 			i++
 			if i >= len(parts) {
-				return Matcher{}, fmt.Errorf("Invalid Syntax")
+				return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 			}
 			port, err := strconv.ParseUint(parts[i], 10, 16)
 			if err != nil {
-				return Matcher{}, fmt.Errorf("Invalid port:%w", err)
+				return Matcher{}, fmt.Errorf("Invalid port '%s': %w", acl, err)
 			}
 			matcher.Port = int(port)
 		}
@@ -151,7 +158,11 @@ type Matcher struct {
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
-	return m.Port == ne.DestPort && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
+	if m.Action == "deny" {
+		return false
+	}
+
+	return (m.Op == "" || m.Port == ne.DestPort) && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
 }
 
 func (m *Matcher) matchDest(ne *NetworkEvent) bool {
