@@ -71,6 +71,7 @@ use JSON::MaybeXS;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
+use pf::role_networks;
 use Cisco::AccessList::Parser;
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
@@ -801,7 +802,7 @@ sub _getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return "role", $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+    return "role", $self->acl_chewer(pf::role_networks::expand_acls(join("\n", @$acls, @$fb_acl)), $access_list_name) if @$acls || @$fb_acl;
 
     # No ACLs on this role — walk up to parent_id if defined
     my $parent_id = $role->{parent_id};
@@ -853,7 +854,7 @@ sub _getRoleAccessListByName {
     my $acls = $role->{acls} // [];
 
 
-    return $self->acl_chewer(join("\n", @$acls ), $access_list_name) if @$acls;
+    return $self->acl_chewer(pf::role_networks::expand_acls(join("\n", @$acls)), $access_list_name) if @$acls;
 
     # No ACLs on this role — walk up to parent_id if defined
     my $parent_id = $role->{parent_id};
