@@ -36,6 +36,7 @@ export {
   BaseFormGroupSwitch                       as FormGroupAllowLocaldomain,
   BaseFormGroupInput                        as FormGroupApiKey,
   BaseFormGroupInputPassword                as FormGroupApiPassword,
+  BaseFormGroupInput                        as FormGroupApiUrl,
   BaseFormGroupInput                        as FormGroupApiUsername,
   BaseFormGroupInput                        as FormGroupAuthenticateRealm,
   BaseFormGroupAuthenticationRules          as FormGroupAuthenticationRules,

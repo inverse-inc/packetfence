@@ -39,6 +39,7 @@ various methods:
  * OpenID Connect (OAuth 2)
  * RADIUS
  * SMS
+ * SMS API (Clickatell compatible gateway)
  * Sponsored Email
  * Twilio
  * Windows Live (OAuth 2)
@@ -155,6 +156,21 @@ to get an API Key for the SMS integration. Then add it as an authentication
 source the same way as above, except choosing `Clickatell` instead of `SMS` in
 `Add source -> External`. Enter a name, description and your Clickatell API key
 in the source configuration, then add the authentication rule.
+
+[float]
+===== SMS API Source
+
+Several SMS gateways expose the same HTTP API as Clickatell, but on a different
+URL. To use one of them, add an authentication source the same way as above,
+except choosing `SMS API` instead of `SMS` in `Add source -> External`. Enter a
+name, description, the API URL of your gateway and its API key in the source
+configuration, then add the authentication rule.
+
+The API URL is the full send endpoint of the gateway, for example
+`https://sms.example.com/messages/http/send`. PacketFence issues the following
+request when sending a PIN:
+
+  GET <API URL>?apiKey=<API Key>&to=<phone number>&content=<message>
 
 ==== Configuring the Connection Profile
 

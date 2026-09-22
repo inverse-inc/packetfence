@@ -50,6 +50,7 @@ use pfappserver::Form::Config::Source::Paypal;
 use pfappserver::Form::Config::Source::RADIUS;
 use pfappserver::Form::Config::Source::SAML;
 use pfappserver::Form::Config::Source::SMS;
+use pfappserver::Form::Config::Source::SMSApi;
 use pfappserver::Form::Config::Source::SQL;
 use pfappserver::Form::Config::Source::SponsorEmail;
 use pfappserver::Form::Config::Source::Stripe;
@@ -86,6 +87,7 @@ our %TYPES_TO_FORMS = (
       RADIUS
       SAML
       SMS
+      SMSApi
       SponsorEmail
       SQL
       Stripe

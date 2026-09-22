@@ -22,7 +22,7 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 63;                      # last test to print
+use Test::More tests => 65;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -565,6 +565,19 @@ is_deeply(
     is_deeply(
         $source->{message},
         "line1 \$pin\nline2",
+    );
+}
+
+{
+    my $source = pf::authentication::getAuthenticationSource("SMSApiSource");
+    is_deeply(
+        $source->{message},
+        "line1 \$pin\nline2",
+    );
+    is(
+        $source->{api_url},
+        'https://sms.example.com/messages/http/send',
+        "SMSApi source api_url is read from the configuration"
     );
 }
 

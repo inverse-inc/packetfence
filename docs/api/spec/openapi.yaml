@@ -18926,6 +18926,7 @@ components:
           RADIUS: '#/components/schemas/ConfigSourceSubTypeRadius'
           SAML: '#/components/schemas/ConfigSourceSubTypeSaml'
           SMS: '#/components/schemas/ConfigSourceSubTypeSms'
+          SMSApi: '#/components/schemas/ConfigSourceSubTypeSmsapi'
           SQL: '#/components/schemas/ConfigSourceSubTypeSql'
           SponsorEmail: '#/components/schemas/ConfigSourceSubTypeSponsoremail'
           Stripe: '#/components/schemas/ConfigSourceSubTypeStripe'
@@ -18960,6 +18961,7 @@ components:
       - $ref: '#/components/schemas/ConfigSourceSubTypeRadius'
       - $ref: '#/components/schemas/ConfigSourceSubTypeSaml'
       - $ref: '#/components/schemas/ConfigSourceSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSmsapi'
       - $ref: '#/components/schemas/ConfigSourceSubTypeSponsoremail'
       - $ref: '#/components/schemas/ConfigSourceSubTypeSql'
       - $ref: '#/components/schemas/ConfigSourceSubTypeStripe'
@@ -18995,6 +18997,7 @@ components:
           RADIUS: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
           SAML: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
           SMS: '#/components/schemas/ConfigSourceMetaSubTypeSms'
+          SMSApi: '#/components/schemas/ConfigSourceMetaSubTypeSmsapi'
           SQL: '#/components/schemas/ConfigSourceMetaSubTypeSql'
           SponsorEmail: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
           Stripe: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
@@ -19029,6 +19032,7 @@ components:
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeRadius'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSaml'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSmsapi'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSponsoremail'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeSql'
       - $ref: '#/components/schemas/ConfigSourceMetaSubTypeStripe'
@@ -20045,6 +20049,40 @@ components:
             sms_activation_timeout:
               $ref: '#/components/schemas/Meta'
             sms_carriers:
+              $ref: '#/components/schemas/Meta'
+            type:
+              $ref: '#/components/schemas/Meta'
+          type: object
+      type: object
+    ConfigSourceMetaSubTypeSmsapi:
+      properties:
+        meta:
+          properties:
+            administration_rules:
+              $ref: '#/components/schemas/Meta'
+            api_key:
+              $ref: '#/components/schemas/Meta'
+            api_url:
+              $ref: '#/components/schemas/Meta'
+            authentication_rules:
+              $ref: '#/components/schemas/Meta'
+            create_local_account:
+              $ref: '#/components/schemas/Meta'
+            description:
+              $ref: '#/components/schemas/Meta'
+            hash_passwords:
+              $ref: '#/components/schemas/Meta'
+            id:
+              $ref: '#/components/schemas/Meta'
+            local_account_expiration:
+              $ref: '#/components/schemas/Meta'
+            local_account_logins:
+              $ref: '#/components/schemas/Meta'
+            message:
+              $ref: '#/components/schemas/Meta'
+            password_length:
+              $ref: '#/components/schemas/Meta'
+            pin_code_length:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -24295,6 +24333,165 @@ components:
       - sms_activation_timeout
       - pin_code_length
       type: object
+    ConfigSourceSubTypeSmsapi:
+      properties:
+        administration_rules:
+          description: Administration rules
+          items:
+            description: Rule - New (  )
+            properties:
+              actions:
+                description: Actions
+                items:
+                  description: Action
+                  properties:
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              conditions:
+                description: Conditions
+                items:
+                  description: Condition
+                  properties:
+                    attribute:
+                      description: Attribute
+                      type: string
+                    operator:
+                      description: Operator
+                      type: string
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              description:
+                description: Description
+                type: string
+              id:
+                description: Name
+                type: string
+              match:
+                description: Matches
+                type: string
+              status:
+                description: Enable rule
+                type: string
+            type: object
+          type: array
+        api_key:
+          description: SMS gateway API Key
+          type: string
+        api_url:
+          description: URL of the Clickatell compatible SMS gateway
+          type: string
+        authentication_rules:
+          description: Authentication rules
+          items:
+            description: Rule - New (  )
+            properties:
+              actions:
+                description: Actions
+                items:
+                  description: Action
+                  properties:
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              conditions:
+                description: Conditions
+                items:
+                  description: Condition
+                  properties:
+                    attribute:
+                      description: Attribute
+                      type: string
+                    operator:
+                      description: Operator
+                      type: string
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              description:
+                description: Description
+                type: string
+              id:
+                description: Name
+                type: string
+              match:
+                description: Matches
+                type: string
+              status:
+                description: Enable rule
+                type: string
+            type: object
+          type: array
+        create_local_account:
+          description: Create a local account on the PacketFence system based on the
+            username provided.
+          type: string
+        description:
+          description: Description
+          type: string
+        hash_passwords:
+          description: The algorithm used to hash the passwords in the database.This
+            will only affect newly created or reset passwords.
+          type: string
+        id:
+          description: Id
+          type: string
+        local_account_expiration:
+          description: Local account expiration
+          properties:
+            interval:
+              description: Interval
+              type: integer
+            unit:
+              description: Unit
+              type: string
+          type: object
+        local_account_logins:
+          description: The amount of times, the local account can be used after its
+            created. 0 means infinite.
+          type: integer
+        message:
+          description: SMS text message ($pin will be replaced by the PIN number)
+          type: string
+        password_length:
+          description: The length of the password to generate.
+          type: integer
+        pin_code_length:
+          description: The length of the PIN code to be sent over sms
+          type: integer
+        type:
+          default: SMSApi
+          description: Discriminator `SMSApi`
+          type: string
+      required:
+      - id
+      - description
+      - hash_passwords
+      - password_length
+      - api_url
+      - api_key
+      type: object
     ConfigSourceSubTypeSponsoremail:
       properties:
         activation_domain:
@@ -25298,6 +25495,10 @@ components:
           description: Use instead this IP address for de-authentication requests.
             Normally used for Wi-Fi only
           type: string
+        controllerPort:
+          description: Port to reach the controller API. If empty, the default ports
+            of the module will be used
+          type: integer
         deauthMethod:
           description: Deauthentication Method
           type: string
@@ -25636,6 +25837,10 @@ components:
           description: Use instead this IP address for de-authentication requests.
             Normally used for Wi-Fi only
           type: string
+        controllerPort:
+          description: Port to reach the controller API. If empty, the default ports
+            of the module will be used
+          type: integer
         deauthMethod:
           description: Deauthentication Method
           type: string
@@ -25839,6 +26044,8 @@ components:
               $ref: '#/components/schemas/Meta'
             controllerIp:
               $ref: '#/components/schemas/Meta'
+            controllerPort:
+              $ref: '#/components/schemas/Meta'
             deauthMethod:
               $ref: '#/components/schemas/Meta'
             deauthOnPrevious:
@@ -26014,6 +26221,8 @@ components:
             coaPort:
               $ref: '#/components/schemas/Meta'
             controllerIp:
+              $ref: '#/components/schemas/Meta'
+            controllerPort:
               $ref: '#/components/schemas/Meta'
             deauthMethod:
               $ref: '#/components/schemas/Meta'
