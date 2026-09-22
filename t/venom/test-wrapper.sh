@@ -129,9 +129,9 @@ maybe_fallback_to_full_provision() {
     die "Cannot use baked vagrant box: ${reason}. Set FALLBACK_TO_FULL_PROVISION=yes to fall back to site.yml."
 }
 
-# The baked box is normally registered by ci/lib/vagrant/setup-vagrant-box.sh
-# in the CI job's before_script; verify it is present and (re-)run the setup
-# script when it is not (e.g. local runs outside CI).
+# Register the baked box during VM startup, after run() has checked free
+# space and reclaimed space if needed. The setup script skips downloading
+# a box that is already registered for this pipeline.
 register_vagrant_box_or_fallback() {
     local vm=$1
     local box=$(baked_box_for_pf_vm "${vm}")
