@@ -103,11 +103,13 @@ covers whether the object assignment alone is sufficient.
     is( $node->{source_base_type}, 'LDAP', "source_base_type persisted by direct assignment + save" );
 }
 
-=head2 node_register
+=head2 node_register keeps the source
 
-pf::node::node_register deletes source from %info after handing it to person_modify
-and before passing %info to node_modify, so the value never reaches the node.
-source_type is not deleted, which risks a half-written row.
+Regression test for commit 1e1b8c8. pf::node::node_register used to delete source
+from %info (after handing it to person_modify) before passing %info to node_modify,
+so the value never reached the node while source_type still did -- a half-written
+row. It now keeps source; this asserts source, source_type and source_base_type all
+survive node_register.
 
 =cut
 
