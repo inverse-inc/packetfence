@@ -239,8 +239,19 @@ sub _get_from_socket {
             print STDERR "$what $response";
             die $@;
         }
-        $LAST_TOUCH_CACHE = $result->{last_touch_cache} // $LAST_TOUCH_CACHE;
-        $RELOADED_TOUCH_CACHE = time;
+        my $last_touch_cache = ( ( reftype($result) // '' ) eq 'HASH' ) ? $result->{last_touch_cache} : undef;
+        if (defined($last_touch_cache)) {
+            # This reply tells us which expiration pfconfig is at, so what we have is current
+            $LAST_TOUCH_CACHE = $last_touch_cache;
+            $RELOADED_TOUCH_CACHE = time;
+        }
+        else {
+            # Zero is what is_valid reads as "nothing was ever loaded", so storing it would
+            # invalidate every resource of this process at once. The value we have is kept, but
+            # this reply doesn't confirm it either: leaving $RELOADED_TOUCH_CACHE alone lets the
+            # staleness check reload rather than serve a subcache we can't tell is still current
+            $logger->warn("The reply for $what carried no last touch cache. Keeping the one we have.");
+        }
     }
     else {
         $result = undef;

@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 28;
 
 use Test::NoWarnings;
 
@@ -77,7 +77,15 @@ ok($manager->is_valid($ns), "valid again once reloaded");
 # An external builder cannot identify the timestamp of its remote expiration.
 # It must reload from L2 before treating its memory entry as current.
 {
+    # The L2 write has to succeed for this to be the external build path at all, so serve it
+    # from memory rather than depend on the test host having a backend
+    package InMemoryCache;
+    sub get { return $_[0]->{data}{ $_[1] } }
+    sub set { $_[0]->{data}{ $_[1] } = $_[2]; return 1 }
+}
+{
     no warnings qw(redefine once);
+    local $manager->{cache} = bless { data => {} }, 'InMemoryCache';
     local *pfconfig::manager::config_builder = sub { return { value => 'external' } };
     local *pfconfig::git_storage::is_enabled = sub { return 0 };
     local *pfconfig::util::socket_expire = sub { $manager->touch_cache($ns); return 1 };
@@ -134,6 +142,18 @@ subtest 'external builds remain usable before the database is configured' => sub
     done_testing;
 };
 
+# A fresh install, or one whose var/control was wiped, has no control file yet. What is loaded
+# from L2 must come back valid, otherwise the next access pays another round trip for it
+{
+    no warnings qw(redefine once);
+    local $manager->{cache} = bless { data => { $ns => { value => 'from L2' } } }, 'InMemoryCache';
+    delete $manager->{memory}{$ns};
+    delete $manager->{control_timestamp}{$ns};
+    unlink($control_file);
+    is_deeply($manager->get_cache($ns), { value => 'from L2' }, "the namespace is loaded from L2");
+    ok($manager->is_valid($ns), "a namespace loaded without a control file is valid once loaded");
+}
+
 # The process that expired the namespace has a clock an hour ahead of ours
 my $ahead = time + 3600;
 utime($ahead, $ahead, $control_file) or die "cannot set the timestamp of $control_file: $!";
@@ -162,6 +182,34 @@ ok($cached->is_valid, "subcache stays valid when pfconfig's clock is ahead of ou
 
 $pfconfig::cached::LAST_TOUCH_CACHE = time + 3601;
 ok(!$cached->is_valid, "subcache is invalidated when pfconfig reports a new last touch cache");
+
+# A reply that carries no last touch cache leaves the client unable to tell whether what it has
+# is current. Storing the missing value would read as "nothing was ever loaded" and send every
+# resource of the process back to pfconfig at once
+{
+    no warnings qw(redefine once);
+    my $reply;
+    local *pfconfig::cached::get_socket         = sub { return 1 };
+    local *pfconfig::util::fetch_socket         = sub { return "reply" };
+    local *pfconfig::cached::sereal_decode_safe = sub { return $reply };
+
+    $pfconfig::cached::LAST_TOUCH_CACHE     = 1000;
+    $pfconfig::cached::RELOADED_TOUCH_CACHE = 500;
+    $reply = { element => 'value', last_touch_cache => 1001 };
+    $cached->_get_from_socket($ns, 'element');
+    is($pfconfig::cached::LAST_TOUCH_CACHE, 1001,
+        "the last touch cache of a reply is what the subcaches are compared against");
+    ok($pfconfig::cached::RELOADED_TOUCH_CACHE >= time - 1,
+        "and the reply confirms that what the process has is current");
+
+    $pfconfig::cached::RELOADED_TOUCH_CACHE = 500;
+    $reply = { element => 'value' };
+    $cached->_get_from_socket($ns, 'element');
+    is($pfconfig::cached::LAST_TOUCH_CACHE, 1001,
+        "a reply without one keeps the value we have instead of invalidating every resource");
+    is($pfconfig::cached::RELOADED_TOUCH_CACHE, 500,
+        "but it doesn't confirm it either, so the staleness check still reloads");
+}
 
 unlink($control_file);
 

@@ -292,8 +292,12 @@ sub get_cache {
     unless (defined($memory) && $self->is_valid($what)) {
         # Read the control file timestamp before loading. If the namespace gets
         # expired while we are loading it, we keep the timestamp from before the
-        # expiration and reload on the next access instead of missing the change
-        my $control_timestamp = $self->control_file_timestamp($what);
+        # expiration and reload on the next access instead of missing the change.
+        # Create the file when it isn't there yet (fresh install, var/control wiped):
+        # without a timestamp what we are about to load is invalid on arrival and the
+        # next access pays another L2 round trip for it
+        my $control_timestamp = $self->control_file_timestamp($what)
+            // $self->touch_cache($what);
         my $cached = $self->{cache}->get($what);
         # raw memory is expired but cache is not
         if ($cached) {
@@ -396,8 +400,12 @@ sub cache_resource {
         # Reading it back could adopt a concurrent writer's expiration.
         $control_timestamp = $self->touch_cache($what);
     }
-    # External builds successfully written to L2 stay invalid until reloaded:
-    # we do not know the timestamp of their remote expiration.
+    # External builds successfully written to L2 stay invalid until reloaded: the pfconfig
+    # server expires the namespace for us, and we cannot tell the timestamp of an expiration
+    # we did not do. $control_timestamp is left undefined for them on purpose, which makes
+    # is_valid report the entry below as invalid, so the first get_cache reloads it from L2
+    # and records the timestamp that came with it. Keeping such a manager around therefore
+    # costs one L2 round trip per namespace instead of serving it from memory
     $self->{memory}->{$what}       = $result;
     delete $self->{memory}->{"$ordered_prefix$what"};
     $self->{control_timestamp}->{$what} = $control_timestamp;

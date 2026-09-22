@@ -351,7 +351,8 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	return false
 }
 
-// Stores the last touch cache that a reply from pfconfig carried.
+// Stores the last touch cache that a reply from pfconfig carried and reports whether the reply
+// carried one at all.
 // A reply that carries none decodes as zero, and zero is what IsValid reads as "nothing was ever
 // loaded", so storing it would invalidate every resource of the process at once and send all of
 // them back to pfconfig. The value we already have is kept instead, which makes the resources
@@ -362,7 +363,9 @@ func updateLastTouchCache(ctx context.Context, lastTouchCache float64, identifie
 		return false
 	}
 
-	globalMeta.setLastTouchCache(lastTouchCache)
+	if !globalMeta.publishLastTouchCache(lastTouchCache) {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("The reply for %s carried an older last touch cache than the one we have. Keeping ours until another reply reports it.", identifier))
+	}
 	return true
 }
 
@@ -447,12 +450,16 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	// Only a reply we could decode updates the last touch cache, so a failed fetch above leaves
 	// the resources that are loaded alone instead of sending all of them back to pfconfig
 	loadedTouchCache := lastTouchCache
-	if !updateLastTouchCache(ctx, lastTouchCache, query.GetIdentifier()) {
-		// The reply carried none, so the global is the only value we can stamp this one with
+	if updateLastTouchCache(ctx, lastTouchCache, query.GetIdentifier()) {
+		// This reply tells us which expiration pfconfig is at, so what we have is current
+		globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
+	} else {
+		// The reply carried none, so the global is the only value we can stamp this one with,
+		// and it doesn't confirm it either: leaving the reloaded touch cache alone lets the
+		// staleness check reload rather than serve resources we can't tell are still current
 		loadedTouchCache = globalMeta.getLastTouchCache()
 	}
 
-	globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
 	o.SetLoadedAt(time.Now())
 	// Stamping from the global instead would let a fetch that overlaps this one move it, and this
 	// resource would then carry a touch cache that its own reply was not built with
