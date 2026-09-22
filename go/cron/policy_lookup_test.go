@@ -561,6 +561,26 @@ func TestMatchNetworkEvent(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"permit tcp any any eq 0",
+			NetworkEvent{
+				DestPort:   22,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			false,
+		},
+		{
+			"deny tcp any any",
+			NetworkEvent{
+				DestPort:   22,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			false,
+		},
 	}
 
 	for _, test := range tests {
@@ -589,6 +609,27 @@ func TestMatchNetworkEvent(t *testing.T) {
 	matcher, _ = ParseAcl("permit tcp any 10.0.0.0 0.0.0.255 eq 18")
 	if !matcher.Matches(&ne) {
 		t.Fatalf("Acl did not match network event")
+	}
+
+	// A catch-all deny must not attribute the flow to its policy.
+	policies := []Policy{
+		{
+			EnforcementInfo: []EnforcementInfo{{RuleID: "AAAA", Verdict: "allow"}},
+			Acls:            []string{"permit tcp any any eq 443", "deny tcp any any"},
+		},
+		{
+			EnforcementInfo: []EnforcementInfo{{RuleID: "BBBB", Verdict: "block"}},
+			Acls:            []string{"permit tcp any any eq 22"},
+		},
+	}
+	for i := range policies {
+		policies[i].UpdateMatchers()
+	}
+
+	ne.DestPort = 22
+	ei := matchEnforcementInfo(policies, &ne)
+	if ei == nil || ei.RuleID != "BBBB" {
+		t.Fatalf("Expected rule-id BBBB, got %v", ei)
 	}
 
 }
