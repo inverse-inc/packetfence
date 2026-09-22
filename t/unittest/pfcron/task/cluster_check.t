@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 # This test will run last.
 use Test::NoWarnings;
@@ -69,6 +69,14 @@ is(run_task(unhealthy_for => $threshold - 60), 0,
 
 is(run_task(unhealthy_for => $threshold + 60), 1,
     "a divergence older than the threshold gets resolved");
+
+# Resolving cannot always make the members agree (one of them may be unreachable), and it expires
+# every configuration store on every member, so each attempt has to wait out the threshold again
+# instead of firing on every run of the task for as long as the divergence lasts
+$resolved = 0;
+$task->run();
+is($resolved, 0,
+    "a divergence that resolving did not fix waits out the threshold again before the next attempt");
 
 is(run_task(unhealthy_for => $threshold + 60, versions => { 1 => ['a', 'b'] }), 0,
     "members running the same version are never resolved");

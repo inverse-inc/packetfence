@@ -46,7 +46,10 @@ sub run {
         my $unhealthy_for = $now - $last_healthy_at;
         # This timestamp is only ever written by this task from the node local clock, so it can
         # only be in the future if that clock stepped backwards. Restart the grace period from
-        # now rather than hold a negative value for the whole duration of the step
+        # now rather than hold a negative value for the whole duration of the step.
+        # A step forward inflates it instead, but it inflates $last_config_checked_interval by
+        # the same amount, so the check below sees the state as unchecked and restarts the grace
+        # period before the threshold is ever compared
         if($unhealthy_for < 0) {
             get_logger->warn("The healthy configuration timestamp is in the future, the clock has stepped backwards. Restarting the grace period");
             $unhealthy_for = 0;
@@ -67,6 +70,11 @@ sub run {
         elsif($unhealthy_for > $conflict_resolution_threshold) {
             get_logger->info("Configuration has been unhealthy for $unhealthy_for seconds, which is more than the $conflict_resolution_threshold seconds threshold. Will attempt to resolve the conflict");
             pf::cluster::handle_config_conflict();
+            # Give the resolution its own grace period. A divergence that resolving cannot fix
+            # (a member that cannot be synced) stays above the threshold, and every attempt
+            # expires every configuration store on every member, so without this the cluster
+            # takes that expiration on every run of this task for as long as it lasts
+            $cache->set('last_config_healthy_timestamp', $now);
         }
         else {
             get_logger->info("Configuration has been unhealthy for $unhealthy_for seconds. Will wait until it reaches $conflict_resolution_threshold seconds before attempting to resolve the conflict");
