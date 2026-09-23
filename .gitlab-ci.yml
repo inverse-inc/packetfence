@@ -170,8 +170,8 @@ variables:
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
     - if: '$CI_COMMIT_TAG'
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 .gated_by_test_yes:
@@ -958,10 +958,16 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 # the pipeline's PPA (http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
 # They also gate on the full build_images set: publish_ppa's chain omits the
 # golden base box (build_img_vagrant_*) the bake consumes.
+.bake_img_rules:
+  # standalone (.test_rules) or cluster-only (TEST_CLUSTER) pipelines need the box
+  rules:
+    - !reference [.test_rules, rules]
+    - !reference [.cluster_test_rules, rules]
+
 bake_img_vagrant_el8:
   extends:
     - .bake_img_vagrant_job
-    - .test_rules
+    - .bake_img_rules
   needs:
     - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
@@ -973,7 +979,7 @@ bake_img_vagrant_el8:
 bake_img_vagrant_deb12:
   extends:
     - .bake_img_vagrant_job
-    - .test_rules
+    - .bake_img_rules
   needs:
     - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
@@ -1486,6 +1492,7 @@ cluster_configurator_deb12:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
+    - .test_job_vagrant_deb12
 
 cluster_configurator_el8:
   variables:
@@ -1494,24 +1501,35 @@ cluster_configurator_el8:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
+    - .test_job_vagrant_el8
 
-# Recovery family (A-E): builds the cluster then runs cluster_recovery in the
+# Recovery family (A-F): builds the cluster then runs cluster_recovery in the
 # same job/VMs. Slow (~1h+); same TEST_CLUSTER gate as the configurator jobs.
 cluster_recovery_deb12:
+  timeout: 5h
   variables:
+    CLUSTER_SETUP_TIMEOUT: 120m
+    CLUSTER_RECOVERY_TIMEOUT: 150m
+    PIPELINE_TIMEOUT_SCRIPT: 280m
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
+    - .test_job_vagrant_deb12
 
 cluster_recovery_el8:
+  timeout: 5h
   variables:
+    CLUSTER_SETUP_TIMEOUT: 120m
+    CLUSTER_RECOVERY_TIMEOUT: 150m
+    PIPELINE_TIMEOUT_SCRIPT: 280m
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
+    - .test_job_vagrant_el8
 
 ### release
 configurator_el8_pristine:

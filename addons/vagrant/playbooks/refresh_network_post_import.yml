@@ -67,6 +67,15 @@
     - name: Start all PacketFence services
       ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
       changed_when: True
+      when: inventory_hostname is not match('^pf[123](deb12|el8)dev$')
+
+    # A cluster clone still has the standalone reg/iso addresses. Start only
+    # the internal API needed to replace them before enabling DHCP/portal.
+    - name: Start internal API for cluster clone address updates
+      ansible.builtin.systemd:
+        name: packetfence-pfperl-api.service
+        state: started
+      when: inventory_hostname is match('^pf[123](deb12|el8)dev$')
 
     - name: Report PacketFence service status
       ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf status

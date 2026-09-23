@@ -109,11 +109,12 @@ configure_and_check() {
     export SKIP_CONFIGURATOR_BAKED
 }
 
-# PF VMs eligible for the per-pipeline baked box (echoes the VM name, "" if
-# not eligible). Kept in sync with baked_box_vms in pfservers/Vagrantfile.
+# Map eligible PF VMs to their per-pipeline base box (empty if ineligible).
+# Kept in sync with baked_base_box in pfservers/Vagrantfile.
 baked_box_for_pf_vm() {
     case "$1" in
-        pfel8dev|pfdeb12dev) echo "$1" ;;
+        pfel8dev|pf[123]el8dev) echo pfel8dev ;;
+        pfdeb12dev|pf[123]deb12dev) echo pfdeb12dev ;;
         *)                   echo "" ;;
     esac
 }
@@ -143,7 +144,8 @@ register_vagrant_box_or_fallback() {
         return $?
     fi
 
-    local box_name="inverse-inc/${box}"
+    source "${VENOM_ROOT_DIR}/../../ci/lib/vagrant/box-category.sh"
+    local box_name="inverse-inc/${box}-$(vagrant_box_category)"
 
     if vagrant box list | grep -qF "${box_name} (libvirt, ${VAGRANT_BOX_VERSION})"; then
         log_subsection "Box ${box_name} v${VAGRANT_BOX_VERSION} already registered"
@@ -254,6 +256,14 @@ run_ansible_galaxy_once() {
 }
 
 run() {
+    if [ "${SCENARIOS_TO_RUN}" = "cluster_configurator cluster_recovery" ]; then
+        # Each phase gets its own clock. The CI job timeout must cover both
+        # budgets plus teardown; setup can no longer consume recovery's time.
+        time_phase "Cluster setup" timeout "${CLUSTER_SETUP_TIMEOUT:-120m}" "$0" prepare_cluster
+        SCENARIOS_TO_RUN=cluster_recovery time_phase "Cluster recovery" \
+            timeout "${CLUSTER_RECOVERY_TIMEOUT:-150m}" "$0" run_tests
+        return
+    fi
     local run_start=$(date +%s)
     check_free_space
     log_section "Tests"
@@ -266,6 +276,16 @@ run() {
     time_phase "Run scenarios: ${SCENARIOS_TO_RUN}" run_tests
     local total=$(( $(date +%s) - run_start ))
     log_section "Full run took $((total/60))m$((total%60))s"
+}
+
+# Inventory's box_url for the private bucket (packetfence-vagrant-box) is not
+# fetchable over anonymous HTTPS (403); pre-register the box via authenticated
+# rclone so vagrant never tries the public URL. Public boxes (generic/*,
+# debian/*) have no bucket URL and are left for vagrant to handle.
+prepare_cluster() {
+    check_free_space
+    time_phase "Import and prepare cluster nodes" start_and_provision_pf_vm ${PF_VM_NAMES}
+    SCENARIOS_TO_RUN=cluster_configurator run_tests
 }
 
 # Inventory's box_url for the private bucket (packetfence-vagrant-box) is not
@@ -342,6 +362,13 @@ wait_for_ssh() {
 }
 
 # Start with or without VM
+# Prep/readdress playbooks for baked cluster clones (no-op for standalone VMs).
+baked_cluster_playbook() {
+    local playbook=$1 vm=$2
+    [[ "${vm}" =~ ^pf[123](deb12|el8)dev$ ]] || return 0
+    ( cd "${VAGRANT_DIR}"; ansible-playbook "playbooks/${playbook}" -l "${vm}" )
+}
+
 start_vm() {
     local vm=$1
     local dotfile_path=$2
@@ -371,7 +398,9 @@ start_vm() {
             # Re-running site.yml would undo the bake, so only refresh network.
             ( cd ${VAGRANT_DIR}; \
               run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force )
+            baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
+            baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR}; \
@@ -399,7 +428,9 @@ start_vm() {
                       vagrant up \
                       ${vm} \
                       ${VAGRANT_UP_OPTS} ) 2>&1 | filter_vagrant_progress
+            baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
+            baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR} ; \
@@ -416,14 +447,15 @@ start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision PacketFence $vm_names"
     run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
-    # Baked-box mode boots each PF VM from its pre-baked image and only
-    # refreshes the network (no site.yml), so it can't share the parallel
-    # provision path below — start_vm handles the baked flow per VM.
-    if [ "${USE_VAGRANT_BOX}" = "yes" ]; then
-        for vm in ${vm_names}; do
-            start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
-        done
-        return
+    if [ "${USE_VAGRANT_BOX}" = yes ]; then
+        # Validate the box before creating any clones; fallback applies to all nodes.
+        register_vagrant_box_or_fallback "${1}"
+        if [ "${USE_VAGRANT_BOX}" = yes ]; then
+            for vm in ${vm_names}; do
+                start_vm "${vm}" "${VAGRANT_PF_DOTFILE_PATH}"
+            done
+            return
+        fi
     fi
     # boot all nodes first (one parallel vagrant up for the missing ones), then
     # wait for SSH on all and install PacketFence in a single ansible run
@@ -657,6 +689,7 @@ configure_and_check
 
 case $1 in
     run) run ;;
+    prepare_cluster) prepare_cluster ;;
     run_tests) time_phase "Run scenarios: ${SCENARIOS_TO_RUN}" run_tests ;;
     destroy) destroy ;;
     teardown) teardown ;;
