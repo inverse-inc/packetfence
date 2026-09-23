@@ -511,6 +511,7 @@ import {
   MysqlString,
   MysqlNumber,
   MysqlDatetime,
+  MysqlDatetimeMax,
   MysqlEnum,
   MysqlEmail,
   MysqlMac
@@ -535,6 +536,9 @@ yup.addMethod(yup.string, 'mysql', function(columnSchema) {
         case (type === MysqlDatetime):
           if (!([0, '0'].includes(value)) && format.replace(/[a-z]/gi, '0') !== value.replace(/[0-9]/g, '0'))
             return this.createError({ message: i18n.t('Invalid datetime, use format "{format}".', { format }) })
+          // zero-padded YYYY-MM-DD... compares lexically
+          if (format.startsWith('YYYY-MM-DD') && `${value}`.substr(0, 10) > MysqlDatetimeMax)
+            return this.createError({ message: i18n.t('Invalid datetime, must be on or before {max}.', { max: MysqlDatetimeMax }) })
           break
 
         case (type === MysqlNumber):
