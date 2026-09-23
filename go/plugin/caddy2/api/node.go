@@ -26,7 +26,7 @@ type collectorCaller interface {
 	Call(ctx context.Context, method, path string, payload, decodeResponseIn interface{}) error
 }
 
-func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (h *APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
 	defaultClient := pfconfigdriver.GetRefresh(ctx, "fbcollectorclient").(*fbcollectorclient.ClientFromConfig)
 	requestPayload := struct {
@@ -56,10 +56,9 @@ func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.
 		wg.Add(1)
 		go func(mac string) {
 			defer wg.Done()
-			ed := common.CollectorEndpointCommunications{}
-			err := clientForMac[mac].Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
+			ed, err := fetchEndpointData(ctx, mac, clientForMac[mac], defaultClient)
 			if err != nil {
-				log.LoggerWContext(ctx).Error("Error calling the fingerbank client: %s", err.Error())
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Error calling the fingerbank client: %s", err.Error()))
 			}
 			l.Lock()
 			defer l.Unlock()
@@ -73,12 +72,29 @@ func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.
 	sharedutils.CheckError(err)
 }
 
+// fetchEndpointData queries the endpoint data of a MAC on its resolved collector. A
+// dedicated (per-connector) collector can fail after it was resolved, e.g. when the
+// tunnel drops mid-request, so a failure there is retried once on the configured collector.
+func fetchEndpointData(ctx context.Context, mac string, client, defaultClient collectorCaller) (common.CollectorEndpointCommunications, error) {
+	path := fmt.Sprintf("/endpoint_data/%s", mac)
+	ed := common.CollectorEndpointCommunications{}
+	err := client.Call(ctx, "GET", path, nil, &ed)
+	if err == nil || client == defaultClient {
+		return ed, err
+	}
+
+	log.LoggerWContext(ctx).Warn(fmt.Sprintf("Dedicated fingerbank collector failed for %s, retrying on the configured collector: %s", mac, err))
+	ed = common.CollectorEndpointCommunications{}
+	err = defaultClient.Call(ctx, "GET", path, nil, &ed)
+	return ed, err
+}
+
 // collectorClientForMac returns the fingerbank collector client to query for a given MAC.
 // When the device is behind a pfconnector (resolved from its open locationlog switch IP),
 // it returns a client pointed at that connector's co-located collector. On any failure
 // (no DB handle, no open session, local connector, tunnel down, etc.) it returns the
 // configured (clustered) collector client.
-func (h APIHandler) collectorClientForMac(ctx context.Context, mac string, defaultClient collectorCaller, connectors *connector.ConnectorsContainer, clientCache map[string]collectorCaller) collectorCaller {
+func (h *APIHandler) collectorClientForMac(ctx context.Context, mac string, defaultClient collectorCaller, connectors *connector.ConnectorsContainer, clientCache map[string]collectorCaller) collectorCaller {
 	logger := log.LoggerWContext(ctx)
 
 	switchIP := h.switchIPForMac(ctx, mac)
@@ -121,7 +137,7 @@ func (h APIHandler) collectorClientForMac(ctx context.Context, mac string, defau
 
 // switchIPForMac returns the switch IP of the device's open locationlog session, or an
 // empty string when it can't be determined.
-func (h APIHandler) switchIPForMac(ctx context.Context, mac string) string {
+func (h *APIHandler) switchIPForMac(ctx context.Context, mac string) string {
 	if h.db == nil {
 		return ""
 	}

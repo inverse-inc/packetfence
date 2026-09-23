@@ -82,11 +82,19 @@ our %RECORD_RESULT_ATTR_MAP = (
 use fingerbank::Config;
 $fingerbank::Config::CACHE = cache();
 
-# Collectors and their LWP clients, keyed by a suffix that identifies the targeted
-# collector ("local" for the configured/clustered collector, or a connector id for a
-# collector co-located with a specific pfconnector).
-my %collectors;
-my %collector_uas;
+# The configured (clustered) collector and its LWP client.
+my $local_collector;
+my $local_collector_ua;
+
+# Collectors co-located with a pfconnector, keyed by connector id:
+# { collector => ..., ua => ..., expires_at => ... }. A collector of undef records that the
+# connector has no reachable dedicated collector, so the configured one is used.
+my %connector_collectors;
+
+# How long, in seconds, a connector's collector is trusted before it is resolved again.
+# The pfconnector-server hands out the collectors' reverse ports in memory: a tunnel going
+# down removes one and a pfconnector-server restart can give it to another connector.
+our $CONNECTOR_COLLECTOR_TTL = 60;
 my $api_client;
 
 =head1 METHODS
@@ -241,30 +249,86 @@ pfconnector so we only query the relevant collector instead of fanning out acros
 of them. Otherwise (no open session, local device, tunnel down or any error) it falls
 back to the configured/clustered collector.
 
-Returns a list of ($collector, $collector_ua, $cache_suffix). The suffix is used to key
-the cached collectors/UAs and the cached HTTP::Request objects (which embed the
-collector host:port and must not leak across collectors).
+Returns a list of ($collector, $collector_ua, $suffix), the suffix being "local" or the
+connector id whose collector is returned.
 
 =cut
 
 sub _collector_for_mac {
     my ($mac) = @_;
 
-    my $suffix = _collector_suffix_for_mac($mac);
+    my $connector_id = _collector_suffix_for_mac($mac);
+    return _local_collector() if $connector_id eq "local";
 
-    $collectors{$suffix} //= ($suffix eq "local")
-        ? fingerbank::Collector->new_from_config
-        : _build_connector_collector($suffix);
-
-    # _build_connector_collector may have failed and returned undef: fall back to local
-    unless (defined $collectors{$suffix}) {
-        $suffix = "local";
-        $collectors{$suffix} //= fingerbank::Collector->new_from_config;
+    my $entry = $connector_collectors{$connector_id};
+    if (!$entry || $entry->{expires_at} <= time) {
+        my $collector = _build_connector_collector($connector_id);
+        $entry = $connector_collectors{$connector_id} = {
+            collector  => $collector,
+            ua         => ($collector ? $collector->get_lwp_client() : undef),
+            expires_at => time + $CONNECTOR_COLLECTOR_TTL,
+        };
     }
 
-    $collector_uas{$suffix} //= $collectors{$suffix}->get_lwp_client();
+    # No dedicated collector for this connector (tunnel down, lookup failure): fall back to local
+    return _local_collector() unless $entry->{collector};
 
-    return ($collectors{$suffix}, $collector_uas{$suffix}, $suffix);
+    return ($entry->{collector}, $entry->{ua}, $connector_id);
+}
+
+=head2 _local_collector
+
+The configured (clustered) collector, its LWP client and the "local" suffix.
+
+=cut
+
+sub _local_collector {
+    $local_collector //= fingerbank::Collector->new_from_config;
+    $local_collector_ua //= $local_collector->get_lwp_client();
+    return ($local_collector, $local_collector_ua, "local");
+}
+
+=head2 _collector_request
+
+Send a request for a MAC's endpoint data to the collector resolved for it. A dedicated
+(per-connector) collector that fails is retried once on the configured collector; when
+it could not be reached at all, it is forgotten so the next lookup resolves it again.
+
+=cut
+
+sub _collector_request {
+    my ($name, $method, $mac, $content) = @_;
+
+    my ($collector, $collector_ua, $suffix) = _collector_for_mac($mac);
+    my $res = _send_collector_request($collector, $collector_ua, $name, $method, $mac, $content);
+    return $res if ($res->is_success || $suffix eq "local");
+
+    get_logger->warn("Dedicated fingerbank collector for connector '$suffix' failed for $mac (".$res->status_line."). Retrying on the configured collector.");
+    delete $connector_collectors{$suffix} if $res->is_server_error;
+
+    ($collector, $collector_ua) = _local_collector();
+    return _send_collector_request($collector, $collector_ua, $name, $method, $mac, $content);
+}
+
+=head2 _send_collector_request
+
+Send a request to a given collector. The built HTTP::Request is cached keyed by the
+collector's host and port, which it embeds, so it can never be replayed against
+another collector.
+
+=cut
+
+sub _send_collector_request {
+    my ($collector, $collector_ua, $name, $method, $mac, $content) = @_;
+
+    my $target = $collector->host.":".$collector->port;
+    my $req = cache()->compute("pf::fingerbank::${name}::request::${target}::$mac", sub {
+        $collector->build_request($method, "/endpoint_data/$mac");
+    });
+    _refresh_collector_auth($req);
+    $req->content($content) if defined $content;
+
+    return $collector_ua->request($req);
 }
 
 =head2 _collector_suffix_for_mac
@@ -340,14 +404,7 @@ sub endpoint_attributes {
 
     return undef unless(valid_mac($mac));
 
-    my ($collector, $collector_ua, $suffix) = _collector_for_mac($mac);
-
-    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$suffix::$mac", sub {
-        $collector->build_request("GET", "/endpoint_data/$mac");
-    });
-    _refresh_collector_auth($req);
-
-    my $res = $collector_ua->request($req);
+    my $res = _collector_request("endpoint_attributes", "GET", $mac);
     if ($res->is_success) {
         my $data = decode_json($res->decoded_content);
         # Change the last_updated into a DateTime
@@ -398,15 +455,7 @@ sub update_collector_endpoint_data {
 
     return undef unless(valid_mac($mac));
 
-    my ($collector, $collector_ua, $suffix) = _collector_for_mac($mac);
-
-    my $req = cache()->compute("pf::fingerbank::update_collector_endpoint_data::request::$suffix::$mac", sub {
-        $collector->build_request("PATCH", "/endpoint_data/$mac");
-    });
-    _refresh_collector_auth($req);
-    $req->content(encode_json($data));
-
-    my $res = $collector_ua->request($req);
+    my $res = _collector_request("update_collector_endpoint_data", "PATCH", $mac, encode_json($data));
     if ($res->is_success) {
         return decode_json($res->decoded_content);
     }
@@ -844,8 +893,9 @@ Clear the cache in a thread environment
 =cut
 
 sub CLONE {
-    %collector_uas = ();
-    %collectors = ();
+    $local_collector_ua = undef;
+    $local_collector = undef;
+    %connector_collectors = ();
     $api_client = undef;
 }
 

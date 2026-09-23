@@ -20,11 +20,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 26;
 
 use Test::NoWarnings;
 use Test::Exception;
 use Test::MockModule;
+use HTTP::Response;
 use pf::config qw(%Config);
 
 use_ok("pf::fingerbank");
@@ -109,6 +110,90 @@ is(collector_suffix_for({ switch_ip => "10.1.2.3" }, sub { die "no connector for
 
 $fingerbank_mock->unmock_all();
 $factory_mock->unmock_all();
+
+# A connector's collector is cached for $CONNECTOR_COLLECTOR_TTL seconds only, and a
+# dedicated collector that fails is retried on the configured one.
+
+{
+    package test::collector;
+    sub new { my ($class, $name) = @_; return bless({ name => $name }, $class) }
+    sub name { return $_[0]->{name} }
+    sub get_lwp_client { return "ua-".$_[0]->{name} }
+}
+
+my $local = test::collector->new("local");
+my $builds = 0;
+my $build_result;
+$fingerbank_mock->mock(_collector_suffix_for_mac => sub { return "connA" });
+$fingerbank_mock->mock(_build_connector_collector => sub { $builds++; return $build_result });
+$fingerbank_mock->mock(_local_collector => sub { return ($local, "ua-local", "local") });
+
+sub collector_name_for_mac {
+    my ($collector) = pf::fingerbank::_collector_for_mac($test_mac);
+    return $collector->name;
+}
+
+pf::fingerbank::CLONE();
+$build_result = test::collector->new("connA");
+collector_name_for_mac() for 1..2;
+is($builds, 1, "A connector's collector is resolved once within the TTL");
+
+{
+    local $pf::fingerbank::CONNECTOR_COLLECTOR_TTL = 0;
+    pf::fingerbank::CLONE();
+    $builds = 0;
+    collector_name_for_mac() for 1..2;
+    is($builds, 2, "A connector's collector is resolved again once the TTL expired");
+}
+
+pf::fingerbank::CLONE();
+$builds = 0;
+$build_result = undef;
+is(collector_name_for_mac(), "local", "A connector without a dedicated collector uses the configured collector");
+collector_name_for_mac();
+is($builds, 1, "A connector without a dedicated collector is not resolved again within the TTL");
+
+# Helper: run _collector_request with the dedicated collector answering $dedicated_code
+# and the configured one $local_code; returns the collectors called and the response code.
+sub collector_request_with {
+    my ($dedicated_code, $local_code) = @_;
+    my @called;
+    $fingerbank_mock->mock(_send_collector_request => sub {
+        my ($collector) = @_;
+        push @called, $collector->name;
+        return HTTP::Response->new($collector->name eq "local" ? $local_code : $dedicated_code);
+    });
+    my $res = pf::fingerbank::_collector_request("endpoint_attributes", "GET", $test_mac);
+    return (\@called, $res->code);
+}
+
+pf::fingerbank::CLONE();
+$builds = 0;
+$build_result = test::collector->new("connA");
+
+my ($called, $code) = collector_request_with(200, 200);
+is_deeply($called, ["connA"], "A dedicated collector that answers is not retried");
+
+($called, $code) = collector_request_with(404, 200);
+is_deeply($called, ["connA", "local"], "A dedicated collector answering an error is retried on the configured collector");
+is($code, 200, "The configured collector's answer is returned");
+collector_name_for_mac();
+is($builds, 1, "A dedicated collector answering a client error is kept");
+
+($called, $code) = collector_request_with(500, 200);
+is_deeply($called, ["connA", "local"], "An unreachable dedicated collector is retried on the configured collector");
+collector_name_for_mac();
+is($builds, 2, "An unreachable dedicated collector is resolved again on the next lookup");
+
+($called, $code) = collector_request_with(500, 500);
+is($code, 500, "The configured collector's failure is returned when both fail");
+
+$fingerbank_mock->mock(_collector_suffix_for_mac => sub { return "local" });
+($called, $code) = collector_request_with(200, 500);
+is_deeply($called, ["local"], "A failure on the configured collector is not retried");
+
+pf::fingerbank::CLONE();
+$fingerbank_mock->unmock_all();
 
 =head1 AUTHOR
 
