@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 38;
 use pf::Switch::Juniper::Junos_v18_x;
 use pf::Switch::Juniper::Junos;
 
@@ -97,6 +97,40 @@ is(
     "a non contiguous wildcard mask has no prefix length so the term is dropped"
 );
 
+is(
+    $switch->acl_chewer("permit tcp any any established", 'testrole'),
+    "",
+    "there is no TCP flags match condition, dropping only the flag would permit every TCP packet"
+);
+
+is(
+    $switch->acl_chewer("permit icmp any any echo", 'testrole'),
+    "",
+    "there is no ICMP type match condition, dropping only the type would permit every ICMP packet"
+);
+
+# acl_chewer: a deny that cannot be represented ends the filter with a deny all,
+# skipping it would let the ACLs after it allow what it blocks
+
+is(
+    $switch->acl_chewer("permit udp any any eq 53\ndeny ip host 10.1.1.1 any\npermit ip any any", 'testrole'),
+    "Match Ip-protocol 17, Destination-port 53 Action allow\n"
+    . "Match Destination-ip 0.0.0.0/0 Action deny\n",
+    "a deny with a source address ends the filter with a deny all"
+);
+
+is(
+    $switch->acl_chewer("deny tcp any any established\npermit ip any any", 'testrole'),
+    "Match Destination-ip 0.0.0.0/0 Action deny\n",
+    "a deny with TCP flags ends the filter with a deny all"
+);
+
+is(
+    $switch->acl_chewer("permit tcp any any established\npermit ip any host 8.8.8.8", 'testrole'),
+    "Match Destination-ip 8.8.8.8 Action allow\n",
+    "a permit that cannot be represented is only skipped, the ACLs after it are kept"
+);
+
 # The direction guard is only reachable when pushACLs is enabled, since
 # format_acl drops out| lines for a switch that does not support outbound ACLs.
 is(
@@ -148,6 +182,51 @@ is_deeply(
     [$switch->_switchingFilterTerms("\n   \npermit ip any host 8.8.8.8\n", 'testrole')],
     ["Match Destination-ip 8.8.8.8 Action allow"],
     "blank lines are ignored"
+);
+
+# The switch entry and bypass_acls path translates line by line, so the stop
+# has to happen here too.
+is_deeply(
+    [$switch->_switchingFilterTerms("deny ip host 10.1.1.1 any\npermit ip any any", 'testrole')],
+    ["Match Destination-ip 0.0.0.0/0 Action deny"],
+    "raw Cisco syntax stops at a deny that cannot be represented"
+);
+
+is_deeply(
+    [$switch->_switchingFilterTerms("Match Destination-ip 0.0.0.0/0 Action deny\nMatch Destination-ip 8.8.8.8 Action allow\n", 'testrole')],
+    ["Match Destination-ip 0.0.0.0/0 Action deny"],
+    "nothing after a deny all can match, so it is not sent"
+);
+
+# _switchingFilterBudget: the limits of the switch
+
+my @permits = map { "Match Destination-ip 10.0.0.$_ Action allow" } (1 .. 21);
+
+is_deeply(
+    [$switch->_switchingFilterBudget([@permits[0 .. 19]], 'testrole')],
+    [@permits[0 .. 19]],
+    "a filter of exactly 20 match conditions is sent untouched"
+);
+
+is_deeply(
+    [$switch->_switchingFilterBudget(\@permits, 'testrole')],
+    [@permits[0 .. 18], "Match Destination-ip 0.0.0.0/0 Action deny"],
+    "a filter over 20 match conditions is cut and ends with a deny all, making room for it"
+);
+
+my $long_permit = "Match Destination-ip 10.0.0.1, " . ("Destination-port 1, " x 12) . "Destination-port 2 Action allow";
+my $long_deny = "Match Destination-ip 10.0.0.1, " . ("Destination-port 1, " x 12) . "Destination-port 2 Action deny";
+
+is_deeply(
+    [$switch->_switchingFilterBudget([$long_permit, $permits[0]], 'testrole')],
+    [$permits[0]],
+    "a permit over 247 characters is skipped, the terms after it are kept"
+);
+
+is_deeply(
+    [$switch->_switchingFilterBudget([$permits[0], $long_deny, $permits[1]], 'testrole')],
+    [$permits[0], "Match Destination-ip 0.0.0.0/0 Action deny"],
+    "a deny over 247 characters ends the filter with a deny all"
 );
 
 is(
