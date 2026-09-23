@@ -171,6 +171,20 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		}
 	}
 
+	// Deliberately below the stale Event-Timestamp guard above: a packet the
+	// rest of the pipeline discards must not refresh last_seen or re-open an
+	// ip4log entry either (it is never forwarded to the AAA layer, so the two
+	// sides stay in agreement).
+	var native nativePrimitives
+	native.nodeLastSeen = h.updateNodeLastSeen(ctx, mac)
+	// Mirrors handle_accounting_metadata: iplog is only fed by packets that
+	// carry a Framed-IP-Address and are not a Stop.
+	if status != rfc2866.AcctStatusType_Value_Stop {
+		if framedIP := rfc2865.FramedIPAddress_Get(r.Packet); framedIP != nil {
+			native.ip4log = h.updateIp4log(ctx, mac, framedIP.String())
+		}
+	}
+
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(0)
 	if h.ProcessBandwidthAcct {
@@ -196,7 +210,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		h.handleTimeBalance(r, switchInfo, unique_session_id)
 		h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
 	}
-	h.sendRadiusAccounting(rr, switchInfo)
+	h.sendRadiusAccounting(rr, switchInfo, native)
 }
 
 func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, unique_session uint64) {
@@ -334,16 +348,47 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 	return hash.Sum64()
 }
 
-func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo) {
-	h.sendRadiusAccountingCall(rr.r, rr.mac)
+func (h *PfAcct) sendRadiusAccounting(rr radiusRequest, switchInfo *SwitchInfo, native nativePrimitives) {
+	h.sendRadiusAccountingCall(rr.r, rr.mac, native)
 }
 
-func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
+// nativePrimitives records which per-packet primitives this pfacct performed
+// itself for one accounting packet, so the AAA layer can skip them instead of
+// writing the same rows a second time (see pf::api::handle_accounting_metadata
+// and pf::radius::accounting).
+//
+// It is per packet, not per configuration: a primitive whose write failed, or
+// that pfacct declined for this packet, is not advertised, and httpd.aaa then
+// runs it exactly as it did before this branch. Claiming it from the startup
+// toggle alone would make both sides skip the work and lose that packet.
+type nativePrimitives struct {
+	nodeLastSeen bool
+	ip4log       bool
+}
+
+// header renders the marker for X-PacketFence-Handled-Natively. The empty
+// string means "nothing was handled here"; both Perl consumers split it into a
+// set, so an empty header leaves every primitive to them.
+func (n nativePrimitives) header() string {
+	handled := make([]string, 0, 2)
+	if n.nodeLastSeen {
+		handled = append(handled, "node_last_seen")
+	}
+
+	if n.ip4log {
+		handled = append(handled, "ip4log")
+	}
+
+	return strings.Join(handled, ",")
+}
+
+func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac, native nativePrimitives) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
-		"X-FreeRADIUS-Server":  "packetfence",
-		"X-FreeRADIUS-Section": "accounting",
+		"X-FreeRADIUS-Server":            "packetfence",
+		"X-FreeRADIUS-Section":           "accounting",
+		"X-PacketFence-Handled-Natively": native.header(),
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
@@ -364,8 +409,9 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac) {
 // enqueueAAANotify hands a radius_accounting notification to the MAC-sharded
 // notifier pool without blocking the accounting worker. If the target queue is
 // saturated the notification is dropped and counted (see reportAAADrops)
-// rather than stalling the worker, since node online/offline status has already
-// been written to the DB by the time we get here.
+// rather than stalling the worker, since everything the worker owns (node
+// online/offline status, node.last_seen, the ip4log entry) has already been
+// written to the DB by the time we get here.
 func (h *PfAcct) enqueueAAANotify(ctx context.Context, m mac.Mac, attr map[string]interface{}) {
 	queueIndex := djb2Hash(m[:]) % uint64(len(h.aaaNotifyQueues))
 	select {
@@ -790,6 +836,11 @@ type RadiusStatements struct {
 	closeSession                    *sql.Stmt
 	nodeOnlineOffLineStartUpdate    *sql.Stmt
 	nodeOnlineOffLineStop           *sql.Stmt
+	nodeUpdateLastSeen              *sql.Stmt
+	nodeAddSimple                   *sql.Stmt
+	ip4logMac2Ip                    *sql.Stmt
+	ip4logClose                     *sql.Stmt
+	ip4logOpen                      *sql.Stmt
 }
 
 func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
@@ -920,6 +971,27 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.nodeOnlineOffLineStartUpdate, `
 		INSERT INTO node_current_session (mac, last_session_id, updated, is_online) VALUES (?, ?, NOW(), 1)
         ON DUPLICATE KEY UPDATE updated = VALUES(updated), last_session_id = VALUES(last_session_id), is_online =1 ;
+       `)
+
+	setupStmt(db, &rs.nodeUpdateLastSeen, `
+        UPDATE node SET last_seen = NOW() WHERE mac = ?;
+       `)
+
+	setupStmt(db, &rs.nodeAddSimple, `
+        INSERT IGNORE INTO node (mac, pid, last_seen, detect_date, status) VALUES (?, 'default', NOW(), NOW(), 'unreg');
+       `)
+
+	setupStmt(db, &rs.ip4logMac2Ip, `
+        SELECT ip FROM ip4log WHERE mac = ? AND (end_time = '0000-00-00 00:00:00' OR (end_time + INTERVAL 30 SECOND) > NOW()) ORDER BY start_time DESC LIMIT 1;
+       `)
+
+	setupStmt(db, &rs.ip4logClose, `
+        UPDATE ip4log SET end_time = NOW() WHERE ip = ?;
+       `)
+
+	setupStmt(db, &rs.ip4logOpen, `
+        INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), '0000-00-00 00:00:00')
+        ON DUPLICATE KEY UPDATE mac = VALUES(mac), start_time = VALUES(start_time), end_time = VALUES(end_time);
        `)
 
 }
