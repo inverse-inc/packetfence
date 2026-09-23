@@ -26,7 +26,6 @@ func PutNetworkEvent(i *NetworkEvent) {
 	NetworkEventPool.Put(i)
 }
 
-//easyjson:json
 type NetworkEvent struct {
 	Direction           NetworkEventDirection   `json:"direction"`
 	EventType           NetworkEventType        `json:"event-type"`

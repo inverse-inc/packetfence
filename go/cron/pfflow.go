@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-//easyjson:json
 type PfFlowHeader struct {
 	AgentAddr      netip.Addr `json:"agent_addr"`
 	Timestamp      uint64     `json:"timestamp"`
@@ -19,13 +18,11 @@ type PfFlowHeader struct {
 	EngineId       uint8      `json:"engine_id"`
 }
 
-//easyjson:json
 type PfFlows struct {
 	Header PfFlowHeader `json:"header"`
 	Flows  *[]PfFlow    `json:"flows"`
 }
 
-//easyjson:json
 type PfFlow struct {
 	SrcIp           netip.Addr `json:"src_ip,omitempty"`
 	DstIp           netip.Addr `json:"dst_ip,omitempty"`
