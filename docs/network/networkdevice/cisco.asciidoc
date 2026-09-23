@@ -663,6 +663,7 @@ To prevent this behavior, you need to tell the switch to allow MAC address movem
   aaa authentication login default local 
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
+  aaa accounting dot1x default start-stop group packetfence
 
 RADIUS server configuration:
 
@@ -997,7 +998,8 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 ==== IOS XE Switches
 
 PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X
-and web authentication.
+and web authentication. The configuration below was validated on IOS XE 17.16
+(Catalyst 9300) with the `Cisco IOS v15.5` switch type.
 
 ===== MAC Authentication Bypass
 
@@ -1025,22 +1027,25 @@ AAA groups and configuration:
 
   aaa new-model 
   aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813 
+   server name pfnac
   aaa authentication login default local 
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
+  aaa accounting dot1x default start-stop group packetfence
 
 RADIUS server configuration:
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key
-  useStrongerSecret
+  radius server pfnac
+   address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+   automate-tester username dummy ignore-acct-port idle-time 3
+   key useStrongerSecret
   radius-server vsa send authentication 
 
 CoA configuration:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
-  port 3799
+   port 3799
   
 Activate SNMP on the switch:
 
@@ -1050,16 +1055,22 @@ Activate SNMP on the switch:
 ===== 802.1X only
 
 Follow the same configuration as for MAC Authentication Bypass but change the
-`authentication priority` line with the following:
+`authentication order` and `authentication priority` lines with the following
+and remove the `mab` line:
 
+  authentication order dot1x
   authentication priority dot1x
 
 ===== 802.1X with MAC Authentication fallback
 
 Follow the same configuration as for MAC Authentication Bypass but change the
-`authentication priority` line with the following:
+`authentication order` and `authentication priority` lines with the following:
 
+  authentication order dot1x mab
   authentication priority dot1x mab
+
+NOTE: Changing only `authentication priority` is not enough: with
+`authentication order mab`, the switch never attempts 802.1X.
 
 ===== Web auth
 
