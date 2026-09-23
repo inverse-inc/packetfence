@@ -46,3 +46,6 @@ PerlSetEnv IS_A_CLASSIC_PF_CONTAINER ${IS_A_CLASSIC_PF_CONTAINER}
 PerlSetEnv SERVICE_NAME ${SERVICE_NAME}
 PerlSetEnv FINGERBANK_COLLECTOR_SERVICE_HOST ${FINGERBANK_COLLECTOR_SERVICE_HOST}
 perlSetEnv FINGERBANK_COLLECTOR_SERVICE_PORT ${FINGERBANK_COLLECTOR_SERVICE_PORT}
+# PerlPassEnv (not PerlSetEnv ${...}): only defined in k8s, and an undefined
+# ${VAR} would be left as a literal string that makes `exists $ENV{...}` true on classic PF
+PerlPassEnv PFCONNECTOR_SERVICE_HOST
