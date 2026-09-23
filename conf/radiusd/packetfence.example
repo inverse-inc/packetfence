@@ -392,10 +392,8 @@ server packetfence {
 		# If the request has not been handled inside the inner-tunnel
 		# send it to packetfence
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-			rest
-			update {
-				&request:User-Password := "******"
-			}
+			# rest + failure policy (see raddb/policy.d/packetfence)
+			packetfence-post-auth-rest
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 				packetfence-audit-log-reject
 				reject
