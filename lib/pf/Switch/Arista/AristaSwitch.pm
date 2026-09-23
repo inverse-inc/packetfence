@@ -432,7 +432,7 @@ sub acl_chewer {
     my $entries;
     ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
         ? sub { $self->_untranslatablePushAcl($_[0]) }
-        : sub { $self->untranslatableFilterRule($_[0], 0) });
+        : sub { $self->untranslatableFilterRule($_[0]) });
 
     my $i = 0;
     my $acl_number = "10";

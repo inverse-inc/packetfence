@@ -23,11 +23,14 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 58;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
 use pf::Switch::HP::AOS_Switch_v16_X;
+use pf::Switch::Cisco::Cisco_IOS_15_5;
+use pf::Switch::Fortinet::FortiSwitchOS_v7_x;
+use pf::Switch::Dell::N1500;
 
 #This test will running last
 use Test::NoWarnings;
@@ -36,6 +39,9 @@ my %args = (id => 'test', ip => '1.1.1.1', SNMPUseConnector => "N", radiusDeauth
 my $aruba = pf::Switch::Aruba::ArubaOS_CX_10_x->new({%args});
 my $arista = pf::Switch::Arista::AristaSwitch->new({%args});
 my $aos = pf::Switch::HP::AOS_Switch_v16_X->new({%args});
+my $cisco = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args});
+my $forti = pf::Switch::Fortinet::FortiSwitchOS_v7_x->new({%args});
+my $dell = pf::Switch::Dell::N1500->new({%args});
 
 sub chew {
     my ($switch, $acl) = @_;
@@ -82,6 +88,52 @@ is(
     chew($aos, "deny udp any eq 53 any\npermit ip any any"),
     "in|deny in ip from any to any \n",
     "AOS: a deny with a source port ends the ACLs with a deny all"
+);
+
+# a non contiguous mask has no prefix length, it used to kill the translation
+
+foreach my $switch ([$aruba, 'Aruba CX'], [$arista, 'Arista'], [$aos, 'AOS'], [$forti, 'FortiSwitch']) {
+    my ($s, $name) = @$switch;
+    is(chew($s, "permit ip any 10.0.0.0 0.255.0.255"), "", "$name: a non contiguous mask is skipped instead of dying");
+}
+
+is($cisco->aclWildcardIsContiguous('0.0.0.255'), 1, "a wildcard is contiguous");
+is($cisco->aclWildcardIsContiguous('255.255.255.0'), 1, "a netmask is contiguous");
+is($cisco->aclWildcardIsContiguous('0.0.0.0'), 1, "a host mask is contiguous");
+is($cisco->aclWildcardIsContiguous('255.255.255.255'), 1, "an any mask is contiguous");
+is($cisco->aclWildcardIsContiguous('0.255.0.255'), 0, "0.255.0.255 is not contiguous");
+
+# Cisco: Cisco syntax, the source is sent as any and replaced by the endpoint
+
+is(chew($cisco, "permit tcp any host 10.0.0.1 eq 443"), "in|permit tcp any host 10.0.0.1 eq 443\n", "Cisco: host and port");
+is(chew($cisco, "permit tcp any any gt 1024"), "in|permit tcp any any gt 1024\n", "Cisco: port operators are sent");
+is(chew($cisco, "permit tcp any any established"), "in|permit tcp any any  established\n", "Cisco: TCP flags are sent");
+is(chew($cisco, "permit ip any 10.0.0.0 0.255.0.255"), "in|permit ip any 10.0.0.0 0.255.0.255\n", "Cisco: a non contiguous wildcard is sent as is");
+is(chew($cisco, "permit ip host 10.1.1.1 any"), "", "Cisco: a source address is not replaced by the endpoint");
+is(chew($cisco, "permit udp any eq 53 any"), "", "Cisco: a source port is not dropped");
+is(chew($cisco, "permit icmp any any echo"), "", "Cisco: an ICMP type is not dropped");
+is(chew($cisco, "deny ip host 10.1.1.1 any\npermit ip any any"), "in|deny ip any any\n", "Cisco: a deny that cannot be sent ends the ACLs with a deny all");
+
+# FortiSwitch: NAS-Filter-Rule with the source address
+
+is(chew($forti, "permit ip host 10.1.1.1 any"), "permit in ip from 10.1.1.1/32 to any\n", "FortiSwitch: the source address is sent");
+is(chew($forti, "permit tcp any any range 100 200"), "permit in tcp from any to any 100-200\n", "FortiSwitch: a range becomes a port range");
+is(chew($forti, "permit tcp any any gt 1024"), "", "FortiSwitch: gt is not turned into eq");
+is(chew($forti, "permit tcp any any neq 22"), "", "FortiSwitch: neq is not turned into eq");
+is(chew($forti, "permit udp any eq 53 any"), "", "FortiSwitch: a source port is not dropped");
+is(chew($forti, "deny tcp any any established\npermit ip any any"), "deny in ip from any to any\n", "FortiSwitch: a deny with TCP flags ends the ACLs with a deny all");
+
+# Dell N1500: only a destination host is sent
+
+is(chew($dell, "permit tcp any host 10.0.0.1 eq 443"), "in|permit tcp any host 10.0.0.1 eq 443\n", "Dell N1500: the direction has its separator, the line used to be dropped");
+is(chew($dell, "permit ip any 10.0.0.0 0.0.0.255"), "", "Dell N1500: a network is not turned into a host");
+is(chew($dell, "permit ip host 10.1.1.1 any"), "", "Dell N1500: a source address is not dropped");
+is(chew($dell, "permit tcp any any established"), "", "Dell N1500: TCP flags are not dropped");
+is(chew($dell, "deny ip any 10.0.0.0 0.0.0.255\npermit ip any any"), "in|deny ip any any \n", "Dell N1500: a deny of a network ends the ACLs with a deny all");
+is_deeply(
+    [$dell->returnAccessListAttribute(101, "in|permit tcp any host 10.0.0.1 eq 443")],
+    [1, "ip:inacl#101=permit tcp any host 10.0.0.1 eq 443"],
+    "Dell N1500: the attribute carries the ACL, it used to be ip:inacl#101 alone"
 );
 
 # push ACLs carry the full Cisco syntax, only what is not sent is filtered

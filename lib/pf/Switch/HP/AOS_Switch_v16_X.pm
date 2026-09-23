@@ -463,7 +463,7 @@ sub acl_chewer {
     my $entries;
     ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
         ? sub { $self->untranslatablePushAcl($_[0]) }
-        : sub { $self->untranslatableFilterRule($_[0], 0) });
+        : sub { $self->untranslatableFilterRule($_[0]) });
 
     my $i = 0;
     my $acl_chewed;
@@ -523,6 +523,10 @@ destination port" form built by L</acl_chewer>, or undef when it can.
 
 sub untranslatablePushAcl {
     my ($self, $entry) = @_;
+    # addresses are turned into a prefix
+    foreach my $side ('source', 'destination') {
+        return "the $side mask '".$entry->{$side}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{$side}->{'wildcard'});
+    }
     # TCP flags do not apply correctly on the switch
     return "TCP flags are not supported ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
     return "the source port is not sent" if defined $entry->{'source'}->{'port'};

@@ -4430,25 +4430,50 @@ sub filterUntranslatableAcls {
 =head2 untranslatableFilterRule
 
 Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
-"action in protocol from any to destination port" form built by the modules,
-or undef when it can. The rule has no source address or source port, no TCP
-flags or ICMP type, and the destination port is sent as a bare number, so only
-C<eq> keeps its meaning. C<$ranges> is true when the module turns C<range> into
-a port range.
+"action in protocol from source to destination port" form built by the
+modules, or undef when it can. The rule has no source port, TCP flags or ICMP
+type, addresses are sent as a prefix, and the destination port is sent as a
+bare number, so only C<eq> keeps its meaning.
+
+Options: C<ranges> when the module turns C<range> into a port range, C<source>
+when it sends the source address (the others always send "from any").
 
 =cut
 
 sub untranslatableFilterRule {
-    my ($self, $entry, $ranges) = @_;
-    return "the rule has no source address match" if $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    my ($self, $entry, %options) = @_;
+    if ($entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+        return "the rule has no source address match" if !$options{'source'};
+        return "the source mask '".$entry->{'source'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'source'}->{'wildcard'});
+    }
+    return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
     return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
     return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
     return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
     my $port = $entry->{'destination'}->{'port'};
-    if (defined $port && $port !~ /^eq\s+\S+$/ && !($ranges && $port =~ /^range\s+\S+\s+\S+$/)) {
+    if (defined $port && $port !~ /^eq\s+\S+$/ && !($options{'ranges'} && $port =~ /^range\s+\S+\s+\S+$/)) {
         return "the port operator '$port' cannot be represented";
     }
     return undef;
+}
+
+=head2 aclWildcardIsContiguous
+
+Whether an ACL mask, wildcard (0.0.0.255) or netmask (255.255.255.0), has a
+prefix length. A non contiguous mask such as 0.255.0.255 cannot be written as
+a prefix.
+
+=cut
+
+sub aclWildcardIsContiguous {
+    my ($self, $wildcard) = @_;
+    return 1 if !defined $wildcard;
+    my @octets = split(/\./, $wildcard);
+    return 0 if @octets != 4 || grep { !/^\d+$/ || $_ > 255 } @octets;
+    my $bits = unpack('N', pack('C4', @octets));
+    my $inverse = ~$bits & 0xFFFFFFFF;
+    # a wildcard is a run of low bits, a netmask a run of high bits
+    return ((($bits + 1) & $bits) == 0 || (($inverse + 1) & $inverse) == 0) ? 1 : 0;
 }
 
 
