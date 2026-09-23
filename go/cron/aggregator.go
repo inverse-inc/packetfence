@@ -11,6 +11,7 @@ import (
 )
 
 type EventKey struct {
+	AgentAddr netip.Addr
 	DomainID  uint32
 	FlowSeq   uint32
 	SrcIp     netip.Addr
@@ -18,6 +19,18 @@ type EventKey struct {
 	DstPort   uint16
 	Proto     uint8
 	HasBiFlow bool
+}
+
+// switchID returns the switch ID for the exporter address of a flow batch, or
+// "" when there is none. Older collectors leave it unset for NetFlow/IPFIX
+// ("invalid IP") and an sFlow exporter without an agent-ip sends 0.0.0.0;
+// neither is a switch.
+func switchID(addr netip.Addr) string {
+	if !addr.IsValid() || addr.IsUnspecified() {
+		return ""
+	}
+
+	return addr.String()
 }
 
 func NewAggregator(o *AggregatorOptions) *Aggregator {
@@ -410,12 +423,10 @@ loop:
 
 				stats.messages++
 				stats.flows += len(*pfflows.Flows)
-				// The agent address is the exporter (switch) IP. Older collectors
-				// leave it unset for NetFlow/IPFIX ("invalid IP") and an sFlow
-				// exporter without an agent-ip sends 0.0.0.0; neither is a switch.
-				// Marked as seen once per window by the flusher, off this goroutine.
-				if addr := pfflows.Header.AgentAddr; addr.IsValid() && !addr.IsUnspecified() {
-					stats.noteAgent(addr.String())
+				// The agent address is the exporter (switch) IP. Marked as seen
+				// once per window by the flusher, off this goroutine.
+				if id := switchID(pfflows.Header.AgentAddr); id != "" {
+					stats.noteAgent(id)
 				}
 
 				for _, f := range *pfflows.Flows {

@@ -45,6 +45,7 @@ type NetworkEvent struct {
 	SourceUsername      string                  `json:"source-username,omitempty"`
 	DestUsername        string                  `json:"dest-username,omitempty"`
 	DestDomain          string                  `json:"dest-domain,omitempty"`
+	SwitchID            string                  `json:"switch-id,omitempty"` // exporter (switch) IP of the flows
 	StartTime           uint64                  `json:"start-time"`
 	EndTime             uint64                  `json:"end-time"`
 	Count               int                     `json:"count"`

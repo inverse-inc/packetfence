@@ -85,7 +85,7 @@ func (a *Aggregator) flush(ctx context.Context, batch flushBatch) {
 // buildNetworkEvents collapses each aggregation key into one network event.
 func buildNetworkEvents(events map[EventKey][]PfFlow) []*NetworkEvent {
 	networkEvents := make([]*NetworkEvent, 0, len(events))
-	for _, flows := range events {
+	for key, flows := range events {
 		startTime := int64(math.MaxInt64)
 		endTime := int64(0)
 		connectionCount := uint64(0)
@@ -113,6 +113,7 @@ func buildNetworkEvents(events map[EventKey][]PfFlow) []*NetworkEvent {
 			}
 		}
 
+		networkEvent.SwitchID = switchID(key.AgentAddr)
 		networkEvent.Count = cmp.Or(int(connectionCount), len(ports))
 		if startTime != 0 {
 			networkEvent.StartTime = uint64(startTime)

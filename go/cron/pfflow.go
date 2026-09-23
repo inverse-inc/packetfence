@@ -60,6 +60,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 	switch f.BiFlow {
 	default:
 		return EventKey{
+			AgentAddr: h.AgentAddr,
 			DomainID:  h.DomainID,
 			FlowSeq:   h.FlowSeq,
 			SrcIp:     f.SrcIp,
@@ -70,6 +71,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	case 1:
 		return EventKey{
+			AgentAddr: h.AgentAddr,
 			DomainID:  h.DomainID,
 			FlowSeq:   h.FlowSeq,
 			SrcIp:     f.SrcIp,
@@ -80,6 +82,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	case 2:
 		return EventKey{
+			AgentAddr: h.AgentAddr,
 			DomainID:  h.DomainID,
 			FlowSeq:   h.FlowSeq,
 			DstIp:     f.SrcIp,
