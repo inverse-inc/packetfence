@@ -4378,6 +4378,80 @@ sub acl_chewer {
     return $acl;
 }
 
+=head2 filterUntranslatableAcls
+
+Drop the parsed ACL entries a switch module cannot translate without changing
+their meaning, before it formats them.
+
+C<$untranslatable> is called with each entry and returns why the switch format
+cannot express it, or undef. Skipping a permit only narrows the role, so the
+entry is dropped. Skipping a deny would let the entries after it allow what it
+blocks, so the ACLs of that direction are cut there and end with a deny of
+everything.
+
+Returns the entries to translate and their direction, like L</format_acl>.
+
+=cut
+
+sub filterUntranslatableAcls {
+    my ($self, $acl_ref, $direction, $role, $untranslatable) = @_;
+    my $logger = $self->logger;
+
+    my (@entries, @entries_direction, %cut);
+    my $i = 0;
+    foreach my $entry (@{$acl_ref->{'packetfence'}->{'entries'} // []}) {
+        my $dir = $direction->[$i++];
+        my $dir_key = $dir // 'in';
+        next if $cut{$dir_key};
+        my $reason = $untranslatable->($entry);
+        if (!defined $reason) {
+            push @entries, $entry;
+            push @entries_direction, $dir;
+            next;
+        }
+        if ($entry->{'action'} ne 'deny') {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
+            next;
+        }
+        $logger->warn("(".$self->{'_id'}.") Ending the $dir_key ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through");
+        push @entries, {
+            action      => 'deny',
+            protocol    => 'ip()',
+            source      => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+            destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+        };
+        push @entries_direction, $dir;
+        $cut{$dir_key} = 1;
+    }
+
+    return (\@entries, @entries_direction);
+}
+
+=head2 untranslatableFilterRule
+
+Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
+"action in protocol from any to destination port" form built by the modules,
+or undef when it can. The rule has no source address or source port, no TCP
+flags or ICMP type, and the destination port is sent as a bare number, so only
+C<eq> keeps its meaning. C<$ranges> is true when the module turns C<range> into
+a port range.
+
+=cut
+
+sub untranslatableFilterRule {
+    my ($self, $entry, $ranges) = @_;
+    return "the rule has no source address match" if $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
+    return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $port = $entry->{'destination'}->{'port'};
+    if (defined $port && $port !~ /^eq\s+\S+$/ && !($ranges && $port =~ /^range\s+\S+\s+\S+$/)) {
+        return "the port operator '$port' cannot be represented";
+    }
+    return undef;
+}
+
+
 =head2 returnAccessListAttribute
 
 Returns the attribute to use when pushing an ACL using RADIUS
