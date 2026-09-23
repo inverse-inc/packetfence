@@ -44,6 +44,23 @@ autofix would force-bootstrap the highest-seqno node and defeat the wrong-order
 expectation. `not_serving_wait_seconds` is 120s per node, keeping all of D
 under that window so pf-mariadb's ordering is what's exercised.
 
+## Resource diagnostics
+
+The recovery wrapper samples runner CPU counters (including steal/iowait),
+memory, VM counters, pressure stalls and disk I/O every 10 seconds into
+`results/runner/resource-usage.jsonl`. Guests run the same sampler as a boot
+service, adding active states and pending-job flags for a fixed set of PF
+services. Guest records append across reboots; `stat.btime` identifies boots.
+Each sampler is capped at 16 MiB and six hours per invocation.
+
+The schema excludes process arguments, environments, configuration, device
+labels, journal text and command errors. Host metrics go directly into the
+runner artifacts. Guest metrics live under the Venom results directory and
+pass through the existing secret sanitization before archiving. Teardown
+stops and removes the guest sampler before sanitization; stopping failure
+prevents that host's archive collection. The wrapper stops its host sampler
+on normal completion, failure or termination.
+
 ## Running
 
 On the CI shell runner (never the workstation). Fast re-run against an

@@ -18,6 +18,33 @@
         - "network"
 
   tasks:
+    # Stop writers before sanitization. A stop failure must prevent archiving.
+    - name: Check for recovery resource sampler
+      ansible.builtin.stat:
+        path: /etc/systemd/system/pf-test-resource-sampler.service
+      register: resource_sampler_unit
+
+    - name: Stop and disable recovery resource sampler
+      ansible.builtin.systemd:
+        name: pf-test-resource-sampler.service
+        state: stopped
+        enabled: false
+      when: resource_sampler_unit.stat.exists
+
+    - name: Remove recovery resource sampler installation
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: absent
+      loop:
+        - /etc/systemd/system/pf-test-resource-sampler.service
+        - /usr/local/sbin/pf-test-resource-sampler.py
+      when: resource_sampler_unit.stat.exists
+
+    - name: Reload systemd after sampler removal
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: resource_sampler_unit.stat.exists
+
     # Written inside the Venom results dir so sanitization and archiving pick
     # them up; also makes that dir exist when the run failed before Venom, so
     # an archive is produced (and uploaded) even then.

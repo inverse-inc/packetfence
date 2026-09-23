@@ -326,6 +326,16 @@ run_tests() {
     run_ansible_galaxy_once ${VENOM_ROOT_DIR}/requirements.yml
 
     for scenario_name in ${SCENARIOS_TO_RUN}; do
+        if [ "${scenario_name}" = cluster_recovery ] && [ -n "${RESULT_DIR}" ]; then
+            # Host output bypasses guest sanitization: the shared sampler only
+            # emits allowlisted numeric kernel counters, never arbitrary text.
+            python3 "${VAGRANT_DIR}/playbooks/files/sample-resource-usage.py" \
+                "${RESULT_DIR}/runner/resource-usage.jsonl" >/dev/null 2>&1 &
+            resource_sampler_pid=$!
+            trap 'stop_resource_sampler' EXIT
+            trap 'exit 143' TERM
+            trap 'exit 130' INT
+        fi
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
         # expose the vagrant dotfile path so scenarios that power-control VMs
         # (e.g. cluster_recovery) can resolve the libvirt domain UUID
@@ -337,7 +347,16 @@ run_tests() {
         else
             ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}"
         fi
+        stop_resource_sampler
     done
+}
+
+stop_resource_sampler() {
+    if [ -n "${resource_sampler_pid:-}" ]; then
+        kill "${resource_sampler_pid}" 2>/dev/null || true
+        wait "${resource_sampler_pid}" 2>/dev/null || true
+        resource_sampler_pid=
+    fi
 }
 
 teardown() {
