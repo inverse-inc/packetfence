@@ -21,6 +21,10 @@ extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 
+use pf::Authentication::Source::SMSApiSource;
+
+our $META = pf::Authentication::Source::SMSApiSource->meta;
+
 has_field 'api_url' => (
     type            => 'Text',
     label           => 'API URL',
@@ -29,6 +33,12 @@ has_field 'api_url' => (
     default         => '',
     element_attr    => {
         placeholder => 'https://platform.clickatell.com/messages/http/send',
+    },
+    validate_method => sub {
+        my ($field) = @_;
+        unless (pf::Authentication::Source::SMSApiSource::is_valid_api_url($field->value)) {
+            $field->add_error('The API URL must be an http or https URL');
+        }
     },
     tags        => {
         after_element   => \&help,
@@ -48,16 +58,29 @@ has_field 'api_key' => (
     },
 );
 
+has_field 'timeout' => (
+    type         => 'PosInteger',
+    label        => 'Timeout',
+    element_attr => {
+        placeholder => $META->get_attribute('timeout')->default,
+    },
+    default      => $META->get_attribute('timeout')->default,
+    tags         => {
+        after_element   => \&help,
+        help            => 'Timeout in seconds of the HTTP request to the SMS gateway',
+    },
+);
+
 has_field 'message' => (
     type => 'TextArea',
     label => 'SMS text message ($pin will be replaced by the PIN number)',
-    default => pf::Authentication::Source::SMSSource->meta->get_attribute('message')->default,
+    default => $META->get_attribute('message')->default,
 );
 
 has_field 'pin_code_length' => (
     type => 'PosInteger',
     label => 'PIN Code Length',
-    default => pf::Authentication::Source::SMSApiSource->meta->get_attribute('pin_code_length')->default,
+    default => $META->get_attribute('pin_code_length')->default,
     tags => {
         after_element => \&help,
         help => 'The length of the PIN code to be sent over sms',

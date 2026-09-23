@@ -23,6 +23,11 @@
                         :column-label="$i18n.t('API Key')"
     />
 
+    <form-group-timeout namespace="timeout"
+                        :column-label="$i18n.t('Timeout')"
+                        :text="$i18n.t('Timeout in seconds of the HTTP request to the SMS gateway.')"
+    />
+
     <form-group-message namespace="message"
                         :column-label="$i18n.t('SMS text message ($pin will be replaced by the PIN number)')"
     />
@@ -79,6 +84,7 @@ import {
   FormGroupMessage,
   FormGroupPasswordLength,
   FormGroupPinCodeLength,
+  FormGroupTimeout,
 } from './'
 
 const components = {
@@ -96,6 +102,7 @@ const components = {
   FormGroupMessage,
   FormGroupPasswordLength,
   FormGroupPinCodeLength,
+  FormGroupTimeout,
 }
 
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'

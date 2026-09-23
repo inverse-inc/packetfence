@@ -5705,6 +5705,7 @@ msgid "This will only do the iplog update and other DHCP related task on a DHCPA
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
 msgid "Timeout"
 msgstr ""
 
@@ -5714,6 +5715,10 @@ msgstr ""
 
 # conf/documentation.conf (pfdhcp.timeout_ms)
 msgid "Timeout (in milliseconds) when performing queries to the Unified API"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
+msgid "Timeout in seconds of the HTTP request to the SMS gateway"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm

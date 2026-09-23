@@ -167,7 +167,9 @@ name, description, the API URL of your gateway and its API key in the source
 configuration, then add the authentication rule.
 
 The API URL is the full send endpoint of the gateway, for example
-`https://sms.example.com/messages/http/send`. PacketFence issues the following
+`https://sms.example.com/messages/http/send`. It must be an `http://` or
+`https://` URL. The `Timeout` setting (10 seconds by default) bounds how long
+PacketFence waits for the gateway to answer. PacketFence issues the following
 request when sending a PIN:
 
   GET <API URL>?apiKey=<API Key>&to=<phone number>&content=<message>

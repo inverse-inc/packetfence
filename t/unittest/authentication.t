@@ -22,7 +22,7 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 65;                      # last test to print
+use Test::More tests => 67;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -578,6 +578,12 @@ is_deeply(
         $source->{api_url},
         'https://sms.example.com/messages/http/send',
         "SMSApi source api_url is read from the configuration"
+    );
+    is($source->timeout, 10, "SMSApi source timeout defaults to 10 seconds");
+    $source->api_url('data:,hello');
+    ok(
+        !$source->sendSMS({ to => '5145551234', message => 'PIN: 1234' }),
+        "SMSApi source refuses to send an SMS with a non http(s) api_url"
     );
 }
 

@@ -299,6 +299,10 @@ msgstr ""
 msgid "API URL of logged user"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:129
+msgid "API URL required."
+msgstr ""
+
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:243
 msgid "API chunk size"
 msgstr ""
@@ -8834,6 +8838,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/fingerbank/macVendors/schema.js:9
 #: html/pfappserver/root/src/views/Configuration/fingerbank/yup.js:17
 msgid "Invalid OUI."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:130
+msgid "Invalid URL, must be http:// or https://."
 msgstr ""
 
 #: html/pfappserver/root/src/utils/yup.js:497
@@ -18103,7 +18111,12 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:11
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAzureAD.vue:45
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:31
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:27
 msgid "Timeout"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:28
+msgid "Timeout in seconds of the HTTP request to the SMS gateway."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/discoverNetworkDevices/_components/TheForm.vue:242

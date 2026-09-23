@@ -20084,6 +20084,8 @@ components:
               $ref: '#/components/schemas/Meta'
             pin_code_length:
               $ref: '#/components/schemas/Meta'
+            timeout:
+              $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
           type: object
@@ -24479,6 +24481,9 @@ components:
           type: integer
         pin_code_length:
           description: The length of the PIN code to be sent over sms
+          type: integer
+        timeout:
+          description: Timeout in seconds of the HTTP request to the SMS gateway
           type: integer
         type:
           default: SMSApi

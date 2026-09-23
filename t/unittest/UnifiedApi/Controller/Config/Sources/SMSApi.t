@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 10;
+use Test::More tests => 20;
 
 #This test will running last
 use Test::NoWarnings;
@@ -70,10 +70,21 @@ $t->patch_ok("$base_url/$id1" =>
         },
         api_key => 'asasasaas',
         api_url => 'https://sms.example.com/messages/http/send',
+        timeout => 5,
     }
   )
   ->status_is(200)
   ;
+
+for my $api_url ('ftp://sms.example.com/send', 'data:,hello', 'sms.example.com/send') {
+    $t->patch_ok("$base_url/$id1" =>
+        json => {
+            api_url => $api_url,
+        }
+      )
+      ->status_is(422, "api_url '$api_url' is rejected")
+      ;
+}
 
 $t->get_ok("$base_url/$id1")
     ->status_is(200)
@@ -81,7 +92,20 @@ $t->get_ok("$base_url/$id1")
         '/item/message',
         qq{Hello
         World},
-    );
+    )
+    ->json_is('/item/timeout', 5)
+    ->json_is('/item/api_url', 'https://sms.example.com/messages/http/send');
+
+$t->post_ok("$collection_base_url" =>
+    json => {
+        type => 'SMSApi',
+        id   => $id2,
+        api_key => 'asasasaas',
+        api_url => 'file:///etc/hostname',
+    }
+  )
+  ->status_is(422, "Creating a source with a non http(s) api_url is rejected")
+  ;
 
 $t->get_ok("$collection_base_url")
   ->status_is(200)

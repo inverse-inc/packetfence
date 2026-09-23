@@ -15,6 +15,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_success);
 use pf::log;
 use LWP::UserAgent;
+use URI;
 use URI::Escape::XS qw(uri_escape);
 
 use Moose;
@@ -29,6 +30,7 @@ has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS'
 has 'api_url'                   => (isa => 'Str', is => 'rw');
 has 'api_key'                   => (isa => 'Str', is => 'rw');
 has 'message'                   => (isa => 'Maybe[Str]', is => 'rw', default => 'PIN: $pin');
+has 'timeout'                   => (isa => 'Int', is => 'rw', default => 10);
 
 =head2 available_rule_classes
 
@@ -77,6 +79,22 @@ sub match_in_subclass {
 }
 
 
+=head2 is_valid_api_url
+
+Check that a URL is an absolute http or https URL with a host
+
+=cut
+
+sub is_valid_api_url {
+    my ($url) = @_;
+    return $FALSE unless defined $url && length $url;
+    my $uri = URI->new($url);
+    my $scheme = $uri->scheme // '';
+    return $FALSE unless $scheme eq 'http' || $scheme eq 'https';
+    my $host = $uri->host;
+    return (defined $host && length $host) ? $TRUE : $FALSE;
+}
+
 =head2 sendSMS
 
 Use the configured API url to send an SMS
@@ -95,13 +113,18 @@ sub sendSMS {
         return $FALSE;
     }
 
+    unless (is_valid_api_url($url)) {
+        $logger->error("Can't send SMS to '$to': api_url '$url' on source " . $self->id . " is not an http or https URL");
+        return $FALSE;
+    }
+
     my $query = join("&",
         "apiKey=".uri_escape($self->api_key),
         "to=".uri_escape($to),
         "content=".uri_escape($message),
     );
 
-    my $ua = LWP::UserAgent->new;
+    my $ua = LWP::UserAgent->new(timeout => $self->timeout);
     my $response = $ua->get("$url?$query");
 
     unless($response->is_success) {
