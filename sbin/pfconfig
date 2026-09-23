@@ -96,6 +96,10 @@ my $daemonize = $args{d};
 # standard signals and daemonize
 daemonize($PROGRAM_NAME, $PID_FILE) if ($daemonize);
 
+# pid of the daemon itself (daemonize forks, so take it after), used by END to
+# skip the cleanup in forked children
+my $DAEMON_PID = $$;
+
 my $FILE_LOCK = getLockOnPid($PID_FILE);
 
 unless ($FILE_LOCK) {
@@ -233,7 +237,8 @@ while($RUNNING) {
 $logger->info("Stop running\n");
 
 END {
-    if (!$args{h} && $FILE_LOCK ) {
+    # Forked children inherit $FILE_LOCK: only the daemon may notify systemd and remove the pid file
+    if (!$args{h} && $FILE_LOCK && $$ == $DAEMON_PID) {
         Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
         deletepid($PROGRAM_NAME, $PID_FILE);
     }
