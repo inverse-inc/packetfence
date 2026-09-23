@@ -19,10 +19,103 @@ endif::[]
 
 //=== Aruba Switch
 
-==== ArubaOS_CX_10.x and ArubaOS_Switch_16.x
+==== ArubaOS-CX 10.x
 
-The ArubaOS_CX_10.x and ArubaOS_Switch_16.x are supported by PacketFence and it
-supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
+PacketFence supports ArubaOS-CX 10.x switches in MAC Authentication, 802.1X,
+RADIUS Change of Authorization (CoA) and Dynamic ACLs. The configuration below
+was validated on ArubaOS-CX 10.14.
+
+===== Global RADIUS Configuration
+
+Define the PacketFence RADIUS server, the AAA group and the accounting:
+
+  radius-server host 192.168.1.5 key plaintext useStrongerSecret
+  aaa group server radius packetfence
+      server 192.168.1.5
+  aaa accounting port-access start-stop interim group packetfence
+
+Enable 802.1X and MAC Authentication globally and bind both methods to the
+`packetfence` group:
+
+  aaa authentication port-access dot1x authenticator
+      radius server-group packetfence
+      enable
+  aaa authentication port-access mac-auth
+      radius server-group packetfence
+      enable
+
+[WARNING]
+====
+Without `radius server-group packetfence`, port-access authentication uses the
+built-in `radius` group (every `radius-server host` of the switch) while
+accounting uses the `packetfence` group. Without the global `enable`, 802.1X is
+never attempted on the ports (`dot1x - Not attempted`).
+====
+
+Optionally, let the switch track the availability of the RADIUS server:
+
+  radius-server host 192.168.1.5 key plaintext useStrongerSecret tracking enable
+  radius-server tracking user-name dummy password plaintext useStrongerSecret
+
+===== RADIUS Dynamic Authorization (CoA)
+
+  radius dyn-authorization enable
+  radius dyn-authorization client 192.168.1.5 time-window 65535 secret-key plaintext useStrongerSecret
+
+===== 802.1X with MAC Authentication Bypass
+
+On each access port:
+
+  interface 1/1/1
+      no shutdown
+      vlan access 1
+      aaa authentication port-access client-limit 3
+      aaa authentication port-access dot1x authenticator
+          max-eapol-requests 1
+          max-retries 1
+          quiet-period 5
+          discovery-period 10
+          enable
+      aaa authentication port-access mac-auth
+          enable
+
+802.1X is attempted first and MAC Authentication is used as a fallback (this is
+the default `auth-precedence`). Do not set
+`aaa authentication port-access auth-precedence mac-auth dot1x`: once MAC
+Authentication succeeds, 802.1X is not attempted anymore and 802.1X devices
+never authenticate with their credentials.
+
+To re-authenticate the MAC Authentication clients periodically, enable `reauth`
+together with the period:
+
+      aaa authentication port-access mac-auth
+          reauth
+          reauth-period 7200
+          enable
+
+===== Troubleshooting
+
+`show port-access clients detail` shows, for each client, the VLAN and the role
+returned by PacketFence and the state of each method (for example
+`dot1x - Unauthenticated, mac-auth - Authenticated`).
+
+`show radius dyn-authorization` shows the CoA and Disconnect requests received
+from PacketFence and the ACK/NAK sent.
+
+===== PacketFence switch configuration
+
+In the PacketFence administration interface, add the switch under
+_Configuration -> Policies and Access Control -> Switches_ with the type
+`Aruba CX Switch 10.x` and set the *Deauthentication Method* to `RADIUS` (the
+module default is SNMP).
+
+Dynamic ACLs: enable "Role by Access List" in the switch roles and fill the
+appropriate role with the ACL you want.
+
+==== ArubaOS_Switch_16.x
+
+The ArubaOS_Switch_16.x is supported by PacketFence and it supports MAC
+Authentication, 802.1X, Dynamic ACLS and Web Authentication.
 
 ===== Global Radius Configuration
 
