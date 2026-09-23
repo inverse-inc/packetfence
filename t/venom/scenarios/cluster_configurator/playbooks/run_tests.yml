@@ -89,7 +89,11 @@
 
   tasks:
     - import_tasks: run_venom_suites.yml
-      when: not (cluster_already_healthy | default(false))
+      # Baked clones already persist and verify these through the internal API
+      # during import; their completed configurator intentionally returns 401.
+      when:
+        - not (cluster_already_healthy | default(false))
+        - lookup('env', 'USE_VAGRANT_BOX') != 'yes'
 
 # doc: joiners integrate with PF services stopped (incl. mariadb); also frees
 # the runner while pf1 runs configurator + first-server.

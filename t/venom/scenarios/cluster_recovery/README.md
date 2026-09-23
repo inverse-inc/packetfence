@@ -90,3 +90,32 @@ ansible-playbook scenarios/cluster_recovery/site.yml -l <pf1,pf2,pf3> \
 CI: jobs `cluster_recovery_deb12` / `_el8` run in the `test_cluster` stage under
 the same `TEST_CLUSTER=yes` gate as the configurator jobs (or a `test_cluster=yes`
 commit message).
+
+## Pipeline-baked cluster nodes and recovery budgets
+
+Cluster configurator and recovery CI jobs consume a private, pipeline-specific
+standalone box (`0.0.${CI_PIPELINE_ID}`), built once per OS after `publish_ppa`.
+The bake tooling comes from `feature/ci-bake-golden-vagrant-box`; cluster mapping
+and preparation build on `feature/venom-cluster-prebaked-box`. Standalone test
+jobs retain their existing provisioning path in this branch.
+
+Import applies cluster OS requirements, hostname, local Venom variables and
+cross-node SSH. It replaces the standalone management/registration/isolation
+addresses through the internal API, verifies live and persistent addresses, and
+restores normal PacketFence boot. Cluster integration and health checks still run;
+only the completed standalone wizard and full package provisioning are reused.
+Bakes are private objects, never GitLab artifacts. Collected guest logs still go
+through `get_logs.yml` and the existing sanitizer; raw network dumps are omitted.
+
+Recovery jobs reserve separate clocks: `CLUSTER_SETUP_TIMEOUT=120m` for importing
+and forming the cluster, then `CLUSTER_RECOVERY_TIMEOUT=150m` for recovery A–F.
+Setup failure stops the job before recovery. The outer script allows 280 minutes,
+and the job allows 5 hours for download and cleanup as well. The runner's maximum
+job timeout must allow this. These are initial budgets to measure in CI, not
+measured completion times. Baked boxes reduce setup work; the independent recovery
+budget prevents a successful but slow setup from consuming the recovery allowance.
+
+The destructive recovery steps and simultaneous startup behavior are unchanged,
+so host/guest resource samples can still expose the original startup contention.
+Local orchestration checks (from repository root):
+`python3 -m unittest discover -s t/venom/tests -v`.
