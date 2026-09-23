@@ -37,7 +37,6 @@ export const useSections = () => {
           items: [
             { name: i18n.t('General Settings'), path: '/configuration/fingerbank/general_settings' },
             { name: i18n.t('Device change detection'), path: '/configuration/fingerbank/device_change_detection' },
-            { name: i18n.t('Combinations'), path: '/configuration/fingerbank/combinations' },
             { name: i18n.t('Devices'), path: '/configuration/fingerbank/devices' },
             { name: i18n.t('DHCP Fingerprints'), path: '/configuration/fingerbank/dhcp_fingerprints' },
             { name: i18n.t('DHCP Vendors'), path: '/configuration/fingerbank/dhcp_vendors' },
