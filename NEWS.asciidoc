@@ -27,7 +27,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
-  - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch
+  - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch. Access re-evaluation disconnects the endpoint by MAC address (`Calling-Station-Id`) only: the switch silently ignored the Disconnect-Request PacketFence sent for Huawei switches, which carried no `Calling-Station-Id` and an `Acct-Session-Id` that is empty or stale
 
 === Enhancements
 

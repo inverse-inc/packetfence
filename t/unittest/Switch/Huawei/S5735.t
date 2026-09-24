@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 31;
 use pf::Switch::Huawei::S5735;
 use pf::Switch::Huawei::S5710;
 
@@ -195,3 +195,19 @@ ok(
     !pf::Switch::Huawei::S5710->supportsAccessListBasedEnforcement,
     "S5710 does not claim access list based enforcement"
 );
+
+# deauthenticateMacRadius: the Disconnect-Request names the endpoint by MAC
+
+{
+    my $production = pf::Switch::Huawei::S5735->new({ id => 'test', ip => '1.1.1.1', mode => 'production', SNMPUseConnector => "N", radiusDeauthUseConnector => "N" });
+    my @disconnect;
+    no warnings qw(redefine once);
+    local *pf::Switch::Huawei::S5735::radiusDisconnect = sub { my ($self, @args) = @_; @disconnect = @args; return 1 };
+    ok($production->deauthenticateMacRadius('02:48:57:45:49:01'), "deauthentication reports the Disconnect-Request result");
+    is($disconnect[0], '02:48:57:45:49:01', "the Disconnect-Request is for the endpoint MAC");
+    is_deeply(
+        $disconnect[1],
+        { 'Calling-Station-Id' => '02-48-57-45-49-01' },
+        "the session is identified by Calling-Station-Id only, never by a possibly stale Acct-Session-Id"
+    );
+}

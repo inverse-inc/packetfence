@@ -145,7 +145,7 @@ radius-server template packetfence
  radius-server retransmit 3 timeout 5
  undo radius-server user-name domain-included
 
-radius-server session-manage <packetfence ip> shared-key cipher <secret>
+radius-server authorization <packetfence ip> shared-key cipher <secret>
 
 aaa
  authentication-scheme packetfence
@@ -160,8 +160,32 @@ aaa
 
 NOTE: `radius local-ip` is what starts the listener used for
 deauthentication. Without it the switch answers ICMP port unreachable on UDP
-3799 and every Disconnect-Request from PacketFence times out, even though
-`radius-server session-manage` is configured.
+3799 and every Disconnect-Request from PacketFence times out.
+
+===== Dynamic authorization (CoA / Disconnect)
+
+PacketFence re-evaluates the access of a connected endpoint (role change,
+registration, security event) by sending a RADIUS Disconnect-Request to UDP
+3799, the endpoint then authenticates again and gets its new VLAN and access
+list. Every address allowed to send these requests must be declared with
+`radius-server authorization`, with the shared secret of the switch entry in
+PacketFence: a request from any other address gets no answer at all. `radius-server session-manage` is not needed for it.
+
+The Disconnect-Request identifies the endpoint by its MAC address
+(`Calling-Station-Id`) only. The switch silently ignores a request whose
+`Acct-Session-Id` does not match the current session, so none is sent.
+
+In PacketFence, set the *Deauthentication Method* of the switch to `RADIUS`.
+When the switch is reached through a PacketFence connector, the requests leave
+from the connector: enable *Use Connector For Deauth* on the switch entry and
+declare the connector IP in `radius-server authorization` instead.
+
+After an access re-evaluation, the endpoint shows a new `User ID` and
+`User access time` in:
+
+----
+display access-user mac-address <mac as xxxx-xxxx-xxxx>
+----
 
 Access profiles and interface:
 
@@ -211,3 +235,30 @@ Three behaviours are worth knowing when troubleshooting:
 `display access-user interface <interface> detail` shows
 `DACL group name(Effective)` when an access list is installed; the line is
 absent when the switch discarded it.
+
+===== Flow export (sFlow)
+
+The switch can export sampled traffic to the Fingerbank collector of
+PacketFence (UDP 6343). The S5735R-L has no NetStream (IPFIX / NetFlow)
+command, so sFlow is the only flow export available on this model. The global
+settings live in the `sflow` view, the sampling is enabled per interface and
+per direction, and the rate cannot be lower than 1 packet out of 4096 (8192 by
+default):
+
+----
+sflow
+ sflow agent ip <switch management ip>
+ sflow source ip <switch management ip>
+ sflow collector 1 ip <collector ip>
+
+interface GE1/0/1
+ sflow flow-sampling collector 1 inbound
+ sflow flow-sampling collector 1 outbound
+ sflow flow-sampling rate 4096 inbound
+ sflow flow-sampling rate 4096 outbound
+ sflow counter-sampling collector 1
+ sflow counter-sampling interval 10
+----
+
+`display sflow configuration` lists the collector and, per interface, the
+collector, rate and counter interval in use.
