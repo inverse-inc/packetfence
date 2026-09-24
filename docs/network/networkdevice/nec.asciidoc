@@ -31,7 +31,7 @@ version 7.2.8 and supports the following technologies:
 * 802.1X with MAC Authentication fallback
 * RADIUS dynamic VLAN assignment
 * Role assignment through the `Filter-Id` attribute (ACL number, ACL name or user profile already defined on the switch)
-* Dynamic ACLs (rules sent in the RADIUS reply through the `H3C-Av-Pair` attribute)
+* Per-role ACLs pushed to the switch by PacketFence (PushACLs), referenced through `Filter-Id`
 * RADIUS Disconnect (dynamic-author server)
 * RADIUS CLI login
 
@@ -62,6 +62,18 @@ re-evaluate the access of a device (registration, security event, role change).
   radius dynamic-author server
    client ip 192.168.1.5 key simple useStrongerSecret
    quit
+
+The key must be the RADIUS secret of the switch entry in PacketFence, and every
+address that sends Disconnect-Requests needs its own `client ip` line (the
+PacketFence connector IP when *Use Connector For Deauth* is enabled on the
+switch entry). In PacketFence, set the *Deauthentication Method* of the switch
+to `RADIUS`. The Disconnect-Request identifies the session by its
+`Calling-Station-Id`.
+
+After an access re-evaluation, the session is removed and the device
+authenticates again: its `Online from` time changes in
+
+  display mac-authentication connection interface GigabitEthernet1/0/1
 
 ===== SNMP
 
@@ -258,6 +270,27 @@ config-view prompt `[...]`, and `cli_config`'s enable-mode logic does not apply
 to Comware). PacketFence copies the bundled collection into the per-switch
 `pf_collections` directory and drives the push with `cli_command`.
 ====
+
+===== Flow export (sFlow)
+
+The switch has no NetStream (IPFIX / NetFlow) command, sFlow is the only flow
+export available. It sends sampled traffic to the Fingerbank collector of
+PacketFence on UDP 6343. The global settings name the agent and the
+collector, sampling is enabled per interface. The sampling rate ranges from
+1 packet out of 1000 to 1 out of 500000:
+
+  sflow agent ip 192.168.40.21
+  sflow source ip 192.168.40.21
+  sflow collector 1 ip 192.168.1.5
+  interface GigabitEthernet1/0/1
+   sflow sampling-rate 1000
+   sflow flow collector 1
+   sflow counter interval 10
+   sflow counter collector 1
+   quit
+
+`display sflow` lists the collector and, per interface, the rate and a
+`Status` of `Active`.
 
 ===== CLI login
 

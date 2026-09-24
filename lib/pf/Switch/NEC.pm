@@ -189,7 +189,7 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::RADIUS;
         my %tech = (
-            $SNMP::RADIUS => 'deauthenticateMacDefault',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -199,6 +199,18 @@ sub wiredeauthTechniques {
     }
     $logger->error("This authentication mode is not supported");
     return;
+}
+
+=item deauthenticateMacRadius
+
+Disconnect the session with a RFC 3576 Disconnect-Request. The dynamic-author
+server of the switch identifies the session by its Calling-Station-Id.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->radiusDisconnect($mac);
 }
 
 =item returnAuthorizeWrite
