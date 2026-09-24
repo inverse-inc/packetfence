@@ -150,6 +150,34 @@ sub getDefaultOfType {
 }
 
 
+=head2 base_type
+
+The type of the highest ancestor that is still an authentication source.
+
+`type` is the leaf: FacebookSource returns 'Facebook'. This returns the family it
+belongs to, so Facebook, Github, Google, LinkedIn, OpenID and WindowsLive all
+return 'OAuth', AD and EDIR return 'LDAP', Paypal and Stripe return 'Billing',
+and a source with no intermediate parent simply returns its own type.
+
+This is what lets consumers classify a source without maintaining a list of every
+type that exists -- a new OAuth provider is covered the moment it is written,
+because it inherits the family from its parent class rather than from a table
+someone has to remember to update.
+
+Callable on the class as well as on an instance, since it is a property of the
+class rather than of a configured source.
+
+=cut
+
+sub base_type {
+    my ($proto) = @_;
+    my $class = ref($proto) || $proto;
+    my @isa = grep { /^pf::Authentication::Source::/ } $class->meta->linearized_isa;
+    return $class->meta->get_attribute('type')->default unless @isa;
+    return $isa[-1]->meta->get_attribute('type')->default;
+}
+
+
 =head2 match
 
 The first rule for which its conditions are matched wins, and stops everything.

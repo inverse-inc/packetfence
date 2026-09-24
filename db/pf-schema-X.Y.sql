@@ -168,6 +168,9 @@ CREATE TABLE node (
   `bypass_role_id` int default NULL,
   `last_seen` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
   `bypass_acls` MEDIUMTEXT DEFAULT NULL,
+  `source` varchar(255) default NULL,
+  `source_type` varchar(255) NOT NULL default "",
+  `source_base_type` varchar(255) NOT NULL default "",
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -175,6 +178,7 @@ CREATE TABLE node (
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   KEY `node_last_seen` (`last_seen`),
   KEY `node_bypass_role_id` (`bypass_role_id`),
+  KEY `node_status_last_seen` (`status`, `last_seen`, `pid`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` ( `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
@@ -1240,10 +1244,13 @@ CREATE TABLE auth_log (
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
   `source_type` varchar(255) NOT NULL default "",
+  `source_base_type` varchar(255) NOT NULL default "",
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
   KEY attempted_at (attempted_at),
-  KEY completed_at (completed_at)
+  KEY completed_at (completed_at),
+  KEY auth_log_completion (mac, source, process_name, attempted_at),
+  KEY auth_log_billing (status, completed_at, source_base_type, mac)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
