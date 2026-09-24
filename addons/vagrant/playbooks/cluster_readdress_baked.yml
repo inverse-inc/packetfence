@@ -77,6 +77,47 @@
       loop: '{{ interface_names.results }}'
       changed_when: false
 
+    # Vagrant leaves the inline NIC unconfigured (auto_config: false).
+    # A dangling auto/allow-hotplug entry makes ifupdown fail at each boot.
+    # Preserve any existing definition, including those in interfaces.d.
+    - name: Define the unused inline NIC for Debian ifupdown
+      when: ansible_os_family == 'Debian'
+      block:
+        - name: Discover inline NIC using the test interface index
+          ansible.builtin.shell: >-
+            ip -o link show | awk -F ': ' '$1 == 6 {print $2}' | cut -d '@' -f 1
+          register: inline_nic
+          changed_when: false
+
+        - name: Require a valid inline interface name
+          ansible.builtin.assert:
+            that: inline_nic.stdout is match('^[a-zA-Z0-9_.-]+$')
+
+        - name: Read interfaces known to ifupdown
+          ansible.builtin.command: ifquery --list
+          register: ifupdown_interfaces
+          changed_when: false
+
+        - name: Add a manual stanza only for an undefined inline NIC
+          ansible.builtin.blockinfile:
+            path: /etc/network/interfaces
+            marker: '# {mark} VENOM INLINE INTERFACE'
+            block: |
+              auto {{ inline_nic.stdout }}
+              iface {{ inline_nic.stdout }} inet manual
+                  pre-up /sbin/ip link set dev {{ inline_nic.stdout }} up
+          when: inline_nic.stdout not in ifupdown_interfaces.stdout_lines
+
+        - name: Verify ifupdown accepts the inline interface
+          ansible.builtin.command:
+            argv: [ifquery, '{{ inline_nic.stdout }}']
+          changed_when: false
+
+        - name: Bring up the inline interface through ifupdown
+          ansible.builtin.command:
+            argv: [ifup, '{{ inline_nic.stdout }}']
+          changed_when: true
+
     - name: Start services with the clone addresses
       ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
       changed_when: true
