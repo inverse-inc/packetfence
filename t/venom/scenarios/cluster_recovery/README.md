@@ -119,3 +119,48 @@ The destructive recovery steps and simultaneous startup behavior are unchanged,
 so host/guest resource samples can still expose the original startup contention.
 Local orchestration checks (from repository root):
 `python3 -m unittest discover -s t/venom/tests -v`.
+
+## Capacity comparisons
+
+Run the same Debian recovery job on a larger, otherwise idle cluster-capable
+runner. As an initial experiment, target at least 16 available logical CPUs and
+48 GiB RAM, with the existing libvirt/storage tooling and a five-hour job limit.
+This is an experiment size, not an established minimum. For comparison with the original run, restore each guest to
+4 vCPUs / 8 GiB, and retain the existing recovery ordering and timeouts.
+
+Assign that runner a distinct tag, then launch a pipeline with:
+
+- `TEST_CLUSTER=yes`
+- `TEST_ONLY=^cluster_recovery_deb12$`
+- `CLUSTER_RUNNER_TAG=<the larger runner's actual tag>`
+
+The tag defaults to `test-cluster-shell-v7`; setting a new value does not create
+or resize a runner. The override applies to cluster jobs, not the bake jobs.
+TEST_ONLY filters execution; excluded jobs may still be created by CI rules.
+
+Compare with pipeline 2876317426 / job 16691079595: setup 84m31s, scenario A
+failed waiting for boot completion, guest CPU steal 36–38%, and 75/73/65 systemd
+timeout events. Check resource samples for lower steal and CPU/memory pressure,
+then verify that A completes and the remaining recovery scenarios run. A passing
+run with reduced contention supports the capacity diagnosis; continued timeouts
+with low pressure require investigation of service dependencies/startup hooks.
+Sanitized guest logs and numeric host telemetry remain the comparison artifacts.
+
+Temporary CPU weights are a separate experiment. Libvirt CPU shares change
+relative scheduling priority under contention, not the vCPU count or total host
+capacity. A rolling-reboot experiment could raise the restarting VM's weight and
+restore the original weight on success, failure, or cancellation. Healthy peers
+must retain enough CPU for Galera and service traffic. During total-outage
+recovery, boot enough peers to restore quorum before prioritizing application
+startup; waiting for the first node to become fully healthy before booting peers
+can block recovery. Do not change this scheduling in the capacity comparison.
+
+The next experiment on the existing runner uses **3 vCPUs / 8 GiB per cluster
+node** (Debian 12 and EL8 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its default
+for this run. Standalone/bake VM allocations are unchanged. Compare guest steal,
+startup timeouts and scenario A completion before trying the larger runner.
+
+Baked Debian cluster import also defines the unused inline NIC as `inet manual`
+when ifupdown has no definition for it. This addresses `ifup: unknown interface
+eth4` while preserving existing interface definitions and assigning no inline IP.
+The subsequent rolling reboots provide the integration check for this correction.

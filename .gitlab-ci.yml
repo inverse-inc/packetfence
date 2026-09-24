@@ -73,6 +73,8 @@ variables:
   # Heavy 3-VM cluster tests. Also run on TEST=yes (after the test stage passes);
   # TEST_CLUSTER=yes forces them on their own.
   TEST_CLUSTER: ""
+  # Override with a tag assigned to a suitably sized cluster runner.
+  CLUSTER_RUNNER_TAG: "test-cluster-shell-v7"
 
 
 ################################################################################
@@ -520,13 +522,13 @@ variables:
     - test-shell-v7
 
 # Cluster test family runs in its own stage (heavy 3-VM jobs, opt-in).
-# Pinned to test-cluster-shell-v7: the general test-shell-v7 runners lack the
-# disk space for 3 concurrent PF VMs.
+# Default to the cluster pool; allow a controlled run on a larger cluster host.
+# The selected runner still needs disk space and libvirt support for three PF VMs.
 .test_cluster_job:
   extends: .test_job
   stage: test_cluster
   tags:
-    - test-cluster-shell-v7
+    - "$CLUSTER_RUNNER_TAG"
 
 .deploy_packages_job:
   stage: deploy
