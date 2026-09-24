@@ -44,6 +44,14 @@ appended to every access list to restore the expected semantics, which also
 means a role whose access list is entirely untranslatable ends up denied rather
 than unrestricted.
 
+=head2 Deauthentication identifies the session by MAC address only
+
+The Disconnect-Request carries the endpoint MAC as C<Calling-Station-Id> and no
+C<Acct-Session-Id>. The switch silently ignores a request whose
+C<Acct-Session-Id> does not match the current session (no Disconnect-NAK), and
+the endpoint stays online, so a stale accounting session id would make every
+re-evaluation fail without an error.
+
 =head2 Outbound access lists cannot be represented
 
 The authentication profile filters traffic sent by the endpoint (control
@@ -51,12 +59,13 @@ direction inbound), so C<out|> access list lines are dropped with a warning.
 
 =head1 SWITCH CONFIGURATION
 
-The RADIUS session management listener, used for deauthentication, only starts
-once C<radius local-ip> is configured. Without it the switch answers ICMP port
-unreachable on 3799 and every Disconnect-Request times out:
+The listener used for deauthentication only starts once C<radius local-ip> is
+configured. Without it the switch answers ICMP port unreachable on 3799 and
+every Disconnect-Request times out. The Disconnect-Request is only answered
+when PacketFence is declared as an authorization server:
 
  radius local-ip <switch management ip>
- radius-server session-manage <packetfence ip> shared-key cipher <secret>
+ radius-server authorization <packetfence ip> shared-key cipher <secret>
 
 Ports also need to be C<hybrid> rather than C<access> for RADIUS VLAN
 assignment to apply.
@@ -145,6 +154,29 @@ sub returnRadiusAccessAccept {
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule, $args, $radius_reply_ref);
 
     return [$status, %$radius_reply_ref];
+}
+
+=head2 deauthenticateMacRadius
+
+Disconnect the endpoint by MAC address, see
+L</Deauthentication identifies the session by MAC address only>.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $mac, $is_dot1x) = @_;
+    my $logger = $self->logger;
+
+    if (!$self->isProductionMode()) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    my $calling_station_id = uc($mac);
+    $calling_station_id =~ s/:/-/g;
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac, { 'Calling-Station-Id' => $calling_station_id });
 }
 
 =head2 _dataFilterRules
