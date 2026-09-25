@@ -93,10 +93,19 @@
           ansible.builtin.assert:
             that: inline_nic.stdout is match('^[a-zA-Z0-9_.-]+$')
 
-        - name: Read interfaces known to ifupdown
-          ansible.builtin.command: ifquery --list
-          register: ifupdown_interfaces
+        - name: Check whether ifupdown defines the inline NIC
+          ansible.builtin.command:
+            argv: [ifquery, '{{ inline_nic.stdout }}']
+          environment:
+            LC_ALL: C
+          register: inline_definition
           changed_when: false
+          # An undefined NIC is the condition this block repairs. Still fail
+          # on parse errors or any other unexpected ifquery failure.
+          failed_when: >-
+            inline_definition.rc != 0 and not
+            (inline_definition.rc == 1 and
+             inline_definition.stderr | trim == 'ifquery: unknown interface ' ~ inline_nic.stdout)
 
         - name: Add a manual stanza only for an undefined inline NIC
           ansible.builtin.blockinfile:
@@ -106,7 +115,7 @@
               auto {{ inline_nic.stdout }}
               iface {{ inline_nic.stdout }} inet manual
                   pre-up /sbin/ip link set dev {{ inline_nic.stdout }} up
-          when: inline_nic.stdout not in ifupdown_interfaces.stdout_lines
+          when: inline_definition.rc == 1
 
         - name: Verify ifupdown accepts the inline interface
           ansible.builtin.command:
