@@ -21,7 +21,7 @@
             <dt v-t="'Admin Login:'"></dt>
             <dd v-t="'Configure the authentication sources and settings used for administrator login to the PacketFence interface.'"></dd>
             <dt v-t="'Sponsor Login:'"></dt>
-            <dd v-t="'Configure single sign-on for sponsors validating guest requests from the activation link.'"></dd>
+            <dd v-t="'Configure single sign-on for sponsors validating guest requests and for the self-service portal login.'"></dd>
             <dt v-t="'DNS Configuration:'"></dt>
             <dd v-t="'Configure DNS auditing and DNS-related features from this module.'"></dd>
             <dt class="no-saas" v-t="'FleetDM:'"></dt>

@@ -1,20 +1,21 @@
 <div class="u-padding">
-  <form name="login" method="post" action="/status/login">
 
-    <div class="o-layout--center">
-      <h5>[% i18n("Login to manage registered devices") %]</h5>
-    </div>
+  <div class="o-layout--center">
+    <h5>[% i18n("Login to manage registered devices") %]</h5>
+  </div>
 
-    [% IF txt_auth_error %]
-    <div class="o-media o-media--error u-padding u-margin-bottom">
-      <div class="o-media__img">[% flashIcon(level='error') %]</div>
-      <p class="o-media__body">[% i18n(txt_auth_error) %]</p>
-    </div>
-    [% END %]
+  [% IF txt_auth_error %]
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n(txt_auth_error) %]</p>
+  </div>
+  [% END %]
 
-    <div class="o-layout o-layout--center">
-      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
 
+      [% IF allow_username_password %]
+      <form name="login" method="post" action="/status/login">
         [%# User / Pass %]
         <div class="input-container">
           <label for="username">[% i18n("Username") %]</label>
@@ -34,9 +35,16 @@
         <div class="u-text-center u-margin-top">
           <a href="/status/forgot_password">[% i18n("Forgot your password?") %]</a>
         </div>
+      </form>
+      [% END %]
 
+      [% IF sso_login_url %]
+      <div class="u-margin-top">
+        <a class="c-btn [% allow_username_password ? 'c-btn--secondary' : 'c-btn--primary' %] u-1/1" href="[% sso_login_url | html %]">[% i18n(sso_login_text) %]</a>
       </div>
+      [% END %]
+
     </div>
-  </form>
+  </div>
 </div>
 [% INCLUDE 'password-button.inc' %]
