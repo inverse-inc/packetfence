@@ -269,15 +269,18 @@ EOT
     }
 
     # Generate mysql_query_rules:
-    #   rule 1 — SELECT FOR UPDATE → HG 10 (writer always, locks rows)
-    #   rule 2 — SELECT            → HG 30 (readers preferred)
+    #   rule 1 — SELECT ... FOR UPDATE     → HG 10 (writer always, locks rows)
+    #   rule 2 — SELECT @@global.read_only → HG 10 (writer)
+    #   rule 3 — SELECT on processlist or performance_schema → HG 10 (writer)
+    #            netdata's mysql collector runs SET SESSION sql_log_off and
+    #            SET SESSION slow_query_log, which lock its session to HG 10;
+    #            without this rule its processlist SELECT (and the
+    #            performance_schema SELECTs of newer netdata functions) match
+    #            rule 4 → HG 30 and ProxySQL rejects them with error 9006
+    #            (locked to hostgroup)
+    #   rule 4 — SELECT                    → HG 30 (readers preferred)
     #            writer is also in HG 30 (weight=50) only as fallback
-    #            if all pure readers go down ✅
-    #   rule 3 — SELECT on processlist     → HG 10 (writer)
-    #            netdata's mysql collector runs SET SESSION sql_log_bin=OFF
-    #            which locks its session to HG 10; without this rule its
-    #            processlist SELECT matches rule 4 → HG 30 and ProxySQL
-    #            rejects it with error 9006 (locked to hostgroup)
+    #            if all pure readers go down
     #   rule 5 — catch-all                 → HG 10 in normal mode
     #            scheduler rewrites 1,2,5 during degraded mode
     #            (rule 3 is deliberately NOT rewritten: a SELECT still works
@@ -310,10 +313,10 @@ mysql_query_rules =
     {
         rule_id=3,
         active=1,
-        match_pattern="(information_schema|performance_schema).processlist",
+        match_pattern="(information_schema[.]processlist|performance_schema[.])",
         destination_hostgroup=$writer_hostgroup,
         apply=1,
-        comment="processlist SELECT stays on writer — netdata session is locked to HG $writer_hostgroup by SET sql_log_bin"
+        comment="processlist and performance_schema SELECTs stay on writer — netdata session is locked to HG $writer_hostgroup by SET SESSION"
     },
     {
         rule_id=4,
