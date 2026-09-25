@@ -54,6 +54,12 @@ servers of the AAA group listed here (UDP port 3799 by default):
   dot1x dynamic-authorization
   aaa authorization dynamic dot1x additional-groups group PacketFence
 
+In PacketFence, set the *Deauthentication Method* of the switch to `RADIUS`.
+After an access re-evaluation, the `DM requests received` counter of the
+PacketFence server increases and the endpoint gets a new dynamic ACL:
+
+  show radius
+
 ===== Additional RADIUS attributes (optional)
 
 The switch can send LLDP and DHCP information of the endpoint in the RADIUS
@@ -135,16 +141,76 @@ using the `NAS-Filter-Rule` attribute. To use it:
 * Define the ACL for each role under _Configuration -> Policies and Access
   Control -> Roles_, for example for the registration role:
 
-  permit in tcp from any to 192.168.1.5 80
-  permit in tcp from any to 192.168.1.5 443
-  permit in udp from any to any 53
-  permit in udp from any to any 67
-  deny in ip from any to any
+  permit tcp any host 192.168.1.5 eq 80
+  permit tcp any host 192.168.1.5 eq 443
+  permit udp any any eq 53
+  permit udp any any eq 67
+  permit udp any any eq 68
+  deny ip any any
+
+PacketFence translates each line and sends it as one `NAS-Filter-Rule`:
+
+  NAS-Filter-Rule = "permit in 6 from any to 192.168.1.5 80"
+  NAS-Filter-Rule = "permit in 6 from any to 192.168.1.5 443"
+  NAS-Filter-Rule = "permit in 17 from any to any 53"
+  NAS-Filter-Rule = "permit in 17 from any to any 67"
+  NAS-Filter-Rule = "permit in 17 from any to any 68"
+  NAS-Filter-Rule = "deny in ip from any to any"
+
+The switch installs them as a dynamic ACL on the port:
+
+  show ip access-lists dynamic
 
 WARNING: The switch ends the per-host ACL with an implicit deny. An ACL made
 only of `deny` lines blocks all the IPv4 traffic of the device, DHCP included,
-so always permit at least DHCP and DNS (or end the ACL with
-`permit in ip from any to any`).
+so always permit at least DHCP and DNS (or end the ACL with `permit ip any any`
+when the role must keep network access).
+
+===== Flow export (sFlow or IPFIX)
+
+The switch can export sampled traffic to the Fingerbank collector of
+PacketFence, either as sFlow (UDP 6343) or as IPFIX (UDP 4739). Use one or the
+other: on the 720 series, sampled flow tracking only starts when sFlow is
+stopped (`show agent SftAgent runnability` reports
+`Not satisfied: Sflow agent is not running` otherwise).
+
+sFlow:
+
+  sflow sample 500
+  sflow polling-interval 10
+  sflow destination 192.168.1.5
+  sflow source 192.168.1.2
+  sflow run
+  !
+  interface Ethernet1
+     sflow enable
+
+Here 192.168.1.2 is the switch management IP.
+
+IPFIX:
+
+  no sflow run
+  !
+  flow tracking sampled
+     sample 500
+     tracker packetfence
+        record export on inactive timeout 15000
+        record export on interval 60000
+        exporter packetfence
+           collector 192.168.1.5 port 4739
+           format ipfix version 10
+           local interface Vlan1
+           template interval 60000
+     no shutdown
+  !
+  interface Ethernet1
+     flow tracker sampled packetfence
+
+The local interface is the interface that holds the switch management IP, it
+is the source address of the export. Apply the tracker on every access port and
+on the uplink. To check the exporter, `show flow tracking sampled` must report
+`Running: yes`, and the counters of `show flow tracking sampled counters` must
+increase.
 
 ===== Troubleshooting
 

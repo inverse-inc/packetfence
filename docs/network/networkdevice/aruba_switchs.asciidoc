@@ -62,6 +62,16 @@ Optionally, let the switch track the availability of the RADIUS server:
   radius dyn-authorization enable
   radius dyn-authorization client 192.168.1.5 time-window 65535 secret-key plaintext useStrongerSecret
 
+PacketFence changes the access of a connected client (role change,
+registration, access reevaluation) with a RADIUS Disconnect-Request or
+CoA-Request sent to UDP 3799. Every address allowed to send these requests
+must be declared as a `dyn-authorization client`, with the shared secret of
+the switch entry in PacketFence. A request from an address that is not
+declared is dropped and counted as `Invalid Client Addresses`. When the switch
+is reached through a PacketFence connector, the requests leave from the
+connector: enable *Use Connector For Deauth* on the switch entry and declare
+the connector IP instead.
+
 ===== 802.1X with MAC Authentication Bypass
 
 On each access port:
@@ -93,6 +103,53 @@ together with the period:
           reauth-period 7200
           enable
 
+===== Dynamic ACL (Aruba-NAS-Filter-Rule)
+
+PacketFence sends the ACLs of the role inline in the Access-Accept, one
+`Aruba-NAS-Filter-Rule` per line, nothing has to be configured on the switch.
+Enable *Role by access list* on the switch entry and put the ACLs on the role,
+for example:
+
+  permit udp any any eq 67
+  permit udp any any eq 68
+  permit udp any any eq 53
+  deny icmp any host 1.1.1.1
+  deny tcp any host 9.9.9.9 eq 443
+  permit ip any any
+
+They are sent as:
+
+  Aruba-NAS-Filter-Rule = "permit in udp from any to any 67"
+  Aruba-NAS-Filter-Rule = "permit in udp from any to any 68"
+  Aruba-NAS-Filter-Rule = "permit in udp from any to any 53"
+  Aruba-NAS-Filter-Rule = "deny in icmp from any to 1.1.1.1"
+  Aruba-NAS-Filter-Rule = "deny in tcp from any to 9.9.9.9 443"
+  Aruba-NAS-Filter-Rule = "permit in ip from any to any"
+
+The switch builds a `RADIUS_<number>` role for the client. In
+`show port-access clients detail`, the Authorization Details show
+`Status : Applied` and the rules received.
+
+===== sFlow
+
+The switch can export sampled traffic to the Fingerbank collector of
+PacketFence (UDP 6343). Once `sflow` is enabled globally, every interface is
+sampled:
+
+  sflow
+  sflow collector 192.168.1.5
+  sflow agent-ip 192.168.1.2
+  sflow sampling 100
+  sflow polling 10
+
+Here 192.168.1.2 is the switch management IP. The switch asks for a
+confirmation for a sampling rate lower than 4096. With the default 4096, a
+quiet port may never produce a flow sample and only the interface counters
+are exported. `Number of Samples` increases in `show sflow` and
+`show sflow interface 1/1/1`.
+
+The CX 6000 has no flow monitoring command in 10.14, so IPFIX is not
+available on this series.
 ===== Troubleshooting
 
 `show port-access clients detail` shows, for each client, the VLAN and the role
