@@ -1052,6 +1052,115 @@ Activate SNMP on the switch:
   snmp-server community public RO
 
 
+===== Dynamic authorization (CoA)
+
+PacketFence re-evaluates the access of a connected endpoint with a
+CoA-Request carrying the `Calling-Station-Id` and the Cisco-AVPairs
+`subscriber:command=reauthenticate` and `subscriber:reauthenticate-type=last`.
+The switch answers CoA-ACK and re-authenticates the session, which gets its
+new VLAN and ACL. The `server-key` of the `dynamic-author` client must be the
+RADIUS secret of the switch entry in PacketFence (declare the PacketFence
+connector IP instead when *Use Connector For Deauth* is enabled). Set the
+*Deauthentication Method* of the switch to `RADIUS`.
+
+After an access re-evaluation, the session gets a new `Common Session ID` in:
+
+  show access-session interface GigabitEthernet1/0/1 details
+
+===== Dynamic ACLs
+
+PacketFence sends the ACLs of the role inline in the Access-Accept, one
+`Cisco-AVPair` `ip:inacl#<n>=<rule>` per line, and the switch builds a
+per-user ACL for the session. On IOS XE 17, enable device tracking globally
+and on the access ports so the switch learns the IP address of the endpoint
+(`ip device tracking` no longer exists):
+
+  device-tracking tracking
+  !
+  interface GigabitEthernet1/0/1
+   device-tracking
+
+In PacketFence, enable *Role by access list* on the switch entry and put the
+ACLs on the role, for example:
+
+  permit udp any any eq 67
+  permit udp any any eq 68
+  permit udp any any eq 53
+  deny icmp any host 1.1.1.1
+  deny tcp any host 9.9.9.9 eq 443
+  permit ip any any
+
+They are sent as:
+
+  Cisco-AVPair = "ip:inacl#101=permit udp any any eq 67"
+  Cisco-AVPair = "ip:inacl#102=permit udp any any eq 68"
+  Cisco-AVPair = "ip:inacl#103=permit udp any any eq 53"
+  Cisco-AVPair = "ip:inacl#104=deny icmp any host 1.1.1.1"
+  Cisco-AVPair = "ip:inacl#105=deny tcp any host 9.9.9.9 eq 443"
+  Cisco-AVPair = "ip:inacl#106=permit ip any any"
+
+The session shows `Per-User ACL: Gi1/0/1#v4#<id>`, and `show ip access-lists`
+lists that ACL with its rules:
+
+  show access-session interface GigabitEthernet1/0/1 details
+  show ip access-lists
+
+===== Flow export (Flexible NetFlow / IPFIX)
+
+The switch exports sampled flows to the Fingerbank collector of PacketFence as
+IPFIX. The collector decodes IPFIX both on UDP 4739 and 2055. Configuration
+used on a Catalyst 9300 (Network Advantage license, the `match application
+name` field needs it):
+
+  flow record bitflow
+   match ipv4 version
+   match ipv4 protocol
+   match application name
+   match connection client ipv4 address
+   match connection server ipv4 address
+   match connection server transport port
+   match ipv4 source address
+   match ipv4 destination address
+   match flow observation point
+   collect timestamp absolute first
+   collect timestamp absolute last
+   collect flow direction
+   collect connection initiator
+   collect counter packets long
+   collect datalink mac source address input
+   collect datalink mac source address output
+   collect datalink mac destination address input
+   collect datalink mac destination address output
+   collect connection client transport port
+   collect connection new-connections
+   collect transport destination-port
+   collect transport source-port
+   collect transport tcp flags
+   collect interface output
+  !
+  flow exporter packetfence
+   destination 192.168.1.5
+   source Vlan1
+   transport udp 4739
+   export-protocol ipfix
+   option interface-table timeout 300
+   option sampler-table timeout 300
+   option application-table timeout 300
+  !
+  flow monitor packetfence
+   exporter packetfence
+   cache timeout active 60
+   record bitflow
+  !
+  sampler fingerbankSampler
+   mode random 1 out-of 2
+  !
+  interface GigabitEthernet1/0/1
+   ip flow monitor packetfence sampler fingerbankSampler input
+   ip flow monitor packetfence sampler fingerbankSampler output
+
+`source` is the interface holding the switch management IP.
+
 ===== 802.1X only
 
 Follow the same configuration as for MAC Authentication Bypass but change the
