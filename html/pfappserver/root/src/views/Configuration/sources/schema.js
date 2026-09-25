@@ -125,6 +125,7 @@ export const schema = (props) => {
     account_sid: yup.string().label(i18n.t('SID')),
     allowed_domains: schemaDomains,
     api_key: yup.string().label(i18n.t('API key')),
+    api_url: yup.string().label(i18n.t('API URL')),
     api_login_id: yup.string().label(i18n.t('ID')),
     auth_token: yup.string().label(i18n.t('Token')),
     authenticate_realm: yup.string().label(i18n.t('Realm')),

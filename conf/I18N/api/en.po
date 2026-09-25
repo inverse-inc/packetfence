@@ -256,6 +256,7 @@ msgid "API Bandwidth"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/_components/TheForm.vue:48
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:23
 #: html/pfappserver/root/src/views/Configurator/fingerbank/_components/FormFingerbank.vue:40
 msgid "API Key"
 msgstr ""
@@ -284,7 +285,9 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeGoogle.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLinkedIn.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:26
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:18
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:26
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:128
 msgid "API URL"
 msgstr ""
 
@@ -18574,6 +18577,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeSslInspection.vue:24
 msgid "URL of an iOS mobileconfig profile to install the certificate."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:19
+msgid "URL of the Clickatell compatible SMS gateway."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeSslInspection.vue:19
