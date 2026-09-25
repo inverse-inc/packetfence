@@ -2,7 +2,11 @@
   <div class="o-layout__item">
     <div class="o-media o-media--notice u-padding u-margin-bottom">
       <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+      [% IF wait_for_activation %]
+      <p class="o-media__body">[% i18n("Email activation code has been verified. Return to the device waiting on the captive portal to complete its registration.") %]</p>
+      [% ELSE %]
       <p class="o-media__body">[% i18n_format("Email activation code has been verified. Access granted until : %s", unregdate) %]</p>
+      [% END %]
     </div>
   </div>
 </div>
