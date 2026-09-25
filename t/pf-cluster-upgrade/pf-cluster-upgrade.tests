@@ -1,0 +1,1901 @@
+#!/bin/bash
+# Most variables below are settings consumed by the sourced script; that link
+# cannot be followed across 'source', so they look unused from here.
+# shellcheck disable=SC2034
+# selftest.sh - exercises pf-cluster-upgrade.sh without a real cluster.
+#
+# Part 2 is the important one: it drives every phase against a fake cluster
+# (ssh, pfcmd and systemctl are intercepted) and compares the command sequence
+# actually issued against Clustering Guide 12.4.
+set -uo pipefail
+
+
+HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PASS=0; FAIL=0
+ok()   { printf '  [ok]   %s\n' "$1"; PASS=$((PASS+1)); }
+bad()  { printf '  [FAIL] %s\n' "$1"; FAIL=$((FAIL+1)); }
+check(){ if [[ "$2" == "$3" ]]; then ok "$1"; else bad "$1"$'\n         expected: '"$3"$'\n         got:      '"$2"; fi; }
+has()  { if grep -qF -- "$2" <<<"$1"; then ok "$3"; else bad "$3 (not found: $2)"; fi; }
+hasnt(){ if grep -qF -- "$2" <<<"$1"; then bad "$3 (unexpectedly found: $2)"; else ok "$3"; fi; }
+
+#-------------------------------------------------------------------------------
+echo "== 1. Loading functions, ordering and roles =="
+#-------------------------------------------------------------------------------
+# Two layouts: beside the script (as shipped), or from a checkout where the
+# tool lives in addons/upgrade/ and this file in t/pf-cluster-upgrade/. The
+# checkout wins - a test in a repository must exercise the repository, not
+# whatever happens to be installed on the machine running it.
+find_file() {
+    local name="$1" c
+    for c in "${HERE}/../../addons/upgrade/${name}" \
+             "${HERE}/../../conf/${name}" \
+             "${HERE}/../conf/${name}" \
+             "${HERE}/../docs/${name}" \
+             "${HERE}/${name}" \
+             "/usr/local/pf/addons/upgrade/${name}" \
+             "/usr/local/pf/conf/${name}"; do
+        [[ -f "$c" ]] && { printf '%s' "$c"; return 0; }
+    done
+    return 1
+}
+
+TOOL="$(find_file pf-cluster-upgrade.sh)" \
+    || { echo "pf-cluster-upgrade.sh not found"; exit 1; }
+PF_UPGRADE_LIB=1
+# shellcheck source=/dev/null
+source "$TOOL"
+trap - ERR; trap - EXIT; set +e +o pipefail
+# Colours off regardless of where the test runs: the checks below grep for
+# literal strings, and an escape sequence between two words breaks the match.
+NO_COLOR=1; setup_colors
+
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+# Fake cluster.conf: the A, B, C order carries meaning
+mkdir -p "$TMP/pf/conf"
+cat >"$TMP/pf/conf/cluster.conf" <<'EOC'
+[CLUSTER]
+management_ip=10.20.30.10
+[CLUSTER interface eth0]
+ip=10.20.40.10
+[pf-node1]
+management_ip=10.20.30.11
+[pf-node1 interface eth0]
+ip=10.20.40.11
+[pf-node2]
+management_ip=10.20.30.12
+[pf-node3]
+management_ip=10.20.30.13
+EOC
+cat >"$TMP/pf/conf/pf.conf" <<'EOC'
+[general]
+domain=example.lan
+[webservices]
+user=packet
+pass=fake-ws-password
+EOC
+
+PF_ROOT="$TMP/pf"
+NODES=()
+parse_cluster_conf
+check "node order from cluster.conf is preserved (not sorted)" \
+      "${NODES[*]}" "pf-node1 pf-node2 pf-node3"
+
+NODES=(); PIONEER=""; STATE_FILE="$TMP/state"; DRY_RUN=0
+resolve_roles >/dev/null 2>&1
+check "A/B/C assignment: C is the last node" "${NODE_A} ${NODE_B} ${NODE_C}" "pf-node1 pf-node2 pf-node3"
+
+rm -f "$TMP/state"; NODES=(); PIONEER="pf-node1"
+resolve_roles >/dev/null 2>&1
+check "--pioneer moves C, A/B keep cluster.conf order" \
+      "${NODE_A} ${NODE_B} ${NODE_C}" "pf-node2 pf-node3 pf-node1"
+
+check "management_ip of pf-node3" "$(node_mgmt_ip pf-node3)" "10.20.30.13"
+check "management_ip of pf-node1 (not the VIP from [CLUSTER])" "$(node_mgmt_ip pf-node1)" "10.20.30.11"
+
+# A role change mid-upgrade must be noticed
+rm -f "$TMP/state"; NODES=(); PIONEER=""
+resolve_roles >/dev/null 2>&1
+out="$( PIONEER="pf-node1"; NODES=(); resolve_roles 2>&1 )"
+has "$out" "role assignment differs" "role change during a running upgrade is detected"
+rm -f "$TMP/state"
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 2. Command sequence against Clustering Guide 12.4 (fake cluster) =="
+#-------------------------------------------------------------------------------
+# Fakes for ssh, hostname, systemctl, pfcmd, cluster/node, cluster/sync and
+# do-upgrade.sh. Every call is traced, so the real procedure's ordering can be
+# checked without owning a cluster.
+BIN="$TMP/bin"; mkdir -p "$BIN"
+TRACE="$TMP/trace.log"; : >"$TRACE"
+
+cat >"$BIN/ssh" <<EOS
+#!/usr/bin/env bash
+# Walk the arguments up to the user@host target
+node=""; cmd=""
+while [[ \$# -gt 0 ]]; do
+  case "\$1" in
+    -o) shift 2 ;;
+    -tt|-t) shift ;;
+    *@*) node="\${1#*@}"; shift; cmd="\$*"; break ;;
+    *) shift ;;
+  esac
+done
+# The script addresses nodes by management_ip but still names them by hostname
+# in the log and towards bin/cluster/node. The fake records both and maps back
+# for the trace.
+echo x >> "$TRACE.count"
+echo "SSHTARGET \$node" >> "$TRACE"
+# The argument list, separately: everything in here is visible in 'ps' on both
+# machines. The script body arrives over stdin and is not.
+echo "SSHCMD \$cmd" >> "$TRACE"
+case "\$node" in
+  10.20.30.11) node=pf-node1 ;;
+  10.20.30.12) node=pf-node2 ;;
+  10.20.30.13) node=pf-node3 ;;
+esac
+# Unreachable node: ssh itself fails with 255.
+if [[ -n "\${FAKE_SSH_DOWN:-}" && "\$node" == "\$FAKE_SSH_DOWN" ]]; then
+  echo "ssh: connect to host \$node port 22: No route to host" >&2; exit 255
+fi
+if [[ "\$cmd" == *"bash -s"* ]]; then
+  script="\$(cat)"
+  echo "NODE \$node <<script>>" >> "$TRACE"
+  # rexec() prepends PF_ROOT= and PFCMD= to the script. They are substituted
+  # here so the trace shows the EFFECTIVE command, not the variable name.
+  v_pfcmd=\$(sed -n 's/^PFCMD=//p' <<< "\$script" | head -1 | tr -d "'\\"")
+  v_pfroot=\$(sed -n 's/^PF_ROOT=//p' <<< "\$script" | head -1 | tr -d "'\\"")
+  while IFS= read -r l; do
+    case "\$l" in
+      ""|"set "*|"#"*|PF_ROOT=*|PFCMD=*|echo*) continue ;;
+    esac
+    l="\${l//\\"\\\$PFCMD\\"/\$v_pfcmd}"
+    l="\${l//\\\$PFCMD/\$v_pfcmd}"
+    l="\${l//\\\${PF_ROOT}/\$v_pfroot}"
+    echo "  \$node: \$l" >> "$TRACE"
+  done <<< "\$script"
+  # Consequences the fake has to remember, so that later queries do not
+  # contradict what just happened on the node.
+  # Per node, not a counter: a step repeated by --resume must not push the
+  # cluster size past 3.
+  case "\$script" in
+    *"MARIADB_ARGS=--force-new-cluster"*) rm -f "$TMP"/resynced.* ;;
+    *"rm -fr /var/lib/mysql/"*)           touch "$TMP/resynced.\$node" ;;
+  esac
+  case "\$script" in
+    *"unset-environment MARIADB_ARGS"*) rm -f "$TMP/force_new_cluster" ;;
+    *"set-environment MARIADB_ARGS"*)   touch "$TMP/force_new_cluster" ;;
+  esac
+  # The effect check for --force-new-cluster asks show-environment.
+  if [[ "\$script" == *"show-environment"* ]]; then
+    [ -f "$TMP/force_new_cluster" ] && echo "MARIADB_ARGS=--force-new-cluster"
+    echo VERIFY_OK; exit 0
+  fi
+  # Answers for status queries. Effect checks are confirmed unless
+  # FAKE_VERIFY_FAIL names that very check.
+  if [[ "\$script" == *"VERIFY_OK"* ]]; then
+    if [[ -n "\${FAKE_VERIFY_FAIL:-}" && "\$script" == *"\${FAKE_VERIFY_FAIL}"* ]]; then exit 0; fi
+    echo VERIFY_OK; exit 0
+  fi
+  if [[ "\$script" == *"REVIVE_DONE"* ]]; then
+    for u in \${FAKE_REVIVE_LIST:-}; do echo "REVIVED:\$u"; done
+    echo "REVIVE_DONE"; exit 0
+  fi
+  # RS_STOP_MARIADB. The markers are what stop_mariadb evaluates - the return
+  # code of 'systemctl stop' says nothing about the state.
+  if [[ "\$script" == *"MARIADB_ALREADY_STOPPED"* ]]; then
+    case "\${FAKE_MARIADB_STOP:-clean}" in
+      already)  echo "MARIADB_ALREADY_STOPPED"; exit 0 ;;
+      hung)     echo "MARIADB_SHUTDOWN_DONE 5"
+                echo "MARIADB_HUNG_AFTER_SHUTDOWN"
+                echo "MARIADB_KILLED"; exit 0 ;;
+      nomarker) echo "MARIADB_NO_MARKER 600"; exit 1 ;;
+      stuck)    echo "MARIADB_SHUTDOWN_DONE 5"
+                echo "MARIADB_HUNG_AFTER_SHUTDOWN"
+                echo "MARIADB_STILL_ACTIVE"; exit 1 ;;
+      *)        echo "MARIADB_STOPPED_CLEAN 5"; exit 0 ;;
+    esac
+  fi
+  if [[ "\$script" == *"service pf status"* ]]; then
+    # Real format from lib/pf/services/manager/pf.pm: unit name padded to 50
+    # chars, tab, status word, PID.
+    if [[ -n "\${FAKE_SVC_UNPARSABLE:-}" ]]; then
+      echo "RAW_BEGIN"; echo "completely different format"; echo "RAW_END"; exit 0
+    fi
+    tbl=""
+    if [[ -n "\${FAKE_SVC_ALL_DISABLED:-}" ]]; then
+      # pfconfig down: pfcmd reports absolutely everything as "disabled".
+      for svc in \${FAKE_WANTS:-packetfence-api-frontend.service packetfence-config.service packetfence-pfdns.service}; do
+        tbl+="\$(printf '%-50s\t%-10s%s' "\$svc" "disabled" "0")"\$'\n'
+      done
+    else
+      for svc in \${FAKE_SVC_UP:-packetfence-api-frontend packetfence-config packetfence-pfdns}; do
+        tbl+="\$(printf '%-50s\t%-10s%s' "\$svc.service" "started" "123")"\$'\n'
+      done
+      for svc in \${FAKE_SVC_DOWN:-}; do
+        tbl+="\$(printf '%-50s\t%-10s%s' "\$svc.service" "stopped" "0")"\$'\n'
+      done
+      tbl+="\$(printf '%-50s\t%-10s%s' "packetfence-pfdetect.service" "disabled" "0")"\$'\n'
+    fi
+    echo "RAW_BEGIN"
+    printf 'Service%49sStatus    PID\n' ""
+    printf '%s' "\$tbl"
+    echo "RAW_END"
+    printf '%s' "\$tbl" | awk -F'\t' 'NF>=2 {
+        name=\$1; sub(/[ \t]+\$/,"",name);
+        split(\$2, f, " "); st=f[1];
+        if (name != "" && st != "") print "SVC:" name "=" st;
+      }'
+    # Wants list from systemd. FAKE_WANTS_EMPTY simulates a node where it
+    # cannot be determined.
+    if [[ -z "\${FAKE_WANTS_EMPTY:-}" ]]; then
+      for u in \${FAKE_WANTS:-packetfence-api-frontend.service packetfence-config.service packetfence-pfdns.service}; do
+        echo "WANT:\$u"
+      done
+    fi
+    echo "TGT:packetfence-cluster.target=\${FAKE_TGT:-active}"
+    echo "TGT:packetfence.target=\${FAKE_TGT:-active}"
+    exit 0
+  fi
+  # 'systemd_state=' appears verbatim only in RS_PERMS. Matching on
+  # 'have_systemd-run' would miss: that text is assembled at runtime from the
+  # loop variable and never appears in the script source.
+  if [[ "\$script" == *"TOGGLES_SET"* ]]; then
+    echo "TOGGLES_SET:\$1"; exit 0
+  fi
+  if [[ "\$script" == *"systemd_state="* ]]; then
+    echo "uid=\${FAKE_UID:-0}"
+    for t in systemd-run systemctl mysql perl shred df stat tail find awk sed grep; do
+      if [ "\$t" = "\${FAKE_MISSING_TOOL:-}" ]; then echo "have_\${t}=no"; else echo "have_\${t}=yes"; fi
+    done
+    echo "have_docker=yes"; echo "pkgmgr=apt"
+    for d in run root lock; do
+      if [ "\$d" = "\${FAKE_UNWRITABLE:-}" ]; then echo "w_\${d}=no"; else echo "w_\${d}=yes"; fi
+    done
+    echo "systemd_state=\${FAKE_SYSTEMD_STATE:-running}"
+    echo "pfdb=\${FAKE_PFDB:-yes}"
+    echo "db_socket=\${FAKE_SOCKET_AUTH:-yes}"
+    exit 0
+  fi
+  if [[ "\$script" == *"pf-release"* ]]; then
+    # do-upgrade.sh bailed out before writing it: 'cat' fails, nothing comes back.
+    [ -n "\${FAKE_NO_PF_RELEASE:-}" ] && exit 1
+    echo "PacketFence \${FAKE_PF_RELEASE:-15.2.0}"; exit 0
+  fi
+  # 'configreload hard' failed - RS_PREP_CONFIG must not report PF_PREPARED then.
+  if [[ "\$script" == *"PF_PREPARED"* && -n "\${FAKE_CONFIGRELOAD_FAIL:-}" ]]; then
+    echo "PF_PREP_RC=configreload:1"; exit 1
+  fi
+  # RS_CLEAR_FAILED: units stuck outside the target's Wants list.
+  if [[ "\$script" == *"CLEAR_DONE"* ]]; then
+    if [[ -n "\${FAKE_STALE_FAILED:-}" ]]; then
+      echo "CLEARED:packetfence-tracking-config.path"
+      echo "CLEARED:packetfence-tracking-config.service"
+    fi
+    echo "CLEAR_DONE"
+    exit 0
+  fi
+  # RS_VIP: does the node hold the VIP? FAKE_VIP_ABSENT names the node that
+  # does not get it, so the wait loop can be driven into its timeout.
+  if [[ "\$script" == *"VIP_HERE"* ]]; then
+    if [[ "\${FAKE_VIP_ABSENT:-}" == "\$node" || "\${FAKE_VIP_ABSENT:-}" == "all" ]]; then
+      echo "VIP_ABSENT"
+    else
+      echo "VIP_HERE=\${FAKE_VIP_DEV:-eth0}"
+    fi
+    exit 0
+  fi
+  # Full package version. Every do-upgrade.sh run bumps the generation, so the
+  # version before and after really differ - unless FAKE_PKG_NOOP says apt had
+  # nothing to install, which is what a repeat of the SAME version looks like.
+  if [[ "\$script" == *"dpkg-query"* && "\$script" != *"hostname -s"* ]]; then
+    pg=0; [ -f "$TMP/pkg_gen" ] && pg=\$(cat "$TMP/pkg_gen")
+    echo "\${FAKE_PKG_BASE:-15.2.0+bookworm}\$pg"
+    exit 0
+  fi
+  if [[ "\$script" == *"wsrep"* ]]; then
+    # 12.4.6 takes the cluster apart and builds it back up: C alone is 1, then
+    # A joins (2), then B (3). A fixed 3 would let a resync that never happened
+    # pass as successful.
+    # While C runs with --force-new-cluster the cluster is being rebuilt:
+    # C alone is 1, and every node that has discarded its data has joined.
+    fsz=3
+    if [ -f "$TMP/force_new_cluster" ]; then
+      fsz=\$(( 1 + \$(ls "$TMP"/resynced.* 2>/dev/null | wc -l) ))
+    fi
+    echo "g:wsrep_cluster_size=\${FAKE_SIZE:-\$fsz}"
+    echo "g:wsrep_cluster_status=Primary"
+    echo "g:wsrep_local_state_comment=Synced"
+    echo "g:wsrep_ready=ON"; exit 0
+  fi
+  # A failing 'service pf restart', so the error paths of start_pf_vip_last and
+  # its callers can be exercised at all.
+  if [[ "\$script" == *"PF_STARTED"* && -n "\${FAKE_START_FAIL:-}" ]]; then
+    echo "PF_RESTART_RC=1"; exit 1
+  fi
+  # cluster/sync echoes the credentials it was handed, the way the real one
+  # does in an error message. Without that the masking test would confirm the
+  # absence of something the fake never produced.
+  if [[ "\$script" == *"SYNC_DONE"* ]]; then
+    apw=\$(sed -n "s/.*--api-password=//p" <<<"\$script" | head -1)
+    # The value arrives %q-quoted; the real far side is a bash that parses it
+    # back. Doing the same here is what makes the masking test meaningful for a
+    # password full of metacharacters.
+    eval "apw=\$apw" 2>/dev/null || true
+    echo "cluster/sync: connecting with password \$apw"
+    echo "SYNC_DONE"; exit 0
+  fi
+  if [[ "\$script" == *"webservices"* ]]; then
+    echo "ws_user=packet"; echo "ws_pass=fake-ws-password"; exit 0
+  fi
+  if [[ "\$script" == *"hostname -s"* ]]; then
+    echo "hostname=\$node"; echo "pf_version=15.1.0"; echo "do_upgrade=yes"
+    echo "cluster_node_cmd=yes"; echo "mysql_avail_mb=99999"
+    echo "root_avail_mb=\${FAKE_ROOT_MB:-99999}"
+    echo "aptcache_avail_mb=99999"
+    echo "pfconfig_active=active"
+    echo "pf_pkg=\${FAKE_PF_PKG:-15.1.0+bookworm1}"
+    echo "pkg_broken=\${FAKE_PKG_BROKEN:-0}"
+    echo "pkg_broken_list=\${FAKE_PKG_BROKEN_LIST:-}"
+    echo "pf_modified=\${FAKE_PF_MODIFIED:-}"; exit 0
+  fi
+  if [[ "\$script" == *"checkup"* ]]; then echo "Checkup finished"; exit 0; fi
+  if [[ "\$script" == *"id -u"* ]]; then echo "0"; exit 0; fi
+  if [[ "\$script" == *"db_socket_auth"* ]]; then
+    echo "db_socket_auth=\${FAKE_SOCKET_AUTH:-yes}"; echo "devel_sql=no"; exit 0
+  fi
+  # Detached execution: the start reports STARTED and the first query reports
+  # a successful end straight away. 'pfcmd service X restart' also reports
+  # success for a service PacketFence does not know - it just prints a line.
+  if [[ "\$script" == *'service "\$1" restart'* ]]; then
+    echo "  \$node: \$cmd" >> "$TRACE"
+    if [[ -n "\${FAKE_UNMANAGED_SVC:-}" && "\$cmd" == *"\$FAKE_UNMANAGED_SVC"* ]]; then
+      echo "Service '\$FAKE_UNMANAGED_SVC' is not managed by PacketFence. Therefore, no action will be performed"
+    fi
+    exit 0
+  fi
+  if [[ "\$script" == *"docker ps"* ]]; then
+    printf '%s\n' \${FAKE_DOCKER_IMAGES:-"ghcr.io/inverse-inc/packetfence/pfdns:maintenance-15-2 ghcr.io/inverse-inc/packetfence/radiusd:maintenance-15-2"}
+    exit 0
+  fi
+  if [[ "\$script" == *"systemd-run"* ]]; then
+    # Unit and script to run are in the 'bash -s --' arguments
+    echo "  \$node: DETACH_START \$cmd" >> "$TRACE"
+    # do-upgrade.sh has run: from here dpkg-query reports a newer package.
+    if [[ "\$cmd" == *"doupgrade"* && -z "\${FAKE_PKG_NOOP:-}" ]]; then
+      pg=0; [ -f "$TMP/pkg_gen" ] && pg=\$(cat "$TMP/pkg_gen")
+      echo \$((pg+1)) > "$TMP/pkg_gen"
+    fi
+    echo "\${FAKE_DETACH_START:-STARTED}"; exit 0
+  fi
+  if [[ "\$script" == *"dists/bookworm/Release"* ]]; then
+    echo "  \$node: REPO_CHECK \$cmd" >> "$TRACE"
+    [[ -n "\${FAKE_REPO_DOWN:-}" ]] || echo REPO_OK
+    exit 0
+  fi
+  if [[ "\$script" == *"reset-failed"* ]]; then
+    echo "  \$node: DETACH_CLEAN" >> "$TRACE"; echo CLEANED; exit 0
+  fi
+  if [[ "\$script" == *"STATE:running"* ]]; then
+    echo "STATE:\${FAKE_DETACH_STATE:-done}"; echo "RC:\${FAKE_DETACH_RC:-0}"
+    echo "SIZE:0"; echo "---LOG---"; exit 0
+  fi
+  exit 0
+else
+  echo "  \$node: \$cmd" >> "$TRACE"
+  # --interactive-upgrade: do-upgrade.sh runs straight on the terminal, without
+  # a transient unit - so the package moves on here too.
+  if [[ "\$cmd" == *"do-upgrade.sh"* ]]; then
+    echo "  \$node: TTY_DOUPGRADE" >> "$TRACE"
+    if [ -z "\${FAKE_PKG_NOOP:-}" ]; then
+      pg=0; [ -f "$TMP/pkg_gen" ] && pg=\$(cat "$TMP/pkg_gen")
+      echo \$((pg+1)) > "$TMP/pkg_gen"
+    fi
+  fi
+  exit 0
+fi
+EOS
+chmod +x "$BIN/ssh"
+PATH="$BIN:$PATH"
+
+# Only the local node counts as "self"; everything else goes through the ssh
+# fake. To get EVERY command into the trace we pick a hostname that is not a
+# cluster member.
+SELF_HOST="workbench"
+NODES=(); PIONEER=""; rm -f "$TMP/state"
+STATE_FILE="$TMP/state"; RUN_LOG="$TMP/run.log"; : >"$RUN_LOG"
+LOG_DIR="$TMP"; ASSUME_YES=1; DRY_RUN=0; RESUME=0
+PFCMD="/usr/local/pf/bin/pfcmd"
+CLUSTER_NODE_CMD="/usr/local/pf/bin/cluster/node"
+CLUSTER_SYNC_CMD="/usr/local/pf/bin/cluster/sync"
+DO_UPGRADE="/usr/local/pf/addons/upgrade/do-upgrade.sh"
+SERVICE_WAIT_TIMEOUT=1; GALERA_WAIT_TIMEOUT=1;  POLL_SECS=0
+# The stability window is tested separately below; in the sequence checks it
+# would only push every wait_services into its timeout (SERVICE_WAIT_TIMEOUT=1
+# allows exactly one poll).
+SERVICE_OK_POLLS=1
+MARIADB_STOP_TIMEOUT=1; MARIADB_STOP_GRACE=1
+VERIFY_RETRIES=2; VERIFY_RETRY_SECS=0   # otherwise the failure cases sleep their way through
+CONFIG_SETTLE_SECS=0                    # the settle pause is tested separately
+SERVICE_REVIVE=0                        # so is the revive
+TARGET_VERSION=15.2.0; INCLUDE_OS_UPDATE=no; INTERACTIVE_UPGRADE=0
+ssh_opts_init
+resolve_roles >/dev/null 2>&1
+
+# --- prepare (12.4.2 / 12.4.3) ---
+: >"$TRACE"
+phase_prepare >/dev/null 2>&1
+t="$(cat "$TRACE")"
+has "$t" "pfcron restart" "prepare: pfcron is restarted (12.4.2)"
+has "$t" "galera-autofix updatesystemd" "prepare: galera-autofix updatesystemd (12.4.3)"
+has "$t" "galera-autofix stop" "prepare: galera-autofix is stopped (12.4.3)"
+check "prepare: pfcron on all 3 nodes" "$(grep -c 'pfcron restart' <<<"$t")" "3"
+check "prepare: galera-autofix on all 3 nodes" "$(grep -c 'galera-autofix stop' <<<"$t")" "3"
+
+# --- upgrade-c (12.4.4) ---
+: >"$TRACE"
+out_c="$( phase_upgrade_c 2>&1 )"
+t="$(cat "$TRACE")"
+# The guide warns about outages when restarting the seven services. A return
+# code of 0 per service does not prove the node carries traffic again, so the
+# effect must be checked on BOTH nodes.
+# Three: A and B after their restarts, and C once inside start_pf_vip_last.
+# NOT four - the second wait for C only runs on the --resume path, where the
+# start was skipped. In the window it would cost ~30s for nothing.
+check "12.4.4: the effect is verified on A and B after the restarts" \
+      "$(grep -c 'waiting for healthy services' <<<"$out_c")" "3"
+has "$t" "pf-node3: /usr/local/pf/bin/pfcmd service pf stop" "12.4.4: services on C are stopped"
+# The address is the management_ip from cluster.conf, not the section name -
+# otherwise the whole procedure depends on DNS or /etc/hosts.
+has "$t" "SSHTARGET 10.20.30.13" "ssh targets the management_ip of C, not the name"
+hasnt "$t" "SSHTARGET pf-node3" "the section name is not used as an address"
+# ... while bin/cluster/node still gets the hostname, which is the only way it
+# finds the node (pf::cluster::all_find_server_by_hostname).
+has "$t" "cluster/node \"\$1\" disable" "bin/cluster/node still receives the hostname"
+has "$t" "pf-node1: /usr/local/pf/bin/cluster/node \"\$1\" disable" "12.4.4: A disables C"
+has "$t" "pf-node3: systemctl stop --no-block packetfence-mariadb" "12.4.4: MariaDB on C stopped (non-blocking)"
+has "$t" "pf-node3: systemctl start packetfence-mariadb"        "12.4.4: MariaDB on C started again"
+# do-upgrade.sh runs detached as a systemd unit; the start line carries the
+# unit name and the script to run as arguments.
+dstart="$(grep 'DETACH_START' <<<"$t" | grep 'pfclu-doupgrade' || true)"
+has "$dstart" "pf-node3:" "12.4.4: do-upgrade.sh is started on C (Upgrade Guide 5.1)"
+has "$dstart" "/usr/local/pf/addons/upgrade/do-upgrade.sh" "12.4.4: do-upgrade.sh is what actually runs"
+has "$dstart" "pfclu-doupgrade" "12.4.4: do-upgrade.sh runs detached (survives a dropped connection)"
+has "$dstart" "UPGRADE_TO=15.2" "UPGRADE_TO is set on C (otherwise set_upgrade_to prompts)"
+# run-upgrade.sh inserts the value verbatim into the package source, and those
+# repos are named major.minor. "15.2.0" yields a 404 there.
+hasnt "$dstart" "UPGRADE_TO=15.2.0" \
+    "UPGRADE_TO gets major.minor, not the three-part target version"
+has "$t" "REPO_CHECK" "the package source is checked before being rewritten"
+has "$dstart" "INCLUDE_OS_UPDATE=no" "INCLUDE_OS_UPDATE is set on C (otherwise it prompts)"
+hasnt "$dstart" "UPGRADE_CLUSTER_SECONDARY" "C is NOT invoked as a secondary node"
+
+# handle_pkgnew_file() in run-upgrade.sh does a bare 'read'. Since it runs with
+# 'set -o errexit', an EOF would abort the run after the package switch. So
+# do-upgrade.sh ALWAYS gets an stdin file.
+has "$dstart" "DEBIAN_FRONTEND=noninteractive" \
+    "the detached run disables apt/dpkg prompts"
+has "$dstart" "do-upgrade.sh < /run/pfclu-doupgrade.stdin" \
+    "do-upgrade.sh gets stdin from a file (no EOF on 'Press enter')"
+has "$t" "/run/pfclu-doupgrade.stdin" "the stdin file is created beforehand"
+has "$dstart" "shred -u /run/pfclu-doupgrade.stdin" "the stdin file is shredded after the run"
+# install_gpg_key calls 'gpg --dearmor -o <file>'; if the file exists gpg asks
+# via /dev/tty - and detached there is none.
+has "$dstart" "mv -f \"\$PFCLU_KEY\"" "the existing GPG keyring is moved aside first"
+has "$dstart" "packetfence.gpg" "namely the one run-upgrade.sh writes"
+
+# A return code of 0 alone does not prove a successful upgrade.
+has "$t" "conf/pf-release" "the node version is checked after do-upgrade.sh"
+
+# Counter-check: if the node still reports the old version afterwards the run
+# must abort - exactly what a bail-out in handle_pkgnew_file produces.
+rm -f "$TMP/state"; export FAKE_PF_RELEASE=15.1.0
+out_ver="$( phase_upgrade_c 2>&1 )"
+has "$out_ver" "but the version is wrong" \
+    "a silent bail-out of run-upgrade.sh is caught by the version"
+unset FAKE_PF_RELEASE
+rm -f "$TMP/state"
+
+# Without a target version the run must abort - otherwise the detached run
+# would hang in set_upgrade_to.
+rm -f "$TMP/state"; sv="$TARGET_VERSION"; TARGET_VERSION=""
+out_tv="$( phase_upgrade_c 2>&1 )"
+has "$out_tv" "Target version missing" "aborts without --target-version"
+TARGET_VERSION="$sv"; rm -f "$TMP/state"
+: >"$TRACE"; phase_upgrade_c >/dev/null 2>&1; t="$(cat "$TRACE")"
+has "$t" "pf-node3: systemctl start packetfence-proxysql"       "12.4.4: proxysql started before the checkup"
+# Not just their database: the services on A and B must be stopped too, or they
+# keep answering next to C. Only the stop on C was ever checked here.
+has "$t" "pf-node1: /usr/local/pf/bin/pfcmd service pf stop" "12.4.4: services on A are stopped"
+has "$t" "pf-node2: /usr/local/pf/bin/pfcmd service pf stop" "12.4.4: services on B are stopped"
+# ... and that has to happen before C takes over, not after.
+p_stopa=$(grep -n 'pf-node1: /usr/local/pf/bin/pfcmd service pf stop' <<<"$t" | head -1 | cut -d: -f1)
+p_startc=$(grep -n 'pf-node3: /usr/local/pf/bin/pfcmd service pf restart' <<<"$t" | head -1 | cut -d: -f1)
+if [[ -n "$p_stopa" && -n "$p_startc" && "$p_stopa" -lt "$p_startc" ]]; then
+    ok "12.4.4: A and B are stopped before C starts serving"
+else
+    bad "12.4.4: C starts alongside A/B (stopA=$p_stopa startC=$p_startc)"
+fi
+has "$t" "pf-node1: systemctl stop --no-block packetfence-mariadb" "12.4.4: MariaDB on A stopped"
+has "$t" "pf-node2: systemctl stop --no-block packetfence-mariadb" "12.4.4: MariaDB on B stopped"
+hasnt "$t" "pf-node3: systemctl stop packetfence-config"        "packetfence-config is never stopped on C"
+
+# The 7 services from the guide, in its order, on A and B. The list having
+# seven entries is not the same as seven restarts actually being issued.
+for node in pf-node1 pf-node2; do
+    check "12.4.4: ${node} issues all 7 restarts" \
+          "$(grep -c "^  ${node}: /usr/local/pf/bin/pfcmd service \"\$1\" restart" <<<"$t")" "7"
+done
+# The service names are arguments, not script text - so check them separately
+for s in radiusd pfdhcplistener haproxy-admin haproxy-db proxysql haproxy-portal keepalived; do
+    if [[ " ${DETACH_RESTART_SERVICES[*]} " == *" $s "* ]]; then ok "12.4.4: ${s} is in the restart list"
+    else bad "12.4.4: ${s} missing from the restart list"; fi
+done
+check "12.4.4: exactly 7 services in the list" "${#DETACH_RESTART_SERVICES[@]}" "7"
+check "12.4.4: service order as in the guide" "${DETACH_RESTART_SERVICES[*]}" \
+      "radiusd pfdhcplistener haproxy-admin haproxy-db proxysql haproxy-portal keepalived"
+
+# Order: C must be upgraded BEFORE A/B are stopped
+pos_upg="$(grep -n 'do-upgrade.sh' <<<"$t" | head -1 | cut -d: -f1)"
+pos_stop="$(grep -n 'pf-node1: systemctl stop --no-block packetfence-mariadb' <<<"$t" | head -1 | cut -d: -f1)"
+if [[ -n "$pos_upg" && -n "$pos_stop" && "$pos_upg" -lt "$pos_stop" ]]; then
+    ok "12.4.4: C is upgraded before A and B are stopped"
+else
+    bad "12.4.4: wrong order (upgrade=$pos_upg stop=$pos_stop)"
+fi
+
+# --- upgrade-ab (12.4.5) ---
+: >"$TRACE"
+phase_upgrade_ab >/dev/null 2>&1
+t="$(cat "$TRACE")"
+has "$t" "export UPGRADE_CLUSTER_SECONDARY=yes" "12.4.5: UPGRADE_CLUSTER_SECONDARY is set"
+has "$t" "/usr/local/pf/bin/cluster/sync --from=" "12.4.5: cluster/sync is invoked"
+has "$t" "configreload hard" "12.4.5: configreload hard after the sync"
+# export and do-upgrade.sh must sit in the SAME submitted script so they run in
+# the same shell (Guide 12.4.5). Both are in the detached unit's start line.
+dstart="$(grep 'DETACH_START' <<<"$t" | grep 'pfclu-doupgrade' || true)"
+same=0
+while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if grep -q 'UPGRADE_CLUSTER_SECONDARY=yes' <<<"$line" \
+       && grep -q 'do-upgrade.sh' <<<"$line"; then
+        same=$((same+1))
+    fi
+done <<<"$dstart"
+check "12.4.5: export and do-upgrade.sh in the same script, on both nodes" "$same" "2"
+check "12.4.5: do-upgrade.sh on exactly 2 nodes (A and B)" \
+      "$(grep -c . <<<"$dstart")" "2"
+hasnt "$(grep '^SSHCMD' <<<"$t")" "fake-ws-password" \
+      "the webservices password is not in the ssh argument list (ps-visible)"
+hasnt "$(cat "$RUN_LOG")" "fake-ws-password" \
+      "and not in the run log either"
+
+# run-upgrade.sh prompts must be disabled up front, otherwise the detached run
+# hangs on them (set_upgrade_to / INCLUDE_OS_UPDATE).
+has "$dstart" "UPGRADE_TO=15.2" "UPGRADE_TO is set (otherwise set_upgrade_to prompts)"
+has "$dstart" "INCLUDE_OS_UPDATE=no" "INCLUDE_OS_UPDATE is set (otherwise it prompts)"
+
+# --- reintegrate (12.4.6 / 12.4.7) ---
+: >"$TRACE"
+out_re="$( phase_reintegrate 2>&1 )"
+t="$(cat "$TRACE")"
+has "$t" "generatemariadbconfig" "12.4.6: generatemariadbconfig on C"
+has "$t" "systemctl set-environment MARIADB_ARGS=--force-new-cluster" "12.4.6: C starts with --force-new-cluster"
+has "$t" "rm -fr /var/lib/mysql/*" "12.4.6: A and B discard their data"
+has "$t" "systemctl unset-environment MARIADB_ARGS" "12.4.6: force-new-cluster is taken back"
+has "$t" "service haproxy-admin restart" "12.4.6: haproxy-admin is restarted afterwards"
+check "12.4.6: node enable on all 3 nodes for all 3 members" \
+      "$(grep -c 'cluster/node \"\$1\" enable' <<<"$t")" "9"
+check "12.4.6: data is discarded on exactly 2 nodes" \
+      "$(grep -c 'rm -fr /var/lib/mysql/\*' <<<"$t")" "2"
+
+# The EXPECTED cluster_size grows with every node that joins: A joins C (2),
+# then B (3). A fixed 2 would be wrong for B and would wait for nothing until
+# the timeout. Only the waiting lines count, not the success messages - those
+# report the actual size.
+waits="$(grep 'waiting for Galera' <<<"$out_re" | grep -o 'cluster_size=[0-9]*' | tr '\n' ' ')"
+check "12.4.6: expected cluster_size grows along (A=2, B=3, then C=3)" "$waits" \
+      "cluster_size=2 cluster_size=3 cluster_size=3 cluster_size=3 "
+
+# Per the guide haproxy-admin belongs after BOTH nodes have started
+# ("on both nodes after all services have been restarted") - not on A while B
+# is still down.
+pos_start_b="$(grep -n 'pf-node2: /usr/local/pf/bin/pfcmd service pf restart' <<<"$t" | tail -1 | cut -d: -f1)"
+pos_hap_a="$(grep -n 'pf-node1: /usr/local/pf/bin/pfcmd service haproxy-admin restart' <<<"$t" | head -1 | cut -d: -f1)"
+if [[ -n "$pos_start_b" && -n "$pos_hap_a" && "$pos_start_b" -lt "$pos_hap_a" ]]; then
+    ok "12.4.6: haproxy-admin only after A AND B have started"
+else
+    bad "12.4.6: haproxy-admin runs on A before B is up (start_b=$pos_start_b hap_a=$pos_hap_a)"
+fi
+check "12.4.6: haproxy-admin on exactly 2 nodes" \
+      "$(grep -c 'service haproxy-admin restart' <<<"$t")" "2"
+
+# Order: unset-environment only AFTER A and B have resynced
+pos_rm="$(grep -n 'rm -fr /var/lib/mysql' <<<"$t" | tail -1 | cut -d: -f1)"
+pos_unset="$(grep -n 'unset-environment' <<<"$t" | head -1 | cut -d: -f1)"
+if [[ -n "$pos_rm" && -n "$pos_unset" && "$pos_rm" -lt "$pos_unset" ]]; then
+    ok "12.4.6: force-new-cluster is lifted only after the resync"
+else
+    bad "12.4.6: wrong order (resync=$pos_rm unset=$pos_unset)"
+fi
+
+# --- finish (12.4.8 / 12.4.9) ---
+: >"$TRACE"
+phase_finish >/dev/null 2>&1
+t="$(cat "$TRACE")"
+check "12.4.8: pfcron restarted on all 3 nodes" "$(grep -c 'pfcron restart' <<<"$t")" "3"
+check "12.4.9: galera-autofix restarted on all 3 nodes" \
+      "$(grep -c 'galera-autofix restart' <<<"$t")" "3"
+
+# --- rollback (12.4.5 "If all goes wrong") ---
+: >"$TRACE"
+phase_rollback >/dev/null 2>&1
+t="$(cat "$TRACE")"
+has "$t" "pf-node3: systemctl stop --no-block packetfence-mariadb" "rollback: MariaDB on C stopped"
+has "$t" "pf-node1: systemctl start packetfence-mariadb" "rollback: MariaDB on A started"
+has "$t" "pf-node2: systemctl start packetfence-mariadb" "rollback: MariaDB on B started"
+# The way back uses the same staged start as the forward path - keepalived held
+# back until the services are up. Before that, the node could take the VIP while
+# radiusd and haproxy-portal were still starting.
+has "$t" "pf-node1: /usr/local/pf/bin/pfcmd service pf restart" "rollback: services on A started"
+for n in pf-node1 pf-node2; do
+    if grep -q "${n}: systemctl mask packetfence-keepalived" <<<"$t" \
+    && grep -q "${n}: systemctl unmask packetfence-keepalived" <<<"$t"; then
+        ok "rollback stages the start on ${n}"
+    else
+        bad "rollback starts ${n} without holding keepalived back"
+    fi
+done
+hasnt "$t" "rm -fr" "rollback deletes no data"
+
+# A rollback undoes 'upgrade-c', so its step markers have to go with it.
+# Kept, 'upgrade-c --resume' would skip stopping A and B and start C next to
+# them - two live halves on one database.
+rm -f "$TMP/state"
+state_set prepared 1; mark_done "c.stop_peer.pf-node1"; mark_done "c.start"
+phase_rollback >/dev/null 2>&1
+if grep -q '^done\.c\.' "$TMP/state" 2>/dev/null; then
+    bad "rollback keeps the step markers of upgrade-c"
+else
+    ok "rollback discards the step markers of upgrade-c"
+fi
+has "$(cat "$TMP/state")" "prepared=1" "rollback keeps the markers of the other phases"
+rm -f "$TMP/state"
+
+# ... and the same for 'upgrade-ab'. With ab_upgraded left at 1, a later
+# 'run --resume' would skip the review pause of 12.4.5 AND upgrade-ab itself:
+# A and B would never see the configuration of the re-upgraded C.
+rm -f "$TMP/state"
+state_set prepared 1; state_set ab_upgraded 1; mark_done "ab.sync.pf-node1"
+phase_rollback >/dev/null 2>&1
+if grep -q '^done\.ab\.' "$TMP/state" 2>/dev/null; then
+    bad "rollback keeps the step markers of upgrade-ab"
+else
+    ok "rollback discards the step markers of upgrade-ab"
+fi
+has "$(cat "$TMP/state")" "ab_upgraded=0" "rollback takes back ab_upgraded"
+rm -f "$TMP/state"
+
+# The stop on C has to be PROVEN before A and B come up: two halves would each
+# accept writes. This used to be a warning and the rollback carried
+# on regardless.
+export FAKE_MARIADB_STOP=stuck
+: >"$TRACE"
+o_rb="$( phase_rollback 2>&1 )"
+unset FAKE_MARIADB_STOP
+t="$(cat "$TRACE")"
+has "$o_rb" "ABORT" "rollback aborts when MariaDB on C will not stop"
+has "$o_rb" "were NOT started" "and says so plainly"
+hasnt "$t" "pf-node1: systemctl start packetfence-mariadb" "and does NOT start A alongside it"
+# stop_mariadb recorded a failure - it must not surface in the next phase.
+FAIL_LIST=(); WARN_LIST=()
+rm -f "$TMP/state"
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 2b. Behaviour on a dropped connection =="
+# SSH keepalives: without them a half-open connection can hang forever
+ssh_opts_init
+opts="${SSH_OPTS[*]}"
+has "$opts" "ServerAliveInterval=" "ssh sends keepalives (no unbounded hang)"
+has "$opts" "ServerAliveCountMax=" "ssh gives up after missing keepalives"
+has "$opts" "BatchMode=yes" "ssh never asks for a password"
+
+# rexec_retry retries only real connection failures (255), not a failed remote
+# command.
+RETRY_COUNT=3; RETRY_DELAY=0
+attempts_file="$TMP/attempts"; : >"$attempts_file"
+cp "$BIN/ssh" "$TMP/ssh.mock"   # keep the full fake
+cat >"$BIN/ssh" <<EOS2
+#!/usr/bin/env bash
+echo x >> "$attempts_file"
+exit \${FAKE_SSH_RC:-255}
+EOS2
+chmod +x "$BIN/ssh"
+FAKE_SSH_RC=255 rexec_retry pf-node2 'echo hi' >/dev/null 2>&1
+check "a connection failure is retried ${RETRY_COUNT}x" "$(wc -l <"$attempts_file")" "3"
+: >"$attempts_file"
+FAKE_SSH_RC=1 rexec_retry pf-node2 'echo hi' >/dev/null 2>&1
+check "a failed remote command is NOT retried" "$(wc -l <"$attempts_file")" "1"
+cp "$TMP/ssh.mock" "$BIN/ssh"   # restore the full fake
+RETRY_COUNT=5
+
+# Detached execution: the start block and the poll block
+has "$RS_DETACH_START" "systemd-run" "the start uses systemd-run (not tied to the terminal)"
+has "$RS_DETACH_START" "ALREADY_RUNNING" "a running operation is detected instead of restarted"
+has "$RS_DETACH_POLL" "STATE:done" "the poll reports completion"
+has "$RS_DETACH_POLL" "STATE:gone" "the poll detects a vanished operation"
+grep -q 'rm -f "/run/${unit}.rc"' <<<"$RS_DETACH_START" \
+  && ok "a stale return code is removed before the start" \
+  || bad "a stale return code is not removed"
+has "$RS_DETACH_START" "ALREADY_DONE" "a leftover result is told apart from a running one"
+
+# 'set -o pipefail' plus a grep without a match returns 1. For the container
+# check "no match" is the GOOD case - unguarded, a successful upgrade of all
+# things brings the script down.
+out_ci="$( check_container_images pf-node1 2>&1 )"; rc_ci=$?
+check "the container check survives the good case (all images current)" "$rc_ci" "0"
+has "$out_ci" "all containers on maintenance-15-2" "and reports it as such"
+export FAKE_DOCKER_IMAGES="ghcr.io/inverse-inc/packetfence/pfdns:maintenance-15-1"
+out_ci="$( check_container_images pf-node1 2>&1 )"; rc_ci=$?
+check "and survives the failure case too" "$rc_ci" "0"
+has "$out_ci" "maintenance-15-1" "an outdated image is named"
+unset FAKE_DOCKER_IMAGES
+
+# 12.4.4 names 'pfdhcplistener' - a name from older versions. On 15.x the
+# restart is a no-op, and returns 0 while doing nothing.
+rm -f "$TMP/state"; RESUME=0
+export FAKE_UNMANAGED_SVC=pfdhcplistener
+out_noop="$( phase_upgrade_c 2>&1 )" || true
+has "$out_noop" "had no effect" "an ineffective service restart is surfaced, not swallowed"
+has "$out_noop" "pfdhcp" "and the 15.x equivalent is named"
+unset FAKE_UNMANAGED_SVC
+rm -f "$TMP/state"; RESUME=0
+
+rm -f "$TMP/state"; RESUME=0
+export FAKE_REPO_DOWN=1
+: >"$TRACE"
+out_repo="$( phase_upgrade_c 2>&1 )" || true
+has "$out_repo" "not reachable" "an unreachable package source aborts the run"
+hasnt "$(cat "$TRACE")" "DETACH_START" "and does so before do-upgrade.sh even starts"
+unset FAKE_REPO_DOWN
+rm -f "$TMP/state"; RESUME=0
+
+# The case that prompted this: a return code that was NOT cleaned up made the next run
+# replay the old log without doing anything.
+rm -f "$TMP/state"; RESUME=0
+export FAKE_DETACH_RC=2
+: >"$TRACE"
+( phase_upgrade_c ) >/dev/null 2>&1 || true
+has "$(cat "$TRACE")" "DETACH_CLEAN" \
+  "even a FAILED detached run is cleaned up (otherwise the next one replays it)"
+unset FAKE_DETACH_RC
+
+rm -f "$TMP/state"; RESUME=0
+export FAKE_DETACH_START="ALREADY_DONE:2" FAKE_DETACH_RC=2
+: >"$TRACE"
+out_ad="$( phase_upgrade_c 2>&1 )" || true
+has "$out_ad" "already left a result on pf-node3 (rc=2)" \
+  "an adopted foreign result is reported, not used silently"
+unset FAKE_DETACH_START FAKE_DETACH_RC
+rm -f "$TMP/state"; RESUME=0
+
+echo
+echo "== 3. Resuming (--resume) =="
+#-------------------------------------------------------------------------------
+rm -f "$TMP/state"; RESUME=0
+: >"$TRACE"; phase_prepare >/dev/null 2>&1
+first="$(grep -c 'pfcron restart' "$TRACE")"
+RESUME=1
+: >"$TRACE"; phase_prepare >/dev/null 2>&1
+second="$(grep -c 'pfcron restart' "$TRACE")"
+check "the first run issues 3 pfcron restarts" "$first" "3"
+check "a second run with --resume repeats nothing" "$second" "0"
+RESUME=0
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 4. Dry-run changes nothing =="
+#-------------------------------------------------------------------------------
+rm -f "$TMP/state"
+DRY_RUN=1
+: >"$TRACE"
+phase_prepare    >/dev/null 2>&1
+phase_upgrade_c  >/dev/null 2>&1
+phase_upgrade_ab >/dev/null 2>&1
+phase_reintegrate>/dev/null 2>&1
+# grep -c prints the count even for 0 matches but returns rc=1. An '|| echo 0'
+# would append a second zero.
+n="$(grep -c . "$TRACE" 2>/dev/null)"; n="${n:-0}"
+check "dry-run issues no changing command" "$n" "0"
+if [[ -f "$TMP/state" ]]; then bad "dry-run must not write state"; else ok "dry-run writes no state"; fi
+DRY_RUN=0
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 5. Status evaluation =="
+#-------------------------------------------------------------------------------
+rm -f "$TMP/state"
+unset FAKE_SVC_DOWN FAKE_SVC_UNPARSABLE
+
+services_healthy pf-node1 && ok "healthy services are recognized" || bad "healthy services not recognized"
+check "Galera field cluster_size is read" "$(galera_field pf-node1 wsrep_cluster_size)" "3"
+check "Galera field state is read" "$(galera_field pf-node1 wsrep_local_state_comment)" "Synced"
+
+# The parser works against the REAL format of 'pfcmd service pf status': unit
+# name padded to 50 chars, tab, status word, PID. The line below is a verbatim
+# copy from a 15.1 node.
+real_out="$(printf 'RAW_BEGIN\nRAW_END\nSVC:packetfence-config.service=started\nSVC:packetfence-iptables.service=stopped\nSVC:packetfence-pfqueue-perl.service=disabled\nSVC:packetfence-radiusd-cli.service=stopped\n')"
+check "only real outages count, not 'disabled'" \
+      "$(services_down "$real_out")" \
+      "packetfence-iptables.service,packetfence-radiusd-cli.service"
+
+# The key test of this section: a changed format must be noticed. A parser that
+# finds nothing must NOT mean "healthy".
+export FAKE_SVC_UNPARSABLE=1
+services_healthy pf-node1 && bad "unparsable status output wrongly counts as healthy" \
+                          || ok "unparsable status output counts as unhealthy (no silent green)"
+unset FAKE_SVC_UNPARSABLE
+
+# Baseline: services already down at preflight must not block the wait loops
+# later on.
+export FAKE_SVC_DOWN="packetfence-radiusd-cli"
+b="$(baseline_capture pf-node1)"
+check "the baseline records the existing outage" "$b" "packetfence-radiusd-cli.service"
+check "the baseline is stored in the state file" \
+      "$(state_get baseline.pf-node1)" "packetfence-radiusd-cli.service"
+services_healthy pf-node1 && ok "a service from the baseline does not count as an outage" \
+                          || bad "a service from the baseline wrongly blocks"
+
+export FAKE_SVC_DOWN="packetfence-radiusd-cli packetfence-pfdns"
+services_healthy pf-node1 && bad "a new outage is not detected" \
+                          || ok "a new outage against the baseline is detected"
+check "the new outage is named" "$SERVICES_DOWN_LAST" \
+      "services down: packetfence-pfdns.service,packetfence-radiusd-cli.service"
+
+# An EMPTY baseline is the good case ("everything runs") and must stick.
+# Checking for content instead of presence re-records the healthy node every
+# time - and keeps a wrong list forever.
+unset FAKE_SVC_DOWN
+rm -f "$TMP/state"
+baseline_capture pf-node1 >/dev/null
+state_has baseline.pf-node1 && ok "an empty baseline is recorded" \
+                            || bad "an empty baseline is lost"
+check "and it really is empty" "$(state_get baseline.pf-node1)" ""
+state_has baseline.pf-node2 && bad "state_has reports a key that was never set" \
+                            || ok "state_has tells 'empty' from 'not set'"
+
+# Preflight must not silently overwrite an existing baseline - otherwise a node
+# that is still booting is accepted as "that is just how it is" forever.
+export FAKE_SVC_DOWN="packetfence-pfdns"
+REBASELINE=0
+( phase_preflight ) >/dev/null 2>&1 || true
+check "preflight does not re-record an existing baseline" \
+      "$(state_get baseline.pf-node1)" ""
+
+# ... but 'status --rebaseline' must be able to, even mid-procedure.
+state_set prepared 1
+REBASELINE=1
+( phase_status ) >/dev/null 2>&1 || true
+check "status --rebaseline re-records the baseline" \
+      "$(state_get baseline.pf-node1)" "packetfence-pfdns.service"
+REBASELINE=0
+rm -f "$TMP/state"
+export FAKE_SVC_DOWN="packetfence-radiusd-cli packetfence-pfdns"
+baseline_capture pf-node1 >/dev/null
+
+# An unreachable node must not inherit the previous node's outage list.
+export FAKE_SSH_DOWN=pf-node2
+services_healthy pf-node2
+check "an unreachable node inherits no foreign outage list" "$SERVICES_DOWN_LAST" "not reachable"
+unset FAKE_SSH_DOWN
+unset FAKE_SVC_DOWN
+rm -f "$TMP/state"
+
+# --- "disabled" cross-checked against the systemd Wants list ---
+# 'disabled' comes from isManaged() and thus from pfconfig. If pfconfig fails,
+# pfcmd reports EVERY service as "disabled". That used to count as fine - the
+# run reported "services running (after 0s)" although nothing was running.
+w_out="SVC:packetfence-config.service=started
+SVC:packetfence-pfdetect.service=disabled
+WANT:packetfence-config.service"
+check "'disabled' without a Wants entry stays harmless" \
+      "$(services_down "$w_out")" ""
+
+w_out2="SVC:packetfence-config.service=started
+SVC:packetfence-radiusd-auth.service=disabled
+WANT:packetfence-config.service
+WANT:packetfence-radiusd-auth.service"
+check "'disabled' WITH a Wants entry is an outage (pfconfig broken)" \
+      "$(services_down "$w_out2")" "packetfence-radiusd-auth.service"
+
+# The log case in its purest form.
+export FAKE_SVC_UP="" FAKE_SVC_DOWN=""
+export FAKE_SVC_ALL_DISABLED=1
+services_healthy pf-node1 && bad "all 'disabled' wrongly counts as healthy (the 0s case)" \
+                          || ok "all 'disabled' counts as unhealthy (the 0s case is closed)"
+unset FAKE_SVC_ALL_DISABLED
+unset FAKE_SVC_UP FAKE_SVC_DOWN
+
+# Without a Wants list the state is unknown - and unknown is not healthy.
+export FAKE_WANTS_EMPTY=1
+services_healthy pf-node1 && bad "without a Wants list the node wrongly counts as healthy" \
+                          || ok "without a Wants list the node counts as unevaluable"
+check "and the reason is named" "$SERVICES_DOWN_LAST" "systemd Wants list not parsable"
+unset FAKE_WANTS_EMPTY
+
+# If no packetfence target is running, 'isolate' never ran.
+export FAKE_TGT=inactive
+services_healthy pf-node1 && bad "without an active target the node wrongly counts as healthy" \
+                          || ok "without an active packetfence target the node counts as unhealthy"
+check "and this reason is named too" "$SERVICES_DOWN_LAST" "no active packetfence target"
+unset FAKE_TGT
+
+# --- Stability window --------------------------------------------------------
+# Restart=on-failure: a single green poll can catch a service that crashes
+# right afterwards.
+_sop=$SERVICE_OK_POLLS; _swt=$SERVICE_WAIT_TIMEOUT
+SERVICE_OK_POLLS=2; SERVICE_WAIT_TIMEOUT=1
+wait_services pf-node1 >/dev/null 2>&1 \
+    && bad "a single green poll wrongly suffices" \
+    || ok "a single green poll does not suffice (stability window)"
+has "$SERVICES_DOWN_LAST" "confirmed" "the timeout names the missing confirmation instead of 'unclear'"
+SERVICE_WAIT_TIMEOUT=10
+wait_services pf-node1 >/dev/null 2>&1 \
+    && ok "two green polls in a row count as healthy" \
+    || bad "two green polls are not recognized as healthy"
+SERVICE_OK_POLLS=$_sop; SERVICE_WAIT_TIMEOUT=$_swt
+
+# --- Baseline: emergency brake -----------------------------------------------
+# A baseline that accepts half of PacketFence as "allowed to be down" makes
+# every later wait loop worthless.
+rm -f "$TMP/state"
+export FAKE_SVC_UP="packetfence-config" FAKE_SVC_DOWN="packetfence-api-frontend packetfence-pfdns"
+rej="$(baseline_capture pf-node1 2>/dev/null)"
+check "a baseline with mostly dead services is rejected" "$?" "2"
+state_has baseline.pf-node1 && bad "a rejected baseline was stored anyway" \
+                            || ok "a rejected baseline is not stored"
+# The reason travels on stdout: baseline_capture only ever runs in a subshell,
+# where an assignment to a global would be lost.
+has "$rej" "of 3 wanted services are down" "the rejection names the ratio"
+has "$rej" "packetfence-api-frontend" "the rejection names the services"
+unset FAKE_SVC_UP FAKE_SVC_DOWN
+rm -f "$TMP/state"
+
+# --- stop_mariadb: the markers are interpreted -------------------------------
+for scenario in already clean hung; do
+    export FAKE_MARIADB_STOP=$scenario
+    stop_mariadb pf-node1 >/dev/null 2>&1 \
+        && ok "stop_mariadb: '${scenario}' counts as success" \
+        || bad "stop_mariadb: '${scenario}' was wrongly treated as a failure"
+done
+for scenario in nomarker stuck; do
+    export FAKE_MARIADB_STOP=$scenario
+    stop_mariadb pf-node1 >/dev/null 2>&1 \
+        && bad "stop_mariadb: '${scenario}' was wrongly treated as success" \
+        || ok "stop_mariadb: '${scenario}' counts as a failure"
+done
+export FAKE_MARIADB_STOP=hung
+out_sm="$(stop_mariadb pf-node1 2>&1)"
+has "$out_sm" "SIGKILL" "stop_mariadb surfaces the hang instead of swallowing it"
+has "$out_sm" "down after 5s" "and names when the database was really down"
+unset FAKE_MARIADB_STOP
+# The failure cases above used log_fail/log_warn. Without cleanup the next
+# phase_finish would report them as its own blocking points.
+FAIL_LIST=(); WARN_LIST=()
+
+# --- Settle pause before starting the services ------------------
+# 'service pf restart' isolates on the cluster target; systemd then releases 30+
+# services at once, right after the config cache was emptied. pfdhcplistener
+# died three times in 9s in that storm.
+# The pause now lives in RS_PREP_CONFIG, which runs BEFORE the peers are
+# stopped - that is the point of the split.
+has "$RS_PREP_CONFIG" 'sleep "$SETTLE"' "RS_PREP_CONFIG lets the config settle"
+hasnt "$RS_START_PF" 'sleep "$SETTLE"' "RS_START_PF no longer waits inside the outage window"
+# Check the COMMANDS, not the comments - the same wording appears there.
+pos_reload=$(grep -n '"\$PFCMD" configreload hard' <<<"$RS_PREP_CONFIG" | head -1 | cut -d: -f1)
+pos_sleep=$(grep -n 'sleep "\$SETTLE"' <<<"$RS_PREP_CONFIG" | head -1 | cut -d: -f1)
+if [[ "$pos_reload" -lt "$pos_sleep" ]]; then
+    ok "the pause sits after configreload"
+else
+    bad "pause in the wrong place (reload=$pos_reload sleep=$pos_sleep)"
+fi
+# The starting half must not carry any of the configuration work any more.
+hasnt "$RS_START_PF" 'clear_backend' "RS_START_PF does not clear the config cache"
+hasnt "$RS_START_PF" 'configreload'  "RS_START_PF does not reload the configuration"
+has   "$RS_START_PF" '"$PFCMD" service pf restart' "RS_START_PF starts the services"
+check "all three call sites prepare the configuration separately" \
+      "$(grep -c 'RS_PREP_CONFIG" "\$CONFIG_SETTLE_SECS"' "$TOOL")" "3"
+check "and no call site passes the pause to the start any more" \
+      "$(grep -c 'RS_START_PF" "\$CONFIG_SETTLE_SECS"' "$TOOL")" "0"
+
+# --- Reviving units stuck in the start limit ---------------------------------
+export FAKE_REVIVE_LIST="packetfence-pfdhcplistener.service"
+o_rev="$(revive_failed_units pf-node1 2>&1)"
+has "$o_rev" "pfdhcplistener" "revive_failed_units names the unit it poked"
+has "$o_rev" "StartLimitBurst" "and explains why systemd no longer starts it by itself"
+FAIL_LIST=(); WARN_LIST=()
+
+# It must be exactly ONE attempt. The fake in this section does not trace
+# script lines, so the observable behavior is checked instead: the message must
+# appear EXACTLY ONCE, otherwise the wait loop spins in a restart loop.
+_sr=$SERVICE_REVIVE; _sra=${SERVICE_REVIVE_AFTER}; _swt=$SERVICE_WAIT_TIMEOUT
+SERVICE_REVIVE=1; SERVICE_REVIVE_AFTER=0; SERVICE_WAIT_TIMEOUT=4
+export FAKE_SVC_DOWN="packetfence-pfdns"
+o_ws="$(wait_services pf-node1 2>&1)"
+check "stuck units are poked exactly once" \
+      "$(grep -c 'poked once' <<<"$o_ws")" "1"
+SERVICE_REVIVE=0
+o_ws="$(wait_services pf-node1 2>&1)"
+check "with SERVICE_REVIVE=0 nothing is poked" \
+      "$(grep -c 'poked once' <<<"$o_ws")" "0"
+SERVICE_REVIVE=$_sr; SERVICE_REVIVE_AFTER=$_sra; SERVICE_WAIT_TIMEOUT=$_swt
+unset FAKE_SVC_DOWN FAKE_REVIVE_LIST
+FAIL_LIST=(); WARN_LIST=()
+
+# --- State file, DB wipe, checkup warnings ----------------------
+# If the state file is left behind, the next run wrongly considers every step
+# done.
+_ks=$KEEP_STATE
+rm -f "$TMP/state"; state_set prepared 1
+KEEP_STATE=0
+phase_finish >/dev/null 2>&1
+if [[ -f "$TMP/state" ]]; then bad "the state file survives finish"
+else ok "the state file is deleted after finish"; fi
+
+rm -f "$TMP/state"; state_set prepared 1
+KEEP_STATE=1
+phase_finish >/dev/null 2>&1
+if [[ -f "$TMP/state" ]]; then ok "--keep-state keeps the state file"
+else bad "--keep-state deletes it anyway"; fi
+KEEP_STATE=$_ks
+rm -f "$TMP/state"
+FAIL_LIST=(); WARN_LIST=()
+
+# The German LOESCHEN prompt before wiping /var/lib/mysql is gone, but the step
+# must stay visible. The needle is the OLD text on purpose - do not translate it.
+hasnt "$(declare -f phase_reintegrate)" "LOESCHEN" "no type-to-confirm prompt before wiping /var/lib/mysql"
+has   "$(declare -f phase_reintegrate)" "is now wiped completely" "the wipe is still announced"
+has   "$(declare -f phase_rollback)" "ROLLBACK" "the type-to-confirm prompt before a rollback stays"
+
+# checkup warnings belong on the CLI, not only in the log. Here too the needle
+# is the removed German text on purpose.
+hasnt "$(declare -f phase_upgrade_c)" "Details im Protokoll" "checkup no longer points at the log"
+has   "$(cat "$TOOL")" "grep -i '^WARNING'" "checkup prints the warnings itself"
+
+# --- Effect checks are retried -----------------------------------------------
+# A step does not always take effect at once (services linger in
+# 'deactivating').
+export FAKE_VERIFY_FAIL="cluster-disabled"
+_vr=$VERIFY_RETRIES; _vrs=$VERIFY_RETRY_SECS
+VERIFY_RETRIES=3; VERIFY_RETRY_SECS=1
+_t0=$SECONDS
+( verify pf-node1 "dummy" 'test -f /tmp/cluster-disabled && echo VERIFY_OK' ) >/dev/null 2>&1
+_d=$((SECONDS-_t0))
+if (( _d >= 2 )); then ok "verify retries the check (3 attempts, ${_d}s)"
+else bad "verify did not retry (only ${_d}s elapsed)"; fi
+unset FAKE_VERIFY_FAIL
+# The good case must cost nothing. Counted, not timed: SECONDS has one-second
+# resolution, so a loaded machine failed this at random.
+_o=$(verify pf-node1 "dummy" 'echo VERIFY_OK' 2>&1)
+hasnt "$_o" "attempts" "the good case does not retry"
+VERIFY_RETRIES=$_vr; VERIFY_RETRY_SECS=$_vrs
+FAIL_LIST=(); WARN_LIST=()
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 6. Configuration file =="
+#-------------------------------------------------------------------------------
+# The script's real function is exercised, not a copy of the rule.
+c="$TMP/c.conf"
+printf '# comment\nSSH_USER=root\nMIN_FREE_MB_MYSQL=2048\nNODES=(a b c)\n' >"$c"
+config_check "$c" >/dev/null && ok "a valid configuration is accepted" \
+                             || bad "a valid configuration is wrongly rejected"
+
+printf 'SSH_USER=root\nrm -rf /\n' >"$c"
+config_check "$c" >/dev/null && bad "a bare command was not rejected" \
+                             || ok "a bare command is rejected"
+
+printf 'SSH_USER=$(id -un)\n' >"$c"
+config_check "$c" >/dev/null && bad "command substitution was not rejected" \
+                             || ok "command substitution is rejected"
+
+printf 'SSH_USER=root; rm -rf /tmp/x\n' >"$c"
+config_check "$c" >/dev/null && bad "';' in a value line was not rejected" \
+                             || ok "';' in a value line is rejected"
+
+# Comments may contain $( and ; as text - otherwise the shipped example config
+# could not be sourced.
+printf '# no $(...) and no ";" allowed\nSSH_USER=root\n' >"$c"
+config_check "$c" >/dev/null && ok "special characters in comments are allowed" \
+                             || bad "special characters in comments wrongly rejected"
+
+# For bash 'VAR=-i /path' is an assignment PLUS a command - exactly how the
+# example config used to read.
+printf 'SSH_EXTRA_OPTS=-i /root/.ssh/id_x\n' >"$c"
+config_check "$c" >/dev/null && bad "an unquoted value with spaces was not rejected" \
+                             || ok "an unquoted value with spaces is rejected"
+printf 'SSH_EXTRA_OPTS="-i /root/.ssh/id_x"\n' >"$c"
+config_check "$c" >/dev/null && ok "a quoted value with spaces is allowed" \
+                             || bad "a quoted value is wrongly rejected"
+
+# The file is parsed, never sourced. These three passed the old grep-based
+# check - '&&' and '||' were not on its list of forbidden characters, and the
+# spaces rule did not apply once the value started with a quote.
+for op in '&&' '||' '|'; do
+    printf 'PF_ROOT="/usr/local/pf" %s touch %s/PWNED\n' "$op" "$TMP" >"$c"
+    config_check "$c" >/dev/null && bad "a value followed by '${op}' was not rejected" \
+                                 || ok "a value followed by '${op}' is rejected"
+done
+
+# Only known settings. A stray PATH= or IFS= would otherwise reach the script.
+printf 'PATH=/tmp/evil\n' >"$c"
+config_check "$c" >/dev/null && bad "an unknown setting was not rejected" \
+                             || ok "an unknown setting is rejected by name"
+
+# The point of parsing instead of sourcing: even a file that slips through must
+# not be able to run anything.
+rm -f "$TMP/PWNED"
+printf 'PF_ROOT="/usr/local/pf" && touch %s/PWNED\n' "$TMP" >"$c"
+( CONFIG_FILE="$c"; load_config ) >/dev/null 2>&1
+[[ -e "$TMP/PWNED" ]] && bad "loading the config executed a command" \
+                      || ok "loading a config never executes anything"
+
+# The file must never reach a shell. Checked structurally as well: the two
+# tests above exercise the parser, but neither would notice load_config being
+# changed back to sourcing.
+hasnt "$(cat "$TOOL")" 'source "$CONFIG_FILE"' "the config file is never sourced"
+hasnt "$(cat "$TOOL")" '. "$CONFIG_FILE"'      "and not dot-sourced either"
+
+# Belt and braces: even called directly in assigning mode, past the check that
+# would have refused the file, the parser must not execute anything.
+rm -f "$TMP/PWNED2"
+printf 'PF_ROOT="/usr/local/pf" && touch %s/PWNED2\n' "$TMP" >"$c"
+( config_parse "$c" 1 ) >/dev/null 2>&1
+[[ -e "$TMP/PWNED2" ]] && bad "the parser itself executed a command" \
+                       || ok "the parser executes nothing even in assigning mode"
+
+# Values arrive literally: quotes stripped, list split, nothing expanded.
+printf 'SSH_EXTRA_OPTS="-o Port=2222"\nNODES=(n1 n2 n3)\nPOLL_SECS=7\n' >"$c"
+( CONFIG_FILE="$c"; SSH_EXTRA_OPTS=""; NODES=(); POLL_SECS=0
+  load_config
+  printf '%s|%s|%s\n' "$SSH_EXTRA_OPTS" "${NODES[*]}" "$POLL_SECS" ) >"$TMP/parsed" 2>/dev/null
+check "values are parsed literally" "$(cat "$TMP/parsed")" "-o Port=2222|n1 n2 n3|7"
+
+# A list where a scalar belongs is a mistake worth naming.
+printf 'MASTER_NODE=(a b)\n' >"$c"
+config_check "$c" >/dev/null && bad "a (list) for a scalar was not rejected" \
+                             || ok "a (list) for a scalar setting is rejected"
+
+# Installed next to the other PacketFence configuration; in a checkout it
+# still sits beside the script.
+ex="$(find_file pf-cluster-upgrade.conf.example || true)"
+if [[ -f "$ex" ]]; then
+    config_check "$ex" >/dev/null && ok "the example config passes the check" \
+                                  || bad "the example config would be rejected by the script"
+    ( CONFIG_FILE="$ex"; load_config ) >/dev/null 2>&1 \
+        && ok "the example config loads" || bad "the example config cannot be loaded"
+    # SSH_KEY was never read by the script; it only made people look for a
+    # second key setting next to SSH_IDENTITY.
+    grep -q '^SSH_KEY=' "$ex" \
+        && bad "the example config still offers the dead SSH_KEY" \
+        || ok "the example config knows only one key setting"
+    for v in $(grep -oE '^[A-Z_]+' "$ex" | sort -u); do
+        grep -q "^${v}=\\|\\${v}\\b\\|${v}\\[" "$TOOL" \
+            || bad "the example config sets ${v}, which the script never reads"
+    done
+    ok "every variable in the example config is read by the script"
+    miss=""
+    for v in ${CONFIG_KEYS//$'\n'/ }; do
+        grep -qE "^#?${v}=" "$ex" || miss="${miss} ${v}"
+    done
+    [[ -z "$miss" ]] && ok "every accepted setting appears in the example config" \
+                     || bad "accepted but undocumented:${miss}"
+else
+    bad "pf-cluster-upgrade.conf.example is missing"
+fi
+
+# The file is sourced AFTER the arguments are parsed (--config names it), so
+# without apply_cli_overrides an option in the file would beat the command line
+#.
+c2="$TMP/cli.conf"
+printf 'TARGET_VERSION=15.1\nKEEP_STATE=1\n' >"$c2"
+o="$( CONFIG_FILE="$c2"; TARGET_VERSION=""; KEEP_STATE=0
+      CLI_OVERRIDE=(); CLI_NODES=()
+      parse_args status --config "$c2" --target-version 15.2 >/dev/null 2>&1
+      load_config
+      apply_cli_overrides
+      printf '%s %s' "$TARGET_VERSION" "$KEEP_STATE" )"
+check "the command line beats the configuration file (and only where it speaks)" \
+      "$o" "15.2 1"
+
+# --- Logs land next to the other PacketFence logs -----------------------------
+src="$(cat "$TOOL")"
+has "$src" 'LOG_DIR="/usr/local/pf/logs"' "the logs land in the PacketFence log directory"
+has "$src" 'RUN_LOG="${LOG_DIR}/pfclu-${PHASE}-${RUN_ID}.log"' \
+    "the run log carries the pfclu- prefix and the run id"
+# A chmod on that directory would take write access away from the pf services.
+grep -qE 'chmod [0-7]+ "\$LOG_DIR"' <<<"$src" \
+    && bad "the shared log directory is chmod'ed" \
+    || ok "the shared log directory is left alone"
+has "$src" 'chgrp pf  "$RUN_LOG"' "the run log is handed to group pf like its neighbours"
+has "$RS_DETACH_CLEAN" 'mv -f "$logf" "${logf%.log}-${rid}.log"' \
+    "a finished detached run archives its log under the run id"
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 7. Syntax of the remote building blocks =="
+#-------------------------------------------------------------------------------
+wrap() { printf 'PF_ROOT=%q\nPFCMD=%q\n%s' "$PF_ROOT" "$PFCMD" "$1"; }
+# Every block, not a hand-picked subset: the fakes never execute these, so a
+# syntax error in one would otherwise surface on a live cluster.
+for v in $(grep -oE "^read -r -d '' RS_[A-Z_]+" "$TOOL" | awk '{print $NF}' | sort -u); do
+    bash -n <<<"$(wrap "${!v}")" 2>/dev/null && ok "$v" || bad "$v has a syntax error"
+done
+
+# RS_STOP_MARIADB is not only syntax-checked but executed: the decision "when
+# is SIGKILL sent" lives there, and it may only be taken when the shutdown
+# marker is in the journal.
+mdb_run() {   # mdb_run <active?> <marker?> -> output; $TMP/mdb.kill = kill trace
+    local active="$1" marker="$2"
+    rm -rf "$TMP/mdbbin"; mkdir -p "$TMP/mdbbin"
+    printf '%s' "$active" >"$TMP/mdb.state"
+    : >"$TMP/mdb.kill"
+    cat >"$TMP/mdbbin/systemctl" <<EOS
+#!/usr/bin/env bash
+case "\$*" in
+  *"show -p ActiveState"*)
+        case "\$(cat "$TMP/mdb.state")" in
+          up)     echo active ;;
+          going)  echo deactivating ;;
+          *)      echo inactive ;;
+        esac
+        exit 0 ;;
+  *"kill"*)      echo "\$*" >>"$TMP/mdb.kill"; printf down >"$TMP/mdb.state"; exit 0 ;;
+  *"stop"*)      echo "\$*" >>"$TMP/mdb.stop"
+                 [ -n "\${STUB_STOP_WORKS:-}" ] && printf down >"$TMP/mdb.state"
+                 exit 0 ;;
+esac
+exit 0
+EOS
+    cat >"$TMP/mdbbin/journalctl" <<EOS
+#!/usr/bin/env bash
+[ "$marker" = yes ] && echo "WSREP: dtor state: CLOSED"
+exit 0
+EOS
+    # Without a sleep stub every run would take real seconds.
+    printf '#!/usr/bin/env bash\nexit 0\n' >"$TMP/mdbbin/sleep"
+    chmod +x "$TMP/mdbbin"/*
+    PATH="$TMP/mdbbin:$PATH" bash -s -- 20 5 <<<"$(wrap "$RS_STOP_MARIADB")" 2>&1
+}
+
+o="$(mdb_run down no)"
+has "$o" "MARIADB_ALREADY_STOPPED" "RS_STOP_MARIADB: already stopped is detected"
+check "and no stop is issued at all" "$(cat "$TMP/mdb.kill")" ""
+
+o="$(STUB_STOP_WORKS=1 mdb_run up yes)"
+has "$o" "MARIADB_STOPPED_CLEAN" "RS_STOP_MARIADB: a clean stop is detected"
+check "a clean stop needs no SIGKILL" "$(cat "$TMP/mdb.kill")" ""
+
+o="$(mdb_run up yes)"
+has "$o" "MARIADB_SHUTDOWN_DONE" "RS_STOP_MARIADB: hang - the marker is found"
+has "$o" "MARIADB_HUNG_AFTER_SHUTDOWN" "RS_STOP_MARIADB: the hang is reported as such"
+has "$o" "MARIADB_KILLED" "RS_STOP_MARIADB: the hang is ended with SIGKILL"
+has "$(cat "$TMP/mdb.kill")" "kill" "and the SIGKILL is actually issued"
+
+o="$(mdb_run up no)"
+has "$o" "MARIADB_NO_MARKER" "RS_STOP_MARIADB: without a marker it aborts"
+check "without a marker nothing is killed (the key case)" "$(cat "$TMP/mdb.kill")" ""
+
+# 'deactivating' is NOT stopped. 'systemctl is-active --quiet' also returns
+# non-zero there - reading that as "done" starts the next instance too early, or
+# in re.resync deletes a data directory still in use.
+o="$(mdb_run going yes)"
+hasnt "$o" "MARIADB_STOPPED_CLEAN" "RS_STOP_MARIADB: 'deactivating' does not count as stopped"
+has "$o" "MARIADB_HUNG_AFTER_SHUTDOWN" "RS_STOP_MARIADB: 'deactivating' is treated as a hang"
+
+# The Galera query must hit the LOCAL instance. haproxy-db listens on
+# 127.0.0.1:3306 - from there another node may answer, and right after a restart
+# nothing does (re.c_master).
+hasnt "$RS_GALERA" "127.0.0.1" "RS_GALERA does not go through haproxy on 127.0.0.1"
+hasnt "$RS_GALERA" "port=3306" "RS_GALERA uses no TCP port"
+has   "$RS_GALERA" "socket=" "RS_GALERA queries via the local unix socket"
+bash -n <<<"$(wrap "$RS_STOP_MARIADB")" 2>/dev/null && ok "RS_STOP_MARIADB" || bad "RS_STOP_MARIADB has a syntax error"
+
+# Regression guard: no blocking 'systemctl stop packetfence-mariadb' may come
+# back - when it hangs it costs the unit's full TimeoutSec=1200.
+blockend="$(grep -n 'systemctl stop packetfence-mariadb' "$TOOL" | grep -v '^[0-9]*: *#' || true)"
+check "no blocking 'systemctl stop packetfence-mariadb' left in the script" "$blockend" ""
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 8. Preflight: the checks that would block a real cluster =="
+#-------------------------------------------------------------------------------
+# preflight changes nothing but calls getent and curl locally. Both are
+# intercepted so the test does not depend on this machine's DNS or network.
+cat >"$BIN/getent" <<'EOG'
+#!/usr/bin/env bash
+[[ "$1" == "hosts" ]] || exit 2
+case "$2" in
+  pf-node*) [[ -n "${FAKE_UNRESOLVABLE:-}" && "$2" == "$FAKE_UNRESOLVABLE" ]] && exit 2
+            echo "10.20.30.1 $2"; exit 0 ;;
+  *) exit 2 ;;
+esac
+EOG
+cat >"$BIN/curl" <<'EOC'
+#!/usr/bin/env bash
+exit "${FAKE_CURL_RC:-0}"
+EOC
+chmod +x "$BIN/getent" "$BIN/curl"
+
+# The local prerequisites (root, pfcmd present) are neither given here nor what
+# is under test.
+check_local_prereqs() { log_ok "root, PacketFence present"; }
+
+# A configured, readable key with correct permissions. Without it preflight
+# aborts at once - which a separate test below covers.
+SSH_IDENTITY="$TMP/id_configured"; : >"$SSH_IDENTITY"; chmod 600 "$SSH_IDENTITY"
+CONFIG_FILE="$TMP/pf-cluster-upgrade.conf"
+
+pf_run() { rm -f "$TMP/state"; ( phase_preflight 2>&1 ) || true; }
+
+o="$(pf_run)"
+has "$o" "baseline recorded" "preflight records the service baseline"
+: >"$TRACE"; o="$(pf_run)"
+check "preflight issues no changing command"       "$(grep -cE 'systemctl (start|stop|restart)|apt-get -y|rm -fr' "$TRACE" || true)" "0"
+
+# As long as cluster.conf provides a management_ip, an unresolvable name is no
+# obstacle - that is exactly what the IP is for.
+export FAKE_UNRESOLVABLE=pf-node2
+o="$(pf_run)"
+has "$o" "ssh via management_ip 10.20.30.12" "an unresolvable name is harmless, the management_ip carries"
+hasnt "$o" "no usable address" "no abort as long as a management_ip exists"
+unset FAKE_UNRESOLVABLE
+
+# If both are missing, it must stop.
+mkdir -p "$TMP/pf2/conf"
+sed 's/^management_ip=10.20.30.12$//' "$TMP/pf/conf/cluster.conf" >"$TMP/pf2/conf/cluster.conf"
+cp "$TMP/pf/conf/pf.conf" "$TMP/pf2/conf/pf.conf"
+sv_root="$PF_ROOT"; PF_ROOT="$TMP/pf2"
+export FAKE_UNRESOLVABLE=pf-node2
+o="$(pf_run)"
+has "$o" "neither management_ip in cluster.conf nor a resolvable name" \
+    "without management_ip AND without a resolvable name it aborts"
+has "$o" "NO way out" "the error warns against using IPs as node names instead"
+unset FAKE_UNRESOLVABLE
+PF_ROOT="$sv_root"
+
+export FAKE_PKG_BROKEN=3 FAKE_PKG_BROKEN_LIST="packetfence(iF) rsync(iU) man-db(it)"
+o="$(pf_run)"
+has "$o" "package(s) in a broken state" "half-configured packages block preflight"
+has "$o" "packetfence-config" "the error names the cause of the postinst failure"
+unset FAKE_PKG_BROKEN FAKE_PKG_BROKEN_LIST
+
+export FAKE_PF_PKG=""
+o="$(pf_run)"; unset FAKE_PF_PKG
+
+export FAKE_PF_MODIFIED="/usr/local/pf/lib/pf/CHI/db.pm /usr/local/pf/raddb/mods-enabled/redis"
+o="$(pf_run)"
+has "$o" "the upgrade will overwrite them" "locally modified package files are reported"
+has "$o" "/usr/local/pf/lib/pf/CHI/db.pm" "the affected file is named"
+unset FAKE_PF_MODIFIED
+
+export FAKE_ROOT_MB=512
+o="$(pf_run)"
+has "$o" "filesystem of /root" "too little space for the run-upgrade.sh backup is detected"
+unset FAKE_ROOT_MB
+
+export FAKE_CURL_RC=1
+o="$(pf_run)"
+has "$o" "Repository for PacketFence 15.2 not reachable" "a missing target repository is reported as a warning"
+unset FAKE_CURL_RC
+rm -f "$TMP/state"
+
+# --- Permission pre-check ---
+o="$(pf_run)"
+has "$o" "root, tools and write permissions complete" "the permission pre-check reports a healthy node"
+
+export FAKE_UID=1000
+o="$(pf_run)"; has "$o" "does not run as root" "non-root on a node is detected"
+unset FAKE_UID
+
+export FAKE_MISSING_TOOL=systemd-run
+o="$(pf_run)"
+has "$o" "missing tools: systemd-run" "a missing systemd-run is detected"
+has "$o" "do-upgrade.sh cannot run detached" "and the reason is named"
+unset FAKE_MISSING_TOOL
+
+export FAKE_MISSING_TOOL=shred
+o="$(pf_run)"; has "$o" "missing tools: shred" "a missing shred is detected"
+unset FAKE_MISSING_TOOL
+
+export FAKE_UNWRITABLE=run
+o="$(pf_run)"; has "$o" "no write permission in /run" "a missing write permission on /run is detected"
+unset FAKE_UNWRITABLE
+
+export FAKE_SYSTEMD_STATE=degraded
+o="$(pf_run)"; has "$o" "systemd reports 'degraded'" "a degraded systemd is reported"
+unset FAKE_SYSTEMD_STATE
+
+export FAKE_PFDB=no
+o="$(pf_run)"; has "$o" "pf::db not loadable" "a missing pf::db is detected"
+unset FAKE_PFDB
+
+export FAKE_SOCKET_AUTH=no
+o="$(pf_run)"; has "$o" "the password will be asked for later" "a missing socket login is warned about"
+unset FAKE_SOCKET_AUTH
+
+# ssh rejects an overly permissive private key - that must be caught earlier.
+kf="$TMP/testkey"; : >"$kf"; chmod 644 "$kf"
+o="$(check_ssh_key_perms "$kf" 2>&1)"
+has "$o" "permissions 644 - ssh rejects it" "an overly permissive key is flagged"
+chmod 600 "$kf"
+o="$(check_ssh_key_perms "$kf" 2>&1)"
+has "$o" "permissions 600" "correct key permissions are confirmed"
+
+# state_get must not return 1 for a missing value - otherwise set -e fires
+rm -f "$TMP/state"
+state_get nosuchkey >/dev/null; check "state_get returns 0 even without a value" "$?" "0"
+
+# --- Key: only from the config, nothing is searched for ---
+cat >"$BIN/ssh-copy-id" <<EOK
+#!/usr/bin/env bash
+echo "SSHCOPYID \$*" >> "$TRACE"
+exit \${FAKE_COPYID_RC:-0}
+EOK
+cat >"$BIN/ssh-keygen" <<'EOKG'
+#!/usr/bin/env bash
+while [[ $# -gt 0 ]]; do [[ "$1" == "-f" ]] && { : >"$2"; : >"$2.pub"; }; shift; done
+exit 0
+EOKG
+chmod +x "$BIN/ssh-copy-id" "$BIN/ssh-keygen"
+
+# No key configured: without a terminal nothing may be set up, and the hint
+# must name the config file and the permissions.
+sv_id="$SSH_IDENTITY"; SSH_IDENTITY=""
+: >"$TRACE"; o="$(pf_run)"
+has "$o" "No SSH_IDENTITY set" "a missing key in the config is named"
+has "$o" "$CONFIG_FILE" "the hint names the config file path"
+has "$o" "SSH_IDENTITY=" "the hint shows the key to record"
+has "$o" "chmod 600" "the hint names the required permissions"
+hasnt "$(cat "$TRACE")" "SSHCOPYID" "without a terminal nothing is distributed"
+SSH_IDENTITY="$sv_id"
+
+# A configured key that does not exist
+SSH_IDENTITY="$TMP/nosuchfile"
+o="$(pf_run)"
+has "$o" "that file does not exist" "a recorded but missing key is detected"
+SSH_IDENTITY="$sv_id"
+
+# Other people's home directories are NOT searched.
+if declare -F ssh_key_candidates >/dev/null || declare -F detect_ssh_identity >/dev/null; then
+    bad "the old key search is still present"
+else
+    ok "no key search any more - only the config counts"
+fi
+
+# config_set_identity records the key and sets the permissions
+rm -f "$CONFIG_FILE"
+SSH_IDENTITY="$TMP/id_new"
+config_set_identity && ok "config_set_identity creates the config file" \
+                    || bad "config_set_identity failed"
+check "the key is recorded in the config" \
+      "$(sed -n 's/^SSH_IDENTITY=//p' "$CONFIG_FILE")" "$TMP/id_new"
+check "the config file is 600" "$(stat -c '%a' "$CONFIG_FILE")" "600"
+# A second run must not duplicate the entry
+config_set_identity >/dev/null
+check "the entry is replaced, not appended" "$(grep -c '^SSH_IDENTITY=' "$CONFIG_FILE")" "1"
+SSH_IDENTITY="$sv_id"; rm -f "$CONFIG_FILE"
+
+# ask_yes_no says no without a terminal instead of blocking
+# stdin explicitly closed - otherwise the check depends on whether the test
+# itself was started on a terminal.
+check "ask_yes_no says no without a terminal" "$(ask_yes_no "x" </dev/null && echo yes || echo no)" "no"
+rm -f "$TMP/state"
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 9. Full run, master mode and the two switches =="
+#-------------------------------------------------------------------------------
+NODES=(pf-node1 pf-node2 pf-node3); PIONEER=""; rm -f "$TMP/state"
+resolve_roles >/dev/null 2>&1
+
+# --- Master/slave: the same config on every node ---
+SELF_HOST="pf-node1"; MASTER_NODE="pf-node1"
+is_master && ok "the configured master recognises itself" || bad "the master does not recognise itself"
+SELF_HOST="pf-node2"
+is_master && bad "a non-master wrongly believes it is the master" \
+          || ok "another node recognises itself as non-master"
+o="$( require_master 2>&1 )"
+has "$o" "is not the master" "changing phases are refused on a non-master"
+has "$o" "status, preflight" "the hint names the phases still allowed"
+has "$o" "$CONFIG_FILE" "and where the setting lives"
+hasnt "$o" "fortsetzen" "no pointless resume command on the wrong node"
+NO_RESUME_HINT=0
+MASTER_NODE=""
+o="$( require_master 2>&1 )"
+has "$o" "No MASTER_NODE set" "without MASTER_NODE it warns instead of aborting"
+SELF_HOST="workbench"; MASTER_NODE=""
+
+# --- The two switches from 12.4.2/12.4.3 instead of clicks in the web UI ---
+rm -f "$TMP/state"; : >"$TRACE"
+phase_prepare >/dev/null 2>&1
+t="$(cat "$TRACE")"
+has "$t" "pfcron.conf cluster_check status" "12.4.2: cluster check is disabled in pfcron.conf"
+has "$t" "pf.conf     services      galera-autofix" "12.4.3: galera-autofix is disabled in pf.conf"
+check "both switches on all 3 nodes" "$(grep -c 'pfcron.conf cluster_check' <<<"$t")" "3"
+has "$t" "/usr/local/pf/bin/pfcmd service galera-autofix stop" "12.4.3: the service is stopped as well"
+
+rm -f "$TMP/state"; : >"$TRACE"
+phase_finish >/dev/null 2>&1
+t="$(cat "$TRACE")"
+has "$t" "pfcron.conf cluster_check status" "12.4.8: cluster check is re-enabled"
+has "$t" "/usr/local/pf/bin/pfcmd service galera-autofix restart" "12.4.9: galera-autofix is started again"
+
+# --- Preflight must not run mid-procedure ---
+# It demands the initial state (Galera 3/Synced everywhere) and would record an
+# unusable service baseline.
+rm -f "$TMP/state"; state_set prepared 1
+o="$( phase_preflight 2>&1 )"
+has "$o" "procedure is already running" "preflight refuses mid-procedure"
+has "$o" "status" "and points at the status overview"
+hasnt "$o" "baseline recorded" "and records no wrong baseline"
+rm -f "$TMP/state"
+
+# --- run: ordering, pause and resume ---
+rm -f "$TMP/state"; TARGET_VERSION=""
+o="$( phase_run 2>&1 )"
+has "$o" "needs the target version" "run without --target-version aborts"
+TARGET_VERSION=15.2.0
+
+rm -f "$TMP/state"; : >"$TRACE"
+# finish deletes the state file at the end. The resume check right below needs
+# it to survive.
+_ks2=$KEEP_STATE; KEEP_STATE=1
+o="$( phase_run 2>&1 )"
+for ph in preflight prepare upgrade-c upgrade-ab reintegrate finish; do
+    has "$o" ">>> Phase ${ph}" "run goes through phase ${ph}"
+done
+has "$o" "REVIEW PAUSE" "run pauses after upgrade-c for the check (12.4.5)"
+hasnt "$o" "Next step" "in a full run the next-phase hint is omitted"
+p_c="$(grep -n '>>> Phase upgrade-c' <<<"$o" | head -1 | cut -d: -f1)"
+p_p="$(grep -n 'REVIEW PAUSE' <<<"$o" | head -1 | cut -d: -f1)"
+p_ab="$(grep -n '>>> Phase upgrade-ab' <<<"$o" | head -1 | cut -d: -f1)"
+if [[ -n "$p_c" && -n "$p_p" && -n "$p_ab" && "$p_c" -lt "$p_p" && "$p_p" -lt "$p_ab" ]]; then
+    ok "the pause sits between upgrade-c and upgrade-ab"
+else
+    bad "wrong pause position (c=$p_c pause=$p_p ab=$p_ab)"
+fi
+
+# Resuming: completed phases are skipped
+RESUME=1
+o="$( phase_run 2>&1 )"
+has "$o" "Phase prepare: already done" "run --resume skips completed phases"
+has "$o" "Phase preflight: skipped" "run skips preflight once the procedure is running"
+hasnt "$o" "REVIEW PAUSE" "after ab_upgraded the pause is gone"
+KEEP_STATE=$_ks2
+RESUME=0; rm -f "$TMP/state"
+
+# With --resume upgrade-c is skipped. Without resolving the roles itself, the
+# most important question of the run would appear without node names
+# ("now runs on  alone", with the node name missing).
+# State as in the real run: upgrade-c done, upgrade-ab pending.
+RESUME=1
+state_set prepared 1; state_set migrated_to_c 1
+state_set roles "pf-node1 pf-node2 pf-node3"
+NODE_A=""; NODE_B=""; NODE_C=""
+o_p="$( phase_run 2>&1 )"
+has "$o_p" "now runs on" "the pause also appears when resuming"
+has "$o_p" "on pf-node3 alone" "and names the node instead of leaving it blank"
+hasnt "$o_p" "on  alone" "no empty node name in the pause"
+RESUME=0; rm -f "$TMP/state"
+
+# Effect check: a step returning 0 without doing anything must be noticed
+export FAKE_VERIFY_FAIL="cluster-disabled"
+o="$( phase_upgrade_c 2>&1 )"
+has "$o" "the step had no effect" "an ineffective step is caught despite a return code of 0"
+unset FAKE_VERIFY_FAIL
+RESUME=0
+rm -f "$TMP/state"
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 10. Paths not yet taken by a real run =="
+#-------------------------------------------------------------------------------
+rm -f "$TMP/state"
+
+# 12.4.6 wipes /var/lib/mysql on A and then on B. If A does not come back, B
+# must stay untouched - it is then the only intact copy besides C. Until
+# This used to be a warning and the loop wiped B anyway.
+export FAKE_SIZE=9
+: >"$TRACE"
+o_re="$( phase_reintegrate 2>&1 )"
+unset FAKE_SIZE
+t="$(cat "$TRACE")"
+has "$o_re" "not in sync" "a failed resync of A aborts the phase"
+has "$o_re" "was NOT touched" "and says the second node was spared"
+check "and /var/lib/mysql is wiped on ONE node only" \
+      "$(grep -c 'rm -fr /var/lib/mysql' <<<"$t")" "1"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state" "$TMP"/resynced.* "$TMP/force_new_cluster"
+
+# An unreachable node used to pass as "database reachable": the check went by
+# the ABSENCE of NOCONN/NOCRED, and ssh errors contain neither. That call is
+# the gate right before A and B are wiped.
+_dbw=$DB_WAIT_TIMEOUT; DB_WAIT_TIMEOUT=1
+export FAKE_SSH_DOWN=pf-node3
+o_db="$( wait_db_reachable pf-node3 2>&1 )" && bad "an unreachable node counts as a reachable database" \
+                                            || ok "an unreachable node does not count as a reachable database"
+unset FAKE_SSH_DOWN
+hasnt "$o_db" "database reachable" "and it is not reported as reachable"
+has "$o_db" "connection problem" "the message names the connection, not the database"
+DB_WAIT_TIMEOUT=$_dbw
+
+# galera-autofix has to be masked around do-upgrade.sh - the isolate in the
+# packetfence preinst would otherwise start it again and it would shut down the
+# local mariadbd mid-transaction. The interactive path skipped that entirely.
+INTERACTIVE_UPGRADE=1
+: >"$TRACE"; rm -f "$TMP/state"
+phase_upgrade_c >/dev/null 2>&1
+t="$(cat "$TRACE")"
+INTERACTIVE_UPGRADE=0
+has "$t" "TTY_DOUPGRADE" "--interactive-upgrade runs do-upgrade.sh on the terminal"
+has "$t" "systemctl mask packetfence-galera-autofix" "--interactive-upgrade masks galera-autofix too"
+has "$t" "systemctl unmask packetfence-galera-autofix" "and releases it again afterwards"
+rm -f "$TMP/state"
+
+# RS_START_PF ended with 'echo PF_STARTED' no matter what happened before, so
+# every '|| die' at the call site was unreachable and the step was marked done.
+export FAKE_CONFIGRELOAD_FAIL=1
+o_cr="$( phase_upgrade_c 2>&1 )"
+unset FAKE_CONFIGRELOAD_FAIL
+has "$o_cr" "configuration could not be reloaded" "a failed configreload makes the phase fail"
+if grep -qE '^done\.c\.(start|prep_config)=' "$TMP/state" 2>/dev/null; then
+    bad "the failed step was recorded as done anyway"
+else
+    ok "and the failed step is not recorded as done"
+fi
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# run-upgrade.sh can bail out after the package switch without writing
+# conf/pf-release. 'cat' then fails, and under pipefail the ASSIGNMENT failed -
+# the ERR trap fired instead of the message written for exactly this case.
+export FAKE_NO_PF_RELEASE=1
+o_pr="$( phase_upgrade_c 2>&1 )"
+unset FAKE_NO_PF_RELEASE
+hasnt "$o_pr" "UNEXPECTED ERROR" "a missing pf-release does not end in the ERR trap"
+has "$o_pr" "rollback" "but in the message that names the way back"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# The password was masked in the log with sed, i.e. as a REGEX. An unbalanced
+# '[' made sed fail, and that took the run down before the step was marked
+# done - so every --resume died at the same line.
+_wu=$WS_USER; _wp=$WS_PASS
+WS_USER="packet"; WS_PASS='fake[pw*.\'
+state_set migrated_to_c 1
+o_ws="$( phase_upgrade_ab 2>&1 )"
+hasnt "$o_ws" "UNEXPECTED ERROR" "a password with regex characters does not break the run"
+hasnt "$(cat "$RUN_LOG")" "$WS_PASS" "and does not end up in the run log"
+has "$(cat "$RUN_LOG")" "<hidden>" "the log shows the masked placeholder instead"
+WS_USER=$_wu; WS_PASS=$_wp
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# A missing option value used to exit 1 with a bare bash message; every other
+# operating error exits 2 and shows the help.
+o_ar="$( bash "$TOOL" run --target-version 2>&1 )"; rc_ar=$?
+check "a missing option value exits 2, like every other usage error" "$rc_ar" "2"
+has "$o_ar" "needs a value" "and says which option it was"
+
+# Target version = the version already running: nothing blocks it, but it costs
+# an outage and a full resync of A and B, so it is said out loud.
+: >"$TRACE"
+o_sv="$( phase_upgrade_c 2>&1 )"
+has "$o_sv" "already run PacketFence 15.2" "an upgrade to the running version is pointed out"
+has "$o_sv" "outage and a full resync" "and what it would cost"
+rm -f "$TMP/state"
+
+# ... and the version check afterwards has to notice it: major.minor alone is
+# 15.2 == 15.2 either way, so the full package version decides.
+export FAKE_PKG_NOOP=1
+o_np="$( phase_upgrade_c 2>&1 )"
+unset FAKE_PKG_NOOP
+has "$o_np" "package version unchanged" "an upgrade that changed nothing is caught"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+#-------------------------------------------------------------------------------
+echo
+echo "== 11. VIP handover and the staged start =="
+#-------------------------------------------------------------------------------
+# Without the staged start every node can be down at once while C already
+# holds the VIP but cannot yet serve it.
+
+: >"$TRACE"; rm -f "$TMP/state"
+o_v="$( phase_upgrade_c 2>&1 )"
+t_v="$(cat "$TRACE")"
+
+p_reload=$(grep -n 'configreload hard' <<<"$t_v" | head -1 | cut -d: -f1)
+p_stopab=$(grep -n 'pf-node1: systemctl stop --no-block packetfence-mariadb' <<<"$t_v" | head -1 | cut -d: -f1)
+p_mask=$(grep -n 'pf-node3: systemctl mask packetfence-keepalived' <<<"$t_v" | head -1 | cut -d: -f1)
+p_start=$(grep -n 'pf-node3: /usr/local/pf/bin/pfcmd service pf restart' <<<"$t_v" | head -1 | cut -d: -f1)
+p_unmask=$(grep -n 'pf-node3: systemctl unmask packetfence-keepalived' <<<"$t_v" | head -1 | cut -d: -f1)
+
+# The whole point of the split: the configuration work is done while A and B
+# are still serving.
+if [[ -n "$p_reload" && -n "$p_stopab" && "$p_reload" -lt "$p_stopab" ]]; then
+    ok "the configuration on C is prepared BEFORE A and B are stopped"
+else
+    bad "config work inside the outage window (reload=$p_reload stop=$p_stopab)"
+fi
+# ... and the guard that must not regress with it.
+if [[ -n "$p_stopab" && -n "$p_start" && "$p_stopab" -lt "$p_start" ]]; then
+    ok "C still starts its services only after A and B are stopped"
+else
+    bad "C started next to A/B (stop=$p_stopab start=$p_start)"
+fi
+if [[ -n "$p_mask" && -n "$p_start" && "$p_mask" -lt "$p_start" ]]; then
+    ok "keepalived is masked before the services are started"
+else
+    bad "keepalived not held back (mask=$p_mask start=$p_start)"
+fi
+if [[ -n "$p_start" && -n "$p_unmask" && "$p_start" -lt "$p_unmask" ]]; then
+    ok "keepalived is released only after the start"
+else
+    bad "keepalived released too early (start=$p_start unmask=$p_unmask)"
+fi
+has "$t_v" "pf-node3: /usr/local/pf/bin/pfcmd service keepalived restart" \
+    "keepalived is started explicitly at the end"
+has "$o_v" "outage window:" "the outage window is timed and logged"
+rm -f "$TMP/state"
+
+# 2.2.1: on the normal path C is waited for exactly ONCE. The second wait used
+# to sit outside done_skip and cost a full service-wait round inside the open
+# window while only confirming what start_pf_vip_last had just confirmed.
+check "C is waited for exactly once on the normal path" \
+      "$(grep -c 'pf-node3: waiting for healthy services' <<<"$o_v")" "1"
+
+# 2.2.1: units stuck outside the target's Wants list are cleared after the
+# staged start - packetfence-tracking-config lands in start-limit-hit after
+# every configuration storm and would leave systemd 'degraded'.
+: >"$TRACE"; rm -f "$TMP/state"
+export FAKE_STALE_FAILED=1
+o_cl="$( phase_upgrade_c 2>&1 )"
+has "$o_cl" "cleared the failed state of" "stale failed units are cleared after the start"
+has "$o_cl" "packetfence-tracking-config" "and the unit is named"
+unset FAKE_STALE_FAILED
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# ... and finish clears them on all three as a catch-all.
+: >"$TRACE"; rm -f "$TMP/state"
+export FAKE_STALE_FAILED=1
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+state_set reintegrated 1; state_set roles "pf-node1 pf-node2 pf-node3"
+_ks3=$KEEP_STATE; KEEP_STATE=1
+o_fi="$( phase_finish 2>&1 )"
+KEEP_STATE=$_ks3
+unset FAKE_STALE_FAILED
+check "finish clears stale failed units on all three" \
+      "$(grep -c 'cleared the failed state of' <<<"$o_fi")" "3"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# --resume skips the start itself, but the health of C must still be checked -
+# otherwise a resumed run would wave a half-started node through.
+: >"$TRACE"; rm -f "$TMP/state"
+state_set prepared 1
+for k in c.prep_config c.stop_peer.pf-node1 c.stop_peer.pf-node2 c.start; do mark_done "$k"; done
+RESUME=1
+o_rs="$( phase_upgrade_c 2>&1 )"
+RESUME=0
+t_rs="$(cat "$TRACE")"
+has "$o_rs" "waiting for healthy services" "--resume still checks that C is healthy"
+hasnt "$t_rs" "pf-node3: systemctl mask packetfence-keepalived" \
+    "and does not start C a second time"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# The VIP comes from [CLUSTER] and is a check target, never an ssh target.
+check "the VIP is read from [CLUSTER]" "$(cluster_vip)" "10.20.30.10"
+CLUSTER_VIP=10.9.9.9; check "CLUSTER_VIP overrides cluster.conf" "$(cluster_vip)" "10.9.9.9"; CLUSTER_VIP=""
+hasnt "$t_v" "SSHTARGET 10.20.30.10" "the VIP is never used as an ssh target"
+has "$o_v" "holds the VIP 10.20.30.10" "the handover to C is confirmed by the address"
+
+# A VIP that never arrives must fail the phase - and must not leave keepalived
+# masked, which would be a cluster without a VIP.
+: >"$TRACE"; rm -f "$TMP/state"
+export FAKE_VIP_ABSENT=pf-node3
+sv_vt=$VIP_WAIT_TIMEOUT; VIP_WAIT_TIMEOUT=1
+o_vip="$( phase_upgrade_c 2>&1 )"
+VIP_WAIT_TIMEOUT=$sv_vt; unset FAKE_VIP_ABSENT
+t_vip="$(cat "$TRACE")"
+has "$o_vip" "did not arrive" "a VIP that never arrives fails the phase"
+has "$t_vip" "pf-node3: systemctl unmask packetfence-keepalived" \
+    "and keepalived is released even so"
+if grep -q '^done\.c\.start=' "$TMP/state" 2>/dev/null; then
+    bad "the failed handover was recorded as done anyway"
+else
+    ok "the failed handover is not recorded as done"
+fi
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# Without a VIP anywhere the check is a warning, not a blocker - not every
+# installation has one.
+sv_cc="$PF_ROOT"
+PF_ROOT="$TMP/novip"; mkdir -p "$PF_ROOT/conf"
+grep -v '^management_ip=10.20.30.10' "$sv_cc/conf/cluster.conf" > "$PF_ROOT/conf/cluster.conf"
+o_nv="$( wait_vip pf-node3 2>&1 )"; rc_nv=$?
+PF_ROOT="$sv_cc"
+check "no VIP in cluster.conf does not block" "$rc_nv" "0"
+has "$o_nv" "cannot check the handover" "but it is said out loud"
+WARN_LIST=()
+
+# The held-back unit must not count as an outage while it is held back.
+export FAKE_SVC_DOWN="keepalived"
+export FAKE_WANTS="packetfence-api-frontend.service packetfence-config.service packetfence-pfdns.service packetfence-keepalived.service"
+SERVICES_IGNORE=(keepalived)
+if services_healthy pf-node3; then ok "a deliberately held-back keepalived is not an outage"
+else bad "the held-back keepalived counted as an outage"; fi
+SERVICES_IGNORE=()
+if services_healthy pf-node3; then bad "a down keepalived went unnoticed without the list"
+else ok "without the list a down keepalived IS an outage"; fi
+unset FAKE_SVC_DOWN FAKE_WANTS
+
+# The optional table truncation of 12.4.6 is gone: it asked for the MariaDB
+# root password on the terminal and threw away audit history - not something a
+# production cluster should be offered mid-run.
+if declare -F truncate_tables >/dev/null; then
+    bad "truncate_tables is back"
+else
+    ok "the history-table truncation is not implemented"
+fi
+# The password prompt for do-upgrade.sh stays - upgrade_database() needs it.
+# What must be gone is the truncation itself.
+sv_src="$(cat "$TOOL")"
+hasnt "$sv_src" "TRUNCATABLE_TABLES" "and the table list is gone with it"
+hasnt "$sv_src" "TRUNCATE " "and no TRUNCATE is left in the script"
+unset sv_src
+
+# Reintegrate stages the start the same way, on all three nodes.
+: >"$TRACE"; rm -f "$TMP/state"
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+state_set roles "pf-node1 pf-node2 pf-node3"
+phase_reintegrate >/dev/null 2>&1
+t_re="$(cat "$TRACE")"
+for n in pf-node1 pf-node2 pf-node3; do
+    if grep -q "${n}: systemctl mask packetfence-keepalived" <<<"$t_re" \
+    && grep -q "${n}: systemctl unmask packetfence-keepalived" <<<"$t_re"; then
+        ok "reintegrate stages the start on ${n} too"
+    else
+        bad "reintegrate starts ${n} without holding keepalived back"
+    fi
+done
+# A start that failed must abort the phase and must NOT be recorded as done -
+# otherwise --resume skips a node whose services never came up, and the phase
+# still reports "all three nodes are back".
+: >"$TRACE"; rm -f "$TMP/state"
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+state_set roles "pf-node1 pf-node2 pf-node3"
+export FAKE_START_FAIL=1
+o_sf="$( phase_reintegrate 2>&1 )"
+unset FAKE_START_FAIL
+has "$o_sf" "did not come up completely" "a failed start aborts reintegrate"
+if grep -q '^done\.re\.start\.' "$TMP/state" 2>/dev/null; then
+    bad "the failed start was recorded as done anyway"
+else
+    ok "and the failed start is not recorded as done"
+fi
+hasnt "$o_sf" "All three nodes are back" "and the phase does not claim success"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+: >"$TRACE"; rm -f "$TMP/state"
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+state_set roles "pf-node1 pf-node2 pf-node3"
+phase_reintegrate >/dev/null 2>&1
+t_re="$(cat "$TRACE")"
+check "reintegrate prepares the configuration on all three" \
+      "$(grep -c 'configreload hard' <<<"$t_re")" "3"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+echo
+echo "=================================================="
+printf 'Result: %d passed, %d failed\n' "$PASS" "$FAIL"
+echo "=================================================="
+[[ $FAIL -eq 0 ]]
