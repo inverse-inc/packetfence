@@ -98,6 +98,7 @@ use pf::SwitchSupports qw(
 use pf::api::queue_cluster;
 use pf::util::wpa;
 use File::Find;
+use File::Copy::Recursive qw(dircopy);
 use Digest::SHA qw(sha512_hex);
 use CHI;
 use pf::dal::switch_observability;
@@ -4469,6 +4470,13 @@ sub generateAnsibleConfiguration {
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
     }
+    # Ship PacketFence-maintained Ansible collections (e.g. packetfence.comware
+    # for H3C/Comware / NEC QX-S) alongside the Galaxy-installed ones so the push
+    # does not depend on a fixed upstream collection being correct/available.
+    if (-d "$conf_dir/pfsetacls/ansible_collections") {
+        dircopy("$conf_dir/pfsetacls/ansible_collections", "$var_dir/conf/pfsetacls/$switch_id/pf_collections/ansible_collections")
+            or $self->logger->warn("Can't copy bundled ansible_collections: $!");
+    }
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
     $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
@@ -4482,6 +4490,7 @@ sub generateAnsibleConfiguration {
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
             case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
+            case /NEC::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "packetfence.comware.comware" }
     }
 
     foreach my $role (keys %ConfigRoles) {

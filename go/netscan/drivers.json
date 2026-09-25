@@ -55,6 +55,15 @@
       "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
     },
     {
+      "name": "NEC QX-S (Comware 7)",
+      "vendor": "nec",
+      "os": "comware_os",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.119\\.1\\.126(\\..*|$)",
+      "sysOS": "New H3C Technologies",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
       "name": "HPE Comware OS",
       "vendor": "aruba",
       "os": "comware_os",

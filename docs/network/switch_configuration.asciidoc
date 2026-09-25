@@ -220,6 +220,10 @@ On each interface
 
   switchport access vlan 4
 
+=== NEC
+
+include::networkdevice/nec.asciidoc[]
+
 === Netgear
 
 include::networkdevice/netgear.asciidoc[]
