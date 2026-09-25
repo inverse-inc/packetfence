@@ -1,0 +1,19 @@
+---
+# Clean shutdown that lets galera close properly (writes grastate.dat with a
+# valid seqno; the LAST node to leave the primary component gets
+# safe_to_bootstrap: 1). `pfcmd service pf stop` closes galera cleanly; then a
+# forced poweroff avoids the deb12 graceful-shutdown/systemd deadlock (mariadb
+# is already stopped by then, so grastate is finalized before the power cut).
+- import_tasks: read_uuid.yml
+
+- name: "Graceful PacketFence stop (clean galera close) on {{ inventory_hostname }}"
+  ansible.builtin.shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
+  changed_when: true
+
+- name: "Power off {{ inventory_hostname }}"
+  ansible.builtin.shell: "systemctl poweroff --force"
+  async: 1
+  poll: 0
+  failed_when: false
+
+- import_tasks: wait_shut_off.yml

@@ -1,0 +1,11 @@
+---
+# Poll libvirt until the domain is fully powered off. domain_uuid must already
+# be set (read_uuid.yml) for this host.
+- name: "Wait until {{ inventory_hostname }} is shut off"
+  ansible.builtin.command: "virsh -c qemu:///system domstate --domain {{ domain_uuid }}"
+  delegate_to: localhost
+  register: _domstate
+  until: "'shut off' in _domstate.stdout"
+  retries: 60
+  delay: 5
+  changed_when: false

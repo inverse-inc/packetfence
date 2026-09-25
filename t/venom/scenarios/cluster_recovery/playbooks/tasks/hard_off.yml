@@ -1,0 +1,16 @@
+---
+# Simulate a power failure: yank the virtual power (virsh destroy). No clean
+# galera shutdown, so the node keeps gvwstate.dat / a dirty grastate and comes
+# back via the dirty-shutdown path + galera-autofix seqno election.
+- import_tasks: read_uuid.yml
+
+- name: "Hard power-off (virsh destroy) {{ inventory_hostname }}"
+  ansible.builtin.command: "virsh -c qemu:///system destroy --domain {{ domain_uuid }}"
+  delegate_to: localhost
+  register: _destroy
+  changed_when: true
+  failed_when:
+    - _destroy.rc != 0
+    - "'domain is not running' not in (_destroy.stderr | default(''))"
+
+- import_tasks: wait_shut_off.yml

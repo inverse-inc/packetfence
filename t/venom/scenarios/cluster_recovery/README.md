@@ -1,0 +1,166 @@
+# cluster_recovery scenario
+
+Drives full-cluster outage and ordered stop/start sequences against an existing
+3-node PacketFence cluster and asserts galera recovers. Power control is done
+from the Ansible controller (the runner) via libvirt (`virsh`), because a node
+cannot boot itself.
+
+This is the slow, opt-in sibling of `cluster_configurator`. It assumes a healthy
+cluster already exists; the make target runs `cluster_configurator` first
+(whose `cluster_already_healthy` gate skips the rebuild if the cluster is up),
+then `cluster_recovery`.
+
+## Scenarios
+
+| ID | Name | What it does | Recovery mechanism |
+|----|------|--------------|--------------------|
+| A | Power failure | `virsh destroy` all 3 at once, boot all, wait | dirty-shutdown + galera-autofix seqno election |
+| B | Simultaneous clean stop | clean-stop all 3 at once, boot all, wait | galera-autofix (safe_to_bootstrap is racy when simultaneous) |
+| C | Sequential reboot | reboot one node at a time, re-Sync before next | quorum never lost; rejoin live primary |
+| D | Wrong-order start | clean-stop 1,2,3; boot 1 then 2 (must NOT reach Primary) then 3 | `pf-mariadb` safe_to_bootstrap ordering; node 3 (last stopped) is safe |
+| E | Right-order start | clean-stop 1,2,3; boot 3 first (serves alone), then 2, then 1 | node 3 bootstraps, 2 & 1 rejoin |
+
+Each scenario ends by waiting for galera size 3 + `Synced` and running the
+`cluster_verify_all` suite.
+
+## Mechanics verified against code
+
+- Bootstrap ordering: `sbin/pf-mariadb` (`startup_clean_shutdown`,
+  `safe_to_bootstrap`, `ping_quorum`, `dirty-shutdown`).
+- Autofix election: `go/cmd/galera-autofix/main.go` — waits `startWait` (5 min),
+  then `handle()` tries the local DB up to `connectDBTries` (10×30s) before it
+  will force-bootstrap the **highest-seqno** node; peers `bootAndRejoinCluster`
+  (ForceStop → wait for peer DB → ClearAndStart/SST).
+- Domain identity: `virsh --domain <uuid>`, uuid from
+  `${vagrant_pf_dotfile_path}/machines/<vm>/libvirt/id` (the domain **name** is
+  randomised by `addons/vagrant/Vagrantfile`). `vagrant_pf_dotfile_path` is
+  passed by `test-wrapper.sh`.
+
+## Timing note (scenario D)
+
+D must complete each node's "not serving" check well under galera-autofix's
+~10-minute intervention window (`startWait` 5m + `connectDBTries` ~5m), or
+autofix would force-bootstrap the highest-seqno node and defeat the wrong-order
+expectation. `not_serving_wait_seconds` is 120s per node, keeping all of D
+under that window so pf-mariadb's ordering is what's exercised.
+
+## Resource diagnostics
+
+The recovery wrapper samples runner CPU counters (including steal/iowait),
+memory, VM counters, pressure stalls and disk I/O every 10 seconds into
+`results/runner/resource-usage.jsonl`. Guests run the same sampler as a boot
+service, adding active states and pending-job flags for a fixed set of PF
+services. Guest records append across reboots; `stat.btime` identifies boots.
+Each sampler is capped at 16 MiB and six hours per invocation.
+
+The schema excludes process arguments, environments, configuration, device
+labels, journal text and command errors. Host metrics go directly into the
+runner artifacts. Guest metrics live under the Venom results directory and
+pass through the existing secret sanitization before archiving. Teardown
+stops and removes the guest sampler before sanitization; stopping failure
+prevents that host's archive collection. The wrapper stops its host sampler
+on normal completion, failure or termination.
+
+## Running
+
+On the CI shell runner (never the workstation). Fast re-run against an
+already-built cluster:
+
+```
+make -C t/venom MAKE_TARGET=run_tests cluster_recovery_deb12
+```
+
+Full build + recovery from scratch (what CI does):
+
+```
+make -C t/venom cluster_recovery_deb12
+```
+
+All six scenarios run by default. To run a subset, invoke the scenario
+playbook directly with the `recovery_scenarios` extra-var (from `t/venom`,
+against an already-built cluster):
+
+```
+ansible-playbook scenarios/cluster_recovery/site.yml -l <pf1,pf2,pf3> \
+  -e "vagrant_pf_dotfile_path=<dotfile>" -e '{"recovery_scenarios":["D"]}'
+```
+
+(The `recovery_scenarios` list defaults to `['A','B','C','D','E','F']`.)
+
+CI: jobs `cluster_recovery_deb12` / `_el8` run in the `test_cluster` stage under
+the same `TEST_CLUSTER=yes` gate as the configurator jobs (or a `test_cluster=yes`
+commit message).
+
+## Pipeline-baked cluster nodes and recovery budgets
+
+Cluster configurator and recovery CI jobs consume a private, pipeline-specific
+standalone box (`0.0.${CI_PIPELINE_ID}`), built once per OS after `publish_ppa`.
+The bake tooling comes from `feature/ci-bake-golden-vagrant-box`; cluster mapping
+and preparation build on `feature/venom-cluster-prebaked-box`. Standalone test
+jobs retain their existing provisioning path in this branch.
+
+Import applies cluster OS requirements, hostname, local Venom variables and
+cross-node SSH. It replaces the standalone management/registration/isolation
+addresses through the internal API, verifies live and persistent addresses, and
+restores normal PacketFence boot. Cluster integration and health checks still run;
+only the completed standalone wizard and full package provisioning are reused.
+Bakes are private objects, never GitLab artifacts. Collected guest logs still go
+through `get_logs.yml` and the existing sanitizer; raw network dumps are omitted.
+
+Recovery jobs reserve separate clocks: `CLUSTER_SETUP_TIMEOUT=120m` for importing
+and forming the cluster, then `CLUSTER_RECOVERY_TIMEOUT=150m` for recovery A–F.
+Setup failure stops the job before recovery. The outer script allows 280 minutes,
+and the job allows 5 hours for download and cleanup as well. The runner's maximum
+job timeout must allow this. These are initial budgets to measure in CI, not
+measured completion times. Baked boxes reduce setup work; the independent recovery
+budget prevents a successful but slow setup from consuming the recovery allowance.
+
+The destructive recovery steps and simultaneous startup behavior are unchanged,
+so host/guest resource samples can still expose the original startup contention.
+Local orchestration checks (from repository root):
+`python3 -m unittest discover -s t/venom/tests -v`.
+
+## Capacity comparisons
+
+Run the same Debian recovery job on a larger, otherwise idle cluster-capable
+runner. As an initial experiment, target at least 16 available logical CPUs and
+48 GiB RAM, with the existing libvirt/storage tooling and a five-hour job limit.
+This is an experiment size, not an established minimum. For comparison with the original run, restore each guest to
+4 vCPUs / 8 GiB, and retain the existing recovery ordering and timeouts.
+
+Assign that runner a distinct tag, then launch a pipeline with:
+
+- `TEST_CLUSTER=yes`
+- `TEST_ONLY=^cluster_recovery_deb12$`
+- `CLUSTER_RUNNER_TAG=<the larger runner's actual tag>`
+
+The tag defaults to `test-cluster-shell-v7`; setting a new value does not create
+or resize a runner. The override applies to cluster jobs, not the bake jobs.
+TEST_ONLY filters execution; excluded jobs may still be created by CI rules.
+
+Compare with pipeline 2876317426 / job 16691079595: setup 84m31s, scenario A
+failed waiting for boot completion, guest CPU steal 36–38%, and 75/73/65 systemd
+timeout events. Check resource samples for lower steal and CPU/memory pressure,
+then verify that A completes and the remaining recovery scenarios run. A passing
+run with reduced contention supports the capacity diagnosis; continued timeouts
+with low pressure require investigation of service dependencies/startup hooks.
+Sanitized guest logs and numeric host telemetry remain the comparison artifacts.
+
+Temporary CPU weights are a separate experiment. Libvirt CPU shares change
+relative scheduling priority under contention, not the vCPU count or total host
+capacity. A rolling-reboot experiment could raise the restarting VM's weight and
+restore the original weight on success, failure, or cancellation. Healthy peers
+must retain enough CPU for Galera and service traffic. During total-outage
+recovery, boot enough peers to restore quorum before prioritizing application
+startup; waiting for the first node to become fully healthy before booting peers
+can block recovery. Do not change this scheduling in the capacity comparison.
+
+The next experiment on the existing runner uses **3 vCPUs / 8 GiB per cluster
+node** (Debian 12 and EL8 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its default
+for this run. Standalone/bake VM allocations are unchanged. Compare guest steal,
+startup timeouts and scenario A completion before trying the larger runner.
+
+Baked Debian cluster import also defines the unused inline NIC as `inet manual`
+when ifupdown has no definition for it. This addresses `ifup: unknown interface
+eth4` while preserving existing interface definitions and assigning no inline IP.
+The subsequent rolling reboots provide the integration check for this correction.

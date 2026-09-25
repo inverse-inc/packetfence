@@ -1,0 +1,136 @@
+---
+- hosts: 'pf[123]*dev'
+  name: Replace standalone addresses on baked cluster clones
+  become: true
+  gather_facts: true
+  vars:
+    node: '{{ users_vars[dict_name]["vms"][inventory_hostname] }}'
+    interfaces:
+      - index: 3
+        ip: '{{ node.ip }}'
+        mask: '{{ node.netmask }}'
+        type: management
+      - index: 4
+        ip: '{{ node.ip_reg }}'
+        mask: '{{ users_vars[dict_name]["networks"][1]["subnet"] | ansible.netcommon.ipaddr("netmask") }}'
+        type: vlan-registration
+      - index: 5
+        ip: '{{ node.ip_iso }}'
+        mask: '{{ users_vars[dict_name]["networks"][2]["subnet"] | ansible.netcommon.ipaddr("netmask") }}'
+        type: vlan-isolation
+  tasks:
+    - name: Wait for internal interface API
+      ansible.builtin.uri:
+        url: http://127.0.0.1:22224/api/v1/config/interfaces
+        status_code: 200
+      register: interface_api
+      until: interface_api is succeeded
+      retries: 30
+      delay: 5
+
+    - name: Discover interface names by the configurator indices
+      ansible.builtin.shell: >-
+        ip -o link show | awk -F ': ' '$1 == {{ item.index }} {print $2}' | cut -d '@' -f 1
+      loop: '{{ interfaces }}'
+      register: interface_names
+      changed_when: false
+
+    - name: Require all three interfaces
+      ansible.builtin.assert:
+        that: item.stdout | length > 0
+      loop: '{{ interface_names.results }}'
+
+    # The bake completed the wizard, so /configurator/* returns 401. The
+    # trusted local API uses the same interface model without reopening it.
+    - name: Persist each clone's management registration and isolation IP
+      ansible.builtin.uri:
+        url: 'http://127.0.0.1:22224/api/v1/config/interface/{{ item.stdout }}'
+        method: PATCH
+        body_format: json
+        body:
+          ipaddress: '{{ item.item.ip }}'
+          netmask: '{{ item.item.mask }}'
+          type: '{{ item.item.type }}'
+          additional_listening_daemons: '{{ ["portal"] if item.item.type == "management" else [] }}'
+        status_code: 200
+      loop: '{{ interface_names.results }}'
+      register: interface_update
+      until: interface_update is succeeded
+      retries: 6
+      delay: 10
+
+    - name: Apply changed addresses on NetworkManager nodes
+      ansible.builtin.service:
+        name: NetworkManager
+        state: restarted
+      when: ansible_os_family == 'RedHat'
+
+    - name: Verify live and persistent addresses before cluster integration
+      ansible.builtin.shell: |
+        set -eu
+        ip -o -4 addr show dev {{ item.stdout | quote }} | grep -F -- {{ (item.item.ip ~ '/') | quote }} >/dev/null
+        if command -v apt-get >/dev/null 2>&1; then
+          grep -Eq '^[[:space:]]*address[[:space:]]+{{ item.item.ip | regex_escape }}$' /etc/network/interfaces
+        else
+          grep -Fx -- {{ ('IPADDR=' ~ item.item.ip) | quote }} /etc/sysconfig/network-scripts/ifcfg-{{ item.stdout }} >/dev/null
+        fi
+      loop: '{{ interface_names.results }}'
+      changed_when: false
+
+    # Vagrant leaves the inline NIC unconfigured (auto_config: false).
+    # A dangling auto/allow-hotplug entry makes ifupdown fail at each boot.
+    # Preserve any existing definition, including those in interfaces.d.
+    - name: Define the unused inline NIC for Debian ifupdown
+      when: ansible_os_family == 'Debian'
+      block:
+        - name: Discover inline NIC using the test interface index
+          ansible.builtin.shell: >-
+            ip -o link show | awk -F ': ' '$1 == 6 {print $2}' | cut -d '@' -f 1
+          register: inline_nic
+          changed_when: false
+
+        - name: Require a valid inline interface name
+          ansible.builtin.assert:
+            that: inline_nic.stdout is match('^[a-zA-Z0-9_.-]+$')
+
+        - name: Check whether ifupdown defines the inline NIC
+          ansible.builtin.command:
+            argv: [ifquery, '{{ inline_nic.stdout }}']
+          environment:
+            LC_ALL: C
+          register: inline_definition
+          changed_when: false
+          # An undefined NIC is the condition this block repairs. Still fail
+          # on parse errors or any other unexpected ifquery failure.
+          failed_when: >-
+            inline_definition.rc != 0 and not
+            (inline_definition.rc == 1 and
+             inline_definition.stderr | trim == 'ifquery: unknown interface ' ~ inline_nic.stdout)
+
+        - name: Add a manual stanza only for an undefined inline NIC
+          ansible.builtin.blockinfile:
+            path: /etc/network/interfaces
+            marker: '# {mark} VENOM INLINE INTERFACE'
+            block: |
+              auto {{ inline_nic.stdout }}
+              iface {{ inline_nic.stdout }} inet manual
+                  pre-up /sbin/ip link set dev {{ inline_nic.stdout }} up
+          when: inline_definition.rc == 1
+
+        - name: Verify ifupdown accepts the inline interface
+          ansible.builtin.command:
+            argv: [ifquery, '{{ inline_nic.stdout }}']
+          changed_when: false
+
+        - name: Bring up the inline interface through ifupdown
+          ansible.builtin.command:
+            argv: [ifup, '{{ inline_nic.stdout }}']
+          changed_when: true
+
+    - name: Start services with the clone addresses
+      ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
+      changed_when: true
+
+    - name: Restore PacketFence startup for subsequent recovery boots
+      ansible.builtin.command: systemctl set-default packetfence.target
+      changed_when: true

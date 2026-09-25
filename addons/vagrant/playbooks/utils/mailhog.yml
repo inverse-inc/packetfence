@@ -12,6 +12,7 @@
     ansible.builtin.setup:
       gather_subset:
         - "!all"
+        - "network"
 
   roles:
     - role: mailhog

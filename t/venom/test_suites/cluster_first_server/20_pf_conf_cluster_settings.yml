@@ -34,18 +34,50 @@ testcases:
     assertions:
       - result.code ShouldEqual 0
 
-- name: append_pfconfig_conf
+# Same [mysql] host/port, but set key by key instead of appending the section:
+# the configurator already created [mysql] (user/pass/db, no host) through
+# pfappserver's Config::Pfconfig, so a `grep -q '^\[mysql\]'` guard skips the
+# whole block and pfconfig.conf.defaults keeps supplying host=localhost — which
+# checkup rejects as FATAL in a cluster. setval-or-newval is also re-runnable.
+- name: set_pfconfig_db_endpoint
   steps:
   - type: exec
     script: |
-      if ! grep -q '^\[mysql\]' /usr/local/pf/conf/pfconfig.conf; then
-      cat >> /usr/local/pf/conf/pfconfig.conf <<EOF
+      perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
+        my $c = Config::IniFiles->new(-file => "/usr/local/pf/conf/pfconfig.conf", -allowempty => 1);
+        for my $kv (["host", $ARGV[0]], ["port", $ARGV[1]]) {
+            $c->setval("mysql", @$kv) or $c->newval("mysql", @$kv);
+        }
+        $c->RewriteConfig or die "cannot rewrite pfconfig.conf";
+      ' '{{.proxysql_bind_ip}}' '{{.proxysql_port}}'
+      chown pf:pf /usr/local/pf/conf/pfconfig.conf
+    assertions:
+      - result.code ShouldEqual 0
 
-      [mysql]
-      host={{.proxysql_bind_ip}}
-      port={{.proxysql_port}}
-      EOF
-      fi
+# The shared configurator suite configures the vagrant/internet NIC as a
+# dhcp-listener, so pf.conf carries an [interface eth0] section. checkup then
+# demands a matching [<server> interface eth0] in cluster.conf for CLUSTER and
+# every node, and a CLUSTER entry there would put a keepalived VIP on the
+# libvirt management network — the runner's own SSH path. The cluster scenarios
+# never exercise the dhcp-listener, so drop the section from PF's interface list
+# instead; eth0 keeps its vagrant IP and its dhclient either way. pf.conf is a
+# synced config store, so doing it here (before cluster/sync) propagates to the
+# joiners, which is how they inherited the FATAL in the first place.
+- name: remove_dhcp_listener_interface
+  steps:
+  - type: exec
+    script: |
+      set -e
+      DHCPIF=$(ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}:' | awk -F ': ' '{print $2}' | cut -d'@' -f1 | tr -d ' ')
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -e '
+        use pf::ConfigStore::Interface;
+        my $cs = pf::ConfigStore::Interface->new;
+        exit 0 unless $cs->hasId($ARGV[0]);
+        my (undef, $removed) = $cs->remove($ARGV[0]);
+        die "cannot remove interface $ARGV[0]" unless $removed;
+        my ($ok, $err) = $cs->commit;
+        die "cannot commit pf.conf: $err" unless $ok;
+      ' "$DHCPIF"
     assertions:
       - result.code ShouldEqual 0
 
