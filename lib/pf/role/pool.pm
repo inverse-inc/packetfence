@@ -71,6 +71,77 @@ sub getVlanFromPool {
     return $vlan;
 }
 
+=head2 getRoleFromPool
+
+Resolve a switch role pool to a single role. A role pool is a comma-separated
+list of role strings (e.g. "net_a,net_b,net_c") returned by getRoleByName. Unlike
+the VLAN pool, roles are arbitrary strings, so the members are taken verbatim
+(no Number::Range expansion). The selection always uses the username hash: it is
+a deterministic function of the node owner (pid), so a given user is mapped to
+the same role on every re-authentication and while roaming between APs. A plain
+single role (no pool) is returned unchanged.
+
+=cut
+
+sub getRoleFromPool {
+    my ($self, $args) = @_;
+    my $logger = pf::log::get_logger();
+
+    return unless (defined($args->{'role'}));
+
+    return $args->{'role'} unless $self->_isRolePool($args->{'role'});
+
+    my @roles = _poolMembers($args->{'role'});
+    # Hash on the owner (pid) so a user's devices share one role and stay stable
+    # while roaming. Machine auth / MAB / unowned nodes have no usable pid
+    # (undef / "" / "default"); fall back to the device MAC so those clients are
+    # spread per-device instead of all landing on the same member -- still
+    # deterministic, so a given device is roaming-stable.
+    my $pid = $args->{'node_info'}->{'pid'};
+    my $key = (defined($pid) && length($pid) && $pid ne 'default') ? $pid : ($args->{'mac'} // '');
+    my $index = $self->_usernameHashIndex($key);
+    my $role = $roles[($index + 1) % scalar(@roles)];
+    $logger->trace("Selected role '$role' from pool for key '$key'");
+    return $role;
+}
+
+=head2 _isRolePool
+
+Return true when the value is a role pool, i.e. a comma-separated list with at
+least two non-empty members. A single role (no comma) is not a pool.
+
+=cut
+
+sub _isRolePool {
+    my ($self, $value) = @_;
+    return 0 unless (defined($value));
+    return (scalar(_poolMembers($value)) >= 2) ? 1 : 0;
+}
+
+=head2 _poolMembers
+
+Split a comma-separated pool string into a list of trimmed, non-empty members.
+
+=cut
+
+sub _poolMembers {
+    my ($value) = @_;
+    return grep { length($_) } map { s/^\s+|\s+$//gr } split(/,/, $value);
+}
+
+=head2 _usernameHashIndex
+
+Compute the pool index from the username (pid): a checksum of the characters
+plus the length. Shared by the VLAN and the role username-hash selection so both
+stay deterministic and identical for a given user.
+
+=cut
+
+sub _usernameHashIndex {
+    my ($self, $pid) = @_;
+    return unpack("%16C*", $pid) + length($pid);
+}
+
 =head2 rangeValidator
 
 Validate the range definition
@@ -176,7 +247,7 @@ Return the vlan id based on a hash of the username
 sub getVlanByUsername {
     my ( $self, $args, $range ) = @_;
     my $logger = pf::log::get_logger();
-    my $index = unpack( "%16C*", $args->{'node_info'}->{'pid'} ) + length($args->{'node_info'}->{'pid'});
+    my $index = $self->_usernameHashIndex($args->{'node_info'}->{'pid'});
 
     my $vlan_count = $range->size;
     my @array = $range->range;

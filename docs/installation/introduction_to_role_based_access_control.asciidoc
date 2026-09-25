@@ -51,6 +51,35 @@ algorithms: one based on a hash of the username (default one), another one based
 on a round-robin (last registered device +1) and one that selects a VLAN
 randomly in the pool.
 
+The same pooling mechanism is available for the _Switch Role_ mapping (_Role
+mapping by Switch Role_), which is useful when a controller distributes clients
+through a role attribute such as `Filter-Id` instead of a VLAN. Instead of a
+single role, set a comma-separated list of roles, e.g. `role_a,role_b,role_c` -
+PacketFence then returns one of these roles. Because roles are arbitrary strings
+(not numeric ranges), the `..` range syntax does not apply; list every role
+explicitly. The selection always uses the username hash, so a given user is
+mapped to the same role on every re-authentication and keeps that role while
+roaming between access points. For this stability to hold, configure the same
+role pool (same list, same order) on every switch the user can roam across - a
+_Switch Group_ is the simplest way to guarantee that.
+
+The pool member is chosen from the node owner (username): all devices of a user
+share the same role. For machine authentication, MAC authentication or otherwise
+unowned nodes - which have no username - the device MAC address is used instead,
+so those clients are spread across the pool per device (and each device keeps its
+role while roaming).
+
+IMPORTANT: All members of a role pool must be equally privileged. The selection
+is deterministic and therefore predictable/influenceable by the client (in
+particular with MAC authentication, where the MAC is spoofable); a client can
+only ever land on a member of the pool of its own already-assigned role, but if
+the members grant different access levels a client could steer towards the more
+privileged one. Treat a role pool strictly as a set of interchangeable networks.
+
+NOTE: Role pooling applies to the _Switch Role_ (Filter-Id) mapping. It does not
+apply to downloadable-ACL (push ACL) enforcement, where the global role name is
+sent instead, nor to the VoIP voice role.
+
 _Configuration -> Policies and Access Control -> Roles_, click on `New Role`.
 Provide the following information:
 
