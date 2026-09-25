@@ -1,0 +1,120 @@
+# pf-cluster-upgrade.conf
+#
+# Copy to /usr/local/pf/conf/pf-cluster-upgrade.conf, or pass --config <file>.
+# The script sources this file: only comments and plain VARIABLE=VALUE lines
+# are allowed, no $(...), no backticks, no ';'. A comment needs its own line -
+# a '#' behind a value would be part of the value.
+# chmod 600, the webservices password may end up in here.
+#
+# One file for the whole cluster: MASTER_NODE is compared against the node's
+# own short name, and SSH_IDENTITY is a path under which every node has its
+# OWN key. So it can be distributed via git unchanged.
+
+# --- Cluster ------------------------------------------------------------------
+# Only this node may drive the procedure; elsewhere 'status' and 'preflight'
+# still work. Compared against the node's own short name. Unset = no
+# restriction, and the run warns once.
+#MASTER_NODE=pf-node1
+# Node list; empty => order from cluster.conf, which defines the roles A, B, C
+# of Clustering Guide 12.4. Hostnames only - bin/cluster/node rejects an IP.
+#NODES=(pf-node1 pf-node2 pf-node3)
+# Node C, detached and upgraded first. Empty => last node in cluster.conf.
+#PIONEER=pf-node3
+
+# --- SSH ----------------------------------------------------------------------
+# Must be root and work without a password. The address is the management_ip
+# from cluster.conf, so no DNS entry is needed.
+SSH_USER=root
+# This node's private key: same path everywhere, different content - all three
+# public keys are authorised on all three nodes. Mode 600, or ssh silently
+# refuses it. Left empty, preflight offers to create it, distribute it with
+# ssh-copy-id and write the path back here.
+SSH_IDENTITY=/root/.ssh/id_pf_cluster
+SSH_CONNECT_TIMEOUT=10
+# Keepalives; without them a half-open connection blocks the script forever.
+SSH_ALIVE_INTERVAL=15
+SSH_ALIVE_COUNT=4
+# Values with spaces MUST be quoted, otherwise bash executes the second half.
+#SSH_EXTRA_OPTS="-o Port=2222"
+# Retries for pure connection failures (read-only calls only).
+RETRY_COUNT=5
+RETRY_DELAY=15
+
+# --- Webservices credentials for cluster/sync (12.4.5) ------------------------
+# Normally read from the pf.conf of node C; set only if that fails.
+# Configuration -> Integration -> Web Services
+#WS_USER=packet
+#WS_PASS=
+
+# --- Paths --------------------------------------------------------------------
+PF_ROOT=/usr/local/pf
+# Next to the other PacketFence logs, named pfclu-<phase>-<timestamp>.log
+LOG_DIR=/usr/local/pf/logs
+STATE_FILE=/root/.pf-cluster-upgrade.state
+# 1 = keep the state file after 'finish' instead of deleting it.
+KEEP_STATE=0
+
+# --- Disk space ---------------------------------------------------------------
+# 12.4.6 resyncs the whole database onto A and B.
+MIN_FREE_MB_MYSQL=10240
+# Full backup by run-upgrade.sh, plus the new container images.
+MIN_FREE_MB_ROOT=8192
+MIN_FREE_MB_APTCACHE=2048
+
+# --- Waiting and retries ------------------------------------------------------
+# Interval between status queries in the wait loops. Leave as is.
+POLL_SECS=15
+# Wait for healthy services after a restart, and how many green polls in a row
+# a node needs before it counts healthy.
+SERVICE_WAIT_TIMEOUT=600
+SERVICE_OK_POLLS=2
+# A full Galera sync can take an hour on a large database.
+GALERA_WAIT_TIMEOUT=3600
+DB_WAIT_TIMEOUT=180
+# Pause between 'configreload hard' and the start of the services, so they do
+# not all hit the emptied config cache in the same second and run into
+# StartLimitBurst. It sits in the preparation step, which in upgrade-c runs
+# BEFORE the other two nodes are stopped - so it costs no outage.
+CONFIG_SETTLE_SECS=20
+# Poke units locked out by StartLimitBurst once, no earlier than _AFTER
+# seconds into the wait.
+SERVICE_REVIVE=1
+SERVICE_REVIVE_AFTER=60
+# Retries for the effect check after each step.
+VERIFY_RETRIES=6
+VERIFY_RETRY_SECS=5
+# keepalived is started last, once the traffic-bearing services are up, and the
+# node then has this long to actually hold the VIP. That the address is there
+# is the only trustworthy answer - a keepalived reporting 'started' says
+# nothing about VRRP.
+VIP_WAIT_TIMEOUT=180
+# The VIP itself. Empty = management_ip of the [CLUSTER] section in
+# cluster.conf. Used ONLY for that check, never as an ssh target - it moves.
+# Without a VIP anywhere the check is skipped with a warning.
+#CLUSTER_VIP=
+# Wait for the shutdown marker in the journal, then a grace period before
+# SIGKILL helps - see RS_STOP_MARIADB in the script.
+MARIADB_STOP_TIMEOUT=600
+MARIADB_STOP_GRACE=60
+
+# --- Handover to do-upgrade.sh ------------------------------------------------
+# Without these run-upgrade.sh prompts, and detached it has no terminal.
+# Target version as major.minor: the repositories are named that way, and a
+# three-part version yields a 404 only after the package source was rewritten.
+# Also settable with --target-version.
+#TARGET_VERSION=15.2
+# "no" is right when the OS was already updated against the OLD package source.
+INCLUDE_OS_UPDATE=no
+# Max runtime of a detached operation. On overrun it keeps running on the node
+# and the script says how to reattach.
+DETACH_TIMEOUT=14400
+# 1 = run do-upgrade.sh on the terminal (= --interactive-upgrade). Prompts can
+# be answered, but a dropped connection aborts the upgrade.
+INTERACTIVE_UPGRADE=0
+
+# --- Services restarted on A and B after C is detached (12.4.4) ---------------
+# Order matters; this is the list from the guide. It has to stay on ONE line -
+# a continuation line is not an assignment and the file would be rejected.
+# 15.x does not manage 'pfdhcplistener' any more (the script says so and carries
+# on); the component is called 'pfdhcp' there.
+#DETACH_RESTART_SERVICES=(radiusd pfdhcplistener haproxy-admin haproxy-db proxysql haproxy-portal keepalived)
