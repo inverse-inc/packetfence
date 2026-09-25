@@ -35,6 +35,7 @@ various methods:
  * Kickbox
  * LDAP
  * LinkedIn (OAuth 2)
+ * Local Database
  * Null
  * OpenID Connect (OAuth 2)
  * RADIUS
@@ -173,6 +174,33 @@ First unplug and unregister again the Microsoft Windows 7 endpoint. Then,
 connect the endpoint in switch port no. 10 - you should see the captive portal
 with the new SMS-based registration option. Note that the Null option will also
 be offered.
+
+=== Local Database Authentication
+
+The `Local Database` source authenticates the users stored in the PacketFence
+database, the same credential store as the internal SQL source, but it assigns
+rights through rules instead of reading them from the user account. Conditions
+can be written on the attributes stored on the user - access level, role,
+unregistration date, expiration and the person attributes - in addition to the
+common conditions such as SSID, connection type, time period, realm or switch.
+
+Add the source from _Configuration -> Policies and Access Control ->
+Authentication Sources_, click `New internal source -> Local Database`. Use
+administration rules to grant administration access levels, and authentication
+rules to assign network roles. As for every source, it then has to be added to a
+connection profile.
+
+When no rule matches, the source falls back to the attributes stored on the user
+account itself, the way the internal SQL source assigns them. This keeps an
+administrator whose rights only come from their account from losing access to
+the admin interface and to the switch CLI. Set `Fallback to Static User
+Attributes` to off for a strictly rule-based setup - rules can then be the only
+source of rights.
+
+[WARNING]
+An administration rule without conditions is a catchall: it changes the access
+level of every user of the local database, administrators included, and can lock
+them out. Always give administration rules a condition.
 
 === Troubleshooting Authentication Issues
 
