@@ -17,6 +17,7 @@
       args:
         chdir: '{{ venom_dir }}'
       loop: '{{ test_suites }}'
+      when: not (item == 'configurator' and lookup('env', 'SKIP_CONFIGURATOR_BAKED') == 'yes')
       vars:
         venom_wrapper_args:
           # temp, overcome Venom issue:
