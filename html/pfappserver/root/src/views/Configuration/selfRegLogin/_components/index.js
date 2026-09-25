@@ -11,7 +11,6 @@ export {
   BaseFormButtonBar                  as FormButtonBar,
 
   BaseFormGroupSwitch                as FormGroupAllowUsernamePassword,
-  BaseFormGroupInput                 as FormGroupSsoAuthorizePath,
   BaseFormGroupInput                 as FormGroupSsoBaseUrl,
   BaseFormGroupInput                 as FormGroupSsoCallbackAllowedHosts,
   BaseFormGroupInput                 as FormGroupSsoLoginPath,

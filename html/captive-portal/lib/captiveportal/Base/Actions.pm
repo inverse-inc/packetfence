@@ -47,6 +47,7 @@ our %AUTHENTICATION_ACTIONS = (
     trigger_portal_mfa => sub { $_[0]->app->session->{mfa_id} = action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::TRIGGER_PORTAL_MFA, undef, $_[0]->session->{extra}); },
     set_access_level => sub { $_[0]->new_node_info->{access_level} = action_authentication_match_wrapper($_[0]->source->id, {%{$_[0]->auth_source_params}, rule_class => "administration"}, $Actions::SET_ACCESS_LEVEL); },
     mark_as_sponsor => sub { $_[0]->new_node_info->{mark_as_sponsor} = action_authentication_match_wrapper($_[0]->source->id, {%{$_[0]->auth_source_params}, rule_class => "administration"}, $Actions::MARK_AS_SPONSOR); },
+    set_access_durations => sub { $_[0]->new_node_info->{access_durations} = action_authentication_match_wrapper($_[0]->source->id, {%{$_[0]->auth_source_params}, rule_class => "administration"}, $Actions::SET_ACCESS_DURATIONS); },
 );
 
 =head2 action_authentication_match_wrapper

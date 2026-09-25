@@ -5,11 +5,11 @@ BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::SelfRegSSO'
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::SelfRegSSO - Root Controller for captiveportal
+captiveportal::DynamicRouting::Module::SelfRegSSO - Self-registration SSO root module for captiveportal
 
 =head1 DESCRIPTION
 
-[enter your description here]
+Overridable wrapper for captiveportal::PacketFence::DynamicRouting::Module::SelfRegSSO
 
 =cut
 

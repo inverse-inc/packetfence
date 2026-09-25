@@ -28,7 +28,7 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $actions;
     if (my $uuid = $c->request->param('token')) {
-        $actions = cache->get($uuid);
+        $actions = $self->cache->get($uuid);
         if (!defined($actions)) {
             $c->response->status(404);
             $c->response->body('{ "access_level" => "none" }');
