@@ -41,7 +41,7 @@ has 'session' => (is => 'rw', required => 1);
 
 has 'user_session' => (is => 'rw', required => 1);
 
-has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root|captiveportal::DynamicRouting::Module::RootSSO|captiveportal::DynamicRouting::Module::SelfRegSSO");
+has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root|captiveportal::DynamicRouting::Module::RootSSO");
 
 has 'root_module_id' => (is => 'rw');
 
@@ -380,7 +380,6 @@ sub render {
 
     my $layout_args = {
         isRootSSO => $self->isRootSSO,
-        isSelfRegSSO => $self->isSelfRegSSO,
         flash => $self->flash,
         content => $inner_content,
         client_mac => $self->current_mac,
@@ -640,7 +639,7 @@ sub _resolve_theme_assets {
 
 =head2 isSelfRegSSO
 
-return $TRUE if the root module ia a SelfRegSSO
+return $TRUE if the root module is a SelfRegSSO (a specialisation of RootSSO, so isRootSSO is also true)
 
 =cut
 
@@ -649,7 +648,6 @@ sub isSelfRegSSO {
     my $root_module = $self->root_module;
     return defined $root_module && $root_module->isa("captiveportal::DynamicRouting::Module::SelfRegSSO")
 }
-
 
 =head1 AUTHOR
 

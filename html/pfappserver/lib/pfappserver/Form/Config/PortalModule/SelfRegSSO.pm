@@ -2,27 +2,20 @@ package pfappserver::Form::Config::PortalModule::SelfRegSSO;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule:SelfRegSSO
+pfappserver::Form::Config::PortalModule::SelfRegSSO
 
 =head1 DESCRIPTION
 
-Form definition to create or update a root portal module based on session.
+Form definition to create or update a self-registration SSO root portal module.
+Same fields as RootSSO, only the module class differs.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::PortalModule::Chained';
-with 'pfappserver::Base::Form::Role::Help';
+extends 'pfappserver::Form::Config::PortalModule::RootSSO';
 
 use captiveportal::DynamicRouting::Module::SelfRegSSO;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::SelfRegSSO'}
-
-## Definition
-
-before 'setup' => sub {
-    my ($self) = @_;
-    $self->remove_field("actions");
-};
 
 =over
 

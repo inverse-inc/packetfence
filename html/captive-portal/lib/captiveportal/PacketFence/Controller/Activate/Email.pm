@@ -17,6 +17,8 @@ use pf::web;
 use pf::log;
 use pf::web::guest 1.30;
 use HTML::Entities;
+use URI::Escape qw(uri_escape);
+use pf::CHI;
 
 # called last to allow redefinitions
 use pf::web::custom;
@@ -129,11 +131,71 @@ sub login : Private {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
+    elsif ( my $error = $c->request->param("error") ) {
+        # Coming back from the SSO flow (SelfRegSSO logout)
+        $c->stash->{txt_auth_error} = $error eq "canceled" ? "The single sign-on login was canceled." : "The single sign-on login failed.";
+    }
+    my $sso = $Config{self_reg_login};
+    if ( isenabled($sso->{sso_status}) ) {
+        # Send the sponsor through the SelfRegSSO root module and back to this activation link
+        my $callback = $c->request->uri->clone;
+        $callback->scheme("https");
+        $callback->query(undef);
+        $callback->fragment(undef);
+        $c->stash(
+            sso_login_url  => $sso->{sso_base_url} . $sso->{sso_login_path} . "?callback=" . uri_escape($callback->as_string),
+            sso_login_text => $sso->{sso_login_text} || "Single Sign On",
+        );
+    }
     $c->stash(
         title => "Guest Sponsor Login",
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
         username => $c->request->param_encoded("username"),
+        allow_username_password => $self->sponsorPasswordLoginAllowed,
     );
+}
+
+=head2 sponsorPasswordLoginAllowed
+
+Whether the sponsor may authenticate with a username and password on the activation page
+
+=cut
+
+sub sponsorPasswordLoginAllowed {
+    my $sso = $Config{self_reg_login};
+    return 1 unless isenabled($sso->{sso_status});
+    return isenabled($sso->{allow_username_password}) ? 1 : 0;
+}
+
+=head2 sponsorSsoCache
+
+The cache where the SelfRegSSO root module stores its tokens
+
+=cut
+
+sub sponsorSsoCache { return pf::CHI->new(namespace => 'portalselfreg'); }
+
+=head2 loginFromSsoToken
+
+Authenticate the sponsor from the single-use token handed back by the SelfRegSSO root module
+
+=cut
+
+sub loginFromSsoToken : Private {
+    my ( $self, $c, $token ) = @_;
+    my $cache = $self->sponsorSsoCache;
+    my $info = $cache->get($token);
+    $cache->remove($token) if defined $info;
+    unless ( ref($info) eq 'HASH' && defined $info->{pid} && defined $info->{source_id} ) {
+        $c->log->warn("Invalid or expired sponsor SSO token");
+        $c->error("Your single sign-on session is invalid or has expired. Please try again.");
+        return;
+    }
+    $c->log->info("Sponsor $info->{pid} authenticated through single sign-on with source $info->{source_id}");
+    $c->user_session->{username}     = $info->{pid};
+    $c->user_session->{source_id}    = $info->{source_id};
+    $c->user_session->{source_match} = $info->{source_id};
+    $c->user_session->{sponsor_sso}  = $info;
 }
 
 =head2 set_access_durations
@@ -177,34 +239,53 @@ sub doSponsorRegistration : Private {
             # so we go ahead and allow the guest in
             if ( !defined( $c->user_session->{"username"} ) ) {
 
+                if ( my $token = $request->param("token") ) {
+                    # Sponsor is coming back from the single sign-on flow (SelfRegSSO root module)
+                    $c->forward('loginFromSsoToken', [$token]);
+                    $c->detach('login') if $c->has_errors;
+                }
                 # User is not logged and didn't provide username or password: show login form
-                if (!(  $request->param("username") && $request->param("password")
-                    )
-                  ) {
+                elsif ( !( $request->param("username") && $request->param("password") ) || !$self->sponsorPasswordLoginAllowed ) {
                     $logger->info(
                         "Sponsor needs to authenticate in order to activate guest. Guest token: $code"
                     );
                     $c->detach('login');
                 }
-
-                # User provided username and password: authenticate
-                $c->forward(Authenticate => 'authenticationLogin');
-                $c->detach('login') if $c->has_errors;
+                else {
+                    # User provided username and password: authenticate
+                    $c->forward(Authenticate => 'authenticationLogin');
+                    $c->detach('login') if $c->has_errors;
+                }
             }
-            # Verify if the user has the role mark as sponsor
+            # Verify if the user has the role mark as sponsor.
+            # After a single sign-on the rules were already evaluated with the full source context
+            # (SAML/OAuth attributes) by the portal modules, so we use those results.
+            my $sponsor_sso = $c->user_session->{sponsor_sso};
             my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::MARK_AS_SPONSOR, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
-            my $values = $matched->{values};
+            my $values;
+            if ($sponsor_sso) {
+                $values = {
+                    $Actions::MARK_AS_SPONSOR      => $sponsor_sso->{mark_as_sponsor},
+                    $Actions::SET_ACCESS_DURATIONS => $sponsor_sso->{access_durations},
+                };
+            }
+            else {
+                my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::MARK_AS_SPONSOR, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+                $values = $matched->{values};
+            }
 
             unless (defined $values->{$Actions::MARK_AS_SPONSOR}) {
                 $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
                 $c->user_session->{username} = undef;
+                delete $c->user_session->{sponsor_sso};
                 $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
 
-            $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::SET_ACCESS_DURATIONS, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
-            $values = $matched->{values};
+            unless ($sponsor_sso) {
+                my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::SET_ACCESS_DURATIONS, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+                $values = $matched->{values};
+            }
             if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
                 if ($request->param("access_duration")) {
                     my $unregdate = pf::config::access_duration($request->param("access_duration"));

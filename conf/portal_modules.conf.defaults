@@ -64,6 +64,6 @@ type=RootSSO
 modules=default_registration_policy,default_mfa_policy
 
 [default_self_reg_sso_policy]
-description=Default self registration SSO policy
+description=Default sponsor SSO policy
 type=SelfRegSSO
 modules=default_registration_policy,default_mfa_policy

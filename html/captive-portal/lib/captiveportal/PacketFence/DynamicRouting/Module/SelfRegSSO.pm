@@ -2,108 +2,60 @@ package captiveportal::PacketFence::DynamicRouting::Module::SelfRegSSO;
 
 =head1 NAME
 
-DynamicRouting::RootModule
+DynamicRouting::Module::SelfRegSSO
 
 =head1 DESCRIPTION
 
-Root module for Dynamic Routing
+Root module used to authenticate a user through the portal sources (SAML, OAuth,
+MFA, ...) on behalf of another portal page, typically the sponsor activation link
+(/activate/email/sponsor/<code>). The activation page sends the browser here
+with a callback, the chained modules authenticate the user, and the resulting
+info (pid, source, mark_as_sponsor, access_durations) is stored under a random
+token in the portalselfreg namespace before redirecting back to the callback.
+The token namespace is separate from RootSSO's so it can never be exchanged for
+an admin session. Settings come from the [self_reg_login] section.
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::Module::Chained';
-with 'captiveportal::Role::Routed';
+extends 'captiveportal::DynamicRouting::Module::RootSSO';
 
-has '+route_map' => (default => sub {
-    tie my %map, 'Tie::IxHash', (
-        '/logout' => \&logout,
-    );
-    return \%map;
-
-});
-
-use pf::log;
-use pf::util;
 use pf::CHI;
-use pf::constants qw($TRUE);
-use Bytes::Random::Secure;
+use pf::authentication;
+use List::MoreUtils qw(uniq);
 
 sub cache { return pf::CHI->new(namespace => 'portalselfreg'); }
 
-has '+parent' => (required => 0);
+sub sso_config_section { return 'self_reg_login' }
 
-=head2 around done
+=head2 allowed_callback_hosts
 
-Once this is done, we release the user on the network
+Also allow the activation domains of the sponsor sources, since the sponsor activation link lives there
 
 =cut
 
-around 'done' => sub {
+around 'allowed_callback_hosts' => sub {
     my ($orig, $self) = @_;
-    if($self->execute_actions()){
-        $self->release();
+    my $hosts = $self->$orig();
+    for my $source (@{ pf::authentication::getAuthenticationSourcesByType('SponsorEmail') }) {
+        my $domain = $source->{activation_domain} // '';
+        $domain =~ s/:\d+$//;
+        push @$hosts, lc $domain if length $domain;
     }
-    else {
-        $self->app->reset_session();
-        $self->redirect_root();
-    }
+    return [ uniq @$hosts ];
 };
-
-=head2 logout
-
-Logout of the captive portal
-
-=cut
-
-sub logout {
-    my ($self) = @_;
-    my $callback = $self->app->session->{callback};
-    $self->app->reset_session;
-    $self->app->redirect($callback."?error=canceled");
-}
-
-=head2 release
-
-Reevaluate the access of the user and show the release page
-
-=cut
-
-sub release {
-    my ($self) = @_;
-    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{self_reg_session_token});
-}
-
-=head2 execute_child
-
-Execute the flow for this module
-
-=cut
-
-sub execute_child {
-    my ($self) = @_;
-    if ($self->app->request->param('callback')) {
-        $self->app->session->{callback} = $self->app->request->param('callback');
-    }
-
-    $self->SUPER::execute_child();
-}
 
 =head2 execute_actions
 
-Register the device and apply the new node info
+Record which source authenticated the user so the callback page can evaluate its rules
 
 =cut
 
 sub execute_actions {
     my ($self) = @_;
-    my $rand = Bytes::Random::Secure->new(
-            Bits        => 64,
-            NonBlocking => 1,
-        );
-    my $token = unpack("H*", $rand->bytes(32));
-    cache->set($token, $self->new_node_info);
-    $self->{self_reg_session_token} = $token;
-    return $TRUE;
+    my $source = $self->app->session->{source};
+    $self->new_node_info->{source_id} = $source->id if defined $source;
+    return $self->SUPER::execute_actions();
 }
 
 =head1 AUTHOR
