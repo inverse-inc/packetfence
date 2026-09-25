@@ -66,6 +66,9 @@ requests, which helps PacketFence to profile the device:
      radius av-pair dhcp parameter-request-list
      radius av-pair dhcp vendor-class-id
 
+The LLDP attributes are only sent when LLDP runs on the access port, which is
+the EOS default (see the 'VoIP' section below to re-enable it).
+
 ===== 802.1X with MAC Authentication Bypass (MAB)
 
 Apply the following configuration on each access port that should be
@@ -93,10 +96,19 @@ phone), authenticate each host individually:
 
 ===== VoIP
 
-Arista EOS uses LLDP-MED to advertise the voice VLAN to IP phones. Make sure
-LLDP is enabled on the access ports, that the port authenticates each host
-individually (`dot1x host-mode multi-host authenticated`) and set the voice
-VLAN on the port:
+Arista EOS uses LLDP-MED to advertise the voice VLAN to IP phones. LLDP is
+enabled by default on EOS; if it was disabled, re-enable it globally and on
+the access ports:
+
+  lldp run
+  !
+  interface Ethernet1
+     lldp transmit
+     lldp receive
+
+Make sure the port authenticates each host individually
+(`dot1x host-mode multi-host authenticated`) and set the voice VLAN on the
+port:
 
   interface Ethernet1
      switchport phone vlan 100
