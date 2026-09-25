@@ -2142,7 +2142,6 @@ sub setup_api_v1_fingerbank_routes {
     my $upstream = $route->any("/upstream")->to(scope => "Upstream")->name( $route->name . ".Upstream");
     my $local_route = $route->any("/local")->to(scope => "Local")->name( $route->name . ".Local");
     my $all_route = $route->any("/all")->to(scope => "All")->name( $route->name . ".All");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Combinations", "/combinations", "/combination/#combination_id");
     $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Devices", "/devices", "/device/#device_id");
     $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Enterprises", "/dhcp6_enterprises", "/dhcp6_enterprise/#dhcp6_enterprise_id");
     $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Fingerprints", "/dhcp6_fingerprints", "/dhcp6_fingerprint/#dhcp6_fingerprint_id");

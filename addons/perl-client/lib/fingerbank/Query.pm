@@ -10,12 +10,10 @@ use POSIX;
 use fingerbank::Config;
 use fingerbank::Constant qw($TRUE $LOCAL_SCHEMA);
 use fingerbank::Log;
-use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
 use fingerbank::Model::Endpoint;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 use fingerbank::SourceMatcher;
-use fingerbank::Source::LocalDB;
 use fingerbank::Source::Collector;
 use fingerbank::NullCache;
 
@@ -32,7 +30,6 @@ sub match {
     $self->parseArgs($args);
 
     my $matcher = fingerbank::SourceMatcher->new(cache => $self->cache);
-    $matcher->register_source(fingerbank::Source::LocalDB->new);
     $matcher->register_source(fingerbank::Source::Collector->new);
 
     return $matcher->match_best($args);

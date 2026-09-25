@@ -21,7 +21,6 @@ use List::MoreUtils qw(any uniq);
 use pf::error qw(is_success is_error);
 use pf::log;
 use fingerbank::Model::Device;
-use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP6_Enterprise;
 use fingerbank::Model::DHCP6_Fingerprint;

@@ -22,7 +22,6 @@ use lib qw(t);
 
 # TODO : This should be reworked to be more dynamic
 runtests(
-    "t/Source/LocalDB.t",
     "t/Model/Endpoint.t",
     "t/Model/Combination.t",
 );

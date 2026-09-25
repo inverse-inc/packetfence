@@ -1,6 +1,6 @@
 %global     fb_prefix %{_prefix}/local/%{name}
 Name:       fingerbank
-Version:    4.3.4
+Version:    4.3.6
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    An exhaustive device profiling tool
@@ -118,6 +118,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep 23 2026 Inverse Inc. <info@inverse.ca> - 4.3.6-1
+- Remove local combinations: purge the local combination table (schema 4.2) and stop matching against it
 * Mon Jun 15 2026 Inverse Inc. <info@inverse.ca> - 4.3.4-1
 - Fix collector.port field type from numeric to text to allow the env variable default
 * Tue Apr 15 2025 Inverse Inc. <info@inverse.ca> - 4.3.3-1
