@@ -206,8 +206,11 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref, @direction) = $self->format_acl($acl);
 
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableFilterRule($_[0], ranges => 1, source => 1) });
+
     my $acl_chewed;
-    foreach my $acl_entry (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl_entry (@$entries) {
         # Strip protocol code (e.g., tcp(6) -> tcp)
         my $protocol = $acl_entry->{'protocol'};
         $protocol =~ s/\(\d*\)//;
@@ -254,7 +257,7 @@ sub acl_chewer {
                 # range 80 100 -> 80-100
                 $dest_port = "$1-$2";
             } else {
-                # eq 80 -> 80, gt 1024 -> extract number
+                # eq 80 -> 80
                 $dest_port =~ s/\w+\s+//;
             }
         }
