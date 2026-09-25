@@ -14,7 +14,7 @@
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
                     <b-badge pill v-if="notification.value" class="mr-2" :variant="notification.variant">{{notification.value}}</b-badge>
-                    <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span :class="{ 'font-weight-bold': notification.unread }" v-html="notification.message" />
+                    <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span :class="{ 'font-weight-bold': notification.unread }" v-safe-html="notification.message" />
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                 </b-col>

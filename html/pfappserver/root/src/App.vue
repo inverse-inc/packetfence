@@ -199,9 +199,9 @@ const setup = (props, context) => {
 
   // load language from user preferences
   const settings = ref({ language: navigatorLanguage })
-  const token = computed(() => $store.state.session.token)
-  watch(token, () => {
-    if (!token.value)
+  const authenticated = computed(() => $store.state.session.authenticated)
+  watch(authenticated, () => {
+    if (!authenticated.value)
       return setLanguage(navigatorLanguage)
     $store.dispatch('preferences/get', 'settings')
       .then(() => {

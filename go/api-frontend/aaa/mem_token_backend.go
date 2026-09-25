@@ -58,4 +58,8 @@ func (mtb *MemTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
+func (mtb *MemTokenBackend) InvalidateToken(token string) {
+	mtb.store.Delete(token)
+}
+
 var _ TokenBackend = (*MemTokenBackend)(nil)
