@@ -1512,7 +1512,9 @@ it consistent across all the roles of the switch:
 * *ACL enforcement*: the port stays in the VLAN configured with `switchport
   access vlan`, and each role is a set of ACLs. Set the VLAN of every role to
   the access VLAN of the port, or leave the role VLANs empty, so that
-  PacketFence does not return any `Tunnel-*` attribute.
+  PacketFence does not return any `Tunnel-*` attribute. The simplest way to
+  guarantee it is to uncheck 'Role by VLAN ID' in the 'Roles' tab of the
+  switch, next to 'Role by access list'.
 
 ===== Supported models and NX-OS releases
 
@@ -1667,6 +1669,12 @@ from, which is the same virtual IP in a cluster:
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
    port 3799
+
+PacketFence sends a CoA-Request carrying the `Calling-Station-Id` and the
+Cisco-AVPairs `subscriber:command=reauthenticate` and
+`subscriber:reauthenticate-type=last`. The switch answers CoA-ACK and
+authenticates the device again, which then gets its new role. The
+`server-key` must be the RADIUS secret of the switch entry in PacketFence.
 
 NOTE: A cluster only sends its CoA from the virtual IP while
 `active_active.centralized_deauth` and `active_active.use_vip_for_deauth` are
