@@ -55,6 +55,17 @@ sub code : Path : Args(2) {
     my $request = $c->request;
     my $logger  = $c->log;
 
+    # Email security gateways (Outlook Safe Links, Proofpoint, ...) pre-fetch
+    # links with a HEAD request before the user ever clicks. Consuming the
+    # activation code on that request leaves the real click with an already
+    # used code. Only a GET (or POST) from the user may validate the code.
+    if ( $request->method ne 'GET' && $request->method ne 'POST' ) {
+        $logger->info("Ignoring " . $request->method . " request for activation code $code from " . $request->address);
+        $c->response->status(200);
+        $c->response->body('');
+        $c->detach;
+    }
+
     # validate code
     my $activation_record = pf::activation::validate_code($type, $code);
     if (  !defined($activation_record)
