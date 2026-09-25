@@ -29,6 +29,13 @@
                                          :text="$i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')"
     />
 
+    <form-group-wait-for-activation namespace="wait_for_activation"
+                                    :column-label="$i18n.t('Wait for activation')"
+                                    :text="$i18n.t('Keep the device on the captive portal until the activation link is clicked, typically from another device (e.g. a phone). No temporary network access is granted and the Email Activation Timeout only bounds the validity of the link.')"
+                                    enabled-value="enabled"
+                                    disabled-value="disabled"
+    />
+
     <form-group-allow-localdomain namespace="allow_localdomain"
                                   :column-label="$i18n.t('Allow Local Domain')"
                                   :text="$i18n.t('Accept self-registration with email address from the local domain.')"
@@ -89,6 +96,7 @@ import {
   FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
+  FormGroupWaitForActivation,
 } from './'
 
 const components = {
@@ -107,6 +115,7 @@ const components = {
   FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
+  FormGroupWaitForActivation,
 }
 
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'

@@ -12,6 +12,7 @@ use pf::Authentication::constants;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
 use pf::log;
+use pf::util qw(isenabled);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -24,6 +25,7 @@ has '+class' => (default => 'external');
 has '+type' => (default => 'Email');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
+has 'wait_for_activation' => (isa => 'Maybe[Str]', is => 'rw', default => 'disabled');
 
 =head2 dynamic_routing_module
 
@@ -83,6 +85,19 @@ sub match_in_subclass {
         }
     }
     return ($params->{'username'}, undef);
+}
+
+=head2 waitForActivation
+
+Whether the device must stay on the captive portal until the activation link
+is clicked (typically from another device) instead of being granted temporary
+network access for email_activation_timeout.
+
+=cut
+
+sub waitForActivation {
+    my ($self) = @_;
+    return isenabled($self->wait_for_activation);
 }
 
 =head2 mandatoryFields
