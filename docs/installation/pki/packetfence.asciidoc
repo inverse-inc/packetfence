@@ -271,7 +271,7 @@ click *Yes*
 
 image::Intune-8-Grant-Admin.png[scaledwidth="100%",alt="Grant-Admin"]
 
-CAUTION: Key storage provider (KSP) needs to be set to *Enroll to Software KSP*
+CAUTION: Before Packetfence version 12.1, Key storage provider (KSP) needs to be set to *Enroll to Software KSP*
 
 image::Intune_KSP.png[scaledwidth="100%",alt="KSP"]
 
