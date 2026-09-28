@@ -19,14 +19,18 @@ hdr() { printf '\n=== %s\n' "$*"; }
 # VM. Args: <action-label> <user>...
 assert_host_idle() {
     local label=$1; shift
-    local busy= user
+    local busy= user domains
     for user in "$@"; do
         if pgrep -u "${user}" -af vagrant >/dev/null; then
             busy="${busy}vagrant process running as ${user}\n"
         fi
     done
-    if virsh -c qemu:///system list --name 2>/dev/null | grep -q .; then
-        busy="${busy}libvirt domain(s) running:\n$(virsh -c qemu:///system list --name | sed 's/^/  /')\n"
+    if ! domains=$(virsh -c qemu:///system list --name); then
+        printf '%s refused — cannot determine whether libvirt is idle\n' "${label}" >&2
+        exit 1
+    fi
+    if [ -n "${domains//[[:space:]]/}" ]; then
+        busy="${busy}libvirt domain(s) running:\n${domains}\n"
     fi
     if [ -n "${busy}" ]; then
         printf '%s refused — host is not idle:\n%b' "${label}" "${busy}" >&2

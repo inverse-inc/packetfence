@@ -14,7 +14,8 @@
 #
 # Modes:
 #   (default) sweep — legacy pf*dev boxes, stale Tempfiles, prefetch
-#                     scratch, pool backings for legacy boxes.
+#                     scratch, pool backings for legacy boxes. Refuses
+#                     if the host is not idle.
 #   --purge         — wipe ALL vagrant boxes, ALL .vagrant.d/tmp, ALL
 #                     prefetch cache, EVERY pool 'vagrant_box_image_*'
 #                     volume, ALL qemu save/snapshot/dump files. Next
@@ -213,10 +214,12 @@ else
 fi
 echo "  libvirt: ${LIBVIRT_DIR}  pool: ${LIBVIRT_POOL}"
 
-# Purge needs the host idle — pool box-image deletes / qemu/save wipes
-# would otherwise yank state out from under live VMs.
+# Both modes delete pool backing images; require an idle host before
+# removing any user data or volumes.
 if [ "${PURGE}" = yes ]; then
     assert_host_idle PURGE $(echo "${USERS}" | cut -d: -f1)
+else
+    assert_host_idle SWEEP $(echo "${USERS}" | cut -d: -f1)
 fi
 
 hdr "Disk usage before"
