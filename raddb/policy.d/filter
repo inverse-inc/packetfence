@@ -28,12 +28,15 @@ filter_username {
 		#  reject all whitespace
 		#  e.g. "user@ site.com", or "us er", or " user", or "user "
 		#
-		if (&User-Name =~ / /) {
-			update request {
-				&Module-Failure-Message += 'Rejected: User-Name contains whitespace'
-			}
-			reject
-		}
+		#  Disabled: allow whitespace in User-Name (e.g. device names
+		#  like "iPad Air 5th Gen" sent as EAP identity).
+		#
+		#if (&User-Name =~ / /) {
+		#	update request {
+		#		&Module-Failure-Message += 'Rejected: User-Name contains whitespace'
+		#	}
+		#	reject
+		#}
 
 		#
 		#  reject Multiple @'s
