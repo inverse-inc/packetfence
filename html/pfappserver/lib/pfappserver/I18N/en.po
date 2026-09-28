@@ -119,6 +119,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Onboard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Clickatell.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
 msgid "API Key"
 msgstr ""
 
@@ -139,6 +140,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/OpenID.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/WindowsLive.pm
 msgid "API URL"
 msgstr ""
@@ -3038,6 +3040,7 @@ msgid "PID field"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Clickatell.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
 msgid "PIN Code Length"
 msgstr ""
@@ -4162,10 +4165,19 @@ msgstr ""
 msgid "SMS Request Retry Limit"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
+msgid "SMS gateway API Key"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Clickatell.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/SMS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
 msgid "SMS text message ($pin will be replaced by the PIN number)"
+msgstr ""
+
+# pf::Authentication::Source::SMSApiSource (name)
+msgid "SMSApi"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm
@@ -5156,6 +5168,7 @@ msgid "The length of the PIN code to be sent over SMS"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Clickatell.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
 msgid "The length of the PIN code to be sent over sms"
 msgstr ""
 
@@ -5751,6 +5764,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SSL_Inspection.pm
 msgid "URL of an iOS mobileconfig profile to install the certificate."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
+msgid "URL of the Clickatell compatible SMS gateway"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SSL_Inspection.pm

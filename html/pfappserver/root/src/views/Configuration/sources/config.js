@@ -28,6 +28,7 @@ export const externalTypes = {
   Null:           i18n.t('Null'),
   OpenID:         'OpenID',
   SMS:            'SMS',
+  SMSApi:         'SMS API',
   SponsorEmail:   i18n.t('Sponsor'),
   Twilio:         'Twilio',
   WindowsLive:    'WindowsLive',
