@@ -202,7 +202,9 @@ sub get_memberOf {
     );
     if($r->is_success) {
         my $response = decode_json($r->decoded_content);
-        return map{ $_->{displayName} } @{$response->{value}};
+        # Expose both forms so rules can match on the group name or on its
+        # object id, which is stable across renames in Entra
+        return map{ grep { defined $_ } ($_->{displayName}, $_->{id}) } @{$response->{value}};
     }
     else {
         $logger->error("Failed to obtain groups for $username: " . $r->status_line);
