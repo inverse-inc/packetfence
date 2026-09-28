@@ -170,12 +170,12 @@ if vagrant box list | grep -qF "${VAGRANT_BOX_LOCAL_NAME} (${PROVIDER}, ${VAGRAN
 fi
 
 # Download to $HOME's volume, not /tmp (too small for an 8GB box on some
-# runners); wipe the dir first so a killed job's leftover can't fill it.
+# runners). Each invocation owns only its temporary directory so concurrent
+# downloads and their EXIT traps cannot remove one another's files.
 DL_ROOT="${HOME}/.vagrant-box-dl"
-rm -rf "${DL_ROOT}"
 mkdir -p "${DL_ROOT}"
 WORK_DIR=$(mktemp -d -p "${DL_ROOT}")
-trap 'rm -rf "${DL_ROOT}"' EXIT
+trap 'rm -rf "${WORK_DIR}"' EXIT
 
 echo "===> Downloading ${REMOTE_KEY} (pipeline ${CI_PIPELINE_ID})"
 rclone copyto "${remote_prefix}/${REMOTE_KEY}" "${WORK_DIR}/${REMOTE_KEY}"
