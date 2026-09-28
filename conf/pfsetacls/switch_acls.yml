@@ -67,6 +67,7 @@
 [% END %]
 
 [% IF type.match('Aruba::Mobility_Master') %]
+[% DEFAULT wsPath = '/mm' %]
 
     - name: Fetch roles
       aos_api_config:
@@ -80,10 +81,6 @@
       set_fact:
         rname_list: "{{ roles_output.response._data.role | json_query('[].rname') }}"
 
-    - name: Show roles
-      debug:
-        var: rname_list
-
 
     - name: Fetch policies
       aos_api_config:
@@ -96,10 +93,6 @@
     - name: Extract accname with json_query
       set_fact:
         accname_list: "{{ policies_output.response._data.acl_sess | json_query('[].accname') }}"
-
-    - name: Show policies
-      debug:
-        var: accname_list
 
 
 [% FOREACH role IN AccessListEnabled.keys %]
@@ -115,16 +108,16 @@
         config_path: [% wsPath %]
         data:
           - role:
-              rname: pf-role-[% cleankey %]
+              rname: pf-role-[% role %]
               _action: delete
         commit: True
       when: contains_pf_role_[% cleankey %]_delete
 
-    - name: Boolean variable if pf-policy-[% key %] exists
+    - name: Boolean variable if pf-policy-[% role %] exists
       set_fact:
-        contains_pf_policy_[% cleankey %]_delete: "{{ 'pf-policy-[% key %]' in accname_list }}"
+        contains_pf_policy_[% cleankey %]_delete: "{{ 'pf-policy-[% role %]' in accname_list }}"
 
-    - name: Delete unused acl pf-policy-[% key %] into Aruba Mobility Master
+    - name: Delete unused acl pf-policy-[% role %] into Aruba Mobility Master
       aos_api_config:
         method: POST
         config_path: [% wsPath %]

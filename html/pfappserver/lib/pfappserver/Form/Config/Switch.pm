@@ -463,7 +463,7 @@ has_field 'wsPwd' =>
 has_field 'wsPath' =>
   (
    type => 'Text',
-   label => 'Api Path',
+   label => 'API Path',
   );
 has_field controllerIp =>
   (

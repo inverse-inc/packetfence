@@ -6,7 +6,7 @@ pf::Switch::Aruba::Mobility_Master - Object oriented module to access Aruba Mobi
 
 =head1 SYNOPSIS
 
-The pf::Switch::Aruba::Mobility_master module implements an object oriented interface
+The pf::Switch::Aruba::Mobility_Master module implements an object oriented interface
 to access Mobility Master
 
 =cut
@@ -79,7 +79,6 @@ sub acl_chewer {
                 $new_acl->{'dst_ipaddr'} = $acl->{'destination'}->{'ipv4_addr'};
             }
         }
-        my $src;
         if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
             $new_acl->{'src'} = "suser";
             $new_acl->{'suser'} = "true";
@@ -92,7 +91,6 @@ sub acl_chewer {
                 $new_acl->{'src'} = $acl->{'source'}->{'ipv4_addr'};
             }
         }
-        my $j = $i + 1;
         if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
             $new_acl->{'dir_prefix'} = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
             $new_acl->{'src'}    = ($self->usePushACLs) ? $new_acl->{'src'} : "any";

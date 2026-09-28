@@ -601,7 +601,7 @@
           :column-label="$i18n.t('Password')"
         />
         <form-group-web-services-path namespace="wsPath"
-          :column-label="$i18n.t('Api path')"
+          :column-label="$i18n.t('API Path')"
         />
 
       </base-form-tab>
