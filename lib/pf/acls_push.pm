@@ -29,6 +29,7 @@ use pf::file_paths qw(
     $var_dir
 );
 use pf::constants qw($TRUE $FALSE);
+use pf::SwitchFactory;
 use Data::Dumper;
 
 =head1 Atrributes
@@ -155,6 +156,14 @@ sub push_acls {
     my ($self, $switchID) = @_;
     my $logger = get_logger();
     $self->switch_id($switchID);
+    # Point the Ansible inventory at the connector tunnel (or back at the switch
+    # IP) now, in the pfqueue worker, so the dynamic reverse port is bound as
+    # close as possible to the Semaphore task that will use it.
+    my $switch = pf::SwitchFactory->instantiate($switchID);
+    unless ($switch && $switch->prepareAnsibleInventoryForPush()) {
+        $logger->error("Not pushing ACLs on $switchID: Ansible inventory could not be prepared");
+        return;
+    }
     my $error = $self->fetch_token();
     return if (!$error);
     $error = $self->cleanProject();

@@ -197,6 +197,7 @@ sub new {
         '_NetworkFromMap'               => 'disabled',
         '_InterfaceMap'                 => 'enabled',
         '_UsePushACLs'                  => 'disabled',
+        '_PushACLsUseConnector'         => 'enabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
@@ -4444,6 +4445,123 @@ Generate Ansible configuration to push ACLs
 
 =cut
 
+# SSH port Ansible's network_cli connection uses on the equipment, and how long
+# (seconds) the connector's dynamic reverse port must stay alive while idle: the
+# Semaphore task runs asynchronously and may first install the Ansible
+# collections, so the SSH connection can start minutes after the port is bound.
+our $PUSH_ACLS_SSH_PORT = 22;
+our $PUSH_ACLS_TUNNEL_TTL = 900;
+
+=head2 supportsAnsiblePushACLs
+
+Whether this switch entry is eligible for Ansible ACL pushes (a real switch IP
+with CLI credentials and Push ACLs enabled)
+
+=cut
+
+sub supportsAnsiblePushACLs {
+    my ($self) = @_;
+    return $FALSE if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
+    return $FALSE unless (defined($self->{'_cliUser'}) && isenabled($self->{'_UsePushACLs'}));
+    return $TRUE;
+}
+
+=head2 ansibleSwitchVars
+
+Per-switch variables shared by the Ansible inventory and playbook templates
+
+=cut
+
+sub ansibleSwitchVars {
+    my ($self) = @_;
+    my %switch = (
+        cliEnablePwd => $self->{'_cliEnablePwd'},
+        cliTransport => $self->{'_cliTransport'},
+        cliUser      => $self->{'_cliUser'},
+        cliPwd       => $self->{'_cliPwd'},
+        type         => $self->{'_type'},
+        id           => $self->{_id},
+    );
+    switch($self->{'_type'}) {
+            case /Cisco::ASA/ { $switch{'ansible_network_os'} = "cisco.asa" }
+            case /Cisco::Cisco_WLC_AireOS/ { $switch{'ansible_network_os'} = "aireos" }
+            case /Cisco::/ { $switch{'ansible_network_os'} = "cisco.ios.ios" }
+            case /Aruba::CX/ { $switch{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
+            case /Arista::AristaSwitch/ { $switch{'ansible_network_os'} = "arista.eos.eos" }
+    }
+    return \%switch;
+}
+
+=head2 pushACLsConnectorEndpoint
+
+When Push ACLs are set to use a connector and a (non-local) connector owns this
+switch's IP, bind a dynamic reverse tunnel to the switch's SSH port through it and
+return the (host, port) Ansible must connect to. Returns an empty list when the
+switch is reached directly. Dies when the connector cannot provide the tunnel.
+
+=cut
+
+sub pushACLsConnectorEndpoint {
+    my ($self) = @_;
+    return unless isenabled($self->{'_PushACLsUseConnector'});
+    my $connector = pf::factory::connector->for_ip($self->{_id});
+    return unless (defined($connector) && defined($connector->id) && $connector->id ne 'local_connector');
+    my $conn = $connector->dynreverse($self->{_id} . ":" . $PUSH_ACLS_SSH_PORT, { ttl => $PUSH_ACLS_TUNNEL_TTL });
+    unless (ref($conn) eq 'HASH' && $conn->{host} && $conn->{port}) {
+        die "Connector '" . $connector->id . "' did not return a usable tunnel endpoint for " . $self->{_id} . "\n";
+    }
+    $self->logger->info("Pushing ACLs to " . $self->{_id} . " through connector '" . $connector->id . "' via $conn->{host}:$conn->{port}");
+    return ($conn->{host}, $conn->{port});
+}
+
+=head2 writeAnsibleInventory
+
+Render the Ansible inventory for this switch. When ansible_host/ansible_port are
+given (connector tunnel endpoint), Ansible connects there instead of the switch IP.
+
+=cut
+
+sub writeAnsibleInventory {
+    my ($self, %endpoint) = @_;
+    my $switch_id = $self->{_id};
+    $switch_id =~ s/\./_/g;
+    my %vars;
+    $vars{'switches'}{$switch_id} = $self->ansibleSwitchVars();
+    $vars{'switches'}{$switch_id}{'ansible_host'} = $endpoint{ansible_host} if defined $endpoint{ansible_host};
+    $vars{'switches'}{$switch_id}{'ansible_port'} = $endpoint{ansible_port} if defined $endpoint{ansible_port};
+    umask(0002);
+    my $tt = Template->new(
+        ABSOLUTE => 1,
+    );
+    $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
+    find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
+}
+
+=head2 prepareAnsibleInventoryForPush
+
+Called right before the Semaphore task is launched: rewrite the inventory to go
+through the connector tunnel when applicable. Returns true when the inventory is
+ready, false (after logging) when the connector tunnel could not be set up.
+
+=cut
+
+sub prepareAnsibleInventoryForPush {
+    my ($self) = @_;
+    return $FALSE unless $self->supportsAnsiblePushACLs();
+    my ($host, $port) = eval { $self->pushACLsConnectorEndpoint() };
+    if ($@) {
+        $self->logger->error("Unable to set up the connector tunnel to push ACLs on " . $self->{_id} . ": $@");
+        return $FALSE;
+    }
+    if (defined $host) {
+        $self->writeAnsibleInventory(ansible_host => $host, ansible_port => $port);
+    } else {
+        # Make sure a previous connector endpoint isn't left behind
+        $self->writeAnsibleInventory();
+    }
+    return $TRUE;
+}
+
 sub generateAnsibleConfiguration {
     my ($self,$oldSwitchConfig, $delete) = @_;
     $delete //= $FALSE;
@@ -4453,9 +4571,8 @@ sub generateAnsibleConfiguration {
         ABSOLUTE => 1,
     );
 
-    return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
+    return unless $self->supportsAnsiblePushACLs();
     my $switch_id = $self->{_id};
-    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_UsePushACLs'}));
 
     my $switch_ip = $switch_id;
     $switch_id =~ s/\./_/g;
@@ -4469,20 +4586,8 @@ sub generateAnsibleConfiguration {
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
     }
-    $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
-    $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
-    $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
-    $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
-    $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
-    $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
+    $vars{'switches'}{$switch_id} = $self->ansibleSwitchVars();
     $vars{'switches'}{$switch_id}{'delete'} = $delete;
-    switch($self->{'_type'}) {
-            case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
-            case /Cisco::Cisco_WLC_AireOS/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
-            case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
-            case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
-            case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
-    }
 
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getRoleAccessListByName($role);

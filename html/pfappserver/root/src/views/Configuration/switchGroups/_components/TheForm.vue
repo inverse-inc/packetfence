@@ -479,6 +479,12 @@
           :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
         />
 
+        <form-group-push-acls-use-connector v-show="supports(['PushACLs'])"
+          namespace="PushACLsUseConnector"
+          :column-label="$i18n.t('Use Connector')"
+          :text="$i18n.t('Use the available PacketFence connectors to reach these switches over SSH when pushing ACLs. By default, a local connector is hosted on this server.')"
+        />
+
         <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
           :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
           :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"

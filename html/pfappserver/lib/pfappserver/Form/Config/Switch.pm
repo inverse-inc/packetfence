@@ -505,6 +505,10 @@ has_field UsePushACLs => (
     type => 'Toggle',
 );
 
+has_field PushACLsUseConnector => (
+    type => 'Toggle',
+);
+
 has_field UseDownloadableACLs => (
     type => 'Toggle',
 );

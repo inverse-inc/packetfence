@@ -484,6 +484,12 @@
           :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
         />
 
+        <form-group-push-acls-use-connector v-show="supports(['PushACLs']) && isUsePushACLs"
+          namespace="PushACLsUseConnector"
+          :column-label="$i18n.t('Use Connector')"
+          :text="$i18n.t('Use the available PacketFence connectors to reach this switch over SSH when pushing ACLs. By default, a local connector is hosted on this server.')"
+        />
+
         <form-group-container v-show="supports(['PushACLs']) && isUsePushACLs">
           <b-button :disabled="isLoading"
             variant="outline-primary" @click="onPrecreate">Precreate ACLs</b-button>

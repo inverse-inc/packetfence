@@ -73,6 +73,13 @@ our $DYNREVERSE_CACHE_TTL = 10;
 sub dynreverse {
     my ($self, $to, $opts) = @_;
     $opts //= {};
+    # ttl (seconds): ask the pfconnector server to keep the dynamic reverse port
+    # alive that long while idle instead of its 10s default. For callers that hand
+    # the endpoint to a process connecting later (pfsetacls/Ansible). Such a call
+    # must not be served from the short-lived per-process cache: a cached entry may
+    # have been created without a TTL and be reaped before the external process
+    # connects, so we always POST (the server reuses and extends an existing port).
+    my $ttl = $opts->{ttl};
 
     # Hot paths (SNMP/CoA on every RADIUS request when *UseConnector is
     # enabled) call this per packet; serve the port from a short per-process
@@ -80,7 +87,7 @@ sub dynreverse {
     # pod_direct connections (rare, long-lived, e.g. domain join) bypass the
     # cache since their host depends on which server instance answers.
     my $cache_key = $self->id . ":" . $to;
-    if (!$opts->{pod_direct}) {
+    if (!$opts->{pod_direct} && !$ttl) {
         my $entry = $dynreverse_cache{$cache_key};
         if ($entry && $entry->{expires_at} > time) {
             return { %{$entry->{conn}} };
@@ -91,6 +98,7 @@ sub dynreverse {
     my $connector_conn = $client->call("POST", "/api/v1/pfconnector/dynreverse", {
         to => $to,
         connector_id => $self->id,
+        ($ttl ? (ttl_seconds => int($ttl)) : ()),
     });
 
     #Override the host value returned by the connector server's dynreverse API.
