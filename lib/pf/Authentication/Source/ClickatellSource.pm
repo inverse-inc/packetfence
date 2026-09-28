@@ -13,6 +13,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_success);
 use pf::log;
 use URI::Escape::XS qw(uri_escape);
+use JSON::MaybeXS;
+use HTTP::Request;
 
 use Moose;
 
@@ -83,23 +85,37 @@ sub sendSMS {
     my ($self, $info) = @_;
     my $to = $info->{to};
     my $message = $info->{message};
-    my $api_key = $self->api_key;
+    my $product_token = $self->api_key;
     my $logger = pf::log::get_logger;
 
     use LWP::UserAgent;
 
-    my $url = "https://platform.clickatell.com/messages/http/send";
-    my $query = join("&",
-        "apiKey=".uri_escape($api_key), 
-        "to=".uri_escape($to), 
-        "content=".uri_escape($message),
-    );
+    my $url = "https://gw.cmtelecom.com/v1.0/message";
+    my $from = "VRLN";
+
+    my $payload = encode_json({
+        messages => {
+            msg => [{
+                from => $from,
+                to   => [{ number => $to }],
+                body => {
+                    type    => "auto",
+                    content => $message,
+                },
+            }],
+        },
+    });
+
+    my $request = HTTP::Request->new(POST => $url);
+    $request->header('Content-Type'      => 'application/json');
+    $request->header('X-CM-PRODUCTTOKEN' => $product_token);
+    $request->content($payload);
 
     my $ua = LWP::UserAgent->new;
-    my $response = $ua->get("$url?$query");
- 
+    my $response = $ua->request($request);
+
     unless($response->is_success) {
-        $logger->error("Can't send SMS to '$to': " . $response->{'message'});
+        $logger->error("Can't send SMS to '$to': " . $response->status_line . " - " . $response->decoded_content);
         return $FALSE;
     }
 
