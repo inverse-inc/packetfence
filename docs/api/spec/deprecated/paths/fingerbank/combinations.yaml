@@ -2,6 +2,7 @@
   get:
     deprecated: true
     summary: Get combinations.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     parameters:
     - name: scope
       in: path
@@ -30,6 +31,7 @@
   post:
     deprecated: true
     summary: Create local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     parameters:
     - name: scope
       in: path
@@ -56,6 +58,7 @@
   post:
     deprecated: true
     summary: Search local combinations.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     requestBody:
       $ref: '#/components/requestBodies/FingerbankCombinationsSearch'
     responses:
@@ -81,6 +84,7 @@
   get:
     deprecated: true
     summary: Get local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     responses:
       '200':
         $ref: '#/components/responses/FingerbankCombination'
@@ -93,6 +97,7 @@
   patch:
     deprecated: true
     summary: Update local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     requestBody:
       $ref: '#/components/requestBodies/FingerbankCombination'
     responses:
@@ -107,6 +112,7 @@
   delete:
     deprecated: true
     summary: Delete local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     responses:
       '200':
         $ref: '#/components/responses/Deleted'
