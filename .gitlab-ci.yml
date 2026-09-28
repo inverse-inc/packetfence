@@ -67,6 +67,7 @@ variables:
   # Selective test execution
   # Run only tests matching this pattern (grep -E regex). Empty = all tests.
   # Examples: configurator, mac_auth, configurator|pfappserver, .*_el8
+  # KEEP_VMS=yes preserves test VMs only when TEST_ONLY selects the job.
   TEST_ONLY: ""
   # Heavy 3-VM cluster tests. Also run on TEST=yes (after the test stage passes);
   # TEST_CLUSTER=yes forces them on their own.
