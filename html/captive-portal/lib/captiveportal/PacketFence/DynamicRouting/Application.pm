@@ -441,12 +441,27 @@ sub _render {
     # Expose the application
     $args->{application} = $self;
 
-    my $processor = Template::AutoFilter->new($self->_template_toolkit_options($args));
+    my $processor = $self->_get_template_processor($args);
 
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
     return $output;
+}
+
+# Per-Apache-worker cache of Template::AutoFilter processors. Without this,
+# a new Template object was instantiated for every render, forcing a reload
+# of compiled templates from COMPILE_DIR on every request. Keyed on the
+# things that actually vary across calls: the INCLUDE_PATH (per connection
+# profile) and the raw flag (which toggles AUTO_FILTER + PRE_PROCESS).
+my %_TT_PROCESSOR_CACHE;
+
+sub _get_template_processor {
+    my ($self, $args) = @_;
+    my $opts = $self->_template_toolkit_options($args);
+    my $key = join('|', @{$opts->{INCLUDE_PATH} || []})
+            . '::' . ($args->{raw} ? 'raw' : 'normal');
+    return $_TT_PROCESSOR_CACHE{$key} //= Template::AutoFilter->new($opts);
 }
 
 sub _template_toolkit_options {
