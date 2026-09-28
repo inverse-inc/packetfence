@@ -236,7 +236,7 @@ func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) erro
 			recv := atomic.LoadInt64(&u.recv)
 			sent := atomic.LoadInt64(&u.sent)
 
-			if time.Since(u.remote.LastTouched) > LAST_TOUCHED_TIMEOUT {
+			if time.Since(u.remote.LastTouched) > u.remote.IdleTimeoutOrDefault(LAST_TOUCHED_TIMEOUT) {
 				if previousRecv == recv && previousSent == sent {
 					return true
 				}

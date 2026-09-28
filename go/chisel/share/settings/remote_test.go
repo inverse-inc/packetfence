@@ -2,6 +2,7 @@ package settings
 
 import (
 	"testing"
+	"time"
 )
 
 func testString(t *testing.T, name, got, expected string) {
@@ -61,5 +62,17 @@ func TestLocalUdp(t *testing.T) {
 
 	if remote.ReusedUdpConn == nil {
 		t.Fatalf("UdpConn not saved")
+	}
+}
+
+func TestRemoteIdleTimeoutOrDefault(t *testing.T) {
+	def := 10 * time.Second
+	r := &Remote{}
+	if got := r.IdleTimeoutOrDefault(def); got != def {
+		t.Fatalf("zero IdleTimeout should fall back to the default, got %s", got)
+	}
+	r.IdleTimeout = 15 * time.Minute
+	if got := r.IdleTimeoutOrDefault(def); got != 15*time.Minute {
+		t.Fatalf("explicit IdleTimeout should win, got %s", got)
 	}
 }

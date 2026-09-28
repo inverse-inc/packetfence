@@ -52,6 +52,8 @@ var apiPrefix = "/api/v1/pfconnector"
 const (
 	DYNREVERSE_BIND_ATTEMPTS = 10
 	DYNREVERSE_ERR_WAIT      = 50 * time.Millisecond
+	// Upper bound for the caller-requested ttl_seconds of a dynamic reverse.
+	DYNREVERSE_MAX_TTL_SECONDS = 3600
 )
 
 // handleClientHandler is the main http websocket handler for the chisel server
@@ -581,6 +583,11 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		ConnectorID string `json:"connector_id"`
 		To          string `json:"to"`
 		LocalPort   string `json:"local_port,omitempty"`
+		// Optional idle timeout (seconds) for the dynamic reverse. Callers that
+		// hand the port to an external process which connects later (e.g. an
+		// Ansible run scheduled through pfsetacls) ask for a longer lifetime than
+		// the default LAST_TOUCHED_TIMEOUT, which only suits per-packet callers.
+		TTLSeconds int `json:"ttl_seconds,omitempty"`
 	}{}
 
 	err := json.NewDecoder(req.Body).Decode(&payload)
@@ -592,12 +599,23 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 
 	host := s.pfconnectorHost(req)
 
+	if payload.TTLSeconds < 0 || payload.TTLSeconds > DYNREVERSE_MAX_TTL_SECONDS {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("ttl_seconds must be between 0 and %d", DYNREVERSE_MAX_TTL_SECONDS)})
+		return
+	}
+	idleTimeout := time.Duration(payload.TTLSeconds) * time.Second
+
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
 	if o, found := settings.ActiveDynReverse.Load(cacheKey); found {
 		remote := o.(*settings.Remote)
 		remote.Lock()
 		defer remote.Unlock()
 		remote.LastTouched = time.Now()
+		// Never shorten the lifetime another caller asked for on the shared port.
+		if idleTimeout > remote.IdleTimeout {
+			remote.IdleTimeout = idleTimeout
+		}
 		json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 		return
 	}
@@ -621,6 +639,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			}
 
 			remote.LastTouched = time.Now()
+			remote.IdleTimeout = idleTimeout
 			dynPort := remote.LocalPort
 			settings.ActiveDynReverse.Store(cacheKey, remote)
 			bindErrChan := make(chan error)

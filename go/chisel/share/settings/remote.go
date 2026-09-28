@@ -37,13 +37,26 @@ import (
 
 type Remote struct {
 	sync.Mutex
-	LastTouched                         time.Time
+	LastTouched time.Time
+	// IdleTimeout overrides the default idle timeout of a dynamic reverse: the
+	// listener is reaped once it has been idle (no traffic, no open connection)
+	// for longer than this. Zero means the tunnel package's default applies.
+	IdleTimeout                         time.Duration
 	LocalHost, LocalPort, LocalProto    string
 	RemoteHost, RemotePort, RemoteProto string
 	Handler                             string
 	ReusedTcpListener                   *net.TCPListener
 	ReusedUdpConn                       *net.UDPConn
 	Dynamic, Socks, Reverse, Stdio      bool
+}
+
+// IdleTimeoutOrDefault returns the idle timeout to apply to this remote, falling
+// back to def when none was requested. The caller must hold the remote's lock.
+func (r *Remote) IdleTimeoutOrDefault(def time.Duration) time.Duration {
+	if r.IdleTimeout > 0 {
+		return r.IdleTimeout
+	}
+	return def
 }
 
 const revPrefix = "R:"

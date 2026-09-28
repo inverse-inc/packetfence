@@ -151,7 +151,7 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 				defer p.remote.Unlock()
 
 				if p.remote.Dynamic {
-					if time.Since(p.remote.LastTouched) > LAST_TOUCHED_TIMEOUT {
+					if time.Since(p.remote.LastTouched) > p.remote.IdleTimeoutOrDefault(LAST_TOUCHED_TIMEOUT) {
 						if atomic.LoadInt64(&p.aliveConns) == 0 {
 							return true
 						}
