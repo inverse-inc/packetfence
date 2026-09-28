@@ -78,7 +78,6 @@ sub acl_chewer {
                 $src = $acl->{'source'}->{'ipv4_addr'};
             }
         }
-        my $j = $i + 1;
         if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
             my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
             my $src_val    = ($self->usePushACLs) ? $src : "any";

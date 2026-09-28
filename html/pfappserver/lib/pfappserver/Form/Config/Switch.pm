@@ -503,7 +503,7 @@ has_field 'wsVerifyCertificate' =>
 has_field 'wsPath' =>
   (
    type => 'Text',
-   label => 'Api Path',
+   label => 'API Path',
   );
 has_field controllerIp =>
   (

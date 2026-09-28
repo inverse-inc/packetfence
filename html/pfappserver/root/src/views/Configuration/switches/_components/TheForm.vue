@@ -610,7 +610,7 @@
           :text="$i18n.t('Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.')"
         />
         <form-group-web-services-path namespace="wsPath"
-          :column-label="$i18n.t('Api path')"
+          :column-label="$i18n.t('API Path')"
         />
 
       </base-form-tab>
