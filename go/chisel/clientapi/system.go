@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"sort"
 	"strconv"
+	"sync"
 	"syscall"
 	"time"
 
@@ -116,6 +117,32 @@ var connectorCacheStatsURL = sharedutils.EnvOrDefault("PFCONNECTOR_CONNECTOR_CAC
 // connectorCacheStatsClient is short: the stats are a side dish of
 // /system/info and must not slow the status panel down.
 var connectorCacheStatsClient = &http.Client{Timeout: 500 * time.Millisecond}
+
+// cpuSample is the CPU usage reported by /system/info: the busy share since
+// the previous sample (gopsutil keeps the last /proc/stat reading), taken at
+// most every cpuSampleMinInterval so back-to-back requests (the status panel
+// and a topology fan-out) share one reading. Sampling over an interval
+// inside the handler would sleep every request for that long.
+var cpuSample struct {
+	sync.Mutex
+	at    time.Time
+	usage float64
+}
+
+const cpuSampleMinInterval = 2 * time.Second
+
+func cpuUsagePercent() float64 {
+	cpuSample.Lock()
+	defer cpuSample.Unlock()
+	if time.Since(cpuSample.at) < cpuSampleMinInterval {
+		return cpuSample.usage
+	}
+	if percents, err := cpu.Percent(0, false); err == nil && len(percents) > 0 {
+		cpuSample.usage = percents[0]
+	}
+	cpuSample.at = time.Now()
+	return cpuSample.usage
+}
 
 // connectorCacheStats fetches the cache statistics; nil when unavailable.
 func connectorCacheStats() *ConnectorCacheStats {
@@ -233,9 +260,7 @@ func systemInfo(api *API) http.HandlerFunc {
 		if count, err := cpu.Counts(true); err == nil {
 			info.CPUCount = count
 		}
-		if percents, err := cpu.Percent(time.Second, false); err == nil && len(percents) > 0 {
-			info.CPUUsage = percents[0]
-		}
+		info.CPUUsage = cpuUsagePercent()
 		if vm, err := mem.VirtualMemory(); err == nil {
 			info.MemTotal = vm.Total
 			info.MemUsed = vm.Used

@@ -88,7 +88,7 @@ type Relay struct {
 	listeners map[string]*listener
 	// Hooks for tests: open the sockets and send replies.
 	openConn func(iface Interface) (net.PacketConn, error)
-	sendL2   func(iface Interface, dstMAC net.HardwareAddr, dstIP net.IP, payload []byte) error
+	newL2    func(iface Interface) l2Sender
 }
 
 // New creates a Relay. Call Sync to start listeners.
@@ -108,7 +108,7 @@ func New(cfg Config) *Relay {
 		inflight:  make(chan struct{}, cfg.MaxInFlight),
 		listeners: map[string]*listener{},
 		openConn:  openBroadcastConn,
-		sendL2:    sendLayer2,
+		newL2:     newLayer2Sender,
 	}
 }
 
@@ -176,6 +176,7 @@ type listener struct {
 	relay  *Relay
 	iface  Interface
 	conn   net.PacketConn
+	l2     l2Sender
 	cancel context.CancelFunc
 	done   chan struct{}
 
@@ -198,6 +199,7 @@ func (l *listener) start(ctx context.Context) error {
 		return err
 	}
 	l.conn = conn
+	l.l2 = l.relay.newL2(l.iface)
 	ctx, l.cancel = context.WithCancel(ctx)
 	go l.serve(ctx)
 	return nil
@@ -211,6 +213,9 @@ func (l *listener) stop() {
 		l.conn.Close()
 	}
 	<-l.done
+	if l.l2 != nil {
+		l.l2.Close()
+	}
 }
 
 func (l *listener) failed() bool {
@@ -369,11 +374,11 @@ func (l *listener) deliver(reply dhcp.Packet, from net.Addr) error {
 	// Broadcast when the client asked for it, or when there is no address to
 	// unicast to (NAK, or an offer without yiaddr).
 	if reply.Broadcast() || reply.YIAddr().Equal(net.IPv4zero) {
-		return l.relay.sendL2(l.iface, net.HardwareAddr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, net.IPv4bcast, reply)
+		return l.l2.Send(net.HardwareAddr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, net.IPv4bcast, reply)
 	}
 	// Layer-2 unicast to the offered address: the client does not own the
 	// address yet so ARP would fail; use chaddr directly.
-	return l.relay.sendL2(l.iface, reply.CHAddr(), reply.YIAddr(), reply)
+	return l.l2.Send(reply.CHAddr(), reply.YIAddr(), reply)
 }
 
 func msgTypeOf(p dhcp.Packet) string {
