@@ -375,16 +375,29 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 		case "cursor":
 			switch report.CursorType {
 			case "offset":
+				offset := 0
 				if len(payloadCursor) != 0 {
-					opts["cursor"] = payloadCursor[0] // contains only one value
-				} else {
-					opts["cursor"] = "0"
+					var err error
+					offset, err = parseOffset(payloadCursor[0]) // contains only one value
+					if err != nil {
+						errLst = append(errLst, err)
+						continue
+					}
 				}
+				opts["cursor"] = offset    // an offset is always an integer
 				opts["cursor_field"] = nil // no field since it's an offset
 			case "field":
+				if len(report.CursorField) == 0 {
+					errLst = append(errLst, errors.New("cursor_field is required when cursor_type is field"))
+					continue
+				}
 				if len(payloadCursor) != 0 {
 					opts["cursor"] = payloadCursor[0] // contains only one value
 				} else {
+					if len(report.CursorDefault) == 0 {
+						errLst = append(errLst, errors.New("cursor_default is required when cursor_type is field"))
+						continue
+					}
 					opts["cursor"] = report.CursorDefault[0] // contains only one value
 				}
 				opts["cursor_field"] = report.CursorField[0] // contains only one value
@@ -430,6 +443,33 @@ func validateSearchPayload(opts map[string]any, payload ReportSearchParams, repo
 	return errLst
 }
 
+// parseOffset converts a cursor value into an offset. The cursor reaches us
+// either as a string or as a JSON number, which util.FormatAnyToString renders
+// with decimals (25 => "25.00000000000000"), hence the float parsing.
+func parseOffset(cursor string) (int, error) {
+	offset, err := strconv.ParseFloat(strings.TrimSpace(cursor), 64)
+	if err != nil {
+		return 0, errors.New("cursor must be a number when cursor_type is offset")
+	}
+	if offset < 0 {
+		return 0, errors.New("cursor must not be negative when cursor_type is offset")
+	}
+	return int(offset), nil
+}
+
+// defaultCursor returns the cursor configured in cursor_default, or the
+// requested cursor when the report does not define one.
+func defaultCursor(options map[string]any) any {
+	cursorDefault, ok := options["cursor_default"].([]string)
+	if !ok || len(cursorDefault) == 0 {
+		return options["cursor"]
+	}
+	if options["cursor_type"] == "multi_field" {
+		return cursorDefault
+	}
+	return cursorDefault[0]
+}
+
 func executeSearchQuery(db **gorm.DB, sql string, bindings []any) ([]reportSearchFieldQuery, error) {
 	rows, err := (*db).Raw(sql, bindings...).Rows()
 	if err != nil {
@@ -460,48 +500,55 @@ func paginateQuery(body *ApiBody, items *[]reportSearchFieldQuery, options map[s
 	if options["cursor_type"] != nil {
 		cursorType = options["cursor_type"].(string)
 	}
-	if !(len(cursorType) == 0 || cursorType == "none" || options["cursor"] == nil) {
-		if cursorType == "multi_field" {
-			cursorFields := options["cursor_field"].([]string)
-			prevCursor := make([]any, 0)
-			field := (*items)[0]
-			for _, fieldName := range cursorFields {
-				fieldValue, ok := field[fieldName]
-				if !ok {
-					return errors.New("cannot find cursor field: " + fieldName)
-				}
-				prevCursor = append(prevCursor, fieldValue)
-			}
-			body.PrevCursor = prevCursor
-		} else { // take the cursor of the first record
-			if currPageCount == 0 {
-				if options["cursor_default"] != nil {
-					body.PrevCursor = options["cursor_default"].([]string)[0]
-				} else if util.HasLen(options["cursor"]) && util.GetLen(options["cursor"]) != 0 {
-					body.PrevCursor = options["cursor"].(string)
-				} else {
-					body.PrevCursor = options["cursor"]
-				}
-			} else {
-				// fields checked already in prevCursor part
-				body.PrevCursor = (*items)[0][options["cursor_field"].(string)]
-			}
-		}
-
-	} else {
+	switch {
+	case len(cursorType) == 0 || cursorType == "none" || options["cursor"] == nil:
 		body.PrevCursor = options["cursor"]
+	case cursorType == "offset":
+		// nothing to read from the records: the page starts exactly where the
+		// request asked it to
+		body.PrevCursor = options["cursor"]
+	case currPageCount == 0:
+		// no record to take the cursor from, fall back on the configured default
+		body.PrevCursor = defaultCursor(options)
+	case cursorType == "multi_field":
+		cursorFields, ok := options["cursor_field"].([]string)
+		if !ok {
+			return errors.New("cursor_field is required when cursor_type is multi_field")
+		}
+		prevCursor := make([]any, 0, len(cursorFields))
+		field := (*items)[0]
+		for _, fieldName := range cursorFields {
+			fieldValue, ok := field[fieldName]
+			if !ok {
+				return errors.New("cannot find cursor field: " + fieldName)
+			}
+			prevCursor = append(prevCursor, fieldValue)
+		}
+		body.PrevCursor = prevCursor
+	default: // take the cursor of the first record
+		fieldName, ok := options["cursor_field"].(string)
+		if !ok {
+			return errors.New("cursor_field is required when cursor_type is field")
+		}
+		fieldValue, ok := (*items)[0][fieldName]
+		if !ok {
+			return errors.New("cannot find cursor field: " + fieldName)
+		}
+		body.PrevCursor = fieldValue
 	}
 	if currPageCount >= limit {
 		limit -= 1
 		currPageCount -= 1
-		switch options["cursor_type"].(string) {
+		switch cursorType {
 		case "offset":
-			body.NextCursor = body.PrevCursor.(int) + limit
+			offset, _ := options["cursor"].(int)
+			body.NextCursor = offset + limit
 		case "field":
-			body.NextCursor = (*items)[limit][options["cursor_field"].(string)]
+			fieldName, _ := options["cursor_field"].(string)
+			body.NextCursor = (*items)[limit][fieldName]
 		case "multi_field":
-			cursorFields := options["cursor_field"].([]string)
-			nextCursor := make([]any, 0)
+			cursorFields, _ := options["cursor_field"].([]string)
+			nextCursor := make([]any, 0, len(cursorFields))
 			for _, field := range cursorFields {
 				nextCursor = append(nextCursor, (*items)[limit][field])
 			}

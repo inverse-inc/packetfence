@@ -76,7 +76,7 @@ The following attributes are available to define a report (* mandatory
 attributes are marked with an asterisk):
 
 [options="compact"]
-* `type`*: The type of report. Use `type=abstract` to use SQL Abstract and `type=sql` to use MySQL script/batch mode. Each of these types have their own additional attributes which are explained in more detail below.
+* `type`*: The type of report. Use `type=sql` to use MySQL script/batch mode. `type=abstract` (SQL Abstract) is deprecated and is no longer served by the API: searching such a report returns an error. Convert those reports to `type=sql`.
 * `description`*: A user-friendly description that provides more details about the report. Used as a title for all charts.
 * `charts`: A comma delimited list of charts to display. Each chart is displayed in its own tab above the table data. There is no limit to the number of charts that can be defined. Charts are explained in more detail below.
 * `columns`*: A comma separated list of columns or aliases that are displayed in the table from the SQL query (ex: `node.mac`, `Node MAC`). The table columns are displayed in the respective order. Columns can be aliased to a more friendly name, but these aliases must be used throughout the other attributes.
@@ -104,11 +104,18 @@ attributes must use `tableName.columnName` reference when using `joins` with 2+
 tables (ex: `attribute=tableA.columnA,tableB.columnB`). Aliased `columns` can be
 used with the table reference (ex: `attribute=tableA.Alias A,tableB.Alias B`).
 
-==== SQL Abstract
+==== SQL Abstract (deprecated)
 
 When `type=abstract` PacketFence uses Perl
 https://metacpan.org/pod/SQL::Abstract::More[SQL::Abstract::More] to
 automatically build the SQL query.
+
+WARNING: `type=abstract` is deprecated. The API only supports `type=sql`, so an
+abstract report is listed in the admin interface but fails with _"abstract
+report are deprecated, only sql reports are supported"_ when it is searched.
+Rewrite these reports with `type=sql`: use `bindings` for the date range, the
+limit and the cursor, and alias the selected columns with the names listed in
+`columns`.
 
 The following attributes are available when using `type=abstract`(* mandatory
 attributes are marked with an asterisk):

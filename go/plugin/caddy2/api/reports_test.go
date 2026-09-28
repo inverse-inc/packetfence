@@ -240,6 +240,41 @@ func TestReporSearch(t *testing.T) {
 		utils_test.IsEqArr(t, "PrevCursor", body.PrevCursor.([]any), []any{"00:00:00:00:00:2e", 1.0})
 		utils_test.IsEqArr(t, "NextCursor", body.NextCursor.([]any), []any{"00:00:00:00:00:3e", 1.0})
 	})
+	t.Run("Check cursor offset first page", func(t *testing.T) {
+		limitExpected := 5
+		payload := ReportSearchParams{Limit: limitExpected}
+		var body reportSearchResponse
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Offset/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		firstItem := body.Items[0].(map[string]any)
+		utils_test.IsEqStr(t, "firstItem", firstItem["mac"].(string), "00:00:00:00:00:2b")
+		utils_test.IsEqInt(t, "PrevCursor", int(body.PrevCursor.(float64)), 0)
+		utils_test.IsEqInt(t, "NextCursor", int(body.NextCursor.(float64)), limitExpected)
+	})
+	t.Run("Check cursor offset next page", func(t *testing.T) {
+		limitExpected := 5
+		payload := ReportSearchParams{Limit: limitExpected, Cursor: limitExpected}
+		var body reportSearchResponse
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Offset/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), limitExpected)
+		firstItem := body.Items[0].(map[string]any)
+		utils_test.IsEqStr(t, "firstItem", firstItem["mac"].(string), "00:00:00:00:00:30")
+		utils_test.IsEqInt(t, "PrevCursor", int(body.PrevCursor.(float64)), limitExpected)
+		utils_test.IsEqInt(t, "NextCursor", int(body.NextCursor.(float64)), limitExpected*2)
+	})
+	t.Run("Check cursor offset out of bound", func(t *testing.T) {
+		payload := ReportSearchParams{Limit: 5, Cursor: 1000}
+		var body reportSearchResponse
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Offset/search", &payload, http.StatusOK, &body)
+		utils_test.IsEqInt(t, "Items", len(body.Items), 0)
+		utils_test.IsEqInt(t, "PrevCursor", int(body.PrevCursor.(float64)), 1000)
+		utils_test.IsNil(t, "NextCursor", body.NextCursor)
+	})
+	t.Run("Check cursor offset invalid", func(t *testing.T) {
+		var body reportSearchResponse
+		payload := ReportSearchParams{Limit: 5, Cursor: "garbage"}
+		execReq(t, http.MethodPost, "/api/v1.1/report/Node::Report::Test::Offset/search", &payload, http.StatusBadRequest, &body)
+	})
 	t.Run("Check cursor field unallowed binding", func(t *testing.T) {
 		var body reportSearchResponse
 		limitExpected := 4

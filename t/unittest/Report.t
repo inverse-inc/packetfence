@@ -42,7 +42,7 @@ BEGIN {
     );
     @BuildQueryOptionsTests = (
         {
-            id  => "User::Registration::Sponsor",
+            id  => "Node::Report::TestAbstract",
             in  => {},
             out => [
                 200,
@@ -60,7 +60,7 @@ BEGIN {
             msg => 'Default options',
         },
         {
-            id => "User::Registration::Sponsor",
+            id => "Node::Report::TestAbstract",
             in => {
                 limit  => 100,
                 cursor => 100,
@@ -79,7 +79,7 @@ BEGIN {
             msg => 'just limit, cursor',
         },
         {
-            id => "User::Registration::Sponsor",
+            id => "Node::Report::TestAbstract",
             in => {
                 limit      => 100,
                 cursor     => 200,
@@ -99,7 +99,7 @@ BEGIN {
             msg => 'just start_date limit, cursor',
         },
         {
-            id => "User::Registration::SMS",
+            id => "Node::Report::TestAbstractNoDateField",
             in => {
                 limit      => 100,
                 cursor     => 200,
@@ -167,6 +167,7 @@ BEGIN {
             out => [
                 200,
                 {
+                    cursor     => 200,
                     offset     => 200,
                     limit      => 100,
                     sql_limit  => 101,
@@ -240,7 +241,7 @@ BEGIN {
 
         },
         {
-            id => "User::Registration::Sponsor",
+            id => "Node::Report::TestAbstract",
             in => [
                 [ {}, {}, { mac => "22:33:22:33:33:33" } ],
                 limit  => 2,
@@ -250,7 +251,7 @@ BEGIN {
             results => [ {}, {}, ],
         },
         {
-            id => "User::Registration::Sponsor",
+            id => "Node::Report::TestAbstract",
             in => [
                 [ {}, {}, { mac => "22:33:22:33:33:33" } ],
                 limit  => 3,
@@ -328,7 +329,7 @@ BEGIN {
 
     @IsaTests = (
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             isa => 'pf::Report::abstract',
         },
         {
@@ -339,14 +340,14 @@ BEGIN {
 
     @ValidateQueryTests = (
         {
-            id => 'User::Registration::Sponsor',
+            id => 'Node::Report::TestAbstract',
             in => {
                 op => 'and',
             },
             out => [],
         },
         {
-            id => 'User::Registration::Sponsor',
+            id => 'Node::Report::TestAbstract',
             in => {
                 field => 'garbage',
                 op    => 'equals',
@@ -360,7 +361,7 @@ BEGIN {
             ],
         },
         {
-            id => 'User::Registration::Sponsor',
+            id => 'Node::Report::TestAbstract',
             in => {
                 field => 'activation.pid',
                 op    => 'equals',
@@ -369,12 +370,12 @@ BEGIN {
             out => [],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => undef,
             out => [],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => {
                 op => 'and',
                 values => [
@@ -393,7 +394,7 @@ BEGIN {
             ],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => {
                 op => 'and',
                 values => [
@@ -409,7 +410,7 @@ BEGIN {
             ],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => {
                 op => 'garbage',
             },
@@ -418,7 +419,7 @@ BEGIN {
             ],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => {
                 op => 'garbage',
             },
@@ -427,7 +428,7 @@ BEGIN {
             ],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => {
                 op => 'equals',
                 field => undef,
@@ -437,7 +438,7 @@ BEGIN {
             ],
         },
         {
-            id  => 'User::Registration::Sponsor',
+            id  => 'Node::Report::TestAbstract',
             in  => {
                 op => 'contains',
                 field => 'activation.pid',
@@ -450,7 +451,7 @@ BEGIN {
 
 #     @ValidateFieldsTests = (
 #        {
-#            id  => 'User::Registration::Sponsor',
+#            id  => 'Node::Report::TestAbstract',
 #            in  => ["Garbage"],
 #            out => [
 #                { message => 'field (Garbage) is invalid' },
@@ -458,7 +459,7 @@ BEGIN {
 #            msg => 'Non existing field'
 #        },
 #        {
-#            id  => 'User::Registration::Sponsor',
+#            id  => 'Node::Report::TestAbstract',
 #            in  => ["MAC Address"],
 #            out => [ ],
 #            msg => 'Field is valid'
@@ -467,7 +468,7 @@ BEGIN {
 
     @ValidateInputTests = (
         {
-            id => 'User::Registration::Sponsor',
+            id => 'Node::Report::TestAbstract',
             in  => {
                 query => {
                     op => 'equals',
@@ -534,9 +535,9 @@ BEGIN {
 
     @MetaForOptions = (
         {
-            id  => 'Ip4Log::Archive',
+            id  => 'Node::Report::TestAbstractMeta',
             check => hash {
-                field id  => 'Ip4Log::Archive';
+                field id  => 'Node::Report::TestAbstractMeta';
                 field default_start_date => '0000-00-00 00:00:00';
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;

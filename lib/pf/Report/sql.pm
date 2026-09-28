@@ -153,7 +153,9 @@ sub build_query_options {
     $options{limit} = $data->{limit} // $self->default_limit // 25;
     $options{sql_limit} = $options{limit} + 1;
     if ($self->cursor_type eq 'offset') {
-        $data->{cursor} = $options{offset} = $data->{cursor} // 0;
+        # 'cursor' is the name of the binding and the one nextCursor works from,
+        # 'offset' is kept for backward compatibility
+        $data->{cursor} = $options{offset} = $options{cursor} = $data->{cursor} // 0;
     } else {
         $options{cursor} = $data->{cursor} // $self->get_cursor_default;
     }
