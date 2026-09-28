@@ -123,7 +123,8 @@ maybe_fallback_to_full_provision() {
     if [ "${FALLBACK_TO_FULL_PROVISION}" = "yes" ]; then
         echo "FALLBACK_TO_FULL_PROVISION=yes — falling back to full site.yml provisioning (reason: ${reason})"
         USE_VAGRANT_BOX=no
-        export USE_VAGRANT_BOX
+        SKIP_CONFIGURATOR_BAKED=no
+        export USE_VAGRANT_BOX SKIP_CONFIGURATOR_BAKED
         return 0
     fi
     die "Cannot use baked vagrant box: ${reason}. Set FALLBACK_TO_FULL_PROVISION=yes to fall back to site.yml."
