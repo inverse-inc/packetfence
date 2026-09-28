@@ -1,6 +1,6 @@
 ---
 # TEMPORARY diagnostic run by bake-vagrant-img.sh after sysprep, before halt.
-# Dumps the shipped network config so we can see why the packaged box never
+# Shows network state and configuration filenames so we can see why the packaged box never
 # gets a mgmt-NIC IP (vagrant-libvirt wait_till_up timeout). Remove once the
 # bake's post-sysprep networking is sorted.
 
@@ -17,13 +17,13 @@
         echo "===== ip -br addr ====="; ip -br addr
         echo "===== nmcli dev status ====="; nmcli dev status 2>/dev/null
         echo "===== nmcli con show ====="; nmcli -t -f NAME,DEVICE,TYPE,AUTOCONNECT con show 2>/dev/null
-        echo "===== NetworkManager --print-config ====="; NetworkManager --print-config 2>/dev/null
-        echo "===== /etc/NetworkManager/NetworkManager.conf ====="; cat /etc/NetworkManager/NetworkManager.conf 2>/dev/null
-        echo "===== /etc/NetworkManager/conf.d ====="; ls -la /etc/NetworkManager/conf.d 2>/dev/null; cat /etc/NetworkManager/conf.d/* 2>/dev/null
+        # Configuration contents can include credentials; list files only.
+        echo "===== /etc/NetworkManager/NetworkManager.conf ====="; ls -l /etc/NetworkManager/NetworkManager.conf 2>/dev/null
+        echo "===== /etc/NetworkManager/conf.d ====="; ls -la /etc/NetworkManager/conf.d 2>/dev/null
         echo "===== system-connections ====="; ls -la /etc/NetworkManager/system-connections 2>/dev/null
-        echo "===== /etc/network/interfaces (+ .d) ====="; cat /etc/network/interfaces 2>/dev/null; ls -la /etc/network/interfaces.d 2>/dev/null; cat /etc/network/interfaces.d/* 2>/dev/null
-        echo "===== /etc/netplan ====="; ls -la /etc/netplan 2>/dev/null; cat /etc/netplan/* 2>/dev/null
-        echo "===== /etc/systemd/network ====="; ls -la /etc/systemd/network 2>/dev/null; cat /etc/systemd/network/* 2>/dev/null
+        echo "===== /etc/network/interfaces (+ .d) ====="; ls -l /etc/network/interfaces 2>/dev/null; ls -la /etc/network/interfaces.d 2>/dev/null
+        echo "===== /etc/netplan ====="; ls -la /etc/netplan 2>/dev/null
+        echo "===== /etc/systemd/network ====="; ls -la /etc/systemd/network 2>/dev/null
         echo "===== service states ====="; systemctl is-enabled NetworkManager systemd-networkd networking 2>&1
         echo "===== ssh host keys ====="; ls -la /etc/ssh/ssh_host_* 2>&1
         echo "===== ssh service ====="; systemctl is-enabled ssh.service sshd.service regenerate-ssh-host-keys.service 2>&1; systemctl is-active ssh.service sshd.service 2>&1
