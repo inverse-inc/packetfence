@@ -170,6 +170,31 @@ func (slave *BashSlave) Close() error {
 	return err
 }
 
+// watchTerminalIdle stops the running terminal once it has been idle for
+// the activation's timeout (terminalIdleTimeout, re-armed by every
+// activation). It ends with ctx, the running server's context.
+func (api *API) watchTerminalIdle(ctx context.Context) {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+		timeout := time.Duration(api.terminalIdleTimeout.Load())
+		last := time.Unix(0, api.terminalActivity.Load())
+		if timeout > 0 && time.Since(last) >= timeout {
+			log.Printf("Terminal idle for %s, stopping it", timeout)
+			select {
+			case api.commandChan <- Message{Type: StopProcessing}:
+			case <-ctx.Done():
+			}
+			return
+		}
+	}
+}
+
 func (api *API) terminal() (bool, error) {
 
 	// Options for the GoTTY server
@@ -222,6 +247,9 @@ func (api *API) terminal() (bool, error) {
 			case msg := <-api.commandChan:
 				switch msg.Type {
 				case StartProcessing:
+					if msg.IdleTimeout > 0 {
+						api.terminalIdleTimeout.Store(int64(msg.IdleTimeout))
+					}
 					if atomic.LoadInt32(&api.serverRunning) == 1 {
 						log.Println("GoTTY server is already running")
 						break
@@ -238,6 +266,10 @@ func (api *API) terminal() (bool, error) {
 					api.terminalCredMu.Unlock()
 
 					serverCtx, serverCancel = context.WithCancel(api.ctx)
+					// One idle watcher per running terminal, gone with it:
+					// activations while it runs re-arm the clock and the
+					// timeout rather than adding watchers of their own.
+					go api.watchTerminalIdle(serverCtx)
 
 					go func() {
 						defer func() {

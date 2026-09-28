@@ -68,11 +68,14 @@ type l2Send struct {
 }
 
 type harness struct {
-	relay  *Relay
-	conn   *pipeConn
-	l2mu   sync.Mutex
-	l2     []l2Send
-	server *httptest.Server
+	relay *Relay
+	conn  *pipeConn
+	l2mu  sync.Mutex
+	l2    []l2Send
+	// layer-2 senders handed to listeners and closed by them
+	l2senders int
+	l2closed  int
+	server    *httptest.Server
 	// what the fake pfdhcp saw and what it answers
 	seen   [][]byte
 	answer func(req dhcp.Packet) (int, []byte)
@@ -94,13 +97,34 @@ func newHarness(t *testing.T) *harness {
 	t.Cleanup(h.server.Close)
 	h.relay = New(Config{URL: h.server.URL, Timeout: time.Second, Logger: t.Logf})
 	h.relay.openConn = func(Interface) (net.PacketConn, error) { return h.conn, nil }
-	h.relay.sendL2 = func(iface Interface, mac net.HardwareAddr, ip net.IP, body []byte) error {
+	h.relay.newL2 = func(iface Interface) l2Sender {
 		h.l2mu.Lock()
 		defer h.l2mu.Unlock()
-		h.l2 = append(h.l2, l2Send{iface, mac, ip, append([]byte(nil), body...)})
-		return nil
+		h.l2senders++
+		return &l2Recorder{h: h, iface: iface}
 	}
 	return h
+}
+
+// l2Recorder is the test l2Sender: one per listener, records the frames and
+// its own close.
+type l2Recorder struct {
+	h     *harness
+	iface Interface
+}
+
+func (r *l2Recorder) Send(mac net.HardwareAddr, ip net.IP, body []byte) error {
+	r.h.l2mu.Lock()
+	defer r.h.l2mu.Unlock()
+	r.h.l2 = append(r.h.l2, l2Send{r.iface, mac, ip, append([]byte(nil), body...)})
+	return nil
+}
+
+func (r *l2Recorder) Close() error {
+	r.h.l2mu.Lock()
+	defer r.h.l2mu.Unlock()
+	r.h.l2closed++
+	return nil
 }
 
 var (
@@ -264,5 +288,11 @@ func TestSyncStartsStopsAndRestarts(t *testing.T) {
 	h.relay.Stop()
 	if len(h.relay.Status()) != 0 {
 		t.Errorf("Stop left listeners")
+	}
+	// One layer-2 sender per listener start, every one closed with it.
+	h.l2mu.Lock()
+	defer h.l2mu.Unlock()
+	if h.l2senders != 3 || h.l2closed != 3 {
+		t.Errorf("layer-2 senders: opened %d closed %d, want 3 and 3", h.l2senders, h.l2closed)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sync"
 	"syscall"
 
 	"github.com/mdlayher/ethernet"
@@ -48,22 +49,90 @@ func openBroadcastConn(iface Interface) (net.PacketConn, error) {
 	return conn, nil
 }
 
-// sendLayer2 writes one UDP 67->68 datagram to dstMAC/dstIP as a hand-built
-// Ethernet/IPv4/UDP frame on iface. Needed because the client does not own
-// dstIP yet (OFFER/ACK to a fresh lease) so the kernel could not ARP it.
-// Same construction as pfdhcp's rawClient.
-func sendLayer2(iface Interface, dstMAC net.HardwareAddr, dstIP net.IP, payload []byte) error {
-	ifi, err := net.InterfaceByName(iface.Name)
+// l2Sender delivers hand-built UDP 67->68 frames on one interface.
+type l2Sender interface {
+	Send(dstMAC net.HardwareAddr, dstIP net.IP, payload []byte) error
+	Close() error
+}
+
+// rawSender is the l2Sender of one listener: a single AF_PACKET socket on
+// the interface, opened on the first reply and kept for the listener's life
+// (a socket per reply was three syscalls of churn under exactly the renew
+// bursts the relay is bounded for). Site networking may delete and recreate
+// the VLAN interface under us, leaving the socket bound to a dead ifindex:
+// a failed write reopens the socket once and retries.
+type rawSender struct {
+	iface Interface
+
+	mu   sync.Mutex
+	ifi  *net.Interface
+	conn net.PacketConn
+}
+
+func newLayer2Sender(iface Interface) l2Sender {
+	return &rawSender{iface: iface}
+}
+
+// open (re)opens the raw socket; the caller holds mu.
+func (s *rawSender) open() error {
+	ifi, err := net.InterfaceByName(s.iface.Name)
 	if err != nil {
 		return err
 	}
 	// The ethertype only filters what we *receive*; we never read from it.
-	p, err := raw.ListenPacket(ifi, 0x0806, &raw.Config{})
+	conn, err := raw.ListenPacket(ifi, 0x0806, &raw.Config{})
 	if err != nil {
-		return fmt.Errorf("raw socket on %s: %w", iface.Name, err)
+		return fmt.Errorf("raw socket on %s: %w", s.iface.Name, err)
 	}
-	defer p.Close()
+	s.ifi, s.conn = ifi, conn
+	return nil
+}
 
+func (s *rawSender) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.conn == nil {
+		return nil
+	}
+	err := s.conn.Close()
+	s.conn, s.ifi = nil, nil
+	return err
+}
+
+// Send writes one UDP 67->68 datagram to dstMAC/dstIP as a hand-built
+// Ethernet/IPv4/UDP frame. Needed because the client does not own dstIP yet
+// (OFFER/ACK to a fresh lease) so the kernel could not ARP it. Same
+// construction as pfdhcp's rawClient.
+func (s *rawSender) Send(dstMAC net.HardwareAddr, dstIP net.IP, payload []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.conn == nil {
+		if err := s.open(); err != nil {
+			return err
+		}
+	}
+	fb, err := buildFrame(s.iface, s.ifi.HardwareAddr, dstMAC, dstIP, payload)
+	if err != nil {
+		return err
+	}
+	if _, err = s.conn.WriteTo(fb, &raw.Addr{HardwareAddr: dstMAC}); err == nil {
+		return nil
+	}
+	// The interface may have been recreated: reopen once and retry.
+	s.conn.Close()
+	s.conn, s.ifi = nil, nil
+	if reopenErr := s.open(); reopenErr != nil {
+		return err
+	}
+	if fb, err = buildFrame(s.iface, s.ifi.HardwareAddr, dstMAC, dstIP, payload); err != nil {
+		return err
+	}
+	_, err = s.conn.WriteTo(fb, &raw.Addr{HardwareAddr: dstMAC})
+	return err
+}
+
+// buildFrame assembles the Ethernet/IPv4/UDP frame of one 67->68 datagram.
+func buildFrame(iface Interface, srcMAC, dstMAC net.HardwareAddr, dstIP net.IP, payload []byte) ([]byte, error) {
 	udpLen := 8 + len(payload)
 	ipLen := 20 + udpLen
 	ip := ipv4Header{
@@ -82,16 +151,11 @@ func sendLayer2(iface Interface, dstMAC net.HardwareAddr, dstIP net.IP, payload 
 
 	frame := &ethernet.Frame{
 		Destination: dstMAC,
-		Source:      ifi.HardwareAddr,
+		Source:      srcMAC,
 		EtherType:   ethernet.EtherTypeIPv4,
 		Payload:     append(append(ip.bytes(), udp.bytes()...), payload...),
 	}
-	fb, err := frame.MarshalBinary()
-	if err != nil {
-		return err
-	}
-	_, err = p.WriteTo(fb, &raw.Addr{HardwareAddr: dstMAC})
-	return err
+	return frame.MarshalBinary()
 }
 
 type ipv4Header struct {

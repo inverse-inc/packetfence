@@ -321,41 +321,7 @@ func (c *Client) Start(ctx context.Context) error {
 					return
 				case <-time.After(5 * time.Second):
 				}
-				tunnelReady := func() bool {
-					res, err := c.serverAPIGet(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
-					if err != nil {
-						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
-						return false
-					}
-					defer res.Body.Close()
-					if res.StatusCode != http.StatusOK {
-						fmt.Printf("Invalid status code %d received for remote binds\n", res.StatusCode)
-						return false
-					}
-					apiRemotes := struct {
-						Binds []string
-					}{}
-					err = json.NewDecoder(res.Body).Decode(&apiRemotes)
-					if err != nil {
-						fmt.Printf("Unable to parse remote binds from pfconnector API: %s\n", err)
-						return false
-					}
-					remotes := []*settings.Remote{}
-					for _, remoteStr := range apiRemotes.Binds {
-						remote, err := settings.DecodeRemote(remoteStr)
-						if err != nil {
-							fmt.Printf("Unable to decode remote %s from API: %s", remoteStr, err)
-						} else {
-							remotes = append(remotes, remote)
-						}
-					}
-					err = c.tunnel.BindRemotes(ctx, remotes)
-					if err != nil {
-						fmt.Println("Error binding remotes obtained from the pfconnector server", err)
-					}
-					return true
-				}()
-				_ = tunnelReady
+				c.bindRemotesFromAPI(ctx)
 			}
 		}()
 	}
@@ -374,9 +340,44 @@ func (c *Client) Start(ctx context.Context) error {
 	return nil
 }
 
+// bindRemotesFromAPI fetches this connector's remote binds from the
+// pfconnector server (tunnel-local API) and binds them. BindRemotes blocks
+// for as long as the binds are up, so the caller's loop only comes back here
+// when the tunnel drops.
+func (c *Client) bindRemotesFromAPI(ctx context.Context) {
+	res, err := c.serverAPIGet(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
+	if err != nil {
+		fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		fmt.Printf("Invalid status code %d received for remote binds\n", res.StatusCode)
+		return
+	}
+	apiRemotes := struct {
+		Binds []string
+	}{}
+	if err := json.NewDecoder(res.Body).Decode(&apiRemotes); err != nil {
+		fmt.Printf("Unable to parse remote binds from pfconnector API: %s\n", err)
+		return
+	}
+	remotes := []*settings.Remote{}
+	for _, remoteStr := range apiRemotes.Binds {
+		remote, err := settings.DecodeRemote(remoteStr)
+		if err != nil {
+			fmt.Printf("Unable to decode remote %s from API: %s", remoteStr, err)
+		} else {
+			remotes = append(remotes, remote)
+		}
+	}
+	if err := c.tunnel.BindRemotes(ctx, remotes); err != nil {
+		fmt.Println("Error binding remotes obtained from the pfconnector server", err)
+	}
+}
+
 // reportConnectorInfoLoop periodically reports this connector's IPs while the
-// tunnel is up. Used when binds are static; the FETCH_REMOTES_VIA_API loop
-// reports on its own cadence instead.
+// tunnel is up, whether the binds are static or fetched from the API.
 func (c *Client) reportConnectorInfoLoop(ctx context.Context) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()

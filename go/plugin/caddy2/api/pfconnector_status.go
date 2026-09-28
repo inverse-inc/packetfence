@@ -147,16 +147,8 @@ func (h APIHandler) pfconnectorRemoteUpgrade() http.HandlerFunc {
 		}
 
 		body, _ := json.Marshal(map[string]string{"version": central})
-		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/system/upgrade", bytes.NewReader(body))
-		if err != nil {
-			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to trigger the upgrade of connector-remote %s: %s", connectorID, err))
-			http.Error(w, "Unable to reach the connector-remote to upgrade it", http.StatusBadGateway)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(res)
+		h.relayConnectorRemoteAPI(w, r, conn, "POST", "/api/v1/system/upgrade", bytes.NewReader(body),
+			fmt.Sprintf("trigger the upgrade of connector-remote %s", connectorID), "Unable to reach the connector-remote to upgrade it")
 	})
 }
 
@@ -200,16 +192,8 @@ func (h APIHandler) pfconnectorRemoteInstall() http.HandlerFunc {
 		}
 
 		body, _ := json.Marshal(map[string][]string{"packages": req.Packages})
-		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/system/install", bytes.NewReader(body))
-		if err != nil {
-			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to trigger the package install on connector-remote %s: %s", connectorID, err))
-			http.Error(w, "Unable to reach the connector-remote to install the packages", http.StatusBadGateway)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(res)
+		h.relayConnectorRemoteAPI(w, r, conn, "POST", "/api/v1/system/install", bytes.NewReader(body),
+			fmt.Sprintf("trigger the package install on connector-remote %s", connectorID), "Unable to reach the connector-remote to install the packages")
 	})
 }
 
@@ -237,14 +221,8 @@ func (h APIHandler) pfconnectorRemoteHaSwitch() http.HandlerFunc {
 			return
 		}
 		body, _ := json.Marshal(map[string]string{"to": req.To})
-		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/ha/switch", bytes.NewReader(body))
-		if err != nil {
-			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to switch the active host of connector %s to %s: %s", connectorID, req.To, err))
-			http.Error(w, fmt.Sprintf("Unable to switch the active host: %s", err), http.StatusBadGateway)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		h.relayConnectorRemoteAPI(w, r, conn, "POST", "/api/v1/ha/switch", bytes.NewReader(body),
+			fmt.Sprintf("switch the active host of connector %s to %s", connectorID, req.To), "Unable to reach the active host of the connector to switch it")
 	})
 }
 
@@ -285,17 +263,34 @@ func (h APIHandler) pfconnectorRemoteRestart() http.HandlerFunc {
 			return
 		}
 
-		res, err := h.callConnectorRemoteAPI(conn, "POST", "/api/v1/system/restart", nil)
-		if err != nil {
-			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to restart connector-remote %s: %s", connectorID, err))
-			http.Error(w, "Unable to reach the connector-remote to restart it", http.StatusBadGateway)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(res)
+		h.relayConnectorRemoteAPI(w, r, conn, "POST", "/api/v1/system/restart", nil,
+			fmt.Sprintf("restart connector-remote %s", connectorID), "Unable to reach the connector-remote to restart it")
 	})
+}
+
+// relayConnectorRemoteAPI performs one call on the connector-remote's local
+// API and relays its status code and body to the admin: a 409 "Only the host
+// holding the virtual IP can hand it over" or a 400 naming the refused
+// package reaches the UI as such instead of a generic 502. Only an
+// unreachable remote is reported as 502 with unreachableMsg (action names
+// the attempt in the log).
+func (h APIHandler) relayConnectorRemoteAPI(w http.ResponseWriter, r *http.Request, conn *connector.Connector, method, path string, body io.Reader, action, unreachableMsg string) {
+	status, reply, err := h.callConnectorRemoteAPIRaw(conn, method, path, body, 20*time.Second)
+	if err != nil {
+		log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to %s: %s", action, err))
+		writeJSONMessage(w, http.StatusBadGateway, unreachableMsg)
+		return
+	}
+	if status >= 400 {
+		log.LoggerWContext(r.Context()).Warn(fmt.Sprintf("Unable to %s: the connector-remote answered %d: %s", action, status, bytes.TrimSpace(reply)))
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	if json.Valid(reply) {
+		w.Write(reply)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"message": string(bytes.TrimSpace(reply))})
 }
 
 // callConnectorRemoteAPI opens (or reuses) a dynreverse tunnel to the

@@ -196,3 +196,42 @@ func TestAvailableLogFiles(t *testing.T) {
 		t.Errorf("logs disabled: expected nil, got %v", got)
 	}
 }
+
+func TestReadLastNLines(t *testing.T) {
+	dir := t.TempDir()
+	write := func(name, content string) string {
+		p := filepath.Join(dir, name)
+		if err := os.WriteFile(p, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	// Many short lines: the tail crosses several read chunks.
+	var big strings.Builder
+	for i := 1; i <= 50000; i++ {
+		fmt.Fprintf(&big, "line %d\n", i)
+	}
+	cases := []struct {
+		name    string
+		content string
+		n       int
+		want    []string
+	}{
+		{"exact tail", "a\nb\nc\nd\n", 2, []string{"c", "d"}},
+		{"fewer lines than asked", "a\nb\n", 5, []string{"a", "b"}},
+		{"no trailing newline", "a\nb\nc", 2, []string{"b", "c"}},
+		{"empty file", "", 3, []string{}},
+		{"zero lines", "a\nb\n", 0, []string{}},
+		{"over-long line drops it and what precedes it", "old\n" + strings.Repeat("x", logsMaxLineBytes+1) + "\nnew\n", 5, []string{"new"}},
+		{"large file", big.String(), 3, []string{"line 49998", "line 49999", "line 50000"}},
+	}
+	for _, c := range cases {
+		got, err := readLastNLines(write(strings.ReplaceAll(c.name, " ", "_"), c.content), c.n)
+		if err != nil {
+			t.Fatalf("%s: %v", c.name, err)
+		}
+		if strings.Join(got, "|") != strings.Join(c.want, "|") {
+			t.Errorf("%s: got %q, want %q", c.name, got, c.want)
+		}
+	}
+}
