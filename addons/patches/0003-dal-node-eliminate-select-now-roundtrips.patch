@@ -1,0 +1,82 @@
+From: Ludovic Zammit <luzammi@akamai.com>
+Subject: [PATCH 3/3] dal/node: eliminate SELECT NOW() roundtrips during node insert + last_seen
+
+A MariaDB general-log capture of a single MAC Access-Request showed three
+"SELECT NOW()" queries per auth that exist purely to populate timestamp
+columns on subsequent INSERT/UPDATE statements -- 1.5 wasted network
+roundtrips each, all to fetch a value MariaDB could resolve inline.
+
+Two of those came from pf::dal::node:
+
+  - _insert_data sets $data->{detect_date} = $self->now  (pf::dal->now
+    runs SELECT NOW() and returns the string).
+  - update_last_seen does $self->last_seen($self->now()) for the same
+    reason, then relies on a later save to flush.
+
+Both can be replaced with a scalar-ref literal "NOW()", which SQL::Abstract
+emits as raw SQL at INSERT/UPDATE time. pf::node::node_update_last_seen
+(node.pm:1225) already uses exactly this pattern, so there's an in-tree
+precedent.
+
+Behavior change:
+  * After this patch, $node_obj->{detect_date} is not populated on the
+    Perl-side object during the INSERT codepath (the value is computed
+    by the server). Callers that re-read the object after save get the
+    value back from the next SELECT, which is unchanged.
+  * update_last_seen now issues an UPDATE directly via update_items
+    instead of going through the setter. Object-side $self->{last_seen}
+    is no longer mutated. Callers that need the value can re-read.
+  * pf::dal->now() itself is NOT changed; other callers use it as a
+    bind parameter inside DATE_SUB(?, INTERVAL ? SECOND) and would break
+    if it returned a scalar-ref.
+
+Measured impact: ~2 SELECT NOW() roundtrips eliminated per Access-Request
+(one for detect_date on first-time MACs, one for last_seen on every auth).
+On the test box this is a small fraction of mariadbd CPU, but every
+roundtrip removed adds headroom.
+
+Apply from /usr/local/pf/:
+
+    patch -p1 < 0003-dal-node-eliminate-select-now-roundtrips.patch
+
+Rebuild containers that ship lib/ (e.g. pfperl-api) and restart any
+host-side Perl workers (packetfence-pfqueue-backend) so they reload modules.
+
+---
+ lib/pf/dal/node.pm | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/lib/pf/dal/node.pm b/lib/pf/dal/node.pm
+--- a/lib/pf/dal/node.pm
++++ b/lib/pf/dal/node.pm
+@@ -181,7 +181,10 @@ sub _insert_data {
+         return $status, $data;
+     }
+     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
+-       $data->{detect_date} = $self->now;
++       # Use a literal SQL expression so the timestamp resolves on the server during the
++       # INSERT, rather than doing a separate SELECT NOW() roundtrip first. $data is consumed
++       # locally by SQL::Abstract which treats scalar-refs as raw SQL.
++       $data->{detect_date} = \"NOW()";
+     }
+
+     $data->{mac} = clean_mac($data->{mac});
+@@ -197,8 +200,16 @@ update_last_seen
+
+ sub update_last_seen {
+     my ($self) = @_;
+-    $self->last_seen($self->now());
+-    return ;
++    # Issue a single UPDATE with literal NOW() instead of (a) SELECT NOW() to fetch a string,
++    # (b) storing it on the object via the setter, (c) waiting for a later save to flush. This
++    # mirrors pf::node::node_update_last_seen at node.pm:1225 which already uses this pattern.
++    my $mac = $self->{mac};
++    return unless defined $mac && length $mac;
++    my ($status, $rows) = pf::dal::node->update_items(
++        -set   => { last_seen => \['NOW()'] },
++        -where => { mac => $mac },
++    );
++    return;
+ }
+
+ =head2 _load_locationlog

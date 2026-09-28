@@ -181,7 +181,10 @@ sub _insert_data {
         return $status, $data;
     }
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
-       $data->{detect_date} = $self->now;
+       # Use a literal SQL expression so the timestamp resolves on the server during the
+       # INSERT, rather than doing a separate SELECT NOW() roundtrip first. $data is consumed
+       # locally by SQL::Abstract which treats scalar-refs as raw SQL.
+       $data->{detect_date} = \"NOW()";
     }
 
     $data->{mac} = clean_mac($data->{mac});
@@ -197,8 +200,16 @@ update_last_seen
 
 sub update_last_seen {
     my ($self) = @_;
-    $self->last_seen($self->now());
-    return ;
+    # Issue a single UPDATE with literal NOW() instead of (a) SELECT NOW() to fetch a string,
+    # (b) storing it on the object via the setter, (c) waiting for a later save to flush. This
+    # mirrors pf::node::node_update_last_seen at node.pm:1225 which already uses this pattern.
+    my $mac = $self->{mac};
+    return unless defined $mac && length $mac;
+    my ($status, $rows) = pf::dal::node->update_items(
+        -set   => { last_seen => \['NOW()'] },
+        -where => { mac => $mac },
+    );
+    return;
 }
 
 =head2 _load_locationlog

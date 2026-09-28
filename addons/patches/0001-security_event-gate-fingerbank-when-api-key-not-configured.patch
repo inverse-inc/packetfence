@@ -1,0 +1,97 @@
+From: Ludovic Zammit <luzammi@akamai.com>
+Subject: [PATCH 1/2] security_event: gate Fingerbank lookups and accounting_events_history KEYS scan on is_api_key_configured
+
+info_for_security_event_engine is called per auth via security_event_trigger
+(provisioner check in role.pm:391, hostname/connection-type change checks in
+api.pm:1277/:1302). It always writes per-MAC fingerbank cache entries
+(mac_vendor_id_from_mac_*, dhcp_*_id_*) AND always runs
+pf::accounting_events_history->latest_mac_history, which issues a blocking
+KEYS accounting_events_history:data-* against redis_cache (Redis is
+single-threaded; KEYS is O(N) and serializes all clients).
+
+When Fingerbank is intentionally disabled (no API key in fingerbank.conf),
+pf::fingerbank::process already short-circuits (fingerbank.pm:93). This patch
+mirrors that same gate here so the supporting lookups skip too.
+
+Behavior change: with no API key configured, device_id, dhcp_*_id,
+mac_vendor_id, and last_accounting_events in the security_event info struct
+are undef/[]. Security_events that match those attributes will stop firing
+when Fingerbank is off -- consistent with process() already returning early.
+
+Measured impact on an 8 vCPU all-in-one box during MAC auth load tests:
+redis_cache CPU dropped from ~48% to ~5%, eliminated 80k+ blocking KEYS
+calls per 60s test, and sustained Access-Accept rate climbed from ~67/sec
+to ~150-170/sec.
+
+Apply from /usr/local/pf/:
+
+    patch -p1 < 0001-security_event-gate-fingerbank-when-api-key-not-configured.patch
+
+Then rebuild containers that ship lib/ (e.g. pfperl-api) and restart any
+host-side Perl workers (e.g. packetfence-pfqueue-backend) so they reload the
+module.
+
+---
+ lib/pf/security_event.pm | 33 +++++++++++++++++++++------------
+ 1 file changed, 21 insertions(+), 12 deletions(-)
+
+diff --git a/lib/pf/security_event.pm b/lib/pf/security_event.pm
+--- a/lib/pf/security_event.pm
++++ b/lib/pf/security_event.pm
+@@ -519,6 +519,8 @@ sub info_for_security_event_engine {
+
+     my $cache = pf::CHI->new( namespace => 'fingerbank' );
+
++    my $fb_enabled = fingerbank::Config::is_api_key_configured();
++
+     $type = lc($type);
+
+     my $devices = [];
+@@ -526,7 +528,7 @@ sub info_for_security_event_engine {
+     if($type eq "device"){
+         $device_id = $tid;
+     }
+-    else {
++    elsif ($fb_enabled) {
+         my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+         if(is_success($device_result)){
+             $device_id = $device->id
+@@ -540,20 +542,27 @@ sub info_for_security_event_engine {
+         dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
+     };
+     my $results = {};
+-    foreach my $attr (keys %$attr_map){
+-        my $model = $attr_map->{$attr};
+-        my $query = {value => $node_info->{$attr}};
+-        $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
+-            my ($status, $result) = $model->find([$query]);
+-            return is_success($status) ? $result->id : undef;
++    if ($fb_enabled) {
++        foreach my $attr (keys %$attr_map){
++            my $model = $attr_map->{$attr};
++            my $query = {value => $node_info->{$attr}};
++            $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
++                my ($status, $result) = $model->find([$query]);
++                return is_success($status) ? $result->id : undef;
++            });
++        }
++    }
++    my $mac_vendor_id;
++    if ($fb_enabled) {
++        ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
++            my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
++            return $mac_vendor ? $mac_vendor->id : undef;
+         });
+     }
+-    my ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
+-        my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
+-        return $mac_vendor ? $mac_vendor->id : undef;
+-    });
+
+-    my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
++    my $accounting_history = $fb_enabled
++        ? pf::accounting_events_history->new->latest_mac_history($mac)
++        : [];
+
+
+     my $last_ip = pf::ip4log::mac2ip($mac) || 0;

@@ -278,7 +278,10 @@ sub authorize {
     $options->{'radius_request'}      = $args->{'radius_request'};
     $options->{'fingerbank_info'}     = $args->{'fingerbank_info'};
 
-    my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
+    # Pass $node_obj (already in scope from find_or_create above) so ProfileFactory does NOT
+    # re-fetch the node from the DB. ProfileFactory accepts a node-like hashref OR a MAC string;
+    # passing the MAC forced a redundant SELECT FROM node JOIN node_category every auth.
+    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
     $args->{'profile'} = $profile;
     $args->{'portal'} = $profile->getName;
 
@@ -945,7 +948,8 @@ sub vpn {
         $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
         $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
 
-        my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
+        # See ProfileFactory note above — reuse $node_obj to avoid another node_view roundtrip.
+        my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
         $args->{'profile'} = $profile;
         @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 

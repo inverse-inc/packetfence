@@ -1,0 +1,102 @@
+From: Ludovic Zammit <luzammi@akamai.com>
+Subject: [PATCH 2/2] radius+role: reduce redundant per-auth DB fetches (~4 SELECTs saved)
+
+A MariaDB general-log capture of a single MAC Access-Request showed several
+queries firing multiple times within the same auth:
+
+  - SELECT FROM person WHERE pid='default'             called 4x per auth
+  - SELECT FROM node JOIN node_category WHERE mac=?    called 3x per auth
+
+Two unrelated callsites in pf::role were each unconditionally re-fetching
+the same person row that pf::radius::authorize had already cached in
+$args->{owner}, and pf::Connection::ProfileFactory->instantiate was being
+called with a MAC string (forcing a re-fetch) when the caller already had
+$node_obj in scope from the find_or_create above it. ProfileFactory accepts
+either form (see ProfileFactory.pm:59-64), so passing the object skips the
+redundant DB read.
+
+Three changes, all single-process scope, no behavior change:
+
+1. pf::role::filterVlan -- use //= instead of = to populate $args->{owner},
+   so the second/third filterVlan call per auth (IsPhone, RegisteredRole,
+   etc.) reuses the cached value instead of re-fetching. Saves ~2 SELECTs.
+
+2. pf::role::getRegisteredRole -- replace the local $person fetch with
+   $person = $args->{owner} //= ..., reusing the same stash. Saves ~1 SELECT.
+
+3. pf::radius::authorize and pf::radius::vpn -- pass $node_obj instead of
+   $args->{mac} to ProfileFactory->instantiate. Saves ~1 SELECT.
+
+Net: roughly 4 SELECTs eliminated per Access-Request, ~21% of the
+synchronous-path SELECT count.
+
+Risk is low: filterVlan and getRegisteredRole both already trust whatever
+$args->{owner} contains (filterVlan was actively overwriting it with the
+same DB result), and ProfileFactory has an explicit branch for the node-obj
+form. No callsites read the local $person between the patched line and the
+existing usage.
+
+Apply from /usr/local/pf/:
+
+    patch -p1 < 0002-radius-role-reduce-redundant-per-auth-db-fetches.patch
+
+Rebuild containers that ship lib/ (e.g. pfperl-api) and restart any
+host-side Perl workers (packetfence-pfqueue-backend) so they reload modules.
+
+---
+ lib/pf/radius.pm |  9 +++++++--
+ lib/pf/role.pm   |  9 +++++++--
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/lib/pf/radius.pm b/lib/pf/radius.pm
+--- a/lib/pf/radius.pm
++++ b/lib/pf/radius.pm
+@@ -278,7 +278,10 @@ sub authorize {
+     $options->{'radius_request'}      = $args->{'radius_request'};
+     $options->{'fingerbank_info'}     = $args->{'fingerbank_info'};
+
+-    my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
++    # Pass $node_obj (already in scope from find_or_create above) so ProfileFactory does NOT
++    # re-fetch the node from the DB. ProfileFactory accepts a node-like hashref OR a MAC string;
++    # passing the MAC forced a redundant SELECT FROM node JOIN node_category every auth.
++    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
+     $args->{'profile'} = $profile;
+     $args->{'portal'} = $profile->getName;
+
+@@ -945,7 +948,8 @@ sub vpn {
+         $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+         $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
+
+-        my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
++        # See ProfileFactory note above -- reuse $node_obj to avoid another node_view roundtrip.
++        my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
+         $args->{'profile'} = $profile;
+         @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+
+diff --git a/lib/pf/role.pm b/lib/pf/role.pm
+--- a/lib/pf/role.pm
++++ b/lib/pf/role.pm
+@@ -377,7 +377,10 @@ sub getRegisteredRole {
+     my $profile = $args->{'profile'};
+     my $action = $Actions::SET_ROLE;
+     if (defined($args->{'node_info'}->{'pid'})) {
+-        $person = pf::person::person_view_simple($args->{'node_info'}->{'pid'});
++        # reuse $args->{owner} when an upstream caller already populated it; otherwise fetch once
++        # and stash. Avoids redundant SELECT FROM person on every auth (radius.pm:246 already fetched
++        # this once).
++        $person = $args->{'owner'} //= pf::person::person_view_simple($args->{'node_info'}->{'pid'});
+         if (defined($person->{'source'}) && $person->{'source'} ne '') {
+             $source = $person->{'source'};
+         }
+@@ -870,7 +873,10 @@ sub filterVlan {
+     my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
+     my ($self, $scope, $args) = @_;
+     my $filter = pf::access_filter::vlan->new;
+-    $args->{'owner'}= person_view_simple($args->{'node_info'}->{'pid'});
++    # //= so we don't overwrite an upstream-cached owner with a redundant SELECT FROM person.
++    # filterVlan is called multiple times per auth (IsPhone, RegisteredRole, ...) and was firing
++    # a fresh person_view_simple on every call.
++    $args->{'owner'} //= person_view_simple($args->{'node_info'}->{'pid'});
+     my $role = $filter->filter($scope, $args);
+     return $role;
+ }

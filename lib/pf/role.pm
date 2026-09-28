@@ -377,7 +377,10 @@ sub getRegisteredRole {
     my $profile = $args->{'profile'};
     my $action = $Actions::SET_ROLE;
     if (defined($args->{'node_info'}->{'pid'})) {
-        $person = pf::person::person_view_simple($args->{'node_info'}->{'pid'});
+        # reuse $args->{owner} when an upstream caller already populated it; otherwise fetch once
+        # and stash. Avoids redundant SELECT FROM person on every auth (radius.pm:246 already fetched
+        # this once).
+        $person = $args->{'owner'} //= pf::person::person_view_simple($args->{'node_info'}->{'pid'});
         if (defined($person->{'source'}) && $person->{'source'} ne '') {
             $source = $person->{'source'};
         }
@@ -870,7 +873,10 @@ sub filterVlan {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
     my ($self, $scope, $args) = @_;
     my $filter = pf::access_filter::vlan->new;
-    $args->{'owner'}= person_view_simple($args->{'node_info'}->{'pid'});
+    # //= so we don't overwrite an upstream-cached owner with a redundant SELECT FROM person.
+    # filterVlan is called multiple times per auth (IsPhone, RegisteredRole, ...) and was firing
+    # a fresh person_view_simple on every call.
+    $args->{'owner'} //= person_view_simple($args->{'node_info'}->{'pid'});
     my $role = $filter->filter($scope, $args);
     return $role;
 }
