@@ -30,6 +30,7 @@ Here are the use-cases the pfconnector supports:
  * Performing access reevaluation through the pfconnector (i.e. RADIUS CoA/Disconnect, SNMP, etc)
  * Performing LDAP queries through the pfconnector to an on-premise LDAP server (including Active Directory) for portal and admin interface authentication
  * Authentication against a RADIUS source through the pfconnector to an on-premise RADIUS server for portal and admin interface authentication
+ * 802.1X EAP-PEAP authentication of Active Directory users when the domain controller is only reachable through the pfconnector (NTLM authentication performed on the pfconnector-remote host, see the dedicated section below)
  * Device profiling using the Fingerbank Collector (installed automatically with the pfconnector on 12.1+)
 
 ===== Installation
@@ -82,27 +83,6 @@ Finally, restart the packetfence-pfconnector-remote service:
 systemctl restart packetfence-pfconnector-remote
 ----
    
-===== NTLM Authentication Behind a Connector
-
-When a Microsoft Active Directory domain is behind a pfconnector (i.e. the domain controller is only reachable through the connector tunnel), NTLM authentication requires two additional services to be installed on each pfconnector-remote host where the domain is used:
-
-* `packetfence-ntlm-auth-api-remote` -- Handles NTLM authentication requests for the remote domain. It receives authentication proxy requests from the main PacketFence server through the connector tunnel and forwards them to the local domain controller. This service is required when the NT Key cache is enabled on a domain behind a pfconnector, as the transitive login with the domain controller must be performed locally on the pfconnector-remote host.
-* `packetfence-ntlm-auth-join-remote` -- Manages the machine account in Active Directory. It performs the domain join and maintains the machine credential cache on the pfconnector-remote host, which is necessary for NTLM authentication to function.
-
-IMPORTANT: When using the NT Key cache for 802.1X EAP-PEAP with a domain behind a pfconnector, `packetfence-ntlm-auth-api-remote` must be installed on *every* pfconnector-remote host that serves such a domain. Each remote instance handles authentication using its local cache when the main domain controller behind the pfconnector-remote is unreachable or when the pfconnector-remote loses connectivity to the main PacketFence server.
-
-Install them alongside the pfconnector:
-
-[source,bash]
-----
-apt update
-apt install packetfence-ntlm-auth-api-remote packetfence-ntlm-auth-join-remote
-----
-
-NOTE: `packetfence-ntlm-auth-api-remote` depends on `packetfence-pfconnector-remote` and `packetfence-ntlm-auth-join-remote` depends on `packetfence-ntlm-auth-api-remote`, so installing `packetfence-ntlm-auth-join-remote` is sufficient to pull in both dependencies.
-
-Both services are `PartOf` the pfconnector systemd unit and will start and stop automatically with it.
-
 ===== Connecting Network Equipment
 
 Once your pfconnector is started, you can now point your network equipment to use the pfconnector's IP address for RADIUS and the captive portal like you would do with a typical on-premise PacketFence server. When defining the RADIUS secret in PacketFence and in your network equipment, always use the value inside `/usr/local/pf/conf/local_secret`.
@@ -193,6 +173,135 @@ For an Active Directory deployment where the DNS server `10.5.1.53` is behind th
 
 PacketFence will then forward any DNS query for `*.inverse.local` to `10.5.1.53:53` through the connector tunnel.
 ====
+
+===== 802.1X EAP-PEAP Authentication Against an Active Directory Behind a Connector
+
+When the Active Directory domain controller is located on the remote site and is only reachable through the connector tunnel, the NTLM authentication behind 802.1X EAP-PEAP (MSCHAPv2) must be performed next to the domain controller, on the pfconnector-remote host. This section describes the complete setup: creating the connector, routing DNS through it, installing the remote NTLM services, joining the domain and mapping a realm to it.
+
+====== How it works
+
+* The pfconnector-remote host runs its own FreeRADIUS instance and the network equipment sends the 802.1X requests to it. While the tunnel is up, the requests are forwarded to PacketFence, which terminates the EAP-PEAP tunnel and validates the inner MSCHAPv2 exchange by calling, back through the tunnel, the `ntlm-auth-api` running on the pfconnector-remote host next to the domain controller.
+* `packetfence-ntlm-auth-api-remote` runs one `ntlm-auth-api` container per connector-backed domain on the pfconnector-remote host. It validates the MSCHAPv2 responses against the domain controller using the machine account of the domain, on behalf of PacketFence or, in degraded mode, of the remote FreeRADIUS. When the service starts, it fetches the configuration of the connector-backed domains from PacketFence through the tunnel.
+* `packetfence-ntlm-auth-join-remote` runs the `ntlm-join-remote` service on the pfconnector-remote host. When you join a domain from the admin interface, PacketFence reaches this service through the tunnel and it creates (or resets) the machine account on the domain controller on PacketFence's behalf.
+* The realm to domain mapping, the authorization and the role assignment are still computed by PacketFence through the tunnel. When the tunnel is down, FreeRADIUS on the remote host switches to a degraded mode: it terminates EAP-PEAP itself and validates MSCHAPv2 against the local `ntlm-auth-api` and the NT keys it cached, so users that already authenticated keep working. This requires the NT Key cache to be enabled on the domain.
+
+IMPORTANT: PacketFence only hands the machine account password of a domain to the connector whose *Networks* contain the *Active Directory IP* of that domain. Every other pfconnector-remote host serving that domain receives the same configuration with a masked password, so its `ntlm-auth-api` can only answer from its cache. Make sure the domain controller IP is part of the networks of the connector installed next to it.
+
+====== Step 1: Create the Connector
+
+In _Configuration -> System Configuration -> Connectors -> Connectors_, click *New Connector* and fill in:
+
+* *Identifier* -- The UUID of the connector.
+* *Description* -- A label for the remote site.
+* *Secret* -- Generate a strong random value.
+* *Networks* -- The CIDR ranges of the remote site. They must at least contain the domain controller, the DNS server of the domain and the network equipment that will send RADIUS requests to the connector.
+
+Save the connector, then click *Show Install Command* at the top of the connector form. The command has the following form and installs and configures `packetfence-pfconnector-remote` on a x86_64 Debian 12 host of the remote site with the connector ID, the secret and the address of this PacketFence server:
+
+[source,bash]
+----
+curl -sL https://proxy.saas.packetfence.com/<release>/connector-remote-install.sh | bash -s -- <connector id> <secret> <packetfence host>
+----
+
+If you prefer to install the connector manually, follow the _Installation_ section above and reuse the connector ID and secret defined here when running `pfconnector-configure`.
+
+Once the packetfence-pfconnector-remote service is started on the remote host, the status icon of the connector in the connectors list turns green.
+
+====== Step 2: Map the Domain Name to the Connector
+
+In _Configuration -> System Configuration -> Connectors -> Domains_, create an entry with *Domain* set to the DNS name of the Active Directory domain (e.g. `inverse.local`) and *Connector* set to the connector created in step 1.
+
+====== Step 3: Route DNS Resolution Through the Connector
+
+In _Configuration -> System Configuration -> Connectors -> DNS_, create an entry for the DNS server of the domain, usually the domain controller itself:
+
+* *Identifier* -- A name for this entry (e.g. `amsterdam-dns`).
+* *IP* -- The IP address of the DNS server on the remote site.
+* *Port* -- `53`.
+* *Connector Port* -- A unique port in the `30000-30999` range.
+* *Domains* -- Select the domain created in step 2.
+
+PacketFence uses this DNS forwarder to resolve the *Active Directory FQDN* of the domain when joining it and when the LDAP source of the domain queries the domain controller.
+
+====== Step 4: Install the NTLM Services on the Remote Host
+
+On the pfconnector-remote host, install the join service. It depends on `packetfence-ntlm-auth-api-remote`, which itself depends on `packetfence-pfconnector-remote`, so a single package pulls everything:
+
+[source,bash]
+----
+apt update
+apt install packetfence-ntlm-auth-join-remote
+----
+
+Both packages depend on Docker and pull their container images from the PacketFence registry during the installation, so the remote host needs Internet access at that point.
+
+Both services are `PartOf` the `packetfence-pfconnector-remote-combined` unit and start and stop with it. Check them with:
+
+[source,bash]
+----
+systemctl status packetfence-ntlm-auth-api-remote packetfence-ntlm-auth-join-remote
+----
+
+NOTE: Until a domain using this connector exists in PacketFence, `packetfence-ntlm-auth-api-remote` has nothing to serve: it logs `No .env file found in /usr/local/ntlm-auth-api/var/conf/` and is restarted by systemd. This is expected and resolves itself once the domain is joined in step 5 and the service is restarted.
+
+The `ntlm-join-remote` service listens on `100.64.0.1:23000` on the remote host. It is not exposed permanently: PacketFence opens an on-demand tunnel to it only while a domain is joined.
+
+IMPORTANT: When several pfconnector-remote hosts serve the same domain (for instance one next to the domain controller and one on another site), `packetfence-ntlm-auth-api-remote` must be installed on *every* one of them, since each remote FreeRADIUS validates MSCHAPv2 through its local `ntlm-auth-api`. `packetfence-ntlm-auth-join-remote` is only needed on the host next to the domain controller.
+
+====== Step 5: Create and Join the Domain
+
+In _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_, click *New Domain*. The fields are the same as for a regular domain (see the _Microsoft Active Directory (AD)_ section), with the following specifics:
+
+* *Active Directory FQDN* -- The FQDN of the domain controller. It is resolved through the DNS forwarder of step 3.
+* *Active Directory IP* -- The IP address of the domain controller. It must be inside the *Networks* of the connector created in step 1, otherwise the join is refused with `Unable to resolve AD server ... through the connector`.
+* *DNS server(s)* -- The IP address(es) of the DNS server(s) of the remote site.
+* *Domain administrator username* and *password* -- Used only to create the machine account during the join. They are not stored.
+* *Machine account password* -- Type the clear-text password on the first save. A password hash is ignored for the join.
+* *Use Connector* -- `Enabled`.
+
+Save the domain. PacketFence then:
+
+. resolves the domain controller through the connector,
+. opens an on-demand tunnel to the `ntlm-join-remote` service of the connector owning the domain controller IP,
+. asks it to create the machine account on the domain controller (an existing account with the same name is removed first),
+. and binds a static tunnel for the NTLM authentication port of the domain (*NTLM auth port* + 100, `5100` by default) which is the path PacketFence uses to validate MSCHAPv2 through the remote `ntlm-auth-api`.
+
+NOTE: A connector-backed domain is stored once for the whole deployment rather than once per PacketFence server. In a cluster, join it a single time from any node: there is no per-node join as with regular domains.
+
+Then, on the pfconnector-remote host, restart the NTLM authentication service so that it fetches the new domain and starts its container:
+
+[source,bash]
+----
+systemctl restart packetfence-ntlm-auth-api-remote
+docker ps --filter name=ntlm-auth-api
+----
+
+A container named `ntlm-auth-api-<domain identifier>` must be running, and [filename]`/usr/local/ntlm-auth-api/var/conf/<domain identifier>.env` must exist.
+
+In the _NT Key cache_ tab of the domain, enable the *NT Key cache*. It is required for the degraded mode described above and lets the remote host keep authenticating known users while the tunnel to PacketFence is down. Refer to the _NT Key Caching_ section of this guide for the Windows event forwarding it relies on.
+
+====== Step 6: Map a Realm to the Domain
+
+In _Configuration -> Policies and Access Control -> Domains -> REALMS_, create or edit the realm matching the user names of the domain (e.g. `inverse.local`, and the `NULL` and `DEFAULT` realms if users log in without a suffix) and set its *Domain* to the domain joined in step 5. PacketFence uses this mapping to select the domain, and therefore the `ntlm-auth-api` instance, of each request. FreeRADIUS on the remote host caches the same mapping through the tunnel so it can do the same in degraded mode.
+
+====== Step 7: Configure the Network Equipment and Test
+
+Point the RADIUS configuration of the network equipment to the IP address of the pfconnector-remote host, using the value of [filename]`/usr/local/pf/conf/local_secret` as the shared secret (see _Connecting Network Equipment_). Use a connection profile with an EAP-PEAP capable Active Directory source; if the LDAP server of that source is behind the connector, set *Use Connector* to `Enabled` on the source as well.
+
+Authenticate a domain user with EAP-PEAP and check the result in _Auditing -> RADIUS Audit Logs_.
+
+====== Troubleshooting
+
+* A red status icon on the connector means the tunnel is down; check `systemctl status packetfence-pfconnector-remote-combined` on the remote host.
+* `Unable to resolve AD server ... through the connector` when saving the domain: the *Active Directory IP* is outside the connector *Networks*, or the FQDN cannot be resolved through the DNS entry of step 3.
+* NTLM authentication fails on a remote host while the domain controller is reachable from it: verify that the domain controller IP is within the *Networks* of that connector, otherwise this host received a masked machine account password.
+* The generated configuration of the remote services is in [filename]`/usr/local/ntlm-auth-api/conf/domain.conf` and [filename]`/usr/local/ntlm-auth-api/var/conf/`. Their logs are in [filename]`/usr/local/ntlm-auth-api/logs/` and in the journal:
+
+[source,bash]
+----
+journalctl -f -u packetfence-ntlm-auth-api-remote -u 'packetfence-ntlm-auth-api-domain-remote@*' -u packetfence-ntlm-auth-join-remote
+docker logs ntlm-auth-api-<domain identifier>
+----
 
 ===== Upgrade (for version prior to 12.1.0)
 
