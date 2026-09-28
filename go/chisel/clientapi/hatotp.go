@@ -183,7 +183,15 @@ var ErrTOTPSeedUnavailable = fmt.Errorf("the active host has no TOTP seed")
 // from the local one: the seed file is rewritten and the second factor
 // reloaded, so the authenticator enrolled on the master opens the terminal
 // here as soon as this host becomes active. Returns whether the seed changed.
+//
+// A host without the second factor (terminal disabled, or
+// PFCONNECTOR_TERMINAL_TOTP=false) has nothing to keep in sync: the seed is
+// left alone rather than rewritten on every sync against the empty URL the
+// disabled factor reports.
 func (api *API) SyncTOTPSeedFromMaster(ctx context.Context, vip, secret string) (bool, error) {
+	if !api.terminalTOTPRequired {
+		return false, nil
+	}
 	seed, err := FetchTOTPSeed(ctx, vip, secret)
 	if err != nil {
 		totpSyncMu.Lock()

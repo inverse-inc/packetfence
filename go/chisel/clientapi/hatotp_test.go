@@ -110,6 +110,26 @@ func TestHATOTPSeedSync(t *testing.T) {
 	if standby.terminalTOTPURL() == "" {
 		t.Fatal("standby lost its seed")
 	}
+
+	// A standby without the second factor (terminal or TOTP disabled) has
+	// nothing to sync: the master's seed is neither adopted nor persisted,
+	// and nothing is reported as changed.
+	master.terminalTOTPRequired = true
+	disabledFile := filepath.Join(dir, "disabled")
+	t.Setenv("PFCONNECTOR_TERMINAL_TOTP_FILE", disabledFile)
+	disabled := &API{ctx: context.Background()}
+	for i := 0; i < 2; i++ {
+		changed, err := disabled.SyncTOTPSeedFromMaster(context.Background(), vip, secret)
+		if err != nil || changed {
+			t.Fatalf("disabled second factor, sync %d: changed=%v err=%v", i, changed, err)
+		}
+	}
+	if _, err := os.Stat(disabledFile); !os.IsNotExist(err) {
+		t.Fatalf("seed file written on a host without the second factor (stat err=%v)", err)
+	}
+	if disabled.currentTerminalTOTP() != nil {
+		t.Fatal("a disabled second factor was loaded from the master")
+	}
 }
 
 // newTerminalTOTPIn generates a seed persisted in the given file.

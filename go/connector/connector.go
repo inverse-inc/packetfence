@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/redis/go-redis/v9"
@@ -68,11 +70,19 @@ func (c *Connector) connectorServerApiClient(ctx context.Context) (*unifiedapicl
 // ServerCall performs an API call against the pfconnector server currently
 // holding this connector's tunnel (resolved via Redis, like DynReverse) and
 // decodes the JSON response into out.
+//
+// The call is signed as this connector (chisel/share/connauth): the server's
+// per-connector endpoints (connector-detail, traffic-history, dns-lookup)
+// share their listener with the connectors' own tunnel-local requests and
+// only answer for the connector whose secret signed the request. PacketFence
+// knows every connector's secret, so it can sign for the connector it asks
+// about; another connector cannot.
 func (c *Connector) ServerCall(ctx context.Context, method, path string, out interface{}) error {
 	client, err := c.connectorServerApiClient(ctx)
 	if err != nil {
 		return err
 	}
+	client.Headers = map[string]string{connauth.Header: connauth.Sign(c.PfconfigHashNS, c.Secret, time.Now())}
 	return client.Call(ctx, method, path, out)
 }
 

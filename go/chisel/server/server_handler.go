@@ -1001,18 +1001,24 @@ type DnsLookupReply struct {
 // path: server bind -> chisel tunnel -> connector-remote -> DNS server.
 // Any DNS response (even NXDOMAIN) proves the tunnel and the DNS server are
 // reachable; a timeout means the path is broken somewhere.
+//
+// The request names the connector holding the tunnel (connector-id) and is
+// signed as that connector (authenticateConnector); the port must be one of
+// that connector's static connections, so a caller can only query through
+// the DNS tunnels of the connector it can sign for.
 func (s *Server) handleDnsLookup(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	connectorID := req.URL.Query().Get("connector-id")
 	port := req.URL.Query().Get("port")
 	name := req.URL.Query().Get("name")
 	qtypeStr := req.URL.Query().Get("type")
 	if qtypeStr == "" {
 		qtypeStr = "A"
 	}
-	if port == "" || name == "" {
+	if connectorID == "" || port == "" || name == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing port or name query parameter"})
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id, port or name query parameter"})
 		return
 	}
 	// Only the static tunnel ports of the DNS connectors (30000-30999, see
@@ -1021,6 +1027,14 @@ func (s *Server) handleDnsLookup(w http.ResponseWriter, req *http.Request) {
 	if p, err := strconv.ParseUint(port, 10, 16); err != nil || p < 30000 || p > 30999 {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid port: a DNS connector tunnel port (30000-30999) is expected"})
+		return
+	}
+	if !s.authenticateConnector(w, req, connectorID) {
+		return
+	}
+	if !s.connectorOwnsStaticPort(req.Context(), connectorID, port) {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusForbidden, Message: fmt.Sprintf("Port %s is not a static connection of connector %s", port, connectorID)})
 		return
 	}
 	qtype, ok := dns.StringToType[strings.ToUpper(qtypeStr)]
@@ -1080,12 +1094,18 @@ type ConnectorDetailReply struct {
 // active, the IPs the remote reported about itself, its configured static
 // connections (with per-port bound status) and every port currently bound
 // on this server for its tunnel.
+//
+// Signed as the connector asked about (authenticateConnector): the reply
+// carries the host addresses the remote reported and its bound ports.
 func (s *Server) handleConnectorDetail(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	connectorID := req.URL.Query().Get("connector-id")
 	if connectorID == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id query parameter"})
+		return
+	}
+	if !s.authenticateConnector(w, req, connectorID) {
 		return
 	}
 
@@ -1194,6 +1214,11 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 // connector's secret (see chisel/share/connauth). Every connector's requests
 // reach this API through a tunnel and look alike, so without it any
 // connector could act as another one. Writes the error reply itself.
+//
+// PacketFence itself (the admin API relaying connector-detail, traffic-history
+// and dns-lookup) signs with the secret of the connector it asks about, which
+// it holds in the configuration: the check is "knows this connector's
+// secret", which is the connector or PacketFence, never another connector.
 func (s *Server) authenticateConnector(w http.ResponseWriter, req *http.Request, connectorId string) bool {
 	connectors := pfconfigdriver.Connectors{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
@@ -1211,6 +1236,27 @@ func (s *Server) authenticateConnector(w http.ResponseWriter, req *http.Request,
 		return false
 	}
 	return true
+}
+
+// connectorOwnsStaticPort reports whether port is the server-side port of one
+// of connectorId's configured static connections
+// (resource::pfconnector_static_connections).
+func (s *Server) connectorOwnsStaticPort(ctx context.Context, connectorId, port string) bool {
+	static := pfconfigdriver.PfconnectorStaticConnections{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &static); err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to fetch pfconnector static connections from pfconfig: %s", err))
+		return false
+	}
+	for _, spec := range static.Element[connectorId] {
+		remote, err := settings.DecodeRemote(spec)
+		if err != nil {
+			continue
+		}
+		if remote.LocalPort == port {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request) {

@@ -584,8 +584,13 @@ const haVIPPollInterval = time.Second
 // changes the VIP, nil when HA is disabled or ctx is done.
 func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.API, cfg chclient.HAConfig, secret string, envOverride bool, verbose bool) *chclient.HAConfig {
 	// Every host checks its FreeRADIUS; a master with a broken one yields the
-	// VIP to a healthy standby (clientapi/hahealth.go).
-	go clientapi.MonitorRadiusHealth(ctx, log.Printf)
+	// VIP to a healthy standby (clientapi/hahealth.go). The monitor lives as
+	// long as this HA run: this function is re-entered on every VIP change
+	// or HA off/on cycle, and a monitor left on the process context would
+	// keep running alongside the new one, each yielding on its own cooldown.
+	monitorCtx, stopMonitor := context.WithCancel(ctx)
+	defer stopMonitor()
+	go clientapi.MonitorRadiusHealth(monitorCtx, log.Printf)
 
 	vip, err := chclient.ParseVIP(cfg.VIP)
 	if err != nil {

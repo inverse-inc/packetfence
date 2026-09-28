@@ -5,12 +5,20 @@
 # listed in ALLOWED can be requested, and apt still verifies every package
 # against the PacketFence archive keyring. The PacketFence apt repository is
 # the one the connector itself was installed from (same version).
+#
+# The trigger file is written by the container, which is only semi-trusted:
+# runs are rate-limited so a re-dropped trigger cannot keep apt busy, and apt
+# runs under the same lock as the upgrade path unit so the two never fight
+# over dpkg (an admin may click Upgrade and Install NTLM back to back).
 set -o nounset -o pipefail
 
 TRIGGER=/usr/local/pfconnector-remote/conf/install_requested
 LOG=/usr/local/pfconnector-remote/conf/install.log
 STATE=/usr/local/pfconnector-remote/conf/install_state
+STAMP=/run/pfconnector-remote-install.last
+LOCK=/run/lock/pfconnector-apt.lock
 ALLOWED="packetfence-ntlm-auth-api-remote packetfence-ntlm-auth-join-remote"
+MIN_INTERVAL=60
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG"; }
 state() { printf '%s\n' "$1" > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"; }
@@ -18,6 +26,18 @@ state() { printf '%s\n' "$1" > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"; }
 [ -f "$TRIGGER" ] || exit 0
 requested=$(tr -s '[:space:]' ' ' < "$TRIGGER" | sed 's/^ //; s/ $//')
 rm -f "$TRIGGER"
+
+# Rate limit: one attempt per MIN_INTERVAL, whatever the trigger says
+if [ -f "$STAMP" ]; then
+  last=$(stat -c %Y "$STAMP" 2>/dev/null || echo 0)
+  now=$(date +%s)
+  if [ $((now - last)) -lt "$MIN_INTERVAL" ]; then
+    log "Refusing install of '$requested': last attempt $((now - last))s ago (minimum ${MIN_INTERVAL}s)"
+    state "failed: last install attempt $((now - last))s ago, retry in $((MIN_INTERVAL - now + last))s"
+    exit 1
+  fi
+fi
+touch "$STAMP"
 
 packages=""
 for p in $requested; do
@@ -33,6 +53,17 @@ done
 if [ -z "$packages" ]; then
   log "Refusing install: no package requested"
   state "failed: no package requested"
+  exit 1
+fi
+
+# One apt user at a time (the upgrade path unit uses the same lock). The
+# wait covers a full upgrade run: the install then follows instead of
+# failing on dpkg's lock.
+mkdir -p "$(dirname "$LOCK")"
+exec 9>"$LOCK"
+if ! flock -w 600 9; then
+  log "Refusing install of$packages: another package operation is still running"
+  state "failed:$packages (another package operation is still running, retry later)"
   exit 1
 fi
 
