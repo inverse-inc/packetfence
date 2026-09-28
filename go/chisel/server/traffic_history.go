@@ -185,13 +185,17 @@ func (h *trafficHistory) series(connectorID string, since time.Duration, now tim
 	return out
 }
 
-// handleTrafficHistory is GET /api/v1/pfconnector/traffic-history?connector-id=<id>&since=<seconds>.
+// handleTrafficHistory is GET /api/v1/pfconnector/traffic-history?connector-id=<id>&since=<seconds>,
+// signed as that connector (authenticateConnector).
 func (s *Server) handleTrafficHistory(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	connectorID := req.URL.Query().Get("connector-id")
 	if connectorID == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id query parameter"})
+		return
+	}
+	if !s.authenticateConnector(w, req, connectorID) {
 		return
 	}
 	since := trafficHistoryRetention

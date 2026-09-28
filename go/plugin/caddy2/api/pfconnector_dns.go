@@ -126,8 +126,8 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 		}
 
 		lookup := map[string]interface{}{}
-		path := fmt.Sprintf("/api/v1/pfconnector/dns-lookup?port=%s&name=%s&type=%s",
-			url.QueryEscape(pfconnectorPort), url.QueryEscape(payload.Name), url.QueryEscape(payload.Type))
+		path := fmt.Sprintf("/api/v1/pfconnector/dns-lookup?connector-id=%s&port=%s&name=%s&type=%s",
+			url.QueryEscape(conn.PfconfigHashNS), url.QueryEscape(pfconnectorPort), url.QueryEscape(payload.Name), url.QueryEscape(payload.Type))
 		if err := conn.ServerCall(r.Context(), "GET", path, &lookup); err != nil {
 			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("DNS lookup through connector %s failed: %s", conn.PfconfigHashNS, err))
 			http.Error(w, "Unable to reach the pfconnector server for this connector", http.StatusBadGateway)
