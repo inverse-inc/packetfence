@@ -15,10 +15,15 @@ RCLONE_LINODE_URL=${RCLONE_LINODE_URL:?RCLONE_LINODE_URL must be set}
 BUCKET=${BUCKET:-packetfence-vagrant-box}
 PROVIDER=${PROVIDER:-libvirt}
 MAX_AGE_DAYS=${MAX_AGE_DAYS:-3}
+DL_ROOT="${HOME}/.vagrant-box-dl"
 
 SCRIPT_DIR=$(readlink -e "$(dirname "${BASH_SOURCE[0]}")")
 # shellcheck source=ci/lib/vagrant/box-category.sh
 source "${SCRIPT_DIR}/box-category.sh"
+# shellcheck source=ci/lib/vagrant/baked-box-scratch.sh
+source "${SCRIPT_DIR}/baked-box-scratch.sh"
+# Required before any cleanup or download: never run without lock protection.
+command -v flock >/dev/null
 CATEGORY=$(vagrant_box_category)
 
 # Env-config rclone remote: creds never appear on the command line.
@@ -157,6 +162,7 @@ sweep_local_scratch() {
 echo "===> Box ${VAGRANT_BOX_LOCAL_NAME} version ${VAGRANT_BOX_VERSION}"
 
 sweep_local_scratch
+sweep_baked_box_work_dirs "${DL_ROOT}"
 prune_branch_base_boxes
 prune_old_pipeline_branches
 sweep_orphan_pool_images
@@ -172,10 +178,7 @@ fi
 # Download to $HOME's volume, not /tmp (too small for an 8GB box on some
 # runners). Each invocation owns only its temporary directory so concurrent
 # downloads and their EXIT traps cannot remove one another's files.
-DL_ROOT="${HOME}/.vagrant-box-dl"
-mkdir -p "${DL_ROOT}"
-WORK_DIR=$(mktemp -d -p "${DL_ROOT}")
-trap 'rm -rf "${WORK_DIR}"' EXIT
+create_baked_box_work_dir "${DL_ROOT}"
 
 echo "===> Downloading ${REMOTE_KEY} (pipeline ${CI_PIPELINE_ID})"
 rclone copyto "${remote_prefix}/${REMOTE_KEY}" "${WORK_DIR}/${REMOTE_KEY}"
