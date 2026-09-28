@@ -51,6 +51,9 @@ type API struct {
 	// terminalActivity is the unix-nano timestamp of the last terminal
 	// activity (pty read/write). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
+	// terminalIdleTimeout is the idle timeout (nanoseconds) of the current
+	// activation, read by the idle watcher of the running terminal.
+	terminalIdleTimeout atomic.Int64
 	// gottyOptions are the running terminal server's options; Credential is
 	// regenerated for every activation (see terminal.go) and the gotty proxy
 	// below presents it, so only requests through this API reach the shell.
@@ -91,6 +94,9 @@ type Message struct {
 	// activated it (may be empty), stored in the recordings' header.
 	Session   string
 	AdminUser string
+	// IdleTimeout (StartProcessing only) stops the terminal once it has seen
+	// no activity for that long; it re-arms the watcher of a running one.
+	IdleTimeout time.Duration
 }
 
 type Service struct {
@@ -349,31 +355,17 @@ func enableTerminal(api *API) http.HandlerFunc {
 		}
 		// Idle timeout: any terminal activity (keystrokes or output) resets
 		// the clock; the terminal is only stopped after `timeout` without any.
-		// Start the clock now so an untouched session still expires.
+		// Start the clock now so an untouched session still expires. The
+		// lifecycle goroutine (terminal.go) runs the one idle watcher of the
+		// running terminal; an activation while it runs only re-arms it.
 		api.terminalActivity.Store(time.Now().UnixNano())
-		go func(timeout time.Duration) {
-			ticker := time.NewTicker(5 * time.Second)
-			defer ticker.Stop()
-			for {
-				select {
-				case <-api.ctx.Done():
-					return
-				case <-ticker.C:
-				}
-				last := time.Unix(0, api.terminalActivity.Load())
-				if time.Since(last) >= timeout {
-					api.commandChan <- Message{Type: StopProcessing}
-					return
-				}
-			}
-		}(timeout)
 
 		// The admin who activates the session, relayed by the PacketFence
 		// server (never trusted for anything but labelling the recording).
 		adminUser := strings.TrimSpace(req.Header.Get(adminUserHeader))
 
 		select {
-		case api.commandChan <- Message{Type: StartProcessing, Session: id, AdminUser: adminUser}:
+		case api.commandChan <- Message{Type: StartProcessing, Session: id, AdminUser: adminUser, IdleTimeout: timeout}:
 			log.LoggerWContext(api.ctx).Info("Terminal start command sent successfully")
 		case <-time.After(time.Second * 5):
 			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)
