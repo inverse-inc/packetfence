@@ -200,6 +200,7 @@ require (
 )
 
 require (
+	github.com/alicebob/miniredis/v2 v2.39.0
 	github.com/caddyserver/caddy/v2 v2.11.4
 	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
@@ -250,7 +251,6 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.24.1 // indirect
-	github.com/alicebob/miniredis/v2 v2.39.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/aws/aws-sdk-go-v2 v1.43.4 // indirect
@@ -391,10 +391,10 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdoutlog v0.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v1.43.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.43.0 // indirect
-	go.opentelemetry.io/otel/log v0.19.0 // indirect
+	go.opentelemetry.io/otel/log v0.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.45.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.45.0 // indirect
-	go.opentelemetry.io/otel/sdk/log v0.19.0 // indirect
+	go.opentelemetry.io/otel/sdk/log v0.21.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.45.0 // indirect
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.0 // indirect
