@@ -30,6 +30,10 @@ fi
 # Open /dev/kvm via the device's gid instead of --privileged.
 KVM_GID="$(stat -c '%g' /dev/kvm)"
 
+GALAXY_CACHE="${ANSIBLE_GALAXY_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/packetfence/ansible-galaxy}/zen-builder"
+mkdir -p "${GALAXY_CACHE}"
+GALAXY_CACHE="$(realpath "${GALAXY_CACHE}")"
+
 # Override docker's DNS for the qemu guest (space-separated).
 DNS_ARGS=()
 for ns in ${ZEN_BUILDER_DNS:-}; do DNS_ARGS+=(--dns "$ns"); done
@@ -66,10 +70,14 @@ docker run --rm \
   -e PKR_ON_ERROR \
   -e VM_NAME \
   -e ANSIBLE_FORCE_COLOR \
+  -e ANSIBLE_GALAXY_CACHE_DIR=/ansible-galaxy-cache \
+  -e ANSIBLE_GALAXY_SEED_DIR \
   -e RCLONE_ACCESS_KEY_ID \
   -e RCLONE_SECRET_ACCESS_KEY \
   -e RCLONE_LINODE_URL \
   -v "${SCRIPT_DIR}":/zen \
+  -v "${SCRIPT_DIR}/../lib/ansible-galaxy-cache.sh":/zen/ansible-galaxy-cache.sh:ro \
+  -v "${GALAXY_CACHE}":/ansible-galaxy-cache \
   -v "${OVFTOOL_HOST_DIR}":/opt/vmware-ovftool:ro \
   -v "${NSS_DIR}/passwd":/etc/passwd:ro \
   -v "${NSS_DIR}/group":/etc/group:ro \

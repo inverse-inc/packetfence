@@ -44,8 +44,6 @@ build {
     ]
     extra_arguments  = ["--skip-tags", "upgrade"]
     inventory_directory = "${var.provisioner_dir}/inventory"
-    galaxy_file = "${var.provisioner_dir}/requirements.yml"
-    galaxy_force_install = false
     use_proxy = false
   }
 
@@ -130,7 +128,6 @@ build {
       "--extra-vars", "samba4ad__mgmt_ip=10.0.2.15",
       "--skip-tags",  "upgrade",
     ]
-    galaxy_force_install = false
     use_proxy            = false
   }
 
@@ -172,8 +169,6 @@ build {
     host_alias           = "${var.pfserver_name}"
     groups               = ["nodes", "wireless"]
     inventory_directory  = "${var.pfroot_dir}/addons/vagrant/inventory"
-    galaxy_file          = "${var.pfroot_dir}/addons/vagrant/requirements.yml"
-    galaxy_force_install = true
     ansible_env_vars     = ["PF_MINOR_RELEASE=${var.pf_version}"]
     extra_arguments = [
       "--skip-tags", "upgrade",
@@ -241,8 +236,6 @@ build {
     ]
     extra_arguments  = ["--skip-tags", "upgrade"]
     inventory_directory = "${var.provisioner_dir}/inventory"
-    galaxy_file = "${var.provisioner_dir}/requirements.yml"
-    galaxy_force_install = false
     use_proxy = false
   }
 
