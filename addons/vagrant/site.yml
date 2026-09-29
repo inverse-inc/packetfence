@@ -1,35 +1,4 @@
 ---
-- import_playbook: playbooks/enable_libvirt_console.yml
+- import_playbook: site_pf.yml
 
-- import_playbook: playbooks/env_vars.yml
-  tags: env
-
-- import_playbook: playbooks/increase_disk_size_pf.yml
-
-- import_playbook: playbooks/utils/psonoci.yml
-
-- import_playbook: playbooks/register_rhel_subscription.yml
-
-- import_playbook: playbooks/enable_ipv6_el_os.yml
-
-- import_playbook: playbooks/upgrade_el_os.yml
-
-- import_playbook: playbooks/upgrade_deb_os.yml
-
-- import_playbook: playbooks/config_dev_repos.yml
-
-- import_playbook: playbooks/install_pf.yml
-
-- import_playbook: playbooks/cluster_cross_ssh.yml
-
-- import_playbook: playbooks/linux_servers.yml
-  
-- import_playbook: playbooks/cumulus.yml
-  
-- import_playbook: playbooks/nodes_post_prov.yml
-  
-- import_playbook: playbooks/wireless.yml
-
-- import_playbook: playbooks/utils.yml
-  tags: utils
-
+- import_playbook: site_others.yml

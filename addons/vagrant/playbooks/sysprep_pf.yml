@@ -1,0 +1,176 @@
+---
+# Live-guest sysprep run by bake-vagrant-img.sh between the configurator
+# scenario and halt, so the packaged box ships clean. Replaces the previous
+# virt-sysprep-in-a-container step, which depended on libguestfs/supermin
+# being able to boot an appliance VM inside docker — fragile across runners
+# (kernel/KVM nesting/host-side perms).
+#
+# The next VM booted from the box must pull a fresh DHCP lease on its new MAC
+# so vagrant-libvirt's wait_till_up can discover its IP from the libvirt lease:
+#   - reset /etc/machine-id (NM derives the DHCP client-id from it; #851), and
+#   - ship the management NIC as DHCP. ifupdown boxes (Debian) bake eth0 in as a
+#     static address during provisioning, which leaves the clone with no lease;
+#     reset it. EL/NetworkManager boxes have no /etc/network/interfaces.
+
+- hosts: all
+  name: Sysprep PF VM before packaging
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Truncate machine-id files (systemd regenerates at first boot)
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ item }}"
+        force: true
+        owner: root
+        group: root
+        mode: '0444'
+      loop:
+        - /etc/machine-id
+        - /var/lib/dbus/machine-id
+
+    - name: Remove SSH host keys
+      ansible.builtin.shell: rm -f /etc/ssh/ssh_host_*
+      changed_when: false
+
+    # sshd refuses connections without host keys. A @reboot cron is racy (vagrant
+    # probes :22 before cron fires) and dpkg-reconfigure is Debian-only, so install
+    # a oneshot ordered before sshd that regenerates any missing keys at boot.
+    # ssh.service (Debian) / sshd.service (EL); unknown units in Before= are ignored.
+    - name: Install regenerate-ssh-host-keys oneshot unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/regenerate-ssh-host-keys.service
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Regenerate missing SSH host keys before sshd starts
+          Before=ssh.service sshd.service ssh.socket
+          ConditionPathExists=!/etc/ssh/ssh_host_ed25519_key
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/ssh-keygen -A
+          RemainAfterExit=yes
+
+          [Install]
+          WantedBy=multi-user.target
+
+    # Enable only (not start): keys must regenerate on the clone's first boot,
+    # not now — we just removed them so the box ships without them.
+    - name: Enable regenerate-ssh-host-keys
+      ansible.builtin.systemd:
+        name: regenerate-ssh-host-keys.service
+        enabled: true
+        daemon_reload: true
+
+    - name: Remove NetworkManager runtime state (keep connection profiles)
+      ansible.builtin.shell: |
+        rm -rf /var/lib/NetworkManager/* 2>/dev/null || true
+      changed_when: false
+
+    - name: Remove DHCP lease state
+      ansible.builtin.shell: |
+        rm -f /var/lib/dhcp/*.leases* /var/lib/dhcpcd/*.lease* \
+              /var/lib/NetworkManager/*.lease 2>/dev/null || true
+      changed_when: false
+
+    - name: Remove udev persistent-net rules
+      ansible.builtin.file:
+        path: /etc/udev/rules.d/70-persistent-net.rules
+        state: absent
+
+    # vagrant-libvirt bakes the management NIC into /etc/network/interfaces as a
+    # static address while provisioning; a repackaged box must hand it back as
+    # DHCP or the clone never gets a lease and wait_till_up times out. ifupdown
+    # boxes only — EL/NetworkManager boxes have no such file. vagrant rewrites
+    # the private-network NICs (eth1+) itself on the next `vagrant up`.
+    - name: Detect ifupdown interfaces file
+      ansible.builtin.stat:
+        path: /etc/network/interfaces
+      register: eni
+
+    # Drop eth0 (bake static + gateway) and eth1 (vagrant re-adds its own block;
+    # a duplicate stanza breaks ifup), keep PF's reg/iso stanzas for pfdhcp.
+    - name: Reset management NIC to DHCP (ifupdown boxes)
+      ansible.builtin.shell: |
+        awk '/^$/{ skip=0 }
+             /^(auto|allow-hotplug|iface|mapping) /{ skip = ($2 == "eth0" || $2 == "eth1") }
+             !skip' /etc/network/interfaces > /etc/network/interfaces.new
+        printf '\nallow-hotplug eth0\niface eth0 inet dhcp\n' >> /etc/network/interfaces.new
+        mv /etc/network/interfaces.new /etc/network/interfaces
+      when: eni.stat.exists
+
+    # EL parity for the ifupdown reset: the bake freezes eth0 as BOOTPROTO=static,
+    # so the clone never DHCPs and vagrant finds no lease. Reset eth0 to DHCP.
+    - name: Detect EL ifcfg for the mgmt NIC
+      ansible.builtin.stat:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+      register: ifcfg_eth0
+
+    - name: Reset management NIC to DHCP (EL/ifcfg boxes)
+      ansible.builtin.copy:
+        dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          DEVICE=eth0
+          ONBOOT=yes
+          BOOTPROTO=dhcp
+          NM_CONTROLLED=yes
+          TYPE=Ethernet
+      when: ifcfg_eth0.stat.exists
+
+    # Baked global GATEWAY + vagrant's ifcfg-eth1 rewrite (no DEFROUTE=no) routes
+    # the runner (192.168.121.1) out eth1, killing SSH; eth0 DHCP supplies the gw.
+    - name: Drop bake-time GATEWAY from /etc/sysconfig/network (EL boxes)
+      ansible.builtin.lineinfile:
+        path: /etc/sysconfig/network
+        regexp: '^GATEWAY='
+        state: absent
+      when: ifcfg_eth0.stat.exists
+
+    # Boot without PF so vagrant gets eth0's DHCP lease before packetfence-iptables
+    # can block it; the import step starts PF once the clone is reachable.
+    - name: Boot the baked box without PacketFence (default target multi-user)
+      ansible.builtin.command: systemctl set-default multi-user.target
+      changed_when: true
+
+    - name: Clear cloud-init state if present
+      ansible.builtin.shell: cloud-init clean --logs 2>/dev/null || true
+      changed_when: false
+
+    - name: Clear APT/dpkg cache
+      ansible.builtin.shell: |
+        apt-get clean
+        rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* 2>/dev/null || true
+      changed_when: false
+
+    - name: Truncate /var/log files
+      ansible.builtin.shell: |
+        find /var/log -type f -exec truncate -s 0 {} \; 2>/dev/null || true
+      changed_when: false
+
+    - name: Clear shell history
+      ansible.builtin.shell: |
+        rm -f /root/.bash_history
+        find /home -maxdepth 2 -name '.bash_history' -delete 2>/dev/null || true
+      changed_when: false
+
+    - name: Refresh CA bundle
+      ansible.builtin.shell: update-ca-certificates 2>/dev/null || true
+      changed_when: false
+
+    - name: Sync
+      ansible.builtin.command: sync
+      changed_when: false
+
+    # fstrim hands freed clusters back to the host so qemu-img convert -c
+    # produces a smaller box. Best-effort: not all fs/devices support it.
+    - name: fstrim filesystems
+      ansible.builtin.command: fstrim -av
+      changed_when: false
+      failed_when: false
