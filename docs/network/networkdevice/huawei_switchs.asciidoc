@@ -71,6 +71,10 @@ snmp-agent community write cipher <privateKey>
 snmp-agent sys-info version v2c v3
 ----
 
+==== Port bounce
+
+With the `Huawei S5720` switch type, the "Restart switchport" action of a node, used for example when a wired endpoint must renew its IP address after a VLAN change, is a RADIUS CoA-Request carrying `Huawei-Ext-Specific = user-command=2`. The switch answers CoA-ACK and takes the port down for a few seconds. It requires the `radius-server authorization` entry above. Bounce-port is allowed by default; if the switch configuration contains `radius-server authorization hw-ext-specific command bounce-port disable`, remove it with `undo radius-server authorization hw-ext-specific command bounce-port disable`. Verified on an S5735R-L-V2 running V600R024.
+
 ==== SNMPv3
 
 ----
