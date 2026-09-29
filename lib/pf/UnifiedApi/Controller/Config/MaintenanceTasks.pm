@@ -41,6 +41,7 @@ use pfappserver::Form::Config::Pfcron::person_cleanup;
 use pfappserver::Form::Config::Pfcron::provisioning_compliance_poll;
 use pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::switch_cache_lldpLocalPort_description;
+use pfappserver::Form::Config::Pfcron::switch_cache_ifindex;
 use pfappserver::Form::Config::Pfcron::security_event_maintenance;
 use pfappserver::Form::Config::Pfcron::password_of_the_day;
 use pfappserver::Form::Config::Pfcron::acct_cleanup;
@@ -76,6 +77,7 @@ our %TYPES_TO_FORMS = (
       radius_audit_log_cleanup
       dns_audit_log_cleanup
       switch_cache_lldpLocalPort_description
+      switch_cache_ifindex
       security_event_maintenance
       password_of_the_day
       acct_cleanup

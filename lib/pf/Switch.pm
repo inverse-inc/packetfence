@@ -322,6 +322,38 @@ sub cachedSNMPTable {
     return $self->cache_distributed->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
 }
 
+=item refreshCachedSNMPTable
+
+Walk an SNMP table and store it in the cache under the key cachedSNMPTable
+uses, whatever the age of the cached entry. Returns true when the walk
+succeeded.
+
+    $self->refreshCachedSNMPTable([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+
+=cut
+
+sub refreshCachedSNMPTable {
+    my ($self, $args, $options) = @_;
+    return $FALSE if !$self->connectRead();
+    my $result = $self->{_sessionRead}->get_table(@$args);
+    return $FALSE if !defined $result;
+    $self->cache_distributed->set($self->{'_id'} . "-"  . encode_json($args), $result, $options // {});
+    return $TRUE;
+}
+
+=item refreshIfIndexCache
+
+Refresh the cached SNMP tables getIfIndexByNasPortId reads, so that a RADIUS
+request never waits for the SNMP walk. Called by the switch_cache_ifindex pfcron
+task. Returns true when something was refreshed; the default implementation
+has nothing to refresh.
+
+=cut
+
+sub refreshIfIndexCache {
+    return $FALSE;
+}
+
 =item cachedSNMPRequest
 
 Get a cached SNMP request using the default cache expiration

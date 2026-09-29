@@ -637,6 +637,38 @@ process_switchranges=disabled
 # Local task
 local=0
 
+[switch_cache_ifindex]
+#
+# type
+#
+# Task type
+type=switch_cache_ifindex
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex, so RADIUS requests never wait for the SNMP walk
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 12h
+#
+# process_switchranges
+#
+# Whether or not a switch range should be expanded to process each of its IPs
+process_switchranges=disabled
+#
+# local
+#
+# Local task
+local=0
+
 [certificates_check]
 #
 # type

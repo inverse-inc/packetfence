@@ -60,6 +60,22 @@ sub getIfIndexByNasPortId {
     }
 }
 
+=head2 refreshIfIndexCache
+
+Refresh the ifDescr table getIfIndexByNasPortId caches under its own key.
+
+=cut
+
+sub refreshIfIndexCache {
+    my ($self) = @_;
+    return 0 if !$self->connectRead();
+    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
+    my $result = $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    return 0 if !defined $result;
+    $self->cache_distributed->set($self->{'_id'} . "-" . $OID_ifDesc, $result);
+    return 1;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

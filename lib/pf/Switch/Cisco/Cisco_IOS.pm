@@ -1174,6 +1174,17 @@ sub getIfIndexByNasPortId {
     }
 }
 
+=item refreshIfIndexCache
+
+Refresh the ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in.
+
+=cut
+
+sub refreshIfIndexCache {
+    my ($self) = @_;
+    return $self->refreshCachedSNMPTable([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+}
+
 =item getRelayAgentInfoOptRemoteIdSub
 
 Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82

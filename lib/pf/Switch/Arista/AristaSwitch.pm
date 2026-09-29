@@ -233,6 +233,17 @@ sub getIfIndexByNasPortId {
     }
 }
 
+=item refreshIfIndexCache
+
+Refresh the ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in.
+
+=cut
+
+sub refreshIfIndexCache {
+    my ($self) = @_;
+    return $self->refreshCachedSNMPTable([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+}
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept response for the network device.
