@@ -1,9 +1,10 @@
 # Ansible Galaxy dependency cache
 
-`ansible-galaxy-cache.sh` installs roles and collections once per SHA-256 of a
-requirements file. Unchanged requirements reuse the completed installation
-without calling Galaxy. Different versions in the provisioning and scenario
-requirements stay in separate directories. Switching branches selects the
+`ansible-galaxy-cache.sh` installs roles and collections once per SHA-256 of the
+requirements checksum and Ansible version header. Unchanged requirements and
+Ansible versions reuse the completed installation without contacting Galaxy
+(the local `ansible-galaxy --version` command still runs). Different versions in
+the provisioning and scenario requirements stay in separate directories. Switching branches selects the
 corresponding cache, including when switching back to an older version.
 
 The default location is `$XDG_CACHE_HOME/packetfence/ansible-galaxy`, or
@@ -15,13 +16,15 @@ checkout cleanup cannot remove it. The Docker wrappers bind-mount separate
 The Vagrant builder image also contains completed entries under
 `/opt/packetfence/ansible-galaxy`. These are used directly if the writable cache
 has no matching entry. `ANSIBLE_GALAXY_SEED_DIR` overrides this location.
-Rebuild the image to bake changes to either requirements file; an older image
-can still install changed requirements into its mounted writable cache.
+Rebuild the image to bake changes to either requirements file or Ansible; an
+older image can still install changed requirements into its mounted writable cache.
 
 Each installation holds a lock for its requirements hash. Roles and collections
 are installed separately into a temporary directory, retried up to three times,
 and published only after both commands succeed. Failed installs do not become
-cache hits. Completed entries are immutable while jobs use them.
+cache hits. Each successful install publishes an immutable generation through
+an atomic `current` symlink update. Playbooks use the resolved generation path,
+so a later refresh cannot change files underneath an active job.
 
 The helper exports an absolute `ANSIBLE_CONFIG`, `ANSIBLE_ROLES_PATH`, and both
 `ANSIBLE_COLLECTIONS_PATH` and `ANSIBLE_COLLECTIONS_PATHS` (for older Ansible,
@@ -43,10 +46,25 @@ use the helper around a direct `packer build` invocation.
 
 Pin dependency versions, including Git revisions. Unpinned dependencies and
 mutable Git branches stay at the first successfully installed revision until
-the cache is refreshed. To refresh without affecting running jobs, choose a
-new `ANSIBLE_GALAXY_CACHE_DIR` and set `ANSIBLE_GALAXY_SEED_DIR` to an empty
-or nonexistent directory (also inside the container, for Docker builds).
-Old cache entries can be removed when no jobs use them. Existing
+the cache is refreshed. Set `GALAXY_FORCE=yes` to download a fresh generation,
+bypassing both the current installation and image seeds. For example:
+
+```sh
+GALAXY_FORCE=yes make -C t/venom run_tests
+```
+
+A successful refresh becomes the default for later jobs. A failed refresh
+fails the requesting job and leaves the previous generation available for
+normal runs. The helper exports an internal `PF_ANSIBLE_GALAXY_REFRESH_ID` token
+so repeated calls and phase subprocesses refresh each dependency set once per
+workflow. A new top-level invocation starts a new refresh request. Both Docker
+wrappers forward these settings.
+
+The cache format is now `v2`; earlier `v1` entries are not reused. Rebuild builder
+images to supply matching seeds, or let the first run populate the mounted cache.
+Old cache entries and superseded generations can be removed when no jobs use
+them. There is deliberately no age-based pruning during installs: a long-running
+playbook may still be using an older generation. Existing
 checkout-local `roles`/`ansible_collections` directories from the old installer
 should also be cleared once when migrating: Ansible may discover dependencies
 adjacent to a playbook before checking the configured cache paths.
