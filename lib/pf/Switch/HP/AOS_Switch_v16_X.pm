@@ -119,13 +119,12 @@ sub getPhonesLLDPAtIfIndex {
                             "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                         ]
                     );
-                    if ($MACresult
-                        && ($MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"}
-                            =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i
-                        )
-                        )
-                    {
-                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    my $port_id = $MACresult ? $MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"} : undef;
+                    my $phone_mac = $self->lldpRemPortIdToMac($port_id);
+                    if (defined $phone_mac) {
+                        push @phones, $phone_mac;
+                    } else {
+                        $logger->debug("LLDP port ID (" . ($port_id // 'undef') . ") of the telephone on ifIndex $ifIndex is not a MAC address");
                     }
                 }
             }
