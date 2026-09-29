@@ -47,6 +47,8 @@ docker run --rm \
   -e ANSIBLE_FORCE_COLOR \
   -e ANSIBLE_GALAXY_CACHE_DIR=/ansible-galaxy-cache \
   -e ANSIBLE_GALAXY_SEED_DIR \
+  -e GALAXY_FORCE \
+  -e PF_ANSIBLE_GALAXY_REFRESH_ID \
   -e UPLOAD_BOX \
   -e PSONO_CI_SERVER_URL \
   -e PSONO_CI_API_KEY_ID \
