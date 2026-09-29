@@ -63,6 +63,9 @@ use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
 use pf::StatsD;
 use pf::util::statsd qw(called);
+
+our $OID_lldpLocPortId   = '1.0.8802.1.1.2.1.3.7.1.3'; # from LLDP-MIB
+our $OID_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
 use Time::HiRes;
 use pf::access_filter::radius;
 use File::Spec::Functions;
@@ -3930,30 +3933,59 @@ Query the switch for lldpLocPortDesc table and cache the result
 
 sub getLldpLocPortDesc {
     my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    # if can't SNMP read abort
-    return if ( !$self->connectRead() );
-
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
-    my $cache = $self->cache_distributed;
-    my $result = $cache->compute($self->{'_id'} . "-" . $oid_lldpLocPortDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc, -maxrepetitions  => 1 ) } );
     # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
     # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
     # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
     # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
     # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
-    # NOTE: We set the maxrepetitions to '1' to use 'get-next-requests' instead of 'get-bulk-requests' which tend to return empty results if response is to big
+    return $self->_getLldpLocPortTable($OID_lldpLocPortDesc, 'lldpLocPortDesc');
+}
 
-    return $result;
+=item getLldpLocPortId
+
+Query the switch for lldpLocPortId table and cache the result
+
+Some switches fill lldpLocPortDesc with the interface description set by the
+administrator (Arista EOS), so the port name is only found in lldpLocPortId.
+
+=cut
+
+sub getLldpLocPortId {
+    my ( $self ) = @_;
+    # iso.0.8802.1.1.2.1.3.7.1.3.1 = STRING: "Ethernet1"
+    return $self->_getLldpLocPortTable($OID_lldpLocPortId, 'lldpLocPortId');
+}
+
+=item _getLldpLocPortTable
+
+Walk one column of lldpLocPortTable, through the distributed cache
+
+=cut
+
+sub _getLldpLocPortTable {
+    my ( $self, $oid, $name ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    $logger->trace("SNMP get_table for $name: $oid");
+    # A max-repetitions of 1 makes Net::SNMP walk with get-next requests
+    # instead of get-bulk ones, which tend to return empty results when the
+    # response is too big. SNMPv1 has no get-bulk and Net::SNMP refuses the
+    # argument there, so only pass it for v2c and v3.
+    my @args = ( -baseoid => $oid );
+    push @args, -maxrepetitions => 1 if ( ($self->{_SNMPVersion} // '') ne '1' );
+    my $cache = $self->cache_distributed;
+    return $cache->compute($self->{'_id'} . "-" . $oid, sub { $self->{_sessionRead}->get_table(@args) } );
 }
 
 =item ifIndexToLldpLocalPort
 
 Translate an ifIndex into an LLDP Local Port number.
 
-We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+We look up the interface ifDescr, then its ifName, first in the
+lldpLocPortDesc table and then in the lldpLocPortId table.
 
 =cut
 
@@ -3964,21 +3996,26 @@ sub ifIndexToLldpLocalPort {
     # if can't SNMP read abort
     return if ( !$self->connectRead() );
 
-    my $ifDescr = $self->getIfDesc($ifIndex);
-    return if (!defined($ifDescr) || $ifDescr eq '');
+    my %seen;
+    my @names = grep { defined($_) && $_ ne '' && !$seen{$_}++ } ($self->getIfDesc($ifIndex), $self->getIfName($ifIndex));
+    return if (!@names);
 
-    # Get lldpLocPortDesc
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-    my $result = $self->getLldpLocPortDesc();
-
-    foreach my $entry ( keys %{$result} ) {
-        if ( $result->{$entry} eq $ifDescr ) {
-            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
-                return $1;
+    foreach my $table ([$OID_lldpLocPortDesc, 'getLldpLocPortDesc'], [$OID_lldpLocPortId, 'getLldpLocPortId']) {
+        my ($oid, $getter) = @$table;
+        my $result = $self->$getter() || {};
+        foreach my $name (@names) {
+            my @ports;
+            foreach my $entry ( keys %{$result} ) {
+                next if ( !defined($result->{$entry}) || $result->{$entry} ne $name );
+                push @ports, $1 if ( $entry =~ /^\Q$oid\E\.([0-9]+)$/ );
             }
+            # An administrator description can repeat another port name, so
+            # only trust a match that points at a single port.
+            return $ports[0] if (@ports == 1);
         }
     }
 
+    $logger->debug("No LLDP local port found for ifIndex $ifIndex (" . join(', ', @names) . ")");
     # nothing found
     return;
 }
