@@ -105,7 +105,7 @@ pfbox:	download-vagrant-key download-base-image clean
 	PKR_VAR_disk_image_url="file://$(DEBIAN_BASE_BOX_FILE)" \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
-	$(PACKER_WITH_ANSIBLE) validate -only="$(BUILD_NAME)" .
+	packer validate -only="$(BUILD_NAME)" .
 
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
@@ -175,7 +175,7 @@ pfadbox: download-vagrant-key download-bullseye-base-image clean
 	PKR_VAR_bullseye_disk_image_url="file://$(BULLSEYE_BASE_BOX_FILE)" \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
-	$(PACKER_WITH_ANSIBLE) validate -only="$(BUILD_NAME)" .
+	packer validate -only="$(BUILD_NAME)" .
 
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
@@ -263,7 +263,7 @@ pfel8box: download-vagrant-key download-rhel8-base-image clean
 	PKR_VAR_rhel8_disk_image_url="file://$(RHEL8_BASE_BOX_FILE)" \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
-	$(PACKER_WITH_ANSIBLE) validate -only="$(BUILD_NAME)" .
+	packer validate -only="$(BUILD_NAME)" .
 
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
