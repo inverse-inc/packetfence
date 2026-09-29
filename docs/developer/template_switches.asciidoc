@@ -96,11 +96,11 @@ EOT
 
 ==== Attributes missing from the RADIUS dictionary
 
-The attribute names must exist in the RADIUS dictionaries shipped with PacketFence. To use an attribute that is not there, for example a vendor-specific attribute of a new firmware, define it in [filename]`/usr/local/pf/conf/radiusd/dictionary.local` (see [filename]`dictionary.local.example` in the same directory), using the FreeRADIUS dictionary format:
+The attribute names must exist in the RADIUS dictionaries shipped with PacketFence. To use an attribute that is not there, for example `Extreme-Dynamic-Config` (vendor 1916, attribute 252), which Extreme Fabric Engine switches accept with the value `PORTBOUNCE` in a CoA to bounce the port, define it in [filename]`/usr/local/pf/conf/radiusd/dictionary.local` (see [filename]`dictionary.local.example` in the same directory), using the FreeRADIUS dictionary format:
 
 ....
 BEGIN-VENDOR    Extreme
-ATTRIBUTE       Extreme-Dynamic-Config          250     string
+ATTRIBUTE       Extreme-Dynamic-Config          252     string
 END-VENDOR      Extreme
 ....
 

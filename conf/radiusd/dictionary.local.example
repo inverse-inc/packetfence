@@ -7,8 +7,11 @@
 # Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api
 # after a change.
 #
-# Example: a vendor-specific attribute of Extreme Networks (vendor 1916)
+# Example: Extreme-Dynamic-Config, the vendor-specific attribute of Extreme
+# Networks Fabric Engine (vendor 1916, attribute 252). Sent in the coa or
+# bounce scope of a switch template as "Extreme-Dynamic-Config = PORTBOUNCE",
+# it bounces the port so the endpoint renews its DHCP address.
 #
 #BEGIN-VENDOR    Extreme
-#ATTRIBUTE       Extreme-Dynamic-Config          250     string
+#ATTRIBUTE       Extreme-Dynamic-Config          252     string
 #END-VENDOR      Extreme

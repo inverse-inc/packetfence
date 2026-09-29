@@ -37,7 +37,7 @@ EOT
 write_file("$dir/dictionary.local", <<'EOT');
 # custom attributes of the lab
 BEGIN-VENDOR    Extreme
-ATTRIBUTE       Extreme-Dynamic-Config      250     string
+ATTRIBUTE       Extreme-Dynamic-Config      252     string
 ATTRIBUTE       Extreme-Port-Mode           251     integer
 VALUE           Extreme-Port-Mode           Bounce  2
 END-VENDOR      Extreme
@@ -58,9 +58,9 @@ my $dict = dclone($RADIUS_DICTIONARY);
 ok(!exists $dict->{avendors}{'Extreme-Dynamic-Config'}, 'the attribute is not in the shipped dictionary');
 
 my @warnings = pf::util::radius_dictionary_local::merge($dict, "$dir/dictionary.local");
-is_deeply($dict->{vsattr}{1916}{'Extreme-Dynamic-Config'}, [250, 'string'], 'vendor block attribute added');
+is_deeply($dict->{vsattr}{1916}{'Extreme-Dynamic-Config'}, [252, 'string'], 'vendor block attribute added');
 is($dict->{avendors}{'Extreme-Dynamic-Config'}, 'Extreme', 'vendor block attribute is known as a VSA of its vendor');
-is_deeply($dict->{rvsattr}{1916}{250}, ['Extreme-Dynamic-Config', 'string'], 'reverse lookup of the vendor attribute');
+is_deeply($dict->{rvsattr}{1916}{252}, ['Extreme-Dynamic-Config', 'string'], 'reverse lookup of the vendor attribute');
 is($dict->{vsaval}{1916}{251}{Bounce}, 2, 'value of a vendor attribute');
 is($dict->{vendors}{'Lab-Vendor'}, 65001, 'new vendor added');
 is_deeply($dict->{vsattr}{65001}{'Lab-Vendor-Attr'}, [1, 'string'], 'old style ATTRIBUTE with a vendor column');
@@ -83,7 +83,7 @@ $packet->set_authenticator('0123456789abcdef');
 $packet->set_attr('Calling-Station-Id', '02-00-00-00-00-01');
 $packet->set_vsattr('Extreme', 'Extreme-Dynamic-Config', 'PORTBOUNCE');
 my $raw = $packet->pack;
-like($raw, qr/\x1a.\x00\x00\x07\x7c\xfa\x0cPORTBOUNCE/s, 'the VSA is on the wire (vendor 1916, type 250)');
+like($raw, qr/\x1a.\x00\x00\x07\x7c\xfc\x0cPORTBOUNCE/s, 'the VSA is on the wire (vendor 1916, type 252)');
 my $decoded = Net::Radius::Packet->new($dict, $raw);
 is_deeply([$decoded->vsattr(1916, 'Extreme-Dynamic-Config')], [['PORTBOUNCE']], 'the VSA decodes back');
 is($decoded->attr('Calling-Station-Id'), '02-00-00-00-00-01', 'standard attribute still encoded');
