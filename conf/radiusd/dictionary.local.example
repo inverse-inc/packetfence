@@ -1,0 +1,14 @@
+# Copy this file to dictionary.local to add RADIUS attributes that are not in
+# the dictionaries shipped with PacketFence. It uses the FreeRADIUS dictionary
+# format. FreeRADIUS reads it through raddb/dictionary and PacketFence uses the
+# same definitions to send the attributes in RADIUS CoA and Disconnect requests
+# (for example from the bounce, coa or disconnect scope of a switch template).
+#
+# Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api
+# after a change.
+#
+# Example: a vendor-specific attribute of Extreme Networks (vendor 1916)
+#
+#BEGIN-VENDOR    Extreme
+#ATTRIBUTE       Extreme-Dynamic-Config          250     string
+#END-VENDOR      Extreme
