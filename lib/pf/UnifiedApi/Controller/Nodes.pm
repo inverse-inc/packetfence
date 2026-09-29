@@ -1388,8 +1388,30 @@ sub update_data {
         $data->{unregdate} = '0000-00-00 00:00:00';
     }
 
+    $self->update_regdate($data);
     $self->ensure_person_exists($data);
     return $data;
+}
+
+=head2 update_regdate
+
+The update is a plain SQL UPDATE, so the DAL cannot see a node becoming
+registered. Set regdate when the node moves to reg without a registration
+date, and keep the stored one when the node already has it.
+
+=cut
+
+sub update_regdate {
+    my ($self, $data) = @_;
+    return if !pf::dal::node::missing_regdate($data->{status}, $data->{regdate});
+    my ($status, $node) = pf::dal::node->find($self->build_item_lookup);
+    if (is_success($status) && $node->status eq 'reg') {
+        delete $data->{regdate} if exists $data->{regdate};
+        return;
+    }
+
+    $data->{regdate} = \'NOW()';
+    return;
 }
 
 sub per_device_class {
