@@ -324,6 +324,7 @@ start_vm() {
     local vm=$1
     local dotfile_path=$2
     declare -p dotfile_path
+    run_ansible_galaxy_once "${VAGRANT_DIR}/requirements.yml"
 
     # baked is non-empty only for baked-box-eligible PF VMs in baked-box mode
     local baked=""
@@ -347,13 +348,10 @@ start_vm() {
         if [ -n "${baked}" ]; then
             # Baked-box mode: PF VM is already fully provisioned + configured.
             # Re-running site.yml would undo the bake, so only refresh network.
-            ( cd ${VAGRANT_DIR}; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force )
             refresh_network_post_import "${vm}"
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR}; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               ansible-playbook site.yml -l $vm )
         fi
     else
@@ -371,7 +369,6 @@ start_vm() {
         fi
         if [ -n "${baked}" ]; then
             ( cd ${VAGRANT_DIR} ; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               SKIP_SITE_PROVISION=yes \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
                       vagrant up \
@@ -381,7 +378,6 @@ start_vm() {
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR} ; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
                       vagrant up \
                       ${vm} \
