@@ -83,6 +83,18 @@ done
             'pfdeb12dev=pfdeb12dev', 'pf1deb12dev=pfdeb12dev',
             'pf3el8dev=pfel8dev', 'pf1deb12localdev=', 'pfdeb12='])
 
+    def test_local_baked_box_opt_in_maps_localdev(self):
+        result = self.bash('''
+LOCAL_BAKED_BOX=yes
+for vm in pf1deb12localdev pfdeb12localdev pf3el8localdev pf1deb12dev pfdeb12; do
+    echo "$vm=$(baked_box_for_pf_vm "$vm")"
+done
+''')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [
+            'pf1deb12localdev=pfdeb12localdev', 'pfdeb12localdev=pfdeb12localdev',
+            'pf3el8localdev=pfel8localdev', 'pf1deb12dev=pfdeb12dev', 'pfdeb12='])
+
     def test_ordinary_runs_keep_existing_scenario_path(self):
         result = self.bash('''
 SCENARIOS_TO_RUN=configurator PF_VM_NAMES=pfdeb12dev INT_TEST_VM_NAMES=''

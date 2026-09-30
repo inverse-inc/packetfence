@@ -105,16 +105,24 @@ configure_and_check() {
 
     export ANSIBLE_INVENTORY
     export VENOM_ROOT_DIR
+    LOCAL_BAKED_BOX=${LOCAL_BAKED_BOX:-no}
     export USE_VAGRANT_BOX VAGRANT_BOX_VERSION
-    export SKIP_CONFIGURATOR_BAKED
+    export SKIP_CONFIGURATOR_BAKED LOCAL_BAKED_BOX
 }
 
 # Map eligible PF VMs to their per-pipeline base box (empty if ineligible).
 # Kept in sync with baked_base_box in pfservers/Vagrantfile.
+# LOCAL_BAKED_BOX=yes maps localdev VMs to a `bake-vagrant-img.sh local` box.
 baked_box_for_pf_vm() {
     case "$1" in
         pfel8dev|pf[123]el8dev) echo pfel8dev ;;
         pfdeb12dev|pf[123]deb12dev) echo pfdeb12dev ;;
+        pfel8localdev|pf[123]el8localdev|pfdeb12localdev|pf[123]deb12localdev)
+            if [ "${LOCAL_BAKED_BOX:-no}" = yes ]; then
+                echo "${1/#pf[123]/pf}"
+            else
+                echo ""
+            fi ;;
         *)                   echo "" ;;
     esac
 }
@@ -410,7 +418,7 @@ wait_for_ssh() {
 # Prep/readdress playbooks for baked cluster clones (no-op for standalone VMs).
 baked_cluster_playbook() {
     local playbook=$1 vm=$2
-    [[ "${vm}" =~ ^pf[123](deb12|el8)dev$ ]] || return 0
+    [[ "${vm}" =~ ^pf[123](deb12|el8)(local)?dev$ ]] || return 0
     ( cd "${VAGRANT_DIR}"; ansible-playbook "playbooks/${playbook}" -l "${vm}" )
 }
 
