@@ -17,4 +17,7 @@ COPY lib lib
 copy html html
 RUN chown -R pf: /usr/local/pf/html
 
-ENTRYPOINT ["/usr/sbin/apache2", "-f", "/usr/local/pf/var/conf/httpd.conf.d/httpd.webservices", "-DFOREGROUND"]
+COPY containers/pf-uid-remap containers/pf-uid-remap
+RUN chmod +x containers/pf-uid-remap
+
+ENTRYPOINT ["/usr/local/pf/containers/pf-uid-remap", "/usr/sbin/apache2", "-f", "/usr/local/pf/var/conf/httpd.conf.d/httpd.webservices", "-DFOREGROUND"]

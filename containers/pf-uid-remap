@@ -1,0 +1,40 @@
+#!/bin/bash
+# Align the pf and fingerbank users of the container with the host's IDs
+# (PF_UID/PF_GID/FINGERBANK_UID/FINGERBANK_GID, passed by base_args) before
+# starting the service, then exec it.
+#
+# The image creates pf with UID/GID 2025, but a host whose pf user kept its
+# old IDs (installation older than 15.0 where the UID migration did not
+# apply) owns /usr/local/pf/conf with another UID: Apache workers running as
+# the image's pf can then not write the bind-mounted configuration, and every
+# cluster sync fails with "Could not create temp file ... Permission denied"
+# (#9281).
+#
+# Unlike the former pf-apache-wrapper this does not walk /usr/local/pf: the
+# directories the service writes to are bind-mounted from the host, only
+# /usr/local/pf/var (ssl_mutex) lives in the image.
+
+remap() {
+    local user="$1" uid="$2" gid="$3"
+    [ -z "$uid" ] || [ -z "$gid" ] && return 1
+    local cur_uid cur_gid
+    cur_uid=$(id -u "$user") || return 1
+    cur_gid=$(id -g "$user") || return 1
+    [ "$cur_uid" = "$uid" ] && [ "$cur_gid" = "$gid" ] && return 1
+    echo "Changing $user from $cur_uid:$cur_gid to $uid:$gid to match the host"
+    groupmod -o -g "$gid" "$user"
+    usermod -o -u "$uid" -g "$gid" "$user"
+    return 0
+}
+
+changed=0
+remap pf "$PF_UID" "$PF_GID" && changed=1
+remap fingerbank "$FINGERBANK_UID" "$FINGERBANK_GID" && changed=1
+
+if [ "$changed" = 1 ]; then
+    # keep pf in the fingerbank group, and re-own what lives in the image only
+    usermod -a -G fingerbank pf
+    find /usr/local/pf/var -xdev -exec chown -h pf:pf {} +
+fi
+
+exec "$@"
