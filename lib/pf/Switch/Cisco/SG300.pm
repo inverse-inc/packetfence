@@ -79,6 +79,16 @@ sub getIfIndexByNasPortId {
     return 0;
 }
 
+=head2 refreshIfIndexCache
+
+getIfIndexByNasPortId does not use SNMP, nothing to refresh.
+
+=cut
+
+sub refreshIfIndexCache {
+    return 0;
+}
+
 =head2 NasPortToIfIndex
 
 Translate RADIUS NAS-Port into the physical port ifIndex
