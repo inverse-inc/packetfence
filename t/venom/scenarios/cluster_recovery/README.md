@@ -16,7 +16,7 @@ then `cluster_recovery`.
 |----|------|--------------|--------------------|
 | A | Power failure | `virsh destroy` all 3 at once, boot all, wait | dirty-shutdown + galera-autofix seqno election |
 | B | Simultaneous clean stop | clean-stop all 3 at once, boot all, wait | galera-autofix (safe_to_bootstrap is racy when simultaneous) |
-| C | Sequential reboot | reboot one node at a time, re-Sync before next | quorum never lost; rejoin live primary |
+| C | Sequential reboot | reboot one node at a time, re-Sync before next (skipped in the combined job, see below) | quorum never lost; rejoin live primary |
 | D | Wrong-order start | clean-stop 1,2,3; boot 1 then 2 (must NOT reach Primary) then 3 | `pf-mariadb` safe_to_bootstrap ordering; node 3 (last stopped) is safe |
 | E | Right-order start | clean-stop 1,2,3; boot 3 first (serves alone), then 2, then 1 | node 3 bootstraps, 2 & 1 rejoin |
 
@@ -76,9 +76,20 @@ Full build + recovery from scratch (what CI does):
 make -C t/venom cluster_recovery_deb12
 ```
 
-All six scenarios run by default. To run a subset, invoke the scenario
-playbook directly with the `recovery_scenarios` extra-var (from `t/venom`,
-against an already-built cluster):
+### Why C is skipped in the combined job
+
+`cluster_recovery_deb12`/`_el8` run `cluster_configurator` first, and it ends
+with the same rolling reboot as C (one node at a time, re-Sync before the next)
+on the same cluster. Running C again only adds ~15 min and a
+`cluster_verify_all` pass, which the job's 3 h limit can't spare. The one thing
+C adds is a rolling reboot after A/B's full-outage recoveries.
+
+So the combined job runs A, B, D, E, F. C still runs in a standalone recovery
+run (`MAKE_TARGET=run_tests`), or with `RECOVERY_SCENARIOS="A B C D E F"`.
+
+To run a subset by hand, invoke the scenario playbook directly with the
+`recovery_scenarios` extra-var (from `t/venom`, against an already-built
+cluster):
 
 ```
 ansible-playbook scenarios/cluster_recovery/site.yml -l <pf1,pf2,pf3> \

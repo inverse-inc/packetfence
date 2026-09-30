@@ -24,6 +24,44 @@ run
         self.assertEqual(calls, ['CALL 12m prepare_cluster cluster_configurator cluster_recovery',
                                  'CALL 34m run_tests cluster_recovery'])
 
+    def test_combined_run_skips_duplicate_sequential_reboot(self):
+        result = self.bash('''
+SCENARIOS_TO_RUN='cluster_configurator cluster_recovery'
+timeout() { echo "CALL $3 [${RECOVERY_SCENARIOS:-}]"; }
+run
+RECOVERY_SCENARIOS='A C' run
+''')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('CALL run_tests [A B D E F]', result.stdout)
+        self.assertIn('CALL run_tests [A C]', result.stdout)
+
+    def recovery_playbook_args(self, recovery_scenarios):
+        return self.bash(f'''
+SCENARIOS_TO_RUN=cluster_recovery SCENARIOS_BASE_DIR=/nonexistent
+RESULT_DIR='' ANSIBLE_VM_LIST=pf1 VAGRANT_PF_DOTFILE_PATH=/dot VENOM_ROOT_DIR=/v
+{recovery_scenarios}
+run_ansible_galaxy_once() {{ :; }}
+stop_resource_sampler() {{ :; }}
+ansible-playbook() {{ printf 'ARG %s\\n' "$@"; }}
+run_tests
+''')
+
+    def test_recovery_scenarios_become_playbook_extra_var(self):
+        result = self.recovery_playbook_args("RECOVERY_SCENARIOS='A B D'")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('ARG {"recovery_scenarios": ["A","B","D"]}', result.stdout)
+
+    def test_unset_recovery_scenarios_keep_playbook_default(self):
+        result = self.recovery_playbook_args('unset RECOVERY_SCENARIOS')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('recovery_scenarios', result.stdout)
+
+    def test_malformed_recovery_scenarios_are_rejected(self):
+        result = self.recovery_playbook_args("RECOVERY_SCENARIOS='A,\"; x'")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('RECOVERY_SCENARIOS must be', result.stderr)
+        self.assertNotIn('ARG', result.stdout)
+
     def test_setup_timeout_prevents_recovery(self):
         result = self.bash('''
 SCENARIOS_TO_RUN='cluster_configurator cluster_recovery'

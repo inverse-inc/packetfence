@@ -303,7 +303,9 @@ run() {
         # Each phase gets its own clock. The CI job timeout must cover both
         # budgets plus teardown; setup can no longer consume recovery's time.
         time_phase "Cluster setup" timeout "${CLUSTER_SETUP_TIMEOUT:-120m}" "$0" prepare_cluster
-        SCENARIOS_TO_RUN=cluster_recovery time_phase "Cluster recovery" \
+        # C repeats the configurator's rolling reboot: skip it here
+        SCENARIOS_TO_RUN=cluster_recovery RECOVERY_SCENARIOS="${RECOVERY_SCENARIOS:-A B D E F}" \
+            time_phase "Cluster recovery" \
             timeout "${CLUSTER_RECOVERY_TIMEOUT:-150m}" "$0" run_tests
         return
     fi
@@ -561,12 +563,20 @@ run_tests() {
         # expose the vagrant dotfile path so scenarios that power-control VMs
         # (e.g. cluster_recovery) can resolve the libvirt domain UUID
         local dotfile_ev="vagrant_pf_dotfile_path=${VAGRANT_PF_DOTFILE_PATH}"
+        # RECOVERY_SCENARIOS="A B D" limits cluster_recovery; unset runs all
+        local scenarios_ev=()
+        if [ "${scenario_name}" = cluster_recovery ] && [ -n "${RECOVERY_SCENARIOS:-}" ]; then
+            [[ "${RECOVERY_SCENARIOS}" =~ ^[A-Z]( [A-Z])*$ ]] \
+                || die "RECOVERY_SCENARIOS must be space-separated scenario IDs, got: ${RECOVERY_SCENARIOS}"
+            scenarios_ev=(-e "{\"recovery_scenarios\": [$(printf '"%s",' ${RECOVERY_SCENARIOS} | sed 's/,$//')]}")
+            echo "Recovery scenarios: ${RECOVERY_SCENARIOS}"
+        fi
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
             # will find roles and collections in VENOM_ROOT_DIR
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" -e "@${scenario_path}/ansible_inventory.yml"
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" "${scenarios_ev[@]}" -e "@${scenario_path}/ansible_inventory.yml"
         else
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}"
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" "${scenarios_ev[@]}"
         fi
         stop_resource_sampler
     done
