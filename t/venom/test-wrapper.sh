@@ -244,15 +244,58 @@ run_ansible_galaxy() {
     done
 }
 
-# force-install each requirements file once per run instead of once per VM
-declare -A GALAXY_DONE
+# Skip ansible-galaxy (minutes per install) when the requirements are
+# unchanged: checksum stamp in the install dir, then a runner-local cache.
+# GALAXY_FORCE=yes reinstalls.
+ANSIBLE_GALAXY_CACHE=${ANSIBLE_GALAXY_CACHE:-${HOME}/.cache/pf-ansible-galaxy}
+ANSIBLE_GALAXY_CACHE_DAYS=${ANSIBLE_GALAXY_CACHE_DAYS:-14}
+GALAXY_CONTENT_DIRS="roles ansible_collections"
+
 run_ansible_galaxy_once() {
     local req_file=$1
-    if [ -z "${GALAXY_DONE[${req_file}]:-}" ]; then
-        # cd first: collections/roles paths in the local ansible.cfg are relative to CWD
-        ( cd $(dirname ${req_file}) ; run_ansible_galaxy ${req_file} force )
-        GALAXY_DONE[${req_file}]=1
+    local req_dir=$(dirname ${req_file})
+    local stamp=${req_dir}/ansible_collections/.requirements.sha256
+    local req_sum=$( { cat ${req_file}; ansible-galaxy --version | head -1; } | sha256sum | cut -d ' ' -f 1)
+    local entry=${ANSIBLE_GALAXY_CACHE}/${req_sum}
+    local d
+
+    if [ "${GALAXY_FORCE:-no}" != yes ]; then
+        if [ -d ${req_dir}/roles ] && [ "$(cat ${stamp} 2>/dev/null)" = "${req_sum}" ]; then
+            echo "Ansible requirements unchanged since last install, skipping: ${req_file}"
+            return 0
+        fi
+        if [ -f ${entry}/.complete ]; then
+            echo "Restoring Ansible requirements from runner cache ${entry}: ${req_file}"
+            for d in ${GALAXY_CONTENT_DIRS}; do
+                rm -rf ${req_dir}/${d}
+                cp -a ${entry}/${d} ${req_dir}/${d}
+            done
+            touch ${entry} ${entry}/.complete
+            echo "${req_sum}" > ${stamp}
+            return 0
+        fi
     fi
+
+    # cd first: collections/roles paths in the local ansible.cfg are relative to CWD
+    ( cd ${req_dir} && run_ansible_galaxy ${req_file} force ) || die "ansible-galaxy install failed: ${req_file}"
+    mkdir -p $(dirname ${stamp})
+    echo "${req_sum}" > ${stamp}
+    save_ansible_galaxy_cache ${req_dir} ${entry} || echo "Could not save Ansible requirements to runner cache (non fatal)"
+}
+
+# Atomic save: first rename wins; failures are non fatal.
+save_ansible_galaxy_cache() {
+    local req_dir=$1 entry=$2 tmp d
+    mkdir -p ${ANSIBLE_GALAXY_CACHE} || return 1
+    find ${ANSIBLE_GALAXY_CACHE} -mindepth 1 -maxdepth 1 -type d \
+         ! -newermt "-${ANSIBLE_GALAXY_CACHE_DAYS} days" -exec rm -rf {} + 2>/dev/null || true
+    [ -f ${entry}/.complete ] && return 0
+    tmp=$(mktemp -d -p ${ANSIBLE_GALAXY_CACHE} .tmp.XXXXXX) || return 1
+    for d in ${GALAXY_CONTENT_DIRS}; do
+        cp -a ${req_dir}/${d} ${tmp}/${d} || { rm -rf ${tmp}; return 1; }
+    done
+    touch ${tmp}/.complete
+    mv -T ${tmp} ${entry} 2>/dev/null || rm -rf ${tmp}
 }
 
 run() {
