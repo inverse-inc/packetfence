@@ -94,6 +94,18 @@ Attribute-Name2 = value2
 EOT
 ....
 
+==== Attributes missing from the RADIUS dictionary
+
+The attribute names must exist in the RADIUS dictionaries shipped with PacketFence. To use an attribute that is not there, for example `Extreme-Dynamic-Config` (vendor 1916, attribute 252), which Extreme Fabric Engine switches accept with the value `PORTBOUNCE` in a CoA to bounce the port, define it in [filename]`/usr/local/pf/conf/radiusd/dictionary.local` (see [filename]`dictionary.local.example` in the same directory), using the FreeRADIUS dictionary format:
+
+....
+BEGIN-VENDOR    Extreme
+ATTRIBUTE       Extreme-Dynamic-Config          252     string
+END-VENDOR      Extreme
+....
+
+FreeRADIUS reads the file through [filename]`/usr/local/pf/raddb/dictionary`, so the attribute can be returned in an Access-Accept, and PacketFence loads the same definitions to send it in the RADIUS CoA and Disconnect requests of the `coa`, `disconnect` and `bounce` scopes. Without it, those requests are sent without the attribute and the logs show `Unknown RADIUS tuple`. Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api after a change. The file is not synchronized between the members of a cluster: copy it to each of them.
+
 === Dynamic RADIUS Attribute Value Syntax
 
 Some values depends on the context of the current request.
