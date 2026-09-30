@@ -27,7 +27,7 @@ Asserts the canonical wsrep variables on the local node:
 
 ### 20 — PacketFence services active
 Asserts `packetfence-mariadb`, `keepalived`, `radiusd-loadbalancer`
-are all `active` (systemctl).
+and `galera-autofix` are all `active` (systemctl).
 
 ### 30 — pfcmd cluster maintenance
 `/usr/local/pf/bin/pfcmd cluster maintenance` exits 0 and lists

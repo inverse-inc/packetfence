@@ -9,6 +9,7 @@
 #   2) first server — configurator + cluster bootstrap (pf1), force-new-cluster
 #   3) joining servers — cluster/sync + mariadb join (pf2, pf3)
 #   4) first server finalize — mariadb normal restart + galera-autofix
+#   4a) resync joiners — pull pf1's config (autofix enabled) before wrap-up
 #   5) wrap up on all — updatesystemd + restart (serial)
 #   6) rolling reboot — reboot each node one at a time (doc's final step)
 #   7) verify on all  — assert cluster health on every node
@@ -164,6 +165,19 @@
   vars:
     test_suites:
       - cluster_first_server_finalize
+
+  tasks:
+    - import_tasks: run_venom_suites.yml
+      when: not (cluster_already_healthy | default(false))
+
+# Before wrap-up, or pf1's first pfcmd reverts autofix from the joiners' quorum
+- hosts: 'pf2*dev:pf3*dev'
+  name: Cluster — resync joiners from first server
+  become: True
+
+  vars:
+    test_suites:
+      - cluster_joiners_resync
 
   tasks:
     - import_tasks: run_venom_suites.yml

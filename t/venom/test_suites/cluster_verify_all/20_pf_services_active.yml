@@ -37,3 +37,14 @@ testcases:
     assertions:
       - result.systemout ShouldEqual active
       - result.code ShouldEqual 0
+
+# Recovery B needs autofix running before the outage (seqno election)
+- name: galera_autofix_active
+  steps:
+  - type: exec
+    script: 'systemctl is-active packetfence-galera-autofix'
+    retry: 24
+    delay: 10
+    assertions:
+      - result.systemout ShouldEqual active
+      - result.code ShouldEqual 0
