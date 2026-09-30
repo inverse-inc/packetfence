@@ -19,9 +19,12 @@ then `cluster_recovery`.
 | C | Sequential reboot | reboot one node at a time, re-Sync before next (skipped in the combined job, see below) | quorum never lost; rejoin live primary |
 | D | Wrong-order start | clean-stop 1,2,3; boot 1 then 2 (must NOT reach Primary) then 3 | `pf-mariadb` safe_to_bootstrap ordering; node 3 (last stopped) is safe |
 | E | Right-order start | clean-stop 1,2,3; boot 3 first (serves alone), then 2, then 1 | node 3 bootstraps, 2 & 1 rejoin |
+| F | Two nodes lost | `virsh destroy` 1 then 2; node 3 must hold all VIPs and be read-only (non-Primary); boot 1 and 2 | quorum restored when peers return |
 
 Each scenario ends by waiting for galera size 3 + `Synced` and running the
 `cluster_verify_all` suite.
+
+F powers the peers off: after clean stops the survivor stays Primary.
 
 ## Mechanics verified against code
 

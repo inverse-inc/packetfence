@@ -11,7 +11,7 @@
 #   C) sequential    — reboot one node at a time (quorum never lost)
 #   D) wrong order   — clean stop 1,2,3; boot 1,2 (must NOT serve) then 3 recovers
 #   E) right order   — clean stop 1,2,3; boot 3 (safe) serves, then 2 & 1 rejoin
-#   F) two down      — clean stop 1 & 2 (node 3 alone); node 3 loses galera
+#   F) two down      — hard power-off 1 & 2 (node 3 alone); node 3 loses galera
 #                      quorum and goes read-only; boot 1 & 2 back, cluster recovers
 #
 # Power control uses the libvirt domain UUID from the vagrant dotfile
@@ -350,23 +350,25 @@
 ########################################################################
 # F) Two nodes down -> the lone survivor (node 3) loses galera quorum and
 #    goes read-only; booting node 1 & 2 back recovers the cluster.
+#    Power off, not clean stop: cleanly stopped peers leave the cluster and
+#    the survivor stays Primary.
 ########################################################################
 - hosts: 'pf1*dev'
-  name: "F1 — clean-stop node 1"
+  name: "F1 — hard power-off node 1"
   become: True
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
-    - import_tasks: tasks/graceful_off.yml
+    - import_tasks: tasks/hard_off.yml
       when: "'F' in recovery_scenarios"
 
 - hosts: 'pf2*dev'
-  name: "F2 — clean-stop node 2 (only node 3 left)"
+  name: "F2 — hard power-off node 2 (only node 3 left)"
   become: True
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
   tasks:
-    - import_tasks: tasks/graceful_off.yml
+    - import_tasks: tasks/hard_off.yml
       when: "'F' in recovery_scenarios"
 
 - hosts: 'pf3*dev'
@@ -397,6 +399,8 @@
   gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
+    # node 3 is non-Primary: no DB until quorum returns, so settle later
+    boot_wait_settled: false
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'F' in recovery_scenarios"
@@ -407,6 +411,8 @@
   gather_facts: no
   vars:
     recovery_scenarios: ['A', 'B', 'C', 'D', 'E', 'F']
+    # node 3 is non-Primary: no DB until quorum returns, so settle later
+    boot_wait_settled: false
   tasks:
     - import_tasks: tasks/boot.yml
       when: "'F' in recovery_scenarios"
@@ -420,6 +426,9 @@
       - cluster_verify_all
   tasks:
     - import_tasks: tasks/wait_cluster_size_three.yml
+      when: "'F' in recovery_scenarios"
+    # quorum unblocks the boot transactions F4/F5 left running
+    - import_tasks: tasks/wait_boot_settled.yml
       when: "'F' in recovery_scenarios"
     - import_tasks: run_venom_suites.yml
       when: "'F' in recovery_scenarios"
