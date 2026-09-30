@@ -12,6 +12,7 @@ export const internalTypes = {
   HTTP:                'HTTP',
   Kerberos:            'Kerberos',
   LDAP:                'LDAP',
+  LocalDB:             i18n.t('Local Database'),
   Potd:                i18n.t('Password Of The Day'),
   RADIUS:              'RADIUS',
   SAML:                'SAML',
