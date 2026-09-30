@@ -1357,6 +1357,11 @@ listen {
         virtual_server = pfcli.cluster
 }
 
+EOT
+            # The cluster IP can be the address of a member when no dedicated
+            # VIP is available; listening on it twice would stop radiusd from starting
+            next if ($cluster_ip // "") eq $server_ip;
+            $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = $cluster_ip
         port = 0
@@ -1396,6 +1401,9 @@ listen {
         type = auth
         virtual_server = eduroam.cluster
 }
+EOT
+                next if ($cluster_ip // "") eq $server_ip;
+                $tags{'eduroam'} .= <<"EOT";
 listen {
         ipaddr = $cluster_ip
         port = $self->{eduroam_loadbalancer_port}
