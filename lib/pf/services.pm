@@ -23,7 +23,9 @@ Generate the following configuration file: F<snmptrapd.conf>.
 use strict;
 use warnings;
 
-use pf::config;
+use pf::config qw(%Config);
+use pf::cluster qw($cluster_enabled);
+use pf::util qw(isdisabled safe_pf_run);
 use pf::constants::services qw(JUST_MANAGED);
 use List::MoreUtils qw(any);
 use Module::Pluggable
@@ -58,6 +60,36 @@ our %ALLOWED_ACTIONS = (
 );
 
 =head1 SUBROUTINES
+
+=head2 promote_default_systemd_target
+
+Leave new installations on the base target until configuration is complete.
+The wizard updates systemd just before disabling the configurator, so its API
+caller explicitly passes configurator_finishing. CLI callers use the saved
+configurator setting, including during package installation.
+
+Only replace the installation's base target; preserve other boot targets.
+Command failures are fatal so callers cannot report a successful update.
+
+=cut
+
+sub promote_default_systemd_target {
+    my (%options) = @_;
+    return 1 unless $options{configurator_finishing} || isdisabled($Config{advanced}{configurator});
+
+    my $status;
+    my $default = safe_pf_run(qw(systemctl get-default), { status_ref => \$status });
+    die "Unable to read the default systemd target\n"
+        unless defined($status) && $status == 0 && defined($default) && length($default);
+    chomp $default;
+    return 1 unless $default eq 'packetfence-base.target';
+
+    my $target = $cluster_enabled ? 'packetfence-cluster.target' : 'packetfence.target';
+    safe_pf_run(qw(sudo systemctl set-default), $target, { status_ref => \$status });
+    die "Unable to set the default systemd target to $target\n"
+        unless defined($status) && $status == 0;
+    return 1;
+}
 
 =head2 service_ctl
 
