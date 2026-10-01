@@ -54,11 +54,36 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
 		return nil, err
 	} else {
-		db.SetMaxIdleConns(5)
-		db.SetMaxOpenConns(100)
-		db.SetConnMaxLifetime(time.Minute * 5)
+		SetPoolLimits(db)
 		return db, nil
 	}
+}
+
+// SetPoolLimits applies the standard pool sizing to a handle. Exported so the
+// GORM call sites, which build their own *sql.DB, can apply it too.
+//
+// Sized for ProxySQL rather than for a dedicated database. In cloud a tenant's
+// whole backend budget is a few dozen connections split across capacity tiers
+// (see lib/pf/services/manager/proxysql.pm), and ProxySQL multiplexes: a
+// frontend connection only borrows a backend one for the duration of a
+// statement, so frontend connections stay cheap and can outnumber the pool.
+//
+// What does pin a backend connection for as long as it lives is session state
+// ProxySQL cannot hand to another client mid-flight: an open transaction, a
+// user variable, a temporary table, a table lock. Long-lived *sql.Stmt values
+// are NOT in that category -- ProxySQL keys its statement cache globally and
+// re-prepares on whichever backend it hands out, which was measured with twelve
+// concurrent clients each holding a statement open over a hostgroup capped at
+// six backend connections.
+//
+// The limits are still modest because a frontend connection costs a slot
+// against the per-user cap, and idle ones are now reaped: SetConnMaxIdleTime
+// was never called before, so a handle kept its idle connections forever.
+func SetPoolLimits(db *sql.DB) {
+	db.SetMaxIdleConns(2)
+	db.SetMaxOpenConns(25)
+	db.SetConnMaxLifetime(time.Minute * 5)
+	db.SetConnMaxIdleTime(time.Minute)
 }
 
 func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
@@ -104,6 +129,21 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	Config.ParseTime = true
 	Config.Loc = location
 	Config.Params = map[string]string{"sql_mode": sqlMode}
+	// Interpolate placeholders client-side so a parameterized query goes out as
+	// a single COM_QUERY. Without this the driver does a server-side
+	// prepare/execute/close for every query with arguments, which costs two
+	// extra round trips and, more importantly, makes ProxySQL pin the backend
+	// connection for the duration -- prepared statements cannot be multiplexed
+	// because the statement id is scoped to one backend connection.
+	//
+	// Safe here: multiStatements is off, so an interpolated value cannot open a
+	// second statement, and utf8mb4 is not one of the encodings the driver
+	// rejects for interpolation (BIG5, CP932, GB2312, GBK, SJIS).
+	Config.InterpolateParams = true
+	// Bound connection establishment. Deliberately no ReadTimeout/WriteTimeout:
+	// those are per-read deadlines that would kill legitimately long queries,
+	// and query duration is already bounded by the per-tier ProxySQL timeouts.
+	Config.Timeout = 10 * time.Second
 	Config.Apply(options...)
 
 	return Config.FormatDSN()

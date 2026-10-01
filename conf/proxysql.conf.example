@@ -47,7 +47,7 @@ admin_variables=
 mysql_variables=
 {
     threads=4
-    max_connections=2048
+    max_connections=[% frontend_max_connections %]
     default_query_delay=0
     default_query_timeout=36000000
     have_compress=true
@@ -66,6 +66,7 @@ mysql_variables=
 
 [% monitor %]
 [% mysql_monitor_variables %]
+[% mysql_cloud_variables %]
 
 [% IF scheduler %]
     monitor_galera_healthcheck_interval=2000
@@ -82,9 +83,7 @@ mysql_servers =
 [% mysql_servers %]
 )
 
-[% UNLESS single_server %]
 [% mysql_query_rules %]
-[% END %]
 
 mysql_users =
 (
