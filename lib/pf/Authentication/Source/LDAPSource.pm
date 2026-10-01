@@ -71,6 +71,8 @@ has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'searchattributes' => (isa => 'ArrayRef[Str]', is => 'rw', required => 0);
 has 'append_to_searchattributes' => (isa => 'Maybe[Str]', is => 'rw', required => 0);
 has '_cached_connection' => (is => 'rw');
+# Search results shared by the rules of one match() call (see preMatchProcessing)
+has '_search_memo' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
@@ -502,26 +504,41 @@ sub _match_in_subclass {
         push @attributes, $action->value;
     }
 
-    my $result = do {
-        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
-        $connection->search(
-          base => $basedn,
-          filter => $filter,
-          scope => $self->{'scope'},
-          attrs => \@attributes
-        )
-    };
+    # Regexp and static-group conditions are not part of the LDAP filter, so
+    # consecutive rules of the same match() usually run the very same search
+    # (the username lookup): run it once and reuse the entries for the other
+    # rules of this request instead of one round trip per rule.
+    my $memo = $self->_search_memo;
+    my $memo_key = join("\0", $basedn, $filter, $self->{'scope'}, sort @attributes);
+    my ($result, $result_count, @entries);
+    if ($memo && exists $memo->{$memo_key}) {
+        ($result_count, @entries) = ($memo->{$memo_key}{count}, @{$memo->{$memo_key}{entries}});
+        $logger->debug("[$self->{'id'} $rule->{'id'}] Reusing the result of the search $filter from $basedn already done for this request");
+    } else {
+        $result = do {
+            my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
+            $connection->search(
+              base => $basedn,
+              filter => $filter,
+              scope => $self->{'scope'},
+              attrs => \@attributes
+            )
+        };
 
-    if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $basedn on $LDAPServer:$LDAPServerPort, we skip the rule.");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return (undef, undef);
+        if ($result->is_error) {
+            $logger->error("[$self->{'id'}] Unable to execute search $filter from $basedn on $LDAPServer:$LDAPServerPort, we skip the rule.");
+            $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
+            return (undef, undef);
+        }
+
+        $result_count = $result->count;
+        @entries = $result->entries;
+        $memo->{$memo_key} = { count => $result_count, entries => [@entries] } if $memo;
     }
 
-    my $result_count = $result->count;
     $logger->debug("[$self->{'id'} $rule->{'id'}] Found $result_count results");
     if ($result_count == 1) {
-        my $entry = $result->pop_entry();
+        my $entry = $entries[0];
         my $dn = $entry->dn;
         my $entry_matches = 1;
         my ($condition, $attribute, $value);
@@ -785,6 +802,18 @@ sub postMatchProcessing {
         my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
         $self->_cached_connection(undef);
     }
+    $self->_search_memo(undef);
+}
+
+=head2 preMatchProcessing
+
+Start a fresh search memo for the rules of this match() call
+
+=cut
+
+sub preMatchProcessing {
+    my ($self) = @_;
+    $self->_search_memo({});
 }
 
 =head2 _makefilter
