@@ -22,7 +22,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use List::MoreUtils qw(part any);
 use pfconfig::manager;
 use pf::freeradius;
-use pfconfig::manager;
+use pf::role_networks;
 
 extends qw(pf::ConfigStore);
 
@@ -79,6 +79,12 @@ sub commit {
     my $manager = pfconfig::manager->new;
     $manager->expire($self->pfconfigNamespace);
     my $switches = $manager->get_cache($self->pfconfigNamespace);
+    # Refresh the role -> networks cache used to expand "net <Role>" ACL
+    # destinations. Only the roles whose networks changed are rewritten.
+    eval { pf::role_networks::refresh_cache($switches) };
+    if ($@) {
+        pf::log::get_logger->error("Unable to refresh the role networks cache: $@");
+    }
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'switch_freeradius_populate_nas_config', $switches);
     return ($result, $error);

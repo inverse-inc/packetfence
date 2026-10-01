@@ -435,6 +435,19 @@ This can also be configured with the admin interface in _Configuration -> Polici
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 
+===== Role networks as ACL destinations
+
+When the networks of a role are declared on the switches (`<role_name>Network=<cidr>` with `NetworkMap=Y`, or _Role by Network_ in the switch configuration), an ACL of a role can name another role as its destination instead of a network. The line must be commented out and use the `net` keyword:
+
+  #permit tcp any net Printer eq 9100
+
+When a device connects, PacketFence replaces the line with one ACL per network mapped to the `Printer` role across all the switches, adjacent networks being merged:
+
+  permit tcp any 10.0.0.0 0.0.0.255 eq 9100
+  permit tcp any 10.0.2.0 0.0.0.255 eq 9100
+
+The role to networks map is kept in the `role_networks` cache (see [filename]`conf/chi.conf.defaults`) and is refreshed when the switch configuration is saved, so only the roles whose networks changed are recomputed. A destination role without any network leaves the line commented out and the ACL is skipped.
+
 ==== VoIP Integration with CDP, LLDP and LLDP-MED
 
 Cisco Discovery Protocol (CDP) is device-discovery protocol supported on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN. CDP can determine if the connecting device is an IP Phone, and instruct the IP Phone to tag ethernet frames using the configured voice VLAN on the switchport.
