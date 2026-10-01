@@ -11,6 +11,9 @@ use pf::iptables qw(iptables_generate_config);
 use pf::config qw($management_network);
 use Linux::Inotify2;
 
+# Keep in sync with SuccessExitStatus/RestartPreventExitStatus in the unit.
+use constant EXIT_MANAGEMENT_UNSET => 78;
+
 my $inotify = new Linux::Inotify2 or die "Unable to create inotify object: $!";
 
 my $managed = is_management_network_set();
@@ -55,3 +58,6 @@ while ( $managed ) {
     $inotify->poll;
     $managed = is_management_network_set();
 }
+
+get_logger()->info("Service Iptables: Management interface is not set; stopping until the next service start.");
+exit EXIT_MANAGEMENT_UNSET;
