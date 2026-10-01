@@ -125,6 +125,18 @@ sub _generateConfig {
     $self->generate_radiusd_certificates($tt);
 }
 
+=head2 _management_ip
+
+Management VIP, falling back to the IP. Returns '' before the wizard, when
+management_network is '' rather than an interface object.
+
+=cut
+
+sub _management_ip {
+    return '' unless ref($management_network);
+    return $management_network->tag('vip') // $management_network->tag('ip') // '';
+}
+
 
 =head2 generate_radiusd_sitesconf
 Generates the packetfence and packetfence-tunnel configuration file
@@ -204,7 +216,7 @@ EOT
     if (pf::cluster::isSlaveMode()) {
 
         $tags{'remote'} = "YES";
-        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'management_ip'} = _management_ip();
 
         $tags{'members'} = '';
         $tags{'config'} ='';
@@ -338,7 +350,6 @@ sub generate_radiusd_mainconf {
 
     $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
     $tags{'install_dir'} = $install_dir;
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
     $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
@@ -403,24 +414,13 @@ sub generate_radiusd_redisconf {
 sub generate_radiusd_authconf {
     my ($self, $tt) = @_;
     my %tags;
-    my @listen_ips;
-    if ($cluster_enabled) {
-        my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-        push @listen_ips, $ip;
-
-    } else {
-        foreach my $interface ( uniq(@radius_ints) ) {
-            my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-            push @listen_ips, $ip;
-        }
-    }
 
     $tags{'virtual_server'} = "packetfence";
     if (pf::cluster::isSlaveMode()) {
         $tags{'virtual_server'} = "pf-remote";
     }
 
-    $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
+    $tags{'listen_ips'} = '*';
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     $tags{'port'} = $self->{auth_port};
@@ -431,19 +431,8 @@ sub generate_radiusd_authconf {
 sub generate_radiusd_acctconf {
     my ($self, $tt) = @_;
     my %tags;
-    my @listen_ips;
-    if ($cluster_enabled) {
-        my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-        push @listen_ips, $ip;
 
-    } else {
-        foreach my $interface ( uniq(@radius_ints) ) {
-            my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-            push @listen_ips, $ip;
-        }
-    }
-
-    $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
+    $tags{'listen_ips'} = '*';
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     $tags{'port'} = $self->{acct_port};
@@ -456,9 +445,7 @@ sub generate_radiusd_eduroamconf {
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
         $tags{'template'}    = "$conf_dir/radiusd/eduroam.conf";
-        if ($cluster_enabled) {
-            my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-            $tags{'listen'} .= << "EOT";
+        $tags{'listen'} .= <<"EOT";
 listen {
     ipaddr = *
     port =  $self->{eduroam_port}
@@ -467,17 +454,6 @@ listen {
 }
 
 EOT
-        } else {
-            $tags{'listen'} .= <<"EOT";
-listen {
-    ipaddr = *
-    port =  $self->{eduroam_port}
-    type = auth
-    virtual_server = eduroam
-}
-
-EOT
-        }
         $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
         $tt->process("$conf_dir/radiusd/eduroam.conf", \%tags, "$install_dir/raddb/eduroam.conf") or die $tt->error();
@@ -685,8 +661,6 @@ sub generate_radiusd_cliconf {
     if (@cli_switches > 0) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
         if ($cluster_enabled) {
-            my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-
 $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = *
@@ -1123,7 +1097,9 @@ EOT
     }
 
     if(isenabled($Config{services}{pfacct})) {
-        my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        my $management_ip = _management_ip();
+        # radiusd -C rejects a valueless src_ipaddr, so omit the whole directive.
+        my $src_ipaddr = length($management_ip) ? "    src_ipaddr = $management_ip" : '';
         my $port = '1813';
         if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
             $port = '1823';
@@ -1149,7 +1125,7 @@ home_server pfacct_local {
     ipaddr = 127.0.0.1
     port = $port
     secret = '$local_secret'
-    src_ipaddr = $management_ip
+$src_ipaddr
 }
 
 EOT
@@ -1195,14 +1171,15 @@ sub generate_radiusd_cluster {
     my ($self, $tt) = @_;
     my %tags;
 
-    my $int = $management_network->{'Tint'};
-    my $cfg = $Config{"interface $int"};
-
     $tags{'members'} = '';
     $tags{'config'} ='';
     $tags{'home_server'} ='';
 
-    if ($cluster_enabled) {
+    # Runs even when clustering is off, and before the wizard management_network
+    # is '' rather than an interface object.
+    if ($cluster_enabled && ref($management_network)) {
+        my $int = $management_network->{'Tint'};
+        my $cfg = $Config{"interface $int"};
         my $cluster_ip = isenabled($Config{active_active}{radius_proxy_with_vip}) ? pf::cluster::management_cluster_ip() : $management_network->{Tip};
         my @radius_backend = values %{pf::cluster::members_ips($int)};
 
