@@ -122,6 +122,56 @@ Ctrl-D
 Change the `interface-range` statement to reflect the ports you want to secure
 with PacketFence.
 
+===== Dynamic ACL (Juniper-Switching-Filter)
+
+The Junos v18.x module can push the ACLs of a role in the RADIUS Access-Accept
+using the `Juniper-Switching-Filter` attribute (Juniper VSA 48). No filter has
+to be created on the switch. It was verified on an EX4400 running Junos 23.4 and
+is not available with the older Junos modules. To use it:
+
+* In _Configuration -> Policies and Access Control -> Switches_, edit your
+  Juniper switch entry, set the type to `Junos v18.x` and enable *Role by access
+  list*.
+* Define the ACL for each role under _Configuration -> Policies and Access
+  Control -> Roles_, in the Cisco syntax used by the other modules, for example:
+
+  permit udp any any eq 53
+  permit tcp any host 192.168.1.5 eq 443
+  permit ip any 10.0.0.0 0.0.0.255
+  deny ip any any
+
+PacketFence sends one attribute per ACL line:
+
+  Juniper-Switching-Filter = "Match Ip-protocol 17, Destination-port 53 Action allow"
+  Juniper-Switching-Filter = "Match Ip-protocol 6, Destination-ip 192.168.1.5, Destination-port 443 Action allow"
+  Juniper-Switching-Filter = "Match Destination-ip 10.0.0.0/24 Action allow"
+  Juniper-Switching-Filter = "Match Destination-ip 0.0.0.0/0 Action deny"
+
+The attribute filters the traffic sent by the endpoint and only matches on the
+IP protocol, the destination address and the source and destination ports. An
+ACL line that cannot be represented is not sent, and a warning is logged in
+`packetfence.log`:
+
+* a source address other than `any`,
+* `out|` ACLs,
+* port operators other than `eq`,
+* TCP flags (`established`, `syn`, ...) and ICMP types,
+* non contiguous destination masks.
+
+Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
+after it allow what it blocks, so the list is cut at that `deny` and ends with
+`Match Destination-ip 0.0.0.0/0 Action deny`.
+
+The switch silently ignores a filter over 20 match conditions or 4000
+characters, and one attribute holds at most 247 characters. PacketFence cuts
+the list at the limit and ends it with the same deny all. On EX2300 and EX3400,
+filters of more than one line need Junos 15.1X53-D55 or later.
+
+A refused attribute makes the switch refuse the whole Access-Accept: the
+supplicant stays in the `Held` state and `show log messages | match DOT1XD`
+shows `DOT1XD_ATTRIBUTE_VALIDATION_FAILED`. `show dot1x firewall` shows the
+filter installed for each supplicant.
+
 ==== VoIP configuration
 
 ----
