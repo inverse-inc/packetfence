@@ -1543,6 +1543,8 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, err
 	}
 
+	c.deregisterNodesOfRevokedCert(cert, intreason)
+
 	return Information, nil
 }
 
