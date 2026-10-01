@@ -53,7 +53,7 @@ const components = {
 
 import { computed, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
-import { MysqlDatetimeMax } from '@/globals/mysql'
+import { MysqlDatetimeMax, MysqlDatetimeMin } from '@/globals/mysql'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
@@ -67,7 +67,8 @@ export const props = {
   ...useInputValueProps,
 
   min: {
-    type: [Date, String]
+    type: [Date, String],
+    default: MysqlDatetimeMin
   },
   max: {
     type: [Date, String],
