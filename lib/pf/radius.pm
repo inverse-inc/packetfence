@@ -374,7 +374,17 @@ sub authorize {
         $args->{'action'} = $role->{action};
     }
     my $vlan;
-    $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
+    if (defined($role->{'source'}) && $role->{'source'} ne '') {
+        $args->{'node_info'}{'source'} = $role->{'source'};
+        # Record the source type alongside the id. The id is operator chosen and
+        # therefore meaningless to anything that has not read authentication.conf,
+        # so consumers cannot classify a device from the id alone.
+        my $matched_source = pf::authentication::getAuthenticationSource($role->{'source'});
+        $args->{'node_info'}{'source_type'}      = $matched_source ? $matched_source->type      : '';
+        # The family (OAuth, LDAP, Billing...), so consumers can classify a source
+        # without enumerating every concrete type that exists.
+        $args->{'node_info'}{'source_base_type'} = $matched_source ? $matched_source->base_type : '';
+    }
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};
     $info{portal} = $args->{node_info}{portal};

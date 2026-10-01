@@ -11,16 +11,17 @@ import (
 )
 
 type AuthLog struct {
-	ID          int64      `json:"id,omitempty" gorm:"primary_key"`
-	ProcessName string     `json:"process_name,omitempty"`
-	Mac         string     `json:"mac,omitempty"`
-	Pid         string     `json:"pid,omitempty" gorm:"default:'default'"`
-	Status      string     `json:"status,omitempty" gorm:"default:'incomplete'"`
-	AttemptedAt *time.Time `json:"attempted_at"`
-	CompletedAt *time.Time `json:"completed_at"`
-	Source      string     `json:"source,omitempty"`
-	SourceType  string     `json:"source_type,omitempty"`
-	Profile     string     `json:"profile,omitempty"`
+	ID             int64      `json:"id,omitempty" gorm:"primary_key"`
+	ProcessName    string     `json:"process_name,omitempty"`
+	Mac            string     `json:"mac,omitempty"`
+	Pid            string     `json:"pid,omitempty" gorm:"default:'default'"`
+	Status         string     `json:"status,omitempty" gorm:"default:'incomplete'"`
+	AttemptedAt    *time.Time `json:"attempted_at"`
+	CompletedAt    *time.Time `json:"completed_at"`
+	Source         string     `json:"source,omitempty"`
+	SourceType     string     `json:"source_type,omitempty"`
+	SourceBaseType string     `json:"source_base_type,omitempty"`
+	Profile        string     `json:"profile,omitempty"`
 
 	DB  *gorm.DB         `json:"-" gorm:"-"`
 	Ctx *context.Context `json:"-" gorm:"-"`
