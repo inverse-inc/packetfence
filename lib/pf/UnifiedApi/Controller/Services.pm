@@ -62,6 +62,8 @@ sub do_update_systemd {
         }
     }
 
+    pf::services::promote_default_systemd_target(configurator_finishing => 1) if $name eq 'pf';
+
     return {message => "Updated systemd for $name"};
 }
 
@@ -150,7 +152,11 @@ sub do_action {
                         close($fh);
                     }
                 }
-                my $data = $self->$action();
+                my $data = eval { $self->$action() };
+                if (my $err = $@) {
+                    $updater->failed({ message => "$err" });
+                    return;
+                }
                 $updater->completed($data);
             },
             sub {},
@@ -167,6 +173,7 @@ sub do_action {
         },
         sub {
             my ($subprocess, $err, $results) = @_;
+            return $self->render_error(500, "$err") if $err;
             return $self->render(json => $results);
          },
     );
