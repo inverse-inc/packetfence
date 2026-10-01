@@ -200,11 +200,11 @@
                                                 <td align="left" style="font-size:0px;padding:0;word-break:break-word;">
                                                     <div style="font-family:Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">
                                                         <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("MAC Address") %]</p>
-                                                        <p class="value" style="font-weight: 600; margin-top: 5px;">[% mac %]</p>
+                                                        <p class="value" style="font-weight: 600; margin-top: 5px;">[% mac | html %]</p>
                                                         <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("OS") %]</p>
-                                                        <p class="value" style="font-weight: 600; margin-top: 5px;">[% os %]</p>
+                                                        <p class="value" style="font-weight: 600; margin-top: 5px;">[% os | html %]</p>
                                                         <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("Hostname") %]</p>
-                                                        <p class="value" style="font-weight: 600; margin-top: 5px;">[% hostname %]</p>
+                                                        <p class="value" style="font-weight: 600; margin-top: 5px;">[% hostname | html %]</p>
                                                         <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("CVE") %]</p>
                                                         <p class="value" style="font-weight: 600; margin-top: 5px;">[% cve.cve %]</p>
                                                         <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("CVSS score") %]</p>

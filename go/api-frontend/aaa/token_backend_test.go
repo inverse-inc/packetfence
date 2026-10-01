@@ -143,6 +143,9 @@ func (tb *Blackhole) TokenIsValid(token string) bool {
 func (tb *Blackhole) TouchTokenInfo(token string) {
 }
 
+func (tb *Blackhole) InvalidateToken(token string) {
+}
+
 func (tb *Blackhole) Type() string {
 	return "blackhole"
 }

@@ -198,6 +198,17 @@ func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	log.Logger().Error(err.Error())
 }
 
+func (tb *DbTokenBackend) InvalidateToken(token string) {
+	db, err := tb.getDB()
+	if err != nil {
+		log.Logger().Error(err.Error())
+		return
+	}
+	if _, err := db.Exec("DELETE FROM chi_cache WHERE `key` = ?", tokenKey(tb, token)); err != nil {
+		log.Logger().Error(err.Error())
+	}
+}
+
 func (tb *DbTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
 	return AdminActionsForToken(ctx, tb, token)
 }
