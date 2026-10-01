@@ -8,7 +8,9 @@ export const schema = () => yup.object({
   radius_attributes: yup.string().nullable().label(i18n.t('Attributes')),
   username_attributes: yup.string().nullable().label(i18n.t('Attributes')),
   ocsp_url: yup.string().nullable().label(i18n.t('URL')),
-  ocsp_timeout: yup.string().nullable().label(i18n.t('Timeout'))
+  ocsp_timeout: yup.string().nullable().label(i18n.t('Timeout')),
+  radiusd_max_servers: yup.string().nullable().label(i18n.t('RADIUS worker threads'))
+    .minAsInt(1, i18n.t('Minimum 1.'))
 })
 
 export default schema

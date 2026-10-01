@@ -355,6 +355,21 @@ has_field 'channel_binding' => (
     default => 'disabled',
 );
 
+# Join the domain over LDAPS even when the machine account goes to the default
+# Computers container (impacket-addcomputer -method=LDAPS instead of SAMR).
+# The admin UI has shown this toggle since "Add force LDAP" (b4d5b7912a) but the
+# field was never declared here, so the validated item handed to create() lost
+# it and the join always used SAMR (#9092).
+has_field 'force_ldap' => (
+    type            => 'Toggle',
+    label           => 'Force LDAP',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+        help => 'Always use LDAPS to create the machine account, even when the OU is the default Computers container.' },
+);
+
 
 has_field 'encryption' =>
   (

@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-//easyjson:json
 type PfFlowHeader struct {
 	AgentAddr      netip.Addr `json:"agent_addr"`
 	Timestamp      uint64     `json:"timestamp"`
@@ -19,13 +18,11 @@ type PfFlowHeader struct {
 	EngineId       uint8      `json:"engine_id"`
 }
 
-//easyjson:json
 type PfFlows struct {
 	Header PfFlowHeader `json:"header"`
 	Flows  *[]PfFlow    `json:"flows"`
 }
 
-//easyjson:json
 type PfFlow struct {
 	SrcIp           netip.Addr `json:"src_ip,omitempty"`
 	DstIp           netip.Addr `json:"dst_ip,omitempty"`
@@ -60,6 +57,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 	switch f.BiFlow {
 	default:
 		return EventKey{
+			AgentAddr: h.AgentAddr,
 			DomainID:  h.DomainID,
 			FlowSeq:   h.FlowSeq,
 			SrcIp:     f.SrcIp,
@@ -70,6 +68,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	case 1:
 		return EventKey{
+			AgentAddr: h.AgentAddr,
 			DomainID:  h.DomainID,
 			FlowSeq:   h.FlowSeq,
 			SrcIp:     f.SrcIp,
@@ -80,6 +79,7 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	case 2:
 		return EventKey{
+			AgentAddr: h.AgentAddr,
 			DomainID:  h.DomainID,
 			FlowSeq:   h.FlowSeq,
 			DstIp:     f.SrcIp,

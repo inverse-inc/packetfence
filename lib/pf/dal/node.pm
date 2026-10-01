@@ -94,7 +94,26 @@ sub pre_save {
     my ($self) = @_;
     my $voip = $self->voip;
     $self->{voip} = 'no' if !defined ($voip) || $voip ne 'yes';
+    my $old_data = $self->__old_data;
+    if ($old_data && ($old_data->{status} // '') ne 'reg' && missing_regdate($self->{status}, $self->{regdate})) {
+        $self->{regdate} = $self->now;
+    }
     return $self->_update_category_ids;
+}
+
+=head2 missing_regdate
+
+Returns true when a node written with this status and regdate would be
+registered without a registration date.
+
+=cut
+
+sub missing_regdate {
+    my ($status, $regdate) = @_;
+    return 0 if ($status // '') ne 'reg';
+    return 1 if !defined $regdate;
+    return 0 if ref $regdate;
+    return $regdate eq '' || $regdate eq $ZERO_DATE;
 }
 
 =head2 after_create_hook
@@ -182,6 +201,10 @@ sub _insert_data {
     }
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
        $data->{detect_date} = $self->now;
+    }
+
+    if (missing_regdate($data->{status}, $data->{regdate})) {
+       $data->{regdate} = $self->now;
     }
 
     $data->{mac} = clean_mac($data->{mac});

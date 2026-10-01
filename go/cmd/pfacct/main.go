@@ -45,6 +45,7 @@ func main() {
 	go func() {
 		<-c
 		rs.Shutdown(context.Background())
+		pfacct.stopBalancesInUseRefresher()
 		if processor != nil {
 			processor.Stop()
 		}

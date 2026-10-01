@@ -39,18 +39,28 @@ sub connect_redis {
 
 sub connectorServerApiClient {
     my ($self) = @_;
+    my ($client) = $self->connectorServerApiClientWithOwnership;
+    return $client;
+}
+
+# Same as connectorServerApiClient but also reports whether the client points at
+# the pfconnector server instance that actually holds this connector's tunnel
+# (the address it registered in Redis when it connected) rather than at the
+# generic unified API client.
+sub connectorServerApiClientWithOwnership {
+    my ($self) = @_;
     #TODO: get this out of redis_queue
     my $redis = $self->connect_redis;
     if(my $server = $redis->get($Config{pfconnector}{redis_tunnels_namespace}.$self->id)) {
         if(exists($connections{$server})) {
-            return $connections{$server};
+            return ($connections{$server}, 1);
         }
         my $uri = URI->new($server);
         $connections{$server} = pf::api::unifiedapiclient->new(proto => $uri->scheme, host => $uri->host, port => $uri->port);
-        return $connections{$server};
+        return ($connections{$server}, 1);
     }
     else {
-        return pf::api::unifiedapiclient->default_client;
+        return (pf::api::unifiedapiclient->default_client, 0);
     }
 }
 
@@ -77,7 +87,7 @@ sub dynreverse {
         }
     }
 
-    my $client = $self->connectorServerApiClient;
+    my ($client, $owns_tunnel) = $self->connectorServerApiClientWithOwnership;
     my $connector_conn = $client->call("POST", "/api/v1/pfconnector/dynreverse", {
         to => $to,
         connector_id => $self->id,
@@ -99,7 +109,13 @@ sub dynreverse {
         $connector_conn->{host} = $client->host;
     }
     elsif ($ENV{PFCONNECTOR_SERVICE_HOST}) {
-        $connector_conn->{host} = $ENV{PFCONNECTOR_SERVICE_HOST};
+        #A dynreverse port is bound on the single pfconnector instance that owns the
+        #tunnel and, unlike the static connections, it is never published on the
+        #pfconnector k8s Service. Sending to the Service ClusterIP on such a port has
+        #no kube-proxy rule behind it, so the packets are silently dropped: RADIUS
+        #CoA/Disconnect and SNMP going through a connector simply time out and nothing
+        #ever reaches the connector. Dial the owning instance directly when we know it.
+        $connector_conn->{host} = $owns_tunnel ? $client->host : $ENV{PFCONNECTOR_SERVICE_HOST};
     }
     elsif ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
         $connector_conn->{host} = "containers-gateway.internal";

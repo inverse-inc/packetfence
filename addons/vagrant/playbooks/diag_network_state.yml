@@ -1,0 +1,60 @@
+---
+# TEMPORARY diagnostic run by bake-vagrant-img.sh after sysprep, before halt.
+# Shows network state and selected configuration fields to diagnose a missing
+# mgmt-NIC IP (vagrant-libvirt wait_till_up timeout), without dumping secrets.
+# Remove once the bake's post-sysprep networking is sorted.
+
+- hosts: all
+  name: Dump network configuration (diagnostic)
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Collect network state
+      ansible.builtin.shell: |
+        set +e
+        echo "===== ip -br link ====="; ip -br link
+        echo "===== ip -br addr ====="; ip -br addr
+        echo "===== IPv4 routes ====="; ip -4 route show
+        echo "===== IPv6 routes ====="; ip -6 route show
+        echo "===== nmcli dev status ====="; nmcli dev status 2>/dev/null
+        echo "===== nmcli con show ====="; nmcli -t -f NAME,DEVICE,TYPE,AUTOCONNECT con show 2>/dev/null
+        echo "===== NetworkManager addressing (selected fields) ====="
+        nmcli -g UUID con show 2>/dev/null | while IFS= read -r uuid; do
+          [ -n "$uuid" ] || continue
+          nmcli -f connection.interface-name,ipv4.method,ipv4.addresses,ipv4.gateway,ipv4.routes,ipv6.method,ipv6.addresses,ipv6.gateway,ipv6.routes con show uuid "$uuid" 2>/dev/null
+        done
+        # Show the on-disk ifupdown settings after sysprep. Never print hooks,
+        # WPA options, comments, or arbitrary trailing values from these files.
+        echo "===== ifupdown addressing (selected fields) ====="
+        for config in /etc/network/interfaces /etc/network/interfaces.d/*; do
+          [ -f "$config" ] || continue
+          awk '
+            { sub(/#.*/, "") }
+            $1 == "iface" && ($3 == "inet" || $3 == "inet6") {
+              print FILENAME ":", $1, $2, $3, $4; next
+            }
+            $1 ~ /^(address|netmask|gateway)$/ {
+              print FILENAME ":", $1, $2
+            }
+          ' "$config"
+        done
+        # Configuration contents can include credentials; list files only.
+        echo "===== /etc/NetworkManager/NetworkManager.conf ====="; ls -l /etc/NetworkManager/NetworkManager.conf 2>/dev/null
+        echo "===== /etc/NetworkManager/conf.d ====="; ls -la /etc/NetworkManager/conf.d 2>/dev/null
+        echo "===== system-connections ====="; ls -la /etc/NetworkManager/system-connections 2>/dev/null
+        echo "===== /etc/network/interfaces (+ .d) ====="; ls -l /etc/network/interfaces 2>/dev/null; ls -la /etc/network/interfaces.d 2>/dev/null
+        echo "===== /etc/netplan ====="; ls -la /etc/netplan 2>/dev/null
+        echo "===== /etc/systemd/network ====="; ls -la /etc/systemd/network 2>/dev/null
+        echo "===== service states ====="; systemctl is-enabled NetworkManager systemd-networkd networking 2>&1
+        echo "===== ssh host keys ====="; ls -la /etc/ssh/ssh_host_* 2>&1
+        echo "===== ssh service ====="; systemctl is-enabled ssh.service sshd.service regenerate-ssh-host-keys.service 2>&1; systemctl is-active ssh.service sshd.service 2>&1
+        echo "===== listening :22 ====="; ss -tlnp 2>/dev/null | grep -E ':22 ' || echo "(nothing on :22)"
+        echo "===== iptables ssh/eth0 rules ====="; iptables-save 2>/dev/null | grep -iE 'ssh|dport 22|--dport 22|-i eth0|192.168.121' || echo "(no matching iptables rules)"
+        true
+      register: net_state
+      changed_when: false
+
+    - name: Show network state
+      ansible.builtin.debug:
+        var: net_state.stdout_lines

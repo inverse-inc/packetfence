@@ -20,9 +20,16 @@ import (
 var AnyPrefix = netip.MustParsePrefix("0.0.0.0/0")
 
 func ParseAcl(acl string) (Matcher, error) {
-	parts := strings.Fields(acl)
+	str := strings.TrimSpace(acl)
+	//Remove comment
+	if len(str) > 1 {
+		if i := strings.IndexRune(str[1:], '#'); i >= 0 {
+			str = str[:i+1]
+		}
+	}
+	parts := strings.Fields(str)
 	if len(parts) == 0 {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 
 	i := 0
@@ -30,7 +37,7 @@ func ParseAcl(acl string) (Matcher, error) {
 	hasDstMac := false
 	switch parts[i] {
 	default:
-		return Matcher{}, fmt.Errorf("Invalid Action")
+		return Matcher{}, fmt.Errorf("Invalid Action: '%s'", acl)
 	case "permit", "deny":
 		matcher.Action = parts[i]
 	case "#permit", "#deny":
@@ -40,28 +47,28 @@ func ParseAcl(acl string) (Matcher, error) {
 
 	i++
 	if i >= len(parts) {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 
 	switch parts[i] {
 	default:
-		return Matcher{}, fmt.Errorf("Invalid Proto")
+		return Matcher{}, fmt.Errorf("Invalid Proto: '%s'", acl)
 	case "tcp", "udp", "icmp":
 		matcher.Proto = IpProtocol(parts[i])
 	}
 
 	i++
 	if i >= len(parts) {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 	if parts[i] != "any" {
-		return Matcher{}, fmt.Errorf("Invalid Src Address")
+		return Matcher{}, fmt.Errorf("Invalid Src Address: '%s'", acl)
 	}
 
 	matcher.SrcNet = AnyPrefix
 	i++
 	if i >= len(parts) {
-		return Matcher{}, fmt.Errorf("Invalid Syntax")
+		return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 	}
 
 	switch parts[i] {
@@ -69,20 +76,20 @@ func ParseAcl(acl string) (Matcher, error) {
 
 		ip, err := netip.ParseAddr(parts[i])
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address '%s': %w", acl, err)
 		}
 
 		i++
 		if i >= len(parts) {
-			return Matcher{}, fmt.Errorf("Invalid Syntax")
+			return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 		}
 		mask, err := netip.ParseAddr(parts[i])
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address '%s': %w", acl, err)
 		}
 
 		if !mask.Is4() {
-			return Matcher{}, fmt.Errorf("Invalid Dst Wildcard Invalid Syntax")
+			return Matcher{}, fmt.Errorf("Invalid Dst Wildcard Invalid Syntax: '%s'", acl)
 		}
 
 		mask4 := mask.As4()
@@ -97,12 +104,12 @@ func ParseAcl(acl string) (Matcher, error) {
 	case "host":
 		i++
 		if i >= len(parts) {
-			return Matcher{}, fmt.Errorf("Invalid Syntax")
+			return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 		}
 		if hasDstMac {
 			destMac, err := mac.NewFromString(parts[i])
 			if err != nil {
-				return Matcher{}, fmt.Errorf("Invalid Dst Mac: %w", err)
+				return Matcher{}, fmt.Errorf("Invalid Dst Mac '%s': %w", acl, err)
 			}
 
 			matcher.DstNet = AnyPrefix
@@ -112,7 +119,7 @@ func ParseAcl(acl string) (Matcher, error) {
 
 		p, err := netip.ParsePrefix(parts[i] + "/32")
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address '%s': %w", acl, err)
 		}
 
 		matcher.DstNet = p
@@ -122,16 +129,16 @@ func ParseAcl(acl string) (Matcher, error) {
 	if i < len(parts) {
 		switch parts[i] {
 		default:
-			return Matcher{}, fmt.Errorf("Invalid port operation")
+			return Matcher{}, fmt.Errorf("Invalid port operation: '%s'", acl)
 		case "eq":
 			matcher.Op = parts[i]
 			i++
 			if i >= len(parts) {
-				return Matcher{}, fmt.Errorf("Invalid Syntax")
+				return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
 			}
 			port, err := strconv.ParseUint(parts[i], 10, 16)
 			if err != nil {
-				return Matcher{}, fmt.Errorf("Invalid port:%w", err)
+				return Matcher{}, fmt.Errorf("Invalid port '%s': %w", acl, err)
 			}
 			matcher.Port = int(port)
 		}
@@ -151,7 +158,11 @@ type Matcher struct {
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
-	return m.Port == ne.DestPort && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
+	if m.Action == "deny" {
+		return false
+	}
+
+	return (m.Op == "" || m.Port == ne.DestPort) && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
 }
 
 func (m *Matcher) matchDest(ne *NetworkEvent) bool {
@@ -246,9 +257,10 @@ type PolicyLookup struct {
 	ImplictPolices []Policy
 }
 
-func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) *EnforcementInfo {
-	srcMac, srcRole := ne.GetSrcRole(ctx, db)
-	dstMac, dstRole := ne.GetDstRole(ctx, db)
+// LookupWithRoles resolves the enforcement info of an event whose node roles
+// were already looked up, so callers can batch the role queries for many
+// events (see UpdateNetworkEvents).
+func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
 	if ei := l.LookupByMac(srcMac, ne); ei != nil {
 		return ei
 	}
@@ -346,12 +358,82 @@ func StorePolicyLookup(p *PolicyLookup) {
 	storePolicyLookup.Store(p)
 }
 
-func UpdateNetworkEvent(ctx context.Context, db *sql.DB, ne *NetworkEvent) {
-	lookup := GetPolicyLookup()
-	ei := lookup.Lookup(ctx, db, ne)
-	if ei != nil {
-		ne.EnforcementInfo = ei
+const nodeRolesLookupChunk = 1000
+
+// roleKey normalizes a MAC for the nodeRoles map. node.mac is compared
+// case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map is not, and
+// MACs filled in from ip4log keep whatever case the writer used.
+func roleKey(mac string) string {
+	return strings.ToLower(mac)
+}
+
+// UpdateNetworkEvents sets the enforcement info of every event, resolving the
+// node roles with one query per chunk of distinct MACs instead of two queries
+// per event.
+func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent) {
+	macSet := make(map[string]struct{}, len(events))
+	for _, ne := range events {
+		if mac := inventoryMac(ne.SourceInventoryItem); mac != "" {
+			macSet[roleKey(mac)] = struct{}{}
+		}
+
+		if mac := inventoryMac(ne.DestInventoryitem); mac != "" {
+			macSet[roleKey(mac)] = struct{}{}
+		}
 	}
+
+	macs := make([]string, 0, len(macSet))
+	for mac := range macSet {
+		macs = append(macs, mac)
+	}
+
+	roles, complete := nodeRoles(ctx, db, macs)
+	if !complete {
+		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based and implicit policies are not applied to its %d network events, MAC policies still are", len(events))
+	}
+
+	applyEnforcement(GetPolicyLookup(), events, roles, complete)
+}
+
+// applyEnforcement sets the enforcement info of every event from the
+// pre-resolved roles. When rolesComplete is false a role query failed for
+// some chunk of MACs and an absent role can no longer be told from "no role":
+// only the MAC policies, which do not depend on the lookup, are applied, and
+// the role-based and implicit policies are skipped rather than evaluated with
+// a role that may be wrong. Events then go out without enforcement info for
+// this window, as they do when no policy matches.
+func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[string]string, rolesComplete bool) {
+	for _, ne := range events {
+		srcMac := inventoryMac(ne.SourceInventoryItem)
+		dstMac := inventoryMac(ne.DestInventoryitem)
+
+		var ei *EnforcementInfo
+		if rolesComplete {
+			ei = lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)])
+		} else if ei = lookup.LookupByMac(srcMac, ne); ei == nil {
+			ei = lookup.LookupByMac(dstMac, ne)
+		}
+
+		if ei != nil {
+			ne.EnforcementInfo = ei
+		}
+	}
+}
+
+// nodeRoles maps each known MAC (lower-cased, see roleKey) to its role name
+// ("" when the node has no role). MACs absent from the node table are absent
+// from the result, which also yields "" on lookup, the same as the per-event
+// query did. macs must already be roleKey-normalized. The boolean is false
+// when a chunk query failed, in which case up to nodeRolesLookupChunk MACs
+// are missing from the map for a reason other than "unknown node".
+func nodeRoles(ctx context.Context, db *sql.DB, macs []string) (map[string]string, bool) {
+	if db == nil {
+		return map[string]string{}, true
+	}
+
+	return queryStringPairs(ctx, db, "nodeRoles",
+		`SELECT LOWER(node.mac), COALESCE(node_category.name, '') FROM node LEFT JOIN node_category ON node_category.category_id = node.category_id WHERE node.mac IN (`,
+		macs, nodeRolesLookupChunk)
 }
 
 func init() {

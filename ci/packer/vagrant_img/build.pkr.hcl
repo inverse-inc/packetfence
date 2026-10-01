@@ -104,7 +104,8 @@ build {
   name    = "ad_dev"
   sources = ["source.qemu.bullseye-11"]
 
-  # Fix DHCP/DNS for QEMU user-mode networking, then refresh apt cache.
+  # Fix DHCP/DNS for QEMU user-mode networking. The Samba playbook refreshes
+  # APT after applying the EOL Debian source configuration.
   # resolv.conf is made immutable so reboots during Ansible provisioning
   # don't lose DNS (dhclient at boot would overwrite it with QEMU's 10.0.2.3).
   provisioner "shell" {
@@ -117,7 +118,6 @@ build {
       "rm -f /etc/resolv.conf",
       "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
       "chattr +i /etc/resolv.conf",
-      "apt-get update -qq",
     ]
   }
 

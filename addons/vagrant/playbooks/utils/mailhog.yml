@@ -8,10 +8,11 @@
     - inverse_inc.utils
 
   pre_tasks:
-  - name: Gather min only
+  - name: Gather min and network only
     ansible.builtin.setup:
       gather_subset:
         - "!all"
+        - "network"
 
   roles:
     - role: mailhog

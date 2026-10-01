@@ -138,6 +138,11 @@ sql {
 	# Remove stale session if checkrad does not see a double login
 	delete_stale_sessions = yes
 
+	# PacketFence queries compare against '0000-00-00 00:00:00', which a
+	# strict server sql_mode (the MySQL 8 default) rejects. The sql
+	# instances below share this module's pool, so this covers them too.
+	open_query = "SET SESSION sql_mode='NO_ENGINE_SUBSTITUTION'"
+
 	# Write SQL queries to a logfile. This is potentially useful for tracing
 	# issues with authorization queries.  See also "logfile" directives in
 	# mods-config/sql/main/*/queries.conf.  You can enable per-section logging

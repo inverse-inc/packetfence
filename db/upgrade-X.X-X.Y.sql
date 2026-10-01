@@ -206,6 +206,35 @@ CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acl
 DELETE FROM switch_observability WHERE switch_id IN ('', 'invalid IP', '0.0.0.0');
 
 --
+-- FREERADIUS_DECODE: decode byte-wise so the function works on MySQL 8
+-- (it raised ERROR 3854 for every input there) and returns valid UTF-8
+--
+\! echo "Updating FREERADIUS_DECODE...";
+DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
+DELIMITER ;;
+CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+    -- Decode byte-wise: MySQL 8 refuses to mix CHAR(128..255) into a utf8mb4 string.
+    DECLARE result MEDIUMBLOB;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = CONVERT(str USING binary);
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)) USING binary), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(HEX(ind), 2, 0)) USING binary), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    -- Bytes that do not form valid utf8mb4 cannot be returned; keep the input as-is.
+    IF NOT (CONVERT(CONVERT(result USING utf8mb4) USING binary) <=> result) THEN
+        RETURN str;
+    END IF;
+    RETURN CONVERT(result USING utf8mb4);
+END ;;
+DELIMITER ;
+
+--
 -- Bound the metadata-lock wait for every ALTER below. lock_wait_timeout defaults
 -- to 86400s, so a single blocked ALTER TABLE would park every later query on the
 -- table behind its metadata lock for up to a day. Fail fast instead -- the

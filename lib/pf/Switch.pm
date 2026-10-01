@@ -1961,6 +1961,30 @@ sub getRegExpFromList {
     return $regexp;
 }
 
+=item lldpRemPortIdToMac - returns the MAC address carried by an LLDP port ID
+
+lldpRemPortId is an octet string. Most switches return a MAC port ID as the
+six raw bytes, which Net::SNMP hands over as 0x001122334455. ArubaOS-CX
+returns it as text instead: 00:11:22:33:44:55. Accept both, with colon, dash
+or no separators, and an optional trailing :xx port suffix.
+
+Returns the lowercase colon separated MAC, or undef when the port ID is not a
+MAC address.
+
+=cut
+
+sub lldpRemPortIdToMac {
+    my ($self, $port_id) = @_;
+    return undef if !defined $port_id;
+    my $h = '([0-9A-F]{2})';
+    if ($port_id =~ /^(?:0x)?$h$h$h$h$h$h(?::..)?$/i
+        || $port_id =~ /^$h:$h:$h:$h:$h:$h(?::..)?$/i
+        || $port_id =~ /^$h-$h-$h-$h-$h-$h$/i) {
+        return lc("$1:$2:$3:$4:$5:$6");
+    }
+    return undef;
+}
+
 =item getBitAtPosition - returns the bit at the position specified
 
 The input must be the untranslated raw result of an snmp get_table

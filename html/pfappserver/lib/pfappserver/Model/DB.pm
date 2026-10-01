@@ -48,9 +48,10 @@ sub get_db_type {
         return
     }
 
-    my $version = $data->[0];
-    ($version, my $type) = split('-', $version);
-    $type //= "MySQL";
+    # MySQL builds can carry a suffix too (8.0.36-0ubuntu..., cloud builds),
+    # so only a version string naming MariaDB is MariaDB.
+    my ($version) = split('-', $data->[0]);
+    my $type = $data->[0] =~ /mariadb/i ? "MariaDB" : "MySQL";
     return ($version, $type);
 }
 
@@ -236,7 +237,7 @@ sub create {
     my ( $status_msg, $result );
 
     my $dbh = DBI->connect("dbi:mysql:mysql_socket=/var/lib/mysql/mysql.sock", $root_user, $root_password);
-    $result = $dbh->do("CREATE DATABASE $db DEFAULT CHARACTER SET = 'utf8mb4'");
+    $result = $dbh->do("CREATE DATABASE $db DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'");
     if ( !$result ) {
         $status_msg = ["Error in creating the database [_1]",$db];
         $logger->warn($DBI::errstr);
@@ -347,7 +348,7 @@ sub create_database {
     }
 
     my $db_quoted = $dbh->quote_identifier($db);
-    $result = $dbh->do("CREATE DATABASE $db_quoted DEFAULT CHARACTER SET = 'utf8mb4'");
+    $result = $dbh->do("CREATE DATABASE $db_quoted DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'");
     if ( !$result ) {
         $status_msg = ["Error in creating the database [_1]", $db];
         $logger->warn($DBI::errstr);
@@ -382,7 +383,7 @@ sub secureInstallation {
     my ($status, $status_msg);
 
     # 1. Set a password for the database "root" user (different from the Linux root user!), which is blank by default;
-    my $sql_query = "set password for ?\@'localhost'  = password(?)";
+    my $sql_query = "ALTER USER ?\@'localhost' IDENTIFIED BY ?";
     $dbHandler->do($sql_query, undef, $root_user, $root_password);
     if ( $DBI::errstr ) {
         $status_msg = ["Error changing root user [_1] password",$root_user ];
