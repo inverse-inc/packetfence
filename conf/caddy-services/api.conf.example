@@ -79,6 +79,12 @@
 		reverse_proxy /api/v1/firewall_sso/* {$PF_SERVICES_URL_PFSSO} {
 		}
 
+                # pfchatbot API access
+                handle_path /api/v1/pfchatbot/* {
+                    reverse_proxy {$PF_SERVICES_URL_PFCHATBOT} {
+                    }
+                }
+
 		# ldapexplorer API access
 		reverse_proxy /api/v1/ldap/search {$PF_SERVICES_URL_PFLDAPEXPLORER} {
 		}
