@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Email authentication sources have a new `Wait for activation` option (`wait_for_activation`). When enabled, the device is not granted temporary network access after registering: it stays on the captive portal and is registered automatically once the activation link is clicked, typically from another device such as a phone. The email activation timeout then only bounds the validity of the link
+
 === Enhancements
 
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes

@@ -43,6 +43,19 @@ has_field 'activation_domain' =>
     },
   );
 
+has_field 'wait_for_activation' =>
+  (
+   type            => 'Toggle',
+   label           => 'Wait for activation',
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default => pf::Authentication::Source::EmailSource->meta->get_attribute('wait_for_activation')->default,
+   tags => {
+       after_element => \&help,
+       help => 'Keep the device on the captive portal until the activation link is clicked, typically from another device (e.g. a phone). No temporary network access is granted and the Email Activation Timeout only bounds the validity of the link.',
+   },
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2026 Inverse inc.
