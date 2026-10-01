@@ -689,6 +689,13 @@ These rules are available in thoses scopes:
 All the `packetfence.*` and `eduroam.*` scopes are explained in
 [filename]`/user/local/pf/conf/radius_filters.conf`.
 
+In the `pre-proxy` and `post-proxy` scopes the filter receives the original
+RADIUS request (so `switch`, `mac` and the `radius_request.*` criteria work
+as in the other scopes) plus the proxy list of the section under its own key:
+`radius_request.proxy-request.*` holds the copy sent to the home server and
+`radius_request.proxy-reply.*` holds the home server's answer, for example
+`radius_request.proxy-reply.Tunnel-Private-Group-Id`.
+
 And can be defined using different criteria like:
 
 [source,ini]
