@@ -1,3 +1,12 @@
+fingerbank (4.3.6) unstable; urgency=medium
+
+  * Remove local combinations: purge the local combination table (Local
+    schema 4.2) and stop matching against it, so user-defined combinations
+    can no longer override the upstream Fingerbank result. Drops the
+    record_unmatched setting, which only that local matcher used.
+
+ -- Inverse inc. <info@inverse.ca>  Wed, 23 Sep 2026 12:00:00 -0400
+
 fingerbank (4.3.5) unstable; urgency=medium
 
   * Stop re-materializing the config graph on every read_config call: the

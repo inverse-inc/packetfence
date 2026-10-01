@@ -68,13 +68,6 @@ description=<<EOT
 Whether or not the collector should perform network behavior analysis of the endpoints it sees.
 EOT
 
-[query.record_unmatched]
-type=toggle
-options=enabled|disabled
-description=<<EOT
-Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution
-EOT
-
 [collector.query_cache_time]
 type=numeric
 description=<<EOT
