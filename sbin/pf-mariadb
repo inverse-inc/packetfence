@@ -328,6 +328,7 @@ if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
     while($RUNNING) {
         pause;
     }
+    stop_mysql();
     exit;
 }
 
@@ -360,6 +361,7 @@ while($RUNNING){
     sleep 5;
 }
 
+stop_mysql();
 
 END {
     deletepid();
@@ -382,11 +384,21 @@ sub normal_sighandler {
         kill(SIGTERM, $MYSQLD_SPAWNER_PID) if($MYSQLD_SPAWNER_PID);
         kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
         kill(SIGTERM, $QUORUM_CLIENT_SERVER_PID) if($QUORUM_CLIENT_SERVER_PID);
-        `pkill mysqld`;
-        `pkill mariadbd`;
+        # no fork in a signal handler (deadlocks): stop_mysql runs pkill
         deletepid();
-        $logger->debug( "pfmariadb caught SIG" . $_[0] . " - terminating" );
     }
+}
+
+=head2 stop_mysql
+
+Kill leftover mysqld processes once the main loop has stopped
+
+=cut
+
+sub stop_mysql {
+    system('pkill', 'mysqld');
+    system('pkill', 'mariadbd');
+    $logger->debug("pfmariadb terminating");
 }
 
 =head2 child_sighandler
