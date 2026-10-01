@@ -95,6 +95,38 @@ done
             'pf1deb12localdev=pfdeb12localdev', 'pfdeb12localdev=pfdeb12localdev',
             'pf3el8localdev=pfel8localdev', 'pf1deb12dev=pfdeb12dev', 'pfdeb12='])
 
+    def baked_import_calls(self, vms):
+        return self.bash(f'''
+set -o errexit
+VAGRANT_DIR=/tmp VAGRANT_PF_DOTFILE_PATH=/dot VAGRANT_UP_OPTS=''
+log_subsection() {{ :; }}
+filter_vagrant_progress() {{ cat; }}
+vagrant() {{ echo "VAGRANT $*"; }}
+ansible-playbook() {{ echo "PLAY $*"; }}
+start_baked_pf_vms {vms}
+echo END
+''')
+
+    def test_baked_import_boots_together_and_runs_playbooks_once(self):
+        result = self.baked_import_calls('pf1deb12localdev pf2deb12localdev pf3deb12localdev')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [
+            'VAGRANT up pf1deb12localdev pf2deb12localdev pf3deb12localdev',
+            'PLAY playbooks/cluster_prep_baked.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
+            'PLAY playbooks/refresh_network_post_import.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
+            'PLAY playbooks/cluster_readdress_baked.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
+            'PLAY playbooks/register_rhel_subscription.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
+            'END'])
+
+    def test_baked_import_of_a_standalone_skips_cluster_playbooks(self):
+        result = self.baked_import_calls('pfdeb12dev')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [
+            'VAGRANT up pfdeb12dev',
+            'PLAY playbooks/refresh_network_post_import.yml -l pfdeb12dev',
+            'PLAY playbooks/register_rhel_subscription.yml -l pfdeb12dev',
+            'END'])
+
     def test_ordinary_runs_keep_existing_scenario_path(self):
         result = self.bash('''
 SCENARIOS_TO_RUN=configurator PF_VM_NAMES=pfdeb12dev INT_TEST_VM_NAMES=''

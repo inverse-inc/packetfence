@@ -496,6 +496,30 @@ start_vm() {
     fi
 }
 
+# Boot baked clones together and prepare them in one ansible run per playbook;
+# the heavy PF starts in those playbooks are throttled to one node at a time.
+start_baked_pf_vms() {
+    local vm_names=$* vm cluster_vms=""
+    local vm_list=${vm_names// /,}
+    for vm in ${vm_names}; do
+        [[ "${vm}" =~ ^pf[123](deb12|el8)(local)?dev$ ]] && cluster_vms="${cluster_vms},${vm}"
+    done
+    cluster_vms=${cluster_vms#,}
+    ( cd "${VAGRANT_DIR}"
+      SKIP_SITE_PROVISION=yes VAGRANT_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH}" \
+          vagrant up ${vm_names} ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
+    if [ -n "${cluster_vms}" ]; then
+        ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/cluster_prep_baked.yml -l "${cluster_vms}" )
+    fi
+    log_subsection "Refresh network on ${vm_list} (post-import boot)"
+    ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/refresh_network_post_import.yml -l "${vm_list}" )
+    if [ -n "${cluster_vms}" ]; then
+        ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/cluster_readdress_baked.yml -l "${cluster_vms}" )
+    fi
+    log_subsection "Re-register RHEL subscription on ${vm_list} (post-import)"
+    ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/register_rhel_subscription.yml -l "${vm_list}" )
+}
+
 start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision PacketFence $vm_names"
@@ -504,9 +528,7 @@ start_and_provision_pf_vm() {
         # Validate the box before creating any clones; fallback applies to all nodes.
         register_vagrant_box_or_fallback "${1}"
         if [ "${USE_VAGRANT_BOX}" = yes ]; then
-            for vm in ${vm_names}; do
-                start_vm "${vm}" "${VAGRANT_PF_DOTFILE_PATH}"
-            done
+            start_baked_pf_vms ${vm_names}
             return
         fi
     fi

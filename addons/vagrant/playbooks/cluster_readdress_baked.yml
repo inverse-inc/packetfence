@@ -128,6 +128,7 @@
           changed_when: true
 
     - name: Start services with the clone addresses
+      throttle: 1
       ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
       changed_when: true
 
