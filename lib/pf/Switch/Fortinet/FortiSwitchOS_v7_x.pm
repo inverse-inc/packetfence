@@ -293,6 +293,52 @@ sub getVersion {
     return 0;
 }
 
+=item identifyConnectionType
+
+Determine Connection Type based on radius attributes
+
+=cut
+
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    # FortiSwitchOS always sends NAS-Port-Type=Ethernet regardless of context
+    # (admin/CLI login, 802.1X, or MAB) - unlike Cisco, it cannot be used to
+    # distinguish a CLI/admin login from a network port request.
+    # NAS-Port / NAS-Port-Id are however only present for requests tied to an
+    # actual physical port (802.1X/MAB); an admin/CLI login has no port
+    # context and omits both attributes.
+    if ( !exists $radius_request->{'NAS-Port'} && !exists $radius_request->{'NAS-Port-Id'} ) {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
+        $connection->transport('Virtual');
+    } else {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($FALSE);
+    }
+}
+
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+    $radius_reply_ref->{'Reply-Message'} = $args->{'message'}." . ".$radius_reply_ref->{'Reply-Message'} if exists $args->{'message'};
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
 
 =head1 AUTHOR
 
