@@ -220,6 +220,7 @@ sub updateSystemd {
         system("sudo systemctl disable monit")
     }
     system("sudo systemctl daemon-reload");
+    pf::services::promote_default_systemd_target() if $service eq 'pf';
     return $EXIT_SUCCESS;
 }
 

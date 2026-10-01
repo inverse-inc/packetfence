@@ -27,6 +27,33 @@ As a workaround, we start `dhclient` as a daemon only for this interface with
 a specific config to **not** override `/etc/resolv.conf`: PacketFence server
 will have two IP addresses one static and another one dynamic.
 
+### Before management is configured
+
+`05_check_unset_management_config.yml` checks Netdata and RADIUS configuration
+generation before step 1, using the real unset management network and standalone
+configuration. It writes only to temporary directories and does not start services.
+
+Step 1 is what creates the management interface, so before it runs
+`pf::config::management_network` is `''` rather than an interface object. Note
+that `''` is defined, which is why the guards use `ref()`.
+
+Installation used to leave `packetfence.target` as the boot target, so a reboot
+before the wizard started these services with no management interface and they
+failed. The installer now boots `packetfence-base.target` until the wizard
+completes. These checks remain useful because the generators are still reached
+by `pfcmd service pf generateconfig` and by starting a service by hand.
+
+The checks cover the Netdata management lookup, RADIUS main/proxy generation,
+omission of an empty pfacct proxy source address, and the standalone cluster
+helper invoked by RADIUS generation. They do not force cluster/slave modes or
+exercise HAProxy DB, Kafka, or pfacct container port mappings.
+
+`06_check_iptables_without_management.yml` starts the firewall unit and checks
+that it stops successfully without automatic restarts while management is unset.
+It also checks that the shutdown hook restores ACCEPT policies and Docker NAT.
+The existing step 80 checks that wizard completion starts iptables normally and
+installs the management SSH rule.
+
 ### Step 1
 1. Configure second interface as management with portal daemon (to test other
    feature later)

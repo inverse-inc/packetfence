@@ -681,11 +681,18 @@ echo "Generate values in kafka.conf"
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
 
-if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
-    echo "This is an upgrade on a clustered system. We don't change the default systemd target."
-else
+# Choose a boot target only on first install. An existing server may be
+# configured outside the wizard, so its flag must not demote an upgrade.
+if [ "$1" != "1" ]; then
+    echo "Keeping the existing default systemd target during upgrade."
+elif [ `systemctl get-default` = "packetfence-cluster.target" ]; then
+    echo "A clustered boot target is already set. We don't change the default systemd target."
+elif grep -qE '^[[:space:]]*configurator[[:space:]]*=[[:space:]]*disabled' /usr/local/pf/conf/pf.conf 2>/dev/null; then
     echo "Setting packetfence.target as the default systemd target."
     /bin/systemctl set-default packetfence.target
+else
+    echo "Configurator not completed. Setting packetfence-base.target as the default systemd target."
+    /bin/systemctl set-default packetfence-base.target
 fi
 
 # Install the monitoring scripts signing key
