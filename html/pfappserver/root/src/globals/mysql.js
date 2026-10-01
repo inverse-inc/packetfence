@@ -41,6 +41,10 @@ export const MysqlLimits = {
   }
 }
 
+// date range the backend accepts (pf::util::validate_date), 32-bit epoch limits
+export const MysqlDatetimeMin = '1970-01-01'
+export const MysqlDatetimeMax = '2038-01-18'
+
 class MysqlColumn {}
 export class MysqlString extends MysqlColumn {}
 export class MysqlNumber extends MysqlColumn {}

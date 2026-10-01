@@ -57,6 +57,8 @@
           button-only right
           button-variant="light"
           :locale="$i18n.locale"
+          :max="max"
+          :min="min"
           :state="inputState"
           :value="inputValue"
           @input="onInput"
@@ -85,6 +87,7 @@
 <script>
 import { ref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
+import { MysqlDatetimeMax, MysqlDatetimeMin } from '@/globals/mysql'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
@@ -98,10 +101,12 @@ export const props = {
   ...useInputValueProps,
 
   min: {
-    type: [Date, String]
+    type: [Date, String],
+    default: MysqlDatetimeMin
   },
   max: {
-    type: [Date, String]
+    type: [Date, String],
+    default: MysqlDatetimeMax
   }
 }
 
