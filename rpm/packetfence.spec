@@ -1064,6 +1064,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
 %config(noreplace)      /usr/local/pf/conf/pfdns-connector.conf
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
+%config(noreplace)      /usr/local/pf/conf/pf-cluster-upgrade.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/proxysql.conf
