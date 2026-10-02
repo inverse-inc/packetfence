@@ -35,6 +35,7 @@ use pf::activation;
 use fingerbank::Config;
 use captiveportal::DynamicRouting::Module::Root;
 use captiveportal::DynamicRouting::Module::RootSSO;
+use captiveportal::DynamicRouting::Module::SelfRegSSO;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -634,6 +635,18 @@ sub _resolve_theme_assets {
     $assets{logo}           //= $self->profile->getLogo;  # config value
 
     return \%assets;
+}
+
+=head2 isSelfRegSSO
+
+return $TRUE if the root module is a SelfRegSSO (a specialisation of RootSSO, so isRootSSO is also true)
+
+=cut
+
+sub isSelfRegSSO {
+    my ($self) = @_;
+    my $root_module = $self->root_module;
+    return defined $root_module && $root_module->isa("captiveportal::DynamicRouting::Module::SelfRegSSO")
 }
 
 =head1 AUTHOR

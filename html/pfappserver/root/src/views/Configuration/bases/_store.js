@@ -149,6 +149,40 @@ const actions = {
       throw err
     })
   },
+  getSelfRegLogin: ({ state, commit }) => {
+    if (state.cache['self_reg_login']) {
+      return Promise.resolve(state.cache['self_reg_login']).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ITEM_REQUEST')
+    return api.base('self_reg_login').then(item => {
+      commit('ITEM_REPLACED', item)
+      return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsSelfRegLogin: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.baseOptions('self_reg_login').then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateSelfRegLogin: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'self_reg_login'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getAdvanced: ({ state, commit }) => {
     if (state.cache['advanced']) {
       return Promise.resolve(state.cache['advanced']).then(cache => JSON.parse(JSON.stringify(cache)))

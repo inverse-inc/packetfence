@@ -2,11 +2,14 @@ package captiveportal::PacketFence::DynamicRouting::Module::RootSSO;
 
 =head1 NAME
 
-DynamicRouting::RootModule
+DynamicRouting::Module::RootSSO
 
 =head1 DESCRIPTION
 
-Root module for Dynamic Routing
+Root module used to authenticate a user for an external application (the admin
+interface). Once the chained modules complete, the resulting node info is stored
+under a random token and the browser is redirected to the caller's callback URL
+with that token. The caller then exchanges the token on /portaltoken.
 
 =cut
 
@@ -25,10 +28,27 @@ has '+route_map' => (default => sub {
 use pf::log;
 use pf::util;
 use pf::CHI;
+use pf::config qw(%Config);
 use pf::constants qw($TRUE);
 use Bytes::Random::Secure;
+use List::MoreUtils qw(any uniq);
+use URI;
+
+=head2 cache
+
+The cache namespace where the tokens are stored. Must match the namespace read by the token endpoint.
+
+=cut
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
+
+=head2 sso_config_section
+
+The pf.conf section holding the SSO settings for this root module
+
+=cut
+
+sub sso_config_section { return 'admin_login' }
 
 has '+parent' => (required => 0);
 
@@ -59,7 +79,10 @@ sub logout {
     my ($self) = @_;
     my $callback = $self->app->session->{callback};
     $self->app->reset_session;
-    $self->app->redirect($callback."?error=canceled");
+    if (defined $callback) {
+        return $self->app->redirect($callback."?error=canceled");
+    }
+    return $self->redirect_root();
 }
 
 =head2 release
@@ -70,7 +93,54 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{root_session_token});
+    my $callback = $self->app->session->{callback};
+    unless (defined $callback) {
+        get_logger->error("No callback URL in the session, cannot hand the SSO token back to the caller");
+        $self->app->reset_session();
+        return $self->app->error("Missing callback URL. Please restart the login from the application.");
+    }
+    return $self->app->redirect($callback."?token=".$self->{root_session_token});
+}
+
+=head2 allowed_callback_hosts
+
+The hosts a callback URL may point to: the configured allow list, the host of the SSO base URL and this server's FQDN
+
+=cut
+
+sub allowed_callback_hosts {
+    my ($self) = @_;
+    my $section = $Config{$self->sso_config_section} // {};
+    my @hosts = split(/\s*,\s*/, $section->{sso_callback_allowed_hosts} // '');
+    if (my $base = $section->{sso_base_url}) {
+        my $base_host = eval { URI->new($base)->host };
+        push @hosts, $base_host if defined $base_host;
+    }
+    push @hosts, $Config{general}{hostname}.".".$Config{general}{domain};
+    return [ uniq map { lc } grep { defined $_ && length $_ } @hosts ];
+}
+
+=head2 validate_callback
+
+Returns the callback URL if it is an absolute http(s) URL whose host is allowed, undef otherwise
+
+=cut
+
+sub validate_callback {
+    my ($self, $callback) = @_;
+    my $uri = eval { URI->new($callback) };
+    my $scheme = defined $uri ? ($uri->scheme // '') : '';
+    unless ($scheme eq 'http' || $scheme eq 'https') {
+        get_logger->warn("Refusing SSO callback '$callback': not an absolute http(s) URL");
+        return undef;
+    }
+    my $host = lc($uri->host // '');
+    my $allowed = $self->allowed_callback_hosts;
+    unless (any { $_ eq $host } @$allowed) {
+        get_logger->warn("Refusing SSO callback '$callback': host '$host' is not in the allowed list (".join(",", @$allowed).")");
+        return undef;
+    }
+    return $callback;
 }
 
 =head2 execute_child
@@ -81,8 +151,13 @@ Execute the flow for this module
 
 sub execute_child {
     my ($self) = @_;
-    if ($self->app->request->param('callback')) {
-        $self->app->session->{callback} = $self->app->request->param('callback');
+    if (my $callback = $self->app->request->param('callback')) {
+        my $valid = $self->validate_callback($callback);
+        unless (defined $valid) {
+            $self->app->reset_session();
+            return $self->app->error("Invalid callback URL. Please contact your local support staff.");
+        }
+        $self->app->session->{callback} = $valid;
     }
 
     $self->SUPER::execute_child();
@@ -90,7 +165,7 @@ sub execute_child {
 
 =head2 execute_actions
 
-Register the device and apply the new node info
+Store the new node info under a random token for the callback owner to fetch
 
 =cut
 
@@ -101,7 +176,7 @@ sub execute_actions {
             NonBlocking => 1,
         );
     my $token = unpack("H*", $rand->bytes(32));
-    cache->set($token, $self->new_node_info);
+    $self->cache->set($token, $self->new_node_info);
     $self->{root_session_token} = $token;
     return $TRUE;
 }

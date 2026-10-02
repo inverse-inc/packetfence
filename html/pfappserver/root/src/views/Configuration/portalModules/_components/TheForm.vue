@@ -142,6 +142,9 @@ export const setup = (props) => {
       case 'RootSSO':
         return FormTypeRootSSO // break
 
+      case 'SelfRegSSO':
+        return FormTypeRootSSO // break
+
       case 'SelectRole':
         return FormTypeSelectRole // break
 

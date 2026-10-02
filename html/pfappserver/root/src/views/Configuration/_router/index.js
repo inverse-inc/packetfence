@@ -64,6 +64,7 @@ import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminLoginRoutes from '../adminLogin/_router'
+import SelfRegLoginRoutes from '../selfRegLogin/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
 import ConnectorsRoutes from '../connectors/_router'
 import KafkaRoutes from '../kafka/_router'
@@ -185,6 +186,7 @@ const route = {
     ...RadiusRoutes,
     ...DnsRoutes,
     ...AdminLoginRoutes,
+    ...SelfRegLoginRoutes,
     ...AdminRolesRoutes,
     ...SslCertificatesRoutes,
     ...ConnectorsRoutes,

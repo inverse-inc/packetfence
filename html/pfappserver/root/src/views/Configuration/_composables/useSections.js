@@ -158,6 +158,7 @@ export const useSections = () => {
         },
         { name: i18n.t('Admin Access'), path: '/configuration/admin_roles' },
         { name: i18n.t('Admin Login'), path: '/configuration/admin_login' },
+        { name: i18n.t('Sponsor Login'), path: '/configuration/self_reg_login' },
         { name: i18n.t('DNS Configuration'), path: '/configuration/dns' },
         { name: i18n.t('Kafka'), path: '/configuration/kafka' },
         { name: i18n.t('SSL Certificates'), path: '/configuration/certificates' },
