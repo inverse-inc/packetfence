@@ -19,10 +19,160 @@ endif::[]
 
 //=== Aruba Switch
 
-==== ArubaOS_CX_10.x and ArubaOS_Switch_16.x
+==== ArubaOS-CX 10.x
 
-The ArubaOS_CX_10.x and ArubaOS_Switch_16.x are supported by PacketFence and it
-supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
+PacketFence supports ArubaOS-CX 10.x switches in MAC Authentication, 802.1X,
+RADIUS Change of Authorization (CoA) and Dynamic ACLs. The configuration below
+was validated on ArubaOS-CX 10.14.
+
+===== Global RADIUS Configuration
+
+Define the PacketFence RADIUS server, the AAA group and the accounting:
+
+  radius-server host 192.168.1.5 key plaintext useStrongerSecret
+  aaa group server radius packetfence
+      server 192.168.1.5
+  aaa accounting port-access start-stop interim group packetfence
+
+Enable 802.1X and MAC Authentication globally and bind both methods to the
+`packetfence` group:
+
+  aaa authentication port-access dot1x authenticator
+      radius server-group packetfence
+      enable
+  aaa authentication port-access mac-auth
+      radius server-group packetfence
+      enable
+
+[WARNING]
+====
+Without `radius server-group packetfence`, port-access authentication uses the
+built-in `radius` group (every `radius-server host` of the switch) while
+accounting uses the `packetfence` group. Without the global `enable`, 802.1X is
+never attempted on the ports (`dot1x - Not attempted`).
+====
+
+Optionally, let the switch track the availability of the RADIUS server:
+
+  radius-server host 192.168.1.5 key plaintext useStrongerSecret tracking enable
+  radius-server tracking user-name dummy password plaintext useStrongerSecret
+
+===== RADIUS Dynamic Authorization (CoA)
+
+  radius dyn-authorization enable
+  radius dyn-authorization client 192.168.1.5 time-window 65535 secret-key plaintext useStrongerSecret
+
+PacketFence changes the access of a connected client (role change,
+registration, access reevaluation) with a RADIUS Disconnect-Request or
+CoA-Request sent to UDP 3799. Every address allowed to send these requests
+must be declared as a `dyn-authorization client`, with the shared secret of
+the switch entry in PacketFence. A request from an address that is not
+declared is dropped and counted as `Invalid Client Addresses`. When the switch
+is reached through a PacketFence connector, the requests leave from the
+connector: enable *Use Connector For Deauth* on the switch entry and declare
+the connector IP instead.
+
+===== 802.1X with MAC Authentication Bypass
+
+On each access port:
+
+  interface 1/1/1
+      no shutdown
+      vlan access 1
+      aaa authentication port-access client-limit 3
+      aaa authentication port-access dot1x authenticator
+          max-eapol-requests 1
+          max-retries 1
+          quiet-period 5
+          discovery-period 10
+          enable
+      aaa authentication port-access mac-auth
+          enable
+
+802.1X is attempted first and MAC Authentication is used as a fallback (this is
+the default `auth-precedence`). Do not set
+`aaa authentication port-access auth-precedence mac-auth dot1x`: once MAC
+Authentication succeeds, 802.1X is not attempted anymore and 802.1X devices
+never authenticate with their credentials.
+
+To re-authenticate the MAC Authentication clients periodically, enable `reauth`
+together with the period:
+
+      aaa authentication port-access mac-auth
+          reauth
+          reauth-period 7200
+          enable
+
+===== Dynamic ACL (Aruba-NAS-Filter-Rule)
+
+PacketFence sends the ACLs of the role inline in the Access-Accept, one
+`Aruba-NAS-Filter-Rule` per line, nothing has to be configured on the switch.
+Enable *Role by access list* on the switch entry and put the ACLs on the role,
+for example:
+
+  permit udp any any eq 67
+  permit udp any any eq 68
+  permit udp any any eq 53
+  deny icmp any host 1.1.1.1
+  deny tcp any host 9.9.9.9 eq 443
+  permit ip any any
+
+They are sent as:
+
+  Aruba-NAS-Filter-Rule = "permit in udp from any to any 67"
+  Aruba-NAS-Filter-Rule = "permit in udp from any to any 68"
+  Aruba-NAS-Filter-Rule = "permit in udp from any to any 53"
+  Aruba-NAS-Filter-Rule = "deny in icmp from any to 1.1.1.1"
+  Aruba-NAS-Filter-Rule = "deny in tcp from any to 9.9.9.9 443"
+  Aruba-NAS-Filter-Rule = "permit in ip from any to any"
+
+The switch builds a `RADIUS_<number>` role for the client. In
+`show port-access clients detail`, the Authorization Details show
+`Status : Applied` and the rules received.
+
+===== sFlow
+
+The switch can export sampled traffic to the Fingerbank collector of
+PacketFence (UDP 6343). Once `sflow` is enabled globally, every interface is
+sampled:
+
+  sflow
+  sflow collector 192.168.1.5
+  sflow agent-ip 192.168.1.2
+  sflow sampling 100
+  sflow polling 10
+
+Here 192.168.1.2 is the switch management IP. The switch asks for a
+confirmation for a sampling rate lower than 4096. With the default 4096, a
+quiet port may never produce a flow sample and only the interface counters
+are exported. `Number of Samples` increases in `show sflow` and
+`show sflow interface 1/1/1`.
+
+The CX 6000 has no flow monitoring command in 10.14, so IPFIX is not
+available on this series.
+===== Troubleshooting
+
+`show port-access clients detail` shows, for each client, the VLAN and the role
+returned by PacketFence and the state of each method (for example
+`dot1x - Unauthenticated, mac-auth - Authenticated`).
+
+`show radius dyn-authorization` shows the CoA and Disconnect requests received
+from PacketFence and the ACK/NAK sent.
+
+===== PacketFence switch configuration
+
+In the PacketFence administration interface, add the switch under
+_Configuration -> Policies and Access Control -> Switches_ with the type
+`Aruba CX Switch 10.x` and set the *Deauthentication Method* to `RADIUS` (the
+module default is SNMP).
+
+Dynamic ACLs: enable "Role by Access List" in the switch roles and fill the
+appropriate role with the ACL you want.
+
+==== ArubaOS_Switch_16.x
+
+The ArubaOS_Switch_16.x is supported by PacketFence and it supports MAC
+Authentication, 802.1X, Dynamic ACLS and Web Authentication.
 
 ===== Global Radius Configuration
 
