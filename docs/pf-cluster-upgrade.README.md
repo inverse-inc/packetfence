@@ -287,9 +287,27 @@ Fixed, but easy to undo by accident:
   replacement, so regex metacharacters in it cannot break the masking.
 - The configuration file is **parsed, never sourced**: keys are matched against
   a known list and values taken literally, so a file distributed by git cannot
-  run code as root. The settings that end up in a path (`PF_ROOT`, `LOG_DIR`,
-  `STATE_FILE`, `SSH_IDENTITY`) additionally have to look like one, and no path
-  from the configuration is ever pasted into a command line on a node.
+  run code as root. On top of that, the settings that end up in a path
+  (`PF_ROOT`, `LOG_DIR`, `STATE_FILE`, `SSH_IDENTITY`) have to look like one, and
+  the numeric settings have to be numbers — bash re-evaluates the content of a
+  variable in an arithmetic context, where an assignment would otherwise reach
+  variables that are deliberately not configurable. Values that go to a node
+  travel as `%q`-quoted assignments or as positional arguments, never as command
+  text. There is no setting for free-form ssh options: it would amount to handing
+  ssh a `ProxyCommand`, so anything beyond the four ssh settings belongs in
+  `/root/.ssh/config`.
+- The file lives under `/root` and must be owned by root and writable by nobody
+  else — the directory too; otherwise the script refuses to start. The reason is
+  `conf/`: it is group-writable for `pf` (the admin UI and the portal run as
+  `pf`) and the packetfence postinst resets `conf/*` to `664 pf:pf` on every
+  package upgrade, i.e. during this very procedure.
+- Text that came from a node has its control characters removed before it
+  reaches the terminal: the go/no-go decision at the review pause is made from
+  that output, and a carriage return alone is enough to overwrite a line.
+- Numbers that came from a node are only compared once they are proven numeric,
+  for the same arithmetic reason as above. The same goes for the state file: a
+  node's answer is written as one line, so it cannot plant completion markers
+  that a later `--resume` would act on.
 
 ## When the connection drops
 
@@ -407,7 +425,7 @@ with the rest of the documentation.
 | `addons/upgrade/pf-cluster-upgrade.sh` | the script, `pf:pf 755` |
 | `t/pf-cluster-upgrade/` | the test suite |
 | `conf/pf-cluster-upgrade.conf.example` | commented example configuration, `644` |
-| `conf/pf-cluster-upgrade.conf` | your own configuration, `600` |
+| `/root/pf-cluster-upgrade.conf` | your own configuration, `root:root 600` |
 | `docs/pf-cluster-upgrade.README.md` | this file |
 | `logs/pfclu-*.log` | the logs |
 
@@ -472,15 +490,16 @@ script. Declining, or working without a terminal, gets you the commands:
 ssh-keygen -t ed25519 -N '' -f /root/.ssh/id_pf_cluster
 chmod 600 /root/.ssh/id_pf_cluster
 ssh-copy-id -i /root/.ssh/id_pf_cluster.pub root@<management_ip of each other node>
-# then in /usr/local/pf/conf/pf-cluster-upgrade.conf:
+# then in /root/pf-cluster-upgrade.conf:
 #   SSH_IDENTITY=/root/.ssh/id_pf_cluster
-chmod 600 /usr/local/pf/conf/pf-cluster-upgrade.conf
+chmod 600 /root/pf-cluster-upgrade.conf
 ```
 
 **Permissions:** the private key `600` — ssh rejects anything more open without
-a word, which then looks like a problem on the other side. The configuration
-file `600` as well, because the webservices password may be in there. Preflight
-checks both.
+a word, which then looks like a problem on the other side. The configuration file
+`root:root 600` as well, because the webservices password may be in there: a file
+anyone else can write is refused at startup, and preflight additionally insists
+on `600` once a password is in it.
 
 **Why no password login?** The script works with `BatchMode=yes` and opens
 hundreds of short connections over its runtime — once a second while following a
@@ -531,8 +550,15 @@ gets its stdin from a file.
 **State and configuration.** `--resume` repeats nothing and `--dry-run` issues
 no command; the baseline distinguishes a known outage from a new one and
 survives `--rebaseline` mid-procedure; the configuration file is parsed, so a
-value followed by `&&`, an unknown key, or a substitution attempt is refused and
-nothing in it is ever executed.
+value followed by `&&`, an unknown key, a substitution attempt, a non-numeric
+timeout or a path with a quote in it is refused and nothing in it is ever
+executed; a file others may write is refused before it is applied.
+
+**What a node may not do to the master.** A node that answers with
+`a[$(...)]` where a number belongs executes nothing; one whose answer carries
+extra lines plants no keys in the state file; control characters in its output
+do not reach the terminal; and a node name from `--nodes` or the configuration
+that could act as a regex is rejected.
 
 **Secrets and addresses.** A webservices password full of regex metacharacters
 neither breaks the run nor appears in the log; SSH goes to the `management_ip`
@@ -552,7 +578,7 @@ decision to send SIGKILL lives, is executed for real against all its cases.
 cd t/pf-cluster-upgrade/ && make test
 ```
 
-The run takes about half a minute (385 tests). Started by hand rather than
+The run takes about half a minute (411 tests). Started by hand rather than
 through `make`, close stdin (`bash pf-cluster-upgrade.tests </dev/null`):
 two checks describe what happens *without* a terminal, and on a terminal they
 would measure the terminal instead.
@@ -583,6 +609,10 @@ real cluster**:
   take, a `MARIADB_ARGS` that will not clear, a galera-autofix that stays
   masked, and the preflight check for a leftover `--force-new-cluster` — all
   four are driven by the fakes only
+- the refusals added in the security pass: an untrusted configuration file, a
+  node answering with something that is not a number where one belongs, and a
+  node name that would act as a regex — all three are covered by tests, none has
+  occurred on a real cluster
 
 Recommended way:
 
