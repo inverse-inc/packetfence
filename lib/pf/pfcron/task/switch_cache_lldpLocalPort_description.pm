@@ -8,7 +8,7 @@ pf::pfcron::task::switch_cache_lldpLocalPort_description
 
 =head1 DESCRIPTION
 
-Cache switch costly SNMP call to get table of LLDP local port descriptions
+Cache switch costly SNMP calls to get the tables of LLDP local port descriptions and IDs
 
 =cut
 
@@ -75,6 +75,7 @@ sub populate_switch_cache {
     }
 
     $switch->getLldpLocPortDesc();
+    $switch->getLldpLocPortId();
 }
 
 
