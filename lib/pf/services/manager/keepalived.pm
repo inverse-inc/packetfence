@@ -118,6 +118,14 @@ EOT
             }
             my $process_tracking = "haproxy_portal";
             my $cluster_ip = pf::cluster::cluster_ip($interface);
+            # When the cluster IP is the address of a member (no dedicated VIP),
+            # there is nothing to float: keepalived would add it on every other
+            # member (cutting them off from the owner) and could remove it from
+            # the owner on a backup transition
+            if (defined($cluster_ip) && grep { (($_->{"interface $interface"} // {})->{ip} // '') eq $cluster_ip } @cluster_servers) {
+                $logger->info("Cluster IP $cluster_ip on $interface is a member address, skipping its VRRP instance");
+                next;
+            }
             # NetFlow (2055) and sFlow (6343) UDP load balancing is now handled by pfudpproxy
             if ($Config{"interface $interface"}{'type'} =~ /management/i || $Config{"interface $interface"}{'type'} =~ /radius/i) {
                 $process_tracking = "radius_load_balancer";
