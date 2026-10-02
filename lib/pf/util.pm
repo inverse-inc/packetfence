@@ -1542,6 +1542,8 @@ sub validate_argv {
 =item touch_file
 
 Change the timestamp of a file based off the current from Time::HiRes
+Returns the timestamp written, or undef on failure. Do not stat the file to obtain
+this value: another writer may already have changed it.
 
 =cut
 
@@ -1550,12 +1552,17 @@ sub touch_file {
 
     if (sysopen(my $fh,$filename,O_RDWR | O_CREAT)) {
         my ($seconds, $microseconds) = Time::HiRes::gettimeofday();
-        POSIX::2008::futimens(fileno $fh, $seconds, $microseconds * 1000,$seconds, $microseconds * 1000);
+        my $status = POSIX::2008::futimens(fileno $fh, $seconds, $microseconds * 1000,$seconds, $microseconds * 1000);
+        my $timestamp = defined($status) && $status == 0
+            ? $seconds + ($microseconds * 1000) / 1_000_000_000 : undef;
+        get_logger->error("Can't update timestamp of $filename: $!") unless defined $timestamp;
         chown( $pf::constants::user::PF_UID, $pf::constants::user::PF_GID, $fh );
         close($fh);
+        return $timestamp;
     }
     else {
         get_logger->error("Can't create/open $filename\nPlease run 'pfcmd fixpermissions'");
+        return undef;
     }
 }
 

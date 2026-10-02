@@ -39,9 +39,7 @@ type FirewallSSOInt interface {
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
 	FormatUsername(ctx context.Context, info map[string]string) string
-	GetLoadedAt() time.Time
-	SetLoadedAt(time.Time)
-	GetLastTouchCache() float64
+	pfconfigdriver.PfconfigObject
 	CheckStatus(ctx context.Context, info map[string]string) bool
 	SendOnAcctStop(ctx context.Context) bool
 	SendOnAcct(ctx context.Context) bool

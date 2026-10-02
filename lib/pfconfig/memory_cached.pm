@@ -47,7 +47,7 @@ sub init {
 =head2 is_valid
 
 Method that is used to determine if the object has been refreshed in pfconfig
-Uses the control files in var/control and the memorized_at hash to know if a namespace has expired
+Uses the last touch cache reported by pfconfig to know if a namespace has expired
 
 This is overriden for the support of the mutli-namespace
 
