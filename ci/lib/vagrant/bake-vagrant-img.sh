@@ -9,6 +9,7 @@
 # Required env: BAKE_ARCH (el8|deb12), PF_VM_NAME (pfel8dev|pfdeb12dev),
 #               CI_PIPELINE_ID.
 # Optional env: RESULT_DIR, VAGRANT_PF_DOTFILE_PATH.
+# `local` registers the box in the local vagrant store instead of uploading it.
 
 set -o nounset -o pipefail -o errexit
 
@@ -243,7 +244,34 @@ destroy_pf_vm() {
     fi
 }
 
-run() {
+# Register as inverse-inc/<BOX_NAME>-<category> v0.0.<CI_PIPELINE_ID>
+register_box_locally() {
+    source "${VAGRANT_LIB_DIR}/box-category.sh"
+    local name="inverse-inc/${BOX_NAME}-$(vagrant_box_category)"
+    local version="0.0.${CI_PIPELINE_ID}"
+    local metadata="${RESULT_DIR}/metadata.json"
+    log_section "Register ${name} v${version} in the local vagrant store"
+    # metadata.json keeps the version (a raw .box registers as 0)
+    cat > "${metadata}" <<EOF
+{
+  "name": "${name}",
+  "versions": [{
+    "version": "${version}",
+    "providers": [{
+      "name": "libvirt",
+      "url": "file://${BOX_FILE}",
+      "checksum_type": "md5",
+      "checksum": "$(md5sum "${BOX_FILE}" | cut -d ' ' -f 1)"
+    }]
+  }]
+}
+EOF
+    vagrant box add --provider libvirt --force "${metadata}" 2>&1 \
+        | tr '\r' '\n' | { grep -v 'Progress: ' || true; }
+    vagrant box list | grep -F "${name} (libvirt, ${version})"
+}
+
+bake_box() {
     local rc=0
     provision_and_run_configurator || rc=$?
     capture_venom_logs
@@ -256,8 +284,18 @@ run() {
     destroy_pf_vm
     cleanup_base_box
     package_box
+}
+
+run() {
+    bake_box
     cleanup_old_boxes_remote
     upload_box
+    cleanup_local_box
+}
+
+run_local() {
+    bake_box
+    register_box_locally
     cleanup_local_box
 }
 
@@ -273,6 +311,7 @@ configure_and_check
 
 case ${1:-run} in
     run)      run ;;
+    local)    run_local ;;
     teardown) teardown ;;
-    *)        die "Unknown argument: $1 (expected: run|teardown)" ;;
+    *)        die "Unknown argument: $1 (expected: run|local|teardown)" ;;
 esac

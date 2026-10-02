@@ -1,0 +1,17 @@
+name: Joiners — resync config from first server after finalize
+testcases:
+# Pull pf1's config and version: finalize re-enabled galera-autofix on pf1 only.
+- name: cluster_sync_from_first_server
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/cluster/sync --from={{.pf1_mgmt_ip}} --api-user={{.cluster_webservices_user}} --api-password={{.cluster_webservices_password}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+# enabled is the default: the override line is dropped
+- name: galera_autofix_not_disabled
+  steps:
+  - type: exec
+    script: '! grep -q "^galera-autofix=disabled" /usr/local/pf/conf/pf.conf'
+    assertions:
+      - result.code ShouldEqual 0

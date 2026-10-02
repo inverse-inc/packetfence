@@ -1,0 +1,14 @@
+---
+# Wait until MariaDB on this node is serving and Synced (Primary component).
+# Used for the safe-to-bootstrap node in the "right order" scenario, which must
+# bootstrap and offer service on its own before the others rejoin.
+- name: "Wait for MariaDB to be Synced on {{ inventory_hostname }}"
+  ansible.builtin.shell: |
+    state=$(mysql -uroot -N -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | awk '{print $2}')
+    status=$(mysql -uroot -N -e "SHOW STATUS LIKE 'wsrep_cluster_status'" 2>/dev/null | awk '{print $2}')
+    test "$state" = "Synced" -a "$status" = "Primary"
+  register: _serving
+  until: _serving.rc == 0
+  retries: 40
+  delay: 15
+  changed_when: false
