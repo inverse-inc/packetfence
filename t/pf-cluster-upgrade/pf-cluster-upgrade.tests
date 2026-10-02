@@ -262,7 +262,7 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
       if [ "\$t" = "\${FAKE_MISSING_TOOL:-}" ]; then echo "have_\${t}=no"; else echo "have_\${t}=yes"; fi
     done
     echo "have_docker=yes"; echo "pkgmgr=apt"
-    for d in run root lock; do
+    for d in run root; do
       if [ "\$d" = "\${FAKE_UNWRITABLE:-}" ]; then echo "w_\${d}=no"; else echo "w_\${d}=yes"; fi
     done
     echo "systemd_state=\${FAKE_SYSTEMD_STATE:-running}"
@@ -353,7 +353,7 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
   fi
   if [[ "\$script" == *"hostname -s"* ]]; then
     echo "hostname=\$node"; echo "pf_version=15.1.0"; echo "do_upgrade=yes"
-    echo "cluster_node_cmd=yes"; echo "mysql_avail_mb=99999"
+    echo "cluster_node_cmd=yes"; echo "mysql_avail_mb=\${FAKE_MYSQL_MB:-99999}"
     echo "root_avail_mb=\${FAKE_ROOT_MB:-99999}"
     echo "aptcache_avail_mb=99999"
     echo "pfconfig_active=active"
@@ -939,6 +939,50 @@ services_healthy pf-node1 && bad "a new outage is not detected" \
 check "the new outage is named" "$SERVICES_DOWN_LAST" \
       "services down: packetfence-pfdns.service,packetfence-radiusd-cli.service"
 
+# Values such as the package version come from a node. A newline in them would
+# write further lines into the state file - 'done.*=1' among them, and the next
+# --resume would skip the resync that empties /var/lib/mysql.
+rm -f "$TMP/state"
+state_set "pkg_before.pf-node1" "1:15.2.0-1
+done.re.resync.pf-node1=1
+finished=1"
+if grep -qE '^(done\.|finished=)' "$TMP/state" 2>/dev/null; then
+    bad "a node's answer planted its own keys in the state file"
+else
+    ok "a multi-line value from a node stays one state key"
+fi
+check "and the value itself is kept, on one line" \
+      "$(state_get pkg_before.pf-node1)" "1:15.2.0-1 done.re.resync.pf-node1=1 finished=1"
+rm -f "$TMP/state"
+
+# Keys carry node names, and the lookups are regexes. Unanchored, a name with a
+# dot would match a neighbouring key and done_skip would skip another node's step.
+rm -f "$TMP/state"
+mark_done "c.stop_peer.pf-nodeX"
+state_has "done.c.stop_peer.pf.nodeX" \
+    && bad "a dot in the key matches any character" \
+    || ok "the dot in a state key is taken literally"
+rm -f "$TMP/state"
+
+# One gate for all three sources of a node list.
+for badnodes in '.* b c' 'a|b b c' 'a b c;d'; do
+    o_nn="$( NODES=(); read -ra NODES <<<"$badnodes"; PIONEER=""
+             rm -f "$TMP/state"; resolve_roles 2>&1 )"
+    has "$o_nn" "is not a usable node name" "node list '${badnodes}' is rejected"
+done
+o_nn="$( NODES=(pf-node1 pf-node2 pf-node3); PIONEER=""
+         rm -f "$TMP/state"; resolve_roles 2>&1; printf 'OK' )"
+has "$o_nn" "OK" "ordinary node names still pass"
+NODES=(pf-node1 pf-node2 pf-node3); PIONEER=""; rm -f "$TMP/state"
+resolve_roles >/dev/null 2>&1
+
+# Node output on its way to the terminal: a node must not be able to drive the
+# cursor of the operator who decides go/no-go at the review pause.
+check "control characters from a node are stripped" \
+      "$(sanitise "$(printf 'A\033[2J\rB\007C')" | tr -d '\n')" "A[2JBC"
+check "tabs survive, the text is not mangled" \
+      "$(sanitise "$(printf 'a\tb')")" "$(printf 'a\tb')"
+
 # An EMPTY baseline is the good case ("everything runs") and must stick.
 # Checking for content instead of presence re-records the healthy node every
 # time - and keeps a wrong list forever.
@@ -1198,10 +1242,10 @@ config_check "$c" >/dev/null && ok "special characters in comments are allowed" 
 
 # For bash 'VAR=-i /path' is an assignment PLUS a command - exactly how the
 # example config used to read.
-printf 'SSH_EXTRA_OPTS=-i /root/.ssh/id_x\n' >"$c"
+printf 'WS_PASS=two words\n' >"$c"
 config_check "$c" >/dev/null && bad "an unquoted value with spaces was not rejected" \
                              || ok "an unquoted value with spaces is rejected"
-printf 'SSH_EXTRA_OPTS="-i /root/.ssh/id_x"\n' >"$c"
+printf 'WS_PASS="two words"\n' >"$c"
 config_check "$c" >/dev/null && ok "a quoted value with spaces is allowed" \
                              || bad "a quoted value is wrongly rejected"
 
@@ -1229,6 +1273,31 @@ config_check "$c" >/dev/null && ok "an ordinary absolute LOG_DIR is accepted" \
 printf 'WS_PASS="p@ss w;rd&&x"\n' >"$c"
 config_check "$c" >/dev/null && ok "a password with metacharacters stays allowed" \
                              || bad "the shape check wrongly applies to WS_PASS"
+
+# A free-form ssh option list is gone: '-oProxyCommand=...' hands ssh a program
+# to run, so the key must not even exist any more.
+printf 'SSH_EXTRA_OPTS=-oProxyCommand=/tmp/evil\n' >"$c"
+config_check "$c" >/dev/null && bad "SSH_EXTRA_OPTS is still accepted" \
+                             || ok "a free-form ssh option list is no longer a setting"
+hasnt "$(cat "$TOOL")" 'SSH_OPTS+=($' "no unquoted expansion ends up in the ssh options"
+
+# Numbers must be numbers. In an arithmetic context bash re-evaluates the
+# CONTENT of the variable, and an assignment is valid arithmetic: with
+# POLL_SECS=ASSUME_YES=1 the '(( POLL_SECS > 0 ))' in poll_step would switch off
+# the confirmation in front of 'rm -fr /var/lib/mysql/*'.
+for bad_num in 'ASSUME_YES=1' 'later' '-1' '3s' 'DRY_RUN=0'; do
+    printf 'POLL_SECS=%s\n' "$bad_num" >"$c"
+    config_check "$c" >/dev/null && bad "POLL_SECS=${bad_num} was accepted" \
+                                 || ok "POLL_SECS='${bad_num}' is rejected"
+done
+printf 'POLL_SECS=5\nDETACH_TIMEOUT=7200\nKEEP_STATE=1\n' >"$c"
+config_check "$c" >/dev/null && ok "ordinary numbers stay allowed" \
+                             || bad "a plain number is wrongly rejected"
+# ... and the assignment really would have happened without the check.
+( ASSUME_YES=0; POLL_SECS="ASSUME_YES=1"; (( POLL_SECS > 0 )) || true
+  [[ "$ASSUME_YES" == "1" ]] ) \
+    && ok "the arithmetic assignment this prevents is real (bash evaluates the content)" \
+    || bad "the arithmetic premise of this check no longer holds"
 
 # Only known settings. A stray PATH= or IFS= would otherwise reach the script.
 printf 'PATH=/tmp/evil\n' >"$c"
@@ -1258,11 +1327,11 @@ printf 'PF_ROOT="/usr/local/pf" && touch %s/PWNED2\n' "$TMP" >"$c"
                        || ok "the parser executes nothing even in assigning mode"
 
 # Values arrive literally: quotes stripped, list split, nothing expanded.
-printf 'SSH_EXTRA_OPTS="-o Port=2222"\nNODES=(n1 n2 n3)\nPOLL_SECS=7\n' >"$c"
-( CONFIG_FILE="$c"; SSH_EXTRA_OPTS=""; NODES=(); POLL_SECS=0
+printf 'WS_USER="packet user"\nNODES=(n1 n2 n3)\nPOLL_SECS=7\n' >"$c"
+( CONFIG_FILE="$c"; WS_USER=""; NODES=(); POLL_SECS=0
   load_config
-  printf '%s|%s|%s\n' "$SSH_EXTRA_OPTS" "${NODES[*]}" "$POLL_SECS" ) >"$TMP/parsed" 2>/dev/null
-check "values are parsed literally" "$(cat "$TMP/parsed")" "-o Port=2222|n1 n2 n3|7"
+  printf '%s|%s|%s\n' "$WS_USER" "${NODES[*]}" "$POLL_SECS" ) >"$TMP/parsed" 2>/dev/null
+check "values are parsed literally" "$(cat "$TMP/parsed")" "packet user|n1 n2 n3|7"
 
 # A list where a scalar belongs is a mistake worth naming.
 printf 'MASTER_NODE=(a b)\n' >"$c"
@@ -1296,6 +1365,29 @@ if [[ -f "$ex" ]]; then
 else
     bad "pf-cluster-upgrade.conf.example is missing"
 fi
+
+# Whoever can write the file decides what runs as root here. /usr/local/pf/conf
+# is group-writable for pf, and the packetfence postinst resets conf/* to 664
+# pf:pf on every package upgrade - so this is refused before the file is applied.
+ct="$TMP/trust.conf"
+printf 'POLL_SECS=5\n' >"$ct"
+chmod 600 "$ct"
+( CONFIG_FILE="$ct"; load_config ) >/dev/null 2>&1 \
+    && ok "a configuration file only its owner may write is accepted" \
+    || bad "a 600 configuration file is wrongly refused"
+for m in 666 664 622 607; do
+    chmod "$m" "$ct"
+    o_ct="$( CONFIG_FILE="$ct"; load_config 2>&1 )"
+    has "$o_ct" "cannot be trusted" "a mode ${m} configuration file is refused"
+done
+chmod 600 "$ct"
+# The directory counts too: one that others may write can be emptied and refilled
+# whatever the mode of the file inside says.
+mkdir -p "$TMP/opendir"; cp "$ct" "$TMP/opendir/c.conf"; chmod 777 "$TMP/opendir"
+o_ct="$( CONFIG_FILE="$TMP/opendir/c.conf"; load_config 2>&1 )"
+has "$o_ct" "the directory is group-writable" \
+    "a configuration file in a directory others may write is refused"
+chmod 755 "$TMP/opendir"
 
 # The file is sourced AFTER the arguments are parsed (--config names it), so
 # without apply_cli_overrides an option in the file would beat the command line
@@ -1472,6 +1564,19 @@ has "$o" "neither management_ip in cluster.conf nor a resolvable name" \
 has "$o" "NO way out" "the error warns against using IPs as node names instead"
 unset FAKE_UNRESOLVABLE
 PF_ROOT="$sv_root"
+
+# A node answers with text, and the free space is COMPARED. In an arithmetic
+# context bash evaluates an array subscript, and a subscript may contain a
+# command substitution - so a compromised node could run commands as root on the
+# master. The value has to be a number or it is not used.
+export FAKE_MYSQL_MB='a[$(touch '"$TMP"'/arith-pwn)]'
+rm -f "$TMP/arith-pwn"
+o="$(pf_run)"
+unset FAKE_MYSQL_MB
+[[ -e "$TMP/arith-pwn" ]] && bad "a node's answer executed a command on the master" \
+                          || ok "a non-numeric free-space answer executes nothing"
+has "$o" "baseline recorded" "and preflight keeps running past it"
+FAIL_LIST=(); WARN_LIST=()
 
 # Left behind by an aborted earlier attempt: the next MariaDB start would
 # bootstrap a second cluster, so preflight has to block on it.
