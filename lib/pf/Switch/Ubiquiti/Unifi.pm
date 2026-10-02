@@ -235,6 +235,43 @@ sub _connect {
 }
 
 
+=head2 guestAuthorizationMinutes
+
+Minutes of guest authorization to request from the controller for a node
+with the given unregistration date (MySQL datetime, server local time).
+
+Always returns a positive number: without "minutes" the controller applies
+its own guest default (4 or 8 hours depending on the setup), which cut off
+registered nodes that have no unregistration date (#9203). Such nodes get
+$GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY; a date in the past gets 1 minute
+(delta_ms is an absolute difference, so an expired date used to grant as
+much access as it was late).
+
+=cut
+
+our $GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY = 525600; # one year
+
+sub guestAuthorizationMinutes {
+    my ($self, $unregdate, $now_epoch) = @_;
+    $now_epoch //= time;
+    if (!defined($unregdate) || $unregdate eq '' || $unregdate eq $ZERO_DATE) {
+        return $GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY;
+    }
+    my $end = eval {
+        my $dt = DateTime::Format::MySQL->parse_datetime($unregdate);
+        $dt->set_time_zone('local');
+        $dt->epoch;
+    };
+    if (!defined($end)) {
+        $self->logger->warn("Unable to parse the unregistration date '$unregdate', requesting the default guest authorization");
+        return $GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY;
+    }
+    my $seconds_left = $end - $now_epoch;
+    return 1 if $seconds_left <= 0;
+    # round up: a partial minute left still needs access
+    return int(($seconds_left + 59) / 60);
+}
+
 =head2 _deauthenticateMacWithHTTP
 
 Enable or disable the access of a user (portal vs no portal) using an HTTP webservices call
@@ -257,15 +294,7 @@ sub _deauthenticateMacWithHTTP {
     unless ($node_info->{status} eq $STATUS_UNREGISTERED || security_event_count_reevaluate_access($mac))  {
         $command = "authorize-guest";
 
-        if($node_info->{unregdate} ne $ZERO_DATE) {
-            my $now = DateTime->now();
-            $now->set_time_zone('local');
-
-            my $unregdate = DateTime::Format::MySQL->parse_datetime($node_info->{unregdate});
-            $unregdate->set_time_zone('local');
-
-            $args->{minutes} = $now->delta_ms($unregdate)->in_units('minutes');
-        }
+        $args->{minutes} = $self->guestAuthorizationMinutes($node_info->{unregdate});
     } else {
         $command = "unauthorize-guest";
     }
