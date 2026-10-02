@@ -165,11 +165,22 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
     *"rm -fr /var/lib/mysql/"*)           touch "$TMP/resynced.\$node" ;;
   esac
   case "\$script" in
-    *"unset-environment MARIADB_ARGS"*) rm -f "$TMP/force_new_cluster" ;;
+    *"unset-environment MARIADB_ARGS"*)
+        # FAKE_ARGS_STUCK: the variable survives the unset - the manager
+        # environment keeps --force-new-cluster, which is the case
+        # clear_force_new_cluster has to report.
+        [ -n "\${FAKE_ARGS_STUCK:-}" ] || rm -f "$TMP/force_new_cluster" ;;
     *"set-environment MARIADB_ARGS"*)   touch "$TMP/force_new_cluster" ;;
   esac
-  # The effect check for --force-new-cluster asks show-environment.
-  if [[ "\$script" == *"show-environment"* ]]; then
+  # clear_force_new_cluster reads the environment back and only reports
+  # ARGS_CLEARED when the variable is really gone.
+  if [[ "\$script" == *"ARGS_CLEARED"* ]]; then
+    [ -f "$TMP/force_new_cluster" ] || echo ARGS_CLEARED
+    exit 0
+  fi
+  # The effect check for --force-new-cluster asks show-environment. RS_FACTS
+  # asks the same thing among many others, so it must not land here.
+  if [[ "\$script" == *"show-environment"* && "\$script" != *"hostname -s"* ]]; then
     [ -f "$TMP/force_new_cluster" ] && echo "MARIADB_ARGS=--force-new-cluster"
     echo VERIFY_OK; exit 0
   fi
@@ -310,6 +321,16 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
     echo "g:wsrep_local_state_comment=Synced"
     echo "g:wsrep_ready=ON"; exit 0
   fi
+  # galera-autofix that cannot be unmasked again - the node would be left
+  # without database self-healing.
+  if [[ "\$script" == *"AUTOFIX_UNMASKED"* && -n "\${FAKE_AUTOFIX_FAIL:-}" ]]; then
+    exit 1
+  fi
+  # A mask that does not take: RS_KEEPALIVED_MASK must report it instead of
+  # letting the service restart bring keepalived back with everything else.
+  if [[ "\$script" == *"KEEPALIVED_MASKED"* && -n "\${FAKE_MASK_FAIL:-}" ]]; then
+    echo "KEEPALIVED_RC=not-masked"; exit 1
+  fi
   # A failing 'service pf restart', so the error paths of start_pf_vip_last and
   # its callers can be exercised at all.
   if [[ "\$script" == *"PF_STARTED"* && -n "\${FAKE_START_FAIL:-}" ]]; then
@@ -336,6 +357,7 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
     echo "root_avail_mb=\${FAKE_ROOT_MB:-99999}"
     echo "aptcache_avail_mb=99999"
     echo "pfconfig_active=active"
+    echo "mariadb_args=\${FAKE_MARIADB_ARGS:-}"
     echo "pf_pkg=\${FAKE_PF_PKG:-15.1.0+bookworm1}"
     echo "pkg_broken=\${FAKE_PKG_BROKEN:-0}"
     echo "pkg_broken_list=\${FAKE_PKG_BROKEN_LIST:-}"
@@ -629,6 +651,49 @@ check "12.4.8: pfcron restarted on all 3 nodes" "$(grep -c 'pfcron restart' <<<"
 check "12.4.9: galera-autofix restarted on all 3 nodes" \
       "$(grep -c 'galera-autofix restart' <<<"$t")" "3"
 
+# A --force-new-cluster left in the manager environment used to be a warning.
+# galera-autofix, switched back on right below, would restart MariaDB with it
+# and bootstrap a second cluster next to the existing one.
+: >"$TRACE"; rm -f "$TMP/state"
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+state_set reintegrated 1; state_set roles "pf-node1 pf-node2 pf-node3"
+# The node is in the state 12.4.6 leaves behind: the variable is set, and the
+# unset below does not take.
+touch "$TMP/force_new_cluster"
+export FAKE_ARGS_STUCK=1
+o_fa="$( phase_finish 2>&1 )"
+unset FAKE_ARGS_STUCK
+rm -f "$TMP/force_new_cluster"
+t_fa="$(cat "$TRACE")"
+has "$o_fa" "MARIADB_ARGS is still set" "finish stops while --force-new-cluster is set"
+hasnt "$t_fa" "galera-autofix restart" \
+    "and galera-autofix is NOT switched back on before that is cleared"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# The counterpart: galera-autofix that stays masked leaves the node without
+# database self-healing. Recorded as a failure, not as a note - but it must not
+# swallow the return code of the upgrade it ran around.
+export FAKE_AUTOFIX_FAIL=1
+FAIL_LIST=(); WARN_LIST=()
+o_ar="$( autofix_release pf-node3 2>&1 )" && bad "autofix_release reported success" \
+                                         || ok "a galera-autofix that stays masked is a failure"
+unset FAKE_AUTOFIX_FAIL
+has "$o_ar" "self-healing" "and the consequence is named"
+FAIL_LIST=(); WARN_LIST=()
+
+# The state file goes at the end of a clean finish - but under the lock
+# state_rewrite uses, or a concurrent 'status --rebaseline' writes it back after
+# the unlink. The lock file itself stays: the next run reuses it.
+rm -f "$TMP/state" "$TMP/state.lock"
+state_set prepared 1
+state_discard && ok "state_discard removes the state file" \
+              || bad "state_discard reports a failure"
+[[ -e "$TMP/state" ]] && bad "the state file survived" \
+                      || ok "and it is really gone"
+[[ -e "$TMP/state.lock" ]] && ok "the lock file is left in place for the next run" \
+                           || bad "the lock file was unlinked under a possible writer"
+rm -f "$TMP/state" "$TMP/state.lock"
+
 # --- rollback (12.4.5 "If all goes wrong") ---
 : >"$TRACE"
 phase_rollback >/dev/null 2>&1
@@ -677,6 +742,25 @@ else
 fi
 has "$(cat "$TMP/state")" "ab_upgraded=0" "rollback takes back ab_upgraded"
 rm -f "$TMP/state"
+
+# A staged start that fails does not make the markers truthful again: A and B
+# run, C is stopped and disabled, so a resume that trusted them would start C
+# alongside A and B. They go, and the phase ends non-zero.
+rm -f "$TMP/state"
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+mark_done "c.start"; mark_done "ab.sync.pf-node1"
+export FAKE_START_FAIL=1
+( phase_rollback >"$TMP/rb.out" 2>&1 ); rb_rc=$?
+unset FAKE_START_FAIL
+o_rb2="$(cat "$TMP/rb.out")"
+has "$o_rb2" "services not fully up" "rollback reports a start that did not come up"
+check "and the phase ends non-zero" "$rb_rc" "1"
+if grep -qE '^done\.(c|ab)\.' "$TMP/state" 2>/dev/null; then
+    bad "markers of an undone phase survived the failed start"
+else
+    ok "the markers of the undone phases go even so"
+fi
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
 
 # The stop on C has to be PROVEN before A and B come up: two halves would each
 # accept writes. This used to be a warning and the rollback carried
@@ -1130,6 +1214,22 @@ for op in '&&' '||' '|'; do
                                  || ok "a value followed by '${op}' is rejected"
 done
 
+# Settings that end up in a path: a quote in them used to break the quoting of
+# the detached start. The paths are arguments now, and a value like this is
+# refused on top of that.
+for bad_path in "/usr/local/pf'" "not/absolute" "/usr/local/pf;x"; do
+    printf 'LOG_DIR="%s"\n' "$bad_path" >"$c"
+    config_check "$c" >/dev/null && bad "LOG_DIR=${bad_path} was accepted" \
+                                 || ok "a LOG_DIR of '${bad_path}' is rejected"
+done
+printf 'LOG_DIR="/var/log/pf-cluster_upgrade.d"\n' >"$c"
+config_check "$c" >/dev/null && ok "an ordinary absolute LOG_DIR is accepted" \
+                             || bad "an ordinary LOG_DIR is wrongly rejected"
+# Only the path-like keys are shaped; everything else may hold what it likes.
+printf 'WS_PASS="p@ss w;rd&&x"\n' >"$c"
+config_check "$c" >/dev/null && ok "a password with metacharacters stays allowed" \
+                             || bad "the shape check wrongly applies to WS_PASS"
+
 # Only known settings. A stray PATH= or IFS= would otherwise reach the script.
 printf 'PATH=/tmp/evil\n' >"$c"
 config_check "$c" >/dev/null && bad "an unknown setting was not rejected" \
@@ -1223,6 +1323,12 @@ grep -qE 'chmod [0-7]+ "\$LOG_DIR"' <<<"$src" \
 has "$src" 'chgrp pf  "$RUN_LOG"' "the run log is handed to group pf like its neighbours"
 has "$RS_DETACH_CLEAN" 'mv -f "$logf" "${logf%.log}-${rid}.log"' \
     "a finished detached run archives its log under the run id"
+# The log path comes from LOG_DIR, so it must not be pasted into the command
+# line of the transient unit: a quote in it would run as root there.
+dstart_cmd="$(grep -A4 'systemd-run --unit' <<<"$RS_DETACH_START")"
+hasnt "$dstart_cmd" '${logf}' "the detached start does not interpolate the log path"
+has "$dstart_cmd" 'bash "$1" >> "$2" 2>&1' \
+    "it passes script, log and result file as arguments instead"
 
 #-------------------------------------------------------------------------------
 echo
@@ -1366,6 +1472,18 @@ has "$o" "neither management_ip in cluster.conf nor a resolvable name" \
 has "$o" "NO way out" "the error warns against using IPs as node names instead"
 unset FAKE_UNRESOLVABLE
 PF_ROOT="$sv_root"
+
+# Left behind by an aborted earlier attempt: the next MariaDB start would
+# bootstrap a second cluster, so preflight has to block on it.
+export FAKE_MARIADB_ARGS="--force-new-cluster"
+o="$(pf_run)"
+unset FAKE_MARIADB_ARGS
+has "$o" "MARIADB_ARGS=--force-new-cluster is still in the systemd environment" \
+    "a leftover --force-new-cluster blocks preflight"
+has "$o" "systemctl unset-environment MARIADB_ARGS" "and the way out is named"
+o="$(pf_run)"
+hasnt "$o" "MARIADB_ARGS" "a clean environment says nothing about it"
+FAIL_LIST=(); WARN_LIST=()
 
 export FAKE_PKG_BROKEN=3 FAKE_PKG_BROKEN_LIST="packetfence(iF) rsync(iU) man-db(it)"
 o="$(pf_run)"
@@ -1747,6 +1865,25 @@ has "$t_v" "pf-node3: /usr/local/pf/bin/pfcmd service keepalived restart" \
     "keepalived is started explicitly at the end"
 has "$o_v" "outage window:" "the outage window is timed and logged"
 rm -f "$TMP/state"
+
+# A mask that does not take used to pass as success: 'service pf restart' then
+# brought keepalived up with everything else and the node pulled the VIP over
+# while it was still starting. The block reports the real result now.
+: >"$TRACE"; rm -f "$TMP/state"
+export FAKE_MASK_FAIL=1
+KEEPALIVED_MASKED_NODE=""
+# die() ends the subshell, so the marker is read from inside it - that is the
+# value cleanup() would see on a real run.
+( trap 'printf "%s" "$KEEPALIVED_MASKED_NODE" >"$TMP/kmn"' EXIT
+  start_pf_vip_last pf-node3 >"$TMP/mf.out" 2>&1 ) || true
+unset FAKE_MASK_FAIL
+o_mf="$(cat "$TMP/mf.out")"; t_mf="$(cat "$TRACE")"
+has "$o_mf" "could not be held back" "a failed mask aborts the staged start"
+hasnt "$t_mf" "pf-node3: /usr/local/pf/bin/pfcmd service pf restart" \
+    "and the services are NOT started without that protection"
+check "the node stays recorded as masked, so cleanup can undo it" \
+      "$(cat "$TMP/kmn")" "pf-node3"
+KEEPALIVED_MASKED_NODE=""; FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
 
 # 2.2.1: on the normal path C is waited for exactly ONCE. The second wait used
 # to sit outside done_skip and cost a full service-wait round inside the open

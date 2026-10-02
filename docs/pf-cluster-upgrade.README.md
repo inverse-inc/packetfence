@@ -78,8 +78,11 @@ Deliberately short — only what really blocks the procedure:
 9. All services running — and whatever is already down is recorded as the
    baseline
 10. Galera `Primary` / `Synced` / `cluster_size=3` on every node
-11. The repository of the target version is reachable (a warning only)
-12. The target version is not the one already running (a warning with a
+11. No `MARIADB_ARGS=--force-new-cluster` left in a node's systemd
+    environment (an aborted earlier attempt — the next MariaDB start would
+    bootstrap a second cluster)
+12. The repository of the target version is reachable (a warning only)
+13. The target version is not the one already running (a warning with a
     question — see below)
 
 Plus a note when the nodes carry different PacketFence **package** builds:
@@ -261,7 +264,9 @@ Fixed, but easy to undo by accident:
   systemd manager and survives every unit restart until it is unset. The script
   therefore clears it wherever the procedure can come to rest, not only on the
   success path — otherwise the next start of MariaDB on C would bootstrap a
-  second cluster with a new UUID next to the existing one.
+  second cluster with a new UUID next to the existing one. The environment is
+  read back afterwards: a clearing that did not take blocks `finish` **before**
+  galera-autofix is switched back on, and preflight refuses the next attempt.
 - In `reintegrate` the resync of the second node only happens once the first is
   back in the cluster. If the first does not come back, the second keeps its
   data — it is then the only intact copy besides C.
@@ -282,7 +287,9 @@ Fixed, but easy to undo by accident:
   replacement, so regex metacharacters in it cannot break the masking.
 - The configuration file is **parsed, never sourced**: keys are matched against
   a known list and values taken literally, so a file distributed by git cannot
-  run code as root.
+  run code as root. The settings that end up in a path (`PF_ROOT`, `LOG_DIR`,
+  `STATE_FILE`, `SSH_IDENTITY`) additionally have to look like one, and no path
+  from the configuration is ever pasted into a command line on a node.
 
 ## When the connection drops
 
@@ -535,7 +542,8 @@ while `bin/cluster/node` gets the hostname.
 start of A and B, and discards the markers of both upgrade phases.
 
 **preflight** detects broken packages, too little disk space, locally modified
-package files, and refuses to record a baseline mid-procedure.
+package files, a `--force-new-cluster` left behind by an earlier attempt, and
+refuses to record a baseline mid-procedure.
 
 Every `RS_*` remote block is syntax-checked; `RS_STOP_MARIADB`, where the
 decision to send SIGKILL lives, is executed for real against all its cases.
@@ -544,7 +552,7 @@ decision to send SIGKILL lives, is executed for real against all its cases.
 cd t/pf-cluster-upgrade/ && make test
 ```
 
-The run takes about half a minute (353 tests). Started by hand rather than
+The run takes about half a minute (385 tests). Started by hand rather than
 through `make`, close stdin (`bash pf-cluster-upgrade.tests </dev/null`):
 two checks describe what happens *without* a terminal, and on a terminal they
 would measure the terminal instead.
@@ -571,6 +579,10 @@ real cluster**:
 - the `wait_galera` timeout and the aborts hanging off it
 - `on_err` and `cleanup` — the test run disables both traps
 - `--nodes`, `--os-update` and `--pioneer` as a complete run
+- the aborts added in review: a `systemctl mask` of keepalived that does not
+  take, a `MARIADB_ARGS` that will not clear, a galera-autofix that stays
+  masked, and the preflight check for a leftover `--force-new-cluster` — all
+  four are driven by the fakes only
 
 Recommended way:
 
