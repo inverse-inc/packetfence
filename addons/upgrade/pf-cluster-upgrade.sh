@@ -28,9 +28,12 @@ SCRIPT_NAME="$(basename "$0")"
 SCRIPT_VERSION="2.2.3"
 
 # --- Configuration (overridable by file or CLI) -------------------------------
-# Next to the other PacketFence configuration; pfcmd fixpermissions does not
-# descend into conf/, so mode 600 survives.
-CONFIG_FILE="/usr/local/pf/conf/pf-cluster-upgrade.conf"
+# Under /root, not in conf/: the packetfence postinst resets conf/* to 664 pf:pf
+# on every package upgrade - that is, during the very procedure this script
+# drives - and this file decides the ssh identity and the paths it works with.
+# /root is 0700, so only root can put something here. The commented example ships
+# as conf/pf-cluster-upgrade.conf.example; copy it over.
+CONFIG_FILE="/root/pf-cluster-upgrade.conf"
 
 NODES=()                  # empty => order from cluster.conf (A B C)
 PIONEER=""                # empty => last node in cluster.conf (= C)
@@ -63,7 +66,6 @@ TARGET_VERSION=""
 # Passed to do-upgrade.sh as INCLUDE_OS_UPDATE; without a value run-upgrade.sh
 # prompts. "no" because phase 'patch' already updated the OS.
 INCLUDE_OS_UPDATE=no
-SSH_EXTRA_OPTS=""
 
 PF_ROOT="/usr/local/pf"
 PFCMD="/usr/local/pf/bin/pfcmd"
@@ -73,7 +75,10 @@ DO_UPGRADE="/usr/local/pf/addons/upgrade/do-upgrade.sh"
 
 LOG_DIR="/usr/local/pf/logs"    # next to the other PacketFence logs
 STATE_FILE="/root/.pf-cluster-upgrade.state"
-LOCK_FILE="/var/lock/pf-cluster-upgrade.lock"
+# /run, not /var/lock: the latter is mode 1777, where any local user could
+# create the file and block every changing phase for good - including the
+# --resume needed to finish a half-done upgrade.
+LOCK_FILE="/run/pf-cluster-upgrade.lock"
 
 WS_USER=""                # webservices user for cluster/sync
 WS_PASS=""                # empty => read from pf.conf, otherwise prompt
@@ -160,6 +165,16 @@ say() {
         "$(sed 's/\x1b\[[0-9;]*m//g' <<<"$1")" >>"$RUN_LOG"
     return 0
 }
+
+# Text that came from a node, on its way to the terminal. say() strips colour
+# codes only for the log file, so without this a node could send cursor and erase
+# sequences into the operator's terminal - and the go/no-go decision at the
+# review pause of 12.4.5 is made from exactly this output. Control characters out,
+# tab and newline kept.
+# Tab and newline stay, everything else from the C0 range goes - including the
+# carriage return, which on its own is enough to overwrite a line that has
+# already been printed.
+sanitise() { tr -d '\000-\010\013-\037\177' <<<"${1-}"; }
 
 # Same as say(), but to stderr. For helpers whose stdout the caller captures:
 # a progress line inside "$(...)" is parsed as remote output, not shown.
@@ -364,8 +379,11 @@ die_no_input() {
 }
 
 confirm() {
-    [[ $ASSUME_YES -eq 1 ]] && { log_dim "(auto-confirmed: $1)"; return 0; }
-    [[ $DRY_RUN -eq 1 ]] && { log_dim "(dry-run: $1)"; return 0; }
+    # String comparison, not -eq: the arithmetic form would re-evaluate the
+    # content of the variable, and the gate in front of a destructive step is
+    # the last place that should depend on that.
+    [[ "$ASSUME_YES" == "1" ]] && { log_dim "(auto-confirmed: $1)"; return 0; }
+    [[ "$DRY_RUN" == "1" ]] && { log_dim "(dry-run: $1)"; return 0; }
     local try
     for (( try = 1; try <= 3; try++ )); do
         tty_ask "${C_YEL}$1 [yes/NO]: ${C_RST}" || { ask_log "$1" "<EOF>"; die_no_input; }
@@ -387,8 +405,8 @@ confirm() {
 
 # confirm_typed <question> <word> - for destructive steps
 confirm_typed() {
-    [[ $DRY_RUN -eq 1 ]] && { log_dim "(dry-run: $1)"; return 0; }
-    if [[ $ASSUME_YES -eq 1 ]]; then log_dim "(auto-confirmed: $1)"; return 0; fi
+    [[ "$DRY_RUN" == "1" ]] && { log_dim "(dry-run: $1)"; return 0; }
+    if [[ "$ASSUME_YES" == "1" ]]; then log_dim "(auto-confirmed: $1)"; return 0; fi
     say "${C_RED}${C_BLD}$1${C_RST}"
     local try
     for (( try = 1; try <= 3; try++ )); do
@@ -458,7 +476,13 @@ state_discard() {
 
 state_set() {
     [[ $DRY_RUN -eq 1 ]] && return 0
-    state_rewrite "^${1//./\\.}=" "$(printf '%s=%s' "$1" "$2")" \
+    # One key, one line. Values such as the package version come from a node,
+    # and a newline in there would write further 'done.*=1' lines into the state
+    # file - a later --resume would then skip steps that never ran, among them
+    # the resync that empties /var/lib/mysql. Also capped in length: the state
+    # file is a record, not a place for a node's output.
+    local v="${2//[$'\n\r']/ }"
+    state_rewrite "^${1//./\\.}=" "$(printf '%s=%.200s' "$1" "$v")" \
         || die "Could not write the state file ${STATE_FILE}." \
                "Check the free space under $(dirname "$STATE_FILE") and the permissions." \
                "Without it --resume loses track of what has already been done."
@@ -469,7 +493,11 @@ state_set() {
 # abort the whole phase.
 state_get() {
     [[ -f "$STATE_FILE" ]] || return 0
-    local v; v=$(grep "^${1}=" "$STATE_FILE" 2>/dev/null | tail -n1 | cut -d= -f2-) || true
+    # Anchored and with '.' escaped, like state_rewrite and state_has: keys carry
+    # node names, and an unescaped one would match a neighbouring key - done_skip
+    # would then skip a step belonging to another node. Everything else a node
+    # name could contain is kept out by resolve_roles.
+    local v; v=$(grep "^${1//./\\.}=" "$STATE_FILE" 2>/dev/null | tail -n1 | cut -d= -f2-) || true
     [[ -n "$v" ]] && printf '%s' "$v"
     return 0
 }
@@ -477,7 +505,7 @@ state_get() {
 # baseline means "everything runs" and must not count as "nothing recorded yet".
 state_has() {
     [[ -f "$STATE_FILE" ]] || return 1
-    grep -q "^${1}=" "$STATE_FILE" 2>/dev/null
+    grep -q "^${1//./\\.}=" "$STATE_FILE" 2>/dev/null
 }
 mark_done() { state_set "done.$1" "1"; }
 # Drops every key with this prefix. A phase that undoes another one must also
@@ -553,6 +581,10 @@ procedure_started() {
 # and terminates - the tests run with POLL_SECS=0.
 poll_step() { (( POLL_SECS > 0 )) && printf '%s' "$POLL_SECS" || printf '1'; }
 
+# Deliberately no setting for free-form ssh options: a value like
+# -oProxyCommand=... would hand ssh a program to run, so a configuration file
+# the README calls git-distributable would be root on every cluster using it.
+# Everything beyond the four settings below belongs in /root/.ssh/config.
 ssh_opts_init() {
     SSH_OPTS=(-o BatchMode=yes
               -o "ConnectTimeout=${SSH_CONNECT_TIMEOUT}"
@@ -570,10 +602,6 @@ ssh_opts_init() {
         # exhausts MaxAuthTries (sshd default 6) - the login then fails even
         # though a valid key was among them.
         SSH_OPTS+=(-i "$SSH_IDENTITY" -o IdentitiesOnly=yes)
-    fi
-    if [[ -n "$SSH_EXTRA_OPTS" ]]; then
-        # shellcheck disable=SC2206
-        SSH_OPTS+=($SSH_EXTRA_OPTS)
     fi
 }
 
@@ -659,7 +687,8 @@ rstep() {
     fi
     if [[ $rc -ne 0 ]]; then
         say "${C_RED}    Output:${C_RST}"
-        tail -n 30 <<<"$out" | sed 's/^/      /' | while IFS= read -r l; do say "$l"; done
+        tail -n 30 <<<"$(sanitise "$out")" | sed 's/^/      /' \
+            | while IFS= read -r l; do say "$l"; done
     fi
     return $rc
 }
@@ -767,10 +796,14 @@ rdetach() {
         fi
         state=$(sed -n 's/^STATE://p' <<<"$out" | head -n1)
         urc=$(sed -n 's/^RC://p' <<<"$out" | head -n1)
+        # The node filters this to digits, but 'return' is an arithmetic
+        # context: text from a node must not reach it unchecked.
+        [[ "$urc" =~ ^[0-9]+$ ]] || urc=""
         size=$(sed -n 's/^SIZE://p' <<<"$out" | head -n1)
         body=$(sed -n '/^---LOG---$/,$p' <<<"$out" | tail -n +2)
         if [[ -n "$body" ]]; then
-            while IFS= read -r l; do [[ -n "$l" ]] && log_dim "  | $l"; done <<<"$body"
+            while IFS= read -r l; do [[ -n "$l" ]] && log_dim "  | $l"; done \
+                <<<"$(sanitise "$body")"
             [[ -n "$RUN_LOG" ]] && printf '%s\n' "$body" >>"$RUN_LOG"
         fi
         [[ "$size" =~ ^[0-9]+$ ]] && offset="$size"
@@ -809,6 +842,16 @@ rdetach() {
 
 ni_set() { NI["$1|$2"]="$3"; }
 ni_get() { printf '%s' "${NI["$1|$2"]:-}"; }
+# Every fact that is COMPARED instead of printed goes through this. A node
+# answers with text, and in an arithmetic context bash evaluates the content of
+# the variable - an array subscript there may contain a command substitution, so
+# 'mysql_avail_mb=a[$(...)]' from a compromised node would run as root on the
+# master. Not a number -> empty, and the caller skips the comparison.
+ni_num() {
+    local v; v="${NI["$1|$2"]:-}"
+    [[ "$v" =~ ^[0-9]+$ ]] && printf '%s' "$v"
+    return 0
+}
 
 # --- Remote building blocks ---------------------------------------------------
 
@@ -968,7 +1011,7 @@ if command -v apt-get >/dev/null 2>&1; then echo "pkgmgr=apt"
 elif command -v yum >/dev/null 2>&1; then echo "pkgmgr=yum"
 else echo "pkgmgr=none"; fi
 # Write access where the script actually writes
-for d in /run /root /var/lock; do
+for d in /run /root; do
   if [ -w "$d" ]; then echo "w_${d##*/}=yes"; else echo "w_${d##*/}=no"; fi
 done
 # Is systemd reachable? Without it neither services nor detach units run.
@@ -1261,6 +1304,20 @@ resolve_roles() {
         "Found ${#NODES[@]} nodes (${NODES[*]}), expected 3." \
         "This script implements the 3-node procedure from Clustering Guide 12.4."
 
+    # One gate for all three sources of a node list - cluster.conf, NODES=(...)
+    # in the configuration and --nodes. The names end up in file paths and in the
+    # keys of the state file, whose lookups are regexes: a name like '.*' would
+    # make done_skip match a marker of another node and skip its step, including
+    # the resync that empties /var/lib/mysql.
+    local nn
+    for nn in "${NODES[@]}" ${PIONEER:+"$PIONEER"}; do
+        [[ "$nn" =~ ^[A-Za-z0-9._-]+$ ]] || die \
+            "'${nn}' is not a usable node name." \
+            "Allowed are letters, digits, dot, hyphen and underscore - the name" \
+            "is used in file paths and in the state file." \
+            "Use the section names from ${PF_ROOT}/conf/cluster.conf."
+    done
+
     # By default C is the last node in cluster.conf.
     if [[ -n "$PIONEER" ]]; then
         local found=0 n
@@ -1423,7 +1480,10 @@ services_healthy() {
     # Empty list = the list does not exist, and nothing changes.
     if [[ ${#SERVICES_IGNORE[@]} -gt 0 ]]; then
         local keep="" d2
-        for d2 in ${down//,/ }; do
+        # IFS split, not an unquoted expansion: the names come from a node, and a
+        # '*' among them would glob against the current directory.
+        local -a dl=(); IFS=',' read -ra dl <<<"$down"
+        for d2 in "${dl[@]}"; do
             svc_ignored "$d2" || keep="${keep:+${keep},}${d2}"
         done
         down="$keep"
@@ -1432,7 +1492,8 @@ services_healthy() {
     [[ -z "$down" ]] && { SERVICES_DOWN_LAST=""; return 0; }
     base="$(state_get "baseline.${node}" || true)"
     # Only what was still running at preflight counts as unhealthy.
-    for d in ${down//,/ }; do
+    local -a dl2=(); IFS=',' read -ra dl2 <<<"$down"
+    for d in "${dl2[@]}"; do
         [[ ",${base}," == *",${d},"* ]] || return 1
     done
     return 0
@@ -1791,6 +1852,9 @@ check_local_prereqs() {
 # a permission problem on the far side.
 # The README promises preflight checks this, so it had better do so: the file
 # may hold the webservices password, and conf/ is readable by group pf.
+# require_trusted_config has already refused anything WRITABLE by others before
+# the file was applied. What is left for preflight is secrecy: group read is
+# enough to walk off with the webservices password.
 check_config_perms() {
     local mode
     [[ -f "$CONFIG_FILE" ]] || return 0
@@ -1937,9 +2001,9 @@ phase_preflight() {
             && log_fail "${n}: neither apt-get nor yum found"
 
         local d
-        for d in run root lock; do
+        for d in run root; do
             [[ "$(sed -n "s/^w_${d}=//p" <<<"$pout")" == "yes" ]] \
-                || log_fail "${n}: no write permission in /${d/lock/var\/lock}"
+                || log_fail "${n}: no write permission in /${d}"
         done
 
         local sysstate; sysstate=$(sed -n 's/^systemd_state=//p' <<<"$pout")
@@ -1996,14 +2060,14 @@ phase_preflight() {
         [[ "$(ni_get "$n" cluster_node_cmd)" == "yes" ]] \
             || log_fail "${n}: ${CLUSTER_NODE_CMD} is missing - detach/attach is impossible without it"
 
-        local avail; avail="$(ni_get "$n" mysql_avail_mb)"
+        local avail; avail="$(ni_num "$n" mysql_avail_mb)"
         if [[ -n "$avail" ]] && (( avail < MIN_FREE_MB_MYSQL )); then
             log_fail "${n}: /var/lib/mysql only ${avail} MB free (< ${MIN_FREE_MB_MYSQL} MB)"
             log_info "  In 12.4.6 A and B resynchronise the entire database."
         fi
 
         local ravail cavail
-        ravail="$(ni_get "$n" root_avail_mb)"; cavail="$(ni_get "$n" aptcache_avail_mb)"
+        ravail="$(ni_num "$n" root_avail_mb)"; cavail="$(ni_num "$n" aptcache_avail_mb)"
         if [[ -n "$ravail" ]] && (( ravail < MIN_FREE_MB_ROOT )); then
             log_fail "${n}: filesystem of /root only ${ravail} MB free (< ${MIN_FREE_MB_ROOT} MB)"
             log_info "  run-upgrade.sh writes a full backup there, plus the new images."
@@ -2023,7 +2087,7 @@ phase_preflight() {
 
         # A half-configured package trips up every later apt run - right in the
         # middle of a phase meant to avoid exactly that.
-        local broken; broken="$(ni_get "$n" pkg_broken)"
+        local broken; broken="$(ni_num "$n" pkg_broken)"
         if [[ -n "$broken" && "$broken" != "0" ]]; then
             log_fail "${n}: ${broken} package(s) in a broken state"
             log_info "  $(ni_get "$n" pkg_broken_list)"
@@ -2037,7 +2101,8 @@ phase_preflight() {
         if [[ -n "${modified// /}" ]]; then
             log_warn "${n}: locally modified package files - the upgrade will overwrite them"
             local f
-            for f in $modified; do log_info "  ${f}"; done
+            local -a mf=(); read -ra mf <<<"$modified"
+            for f in "${mf[@]}"; do log_info "  ${f}"; done
             log_info "  Back them up first and reapply afterwards."
         fi
 
@@ -2593,7 +2658,8 @@ phase_upgrade_c() {
         fatal=$(grep -ci '^FATAL' <<<"$out" || true)
         warn=$(grep -ci '^WARNING' <<<"$out" || true)
         if [[ "$fatal" -gt 0 ]]; then
-            grep -i '^FATAL' <<<"$out" | head -n 15 | while IFS= read -r l; do say "${C_RED}    $l${C_RST}"; done
+            grep -i '^FATAL' <<<"$(sanitise "$out")" | head -n 15 \
+                | while IFS= read -r l; do say "${C_RED}    $l${C_RST}"; done
             die "${NODE_C}: checkup reports ${fatal} FATAL error(s)." \
                 "Per Guide 12.4.4 FATAL errors prevent the start and must be fixed at once." \
                 "Then: ${SCRIPT_NAME} upgrade-c --resume"
@@ -2602,7 +2668,7 @@ phase_upgrade_c() {
             # People pointed at the log rarely look. Warnings belong where the
             # run is being watched.
             log_warn "${NODE_C}: checkup reports ${warn} warning(s)"
-            grep -i '^WARNING' <<<"$out" | head -n 15 \
+            grep -i '^WARNING' <<<"$(sanitise "$out")" | head -n 15 \
               | while IFS= read -r l; do say "${C_YEL}    $l${C_RST}"; done
             (( warn > 15 )) && log_dim "... and $((warn - 15)) more, in full in the log"
         fi
@@ -2901,7 +2967,8 @@ echo SYNC_DONE"
                       printf '%s\n' "$shown"; } >>"$RUN_LOG"
                 fi
                 [[ $rc -eq 0 ]] || {
-                    tail -n 20 <<<"$shown" | sed 's/^/      /' | while IFS= read -r l; do say "$l"; done
+                    tail -n 20 <<<"$(sanitise "$shown")" | sed 's/^/      /' \
+                        | while IFS= read -r l; do say "$l"; done
                     die "${n}: config sync from ${NODE_C} failed." \
                         "Check the webservices credentials (Configuration -> Integration -> Web Services)." \
                         "Check reachability of ${cip}."
@@ -3480,7 +3547,7 @@ parse_args() {
 # Settings a configuration file may set. Anything else is refused by name, so
 # a stray PATH= or IFS= cannot slip in.
 CONFIG_KEYS="MASTER_NODE NODES PIONEER SSH_USER SSH_IDENTITY SSH_CONNECT_TIMEOUT
-SSH_ALIVE_INTERVAL SSH_ALIVE_COUNT SSH_EXTRA_OPTS RETRY_COUNT RETRY_DELAY
+SSH_ALIVE_INTERVAL SSH_ALIVE_COUNT RETRY_COUNT RETRY_DELAY
 WS_USER WS_PASS PF_ROOT LOG_DIR STATE_FILE KEEP_STATE MIN_FREE_MB_MYSQL
 MIN_FREE_MB_ROOT MIN_FREE_MB_APTCACHE POLL_SECS SERVICE_WAIT_TIMEOUT
 SERVICE_OK_POLLS GALERA_WAIT_TIMEOUT DB_WAIT_TIMEOUT CONFIG_SETTLE_SECS
@@ -3496,14 +3563,34 @@ CONFIG_ARRAY_KEYS="NODES DETACH_RESTART_SERVICES"
 # surfacing as a puzzling error on a node.
 CONFIG_PATH_KEYS="PF_ROOT LOG_DIR STATE_FILE SSH_IDENTITY"
 
+# Settings used as numbers. They must be checked, and not only against typos:
+# bash re-evaluates the CONTENT of a variable in an arithmetic context, and an
+# assignment is valid arithmetic. 'POLL_SECS=ASSUME_YES=1' would pass every other
+# check here and then set, in '(( POLL_SECS > 0 ))', a variable that is
+# deliberately not on this list - switching off the confirmation in front of
+# 'rm -fr /var/lib/mysql/*'. A non-numeric value is also silently worth 0, which
+# turns a timeout into "do not wait at all".
+CONFIG_INT_KEYS="SSH_CONNECT_TIMEOUT SSH_ALIVE_INTERVAL SSH_ALIVE_COUNT
+RETRY_COUNT RETRY_DELAY KEEP_STATE MIN_FREE_MB_MYSQL MIN_FREE_MB_ROOT
+MIN_FREE_MB_APTCACHE POLL_SECS SERVICE_WAIT_TIMEOUT SERVICE_OK_POLLS
+GALERA_WAIT_TIMEOUT DB_WAIT_TIMEOUT CONFIG_SETTLE_SECS SERVICE_REVIVE
+SERVICE_REVIVE_AFTER VERIFY_RETRIES VERIFY_RETRY_SECS MARIADB_STOP_TIMEOUT
+MARIADB_STOP_GRACE VIP_WAIT_TIMEOUT DETACH_TIMEOUT INTERACTIVE_UPGRADE"
+
 # config_value_ok <key> <value> <lineno> - shape check for the keys above.
 config_value_ok() {
     local key="$1" v="$2" lineno="$3"
-    [[ " ${CONFIG_PATH_KEYS} " == *" ${key} "* ]] || return 0
-    if [[ ! "$v" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
-        printf 'line %d: %s must be an absolute path without special characters: %s\n' \
-            "$lineno" "$key" "$v"
-        return 1
+    if [[ " ${CONFIG_PATH_KEYS} " == *" ${key} "* ]]; then
+        if [[ ! "$v" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+            printf 'line %d: %s must be an absolute path without special characters: %s\n' \
+                "$lineno" "$key" "$v"
+            return 1
+        fi
+    elif [[ " ${CONFIG_INT_KEYS//$'\n'/ } " == *" ${key} "* ]]; then
+        if [[ ! "$v" =~ ^[0-9]+$ ]]; then
+            printf 'line %d: %s takes a number: %s\n' "$lineno" "$key" "$v"
+            return 1
+        fi
     fi
     return 0
 }
@@ -3581,8 +3668,48 @@ config_check() {
     config_parse "$1" 0
 }
 
+# Who may put settings in front of this script. The file decides the ssh
+# identity, the paths and the webservices user, so whoever can write it decides
+# what this script does as root. Two traps on a PacketFence server:
+# /usr/local/pf/conf is group-writable for pf (the admin UI and the portal run as
+# pf), and the packetfence postinst resets conf/* to 664 pf:pf on every package
+# upgrade. Hence this runs on every invocation and BEFORE the file is applied,
+# not only in preflight.
+require_trusted_config() {
+    local f="$CONFIG_FILE" d why=""
+    [[ -f "$f" ]] || return 0
+    # Writable by its owner only, and the owner is whoever runs this script -
+    # which check_local_prereqs has already established to be root.
+    why="$(path_is_private "$f" "file")"
+    [[ -z "$why" ]] && { d="$(dirname "$f")"; why="$(path_is_private "$d" "directory")"; }
+    [[ -z "$why" ]] && return 0
+    die "${f} cannot be trusted as a configuration file: ${why}." \
+        "It sets the ssh identity and the paths this script works with." \
+        "Either:  chown root:root ${f} && chmod 600 ${f}" \
+        "    or:  keep it under /root/ and pass --config /root/$(basename "$f")" \
+        "The packetfence postinst resets $(dirname "$f")/* to 664 pf:pf on every" \
+        "package upgrade, which is why /root/ is the better place for it."
+}
+
+# path_is_private <path> <what> - prints the objection, empty when the path is
+# owned by the caller and writable by nobody else.
+path_is_private() {
+    local p="$1" what="$2" owner mode g o
+    owner=$(stat -c '%u' "$p" 2>/dev/null) || { printf 'the %s cannot be read' "$what"; return 0; }
+    mode=$(stat -c '%a' "$p" 2>/dev/null || echo "")
+    if [[ "$owner" != "$EUID" ]]; then
+        printf 'the %s belongs to uid %s, not to uid %s running this script' "$what" "$owner" "$EUID"
+        return 0
+    fi
+    g="${mode: -2:1}"; o="${mode: -1}"
+    case "$g" in [2367]) printf 'the %s is group-writable (mode %s)' "$what" "$mode"; return 0 ;; esac
+    case "$o" in [2367]) printf 'the %s is world-writable (mode %s)' "$what" "$mode"; return 0 ;; esac
+    return 0
+}
+
 load_config() {
     [[ -f "$CONFIG_FILE" ]] || return 0
+    require_trusted_config
     local msg
     # Checked first, assigned second: a bad line must not leave half the file
     # applied.
@@ -3615,7 +3742,15 @@ main() {
     # write there as user pf. Only the file itself gets the usual root:pf 0640.
     mkdir -p "$LOG_DIR" 2>/dev/null || true
     RUN_LOG="${LOG_DIR}/pfclu-${PHASE}-${RUN_ID}.log"
-    : >"$RUN_LOG"
+    # noclobber, so the name is created and not followed: LOG_DIR is shared with
+    # the pf services, the name is predictable, and a symlink planted there would
+    # otherwise be truncated - and then given to group pf by the chmod/chgrp.
+    if ! ( set -o noclobber; : >"$RUN_LOG" ) 2>/dev/null; then
+        RUN_LOG="${LOG_DIR}/pfclu-${PHASE}-${RUN_ID}-$$.log"
+        ( set -o noclobber; : >"$RUN_LOG" ) 2>/dev/null \
+            || die "Could not create the run log ${RUN_LOG}." \
+                   "Does the name already exist in ${LOG_DIR}?"
+    fi
     chmod 640 "$RUN_LOG" 2>/dev/null || true
     chgrp pf  "$RUN_LOG" 2>/dev/null || true
 
