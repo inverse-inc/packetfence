@@ -1,9 +1,11 @@
 # pf-cluster-upgrade.conf
 #
 # Copy to /usr/local/pf/conf/pf-cluster-upgrade.conf, or pass --config <file>.
-# The script sources this file: only comments and plain VARIABLE=VALUE lines
-# are allowed, no $(...), no backticks, no ';'. A comment needs its own line -
-# a '#' behind a value would be part of the value.
+# The script PARSES this file, it never sources it: only comments and plain
+# KEY=VALUE lines are allowed, with NODES=(...) and DETACH_RESTART_SERVICES=(...)
+# as the only list form. Values are taken literally - no $(...), no backticks,
+# no ${...}, and an unknown key is refused by name. A comment needs its own
+# line; a '#' behind a value would be part of the value.
 # chmod 600, the webservices password may end up in here.
 #
 # One file for the whole cluster: MASTER_NODE is compared against the node's

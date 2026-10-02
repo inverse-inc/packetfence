@@ -25,7 +25,7 @@
 set -Eeuo pipefail
 
 SCRIPT_NAME="$(basename "$0")"
-SCRIPT_VERSION="2.2.2"
+SCRIPT_VERSION="2.2.3"
 
 # --- Configuration (overridable by file or CLI) -------------------------------
 # Next to the other PacketFence configuration; pfcmd fixpermissions does not
@@ -443,6 +443,19 @@ state_rewrite() {
     return 0
 }
 
+# Removes the state file under the same lock state_rewrite uses: a concurrent
+# 'status --rebaseline' would otherwise write it back after the unlink, and the
+# next run would skip the steps that file still calls done. The lock file itself
+# stays - it is empty, owned by root, and the next run reuses it.
+state_discard() {
+    local rc=0
+    exec 9>>"${STATE_FILE}.lock" || return 1
+    flock -w 30 9 || { exec 9>&-; return 1; }
+    rm -f "$STATE_FILE" 2>/dev/null || rc=1
+    exec 9>&-
+    return $rc
+}
+
 state_set() {
     [[ $DRY_RUN -eq 1 ]] && return 0
     state_rewrite "^${1//./\\.}=" "$(printf '%s=%s' "$1" "$2")" \
@@ -824,9 +837,13 @@ rm -f "/run/${unit}.rc"
 # still allowed. IgnoreOnIsolate is mandatory, not a nicety: the packetfence
 # preinst runs 'systemctl isolate packetfence-base.target' (line 124), which
 # would otherwise stop our unit mid dpkg transaction.
+# The three paths go in as positional arguments, not as text in the command:
+# the log path comes from LOG_DIR, hence from the configuration file, and a
+# quote in it would otherwise close the quoting and run as root.
 systemd-run --unit="$unit" --collect --quiet \
   --property=IgnoreOnIsolate=yes \
-  /bin/bash -c "bash '/run/${unit}.sh' >> '${logf}' 2>&1; echo \$? > '/run/${unit}.rc'" || exit 1
+  /bin/bash -c 'bash "$1" >> "$2" 2>&1; echo $? > "$3"' \
+  pfclu-detach "/run/${unit}.sh" "$logf" "/run/${unit}.rc" || exit 1
 echo STARTED
 REMOTE
 
@@ -881,6 +898,9 @@ echo "mysql_avail_mb=$(df -Pm /var/lib/mysql 2>/dev/null | tail -n1 | awk '{prin
 echo "root_avail_mb=$(df -Pm /root 2>/dev/null | tail -n1 | awk '{print $4}')"
 echo "aptcache_avail_mb=$(df -Pm /var/cache/apt 2>/dev/null | tail -n1 | awk '{print $4}')"
 echo "pfconfig_active=$(systemctl is-active packetfence-config 2>/dev/null || echo inactive)"
+# A leftover --force-new-cluster from an aborted earlier run: the next MariaDB
+# start would bootstrap a second cluster next to the existing one.
+echo "mariadb_args=$(systemctl show-environment 2>/dev/null | sed -n 's/^MARIADB_ARGS=//p')"
 # Full package version - 'pfcmd version' reports only 15.1.0 and hides
 # differing maintenance builds across the cluster.
 echo "pf_pkg=$(dpkg-query -W -f='${Version}' packetfence 2>/dev/null || rpm -q --qf '%{VERSION}-%{RELEASE}' packetfence 2>/dev/null || true)"
@@ -1084,10 +1104,18 @@ REMOTE
 # keepalived is held back while the traffic-bearing services come up, so the
 # VIP does not arrive before the node can serve it. Masking, not stopping:
 # 'service pf restart' isolates on the target and would start it again.
+# Ends on the real return code: a mask that did not take means keepalived comes
+# back with the service restart below and pulls the VIP over while the node is
+# still starting - the very outage the staged start exists to prevent. The stop
+# may fail (the unit can already be down), the mask may not.
 read -r -d '' RS_KEEPALIVED_MASK <<'REMOTE' || true
 set -u
-systemctl mask packetfence-keepalived >/dev/null 2>&1
-systemctl stop packetfence-keepalived 2>/dev/null
+rc=0
+systemctl mask packetfence-keepalived >/dev/null 2>&1 || rc=$?
+[ $rc -eq 0 ] || { echo "KEEPALIVED_RC=mask:$rc"; exit $rc; }
+systemctl stop packetfence-keepalived 2>/dev/null || true
+[ "$(systemctl is-enabled packetfence-keepalived 2>/dev/null)" = masked ] \
+  || { echo "KEEPALIVED_RC=not-masked"; exit 1; }
 echo "KEEPALIVED_MASKED"
 REMOTE
 
@@ -1630,10 +1658,15 @@ revive_failed_units() {
 clear_force_new_cluster() {
     local node="$1"
     [[ $DRY_RUN -eq 1 ]] && { log_dim "[dry-run] would clear MARIADB_ARGS on ${node}"; return 0; }
+    # Not a warning: an uncleared variable is a second cluster waiting for the
+    # next MariaDB start, so the caller has to be able to stop short of it.
     rexec "$node" 'systemctl unset-environment MARIADB_ARGS >/dev/null 2>&1
-echo ARGS_CLEARED' 2>/dev/null | grep -q ARGS_CLEARED \
-        || log_warn "${node}: MARIADB_ARGS could not be cleared - check with 'systemctl show-environment | grep MARIADB'"
-    return 0
+systemctl show-environment 2>/dev/null | grep -q "^MARIADB_ARGS=" || echo ARGS_CLEARED' \
+        2>/dev/null | grep -q ARGS_CLEARED && return 0
+    log_fail "${node}: MARIADB_ARGS is still set - the next MariaDB start would bootstrap a second cluster"
+    log_info "  Check:  systemctl show-environment | grep MARIADB"
+    log_info "  Clear:  systemctl unset-environment MARIADB_ARGS"
+    return 1
 }
 
 # Stops packetfence-mariadb and interprets the markers from RS_STOP_MARIADB,
@@ -1979,6 +2012,15 @@ phase_preflight() {
             log_fail "${n}: filesystem of /var/cache/apt only ${cavail} MB free (< ${MIN_FREE_MB_APTCACHE} MB)"
         fi
 
+        # Left behind by an aborted earlier attempt. Not cosmetic: galera-autofix
+        # or any hand on the keyboard starts MariaDB with it and bootstraps a
+        # second cluster with its own UUID.
+        local margs; margs="$(ni_get "$n" mariadb_args)"
+        if [[ -n "$margs" ]]; then
+            log_fail "${n}: MARIADB_ARGS=${margs} is still in the systemd environment"
+            log_info "  Clear it before starting: systemctl unset-environment MARIADB_ARGS"
+        fi
+
         # A half-configured package trips up every later apt run - right in the
         # middle of a phase meant to avoid exactly that.
         local broken; broken="$(ni_get "$n" pkg_broken)"
@@ -2171,7 +2213,10 @@ autofix_release() {
     local node="$1"
     rstep "$node" "release galera-autofix again" '
 systemctl unmask packetfence-galera-autofix >/dev/null 2>&1
-echo AUTOFIX_UNMASKED' || log_warn "${node}: galera-autofix stayed masked - please check"
+echo AUTOFIX_UNMASKED' \
+        || { log_fail "${node}: galera-autofix stayed masked - the node has no database self-healing"
+             log_info "  By hand: systemctl unmask packetfence-galera-autofix"
+             return 1; }
     return 0
 }
 
@@ -2243,7 +2288,9 @@ run_do_upgrade() {
         autofix_immobilize "$node"
         local irc=0
         rtty "$node" "do-upgrade.sh" "$cmd" || irc=$?
-        autofix_release "$node"
+        # Recorded by log_fail, not fatal here: the return code of the upgrade
+        # itself is what the caller has to see.
+        autofix_release "$node" || true
         return $irc
     fi
 
@@ -2322,7 +2369,7 @@ run_do_upgrade() {
 
     local rc=0
     rdetach "$node" "pfclu-doupgrade" "do-upgrade.sh (Upgrade Guide 5.1)" "$script" || rc=$?
-    autofix_release "$node"
+    autofix_release "$node" || true
     return $rc
 }
 
@@ -2672,7 +2719,9 @@ phase_rollback() {
     rstep "$NODE_C" "stop the PacketFence services" "$RS_STOP_PF" \
         || die "${NODE_C}: the services could not be stopped - ${NODE_A} and ${NODE_B} were NOT started." \
                "Check by hand: ${PFCMD} service pf status"
-    clear_force_new_cluster "$NODE_C"
+    # Recorded, not fatal: A and B must come back up now. summary() ends the
+    # phase non-zero, and preflight refuses to pass while the variable is set.
+    clear_force_new_cluster "$NODE_C" || true
 
     local n
     for n in "$NODE_A" "$NODE_B"; do
@@ -2692,6 +2741,10 @@ phase_rollback() {
     # The recorded steps of 'upgrade-c' no longer describe reality: A and B run
     # again, C is stopped. Kept, a later 'upgrade-c --resume' would skip stopping
     # A and B and start C alongside them - two live halves on one database.
+    # This holds even when a start above failed: the markers describe steps that
+    # have been undone either way, and a resume that trusts them is the more
+    # dangerous of the two outcomes. The failure itself is in FAIL_LIST, so the
+    # phase below ends non-zero and no caller carries on.
     state_unset_prefix "done.c."
     # The same goes for 'upgrade-ab'. With ab_upgraded left at 1, a later
     # 'run --resume' would SKIP the review pause of 12.4.5 - the last point at
@@ -3036,8 +3089,11 @@ phase_finish() {
     # Belt and braces: if reintegrate aborted after 're.c_master', the manager
     # environment of C still carries --force-new-cluster. galera-autofix, which
     # is switched back on below, would restart MariaDB with it and bootstrap a
-    # second cluster.
-    clear_force_new_cluster "$NODE_C"
+    # second cluster - so this is where the phase stops, before that release.
+    clear_force_new_cluster "$NODE_C" \
+        || die "${NODE_C}: --force-new-cluster is still in the systemd environment." \
+               "galera-autofix stays switched off until it is gone - it would otherwise" \
+               "restart MariaDB with it and bootstrap a second cluster."
 
     say ""
     say "Cluster check and galera-autofix are switched back on (12.4.8, 12.4.9)."
@@ -3121,7 +3177,7 @@ echo AUTOFIX_RESTARTED' \
         say "State file kept on request: ${STATE_FILE}"
     elif [[ $DRY_RUN -eq 1 ]]; then
         log_dim "[dry-run] the state file would stay unchanged"
-    elif rm -f "$STATE_FILE" "${STATE_FILE}.lock" 2>/dev/null; then
+    elif state_discard; then
         log_ok "State file deleted - the next upgrade starts clean"
     else
         log_warn "Could not delete the state file: ${STATE_FILE}"
@@ -3421,10 +3477,6 @@ parse_args() {
     done
 }
 
-# config_check <file> - checks whether the file can be sourced safely; prints a
-# message and returns 1 on objection. The shell sources the file, so only simple
-# assignments are allowed. Comments are exempt - $(...) and ';' may appear there
-# as text.
 # Settings a configuration file may set. Anything else is refused by name, so
 # a stray PATH= or IFS= cannot slip in.
 CONFIG_KEYS="MASTER_NODE NODES PIONEER SSH_USER SSH_IDENTITY SSH_CONNECT_TIMEOUT
@@ -3437,6 +3489,24 @@ MARIADB_STOP_TIMEOUT MARIADB_STOP_GRACE VIP_WAIT_TIMEOUT CLUSTER_VIP
 TARGET_VERSION INCLUDE_OS_UPDATE DETACH_TIMEOUT INTERACTIVE_UPGRADE
 DETACH_RESTART_SERVICES"
 CONFIG_ARRAY_KEYS="NODES DETACH_RESTART_SERVICES"
+
+# Settings that end up in a path. Since the detached start passes paths as
+# arguments rather than as shell text, an odd character there cannot run
+# anything - but it still belongs named at the line that holds it instead of
+# surfacing as a puzzling error on a node.
+CONFIG_PATH_KEYS="PF_ROOT LOG_DIR STATE_FILE SSH_IDENTITY"
+
+# config_value_ok <key> <value> <lineno> - shape check for the keys above.
+config_value_ok() {
+    local key="$1" v="$2" lineno="$3"
+    [[ " ${CONFIG_PATH_KEYS} " == *" ${key} "* ]] || return 0
+    if [[ ! "$v" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+        printf 'line %d: %s must be an absolute path without special characters: %s\n' \
+            "$lineno" "$key" "$v"
+        return 1
+    fi
+    return 0
+}
 
 # config_parse <file> <assign>
 # The configuration is data, never code - it is parsed, not sourced. The file is
@@ -3483,10 +3553,12 @@ config_parse() {
                 ;;
             '"'*'"')
                 v="${val#\"}"; v="${v%\"}"
+                config_value_ok "$key" "$v" "$lineno" || return 1
                 if [[ $assign -eq 1 ]]; then printf -v "$key" '%s' "$v"; fi
                 ;;
             "'"*"'")
                 v="${val#\'}"; v="${v%\'}"
+                config_value_ok "$key" "$v" "$lineno" || return 1
                 if [[ $assign -eq 1 ]]; then printf -v "$key" '%s' "$v"; fi
                 ;;
             *)
@@ -3497,6 +3569,7 @@ config_parse() {
                     printf 'line %d: a value with spaces must be quoted: %s\n' "$lineno" "$line"
                     return 1
                 fi
+                config_value_ok "$key" "$val" "$lineno" || return 1
                 if [[ $assign -eq 1 ]]; then printf -v "$key" '%s' "$val"; fi
                 ;;
         esac
