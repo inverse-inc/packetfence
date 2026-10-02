@@ -121,6 +121,18 @@ is( $resolver->performRoleLookup( { mac => 'x', status => 'reg', category => 'gu
     ok( scalar( keys %used ) > 1, 'no-pid nodes are distributed across the pool by MAC' );
 }
 
+# --- node_info missing entirely: optional $args from custom switch modules ----
+# getRoleByName($role, $args) is reachable from inherited and custom modules
+# that may not pass node_info at all.
+{
+    my $r = $pool->getRoleFromPool( { role => $poolstr, mac => '00:11:22:33:44:99' } );
+    ok( ( grep { $_ eq $r } @members ), "no node_info at all -> valid pool member ($r)" );
+    is( $r, $pool->getRoleFromPool( { role => $poolstr, node_info => undef, mac => '00:11:22:33:44:99' } ),
+        'an undefined node_info hashes on the MAC like a missing one' );
+    my $n = $pool->getRoleFromPool( { role => $poolstr } );
+    ok( ( grep { $_ eq $n } @members ), "neither node_info nor mac -> still a valid pool member ($n)" );
+}
+
 # --- _poolMembers edge cases: empty members dropped, members trimmed ---------
 is_deeply( [ pf::role::pool::_poolMembers('net_a,,net_b') ], [ 'net_a', 'net_b' ],
     'empty members are dropped' );

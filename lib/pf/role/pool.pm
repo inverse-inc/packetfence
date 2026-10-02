@@ -97,7 +97,10 @@ sub getRoleFromPool {
     # (undef / "" / "default"); fall back to the device MAC so those clients are
     # spread per-device instead of all landing on the same member -- still
     # deterministic, so a given device is roaming-stable.
-    my $pid = $args->{'node_info'}->{'pid'};
+    # node_info is optional: getRoleByName($role, $args) is reachable from
+    # custom and inherited switch modules that may not carry it.
+    my $node_info = $args->{'node_info'};
+    my $pid = (ref($node_info) eq 'HASH') ? $node_info->{'pid'} : undef;
     my $key = (defined($pid) && length($pid) && $pid ne 'default') ? $pid : ($args->{'mac'} // '');
     my $index = $self->_usernameHashIndex($key);
     my $role = $roles[($index + 1) % scalar(@roles)];
