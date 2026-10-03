@@ -43,6 +43,64 @@ Define an IPv4 RADIUS server using the CLI:
    end
  end
 
+==== RADIUS CoA (Disconnect)
+
+PacketFence deauthenticates endpoints with RADIUS Disconnect-Requests sent to
+UDP port 3799. Enable CoA on the RADIUS server definition:
+
+ config user radius
+   edit <name>
+     set radius-coa enable
+   next
+ end
+
+The CoA port is set globally (3799 by default):
+
+ config system global
+   set radius-coa-port 3799
+ end
+
+The FortiSwitch also needs `radius-acct` in the `allowaccess` list of the
+interface that receives the Disconnect-Request (the management interface, or
+`internal` for a FortiLink-managed switch). Without it, the switch silently
+drops the request and PacketFence logs a timeout on port 3799:
+
+ config system interface
+   edit internal
+     set allowaccess ping https ssh radius-acct
+   next
+ end
+
+When the FortiSwitch is managed by a FortiGate (FortiLink), the RADIUS server
+(with `set radius-coa enable`) is defined on the FortiGate and pushed to the
+switch, but `allowaccess` on the switch `internal` interface is not. A value set
+on the switch CLI is overwritten the next time the FortiGate resynchronizes the
+switch (for example after a FortiGate reboot). Push it from the FortiGate with a
+custom command instead, so it is applied on every synchronization:
+
+ config switch-controller custom-command
+   edit "fsw-coa-allowaccess"
+     set command "config system interface %0a edit internal %0a set allowaccess ping https ssh radius-acct %0a next %0a end %0a"
+   next
+ end
+
+ config switch-controller managed-switch
+   edit <switch_serial_number>
+     config custom-command
+       edit 1
+         set command-name "fsw-coa-allowaccess"
+       next
+     end
+   next
+ end
+
+The FortiSwitch sends RADIUS from its FortiLink address (for example
+169.254.1.2). The FortiGate needs a firewall policy from the `fortilink`
+interface to the PacketFence server (RADIUS, with NAT if the FortiLink subnet
+is not routed), and a virtual IP that forwards UDP 3799 to the switch for CoA.
+Set `nas-ip` on the RADIUS server to the address used as the switch identifier
+in PacketFence.
+
 ==== Port Security Global Settings
 
 Using the CLI:
@@ -230,9 +288,12 @@ On the PacketFence side, configure the switch to use ACL-based enforcement:
 1. Navigate to Configuration → Policies and Access Control → Switches
 2. Edit your FortiSwitch configuration
 3. In the Roles section, enable "Role by Access List"
-4. Define ACL rules for each role
+4. Define the ACL rules on each role, in Configuration → Policies and Access
+Control → Roles
 
-Example ACL for a registration role (allows access to captive portal):
+ACLs defined on the role use the generic PacketFence syntax, and PacketFence
+translates them to the FortiSwitch `NAS-Filter-Rule` format. Example ACL for a
+registration role (allows access to the captive portal):
 
  permit udp any any eq 53
  permit udp any any eq 67
@@ -240,7 +301,32 @@ Example ACL for a registration role (allows access to captive portal):
  permit tcp any host 192.168.1.5 eq 443
  deny ip any any
 
+is sent to the switch as:
+
+ permit in udp from any to any 53
+ permit in udp from any to any 67
+ permit in tcp from any to 192.168.1.5/32 80
+ permit in tcp from any to 192.168.1.5/32 443
+ deny in ip from any to any
+
 NOTE: Replace 192.168.1.5 with your PacketFence server IP address.
+
+NOTE: An access list entered for a role in the Roles section of the switch
+configuration overrides the role ACL and is sent to the switch as is. It must
+already use the FortiSwitch format shown above.
+
+Limitations:
+
+* FortiSwitchOS accepts one rule per `NAS-Filter-Rule` attribute, of at most 80
+  characters. PacketFence sends each rule in its own attribute. If a FortiSwitch
+  shows `DACL total items :0:` and its event log (`execute log display`) shows
+  `NAS-Filter-Rule exceed maximum size 80, failure with batch install`, the
+  rules were packed into a single attribute; upgrade PacketFence.
+* ICMP rules (`icmp` or protocol `1`) are installed but not enforced by
+  FortiSwitchOS 7.x. Use `ip`, `tcp` or `udp` rules.
+* With FortiLink, the FortiGate 802.1X security policy may not have a `dacl`
+  option (FortiOS 6.2). Enable `dacl` on the switch port, or push it with a
+  custom command as described in the RADIUS CoA section.
 
 When DACL is enabled, the switch diagnostic output will show:
 
