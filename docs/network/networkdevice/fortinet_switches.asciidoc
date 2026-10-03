@@ -19,11 +19,23 @@ endif::[]
 
 //=== Fortinet FortiSwitch
 
-This section shows how to configure RADIUS, MAC Authentication, and 802.1X on a
-FortiSwitch running FortiSwitchOS 7.x.
+This section shows how to configure RADIUS, MAC Authentication, 802.1X, dynamic
+ACLs and flow export on a FortiSwitch running FortiSwitchOS 7.x.
 
-CLI access to the FortiSwitch is required for this configuration.
+A FortiSwitch is deployed in one of two modes, and the configuration is not
+done in the same place:
 
+* *Standalone*: the switch is configured on its own CLI. The sections below,
+  from <<fortiswitch_radius,RADIUS>> to <<fortiswitch_flow_export,Flow export (IPFIX)>>, apply.
+* *Managed by a FortiGate (FortiLink)*: the FortiGate pushes the RADIUS server,
+  the 802.1X policy, the VLANs and the flow export settings to the switch, and
+  overwrites most settings made on the switch CLI. See
+  <<fortiswitch_fortilink,FortiSwitch managed by a FortiGate (FortiLink)>>.
+
+In PacketFence, use the switch type "FortiSwitchOS v7.x"
+(`Fortinet::FortiSwitchOS_v7_x`) and set the Deauthentication Method to RADIUS.
+
+[[fortiswitch_radius]]
 ==== RADIUS
 
 Define an IPv4 RADIUS server using the CLI:
@@ -42,6 +54,38 @@ Define an IPv4 RADIUS server using the CLI:
      set link-monitor-interval <5-120 seconds>
    end
  end
+
+==== RADIUS CoA (Disconnect)
+
+PacketFence deauthenticates endpoints with RADIUS Disconnect-Requests sent to
+UDP port 3799. Enable CoA on the RADIUS server definition:
+
+ config user radius
+   edit <name>
+     set radius-coa enable
+   next
+ end
+
+The CoA port is set globally (3799 by default):
+
+ config system global
+   set radius-coa-port 3799
+ end
+
+The FortiSwitch also needs `radius-acct` in the `allowaccess` list of the
+interface that receives the Disconnect-Request (the management interface, or
+`internal` for a FortiLink-managed switch). Without it, the switch silently
+drops the request and PacketFence logs a timeout on port 3799:
+
+ config system interface
+   edit internal
+     set allowaccess ping https ssh radius-acct
+   next
+ end
+
+NOTE: On a FortiLink-managed switch, a value set on the switch CLI is lost when
+the FortiGate resynchronizes the switch. See
+<<fortiswitch_fortilink_coa,CoA on the switch (radius-acct)>>.
 
 ==== Port Security Global Settings
 
@@ -230,9 +274,12 @@ On the PacketFence side, configure the switch to use ACL-based enforcement:
 1. Navigate to Configuration → Policies and Access Control → Switches
 2. Edit your FortiSwitch configuration
 3. In the Roles section, enable "Role by Access List"
-4. Define ACL rules for each role
+4. Define the ACL rules on each role, in Configuration → Policies and Access
+Control → Roles
 
-Example ACL for a registration role (allows access to captive portal):
+ACLs defined on the role use the generic PacketFence syntax, and PacketFence
+translates them to the FortiSwitch `NAS-Filter-Rule` format. Example ACL for a
+registration role (allows access to the captive portal):
 
  permit udp any any eq 53
  permit udp any any eq 67
@@ -240,7 +287,30 @@ Example ACL for a registration role (allows access to captive portal):
  permit tcp any host 192.168.1.5 eq 443
  deny ip any any
 
+is sent to the switch as:
+
+ permit in udp from any to any 53
+ permit in udp from any to any 67
+ permit in tcp from any to 192.168.1.5/32 80
+ permit in tcp from any to 192.168.1.5/32 443
+ deny in ip from any to any
+
 NOTE: Replace 192.168.1.5 with your PacketFence server IP address.
+
+NOTE: An access list entered for a role in the Roles section of the switch
+configuration overrides the role ACL and is sent to the switch as is. It must
+already use the FortiSwitch format shown above.
+
+Limitations:
+
+* FortiSwitchOS accepts one rule per `NAS-Filter-Rule` attribute, of at most 80
+  characters. PacketFence sends each rule in its own attribute. If a FortiSwitch
+  shows `DACL total items :0:` and its event log (`execute log display`) shows
+  `NAS-Filter-Rule exceed maximum size 80, failure with batch install`, the
+  rules were packed into a single attribute; upgrade PacketFence.
+* ICMP rules (`icmp` or protocol `1`) are installed but not enforced by
+  FortiSwitchOS 7.x. Use `ip`, `tcp` or `udp` rules.
+* With FortiLink, see <<fortiswitch_fortilink_dacl,Dynamic ACL with FortiLink>>.
 
 When DACL is enabled, the switch diagnostic output will show:
 
@@ -312,3 +382,265 @@ Clear an authorized session by MAC address:
 Example:
 
  execute 802-1x clear mac 00:21:cc:d2:76:72
+
+[[fortiswitch_flow_export]]
+==== Flow export (IPFIX)
+
+PacketFence receives flows with its Fingerbank collector on UDP 2055 (NetFlow
+v5/v9 and IPFIX), 4739 (IPFIX) and 6343 (sFlow). Use IPFIX: it was validated
+end to end (flows decoded, tied to the switch and turned into network events).
+
+Define the collector and the export format:
+
+ config system flow-export
+   set format ipfix
+   set level vlan
+   set timeout-tcp 60
+   set timeout-udp 60
+   config collectors
+     edit "packetfence"
+       set ip <packetfence_ip>
+       set port 4739
+     next
+   end
+ end
+
+Then enable sampling on the access ports, on received traffic:
+
+ config switch interface
+   edit <port>
+     set packet-sampler enabled
+     set packet-sample-rate <rate>
+     set sample-direction rx
+   next
+ end
+
+`level` must be `vlan` (source/destination IP and port, protocol, ToS and VLAN)
+or `port` (IP, port and protocol). With the default `ip` level, the records only
+carry the IP addresses and the PacketFence collector discards them. A
+`packet-sample-rate` of 1 exports every packet; use a higher value on busy
+ports.
+
+NOTE: NetFlow and IPFIX headers do not carry the switch address. PacketFence
+identifies the switch from the source address of the export packets, which
+requires a Fingerbank collector that sets the agent address from that source
+(later than 1.6.2). The FortiSwitch resends its IPFIX templates every 5 minutes
+(`template-export-period`), so after a collector restart, flows are decoded
+again within 5 minutes.
+
+[[fortiswitch_fortilink]]
+==== FortiSwitch managed by a FortiGate (FortiLink)
+
+When the FortiSwitch is managed by a FortiGate, configure it from the FortiGate
+CLI. The FortiGate pushes the RADIUS server, the user group, the 802.1X security
+policy, the VLANs and the flow export settings to the switch, and overwrites
+the settings made on the switch CLI when it resynchronizes the switch. The
+configuration below was validated with a FortiSwitch-124F (FortiSwitchOS 7.0.4
+and 7.4.2) managed by a FortiWiFi-30E (FortiOS 6.2.3).
+
+The switch management address is on the FortiLink network (169.254.1.x by
+default), which PacketFence usually cannot reach. In the configuration below,
+the FortiGate NATs the RADIUS and flow export traffic of the switch behind its
+own address, and forwards CoA to the switch with a virtual IP. The switch is
+then known to PacketFence by the FortiGate address facing PacketFence
+(`<fortigate_ip>` below), which is also the `nas-ip` of the RADIUS server.
+
+===== RADIUS server and 802.1X/MAB policy
+
+ config user radius
+   edit "packetfence"
+     set server <packetfence_ip>
+     set secret <shared_secret>
+     set nas-ip <fortigate_ip>
+     set radius-coa enable
+   next
+ end
+
+ config user group
+   edit "PF-RADIUS"
+     set member "packetfence"
+   next
+ end
+
+ config switch-controller security-policy 802-1X
+   edit "pf-dot1x-mab"
+     set security-mode 802.1X-mac-based
+     set user-group "PF-RADIUS"
+     set mac-auth-bypass enable
+     set eap-passthru enable
+     set framevid-apply enable
+   next
+ end
+
+The VLANs returned by PacketFence must exist as FortiLink VLAN interfaces on
+the FortiGate, for example VLAN 40:
+
+ config system interface
+   edit "pf.vlan40"
+     set interface "fortilink"
+     set vlanid 40
+     set ip <gateway_ip> <netmask>
+   next
+ end
+
+Apply the policy to the access ports:
+
+ config switch-controller managed-switch
+   edit <switch_serial_number>
+     config ports
+       edit "port1"
+         set vlan "pf.vlan40"
+         set port-security-policy "pf-dot1x-mab"
+       next
+     end
+   next
+ end
+
+===== Firewall policies and CoA
+
+Allow the switch to reach PacketFence (RADIUS, and the flow export ports if
+you use flow export), with NAT:
+
+ config firewall address
+   edit "packetfence"
+     set subnet <packetfence_ip> 255.255.255.255
+   next
+ end
+
+ config firewall service custom
+   edit "FLOW-EXPORT"
+     set udp-portrange 2055 4739 6343
+   next
+   edit "RADIUS-CoA"
+     set udp-portrange 3799
+   next
+ end
+
+ config firewall vip
+   edit "FSW-CoA"
+     set extip <fortigate_ip>
+     set extintf <interface_facing_packetfence>
+     set portforward enable
+     set protocol udp
+     set extport 3799
+     set mappedport 3799
+     set mappedip <switch_fortilink_ip>
+   next
+ end
+
+ config firewall policy
+   edit 0
+     set name "FortiLink-to-PacketFence"
+     set srcintf "fortilink"
+     set dstintf <interface_facing_packetfence>
+     set srcaddr "all"
+     set dstaddr "packetfence"
+     set action accept
+     set schedule "always"
+     set service "RADIUS" "FLOW-EXPORT"
+     set nat enable
+   next
+   edit 0
+     set name "PacketFence-CoA-to-FortiSwitch"
+     set srcintf <interface_facing_packetfence>
+     set dstintf "fortilink"
+     set srcaddr "packetfence"
+     set dstaddr "FSW-CoA"
+     set action accept
+     set schedule "always"
+     set service "RADIUS-CoA"
+   next
+ end
+
+The CoA policy does not use NAT, so the Disconnect-Request reaches the switch
+with the PacketFence address, the address of its RADIUS server, as its source.
+
+[[fortiswitch_fortilink_coa]]
+===== CoA on the switch (radius-acct)
+
+The switch only accepts Disconnect-Requests when its `internal` interface has
+`radius-acct` in `allowaccess`, and the FortiGate does not push this setting: a
+value set on the switch CLI is lost at the next resynchronization (for example
+after a FortiGate reboot). Push it with a custom command:
+
+ config switch-controller custom-command
+   edit "fsw-coa-allowaccess"
+     set command "config system interface %0a edit internal %0a set allowaccess ping https ssh radius-acct %0a next %0a end %0a"
+   next
+ end
+
+ config switch-controller managed-switch
+   edit <switch_serial_number>
+     config custom-command
+       edit 1
+         set command-name "fsw-coa-allowaccess"
+       next
+     end
+   next
+ end
+
+[[fortiswitch_fortilink_dacl]]
+===== Dynamic ACL with FortiLink
+
+The 802.1X security policy of FortiOS 6.2 has no `dacl` option. Enable it on
+the switch ports from the switch CLI (`execute ssh admin@<switch_fortilink_ip>`
+from the FortiGate); this setting survives a resynchronization:
+
+ config switch interface
+   edit <port>
+     config port-security
+       set dacl enable
+     end
+   next
+ end
+
+The rest of the dynamic ACL configuration (PacketFence roles, limitations) is
+the same as for a standalone switch.
+
+===== Flow export (IPFIX) with FortiLink
+
+Configure flow export on the FortiGate, which pushes `system flow-export` and
+the port sampling to the switch:
+
+ config switch-controller flow-tracking
+   set sample-mode device-ingress
+   set sample-rate <rate>
+   set format ipfix
+   set collector-ip <packetfence_ip>
+   set collector-port 4739
+   set level vlan
+   set timeout-tcp 60
+   set timeout-udp 60
+ end
+
+`device-ingress` samples the received traffic of every switch port. The default
+`perimeter` mode only samples the fabric and FortiLink ports, so the traffic of
+the endpoints that stays on the switch is not seen. As for a standalone switch,
+`level` must be `vlan` or `port`.
+
+NOTE: Do not use sFlow behind a FortiGate that NATs the switch traffic. sFlow
+carries the agent address in the datagram, so PacketFence sees the FortiLink
+address of the switch (169.254.1.x) instead of `<fortigate_ip>`, and cannot
+match the flows with the switch entry. NetFlow v5 and v9 also work, but IPFIX
+is preferred.
+
+===== PacketFence switch entry
+
+Create the switch in PacketFence with `<fortigate_ip>` (the `nas-ip`) as its IP
+address, the "FortiSwitchOS v7.x" type, the RADIUS secret of the `packetfence`
+RADIUS server, and RADIUS as the Deauthentication Method.
+
+===== Troubleshooting with FortiLink
+
+Check that the switch is authorized and up:
+
+ execute switch-controller get-conn-status
+
+Show the 802.1X sessions of a port from the FortiGate:
+
+ diagnose switch-controller switch-info 802.1X <switch_serial_number> <port>
+
+Open a CLI on the switch, for the commands of the standalone sections (for
+example `diagnose switch 802-1x status-dacl <port>` and `execute log display`):
+
+ execute ssh admin@<switch_fortilink_ip>
