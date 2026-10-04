@@ -63,7 +63,7 @@ my $cisco = fake_switch(t_ifdesc => { 10 => 'GigabitEthernet1/0/2' }, t_ifname =
 is($cisco->ifIndexToLldpLocalPort(10), 2, 'port found by its description (Cisco)');
 
 # Arista EOS: lldpLocPortDesc is the interface description set by the admin
-with_tables({ "$DESC.1" => 'KrakenPatch', "$DESC.2" => '' }, { "$ID.1" => 'Ethernet1', "$ID.2" => 'Ethernet2' });
+with_tables({ "$DESC.1" => 'Lab endpoint', "$DESC.2" => '' }, { "$ID.1" => 'Ethernet1', "$ID.2" => 'Ethernet2' });
 my $arista = fake_switch(t_ifdesc => { 1 => 'Ethernet1' }, t_ifname => { 1 => 'Ethernet1' });
 is($arista->ifIndexToLldpLocalPort(1), 1, 'port found by its port ID when the description is the admin one (Arista)');
 
@@ -77,7 +77,7 @@ with_tables({ "$DESC.3" => 'Ethernet4', "$DESC.4" => 'Ethernet4' }, { "$ID.3" =>
 my $clash = fake_switch(t_ifdesc => { 4 => 'Ethernet4' }, t_ifname => { 4 => 'Ethernet4' });
 is($clash->ifIndexToLldpLocalPort(4), 4, 'an ambiguous description falls back to the port ID');
 
-with_tables({ "$DESC.1" => 'KrakenPatch' }, { "$ID.1" => 'Ethernet1' });
+with_tables({ "$DESC.1" => 'Lab endpoint' }, { "$ID.1" => 'Ethernet1' });
 my $unknown = fake_switch(t_ifdesc => { 9 => 'Ethernet9' }, t_ifname => { 9 => 'Ethernet9' });
 is($unknown->ifIndexToLldpLocalPort(9), undef, 'unknown port returns undef');
 
