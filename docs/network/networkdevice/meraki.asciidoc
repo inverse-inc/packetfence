@@ -151,6 +151,14 @@ neighbors of the port, read with SNMP (CISCO-CDP-MIB), and return the voice VSA
 NOTE: For SNMPv3, Meraki switches use SHA authentication and DES privacy with the
 same password for both.
 
+The switch lists a phone in its CDP neighbors (SNMP) a few minutes after the port
+comes up, usually after the first RADIUS request of the phone. During the first 15
+minutes a device is seen on the switch, when it is not detected as a phone,
+PacketFence asks the switch to authenticate it again 5 minutes later
+(`Session-Timeout = 300` with `Termination-Action = RADIUS-Request`, the port stays
+up). A phone gets the voice VSA once its CDP entry is there; other devices get the
+regular answer after these 15 minutes.
+
 ===== RADSEC
 
 It is possible to use RADSEC between Meraki and PacketFence in order to perform
