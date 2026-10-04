@@ -138,6 +138,19 @@ your VLANs are properly configured on PacketFence.
 
 image::Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
 
+====== VoIP phones detection
+
+PacketFence can detect a Cisco IP phone plugged on an MS switch through the CDP
+neighbors of the port, read with SNMP (CISCO-CDP-MIB), and return the voice VSA
+(`Cisco-AVPair = device-traffic-class=voice`) for it. To use it:
+
+* enable SNMP for the network in the Meraki dashboard ('Network-wide->General',
+  'SNMP access'), with a community (v1/v2c) or a user (v3),
+* enable 'VoIP' on the switch in PacketFence and set its SNMP read parameters.
+
+NOTE: For SNMPv3, Meraki switches use SHA authentication and DES privacy with the
+same password for both.
+
 ===== RADSEC
 
 It is possible to use RADSEC between Meraki and PacketFence in order to perform
