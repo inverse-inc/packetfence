@@ -188,9 +188,11 @@ record CoA in the radius audit log
 
 sub record_coa {
     my ($connection_info, $radius_code, $attributes, $vsa, %return) = @_;
-    my $request = join(' =22=2C ', map { $_." =3D ".($attributes->{$_} // '') } keys %{$attributes});
-    my $request_vsa = join(' =22=2C ', map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
-    my $response = join(' =22=2C ', map { $_." =3D ".$return{$_} } keys %return);
+    my $request = format_audit_log_attributes(
+        (map { [$_, $attributes->{$_}] } sort keys %{$attributes}),
+        (map { [$_->{'attribute'}, $_->{'value'}] } @{$vsa // []}),
+    );
+    my $response = format_audit_log_attributes(map { [$_, $return{$_}] } sort keys %return);
     my $mac;
     my %radius_audit_log;
     if (exists($attributes->{'Calling-Station-Id'}) ) {
@@ -209,10 +211,37 @@ sub record_coa {
     $radius_audit_log{'nas_port'} = $attributes->{'NAS-Port'} || '';
     $radius_audit_log{'radius_source_ip_address'} = $connection_info->{'LocalAddr'};
     $radius_audit_log{'auth_status'} = $return{'Code'} || '';
-    $radius_audit_log{'radius_request'} = $request."=22=2C".$request_vsa;
+    $radius_audit_log{'radius_request'} = $request;
     $radius_audit_log{'radius_reply'} = $response;
     $radius_audit_log{'created_at'} = \'NOW()';
     pf::radius_audit_log::radius_audit_log_add(%radius_audit_log);
+}
+
+=item format_audit_log_attributes
+
+Format RADIUS attributes for the radius_request and radius_reply columns of the
+RADIUS audit log, the way the radius audit log flush job does for the requests
+handled by FreeRADIUS: one 'Name = "value"' per attribute, separated by ",\n",
+with every byte outside [A-Za-z0-9@.-_: /] written as =XX.
+
+A value with control characters, such as Message-Authenticator, is written in
+hexadecimal (0x...) as FreeRADIUS does.
+
+=cut
+
+sub format_audit_log_attributes {
+    my (@attributes) = @_;
+    my @parts;
+    foreach my $attribute (@attributes) {
+        my ($name, $value) = @$attribute;
+        $value //= '';
+        utf8::encode($value) if utf8::is_utf8($value);
+        $value = '0x' . unpack('H*', $value) if $value =~ /[\x00-\x1f\x7f]/;
+        push @parts, qq{$name = "$value"};
+    }
+    my $formatted = join(",\n", @parts);
+    $formatted =~ s{([^A-Za-z0-9\@.\-_: /])}{sprintf("=%02X", ord($1))}ge;
+    return $formatted;
 }
 
 =item perform_disconnect
