@@ -37,6 +37,7 @@ sub switchDriverId { 'juniper_junos' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::node qw(node_attributes);
+use pf::locationlog qw(locationlog_view_open_switchport_no_VoIP locationlog_view_open_switchport_only_VoIP);
 use Try::Tiny;
 use pf::util;
 

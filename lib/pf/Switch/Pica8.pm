@@ -94,12 +94,22 @@ sub bouncePortRadius {
         return 1;
     }
 
-    #We need to fetch the MAC on the ifIndex in order to bounce host port with CoA, only MAC works with CoA!
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
-    $mac = $locationlog[0]->{'mac'};
+    # Bounce the session of the MAC we were given. Without one, we need to fetch
+    # the MAC on the ifIndex in order to bounce host port with CoA, only MAC works with CoA!
+    my $locationlog = $mac ? locationlog_view_open_mac($mac) : undef;
+    if (!$locationlog) {
+        my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
+        $locationlog = $locationlog[0];
+        $mac ||= $locationlog->{'mac'};
+    }
+
+    if (!$mac) {
+        $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
+        return $FALSE;
+    }
 
     #Port bounce with CoA is not supported for WIRED_MAC_AUTH connection type.
-    if ($locationlog[0]->{'connection_type'} eq 'WIRED_MAC_AUTH') {
+    if (($locationlog->{'connection_type'} // '') eq 'WIRED_MAC_AUTH') {
         $logger->info("Port bounce for this connection type is not supported");
         return 1;
     }
