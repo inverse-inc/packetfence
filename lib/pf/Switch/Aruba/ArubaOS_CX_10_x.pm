@@ -176,7 +176,6 @@ sub radiusDisconnect {
     }
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
-    my $nas_port = $self->{'_disconnectPort'} || '3799';
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
@@ -190,7 +189,6 @@ sub radiusDisconnect {
     my $response;
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-        $connection_info->{nas_port} = $nas_port;
         my $locationlog = locationlog_view_open_mac($mac);
         $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
