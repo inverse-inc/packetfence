@@ -24,7 +24,7 @@ case "$scenario" in
     lingering_real_uid|lingering_effective_uid|process_exit_race)
         touch "$fixture/process"
         ;;
-    success|usermod_failure|groupmod_failure|verification_failure|retry_permissions|service_failure) ;;
+    success|usermod_failure|groupmod_failure|verification_failure|retry_permissions|service_failure|fixpermissions_failure|retry_fixpermissions) ;;
     *) echo "Unknown test case: $scenario" >&2; exit 2 ;;
 esac
 
@@ -109,7 +109,14 @@ case "$command" in
             esac
         done
         ;;
-    chmod|sleep|ps|pfcmd) ;;
+    pfcmd)
+        if [ "$*" = 'fixpermissions strict' ]; then
+            case "$MIGRATION_CASE" in
+                fixpermissions_failure|retry_fixpermissions) exit 1 ;;
+            esac
+        fi
+        ;;
+    chmod|sleep|ps) ;;
     *) echo "Unexpected mock command: $command" >&2; exit 2 ;;
 esac
 MOCK
@@ -138,7 +145,7 @@ pending() {
 }
 
 run_migration
-if [ "$scenario" = retry_permissions ]; then
+if [ "$scenario" = retry_permissions ] || [ "$scenario" = retry_fixpermissions ]; then
     echo "FIRST_EXIT=$migration_status"
     echo "FIRST_PENDING=$(pending)"
     # Retry with the account state left by the first invocation.

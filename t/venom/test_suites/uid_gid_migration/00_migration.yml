@@ -11,7 +11,7 @@ testcases:
     - result.systemout ShouldContainSubstring FINGERBANK_IDS=2026 2026 2026
     - result.systemout ShouldContainSubstring LOGS_OWNER=0:2025
     - result.systemout ShouldContainSubstring LOGFILE_OWNER=0:2025
-    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
     - result.systemout ShouldContainSubstring CALL systemctl start packetfence-config
     - result.systemout ShouldContainSubstring PENDING=no
     - result.systemout ShouldNotContainSubstring packetfence-mariadb
@@ -92,7 +92,7 @@ testcases:
     - result.systemout ShouldContainSubstring LOGS_OWNER=0:2025
     - result.systemout ShouldContainSubstring LOGFILE_OWNER=0:2025
     - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
-    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
     - result.systemout ShouldContainSubstring PENDING=no
 
 - name: service_readiness_failure_keeps_pending_marker
@@ -104,6 +104,30 @@ testcases:
     - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
     - result.systemout ShouldContainSubstring packetfence-config is not active
     - result.systemout ShouldContainSubstring PENDING=yes
+
+- name: strict_permission_failure_keeps_marker_and_services_stopped
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh fixpermissions_failure'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
+    - result.systemout ShouldContainSubstring PENDING=yes
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
+    - result.systemout ShouldNotContainSubstring CALL systemctl start packetfence-config
+
+- name: retry_strict_permissions_after_ids_have_changed
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh retry_fixpermissions'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring FIRST_EXIT=1
+    - result.systemout ShouldContainSubstring FIRST_PENDING=yes
+    - result.systemout ShouldContainSubstring Resuming permission repairs
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
+    - result.systemout ShouldContainSubstring PENDING=no
 
 - name: already_migrated_accounts_are_unchanged
   steps:

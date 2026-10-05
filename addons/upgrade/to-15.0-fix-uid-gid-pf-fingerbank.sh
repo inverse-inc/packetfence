@@ -181,7 +181,7 @@ chown root:root /usr/local/pf/bin/pfcmd
 chmod ug+s /usr/local/pf/bin/pfcmd
 chown root:root /usr/local/pf/bin/pfcrypt
 chown root:root /usr/local/pf/bin/pfkafka
-/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd fixpermissions strict
 echo "Permissions with new uid and gid are fixed"
 
 systemctl start packetfence-config
