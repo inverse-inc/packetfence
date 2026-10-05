@@ -176,7 +176,7 @@ if [ "$FB_NEEDED" = true ]; then
 fi
 
 find "$PACKETFENCE/" -path "$PACKETFENCE/logs" -prune -o '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 -r chown pf:pf
-find "$PACKETFENCE/logs/" -mindepth 1 -print0 | xargs -0 -r chown root:pf
+find "$PACKETFENCE/logs/" -print0 | xargs -0 -r chown root:pf
 chown root:root /usr/local/pf/bin/pfcmd
 chmod ug+s /usr/local/pf/bin/pfcmd
 chown root:root /usr/local/pf/bin/pfcrypt

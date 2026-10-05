@@ -9,6 +9,8 @@ testcases:
     - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
     - result.systemout ShouldContainSubstring PF_IDS=2025 2025 2025
     - result.systemout ShouldContainSubstring FINGERBANK_IDS=2026 2026 2026
+    - result.systemout ShouldContainSubstring LOGS_OWNER=0:2025
+    - result.systemout ShouldContainSubstring LOGFILE_OWNER=0:2025
     - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions
     - result.systemout ShouldContainSubstring CALL systemctl start packetfence-config
     - result.systemout ShouldContainSubstring PENDING=no
@@ -87,6 +89,8 @@ testcases:
     - result.systemout ShouldContainSubstring FIRST_EXIT=123
     - result.systemout ShouldContainSubstring FIRST_PENDING=yes
     - result.systemout ShouldContainSubstring Resuming permission repairs
+    - result.systemout ShouldContainSubstring LOGS_OWNER=0:2025
+    - result.systemout ShouldContainSubstring LOGFILE_OWNER=0:2025
     - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
     - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions
     - result.systemout ShouldContainSubstring PENDING=no

@@ -14,7 +14,9 @@ process exiting before it can be signalled, retrying after permission repairs
 fail, service readiness failure, and accounts already migrated.
 
 Venom asserts the exit status, resulting account state, pending marker, and
-which operations ran. The fixture removes its temporary files on exit.
+which operations ran. Ownership assertions check that both the logs directory
+and its contents are repaired to `root` and the new `pf` GID, including on retry.
+The fixture removes its temporary files on exit.
 This suite does not install packages or exercise a full version-to-version
 upgrade or cluster reintegration.
 

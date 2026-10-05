@@ -12,6 +12,8 @@ export MIGRATION_FIXTURE="$fixture" MIGRATION_CASE="$scenario"
 mkdir -p "$fixture/bin" "$fixture/pf/bin" "$fixture/pf/var" "$fixture/pf/conf" "$fixture/pf/logs"
 printf '996 995 995\n' > "$fixture/pf.ids"
 printf '997 998 998\n' > "$fixture/fingerbank.ids"
+printf '0:995\n' > "$fixture/logs.owner"
+printf '0:995\n' > "$fixture/logfile.owner"
 touch "$fixture/pf/conf/pf.conf" "$fixture/pf/logs/packetfence.log" "$fixture/calls"
 
 case "$scenario" in
@@ -89,6 +91,23 @@ case "$command" in
         ;;
     chown)
         [ "$MIGRATION_CASE" != retry_permissions ] || exit 1
+        owner=$1
+        shift
+        read -r uid gid group < "$MIGRATION_FIXTURE/pf.ids"
+        case "$owner" in
+            root:pf) owner="0:$group" ;;
+            pf:pf) owner="$uid:$group" ;;
+        esac
+        for path in "$@"; do
+            case "$path" in
+                "$MIGRATION_FIXTURE/pf/logs"|"$MIGRATION_FIXTURE/pf/logs/")
+                    echo "$owner" > "$MIGRATION_FIXTURE/logs.owner"
+                    ;;
+                "$MIGRATION_FIXTURE/pf/logs/packetfence.log")
+                    echo "$owner" > "$MIGRATION_FIXTURE/logfile.owner"
+                    ;;
+            esac
+        done
         ;;
     chmod|sleep|ps|pfcmd) ;;
     *) echo "Unexpected mock command: $command" >&2; exit 2 ;;
@@ -130,5 +149,7 @@ fi
 echo "MIGRATION_EXIT=$migration_status"
 echo "PF_IDS=$(cat "$fixture/pf.ids")"
 echo "FINGERBANK_IDS=$(cat "$fixture/fingerbank.ids")"
+echo "LOGS_OWNER=$(cat "$fixture/logs.owner")"
+echo "LOGFILE_OWNER=$(cat "$fixture/logfile.owner")"
 echo "PENDING=$(pending)"
 cat "$fixture/calls"
