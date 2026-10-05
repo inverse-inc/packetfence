@@ -42,10 +42,8 @@ const setup = (props, context) => {
     isLoading.value = true
     invalidFeedback.value = null
     progressFeedback.value = i18n.t('Applying configuration')
-    let errorMessage = i18n.t('Failed to load advanced configuration')
+    let errorMessage = i18n.t('Failed to restart packetfence-config')
     try {
-      const advanced = await $store.dispatch('$_bases/getAdvanced')
-      errorMessage = i18n.t('Failed to restart packetfence-config')
       await $store.dispatch('cluster/restartSystemService', { id: 'packetfence-config' })
 
       progressFeedback.value = i18n.t('Enabling PacketFence')
@@ -61,8 +59,8 @@ const setup = (props, context) => {
       await $store.dispatch('cluster/startService', { id: 'pf' })
 
       progressFeedback.value = i18n.t('Disabling Configurator')
-      errorMessage = i18n.t('Failed to update advanced')
-      await $store.dispatch('$_bases/updateAdvanced', { ...advanced, configurator: 'disabled' })
+      errorMessage = i18n.t('Failed to complete configuration')
+      await $store.dispatch('cluster/completeConfigurator')
       progressFeedback.value = i18n.t('Redirecting to login page')
       setTimeout(() => {
         window.location.href = '/'

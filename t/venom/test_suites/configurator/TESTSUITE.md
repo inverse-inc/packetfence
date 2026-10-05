@@ -56,15 +56,21 @@ installs the management SSH rule.
 
 Boot-target failure handling also has focused regression tests:
 `t/unittest/services-systemd.t` checks API/CLI unit-update failures and CLI
-dispatch; `t/unittest/packaging-systemd-target.t` exercises the real installer
-update branches with a stub command. Upgrades pass
+dispatch; `t/unittest/configurator-completion.t` checks readiness, save failures,
+and recovery when promotion fails. `t/unittest/packaging-systemd-target.t`
+exercises the real installer update commands with a stub. Upgrades pass
 `PF_SKIP_SYSTEMD_TARGET_PROMOTION=1` so updating unit links cannot override an
 administrator's base target. Fresh configured installs and explicit CLI setup
 retain promotion after successful updates.
 
 Run `node --test t/html/pfappserver/configurator-completion.test.js` to check
 that each failed wizard step stops completion before later service actions,
-configurator disabling, or redirection. These isolated checks complement the
+the final `/configurator/complete` operation, or redirection. Completion checks
+the management interface and required services, saves `configurator=disabled`,
+and then promotes the boot target. If saving or promotion fails, it attempts to
+restore the configurator setting so completion can be retried. Ordinary unit
+updates cannot bypass the saved configurator setting.
+These isolated checks complement the
 live install, upgrade, and reboot checks on a PacketFence VM.
 
 ### Step 1
@@ -110,8 +116,7 @@ Can certainly be done during step4
 2. Update systemd: /configurator/service/pf/update_systemd POST
 1. Restart haproxy-admin: configurator/service/haproxy-admin/restart POST
 1. Start PacketFence and Fingerbank services: configurator/service/pf/start POST
-1. Disable configurator, PATCH: configurator/config/base/advanced + custom
-   changes
+1. Complete configuration, POST: configurator/complete
 2. [ ] Validate that default page is not configurator anymore
 
 ### Validation step

@@ -64,9 +64,10 @@ our %ALLOWED_ACTIONS = (
 =head2 promote_default_systemd_target
 
 Leave new installations on the base target until configuration is complete.
-The wizard updates systemd just before disabling the configurator, so its API
-caller explicitly passes configurator_finishing. CLI callers use the saved
-configurator setting. Package upgrades set PF_SKIP_SYSTEMD_TARGET_PROMOTION=1
+Only the explicit wizard completion operation passes configurator_finishing,
+after validating readiness and saving the disabled configurator setting.
+Ordinary API and CLI updates use the saved configurator setting.
+Package upgrades set PF_SKIP_SYSTEMD_TARGET_PROMOTION=1
 for their updatesystemd invocation to preserve the administrator's boot target.
 
 Only replace the installation's base target; preserve other boot targets.

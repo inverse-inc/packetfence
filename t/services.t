@@ -93,7 +93,7 @@ subtest 'boot target promotion' => sub {
         { name => 'upgrade preserves configured base target', upgrade => 1, skip => 1 },
         { name => 'upgrade preserves cluster base target', upgrade => 1, cluster => 1, skip => 1 },
         { name => 'explicit zero does not suppress promotion', upgrade => 0, target => 'packetfence.target' },
-        { name => 'wizard promotes before disabling configurator', configurator => 'enabled', finishing => 1, target => 'packetfence.target' },
+        { name => 'completion promotes with stale configurator cache', configurator => 'enabled', finishing => 1, target => 'packetfence.target' },
         { name => 'CLI promotes configured cluster', cluster => 1, target => 'packetfence-cluster.target' },
         { name => 'wizard selects cluster target', configurator => 'enabled', finishing => 1, cluster => 1, target => 'packetfence-cluster.target' },
         { name => 'preserve standalone target', default => 'packetfence.target' },

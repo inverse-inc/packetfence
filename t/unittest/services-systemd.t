@@ -38,16 +38,14 @@ for my $caller (qw(API CLI)) {
         { name => 'both updates fail', enable_fail => 1, disable_fail => 1 },
         { name => 'individual service does not promote', service => 'netdata' },
     );
-    push @cases, { name => 'wizard promotes before disabling configurator', configurator => 'enabled' }
-        if $caller eq 'API';
+    push @cases, { name => 'unconfigured install keeps base target', configurator => 'enabled' };
     if ($caller eq 'CLI') {
         push @cases,
             { name => 'monit enable fails', command_fail => 'enable monit' },
             { name => 'monit disable fails', monit => 'disabled', command_fail => 'disable monit' },
             { name => 'reload fails', command_fail => 'daemon-reload' },
             { name => 'reload returns no status', missing_status => 1 },
-            { name => 'upgrade keeps base target', upgrade => 1 },
-            { name => 'unconfigured install keeps base target', configurator => 'enabled' };
+            { name => 'upgrade keeps base target', upgrade => 1 };
     }
 
     for my $case (@cases) {
@@ -121,7 +119,7 @@ for my $caller (qw(API CLI)) {
             is_deeply([@events[0, 1]], ['enable:netdata', 'disable:snmptrapd'],
                 'all units are updated even if an earlier update fails');
             my $promotes = !$failure && $service eq 'pf' && !$case->{upgrade}
-                && ($caller eq 'API' || ($case->{configurator} // '') ne 'enabled');
+                && ($case->{configurator} // '') ne 'enabled';
             my @promotion = grep { /systemctl (?:get-default|set-default)/ } @events;
             is_deeply(\@promotion, $promotes ? [
                 'systemctl get-default', 'sudo systemctl set-default packetfence.target',

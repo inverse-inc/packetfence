@@ -60,7 +60,7 @@ sub do_update_systemd {
     }
     die "Unable to update systemd for: " . join(', ', @failed) . "\n" if @failed;
 
-    pf::services::promote_default_systemd_target(configurator_finishing => 1) if $name eq 'pf';
+    pf::services::promote_default_systemd_target() if $name eq 'pf';
 
     return {message => "Updated systemd for $name"};
 }
