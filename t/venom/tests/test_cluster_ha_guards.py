@@ -97,6 +97,31 @@ sys.exit(response.get('rc', 0))
                 self.assert_outcome(run, success)
 
 
+    def test_probe_accepts_only_galera_rejection_and_cleans_unexpected_success(self):
+        path = RECOVERY / 'assert_db_read_only.yml'
+        for create_rc, error, drop_rc, success in [
+            (1, 'ERROR 1047 (08S01) at line 1: WSREP has not yet prepared node for application use', 0, True),
+            (1, 'ERROR 1007 (HY000): database exists', 0, False),
+            (1, 'ERROR 1045 (28000): Access denied', 0, False),
+            (1, "ERROR 2002 (HY000): Can't connect", 0, False),
+            (0, '', 0, False),
+            (0, '', 1, False),
+        ]:
+            with self.subTest(create_rc=create_rc, error=error, drop_rc=drop_rc):
+                self.calls.unlink(missing_ok=True)
+                responses = {
+                    'SHOW': {'stdout': 'wsrep_cluster_status\tnon-Primary\n'},
+                    'CREATE': {'rc': create_rc, 'stderr': error},
+                    'DROP': {'rc': drop_rc, 'stderr': 'cleanup failed' if drop_rc else ''},
+                }
+                run = self.run_tasks(yaml.safe_load(path.read_text()), responses)
+                self.assert_outcome(run, success)
+                calls = [json.loads(line)[-1] for line in self.calls.read_text().splitlines()]
+                created = next(sql.split()[-1] for sql in calls if sql.startswith('CREATE'))
+                self.assertRegex(created, r'^venom_ro_probe_[0-9a-f_]{36}$')
+                self.assertEqual(f'DROP DATABASE IF EXISTS {created}' in calls, create_rc == 0)
+                if drop_rc:
+                    self.assertIn('cleanup failed', run.stdout)
 
 
 if __name__ == '__main__':

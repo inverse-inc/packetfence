@@ -3,30 +3,45 @@
 # per docs/cluster/understanding_the_galera_cluster_synchronization.asciidoc,
 # drops to read-only (wsrep_cluster_status leaves Primary; writes rejected).
 - name: "Wait for {{ inventory_hostname }} to lose galera quorum (non-Primary)"
-  ansible.builtin.shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_cluster_status'\" 2>/dev/null | awk '{print $2}'"
+  ansible.builtin.command: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_cluster_status'\""
   register: _wsrep_status
   changed_when: false
-  until: _wsrep_status.stdout not in ['Primary', '']
+  until:
+    - _wsrep_status.rc == 0
+    - "_wsrep_status.stdout.split() | length == 2"
+    - "_wsrep_status.stdout.split()[0] == 'wsrep_cluster_status'"
+    - "_wsrep_status.stdout.split()[1] | lower == 'non-primary'"
   retries: 24
   delay: 5
 
+- name: "Generate probe UUID on {{ inventory_hostname }}"
+  ansible.builtin.command: cat /proc/sys/kernel/random/uuid
+  register: _probe_uuid
+  changed_when: false
+
 - name: "Set unique probe database name for {{ inventory_hostname }}"
   ansible.builtin.set_fact:
-    _probe_db_name: "venom_ro_probe_{{ 999999 | random }}"
+    _probe_db_name: "venom_ro_probe_{{ _probe_uuid.stdout | trim | replace('-', '_') }}"
 
 - name: "Attempt write on {{ inventory_hostname }} (expect rejection)"
-  ansible.builtin.shell: "mysql -uroot -e 'CREATE DATABASE {{ _probe_db_name }}' 2>/dev/null"
+  ansible.builtin.command: "mysql -uroot -e 'CREATE DATABASE {{ _probe_db_name }}'"
   register: _ro_write
-  changed_when: false
+  changed_when: _ro_write.rc == 0
   failed_when: false
 
 - name: "Clean up probe database on {{ inventory_hostname }} if it was created"
-  ansible.builtin.shell: "mysql -uroot -e 'DROP DATABASE IF EXISTS {{ _probe_db_name }}' 2>/dev/null"
-  changed_when: false
-  failed_when: false
+  ansible.builtin.command: "mysql -uroot -e 'DROP DATABASE IF EXISTS {{ _probe_db_name }}'"
+  changed_when: true
   when: _ro_write.rc == 0
 
 - name: "Assert write was rejected on {{ inventory_hostname }} (read-only)"
-  ansible.builtin.fail:
-    msg: "Write unexpectedly succeeded: Galera should have rejected the CREATE DATABASE in read-only state"
-  when: _ro_write.rc == 0
+  # Non-Primary Galera rejects writes with ER_UNKNOWN_COM_ERROR (1047).
+  # Authentication, connection and database-exists errors are not evidence
+  # of read-only operation and must fail this scenario.
+  ansible.builtin.assert:
+    that:
+      - _ro_write.rc != 0
+      - "'ERROR 1047 (08S01)' in _ro_write.stderr"
+    fail_msg: >-
+      Expected Galera to reject the write with ERROR 1047 (08S01),
+      got rc={{ _ro_write.rc }}: {{ _ro_write.stderr }}
