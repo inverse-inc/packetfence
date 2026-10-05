@@ -350,14 +350,11 @@
           loop:
             - { host: "{{ inventory_hostname }}", present: false }
             - { host: "{{ pf2_host }}", present: true }
-        - name: "pf2 pfcron is running (now master)"
-          ansible.builtin.command: "systemctl is-active packetfence-pfcron"
-          delegate_to: "{{ pf2_host }}"
-          register: _pf2_cron
-          changed_when: false
-          until: _pf2_cron.stdout == 'active'
-          retries: 12
-          delay: 5
+        # pfcron runs on every node; mastership is the mgmt VIP asserted above,
+        # which pfcron re-reads at most once a minute (go/cmd/pfcron/main.go)
+        - name: "pf2 pfcron still running after taking the mgmt VIP"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfcron", unit_state: active }
       always:
         - name: "Restart radiusd-load_balancer on pf1 (mgmt VIP back to pf1)"
           ansible.builtin.shell: "timeout -k 30 300 systemctl restart packetfence-radiusd-load_balancer || true"
