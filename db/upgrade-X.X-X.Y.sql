@@ -336,6 +336,12 @@ CALL AddIndexUnlessExists('auth_log', 'auth_log_billing',
 CALL AddIndexUnlessExists('node', 'node_status_last_seen',
     'KEY `node_status_last_seen` (`status`,`last_seen`,`pid`)');
 
+-- Default User and Machine roles: missing from the schema of fresh installs
+-- until the roles were saved once
+--
+INSERT IGNORE INTO `node_category` (name,notes) VALUES ("User","User role");
+INSERT IGNORE INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
+
 --
 -- Clean up the helper / validation procedures
 --

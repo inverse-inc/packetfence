@@ -259,8 +259,11 @@ on_connect
 sub on_connect {
     my ($dbh) = @_;
     $LAST_CONNECT = time();
-    if (my $sql = init_command($dbh)) {
-        $dbh->do($sql);
+    # One statement per do(): multi statements are not enabled on the handle
+    for my $sql (init_command($dbh)) {
+        if (!defined $dbh->do($sql)) {
+            get_logger->error("Unable to initialize the database connection with '$sql': " . ($dbh->errstr // ''));
+        }
     }
     return $dbh;
 }
@@ -287,22 +290,22 @@ sub db_data_source_info {
 
 =head2 init_command
 
-init_command
+The statements to run on a new connection
 
 =cut
 
 sub init_command {
     my ($dbh) = @_;
-    my $sql = '';
+    my @sql;
     if (my $new_timeout = db_get_max_statement_timeout()) {
         my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
         if ($name) {
-            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout) . ";";
+            push @sql, "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout);
         }
     }
 
-    $sql .= "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';";
-    return $sql;
+    push @sql, "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'";
+    return @sql;
 }
 
 sub convert_timeout {
