@@ -525,8 +525,22 @@ start_and_provision_pf_vm() {
     log_subsection "Start and provision PacketFence $vm_names"
     run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
     if [ "${USE_VAGRANT_BOX}" = yes ]; then
-        # Validate the box before creating any clones; fallback applies to all nodes.
-        register_vagrant_box_or_fallback "${1}"
+        # The baked path is all-or-nothing: one unmapped node would otherwise be
+        # fully provisioned while its peers boot from the baked box.
+        local unmapped=""
+        for vm in ${vm_names}; do
+            [ -n "$(baked_box_for_pf_vm "${vm}")" ] || unmapped="${unmapped} ${vm}"
+        done
+        if [ -n "${unmapped}" ]; then
+            maybe_fallback_to_full_provision "no baked box for:${unmapped}"
+        fi
+    fi
+    if [ "${USE_VAGRANT_BOX}" = yes ]; then
+        # Validate every node's box before creating any clones; fallback applies to all nodes.
+        for vm in ${vm_names}; do
+            register_vagrant_box_or_fallback "${vm}"
+            [ "${USE_VAGRANT_BOX}" = yes ] || break
+        done
         if [ "${USE_VAGRANT_BOX}" = yes ]; then
             start_baked_pf_vms ${vm_names}
             return
