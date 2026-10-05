@@ -23,7 +23,9 @@ dump uname uname -a
 dump uptime uptime
 dump df df -h
 dump free free -m
-dump ps ps auxf
+# comm, not args: argv carries passwords (proxysql-read-only-handler.sh et al)
+# and artifacts are public
+dump ps ps axo pid,ppid,user,stat,%cpu,%mem,etime,comm --forest
 dump ip-addr ip -d addr
 dump ip-route ip route show table all
 dump listening-sockets ss -lntup
