@@ -330,6 +330,7 @@ sub attempt_start {
     return if !$RUNNING;
     clean_wsrep_recovery();
     launch_mysql($FALSE, "--wsrep-recover") if !$SLAVE;
+    return if !$RUNNING;
     # Just start it without anything special if we're in standalone mode or if we're a single cluster node
     if(!$GALERA_ENABLED || scalar(pf::cluster::db_enabled_hosts()) == 1) {
         fork_launch_mysql("standalone");
