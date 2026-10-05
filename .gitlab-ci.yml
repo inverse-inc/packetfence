@@ -464,14 +464,16 @@ variables:
   tags:
     - test-shell-v7
 
-# Strict gate: build_artifacts must not start if pre_ci_lint_yaml failed or if any
-# build_images job failed. pre_ci_lint_yaml is non-optional (always present) so a
-# lint failure blocks every artifact job. Every concrete build_images job is
+# Strict gate: build_artifacts must not start if YAML lint, either Go check, or
+# any build_images job failed. The lint and Go jobs are always present and
+# non-optional. Every concrete build_images job is
 # listed as optional: true so a gated-out job (rules → when:never) does not
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
     - job: pre_ci_lint_yaml
+    - job: pre_ci_go_check_debian_bookworm
+    - job: pre_ci_go_check_centos_8
     - job: kaniko
       optional: true
     - job: pfdebian
@@ -795,6 +797,33 @@ pre_ci_test_cleanup:
   script:
     - ${TESTCIDIR}/clean-test-environment.test.sh
   allow_failure: false
+
+# Go gate + full build. `make -C go all` otherwise only runs from debian/rules
+# and rpm/packetfence.spec, i.e. from build_artifacts_pkg_*, which is skipped on
+# ordinary feature-branch pushes -- the checks would never see the code under
+# review. Run on both build images: the gate uses the build host's OS with cgo
+# enabled, so Debian and RHEL findings can differ.
+.go_check_job:
+  extends:
+    - .check_job
+  needs:
+    - job: run_pipeline_if_necessary
+      optional: true
+  rules:
+    - when: always
+  script:
+    - make -C go check all
+  allow_failure: false
+
+pre_ci_go_check_debian_bookworm:
+  extends:
+    - .go_check_job
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+
+pre_ci_go_check_centos_8:
+  extends:
+    - .go_check_job
+  image: ${PFBUILD_RHEL_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
 
 ########################################
 # BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_related / radiusd / radiusd_related)
