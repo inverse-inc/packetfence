@@ -528,14 +528,16 @@ sub sort_ip {
         map { [$_,ip2int($_)] } @_;
 }
 
-=item safe_file_update($file, $content)
+=item safe_file_update($file, $content, $binmode, $mode)
 
-This safely modifies the contents of a file using a rename
+This safely modifies the contents of a file using a rename.
+Optional $binmode sets the layer used to write the content. Optional $mode is
+applied with chmod once the file is in place; a chmod failure is logged.
 
 =cut
 
 sub safe_file_update {
-    my ($file, $contents, $binmode) = @_;
+    my ($file, $contents, $binmode, $mode) = @_;
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
@@ -554,6 +556,11 @@ sub safe_file_update {
     }
     $temp->unlink_on_destroy(0);
     fix_file_permissions($file);
+    # fix_file_permissions resets the mode; restore the provided mode last and log if chmod fails
+    if (defined $mode) {
+        chmod($mode, $file)
+          or pf::log::get_logger()->warn("cannot set mode on $file: $!");
+    }
 }
 
 =item empty_dir
