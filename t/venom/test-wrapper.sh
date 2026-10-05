@@ -610,8 +610,8 @@ run_tests() {
         # RECOVERY_SCENARIOS="A B D" limits cluster_recovery; unset runs all
         local scenarios_ev=()
         if [ "${scenario_name}" = cluster_recovery ] && [ -n "${RECOVERY_SCENARIOS:-}" ]; then
-            [[ "${RECOVERY_SCENARIOS}" =~ ^[A-Z]( [A-Z])*$ ]] \
-                || die "RECOVERY_SCENARIOS must be space-separated scenario IDs, got: ${RECOVERY_SCENARIOS}"
+            [[ "${RECOVERY_SCENARIOS}" =~ ^[A-F]( [A-F])*$ ]] \
+                || die "RECOVERY_SCENARIOS must be space-separated scenario IDs in A-F, got: ${RECOVERY_SCENARIOS}"
             scenarios_ev=(-e "{\"recovery_scenarios\": [$(printf '"%s",' ${RECOVERY_SCENARIOS} | sed 's/,$//')]}")
             echo "Recovery scenarios: ${RECOVERY_SCENARIOS}"
         fi
