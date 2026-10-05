@@ -83,27 +83,36 @@ sub instantiate {
             }
 
             ($type,$data) = $class->getData($sub_trigger);
-            if ($type eq 'switch_group') {
-                push @conditions, pf::condition::switch_group->new(
-                    key => $data->{key},
-                    condition => pf::condition::equals->new(value => $data->{value})
-                );
-            } else {
-                my $subclass = $class->getModuleName($type);
-                my $condition = $subclass->new($data);
-                push @conditions, pf::condition::key->new(key => $data->{key}, condition => $condition);
-            }
+            push @conditions, $class->_trigger_condition($type, $data);
         }
         return pf::condition::all->new(conditions => \@conditions);
     }
     else {
         ($type,$data) = $class->getData(@args);
         if ($data) {
-            my $subclass = $class->getModuleName($type);
-            my $condition = $subclass->new($data);
-            return pf::condition::key->new(key => $data->{key}, condition => $condition);
+            return $class->_trigger_condition($type, $data);
         }
     }
+}
+
+=head2 _trigger_condition
+
+The condition of one trigger
+
+=cut
+
+sub _trigger_condition {
+    my ($class, $type, $data) = @_;
+    # A switch group is matched on the group of the switch the device is connected to
+    if ($type eq 'switch_group') {
+        return pf::condition::switch_group->new(
+            key => $data->{key},
+            condition => pf::condition::equals->new(value => $data->{value})
+        );
+    }
+    my $subclass = $class->getModuleName($type);
+    my $condition = $subclass->new($data);
+    return pf::condition::key->new(key => $data->{key}, condition => $condition);
 }
 
 sub getModuleName {

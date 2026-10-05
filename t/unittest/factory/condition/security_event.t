@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 2;
+use Test::More tests => 6;
 
 #This test will running last
 use Test::NoWarnings;
@@ -46,6 +46,21 @@ is_deeply(
         ],
     ),
 );
+
+# A single "Switch Group" trigger (#8056)
+my $single;
+eval { $single = pf::factory::condition::security_event->instantiate('switch_group::bug-6723') };
+is($@, '', "a single switch group trigger is instantiated");
+is_deeply(
+    $single,
+    pf::condition::switch_group->new(
+        key       => 'last_switch',
+        condition => pf::condition::equals->new(value => 'bug-6723'),
+    ),
+    "a single switch group trigger is a switch group condition",
+);
+ok($single && $single->match({ last_switch => '172.16.8.30' }), "a switch of the group matches");
+ok($single && !$single->match({ last_switch => '172.16.8.25' }), "a switch of another group does not match");
 
 =head1 AUTHOR
 
