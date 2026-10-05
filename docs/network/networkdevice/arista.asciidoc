@@ -26,13 +26,14 @@ PacketFence supports Arista EOS switches using RADIUS for MAC Authentication
 and downloadable ACLs (NAS-Filter-Rule) are supported as well as VoIP detection
 via LLDP-MED.
 
-The minimum required EOS firmware version is *4.29.1F*.
+The minimum required EOS firmware version is *4.29.1F*. The configuration below
+was validated on EOS 4.31.4M (CCS-720DP).
 
 ===== Global RADIUS Configuration
 
-Define the PacketFence RADIUS server, the AAA group, the AAA methods used for
-802.1X and MAB and enable RADIUS Dynamic Authorization (CoA) so PacketFence can
-push role/VLAN/ACL changes back to the switch:
+Define the PacketFence RADIUS server, the AAA group and the AAA methods used for
+802.1X and MAB. Accounting is required so PacketFence can track the location and
+the session of each node:
 
   radius-server host 192.168.1.5 key useStrongerSecret
   !
@@ -40,61 +41,83 @@ push role/VLAN/ACL changes back to the switch:
      server 192.168.1.5
   !
   aaa authentication dot1x default group PacketFence
-  aaa authorization network default group PacketFence
   aaa accounting dot1x default start-stop group PacketFence
   !
-  aaa server radius dynamic-authorization
-     client 192.168.1.5 server-key useStrongerSecret
-  !
   dot1x system-auth-control
+
+===== RADIUS Dynamic Authorization (CoA)
+
+Enable RADIUS Dynamic Authorization so PacketFence can push role/VLAN/ACL
+changes back to the switch. CoA and Disconnect requests are accepted from the
+servers of the AAA group listed here (UDP port 3799 by default):
+
+  dot1x dynamic-authorization
+  aaa authorization dynamic dot1x additional-groups group PacketFence
+
+In PacketFence, set the *Deauthentication Method* of the switch to `RADIUS`.
+After an access re-evaluation, the `DM requests received` counter of the
+PacketFence server increases and the endpoint gets a new dynamic ACL:
+
+  show radius
+
+===== Additional RADIUS attributes (optional)
+
+The switch can send LLDP and DHCP information of the endpoint in the RADIUS
+requests, which helps PacketFence to profile the device:
+
+  dot1x
+     radius av-pair lldp system-name
+     radius av-pair lldp system-description
+     radius av-pair dhcp hostname
+     radius av-pair dhcp parameter-request-list
+     radius av-pair dhcp vendor-class-id
+
+The LLDP attributes are only sent when LLDP runs on the access port, which is
+the EOS default (see the 'VoIP' section below to re-enable it).
 
 ===== 802.1X with MAC Authentication Bypass (MAB)
 
 Apply the following configuration on each access port that should be
 authenticated. 802.1X is attempted first; if the supplicant does not respond,
-the switch falls back to MAC authentication (MAB):
+the switch falls back to MAC authentication (MAB). A device that does not speak
+802.1X (printer, IoT, etc.) is therefore authenticated by MAB with the same
+configuration:
 
   interface Ethernet1
-     switchport
      switchport mode access
+     switchport access vlan 1
      dot1x pae authenticator
      dot1x port-control auto
-     dot1x host-mode multi-host
-     dot1x reauthentication
-     dot1x timeout quiet-period 10
-     dot1x timeout tx-period 5
-     dot1x mac-based authentication
-     lldp transmit
-     lldp receive
+     dot1x host-mode single-host
+     dot1x mac based authentication
+     dot1x mac based access-list
+
+`dot1x mac based access-list` is required to apply the downloadable ACL
+(NAS-Filter-Rule) returned by PacketFence to each host.
 
 To support multiple devices behind the port (for example a PC behind an IP
-phone), use `multi-auth` instead of `multi-host`:
+phone), authenticate each host individually:
 
-  dot1x host-mode multi-auth
-
-===== MAC Authentication only (MAB only)
-
-For ports where 802.1X is not desired (for example printers, IoT, etc.), enable
-only MAC-based authentication:
-
-  interface Ethernet2
-     switchport
-     switchport mode access
-     dot1x pae authenticator
-     dot1x port-control auto
-     dot1x host-mode multi-host
-     dot1x reauthentication
-     dot1x mac-based authentication
-     dot1x mac-based authentication mac-only
+  dot1x host-mode multi-host authenticated
 
 ===== VoIP
 
-Arista EOS uses LLDP-MED to advertise the voice VLAN to IP phones. Make sure
-LLDP is enabled on the access ports (see the 802.1X section above) and that the
-voice VLAN is allowed on the port:
+Arista EOS uses LLDP-MED to advertise the voice VLAN to IP phones. LLDP is
+enabled by default on EOS; if it was disabled, re-enable it globally and on
+the access ports:
+
+  lldp run
+  !
+  interface Ethernet1
+     lldp transmit
+     lldp receive
+
+Make sure the port authenticates each host individually
+(`dot1x host-mode multi-host authenticated`) and set the voice VLAN on the
+port:
 
   interface Ethernet1
-     switchport voice vlan 100
+     switchport phone vlan 100
 
 PacketFence will return the `Arista-AVPair = device-traffic-class=voice` VSA
 for nodes identified as VoIP devices.
@@ -118,11 +141,86 @@ using the `NAS-Filter-Rule` attribute. To use it:
 * Define the ACL for each role under _Configuration -> Policies and Access
   Control -> Roles_, for example for the registration role:
 
-  permit in tcp from any to 192.168.1.5 80
-  permit in tcp from any to 192.168.1.5 443
-  permit in udp from any to any 53
-  permit in udp from any to any 67
-  deny in ip from any to any
+  permit tcp any host 192.168.1.5 eq 80
+  permit tcp any host 192.168.1.5 eq 443
+  permit udp any any eq 53
+  permit udp any any eq 67
+  permit udp any any eq 68
+  deny ip any any
+
+PacketFence translates each line and sends it as one `NAS-Filter-Rule`:
+
+  NAS-Filter-Rule = "permit in 6 from any to 192.168.1.5 80"
+  NAS-Filter-Rule = "permit in 6 from any to 192.168.1.5 443"
+  NAS-Filter-Rule = "permit in 17 from any to any 53"
+  NAS-Filter-Rule = "permit in 17 from any to any 67"
+  NAS-Filter-Rule = "permit in 17 from any to any 68"
+  NAS-Filter-Rule = "deny in ip from any to any"
+
+The switch installs them as a dynamic ACL on the port:
+
+  show ip access-lists dynamic
+
+WARNING: The switch ends the per-host ACL with an implicit deny. An ACL made
+only of `deny` lines blocks all the IPv4 traffic of the device, DHCP included,
+so always permit at least DHCP and DNS (or end the ACL with `permit ip any any`
+when the role must keep network access).
+
+===== Flow export (sFlow or IPFIX)
+
+The switch can export sampled traffic to the Fingerbank collector of
+PacketFence, either as sFlow (UDP 6343) or as IPFIX (UDP 4739). Use one or the
+other: on the 720 series, sampled flow tracking only starts when sFlow is
+stopped (`show agent SftAgent runnability` reports
+`Not satisfied: Sflow agent is not running` otherwise).
+
+sFlow:
+
+  sflow sample 500
+  sflow polling-interval 10
+  sflow destination 192.168.1.5
+  sflow source 192.168.1.2
+  sflow run
+  !
+  interface Ethernet1
+     sflow enable
+
+Here 192.168.1.2 is the switch management IP.
+
+IPFIX:
+
+  no sflow run
+  !
+  flow tracking sampled
+     sample 500
+     tracker packetfence
+        record export on inactive timeout 15000
+        record export on interval 60000
+        exporter packetfence
+           collector 192.168.1.5 port 4739
+           format ipfix version 10
+           local interface Vlan1
+           template interval 60000
+     no shutdown
+  !
+  interface Ethernet1
+     flow tracker sampled packetfence
+
+The local interface is the interface that holds the switch management IP, it
+is the source address of the export. Apply the tracker on every access port and
+on the uplink. To check the exporter, `show flow tracking sampled` must report
+`Running: yes`, and the counters of `show flow tracking sampled counters` must
+increase.
+
+===== Troubleshooting
+
+`show dot1x hosts interface Ethernet1 detail` shows the authentication method,
+the VLAN and the NAS-Filter-Rule returned by PacketFence for each host.
+
+`show radius` shows the messages sent and received for each RADIUS server.
+Requests that time out without any message received mean that the RADIUS server
+does not answer the switch: the switch is not declared in PacketFence or the
+RADIUS secret differs.
 
 ===== PacketFence switch configuration
 
@@ -130,8 +228,7 @@ In the PacketFence administration interface, add the switch under
 _Configuration -> Policies and Access Control -> Switches_ using the following
 parameters:
 
-* Type: `Arista EOS`
+* Type: `Arista Switch`
 * Mode: `production`
 * Deauthentication Method: `RADIUS`
 * RADIUS Secret: `useStrongerSecret`
-
