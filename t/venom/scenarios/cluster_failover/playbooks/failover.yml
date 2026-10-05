@@ -220,13 +220,16 @@
         - name: "baseline: pf2 holds reg VIP"
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
+        - name: "baseline: httpd.portal is active on pf2"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-httpd.portal", unit_state: active }
         - name: "Stop httpd.portal on pf2"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal stop || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal stop"
           delegate_to: "{{ pf2_host }}"
           changed_when: true
         - name: "httpd.portal is really down on pf2"
-          include_tasks: tasks/failover/wait_unit_inactive.yml
-          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-httpd.portal" }
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-httpd.portal", unit_state: inactive }
         - name: "reg VIP stays on pf2 (httpd.portal not tracked)"
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
@@ -240,9 +243,12 @@
           delay: 5
       always:
         - name: "Restart httpd.portal on pf2"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal restart --ignore-checkup || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal restart --ignore-checkup"
           delegate_to: "{{ pf2_host }}"
           changed_when: true
+        - name: "Verify httpd.portal restored on pf2"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-httpd.portal", unit_state: active }
 
 ########################################################################
 # DHCP — reg/iso VIP lives on pf2, so pf2 serves DHCP; moving the VIP to pf1
@@ -286,13 +292,16 @@
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
     # service-health: stopping pfdhcp on pf2 doesn't move a VIP; assert the peer's pfdhcp stays healthy
     - block:
+        - name: "baseline: pfdhcp is active on pf2"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfdhcp", unit_state: active }
         - name: "Stop pfdhcp on pf2"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp stop || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp stop"
           delegate_to: "{{ pf2_host }}"
           changed_when: true
         - name: "pfdhcp is really down on pf2"
-          include_tasks: tasks/failover/wait_unit_inactive.yml
-          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfdhcp" }
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfdhcp", unit_state: inactive }
         - name: "pf1 pfdhcp still healthy"
           ansible.builtin.command: "systemctl is-active packetfence-pfdhcp"
           register: _pf1_dhcp2
@@ -302,9 +311,12 @@
           delay: 5
       always:
         - name: "Restart pfdhcp on pf2"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp restart --ignore-checkup || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp restart --ignore-checkup"
           delegate_to: "{{ pf2_host }}"
           changed_when: true
+        - name: "Verify pfdhcp restored on pf2"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfdhcp", unit_state: active }
 
 ########################################################################
 # pfcron — master role follows the MGMT VIP (pf1); moving mgmt to pf2 makes pf2 master
@@ -346,12 +358,15 @@
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
     # service-health: stopping pfcron on pf1 doesn't move a VIP; assert the peer's pfcron stays healthy
     - block:
+        - name: "baseline: pfcron is active on pf1"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ inventory_hostname }}", unit_name: "packetfence-pfcron", unit_state: active }
         - name: "Stop pfcron on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron stop || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron stop"
           changed_when: true
         - name: "pfcron is really down on pf1"
-          include_tasks: tasks/failover/wait_unit_inactive.yml
-          vars: { unit_host: "{{ inventory_hostname }}", unit_name: "packetfence-pfcron" }
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ inventory_hostname }}", unit_name: "packetfence-pfcron", unit_state: inactive }
         - name: "pf2 pfcron still healthy"
           ansible.builtin.command: "systemctl is-active packetfence-pfcron"
           delegate_to: "{{ pf2_host }}"
@@ -362,8 +377,11 @@
           delay: 5
       always:
         - name: "Restart pfcron on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron restart --ignore-checkup || true"
+          ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron restart --ignore-checkup"
           changed_when: true
+        - name: "Verify pfcron restored on pf1"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ inventory_hostname }}", unit_name: "packetfence-pfcron", unit_state: active }
 
 ########################################################################
 # Cluster config sync — master push propagates to pf2/pf3
