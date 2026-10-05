@@ -2,13 +2,33 @@
 # Clean shutdown that lets galera close properly (writes grastate.dat with a
 # valid seqno; the LAST node to leave the primary component gets
 # safe_to_bootstrap: 1). `pfcmd service pf stop` closes galera cleanly; then a
-# forced poweroff avoids the deb12 graceful-shutdown/systemd deadlock (mariadb
-# is already stopped by then, so grastate is finalized before the power cut).
+# forced poweroff avoids the deb12 graceful-shutdown/systemd deadlock, but only
+# once mariadb is confirmed down, otherwise the power cut dirties grastate.
 - import_tasks: read_uuid.yml
 
 - name: "Graceful PacketFence stop (clean galera close) on {{ inventory_hostname }}"
   ansible.builtin.shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
   changed_when: true
+
+# pfcmd is best-effort above, so check the unit itself. is-active exits non-zero
+# once it is down; 'deactivating' still means galera is closing.
+- name: "Wait for packetfence-mariadb to stop on {{ inventory_hostname }}"
+  ansible.builtin.command: "systemctl is-active packetfence-mariadb"
+  register: _mariadb_state
+  changed_when: false
+  failed_when: false
+  until: "_mariadb_state.stdout in ['inactive', 'failed', 'unknown', '']"
+  retries: 12
+  delay: 5
+  ignore_errors: true
+
+- name: "Refuse to cut power while packetfence-mariadb runs on {{ inventory_hostname }}"
+  ansible.builtin.fail:
+    msg: >-
+      packetfence-mariadb is still '{{ _mariadb_state.stdout }}' after `pfcmd service pf stop`;
+      a forced poweroff now would leave a dirty grastate.dat (seqno -1, safe_to_bootstrap 0)
+      and silently turn this into a dirty-shutdown test.
+  when: _mariadb_state is failed
 
 - name: "Power off {{ inventory_hostname }}"
   ansible.builtin.shell: "systemctl poweroff --force"
