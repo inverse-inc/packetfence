@@ -127,6 +127,70 @@ echo END
             'PLAY playbooks/register_rhel_subscription.yml -l pfdeb12dev',
             'END'])
 
+    def guarded_baked_startup(self, vms, fallback='no', local='no', fail_vm=''):
+        return self.bash(f'''
+VAGRANT_DIR=/tmp VAGRANT_PF_DOTFILE_PATH=/nonexistent VAGRANT_UP_OPTS=''
+USE_VAGRANT_BOX=yes SKIP_CONFIGURATOR_BAKED=yes
+FALLBACK_TO_FULL_PROVISION={fallback} LOCAL_BAKED_BOX={local}
+run_ansible_galaxy_once() {{ :; }}
+register_vagrant_box_or_fallback() {{
+    echo "REGISTER $1"
+    if [ "$1" = "{fail_vm}" ]; then
+        maybe_fallback_to_full_provision 'simulated registration failure'
+    fi
+}}
+start_baked_pf_vms() {{ echo "BAKED $*"; }}
+prefetch_private_box() {{ :; }}
+wait_for_ssh() {{ :; }}
+vagrant() {{ echo "VAGRANT $* USE=$USE_VAGRANT_BOX"; }}
+ansible-playbook() {{ echo "PROVISION $* USE=$USE_VAGRANT_BOX CONFIGURATOR=$SKIP_CONFIGURATOR_BAKED"; }}
+start_and_provision_pf_vm {vms}
+''')
+
+    def test_batch_start_validates_every_box_before_import(self):
+        result = self.guarded_baked_startup('pf1deb12dev pf2deb12dev pf3deb12dev')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = [line for line in result.stdout.splitlines()
+                 if line.startswith(('REGISTER ', 'BAKED '))]
+        self.assertEqual(calls, ['REGISTER pf1deb12dev', 'REGISTER pf2deb12dev',
+                                 'REGISTER pf3deb12dev',
+                                 'BAKED pf1deb12dev pf2deb12dev pf3deb12dev'])
+
+    def test_unmapped_node_prevents_any_batch_import(self):
+        for vms in ['pfdeb12 pf1deb12dev', 'pf1deb12dev pfdeb12']:
+            with self.subTest(vms=vms):
+                result = self.guarded_baked_startup(vms)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('no baked box for:', result.stderr)
+                self.assertNotIn('REGISTER ', result.stdout)
+                self.assertNotIn('BAKED ', result.stdout)
+                self.assertNotIn('VAGRANT ', result.stdout)
+
+    def test_unmapped_node_falls_back_for_the_entire_batch(self):
+        result = self.guarded_baked_startup('pf1deb12dev pfdeb12', fallback='yes')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('BAKED ', result.stdout)
+        self.assertIn('PROVISION site.yml -l pf1deb12dev,pfdeb12 USE=no CONFIGURATOR=no',
+                      result.stdout)
+
+    def test_local_opt_in_keeps_batch_import(self):
+        result = self.guarded_baked_startup('pf1deb12localdev pf2deb12localdev', local='yes')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('BAKED pf1deb12localdev pf2deb12localdev', result.stdout)
+
+    def test_later_registration_failure_happens_before_any_batch_import(self):
+        for fallback in ['yes', 'no']:
+            with self.subTest(fallback=fallback):
+                result = self.guarded_baked_startup('pf1deb12dev pf2el8dev',
+                                                   fallback=fallback, fail_vm='pf2el8dev')
+                self.assertEqual(result.returncode == 0, fallback == 'yes', result.stderr)
+                self.assertNotIn('BAKED ', result.stdout)
+                if fallback == 'yes':
+                    self.assertIn('PROVISION site.yml -l pf1deb12dev,pf2el8dev USE=no CONFIGURATOR=no',
+                                  result.stdout)
+                else:
+                    self.assertNotIn('VAGRANT ', result.stdout)
+
     def test_ordinary_runs_keep_existing_scenario_path(self):
         result = self.bash('''
 SCENARIOS_TO_RUN=configurator PF_VM_NAMES=pfdeb12dev INT_TEST_VM_NAMES=''
