@@ -224,6 +224,9 @@
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service httpd.portal stop || true"
           delegate_to: "{{ pf2_host }}"
           changed_when: true
+        - name: "httpd.portal is really down on pf2"
+          include_tasks: tasks/failover/wait_unit_inactive.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-httpd.portal" }
         - name: "reg VIP stays on pf2 (httpd.portal not tracked)"
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
@@ -287,6 +290,9 @@
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfdhcp stop || true"
           delegate_to: "{{ pf2_host }}"
           changed_when: true
+        - name: "pfdhcp is really down on pf2"
+          include_tasks: tasks/failover/wait_unit_inactive.yml
+          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfdhcp" }
         - name: "pf1 pfdhcp still healthy"
           ansible.builtin.command: "systemctl is-active packetfence-pfdhcp"
           register: _pf1_dhcp2
@@ -343,6 +349,9 @@
         - name: "Stop pfcron on pf1"
           ansible.builtin.shell: "timeout -k 30 300 /usr/local/pf/bin/pfcmd service pfcron stop || true"
           changed_when: true
+        - name: "pfcron is really down on pf1"
+          include_tasks: tasks/failover/wait_unit_inactive.yml
+          vars: { unit_host: "{{ inventory_hostname }}", unit_name: "packetfence-pfcron" }
         - name: "pf2 pfcron still healthy"
           ansible.builtin.command: "systemctl is-active packetfence-pfcron"
           delegate_to: "{{ pf2_host }}"

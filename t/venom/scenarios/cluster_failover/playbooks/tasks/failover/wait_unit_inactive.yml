@@ -1,0 +1,14 @@
+---
+# Wait until unit_name is no longer active on unit_host, i.e. the injected
+# service loss really happened before the peer-health assertions run.
+# is-active exits non-zero once the unit is down, so ignore rc and read stdout
+# ('inactive', 'failed', 'unknown' or empty are all "stopped").
+- name: "Assert {{ unit_name }} is inactive on {{ unit_host }}"
+  ansible.builtin.command: "systemctl is-active {{ unit_name }}"
+  delegate_to: "{{ unit_host }}"
+  register: _unit_state
+  changed_when: false
+  failed_when: false
+  until: "_unit_state.stdout in ['inactive', 'failed', 'unknown', '']"
+  retries: "{{ unit_retries | default(12) | int }}"
+  delay: 5
