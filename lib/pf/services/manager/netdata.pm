@@ -71,6 +71,8 @@ sub generateConfig {
         $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
 
+    # ProxySQL only runs on a cluster: polling it elsewhere only logs connection errors
+    $tags{'proxysql_enabled'} = ($cluster_enabled && isenabled($Config{'services'}{'proxysql'})) ? 'yes' : 'no';
 
     foreach my $source  (@authentication_sources_monitored) {
         my $host = $source->{'host'};
