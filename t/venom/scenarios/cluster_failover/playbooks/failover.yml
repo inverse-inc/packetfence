@@ -234,11 +234,13 @@
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ pf2_host }}", vip_addr: "{{ cluster_vip.reg }}", vip_present: true }
         - name: "Portal still answers on the VIP (served by peer backends)"
-          ansible.builtin.shell: "curl -sk --max-time 10 -o /dev/null -w '%{http_code}' https://{{ cluster_vip.reg }}/"
+          # / is answered by the node-local httpd.dispatcher; only
+          # /captive-portal reaches the clustered portal backends.
+          ansible.builtin.shell: "curl -sk --max-time 10 -o /dev/null -w '%{http_code}' https://{{ cluster_vip.reg }}/captive-portal"
           delegate_to: "{{ pf2_host }}"
           register: _portal_code
           changed_when: false
-          until: _portal_code.stdout not in ['000', '503']
+          until: _portal_code.stdout in ['200', '302']
           retries: 24
           delay: 5
       always:
