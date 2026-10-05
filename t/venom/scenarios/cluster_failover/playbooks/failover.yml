@@ -65,6 +65,9 @@
         - name: "Ensure keepalived is running on pf1"
           ansible.builtin.shell: "systemctl is-active --quiet packetfence-keepalived || timeout -k 30 300 /usr/local/pf/bin/pfcmd service keepalived restart --ignore-checkup || true"
           changed_when: true
+        - name: "Verify keepalived restored on pf1"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ inventory_hostname }}", unit_name: "packetfence-keepalived", unit_state: active }
 
 ########################################################################
 # keepalived on pf1 AND pf2 — both masters down, every VIP lands on pf3 (98);
@@ -127,6 +130,10 @@
           delegate_to: "{{ item }}"
           loop: ["{{ inventory_hostname }}", "{{ pf2_host }}"]
           changed_when: true
+        - name: "Verify keepalived restored on pf1 and pf2"
+          include_tasks: tasks/failover/wait_unit_state.yml
+          vars: { unit_host: "{{ item }}", unit_name: "packetfence-keepalived", unit_state: active }
+          loop: ["{{ inventory_hostname }}", "{{ pf2_host }}"]
 
 ########################################################################
 # RADIUS — radiusd-load_balancer runs on pf1 (mgmt master); its loss moves mgmt
