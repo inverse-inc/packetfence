@@ -1,0 +1,71 @@
+#!/bin/bash
+
+set -o nounset -o pipefail -o errexit
+
+# shellcheck source=../../addons/functions/database.functions
+source "$(dirname "$(readlink -f "$0")")/../../addons/functions/database.functions"
+
+test_dir=$(mktemp -d)
+trap 'rm -rf "$test_dir"' EXIT
+cd "$test_dir"
+
+# Exercise the import and upgrade without touching a real database.
+sub_splitter() { :; }
+check_code() { return "$1"; }
+get_db_name() { echo pf; }
+get_db_upgrade_scripts() { echo upgrade.sql; }
+
+touch pf.conf grants.sql excluded_tables_schema.sql triggers.sql upgrade.sql
+
+mysql() {
+  local args="$*"
+  echo "$args" >> mysql.calls
+  if [[ "$args" == *'-e select 1' ]]; then
+    [[ "$auth_mode" != prompt ]]
+    return
+  fi
+
+  [[ "$args" == *'--socket=/var/lib/mysql/mysql.sock'* ]] || return 1
+  if [[ "$auth_mode" == prompt ]]; then
+    [[ "$1" == "--defaults-file=$test_dir/setup_mycnf" ]] || return 1
+    grep -q '^password="test password"$' setup_mycnf || return 1
+  else
+    # An empty --defaults-file would discard the working client credentials.
+    [[ "$args" != *--defaults-file* && "$args" != *--no-defaults* ]] || return 1
+  fi
+
+  if [[ "$args" == *'select version from pf_version'* ]]; then
+    echo '16.0'
+  fi
+}
+
+for auth_mode in defaults prompt; do
+  for do_restore_as_is in 0 1; do
+    # Noninteractive restores cannot request a password.
+    [[ "$auth_mode" != prompt || "$do_restore_as_is" != 1 ]] || continue
+    echo "=> Testing import: auth=$auth_mode restore-as-is=$do_restore_as_is"
+    echo 'CREATE TABLE person (pid varchar(255));' > dump.sql
+    : > mysql.calls
+    if [[ "$auth_mode" == prompt ]]; then
+      import_mysqldump grants.sql dump.sql pf.conf <<< 'test password'
+    else
+      import_mysqldump grants.sql dump.sql pf.conf < /dev/null
+    fi
+    grep -q '^--socket=/var/lib/mysql/mysql.sock -e select 1$' mysql.calls
+    grep -q 'drop database if exists pf' mysql.calls
+    # Probe, recreate, data, excluded schema, triggers and grants must all run.
+    [[ $(wc -l < mysql.calls) -eq 6 ]]
+  done
+
+  echo "=> Testing upgrade: auth=$auth_mode"
+  : > mysql.calls
+  if [[ "$auth_mode" == prompt ]]; then
+    upgrade_database pf <<< 'test password'
+  else
+    upgrade_database pf < /dev/null
+  fi
+  grep -q 'truncate keyed' mysql.calls
+  [[ $(wc -l < mysql.calls) -eq 4 ]]
+done
+
+echo '=> Database authentication tests passed'

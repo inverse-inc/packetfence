@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function test_db_connection_no_creds() {
-  mysql -e 'select 1' &> /dev/null
+  mysql "$@" -e 'select 1' &> /dev/null
 }
 
 function get_db_name() {
@@ -30,16 +30,16 @@ function import_mysqldump() {
     sed -i '1d' $dump_file
   fi
 
-  mariadb_args="--defaults-file=`pwd`/setup_mycnf --socket=/var/lib/mysql/mysql.sock"
+  mariadb_args="--socket=/var/lib/mysql/mysql.sock"
   # we need a grant dump generated via: mysql ${MYSQL_CONN} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql ${MYSQL_CONN} --skip-column-names -A | sed 's/$/;/g' > grants.sql
-  # --restore-as-is: never prompt; rely on socket auth (fails later with a clear error if unavailable).
-  if ! test_db_connection_no_creds && [ "${do_restore_as_is:-0}" != 1 ]; then
+  # Keep the client defaults (including ~/.my.cnf) used by the connection check.
+  # --restore-as-is never prompts; use configured credentials or socket auth.
+  if ! test_db_connection_no_creds ${mariadb_args} && [ "${do_restore_as_is:-0}" != 1 ]; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
-    setup_mycnf $mariadb_root_pass
-  else
-    touch `pwd`/setup_mycnf
+    setup_mycnf "$mariadb_root_pass"
+    mariadb_args="--defaults-file=`pwd`/setup_mycnf $mariadb_args"
   fi
 
   db_name=`get_db_name $pf_conf`
@@ -196,15 +196,14 @@ EOT
 }
 
 function upgrade_database() {
-  mariadb_args="--defaults-file=`pwd`/setup_mycnf --socket=/var/lib/mysql/mysql.sock"
-  if ! test_db_connection_no_creds; then
+  mariadb_args="--socket=/var/lib/mysql/mysql.sock"
+  if ! test_db_connection_no_creds ${mariadb_args}; then
     echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
-    setup_mycnf $mariadb_root_pass
-  else
-    touch `pwd`/setup_mycnf
+    setup_mycnf "$mariadb_root_pass"
+    mariadb_args="--defaults-file=`pwd`/setup_mycnf $mariadb_args"
   fi
 
   db_name="$1"
