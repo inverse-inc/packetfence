@@ -335,14 +335,22 @@
   become: True
   vars:
     pf2_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf2') }}"
+    pf3_host: "{{ inventory_hostname | regex_replace('^pf1', 'pf3') }}"
   tasks:
     # VIP-follow: move mgmt VIP to pf2 (stop radiusd-load_balancer on pf1) -> pf2 becomes pfcron master
     - block:
         - name: "baseline: pf1 holds mgmt VIP (pfcron master)"
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
+        - name: "baseline: only pf1 processes non-local cron jobs"
+          include_tasks: tasks/failover/wait_pfcron_role.yml
+          vars: { cron_host: "{{ item.host }}", cron_processing: "{{ item.processing }}" }
+          loop:
+            - { host: "{{ inventory_hostname }}", processing: true }
+            - { host: "{{ pf2_host }}", processing: false }
+            - { host: "{{ pf3_host }}", processing: false }
         - name: "Move mgmt VIP to pf2 by stopping radiusd-load_balancer on pf1"
-          ansible.builtin.shell: "timeout -k 30 300 systemctl stop packetfence-radiusd-load_balancer || true"
+          ansible.builtin.shell: "timeout -k 30 300 systemctl stop packetfence-radiusd-load_balancer"
           changed_when: true
         - name: "mgmt VIP leaves pf1, then lands on pf2"
           include_tasks: tasks/failover/wait_vip.yml
@@ -350,18 +358,27 @@
           loop:
             - { host: "{{ inventory_hostname }}", present: false }
             - { host: "{{ pf2_host }}", present: true }
-        # pfcron runs on every node; mastership is the mgmt VIP asserted above,
-        # which pfcron re-reads at most once a minute (go/cmd/pfcron/main.go)
-        - name: "pf2 pfcron still running after taking the mgmt VIP"
-          include_tasks: tasks/failover/wait_unit_state.yml
-          vars: { unit_host: "{{ pf2_host }}", unit_name: "packetfence-pfcron", unit_state: active }
+        - name: "pf1 stops processing non-local jobs, pf2 takes over, pf3 stays standby"
+          include_tasks: tasks/failover/wait_pfcron_role.yml
+          vars: { cron_host: "{{ item.host }}", cron_processing: "{{ item.processing }}" }
+          loop:
+            - { host: "{{ inventory_hostname }}", processing: false }
+            - { host: "{{ pf2_host }}", processing: true }
+            - { host: "{{ pf3_host }}", processing: false }
       always:
         - name: "Restart radiusd-load_balancer on pf1 (mgmt VIP back to pf1)"
-          ansible.builtin.shell: "timeout -k 30 300 systemctl restart packetfence-radiusd-load_balancer || true"
+          ansible.builtin.shell: "timeout -k 30 300 systemctl restart packetfence-radiusd-load_balancer"
           changed_when: true
         - name: "mgmt VIP preempts back to pf1"
           include_tasks: tasks/failover/wait_vip.yml
           vars: { vip_host: "{{ inventory_hostname }}", vip_addr: "{{ cluster_vip.mgmt }}", vip_present: true }
+        - name: "Restore cron processing to pf1 only"
+          include_tasks: tasks/failover/wait_pfcron_role.yml
+          vars: { cron_host: "{{ item.host }}", cron_processing: "{{ item.processing }}" }
+          loop:
+            - { host: "{{ inventory_hostname }}", processing: true }
+            - { host: "{{ pf2_host }}", processing: false }
+            - { host: "{{ pf3_host }}", processing: false }
     # service-health: stopping pfcron on pf1 doesn't move a VIP; assert the peer's pfcron stays healthy
     - block:
         - name: "baseline: pfcron is active on pf1"

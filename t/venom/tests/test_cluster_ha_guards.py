@@ -120,6 +120,29 @@ sys.exit(response.get('rc', 0))
                             f'LoadState=loaded\nActiveState={state}\nResult={result}\n'}
                 self.assert_outcome(self.run_tasks(tasks, {'systemctl': response}), success)
 
+    def test_pfcron_role_requires_actual_processing_state(self):
+        path = SCENARIOS / 'cluster_failover/playbooks/tasks/failover/wait_pfcron_role.yml'
+        for processing, status, active, load, rc, success in [
+            (True, 'Processing non-local jobs', 'active', 'loaded', 0, True),
+            (False, 'Not processing non-local jobs', 'active', 'loaded', 0, True),
+            # The VIP moved, but the new master still isn't processing jobs.
+            (True, 'Not processing non-local jobs', 'active', 'loaded', 0, False),
+            # The old master must stop processing; service activity is irrelevant.
+            (False, 'Processing non-local jobs', 'active', 'loaded', 0, False),
+            (True, 'Waiting for scheduling role', 'active', 'loaded', 0, False),
+            (False, '', 'active', 'loaded', 0, False),
+            (False, 'Not processing non-local jobs', 'inactive', 'loaded', 0, False),
+            (True, 'Processing non-local jobs', 'active', 'not-found', 0, False),
+            (True, '', '', '', 1, False),
+        ]:
+            with self.subTest(processing=processing, status=status, active=active, load=load, rc=rc):
+                response = {'rc': rc, 'stdout':
+                            f'LoadState={load}\nActiveState={active}\nResult=success\nStatusText={status}\n'}
+                run = self.run_tasks(yaml.safe_load(path.read_text()),
+                                     {'systemctl': response},
+                                     {'cron_host': 'localhost', 'cron_processing': processing})
+                self.assert_outcome(run, success)
+
     def test_probe_accepts_only_galera_rejection_and_cleans_unexpected_success(self):
         path = RECOVERY / 'assert_db_read_only.yml'
         for create_rc, error, drop_rc, success in [
