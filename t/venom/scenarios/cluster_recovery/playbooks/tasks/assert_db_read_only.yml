@@ -10,8 +10,23 @@
   retries: 24
   delay: 5
 
-- name: "Confirm a write is rejected on {{ inventory_hostname }} (read-only)"
-  ansible.builtin.shell: "mysql -uroot -e 'CREATE DATABASE venom_ro_probe' 2>/dev/null"
+- name: "Set unique probe database name for {{ inventory_hostname }}"
+  ansible.builtin.set_fact:
+    _probe_db_name: "venom_ro_probe_{{ 999999 | random }}"
+
+- name: "Attempt write on {{ inventory_hostname }} (expect rejection)"
+  ansible.builtin.shell: "mysql -uroot -e 'CREATE DATABASE {{ _probe_db_name }}' 2>/dev/null"
   register: _ro_write
   changed_when: false
-  failed_when: _ro_write.rc == 0
+  failed_when: false
+
+- name: "Clean up probe database on {{ inventory_hostname }} if it was created"
+  ansible.builtin.shell: "mysql -uroot -e 'DROP DATABASE IF EXISTS {{ _probe_db_name }}' 2>/dev/null"
+  changed_when: false
+  failed_when: false
+  when: _ro_write.rc == 0
+
+- name: "Assert write was rejected on {{ inventory_hostname }} (read-only)"
+  ansible.builtin.fail:
+    msg: "Write unexpectedly succeeded: Galera should have rejected the CREATE DATABASE in read-only state"
+  when: _ro_write.rc == 0
