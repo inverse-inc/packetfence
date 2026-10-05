@@ -289,7 +289,7 @@ cluster_configurator_el8:
 	SCENARIOS_TO_RUN="cluster_configurator cluster_failover" \
 	$(MAKE_TARGET)
 
-# Cluster recovery scenarios (A-E). Runs cluster_configurator first to guarantee
+# Cluster recovery scenarios (A-F). Runs cluster_configurator first to guarantee
 # a healthy cluster, then cluster_recovery. In CI (MAKE_TARGET=run) this builds
 # the cluster from scratch; locally (MAKE_TARGET=run_tests) cluster_configurator's
 # cluster_already_healthy gate skips the rebuild and just re-verifies.
