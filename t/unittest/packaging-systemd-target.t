@@ -57,4 +57,25 @@ for my $package (
         }
     };
 }
+
+subtest 'full upgrade preserves the boot target' => sub {
+    open my $input, '<', "$root/addons/full-upgrade/run-upgrade.sh" or die $!;
+    my $source = do { local $/; <$input> };
+    close $input;
+    my @commands = $source =~ m{^([^\n]*/usr/local/pf/bin/pfcmd\s+service\s+pf\s+updatesystemd[^\n]*)$}mg;
+    is(scalar @commands, 1, 'full upgrade has one unit-update call');
+    for my $command (@commands) {
+        $command =~ s{/usr/local/pf/bin/pfcmd}{"$tmp/pfcmd"};
+        for my $command_status (0, 7) {
+            local $ENV{PF_SKIP_SYSTEMD_TARGET_PROMOTION};
+            delete $ENV{PF_SKIP_SYSTEMD_TARGET_PROMOTION};
+            local $ENV{PF_TEST_COMMAND_STATUS} = $command_status;
+            open my $output, '-|', '/bin/sh', '-c', $command or die $!;
+            my $result = do { local $/; <$output> };
+            close $output;
+            is($? >> 8, $command_status, 'unit-update call retains command status');
+            is($result, "1|service pf updatesystemd\n", 'full upgrade suppresses promotion');
+        }
+    }
+};
 done_testing;

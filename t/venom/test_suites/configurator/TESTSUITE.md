@@ -58,7 +58,8 @@ Boot-target failure handling also has focused regression tests:
 `t/unittest/services-systemd.t` checks API/CLI unit-update failures and CLI
 dispatch; `t/unittest/configurator-completion.t` checks readiness, save failures,
 and recovery when promotion fails. `t/unittest/packaging-systemd-target.t`
-exercises the real installer update commands with a stub. Upgrades pass
+exercises the real installer and full-upgrade update commands with a stub.
+Upgrades pass
 `PF_SKIP_SYSTEMD_TARGET_PROMOTION=1` so updating unit links cannot override an
 administrator's base target. Fresh configured installs and explicit CLI setup
 retain promotion after successful updates.
