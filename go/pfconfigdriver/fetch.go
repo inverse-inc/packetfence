@@ -111,7 +111,7 @@ func connectSocket(ctx context.Context) net.Conn {
 			case "tcp":
 				host := sharedutils.EnvOrDefault("PFCONFIG_TCP_HOST", "127.0.0.1")
 				port := sharedutils.EnvOrDefault("PFCONFIG_TCP_PORT", "44444")
-				c, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port))
+				c, err = net.Dial("tcp", net.JoinHostPort(host, port))
 			case "unix":
 				c, err = net.Dial("unix", getPfconfigSocketPath())
 			default:

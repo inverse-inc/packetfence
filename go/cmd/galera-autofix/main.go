@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -96,7 +97,7 @@ func seqnoReporting(ctx context.Context) {
 
 		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
 		for _, server := range servers.Element {
-			conn, err := net.Dial("udp", fmt.Sprintf("%s:%d", server.ManagementIp, ChitChatPort))
+			conn, err := net.Dial("udp", net.JoinHostPort(server.ManagementIp, strconv.Itoa(ChitChatPort)))
 			if err != nil {
 				log.LoggerWContext(ctx).Warn("Unable to dial " + server.ManagementIp + ": " + err.Error())
 			}
