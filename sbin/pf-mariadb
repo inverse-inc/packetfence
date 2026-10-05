@@ -6,7 +6,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use pf::services::util;
-use POSIX qw(:signal_h pause :sys_wait_h setuid setgid);
+use POSIX qw(:signal_h :sys_wait_h setuid setgid setpgid);
 use pf::log;
 use pf::cluster;
 use pf::config qw(
@@ -27,6 +27,8 @@ my $logger = get_logger( $PROGRAM_NAME );
 our $RUNNING = 1;
 
 our $MYSQLD_SPAWNER_PID;
+# Process group of a foreground mysqld_safe run (e.g. --wsrep-recover)
+our $MYSQLD_SYNC_PGID;
 our $QUORUM_MGMT_SERVER_PID;
 our $QUORUM_CLIENT_SERVER_PID;
 our $IS_CHILD;
@@ -49,6 +51,9 @@ our $failed = $TRUE;
 our $failed_counts = {};
 
 our $MYSQL_CONNECT_TIMEOUT = 5;
+
+# Seconds stop_mysql waits for the mysqld spawner to exit (below the unit's TimeoutSec)
+our $STOP_TIMEOUT = 600;
 
 our $GALERA_ENABLED = ($cluster_enabled && isenabled($Config{active_active}{galera_replication}));
 
@@ -98,11 +103,63 @@ sub launch_mysql {
     if($exec) {
         exec(@cmd);
     } else {
-        # mysqld_safe stays in the foreground; merge stderr into stdout so the
-        # child's output shares a single pipe that safe_pf_run drains, rather
-        # than leaving stderr undrained where it could fill and deadlock.
-        safe_pf_run(@cmd, { redirect_stderr_to_stdout => 1 });
+        run_mysql_sync(@cmd);
     }
+}
+
+=head2 run_mysql_sync
+
+Run mysqld_safe in the foreground in its own process group so that
+normal_sighandler can interrupt it (mysqld_safe ignores SIGTERM, so the whole
+group is signaled to reach mysqld)
+
+=cut
+
+sub run_mysql_sync {
+    my (@cmd) = @_;
+
+    # Block SIGTERM/SIGINT across the fork so the handler can't run before
+    # $MYSQLD_SYNC_PGID is set, and SIGCHLD so child_sighandler can't reap
+    # the child before our waitpid
+    my $sigset = POSIX::SigSet->new(SIGTERM, SIGINT, SIGCHLD);
+    my $old_sigset = POSIX::SigSet->new;
+    sigprocmask(SIG_BLOCK, $sigset, $old_sigset)
+        or die("pf-mariadb could not block signals: $!");
+
+    if(!$RUNNING) {
+        sigprocmask(SIG_SETMASK, $old_sigset);
+        return;
+    }
+
+    my $pid = pf::AtFork::pf_fork();
+
+    if(!defined($pid)) {
+        sigprocmask(SIG_SETMASK, $old_sigset);
+        $logger->error("pf-mariadb could not fork: $!");
+        return;
+    }
+
+    if($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $SIG{TERM} = "DEFAULT";
+        $SIG{INT}  = "DEFAULT";
+        $IS_CHILD = 1;
+        setpgid(0, 0);
+        sigprocmask(SIG_SETMASK, $old_sigset);
+        exec(@cmd) or POSIX::_exit(127);
+    }
+
+    # Also set it from the parent to avoid racing the child's setpgid
+    setpgid($pid, $pid);
+    $MYSQLD_SYNC_PGID = $pid;
+
+    # Let SIGTERM/SIGINT through while waiting, keep SIGCHLD blocked
+    my $unblock_sigset = POSIX::SigSet->new(grep { !$old_sigset->ismember($_) } SIGTERM, SIGINT);
+    sigprocmask(SIG_UNBLOCK, $unblock_sigset);
+
+    waitpid($pid, 0);
+    $MYSQLD_SYNC_PGID = undef;
+    sigprocmask(SIG_SETMASK, $old_sigset);
 }
 
 =head2 fork_launch_mysql
@@ -326,9 +383,15 @@ if(pf::cluster::is_in_maintenance) {
 
 if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
     bootstrap_new_cluster();
+    # Block SIGTERM/SIGINT so a signal arriving between the $RUNNING check and
+    # the wait isn't lost (which would hang in pause until SIGKILL)
+    my $old_sigset = POSIX::SigSet->new;
+    sigprocmask(SIG_BLOCK, POSIX::SigSet->new(SIGTERM, SIGINT), $old_sigset)
+        or die("pf-mariadb could not block signals: $!");
     while($RUNNING) {
-        pause;
+        sigsuspend($old_sigset);
     }
+    sigprocmask(SIG_SETMASK, $old_sigset);
     stop_mysql();
     exit;
 }
@@ -383,6 +446,7 @@ sub normal_sighandler {
         $SIG{CHLD} = "IGNORE";
 
         kill(SIGTERM, $MYSQLD_SPAWNER_PID) if($MYSQLD_SPAWNER_PID);
+        kill(-SIGTERM(), $MYSQLD_SYNC_PGID) if($MYSQLD_SYNC_PGID);
         kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
         kill(SIGTERM, $QUORUM_CLIENT_SERVER_PID) if($QUORUM_CLIENT_SERVER_PID);
         # no fork in a signal handler (deadlocks): stop_mysql runs pkill
@@ -397,8 +461,21 @@ Kill leftover mysqld processes once the main loop has stopped
 =cut
 
 sub stop_mysql {
-    system('pkill', 'mysqld');
-    system('pkill', 'mariadbd');
+    my $deadline = time + $STOP_TIMEOUT;
+    while(1) {
+        # Repeat the pkill: mysqld_safe ignores SIGTERM and may start mysqld
+        # after a previous pkill found nothing to kill
+        system('pkill', 'mysqld');
+        system('pkill', 'mariadbd');
+        # mysqld_safe exits once mysqld is down, wait for it so we don't exit
+        # while the database is still shutting down
+        last if !$MYSQLD_SPAWNER_PID || waitpid($MYSQLD_SPAWNER_PID, WNOHANG) != 0;
+        if(time >= $deadline) {
+            $logger->warn("mysqld spawner $MYSQLD_SPAWNER_PID still running after ${STOP_TIMEOUT}s, giving up waiting");
+            last;
+        }
+        sleep 1;
+    }
     $logger->debug("pfmariadb terminating");
 }
 
