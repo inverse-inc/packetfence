@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	log15 "github.com/inconshreveable/log15"
@@ -35,6 +36,7 @@ type FirewallSSOInt interface {
 	Stop(ctx context.Context, info map[string]string) (bool, error)
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
 	MatchesRole(ctx context.Context, info map[string]string) bool
+	GetRoles(ctx context.Context) []string
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
@@ -275,6 +277,11 @@ func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[strin
 	return false
 }
 
+// The roles that are configured for the SSO
+func (rbf *RoleBasedFirewallSSO) GetRoles(ctx context.Context) []string {
+	return rbf.Roles
+}
+
 // Get the logger for a firewall
 func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.PfconfigHashNS)
@@ -315,16 +322,21 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 	}
 
 	if !fw.CheckStatus(ctx, info) {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Start since the device is not registered (status '%s')", info["status"]))
 		return false, nil
 	}
 
 	if !fw.MatchesRole(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
+		if roles := fw.GetRoles(ctx); len(roles) == 0 {
+			log.LoggerWContext(ctx).Warn("Not sending SSO Start since no role is selected for this firewall: it applies to the devices of the selected roles only")
+		} else {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Start since the role '%s' is not one of the roles of this firewall (%s)", info["role"], strings.Join(roles, ", ")))
+		}
 		return false, nil
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Start for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Start")
@@ -368,7 +380,7 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Stop for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Stop")
