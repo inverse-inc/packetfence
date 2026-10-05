@@ -54,6 +54,19 @@ It also checks that the shutdown hook restores ACCEPT policies and Docker NAT.
 The existing step 80 checks that wizard completion starts iptables normally and
 installs the management SSH rule.
 
+Boot-target failure handling also has focused regression tests:
+`t/unittest/services-systemd.t` checks API/CLI unit-update failures and CLI
+dispatch; `t/unittest/packaging-systemd-target.t` exercises the real installer
+update branches with a stub command. Upgrades pass
+`PF_SKIP_SYSTEMD_TARGET_PROMOTION=1` so updating unit links cannot override an
+administrator's base target. Fresh configured installs and explicit CLI setup
+retain promotion after successful updates.
+
+Run `node --test t/html/pfappserver/configurator-completion.test.js` to check
+that each failed wizard step stops completion before later service actions,
+configurator disabling, or redirection. These isolated checks complement the
+live install, upgrade, and reboot checks on a PacketFence VM.
+
 ### Step 1
 1. Configure second interface as management with portal daemon (to test other
    feature later)

@@ -66,7 +66,8 @@ our %ALLOWED_ACTIONS = (
 Leave new installations on the base target until configuration is complete.
 The wizard updates systemd just before disabling the configurator, so its API
 caller explicitly passes configurator_finishing. CLI callers use the saved
-configurator setting, including during package installation.
+configurator setting. Package upgrades set PF_SKIP_SYSTEMD_TARGET_PROMOTION=1
+for their updatesystemd invocation to preserve the administrator's boot target.
 
 Only replace the installation's base target; preserve other boot targets.
 Command failures are fatal so callers cannot report a successful update.
@@ -75,6 +76,7 @@ Command failures are fatal so callers cannot report a successful update.
 
 sub promote_default_systemd_target {
     my (%options) = @_;
+    return 1 if ($ENV{PF_SKIP_SYSTEMD_TARGET_PROMOTION} // '') eq '1';
     return 1 unless $options{configurator_finishing} || isdisabled($Config{advanced}{configurator});
 
     my $status;

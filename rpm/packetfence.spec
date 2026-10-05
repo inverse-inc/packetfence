@@ -825,7 +825,11 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl stop packetfence-iptables
     /usr/local/pf/containers/docker-minimal-rules.sh
 
-    /usr/local/pf/bin/pfcmd service pf updatesystemd
+    if [ "$1" = "1" ]; then
+        /usr/local/pf/bin/pfcmd service pf updatesystemd
+    else
+        PF_SKIP_SYSTEMD_TARGET_PROMOTION=1 /usr/local/pf/bin/pfcmd service pf updatesystemd
+    fi
 
     # Empty root password in order to allow other user to connect as root.
     /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"

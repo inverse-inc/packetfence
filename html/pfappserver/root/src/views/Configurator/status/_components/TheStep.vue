@@ -38,51 +38,41 @@ const setup = (props, context) => {
   const invalidFeedback = ref(null)
   const progressFeedback = ref(null)
 
-  const advancedPromise = $store.dispatch('$_bases/getAdvanced') // prefetch advanced configuration
-
-  const catchWithError = message => {
-    return () => {
-      isLoading.value = false
-      invalidFeedback.value = message
-      progressFeedback.value = null
-    }
-  }
-
-  const onComplete = () => {
+  const onComplete = async () => {
     isLoading.value = true
     invalidFeedback.value = null
     progressFeedback.value = i18n.t('Applying configuration')
-    $store.dispatch('cluster/restartSystemService', { id: 'packetfence-config' }).catch(catchWithError(i18n.t('Failed to restart packetfence-config'))).then(() => {
-      invalidFeedback.value = null
+    let errorMessage = i18n.t('Failed to load advanced configuration')
+    try {
+      const advanced = await $store.dispatch('$_bases/getAdvanced')
+      errorMessage = i18n.t('Failed to restart packetfence-config')
+      await $store.dispatch('cluster/restartSystemService', { id: 'packetfence-config' })
+
       progressFeedback.value = i18n.t('Enabling PacketFence')
-      return $store.dispatch('cluster/updateSystemd', { id: 'pf' }).catch(catchWithError(i18n.t('Failed to update systemd'))).then(() => {
-        invalidFeedback.value = null
-        progressFeedback.value = i18n.t('Starting PacketFence')
-        return $store.dispatch('cluster/restartService', { id: 'pfperl-api' }).catch(catchWithError(i18n.t('Failed to restart pfperl-api'))).then(() => {
-          invalidFeedback.value = null
-          return $store.dispatch('cluster/restartService', { id: 'haproxy-admin' }).catch(catchWithError(i18n.t('Failed to restart haproxy-admin'))).then(() => {
-            invalidFeedback.value = null
-            return $store.dispatch('cluster/startService', { id: 'pf' }).catch(catchWithError(i18n.t('Failed to start packetfence services'))).then(() => {
-              invalidFeedback.value = null
-              progressFeedback.value = i18n.t('Disabling Configurator')
-              return advancedPromise.then(data => {
-                data.configurator = 'disabled'
-                return $store.dispatch('$_bases/updateAdvanced', data).catch(catchWithError(i18n.t('Failed to update advanced'))).then(() => {
-                  invalidFeedback.value = null
-                  progressFeedback.value = i18n.t('Redirecting to login page')
-                  setTimeout(() => {
-                    window.location.href = '/'
-                  }, 2000)
-                })
-              })
-            })
-          })
-        })
-      })
-      .finally(() => {
-        isLoading.value = false
-      })
-    })
+      errorMessage = i18n.t('Failed to update systemd')
+      await $store.dispatch('cluster/updateSystemd', { id: 'pf' })
+
+      progressFeedback.value = i18n.t('Starting PacketFence')
+      errorMessage = i18n.t('Failed to restart pfperl-api')
+      await $store.dispatch('cluster/restartService', { id: 'pfperl-api' })
+      errorMessage = i18n.t('Failed to restart haproxy-admin')
+      await $store.dispatch('cluster/restartService', { id: 'haproxy-admin' })
+      errorMessage = i18n.t('Failed to start packetfence services')
+      await $store.dispatch('cluster/startService', { id: 'pf' })
+
+      progressFeedback.value = i18n.t('Disabling Configurator')
+      errorMessage = i18n.t('Failed to update advanced')
+      await $store.dispatch('$_bases/updateAdvanced', { ...advanced, configurator: 'disabled' })
+      progressFeedback.value = i18n.t('Redirecting to login page')
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 2000)
+    } catch (err) {
+      invalidFeedback.value = errorMessage
+      progressFeedback.value = null
+    } finally {
+      isLoading.value = false
+    }
   }
 
   return {

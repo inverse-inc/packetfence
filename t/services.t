@@ -90,6 +90,9 @@ subtest 'boot target promotion' => sub {
         { name => 'installer keeps base target', configurator => 'enabled', skip => 1 },
         { name => 'CLI promotes configured standalone', target => 'packetfence.target' },
         { name => 'CLI accepts disabled aliases', configurator => 'no', target => 'packetfence.target' },
+        { name => 'upgrade preserves configured base target', upgrade => 1, skip => 1 },
+        { name => 'upgrade preserves cluster base target', upgrade => 1, cluster => 1, skip => 1 },
+        { name => 'explicit zero does not suppress promotion', upgrade => 0, target => 'packetfence.target' },
         { name => 'wizard promotes before disabling configurator', configurator => 'enabled', finishing => 1, target => 'packetfence.target' },
         { name => 'CLI promotes configured cluster', cluster => 1, target => 'packetfence-cluster.target' },
         { name => 'wizard selects cluster target', configurator => 'enabled', finishing => 1, cluster => 1, target => 'packetfence-cluster.target' },
@@ -102,6 +105,7 @@ subtest 'boot target promotion' => sub {
     );
     for my $case (@cases) {
         subtest $case->{name} => sub {
+            local $ENV{PF_SKIP_SYSTEMD_TARGET_PROMOTION} = $case->{upgrade} // '';
             my %config = (advanced => { configurator => $case->{configurator} // 'disabled' });
             my $cluster = $case->{cluster} // 0;
             my @commands;
