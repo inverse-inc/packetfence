@@ -7,28 +7,30 @@
 - import_tasks: read_uuid.yml
 
 - name: "Graceful PacketFence stop (clean galera close) on {{ inventory_hostname }}"
-  ansible.builtin.shell: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop || true"
+  ansible.builtin.command: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop"
   changed_when: true
 
-# pfcmd is best-effort above, so check the unit itself. is-active exits non-zero
-# once it is down; 'deactivating' still means galera is closing.
+# pfcmd can return success even when a manager failed. Require a loaded unit
+# that stopped successfully, then verify Galera finalized its on-disk state.
 - name: "Wait for packetfence-mariadb to stop on {{ inventory_hostname }}"
-  ansible.builtin.command: "systemctl is-active packetfence-mariadb"
+  ansible.builtin.command: "systemctl show --property=LoadState,ActiveState,Result packetfence-mariadb"
   register: _mariadb_state
   changed_when: false
-  failed_when: false
-  until: "_mariadb_state.stdout in ['inactive', 'failed', 'unknown', '']"
+  until:
+    - _mariadb_state.rc == 0
+    - "'LoadState=loaded' in _mariadb_state.stdout_lines"
+    - "'ActiveState=inactive' in _mariadb_state.stdout_lines"
+    - "'Result=success' in _mariadb_state.stdout_lines"
   retries: 12
   delay: 5
-  ignore_errors: true
 
-- name: "Refuse to cut power while packetfence-mariadb runs on {{ inventory_hostname }}"
-  ansible.builtin.fail:
-    msg: >-
-      packetfence-mariadb is still '{{ _mariadb_state.stdout }}' after `pfcmd service pf stop`;
-      a forced poweroff now would leave a dirty grastate.dat (seqno -1, safe_to_bootstrap 0)
-      and silently turn this into a dirty-shutdown test.
-  when: _mariadb_state is failed
+- name: "Verify Galera saved a clean sequence number on {{ inventory_hostname }}"
+  ansible.builtin.command:
+    argv:
+      - awk
+      - '$1 == "seqno:" { count++; valid = (NF == 2 && $2 ~ /^[0-9]+$/) } END { exit !(count == 1 && valid) }'
+      - /var/lib/mysql/grastate.dat
+  changed_when: false
 
 - name: "Power off {{ inventory_hostname }}"
   ansible.builtin.shell: "systemctl poweroff --force"

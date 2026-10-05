@@ -96,6 +96,29 @@ sys.exit(response.get('rc', 0))
                                       'unit_state': expected})
                 self.assert_outcome(run, success)
 
+    def test_clean_shutdown_requires_successful_stop_and_valid_seqno(self):
+        source = yaml.safe_load((RECOVERY / 'graceful_off.yml').read_text())
+        for state, result, rc, seqno, success in [
+            ('inactive', 'success', 0, 'seqno: 42\n', True),
+            ('inactive', 'success', 0, 'seqno: 0\n', True),
+            ('active', 'success', 0, 'seqno: 42\n', False),
+            ('failed', 'timeout', 0, 'seqno: 42\n', False),
+            ('', '', 1, 'seqno: 42\n', False),
+            ('inactive', 'success', 0, 'seqno: -1\n', False),
+            ('inactive', 'success', 0, 'seqno: invalid\n', False),
+            ('inactive', 'success', 0, '', False),
+        ]:
+            with self.subTest(state=state, result=result, rc=rc, seqno=seqno):
+                tasks = [dict(t) for t in source
+                         if t.get('register') == '_mariadb_state'
+                         or 'argv' in t.get('ansible.builtin.command', {})]
+                grastate = self.directory / 'grastate.dat'
+                grastate.write_text(seqno)
+                tasks[-1]['ansible.builtin.command'] = {
+                    'argv': tasks[-1]['ansible.builtin.command']['argv'][:-1] + [str(grastate)]}
+                response = {'rc': rc, 'stdout':
+                            f'LoadState=loaded\nActiveState={state}\nResult={result}\n'}
+                self.assert_outcome(self.run_tasks(tasks, {'systemctl': response}), success)
 
     def test_probe_accepts_only_galera_rejection_and_cleans_unexpected_success(self):
         path = RECOVERY / 'assert_db_read_only.yml'
