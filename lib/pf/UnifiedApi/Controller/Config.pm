@@ -235,7 +235,24 @@ sub items {
 
 sub config_store {
     my ($self) = @_;
-    $self->config_store_class->new;
+    my $cs = $self->config_store_class->new;
+    $self->lock_config_store($cs);
+    return $cs;
+}
+
+my %WRITE_METHODS = (POST => 1, PUT => 1, PATCH => 1, DELETE => 1);
+
+=head2 lock_config_store
+
+Lock the config file of the store for the lifetime of the store during a write request,
+so concurrent writers do not overwrite each other's changes
+
+=cut
+
+sub lock_config_store {
+    my ($self, $cs) = @_;
+    return unless $WRITE_METHODS{$self->req->method};
+    $cs->lock_config;
 }
 
 sub form {
