@@ -1,0 +1,71 @@
+name: Strict permission repair
+testcases:
+- name: strict_mode_accepts_absent_optional_files
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl success'
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: failed_packetfence_chown_is_reported
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl pf_chown'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Cannot chown
+
+- name: failed_packetfence_chmod_is_reported
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl pf_chmod'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Cannot chmod
+
+- name: failed_recursive_html_repair_is_reported
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl html_chown'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Couldn't change ownership
+
+- name: silently_failed_fingerbank_chown_is_detected
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl fingerbank_chown'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Incorrect permissions
+
+- name: silently_failed_fingerbank_chmod_is_detected
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl fingerbank_chmod'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Incorrect permissions
+
+- name: missing_required_fingerbank_directory_is_reported
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl missing_fingerbank_dir'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Cannot inspect
+
+- name: dangling_symlink_is_not_treated_as_absent_optional_file
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl dangling_symlink'
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring Cannot chown
+
+- name: ordinary_fixpermissions_keeps_legacy_behavior
+  steps:
+  - type: exec
+    script: 'perl {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_fixpermissions_case.pl legacy'
+    assertions:
+    - result.code ShouldEqual 0

@@ -1,0 +1,141 @@
+name: UID and GID migration failure handling
+testcases:
+- name: secondary_node_migrates_and_repairs_permissions
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh success'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
+    - result.systemout ShouldContainSubstring PF_IDS=2025 2025 2025
+    - result.systemout ShouldContainSubstring FINGERBANK_IDS=2026 2026 2026
+    - result.systemout ShouldContainSubstring LOGS_OWNER=0:2025
+    - result.systemout ShouldContainSubstring LOGFILE_OWNER=0:2025
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
+    - result.systemout ShouldContainSubstring CALL systemctl start packetfence-config
+    - result.systemout ShouldContainSubstring PENDING=no
+    - result.systemout ShouldNotContainSubstring packetfence-mariadb
+
+- name: usermod_failure_stops_migration
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh usermod_failure'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=8
+    - result.systemout ShouldContainSubstring PF_IDS=996 995 995
+    - result.systemout ShouldNotContainSubstring CALL groupmod
+    - result.systemout ShouldNotContainSubstring CALL pfcmd fixpermissions
+    - result.systemout ShouldNotContainSubstring CALL systemctl start packetfence-config
+
+- name: groupmod_failure_stops_migration
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh groupmod_failure'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=8
+    - result.systemout ShouldContainSubstring PF_IDS=2025 995 995
+    - result.systemout ShouldNotContainSubstring CALL pfcmd fixpermissions
+    - result.systemout ShouldNotContainSubstring CALL systemctl start packetfence-config
+
+- name: verify_ids_even_when_account_commands_report_success
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh verification_failure'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
+    - result.systemout ShouldContainSubstring UID/GID verification failed
+    - result.systemout ShouldNotContainSubstring CALL pfcmd fixpermissions
+
+- name: lingering_real_uid_prevents_account_changes
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh lingering_real_uid'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
+    - result.systemout ShouldContainSubstring remain or are restarting
+    - result.systemout ShouldContainSubstring CALL pkill -KILL -U 996
+    - result.systemout ShouldNotContainSubstring CALL usermod
+
+- name: lingering_effective_uid_prevents_account_changes
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh lingering_effective_uid'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
+    - result.systemout ShouldContainSubstring remain or are restarting
+    - result.systemout ShouldContainSubstring CALL pkill -KILL -u 996
+    - result.systemout ShouldNotContainSubstring CALL usermod
+
+- name: process_exit_between_check_and_signal_is_allowed
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh process_exit_race'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
+    - result.systemout ShouldContainSubstring PF_IDS=2025 2025 2025
+
+- name: retry_finishes_permissions_after_ids_have_changed
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh retry_permissions'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring FIRST_EXIT=123
+    - result.systemout ShouldContainSubstring FIRST_PENDING=yes
+    - result.systemout ShouldContainSubstring Resuming permission repairs
+    - result.systemout ShouldContainSubstring LOGS_OWNER=0:2025
+    - result.systemout ShouldContainSubstring LOGFILE_OWNER=0:2025
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
+    - result.systemout ShouldContainSubstring PENDING=no
+
+- name: service_readiness_failure_keeps_pending_marker
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh service_failure'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
+    - result.systemout ShouldContainSubstring packetfence-config is not active
+    - result.systemout ShouldContainSubstring PENDING=yes
+
+- name: strict_permission_failure_keeps_marker_and_services_stopped
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh fixpermissions_failure'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=1
+    - result.systemout ShouldContainSubstring PENDING=yes
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
+    - result.systemout ShouldNotContainSubstring CALL systemctl start packetfence-config
+
+- name: retry_strict_permissions_after_ids_have_changed
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh retry_fixpermissions'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring FIRST_EXIT=1
+    - result.systemout ShouldContainSubstring FIRST_PENDING=yes
+    - result.systemout ShouldContainSubstring Resuming permission repairs
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
+    - result.systemout ShouldContainSubstring CALL pfcmd fixpermissions strict
+    - result.systemout ShouldContainSubstring PENDING=no
+
+- name: already_migrated_accounts_are_unchanged
+  steps:
+  - type: exec
+    script: 'bash {{.pfserver_test_dir}}/venom/test_suites/uid_gid_migration/run_case.sh already_migrated'
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring MIGRATION_EXIT=0
+    - result.systemout ShouldContainSubstring Nothing to do
+    - result.systemout ShouldNotContainSubstring CALL systemctl
+    - result.systemout ShouldNotContainSubstring CALL usermod
