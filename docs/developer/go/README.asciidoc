@@ -103,6 +103,69 @@ make all
 make copy
 ----
 
+==== Checks before building
+
+Every binary target in [filename]`go/Makefile`, including race builds, depends on
+[command]`make check`. The checks run once per make invocation, before any binary
+is built, including when using [command]`make -j`. A failed gating check stops
+the build, so there is no separate build step to run.
+The PacketFence service Dockerfiles and Debian/RPM package builds already invoke
+this Makefile, so they use the same gate.
+
+Those package builds only run on `devel`, maintenance branches, tags and
+manually triggered pipelines, so CI runs the gate itself on every push: the
+`pre_ci_go_check_debian_bookworm` and `pre_ci_go_check_centos_8` jobs in the
+`check` stage run [command]`make -C go check all` on each build image. Both are
+needed because the gate uses the build host's OS.
+Artifact jobs explicitly depend on both Go check jobs, so their `needs` lists
+cannot bypass the Go gate when image builds are disabled.
+
+To run the checks without building a binary, from the repository root:
+
+[source,bash]
+----
+make -C go check
+----
+
+The gate runs, in order:
+
+* `go vet ./...` for suspicious code and common mistakes. *Stops the build.*
+* `staticcheck -tests -show-ignored ./...` for static analysis, including tests.
+* `govulncheck ./...` for known vulnerabilities reachable from the code.
+* `gosec ./...` for security issues in the source.
+
+Only `go vet` stops the build today. The last three report their findings and
+let the build continue, because the module currently carries a backlog they all
+flag. Once a tool's findings are triaged, drop its leading `-` in
+[filename]`go/Makefile` to make it gate as well.
+
+Analyzer versions are pinned in [filename]`go/Makefile` and executed using
+`go run package@version`. Go caches their downloads and compilation without
+adding them to the application's [filename]`go.mod`. The first run needs network
+access to fetch the tools; govulncheck also needs access to the vulnerability
+database. While those three stay advisory, a tool that fails to download or run
+is reported but does not fail the build.
+
+Checks cover the entire module using the build host's OS and architecture with
+cgo enabled. Install the native dependencies described above even when building
+the static `pfconnector` binary. This is a host validation pass; it does not
+validate code selected only by another OS, architecture, race tag, or custom
+build flags passed through `ARGS`. Use `GOFLAGS` for build tags shared by checks
+and compilation. The integration tests remain available through
+[command]`make test`; they require a running test pfconfig process.
+
+Review and fix reported findings; any analyzer suppression should be narrow and
+explain why the finding is safe. No blanket exclusions are provided, including
+for the vendored `chisel/` fork. `gopls check` is not needed in this gate: vet
+and Staticcheck provide the batch analysis, while gopls remains useful in the
+editor.
+
+Docker can reuse a cached successful build layer, including its check results.
+To refresh vulnerability results when sources have not changed, rebuild with
+`docker build --no-cache` (or disable the Kaniko cache in CI). Tools run in the
+builder stage and are not copied into the PacketFence runtime images. Builds of
+external applications such as Semaphore and xcaddy do not use this Makefile.
+
 ==== Creating a service
 
 Once `pfhttpd` is built, use a [filename]`Caddyfile` to load middleware and bind it on a specific port:
