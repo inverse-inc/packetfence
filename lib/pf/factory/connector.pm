@@ -20,6 +20,7 @@ use pf::config qw($management_network %ConfigConnector %Config);
 use NetAddr::IP;
 use Net::IP;
 use Net::DNS;
+use List::Util;
 use pf::log;
 use pf::constants qw($FALSE $TRUE);
 
@@ -100,21 +101,16 @@ sub resolve {
             get_logger->error("Unable to resolve $fqdn through pfdns-connector: " . ($error // "no A records returned"));
             return undef; # No valid IPs resolved
         }
-        # If we have multiple IPs, we take the first one
-        my $found = $FALSE;
-        for my $resolved_ip (@{$resolved_ips}) {
-            if (ip_part_of($resolved_ip)) {
-                $ip = NetAddr::IP->new($resolved_ip);
-                get_logger->warn("Resolved ".$fqdn." to ip ".$resolved_ip." through pfdns-connector");
-                $found =$TRUE;
-                last;
-            } else {
-                get_logger->error("Resolved ".$fqdn." to ip ".$resolved_ip." through pfdns-connector is not part of any pfconnector networks");
-            }
+        # Prefer the first IP that is part of a connector network, otherwise use
+        # the first one like a bare IP would be (handled by the local connector)
+        my $resolved_ip = List::Util::first { ip_part_of($_) } @{$resolved_ips};
+        if (defined $resolved_ip) {
+            get_logger->info("Resolved $fqdn to ip $resolved_ip through pfdns-connector");
+        } else {
+            $resolved_ip = $resolved_ips->[0];
+            get_logger->info("Resolved $fqdn to ip $resolved_ip through pfdns-connector, it is not part of any pfconnector networks, using the local connector");
         }
-        if (!$found) {
-            return undef;
-        }
+        $ip = NetAddr::IP->new($resolved_ip);
     } else {
         $ip = NetAddr::IP->new($ip);
     }
