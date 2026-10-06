@@ -285,6 +285,16 @@ sub apply_new_node_info {
     my ( $status, $status_msg );
     ( $status, $status_msg ) = pf::node::node_register($self->current_mac, $self->username, %{$self->new_node_info()});
     if ($status) {
+        # Record which source registered this device. Done once the device is
+        # actually registered, so every authentication module (SAML included) is
+        # covered and a source that never granted access, such as a sponsor who did
+        # not approve, is never recorded. person.source cannot serve this: person
+        # is 1:N with node, so it is last-write-wins across a user's devices.
+        # pf::dal::node derives source_type and source_base_type from it.
+        my $source = $self->app->session->{source};
+        if (defined($source)) {
+            node_modify($self->current_mac, source => $source->id);
+        }
         $self->app->flash->{notice} = "";
         my $notice = "";
         if($self->new_node_info->{category}) {
