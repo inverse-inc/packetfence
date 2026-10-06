@@ -15,6 +15,9 @@ BOX_DESC='local-test'
 # generate: X.Y.UTC_DATE
 # $$1 is to avoid make interpretation
 BOX_VERSION=$(shell echo $(PF_MINOR_RELEASE) | echo "`cat -`.`date -u +%Y%m%d%H%M%S`")
+# Cache selection also applies to direct make invocations outside Docker.
+GALAXY_REQUIREMENTS = $(if $(filter node_box.%,$(BUILD_NAME)),../../../addons/vagrant/requirements.yml,provisioners/requirements.yml)
+PACKER_WITH_ANSIBLE = bash ../../lib/ansible-galaxy-cache.sh "$(GALAXY_REQUIREMENTS)" "$(CURDIR)/ansible.cfg" packer
 PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
 PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
@@ -114,7 +117,7 @@ pfbox:	download-vagrant-key download-base-image clean
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
-	packer build -only="$(BUILD_NAME)" .
+	$(PACKER_WITH_ANSIBLE) build -only="$(BUILD_NAME)" .
 
 # EL 8 builds — host-side entry targets: the packer build itself runs inside
 # the vagrant-build container (see vagrant-in-docker.sh).
@@ -184,7 +187,7 @@ pfadbox: download-vagrant-key download-bullseye-base-image clean
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
-	packer build -only="$(BUILD_NAME)" .
+	$(PACKER_WITH_ANSIBLE) build -only="$(BUILD_NAME)" .
 
 .PHONY: pfad11dev
 pfad11dev:
@@ -272,7 +275,7 @@ pfel8box: download-vagrant-key download-rhel8-base-image clean
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
-	packer build -only="$(BUILD_NAME)" .
+	$(PACKER_WITH_ANSIBLE) build -only="$(BUILD_NAME)" .
 
 # Dependency-only EL 8 build — BOX_NAME selects the output namespace.
 .PHONY: pfel8dev_generic
