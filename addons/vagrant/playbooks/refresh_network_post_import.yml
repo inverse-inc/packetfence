@@ -43,6 +43,7 @@
     # reachable — bring PF up: base first (for pfcmd), clear the stale bake-time
     # cache, reload config, then start services. default stays multi-user.
     - name: Start PacketFence base services (mariadb, redis, pfconfig)
+      throttle: 1
       ansible.builtin.command: systemctl isolate packetfence-base.target
       changed_when: True
 
@@ -61,12 +62,23 @@
       changed_when: True
 
     - name: Reload PacketFence configuration from disk
+      throttle: 1
       ansible.builtin.command: /usr/local/pf/bin/pfcmd configreload hard
       changed_when: True
 
     - name: Start all PacketFence services
+      throttle: 1
       ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf restart
       changed_when: True
+      when: inventory_hostname is not match('^pf[123](deb12|el8)(local)?dev$')
+
+    # A cluster clone still has the standalone reg/iso addresses. Start only
+    # the internal API needed to replace them before enabling DHCP/portal.
+    - name: Start internal API for cluster clone address updates
+      ansible.builtin.systemd:
+        name: packetfence-pfperl-api.service
+        state: started
+      when: inventory_hostname is match('^pf[123](deb12|el8)(local)?dev$')
 
     - name: Report PacketFence service status
       ansible.builtin.command: /usr/local/pf/bin/pfcmd service pf status
