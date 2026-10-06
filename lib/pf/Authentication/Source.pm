@@ -165,16 +165,20 @@ because it inherits the family from its parent class rather than from a table
 someone has to remember to update.
 
 Callable on the class as well as on an instance, since it is a property of the
-class rather than of a configured source.
+class rather than of a configured source. For the same reason it is computed once
+per class and cached: it is called on the RADIUS and portal login paths.
 
 =cut
+
+my %BASE_TYPE;
 
 sub base_type {
     my ($proto) = @_;
     my $class = ref($proto) || $proto;
-    my @isa = grep { /^pf::Authentication::Source::/ } $class->meta->linearized_isa;
-    return $class->meta->get_attribute('type')->default unless @isa;
-    return $isa[-1]->meta->get_attribute('type')->default;
+    return $BASE_TYPE{$class} //= do {
+        my @isa = grep { /^pf::Authentication::Source::/ } $class->meta->linearized_isa;
+        (@isa ? $isa[-1] : $class)->meta->get_attribute('type')->default;
+    };
 }
 
 

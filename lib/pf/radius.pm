@@ -375,15 +375,12 @@ sub authorize {
     }
     my $vlan;
     if (defined($role->{'source'}) && $role->{'source'} ne '') {
+        # Persisted on the node; pf::dal::node derives source_type and
+        # source_base_type from it when it changes.
         $args->{'node_info'}{'source'} = $role->{'source'};
-        # Record the source type alongside the id. The id is operator chosen and
-        # therefore meaningless to anything that has not read authentication.conf,
-        # so consumers cannot classify a device from the id alone.
-        my $matched_source = pf::authentication::getAuthenticationSource($role->{'source'});
-        $args->{'node_info'}{'source_type'}      = $matched_source ? $matched_source->type      : '';
-        # The family (OAuth, LDAP, Billing...), so consumers can classify a source
-        # without enumerating every concrete type that exists.
-        $args->{'node_info'}{'source_base_type'} = $matched_source ? $matched_source->base_type : '';
+        # node_info also carries the source persisted by an earlier login, so the
+        # audit log takes the source matched by this request from here instead.
+        $args->{'matched_source'} = $role->{'source'};
     }
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};
@@ -1277,11 +1274,13 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
     user_role => 'PacketFence-Role',
     time => 'PacketFence-Request-Time',
     portal => 'PacketFence-Profile',
+    matched_source => 'PacketFence-Source',
 );
 
+# source is deliberately not mapped: node.source is persisted, so it would report
+# the source of a past login on requests that matched none (see matched_source).
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
     status => 'PacketFence-Status',
-    source => 'PacketFence-Source',
     portal => 'PacketFence-Profile',
     computername => 'PacketFence-Computer-Name',
 );

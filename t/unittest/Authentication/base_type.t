@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 26;
 use pf::authentication;
 
 #This test will running last
@@ -66,6 +66,13 @@ for my $type (sort keys %EXPECTED) {
     is( $module && $module->base_type, $EXPECTED{$type},
         "$type has base type $EXPECTED{$type}" );
 }
+
+# baseTypeForType resolves the family from the type alone, which is what auth_log
+# records: it must not need the configured source.
+is( pf::authentication::baseTypeForType('facebook'), 'OAuth', "baseTypeForType is case-insensitive" );
+is( pf::authentication::baseTypeForType('SQL,Email,SMS'), '', "baseTypeForType is '' for a comma-joined list" );
+is( pf::authentication::baseTypeForType('NoSuchType'), '', "baseTypeForType is '' for an unknown type" );
+is( pf::authentication::baseTypeForType(undef), '', "baseTypeForType is '' for undef" );
 
 =head1 AUTHOR
 

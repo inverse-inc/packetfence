@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 # This test will run last
 use Test::NoWarnings;
@@ -118,6 +118,14 @@ $row = latest();
 is($row->{status},      'completed',    "record_completed_guest completes the attempt row");
 is($row->{source_type}, 'SponsorEmail', "record_completed_guest keeps the source type");
 is($row->{source_base_type}, 'SponsorEmail', "record_completed_guest keeps the source family");
+
+# The source can be deleted between attempt and completion. The family comes from
+# the type the caller passes, so completion must not blank it.
+cleanup();
+pf::auth_log::record_guest_attempt('deleted_sponsor', 'SponsorEmail', $MAC, 'guest@example.com', 'default');
+is(latest()->{source_base_type}, 'SponsorEmail', "record_guest_attempt records the family of a source no longer configured");
+pf::auth_log::record_completed_guest('deleted_sponsor', 'SponsorEmail', $MAC, $pf::auth_log::COMPLETED, 'default');
+is(latest()->{source_base_type}, 'SponsorEmail', "record_completed_guest keeps the family of a source no longer configured");
 
 cleanup();
 
