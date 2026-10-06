@@ -1,4 +1,4 @@
-import { MysqlDatabase } from '@/globals/mysql'
+import { MysqlDatabase, MysqlDatetimeMax, MysqlDatetimeMin } from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { compareAsc, format, getYear, setYear, isValid, parse } from 'date-fns'
 import i18n from '@/utils/locale'
@@ -147,7 +147,9 @@ export const pfActions = {
     types: [fieldType.DATE],
     props: {
       placeholder: '0000-00-00',
-      textFn: setUnregDateTextFn
+      textFn: setUnregDateTextFn,
+      min: MysqlDatetimeMin,
+      max: MysqlDatetimeMax
     }
   },
   set_unreg_date_by_acl_user: {
@@ -156,7 +158,9 @@ export const pfActions = {
     types: [fieldType.DATE],
     props: {
       placeholder: '0000-00-00',
-      textFn: setUnregDateTextFn
+      textFn: setUnregDateTextFn,
+      min: MysqlDatetimeMin,
+      max: MysqlDatetimeMax
     }
   },
   time_balance_from_source: {
