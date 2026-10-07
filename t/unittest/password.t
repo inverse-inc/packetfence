@@ -12,8 +12,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 20;
 use pf::person;
+use pf::dal::password;
 use Utils;
 use_ok('pf::password') or die;
 can_ok('pf::password', qw(  bcrypt ) ) or die;
@@ -93,3 +94,30 @@ is(
    $pf::password::AUTH_SUCCESS,
    "password with potd succeeded",
 );
+
+# The validity window of a password, also after 2038 (#9122)
+my $window_pid = Utils::test_pid();
+pf::person::person_add($window_pid);
+my $window_password = pf::password::generate($window_pid, []);
+sub set_window {
+    my ($valid_from, $expiration) = @_;
+    pf::dal::password->update_items(
+        -set => { valid_from => $valid_from, expiration => $expiration },
+        -where => { pid => $window_pid },
+    );
+}
+
+set_window('2026-01-01 00:00:00', '2040-01-01 00:00:00');
+is(pf::password::validate_password($window_pid, $window_password), $pf::password::AUTH_SUCCESS, "expiration after 2038");
+
+set_window('2026-01-01 00:00:00', '2026-01-02 00:00:00');
+is(pf::password::validate_password($window_pid, $window_password), $pf::password::AUTH_FAILED_EXPIRED, "expired password");
+
+set_window('2039-01-01 00:00:00', '2040-01-01 00:00:00');
+is(pf::password::validate_password($window_pid, $window_password), $pf::password::AUTH_FAILED_NOT_YET_VALID, "valid from after 2038");
+
+set_window('0000-00-00 00:00:00', '2040-01-01 00:00:00');
+is(pf::password::validate_password($window_pid, $window_password), $pf::password::AUTH_SUCCESS, "no valid from");
+
+set_window('2026-01-01 00:00:00', '0000-00-00 00:00:00');
+is(pf::password::validate_password($window_pid, $window_password), $pf::password::AUTH_FAILED_EXPIRED, "no expiration is expired, as before");
