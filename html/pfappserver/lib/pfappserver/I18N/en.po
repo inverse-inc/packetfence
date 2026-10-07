@@ -123,6 +123,10 @@ msgstr ""
 msgid "API Key"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
+msgid "API Protocol"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/WindowsLive.pm
@@ -3744,6 +3748,10 @@ msgstr ""
 msgid "Protocol to use to contact the PacketFence PKI API"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
+msgid "Protocol used to reach the SMS gateway"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Provisioning ID"
 msgstr ""
@@ -5772,7 +5780,7 @@ msgid "URL of an iOS mobileconfig profile to install the certificate."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/SMSApi.pm
-msgid "URL of the Clickatell compatible SMS gateway"
+msgid "URL of the Clickatell compatible SMS gateway, without the protocol"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SSL_Inspection.pm

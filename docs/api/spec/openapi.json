@@ -28247,6 +28247,9 @@
                      "api_key" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
+                     "api_protocol" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
                      "api_url" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -34015,8 +34018,12 @@
                   "description" : "SMS gateway API Key",
                   "type" : "string"
                },
+               "api_protocol" : {
+                  "description" : "Protocol used to reach the SMS gateway",
+                  "type" : "string"
+               },
                "api_url" : {
-                  "description" : "URL of the Clickatell compatible SMS gateway",
+                  "description" : "URL of the Clickatell compatible SMS gateway, without the protocol",
                   "type" : "string"
                },
                "authentication_rules" : {

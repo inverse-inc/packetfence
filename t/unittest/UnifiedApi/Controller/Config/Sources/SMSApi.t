@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 24;
 
 #This test will running last
 use Test::NoWarnings;
@@ -52,7 +52,7 @@ $t->post_ok("$collection_base_url" =>
         World
         },
         api_key => 'asasasaas',
-        api_url => 'https://sms.example.com/messages/http/send',
+        api_url => 'sms.example.com/messages/http/send',
     }
   )
   ->status_is(201)
@@ -69,14 +69,15 @@ $t->patch_ok("$base_url/$id1" =>
         World
         },
         api_key => 'asasasaas',
-        api_url => 'https://sms.example.com/messages/http/send',
+        api_url => 'sms.example.com/messages/http/send',
         timeout => 5,
+        api_protocol => 'http',
     }
   )
   ->status_is(200)
   ;
 
-for my $api_url ('ftp://sms.example.com/send', 'data:,hello', 'sms.example.com/send') {
+for my $api_url ('https://sms.example.com/send', 'ftp://sms.example.com/send', '/send') {
     $t->patch_ok("$base_url/$id1" =>
         json => {
             api_url => $api_url,
@@ -86,6 +87,14 @@ for my $api_url ('ftp://sms.example.com/send', 'data:,hello', 'sms.example.com/s
       ;
 }
 
+$t->patch_ok("$base_url/$id1" =>
+    json => {
+        api_protocol => 'ftp',
+    }
+  )
+  ->status_is(422, "api_protocol 'ftp' is rejected")
+  ;
+
 $t->get_ok("$base_url/$id1")
     ->status_is(200)
     ->json_is(
@@ -94,17 +103,22 @@ $t->get_ok("$base_url/$id1")
         World},
     )
     ->json_is('/item/timeout', 5)
-    ->json_is('/item/api_url', 'https://sms.example.com/messages/http/send');
+    ->json_is('/item/api_url', 'sms.example.com/messages/http/send')
+    ->json_is('/item/api_protocol', 'http');
 
 $t->post_ok("$collection_base_url" =>
     json => {
         type => 'SMSApi',
         id   => $id2,
+        description => 'das',
+        hash_passwords => 'plaintext',
+        password_length => '10',
         api_key => 'asasasaas',
-        api_url => 'file:///etc/hostname',
+        api_url => 'https://sms.example.com/messages/http/send',
     }
   )
-  ->status_is(422, "Creating a source with a non http(s) api_url is rejected")
+  ->status_is(422, "Creating a source with a protocol in api_url is rejected")
+  ->json_is('/errors/0/field', 'api_url', "The error is on api_url")
   ;
 
 $t->get_ok("$collection_base_url")

@@ -14,9 +14,14 @@
                             :column-label="$i18n.t('Description')"
     />
 
+    <form-group-api-protocol namespace="api_protocol"
+                             :column-label="$i18n.t('API Protocol')"
+                             :text="$i18n.t('Protocol used to reach the SMS gateway.')"
+    />
+
     <form-group-api-url namespace="api_url"
                         :column-label="$i18n.t('API URL')"
-                        :text="$i18n.t('URL of the Clickatell compatible SMS gateway.')"
+                        :text="$i18n.t('URL of the Clickatell compatible SMS gateway, without the protocol.')"
     />
 
     <form-group-api-key namespace="api_key"
@@ -73,6 +78,7 @@
 import {BaseForm} from '@/components/new/'
 import {
   FormGroupApiKey,
+  FormGroupApiProtocol,
   FormGroupApiUrl,
   FormGroupAuthenticationRules,
   FormGroupCreateLocalAccount,
@@ -91,6 +97,7 @@ const components = {
   BaseForm,
 
   FormGroupApiKey,
+  FormGroupApiProtocol,
   FormGroupApiUrl,
   FormGroupAuthenticationRules,
   FormGroupCreateLocalAccount,

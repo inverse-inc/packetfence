@@ -22,7 +22,7 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 67;                      # last test to print
+use Test::More tests => 74;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -576,14 +576,22 @@ is_deeply(
     );
     is(
         $source->{api_url},
-        'https://sms.example.com/messages/http/send',
+        'sms.example.com/messages/http/send',
         "SMSApi source api_url is read from the configuration"
     );
+    is($source->api_protocol, 'https', "SMSApi source api_protocol defaults to https");
     is($source->timeout, 10, "SMSApi source timeout defaults to 10 seconds");
-    $source->api_url('data:,hello');
+    my $build = \&pf::Authentication::Source::SMSApiSource::build_api_url;
+    is($build->('https', 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi https protocol");
+    is($build->('http', 'sms.example.com/send')->as_string, 'http://sms.example.com/send', "SMSApi http protocol");
+    is($build->('ftp', 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi unknown protocol falls back to https");
+    is($build->(undef, 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi missing protocol falls back to https");
+    ok(!defined $build->('http', 'ftp://sms.example.com/send'), "SMSApi api_url with its own protocol is refused");
+    ok(!defined $build->('https', '/send'), "SMSApi api_url without a host is refused");
+    $source->api_url('data://hello');
     ok(
         !$source->sendSMS({ to => '5145551234', message => 'PIN: 1234' }),
-        "SMSApi source refuses to send an SMS with a non http(s) api_url"
+        "SMSApi source refuses to send an SMS when api_url carries a protocol"
     );
 }
 

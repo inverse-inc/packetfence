@@ -12,11 +12,9 @@ An SMS source using a Clickatell compatible HTTP API on a configurable URL.
 
 use pf::Authentication::constants;
 use pf::constants qw($TRUE $FALSE);
-use pf::error qw(is_success);
 use pf::log;
 use LWP::UserAgent;
 use URI;
-use URI::Escape::XS qw(uri_escape);
 
 use Moose;
 
@@ -27,6 +25,7 @@ with qw(pf::Authentication::CreateLocalAccountRole pf::Authentication::SMSRole);
 has '+type'                     => (default => 'SMSApi');
 has '+class'                    => (isa => 'Str', is => 'ro', default => 'external');
 has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS');
+has 'api_protocol'              => (isa => 'Str', is => 'rw', default => 'https');
 has 'api_url'                   => (isa => 'Str', is => 'rw');
 has 'api_key'                   => (isa => 'Str', is => 'rw');
 has 'message'                   => (isa => 'Maybe[Str]', is => 'rw', default => 'PIN: $pin');
@@ -79,20 +78,23 @@ sub match_in_subclass {
 }
 
 
-=head2 is_valid_api_url
+=head2 build_api_url
 
-Check that a URL is an absolute http or https URL with a host
+Build the full URL from api_protocol and api_url.
+Anything other than 'http' in api_protocol is sent over https, so a hand edited
+configuration can't select another scheme.
+Returns undef when api_url is empty, carries its own scheme or has no host
 
 =cut
 
-sub is_valid_api_url {
-    my ($url) = @_;
-    return $FALSE unless defined $url && length $url;
-    my $uri = URI->new($url);
-    my $scheme = $uri->scheme // '';
-    return $FALSE unless $scheme eq 'http' || $scheme eq 'https';
+sub build_api_url {
+    my ($protocol, $url) = @_;
+    return undef unless defined $url && length $url;
+    return undef if $url =~ m{^[a-z][a-z0-9+.-]*://}i;
+    my $scheme = (defined $protocol && $protocol eq 'http') ? 'http' : 'https';
+    my $uri = URI->new("$scheme://$url");
     my $host = $uri->host;
-    return (defined $host && length $host) ? $TRUE : $FALSE;
+    return (defined $host && length $host) ? $uri : undef;
 }
 
 =head2 sendSMS
@@ -113,19 +115,23 @@ sub sendSMS {
         return $FALSE;
     }
 
-    unless (is_valid_api_url($url)) {
-        $logger->error("Can't send SMS to '$to': api_url '$url' on source " . $self->id . " is not an http or https URL");
+    my $uri = build_api_url($self->api_protocol, $url);
+    unless ($uri) {
+        $logger->error("Can't send SMS to '$to': api_url '$url' on source " . $self->id . " is not a valid URL without a protocol");
         return $FALSE;
     }
 
-    my $query = join("&",
-        "apiKey=".uri_escape($self->api_key),
-        "to=".uri_escape($to),
-        "content=".uri_escape($message),
+    # Merge into any query the configured URL already carries; a fragment would swallow the query
+    $uri->fragment(undef);
+    $uri->query_form(
+        $uri->query_form,
+        apiKey  => $self->api_key,
+        to      => $to,
+        content => $message,
     );
 
     my $ua = LWP::UserAgent->new(timeout => $self->timeout);
-    my $response = $ua->get("$url?$query");
+    my $response = $ua->get($uri);
 
     unless($response->is_success) {
         $logger->error("Can't send SMS to '$to': " . $response->status_line);

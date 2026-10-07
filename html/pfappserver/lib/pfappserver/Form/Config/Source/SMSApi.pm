@@ -25,6 +25,17 @@ use pf::Authentication::Source::SMSApiSource;
 
 our $META = pf::Authentication::Source::SMSApiSource->meta;
 
+has_field 'api_protocol' => (
+    type    => 'Select',
+    label   => 'API Protocol',
+    options => [ { label => 'https', value => 'https' }, { label => 'http', value => 'http' } ],
+    default => $META->get_attribute('api_protocol')->default,
+    tags    => {
+        after_element   => \&help,
+        help            => 'Protocol used to reach the SMS gateway',
+    },
+);
+
 has_field 'api_url' => (
     type            => 'Text',
     label           => 'API URL',
@@ -32,17 +43,17 @@ has_field 'api_url' => (
     # Default value needed for creating dummy source
     default         => '',
     element_attr    => {
-        placeholder => 'https://platform.clickatell.com/messages/http/send',
+        placeholder => 'platform.clickatell.com/messages/http/send',
     },
     validate_method => sub {
         my ($field) = @_;
-        unless (pf::Authentication::Source::SMSApiSource::is_valid_api_url($field->value)) {
-            $field->add_error('The API URL must be an http or https URL');
+        unless (pf::Authentication::Source::SMSApiSource::build_api_url('https', $field->value)) {
+            $field->add_error('The API URL must be a host and path without the protocol');
         }
     },
     tags        => {
         after_element   => \&help,
-        help            => 'URL of the Clickatell compatible SMS gateway',
+        help            => 'URL of the Clickatell compatible SMS gateway, without the protocol',
     },
 );
 

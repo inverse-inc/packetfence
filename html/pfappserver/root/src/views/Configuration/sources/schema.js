@@ -125,9 +125,10 @@ export const schema = (props) => {
     account_sid: yup.string().label(i18n.t('SID')),
     allowed_domains: schemaDomains,
     api_key: yup.string().label(i18n.t('API key')),
+    api_protocol: yup.string().nullable().label(i18n.t('API Protocol')),
     api_url: yup.string().nullable().label(i18n.t('API URL'))
       .required(i18n.t('API URL required.'))
-      .matches(/^https?:\/\/[^/?#\s]+/i, i18n.t('Invalid URL, must be http:// or https://.')),
+      .matches(/^(?![a-z][a-z0-9+.-]*:\/\/)[^/?#\s]+/i, i18n.t('Invalid URL, must not include the protocol.')),
     api_login_id: yup.string().label(i18n.t('ID')),
     auth_token: yup.string().label(i18n.t('Token')),
     authenticate_realm: yup.string().label(i18n.t('Realm')),
