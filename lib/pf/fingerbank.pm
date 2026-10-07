@@ -45,6 +45,7 @@ use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
+use pfconfig::git_storage;
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -466,6 +467,25 @@ sub sync_configuration {
 sub sync_local_db {
     pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
     clear_cache();
+
+    if (pfconfig::git_storage->is_enabled) {
+        my ($res, $msg) = pfconfig::git_storage->commit_file($fingerbank::FilePath::LOCAL_DB_FILE, "fingerbank/db/fingerbank_Local.db");
+        if (!$res) {
+            get_logger->error("Error syncing $fingerbank::FilePath::LOCAL_DB_FILE to git storage: $msg");
+            return (0, $msg);
+        }
+        eval {
+            # The deploy is only needed for its git pull side (placing the DB file on the
+            # pfconfig pods); no pfconfig namespace depends on the local Fingerbank DB, so
+            # expire a single cheap namespace instead of __all__
+            pfconfig::git_storage->deploy(namespace => "config::FingerbankSettings", light => 1);
+        };
+        if ($@) {
+            get_logger->error("Error deploying git storage after local Fingerbank DB update: $@");
+            return (0, "Local Fingerbank database was saved to git storage but deploying it failed. Please retry the change.");
+        }
+    }
+    return (1, undef);
 }
 
 sub sync_upstream_db {
