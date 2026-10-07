@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 40;
+use Test::More tests => 101;
 use Test::Mojo;
 
 #This test will running last
@@ -106,6 +106,167 @@ $t->delete_ok("$base_url/test")
 
 $t->get_ok("$base_url/test")
   ->status_is(404);
+
+# generic_http provisioner
+
+my $generic_http_id = "id_generic_http_$$";
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => $generic_http_id,
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    headers  => "Authorization: Bearer abc123\nX-Pid: \$node.pid",
+    jq_query => '.status == "enrolled"',
+})->status_is(201);
+
+$t->get_ok("$base_url/$generic_http_id")
+  ->status_is(200)
+  ->json_is('/item/type', 'generic_http')
+  ->json_is('/item/url', 'https://mdm.example.com/api/v1/devices?mac=$mac')
+  ->json_is('/item/headers', "Authorization: Bearer abc123\nX-Pid: \$node.pid")
+  ->json_is('/item/jq_query', '.status == "enrolled"');
+
+$t->delete_ok("$base_url/$generic_http_id")
+  ->status_is(200);
+
+# missing required fields (url, jq_query)
+$t->post_ok($collection_base_url => json => {
+    type => 'generic_http',
+    id   => "id_generic_http_invalid_$$",
+})->status_is(422);
+
+# a jq query that does not compile is rejected on create
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badjq_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    jq_query => '.devices | bogus_fn',
+})->status_is(422);
+
+# a query that would pull definitions in from a .jq file on disk is rejected
+# with the same validation, rather than at the first authorization
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_include_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    jq_query => 'include "evil"; .status == "enrolled"',
+})->status_is(422);
+
+# a valid query using brackets compiles and saves
+my $bracket_id = "id_generic_http_brackets_$$";
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => $bracket_id,
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    jq_query => '.devices[0].status == "enrolled"',
+})->status_is(201);
+
+# an unescaped '$' in a template is rejected: it would be read as a variable
+# and silently dropped from the rendered value
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_baddollar_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?mac=$mac',
+    headers  => 'Authorization: Bearer sk-abc$def',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badurl_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?token=abc$def',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
+# a jq query that does not compile is rejected on update
+$t->patch_ok("$base_url/$bracket_id" => json => {
+    jq_query => '.devices[',
+})->status_is(422);
+
+$t->delete_ok("$base_url/$bracket_id")
+  ->status_is(200);
+
+# test_jq
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status == "enrolled"',
+    json     => '{"status":"enrolled"}',
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->true);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status == "enrolled"',
+    json     => '{"status":"removed"}',
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->false);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => 'not json',
+})->status_is(422);
+
+# the tester compiles the query the way the provisioner does: no modules from
+# disk, and no reading the environment of the process answering the request
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => 'include "evil"; .status',
+    json     => '{"status":"enrolled"}',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => 'env.PATH',
+    json     => '{}',
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->false);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+})->status_is(422);
+
+# a test node is handed to the query as $mac and $node, and comes back with
+# the result so the admin can see which attributes it held
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.mac == $mac and .owner == $node.pid',
+    json     => '{"mac":"aa:bb:cc:dd:ee:ff","owner":"bob"}',
+    mac      => 'AA-BB-CC-DD-EE-FF',
+    node     => { pid => 'bob' },
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->true)
+  ->json_is('/mac' => 'aa:bb:cc:dd:ee:ff')
+  ->json_is('/node/pid' => 'bob');
+
+# a node given on its own names the mac itself
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '$mac',
+    json     => '{}',
+    node     => { mac => 'aa:bb:cc:dd:ee:ff', pid => 'bob' },
+})->status_is(200)
+  ->json_is('/mac' => 'aa:bb:cc:dd:ee:ff');
+
+# and without either, both variables are null
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '[$mac, $node]',
+    json     => '{}',
+})->status_is(200)
+  ->json_is('/results/0' => [undef, undef])
+  ->json_is('/node' => undef);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => '{"status":"enrolled"}',
+    mac      => 'not a mac',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => '{"status":"enrolled"}',
+    node     => 'not an object',
+})->status_is(422);
+
+$t->post_ok("$collection_base_url/test_jq", {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
+# valid JSON that is not an object is a bad request, not a 500
+$t->post_ok("$collection_base_url/test_jq", {'Content-Type' => 'application/json'} => '[1,2]')
+  ->status_is(400);
 
 =head1 AUTHOR
 

@@ -1,0 +1,151 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Generic HTTP
+
+The Generic HTTP provisioner allows you to integrate any HTTP JSON API (MDM,
+EDR, asset inventory, ...) that is not natively supported by PacketFence. You
+define the HTTP request to perform for a device in the configuration and a jq
+query that decides, from the JSON response, whether or not the device is
+compliant.
+
+==== Configure the provisioner
+
+In the PacketFence administration interface, go in _Configuration -> Advanced
+Access Configuration -> Provisioners_ and create a new provisioner of type
+*Generic HTTP*.
+
+===== The request
+
+The *URL*, the *headers* and the *body* of the request are templates. The
+following variables are available:
+
+ * `$mac`: the MAC address of the device being checked
+ * `$node.<attribute>`: any attribute of the node (ex: `$node.pid`,
+   `$node.category`, `$node.computername`, ...)
+
+For example:
+
+  https://mdm.example.com/api/v1/devices?mac=$mac
+
+Because `$` introduces a variable, a literal `$` must be doubled. This matters
+for API tokens, which often contain one:
+
+  Authorization: Bearer sk-abc$$def
+
+written with a single `$`, the `$def` would be read as an (empty) variable and
+the token would be sent truncated. The provisioner refuses to save a URL,
+header or body that references a variable other than `$mac` and `$node.*`.
+
+The *headers* are defined one per line using the `Name: value` syntax. Both
+the name and the value are templates. For example:
+
+  Authorization: Bearer my-api-token
+  X-Owner: $node.pid
+
+The *body* is only sent for POST, PUT and PATCH requests and defaults to the
+`Content-Type` defined in the provisioner unless a `Content-Type` header is
+explicitly defined in the headers.
+
+When a *username* and *password* are defined, they are sent using HTTP basic
+authentication unless an `Authorization` header is explicitly defined in the
+headers.
+
+===== TLS
+
+When the server uses a certificate that is not trusted by the system, you can
+upload a *CA certificate* used to verify the server certificate. A *client
+certificate* and *client key* can also be uploaded when the server requires
+mutual TLS. Verification of the server certificate can be completely disabled
+with the *Verify TLS* toggle although this is not recommended.
+
+===== The jq query
+
+The JSON response of the server is evaluated with the *JQ query* of the
+provisioner. The device is authorized when the query returns a truthy value
+following the jq semantics: every result that is not `null` or `false` is
+truthy (including `0` and `""`), an empty result set is falsy.
+
+For example, given the following response:
+
+  {"devices": [{"mac": "aa:bb:cc:dd:ee:ff", "status": "enrolled"}]}
+
+the following query authorizes the device when the status of the first device
+is `enrolled`:
+
+  .devices[0].status == "enrolled"
+
+and the following one authorizes it as soon as at least one device matched:
+
+  .devices | length > 0
+
+The device being checked is available to the query as two jq variables, the
+same two the request templates get:
+
+ * `$mac`: the MAC address of the device
+ * `$node`: the attributes of the node, as an object (ex: `$node.pid`,
+   `$node.category`, `$node.computername`, ...). It is `null` when the device
+   is not a known node.
+
+This is what you want when the server answers about more than the one device
+asked about, or when the answer has to be checked against what PacketFence
+already knows. For example, to pick the entry of the device out of a list the
+server returned:
+
+  .devices | any(.mac == $mac and .status == "enrolled")
+
+or to require that the owner the server reports is the one the node is
+registered to:
+
+  .assigned_user == $node.pid
+
+NOTE: The query is evaluated with jq (through the JQ::XS Perl library), so the
+full jq language is available, with two restrictions. The query cannot pull
+definitions in from `.jq` files on disk: an `include` or an `import` is refused
+when the provisioner is saved. And it cannot read the environment of the
+process evaluating it, which holds the credentials of the daemon: `env` and
+`$ENV` are both an empty object, so `env.FOO` and `$ENV.FOO` are `null`
+whatever `FOO` holds.
+
+NOTE: A query that does not compile is logged and treated as a failed check. A
+response that is not valid JSON and a jq runtime error are logged as a
+communication failure instead, so a server answering something unexpected does
+not deauthorize the device.
+
+===== Testing the jq query
+
+The *Test JQ query* field of the provisioner allows you to validate your query
+without contacting the server: paste a sample JSON response in the field and
+click 'Test'. The result of the evaluation (pass or fail along with the raw
+results of the query) is displayed under the field.
+
+A query using `$mac` or `$node` can be tested against a real device: enter its
+MAC address in the *Test node* field above. The node is looked up in the
+database and handed to the query exactly as it would be during an
+authorization, and the attributes it holds are displayed with the result of
+the test, so the ones the query reads can be checked against what the node
+actually carries. Leaving the field empty runs the query with `$mac` and
+`$node` both `null`.
+
+==== Enforcement
+
+Like any other provisioner, the compliance check can be enforced during RADIUS
+authentication and on the captive portal with the *Enforce* toggle, devices
+can be automatically registered with *Auto register* and a role can be applied
+with *Apply role*.
