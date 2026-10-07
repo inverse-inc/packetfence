@@ -256,8 +256,14 @@ msgid "API Bandwidth"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/_components/TheForm.vue:48
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:28
 #: html/pfappserver/root/src/views/Configurator/fingerbank/_components/FormFingerbank.vue:40
 msgid "API Key"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:18
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:128
+msgid "API Protocol"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:44
@@ -284,7 +290,9 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeGoogle.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLinkedIn.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:26
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:23
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:26
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:129
 msgid "API URL"
 msgstr ""
 
@@ -294,6 +302,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:43
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeWindowsLive.vue:47
 msgid "API URL of logged user"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:130
+msgid "API URL required."
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:243
@@ -8833,6 +8845,10 @@ msgstr ""
 msgid "Invalid OUI."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:131
+msgid "Invalid URL, must not include the protocol."
+msgstr ""
+
 #: html/pfappserver/root/src/utils/yup.js:497
 msgid "Invalid VLAN."
 msgstr ""
@@ -13308,6 +13324,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/schema.js:32
 #: html/pfappserver/root/src/views/Status/network_communication/_composables/useCollection.js:40
 msgid "Protocol"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:19
+msgid "Protocol used to reach the SMS gateway."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Status/network_communication/_components/BaseDataHosts.vue:109
@@ -18100,7 +18120,12 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:11
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAzureAD.vue:45
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:31
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:32
 msgid "Timeout"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:33
+msgid "Timeout in seconds of the HTTP request to the SMS gateway."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/discoverNetworkDevices/_components/TheForm.vue:242
@@ -18574,6 +18599,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeSslInspection.vue:24
 msgid "URL of an iOS mobileconfig profile to install the certificate."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:24
+msgid "URL of the Clickatell compatible SMS gateway, without the protocol."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeSslInspection.vue:19
