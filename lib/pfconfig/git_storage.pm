@@ -43,6 +43,11 @@ sub fingerbank_conf_directory {
     return $proto->config->{fingerbank_conf_directory};
 }
 
+sub fingerbank_db_directory {
+    my ($proto) = @_;
+    return $proto->config->{fingerbank_db_directory};
+}
+
 sub git_directory {
     my ($proto) = @_;
     return $proto->config->{git_directory};
@@ -285,6 +290,20 @@ sub update {
                 $last_error = "Unable to copy fingerbank/conf/ repository files";
                 sleep 3;
                 next;
+            }
+        }
+
+        # fingerbank_db_directory may be absent from older deployments
+        my $fb_db_directory = $proto->fingerbank_db_directory;
+        if($fb_db_directory) {
+            my @fb_db_files = glob($proto->git_directory . "/fingerbank/db/*");
+            if(@fb_db_files) {
+                safe_pf_run("cp", "-a", @fb_db_files, $fb_db_directory . "/", { status_ref => \$status });
+                if(!defined($status) || $status != 0) {
+                    $last_error = "Unable to copy fingerbank/db/ repository files";
+                    sleep 3;
+                    next;
+                }
             }
         }
 
