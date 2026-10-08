@@ -83,6 +83,7 @@ Additional options available
 
 [options="compact"]
  * *email_activation_timeout* - This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.
+ * *wait_for_activation* - When enabled, the device is not granted temporary network access: it stays on the captive portal until the activation link is clicked, typically from another device such as a phone. The portal then completes the registration automatically. The email activation timeout only bounds the validity of the link.
  * *allow_localdomain* - Accept self-registration from email address within the local domain
  * *activation_domain* - Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.
  * *allowed_domains* - A comma-separated list of domains that are allowed for email registration. Allowed domains are checked after banned domains.
