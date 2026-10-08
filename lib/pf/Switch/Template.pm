@@ -165,7 +165,7 @@ sub returnRadiusAccessAccept {
     if ( isenabled($self->{_RoleMap}) ) {
         $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
-            $role = $self->getRoleByName($args->{'user_role'});
+            $role = $self->getRoleByName($args->{'user_role'}, $args);
         }
         my $roleTemplate = $self->{_template}{acceptRole};
         $tmp_args{role} = $role;

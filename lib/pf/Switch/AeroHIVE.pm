@@ -343,7 +343,7 @@ sub returnRadiusAccessAccept {
 
     $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned.");
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        my $role = $self->getRoleByName($args->{'user_role'});
+        my $role = $self->getRoleByName($args->{'user_role'}, $args);
 
         # Roles are configured and the user should have one
         if (defined($role) && $role ne ""  && isenabled($self->{_RoleMap})) {
