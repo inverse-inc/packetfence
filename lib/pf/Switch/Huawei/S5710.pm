@@ -36,7 +36,6 @@ sub description { 'Huawei S5710' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
-    ~AccessListBasedEnforcement
     Flow
 );
 
