@@ -1905,7 +1905,7 @@ Called in order to populate the NTLM authentication cache with a single user
 
 =cut
 
-sub cache_user_ntlm {
+sub cache_user_ntlm : Queue {
     my ($class, $domain, $username) = @_;
 
     my ($result, $msg) = pf::domain::ntlm_cache::cache_user($domain, $username);
@@ -2043,7 +2043,7 @@ Update a user/NT hash combination inside redis for a given domain
 
 =cut
 
-sub update_user_in_redis_cache {
+sub update_user_in_redis_cache : Queue {
     my ($class, $domain, $username) = @_;
     my $logger = pf::log::get_logger();
     my $config = $pf::config::ConfigDomain{$domain};

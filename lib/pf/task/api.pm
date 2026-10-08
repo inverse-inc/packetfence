@@ -21,6 +21,33 @@ use pf::api;
 use pf::api::can_fork;
 my $logger = get_logger();
 
+=head2 %DENIED_METHODS
+
+Api methods that are never run from the queue
+
+=cut
+
+our %DENIED_METHODS = map { $_ => 1 } qw(
+    copy_directory
+    distant_download_configfile
+    download_configfile
+    expire_cluster
+    notify_configfile_changed
+    queue_job
+    sync_config_as_master
+);
+
+=head2 isAllowedMethod
+
+Check if an api method can be run from the queue
+
+=cut
+
+sub isAllowedMethod {
+    my ($self, $method) = @_;
+    return 0 if !defined($method) || ref($method) || $DENIED_METHODS{$method};
+    return pf::api->isQueue($method) ? 1 : 0;
+}
 
 =head2 doTask
 
@@ -30,8 +57,13 @@ Calls the api call
 
 sub doTask {
     my ($self, $args) = @_;
+    my $method = ref($args) eq 'ARRAY' ? $args->[0] : undef;
+    unless ($self->isAllowedMethod($method)) {
+        $logger->error("Refusing api task " . ($method // ''));
+        return ({ message => "Api method not allowed", status => 403 }, undef);
+    }
+
     my $api_client = pf::api::can_fork->new();
-    my $method = $args->[0];
     $logger->info("Calling api task $method");
     $api_client->notify(@$args);
     return (undef, undef);
