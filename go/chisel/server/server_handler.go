@@ -1232,20 +1232,41 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 			continue
 		}
 
+		// A switch can be keyed by a single IP or by a CIDR subnet
+		switchIP := net.ParseIP(key)
+		var switchNet *net.IPNet
+		if switchIP == nil {
+			if _, parsed, err := net.ParseCIDR(key); err == nil {
+				switchNet = parsed
+			}
+		}
+
 		// Filter by connector networks if a connector_id was provided
 		if len(connectorNetworks) > 0 {
-			switchIP := net.ParseIP(key)
-			if switchIP == nil {
-				continue
-			}
-			inNetwork := false
-			for _, network := range connectorNetworks {
-				if network.Contains(switchIP) {
-					inNetwork = true
-					break
+			if switchIP != nil {
+				inNetwork := false
+				for _, network := range connectorNetworks {
+					if network.Contains(switchIP) {
+						inNetwork = true
+						break
+					}
 				}
-			}
-			if !inNetwork {
+				if !inNetwork {
+					continue
+				}
+			} else if switchNet != nil {
+				overlaps := false
+				for _, network := range connectorNetworks {
+					if network.Contains(switchNet.IP) || switchNet.Contains(network.IP) {
+						overlaps = true
+						break
+					}
+				}
+				if !overlaps {
+					continue
+				}
+			} else {
+				// Not an IP nor a subnet (e.g. a MAC-keyed switch): cannot be matched to a network
 				continue
 			}
 		}
