@@ -177,6 +177,8 @@ sub rewriteConfig {
     my ($self) = @_;
     my $config = $self->cachedConfig;
     $config->removeDefaultValues();
+    # Use the current mode of the file instead of the one cached when it was first read
+    delete $config->{file_mode};
     my $result = $config->RewriteConfig();
     $config->ReadConfig();
     return $result;

@@ -37,7 +37,7 @@ case "$1" in
         setup_system_init_key
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
-        find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/conf -type f -exec chmod 660 '{}' \;
         find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
         find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;

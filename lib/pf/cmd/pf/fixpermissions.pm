@@ -37,10 +37,13 @@ use pf::file_paths qw(
     $html_dir
     $lib_dir
     $config_version_file
+    $local_secret_file
+    $unified_api_system_pass_file
+    $system_init_key_file
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
-use pf::constants qw($DIR_MODE $PFCMD_MODE);
+use pf::constants qw($DIR_MODE $PFCMD_MODE $CONF_FILE_MODE $SECRET_FILE_MODE);
 use pf::constants::user;
 use pf::util;
 use File::Find;
@@ -80,7 +83,11 @@ sub action_all {
         $pfcmd,
     );
     chmod($PFCMD_MODE, $pfcmd);
-    chmod(0664, @stored_config_files, $config_version_file);
+    chmod($CONF_FILE_MODE, @stored_config_files);
+    chmod(0664, $config_version_file);
+    my @secret_files = grep { -f $_ } ($local_secret_file, $unified_api_system_pass_file, $system_init_key_file);
+    _changeFilesToOwner('pf', @secret_files);
+    chmod($SECRET_FILE_MODE, @secret_files);
     chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     print "Fixed permissions.\n";
@@ -134,11 +141,23 @@ sub action_file {
             return $EXIT_FAILURE;
         }
         _changeFilesToOwner($user,$file);
-        chmod 0664, $file;
+        chmod(_file_mode($file), $file);
         print "Fixed permissions on file $file \n";
     }
 
     return $EXIT_SUCCESS;
+}
+
+=head2 _file_mode
+
+The mode to apply to a single file: files in the configuration directory
+are not readable by others
+
+=cut
+
+sub _file_mode {
+    my ($file) = @_;
+    return index($file, "$conf_dir/") == 0 ? $CONF_FILE_MODE : 0664;
 }
 
 sub _changeFilesToOwner {
