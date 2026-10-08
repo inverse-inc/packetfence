@@ -68,6 +68,7 @@ export {
   BaseFormGroupInput                        as FormGroupEmailAddress,
   BaseFormGroupInput                        as FormGroupEmailAttribute,
   BaseFormGroupSwitch                       as FormGroupEmailRequired,
+  BaseFormGroupSwitch                       as FormGroupFallbackToStaticUserAttributes,
   BaseFormGroupInput                        as FormGroupGraphUrl,
   BaseFormGroupInput                        as FormGroupGroupHeader,
   BaseFormGroupChosenOne                    as FormGroupHashPasswords,
