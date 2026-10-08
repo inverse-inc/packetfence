@@ -191,6 +191,31 @@ a new one. You will need to specify a reason of the revokation.
 
 image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
 
+===== Enforcing the revocation in EAP-TLS
+
+FreeRADIUS only refuses a revoked certificate when it checks its status with
+OCSP, and OCSP checking is disabled by default. To enable it, go in
+_Configuration -> System Configuration -> RADIUS -> OCSP Profiles_, edit the
+`default` profile (used by the default TLS profile) and enable OCSP, then
+restart the `radiusd-auth` service. The default profile already points to the
+OCSP responder of the PacketFence PKI
+(`http://127.0.0.1:22225/api/v1/pki/ocsp`) and overrides the URL of the
+certificate, since PacketFence PKI certificates do not carry one. With OCSP
+enabled, the authentication of a revoked certificate is rejected with
+`eap_tls: ocsp: Cert status: revoked` in the RADIUS audit log.
+
+NOTE: With the URL override, every client certificate is checked against the
+PacketFence PKI. If your endpoints also use certificates from another CA,
+create a separate OCSP profile for them (pointing to the OCSP responder of that
+CA) instead of enabling the override on a shared profile.
+
+When a certificate is revoked for any reason other than `superseded`, the
+PacketFence PKI also deregisters the devices whose last EAP-TLS authentication
+used it and re-evaluates their access. Without this, a switch that falls back
+to MAC authentication after the EAP-TLS reject would give the device its
+registered role back. A `superseded` certificate (expired, or replaced by a new
+one) keeps its devices registered.
+
 ==== Resign a certificate
 
 Resign-ing an existing Certificate will extend the duration by reusing the
