@@ -181,7 +181,13 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
   # The effect check for --force-new-cluster asks show-environment. RS_FACTS
   # asks the same thing among many others, so it must not land here.
   if [[ "\$script" == *"show-environment"* && "\$script" != *"hostname -s"* ]]; then
-    [ -f "$TMP/force_new_cluster" ] && echo "MARIADB_ARGS=--force-new-cluster"
+    # The effect check exits 0 WITHOUT printing VERIFY_OK when the variable is
+    # still there - that is its failure case, so the fake must be able to
+    # produce it. Printing VERIFY_OK unconditionally made it unfailable.
+    if [ -f "$TMP/force_new_cluster" ]; then
+      echo "MARIADB_ARGS=--force-new-cluster"
+      [[ -n "\${FAKE_ARGS_STUCK:-}" ]] && exit 0
+    fi
     echo VERIFY_OK; exit 0
   fi
   # Answers for status queries. Effect checks are confirmed unless
@@ -318,7 +324,7 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
     fi
     echo "g:wsrep_cluster_size=\${FAKE_SIZE:-\$fsz}"
     echo "g:wsrep_cluster_status=Primary"
-    echo "g:wsrep_local_state_comment=Synced"
+    echo "g:wsrep_local_state_comment=\${FAKE_GALERA_STATE:-Synced}"
     echo "g:wsrep_ready=ON"; exit 0
   fi
   # galera-autofix that cannot be unmasked again - the node would be left
@@ -352,7 +358,7 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
     echo "ws_user=packet"; echo "ws_pass=fake-ws-password"; exit 0
   fi
   if [[ "\$script" == *"hostname -s"* ]]; then
-    echo "hostname=\$node"; echo "pf_version=15.1.0"; echo "do_upgrade=yes"
+    echo "hostname=\$node"; echo "pf_version=\${FAKE_PF_VERSION:-15.1.0}"; echo "do_upgrade=yes"
     echo "cluster_node_cmd=yes"; echo "mysql_avail_mb=\${FAKE_MYSQL_MB:-99999}"
     echo "root_avail_mb=\${FAKE_ROOT_MB:-99999}"
     echo "aptcache_avail_mb=99999"
@@ -365,6 +371,11 @@ if [[ "\$cmd" == *"bash -s"* ]]; then
   fi
   if [[ "\$script" == *"checkup"* ]]; then echo "Checkup finished"; exit 0; fi
   if [[ "\$script" == *"id -u"* ]]; then echo "0"; exit 0; fi
+  # A node that answers with terminal control sequences. Separate branch rather
+  # than a FAKE_ switch on another one: this has to arrive through rexec itself.
+  if [[ "\$script" == *"PFCLU_ECHO"* ]]; then
+    printf 'a\tb\r\033[2Kc\n'; exit 0
+  fi
   if [[ "\$script" == *"db_socket_auth"* ]]; then
     echo "db_socket_auth=\${FAKE_SOCKET_AUTH:-yes}"; echo "devel_sql=no"; exit 0
   fi
@@ -679,6 +690,79 @@ o_ar="$( autofix_release pf-node3 2>&1 )" && bad "autofix_release reported succe
                                          || ok "a galera-autofix that stays masked is a failure"
 unset FAKE_AUTOFIX_FAIL
 has "$o_ar" "self-healing" "and the consequence is named"
+# ... and the recorded failure has to reach the exit code. Four phases print no
+# summary, so without this gate 'upgrade-ab' would end 0 with a node left
+# without database self-healing and 'run' would carry on into the wipe.
+FAIL_LIST=("pf-node3: galera-autofix stayed masked")
+( phase_gate >/dev/null 2>&1 ) && bad "a recorded failure leaves the phase at 0" \
+                               || ok "a recorded failure ends the phase non-zero"
+o_pg="$( phase_gate 2>&1 )" || true
+has "$o_pg" "galera-autofix stayed masked" "and the blocking point is named"
+FAIL_LIST=(); WARN_LIST=()
+( phase_gate >/dev/null 2>&1 ) && ok "without a recorded failure the phase carries on" \
+                               || bad "the gate stops a phase that had no failure"
+
+# A gate nothing calls is worth nothing, and one called AFTER the completion
+# marker is worse than none: the phase is recorded as done, the process exits,
+# and 'run --resume' skips the phase while FAIL_LIST dies with it.
+for _pg in phase_prepare:prepared phase_upgrade_c:migrated_to_c \
+           phase_upgrade_ab:ab_upgraded phase_reintegrate:reintegrated; do
+    _fn="${_pg%%:*}"; _mk="${_pg##*:}"; _body="$(declare -f "$_fn")"
+    has "$_body" "phase_gate" "${_fn} ends on the recorded failures"
+    _g="$(grep -n 'phase_gate' <<<"$_body" | head -1 | cut -d: -f1)"
+    _m="$(grep -n "state_set ${_mk} 1" <<<"$_body" | head -1 | cut -d: -f1)"
+    if [[ -n "$_g" && -n "$_m" && $_g -lt $_m ]]; then
+        ok "${_fn} gates before it records ${_mk}"
+    else
+        bad "${_fn} records ${_mk} before the gate - a --resume would skip the failure"
+    fi
+done
+
+# An immobilized galera-autofix needs the same safety net as a masked
+# keepalived: whatever ends the run in between, cleanup has to take it off.
+# First the arming end - without the marker there is nothing for cleanup to do.
+: >"$TRACE"; AUTOFIX_MASKED_NODE=""
+autofix_immobilize pf-node1 >/dev/null 2>&1
+check "autofix_immobilize records the node it masked" "$AUTOFIX_MASKED_NODE" "pf-node1"
+FAIL_LIST=(); WARN_LIST=()
+
+: >"$TRACE"
+AUTOFIX_MASKED_NODE="pf-node1"; KEEPALIVED_MASKED_NODE=""
+cleanup >/dev/null 2>&1
+has "$(cat "$TRACE")" "pf-node1: systemctl unmask packetfence-galera-autofix" \
+    "cleanup releases a galera-autofix left masked"
+check "and clears the marker so it is not tried twice" "$AUTOFIX_MASKED_NODE" ""
+FAIL_LIST=(); WARN_LIST=()
+
+# A legal RETRY_DELAY of 0 must not stall a wait loop that counts in it.
+check "a retry delay of 0 still advances the wait loop" "$( RETRY_DELAY=0; retry_step )" "1"
+check "a real retry delay is used as it is"             "$( RETRY_DELAY=5; retry_step )" "5"
+
+# DB_WAIT_TIMEOUT=0 is a legal setting. The loop then never runs, and the
+# diagnosis after it reads the answer - which does not exist yet.
+_dbw=$DB_WAIT_TIMEOUT; DB_WAIT_TIMEOUT=0
+o_dbw="$( wait_db_reachable pf-node1 2>&1 )"
+DB_WAIT_TIMEOUT=$_dbw
+hasnt "$o_dbw" "unbound variable" "a database timeout of 0 gives a message, not a bash error"
+
+# The expected Galera size is a range: 're.resync.<node>' is recorded when the
+# resync STARTS, so a resumed reintegrate meets a cluster that is already
+# complete while its own counter still says two.
+_gw=$GALERA_WAIT_TIMEOUT; _ps=$POLL_SECS; GALERA_WAIT_TIMEOUT=1; POLL_SECS=0
+export FAKE_SIZE=3
+wait_galera pf-node1 2 >/dev/null 2>&1 \
+    && ok "a cluster of three satisfies an expectation of two (resume)" \
+    || bad "a resumed reintegrate waits out the timeout on a synced node"
+export FAKE_SIZE=9
+wait_galera pf-node1 2 >/dev/null 2>&1 \
+    && bad "more members than the cluster has counts as in sync" \
+    || ok "more members than the cluster has is still not in sync"
+export FAKE_SIZE=1
+wait_galera pf-node1 2 >/dev/null 2>&1 \
+    && bad "a node that never joined counts as in sync" \
+    || ok "a node that never joined is still not in sync"
+unset FAKE_SIZE
+GALERA_WAIT_TIMEOUT=$_gw; POLL_SECS=$_ps
 FAIL_LIST=(); WARN_LIST=()
 
 # The state file goes at the end of a clean finish - but under the lock
@@ -695,12 +779,70 @@ state_discard && ok "state_discard removes the state file" \
 rm -f "$TMP/state" "$TMP/state.lock"
 
 # --- rollback (12.4.5 "If all goes wrong") ---
+# 'upgrade-ab' has A and B disable each other (12.4.5). A rollback that starts
+# them with that still in place gets two single-node clusters, each accepting
+# writes - the split the whole procedure exists to prevent. So the disable is
+# taken back BEFORE either node is started.
+: >"$TRACE"; rm -f "$TMP/state"
+state_set migrated_to_c 1; state_set ab_upgraded 1
+( phase_rollback >/dev/null 2>&1 ) || true
+t_rben="$(cat "$TRACE")"
+check "rollback re-enables A and B against each other" \
+      "$(grep -c 'cluster/node "\$1" enable' <<<"$t_rben")" "2"
+p_en="$(grep -n 'cluster/node "\$1" enable' <<<"$t_rben" | head -1 | cut -d: -f1)"
+p_st="$(grep -n 'systemctl start --no-block packetfence-mariadb' <<<"$t_rben" | head -1 | cut -d: -f1)"
+if [[ -n "$p_en" && -n "$p_st" && $p_en -lt $p_st ]]; then
+    ok "and does so before either of them is started"
+else
+    bad "rollback starts a node while it still ignores its peer"
+fi
+hasnt "$t_rben" "pf-node3: /usr/local/pf/bin/cluster/node" \
+    "C stays disabled - that is the state upgrade-c resumes from"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# Before upgrade-ab there is no mutual disable to take back, so none is issued.
+: >"$TRACE"; rm -f "$TMP/state"
+state_set migrated_to_c 1
+( phase_rollback >/dev/null 2>&1 ) || true
+check "a rollback at the intended point enables nothing" \
+      "$(grep -c 'cluster/node "\$1" enable' <<<"$(cat "$TRACE")")" "0"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
+# The state is rewritten before A and B are touched. A rollback that DIES while
+# bringing them back - here on a mask that does not take - must not leave the
+# state saying 'C is live, A and B are upgraded': the next 'run --resume' would
+# skip the review pause and upgrade-ab, walk into reintegrate and wipe
+# /var/lib/mysql on A and B, the only nodes still holding the old data.
+rm -f "$TMP/state"
+state_set prepared 1; state_set migrated_to_c 1; state_set ab_upgraded 1
+mark_done "c.start"; mark_done "ab.sync.pf-node1"
+export FAKE_MASK_FAIL=1
+( phase_rollback >/dev/null 2>&1 ) || true
+unset FAKE_MASK_FAIL
+st_rb="$(cat "$TMP/state" 2>/dev/null)"
+has   "$st_rb" "migrated_to_c=0" "a rollback that dies has still taken back migrated_to_c"
+has   "$st_rb" "ab_upgraded=0"   "and ab_upgraded, so the review pause comes back"
+hasnt "$st_rb" "done.c."         "and the step markers of upgrade-c are gone"
+hasnt "$st_rb" "done.ab."        "and those of upgrade-ab too"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
+
 : >"$TRACE"
-phase_rollback >/dev/null 2>&1
+( phase_rollback >/dev/null 2>&1 ) || true
 t="$(cat "$TRACE")"
 has "$t" "pf-node3: systemctl stop --no-block packetfence-mariadb" "rollback: MariaDB on C stopped"
-has "$t" "pf-node1: systemctl start packetfence-mariadb" "rollback: MariaDB on A started"
-has "$t" "pf-node2: systemctl start packetfence-mariadb" "rollback: MariaDB on B started"
+has "$t" "pf-node1: systemctl start --no-block packetfence-mariadb" "rollback: MariaDB on A started"
+has "$t" "pf-node2: systemctl start --no-block packetfence-mariadb" "rollback: MariaDB on B started"
+# Both started before either is waited for: with the mutual disable taken back
+# each expects the other, and a blocking start would sit out TimeoutSec=1200 on
+# the first node waiting for a peer that has not been started yet.
+p_sa="$(grep -n 'pf-node1: systemctl start --no-block packetfence-mariadb' <<<"$t" | head -1 | cut -d: -f1)"
+p_sb="$(grep -n 'pf-node2: systemctl start --no-block packetfence-mariadb' <<<"$t" | head -1 | cut -d: -f1)"
+p_wa="$(grep -n 'pf-node1: .*wsrep' <<<"$t" | head -1 | cut -d: -f1)"
+if [[ -n "$p_sa" && -n "$p_sb" && -n "$p_wa" && $p_sb -lt $p_wa ]]; then
+    ok "rollback starts both databases before waiting for either"
+else
+    bad "rollback waits for A before B has been started"
+fi
 # The way back uses the same staged start as the forward path - keepalived held
 # back until the services are up. Before that, the node could take the VIP while
 # radiusd and haproxy-portal were still starting.
@@ -720,7 +862,7 @@ hasnt "$t" "rm -fr" "rollback deletes no data"
 # them - two live halves on one database.
 rm -f "$TMP/state"
 state_set prepared 1; mark_done "c.stop_peer.pf-node1"; mark_done "c.start"
-phase_rollback >/dev/null 2>&1
+( phase_rollback >/dev/null 2>&1 ) || true
 if grep -q '^done\.c\.' "$TMP/state" 2>/dev/null; then
     bad "rollback keeps the step markers of upgrade-c"
 else
@@ -734,7 +876,7 @@ rm -f "$TMP/state"
 # A and B would never see the configuration of the re-upgraded C.
 rm -f "$TMP/state"
 state_set prepared 1; state_set ab_upgraded 1; mark_done "ab.sync.pf-node1"
-phase_rollback >/dev/null 2>&1
+( phase_rollback >/dev/null 2>&1 ) || true
 if grep -q '^done\.ab\.' "$TMP/state" 2>/dev/null; then
     bad "rollback keeps the step markers of upgrade-ab"
 else
@@ -789,6 +931,7 @@ has "$opts" "BatchMode=yes" "ssh never asks for a password"
 
 # rexec_retry retries only real connection failures (255), not a failed remote
 # command.
+_rc0=$RETRY_COUNT; _rd0=$RETRY_DELAY
 RETRY_COUNT=3; RETRY_DELAY=0
 attempts_file="$TMP/attempts"; : >"$attempts_file"
 cp "$BIN/ssh" "$TMP/ssh.mock"   # keep the full fake
@@ -804,6 +947,9 @@ check "a connection failure is retried ${RETRY_COUNT}x" "$(wc -l <"$attempts_fil
 FAKE_SSH_RC=1 rexec_retry pf-node2 'echo hi' >/dev/null 2>&1
 check "a failed remote command is NOT retried" "$(wc -l <"$attempts_file")" "1"
 cp "$TMP/ssh.mock" "$BIN/ssh"   # restore the full fake
+# Restored, both of them: left at 0, RETRY_DELAY would make every later wait
+# loop in this file count in steps of zero.
+RETRY_COUNT=$_rc0; RETRY_DELAY=$_rd0
 RETRY_COUNT=5
 
 # Detached execution: the start block and the poll block
@@ -1184,13 +1330,15 @@ FAIL_LIST=(); WARN_LIST=()
 
 # The German LOESCHEN prompt before wiping /var/lib/mysql is gone, but the step
 # must stay visible. The needle is the OLD text on purpose - do not translate it.
-hasnt "$(declare -f phase_reintegrate)" "LOESCHEN" "no type-to-confirm prompt before wiping /var/lib/mysql"
+hasnt "$(declare -f phase_reintegrate)" "LOESCHEN" \
+    "the German LOESCHEN prompt is gone from reintegrate"
 has   "$(declare -f phase_reintegrate)" "is now wiped completely" "the wipe is still announced"
 has   "$(declare -f phase_rollback)" "ROLLBACK" "the type-to-confirm prompt before a rollback stays"
 
 # checkup warnings belong on the CLI, not only in the log. Here too the needle
 # is the removed German text on purpose.
-hasnt "$(declare -f phase_upgrade_c)" "Details im Protokoll" "checkup no longer points at the log"
+hasnt "$(declare -f phase_upgrade_c)" "Details im Protokoll" \
+    "the German log pointer is gone from the checkup step"
 has   "$(cat "$TOOL")" "grep -i '^WARNING'" "checkup prints the warnings itself"
 
 # --- Effect checks are retried -----------------------------------------------
@@ -1539,6 +1687,45 @@ CONFIG_FILE="$TMP/pf-cluster-upgrade.conf"
 
 pf_run() { rm -f "$TMP/state"; ( phase_preflight 2>&1 ) || true; }
 
+# The two checks above prove the helper, not that the paths use it - which is
+# how twenty field outputs stayed unfiltered while the helper was correct. So:
+# through rexec, and through a whole phase.
+check "rexec filters what a node sends, tab and text intact" \
+      "$(rexec pf-node1 'echo PFCLU_ECHO')" "$(printf 'a\tb[2Kc')"
+
+# The version ends up in a log_info line, the Galera state in a log_fail line.
+# A lone carriage return in either overwrites the line above it on the terminal.
+FAKE_PF_VERSION="$(printf '15.1.0\r[ok]   all three nodes ready')"
+FAKE_GALERA_STATE="$(printf 'Synced\033[2K')"
+export FAKE_PF_VERSION FAKE_GALERA_STATE
+o_ctl="$(pf_run)"
+unset FAKE_PF_VERSION FAKE_GALERA_STATE
+case "$o_ctl" in
+    *$'\r'*)    bad "a carriage return from a node reaches the terminal" ;;
+    *$'\033'*)  bad "an escape sequence from a node reaches the terminal" ;;
+    *)           ok "no control character from a node reaches the terminal" ;;
+esac
+has "$o_ctl" "15.1.0" "and the field itself is still shown"
+has "$o_ctl" "Synced" "the Galera state is still shown"
+FAIL_LIST=(); WARN_LIST=()
+
+# Whoever may write the DIRECTORY replaces the run log or the state file no
+# matter what the mode of the file inside says. noclobber does not help there.
+# A warning, not an abort: a cluster upgrade must not fail over a log directory.
+mkdir -p "$TMP/opendir2"; chmod 777 "$TMP/opendir2"
+o_sp="$( LOG_DIR="$TMP/opendir2"; STATE_FILE="$TMP/opendir2/s"; warn_shared_paths 2>&1 )"
+has "$o_sp" "LOG_DIR" "a log directory others may write is reported"
+has "$o_sp" "--resume skip steps" "so is a state directory others may write"
+( LOG_DIR="$TMP/opendir2"; STATE_FILE="$TMP/opendir2/s"; warn_shared_paths >/dev/null 2>&1 ) \
+    && ok "and it stays a warning - the phase carries on" \
+    || bad "a shared log directory aborts the run"
+o_sp="$( LOG_DIR="$TMP"; STATE_FILE="$TMP/state"; warn_shared_paths 2>&1 )"
+check "a private directory draws no warning" "$o_sp" ""
+# main() never runs in this file - so at least the call site is pinned.
+has "$(declare -f main)" "warn_shared_paths" \
+    "main checks the shared directories before it starts a phase"
+FAIL_LIST=(); WARN_LIST=()
+
 o="$(pf_run)"
 has "$o" "baseline recorded" "preflight records the service baseline"
 : >"$TRACE"; o="$(pf_run)"
@@ -1843,6 +2030,25 @@ check "and /var/lib/mysql is wiped on ONE node only" \
       "$(grep -c 'rm -fr /var/lib/mysql' <<<"$t")" "1"
 FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state" "$TMP"/resynced.* "$TMP/force_new_cluster"
 
+# The effect check after C's restart is the one thing standing between the
+# cluster and a second bootstrap with its own UUID. Its failure case is
+# 'show-environment' still listing MARIADB_ARGS - and the phase has to stop
+# there, before A and B are started against that node.
+rm -f "$TMP/state" "$TMP"/resynced.*
+state_set ab_upgraded 1
+: >"$TRACE"
+export FAKE_ARGS_STUCK=1
+o_fnc="$( phase_reintegrate 2>&1 )"
+unset FAKE_ARGS_STUCK
+t_fnc="$(cat "$TRACE")"
+has "$o_fnc" "the step had no effect" \
+    "a --force-new-cluster that survives the unset is caught"
+# The success line of the very same check - it must NOT be there. Asserting on
+# "force-new-cluster is gone" alone would match "verified: ..." as well.
+hasnt "$o_fnc" "verified: --force-new-cluster is gone" \
+    "and the check does not report itself as verified"
+FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state" "$TMP"/resynced.* "$TMP/force_new_cluster"
+
 # An unreachable node used to pass as "database reachable": the check went by
 # the ABSENCE of NOCONN/NOCRED, and ssh errors contain neither. That call is
 # the gate right before A and B are wiped.
@@ -2029,7 +2235,8 @@ RESUME=1
 o_rs="$( phase_upgrade_c 2>&1 )"
 RESUME=0
 t_rs="$(cat "$TRACE")"
-has "$o_rs" "waiting for healthy services" "--resume still checks that C is healthy"
+has "$o_rs" "pf-node3: waiting for healthy services" \
+    "--resume still checks that C is healthy"
 hasnt "$t_rs" "pf-node3: systemctl mask packetfence-keepalived" \
     "and does not start C a second time"
 FAIL_LIST=(); WARN_LIST=(); rm -f "$TMP/state"
