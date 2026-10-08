@@ -25,7 +25,7 @@
 set -Eeuo pipefail
 
 SCRIPT_NAME="$(basename "$0")"
-SCRIPT_VERSION="2.2.4"
+SCRIPT_VERSION="2.2.5"
 
 # --- Configuration (overridable by file or CLI) -------------------------------
 # Under /root, not in conf/: the packetfence postinst resets conf/* to 664 pf:pf
@@ -595,6 +595,11 @@ poll_step() { (( POLL_SECS > 0 )) && printf '%s' "$POLL_SECS" || printf '1'; }
 # Same for the retry delay: RETRY_DELAY=0 is a legal setting, and a wait loop
 # that adds 0 to its counter on every failed query never reaches its timeout.
 retry_step() { (( RETRY_DELAY > 0 )) && printf '%s' "$RETRY_DELAY" || printf '1'; }
+# Both are used for the SLEEP as well, and not only for the counter: a loop
+# whose end is a number of SECONDS would otherwise query the node over ssh
+# without a pause until the timeout is reached. The loops that end on a COUNT
+# instead - rexec_retry over RETRY_COUNT, verify over VERIFY_RETRIES - sleep the
+# raw value on purpose: a 0 there means "retry at once", which is bounded.
 
 # Deliberately no setting for free-form ssh options: a value like
 # -oProxyCommand=... would hand ssh a program to run, so a configuration file
@@ -817,7 +822,7 @@ rdetach() {
         out=$(rexec_retry "$node" "$RS_DETACH_POLL" "$unit" "$logf" "$offset") || rc=$?
         if [[ $rc -ne 0 ]]; then
             log_warn "${node}: status not queryable - the operation keeps running there"
-            sleep "$RETRY_DELAY"; waited=$((waited+$(retry_step))); continue
+            sleep "$(retry_step)"; waited=$((waited+$(retry_step))); continue
         fi
         state=$(sed -n 's/^STATE://p' <<<"$out" | head -n1)
         urc=$(sed -n 's/^RC://p' <<<"$out" | head -n1)
@@ -856,7 +861,7 @@ rdetach() {
                 return 1
                 ;;
         esac
-        sleep "$POLL_SECS"; waited=$((waited+$(poll_step)))
+        sleep "$(poll_step)"; waited=$((waited+$(poll_step)))
     done
     log_fail "${node}: ${desc} has run for ${DETACH_TIMEOUT}s - time limit reached"
     log_info "  The operation keeps running on the node. Inspect it with:"
@@ -1554,7 +1559,7 @@ wait_services() {
                 revive_failed_units "$node"
             fi
         fi
-        sleep "$POLL_SECS"; waited=$((waited+$(poll_step))); printf '.'
+        sleep "$(poll_step)"; waited=$((waited+$(poll_step))); printf '.'
     done
     echo
     # Otherwise the error would read "services down: unclear" although the last
@@ -1596,7 +1601,7 @@ wait_vip() {
             log_ok "${node}: holds the VIP ${vip} on $(sed -n 's/^VIP_HERE=//p' <<<"$out") (after ${waited}s)"
             return 0
         fi
-        sleep "$POLL_SECS"; waited=$((waited+$(poll_step))); printf '.'
+        sleep "$(poll_step)"; waited=$((waited+$(poll_step))); printf '.'
     done
     echo
     log_fail "${node}: the VIP ${vip} did not arrive within ${VIP_WAIT_TIMEOUT}s"
@@ -1811,7 +1816,7 @@ wait_db_reachable() {
             log_ok "${node}: database reachable (after ${waited}s)"
             return 0
         fi
-        sleep "$POLL_SECS"; waited=$((waited+$(poll_step))); printf '.'
+        sleep "$(poll_step)"; waited=$((waited+$(poll_step))); printf '.'
     done
     echo
     if [[ $rc -ne 0 ]]; then
@@ -1854,7 +1859,7 @@ wait_galera() {
             log_ok "${node}: Galera in sync (cluster_size=${size}, after ${waited}s)"
             return 0
         fi
-        sleep "$POLL_SECS"; waited=$((waited+$(poll_step))); printf '.'
+        sleep "$(poll_step)"; waited=$((waited+$(poll_step))); printf '.'
     done
     echo
     log_info "  last seen: state=${state:-?} cluster_size=${size:-?}"
