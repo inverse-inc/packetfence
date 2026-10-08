@@ -1,6 +1,8 @@
 /api/v1/fingerbank/{scope}/combinations:
   get:
+    deprecated: true
     summary: Get combinations.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     parameters:
     - name: scope
       in: path
@@ -27,7 +29,9 @@
     tags:
       - Fingerbank
   post:
+    deprecated: true
     summary: Create local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     parameters:
     - name: scope
       in: path
@@ -52,7 +56,9 @@
     schema:
       $ref: '#/components/schemas/FingerbankScope'
   post:
+    deprecated: true
     summary: Search local combinations.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     requestBody:
       $ref: '#/components/requestBodies/FingerbankCombinationsSearch'
     responses:
@@ -76,7 +82,9 @@
     schema:
       type: string
   get:
+    deprecated: true
     summary: Get local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     responses:
       '200':
         $ref: '#/components/responses/FingerbankCombination'
@@ -87,7 +95,9 @@
     tags:
       - Fingerbank
   patch:
+    deprecated: true
     summary: Update local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     requestBody:
       $ref: '#/components/requestBodies/FingerbankCombination'
     responses:
@@ -100,7 +110,9 @@
     tags:
       - Fingerbank
   delete:
+    deprecated: true
     summary: Delete local combination.
+    description: 'Deprecated: local Fingerbank combinations were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
     responses:
       '200':
         $ref: '#/components/responses/Deleted'

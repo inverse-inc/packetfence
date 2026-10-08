@@ -19,7 +19,6 @@
 <script>
 import FingerbankGeneralSettingView from '../fingerbank/generalSettings/_components/TheView'
 import FingerbankDeviceChangeDetectionView from '../fingerbank/deviceChangeDetection/_components/TheView'
-import FingerbankCombinationsSearch from '../fingerbank/combinations/_components/TheSearch'
 import FingerbankDevicesSearch from '../fingerbank/devices/_components/TheSearch'
 import FingerbankDhcpFingerprintsSearch from '../fingerbank/dhcpFingerprints/_components/TheSearch'
 import FingerbankDhcpVendorsSearch from '../fingerbank/dhcpVendors/_components/TheSearch'
@@ -36,10 +35,6 @@ const tabs = {
   fingerbankDeviceChangeDetection: {
     title: 'Device change detection', // i18n defer
     component: FingerbankDeviceChangeDetectionView
-  },
-  fingerbankCombinations: {
-    title: 'Combinations', // i18n defer
-    component: FingerbankCombinationsSearch
   },
   fingerbankDevices: {
     title: 'Devices', // i18n defer

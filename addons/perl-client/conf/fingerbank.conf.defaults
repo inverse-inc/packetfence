@@ -23,9 +23,6 @@ COLLECTOR_DISABLE_IPFIX_SERVICE=true
 COLLECTOR_DISABLE_SFLOW_SERVICE=true
 EOT
 
-[query]
-record_unmatched = disabled
-
 [proxy]
 use_proxy = disabled
 host =
