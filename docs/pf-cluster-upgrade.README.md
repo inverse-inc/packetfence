@@ -303,7 +303,18 @@ Fixed, but easy to undo by accident:
   package upgrade, i.e. during this very procedure.
 - Text that came from a node has its control characters removed before it
   reaches the terminal: the go/no-go decision at the review pause is made from
-  that output, and a carriage return alone is enough to overwrite a line.
+  that output, and a carriage return alone is enough to overwrite a line. The
+  filter sits in `rexec`, where the answer comes in, rather than at the twenty
+  places that print a field of it. Newline and tab survive, so the parsers
+  downstream read what they always read. One exception, by design:
+  `--interactive-upgrade` hands `do-upgrade.sh` the terminal, and its output
+  passes through unchanged.
+- The run log and the state file are only as trustworthy as the directory they
+  live in: the mode of the file says nothing once someone else may replace it.
+  A `LOG_DIR` or a state directory that others may write is named at the start
+  of the run — as a warning, since the defaults (`/usr/local/pf/logs` is
+  `root:pf 755`, `/root` is `0700`) satisfy it and a cluster upgrade should not
+  fail over a log directory.
 - Numbers that came from a node are only compared once they are proven numeric,
   for the same arithmetic reason as above. The same goes for the state file: a
   node's answer is written as one line, so it cannot plant completion markers
@@ -533,13 +544,33 @@ upgraded before A and B are stopped, `packetfence-config` is never stopped, the
 **Nothing starts next to something else.** The configuration work on C happens
 before A and B are stopped, their services still start only after them, a failed
 resync of A leaves B's data untouched, and an unreachable node never counts as a
-reachable database.
+reachable database. `rollback` takes back the mutual "disable" that `upgrade-ab`
+set between A and B *before* either of them is started — left in place, each
+would come up as a single-node cluster and both would accept writes. Both
+databases are then started without waiting and waited for afterwards: with the
+disable gone each node expects the other, and a blocking start would sit out
+`TimeoutSec=1200` on the first one waiting for a peer that has not been started
+yet. It also
+rewrites the state before it touches A and B, not after: everything after that
+point can still fail, and records claiming "C is live, A and B are upgraded"
+would send the next `run --resume` straight into the step that wipes
+`/var/lib/mysql` on the only two nodes still holding the old data.
 
 **The VIP arrives last.** keepalived is masked before the start, released only
 once the other services are healthy, and never left masked — not even when the
 VIP fails to arrive. A held-back keepalived is no outage, a dead one is. The VIP
 is read from `[CLUSTER]` and never used as an ssh target. `reintegrate` stages
 its starts the same way, and C is waited for exactly once on the normal path.
+galera-autofix, masked for the duration of a node's package upgrade, is tracked
+the same way and released by the exit handler whatever ended the run — a node
+left with it masked has no database self-healing.
+
+**A recorded failure ends the phase.** Not every failure can abort on the spot —
+the one bracketing the package upgrade must not swallow the upgrade's own return
+code. Those are recorded, and every phase ends on the record: the phases that
+print no summary close with the same gate. It runs *before* the phase records
+itself as done, so `--resume` repeats the phase instead of skipping past a
+failure that no longer exists anywhere.
 
 **Effects, not return codes.** Every step is checked for its effect, so an
 ineffective step is caught even with exit status 0: a failed `configreload hard`
@@ -578,7 +609,7 @@ decision to send SIGKILL lives, is executed for real against all its cases.
 cd t/pf-cluster-upgrade/ && make test
 ```
 
-The run takes about half a minute (411 tests). Started by hand rather than
+The run takes about half a minute (451 tests). Started by hand rather than
 through `make`, close stdin (`bash pf-cluster-upgrade.tests </dev/null`):
 two checks describe what happens *without* a terminal, and on a terminal they
 would measure the terminal instead.
