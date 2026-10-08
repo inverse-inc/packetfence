@@ -710,17 +710,17 @@ make html/captive-portal/profile-templates/default/background.png
         
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
-    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+    (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret)
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+    (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass)
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/system_init_key ]; then
-	hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+	(umask 0077; hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key)
 fi
 
 for service in httpd snmptrapd portreserve redis netdata
@@ -742,18 +742,16 @@ fi
 
 if [ ! -f /usr/local/pf/conf/pf.conf ]; then
   echo "Touch pf.conf because it doesnt exist"
-  touch /usr/local/pf/conf/pf.conf
+  (umask 0007; touch /usr/local/pf/conf/pf.conf)
   chown pf:pf /usr/local/pf/conf/pf.conf
-  chmod 0660 /usr/local/pf/conf/pf.conf
 else
   echo "pf.conf already exists, won't touch it!"
 fi
 
 if [ ! -f /usr/local/pf/conf/pfconfig.conf ]; then
   echo "Touch pfconfig.conf because it doesnt exist"
-  touch /usr/local/pf/conf/pfconfig.conf
+  (umask 0007; touch /usr/local/pf/conf/pfconfig.conf)
   chown pf:pf /usr/local/pf/conf/pfconfig.conf
-  chmod 0660 /usr/local/pf/conf/pfconfig.conf
 else
   echo "pfconfig.conf already exists, won't touch it!"
 fi

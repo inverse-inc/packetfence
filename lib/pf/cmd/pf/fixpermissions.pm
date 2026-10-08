@@ -83,8 +83,7 @@ sub action_all {
         $pfcmd,
     );
     chmod($PFCMD_MODE, $pfcmd);
-    chmod($CONF_FILE_MODE, @stored_config_files);
-    chmod(0664, $config_version_file);
+    chmod($CONF_FILE_MODE, @stored_config_files, $config_version_file);
     my @secret_files = grep { -f $_ } ($local_secret_file, $unified_api_system_pass_file, $system_init_key_file);
     _changeFilesToOwner('pf', @secret_files);
     chmod($SECRET_FILE_MODE, @secret_files);
