@@ -1,18 +1,16 @@
-# Dynamic clients loaded from flat files synced from PacketFence server
-client dynamic {
-        ipaddr = 0.0.0.0/0
-        dynamic_clients = dynamic_clients_server
-        directory = ${confdir}/dynamic-clients/
-        # Client files are written by the sync-radius-nas oneshot at container
-        # start and not modified afterwards, so at expiry FreeRADIUS only
-        # stat()s the file and renews the entry.  Same value as the server side;
-        # do not use "0": the PacketFence FreeRADIUS build deletes lifetime-0
-        # dynamic clients after every request.
-        lifetime = 300
-}
-
-server dynamic_clients_server {
-        authorize {
-                dynamic_clients
-        }
-}
+# Clients synced from the PacketFence server.
+#
+# The sync-radius-nas oneshot writes one client file per switch into this
+# directory at container start, before radiusd-auth starts (s6 dependency),
+# so the files are included statically here.
+#
+# The FreeRADIUS dynamic-clients "directory" mechanism cannot be used for
+# these: it resolves an unknown source by reading the file named after the
+# packet's source IP, which can never match a subnet-keyed switch (e.g.
+# 192.168.1.0/24). Static client blocks support a CIDR ipaddr and FreeRADIUS
+# picks overlapping clients by longest prefix, so a single-IP switch inside
+# a subnet switch still wins with its own secret.
+#
+# Clients refresh on container restart, exactly like before: the previous
+# dynamic directory's files were only ever written at container start too.
+$INCLUDE ${confdir}/dynamic-clients/
