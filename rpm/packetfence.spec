@@ -737,8 +737,8 @@ done
 SLAPD_CONF=/usr/local/openldap/etc/openldap/slapd.conf
 if [ -f "$SLAPD_CONF" ] && grep -Eq '^rootpw[[:space:]]+secret[[:space:]]*$' "$SLAPD_CONF"; then
   echo "Disabling unconfigured slapd from openldap-ltb"
-  /bin/systemctl disable --now slapd > /dev/null 2>&1
-  /sbin/chkconfig --del slapd > /dev/null 2>&1
+  /bin/systemctl disable --now slapd > /dev/null 2>&1 || true
+  /sbin/chkconfig --del slapd > /dev/null 2>&1 || true
 fi
 
 #Check if RADIUS have a dh
