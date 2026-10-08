@@ -1,4 +1,5 @@
 import store from '@/store'
+import { onPremOnly } from '@/utils/router'
 import BasesStoreModule from '../bases/_store'
 import RolesStoreModule from '../roles/_store'
 import InterfacesStoreModule from './interfaces/_store'
@@ -65,9 +66,12 @@ const routes = [
   ...RoutedNetworksRoutes,
 ]
 
+// Every route below is hidden in cloud, including the interfaces, layer2 and
+// routed-network children imported above, so the guard goes on this single wrap
+// rather than being repeated in each of them.
 const routesWithStore = routes.map(route => {
   const { beforeEnter, ...rest } = route || {}
-  return { ...rest, beforeEnter: (to, from, next) => {
+  return { ...rest, beforeEnter: onPremOnly((to, from, next) => {
     // register store modules on all routes
     if (!store.state.$_bases)
       store.registerModule('$_bases', BasesStoreModule)
@@ -88,7 +92,7 @@ const routesWithStore = routes.map(route => {
       beforeEnter(to, from, next)
     else
       next()
-  } }
+  }) }
 })
 
 export default routesWithStore
