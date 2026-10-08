@@ -1365,6 +1365,18 @@ sub radius_filter {
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my %RAD_REPLY_REF;
 
+    # The proxy sections of FreeRADIUS body the proxied copy / the home server's
+    # reply unless rest.conf asks for the original request as well
+    # (body_lists = "request ..."): without NAS-IP-Address there is no switch
+    # and no endpoint to evaluate the filters against.
+    if (!defined($switch_ip) || $switch_ip eq '') {
+        $logger->warn(
+            "No NAS-IP-Address in the RADIUS request handed to the $scope filter: skipping the filters. "
+            ."In the pre-proxy/post-proxy sections make sure rest.conf sends the request list (body_lists)."
+        );
+        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "No request attributes for the RADIUS filter") ];
+    }
+
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
 
