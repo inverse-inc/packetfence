@@ -9,3 +9,4 @@ collections:
       version: 4.0.1
     - name: arista.eos
       version: 10.1.1
+    - name: ansible.netcommon

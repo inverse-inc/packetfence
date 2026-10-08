@@ -1,0 +1,14 @@
+namespace: packetfence
+name: comware
+version: 1.0.0
+readme: README.md
+authors:
+  - Inverse inc. <info@inverse.ca>
+description: PacketFence network_cli plugins for H3C/HPE Comware 7 and rebranded switches (NEC QX-S).
+license:
+  - GPL-2.0-or-later
+tags:
+  - networking
+  - comware
+  - h3c
+  - nec
