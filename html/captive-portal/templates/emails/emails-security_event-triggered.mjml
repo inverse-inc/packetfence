@@ -30,11 +30,11 @@
         <mj-column width="50%">
           <mj-text align="left">
             <p class="label">[% i18n("MAC Address") %]</p>
-            <p class="value">[% mac %]</p>
+            <p class="value">[% mac | html %]</p>
             <p class="label">[% i18n("OS") %]</p>
-            <p class="value">[% os %]</p>
+            <p class="value">[% os | html %]</p>
             <p class="label">[% i18n("Hostname") %]</p>
-            <p class="value">[% hostname %]</p>
+            <p class="value">[% hostname | html %]</p>
           </mj-text>
         </mj-column>
       </mj-section>

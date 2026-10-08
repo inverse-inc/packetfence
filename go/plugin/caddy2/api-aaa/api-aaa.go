@@ -2,6 +2,7 @@ package apiaaa
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -198,6 +199,7 @@ func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 
 	router := httprouter.New()
 	router.POST("/api/v1/login", h.handleLogin)
+	router.POST("/api/v1/logout", h.handleLogout)
 	router.GET("/api/v1/token_info", h.handleTokenInfo)
 	router.GET("/api/v1/sso_info", h.handleSSOInfo)
 
@@ -230,8 +232,15 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 
 	if auth {
 		expire := time.Now().Add(15 * time.Minute)
-		cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000}
+		cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000,
+			HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode}
 		http.SetCookie(w, &cookie)
+		// CSRF double-submit token: NOT HttpOnly so the SPA's axios reads it and
+		// echoes it back in the X-XSRF-TOKEN header (validated by csrfIsValid).
+		if xsrf, xerr := h.authentication.GenerateToken(); xerr == nil {
+			http.SetCookie(w, &http.Cookie{Name: "XSRF-TOKEN", Value: xsrf, Path: "/", Expires: expire,
+				MaxAge: 90000, Secure: true, SameSite: http.SameSiteStrictMode})
+		}
 		w.WriteHeader(http.StatusOK)
 		res, _ := json.Marshal(map[string]string{
 			"token": token,
@@ -244,6 +253,50 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 		})
 		w.Write(res)
 	}
+}
+
+// Handle an API logout: invalidate the server-side token and clear the cookies.
+func (h ApiAAAHandler) handleLogout(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := r.Context()
+	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.logout")
+
+	if c, err := r.Cookie("token"); err == nil && c.Value != "" {
+		h.authentication.InvalidateToken(c.Value)
+	}
+	expired := time.Unix(0, 0)
+	http.SetCookie(w, &http.Cookie{Name: "token", Value: "", Path: "/", Expires: expired, MaxAge: -1,
+		HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode})
+	http.SetCookie(w, &http.Cookie{Name: "XSRF-TOKEN", Value: "", Path: "/", Expires: expired, MaxAge: -1,
+		Secure: true, SameSite: http.SameSiteStrictMode})
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	res, _ := json.Marshal(map[string]string{"message": "Logout successful"})
+	w.Write(res)
+}
+
+// csrfIsValid enforces double-submit CSRF validation, but ONLY for requests that
+// are authenticated by the `token` cookie and carry no Authorization header.
+// Header/Basic-authenticated API clients (which never send a cookie jar) and
+// safe methods are exempt, as are the caddy no_auth/public paths (which never
+// reach HandleAAA). This keeps every current non-browser caller working while
+// protecting the cookie-authenticated SPA.
+func csrfIsValid(r *http.Request) bool {
+	switch r.Method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete:
+	default:
+		return true // safe method
+	}
+	if r.Header.Get("Authorization") != "" {
+		return true // Bearer/Basic clients are not CSRF-able
+	}
+	if _, err := r.Cookie("token"); err != nil {
+		return true // not cookie-authenticated, nothing to protect
+	}
+	xsrf, err := r.Cookie("XSRF-TOKEN")
+	if err != nil || xsrf.Value == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(xsrf.Value), []byte(r.Header.Get("X-XSRF-TOKEN"))) == 1
 }
 
 // Handle getting the token info
@@ -309,6 +362,15 @@ func (h ApiAAAHandler) handleSSOInfo(w http.ResponseWriter, r *http.Request, p h
 func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	if aaa.IsPathPublic(r.URL.Path) {
 		return true
+	}
+
+	if !csrfIsValid(r) {
+		w.WriteHeader(http.StatusForbidden)
+		res, _ := json.Marshal(map[string]string{
+			"message": "CSRF token validation failed",
+		})
+		w.Write(res)
+		return false
 	}
 
 	ctx := r.Context()

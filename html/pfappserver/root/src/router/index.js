@@ -120,7 +120,7 @@ router.beforeEach((to, from, next) => {
         axios.get('/api/v1/configurator/config/system/hostname').then(() => {
           next({ name: 'configurator' }) // [6]
         }).catch(() => {
-          if (store.state.session.token) {
+          if (store.getters['session/isAuthenticated']) {
             next({ name: 'login', params: { expire: true } }) // [7]
           } else {
             next({ name: 'login' }) // [8]

@@ -60,7 +60,7 @@
         <template v-if="fingerbankAccountName">
           <base-form-group class="mb-3">
             <div class="alert alert-info w-100">
-              <p class="mb-0" v-html="$i18n.t('The API key is associated to Fingerbank account <b>{name}</b>', { name: fingerbankAccountName })" />
+              <p class="mb-0" v-safe-html="$i18n.t('The API key is associated to Fingerbank account <b>{name}</b>', { name: fingerbankAccountName })" />
             </div>
           </base-form-group>
         </template>

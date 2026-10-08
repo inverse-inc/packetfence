@@ -159,6 +159,7 @@ import store from './store'
 import router from './router'
 import filters from './utils/filters'
 import { pfTemplatePlugin } from './utils/plugins'
+import { safeHtml } from '@/directives'
 import App from './App'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -183,6 +184,7 @@ Vue.use(BootstrapVue)
 Vue.use(CompositionApi)
 Vue.use(pfTemplatePlugin)
 Vue.use(PiniaVuePlugin)
+Vue.directive('safe-html', safeHtml)
 const pinia = createPinia()
 
 // Register global filters
