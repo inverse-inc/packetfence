@@ -116,6 +116,9 @@ sub _send_radius_auth {
         Host    => $host_port,
         Secret  => $self->{'secret'},
         TimeOut => $self->{'timeout'},
+        # Message-Authenticator in the Access-Request (RFC 3579), required by
+        # the RADIUS servers hardened against BlastRADIUS (CVE-2024-3596)
+        Rfc3579MessageAuth => 1,
     );
 
     if ( !defined $radius ) {
