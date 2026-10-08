@@ -25,7 +25,7 @@
 set -Eeuo pipefail
 
 SCRIPT_NAME="$(basename "$0")"
-SCRIPT_VERSION="2.2.3"
+SCRIPT_VERSION="2.2.4"
 
 # --- Configuration (overridable by file or CLI) -------------------------------
 # Under /root, not in conf/: the packetfence postinst resets conf/* to 664 pf:pf
@@ -140,6 +140,9 @@ declare -a SERVICES_IGNORE=()
 # Node whose keepalived is masked right now, so cleanup can release it even
 # when the run dies in between.
 KEEPALIVED_MASKED_NODE=""
+# Same idea for galera-autofix: masked for the duration of the package upgrade,
+# and whatever ends the run in between, it has to come off again.
+AUTOFIX_MASKED_NODE=""
 # 1 = preflight found the target version already in place on every node.
 SAME_VERSION=0
 # Node name -> SSH target, filled from management_ip in cluster.conf.
@@ -227,6 +230,15 @@ cleanup() {
         say "${C_YEL}[WARN]${C_RST} releasing keepalived on ${kn} again"
         rexec "$kn" "$RS_KEEPALIVED_START" >/dev/null 2>&1 \
             || say "${C_RED}[FAIL]${C_RST} ${kn}: keepalived stayed masked - systemctl unmask packetfence-keepalived"
+    fi
+    # A node left with galera-autofix masked has no database self-healing. The
+    # run is over either way, so this is best effort - but it must be loud.
+    if [[ -n "$AUTOFIX_MASKED_NODE" ]]; then
+        local an="$AUTOFIX_MASKED_NODE"; AUTOFIX_MASKED_NODE=""
+        say "${C_YEL}[WARN]${C_RST} releasing galera-autofix on ${an} again"
+        rexec "$an" 'systemctl unmask packetfence-galera-autofix >/dev/null 2>&1
+echo AUTOFIX_UNMASKED' >/dev/null 2>&1 \
+            || say "${C_RED}[FAIL]${C_RST} ${an}: galera-autofix stayed masked - systemctl unmask packetfence-galera-autofix"
     fi
     [[ $LOCK_HELD -eq 1 && -e "$LOCK_FILE" ]] && rm -f "$LOCK_FILE" 2>/dev/null || true
     return 0
@@ -580,6 +592,9 @@ procedure_started() {
 # Returns 1 when POLL_SECS is 0, so a wait loop still advances its counter
 # and terminates - the tests run with POLL_SECS=0.
 poll_step() { (( POLL_SECS > 0 )) && printf '%s' "$POLL_SECS" || printf '1'; }
+# Same for the retry delay: RETRY_DELAY=0 is a legal setting, and a wait loop
+# that adds 0 to its counter on every failed query never reaches its timeout.
+retry_step() { (( RETRY_DELAY > 0 )) && printf '%s' "$RETRY_DELAY" || printf '1'; }
 
 # Deliberately no setting for free-form ssh options: a value like
 # -oProxyCommand=... would hand ssh a program to run, so a configuration file
@@ -666,7 +681,17 @@ rexec() {
         out=$(LC_ALL=C ssh "${SSH_OPTS[@]}" "${SSH_USER}@$(ssh_target "$node")" \
               "LC_ALL=C bash -s -- ${qa}" <<<"$script" 2>&1) || rc=$?
     fi
-    printf '%s' "$out"
+    # Filtered where the answer comes in, not at the twenty places that print a
+    # field of it: a node's answer reaches the terminal as a version, a package
+    # name, a Galera state, a container image or a FAIL_LIST entry, and a lone
+    # carriage return in any of them overwrites a '[FAIL]' line - the go/no-go
+    # decision at the review pause of 12.4.5 is made from this output. Only C0
+    # controls go; newline and tab stay, so every sed/grep parser downstream
+    # reads what it read before. The explicit sanitise calls further down are
+    # redundant now and are kept where they are: they say at the point of use
+    # why that text is filtered. rtty is the exception - it hands do-upgrade.sh
+    # the terminal on purpose, and its output passes through unchanged.
+    printf '%s' "$(sanitise "$out")"
     return $rc
 }
 
@@ -792,7 +817,7 @@ rdetach() {
         out=$(rexec_retry "$node" "$RS_DETACH_POLL" "$unit" "$logf" "$offset") || rc=$?
         if [[ $rc -ne 0 ]]; then
             log_warn "${node}: status not queryable - the operation keeps running there"
-            sleep "$RETRY_DELAY"; waited=$((waited+RETRY_DELAY)); continue
+            sleep "$RETRY_DELAY"; waited=$((waited+$(retry_step))); continue
         fi
         state=$(sed -n 's/^STATE://p' <<<"$out" | head -n1)
         urc=$(sed -n 's/^RC://p' <<<"$out" | head -n1)
@@ -1767,7 +1792,10 @@ stop_mariadb() {
 # A database is not reachable the instant it starts, so a single query right
 # after 'systemctl start' is a coin toss.
 wait_db_reachable() {
-    local node="$1" limit="${2:-$DB_WAIT_TIMEOUT}" waited=0 out
+    # out is initialised: with a limit of 0 the loop below never runs, and the
+    # diagnosis after it reads $out - under 'set -u' that would end the phase in
+    # the ERR trap instead of with the message meant for this case.
+    local node="$1" limit="${2:-$DB_WAIT_TIMEOUT}" waited=0 out=""
     log_step "${node}: waiting for the database (max. ${limit}s)"
     [[ $DRY_RUN -eq 1 ]] && { log_dim "[dry-run] skipped"; return 0; }
     local rc=0
@@ -1809,7 +1837,19 @@ wait_galera() {
         out=$(rexec_retry "$node" "$RS_GALERA") || true
         size=$(sed -n 's/^g:wsrep_cluster_size=//p' <<<"$out")
         state=$(sed -n 's/^g:wsrep_local_state_comment=//p' <<<"$out")
-        if [[ "$state" == "Synced" && "$size" == "$want" ]]; then
+        # A RANGE, not an exact value, and bounded at both ends. The caller
+        # counts the nodes it has resynchronised so far, but 're.resync.<node>'
+        # is recorded as soon as the resync STARTS - so on 'reintegrate
+        # --resume' both wipes are skipped, the counter says 2 while the cluster
+        # is already 3, and an exact comparison would wait out
+        # GALERA_WAIT_TIMEOUT and then abort on a node that is perfectly in
+        # sync. The upper bound stays: more members than the cluster has is not
+        # evidence that this node joined, and this is the gate in front of
+        # 'rm -fr /var/lib/mysql/*' on the other one. Proven numeric first - the
+        # value comes from a node, and bash evaluates the content of a variable
+        # in an arithmetic context.
+        if [[ "$state" == "Synced" && "$size" =~ ^[0-9]+$ ]] \
+           && (( size >= want && size <= ${#NODES[@]} )); then
             [[ $waited -gt 0 ]] && echo
             log_ok "${node}: Galera in sync (cluster_size=${size}, after ${waited}s)"
             return 0
@@ -2263,6 +2303,10 @@ assert_upgraded() {
 # shuts down the local mariadbd - in the middle of the dpkg transaction.
 autofix_immobilize() {
     local node="$1"
+    # Set before the call, like KEEPALIVED_MASKED_NODE: a connection that drops
+    # between the mask and its answer would otherwise leave the node without
+    # database self-healing and nobody left who knows about it.
+    [[ $DRY_RUN -eq 0 ]] && AUTOFIX_MASKED_NODE="$node"
     rstep "$node" "immobilize galera-autofix (protects the local MariaDB)" '
 systemctl mask packetfence-galera-autofix >/dev/null 2>&1
 systemctl stop packetfence-galera-autofix 2>/dev/null
@@ -2282,6 +2326,7 @@ echo AUTOFIX_UNMASKED' \
         || { log_fail "${node}: galera-autofix stayed masked - the node has no database self-healing"
              log_info "  By hand: systemctl unmask packetfence-galera-autofix"
              return 1; }
+    AUTOFIX_MASKED_NODE=""
     return 0
 }
 
@@ -2485,6 +2530,11 @@ echo AUTOFIX_STOPPED' \
         }
     done
 
+    # Before the marker, not after: a phase that ends on a recorded failure must
+    # not be marked done, or 'run --resume' skips it and the failure is gone
+    # with the process. The steps inside carry their own markers, so a resume
+    # re-enters the phase without repeating the work.
+    phase_gate
     state_set prepared 1
     log_ok "Preparation complete"
     say ""
@@ -2732,6 +2782,7 @@ phase_upgrade_c() {
     local window_end; window_end=$(date +%s)
     log_info "outage window: $((window_end - window_start))s ($(date -d "@${window_start}" '+%H:%M:%S') - $(date -d "@${window_end}" '+%H:%M:%S'))"
 
+    phase_gate   # before the marker - see phase_prepare
     state_set migrated_to_c 1
     log_head "12.4.5 - operations now run on ${NODE_C}"
     say ""
@@ -2767,6 +2818,16 @@ phase_rollback() {
     say ""
     say "Operations go back to ${C_BLD}${NODE_A}${C_RST} and ${C_BLD}${NODE_B}${C_RST}"
     say "with the data as of before the switch-over."
+    # Read before the state is rewritten below: it decides whether the mutual
+    # disable of 'upgrade-ab' still has to be taken back.
+    local ab_was_upgraded; ab_was_upgraded="$(state_get ab_upgraded || true)"
+    if [[ "$ab_was_upgraded" == "1" ]]; then
+        say ""
+        say "${NODE_A} and ${NODE_B} already carry the new version (12.4.5)."
+        say "Their data is the data from before the switch-over - that is what"
+        say "this rollback goes back to."
+    fi
+
     say ""
     say "${C_YEL}Data created on ${NODE_C} since the switch-over is lost.${C_RST}"
     say "${C_YEL}${NODE_C} stays on the new version - another attempt starts"
@@ -2789,11 +2850,70 @@ phase_rollback() {
     # phase non-zero, and preflight refuses to pass while the variable is set.
     clear_force_new_cluster "$NODE_C" || true
 
+    # The state is rewritten HERE, before A and B are touched, not after they
+    # are up. Everything below can still die - a MariaDB that does not start, a
+    # mask that does not take - and the records of 'upgrade-c' and 'upgrade-ab'
+    # would then survive describing work this rollback has just undone. The next
+    # 'run --resume' would read ab_upgraded=1, skip the review pause and
+    # upgrade-ab, walk into reintegrate and wipe /var/lib/mysql on A and B -
+    # the only nodes still holding the data from before the switch-over.
+    state_set migrated_to_c 0
+    # Kept, a later 'upgrade-c --resume' would skip stopping A and B and start C
+    # alongside them - two live halves on one database.
+    state_unset_prefix "done.c."
+    # And with ab_upgraded left at 1, a 'run --resume' would skip the review
+    # pause of 12.4.5 - the last point at which this very rollback works - and
+    # skip upgrade-ab too, so A and B would never get the configuration of the
+    # re-upgraded C.
+    state_unset_prefix "done.ab."
+    state_set ab_upgraded 0
+    log_dim "Recorded steps of 'upgrade-c' and 'upgrade-ab' discarded - a retry starts from the top."
+
+    # 'upgrade-ab' had A and B disable each other (12.4.5). Left that way, each
+    # of them comes up as a single-node cluster and both accept writes - exactly
+    # the split this procedure exists to prevent. So this happens BEFORE either
+    # is started, and a failure stops the rollback with both still down.
+    # ${NODE_C} stays disabled on purpose: that is the state 'upgrade-c' resumes
+    # from. 'cluster/node enable' only clears the marker file under
+    # ${PF_ROOT}/var/run, which is why it works on a stopped node.
+    if [[ "$ab_was_upgraded" == "1" ]]; then
+        local peer
+        for peer in "${NODE_A}:${NODE_B}" "${NODE_B}:${NODE_A}"; do
+            rstep "${peer%%:*}" "re-enable ${peer##*:} in the cluster" \
+                "${CLUSTER_NODE_CMD} \"\$1\" enable" "${peer##*:}" \
+                || die "${peer%%:*}: re-enabling ${peer##*:} failed - ${NODE_A} and ${NODE_B} were NOT started." \
+                       "Started with the disable still in place, each of them would" \
+                       "form its own cluster and both would accept writes." \
+                       "By hand on ${peer%%:*}: ${CLUSTER_NODE_CMD} ${peer##*:} enable"
+        done
+    fi
+
+    # Both of them, and non-blocking. With the disable taken back each expects
+    # the other, and 'systemctl start' does not return before the node is up
+    # (Type=notify, TimeoutSec=1200). One after the other, the first would sit
+    # and wait for a peer this loop has not started yet - unless it happens to
+    # be the node that was shut down last and therefore carries
+    # 'safe_to_bootstrap: 1'. Which of the two that is, is not recorded here.
     local n
     for n in "$NODE_A" "$NODE_B"; do
-        rstep "$n" "start packetfence-mariadb" \
-            'systemctl start packetfence-mariadb; echo OK' \
-            || die "${n}: packetfence-mariadb does not start." "Log: ${PF_ROOT}/logs/mariadb.log"
+        rstep "$n" "start packetfence-mariadb (without waiting)" \
+            'systemctl start --no-block packetfence-mariadb; echo OK' \
+            || die "${n}: packetfence-mariadb could not be started." \
+                   "Log: ${PF_ROOT}/logs/mariadb.log"
+    done
+    # Started is not up. Waited for only now that both have been started, so
+    # they can find each other.
+    for n in "$NODE_A" "$NODE_B"; do
+        wait_db_reachable "$n" \
+            || die "${n}: the database did not come up (waited ${DB_WAIT_TIMEOUT}s)." \
+                   "Both nodes were started. If neither of them carries" \
+                   "'safe_to_bootstrap: 1' in /var/lib/mysql/grastate.dat, the two" \
+                   "cannot form a cluster on their own - bootstrap the one with the" \
+                   "newest data by hand:" \
+                   "  systemctl set-environment MARIADB_ARGS=--force-new-cluster" \
+                   "  systemctl start packetfence-mariadb" \
+                   "  systemctl unset-environment MARIADB_ARGS" \
+                   "Log: ${PF_ROOT}/logs/mariadb.log"
     done
     # keepalived last, exactly like the forward path: a node coming back must
     # not pull the VIP over while its services are still starting. want_vip=no
@@ -2803,22 +2923,6 @@ phase_rollback() {
             || log_fail "${n}: services not fully up - please check"
     done
 
-    state_set migrated_to_c 0
-    # The recorded steps of 'upgrade-c' no longer describe reality: A and B run
-    # again, C is stopped. Kept, a later 'upgrade-c --resume' would skip stopping
-    # A and B and start C alongside them - two live halves on one database.
-    # This holds even when a start above failed: the markers describe steps that
-    # have been undone either way, and a resume that trusts them is the more
-    # dangerous of the two outcomes. The failure itself is in FAIL_LIST, so the
-    # phase below ends non-zero and no caller carries on.
-    state_unset_prefix "done.c."
-    # The same goes for 'upgrade-ab'. With ab_upgraded left at 1, a later
-    # 'run --resume' would SKIP the review pause of 12.4.5 - the last point at
-    # which this very rollback still works - and then skip upgrade-ab too, so
-    # A and B would never get the configuration of the re-upgraded C.
-    state_unset_prefix "done.ab."
-    state_set ab_upgraded 0
-    log_dim "Recorded steps of 'upgrade-c' and 'upgrade-ab' discarded - a retry starts from the top."
     log_ok "Rollback complete - operations run on ${NODE_A} and ${NODE_B}"
     say ""
     say "${NODE_A} and ${NODE_B} still consider each other the only"
@@ -2979,6 +3083,7 @@ echo SYNC_DONE"
         }
     done
 
+    phase_gate   # before the marker - see phase_prepare
     state_set ab_upgraded 1
     log_ok "${NODE_A} and ${NODE_B} are upgraded and carry the configuration of ${NODE_C}"
     say ""
@@ -3141,6 +3246,7 @@ echo VERIFY_OK' \
         mark_done "re.restart_c"
     }
 
+    phase_gate   # before the marker - see phase_prepare
     state_set reintegrated 1
     log_ok "All three nodes are back in the cluster"
     say ""
@@ -3387,6 +3493,23 @@ phase_status() {
     summary
 }
 
+# Four phases do not print a summary, so a failure recorded with log_fail
+# instead of die would leave them exiting 0 - and 'run' would walk on into the
+# next phase. The live case is autofix_release under '|| true': the return code
+# of the do-upgrade.sh run it brackets has to win, so a mask that stayed behind
+# cannot abort on the spot. It still has to end the phase - 'finish' would
+# otherwise be the first to notice, and only by failing to restart the unit.
+# Called BEFORE the phase sets its completion marker; see phase_prepare.
+phase_gate() {
+    [[ ${#FAIL_LIST[@]} -eq 0 ]] && return 0
+    say ""
+    say "${C_RED}${C_BLD}Blocking points:${C_RST}"
+    local f; for f in "${FAIL_LIST[@]}"; do say "${C_RED}  * ${f}${C_RST}"; done
+    say ""
+    say "Log: ${RUN_LOG}"
+    exit 1
+}
+
 summary() {
     log_head "Summary"
     local n role
@@ -3567,9 +3690,10 @@ CONFIG_PATH_KEYS="PF_ROOT LOG_DIR STATE_FILE SSH_IDENTITY"
 # bash re-evaluates the CONTENT of a variable in an arithmetic context, and an
 # assignment is valid arithmetic. 'POLL_SECS=ASSUME_YES=1' would pass every other
 # check here and then set, in '(( POLL_SECS > 0 ))', a variable that is
-# deliberately not on this list - switching off the confirmation in front of
-# 'rm -fr /var/lib/mysql/*'. A non-numeric value is also silently worth 0, which
-# turns a timeout into "do not wait at all".
+# deliberately not on this list - ASSUME_YES switches off the typed ROLLBACK
+# prompt and the review pause of 12.4.5, the last point at which a rollback
+# still works. A non-numeric value is also silently worth 0, which turns a
+# timeout into "do not wait at all".
 CONFIG_INT_KEYS="SSH_CONNECT_TIMEOUT SSH_ALIVE_INTERVAL SSH_ALIVE_COUNT
 RETRY_COUNT RETRY_DELAY KEEP_STATE MIN_FREE_MB_MYSQL MIN_FREE_MB_ROOT
 MIN_FREE_MB_APTCACHE POLL_SECS SERVICE_WAIT_TIMEOUT SERVICE_OK_POLLS
@@ -3691,6 +3815,31 @@ require_trusted_config() {
         "package upgrade, which is why /root/ is the better place for it."
 }
 
+# The run log holds node output and the masked credential lines; the state file
+# decides what a later --resume skips. noclobber keeps a planted symlink from
+# being followed, but whoever may write the DIRECTORY can still replace either
+# file afterwards. The defaults are fine (/usr/local/pf/logs is root:pf 755,
+# /root is 0700), so this is a warning: aborting a cluster upgrade over a log
+# directory would be out of proportion.
+warn_shared_paths() {
+    # PF_ROOT is deliberately not among them: PacketFence ships conf/ as
+    # 775 pf:pf, so it would warn on every run and say nothing new. What is read
+    # from there is cluster.conf, and a node name out of it still has to pass
+    # the shape check in resolve_roles.
+    local why
+    why="$(path_is_private "$LOG_DIR" "log directory")"
+    [[ -n "$why" ]] && {
+        log_warn "LOG_DIR ${LOG_DIR}: ${why}"
+        log_info "  The run log can be replaced there by whoever may write it."
+    }
+    why="$(path_is_private "$(dirname "$STATE_FILE")" "state directory")"
+    [[ -n "$why" ]] && {
+        log_warn "STATE_FILE ${STATE_FILE}: ${why}"
+        log_info "  A planted state file makes --resume skip steps that never ran."
+    }
+    return 0
+}
+
 # path_is_private <path> <what> - prints the objection, empty when the path is
 # owned by the caller and writable by nobody else.
 path_is_private() {
@@ -3753,6 +3902,8 @@ main() {
     fi
     chmod 640 "$RUN_LOG" 2>/dev/null || true
     chgrp pf  "$RUN_LOG" 2>/dev/null || true
+    # After the log exists, so the objection is recorded in it as well.
+    warn_shared_paths
 
     say "${C_BLD}${SCRIPT_NAME} ${SCRIPT_VERSION}${C_RST} - phase ${C_BLD}${PHASE}${C_RST} on ${SELF_HOST} (${RUN_ID})"
     [[ $DRY_RUN -eq 1 ]] && say "${C_YEL}DRY-RUN: nothing is changed.${C_RST}"
