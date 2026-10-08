@@ -39,7 +39,7 @@ case "$1" in
         export PERL5LIB=/usr/local/pf/lib
         # conf/plugins.d (the descriptors and UI code of the plugin
         # packages) stays root's 0755, its files 0644: left out here and below
-        find $PACKETFENCE/conf -path $PACKETFENCE/conf/plugins.d -prune -o -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/conf -path $PACKETFENCE/conf/plugins.d -prune -o -type f -exec chmod 660 '{}' \;
         find $PACKETFENCE/conf -path $PACKETFENCE/conf/plugins.d -prune -o -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
         find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
