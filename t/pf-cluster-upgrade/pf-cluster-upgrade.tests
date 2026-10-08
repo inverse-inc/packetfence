@@ -734,9 +734,23 @@ has "$(cat "$TRACE")" "pf-node1: systemctl unmask packetfence-galera-autofix" \
 check "and clears the marker so it is not tried twice" "$AUTOFIX_MASKED_NODE" ""
 FAIL_LIST=(); WARN_LIST=()
 
-# A legal RETRY_DELAY of 0 must not stall a wait loop that counts in it.
+# A legal RETRY_DELAY or POLL_SECS of 0 must not stall a wait loop that counts
+# in it - and must not turn it into a loop without a pause either.
 check "a retry delay of 0 still advances the wait loop" "$( RETRY_DELAY=0; retry_step )" "1"
 check "a real retry delay is used as it is"             "$( RETRY_DELAY=5; retry_step )" "5"
+check "a poll interval of 0 still advances the wait loop" "$( POLL_SECS=0; poll_step )" "1"
+check "a real poll interval is used as it is"             "$( POLL_SECS=5; poll_step )" "5"
+
+# The counter was floored and the sleep was not, so a configured 0 made the
+# loop query the node over ssh without a pause until the timeout. Structural,
+# because it is the kind of thing that creeps back in with the next wait loop:
+# a loop that ENDS ON SECONDS must sleep the floored value. The loops that end
+# on a count (rexec_retry, verify) are listed as the deliberate exceptions.
+raw_sleeps="$(grep -nE 'sleep "\$(POLL_SECS|RETRY_DELAY)"' "$TOOL" || true)"
+raw_sleeps="$(grep -v 'try=\$((try+1))' <<<"$raw_sleeps" || true)"
+check "no time-bounded wait loop sleeps an unfloored interval" "$raw_sleeps" ""
+check "and the count-bounded retry still sleeps the raw value" \
+      "$(grep -c 'sleep "\$RETRY_DELAY"; try=\$((try+1))' "$TOOL")" "1"
 
 # DB_WAIT_TIMEOUT=0 is a legal setting. The loop then never runs, and the
 # diagnosis after it reads the answer - which does not exist yet.

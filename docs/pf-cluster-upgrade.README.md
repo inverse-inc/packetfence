@@ -332,7 +332,13 @@ not cover this — it only applies while the connection is being established.
 **A brief hiccup during a status query.** Read-only and idempotent calls are
 retried up to `RETRY_COUNT` times (only on genuine connection failures, SSH exit
 code 255 — a remote command that failed is never retried). The wait loops for
-services and Galera keep polling anyway.
+services and Galera keep polling anyway. A loop that ends on a number of
+seconds keeps a floor of one second under both its counter and its pause, so a
+`POLL_SECS` or `RETRY_DELAY` of 0 can neither stop it from reaching its timeout
+nor turn it into an unbroken series of ssh queries. The loops that end on a
+count instead — the retry of a read-only call, the repeat of an effect check —
+take the value as it stands: a 0 there means "again at once", and the count ends
+it.
 
 **An abort in the middle of `apt upgrade` or `do-upgrade.sh`.** That is the case
 that hurts: run directly in the SSH session, the operation would get SIGHUP and
@@ -609,7 +615,7 @@ decision to send SIGKILL lives, is executed for real against all its cases.
 cd t/pf-cluster-upgrade/ && make test
 ```
 
-The run takes about half a minute (451 tests). Started by hand rather than
+The run takes about two minutes (455 tests). Started by hand rather than
 through `make`, close stdin (`bash pf-cluster-upgrade.tests </dev/null`):
 two checks describe what happens *without* a terminal, and on a terminal they
 would measure the terminal instead.
