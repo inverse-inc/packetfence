@@ -21,32 +21,16 @@ use pf::api;
 use pf::api::can_fork;
 my $logger = get_logger();
 
-=head2 %DENIED_METHODS
-
-Api methods that are never run from the queue
-
-=cut
-
-our %DENIED_METHODS = map { $_ => 1 } qw(
-    copy_directory
-    distant_download_configfile
-    download_configfile
-    expire_cluster
-    notify_configfile_changed
-    queue_job
-    sync_config_as_master
-);
-
 =head2 isAllowedMethod
 
-Check if an api method can be run from the queue
+Check if an api method can be run from the queue (see pf::api::attributes::isAllowedInQueue)
 
 =cut
 
 sub isAllowedMethod {
     my ($self, $method) = @_;
-    return 0 if !defined($method) || ref($method) || $DENIED_METHODS{$method};
-    return pf::api->isQueue($method) ? 1 : 0;
+    return 0 if !defined($method) || ref($method);
+    return pf::api->isAllowedInQueue($method);
 }
 
 =head2 doTask

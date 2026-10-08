@@ -94,7 +94,7 @@ use pf::config::crypt::object::freeze;
 
 my $logger = pf::log::get_logger();
 
-sub event_add : Public {
+sub event_add : Public :Queue {
     my ($class, %postdata) = @_;
     my $events = $postdata{'events'};
     my $srcip = pf::util::clean_ip($postdata{'srcip'});
@@ -150,7 +150,7 @@ sub echo : Public {
     return @args;
 }
 
-sub switch_freeradius_populate_nas_config : Public {
+sub switch_freeradius_populate_nas_config : Public :Queue {
     my ($class, $switches) = @_;
     if (ref($switches) eq 'HASH') {
         # Config supplied by the producer (normal path). It is authoritative, so
@@ -217,7 +217,7 @@ sub radius_accounting : Public {
     return $return;
 }
 
-sub radius_update_locationlog : Public {
+sub radius_update_locationlog : Public :Queue {
     my ($class, %radius_request) = @_;
 
     my $radius = new pf::radius::custom();
@@ -353,7 +353,7 @@ sub ipset_node_update : Public {
     return(pf::ipset->update_node($oldip, $srcip, $srcmac));
 }
 
-sub firewallsso : Public {
+sub firewallsso : Public :Queue {
     my ( $class, %postdata ) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
@@ -362,7 +362,7 @@ sub firewallsso : Public {
     return pf::firewallsso::do_sso(%postdata);
 }
 
-sub ReAssignVlan : Public : Fork {
+sub ReAssignVlan : Public : Fork :Queue {
     my ($class, $postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata->{$_}} @require;
@@ -417,13 +417,13 @@ ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to g
 
 =cut
 
-sub ReAssignVlan_in_queue : Public {
+sub ReAssignVlan_in_queue : Public :Queue {
     my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'ReAssignVlan', $postdata );
 }
 
-sub desAssociate : Public : Fork {
+sub desAssociate : Public : Fork :Queue {
     my ($class, $postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata->{$_}} @require;
@@ -454,14 +454,14 @@ desAssociate is use to localy use desAssociate function in pfqueue to get rid of
 
 =cut
 
-sub desAssociate_in_queue : Public {
+sub desAssociate_in_queue : Public :Queue {
     my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'desAssociate', $postdata );
 }
 
 
-sub firewall : Public {
+sub firewall : Public :Queue {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
@@ -647,7 +647,7 @@ Deregister a node
 
 =cut
 
-sub deregister_node : Public {
+sub deregister_node : Public :Queue {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
@@ -708,7 +708,7 @@ sub node_information : Public {
     return $node_info;
 }
 
-sub notify_configfile_changed : Public {
+sub notify_configfile_changed : Public :NoQueue {
     my ($class, %postdata) = @_;
     my @require = qw(server conf_file);
     my @found = grep {exists $postdata{$_}} @require;
@@ -742,7 +742,7 @@ sub notify_configfile_changed : Public {
     return 1;
 }
 
-sub download_configfile : Public {
+sub download_configfile : Public :NoQueue {
     my ($class, %postdata) = @_;
     my @require = qw(conf_file);
     my @found = grep {exists $postdata{$_}} @require;
@@ -756,7 +756,7 @@ sub download_configfile : Public {
     return ($config, $mode);
 }
 
-sub distant_download_configfile : Public {
+sub distant_download_configfile : Public :NoQueue {
     my ($class, %postdata) = @_;
     my @require = qw(conf_file from);
     my @found = grep {exists $postdata{$_}} @require;
@@ -802,7 +802,7 @@ sub delete_files : Public {
     unlink(@$files);
 }
 
-sub expire_cluster : Public {
+sub expire_cluster : Public :NoQueue {
     my ($class, %postdata) = @_;
     my @require = qw(namespace conf_file);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1230,7 +1230,7 @@ sub fingerbank_process : Public {
 
 =cut
 
-sub fingerbank_update_component : Public : Fork {
+sub fingerbank_update_component : Public : Fork :Queue {
     my ( $class, %postdata ) = @_;
     my @require = qw(action);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1303,7 +1303,7 @@ Will try to trigger a security_event with the trigger internal::connection_type_
 
 =cut
 
-sub detect_connection_type_transport_change : Public {
+sub detect_connection_type_transport_change : Public :Queue {
     my ($class, $mac, $current_connection) = @_;
 
     my $locationlog = pf::locationlog::locationlog_view_open_mac($mac);
@@ -1348,7 +1348,7 @@ The UDP payload must be base 64 encoded.
 
 =cut
 
-sub process_dhcpv4 : Public {
+sub process_dhcpv4 : Public :Queue {
     my ($class, %postdata) = @_;
     my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1369,7 +1369,7 @@ The UDP payload must be base 64 encoded.
 
 =cut
 
-sub process_dhcpv6 : Public {
+sub process_dhcpv6 : Public :Queue {
     my ( $class, $udp_payload ) = @_;
 
     my $dhcpv6Processor = pf::dhcp::processor_v6->new();
@@ -1484,7 +1484,7 @@ Copy a directory on this server
 
 =cut
 
-sub copy_directory : Public {
+sub copy_directory : Public :NoQueue {
     my ($class, $source_dir, $dest_dir) = @_;
     return dircopy($source_dir, $dest_dir);
 }
@@ -1683,7 +1683,7 @@ Update the firewall sso based on radius accounting
 
 =cut
 
-sub firewallsso_accounting : Public {
+sub firewallsso_accounting : Public :Queue {
     my ($class, %RAD_REQUEST) = @_;
     if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && (any { pf::util::isenabled($_->{'sso_on_accounting'}) } values %pf::config::ConfigFirewallSSO) ) {
         my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
@@ -1810,7 +1810,7 @@ Sync the configuration to the cluster members using this server as the master
 
 =cut
 
-sub sync_config_as_master :Public {
+sub sync_config_as_master :Public :NoQueue {
     my ($class) = @_;
     pf::cluster::sync_config_as_master();
 }
@@ -1859,7 +1859,7 @@ Enable the MAB floating device mode on a switch port
 
 =cut
 
-sub enableMABFloating : Public {
+sub enableMABFloating : Public :Queue {
     my ( $class, %postdata ) = @_;
 
     my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
@@ -1876,7 +1876,7 @@ Disable the MAB floating device mode on a switch port
 
 =cut
 
-sub disableMABFloating : Public {
+sub disableMABFloating : Public :Queue {
     my ( $class, %postdata ) = @_;
 
     my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
@@ -1893,7 +1893,7 @@ Submit a job to the queue
 
 =cut
 
-sub queue_job : Public {
+sub queue_job : Public :NoQueue {
     my ($class, $queue, $job_name, @args) = @_;
     my $client = pf::api::queue->new(queue => $queue);
     $client->notify($job_name, @args );
@@ -2022,7 +2022,7 @@ insert_user_in_redis_cache
 
 =cut
 
-sub insert_user_in_redis_cache :Public {
+sub insert_user_in_redis_cache :Public :Queue {
     my ($class ,$domain, $user, $nthash) = @_;
 
     my $logger = pf::log::get_logger();
@@ -2100,7 +2100,7 @@ Contact the Semaphore api to launch the upload of the acls on the equipment.
 
 =cut
 
-sub push_acls : Public {
+sub push_acls : Public :Queue {
     my ($class, %postdata) = @_;
     my @require = qw(switch_id);
     my @found = grep {exists $postdata{$_}} @require;
@@ -2119,7 +2119,7 @@ This is called after role configuration changes to avoid blocking the API.
 
 =cut
 
-sub generate_ansible_configuration_all_switches : Public : Fork {
+sub generate_ansible_configuration_all_switches : Public : Fork :Queue {
     my ($class, %postdata) = @_;
 
     $logger->info("Starting Ansible configuration generation for all switches");
