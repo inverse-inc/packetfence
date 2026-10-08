@@ -125,11 +125,31 @@
                 />
 
                 <template v-if="isVlanMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllVlanEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllVlanEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
                   <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
-                    <form-group-role-map-vlan :key="`${role}Vlan`"
-                                              :namespace="`${role}Vlan`"
-                                              :column-label="role"
-                    />
+                    <b-form-group :key="`${role}Vlan`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <form-group-role-map-vlan :namespace="`${role}Vlan`"
+                              :disabled="form[`${role}VlanEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}VlanEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -148,10 +168,31 @@
                 />
 
                 <template v-if="isRoleMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllRoleEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllRoleEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
                   <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
-                    <form-group-role-map-role :key="`${role}Role`" :namespace="`${role}Role`"
-                      :column-label="role"
-                    />
+                    <b-form-group :key="`${role}Role`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <form-group-role-map-role :namespace="`${role}Role`"
+                              :disabled="form[`${role}RoleEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}RoleEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -170,10 +211,31 @@
                 />
 
                 <template v-if="isVpnMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllVpnEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllVpnEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
                   <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
-                    <form-group-role-map-vpn :key="`${role}Vpn`" :namespace="`${role}Vpn`"
-                      :column-label="role"
-                    />
+                    <b-form-group :key="`${role}Vpn`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <form-group-role-map-vpn :namespace="`${role}Vpn`"
+                              :disabled="form[`${role}VpnEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}VpnEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -193,10 +255,31 @@
                 />
 
                 <template v-if="isAccessListMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllAccessListEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllAccessListEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
                   <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
-                    <form-group-role-map-access-list :key="`${role}AccessList`" :namespace="`${role}AccessList`"
-                      :column-label="role"
-                    />
+                    <b-form-group :key="`${role}AccessList`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <form-group-role-map-access-list :namespace="`${role}AccessList`"
+                              :disabled="form[`${role}AccessListEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}AccessListEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -205,11 +288,31 @@
               </b-card-header>
               <div class="card-body pb-0">
                 <template v-if="isInterfaceMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllInterfaceEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllInterfaceEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
                   <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
-                    <form-group-role-map-interface :key="`${role}Interface`"
-                                                     :namespace="`${role}Interface`"
-                                                     :column-label="role"
-                    />
+                    <b-form-group :key="`${role}Interface`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <form-group-role-map-interface :namespace="`${role}Interface`"
+                              :disabled="form[`${role}InterfaceEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}InterfaceEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -228,10 +331,31 @@
                 />
 
                 <template v-if="isUrlMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllUrlEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllUrlEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
                   <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
-                    <form-group-role-map-url :key="`${role}Url`" :namespace="`${role}Url`"
-                      :column-label="role"
-                    />
+                    <b-form-group :key="`${role}Url`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <form-group-role-map-url :namespace="`${role}Url`"
+                              :disabled="form[`${role}UrlEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}UrlEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -252,21 +376,21 @@
                 <template v-if="isNetworkMap">
                   <base-role-map-list :roles="filteredRoles" :item-height="57" v-slot="{ role }">
                     <b-form-group :key="`${role}Network`"
-                      :label="role" label-cols="3"
-                      class="base-form-group"
-                    >
-                      <b-input-group>
-                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
-                          <b-col sm="6" align-self="center">
-                            <input-role-map-network :namespace="`${role}Network`"
-                              :disabled="form[`${role}NetworkFrom`] !== 'static'" />
-                          </b-col>
-                          <b-col sm="6" align-self="center" class="pl-1">
-                            <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
-                          </b-col>
-                        </b-row>
-                      </b-input-group>
-                    </b-form-group>
+                        :label="role" label-cols="3"
+                        class="base-form-group"
+                      >
+                        <b-input-group>
+                          <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                            <b-col sm="6" align-self="center">
+                              <input-role-map-network :namespace="`${role}Network`"
+                                :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                            </b-col>
+                            <b-col sm="6" align-self="center" class="pl-1">
+                              <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                            </b-col>
+                          </b-row>
+                        </b-input-group>
+                      </b-form-group>
                   </base-role-map-list>
                 </template>
               </div>
@@ -470,6 +594,10 @@
                                      :column-label="$i18n.t('Password')"
         />
 
+        <form-group-web-services-path namespace="wsPath"
+                                     :column-label="$i18n.t('API Path')"
+        />
+
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
 
@@ -660,9 +788,11 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesPath,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
+  InputToggleEnableDisable,
 } from './'
 import BaseRoleMapList from '../../switches/_components/BaseRoleMapList.vue'
 
@@ -748,9 +878,11 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesPath,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
+  InputToggleEnableDisable,
 }
 
 import {useForm as useSwitchForm, useFormProps as props} from '../../switches/_composables/useForm'
