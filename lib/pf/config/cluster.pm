@@ -109,8 +109,8 @@ Set the configuration version for this server
 
 sub set_config_version {
     my ($ver) = @_;
-    my $old_umask = umask(0002);
-    my $results = write_file($config_version_file, { perms => 0666}, $ver);
+    my $old_umask = umask(0007);
+    my $results = write_file($config_version_file, { perms => 0660}, $ver);
     umask($old_umask);
     return $results;
 }

@@ -28,7 +28,7 @@ setup_system_init_key() {
         if [ ! -d /usr/local/pf/conf ]; then
             mkdir -p /usr/local/pf/conf
         fi
-        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+        (umask 0077; hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key)
     fi
 }
 
@@ -37,7 +37,7 @@ case "$1" in
         setup_system_init_key
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
-        find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/conf -type f -exec chmod 660 '{}' \;
         find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
         find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
@@ -92,12 +92,12 @@ case "$1" in
 
         # Create server local RADIUS secret
         if [ ! -f /usr/local/pf/conf/local_secret ]; then
-            head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+            (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret)
         fi
 
         # Create server API system user password
         if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-            head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+            (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass)
         fi
 
         if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
@@ -110,7 +110,7 @@ case "$1" in
 
         if [ ! -f /usr/local/pf/conf/pf.conf ]; then
             echo "pf.conf doesnt exits"
-            touch /usr/local/pf/conf/pf.conf
+            (umask 0007; touch /usr/local/pf/conf/pf.conf)
             chown pf:pf /usr/local/pf/conf/pf.conf
         else
             echo "pf.conf already exists, won't touch it!"

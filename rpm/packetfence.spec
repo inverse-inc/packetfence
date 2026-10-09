@@ -710,17 +710,17 @@ make html/captive-portal/profile-templates/default/background.png
         
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
-    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+    (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret)
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+    (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass)
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/system_init_key ]; then
-	hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+	(umask 0077; hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key)
 fi
 
 for service in httpd snmptrapd portreserve redis netdata
@@ -752,7 +752,7 @@ fi
 
 if [ ! -f /usr/local/pf/conf/pf.conf ]; then
   echo "Touch pf.conf because it doesnt exist"
-  touch /usr/local/pf/conf/pf.conf
+  (umask 0007; touch /usr/local/pf/conf/pf.conf)
   chown pf:pf /usr/local/pf/conf/pf.conf
 else
   echo "pf.conf already exists, won't touch it!"
@@ -760,7 +760,7 @@ fi
 
 if [ ! -f /usr/local/pf/conf/pfconfig.conf ]; then
   echo "Touch pfconfig.conf because it doesnt exist"
-  touch /usr/local/pf/conf/pfconfig.conf
+  (umask 0007; touch /usr/local/pf/conf/pfconfig.conf)
   chown pf:pf /usr/local/pf/conf/pfconfig.conf
 else
   echo "pfconfig.conf already exists, won't touch it!"
@@ -1061,9 +1061,9 @@ fi
 %config                 /usr/local/pf/conf/pfconfig.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
-%config                 /usr/local/pf/conf/ui.conf
+%config %attr(0660, pf, pf) /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
-%config(noreplace)      /usr/local/pf/conf/authentication.conf
+%config(noreplace) %attr(0660, pf, pf) /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
@@ -1081,7 +1081,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
-%config(noreplace)      /usr/local/pf/conf/connectors.conf
+%config(noreplace) %attr(0660, pf, pf) /usr/local/pf/conf/connectors.conf
                         /usr/local/pf/conf/connectors.conf.example
 %config(noreplace)      /usr/local/pf/conf/dns_connectors.conf
                         /usr/local/pf/conf/dns_connectors.conf.example
@@ -1101,7 +1101,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/event_loggers.conf
-%config(noreplace)      /usr/local/pf/conf/kafka.conf
+%config(noreplace) %attr(0660, pf, pf) /usr/local/pf/conf/kafka.conf
                         /usr/local/pf/conf/kafka.conf.example
 %config(noreplace)      /usr/local/pf/conf/.gitignore
                         /usr/local/pf/conf/.gitignore.example
@@ -1280,7 +1280,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/rsyslog.conf.tt
 %config(noreplace)      /usr/local/pf/conf/billing_tiers.conf
                         /usr/local/pf/conf/billing_tiers.conf.example
-%config(noreplace)      /usr/local/pf/conf/domain.conf
+%config(noreplace) %attr(0660, pf, pf) /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
 %config(noreplace)      /usr/local/pf/conf/pfdetect.conf
                         /usr/local/pf/conf/pfdetect.conf.example
@@ -1328,7 +1328,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/ip6tables-custom.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
-%config(noreplace)      /usr/local/pf/conf/cluster.conf
+%config(noreplace) %attr(0660, pf, pf) /usr/local/pf/conf/cluster.conf
                         /usr/local/pf/conf/cluster.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
