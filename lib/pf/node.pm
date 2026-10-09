@@ -1281,8 +1281,10 @@ sub check_multihost {
     }
 
     # pf::SwitchFactory is loaded lazily: it pulls in pf::Switch, which uses this module.
+    # The locationlog stores the switch IP, which is only the switches.conf key when the switch
+    # is not matched through a range: resolve it the way instantiate() does.
     require pf::SwitchFactory;
-    my $switch_config = $pf::SwitchFactory::SwitchConfig{$location_info->{'switch_id'}};
+    my (undef, $switch_config) = pf::SwitchFactory::getSwitchConfig($location_info->{'switch_id'});
     my $host_mode = ($switch_config ? $switch_config->{'host_mode'} : undef) // $HOST_MODE_SINGLE_HOST;
     if ( $host_mode eq $HOST_MODE_SINGLE_HOST ) {
         $logger->debug("Not looking up multihost presence with MAC '$mac' since switch ID '$location_info->{'switch_id'}' is in '$host_mode' mode");

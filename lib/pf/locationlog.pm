@@ -434,8 +434,9 @@ keep its own open locationlog entry.
 
 The switch identifiers are tried in order: the C<switch_id> of the switch (the
 key it has in switches.conf) is authoritative, but callers that only know the
-switch IP pass that instead, which is the same key for everything but a switch
-matched through a switch range.
+switch IP pass that instead. Each one is resolved through
+L<pf::SwitchFactory/getSwitchConfig>, so an IP covered by a switch range finds
+the range's configuration.
 
 pf::SwitchFactory is loaded lazily: it pulls in pf::Switch, which uses this
 module.
@@ -448,7 +449,7 @@ sub _is_multi_auth_switchport {
     require pf::SwitchFactory;
     foreach my $key (@switch_keys) {
         next if !defined $key || $key eq '';
-        my $switch_config = $pf::SwitchFactory::SwitchConfig{$key};
+        my (undef, $switch_config) = pf::SwitchFactory::getSwitchConfig($key);
         next if !defined $switch_config;
         return (($switch_config->{host_mode} // '') eq $HOST_MODE_MULTI_AUTH) ? 1 : 0;
     }

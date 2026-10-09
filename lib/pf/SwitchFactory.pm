@@ -70,6 +70,35 @@ Checks if switch id exists
 
 sub hasId { exists $SwitchConfig{$_[0]} }
 
+=item getSwitchConfig
+
+Returns the switches.conf section id and configuration hash for a switch
+identifier, resolving switch ranges the same way L</instantiate> does: the
+identifier is first looked up as a section name (IP, MAC, hostname), then, when
+it is an IP, matched against the CIDR sections.
+
+  my ($switch_id, $switch_config) = pf::SwitchFactory::getSwitchConfig('172.16.3.5');
+
+Returns an empty list when nothing matches.
+
+=cut
+
+sub getSwitchConfig {
+    my ($search) = @_;
+    return if !defined $search || $search eq '';
+
+    if (my $switch_data = $SwitchConfig{$search}) {
+        return ($search, $switch_data);
+    }
+
+    return unless valid_ip($search) && @SwitchRanges;
+    my $ip = NetAddr::IP->new($search);
+    #Switch ranges is an order array of [NetAddr::IP object of switch,switch_id]
+    my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges;
+    return unless $rangeConfig && defined $SwitchConfig{$rangeConfig->[1]};
+    return ($rangeConfig->[1], $SwitchConfig{$rangeConfig->[1]});
+}
+
 =item instantiate - create new pf::Switch (or subclass) object
 
   $switch = SwitchFactory->instantiate( <switchIdentifier> );

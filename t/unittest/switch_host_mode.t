@@ -8,8 +8,9 @@ switch_host_mode
 
 Unit tests for the per-switch C<host_mode> parameter:
   - pf::Switch::getHostMode / isMultiAuthPort defaults and parsing
+  - pf::SwitchFactory::getSwitchConfig lookup through switch ranges
   - pf::locationlog::_is_multi_auth_switchport lookup
-  - deauthentication technique resolution on a multi-auth port
+  - pf::Switch::wiredReevaluationDeauthTechniques selection on a multi-auth port
 
 =cut
 
@@ -21,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 32;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
@@ -63,6 +64,37 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
 }
 
 # ----------------------------------------------------------------------------
+# pf::SwitchFactory::getSwitchConfig
+#
+# The locationlog stores the switch IP, which is not the switches.conf key when
+# the switch is matched through a range: the lookup must resolve ranges.
+# ----------------------------------------------------------------------------
+
+{
+    my ($switch_id, $switch_config) = pf::SwitchFactory::getSwitchConfig('172.16.8.41');
+    is($switch_id, '172.16.8.41',
+        'getSwitchConfig returns the section id of a switch configured by IP');
+    is($switch_config->{host_mode}, $HOST_MODE_MULTI_AUTH,
+        'getSwitchConfig returns that section configuration');
+
+    # 172.16.43.0/24 is nested in 172.16.0.0/16: the most specific range must win.
+    ($switch_id, $switch_config) = pf::SwitchFactory::getSwitchConfig('172.16.43.5');
+    is($switch_id, '172.16.43.0/24',
+        'getSwitchConfig resolves an IP to the most specific switch range covering it');
+    is($switch_config->{host_mode}, $HOST_MODE_MULTI_AUTH,
+        'the range configuration carries its host_mode');
+
+    is_deeply([pf::SwitchFactory::getSwitchConfig('10.255.255.1')], [],
+        'getSwitchConfig returns nothing for an IP outside every range');
+    is_deeply([pf::SwitchFactory::getSwitchConfig(undef)], [],
+        'getSwitchConfig returns nothing without an identifier');
+
+    my $switch = pf::SwitchFactory->instantiate('172.16.43.5');
+    ok($switch && $switch->isMultiAuthPort(),
+        'a switch instantiated through the range is multi-auth');
+}
+
+# ----------------------------------------------------------------------------
 # pf::locationlog::_is_multi_auth_switchport
 # ----------------------------------------------------------------------------
 
@@ -79,33 +111,50 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
         '_is_multi_auth_switchport is false for an unknown switch');
     ok(pf::locationlog::_is_multi_auth_switchport(undef, '172.16.8.41'),
         '_is_multi_auth_switchport falls back on the next identifier');
+    ok(pf::locationlog::_is_multi_auth_switchport('172.16.43.5'),
+        '_is_multi_auth_switchport resolves an IP through a multi-auth switch range');
 }
 
 # ----------------------------------------------------------------------------
-# Deauthentication technique on a multi-auth port
+# pf::Switch::wiredReevaluationDeauthTechniques
 #
-# pf::api::ReAssignVlan forces $SNMP::RADIUS when the switch is in multi-auth so
-# that the CoA/Disconnect is scoped to one endpoint through its
-# Calling-Station-Id instead of bouncing the whole port.
+# pf::api::ReAssignVlan uses it so that a multi-auth port gets a CoA/Disconnect
+# scoped to one endpoint through its Calling-Station-Id instead of a port bounce.
 # ----------------------------------------------------------------------------
 
 {
-    my $switch = pf::SwitchFactory->instantiate('172.16.8.41');
-
-    my ($method, $technique) = $switch->wiredeauthTechniques($SNMP::RADIUS, $WIRED_802_1X);
-    is($method, $SNMP::RADIUS, 'wired 802.1X deauth resolves to RADIUS when asked for it');
-    is($technique, 'deauthenticateMacRadius',
-        'wired 802.1X RADIUS deauth is the per-session deauthenticateMacRadius');
-
-    ($method, $technique) = $switch->wiredeauthTechniques($SNMP::RADIUS, $WIRED_MAC_AUTH);
-    is($method, $SNMP::RADIUS, 'wired MAC auth deauth resolves to RADIUS when asked for it');
-    is($technique, 'deauthenticateMacRadius',
-        'wired MAC auth RADIUS deauth is the per-session deauthenticateMacRadius');
-
-    # Sanity: the SNMP technique this replaces is the port-wide one.
-    (undef, $technique) = $switch->wiredeauthTechniques($SNMP::SNMP, $WIRED_802_1X);
+    # single-host: the configured deauthMethod is honoured as is
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
+    $switch->{_deauthMethod} = $SNMP::SNMP;
+    my ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
+    is($method, $SNMP::SNMP, 'single-host switch keeps its configured SNMP deauth method');
     is($technique, 'dot1xPortReauthenticate',
-        'the SNMP technique it replaces is the port-wide dot1xPortReauthenticate');
+        'single-host switch uses the port-wide dot1xPortReauthenticate');
+
+    # multi-auth: RADIUS is forced whatever the configured deauthMethod
+    $switch = pf::SwitchFactory->instantiate('172.16.8.41');
+    $switch->{_deauthMethod} = $SNMP::SNMP;
+    ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
+    is($method, $SNMP::RADIUS, 'multi-auth switch overrides the SNMP deauth method with RADIUS');
+    is($technique, 'deauthenticateMacRadius',
+        'wired 802.1X on a multi-auth switch uses the per-session deauthenticateMacRadius');
+
+    ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_MAC_AUTH, 1);
+    is($method, $SNMP::RADIUS, 'multi-auth switch uses RADIUS for wired MAC auth too');
+    is($technique, 'deauthenticateMacRadius',
+        'wired MAC auth on a multi-auth switch uses the per-session deauthenticateMacRadius');
+
+    # multi-auth on a module without a RADIUS technique: the module default is used.
+    # pf::Switch::wiredeauthTechniques only knows the SNMP techniques.
+    {
+        no warnings 'redefine';
+        local *pf::Switch::Cisco::Cisco_IOS_15_0::wiredeauthTechniques = \&pf::Switch::wiredeauthTechniques;
+        ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
+        is($method, $SNMP::SNMP,
+            'multi-auth switch without a RADIUS technique falls back on the module default');
+        is($technique, 'dot1xPortReauthenticate',
+            'the fallback is the port-wide technique');
+    }
 }
 
 =head1 AUTHOR

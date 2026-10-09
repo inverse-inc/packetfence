@@ -1363,6 +1363,44 @@ sub isMultiAuthPort {
     return $self->getHostMode() eq $HOST_MODE_MULTI_AUTH;
 }
 
+=item wiredReevaluationDeauthTechniques
+
+Returns the deauthentication method and technique to use when re-evaluating a
+wired endpoint's access (see L<pf::api/ReAssignVlan>), honouring the host mode.
+
+On a single-host port the switch's configured C<deauthMethod> is passed to
+L</wiredeauthTechniques> as is. On a C<multi-auth> port the SNMP techniques
+(dot1xPortReauthenticate, handleReAssignVlanTrapForWiredMacAuth) bounce the
+port, which would deauthenticate every other endpoint sharing it, so the RADIUS
+technique is requested instead: it issues a CoA/Disconnect scoped to this
+endpoint's session through its Calling-Station-Id. When the switch module has no
+RADIUS technique for the connection type, its default technique is used and a
+warning is logged, as it will disconnect every endpoint on the port.
+
+  my ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($connection_type, $ifIndex);
+
+C<$ifIndex> is only used in the warning.
+
+=cut
+
+sub wiredReevaluationDeauthTechniques {
+    my ($self, $connection_type, $ifIndex) = @_;
+    my $multi_auth = $self->isMultiAuthPort();
+    my $deauthMethod = $multi_auth ? $SNMP::RADIUS : $self->{_deauthMethod};
+
+    my ($method, $technique) = $self->wiredeauthTechniques($deauthMethod, $connection_type);
+
+    if ( $multi_auth && ($method // '') ne $SNMP::RADIUS ) {
+        $self->logger->warn(
+            "switch (".$self->{'_id'}.") is in multi-auth host mode but its module has no RADIUS deauthentication "
+            . "technique for this connection type. Falling back on '".($technique // 'none')."', which will "
+            . "disconnect every endpoint on ifIndex ".($ifIndex // 'unknown')."."
+        );
+    }
+
+    return ($method, $technique);
+}
+
 =item setVlanAllPort - set the port VLAN for all the non-UpLink ports of a switch
 
 =cut
