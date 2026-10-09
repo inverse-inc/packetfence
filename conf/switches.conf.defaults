@@ -97,6 +97,7 @@ radiusDeauthUseConnector=Y
 VoIPLLDPDetect=Y
 PostMfaValidation=N
 deauthOnPrevious=N
+host_mode=single-host
 
 # ACLs
 UsePushACLs=N

@@ -45,6 +45,11 @@
           disabled-value="N"
         />
 
+        <form-group-host-mode namespace="host_mode"
+          :column-label="$i18n.t('Port host mode')"
+          :text="$i18n.t('Host mode configured on the switch ports. In multi-auth, each endpoint authenticates independently: PacketFence keeps a separate locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port. Note that most switches apply a single data VLAN per port, so returning two different VLANs for two endpoints on the same port will not work; use role-based ACLs (push or downloadable) to differentiate them.')"
+        />
+
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"
           v-show="supports(['ExternalPortal'])"
           :column-label="$i18n.t('External Portal Enforcement')"
@@ -584,6 +589,7 @@ import {
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
@@ -670,6 +676,7 @@ const components = {
   FormGroupAclsLimit,
   FormGroupDownloadableAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,

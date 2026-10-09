@@ -27,7 +27,6 @@ export {
   BaseFormGroupChosenOne        as FormGroupLanguage,
   BaseFormGroupTextarea         as FormGroupLdapAttributes,
   BaseFormGroupSwitch           as FormGroupLocationlogCloseOnAccountingStop,
-  BaseFormGroupSwitch           as FormGroupMultihost,
   BaseFormGroupSwitch           as FormGroupNetflowOnAllNetworks,
   BaseFormGroupOpenidAttributes as FormGroupOpenidAttributes,
   BaseFormGroupInputNumber      as FormGroupPffilterMaxRss,
