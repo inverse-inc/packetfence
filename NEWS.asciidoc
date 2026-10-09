@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - New `switch_cache_ifindex` maintenance task (enabled, every 12h) that keeps the cached `ifDescr` table of the Cisco IOS, Arista, Aruba and 3Com switches warm, so a wired RADIUS request never waits for the SNMP walk that translates its NAS-Port-Id into an ifIndex. Only the switches that already translated one are walked (#7380)
+
 === Enhancements
 
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
