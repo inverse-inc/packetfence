@@ -1,0 +1,26 @@
+/api/v1/configurator/complete:
+  post:
+    description: >-
+      Complete setup after starting PacketFence services. Requires a configured
+      management interface and running required services. Saves the disabled
+      configurator setting and promotes the base boot target to the standalone
+      or cluster target. Other boot targets are preserved. On save or promotion
+      failure, attempts to restore the configurator setting for retry.
+    operationId: api.v1.Configurator.complete
+    responses:
+      '200':
+        description: Configuration completed.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Configuration completed
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '500':
+        description: Readiness validation, saving configuration, or boot target promotion failed.
+    tags:
+    - Configurator

@@ -12,6 +12,9 @@ ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-
 KillSignal=TERM
 Restart=always
 RestartSec=5
+# An unset management interface is an intentional stop, with firewall cleanup.
+SuccessExitStatus=78
+RestartPreventExitStatus=78
 Slice=packetfence.slice
 # iptables rules
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_services_rules("add")'
