@@ -1363,9 +1363,21 @@ sub isMultiAuthPort {
     return $self->getHostMode() eq $HOST_MODE_MULTI_AUTH;
 }
 
-=item wiredReevaluationDeauthTechniques
+=item hasRadiusSecret
 
-Returns the deauthentication method and technique to use when re-evaluating a
+Returns true when a RADIUS shared secret is configured on the switch, which is
+needed to send it a CoA or Disconnect request.
+
+=cut
+
+sub hasRadiusSecret {
+    my ($self) = @_;
+    return (defined $self->{_radiusSecret} && length $self->{_radiusSecret}) ? 1 : 0;
+}
+
+=item wiredReevaluationDeauthTechnique
+
+Returns the name of the deauthentication technique to use when re-evaluating a
 wired endpoint's access (see L<pf::api/ReAssignVlan>), honouring the host mode.
 
 On a single-host port the switch's configured C<deauthMethod> is passed to
@@ -1380,24 +1392,22 @@ endpoint on the port will be disconnected, when it cannot send that
 CoA/Disconnect: no RADIUS shared secret is configured, or its module has no
 RADIUS technique for the connection type.
 
-  my ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($connection_type, $ifIndex);
+  my $technique = $switch->wiredReevaluationDeauthTechnique($connection_type);
 
-Returns an empty list when the module has no technique at all for the connection
-type. C<$ifIndex> is only used in the log messages.
+Returns undef when the module has no technique at all for the connection type.
 
 =cut
 
-sub wiredReevaluationDeauthTechniques {
-    my ($self, $connection_type, $ifIndex) = @_;
+sub wiredReevaluationDeauthTechnique {
+    my ($self, $connection_type) = @_;
     my $logger = $self->logger;
-    $ifIndex //= 'unknown';
 
     my $use_radius = $self->isMultiAuthPort();
-    if ( $use_radius && !(defined $self->{_radiusSecret} && length $self->{_radiusSecret}) ) {
+    if ( $use_radius && !$self->hasRadiusSecret() ) {
         $logger->warn(
             "switch (".$self->{'_id'}.") is in multi-auth host mode but has no RADIUS shared secret, so it cannot "
             . "send a per-session CoA/Disconnect. Falling back on its configured deauthentication method, which "
-            . "will disconnect every endpoint on ifIndex $ifIndex."
+            . "will disconnect every endpoint on the port."
         );
         $use_radius = 0;
     }
@@ -1408,7 +1418,7 @@ sub wiredReevaluationDeauthTechniques {
     if ( !defined $technique ) {
         $logger->error(
             "switch (".$self->{'_id'}.") has no wired deauthentication technique for connection type "
-            . ($connection_type // 'undef') . ". Not re-evaluating access on ifIndex $ifIndex."
+            . ($connection_type // 'undef')
         );
         return;
     }
@@ -1417,11 +1427,11 @@ sub wiredReevaluationDeauthTechniques {
         $logger->warn(
             "switch (".$self->{'_id'}.") is in multi-auth host mode but its module has no RADIUS deauthentication "
             . "technique for this connection type. Falling back on '$technique', which will disconnect every "
-            . "endpoint on ifIndex $ifIndex."
+            . "endpoint on the port."
         );
     }
 
-    return ($method, $technique);
+    return $technique;
 }
 
 =item setVlanAllPort - set the port VLAN for all the non-UpLink ports of a switch
@@ -3098,7 +3108,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );

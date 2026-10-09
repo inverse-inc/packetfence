@@ -938,6 +938,22 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== advanced.multihost replaced by the per-switch host_mode
+
+The `advanced.multihost` parameter had no effect and is removed. Remove it from
+[filename]`pf.conf` so `pfcmd checkup` stops reporting it as unknown:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-remove-advanced-multihost.pl
+----
+
+Switches whose ports authenticate several endpoints independently (Cisco
+`multi-auth`, and the equivalent on other vendors) must now have `host_mode`
+set to `multi-auth` in their switch or switch group configuration, so that each
+endpoint keeps its own locationlog entry and is re-evaluated through a
+per-session RADIUS CoA/Disconnect.
+
 === RADIUS dynamic clients are now cached for 300 seconds
 
 [filename]`/usr/local/pf/raddb/sites-available/dynamic-clients` now sets

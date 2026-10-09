@@ -347,12 +347,13 @@ sub locationlog_synchronize {
     my $mustInsert = 0;
     my $inserted = 0;
 
+    my $locationlog_mac;
     if ( defined($mac) ) {
 
         $mac = lc($mac);
 
         # grab latest open locationlog entry
-        my $locationlog_mac = locationlog_view_open_mac($mac);
+        $locationlog_mac = locationlog_view_open_mac($mac);
         if (defined($locationlog_mac) && ref($locationlog_mac) eq 'HASH') {
             $logger->trace("existing open locationlog entry");
 
@@ -398,9 +399,16 @@ sub locationlog_synchronize {
         # per-MAC handling above is authoritative. Closing the whole switchport here would end the
         # sibling endpoints' entries and leave pf::enforcement unable to re-evaluate them
         # ("Can't re-evaluate access because no open locationlog entry was found").
-        $multi_auth //= _is_multi_auth_switchport($switch_id, $switch);
-        if ( defined($mac) && $multi_auth ) {
+        if ( defined($mac) && ($multi_auth // _is_multi_auth_switchport($switch_id, $switch)) ) {
             $logger->debug("switch $switch is in multi-auth host mode, leaving the other endpoints of ifIndex $ifIndex untouched");
+
+            # _is_locationlog_accurate does not compare the VoIP status: on a single-host port the
+            # switchport check below catches a change (no open entry of the new type), here it must
+            # be caught on the endpoint's own entry.
+            if ( !$inserted && defined($locationlog_mac) && ($locationlog_mac->{voip} // $NO_VOIP) ne $voip_status ) {
+                $logger->debug("VoIP status of $mac changed to '$voip_status', replacing its locationlog entry");
+                $mustInsert = 1;
+            }
         }
         else {
             my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);

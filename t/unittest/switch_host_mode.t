@@ -10,7 +10,8 @@ Unit tests for the per-switch C<host_mode> parameter:
   - pf::Switch::getHostMode / isMultiAuthPort defaults and parsing
   - pf::SwitchFactory::getSwitchConfig lookup through switch ranges
   - pf::locationlog::_is_multi_auth_switchport lookup
-  - pf::Switch::wiredReevaluationDeauthTechniques selection on a multi-auth port
+  - pf::Switch::wiredReevaluationDeauthTechnique selection on a multi-auth port
+  - pf::locationlog::locationlog_synchronize keeping one entry per endpoint on a multi-auth port
 
 =cut
 
@@ -22,14 +23,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 39;
+use Test::More tests => 47;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
 use pf::locationlog;
 use pf::Switch::constants;
 use pf::constants::switch qw($HOST_MODE_SINGLE_HOST $HOST_MODE_MULTI_HOST $HOST_MODE_MULTI_AUTH);
-use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
+use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH $VOIP $NO_VOIP);
+use Utils;
 
 # ----------------------------------------------------------------------------
 # pf::Switch::getHostMode / isMultiAuthPort
@@ -126,7 +128,7 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
 }
 
 # ----------------------------------------------------------------------------
-# pf::Switch::wiredReevaluationDeauthTechniques
+# pf::Switch::wiredReevaluationDeauthTechnique
 #
 # pf::api::ReAssignVlan uses it so that a multi-auth port gets a CoA/Disconnect
 # scoped to one endpoint through its Calling-Station-Id instead of a port bounce.
@@ -136,33 +138,25 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
     # single-host: the configured deauthMethod is honoured as is
     my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
     $switch->{_deauthMethod} = $SNMP::SNMP;
-    my ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
-    is($method, $SNMP::SNMP, 'single-host switch keeps its configured SNMP deauth method');
-    is($technique, 'dot1xPortReauthenticate',
-        'single-host switch uses the port-wide dot1xPortReauthenticate');
+    is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X), 'dot1xPortReauthenticate',
+        'single-host switch keeps its configured SNMP method: port-wide dot1xPortReauthenticate');
 
     # multi-auth: RADIUS is forced whatever the configured deauthMethod
     $switch = pf::SwitchFactory->instantiate('172.16.8.41');
+    ok($switch->hasRadiusSecret(), 'the multi-auth test switch has a RADIUS shared secret');
     $switch->{_deauthMethod} = $SNMP::SNMP;
-    ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
-    is($method, $SNMP::RADIUS, 'multi-auth switch overrides the SNMP deauth method with RADIUS');
-    is($technique, 'deauthenticateMacRadius',
-        'wired 802.1X on a multi-auth switch uses the per-session deauthenticateMacRadius');
-
-    ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_MAC_AUTH, 1);
-    is($method, $SNMP::RADIUS, 'multi-auth switch uses RADIUS for wired MAC auth too');
-    is($technique, 'deauthenticateMacRadius',
-        'wired MAC auth on a multi-auth switch uses the per-session deauthenticateMacRadius');
+    is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X), 'deauthenticateMacRadius',
+        'wired 802.1X on a multi-auth switch overrides SNMP with the per-session deauthenticateMacRadius');
+    is($switch->wiredReevaluationDeauthTechnique($WIRED_MAC_AUTH), 'deauthenticateMacRadius',
+        'wired MAC auth on a multi-auth switch uses the per-session deauthenticateMacRadius too');
 
     # multi-auth without a RADIUS shared secret: no CoA/Disconnect can be sent, so the
     # configured method is kept instead of silently failing in radiusDisconnect.
     {
         local $switch->{_radiusSecret} = '';
-        ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
-        is($method, $SNMP::SNMP,
-            'multi-auth switch without a RADIUS shared secret keeps its configured deauth method');
-        is($technique, 'dot1xPortReauthenticate',
-            'the fallback without a shared secret is the port-wide technique');
+        ok(!$switch->hasRadiusSecret(), 'an empty radiusSecret counts as no shared secret');
+        is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X), 'dot1xPortReauthenticate',
+            'multi-auth switch without a RADIUS shared secret keeps its configured port-wide technique');
     }
 
     # multi-auth on a module without a RADIUS technique: the module default is used.
@@ -170,17 +164,64 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
     {
         no warnings 'redefine';
         local *pf::Switch::Cisco::Cisco_IOS_15_0::wiredeauthTechniques = \&pf::Switch::wiredeauthTechniques;
-        ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
-        is($method, $SNMP::SNMP,
+        is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X), 'dot1xPortReauthenticate',
             'multi-auth switch without a RADIUS technique falls back on the module default');
-        is($technique, 'dot1xPortReauthenticate',
-            'the fallback is the port-wide technique');
 
-        # ... and when the module has no technique at all, nothing is returned rather
+        # ... and when the module has no technique at all, undef is returned rather
         # than an undef method name for pf::api::ReAssignVlan to call.
-        is_deeply([$switch->wiredReevaluationDeauthTechniques($WIRED_802_1X | 0x1000000, 1)], [],
-            'no technique for the connection type returns an empty list');
+        is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X | 0x1000000), undef,
+            'no technique for the connection type returns undef');
     }
+}
+
+# ----------------------------------------------------------------------------
+# pf::locationlog::locationlog_synchronize
+#
+# Two endpoints with different roles on the same port: on a multi-auth switch
+# both keep their open entry, on a multi-host switch the second closes the first.
+# ----------------------------------------------------------------------------
+
+{
+    my $ifIndex = 10000 + int(rand(10000));
+
+    my $sync = sub {
+        my ($switch, $mac, $role, $voip_status, $multi_auth) = @_;
+        return pf::locationlog::locationlog_synchronize(
+            $switch, $switch, undef, $ifIndex, 10, $mac, $voip_status, $WIRED_802_1X,
+            undef, $mac, undef, undef, undef, $role, undef, $switch, $multi_auth,
+        );
+    };
+
+    # multi-auth, host mode passed by the caller as pf::Switch::synchronize_locationlog does
+    my $mac1 = Utils::test_mac();
+    my $mac2 = Utils::test_mac();
+    ok($sync->('172.16.8.41', $mac1, 'default', $NO_VOIP, 1), "synchronized $mac1 on the multi-auth switch");
+    ok($sync->('172.16.8.41', $mac2, 'guest', $NO_VOIP, 1), "synchronized $mac2 on the same port");
+    my @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.41', $ifIndex);
+    is_deeply([sort map { $_->{mac} } @open], [sort $mac1, $mac2],
+        'both endpoints keep an open locationlog entry on the multi-auth port');
+
+    # multi-auth, host mode resolved from the switch configuration (RPC path)
+    my $mac3 = Utils::test_mac();
+    ok($sync->('172.16.8.41', $mac3, 'voice', $NO_VOIP, undef), "synchronized $mac3 without the host mode");
+    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.41', $ifIndex);
+    is(scalar @open, 3, 'the host mode is resolved from the configuration when the caller does not pass it');
+
+    # a VoIP status change replaces the endpoint's own entry
+    ok($sync->('172.16.8.41', $mac1, 'default', $VOIP, 1), "synchronized $mac1 again as a phone");
+    my $entry = pf::locationlog::locationlog_view_open_mac($mac1);
+    is($entry->{voip}, $VOIP, 'the VoIP status change is recorded on the multi-auth port');
+    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.41', $ifIndex);
+    is(scalar @open, 2, 'the other endpoints are left untouched');
+
+    # multi-host: the second endpoint with another role closes the first
+    my $mac4 = Utils::test_mac();
+    my $mac5 = Utils::test_mac();
+    ok($sync->('172.16.8.42', $mac4, 'default', $NO_VOIP, 0), "synchronized $mac4 on the multi-host switch");
+    ok($sync->('172.16.8.42', $mac5, 'guest', $NO_VOIP, 0), "synchronized $mac5 on the same port");
+    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
+    is_deeply([map { $_->{mac} } @open], [$mac5],
+        'only the last endpoint keeps an open locationlog entry on the multi-host port');
 }
 
 =head1 AUTHOR
