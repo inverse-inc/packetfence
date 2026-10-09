@@ -94,6 +94,16 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 	switchInfo := iSwitchInfo.(*SwitchInfo)
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, err := mac.NewFromString(callingStation)
+	if err != nil && isVpnAccounting(r.Packet) {
+		// A VPN session has no MAC address: the Calling-Station-Id is the
+		// address of the remote client (FortiGate SSL-VPN for instance).
+		outPacket := r.Response(radius.CodeAccountingResponse)
+		rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
+		w.Write(h.AddProxyState(outPacket, r))
+		h.sendVpnAccounting(ctx, r)
+		return
+	}
+
 	if err != nil {
 		logError(ctx, fmt.Sprintf("Calling Station is invalid: '%s' error: %s", callingStation, err.Error()))
 		outPacket := r.Response(radius.CodeAccountingResponse)
@@ -403,6 +413,41 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac, native n
 	// preserves that.
 	if !h.RateLimit || h.rateLimit(attr, status) {
 		h.enqueueAAANotify(ctx, m, attr)
+	}
+}
+
+// isVpnAccounting tells whether an accounting packet that has no MAC address in
+// its Calling-Station-Id is the accounting of a VPN session: a user name, and
+// a Connect-Info starting with "vpn" (FortiGate: vpn-ssl, vpn-ipsec, ...) or the
+// Virtual NAS-Port-Type.
+func isVpnAccounting(p *radius.Packet) bool {
+	if rfc2865.UserName_GetString(p) == "" {
+		return false
+	}
+
+	if strings.HasPrefix(strings.ToLower(rfc2869.ConnectInfo_GetString(p)), "vpn") {
+		return true
+	}
+
+	return rfc2865.NASPortType_Get(p) == rfc2865.NASPortType_Value_Virtual
+}
+
+// sendVpnAccounting forwards the accounting of a VPN session to httpd.aaa
+// (vpn_accounting). It has no MAC address, so none of the per node processing
+// applies; the notifications of a session stay ordered by sharding on the
+// session.
+func (h *PfAcct) sendVpnAccounting(ctx context.Context, r *radius.Request) {
+	attr := packetToMap(ctx, r.Packet)
+	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
+		attr["NAS-IP-Address"] = strings.Split(r.RemoteAddr.String(), ":")[0]
+	}
+
+	key := rfc2866.AcctSessionID_GetString(r.Packet) + "|" + rfc2865.UserName_GetString(r.Packet)
+	queueIndex := djb2Hash([]byte(key)) % uint64(len(h.aaaNotifyQueues))
+	select {
+	case h.aaaNotifyQueues[queueIndex] <- aaaNotifyJob{ctx: ctx, attr: attr, method: "vpn_accounting"}:
+	default:
+		h.aaaNotifyDropped.Add(1)
 	}
 }
 
