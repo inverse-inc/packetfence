@@ -171,18 +171,24 @@ func TestMatchesRole(t *testing.T) {
 		}
 	}
 
-	// Test firewall that has no role assigned to it. That shouldn't make it apply
-	fw, err = factory.Instantiate(ctx, "testfw")
-	util.CheckTestError(t, err)
-
-	if err != nil {
-		if fw.MatchesRole(ctx, map[string]string{"role": "no-sso"}) {
-			t.Error("Firewall matches role when it shouldn't")
+	if err == nil {
+		if roles := fw.GetRoles(ctx); len(roles) != 1 || roles[0] != "default" {
+			t.Errorf("Unexpected roles %v for the firewall", roles)
 		}
+	}
 
-		if fw.MatchesRole(ctx, map[string]string{"role": "default"}) {
-			t.Error("Firewall matches role when it shouldn't")
-		}
+	// Firewall that has no role selected. That shouldn't make it apply to any device
+	noRole := &RoleBasedFirewallSSO{}
+	if noRole.MatchesRole(ctx, map[string]string{"role": "no-sso"}) {
+		t.Error("Firewall without role matches role when it shouldn't")
+	}
+
+	if noRole.MatchesRole(ctx, map[string]string{"role": "default"}) {
+		t.Error("Firewall without role matches role when it shouldn't")
+	}
+
+	if len(noRole.GetRoles(ctx)) != 0 {
+		t.Error("Firewall without role has roles")
 	}
 }
 

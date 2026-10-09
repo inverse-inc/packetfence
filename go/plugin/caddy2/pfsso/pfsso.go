@@ -138,7 +138,7 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 		goCtx := connector.WithConnectorsContainer(ctxLog, h.connectors)
 		sent, err := f(goCtx, infoCopy)
 		if err != nil {
-			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
+			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s", firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
 		}
 
 		if sent {
