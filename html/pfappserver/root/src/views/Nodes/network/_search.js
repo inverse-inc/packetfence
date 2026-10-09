@@ -212,6 +212,18 @@ export const search = {
       icon: 'wifi'
     },
     {
+      value: 'locationlog.teap_username',
+      text: 'TEAP Username', // i18n defer
+      types: [conditionType.SUBSTRING],
+      icon: 'user'
+    },
+    {
+      value: 'locationlog.teap_machinename',
+      text: 'TEAP Machine Name', // i18n defer
+      types: [conditionType.SUBSTRING],
+      icon: 'user'
+    },
+    {
       value: 'user_agent',
       text: 'User Agent', // i18n defer
       types: [conditionType.SUBSTRING],

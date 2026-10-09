@@ -1,0 +1,10 @@
+name: Release DHCP
+testcases:
+- name: release_dhcp
+  steps:
+  - type: exec
+    script: "sudo dhclient -v -r ens7"
+    timeout: 10
+    assertions:
+      - result.systemout ShouldContainSubstring "DHCPRELEASE"
+      - result.systemout ShouldContainSubstring "ens7"

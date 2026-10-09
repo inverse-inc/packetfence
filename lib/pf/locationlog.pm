@@ -127,7 +127,7 @@ sub locationlog_history_mac {
         $where->{end_time} = { ">" => \['from_unixtime(?)', $start_time] };
     }
     my $columns = [
-            qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc
+            qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm teap_username teap_machinename ifDesc
               UNIX_TIMESTAMP(start_time)|start_timestamp
               UNIX_TIMESTAMP(end_time)|end_timestamp)
     ];
@@ -164,7 +164,7 @@ sub locationlog_history_switchport {
         $where->{start_time} = { "<" => \['from_unixtime(?)', $date] };
         $where->{end_time} = { ">" => \['from_unixtime(?)', $date] };
     }
-    my $columns = [qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc)];
+    my $columns = [qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm teap_username teap_machinename ifDesc)];
     return translate_connection_type(_db_list({
         -from => 'locationlog',
         -columns => $columns,
@@ -232,7 +232,7 @@ sub locationlog_view_open_mac {
 }
 
 sub locationlog_insert_start {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip, $switch_id ) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip, $switch_id, $teap_username, $teap_machinename ) = @_;
     my $logger = get_logger();
 
     my $conn_type = connection_type_to_str($connection_type)
@@ -242,8 +242,22 @@ sub locationlog_insert_start {
     $user_name = "" if (!defined($user_name));
     $ssid = "" if (!defined($ssid));
 
+    $teap_username = "" if(!defined($teap_username));
+    $teap_machinename = "" if(!defined($teap_machinename));
+
     if (!(defined($vlan)) && defined($locationlog_mac->{'vlan'})) {
         $vlan = $locationlog_mac->{'vlan'};
+    }
+
+    # Preserve the inner TEAP identity across re-inserts driven by non-RADIUS
+    # callers (pfsnmp, VoIP, inline DHCP) that don't carry the TEAP attributes
+    # in their args. Without this, a vlan/role/conn_type change would silently
+    # blank the audit-trail teap_username/teap_machinename on the new row.
+    if ($teap_username eq '' && defined($locationlog_mac->{'teap_username'})) {
+        $teap_username = $locationlog_mac->{'teap_username'};
+    }
+    if ($teap_machinename eq '' && defined($locationlog_mac->{'teap_machinename'})) {
+        $teap_machinename = $locationlog_mac->{'teap_machinename'};
     }
     my %values = (
         switch_id           => $switch_id,
@@ -264,6 +278,8 @@ sub locationlog_insert_start {
         end_time            => $ZERO_DATE,
         voip                => $voip,
         mac                 => lc($mac),
+        teap_username       => $teap_username,
+        teap_machinename    => $teap_machinename,
     );
 
     my $status = pf::dal::locationlog->new(\%values)->save();
@@ -331,7 +347,10 @@ synchronize locationlog to current values if necessary
 
 sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id, $teap_username, $teap_machinename) = @_;
+
+    $teap_username = "" if (!defined($teap_username)) ;
+    $teap_machinename = "" if (!defined($teap_machinename)) ;
 
     $voip_status = $NO_VOIP if !defined $voip_status || $voip_status ne $VOIP; #Set the default voip status
     my $logger = get_logger();
@@ -353,7 +372,7 @@ sub locationlog_synchronize {
 
             # did something changed?
             if (!_is_locationlog_accurate($locationlog_mac, $switch, $ifIndex, $vlan,
-                $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac)) {
+                $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac, $teap_username, $teap_machinename)) {
 
                 #If the last connection was inline then make sure to clean ipset
                 if ( ( (str_to_connection_type($locationlog_mac->{connection_type}) & $pf::config::INLINE) == $pf::config::INLINE ) && !($connection_type && ($connection_type & $pf::config::INLINE) == $pf::config::INLINE) ) {
@@ -363,7 +382,7 @@ sub locationlog_synchronize {
                     $inline->{_technique}->iptables_unmark_node($mac,$mark) if (defined($mark));
                 }
 
-                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status, $switch_id);
+                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status, $switch_id, $teap_username, $teap_machinename);
 
                 # We just inserted an entry so we won't want to add another one
                 $inserted = 1;
@@ -409,9 +428,10 @@ sub locationlog_synchronize {
 
     # we insert a locationlog entry
     if ($mustInsert && !$inserted) {
-        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc, $voip_status, $switch_id)
+        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc, $voip_status, $switch_id, $teap_username, $teap_machinename)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
+
     return 1;
 }
 
@@ -465,7 +485,7 @@ return 1 if locationlog entry is accurate, 0 otherwise
 # Note: voip_status was removed from the accuracy check, feel free to revisit this assumption if we face VoIP problems
 sub _is_locationlog_accurate {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, level => 7 });
-    my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac) = @_;
+    my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac, $teap_username, $teap_machinename) = @_;
     my $logger = get_logger();
     $logger->trace("verifying if locationlog is accurate called");
 
@@ -498,7 +518,12 @@ sub _is_locationlog_accurate {
         $ifIndexChanged = ($locationlog_mac->{port} ne $ifIndex);
     }
 
-    if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged || $roleChanged || $switchMacChanged) {
+    # Treat an empty incoming TEAP value as "unspecified" so non-TEAP callers
+    # (e.g. accounting, VoIP, VPN) don't invalidate a row that already has TEAP data.
+    my $teap_u_changed = ($teap_username    ne '' && ($locationlog_mac->{'teap_username'}    // '') ne $teap_username);
+    my $teap_m_changed = ($teap_machinename ne '' && ($locationlog_mac->{'teap_machinename'} // '') ne $teap_machinename);
+
+    if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged || $roleChanged || $switchMacChanged || $teap_u_changed || $teap_m_changed) {
         $logger->trace("latest locationlog entry is not accurate");
         return 0;
     } else {

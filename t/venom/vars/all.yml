@@ -184,6 +184,76 @@ wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Wireless-802.
 wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
 wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
 
+
+################################################################################
+# eap_teap test suites specific variables
+################################################################################
+# AD user
+eap_teap.roles.ad_user.id: user_employee
+eap_teap.roles.ad_user.notes: User employee
+eap_teap.roles.ad_user.vlan_id: 100
+
+eap_teap.roles.ad_machine.id: machine_employee
+eap_teap.roles.ad_machine.notes: Machine Employee
+eap_teap.roles.ad_machine.vlan_id: 100
+
+################################################################################
+# dot1x_eap_teap test suite specific variables
+################################################################################
+# Roles
+dot1x_eap_teap.roles.ad_user.id: '{{.eap_teap.roles.ad_user.id}}'
+dot1x_eap_teap.roles.ad_user.notes: '{{.eap_teap.roles.ad_user.notes}}'
+dot1x_eap_teap.roles.ad_user.vlan_id: '{{.eap_teap.roles.ad_user.vlan_id}}'
+
+dot1x_eap_teap.roles.ad_machine.id: '{{.eap_teap.roles.ad_machine.id}}'
+dot1x_eap_teap.roles.ad_machine.notes: '{{.eap_teap.roles.ad_machine.notes}}'
+dot1x_eap_teap.roles.ad_machine.vlan_id: '{{.eap_teap.roles.ad_machine.vlan_id}}'
+
+# Sources
+dot1x_eap_teap.sources.ad_user.name: dot1x_eap_teap_user_auth
+dot1x_eap_teap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+dot1x_eap_teap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+dot1x_eap_teap.sources.ad_machine.name: dot1x_eap_teap_machine_auth
+dot1x_eap_teap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+dot1x_eap_teap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+dot1x_eap_teap.profiles.wired.id: catch_dot1x_wired_eap_teap_mschapv2
+dot1x_eap_teap.profiles.wired.description: 802.1X wired EAP-TEAP-MSCHAPv2
+dot1x_eap_teap.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_eap_teap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+dot1x_eap_teap.profiles.wired.unreg_on_acct_stop: enabled
+
+################################################################################
+# wireless_dot1x_eap_teap test suite specific variables
+################################################################################
+# Roles
+wireless_dot1x_eap_teap.roles.ad_user.id: '{{.eap_teap.roles.ad_user.id}}'
+wireless_dot1x_eap_teap.roles.ad_user.notes: '{{.eap_teap.roles.ad_user.notes}}'
+wireless_dot1x_eap_teap.roles.ad_user.vlan_id: '{{.eap_teap.roles.ad_user.vlan_id}}'
+
+wireless_dot1x_eap_teap.roles.ad_machine.id: '{{.eap_teap.roles.ad_machine.id}}'
+wireless_dot1x_eap_teap.roles.ad_machine.notes: '{{.eap_teap.roles.ad_machine.notes}}'
+wireless_dot1x_eap_teap.roles.ad_machine.vlan_id: '{{.eap_teap.roles.ad_machine.vlan_id}}'
+
+# Sources
+wireless_dot1x_eap_teap.sources.ad_user.name: wireless_dot1x_eap_teap_user_auth
+wireless_dot1x_eap_teap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+wireless_dot1x_eap_teap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+wireless_dot1x_eap_teap.sources.ad_machine.name: wireless_dot1x_eap_teap_machine_auth
+wireless_dot1x_eap_teap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+wireless_dot1x_eap_teap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+wireless_dot1x_eap_teap.profiles.wireless.id: catch_dot1x_wireless_eap_teap_mschapv2
+wireless_dot1x_eap_teap.profiles.wireless.description: 802.1X wireless EAP-TEAP-MSCHAPv2
+wireless_dot1x_eap_teap.profiles.wireless.filters.connection_type: Wireless-802.11-EAP
+wireless_dot1x_eap_teap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
+wireless_dot1x_eap_teap.profiles.wireless.unreg_on_acct_stop: enabled
+
+
 ################################################################################
 ## backup db and restore test suite specific variables
 #################################################################################
@@ -552,6 +622,83 @@ wired_dot1x_eap_tls_pki.profiles.wired.unreg_on_acct_stop: enabled
 # Path to client certificates
 wired_dot1x_eap_tls_pki.paths.clients_directory: /root/client_certificates
 wired_dot1x_eap_tls_pki.paths.per_client_directory: '{{.wired_dot1x_eap_tls_pki.paths.clients_directory}}/{{.wired_dot1x_eap_tls_pki.certs.user.cn}}'
+
+################################################################################
+# wired_dot1x_eap_teap_tls test suite specific variables
+################################################################################
+### General settings for certs
+wired_dot1x_eap_teap_tls.certs.validity: 750
+wired_dot1x_eap_teap_tls.certs.key_size: 2048
+wired_dot1x_eap_teap_tls.certs.key_type: 1
+wired_dot1x_eap_teap_tls.certs.digest: 4
+wired_dot1x_eap_teap_tls.certs.country: CA
+wired_dot1x_eap_teap_tls.certs.state: Quebec
+wired_dot1x_eap_teap_tls.certs.locality: Montreal
+wired_dot1x_eap_teap_tls.certs.organisation: Inverse
+wired_dot1x_eap_teap_tls.certs.organisational_unit: PacketFence
+wired_dot1x_eap_teap_tls.certs.ocsp_url: 'https://127.0.0.1:22225/api/v1/pki/ocsp'
+
+# CA
+wired_dot1x_eap_teap_tls.certs.ca.cn: InverseCA1
+wired_dot1x_eap_teap_tls.certs.ca.mail: '{{.configurator.email}}'
+
+wired_dot1x_eap_teap_tls.certs.ca.issuer: "/C={{.wired_dot1x_eap_teap_tls.certs.country}}/ST={{.wired_dot1x_eap_teap_tls.certs.state}}/L={{.wired_dot1x_eap_teap_tls.certs.locality}}/O={{.wired_dot1x_eap_teap_tls.certs.organisation}}/OU={{.wired_dot1x_eap_teap_tls.certs.organisational_unit}}/CN={{.wired_dot1x_eap_teap_tls.certs.ca.cn}}"
+
+### Templates
+wired_dot1x_eap_teap_tls.templates.radius.name: '{{.wired_dot1x_eap_teap_tls.certs.ca.cn}}_radius'
+wired_dot1x_eap_teap_tls.templates.http.name: '{{.wired_dot1x_eap_teap_tls.certs.ca.cn}}_http'
+wired_dot1x_eap_teap_tls.templates.user.name: '{{.wired_dot1x_eap_teap_tls.certs.ca.cn}}_user'
+
+# RADIUS cert
+wired_dot1x_eap_teap_tls.certs.radius.cn: '{{.wired_dot1x_eap_teap_tls.templates.radius.name}}_cert'
+wired_dot1x_eap_teap_tls.certs.radius.mail: '{{.configurator.email}}'
+wired_dot1x_eap_teap_tls.certs.radius.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}}'
+wired_dot1x_eap_teap_tls.certs.radius.ip_addresses: '{{.configurator.interfaces.mgmt.ip}}'
+
+# HTTP cert
+wired_dot1x_eap_teap_tls.certs.http.cn: '{{.wired_dot1x_eap_teap_tls.templates.http.name}}_cert'
+wired_dot1x_eap_teap_tls.certs.http.mail: '{{.configurator.email}}'
+wired_dot1x_eap_teap_tls.certs.http.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}},packetfence.example.lan'
+wired_dot1x_eap_teap_tls.certs.http.ip_addresses: '{{.configurator.interfaces.mgmt.ip}},66.70.255.147,{{.configurator.interfaces.reg.ip}},{{.configurator.interfaces.iso.ip}}'
+
+# User cert
+wired_dot1x_eap_teap_tls.certs.user.cn: '{{.wired_dot1x_eap_teap_tls.templates.user.name}}_cert'
+wired_dot1x_eap_teap_tls.certs.user.mail: '{{.configurator.email}}'
+wired_dot1x_eap_teap_tls.certs.user.scep_enabled: 1
+wired_dot1x_eap_teap_tls.certs.user.scep_challenge_password: secret
+wired_dot1x_eap_teap_tls.certs.user.scep_days_before_renewal: 0
+#wired_dot1x_eap_teap_tls.certs.user.subject: "/C={{.wired_dot1x_eap_teap_tls.certs.country}}/ST={{.wired_dot1x_eap_teap_tls.certs.state}}/L={{.wired_dot1x_eap_teap_tls.certs.locality}}/O={{.wired_dot1x_eap_teap_tls.certs.organisation}}/OU={{.wired_dot1x_eap_teap_tls.certs.organisational_unit}}/CN={{.wired_dot1x_eap_teap_tls.certs.user.cn}}"
+wired_dot1x_eap_teap_tls.certs.user.subject: "/CN={{.wired_dot1x_eap_teap_tls.certs.user.cn}}"
+
+# OCSP config
+wired_dot1x_eap_teap_tls.ocsp.id: ocsp_from_cert
+wired_dot1x_eap_teap_tls.ocsp.enable: yes
+wired_dot1x_eap_teap_tls.ocsp.url: ""
+wired_dot1x_eap_teap_tls.ocsp.override_cert_url: no
+wired_dot1x_eap_teap_tls.ocsp.softfail: no
+wired_dot1x_eap_teap_tls.ocsp.timeout: 0
+wired_dot1x_eap_teap_tls.ocsp.use_nonce: yes
+
+# Roles
+wired_dot1x_eap_teap_tls.roles.dot1x_eap_tls.id: dot1x_eap_teap_tls
+wired_dot1x_eap_teap_tls.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+wired_dot1x_eap_teap_tls.roles.dot1x_eap_tls.vlan_id: 100
+
+# Sources
+wired_dot1x_eap_teap_tls.sources.eaptls.name: 'eapteaptls'
+wired_dot1x_eap_teap_tls.sources.eaptls.description: 'EAP-TEAP-TLS source'
+wired_dot1x_eap_teap_tls.sources.eaptls.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+wired_dot1x_eap_teap_tls.profiles.wired.id: catch_dot1x_wired_eap_teap_tls
+wired_dot1x_eap_teap_tls.profiles.wired.description: 802.1X wired EAP-TEAP-TLS
+wired_dot1x_eap_teap_tls.profiles.wired.filters.connection_type: Ethernet-EAP
+wired_dot1x_eap_teap_tls.profiles.wired.filters.connection_sub_type: EAP-TEAP
+wired_dot1x_eap_teap_tls.profiles.wired.unreg_on_acct_stop: enabled
+
+# Path to client certificates
+wired_dot1x_eap_teap_tls.paths.clients_directory: /root/client_certificates
+wired_dot1x_eap_teap_tls.paths.per_client_directory: '{{.wired_dot1x_eap_teap_tls.paths.clients_directory}}/{{.wired_dot1x_eap_teap_tls.certs.user.cn}}'
 
 ################################################################################
 # fingerbank_proxy test suite specific variables

@@ -54,6 +54,8 @@ ATTRIBUTE       PacketFence-UserPassword              39       string
 ATTRIBUTE       PacketFence-ConnectorID               40       string
 ATTRIBUTE       PacketFence-NTLM-Auth-Host            41       string
 ATTRIBUTE       PacketFence-NTLM-Auth-Port            42       string
+ATTRIBUTE       PacketFence-TEAP-Machine-Name         43       string
+ATTRIBUTE       PacketFence-TEAP-User-Name            44       string
 
 END-VENDOR      Inverse
 

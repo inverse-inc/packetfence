@@ -71,6 +71,12 @@
         <base-form-group class="text-nowrap" :column-label="$t('Last Switch')">
           {{ node.last_switch }} <span v-if="node.last_switch_mac">/</span> {{ node.last_switch_mac }} <span v-if="node.last_port">/</span> {{ node.last_port }}
         </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Last TEAP Username')">
+          {{ node.last_teap_username }}
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Last TEAP Machine name')">
+          {{ node.last_teap_machinename }}
+        </base-form-group>
       </b-col>
     </b-row>
   </b-tab>

@@ -1,0 +1,5 @@
+name: Release DHCP on node01
+testcases:
+- name: release_dhcp_on_node01
+  steps:
+  - type: release_dhcp_on_dot1x_interface

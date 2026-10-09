@@ -389,6 +389,20 @@ server packetfence {
 			}
 		}
 
+		# EAP-TEAP: the inner identities are captured into
+		# outer.session-state by the inner tunnel; copy them into the
+		# request so pf::radius::authorize receives them.
+		if (&session-state:PacketFence-TEAP-Machine-Name) {
+			update request {
+				&PacketFence-TEAP-Machine-Name := "%{session-state:PacketFence-TEAP-Machine-Name}"
+			}
+		}
+		if (&session-state:PacketFence-TEAP-User-Name) {
+			update request {
+				&PacketFence-TEAP-User-Name := "%{session-state:PacketFence-TEAP-User-Name}"
+			}
+		}
+
 		# If the request has not been handled inside the inner-tunnel
 		# send it to packetfence
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
