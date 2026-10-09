@@ -1867,12 +1867,13 @@ sub inline_mangle_rules {
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
-                        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
-                            push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
+                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network " . _inline_session_entry($network, $IPTABLES_MARK_REG, $iplog, $mac));
+                        my $category_id = $row->{'category_id'};
+                        if (defined($category_id) && $category_id ne '') {
+                            my $prefix = ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) ? "PF-iL3_ID" : "PF-iL2_ID";
+                            push(@ops, "add ${prefix}${category_id}_$network $iplog");
                         } else {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
-                            push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
+                            $logger->debug("$mac is registered without a role: no PF-iL set to add $iplog to on $network");
                         }
                     }
                 }
@@ -1893,11 +1894,7 @@ sub inline_mangle_rules {
                     if (defined $iplog) {
                         my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                         if ($net_addr->contains($ip)) {
-                            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                                push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog");
-                            } else {
-                                push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
-                            }
+                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network " . _inline_session_entry($network, $IPTABLES_MARK_ISOLATION, $iplog, $mac));
                         }
                     }
                 }
@@ -1905,14 +1902,7 @@ sub inline_mangle_rules {
         }
 
         if (@ops) {
-            my ($fh, $tmpfile) = tempfile();
-            print $fh join("\n", @ops);
-            close($fh);
-            my $status;
-            safe_pf_run(qw(sudo ipset restore),
-                { stdin => $tmpfile, redirect_stderr_to_stdout => 1, status_ref => \$status });
-            unlink $tmpfile;
-            die "ipset restore failed\n" unless (defined $status && $status == 0);
+            _ipset_restore(uniq @ops);
         }
         $logger->info("Mangle rules are done.");
     } else {
@@ -1928,6 +1918,74 @@ sub inline_mangle_rules {
         }
         $logger->info("Mangle rules inline snat interface are done.");
     }
+}
+
+=head2 _inline_session_entry
+
+The entry to add to the pfsession_<mark>_<network> set for an endpoint, in
+the format of the set type pf::ipset::iptables_generate creates: bitmap:ip
+(an address), except the unreg set of a split layer 2 network which is
+bitmap:ip,mac (address,mac). Feeding "ip,mac" to a bitmap:ip set is an ipset
+syntax error that aborts the whole restore.
+
+=cut
+
+sub _inline_session_entry {
+    my ($network, $mark, $ip, $mac) = @_;
+    if (   $ConfigNetworks{$network}{'type'} !~ /^$NET_TYPE_INLINE_L3$/i
+        && isenabled($ConfigNetworks{$network}{'split_network'})
+        && $mark eq $IPTABLES_MARK_UNREG) {
+        return "$ip,$mac";
+    }
+    return $ip;
+}
+
+=head2 _ipset_restore
+
+Feed "add <set> <entry>" lines to ipset restore to pre-populate the inline
+sets. Entries already present are tolerated (-exist), lines for sets that do
+not exist are skipped with a warning (ipset restore stops at the first bad
+line, so one of them used to silently drop every entry after it), and a
+failure is logged with ipset's own message instead of killing the service:
+the sets are only pre-populated here and pfipset keeps them up to date
+afterwards. Returns true when every line was applied.
+
+=cut
+
+sub _ipset_restore {
+    my (@ops) = @_;
+    my $logger = get_logger();
+
+    my %sets = map { chomp(my $name = $_); ($name => 1) } safe_pf_run(qw(sudo ipset list -n));
+    my @lines;
+    foreach my $op (@ops) {
+        my ($set) = $op =~ /^add\s+(\S+)/;
+        if (%sets && defined($set) && !$sets{$set}) {
+            $logger->warn("ipset $set does not exist, skipping '$op'");
+            next;
+        }
+        push @lines, $op;
+    }
+    return 1 unless @lines;
+
+    my ($fh, $tmpfile) = tempfile();
+    print $fh map { "$_\n" } @lines;
+    close($fh);
+    my $status;
+    my $output = safe_pf_run(qw(sudo ipset restore -exist),
+        { stdin => $tmpfile, redirect_stderr_to_stdout => 1, status_ref => \$status, accepted_exit_status => [1] });
+    unlink $tmpfile;
+
+    if (!defined($status) || $status != 0) {
+        $output //= '';
+        $output =~ s/^\s+|\s+$//g;
+        $output =~ s/\s*\n\s*/ | /g;
+        my $exit = (defined($status) && $status > 0) ? ($status >> 8) : ($status // 'unknown');
+        $logger->error("ipset restore failed (exit $exit) while pre-populating " . scalar(@lines) . " inline entries: $output");
+        return 0;
+    }
+    $logger->info("ipset restore pre-populated " . scalar(@lines) . " inline entries");
+    return 1;
 }
 
 sub inline_nat_redirect_rules {
