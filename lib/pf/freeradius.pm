@@ -140,9 +140,19 @@ sub freeradius_populate_nas_config {
           && $radiusSecret =~ /\S/
     } keys %$switch_config;
     return unless @switches;
+    # Concurrent jobs (e.g. switches created at the same time through the API)
+    # must not interleave, and an older config must not replace a newer one.
+    my $lock = _lock_radius_nas();
     #Should be handled in code above this
     unless (defined $timestamp ) {
         $timestamp = int (time * 1000000);
+    }
+
+    my $current = _current_radius_nas_timestamp();
+    if (defined $current && $current > $timestamp) {
+        $logger->info("Skipping the radius_nas update from $timestamp, a newer configuration ($current) is already loaded");
+        _unlock_radius_nas($lock);
+        return;
     }
 
     my @entries = (
@@ -160,7 +170,61 @@ sub freeradius_populate_nas_config {
         _insert_nas_bulk( @rows );
     }
     _delete_expired($timestamp);
+    _unlock_radius_nas($lock);
     validate_radius_nas_table($timestamp);
+}
+
+=head2 _lock_radius_nas
+
+Take a database lock on the radius_nas table update
+
+=cut
+
+sub _lock_radius_nas {
+    # GET_LOCK is not supported by Galera
+    return undef if $cluster_enabled;
+    my $logger = get_logger();
+    my ($status, $sth) = pf::dal->db_execute("SELECT GET_LOCK('pf_radius_nas_populate', 30)");
+    if (is_error($status)) {
+        $logger->warn("Unable to lock the radius_nas table update");
+        return undef;
+    }
+
+    my ($locked) = $sth->fetchrow_array;
+    $sth->finish;
+    if (!$locked) {
+        $logger->warn("Timeout waiting for the radius_nas table update lock");
+        return undef;
+    }
+
+    return 1;
+}
+
+=head2 _unlock_radius_nas
+
+Release the lock taken by _lock_radius_nas
+
+=cut
+
+sub _unlock_radius_nas {
+    my ($lock) = @_;
+    return unless $lock;
+    my ($status, $sth) = pf::dal->db_execute("SELECT RELEASE_LOCK('pf_radius_nas_populate')");
+    $sth->finish unless is_error($status);
+}
+
+=head2 _current_radius_nas_timestamp
+
+The newest config timestamp in the radius_nas table
+
+=cut
+
+sub _current_radius_nas_timestamp {
+    my ($status, $sth) = pf::dal->db_execute("SELECT MAX(config_timestamp) FROM radius_nas");
+    return undef if is_error($status);
+    my ($timestamp) = $sth->fetchrow_array;
+    $sth->finish;
+    return $timestamp;
 }
 
 sub pfconnector_nas_row {
@@ -264,6 +328,7 @@ sub _build_radius_nas_row {
 }
 
 =back
+
 
 =head1 AUTHOR
 
