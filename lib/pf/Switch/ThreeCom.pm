@@ -116,15 +116,15 @@ sub getIfIndexByNasPortId {
     }
 }
 
-=item refreshIfIndexCache
+=item ifIndexCacheTables
 
-Refresh the ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in.
+The ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in, refreshed by
+the switch_cache_ifindex pfcron task.
 
 =cut
 
-sub refreshIfIndexCache {
-    my ($self) = @_;
-    return $self->refreshCachedSNMPTable([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+sub ifIndexCacheTables {
+    return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
 }
 
 =head1 AUTHOR

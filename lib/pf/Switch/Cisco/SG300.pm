@@ -79,14 +79,15 @@ sub getIfIndexByNasPortId {
     return 0;
 }
 
-=head2 refreshIfIndexCache
+=head2 ifIndexCacheTables
 
-getIfIndexByNasPortId does not use SNMP, nothing to refresh.
+getIfIndexByNasPortId does not use SNMP: nothing for the switch_cache_ifindex
+pfcron task to refresh.
 
 =cut
 
-sub refreshIfIndexCache {
-    return 0;
+sub ifIndexCacheTables {
+    return ();
 }
 
 =head2 NasPortToIfIndex

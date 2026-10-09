@@ -48,9 +48,7 @@ sub getIfIndexByNasPortId {
     }
 
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $ifDescHashRef;
-    my $cache = $self->cache_distributed;
-    my $result = $cache->compute($self->{'_id'} . "-" . $OID_ifDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+    my $result = $self->cachedSNMPTable([-baseoid => $OID_ifDesc]);
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /$ifDesc_param$/i ) {
@@ -58,22 +56,6 @@ sub getIfIndexByNasPortId {
             return $1;
         }
     }
-}
-
-=head2 refreshIfIndexCache
-
-Refresh the ifDescr table getIfIndexByNasPortId caches under its own key.
-
-=cut
-
-sub refreshIfIndexCache {
-    my ($self) = @_;
-    return 0 if !$self->connectRead();
-    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $result = $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
-    return 0 if !defined $result;
-    $self->cache_distributed->set($self->{'_id'} . "-" . $OID_ifDesc, $result);
-    return 1;
 }
 
 =head1 AUTHOR

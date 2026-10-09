@@ -652,7 +652,7 @@ status=enabled
 # description
 #
 # The description of task
-description=Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex, so RADIUS requests never wait for the SNMP walk
+description=Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex on the switches that already translated one, so RADIUS requests never wait for the SNMP walk
 #
 # schedule
 #

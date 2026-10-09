@@ -319,7 +319,18 @@ sub cachedSNMPTable {
         return undef;
     }
     $options //= {};
-    return $self->cache_distributed->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
+    return $self->cache_distributed->compute($self->cachedSNMPTableKey($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
+}
+
+=item cachedSNMPTableKey
+
+The key under which cachedSNMPTable stores a table in the distributed cache.
+
+=cut
+
+sub cachedSNMPTableKey {
+    my ($self, $args) = @_;
+    return $self->{'_id'} . "-" . encode_json($args);
 }
 
 =item refreshCachedSNMPTable
@@ -336,22 +347,63 @@ sub refreshCachedSNMPTable {
     my ($self, $args, $options) = @_;
     return $FALSE if !$self->connectRead();
     my $result = $self->{_sessionRead}->get_table(@$args);
-    return $FALSE if !defined $result;
-    $self->cache_distributed->set($self->{'_id'} . "-"  . encode_json($args), $result, $options // {});
+    if (!defined $result) {
+        $self->logger->warn(
+            "Unable to walk the SNMP table " . encode_json($args) . " of " . $self->{'_id'} . ": "
+            . ($self->{_sessionRead}->error() || 'unknown error')
+        );
+        return $FALSE;
+    }
+    $self->cache_distributed->set($self->cachedSNMPTableKey($args), $result, $options // {});
     return $TRUE;
+}
+
+=item ifIndexCacheTables
+
+The SNMP tables, as cachedSNMPTable arguments, that getIfIndexByNasPortId reads
+to translate the NAS-Port-Id of a RADIUS request into an ifIndex. Empty by
+default: the switch_cache_ifindex pfcron task has nothing to refresh on this
+module. A module that walks ifDescr for it returns
+
+    sub ifIndexCacheTables { return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']) }
+
+=cut
+
+sub ifIndexCacheTables {
+    return ();
+}
+
+=item hasCachedIfIndexTables
+
+True when one of the L</ifIndexCacheTables> is in the cache, that is when the
+switch has already translated a NAS-Port-Id.
+
+=cut
+
+sub hasCachedIfIndexTables {
+    my ($self) = @_;
+    my $cache = $self->cache_distributed;
+    return (any { defined $cache->get($self->cachedSNMPTableKey($_)) } $self->ifIndexCacheTables) ? $TRUE : $FALSE;
 }
 
 =item refreshIfIndexCache
 
-Refresh the cached SNMP tables getIfIndexByNasPortId reads, so that a RADIUS
-request never waits for the SNMP walk. Called by the switch_cache_ifindex pfcron
-task. Returns true when something was refreshed; the default implementation
-has nothing to refresh.
+Refresh the L</ifIndexCacheTables>, so that a RADIUS request never waits for
+the SNMP walk. Called by the switch_cache_ifindex pfcron task. Returns undef
+when the module has nothing to refresh, true when every table was refreshed,
+false otherwise.
 
 =cut
 
 sub refreshIfIndexCache {
-    return $FALSE;
+    my ($self) = @_;
+    my @tables = $self->ifIndexCacheTables;
+    return undef if !@tables;
+    my $ok = $TRUE;
+    foreach my $args (@tables) {
+        $ok = $FALSE if !$self->refreshCachedSNMPTable($args);
+    }
+    return $ok;
 }
 
 =item cachedSNMPRequest

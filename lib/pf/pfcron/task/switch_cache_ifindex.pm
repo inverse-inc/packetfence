@@ -13,6 +13,11 @@ NAS-Port-Id of a RADIUS request into an ifIndex (the ifDescr walk of the Cisco,
 Arista, Aruba and 3Com modules) up to date, so that a RADIUS request never
 waits for the walk. On SNMPv1, the walk takes one round trip per interface.
 
+Only the switches that already translated a NAS-Port-Id, that is whose table
+is in the cache, are walked: the first request to a switch walks its table
+once, the task then keeps the entry warm. A switch that never translates one
+(RADIUS-only, no SNMP access) is never walked.
+
 The cache entries live 48h (chi.conf, namespace switch_distributed), the task
 runs every 12h by default.
 
@@ -21,7 +26,7 @@ runs every 12h by default.
 use strict;
 use warnings;
 use Moose;
-use Net::IP;
+use NetAddr::IP;
 use pf::SwitchFactory;
 use pf::util qw(isenabled);
 use pf::log;
@@ -38,20 +43,32 @@ Run the task
 sub run {
     my ($self) = @_;
     my ($refreshed, $failed) = (0, 0);
+    my $tally = sub {
+        my ($result) = @_;
+        return unless defined $result;
+        $result ? $refreshed++ : $failed++;
+    };
+
     foreach my $switch_id ( sort keys %pf::SwitchFactory::SwitchConfig ) {
         next if ( ($switch_id !~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) || ($switch_id eq "127.0.0.1") );
-        my @ids = ($switch_id);
-        if ( $switch_id =~ /\// ) {
-            next unless isenabled( $self->process_switchranges );
-            @ids = ();
-            my $range = Net::IP->new($switch_id);
-            next unless $range;
-            do { push @ids, $range->ip() } while (++$range);
+        if ( $switch_id !~ /\// ) {
+            $tally->( refresh_switch($switch_id) );
+            next;
         }
-        foreach my $id (@ids) {
-            my $result = refresh_switch($id);
-            next unless defined $result;
-            $result ? $refreshed++ : $failed++;
+
+        next unless isenabled( $self->process_switchranges );
+        # NetAddr::IP, like pf::SwitchFactory, accepts a range with host bits set (10.0.0.1/24)
+        my $network = NetAddr::IP->new($switch_id);
+        unless ($network) {
+            get_logger->error("Unable to parse switch range '$switch_id', skipping it");
+            next;
+        }
+        get_logger->info("Processing switch range '$switch_id'");
+        # first/last are the host addresses: no network or broadcast address (and both of a /31)
+        my $last = $network->last->addr;
+        for ( my $ip = $network->first; ; $ip++ ) {
+            $tally->( refresh_switch($ip->addr) );
+            last if $ip->addr eq $last;
         }
     }
     get_logger->info("Refreshed the ifIndex cache of $refreshed switches ($failed failed)");
@@ -60,8 +77,9 @@ sub run {
 
 =head2 refresh_switch
 
-Refresh the ifIndex cache of one switch. Returns undef when the switch module
-has nothing to cache, true or false for the outcome of the refresh.
+Refresh the ifIndex cache of one switch. Returns undef when there is nothing to
+refresh (the switch module does not cache a table, or the switch has not
+translated a NAS-Port-Id yet), true or false for the outcome of the refresh.
 
 =cut
 
@@ -72,9 +90,13 @@ sub refresh_switch {
         get_logger->error("Unable to instantiate switch object using switch_id '$switch_id'");
         return 0;
     }
-    return undef if $switch->can('refreshIfIndexCache') == pf::Switch->can('refreshIfIndexCache');
+    return undef if !$switch->ifIndexCacheTables;
+    unless ( $switch->hasCachedIfIndexTables ) {
+        get_logger->debug("switch '$switch_id' has not translated a NAS-Port-Id yet, not walking it");
+        return undef;
+    }
     my $ok = $switch->refreshIfIndexCache();
-    get_logger->debug("ifIndex cache of switch '$switch_id' " . ($ok ? "refreshed" : "not refreshed (SNMP unreachable?)"));
+    get_logger->debug("ifIndex cache of switch '$switch_id' " . ($ok ? "refreshed" : "not refreshed"));
     return $ok ? 1 : 0;
 }
 
