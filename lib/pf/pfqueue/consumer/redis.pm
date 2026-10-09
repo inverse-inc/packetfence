@@ -19,6 +19,7 @@ use Time::HiRes qw(usleep);
 use pf::dal;
 use pf::log;
 use pf::Sereal qw(sereal_decode_safe);
+use pf::factory::task;
 use Moo;
 use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw(
@@ -127,6 +128,10 @@ sub process_next_job {
             }
 
             my $type = $item->[0];
+            unless (pf::factory::task->isValidType($type)) {
+                die "Invalid task type stored in queue";
+            }
+
             my $args = $item->[1];
             my $task = "pf::task::$type"->new;
             if($task_data{status_update}) {
