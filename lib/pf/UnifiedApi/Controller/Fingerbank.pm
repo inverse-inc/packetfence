@@ -136,8 +136,12 @@ sub create {
         return $self->render_error($status, $return);
     }
 
-    pf::fingerbank::sync_local_db();
     my $id = $return->{id};
+    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
+    if (!$sync_res) {
+        return $self->render_error(500, "'$id' was created but syncing the local Fingerbank database failed: $sync_msg");
+    }
+
     my $parent_route = $self->match->endpoint->parent->name;
     my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
     $self->res->headers->location($url);
@@ -158,7 +162,11 @@ sub remove {
         return $self->render_error($status, $msg);
     }
 
-    pf::fingerbank::sync_local_db();
+    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
+    if (!$sync_res) {
+        return $self->render_error(500, "'$id' was deleted but syncing the local Fingerbank database failed: $sync_msg");
+    }
+
     return $self->render(json => {message => "Deleted $id successfully"});
 }
 
@@ -319,7 +327,11 @@ sub update {
         $self->render_error($status, $message);
     }
 
-    pf::fingerbank::sync_local_db();
+    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
+    if (!$sync_res) {
+        return $self->render_error(500, "'$id' was updated but syncing the local Fingerbank database failed: $sync_msg");
+    }
+
     $self->render(status => 200, json => { message => "$id updated"});
 }
 
