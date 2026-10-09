@@ -93,7 +93,6 @@ use pf::config qw(
 use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
-use pf::constants::switch qw($HOST_MODE_SINGLE_HOST);
 use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
@@ -1236,74 +1235,6 @@ sub node_update_last_seen {
             }
         );
     }
-}
-
-
-=item check_multihost
-
-Verify, based on open location log for a MAC, if there's more than one endpoint on a switchport.
-
-Only returns something for a switch whose ports are in a multi-host capable mode
-(see C<host_mode> in switches.conf); on a single-host port there is by definition
-a single endpoint.
-
-location_info is an optionnal hashref containing switch ID, switch port and connection type. If provided, there is no need to look them up.
-
-=cut
-
-sub check_multihost {
-    my ( $mac, $location_info ) = @_;
-    my $logger = get_logger();
-
-    $mac = clean_mac($mac);
-    unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
-        my ($status, $iter) = pf::dal::locationlog->search(
-            -where => {
-                mac => $mac,
-                end_time => $ZERO_DATE,
-            },
-            -limit => 1,
-        );
-        if (is_success($status)) {
-            my $locationlog_info_ref = $iter->next(undef);
-            if ($locationlog_info_ref) {
-                $location_info->{'switch_id'} = $locationlog_info_ref->{'switch'};
-                $location_info->{'switch_port'} = $locationlog_info_ref->{'port'};
-                $location_info->{'connection_type'} = $locationlog_info_ref->{'connection_type'} // '';
-            }
-        }
-    }
-
-    # There is no "multihost" capabilities for wireless or inline connections
-    if ( ($location_info->{'connection_type'} =~ /^Wireless/)  || ($location_info->{'connection_type'} =~ /^Inline/) ) {
-        $logger->debug("Not looking up multihost presence with MAC '$mac' since it is a '$location_info->{'connection_type'}' connection");
-        return;
-    }
-
-    # pf::SwitchFactory is loaded lazily: it pulls in pf::Switch, which uses this module.
-    # The locationlog stores the switch IP, which is only the switches.conf key when the switch
-    # is not matched through a range: resolve it the way instantiate() does.
-    require pf::SwitchFactory;
-    my (undef, $switch_config) = pf::SwitchFactory::getSwitchConfig($location_info->{'switch_id'});
-    my $host_mode = ($switch_config ? $switch_config->{'host_mode'} : undef) // $HOST_MODE_SINGLE_HOST;
-    if ( $host_mode eq $HOST_MODE_SINGLE_HOST ) {
-        $logger->debug("Not looking up multihost presence with MAC '$mac' since switch ID '$location_info->{'switch_id'}' is in '$host_mode' mode");
-        return;
-    }
-
-    $logger->debug("Looking up multihost presence on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
-
-    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($location_info->{'switch_id'}, $location_info->{'switch_port'});
-
-    return unless scalar @locationlog > 1;
-
-    my @mac;
-    $logger->info("Found '" . scalar @locationlog . "' active devices on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
-    for my $entry ( @locationlog ) {
-        push @mac, $entry->{'mac'};
-    }
-
-    return @mac;
 }
 
 

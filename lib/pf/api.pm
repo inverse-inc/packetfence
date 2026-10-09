@@ -32,7 +32,6 @@ use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
 use pf::ConfigStore::Switch();
 use pf::SwitchFactory;
-use pf::Switch::constants;
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -395,6 +394,7 @@ sub ReAssignVlan : Public : Fork {
         # CoA/Disconnect instead of a port bounce that would drop its other endpoints.
         my ( undef, $deauthTechniques )
             = $switch->wiredReevaluationDeauthTechniques( $postdata->{'connection_type'}, $postdata->{'ifIndex'} );
+        return unless defined $deauthTechniques;
         $switch->$deauthTechniques( $postdata->{'ifIndex'}, $postdata->{'mac'} );
     }
     else {

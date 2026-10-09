@@ -1373,28 +1373,51 @@ L</wiredeauthTechniques> as is. On a C<multi-auth> port the SNMP techniques
 (dot1xPortReauthenticate, handleReAssignVlanTrapForWiredMacAuth) bounce the
 port, which would deauthenticate every other endpoint sharing it, so the RADIUS
 technique is requested instead: it issues a CoA/Disconnect scoped to this
-endpoint's session through its Calling-Station-Id. When the switch module has no
-RADIUS technique for the connection type, its default technique is used and a
-warning is logged, as it will disconnect every endpoint on the port.
+endpoint's session through its Calling-Station-Id.
+
+The switch falls back on its configured method, with a warning since every
+endpoint on the port will be disconnected, when it cannot send that
+CoA/Disconnect: no RADIUS shared secret is configured, or its module has no
+RADIUS technique for the connection type.
 
   my ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($connection_type, $ifIndex);
 
-C<$ifIndex> is only used in the warning.
+Returns an empty list when the module has no technique at all for the connection
+type. C<$ifIndex> is only used in the log messages.
 
 =cut
 
 sub wiredReevaluationDeauthTechniques {
     my ($self, $connection_type, $ifIndex) = @_;
-    my $multi_auth = $self->isMultiAuthPort();
-    my $deauthMethod = $multi_auth ? $SNMP::RADIUS : $self->{_deauthMethod};
+    my $logger = $self->logger;
+    $ifIndex //= 'unknown';
 
+    my $use_radius = $self->isMultiAuthPort();
+    if ( $use_radius && !(defined $self->{_radiusSecret} && length $self->{_radiusSecret}) ) {
+        $logger->warn(
+            "switch (".$self->{'_id'}.") is in multi-auth host mode but has no RADIUS shared secret, so it cannot "
+            . "send a per-session CoA/Disconnect. Falling back on its configured deauthentication method, which "
+            . "will disconnect every endpoint on ifIndex $ifIndex."
+        );
+        $use_radius = 0;
+    }
+
+    my $deauthMethod = $use_radius ? $SNMP::RADIUS : $self->{_deauthMethod};
     my ($method, $technique) = $self->wiredeauthTechniques($deauthMethod, $connection_type);
 
-    if ( $multi_auth && ($method // '') ne $SNMP::RADIUS ) {
-        $self->logger->warn(
+    if ( !defined $technique ) {
+        $logger->error(
+            "switch (".$self->{'_id'}.") has no wired deauthentication technique for connection type "
+            . ($connection_type // 'undef') . ". Not re-evaluating access on ifIndex $ifIndex."
+        );
+        return;
+    }
+
+    if ( $use_radius && $method ne $SNMP::RADIUS ) {
+        $logger->warn(
             "switch (".$self->{'_id'}.") is in multi-auth host mode but its module has no RADIUS deauthentication "
-            . "technique for this connection type. Falling back on '".($technique // 'none')."', which will "
-            . "disconnect every endpoint on ifIndex ".($ifIndex // 'unknown')."."
+            . "technique for this connection type. Falling back on '$technique', which will disconnect every "
+            . "endpoint on ifIndex $ifIndex."
         );
     }
 
@@ -3353,7 +3376,7 @@ sub wiredeauthTechniques {
 
 sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $self->{_switch_id});
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $self->{_switch_id}, $self->isMultiAuthPort());
 }
 
 

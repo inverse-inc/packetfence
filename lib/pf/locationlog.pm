@@ -328,11 +328,15 @@ synchronize locationlog to current values if necessary
 
  $voip_status expects VOIP / NO_VOIP constants
 
+ $multi_auth is optional: true when the switch ports are in multi-auth host mode
+ (see pf::Switch::isMultiAuthPort). Callers holding the switch object pass it;
+ otherwise it is resolved from the switch configuration.
+
 =cut
 
 sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id, $multi_auth) = @_;
 
     $voip_status = $NO_VOIP if !defined $voip_status || $voip_status ne $VOIP; #Set the default voip status
     my $logger = get_logger();
@@ -394,7 +398,8 @@ sub locationlog_synchronize {
         # per-MAC handling above is authoritative. Closing the whole switchport here would end the
         # sibling endpoints' entries and leave pf::enforcement unable to re-evaluate them
         # ("Can't re-evaluate access because no open locationlog entry was found").
-        if ( defined($mac) && _is_multi_auth_switchport($switch_id, $switch) ) {
+        $multi_auth //= _is_multi_auth_switchport($switch_id, $switch);
+        if ( defined($mac) && $multi_auth ) {
             $logger->debug("switch $switch is in multi-auth host mode, leaving the other endpoints of ifIndex $ifIndex untouched");
         }
         else {
@@ -432,10 +437,10 @@ Returns true when the switch is configured with C<host_mode=multi-auth>, meaning
 several endpoints authenticate independently on the same port and each one must
 keep its own open locationlog entry.
 
-The switch identifiers are tried in order: the C<switch_id> of the switch (the
-key it has in switches.conf) is authoritative, but callers that only know the
-switch IP pass that instead. Each one is resolved through
-L<pf::SwitchFactory/getSwitchConfig>, so an IP covered by a switch range finds
+This is the fallback for callers of L</locationlog_synchronize> that do not hold
+the switch object (the RPC path). The identifiers are resolved through
+L<pf::SwitchFactory/getSwitchConfig>: the C<switch_id> of the switch (the key it
+has in switches.conf) is authoritative, and an IP covered by a switch range finds
 the range's configuration.
 
 pf::SwitchFactory is loaded lazily: it pulls in pf::Switch, which uses this
@@ -447,14 +452,9 @@ sub _is_multi_auth_switchport {
     my (@switch_keys) = @_;
 
     require pf::SwitchFactory;
-    foreach my $key (@switch_keys) {
-        next if !defined $key || $key eq '';
-        my (undef, $switch_config) = pf::SwitchFactory::getSwitchConfig($key);
-        next if !defined $switch_config;
-        return (($switch_config->{host_mode} // '') eq $HOST_MODE_MULTI_AUTH) ? 1 : 0;
-    }
-
-    return 0;
+    my (undef, $switch_config) = pf::SwitchFactory::getSwitchConfig(@switch_keys);
+    return 0 if !defined $switch_config;
+    return (($switch_config->{host_mode} // '') eq $HOST_MODE_MULTI_AUTH) ? 1 : 0;
 }
 
 sub locationlog_cleanup {

@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 32;
+use Test::More tests => 39;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
@@ -89,6 +89,16 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
     is_deeply([pf::SwitchFactory::getSwitchConfig(undef)], [],
         'getSwitchConfig returns nothing without an identifier');
 
+    # Several identifiers: section names win over ranges, and the matched one is returned.
+    my $matched;
+    ($switch_id, $switch_config, $matched) = pf::SwitchFactory::getSwitchConfig(undef, '', '172.16.43.5', '172.16.8.41');
+    is($switch_id, '172.16.8.41',
+        'getSwitchConfig prefers an identifier that is a section name over one covered by a range');
+    is($matched, '172.16.8.41', 'getSwitchConfig returns the identifier that matched');
+    ($switch_id, undef, $matched) = pf::SwitchFactory::getSwitchConfig('no.such.switch', '172.16.43.5');
+    is($switch_id, '172.16.43.0/24', 'getSwitchConfig falls back on the ranges for the remaining identifiers');
+    is($matched, '172.16.43.5', 'getSwitchConfig returns the IP that matched the range');
+
     my $switch = pf::SwitchFactory->instantiate('172.16.43.5');
     ok($switch && $switch->isMultiAuthPort(),
         'a switch instantiated through the range is multi-auth');
@@ -144,6 +154,17 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
     is($technique, 'deauthenticateMacRadius',
         'wired MAC auth on a multi-auth switch uses the per-session deauthenticateMacRadius');
 
+    # multi-auth without a RADIUS shared secret: no CoA/Disconnect can be sent, so the
+    # configured method is kept instead of silently failing in radiusDisconnect.
+    {
+        local $switch->{_radiusSecret} = '';
+        ($method, $technique) = $switch->wiredReevaluationDeauthTechniques($WIRED_802_1X, 1);
+        is($method, $SNMP::SNMP,
+            'multi-auth switch without a RADIUS shared secret keeps its configured deauth method');
+        is($technique, 'dot1xPortReauthenticate',
+            'the fallback without a shared secret is the port-wide technique');
+    }
+
     # multi-auth on a module without a RADIUS technique: the module default is used.
     # pf::Switch::wiredeauthTechniques only knows the SNMP techniques.
     {
@@ -154,6 +175,11 @@ use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
             'multi-auth switch without a RADIUS technique falls back on the module default');
         is($technique, 'dot1xPortReauthenticate',
             'the fallback is the port-wide technique');
+
+        # ... and when the module has no technique at all, nothing is returned rather
+        # than an undef method name for pf::api::ReAssignVlan to call.
+        is_deeply([$switch->wiredReevaluationDeauthTechniques($WIRED_802_1X | 0x1000000, 1)], [],
+            'no technique for the connection type returns an empty list');
     }
 }
 
