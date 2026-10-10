@@ -2,6 +2,14 @@
 
 set -o nounset -o pipefail -o errexit
 
+# log the whole upgrade output to a file in addition to STDOUT
+if [ -z "${PF_UPGRADE_LOG:-}" ]; then
+  export PF_UPGRADE_LOG="/usr/local/pf/logs/pf-upgrade-$(date +%Y%m%d_%H%M%S).log"
+  mkdir -p "$(dirname "$PF_UPGRADE_LOG")"
+  exec > >(tee -a "$PF_UPGRADE_LOG") 2>&1
+  echo "The output of this upgrade is logged to $PF_UPGRADE_LOG"
+fi
+
 source /usr/local/pf/addons/functions/helpers.functions
 
 main_splitter
