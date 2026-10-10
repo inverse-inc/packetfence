@@ -2,6 +2,15 @@
 
 set -o nounset -o pipefail -o errexit
 
+# log the whole upgrade output to a file in addition to STDOUT, unless the
+# caller (do-upgrade.sh) already set it up
+if [ -z "${PF_UPGRADE_LOG:-}" ]; then
+  export PF_UPGRADE_LOG="/usr/local/pf/logs/pf-upgrade-$(date +%Y%m%d_%H%M%S).log"
+  mkdir -p "$(dirname "$PF_UPGRADE_LOG")"
+  exec > >(tee -a "$PF_UPGRADE_LOG") 2>&1
+  echo "The output of this upgrade is logged to $PF_UPGRADE_LOG"
+fi
+
 # functions come from addons/functions but are packaged
 # inside full-upgrade directory to make full-upgrade package self-contained
 source /usr/local/pf/addons/full-upgrade/helpers.functions
