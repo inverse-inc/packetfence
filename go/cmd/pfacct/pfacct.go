@@ -46,6 +46,7 @@ type PfAcct struct {
 	AllowedNetworks           []net.IPNet
 	NetFlowPort               string
 	NetFlowAddress            string
+	NetFlowProcessorEnabled   bool
 	Management                pfconfigdriver.ManagementNetwork
 	AAAClient                 *jsonrpc2.Client
 	LoggerCtx                 context.Context
@@ -254,6 +255,9 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	} else {
 		pfAcct.NetFlowAddress = defaultNetFlowAddr
 	}
+
+	// enabled when unset to preserve the historical behavior
+	pfAcct.NetFlowProcessorEnabled = keyPfConfServices.NetFlowProcessor == "" || sharedutils.IsEnabled(keyPfConfServices.NetFlowProcessor)
 
 	pfAcct.StatsdOption = statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
