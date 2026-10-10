@@ -11,6 +11,7 @@ OpenID OAuth module
 =cut
 
 use Moose;
+use pf::config qw(%Config);
 use pf::person qw(person_view);
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
@@ -39,10 +40,31 @@ sub _extract_username_from_response {
     return $info->{$source->username_attribute} // $self->SUPER::_extract_username_from_response($info);
 }
 
+=head2 save_provider_info
+
+Keep the known OpenID attributes of the provider response so they can be used in the source rules
+
+=cut
+
+sub save_provider_info {
+    my ($self, $info) = @_;
+    my %attributes;
+    for my $attribute (@{$Config{advanced}{openid_attributes} // []}) {
+        my $value = $info->{$attribute};
+        next if !defined $value || ref $value;
+        $attributes{$attribute} = $value;
+    }
+
+    $self->session->{openid_attributes} = \%attributes;
+}
+
 sub auth_source_params_child {
     my ($self) = @_;
     my $info = person_view($self->username());
-    return $self->source->map_from_person($info);
+    return {
+        %{$self->session->{openid_attributes} // {}},
+        %{$self->source->map_from_person($info)},
+    };
 }
 
 sub _build_source {
