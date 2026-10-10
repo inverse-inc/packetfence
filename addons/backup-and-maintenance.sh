@@ -212,11 +212,18 @@ backup_database(){
             if (( $BACKUPRC == 0 )); then
                 # --skip-triggers: pf user lacks TRIGGER privilege, so dumping triggers truncates the dump; reapplied on import from triggers.sql.
                 mysqldump --opt --skip-triggers --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
-                BACKUPRC=$?
+                # $? is the exit code of gzip, check the exit code of mysqldump first
+                PIPE_RC=("${PIPESTATUS[@]}")
+                BACKUPRC=${PIPE_RC[0]}
+                if (( $BACKUPRC == 0 )); then
+                    BACKUPRC=${PIPE_RC[1]}
+                fi
             fi
             if (( $BACKUPRC > 0 )); then
                 echo "mysqldump returned  error code: $BACKUPRC" >&2
                 echo "mysqldump returned  error code: $BACKUPRC" > /usr/local/pf/var/backup_db.status
+                # Don't keep an incomplete dump that could be mistaken for a valid backup
+                rm -f ${current_filename}
                 exit $BACKUPRC
             else
                 echo "mysqldump completed"
