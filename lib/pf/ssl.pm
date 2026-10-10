@@ -388,11 +388,18 @@ sub verify_chain {
     foreach my $inter (@$intermediates) {
         $bundle .= $inter->as_string();
     }
-    $bundle .= "\n$cert_str\n";
+
+    # A self-signed certificate is its own trust anchor, so it has to be part
+    # of the trusted material to verify. In any other case the certificate
+    # being verified must NOT be trusted itself, otherwise the verification
+    # succeeds no matter what intermediates were provided (#6630).
+    if ($cert->issuer() eq $cert->subject()) {
+        $bundle .= "\n$cert_str\n";
+    }
 
     # Trusted material for the verification: the system CA bundle followed by
-    # the provided intermediates and certificate (matches the previous
-    # "cat $OS_CA_CERT_FILE $tmpinter" behavior).
+    # the provided intermediates, so that chains ending on a private CA are
+    # accepted as long as that CA was provided.
     my $ca_content = (-r $OS_CA_CERT_FILE) ? read_file($OS_CA_CERT_FILE) : "";
     my (undef, $cafile) = tempfile();
     write_file($cafile, $ca_content . $bundle);
