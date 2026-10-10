@@ -1,8 +1,12 @@
+[% MACRO duration_str(secs) BLOCK -%]
+  [%- d = secs div 86400; h = (secs mod 86400) div 3600; m = (secs mod 3600) div 60 -%]
+  [%- IF d %][% d %][% i18n("d") %] [% END %][% IF h %][% h %][% i18n("h") %] [% END %][% IF m %][% m %][% i18n("m") %][% END %][% IF !d && !h && !m %][% secs mod 60 %][% i18n("s") %][% END -%]
+[%- END -%]
 <script type="text/javascript" src="/content/countdown.min.js"></script>
 <script id="variables" type="text/json">
 {
-  [% IF node.expiration %]"expiration": [% node.expiration %],[% END %]
-  [% IF node.time_balance %]]"time_balance": [% node.time_balance %],[% END %]
+  [%- IF node.expiration %]"expiration": [% node.expiration %][% IF node.time_balance %],[% END %][% END -%]
+  [%- IF node.time_balance %]"time_balance": [% node.time_balance %][% END %]
 }
 </script>
 <script type="text/javascript" src="/content/status.js"></script>
@@ -25,7 +29,7 @@
 [%- ELSIF node.time_balance %]
 <div class="o-media o-media--notice u-padding u-margin-bottom">
   <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
-  <p class="o-media__body">[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", node.time_balance ) %]</p>
+  <p class="o-media__body">[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", duration_str(node.time_balance) ) %]</p>
 </div>
 [%- ELSIF node.time_balance == 0 %]
 <div class="o-media o-media--error u-padding u-margin-bottom">
@@ -93,7 +97,7 @@
               [% IF n.device_class %]<li class="o-list-bare__item">[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
               [% IF n.computername %]<li class="o-list-bare__item">[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
               [% IF n.bandwidth_balance %]<li class="o-list-bare__item">[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
-              [% IF n.time_balance %]<li class="o-list-bare__item">[% i18n("Time balance ") %]<b>[% n.time_balance %]</b></li>[% END %]
+              [% IF n.time_balance %]<li class="o-list-bare__item">[% i18n("Time balance ") %]<b>[% duration_str(n.time_balance) %]</b></li>[% END %]
               <li class="o-list-bare__item">[% i18n("MAC") %] <b>[% n.mac %]</b></li>
               [% IF n.regdate != '0000-00-00 00:00:00' %]<li class="o-list-bare__item">[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
             </ul>
@@ -111,7 +115,7 @@
                 [% IF n.device_class %]<li class="o-list-bare__item">[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
                 [% IF n.computername %]<li class="o-list-bare__item">[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
                 [% IF n.bandwidth_balance %]<li class="o-list-bare__item">[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
-                [% IF n.time_balance %]<li class="o-list-bare__item">[% i18n("Time balance ") %]<b>[% n.time_balance %]</b></li>[% END %]
+                [% IF n.time_balance %]<li class="o-list-bare__item">[% i18n("Time balance ") %]<b>[% duration_str(n.time_balance) %]</b></li>[% END %]
                 <li class="o-list-bare__item">[% i18n("MAC") %] <b>[% n.mac %]</b></li>
                 [% IF n.regdate != '0000-00-00 00:00:00' %]<li class="o-list-bare__item">[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
             </ul>
