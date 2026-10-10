@@ -108,6 +108,13 @@
                                 :text="$i18n.t(`The network address to listen to listen on. Do not change unless you know what you're doing.`)"
     />
 
+    <form-group-netflow-processor namespace="netflow_processor"
+                                  :column-label="$i18n.t('Netflow processor')"
+                                  :text="$i18n.t(`Should pfacct process NetFlow traffic? Disable it when an external NetFlow service is used.`)"
+                                  enabled-value="enabled"
+                                  disabled-value="disabled"
+    />
+
     <form-group-pfdhcp namespace="pfdhcp"
                        column-label="pfdhcp"
                        :text="$i18n.t('Should pfdhcp be managed by PacketFence?')"
