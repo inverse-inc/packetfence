@@ -229,9 +229,23 @@ systemctl start packetfence-proxysql
 
 Review the checkup output to ensure no errors are shown. Any 'FATAL' error will prevent PacketFence from starting up and should be dealt with immediately.
 
+===== Start service on node C
+
+Next, start the application service on node C using the instructions provided
+in
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
+
+NOTE: Nodes A and B are still active at this point and keep handling the
+traffic. Since both sides were told to ignore each other earlier in this
+procedure, node C runs as a standalone cluster and will take over once the
+services on nodes A and B are stopped. Proceed with the next step as soon as
+the services on node C are confirmed started in order to keep this overlap
+as short as possible.
+
 ===== Stop services on nodes A and B
 
-Next, stop all application services on node A and B:
+Then, stop all application services on node A and B so that node C takes
+over the virtual IP addresses and starts handling the traffic:
 
 
 .Stop PacketFence services
@@ -248,12 +262,6 @@ systemctl stop packetfence-mariadb
 
 IMPORTANT: `packetfence-config` should stay started in order to run
 `/usr/local/pf/bin/cluster/node` commands.
-
-===== Start service on node C
-
-Now, start the application service on node C using the instructions provided
-in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
 
 ==== Validate migration
 
