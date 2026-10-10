@@ -27,3 +27,84 @@
         $ref: '#/components/responses/Unauthorized'
     tags:
       - Cluster
+
+/api/v1/cluster/vips:
+  get:
+    summary: Cluster virtual IPs and the server(s) currently holding them.
+    description: Queries every enabled cluster member in real time. A virtual IP with more than one owner indicates a split brain, and one without owner is not held by any member.
+    responses:
+      '200':
+        description: Request successful.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      vip:
+                        type: string
+                        description: The virtual IP address.
+                      interface:
+                        type: string
+                        description: The interface of the virtual IP.
+                      management:
+                        type: boolean
+                        description: Whether or not this is the management virtual IP.
+                      owners:
+                        type: array
+                        description: The hostname of the server(s) currently holding the virtual IP.
+                        items:
+                          type: string
+                      since:
+                        type: integer
+                        nullable: true
+                        description: Epoch of the last transition to master of the current owner (as reported by keepalived).
+                servers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      host:
+                        type: string
+                      management_ip:
+                        type: string
+                      error:
+                        type: string
+                        description: Set when the server could not be queried.
+                      vips:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ClusterVipLocal"
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Cluster
+
+/api/v1/cluster/vips/local:
+  get:
+    summary: Cluster virtual IPs as seen by the server answering the request.
+    responses:
+      '200':
+        description: Request successful.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                    vips:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/ClusterVipLocal"
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Cluster

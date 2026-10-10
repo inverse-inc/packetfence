@@ -438,6 +438,94 @@ sub is_vip_running {
     return $FALSE;
 }
 
+=head2 vip_state_file
+
+Path to the file holding the last VRRP state of a virtual IP on this node
+
+=cut
+
+sub vip_state_file {
+    my ($vip) = @_;
+    return "$var_dir/run/keepalived-vip-$vip.state";
+}
+
+=head2 record_vip_state
+
+Record the VRRP state (master or slave) of a virtual IP on this node with the time of the transition
+Called by keepalived through bin/cluster/pfupdate
+
+=cut
+
+sub record_vip_state {
+    my ($vip, $state) = @_;
+    return unless defined $vip && $vip =~ /^[0-9a-fA-F.:]+$/;
+    eval {
+        write_file(vip_state_file($vip), { atomic => 1 }, join(' ', $state, int(time)));
+    };
+    if ($@) {
+        get_logger->error("Unable to record the state of the virtual IP $vip: $@");
+    }
+}
+
+=head2 read_vip_state
+
+Read the last VRRP state of a virtual IP on this node
+
+=cut
+
+sub read_vip_state {
+    my ($vip) = @_;
+    my $file = vip_state_file($vip);
+    return undef unless -f $file;
+    my ($state, $since) = split(' ', read_file($file, err_mode => 'quiet') // '');
+    return { state => $state, since => $since };
+}
+
+=head2 local_ipv4_addresses
+
+Returns the IPv4 addresses configured on the interfaces of this node
+
+=cut
+
+sub local_ipv4_addresses {
+    my %addresses;
+    foreach my $inf (Net::Interface->interfaces()) {
+        foreach my $address ($inf->address(AF_INET())) {
+            $addresses{inet_ntoa($address)} = $inf->name;
+        }
+    }
+    return \%addresses;
+}
+
+=head2 vips_status
+
+Returns the virtual IPs of the cluster with whether or not this node currently holds them
+
+=cut
+
+sub vips_status {
+    return [] unless $cluster_enabled;
+    my $addresses = local_ipv4_addresses();
+    my $management_ip = management_cluster_ip() // '';
+    my @vips;
+    foreach my $section (sort keys %{$ConfigCluster{$CLUSTER} // {}}) {
+        next unless $section =~ /^interface (.+)$/;
+        my $interface = $1;
+        my $vip = cluster_ip($interface);
+        next if !defined $vip || $vip eq '';
+        my $state = read_vip_state($vip) // {};
+        push @vips, {
+            interface  => $interface,
+            vip        => $vip,
+            management => ($vip eq $management_ip ? \1 : \0),
+            owner      => (exists $addresses->{$vip} ? \1 : \0),
+            state      => $state->{state},
+            since      => $state->{since},
+        };
+    }
+    return \@vips;
+}
+
 =head2 sync_directory_empty
 
 =cut

@@ -11,6 +11,7 @@ use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 
 use Getopt::Long;
 use pf::util qw(safe_pf_run);
+use pf::cluster;
 use pf::config qw(
     %Config
 );
@@ -27,6 +28,8 @@ GetOptions(
 if (! ($mode =~ /^master|slave$/)) {
     exit;
 }
+
+pf::cluster::record_vip_state($vip, $mode) if defined $vip;
 
 safe_pf_run("pkill", "-1", "pfdhcplistener");
 
