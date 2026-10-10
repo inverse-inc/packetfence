@@ -45,6 +45,7 @@ use pf::constants::user;
 use pf::util;
 use File::Find;
 
+use fingerbank::FilePath;
 use fingerbank::Util;
 
 use File::Spec::Functions qw(catfile);
@@ -134,7 +135,9 @@ sub action_file {
             return $EXIT_FAILURE;
         }
         _changeFilesToOwner($user,$file);
-        chmod 0664, $file;
+        # fingerbank.conf contains the Fingerbank API key: no world-readable bit
+        my $mode = ($file eq $fingerbank::FilePath::CONF_FILE) ? 0660 : 0664;
+        chmod $mode, $file;
         print "Fixed permissions on file $file \n";
     }
 

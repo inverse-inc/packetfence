@@ -420,6 +420,8 @@ sub fix_permissions {
 
     # Handling specific cases
     set_permissions($fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl', { 'permissions' => 0775 });
+    # fingerbank.conf contains the Fingerbank API key: no world-readable bit
+    set_permissions($fingerbank::FilePath::CONF_FILE, { 'permissions' => 0660 });
 }
 
 =head2
