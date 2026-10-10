@@ -460,7 +460,12 @@ sub getType {
         # rely on pf.conf's info
         else {
             $type = $interface->{type};
-            if ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcp/i) {
+            my $enforcement = $interface->{enforcement} // '';
+            # a DNS enforcement interface has type=internal,enforcement=dns in pf.conf
+            if ($enforcement =~ /^dns$/i) {
+                $type = 'dns-enforcement';
+            }
+            elsif ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcp/i) {
                 $type = ($type =~ /management|managed/i) ? 'management' : 'other';
             }
         }
@@ -501,7 +506,9 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /management|portal|^radius$|dhcp|dns/ ) {
+        # ^dns$ must not match dns-enforcement: that type needs its entry in
+        # networks.conf (is_dns_enforcement_enabled relies on it)
+        if ( $type =~ /management|portal|^radius$|dhcp|^dns$/ ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
