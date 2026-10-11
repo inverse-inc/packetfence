@@ -171,6 +171,8 @@ function handle_pkgnew_file() {
   patch_file="$non_pkgnew_file.upgrade-patch"
   backup_file="$non_pkgnew_file.upgrade-backup"
   pristine_file="$non_pkgnew_file.pristine"
+  # A package file that can't be merged is kept under a name that the next upgrade won't process again
+  kept_pkgnew_file="$non_pkgnew_file.upgrade-new"
 
   echo "Handling $suffix $file"
   if echo $file | grep '^conf/' > /dev/null; then
@@ -189,13 +191,17 @@ function handle_pkgnew_file() {
   cp -a $pkgnew_file $non_pkgnew_file
   echo "Attempting a dry-run of the patch on $non_pkgnew_file"
   if ! patch -p1 -f --dry-run < $patch_file; then
-    echo "Patching $non_pkgnew_file failed. You will keep the current configuration file ($non_pkgnew_file) BUT, please, check $pkgnew_file file if some modifications are needed in your config file $non_pkgnew_file.\nThis should be addressed manually after the upgrade is completed. Previous configuration is restored. Press enter to continue..."
+    mv -f $pkgnew_file $kept_pkgnew_file
+    echo "Patching $non_pkgnew_file failed. You will keep the current configuration file ($non_pkgnew_file) BUT, please, check $kept_pkgnew_file file if some modifications are needed in your config file $non_pkgnew_file.\nThis should be addressed manually after the upgrade is completed. Previous configuration is restored. Press enter to continue..."
     cp -a $backup_file $non_pkgnew_file
     read
   else
     echo "Dry-run completed successfully, applying the patch"
     patch -p1 -f < $patch_file
+    rm -f $pkgnew_file
   fi
+
+  rm -f $pristine_file $patch_file
 }
 
 function handle_pkgnew_files() {
