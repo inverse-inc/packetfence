@@ -124,15 +124,21 @@ sub getTemplatePath {
 
 =item findFirstTemplate
 
-Find the first template in the list
+Find the first template of the list in the template paths
+
+The template paths are searched in order so that a template customized in
+the profile is used instead of a more specific one (a translation) of the
+default templates.
 
 =cut
 
 sub findFirstTemplate {
     my ($self, $files) = @_;
     my $template_paths = $self->{_template_paths};
-    foreach my $file (@$files) {
-        return $file if any {-f "$_/$file"} @$template_paths
+    foreach my $path (@$template_paths) {
+        foreach my $file (@$files) {
+            return $file if -f "$path/$file";
+        }
     }
     return undef;
 }
