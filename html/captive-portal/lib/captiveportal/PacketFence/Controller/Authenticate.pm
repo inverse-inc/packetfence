@@ -4,7 +4,6 @@ use Moose;
 use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
-use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 use pf::constants::realm;
 use pf::config qw(%Profiles_Config);;
 use pf::web qw(i18n i18n_format);
@@ -94,13 +93,11 @@ sub authenticationLogin : Private {
                 $c->stash( use_local_source => 1 );
             }
             my $portal = $person_info->{portal};
-            unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
-                $portal = $DEFAULT_PROFILE;
+            # Use the connection profile the person registered on, otherwise keep the
+            # profile of the device: the default profile may not have its source
+            if (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
+                $profile = pf::Connection::ProfileFactory->instantiate( $mac, { portal => $portal });
             }
-            my $options = {
-                portal => $portal,
-            };
-            $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
         }
     }
     $c->stash( profile => $profile );
@@ -129,7 +126,7 @@ sub authenticationLogin : Private {
         $c->user_session->{source_match} = $source_id;
         $c->user_session->{extra} = $extra;
         if(!person_exist($username)){
-            person_add($username);
+            person_add($username, portal => $profile->getName, source => $source_id);
         }
         # Logging USER/IP/MAC of the just-authenticated user
         $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
@@ -165,7 +162,11 @@ sub getSources : Private {
 
     my $realm_source = get_realm_authentication_source($stripped_username, $realm, \@sources);
     if (ref($realm_source) eq 'ARRAY') {
-        $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
+        if (@$realm_source) {
+            $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
+        } else {
+            $c->log->warn("None of the sources of the connection profile " . $profile->getName . " can be used for realm " . ($realm // 'null'));
+        }
         return ($realm_source);
     }
     return \@sources;
