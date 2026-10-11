@@ -9,6 +9,10 @@
         <base-form-group-input :column-label="$t('Subject')"
           v-model="emailSubject"
           :text="$t('The subject used for email messages.')"/>
+        <base-form-group :column-label="$t('Acceptable Use Policy')"
+          :text="$t('Include the acceptable use policy in the printed and sent messages.')">
+          <b-form-checkbox v-model="withAup" switch>{{ $t('Include') }}</b-form-checkbox>
+        </base-form-group>
         <hr/>
       </div>
       <b-container class="my-5" v-if="isLoading">
@@ -57,16 +61,17 @@ const setup = (props, context) => {
 
   const emailSubject = ref('')
   const emailFrom= ref('')
+  const withAup = ref(true)
   const usersSortBy = ref('pid')
   const usersSortDesc = ref(false)
 
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
   const usersTemplates = ref([])
   const users = computed(() => $store.state['$_users'].createdUsers)
-  watch(users, () => {
+  watch([users, withAup], () => {
     usersTemplates.value = []
     users.value.forEach(user => {
-      $store.dispatch('$_users/previewEmail', user).then(response => {
+      $store.dispatch('$_users/previewEmail', { ...user, withAup: withAup.value }).then(response => {
         usersTemplates.value.push({ pid: user.pid, email: user.email, html: response.body })
       })
     })
@@ -93,7 +98,8 @@ const setup = (props, context) => {
       const data = {
         ...user,
         ...{
-          subject: emailSubject.value
+          subject: emailSubject.value,
+          withAup: withAup.value
         }
       }
       return $store.dispatch('$_users/sendEmail', data)
@@ -132,6 +138,7 @@ const setup = (props, context) => {
     isLoading,
     emailSubject,
     emailFrom,
+    withAup,
     usersSortBy,
     usersSortDesc,
     usersTemplates,

@@ -29,6 +29,12 @@ sub handle_email_payload {
         return undef;
     }
 
+    # Include the acceptable use policy in the email (ex: printed guest accounts)
+    if (delete $data->{args}{with_aup}) {
+        require pf::web::guest;
+        $data->{args}{aup} = pf::web::guest::aup();
+    }
+
     return $data;
 }
 
