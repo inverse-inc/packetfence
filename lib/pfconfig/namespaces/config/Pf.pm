@@ -103,6 +103,16 @@ sub build_child {
     # for cluster overlaying
     if(defined($self->{host_id}) && exists($ConfigCluster{$self->{host_id}})){
         $logger->debug("Doing the cluster overlaying for host $self->{host_id}");
+        # The interfaces of pf.conf are the ones of the server where it was configured.
+        # An interface that isn't defined for this host in cluster.conf doesn't exist on it
+        # (e.g. a member of another zone in a multi-zone cluster), keeping it would make this host use
+        # the IP address of another server.
+        foreach my $key (grep { /^interface / } keys %Config) {
+            next if exists $ConfigCluster{$self->{host_id}}{$key};
+            $logger->warn("Ignoring $key on $self->{host_id}: it isn't defined for this server in cluster.conf");
+            delete $Config{$key};
+            $self->{ordered_sections} = [ grep { $_ ne $key } @{$self->{ordered_sections} // []} ];
+        }
         while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
             if($key =~ /^interface /){
                 unless(any {$_ eq $key} @{$self->{ordered_sections}}) {
