@@ -2,10 +2,10 @@ auto lo
 iface lo inet loopback
 [% FOREACH interface IN interfaces.keys.sort %]
 [% IF interfaces.$interface.is_running %]auto [% interface %] [% END %]
-[% IF interfaces.$interface.ipaddress %] iface [% interface %] inet static[% END %]
+[% IF interfaces.$interface.ipaddress %] iface [% interface %] inet static[% ELSIF interfaces.$interface.is_running %] iface [% interface %] inet manual[% END %]
 [% IF interfaces.$interface.ipaddress %]    address [% interfaces.$interface.ipaddress %][% END %]
-[% IF interfaces.$interface.netmask %]    netmask [% interfaces.$interface.netmask %][% END %]
-[% IF interface == gateway_interface %]    gateway [% gateway %][% END %]
+[% IF interfaces.$interface.ipaddress && interfaces.$interface.netmask %]    netmask [% interfaces.$interface.netmask %][% END %]
+[% IF interfaces.$interface.ipaddress && interface == gateway_interface %]    gateway [% gateway %][% END %]
 
 [% IF interfaces.$interface.ipv6_address %]
 iface [% interface %] inet6 static

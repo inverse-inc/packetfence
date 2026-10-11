@@ -130,6 +130,9 @@ sub delete {
         return ($status, $status_msg);
     }
 
+    # Remove the deleted interface from the persistent OS configuration
+    $models->{'system'}->write_network_persistent($self->get('all'), $models->{'system'}->getDefaultGateway());
+
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
@@ -397,10 +400,9 @@ sub update {
 
     # Persistent OS change
     if ( $network_configuration_changed ) {
-        if ($ipaddress && $ipaddress ne '') {
-            my $interfaces = $self->get('all');
-            $models->{'system'}->write_network_persistent($interfaces,$gateway);
-        }
+        # Also for an interface without an IP address, so that it is brought up at boot
+        my $interfaces = $self->get('all');
+        $models->{'system'}->write_network_persistent($interfaces,$gateway);
 
         @result = $self->_listInterfaces('all');
         $models->{network}->cleanupNetworks(\@result);
