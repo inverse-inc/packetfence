@@ -138,8 +138,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var inputs = Array.prototype.slice.call(document.querySelectorAll('form input, form select'));
     if (inputs.length) {
       inputs.forEach(function (input) {
-        form = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
-        var inputHandler = function () { checkForm(form); };
+        var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
+        form = inputForm;
+        var inputHandler = function () { checkForm(inputForm); };
+        // 'input' also catches paste (touch/context menu) and autofill, which don't trigger keyup
+        input.addEventListener('input', inputHandler);
         input.addEventListener('keyup', inputHandler);
         input.addEventListener('change', inputHandler);
       });
@@ -177,14 +180,14 @@ document.addEventListener('DOMContentLoaded', function () {
           state = 'hide';
           type = 'password';
         }
-        var inputHandler = function () { checkForm(form); };
-        input.removeEventListener('keyup', inputHandler);
-        input.removeEventListener('change', inputHandler);
+        var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
+        var inputHandler = function () { checkForm(inputForm); };
         var rep = document.createElement('input');
         rep.setAttribute('type', type);
         rep.id = input.id;
         rep.name = input.name;
         rep.value = input.value;
+        rep.addEventListener('input', inputHandler);
         rep.addEventListener('keyup', inputHandler);
         rep.addEventListener('change', inputHandler);
         template.insertBefore(rep, button);
