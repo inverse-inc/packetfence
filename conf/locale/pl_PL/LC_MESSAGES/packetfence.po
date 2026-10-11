@@ -982,6 +982,10 @@ msgstr ""
 msgid "Mobile provider"
 msgstr "Operator komórkowy"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Wybierz operatora---"
+
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
 msgid "Network Logoff"

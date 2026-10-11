@@ -982,6 +982,10 @@ msgstr "Cihazlarınızı yönetin"
 msgid "Mobile provider"
 msgstr "Mobil sağlayıcı"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Bir operatör seçin---"
+
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
 msgid "Network Logoff"
