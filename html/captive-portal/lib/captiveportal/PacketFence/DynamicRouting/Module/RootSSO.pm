@@ -25,7 +25,7 @@ has '+route_map' => (default => sub {
 use pf::log;
 use pf::util;
 use pf::CHI;
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $FALSE);
 use Bytes::Random::Secure;
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
@@ -44,8 +44,14 @@ around 'done' => sub {
         $self->release();
     }
     else {
+        my $callback = $self->app->session->{callback};
         $self->app->reset_session();
-        $self->redirect_root();
+        if (defined($callback)) {
+            $self->app->redirect($callback."?error=denied");
+        }
+        else {
+            $self->redirect_root();
+        }
     }
 };
 
@@ -70,7 +76,10 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{root_session_token});
+    my $callback = $self->app->session->{callback};
+    # Start over on the next SSO so the user is authenticated (and the rules evaluated) again
+    $self->app->reset_session();
+    return $self->app->redirect($callback."?token=".$self->{root_session_token});
 }
 
 =head2 execute_child
@@ -96,6 +105,11 @@ Register the device and apply the new node info
 
 sub execute_actions {
     my ($self) = @_;
+    my $access_level = $self->new_node_info->{access_level};
+    if (!defined($access_level) || $access_level eq '' || $access_level eq 'NONE') {
+        get_logger->warn("Admin SSO denied for " . ($self->username // 'unknown user') . ": no administration rule matched");
+        return $FALSE;
+    }
     my $rand = Bytes::Random::Secure->new(
             Bits        => 64,
             NonBlocking => 1,
