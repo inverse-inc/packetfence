@@ -32,10 +32,14 @@ use pf::file_paths qw(
 );
 
 use pf::util;
+use pf::log;
+use File::Slurp qw(read_file write_file);
 
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfdns' } );
+
+our $RESOLV_CONF = '/etc/resolv.conf';
 
 tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
 
@@ -70,7 +74,37 @@ EOT
 EOT
     }
 
-    $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfdns.conf") or die $tt->error();
+    my $content = '';
+    $tt->process("$conf_dir/pfdns.conf", \%tags, \$content) or die $tt->error();
+    unless (has_resolv_nameservers()) {
+        get_logger->warn("No nameserver found in $RESOLV_CONF, pfdns will not forward the queries it doesn't handle");
+        $content = remove_resolv_conf_forwards($content);
+    }
+    write_file("$generated_conf_dir/pfdns.conf", $content);
+}
+
+=head2 has_resolv_nameservers
+
+Whether the system resolv.conf defines at least one nameserver.
+The forward plugin refuses to start when pointed to a resolv.conf without one.
+
+=cut
+
+sub has_resolv_nameservers {
+    my $resolv_conf = eval { read_file($RESOLV_CONF) } // '';
+    return $resolv_conf =~ /^\s*nameserver\s+\S+/m ? 1 : 0;
+}
+
+=head2 remove_resolv_conf_forwards
+
+Remove the forward directives (and their option block) that use the system resolv.conf
+
+=cut
+
+sub remove_resolv_conf_forwards {
+    my ($content) = @_;
+    $content =~ s/^[ \t]*forward[ \t]+\.[ \t]+\Q$RESOLV_CONF\E(?:[ \t]*\{[^}]*\})?[ \t]*\n//mg;
+    return $content;
 }
 
 =head1 AUTHOR
