@@ -84,12 +84,35 @@
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
-                        <string>com.apple.security.root</string>
+                        [%# On iOS the RADIUS server certificate is only the trust anchor of the network, the CA is installed as root below %]
+                        <string>[% IF for_ios %]com.apple.security.pkcs1[% ELSE %]com.apple.security.root[% END %]</string>
                         <key>PayloadUUID</key>
                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
+                [% IF for_ios AND provisioner.raw_ca_cert_string() != "" %]
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% provisioner.ca_cert_cn() %]</string>
+                        <key>PayloadContent</key>
+                        <data>[% provisioner.raw_ca_cert_string() %]</data>
+                        <key>PayloadDescription</key>
+                        <string>Provides the RADIUS server certificate authority.</string>
+                        <key>PayloadDisplayName</key>
+                        <string>[% provisioner.ca_cert_cn() %]</string>
+                        <key>PayloadIdentifier</key>
+                        <string>ca_certificate.[% reverse_fqdn %]</string>
+                        <key>PayloadOrganization</key>
+                        <string>[% provisioner.company %]</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.root</string>
+                        <key>PayloadUUID</key>
+                        <string>c83817c4-d7c4-11e4-b9d6-696969696969</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                </dict>
+                [% END %]
                 [% IF for_android AND provisioner.raw_ca_cert_string() != "" %]
                 <dict>
                         <key>PayloadContent</key>
