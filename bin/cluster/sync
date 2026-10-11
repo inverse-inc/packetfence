@@ -131,6 +131,22 @@ if($master_server){
 
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
 
+    # Check that the webservices of the master can be used before trying to download each file
+    eval {
+        $apiclient->call( 'download_configfile', conf_file => $config_version_file );
+    };
+    if (my $error = $@) {
+        $error =~ s/\s+$//;
+        my $port = $apiclient->port;
+        get_logger->error("Unable to use the webservices of $master_server on port $port: $error");
+        get_logger->error("Make sure that:");
+        get_logger->error(" - packetfence-httpd.webservices is running and healthy on $master_server (an SSL/TLS error usually means it isn't serving, check 'docker logs httpd.webservices' there)");
+        get_logger->error(" - $master_server is the management IP of the server to sync from and its port $port is reachable from this server");
+        get_logger->error(" - --api-user and --api-password match the [webservices] user and pass of $master_server");
+        exit 1;
+    }
+
+    my $failed = 0;
     foreach my $store (@stores) {
         my $cs = $store->new;
         my $config_file = $cs->configFile;
@@ -156,9 +172,14 @@ if($master_server){
         };
         if($@){
             get_logger->error("Failed to sync file : $file . $@");
+            $failed++;
         }
     }
 
+    if ($failed) {
+        get_logger->error("Failed to sync $failed file(s) from $master_server");
+        exit 1;
+    }
 
 }
 
