@@ -81,6 +81,13 @@ sub get_socket {
         if(!$socket) {
             print STDERR "Can't connect to pfconfig on $self->{tcp_host}:$self->{tcp_port} : $!\n";
         }
+        # When pfconfig isn't listening, the kernel can pick its port as the local port and connect the socket to itself.
+        # That socket then holds the port and pfconfig can't bind it anymore.
+        elsif($socket->sockhost eq $socket->peerhost && $socket->sockport == $socket->peerport) {
+            print STDERR "Connection to pfconfig on $self->{tcp_host}:$self->{tcp_port} is connected to itself, closing it\n";
+            $socket->close();
+            $socket = undef;
+        }
     }
     else {
         $socket = IO::Socket::UNIX->new(
