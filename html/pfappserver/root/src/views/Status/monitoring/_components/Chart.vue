@@ -22,13 +22,11 @@ export const libraries = {
 }
 
 export const palettes = [
-  '#b2182b #d6604d #f4a582 #fddbc7 #f7f7f7 #d1e5f0 #92c5de #4393c3 #2166ac',
-  '#01665e #35978f #80cdc1 #c7eae5 #f5f5f5 #f6e8c3 #dfc27d #bf812d #8c510a',
-  '#762a83 #9970ab #c2a5cf #e7d4e8 #f7f7f7 #d9f0d3 #a6dba0 #5aae61 #1b7837',
-
-  '#941222 #ab4d3d #c57e68 #d6b3a1 #cccccc #aec4cc #749bad #346f96 #1b5188',
-  '#014d49 #2a736e #669b92 #9db9b5 #cccccc #c3ba98 #b79c64 #996722 #6e4008',
-  '#5c2167 #795988 #9b84a7 #b7aeb7 #cccccc #aebca7 #85b180 #488a4d #155c2b'
+  // Qualitative palettes, readable on a white background (D3 category10,
+  // ColorBrewer Dark2 and Set1 without its yellow)
+  '#1f77b4 #d62728 #2ca02c #ff7f0e #9467bd #8c564b #e377c2 #7f7f7f #17becf #bcbd22',
+  '#1b9e77 #d95f02 #7570b3 #e7298a #66a61e #e6ab02 #a6761d #666666',
+  '#e41a1c #377eb8 #4daf4a #984ea3 #ff7f00 #a65628 #f781bf #999999'
 ]
 
 const props = {
