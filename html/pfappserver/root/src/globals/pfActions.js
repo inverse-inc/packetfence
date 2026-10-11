@@ -265,7 +265,7 @@ export const pfActionsSchema = yup.array().ensure()
   .ifThenRequires(
     i18n.t('"{set_unreg_date}" requires either "{set_role}" or "{set_role_on_not_found}".', pfActionsTransliterations),
     ({ type }) => type === 'set_unreg_date',
-    ({ type }) => ['set_access_duration', 'set_unreg_date'].includes(type)
+    ({ type }) => ['set_role', 'set_role_on_not_found'].includes(type)
   )
   // 'set_unreg_date' restricts 'set_access_duration'
   .ifThenRestricts(
