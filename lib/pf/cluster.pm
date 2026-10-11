@@ -303,6 +303,27 @@ sub members_ips {
     return \%data;
 }
 
+=head2 api_client
+
+A JSON-RPC client to the webservices of a cluster member.
+The connection and the request are bounded so an unreachable or hung member can't block the caller (and its worker) indefinitely.
+
+=cut
+
+our $API_CONNECT_TIMEOUT_MS = 5_000;
+our $API_TIMEOUT_MS = 60_000;
+
+sub api_client {
+    my ($host) = @_;
+    require pf::api::jsonrpcclient;
+    return pf::api::jsonrpcclient->new(
+        proto              => 'https',
+        host               => $host,
+        connect_timeout_ms => $API_CONNECT_TIMEOUT_MS,
+        timeout_ms         => $API_TIMEOUT_MS,
+    );
+}
+
 =head2 api_call_each_server
 
 Call an API method on each member of the cluster
@@ -317,7 +338,7 @@ sub api_call_each_server {
     my $method = $asynchronous ? "notify" : "call";
     foreach my $server (config_enabled_servers()){
         next if($server->{host} eq $host_id);
-        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        my $apiclient = api_client($server->{management_ip});
         eval {
             pf::log::get_logger->info("Calling $api_method on $server->{host}");
             my ($result) = $apiclient->$method($api_method, @api_args);
@@ -464,7 +485,7 @@ sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
         foreach my $server (config_enabled_servers()) {
-            my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+            my $apiclient = api_client($server->{management_ip});
             $apiclient->notify(@args);
         }
     }
@@ -484,7 +505,7 @@ sub call_server {
     my ($cluster_id, @args) = @_;
     require pf::api::jsonrpcclient;
     my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+    my $apiclient = api_client($server->{management_ip});
     return $apiclient->call(@args);
 }
 
@@ -498,7 +519,7 @@ sub queue_stats {
     require pf::api::jsonrpcclient;
     my @stats;
     foreach my $server (enabled_servers()) {
-        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my $apiclient = api_client($server->{management_ip});
         my %s = (
             %$server,
             stats  => $apiclient->call('queue_stats')

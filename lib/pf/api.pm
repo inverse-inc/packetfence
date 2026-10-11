@@ -725,7 +725,7 @@ sub notify_configfile_changed : Public {
     my $master_server = pf::cluster::find_server_by_hostname($postdata{server});
     die "Master server is not in configuration" unless ($master_server);
 
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
+    my $apiclient = pf::cluster::api_client($master_server->{management_ip});
 
     eval {
         my %data = ( conf_file => $postdata{conf_file} );
@@ -764,7 +764,7 @@ sub distant_download_configfile : Public {
 
     my $file = $postdata{conf_file};
     my %data = ( conf_file => $file );
-    my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
+    my $apiclient = pf::cluster::api_client($postdata{from});
     my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
     pf::util::safe_file_update($file, $result, undef, $mode);
     return 1;
@@ -815,7 +815,7 @@ sub expire_cluster : Public {
     my @failed;
     foreach my $server (pf::cluster::config_enabled_servers()){
         next if($pf::cluster::host_id eq $server->{host});
-        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my $apiclient = pf::cluster::api_client($server->{management_ip});
         my %data = (
             namespace => $postdata{namespace},
             light => 1
