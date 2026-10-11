@@ -315,7 +315,7 @@ msgid "Computer name "
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
+msgid "Enter the PIN sent to your phone"
 msgstr ""
 
 # html/captive-portal/templates/status/reset_password_token.html

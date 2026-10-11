@@ -365,8 +365,8 @@ msgstr "Datamaskinnavn "
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr " Bekreft mobiltelefon nummer"
+msgid "Enter the PIN sent to your phone"
+msgstr "Skriv inn PIN-koden som ble sendt til telefonen din"
 
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"

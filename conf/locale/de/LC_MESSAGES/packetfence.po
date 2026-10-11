@@ -378,8 +378,8 @@ msgstr "Computername"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr "Handynummer bestätigen"
+msgid "Enter the PIN sent to your phone"
+msgstr "Geben Sie die an Ihr Telefon gesendete PIN ein"
 
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"

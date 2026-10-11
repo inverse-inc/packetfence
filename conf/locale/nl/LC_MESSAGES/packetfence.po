@@ -370,8 +370,8 @@ msgstr ""
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr "Bevestig mobiel telefoonnummer"
+msgid "Enter the PIN sent to your phone"
+msgstr "Voer de pincode in die naar uw telefoon is verzonden"
 
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"
