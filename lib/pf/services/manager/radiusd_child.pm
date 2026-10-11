@@ -1643,6 +1643,9 @@ sub generate_radiusd_certificates {
     }
     foreach my $key (keys %ConfigEAP) {
         foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            # A previous run may have left a symlink to the default certificates that must not be written
+            # through, or a file that would prevent the symlink to be created
+            unlink(map { "$install_dir/conf/ssl/radius_".$key."_".$tls.".$_" } qw(crt key pem));
             if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
                 symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
                 symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
