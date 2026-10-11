@@ -19,6 +19,7 @@ use File::Slurp qw(read_file write_file);
 use File::Temp qw(tempfile);
 use pf::util;
 use pf::log;
+use pf::file_paths qw($conf_dir);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -101,12 +102,56 @@ sub lasso_server {
     require Lasso;
     Lasso->import();
 
+    $self->check_files_readable();
+
     Lasso::init();
     my ($fh, $sp_metadata_path) = tempfile();
     write_file($sp_metadata_path, $self->generate_sp_metadata());
     my $server = Lasso::Server->new($sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
-    $server->add_provider($pf::constants::saml::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
+    if (!defined $server) {
+        die sprintf(
+            "SAML source %s: unable to load the Service Provider key (%s) and certificate (%s). Check that they are valid PEM files, that the key isn't protected by a passphrase and that it matches the certificate.\n",
+            $self->id, $self->sp_key_path, $self->sp_cert_path
+        );
+    }
+    eval {
+        $server->add_provider($pf::constants::saml::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
+    };
+    if ($@) {
+        my $msg = ref($@) && $@->isa("Lasso::Error") ? $@->{message} : $@;
+        die sprintf(
+            "SAML source %s: unable to load the Identity Provider metadata (%s) or certificates: %s\n",
+            $self->id, $self->idp_metadata_path, $msg
+        );
+    }
     return $server;
+}
+
+=head2 check_files_readable
+
+Die with a clear message when one of the configured key, certificate or metadata files can't be read
+
+=cut
+
+sub check_files_readable {
+    my ($self) = @_;
+    my @files = (
+        ['Service Provider key', $self->sp_key_path],
+        ['Service Provider certificate', $self->sp_cert_path],
+        ['Identity Provider metadata', $self->idp_metadata_path],
+        ['Identity Provider certificate', $self->idp_cert_path],
+        ['Identity Provider CA certificate', $self->idp_ca_cert_path],
+    );
+    for my $file (@files) {
+        my ($label, $path) = @$file;
+        next if !defined $path || $path eq '';
+        next if -f $path && -r _;
+        die sprintf(
+            "SAML source %s: the %s file %s doesn't exist or isn't readable. It must be readable by the pf user and located under %s (for example %s/ssl) to be available to the PacketFence containers.\n",
+            $self->id, $label, $path, $conf_dir, $conf_dir
+        );
+    }
+    return;
 }
 
 =head2 lasso_login
