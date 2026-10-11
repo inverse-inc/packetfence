@@ -26,7 +26,8 @@ use fingerbank::DB_Factory;
 use fingerbank::Constant qw($UPSTREAM_SCHEMA);
 use pf::cluster;
 use pf::constants;
-use pf::constants::fingerbank qw($RATE_LIMIT);
+use pf::constants::fingerbank qw($RATE_LIMIT $RETRY_DELAY $MAX_RETRIES);
+use pf::api::queue;
 use pf::error qw(is_success);
 use pf::file_paths qw($network_behavior_policy_config_file);
 
@@ -121,6 +122,7 @@ sub process {
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
+        _retry_later($mac, $overrides);
         return $FALSE;
     }
 
@@ -167,13 +169,17 @@ sub process {
         # seconds instead of each interrogating the collector. The cache lives
         # in the Redis-backed fingerbank namespace so the limit applies across
         # all processes (pfqueue workers, RADIUS, portal).
-        my $query_result = $cache->compute_with_undef("fingerbank::_query-" . _query_cache_key($query_args), sub {
+        my $query_cache_key = "fingerbank::_query-" . _query_cache_key($query_args);
+        my $query_result = $cache->compute_with_undef($query_cache_key, sub {
             return _query($query_args);
         }, {expires_in => $RATE_LIMIT});
 
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
             $query_success = $FALSE;
+            # Don't serve the failed lookup from the cache when retrying
+            $cache->remove($query_cache_key);
+            _retry_later($mac, $overrides);
         }
 
         if($query_success) {
@@ -188,6 +194,7 @@ sub process {
             $query_result->{parents} = $parents;
 
             record_result($mac, $query_args, $query_result);
+            $cache->remove(_retry_cache_key($mac));
         }
     
         my $node_after = node_attributes($mac);
@@ -195,6 +202,49 @@ sub process {
         check_device_class_change($node_before, $node_after);
         _trigger_new_dhcp_security_event($mac);
         return $query_success;
+    }
+}
+
+=head2 _retry_cache_key
+
+The cache key holding the number of retries done for a device
+
+=cut
+
+sub _retry_cache_key {
+    my ($mac) = @_;
+    return "pf::fingerbank::retry($mac)";
+}
+
+=head2 _retry_later
+
+After a failed lookup, process the device again later instead of waiting for
+new data from the collector (which may never come for a device that sent a
+single DHCP request)
+
+=cut
+
+sub _retry_later {
+    my ($mac, $overrides) = @_;
+    my $logger = pf::log::get_logger;
+    my $cache = cache();
+    # Allow the next process to run even if the collector has no new data
+    $cache->remove("pf::fingerbank::process($mac)");
+
+    my $retry_key = _retry_cache_key($mac);
+    my $retries = $cache->get($retry_key) // 0;
+    if ($retries >= $MAX_RETRIES) {
+        $logger->warn("Fingerbank lookup for $mac failed $retries times in a row, will retry on the next data received for this device");
+        $cache->remove($retry_key);
+        return;
+    }
+    $cache->set($retry_key, $retries + 1, {expires_in => 3600});
+    $logger->info("Will retry the Fingerbank lookup for $mac in " . ($RETRY_DELAY / 1000) . " seconds");
+    eval {
+        pf::api::queue->new(queue => 'general')->notify_delayed($RETRY_DELAY, 'fingerbank_process', $mac, $overrides);
+    };
+    if ($@) {
+        $logger->error("Error submitting the Fingerbank retry to the queue: $@");
     }
 }
 
