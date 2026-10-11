@@ -19,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;                      # last test to print
+use Test::More tests => 21;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -36,6 +36,32 @@ $filter = new_ok ( "pf::condition::date_after", [],"Test pf::condition::date_aft
 ok($filter->match('2042-11-27 13:49:42'), "given date is after control date");
 
 ok(!$filter->match('2015-11-27 13:49:42'),"given date is not after control date");
+
+$filter = new_ok ( "pf::condition::date_after", [value => 'now'],"Test pf::condition::date_after constructor with 'now'");
+
+ok($filter->match('2042-11-27 13:49:42'), "given date is after now");
+
+ok(!$filter->match('2015-11-27 13:49:42'), "given date is not after now");
+
+$filter = new_ok ( "pf::condition::date_after", [value => ''],"Test pf::condition::date_after constructor with an empty value");
+
+ok($filter->match('2042-11-27 13:49:42'), "empty value means now");
+
+ok(!$filter->match('0000-00-00 00:00:00'), "unset date doesn't match");
+
+ok(!$filter->match(undef), "undefined date doesn't match");
+
+ok(!$filter->match('not a date'), "invalid date doesn't match");
+
+$filter = new_ok ( "pf::condition::date_after", [value => '2030-01-01'],"Test pf::condition::date_after constructor with a date only");
+
+ok($filter->match('2042-11-27 13:49:42'), "date only control date");
+
+ok($filter->match("2042-11-27"), "date only given date");
+
+$filter = new_ok ( "pf::condition::date_after", [value => 'garbage'],"Test pf::condition::date_after constructor with an invalid control date");
+
+ok(!$filter->match('2042-11-27 13:49:42'), "invalid control date doesn't match");
 
 =head1 AUTHOR
 
