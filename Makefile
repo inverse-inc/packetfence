@@ -15,11 +15,14 @@ all:
 
 ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
+# Files pulled in by the guides through include:: directives. Every guide
+# depends on all of them so that editing an included file rebuilds the docs.
+DOC_INCLUDES := $(shell find docs -mindepth 2 \( -name '*.asciidoc' -o -name '*.help' \) -not -path '*/node_modules/*') $(filter-out $(addprefix docs/,$(ASCIIDOCS)),$(wildcard docs/*.asciidoc))
 
 clean:
 	rm -f docs/*.html docs/index.js docs/*.pdf docs/styles/*.min.css
 
-docs/%.pdf: docs/%.asciidoc
+docs/%.pdf: docs/%.asciidoc $(DOC_INCLUDES)
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
@@ -42,7 +45,7 @@ docs/styles/%.min.css: docs/styles/%.css
 .PHONY: css
 css: $(MINCSS)
 
-docs/%.html: docs/%.asciidoc $(MINCSS)
+docs/%.html: docs/%.asciidoc $(MINCSS) $(DOC_INCLUDES)
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
