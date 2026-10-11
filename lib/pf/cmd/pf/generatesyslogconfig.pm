@@ -19,6 +19,7 @@ use base qw(pf::cmd);
 use pf::file_paths qw($syslog_config_file $syslog_default_config_file $log_dir $rsyslog_packetfence_config_file);
 use pf::IniFiles;
 use Template;
+use File::Slurp qw(read_file write_file);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::syslog;
 
@@ -105,11 +106,58 @@ sub section_data {
 }
 
 
+our $RSYSLOG_MAIN_CONFIG = '/etc/rsyslog.conf';
+
+=head2 inputs_config
+
+The configuration of the rsyslog inputs, written before the rest of the configuration.
+
+imjournal keeps its position in a state file, otherwise rsyslog reads the
+whole journal again (and appends it to the log files) every time it starts.
+On a first start without a state file, it starts at the end of the journal.
+
+It is configured with module() since the distributions load imuxsock that
+way, which makes the legacy directives ($SystemLogRateLimitInterval, ...)
+invalid. When the main configuration already loads imjournal (e.g. EL), it
+is left as is.
+
+=cut
+
+sub inputs_config {
+    return '' if main_config_loads_imjournal();
+    return qq{module(load="imjournal" StateFile="imjournal.state" IgnorePreviousMessages="on" Ratelimit.Interval="0" Ratelimit.Burst="0")\n};
+}
+
+=head2 main_config_loads_imjournal
+
+Whether the main rsyslog configuration loads imjournal
+
+=cut
+
+sub main_config_loads_imjournal {
+    my $config = eval { read_file($RSYSLOG_MAIN_CONFIG) } // '';
+    return $config =~ /^\s*(?:module\s*\(\s*load\s*=\s*"imjournal"|\$ModLoad\s+imjournal\b)/m ? 1 : 0;
+}
+
+=head2 remove_legacy_inputs_config
+
+Remove the legacy input directives of the templates of previous versions, replaced by inputs_config
+
+=cut
+
+sub remove_legacy_inputs_config {
+    my ($config) = @_;
+    $config =~ s/^[ \t]*\$(?:ModLoad[ \t]+(?:imuxsock|imjournal)|SystemLogRateLimit(?:Interval|Burst)|imjournalRatelimit(?:Interval|Burst))\b.*\n//mg;
+    return $config;
+}
+
 sub _run {
     my ($self) = @_;
     my $template = "/usr/local/pf/conf/rsyslog.conf.tt";
     my $tt = Template->new(ABSOLUTE => 1);
-    $tt->process($template, {items => $self->items}, $rsyslog_packetfence_config_file) || die $tt->error();
+    my $output = '';
+    $tt->process($template, {items => $self->items}, \$output) || die $tt->error();
+    write_file($rsyslog_packetfence_config_file, inputs_config() . remove_legacy_inputs_config($output));
     return $EXIT_SUCCESS; 
 }
 
