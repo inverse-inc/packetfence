@@ -148,6 +148,26 @@ use pf::SwitchSupports qw(
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
+=item extractSSIDFromCalledStationId
+
+The WLC can be configured to send another identifier of the AP than its MAC
+address before the SSID in the Called-Station-Id, for example its name
+("AP-Name:SSID" with the ap-name-ssid format).
+
+=cut
+
+sub extractSSIDFromCalledStationId {
+    my ($self, $radius_request) = @_;
+    my $called_station_id = $radius_request->{'Called-Station-Id'};
+    if (defined($called_station_id)
+        && $called_station_id !~ /^[a-f0-9]{2}(?:[-:]?[a-f0-9]{2}){5}(?::|$)/i
+        && $called_station_id =~ /^[^:]+:(.+)$/) {
+        return $1;
+    }
+
+    return $self->SUPER::extractSSIDFromCalledStationId($radius_request);
+}
+
 =item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
