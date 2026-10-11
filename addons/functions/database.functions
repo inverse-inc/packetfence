@@ -35,9 +35,9 @@ function import_mysqldump() {
   # --restore-as-is: never prompt; rely on socket auth (fails later with a clear error if unavailable).
   if ! test_db_connection_no_creds && [ "${do_restore_as_is:-0}" != 1 ]; then
     echo -n "Please enter the root password for MariaDB:"
-    read -s mariadb_root_pass
+    read -rs mariadb_root_pass
     echo
-    setup_mycnf $mariadb_root_pass
+    setup_mycnf "$mariadb_root_pass"
   else
     touch `pwd`/setup_mycnf
   fi
@@ -191,7 +191,7 @@ function setup_mycnf() {
   cat <<EOT > setup_mycnf
 [client]
 user=root
-password="$(echo "$1" | sed 's/"/\\"/g')"
+password="$(printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 EOT
 }
 
@@ -200,9 +200,9 @@ function upgrade_database() {
   if ! test_db_connection_no_creds; then
     echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
     echo -n "Please enter the root password for MariaDB:"
-    read -s mariadb_root_pass
+    read -rs mariadb_root_pass
     echo
-    setup_mycnf $mariadb_root_pass
+    setup_mycnf "$mariadb_root_pass"
   else
     touch `pwd`/setup_mycnf
   fi
