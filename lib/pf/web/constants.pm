@@ -201,23 +201,36 @@ Readonly::Array our @LOCALES =>
    qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nb_NO nl_NL pl_PL pt_BR tr_TR)
   );
 
-=item ALLOWED_RESOURCES_PROFILE_FILTER
+=item allowed_resources_profile_filter
 
-Build a regex that will decide what is considered a local ressource
-(allowed to Apache's further processing).
+Returns a regex that will decide what is considered a local ressource
+(allowed to Apache's further processing), or undef when no connection profile
+has a URI filter.
 
 URL ending with / will only be anchored at the beginning (^/path/) otherwise
 an ending anchor is also installed (^/file$).
 
 Anything else should be redirected. This happens in L<pf::web::dispatcher>.
 
+The regex is built from the current URI filters of the connection profiles
+(pfconfig) and only recompiled when they change, so a change to a profile
+filter is applied without restarting the portal.
+
 =cut
 
-my @components_profile_filter =  _clean_urls_match_filter();
-# add $ to non-slash ending URLs
-foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
-my $allow_profile = join('|', @components_profile_filter);
-Readonly::Scalar our $ALLOWED_RESOURCES_PROFILE_FILTER => qr/ ^(?: $allow_profile ) /xo if($allow_profile ne ''); # eXtended pattern, compile Once
+my ($profile_filter_source, $profile_filter_regex) = ('', undef);
+
+sub allowed_resources_profile_filter {
+    my @components_profile_filter = _clean_urls_match_filter();
+    # add $ to non-slash ending URLs
+    foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
+    my $allow_profile = join('|', @components_profile_filter);
+    if ($allow_profile ne $profile_filter_source) {
+        $profile_filter_source = $allow_profile;
+        $profile_filter_regex = $allow_profile ne '' ? qr/ ^(?: $allow_profile ) /x : undef; # eXtended pattern
+    }
+    return $profile_filter_regex;
+}
 
 =item EXTERNAL_PORTAL_URL
 
