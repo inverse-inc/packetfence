@@ -155,6 +155,18 @@ sub new {
    return $self;
 }
 
+=item iptables_is_managed
+
+Returns true if PacketFence manages iptables (services.iptables), when disabled no rule is applied or flushed
+
+=cut
+
+sub iptables_is_managed {
+    return 1 if isenabled($Config{'services'}{'iptables'});
+    get_logger->info("iptables is not managed by PacketFence (services.iptables is disabled), not touching the rules");
+    return 0;
+}
+
 =item iptables_configreload
 
 Reload the config
@@ -164,6 +176,7 @@ Reload the config
 sub iptables_configreload {
     my ($force) = @_;
     my $logger = get_logger();
+    return 0 unless iptables_is_managed();
     $logger->info( "Start config reload" );
     if ($force eq 1) {
         iptables_flush_to_default();
@@ -175,6 +188,7 @@ sub iptables_configreload {
 
 sub iptables_flush_to_default {
     my $logger = get_logger();
+    return 0 unless iptables_is_managed();
     safe_pf_run(qw(sudo iptables -F));
     safe_pf_run(qw(sudo iptables -X));
     safe_pf_run(qw(sudo iptables -t nat -F));
@@ -218,6 +232,7 @@ Generate the iptable config from iptables service config.
 sub iptables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
+    return 0 unless iptables_is_managed();
 
     if ( ! util_management_network_is_set("generate_config") ) {
         return 0;

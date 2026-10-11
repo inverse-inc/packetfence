@@ -47,6 +47,12 @@ sub is_any_management_network_set {
     return is_management_network_set() || is_ipv6_management_network_set();
 }
 
+unless ( pf::ip6tables::ip6tables_is_managed() ) {
+    # services.ip6tables is disabled: stay up without touching ip6tables, the
+    # services that want packetfence-ip6tables would otherwise restart it in a loop
+    sleep(3600) while 1;
+}
+
 my $ipv6_managed = is_ipv6_management_network_set();
 my $any_managed = is_any_management_network_set();
 

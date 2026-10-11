@@ -36,6 +36,12 @@ sub generate_iptables_configuration {
     }
 }
 
+unless ( pf::iptables::iptables_is_managed() ) {
+    # services.iptables is disabled: stay up without touching iptables, the
+    # services that want packetfence-iptables would otherwise restart it in a loop
+    sleep(3600) while 1;
+}
+
 if ( $managed ) {
     my $logger = get_logger();
     $logger->info("Service Iptables: Management interface is waiting.");
