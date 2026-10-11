@@ -50,11 +50,10 @@ const getters = {
 
 const actions = {
   exists: ({ state, commit }, mac) => {
-    if (mac in state.nodeExists) {
-      if (state.nodeExists[mac]) {
-        return Promise.resolve(true)
-      }
-      return Promise.reject(new Error('Unknown MAC'))
+    // Only trust a cached positive answer: a node that didn't exist (or was deleted)
+    // can be created at any time, for example when the device connects again
+    if (state.nodeExists[mac]) {
+      return Promise.resolve(true)
     }
     let body = {
       fields: ['mac'],
