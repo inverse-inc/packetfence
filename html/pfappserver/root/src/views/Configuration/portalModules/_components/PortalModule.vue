@@ -78,7 +78,8 @@ const setup = (props, context) => {
     modules,
     parents,
     level,
-    index
+    index,
+    isRoot
   } = toRefs(props)
 
   const { emit } = context
@@ -114,25 +115,19 @@ const setup = (props, context) => {
     return 'L' + level.value + 'I' + index.value
   })
 
-  const onRemove = id => {
-    let list = []
-    let _index = -1
-    let _id = id.value
+  const onRemove = removedId => {
     if (parents.value.length > 0) {
-      // Disconnect module from its parent
-      let [parentId] = parents.value.slice(-1)
-      let parentModule = modules.value.find(module => module.id === parentId)
-      list = parentModule.modules
-      _index = list.findIndex(mid => mid === id)
-      _id = parentId
-    } else {
-      // Delete module's definition
-      list = modules.value
-      _index = list.findIndex(module => module.id === id)
+      // Disconnect module from its parent (new list, so the change is detected)
+      const [parentId] = parents.value.slice(-1)
+      const parentModule = modules.value.find(module => module.id === parentId)
+      if (parentModule) {
+        const list = (parentModule.modules || []).filter(mid => mid !== removedId)
+        emit('update', { id: parentId, modules: list })
+      }
     }
-    if (_index >= 0) {
-      list.splice(_index, 1)
-      emit('update', { id: _id, modules: list })
+    else if (isRoot.value) {
+      // Delete module's definition (list of all modules)
+      emit('delete', removedId)
     }
   }
 
