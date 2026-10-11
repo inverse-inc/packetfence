@@ -108,6 +108,25 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 
 =cut
 
+=item * _unregister_on_unmatch
+
+When the role is recomputed for an autoregistered 802.1X node and no rule
+matched, pf::role::getNodeInfoForAutoReg leaves the node unregistered. If the
+connection profile unsets the role on unmatch ("Dot1x unset on unmatch"), keep
+it unregistered instead of registering it without a role, so it gets the
+registration role.
+
+=cut
+
+sub _unregister_on_unmatch {
+    my ($self, $args, $node_defaults) = @_;
+    return $FALSE unless ($node_defaults->{'status'} // '') eq 'unreg';
+    my $profile = $args->{'profile'};
+    return $FALSE unless $profile && isenabled($profile->dot1xUnsetOnUnmatch);
+    $self->logger->info("No rule matched for $args->{'mac'} and the connection profile " . $profile->getName . " unsets the role on unmatch, the node stays unregistered");
+    return $TRUE;
+}
+
 # WARNING: You cannot change the return structure of this sub unless you also update its clients (like the SOAP 802.1x
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
@@ -305,16 +324,22 @@ sub authorize {
         $args->{'action'} = $action;
         $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
-        $logger->debug("[$mac] auto-registering node");
-        # automatic registration
-        $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-        if (is_error($status)) {
-            $logger->error("auto-registration of node failed $status_msg");
+        if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
             $do_auto_reg = 0;
+            $args->{'autoreg'} = 0;
             $node_obj->{status} = "unreg";
-            $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
-            goto CLEANUP;
+        } else {
+            $logger->debug("[$mac] auto-registering node");
+            # automatic registration
+            $info{autoreg} = 1;
+            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+            if (is_error($status)) {
+                $logger->error("auto-registration of node failed $status_msg");
+                $do_auto_reg = 0;
+                $node_obj->{status} = "unreg";
+                $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                goto CLEANUP;
+            }
         }
     }
 
@@ -1019,15 +1044,21 @@ sub vpn {
             $args->{'action'} = $action;
             $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
             $node_obj->merge(\%autoreg_node_defaults);
-            $logger->debug("[$mac] auto-registering node");
-            # automatic registration
-            $info{autoreg} = 1;
-            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-            if (is_error($status)) {
-                $logger->error("auto-registration of node failed $status_msg");
+            if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
                 $do_auto_reg = 0;
+                $args->{'autoreg'} = 0;
                 $node_obj->{status} = "unreg";
-                return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+            } else {
+                $logger->debug("[$mac] auto-registering node");
+                # automatic registration
+                $info{autoreg} = 1;
+                ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+                if (is_error($status)) {
+                    $logger->error("auto-registration of node failed $status_msg");
+                    $do_auto_reg = 0;
+                    $node_obj->{status} = "unreg";
+                    return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                }
             }
         }
 

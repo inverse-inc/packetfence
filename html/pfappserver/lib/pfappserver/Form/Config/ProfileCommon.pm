@@ -400,7 +400,7 @@ has_field 'dot1x_unset_on_unmatch' =>
     unchecked_value => 'disabled',
     default => 'disabled',
     tags => { after_element => \&help,
-             help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one.' },
+             help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one, the device is then unregistered and gets the registration role.' },
   );
 
 =head2 show_manage_devices_on_max_nodes
