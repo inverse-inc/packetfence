@@ -362,12 +362,45 @@ The other files in this directory are managed by PacketFence using templates,
 so it is easy to modify these files based on the configuration. SSL is enabled
 by default to secure access.
 
-During installation self-signed certificates will be created in
-[filename]`/usr/local/pf/conf/ssl/` (`server.key` and `server.crt`). The
-certificates can be replaced anytime by either a 3rd-party or existing wildcard
-certificate without issue. Please note that the CN (Common Name) needs to be
-the same as the one defined in the PacketFence configuration file
-[filename]`/usr/local/pf/conf/pf.conf`.
+During installation a self-signed certificate is created in
+[filename]`/usr/local/pf/conf/ssl/`. It can be replaced anytime by a
+3rd-party or an existing wildcard certificate. Please note that the CN
+(Common Name) needs to be the same as the one defined in the PacketFence
+configuration file [filename]`/usr/local/pf/conf/pf.conf`.
+
+The HTTP certificate (web admin, captive portal and API) is stored in three files:
+
+ * [filename]`server.crt`: the certificate followed by its intermediate CA(s)
+ * [filename]`server.key`: the private key
+ * [filename]`server.pem`: the content of [filename]`server.crt` followed by the content of [filename]`server.key`, used by `haproxy-admin` and `haproxy-portal`
+
+The recommended way to replace it is through _Configuration -> System
+Configuration -> SSL Certificates_ (see the
+<<_install_the_ssltls_http_certificate_on_the_server,certificate section>>).
+It validates the certificate, the key and the chain, writes the three files
+and restarts the services using them. For an automated renewal (for example a
+Let's Encrypt certificate obtained with a DNS challenge by an ACME client),
+the same can be done with the API:
+
+[source,bash]
+----
+curl -k -X PUT -H "Authorization: <token>" \
+  https://<packetfence>:1443/api/v1/config/certificate/http \
+  -d '{"certificate": "<certificate PEM>", "private_key": "<private key PEM>", "intermediate_cas": ["<intermediate CA PEM>"]}'
+----
+
+If the files are replaced manually instead, [filename]`server.pem` must be
+regenerated as well, otherwise `haproxy-admin` and `haproxy-portal` keep
+using the previous certificate:
+
+[source,bash]
+----
+cd /usr/local/pf/conf/ssl
+cat server.crt server.key > server.pem
+systemctl restart packetfence-haproxy-admin packetfence-haproxy-portal packetfence-api-frontend
+----
+
+In a cluster, the certificate must be installed on every node.
 
 ==== Reuse 802.1X credentials
 
