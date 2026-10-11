@@ -308,6 +308,14 @@ NOTE: It is important to run the upgrade commands in the same shell that ran the
 
 ===== Configuration synchronisation
 
+The upgrade process has already migrated the configuration of nodes A and B
+to the new version, the same way it did on node C. This step is still needed
+because node C has been running alone since it was upgraded: any
+configuration change done on node C in the meantime (and any difference
+between the nodes before the upgrade) only exists on node C. Synchronizing
+from node C makes nodes A and B use the exact same configuration as the node
+that is currently serving the network.
+
 Now sync the configuration by running the following **on nodes A and B**
 
 [source,bash]
