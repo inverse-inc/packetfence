@@ -746,14 +746,16 @@ func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to parse the url %s", err))
 			continue
 		}
-		err = pf.addDetectionMechanismsToList(ctx, fqdn.Host)
+		err = pf.addDetectionMechanismsToList(ctx, fqdn.Hostname())
 	}
 	return err
 }
 
 // addDetectionMechanismsToList add all detection mechanisms in a list
-func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, r string) error {
-	rgx, err := regexp.Compile(r)
+// A detection mechanism matches its host name only (with or without the trailing dot of a DNS query name),
+// not every name containing it with any character in place of its dots
+func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, host string) error {
+	rgx, err := regexp.Compile(`(?i)^` + regexp.QuoteMeta(host) + `\.?$`)
 	if err == nil {
 		pf.mutex.Lock()
 		pf.detectionMechanisms = append(pf.detectionMechanisms, rgx)
