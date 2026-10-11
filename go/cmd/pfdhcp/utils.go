@@ -898,3 +898,21 @@ func IsDisabled(hostname string) bool {
 	_, err := os.Stat(fmt.Sprintf("/usr/local/pf/var/run/%s-cluster-disabled", hostname))
 	return err == nil
 }
+
+// setBootFields copies the TFTP server (option 66) and boot file name
+// (option 67) into the BOOTP header of a reply (siaddr/sname and file), where
+// legacy PXE ROMs look for them: they often don't request options 66/67 and
+// only read the next-server and boot file of the BOOTP header.
+func setBootFields(p dhcp.Packet, options dhcp.Options) {
+	if server := strings.TrimRight(string(options[dhcp.OptionTFTPServerName]), "\x00"); server != "" {
+		if ip := net.ParseIP(server).To4(); ip != nil {
+			p.SetSIAddr(ip)
+		}
+		if len(server) < 64 {
+			p.SetSName([]byte(server))
+		}
+	}
+	if file := strings.TrimRight(string(options[dhcp.OptionBootFileName]), "\x00"); file != "" && len(file) < 128 {
+		p.SetFile([]byte(file))
+	}
+}
