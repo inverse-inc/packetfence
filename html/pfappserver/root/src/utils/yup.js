@@ -483,6 +483,36 @@ yup.addMethod(yup.string, 'isPort', function (min = 1, max = 65535, message) {
   })
 })
 
+const splitList = value => value.trim().split(/\s*[,\r\n]+\s*/).filter(item => item !== '')
+const isPortNumber = value => /^\d{1,5}$/.test(value) && +value >= 1 && +value <= 65535
+
+yup.addMethod(yup.string, 'isPortCsv', function (message) {
+  return this.test({
+    name: 'isPortCsv',
+    message: message || i18n.t('Invalid list of ports (1-65535).'),
+    test: value => ['', null, undefined].includes(value) || splitList(value).every(isPortNumber)
+  })
+})
+
+yup.addMethod(yup.string, 'isPortProtocolCsv', function (message) {
+  return this.test({
+    name: 'isPortProtocolCsv',
+    message: message || i18n.t('Invalid list of ports, expected port/protocol (ex: 80/tcp).'),
+    test: value => ['', null, undefined].includes(value) || splitList(value).every(item => {
+      const [port, protocol, ...rest] = item.split('/')
+      return rest.length === 0 && isPortNumber(port) && ['tcp', 'udp'].includes(protocol)
+    })
+  })
+})
+
+yup.addMethod(yup.string, 'isInterfaceNameCsv', function (message) {
+  return this.test({
+    name: 'isInterfaceNameCsv',
+    message: message || i18n.t('Invalid list of interface names.'),
+    test: value => ['', null, undefined].includes(value) || splitList(value).every(item => /^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,14}$/.test(item))
+  })
+})
+
 yup.addMethod(yup.string, 'isPrice', function (message) {
   return this.test({
     name: 'isPrice',

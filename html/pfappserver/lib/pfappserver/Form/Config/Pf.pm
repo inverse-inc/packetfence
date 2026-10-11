@@ -311,7 +311,71 @@ our %FIELD_VALIDATORS = (
     "general.domain" => sub { validate_pf_domain(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
     "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
     "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
+    "fencing.interception_proxy_port" => \&validate_port_list,
+    "inline.ports_redirect" => \&validate_port_protocol_list,
+    "inline.interfaceSNAT" => \&validate_interface_list,
 );
+
+=head2 _list_items
+
+Split a comma or line separated list
+
+=cut
+
+sub _list_items {
+    my ($value) = @_;
+    $value //= '';
+    $value =~ s/^\s+|\s+$//g;
+    return grep { $_ ne '' } split(/\s*[,\r\n]+\s*/, $value);
+}
+
+sub _is_port {
+    my ($port) = @_;
+    return defined $port && $port =~ /^\d{1,5}$/ && $port >= 1 && $port <= 65535;
+}
+
+=head2 validate_port_list
+
+Validate a list of ports (ex: 8080,3128)
+
+=cut
+
+sub validate_port_list {
+    my (undef, $field) = @_;
+    for my $item (_list_items($field->value)) {
+        next if _is_port($item);
+        $field->add_error("'$item' is not a valid port (1-65535)");
+    }
+}
+
+=head2 validate_port_protocol_list
+
+Validate a list of port/protocol (ex: 80/tcp,443/tcp)
+
+=cut
+
+sub validate_port_protocol_list {
+    my (undef, $field) = @_;
+    for my $item (_list_items($field->value)) {
+        my ($port, $protocol, @rest) = split('/', $item);
+        next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /^(tcp|udp)$/;
+        $field->add_error("'$item' is not a valid port/protocol (ex: 80/tcp)");
+    }
+}
+
+=head2 validate_interface_list
+
+Validate a list of network interface names
+
+=cut
+
+sub validate_interface_list {
+    my (undef, $field) = @_;
+    for my $item (_list_items($field->value)) {
+        next if $item =~ /^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,14}$/;
+        $field->add_error("'$item' is not a valid interface name");
+    }
+}
 
 =head2 validator_for_field
 
