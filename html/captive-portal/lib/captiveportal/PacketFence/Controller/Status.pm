@@ -109,14 +109,24 @@ sub userIsAuthenticated : Private {
     );
     if (is_dpsk_enabled($c->profile)) {
         my @provisioners = $c->profile->provisionerObjects();
+        my $has_dpsk_provisioner = $FALSE;
 
         foreach my $provisioner (@provisioners) {
             next unless $provisioner->isa("pf::provisioner::dpsk");
+            $has_dpsk_provisioner = $TRUE;
             my $dpsk = $provisioner->generate_dpsk($pid);
             if (!$dpsk) {
                 $dpsk = "Error generating the PSK, contact your administrator";
             }
             $c->stash( psk => $dpsk);
+        }
+
+        # Without a DPSK provisioner, show the PSK the user already has (if any)
+        if (!$has_dpsk_provisioner && defined $pid) {
+            my $person = person_view($pid);
+            if ($person && defined $person->{psk} && $person->{psk} ne '') {
+                $c->stash( psk => $person->{psk} );
+            }
         }
     }
 }
