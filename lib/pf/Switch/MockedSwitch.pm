@@ -551,8 +551,8 @@ Just performing the wait, no setAdminStatus
 =cut
 
 sub bouncePort {
-    my ($self, $ifIndex) = @_;
-    return $self->bouncePortSNMP($ifIndex);
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->bouncePortSNMP($ifIndex, $mac);
 }
 
 sub bouncePortSNMP {
