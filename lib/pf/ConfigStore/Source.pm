@@ -17,6 +17,8 @@ use Moo;
 use pf::constants;
 use namespace::autoclean;
 use pf::Authentication::utils;
+use pf::dal::password;
+use pf::person qw();
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
@@ -206,6 +208,21 @@ sub cleanupBeforeDelete {
     for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
         $cachedConfig->DeleteSection($sub_section);
     }
+    if (($cachedConfig->val($section, 'type') // '') eq 'Potd') {
+        $self->cleanupPotd($id);
+    }
+}
+
+=head2 cleanupPotd
+
+Remove the password and the person that pfcron created for a Password Of The Day source
+
+=cut
+
+sub cleanupPotd {
+    my ($self, $id) = @_;
+    pf::dal::password->remove_by_id({pid => $id});
+    pf::person::person_delete($id);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
