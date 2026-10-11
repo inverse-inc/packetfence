@@ -209,7 +209,6 @@ sub options_field_names {
           dhcp_fingerprint
           dhcp_vendor
           fqdn
-          last_arp
           last_connection_sub_type
           last_connection_type
           last_dhcp

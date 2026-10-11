@@ -123,7 +123,6 @@ pid
 machine_account
 category
 mac
-last_arp
 last_dhcp
 user_agent
 computername
