@@ -111,6 +111,7 @@ Readonly::Scalar our $EXT_URL_ARUBA                   => '^/Aruba';
 Readonly::Scalar our $EXT_URL_ARUBA_SWITCH            => '^/Aruba::2930M';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960     => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_CISCO_IOS_15_0    => '^/Cisco::Cisco_IOS_15_0';
+Readonly::Scalar our $EXT_URL_CISCO_CISCO_IOS_15_5    => '^/Cisco::Cisco_IOS_15_5';
 Readonly::Scalar our $EXT_URL_CISCO_WLC               => '^/Cisco::WLC';
 Readonly::Scalar our $EXT_URL_CISCO_WLC_AIREOS        => '^/Cisco::Cisco_WLC_AireOS';
 Readonly::Scalar our $EXT_URL_CISCO_WLC_IOS_XE        => '^/Cisco::Cisco_WLC_IOS_XE';
