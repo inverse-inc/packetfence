@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import api from '../_api'
+import i18n from '@/utils/locale'
 import { pfActions } from '@/globals/pfActions'
 
 export const useStore = $store => {
@@ -263,7 +264,8 @@ const actions = {
         pid: user.pid,
         password: user.password
       },
-      template: 'guest_local_account_creation'
+      template: 'guest_local_account_creation',
+      locale: i18n.locale
     }
     commit('USER_REQUEST')
     return api.previewEmail(data).then(response => {
@@ -281,7 +283,8 @@ const actions = {
         password: data.password
       },
       to: data.email,
-      subject: data.subject
+      subject: data.subject,
+      locale: i18n.locale
     }
     commit('USER_REQUEST')
     return api.sendEmail(body).then(response => {
