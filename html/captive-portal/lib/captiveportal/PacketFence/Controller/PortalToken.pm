@@ -29,6 +29,8 @@ sub index : Path : Args(0) {
     my $actions;
     if (my $uuid = $c->request->param('token')) {
         $actions = cache->get($uuid);
+        # A token can only be used once
+        cache->remove($uuid) if defined($actions);
         if (!defined($actions)) {
             $c->response->status(404);
             $c->response->body('{ "access_level" => "none" }');

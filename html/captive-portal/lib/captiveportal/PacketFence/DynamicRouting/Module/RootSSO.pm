@@ -70,7 +70,11 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{root_session_token});
+    my $callback = $self->app->session->{callback};
+    my $token = $self->{root_session_token};
+    # The portal session is kept by device, start the next single sign-on from scratch
+    $self->app->reset_session;
+    return $self->app->redirect($callback."?token=".$token);
 }
 
 =head2 execute_child
