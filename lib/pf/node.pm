@@ -198,8 +198,31 @@ sub node_delete {
         return ($FALSE, "Unable to delete '$mac' internal error");
     }
 
+    node_clear_portal_session($mac);
     $logger->info("node $mac deleted");
     return ($TRUE, '');
+}
+
+=item node_clear_portal_session
+
+Remove the captive portal session of a device (keyed by its MAC address) so the portal starts over on its next visit
+
+=cut
+
+sub node_clear_portal_session {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    return unless valid_mac($mac);
+    (my $session_id = $mac) =~ s/://g;
+    eval {
+        require pf::CHI;
+        my $cache = pf::CHI->new(namespace => 'httpd.portal');
+        $cache->remove("$_:$session_id") for qw(session expires flash);
+    };
+    if ($@) {
+        get_logger->warn("Unable to remove the portal session of $mac: $@");
+    }
+    return;
 }
 
 our %DEFAULT_NODE_VALUES = (

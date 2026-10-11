@@ -1347,7 +1347,11 @@ sub _do_remove {
         pf::locationlog::locationlog_update_end_mac($mac);
     }
 
-    return $self->dal->remove_by_id($lookup);
+    my ($status, @rest) = $self->dal->remove_by_id($lookup);
+    if (is_success($status)) {
+        pf::node::node_clear_portal_session($mac);
+    }
+    return ($status, @rest);
 }
 
 =head2 create_data_update
