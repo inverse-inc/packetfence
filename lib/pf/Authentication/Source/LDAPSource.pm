@@ -625,7 +625,11 @@ sub test {
   if (!defined($connection)) {
     my $binddn = $self->{'binddn'} // '';
     $logger->warn("[$id] Unable to connect to any LDAP server");
-    return ($FALSE, "Can't connect to server or bind with '$binddn' on $LDAPServer:$LDAPServerPort");
+    if (my @unresolved = $self->_unresolvable_hosts) {
+      return ($FALSE, "Unable to resolve " . join(', ', @unresolved) . ", check the DNS configuration" . ($self->use_connector ? " of the connector" : ""));
+    }
+    my $server = $LDAPServer // join(', ', @{$self->{'host'} // []});
+    return ($FALSE, "Can't connect to server or bind with '$binddn' on $server:$LDAPServerPort");
   }
   my $base = $self->{basedn};
   # Search
@@ -644,6 +648,30 @@ sub test {
   }
 
   return ($TRUE, 'LDAP connect, bind and search successful');
+}
+
+=head2 _unresolvable_hosts
+
+The configured hosts that are not IP addresses and can't be resolved, using the
+connector resolver when the source goes through the connector
+
+=cut
+
+sub _unresolvable_hosts {
+  my ($self) = @_;
+  my @unresolved;
+  foreach my $host (@{$self->{'host'} // []}) {
+    next if valid_ip($host);
+    my $resolved;
+    if ($self->use_connector) {
+      require pf::factory::connector;
+      $resolved = defined(pf::factory::connector->resolve($host));
+    } else {
+      $resolved = @{ resolve($host) // [] } ? 1 : 0;
+    }
+    push @unresolved, $host unless $resolved;
+  }
+  return @unresolved;
 }
 
 =head2 ldap_filter_for_conditions
