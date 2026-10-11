@@ -1530,7 +1530,7 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
         $calling_station_id = $remapped_radius_request{'Calling-Station-Id'}
     }
 
-    if (pf::util::valid_mac($calling_station_id)) {
+    if (pf::util::valid_mac($calling_station_id) || _is_mac_auth_without_calling_station_id(\%remapped_radius_request)) {
         $return = $class->radius_authorize(%remapped_radius_request);
     } else {
         $return = $class->radius_switch_access(%remapped_radius_request);
@@ -1540,6 +1540,32 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     $return = pf::radius::rest::format_response($return);
 
     return $return;
+}
+
+=head2 _is_mac_auth_without_calling_station_id
+
+Some switches (ex: Avaya ERS NEAP) do MAC authentication without a
+Calling-Station-Id, the MAC address is only in the User-Name.
+A request without a valid Calling-Station-Id is a MAC authentication if its
+User-Name is a MAC address and it is not a login on the switch itself
+(CLI: Service-Type NAS-Prompt-User/Administrative-User, NAS-Port-Type Virtual/Async)
+
+=cut
+
+sub _is_mac_auth_without_calling_station_id {
+    my ($radius_request) = @_;
+    my $value = sub {
+        my $v = $radius_request->{$_[0]};
+        return ref($v) eq 'ARRAY' ? $v->[0] : $v;
+    };
+    return 0 unless pf::util::valid_mac($value->('User-Name'));
+    # FreeRADIUS sends the numeric values (Service-Type 6 = Administrative-User,
+    # 7 = NAS-Prompt-User; NAS-Port-Type 0 = Async, 5 = Virtual)
+    my $service_type = $value->('Service-Type') // '';
+    return 0 if any { $service_type eq $_ } qw(6 7 Administrative-User NAS-Prompt-User);
+    my $nas_port_type = $value->('NAS-Port-Type') // '';
+    return 0 if any { $nas_port_type eq $_ } qw(0 5 Async Virtual);
+    return 1;
 }
 
 =head2 radius_rest_filter
