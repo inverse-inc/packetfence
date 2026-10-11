@@ -187,12 +187,21 @@ sub objects_from_payload {
     my @cas;
     my $ca;
     my $key;
+    my $fetch_error;
     eval {
-        $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse server certificate\n";
+        # The certificate field can contain the full chain (e.g. a fullchain.pem): server certificate first, then its intermediates
+        my @chain = grep { /-----BEGIN CERTIFICATE-----/ } split_pem($data->{certificate} // '');
+        my $cert_text = @chain ? shift(@chain) : $data->{certificate};
+        $cert = pf::ssl::x509_from_string($cert_text) or die "Failed to parse server certificate\n";
         $key = pf::ssl::rsa_from_string($data->{private_key}) or die "Failed to parse private key\n";
-        
-        if(exists($data->{intermediate_cas})) {
-            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediate_cas}};
+
+        my @provided_intermediate_cas = grep { defined($_) && /\S/ } @{$data->{intermediate_cas} // []};
+        if (@provided_intermediate_cas) {
+            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @provided_intermediate_cas;
+            @cas = @intermediate_cas;
+        }
+        elsif (@chain) {
+            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the intermediate certificates following the server certificate\n" } @chain;
             @cas = @intermediate_cas;
         }
         else {
@@ -202,9 +211,7 @@ sub objects_from_payload {
                 @cas = @intermediate_cas;
             }
             else {
-                my $msg = "Unable to fetch intermediate certificates ($certs). You will have to upload your intermediate chain manually in x509 (Apache) format.";
-                $self->log->error($msg);
-                return $self->render_error("422", $msg);
+                $fetch_error = "Unable to fetch intermediate certificates ($certs). You will have to upload your intermediate chain manually in x509 (Apache) format.";
             }
         }
 
@@ -214,6 +221,11 @@ sub objects_from_payload {
         chomp($msg);
         $self->log->error($msg);
         $self->render_error("500", $msg);
+        return (undef);
+    }
+    if ($fetch_error) {
+        $self->log->error($fetch_error);
+        $self->render_error("422", $fetch_error);
         return (undef);
     }
 
@@ -277,7 +289,7 @@ sub replace {
         my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, $cas);
         unless($chain_res) {
             my $msg = "Failed verifying chain: $chain_msg.";
-            if(exists($data->{intermediate_cas})) {
+            if(exists($data->{intermediate_cas}) || ($data->{certificate} // '') =~ /-----BEGIN CERTIFICATE-----.*-----BEGIN CERTIFICATE-----/s) {
                 $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
             }
             else {

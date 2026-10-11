@@ -56,7 +56,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 43;
+use Test::More tests => 50;
 use Test::Mojo;
 use Test::NoWarnings;
 
@@ -227,6 +227,19 @@ $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_
 $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => "-----BEGIN CERTIFICATE-----\nnot a cert\n-----END CERTIFICATE-----\n" })
   ->status_is(422)
   ->json_is('/message', "Failed to parse Certification Authority certificate.");
+
+# A full chain pasted in the certificate field is used as the intermediate chain
+my ($chain_cert, $chain_key, $chain_ca_cert) = generate_radius_bundle('fullchain');
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => "$chain_cert$chain_ca_cert", private_key => $chain_key })
+  ->status_is(200);
+
+$t->get_ok('/api/v1/config/certificate/http/info')
+  ->status_is(200)
+  ->json_has('/intermediate_cas/0');
+
+# Without the chain, it can't be verified (the certificate has no AIA to fetch it)
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $chain_cert, private_key => $chain_key })
+  ->status_is(422);
 
 # test CSR with missing information
 $t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {})
