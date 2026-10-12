@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -396,4 +397,89 @@ func TestRevokeCert_AlreadyRevoked(t *testing.T) {
 	}
 	second := a.post(t, u, a.signed(u, modeKID, kidA, a.fetchNonce(), payload))
 	expectProblem(t, second, http.StatusBadRequest, "alreadyRevoked")
+}
+
+// orderIDFromURL returns the numeric id at the end of an order URL.
+func orderIDFromURL(t *testing.T, u string) uint {
+	t.Helper()
+	n, err := strconv.ParseUint(u[strings.LastIndex(u, "/")+1:], 10, 64)
+	if err != nil {
+		t.Fatalf("order id from %q: %v", u, err)
+	}
+	return uint(n)
+}
+
+// TestFinalize_RefusesExpiredOrderOrAuthz: a ready order whose own
+// expiry or one of whose authorizations' expiry has passed cannot be
+// finalized; the order moves to invalid.
+func TestFinalize_RefusesExpiredOrderOrAuthz(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-fin-expired")
+	c, kid := bootstrapAcmeAccount(t, env, prof)
+	past := time.Now().Add(-time.Minute)
+
+	for name, expire := range map[string]func(orderID uint){
+		"order": func(orderID uint) {
+			env.DB.Model(&models.AcmeOrder{}).Where("id = ?", orderID).Update("expires_at", past)
+		},
+		"authz": func(orderID uint) {
+			env.DB.Model(&models.AcmeAuthz{}).Where("order_id = ?", orderID).Update("expires_at", past)
+		},
+	} {
+		dnsName := name + ".expired.example"
+		orderURL, finalizeURL := readyOrder(t, env, prof, c, kid, dnsName)
+		orderID := orderIDFromURL(t, orderURL)
+		expire(orderID)
+
+		key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		resp := finalizeWith(t, c, kid, finalizeURL, &x509.CertificateRequest{
+			Subject: pkix.Name{CommonName: dnsName}, DNSNames: []string{dnsName},
+		}, key)
+		expectProblem(t, resp, http.StatusForbidden, "orderNotReady")
+
+		var order models.AcmeOrder
+		env.DB.First(&order, orderID)
+		if order.Status != "invalid" || order.CertSerialNumber != "" {
+			t.Fatalf("%s expired: order status=%q serial=%q, want invalid without cert", name, order.Status, order.CertSerialNumber)
+		}
+	}
+}
+
+// TestFinalize_PermanentIdentifierFailsClosed: a permanent-identifier
+// on the order must be backed by an attested authz for that identifier
+// carrying the CSR's key; an order lacking one is refused instead of
+// skipping the key binding.
+func TestFinalize_PermanentIdentifierFailsClosed(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-fin-attest")
+	c, kid := bootstrapAcmeAccount(t, env, prof)
+	orderURL, finalizeURL := readyOrder(t, env, prof, c, kid, "device.attest.example")
+	orderID := orderIDFromURL(t, orderURL)
+	const udid = "00008101-001AABCDEF01"
+
+	// The order names a device, but its only authz proved a DNS name.
+	env.DB.Model(&models.AcmeOrder{}).Where("id = ?", orderID).
+		Update("identifiers", `[{"type":"permanent-identifier","value":"`+udid+`"}]`)
+
+	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	csr := &x509.CertificateRequest{Subject: pkix.Name{CommonName: udid}}
+	expectProblem(t, finalizeWith(t, c, kid, finalizeURL, csr, key), http.StatusBadRequest, "badCSR")
+
+	// An attested authz for the device with a different key is refused too.
+	other, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	otherSPKI, _ := x509.MarshalPKIXPublicKey(other.Public())
+	env.DB.Model(&models.AcmeAuthz{}).Where("order_id = ?", orderID).Updates(map[string]any{
+		"identifier_type": "permanent-identifier",
+		"value":           udid,
+		"attested_spki":   base64.StdEncoding.EncodeToString(otherSPKI),
+	})
+	expectProblem(t, finalizeWith(t, c, kid, finalizeURL, csr, key), http.StatusBadRequest, "badCSR")
+
+	// The attested key itself is accepted.
+	resp := finalizeWith(t, c, kid, finalizeURL, csr, other)
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("attested key: status=%d body=%s", resp.StatusCode, string(body))
+	}
 }
