@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -8,6 +9,41 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
+
+// UnmarshalJSON decodes a profile and records which fields the request
+// sent, so New can tell a field sent as 0 from a missing one.
+func (p *Profile) UnmarshalJSON(data []byte) error {
+	type plain Profile
+	if err := json.Unmarshal(data, (*plain)(p)); err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	p.sentFields = make(map[string]bool, len(fields))
+	for k := range fields {
+		p.sentFields[k] = true
+	}
+	return nil
+}
+
+// defaultedFields returns the profile columns that have a non-zero
+// database default, with a pointer to their value. gorm leaves a zero
+// value out of an INSERT, so the database default would replace it.
+func (p *Profile) defaultedFields() map[string]*int {
+	return map[string]*int{
+		"scep_days_before_renewal": &p.SCEPDaysBeforeRenewal,
+		"days_before_renewal":      &p.DaysBeforeRenewal,
+		"renewal_mail":             &p.RenewalMail,
+		"days_before_renewal_mail": &p.DaysBeforeRenewalMail,
+		"revoked_valid_until":      &p.RevokedValidUntil,
+		"acme_eab_required":        &p.AcmeEabRequired,
+		"acme_account_expiry":      &p.AcmeAccountExpiry,
+		"acme_order_expiry":        &p.AcmeOrderExpiry,
+		"acme_authz_expiry":        &p.AcmeAuthzExpiry,
+	}
+}
 
 // Profile section
 func NewProfileModel(pfpki *types.Handler) *Profile {
@@ -77,6 +113,24 @@ func (p Profile) New() (types.Info, error) {
 	if err := p.DB.Create(&profile).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
+	}
+
+	// The INSERT replaced the fields sent as 0 (EAB off, no renewal
+	// mail, renewal always allowed, ...) by their database default:
+	// store the values the request asked for.
+	requested := p.defaultedFields()
+	zeroed := map[string]interface{}{}
+	for column, stored := range profile.defaultedFields() {
+		if p.sentFields[column] && *stored != *requested[column] {
+			*stored = *requested[column]
+			zeroed[column] = *stored
+		}
+	}
+	if len(zeroed) > 0 {
+		if err := p.DB.Model(&profile).Updates(zeroed).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, errors.New(dbError)
+		}
 	}
 	Information.Entries = []Profile{profile}
 

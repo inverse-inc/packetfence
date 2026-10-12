@@ -127,6 +127,10 @@ type (
 		EstEnabled  int    `json:"est_enabled,omitempty" gorm:"default:0"`
 		EstUsername string `json:"est_username,omitempty"`
 		EstPassword string `json:"est_password,omitempty"`
+
+		// sentFields are the JSON keys of the request the profile was
+		// decoded from (see UnmarshalJSON).
+		sentFields map[string]bool
 	}
 
 	// Cert struct
