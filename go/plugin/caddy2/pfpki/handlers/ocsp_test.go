@@ -44,8 +44,9 @@ func TestOCSP_GoodAndRevoked(t *testing.T) {
 		t.Errorf("OCSP serial=%s, want %s", resp.SerialNumber, leafSerial)
 	}
 
-	// Revoke the cert (CRL reason 4 = Superseded).
-	if err := revokeLeaf(t, env, leafID, xocsp.Superseded); err != nil {
+	// Revoke the cert (CRL reason 1 = KeyCompromise: unlike Superseded,
+	// it isn't delayed by the profile's revoked_valid_until).
+	if err := revokeLeaf(t, env, leafID, xocsp.KeyCompromise); err != nil {
 		t.Fatalf("revoke: %v", err)
 	}
 
@@ -54,8 +55,19 @@ func TestOCSP_GoodAndRevoked(t *testing.T) {
 	if resp2.Status != xocsp.Revoked {
 		t.Fatalf("post-revoke OCSP status = %d, want Revoked (%d)", resp2.Status, xocsp.Revoked)
 	}
-	if resp2.RevocationReason != xocsp.Superseded {
-		t.Errorf("RevocationReason=%d, want %d", resp2.RevocationReason, xocsp.Superseded)
+	if resp2.RevocationReason != xocsp.KeyCompromise {
+		t.Errorf("RevocationReason=%d, want %d", resp2.RevocationReason, xocsp.KeyCompromise)
+	}
+
+	// A superseded certificate stays good during the profile's
+	// revoked_valid_until days (14 by default).
+	_, supersededID := mustIssueLeafFromHTTP(t, env, prof, "ocsp-superseded")
+	superseded := loadLeafFromDB(t, env, supersededID)
+	if err := revokeLeaf(t, env, supersededID, xocsp.Superseded); err != nil {
+		t.Fatalf("revoke: %v", err)
+	}
+	if resp3 := postOCSP(t, env, superseded, caCert); resp3.Status != xocsp.Good {
+		t.Fatalf("superseded OCSP status = %d, want Good during the grace period", resp3.Status)
 	}
 }
 
