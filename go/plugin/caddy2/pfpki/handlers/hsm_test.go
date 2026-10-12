@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/eclipse-keypont/crypto11"
 	"github.com/go-kit/log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/hsm"
@@ -159,6 +160,29 @@ func TestHSM_CA(t *testing.T) {
 			resignedCert.PublicKey.(*rsa.PublicKey).Equal(caCert.PublicKey), resigned.Cert != caRow.Cert)
 	}
 
+	// --- While the token is logged in (a CA key is in use), a wrong PIN
+	// is still refused, and the CAs keep working afterwards.
+	status, body = doJSON(t, env, "POST", "/api/v1/pki/hsms/", fmt.Sprintf(`{"name":"bad-while-open","module":%q,"token_label":%q,"pin":"wrong-pin"}`, cfg.Module, cfg.TokenLabel))
+	if status != http.StatusUnprocessableEntity {
+		t.Fatalf("HSM with a wrong PIN while the token is open -> %d, want 422:\n%s", status, body)
+	}
+	_, reopenedID := mustIssueLeafFromHTTP(t, env, prof, "hsm-leaf-reopened")
+	if _, err := loadLeafFromDB(t, env, reopenedID).Verify(x509.VerifyOptions{Roots: roots, KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageAny}}); err != nil {
+		t.Fatalf("leaf issued after a refused PIN: %v", err)
+	}
+
+	// --- A CA that can't be created doesn't leave its key in the token.
+	keysBefore := countTokenKeys(t, cfg)
+	if status, body = doJSON(t, env, "POST", "/api/v1/pki/cas/", fmt.Sprintf(`{
+		"cn": "hsm-rsa-ca", "key_type": "%d", "key_size": "2048", "digest": "%d",
+		"key_usage": "32|64", "extended_key_usage": "1|2", "days": "365", "hsm_id": "%d"}`,
+		int(certutils.KEY_RSA), int(x509.SHA256WithRSA), h.ID)); status/100 == 2 {
+		t.Fatalf("duplicate CA accepted:\n%s", body)
+	}
+	if keysAfter := countTokenKeys(t, cfg); keysAfter != keysBefore {
+		t.Fatalf("%d key pairs in the token after a failed CA creation, want %d", keysAfter, keysBefore)
+	}
+
 	// --- ECDSA CA held in the HSM.
 	ecCA := mustCreateHSMCA(t, env, h.ID, "hsm-ec-ca", certutils.KEY_ECDSA, 256, x509.ECDSAWithSHA256)
 	ecProf := mustCreateProfileFromHTTP(t, env, "hsm-ec-prof", ecCA, certutils.KEY_ECDSA, 256, x509.ECDSAWithSHA256)
@@ -198,6 +222,22 @@ func TestHSM_CA(t *testing.T) {
 	if reloaded.Pin != cfg.Pin {
 		t.Fatalf("the PIN was not kept by an update without one")
 	}
+}
+
+// countTokenKeys counts the key pairs in the token, through a context of
+// its own.
+func countTokenKeys(t *testing.T, cfg hsm.Config) int {
+	t.Helper()
+	ctx, err := crypto11.Configure(&crypto11.Config{Path: cfg.Module, TokenLabel: cfg.TokenLabel, Pin: cfg.Pin})
+	if err != nil {
+		t.Fatalf("open the token: %v", err)
+	}
+	defer ctx.Close()
+	keys, err := ctx.FindAllKeyPairs()
+	if err != nil {
+		t.Fatalf("list the key pairs: %v", err)
+	}
+	return len(keys)
 }
 
 // scepEnroll runs a full SCEP enrollment and returns the certificate the

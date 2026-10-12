@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/hsm"
 	"gorm.io/gorm"
@@ -91,6 +92,18 @@ func (c CA) generateHSMKey(db *gorm.DB) (crypto.Signer, []byte, error) {
 		return nil, nil, fmt.Errorf("HSM %d: %w", c.HsmID, err)
 	}
 	return hsm.GenerateKey(h.Config(), keyType, c.KeySize, "pfpki CA "+c.Cn)
+}
+
+// deleteHSMKey removes a key pair generated for the CA from its HSM.
+func (c CA) deleteHSMKey(db *gorm.DB, id []byte) {
+	var h HSM
+	err := db.First(&h, c.HsmID).Error
+	if err == nil {
+		err = hsm.DeleteKey(h.Config(), id)
+	}
+	if err != nil {
+		log.LoggerWContext(c.Ctx).Error(fmt.Sprintf("CA %q: unable to delete the unused key %x from HSM %d: %s", c.Cn, id, c.HsmID, err))
+	}
 }
 
 // sameKey checks that a certificate public key is the one of key.
