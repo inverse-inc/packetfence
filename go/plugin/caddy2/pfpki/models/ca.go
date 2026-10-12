@@ -423,12 +423,16 @@ func nextSerialNumber(db *gorm.DB, caID uint, fallbackToFirst bool) (*big.Int, e
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		ca := &CA{}
-		locked := tx.Clauses(clause.Locking{Strength: "UPDATE"})
-		if err := locked.First(ca, caID).Error; err != nil {
+		// Each lookup builds its own statement: a gorm statement keeps
+		// its error and conditions, so reusing the failed one for the
+		// fallback would fail again.
+		locked := func() *gorm.DB { return tx.Clauses(clause.Locking{Strength: "UPDATE"}) }
+		if err := locked().First(ca, caID).Error; err != nil {
 			if !fallbackToFirst {
 				return err
 			}
-			if err := locked.First(ca).Error; err != nil {
+			ca = &CA{}
+			if err := locked().First(ca).Error; err != nil {
 				return err
 			}
 		}
