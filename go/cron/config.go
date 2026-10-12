@@ -40,10 +40,10 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	// ACME state grows quickly under churn: every device enrollment
 	// produces one order, one or more authzs, one challenge per authz,
 	// plus a transient nonce. We sweep the four expirable tables in
-	// dependency order (challenges -> authzs -> orders -> nonces) so
-	// FK-style references stay valid mid-sweep even though we don't
-	// declare DB-level FKs. Nonces use the window=0 fast path because
-	// they're already past expires_at to be candidates.
+	// dependency order (challenges -> authzs -> orders -> nonces) so no
+	// delete ever trips the DB-level foreign keys between them. Consumed
+	// nonces are deleted by the ACME server; this only drops the ones
+	// that expired unused.
 	"pki_acme_state_cleanup": MakeMultiWindowSqlJobSetupConfig(
 		// Single-table DELETEs only: MySQL/MariaDB reject LIMIT on a
 		// multi-table DELETE. Children go first, and each parent delete is

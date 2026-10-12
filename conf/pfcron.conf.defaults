@@ -785,7 +785,7 @@ status=disabled
 # description
 #
 # The description of task
-description=Polls each cloud-enabled (Intune) profile for pending CA revocation requests and applies them to the pfpki database. The same logic runs inline when a SCEP enrollment hits "Certificate with this Subject already exist"; this scheduled run is a safety net for devices that never re-enroll after Intune revokes them.
+description=Polls each cloud-enabled (Intune) profile for pending CA revocation requests and applies them to the pfpki database. Only this task and the manual endpoint run it: a SCEP re-enrollment with an already used subject supersedes the previous certificate instead. This scheduled run applies the revocations of devices that never re-enroll after Intune revokes them.
 #
 # schedule
 #
