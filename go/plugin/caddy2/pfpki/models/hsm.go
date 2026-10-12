@@ -110,8 +110,8 @@ func (h HSM) Search(vars sql.Vars) (types.Info, error) {
 	return Information, nil
 }
 
-// Update changes the module, token label or PIN of the HSM (the PIN is
-// kept when none is given) once the token can be opened with them.
+// Update changes the module, token label or PIN of the HSM (the fields
+// left out are kept) once the token can be opened with them.
 func (h HSM) Update(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var hsmdb HSM
@@ -120,8 +120,13 @@ func (h HSM) Update(params map[string]string) (types.Info, error) {
 		return Information, err
 	}
 	previous := hsmdb.Config()
-	hsmdb.Module = h.Module
-	hsmdb.TokenLabel = h.TokenLabel
+	// Fields left out of the request keep their stored value.
+	if h.Module != "" {
+		hsmdb.Module = h.Module
+	}
+	if h.TokenLabel != "" {
+		hsmdb.TokenLabel = h.TokenLabel
+	}
 	if h.Pin != "" {
 		hsmdb.Pin = h.Pin
 	}
