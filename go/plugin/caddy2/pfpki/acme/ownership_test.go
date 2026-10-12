@@ -319,11 +319,17 @@ func TestChallengeFailure_InvalidatesOrder(t *testing.T) {
 	ar.Body.Close()
 
 	chr := c.post(t, ab.Challenges[0].URL, c.signed(ab.Challenges[0].URL, modeKID, kid, c.fetchNonce(), map[string]any{}))
-	var cb struct{ Status string }
+	var cb struct {
+		Status string
+		Error  struct{ Type string }
+	}
 	_ = json.NewDecoder(chr.Body).Decode(&cb)
 	chr.Body.Close()
 	if cb.Status != "invalid" {
 		t.Fatalf("challenge status=%q want invalid", cb.Status)
+	}
+	if cb.Error.Type == "" {
+		t.Fatalf("failed challenge response carries no error problem")
 	}
 
 	rr := c.post(t, orderURL, c.signed(orderURL, modeKID, kid, c.fetchNonce(), ""))

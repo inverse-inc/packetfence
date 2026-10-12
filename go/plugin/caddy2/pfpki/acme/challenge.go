@@ -89,18 +89,7 @@ func challengeByIDHandler(h *types.Handler) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Link", `<`+authzURL(r, jc.Profile.Name, authz.ID)+`>;rel="up"`)
-		_ = json.NewEncoder(w).Encode(challengeResponse{
-			Type:   challenge.Type,
-			URL:    challengeURL(r, jc.Profile.Name, challenge.ID),
-			Status: challenge.Status,
-			Token:  challenge.Token,
-			Validated: func() string {
-				if challenge.Validated.IsZero() {
-					return ""
-				}
-				return challenge.Validated.Format(time.RFC3339)
-			}(),
-		})
+		_ = json.NewEncoder(w).Encode(buildChallengeResponse(r, jc.Profile.Name, &challenge))
 	}
 	return jwsMiddleware(h, jwsRequireKID, inner)
 }
