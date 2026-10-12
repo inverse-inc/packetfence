@@ -83,7 +83,7 @@ type (
 		P12MailHeader         string                  `json:"p12_mail_header,omitempty"`
 		P12MailFooter         string                  `json:"p12_mail_footer,omitempty"`
 		SCEPEnabled           int                     `json:"scep_enabled,omitempty"`
-		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
+		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty" search:"-"`
 		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,string" gorm:"default:14"`
 		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
 		RenewalMail           int                     `json:"renewal_mail,omitempty,string" gorm:"default:1"`
@@ -126,7 +126,7 @@ type (
 		// EstPassword is empty.
 		EstEnabled  int    `json:"est_enabled,omitempty" gorm:"default:0"`
 		EstUsername string `json:"est_username,omitempty"`
-		EstPassword string `json:"est_password,omitempty"`
+		EstPassword string `json:"est_password,omitempty" search:"-"`
 
 		// sentFields are the JSON keys of the request the profile was
 		// decoded from (see UnmarshalJSON).
@@ -233,7 +233,7 @@ type (
 		Module     string          `json:"module,omitempty"`
 		TokenLabel string          `json:"token_label,omitempty"`
 		// Pin is write-only: it is never returned by the API.
-		Pin string `json:"pin,omitempty"`
+		Pin string `json:"pin,omitempty" search:"-"`
 	}
 	// SCEP struct
 	SCEPServer struct {
@@ -245,7 +245,7 @@ type (
 		Ctx          context.Context `json:"-" gorm:"-"`
 		Name         string          `json:"name,omitempty" gorm:"UNIQUE"`
 		URL          string          `json:"url,omitempty"`
-		SharedSecret string          `json:"shared_secret,omitempty"`
+		SharedSecret string          `json:"shared_secret,omitempty" search:"-"`
 	}
 )
 

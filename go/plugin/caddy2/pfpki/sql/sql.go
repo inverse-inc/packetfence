@@ -19,6 +19,9 @@ import (
 // once per request and previously paid for the reflection every time.
 var sqlFieldsCache sync.Map // reflect.Type -> []string
 
+// searchableFieldsCache memoises SearchableFields per reflect.Type.
+var searchableFieldsCache sync.Map // reflect.Type -> []string
+
 type (
 	// SQL struct
 	Sql struct {
@@ -94,6 +97,38 @@ func SqlFields(class interface{}) []string {
 	return append([]string(nil), jsonTags...)
 }
 
+// SearchableFields returns the fields of SqlFields that a request may
+// filter or sort on: the ones without a `search:"-"` tag. Secrets (PINs,
+// passwords) are tagged so that a starts_with search can't recover them
+// one character at a time.
+func SearchableFields(class interface{}) []string {
+	t := reflect.TypeOf(class)
+	if cached, ok := searchableFieldsCache.Load(t); ok {
+		return append([]string(nil), cached.([]string)...)
+	}
+	hidden := map[string]bool{}
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if f.Tag.Get("search") != "-" {
+			continue
+		}
+		if jsonTag := f.Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
+			if commaIdx := strings.Index(jsonTag, ","); commaIdx > 0 {
+				jsonTag = jsonTag[:commaIdx]
+			}
+			hidden[jsonTag] = true
+		}
+	}
+	fields := make([]string, 0)
+	for _, field := range SqlFields(class) {
+		if !hidden[field] {
+			fields = append(fields, field)
+		}
+	}
+	searchableFieldsCache.Store(t, fields)
+	return append([]string(nil), fields...)
+}
+
 func (vars Vars) SqlSelect(class interface{}) (string, error) {
 	classFields := SqlFields(class)
 	if len(vars.Fields) == 0 { // SELECT *
@@ -133,7 +168,7 @@ func (vars Vars) SqlOrder(class interface{}) (string, error) {
 		f, _ := reflect.TypeOf(vars).FieldByName("Sort")
 		vars.Sort = append(vars.Sort, f.Tag.Get("default"))
 	}
-	classFields := SqlFields(class)
+	classFields := SearchableFields(class)
 	orderFields := make([]string, 0)
 	var valid bool = false
 	for _, sort := range vars.Sort {
@@ -234,7 +269,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 			}
 		}
 	} else {
-		classFields := SqlFields(class)
+		classFields := SearchableFields(class)
 		var valid bool = false
 		for _, classField := range classFields {
 			if strings.ToLower(classField) == strings.ToLower(search.Field) {
