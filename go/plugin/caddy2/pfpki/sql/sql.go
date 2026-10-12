@@ -76,7 +76,9 @@ func (vars Vars) Sql(class interface{}) (Sql, error) {
 func SqlFields(class interface{}) []string {
 	t := reflect.TypeOf(class)
 	if cached, ok := sqlFieldsCache.Load(t); ok {
-		return cached.([]string)
+		// Callers pop the fields they match, so each gets its own copy:
+		// the cached list must never be modified.
+		return append([]string(nil), cached.([]string)...)
 	}
 	jsonTags := []string{"id"}
 	numFields := t.NumField()
@@ -89,7 +91,7 @@ func SqlFields(class interface{}) []string {
 		}
 	}
 	sqlFieldsCache.Store(t, jsonTags)
-	return jsonTags
+	return append([]string(nil), jsonTags...)
 }
 
 func (vars Vars) SqlSelect(class interface{}) (string, error) {
