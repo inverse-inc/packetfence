@@ -483,3 +483,50 @@ func TestFinalize_PermanentIdentifierFailsClosed(t *testing.T) {
 		t.Fatalf("attested key: status=%d body=%s", resp.StatusCode, string(body))
 	}
 }
+
+// TestChallenge_MultiAuthzOrderPromotes: an order with several
+// authorizations stays pending until the last one validates, then moves
+// to ready.
+func TestChallenge_MultiAuthzOrderPromotes(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-chall-multi")
+	c, kid := bootstrapAcmeAccount(t, env, prof)
+	mock := startMockHTTP01(t)
+	prev := acme.SetHTTP01Client(&http.Client{Transport: mock.rewriteToMock()})
+	t.Cleanup(func() { acme.SetHTTP01Client(prev) })
+
+	createURL := newOrderURL(env, prof)
+	cr := c.post(t, createURL, c.signed(createURL, modeKID, kid, c.fetchNonce(), map[string]any{
+		"identifiers": []map[string]string{
+			{"type": "dns", "value": "one.multi.example"},
+			{"type": "dns", "value": "two.multi.example"},
+		},
+	}))
+	var ob struct{ Authorizations []string }
+	_ = json.NewDecoder(cr.Body).Decode(&ob)
+	cr.Body.Close()
+	orderID := orderIDFromURL(t, cr.Header.Get("Location"))
+
+	for i, authzURL := range ob.Authorizations {
+		ar := c.post(t, authzURL, c.signed(authzURL, modeKID, kid, c.fetchNonce(), ""))
+		var ab struct {
+			Challenges []struct{ URL, Token string }
+		}
+		_ = json.NewDecoder(ar.Body).Decode(&ab)
+		ar.Body.Close()
+		ch := ab.Challenges[0]
+		mock.register(ch.Token, ch.Token+"."+mustThumbprint(t, c.jwk))
+		chr := c.post(t, ch.URL, c.signed(ch.URL, modeKID, kid, c.fetchNonce(), map[string]any{}))
+		chr.Body.Close()
+
+		var order models.AcmeOrder
+		env.DB.First(&order, orderID)
+		want := "pending"
+		if i == len(ob.Authorizations)-1 {
+			want = "ready"
+		}
+		if order.Status != want {
+			t.Fatalf("after %d/%d challenges: order status=%q want %q", i+1, len(ob.Authorizations), order.Status, want)
+		}
+	}
+}
