@@ -849,7 +849,7 @@ type=pki_acme_state_cleanup
 # status
 #
 # If the task is enabled
-status=disabled
+status=enabled
 #
 # description
 #

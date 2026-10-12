@@ -38,14 +38,14 @@ func IssueNonce(h *types.Handler) (string, error) {
 }
 
 // ConsumeNonce is the single-use guard: deletes the row matching token
-// inside one transaction and returns ok=true iff exactly one row was
-// affected. Used by JWS middleware once it lands; lives here so the
-// implementation stays next to IssueNonce.
+// and returns ok=true iff exactly one row was affected. The delete is a
+// hard one (Unscoped): every JWS request consumes a nonce, so
+// soft-deleted rows would pile up until the cleanup cron's window.
 func ConsumeNonce(h *types.Handler, token string) (bool, error) {
 	if token == "" {
 		return false, nil
 	}
-	res := h.DB.Where("token = ? AND expires_at > ?", token, time.Now()).
+	res := h.DB.Unscoped().Where("token = ? AND expires_at > ?", token, time.Now()).
 		Delete(&models.AcmeNonce{})
 	if res.Error != nil {
 		return false, res.Error

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/acme"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/internal/testutil"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
@@ -204,4 +205,26 @@ func TestAcmeNewNonce(t *testing.T) {
 			t.Errorf("expires_at=%v predates created_at=%v", row.ExpiresAt, row.CreatedAt)
 		}
 	})
+}
+
+// TestConsumeNonce_HardDeletes: a consumed nonce leaves no row behind,
+// soft-deleted or not, so the table does not grow with every request.
+func TestConsumeNonce_HardDeletes(t *testing.T) {
+	env := testutil.NewEnv(t)
+	tok, err := acme.IssueNonce(env.Handler)
+	if err != nil {
+		t.Fatalf("IssueNonce: %v", err)
+	}
+	ok, err := acme.ConsumeNonce(env.Handler, tok)
+	if err != nil || !ok {
+		t.Fatalf("ConsumeNonce: ok=%v err=%v", ok, err)
+	}
+	var n int64
+	env.DB.Unscoped().Model(&models.AcmeNonce{}).Where("token = ?", tok).Count(&n)
+	if n != 0 {
+		t.Fatalf("%d nonce rows left after consume", n)
+	}
+	if ok, _ := acme.ConsumeNonce(env.Handler, tok); ok {
+		t.Fatalf("nonce consumed twice")
+	}
 }
