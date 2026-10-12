@@ -69,8 +69,11 @@ NOTE: In this example, the database stack uses the native PacketFence
 link:https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster]
 integration. Although other MySQL based clustering stacks are supported, they
 aren't covered in this guide. If you use an external database or want to use
-another clustering stack for the database, you can ignore this section and
-jump to Step 2 directly.
+another clustering stack for the database, you can ignore this section and the
+next one, and continue with <<_basic_packetfence_configuration,Basic PacketFence configuration>>.
+The Galera-specific <<_database_setup,Database setup>> and
+<<_mariadb_sync_second_and_third_servers,MariaDB sync>> steps later in this
+guide can be skipped as well.
 
 CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with
 an odd number of servers).
