@@ -26,6 +26,7 @@ import FormTypeFamilyZone from './FormTypeFamilyZone'
 import FormTypeFortiGate from './FormTypeFortiGate'
 import FormTypeIboss from './FormTypeIboss'
 import FormTypeJsonRpc from './FormTypeJsonRpc'
+import FormTypeKerio from './FormTypeKerio'
 import FormTypeJuniperSrx from './FormTypeJuniperSrx'
 import FormTypeLightSpeedRocket from './FormTypeLightSpeedRocket'
 import FormTypePaloAlto from './FormTypePaloAlto'
@@ -43,6 +44,7 @@ const components = {
   FormTypeFortiGate,
   FormTypeIboss,
   FormTypeJsonRpc,
+  FormTypeKerio,
   FormTypeJuniperSrx,
   FormTypeLightSpeedRocket,
   FormTypePaloAlto,
@@ -84,6 +86,8 @@ export const setup = (props) => {
         return FormTypeIboss // break
       case 'JSONRPC':
         return FormTypeJsonRpc // break
+      case 'Kerio':
+        return FormTypeKerio // break
       case 'JuniperSRX':
         return FormTypeJuniperSrx // break
       case 'LightSpeedRocket':

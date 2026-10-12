@@ -39,6 +39,7 @@ func NewFactory(ctx context.Context) Factory {
 		"FamilyZone":       newFirewallSSO[FamilyZone],
 		"CiscoIsePic":      newFirewallSSO[CiscoIsePic],
 		"ContentKeeper":    newFirewallSSO[ContentKeeper],
+		"Kerio":            newFirewallSSO[Kerio],
 	}
 	return f
 }
