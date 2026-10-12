@@ -613,13 +613,32 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 		Error := types.Errors{Status: 0}
 
 		switch req.Method {
-		case "GET":
+		case "GET", "POST":
 			Information.Status = http.StatusOK
 			vars := types.Params(req, "id", "profile", "cn")
-			// Optional admin-supplied password from query string. It is
-			// renamed to "mail_password" so Cert.Download doesn't confuse
-			// it with the binary-download trigger.
-			if pw := req.URL.Query().Get("password"); pw != "" {
+			// Optional admin-supplied password: in the JSON body of a POST
+			// ({"password": "..."}), or in the query string of a GET (kept
+			// for compatibility, but logged with the URL). It is renamed
+			// to "mail_password" so Cert.Download doesn't confuse it with
+			// the binary-download trigger.
+			pw := req.URL.Query().Get("password")
+			if req.Method == "POST" {
+				var body struct {
+					Password string `json:"password"`
+				}
+				raw, rerr := io.ReadAll(req.Body)
+				if rerr == nil && len(bytes.TrimSpace(raw)) > 0 {
+					rerr = json.Unmarshal(raw, &body)
+				}
+				if rerr != nil {
+					err = rerr
+					Error.Message = "invalid request body: " + rerr.Error()
+					Error.Status = http.StatusBadRequest
+					break
+				}
+				pw = body.Password
+			}
+			if pw != "" {
 				vars["mail_password"] = pw
 			}
 			Information, err = o.Download(vars)
