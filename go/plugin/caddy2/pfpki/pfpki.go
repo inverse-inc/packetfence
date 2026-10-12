@@ -16,6 +16,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/acme"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/est"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
@@ -184,6 +185,12 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 		// clients only need the /directory URL configured in their MDM
 		// payload; everything else is link-discovered from there.
 		r.Mount("/pki/acme", acme.Mount(PFPki))
+		// EST (RFC 7030). Devices reach /.well-known/est/{profile}/...
+		// through haproxy-portal; /pki/est is the same router on the
+		// API front end.
+		estRouter := est.Mount(PFPki)
+		r.Mount("/.well-known/est", estRouter)
+		r.Mount("/pki/est", estRouter)
 		// SCEP api endpoint
 		r.Route("/pki/scep", func(r chi.Router) {
 			r.Get("/", handlers.ManageSCEP(PFPki))

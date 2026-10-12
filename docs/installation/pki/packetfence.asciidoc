@@ -767,3 +767,68 @@ action names `acme.account.create`, `pfpki.AcmeEABCreate`,
 `UserName` `acme:<template_name>/<account_key_id>` so per-template
 traffic can be queried. EAB secrets are never written to the audit
 log.
+
+==== EST (RFC 7030)
+
+PacketFence PKI includes an Enrollment over Secure Transport (EST, RFC
+7030) server. Each template with EST enabled is an EST label, reachable
+on the captive portal address:
+
+----
+https://<pf-fqdn>/.well-known/est/<template_name>/<operation>
+----
+
+The label can be left out (`/.well-known/est/<operation>`); the first
+template with EST enabled is then used. The same endpoints are also
+available on the web admin port under `/api/v1/pki/est/<template_name>/`.
+
+[options="header"]
+|===
+| Operation | Method | Authentication | Description
+| `cacerts` | GET | None | Returns the template's CA certificate.
+| `csrattrs` | GET | None | Answers _204 No Content_: the Subject is built from the template.
+| `simpleenroll` | POST | HTTP Basic | Issues a certificate for the PKCS#10 request.
+| `simplereenroll` | POST | HTTP Basic | Issues a new certificate for a common name that already has one under the template, then revokes the previous certificate(s) as superseded.
+| `serverkeygen` | POST | HTTP Basic | Generates the key pair (template *Key type* and *Key size*) and returns the private key (PKCS#8) and the certificate.
+|===
+
+As with SCEP, the common name and Subject Alt Names come from the
+request; the other Subject attributes, key usage, extended key usage,
+validity and digest come from the template. `simpleenroll` follows the
+template's duplicate common name settings and *Days before renewal*.
+
+===== Configure PacketFence
+
+In the template (_Configuration -> Integration -> PKI -> Templates_),
+*EST* tab:
+
+[options="header"]
+|===
+| Field | Value
+| *Enable EST* | On.
+| *EST username* | The user name EST clients must present, or empty to accept any user name.
+| *EST password* | The password EST clients must present. Enrollment is refused while it is empty.
+|===
+
+NOTE: TLS is terminated in front of the PKI, so EST clients authenticate
+with HTTP Basic only; TLS client certificate authentication (RFC 7030
+section 3.3.2) is not supported, including for `simplereenroll`.
+
+===== EST Test
+
+Fetch the CA certificate, then enroll with a CSR:
+
+[source,bash]
+----
+curl -sk https://<pf-fqdn>/.well-known/est/<template_name>/cacerts \
+  | base64 -d | openssl pkcs7 -inform DER -print_certs -out ca.pem
+
+openssl req -new -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes \
+  -keyout device.key -subj "/CN=device1.example.com" -outform DER \
+  | base64 > device.csr
+
+curl -sk -u <est_username>:<est_password> \
+  -H "Content-Type: application/pkcs10" --data-binary @device.csr \
+  https://<pf-fqdn>/.well-known/est/<template_name>/simpleenroll \
+  | base64 -d | openssl pkcs7 -inform DER -print_certs -out device.pem
+----

@@ -114,6 +114,15 @@ type (
 		AcmeAccountExpiry      int    `json:"acme_account_expiry,omitempty,string" gorm:"default:365"`
 		AcmeOrderExpiry        int    `json:"acme_order_expiry,omitempty,string" gorm:"default:7"`
 		AcmeAuthzExpiry        int    `json:"acme_authz_expiry,omitempty,string" gorm:"default:24"`
+
+		// EST (RFC 7030) — /.well-known/est/<profile>/... Enrollment
+		// requests authenticate with HTTP Basic against EstUsername
+		// (any user name when empty) and EstPassword; EST stays off
+		// until EstEnabled is flipped and refuses enrollments while
+		// EstPassword is empty.
+		EstEnabled  int    `json:"est_enabled,omitempty" gorm:"default:0"`
+		EstUsername string `json:"est_username,omitempty"`
+		EstPassword string `json:"est_password,omitempty"`
 	}
 
 	// Cert struct

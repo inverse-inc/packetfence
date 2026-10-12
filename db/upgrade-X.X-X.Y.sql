@@ -292,6 +292,17 @@ CALL AddColumnUnlessExists('pki_profiles', 'acme_authz_expiry',
     'bigint(20) DEFAULT 24 AFTER `acme_order_expiry`');
 
 --
+-- pfpki: EST (RFC 7030) per-profile settings
+--
+\! echo "Adding EST columns to pki_profiles...";
+CALL AddColumnUnlessExists('pki_profiles', 'est_enabled',
+    'bigint(20) DEFAULT 0 AFTER `acme_authz_expiry`');
+CALL AddColumnUnlessExists('pki_profiles', 'est_username',
+    'longtext DEFAULT NULL AFTER `est_enabled`');
+CALL AddColumnUnlessExists('pki_profiles', 'est_password',
+    'longtext DEFAULT NULL AFTER `est_username`');
+
+--
 -- pfpki: ACME state tables
 --
 \! echo "Creating ACME tables...";

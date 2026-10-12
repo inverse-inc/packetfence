@@ -55,6 +55,9 @@
 			# applies. Auth is enforced inside pfpki by the JWS
 			# middleware + EAB validator.
 			no_auth /api/v1/pki/acme/*
+			# EST (RFC 7030) is device-facing too: enrollments use HTTP
+			# Basic against the profile's EST credentials, checked in pfpki.
+			no_auth /api/v1/pki/est/*
 			session_backend {$PF_SESSION_BACKEND:db} mem
 		}
 
