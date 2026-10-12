@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -303,4 +304,37 @@ func bootstrapAcmeAccountAsNewKey(t *testing.T, env *testutil.Env, profileName s
 		t.Fatalf("second bootstrap: status=%d body=%s", resp.StatusCode, string(body))
 	}
 	return c, resp.Header.Get("Location")
+}
+
+// TestNewOrder_RejectsValidityHintsAndOversizedOrders: notBefore /
+// notAfter are refused rather than silently ignored, as is an order with
+// more identifiers than the server will create authorizations for.
+func TestNewOrder_RejectsValidityHintsAndOversizedOrders(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-order-limits")
+	c, kid := bootstrapAcmeAccount(t, env, prof)
+	url := newOrderURL(env, prof)
+
+	one := []map[string]string{{"type": "dns", "value": "a.example.test"}}
+	many := make([]map[string]string, 101)
+	for i := range many {
+		many[i] = map[string]string{"type": "dns", "value": "h" + strconv.Itoa(i) + ".example.test"}
+	}
+	for name, payload := range map[string]map[string]any{
+		"notBefore": {"identifiers": one, "notBefore": "2030-01-01T00:00:00Z"},
+		"notAfter":  {"identifiers": one, "notAfter": "2030-01-01T00:00:00Z"},
+		"too many":  {"identifiers": many},
+	} {
+		resp := c.post(t, url, c.signed(url, modeKID, kid, c.fetchNonce(), payload))
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusBadRequest || !strings.Contains(string(body), "malformed") {
+			t.Fatalf("%s: status=%d body=%s", name, resp.StatusCode, string(body))
+		}
+	}
+	var n int64
+	env.DB.Model(&models.AcmeOrder{}).Count(&n)
+	if n != 0 {
+		t.Fatalf("%d orders persisted for refused requests", n)
+	}
 }
