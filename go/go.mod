@@ -15,6 +15,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dnstap/golang-dnstap v0.4.0
+	github.com/eclipse-keypont/crypto11 v1.6.8
 	github.com/farsightsec/golang-framestream v0.3.0 // indirect
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
@@ -190,7 +191,6 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.2.0 // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
-	github.com/eclipse-keypont/crypto11 v1.6.8 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
 	github.com/miekg/pkcs11 v1.1.2 // indirect
