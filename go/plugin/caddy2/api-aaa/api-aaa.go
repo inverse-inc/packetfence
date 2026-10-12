@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -387,12 +389,33 @@ func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next c
 		// TODO change me and wrap actions into something that handles server errors
 		return nil
 	} else {
-		_, noauth := h.NoAuthPaths[r.URL.Path]
-		if noauth || h.HandleAAA(w, r) {
+		if h.isNoAuthPath(r.URL.Path) || h.HandleAAA(w, r) {
 			return next.ServeHTTP(w, r)
 		}
 	}
 	return nil
+}
+
+// isNoAuthPath tells whether the request path skips authentication. A
+// no_auth entry ending in "/*" covers every path below it; the path must
+// then be in its clean form, so that dot segments can't step out of it.
+func (h *ApiAAAHandler) isNoAuthPath(p string) bool {
+	if h.NoAuthPaths[p] {
+		return true
+	}
+	clean := path.Clean(p)
+	if strings.HasSuffix(p, "/") && clean != "/" {
+		clean += "/"
+	}
+	if clean != p {
+		return false
+	}
+	for noAuth := range h.NoAuthPaths {
+		if prefix, ok := strings.CutSuffix(noAuth, "*"); ok && strings.HasSuffix(prefix, "/") && strings.HasPrefix(p, prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *ApiAAAHandler) Validate() error {
