@@ -9,4 +9,21 @@ args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 22225:22225"
 args="$args -p 2024:2024"
 args="$args -v /usr/local/pf/html/captive-portal/templates:/usr/local/pf/html/captive-portal/templates"
 
+# HSMs holding CA keys: each line of conf/pfpki-hsm-volumes is a docker
+# volume (host-path[:container-path[:options]]) giving the container the
+# vendor PKCS#11 library and what it needs; conf/pfpki-hsm.env holds the
+# environment variables of the library.
+hsm_volumes=/usr/local/pf/conf/pfpki-hsm-volumes
+if [ -f "$hsm_volumes" ]; then
+  while read -r volume; do
+    case "$volume" in
+      ''|'#'*) continue ;;
+    esac
+    args="$args -v $volume"
+  done < "$hsm_volumes"
+fi
+if [ -f /usr/local/pf/conf/pfpki-hsm.env ]; then
+  args="$args --env-file /usr/local/pf/conf/pfpki-hsm.env"
+fi
+
 run $name "$args"

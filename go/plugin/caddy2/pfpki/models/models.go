@@ -41,6 +41,10 @@ type (
 		IssuerKeyHash        string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
 		IssuerNameHash       string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
 		OCSPUrl              string                  `json:"ocsp_url,omitempty"`
+		// HsmID is the HSM holding the CA key (0: the key is the PEM in
+		// Key); HsmKeyID is the hex CKA_ID of the key pair in the token.
+		HsmID                uint                    `json:"hsm_id,omitempty,string" gorm:"INDEX:hsm_id"`
+		HsmKeyID             string                  `json:"hsm_key_id,omitempty"`
 		SCEPAssociateProfile string                  `gorm:"-"`
 		Cloud                cloud.Cloud             `gorm:"-"`
 		SerialNumber         int                     `json:"-"`
@@ -213,6 +217,20 @@ type (
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
 		Subject            string          `json:"-"`
 	}
+	// HSM is a PKCS#11 token holding CA keys
+	HSM struct {
+		ID         uint            `gorm:"primarykey"`
+		CreatedAt  time.Time       `json:"-"`
+		UpdatedAt  time.Time       `json:"-"`
+		DeletedAt  gorm.DeletedAt  `json:"-" gorm:"index"`
+		DB         *gorm.DB        `json:"-" gorm:"-"`
+		Ctx        context.Context `json:"-" gorm:"-"`
+		Name       string          `json:"name,omitempty" gorm:"UNIQUE"`
+		Module     string          `json:"module,omitempty"`
+		TokenLabel string          `json:"token_label,omitempty"`
+		// Pin is write-only: it is never returned by the API.
+		Pin string `json:"pin,omitempty"`
+	}
 	// SCEP struct
 	SCEPServer struct {
 		ID           uint            `gorm:"primarykey"`
@@ -254,6 +272,11 @@ func (RevokedCert) TableName() string {
 // TableName overrides the table name used by SCEPServer to `pki_scep`
 func (SCEPServer) TableName() string {
 	return "pki_scep_servers"
+}
+
+// TableName overrides the table name used by HSM to `pki_hsms`
+func (HSM) TableName() string {
+	return "pki_hsms"
 }
 
 const dbError = "A database error occured. See log for details."

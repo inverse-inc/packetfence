@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -50,7 +47,22 @@ func (c CA) New() (types.Info, error) {
 
 	Information := types.Info{}
 
-	keyOut, pub, key, err := certutils.GenerateKey(*c.KeyType, c.KeySize)
+	keyOut := new(bytes.Buffer)
+	var pub crypto.PublicKey
+	var key crypto.PrivateKey
+	var hsmKeyID []byte
+	var err error
+	if c.InHSM() {
+		// The key is generated in the HSM and never leaves it: only its
+		// id is stored, Key stays empty.
+		var signer crypto.Signer
+		signer, hsmKeyID, err = c.generateHSMKey(c.DB)
+		if err == nil {
+			pub, key = signer.Public(), signer
+		}
+	} else {
+		keyOut, pub, key, err = certutils.GenerateKey(*c.KeyType, c.KeySize)
+	}
 
 	if err != nil {
 		Information.Error = err.Error()
@@ -94,18 +106,7 @@ func (c CA) New() (types.Info, error) {
 		ca.OCSPServer = []string{c.OCSPUrl}
 	}
 
-	var caBytes []byte
-
-	switch *c.KeyType {
-	case certutils.KEY_RSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
-	case certutils.KEY_ECDSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
-	case certutils.KEY_DSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
-	case certutils.KEY_ED25519:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(ed25519.PrivateKey))
-	}
+	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, pub, key)
 	if err != nil {
 		return Information, err
 	}
@@ -116,12 +117,7 @@ func (c CA) New() (types.Info, error) {
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
 
 	// Calculate the IssuerNameHash
-	catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	cacert, err := x509.ParseCertificate(caBytes)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -130,7 +126,7 @@ func (c CA) New() (types.Info, error) {
 
 	h.Write(cacert.RawIssuer)
 
-	newCA := CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl, SerialNumber: 1}
+	newCA := CA{HsmID: c.HsmID, HsmKeyID: hex.EncodeToString(hsmKeyID), Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl, SerialNumber: 1}
 	if err := c.DB.Create(&newCA).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
@@ -198,12 +194,7 @@ func (c CA) Fix() (types.Info, error) {
 		if v.IssuerNameHash == "" {
 
 			// Calculate the IssuerNameHash
-			catls, err := tls.X509KeyPair([]byte(v.Cert), []byte(v.Key))
-			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
-			}
-			cacert, err := x509.ParseCertificate(catls.Certificate[0])
+			cacert, err := v.Certificate()
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
@@ -300,7 +291,7 @@ func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 }
 
 // CA return the CA public key based on the profile name (SCEP)
-func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, scep.PrivateKey, error) {
 
 	var profiledb []Profile
 
@@ -318,14 +309,41 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 		c.DB.First(&ca)
 	}
 
+	return ca.scepKeyPair(c.DB, pass)
+}
+
+// scepKeyPair returns the CA certificate and the RSA key SCEP decrypts
+// requests and signs responses with.
+func (ca CA) scepKeyPair(db *gorm.DB, pass []byte) ([]*x509.Certificate, scep.PrivateKey, error) {
+	if ca.InHSM() {
+		cacert, key, err := ca.KeyPair(db)
+		if err != nil {
+			return nil, nil, err
+		}
+		scepKey, ok := key.(scep.PrivateKey)
+		if _, rsaKey := key.Public().(*rsa.PublicKey); !ok || !rsaKey {
+			return nil, nil, fmt.Errorf("CA %q: SCEP requires an RSA CA key", ca.Cn)
+		}
+		return []*x509.Certificate{cacert}, scepKey, nil
+	}
 	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	if err != nil {
+		return nil, nil, err
+	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return nil, nil, err
+	}
+	// Return a nil interface, not a nil *rsa.PrivateKey, on error.
 	key, err := certutils.LoadKey([]byte(ca.Key), pass)
-	return []*x509.Certificate{cacert}, key, err
+	if err != nil {
+		return nil, nil, err
+	}
+	return []*x509.Certificate{cacert}, key, nil
 }
 
 // CA return the CA public key based on the profile name (SCEP)
-func (c CA) CAbyProfile(pass []byte, profilename string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+func (c CA) CAbyProfile(pass []byte, profilename string) ([]*x509.Certificate, scep.PrivateKey, error) {
 	profile := &Profile{}
 	if err := c.DB.Where("name = ?", profilename).First(profile).Error; err != nil {
 		return nil, nil, err
@@ -337,10 +355,7 @@ func (c CA) CAbyProfile(pass []byte, profilename string) ([]*x509.Certificate, *
 		c.DB.First(&ca)
 	}
 
-	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
-	key, err := certutils.LoadKey([]byte(ca.Key), pass)
-	return []*x509.Certificate{cacert}, key, err
+	return ca.scepKeyPair(c.DB, pass)
 }
 
 // Put create the public key in the DB (SCEP)
@@ -606,19 +621,32 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 
 	Information.Entries = cadb
 
-	block, _ := pem.Decode([]byte(cadb[0].Key))
-	if block == nil {
-		log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
-	}
-
 	var skid []byte
 	var keyOut *bytes.Buffer
 	keyOut = new(bytes.Buffer)
 	var key crypto.PrivateKey
 	var pub crypto.PublicKey
-	keyOut, skid, pub, key, Information, err = certutils.ExtractPrivateKey(c.KeyType, block, &Information)
-	if err != nil {
-		return Information, err
+	if cadb[0].InHSM() {
+		var signer crypto.Signer
+		if _, signer, err = cadb[0].KeyPair(c.DB); err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+		pub, key = signer.Public(), signer
+		if skid, err = certutils.CalculateSKID(pub); err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+	} else {
+		block, _ := pem.Decode([]byte(cadb[0].Key))
+		if block == nil {
+			log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
+		}
+
+		keyOut, skid, pub, key, Information, err = certutils.ExtractPrivateKey(c.KeyType, block, &Information)
+		if err != nil {
+			return Information, err
+		}
 	}
 
 	var cadbprevious CA
@@ -653,18 +681,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		ca.OCSPServer = []string{c.OCSPUrl}
 	}
 
-	var caBytes []byte
-
-	switch *c.KeyType {
-	case certutils.KEY_RSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
-	case certutils.KEY_ECDSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
-	case certutils.KEY_DSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
-	case certutils.KEY_ED25519:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(ed25519.PrivateKey))
-	}
+	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, pub, key)
 	if err != nil {
 		return Information, err
 	}
@@ -674,12 +691,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
 
 	// Calculate the IssuerNameHash
-	catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	cacert, err := x509.ParseCertificate(caBytes)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -711,7 +723,7 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 		}
 
 	}
-	catls, err := tls.X509KeyPair([]byte(cadb[0].Cert), []byte(cadb[0].Key))
+	_, cakey, err := cadb[0].KeyPair(c.DB)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -726,7 +738,7 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 		SignatureAlgorithm: certutils.CompatibleSigAlgo(*cadb[0].KeyType, cadb[0].Digest),
 	}
 	csrBuff := new(bytes.Buffer)
-	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
+	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, cakey)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -754,7 +766,7 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 			return Information, err
 		}
 	}
-	_, err = tls.X509KeyPair([]byte(c.Cert), []byte(cadb[0].Key))
+	err = cadb[0].checkCertMatchesKey(c.DB, c.Cert)
 
 	if err != nil {
 		Information.Error = err.Error()

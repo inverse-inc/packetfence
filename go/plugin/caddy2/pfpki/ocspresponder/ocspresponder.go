@@ -19,6 +19,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ocsp"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
+	"gorm.io/gorm"
 )
 
 // parsedCA is a cached, decoded representation of pki_cas.{cert,key}. We
@@ -36,7 +37,12 @@ var caCache sync.Map // key: models.CA.ID (uint) → *parsedCA
 // loadCAMaterial returns a parsed cert + signer for ca, using a cached copy
 // whenever the row's UpdatedAt hasn't moved. PEM parsing is the dominant
 // CPU cost on the OCSP path (≈5 parses per request before this cache).
-func loadCAMaterial(ca models.CA) (*x509.Certificate, crypto.Signer, error) {
+// A key held in an HSM is looked up in its token on every request, so a
+// change of the HSM settings is picked up at once.
+func loadCAMaterial(ca models.CA, db *gorm.DB) (*x509.Certificate, crypto.Signer, error) {
+	if ca.InHSM() {
+		return ca.KeyPair(db)
+	}
 	if v, ok := caCache.Load(ca.ID); ok {
 		p := v.(*parsedCA)
 		if p.updatedAt.Equal(ca.UpdatedAt) {
@@ -229,7 +235,7 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 
 	// Look up the (cert, signer) pair once. The cache avoids 3 cert parses
 	// and 2 key parses per OCSP request on the previous code path.
-	cacert, key, err := loadCAMaterial(ca)
+	cacert, key, err := loadCAMaterial(ca, ocspr.Handler.DB)
 	if err != nil {
 		return nil, err
 	}
