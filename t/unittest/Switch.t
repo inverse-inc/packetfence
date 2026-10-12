@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 23;
 use pf::Switch;
 use pf::Switch::Cisco::ASA;
 use pf::error::switch;
@@ -150,6 +150,11 @@ is(pf::Switch::_parentRoleForVlan("r1"), '', "parent role for vlan r1 is undef")
 is($switch->getVlanByName("r3"), "gotTwo", "Got the parent vlan");
 is($switch->getVlanByName("r2"), "gotTwo", "Got my vlan");
 is($switch->getVlanByName("r1"), "gotOne", "Got my vlan");
+
+is($switch->resolve_deauth_host("192.0.2.10"), "192.0.2.10", "An IPv4 deauth host is returned unchanged");
+is($switch->resolve_deauth_host("localhost"), "127.0.0.1", "A hostname deauth host is resolved to its IP address");
+is($switch->resolve_deauth_host("unresolvable.invalid"), "unresolvable.invalid", "An unresolvable deauth host is returned unchanged");
+is($switch->resolve_deauth_host(undef), undef, "An undefined deauth host is returned unchanged");
 
 =head1 AUTHOR
 

@@ -463,12 +463,18 @@ has_field 'wsPwd' =>
 
 has_field controllerIp =>
   (
-    type => 'IPAddress',
+    type => 'Text',
     label => 'Controller IP Address',
     tags => {
         after_element => \&help,
-        help => 'Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only'
+        help => 'Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only'
     },
+    apply => [
+        {
+            check => sub { valid_ip_fqdn($_[0]) },
+            message => 'Value must be an IPv4 address or a fully qualified domain name',
+        },
+    ],
   );
 
 has_field controllerPort =>

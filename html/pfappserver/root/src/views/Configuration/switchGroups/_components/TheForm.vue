@@ -303,7 +303,7 @@
         <form-group-controller-ip namespace="controllerIp"
                                   v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
                                   :column-label="$i18n.t('Controller IP Address')"
-                                  :text="$i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.')"
+                                  :text="$i18n.t('Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only.')"
         />
 
         <form-group-controller-port namespace="controllerPort"
