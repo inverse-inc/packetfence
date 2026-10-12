@@ -3,11 +3,7 @@ package models
 import (
 	"bytes"
 	"context"
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -56,14 +52,8 @@ func (c Cert) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(prof.Ca.Cert), []byte(prof.Ca.Key))
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
-
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	// Load the CA certificate and key
+	cacert, cakey, err := prof.Ca.KeyPair(c.DB)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -145,7 +135,7 @@ func (c Cert) New() (types.Info, error) {
 	}
 
 	// Sign the certificate
-	certByte, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey)
+	certByte, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, cakey)
 
 	certBuff := new(bytes.Buffer)
 
@@ -294,13 +284,8 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		return Information, err
 	}
 
-	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(cert.Ca.Cert), []byte(cert.Ca.Key))
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	// Load the CA certificate for the chain
+	cacert, err := cert.Ca.Certificate()
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -540,15 +525,11 @@ func issueFromCSR(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.Cert
 		tmpl.OCSPServer = []string{prof.OCSPUrl}
 	}
 
-	catls, err := tls.X509KeyPair([]byte(prof.Ca.Cert), []byte(prof.Ca.Key))
+	cacert, cakey, err := prof.Ca.KeyPair(db)
 	if err != nil {
 		return nil, fmt.Errorf("load CA key pair: %w", err)
 	}
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
-	if err != nil {
-		return nil, fmt.Errorf("parse CA cert: %w", err)
-	}
-	derBytes, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, csr.PublicKey, catls.PrivateKey)
+	derBytes, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, csr.PublicKey, cakey)
 	if err != nil {
 		return nil, fmt.Errorf("sign cert: %w", err)
 	}
@@ -984,12 +965,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		return Information, err
 	}
 
-	catls, err := tls.X509KeyPair([]byte(existing.Ca.Cert), []byte(existing.Ca.Key))
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	cacert, cakey, err := existing.Ca.KeyPair(c.DB)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -1072,17 +1048,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		}
 	}
 
-	var certBytes []byte
-	switch *existing.Profile.KeyType {
-	case certutils.KEY_RSA:
-		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(*rsa.PrivateKey))
-	case certutils.KEY_ECDSA:
-		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(*ecdsa.PrivateKey))
-	case certutils.KEY_DSA:
-		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(*dsa.PrivateKey))
-	case certutils.KEY_ED25519:
-		certBytes, err = x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, catls.PrivateKey.(ed25519.PrivateKey))
-	}
+	certBytes, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, pub, cakey)
 	if err != nil {
 		return Information, err
 	}
