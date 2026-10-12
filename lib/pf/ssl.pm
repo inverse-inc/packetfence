@@ -86,26 +86,28 @@ Get a Crypt::OpenSSL::RSA from a PEM or ASN1 string
 
 sub x509_from_string {
     my ($cert) = @_;
-   
-    my %encodings = (
-        PEM => Crypt::OpenSSL::X509::FORMAT_PEM, 
-        ASN1 => Crypt::OpenSSL::X509::FORMAT_ASN1,
+
+    # Ordered list: PEM is by far the most common, try it first
+    my @encodings = (
+        [ PEM => Crypt::OpenSSL::X509::FORMAT_PEM ],
+        [ ASN1 => Crypt::OpenSSL::X509::FORMAT_ASN1 ],
     );
 
-    while(my ($encoding_str, $encoding) = each(%encodings)) {
+    for my $encoding (@encodings) {
+        my ($encoding_str, $format) = @$encoding;
         my $x509;
         eval {
-            $x509 = Crypt::OpenSSL::X509->new_from_string($cert, $encoding);
+            $x509 = Crypt::OpenSSL::X509->new_from_string($cert, $format);
         };
         if($@) {
-            get_logger->info("Certificate is not $encoding_str encoded. Trying next encoding.");
+            get_logger->debug("Certificate is not $encoding_str encoded. Trying next encoding.");
         }
         else {
             return $x509;
         }
     }
 
-    get_logger->warn("Certificate cannot be decoded with known encodings: ".join(", ", keys(%encodings)));
+    get_logger->warn("Certificate cannot be decoded with known encodings: ".join(", ", map { $_->[0] } @encodings));
     return undef;
 }
 
