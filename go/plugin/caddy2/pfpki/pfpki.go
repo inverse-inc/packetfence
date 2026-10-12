@@ -216,6 +216,16 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Post("/", handlers.GetSetSCEPServer(PFPki))
 			r.Post("/search", handlers.SearchSCEPServer(PFPki))
 		})
+		r.Route("/pki/hsms", func(r chi.Router) {
+			r.Get("/", handlers.GetSetHSM(PFPki))
+			r.Post("/", handlers.GetSetHSM(PFPki))
+			r.Post("/search", handlers.SearchHSM(PFPki))
+		})
+		r.Route("/pki/hsm", func(r chi.Router) {
+			r.Get("/{id}", handlers.HSMByID(PFPki))
+			r.Patch("/{id}", handlers.HSMByID(PFPki))
+			r.Delete("/{id}", handlers.HSMByID(PFPki))
+		})
 		r.Route("/pki/scepserver", func(r chi.Router) {
 			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
 			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))

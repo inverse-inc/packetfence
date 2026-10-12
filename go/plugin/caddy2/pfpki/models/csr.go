@@ -3,7 +3,6 @@ package models
 import (
 	"bytes"
 	"crypto/rand"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -132,20 +131,14 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 		tmpl.EmailAddresses = []string{attributes["Mail"]}
 	}
 
-	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
-
-	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	// Load the CA certificate and key
+	cacert, cakey, err := ca.KeyPair(csr.DB)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 	// Sign the certificate
-	certByte, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, certRequest.PublicKey, catls.PrivateKey)
+	certByte, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, certRequest.PublicKey, cakey)
 
 	certBuff := new(bytes.Buffer)
 

@@ -1397,6 +1397,24 @@ CREATE TABLE `pki_scep_servers` (
 INSERT INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
 
 --
+-- Table structure for table `pki_hsms`
+--
+
+CREATE TABLE `pki_hsms` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `module` longtext DEFAULT NULL,
+  `token_label` longtext DEFAULT NULL,
+  `pin` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_pki_hsms_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
 -- Table structure for table `pki_cas`
 --
 
@@ -1426,11 +1444,14 @@ CREATE TABLE `pki_cas` (
   `issuer_name_hash` longtext DEFAULT NULL,
   `ocsp_url` longtext DEFAULT NULL,
   `serial_number` bigint(20) DEFAULT NULL,
+  `hsm_id` bigint(20) unsigned DEFAULT NULL,
+  `hsm_key_id` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `cn` (`cn`),
   KEY `idx_pki_cas_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
-  KEY `organisation` (`organisation`)
+  KEY `organisation` (`organisation`),
+  KEY `hsm_id` (`hsm_id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

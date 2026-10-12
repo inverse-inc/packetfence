@@ -40,7 +40,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20251014220800-3f4796ad84c9
 	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
-	github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98
+	github.com/inverse-inc/scep v0.0.0-20261012132338-742cc31bf00f
 	github.com/jcuga/golongpoll v1.3.1
 	github.com/jpillora/backoff v1.0.0
 	github.com/jpillora/requestlog v1.0.0
@@ -136,7 +136,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
 	github.com/huandu/go-clone v1.7.0 // indirect
-	github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7
+	github.com/inverse-inc/pkcs7 v0.0.0-20261012132313-77fb79842abb
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -190,9 +190,12 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.2.0 // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
+	github.com/eclipse-keypont/crypto11 v1.6.8 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
+	github.com/miekg/pkcs11 v1.1.2 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
+	github.com/thales-e-security/pool v0.0.2 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	golang.org/x/term v0.45.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect

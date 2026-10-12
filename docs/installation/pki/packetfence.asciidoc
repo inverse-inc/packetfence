@@ -832,3 +832,87 @@ curl -sk -u <est_username>:<est_password> \
   https://<pf-fqdn>/.well-known/est/<template_name>/simpleenroll \
   | base64 -d | openssl pkcs7 -inform DER -print_certs -out device.pem
 ----
+
+==== CA keys in a hardware security module (HSM)
+
+The private key of a Certificate Authority can be generated and kept in
+a hardware security module through PKCS#11, instead of being stored in
+the database. The key is created inside the HSM as a sensitive,
+non-extractable object; PacketFence only asks the HSM to sign (and, for
+SCEP, to decrypt) with it. Every PKI operation works with such a CA:
+certificate creation, CSR signing, SCEP, EST, ACME, OCSP, certificate
+and CA re-signing, and CSR generation for the CA.
+
+Limitations:
+
+* Only RSA and ECDSA (256, 384 or 521 bits) CA keys can be held in an
+  HSM. SCEP requires an RSA CA, as with software keys.
+* The HSM is chosen when the CA is created: an existing CA can't be
+  moved into an HSM, nor out of it.
+* The keys of the certificates PacketFence generates for users and
+  devices (downloadable as PKCS#12) are still software keys: only the CA
+  key is in the HSM.
+
+===== Give pfpki access to the HSM
+
+Install the HSM vendor client (its PKCS#11 library) on the PacketFence
+server, following the vendor documentation, and check that the token is
+reachable with the vendor tools.
+
+The PKI runs in the `pfpki` container, which must see the library and
+everything it needs (configuration files, certificates, local token
+storage, ...). List them in `/usr/local/pf/conf/pfpki-hsm-volumes`, one
+Docker volume per line (`host-path[:container-path[:options]]`, the
+container path defaults to the host path), and set the environment
+variables the library needs in `/usr/local/pf/conf/pfpki-hsm.env`
+(`NAME=value` lines). For example, for a SoftHSM2 token (for testing
+only):
+
+./usr/local/pf/conf/pfpki-hsm-volumes
+----
+/usr/lib/softhsm:/usr/lib/softhsm:ro
+/usr/lib/x86_64-linux-gnu/softhsm:/usr/lib/x86_64-linux-gnu/softhsm:ro
+/etc/softhsm:/etc/softhsm:ro
+/var/lib/softhsm:/var/lib/softhsm
+----
+
+./usr/local/pf/conf/pfpki-hsm.env
+----
+SOFTHSM2_CONF=/etc/softhsm/softhsm2.conf
+----
+
+Then restart the PKI:
+
+[source,bash]
+----
+systemctl restart packetfence-pfpki
+----
+
+In a cluster, do this on every server: each one signs with the CA key,
+so each one needs the vendor client, the two files above and access to
+the HSM.
+
+===== Define the HSM
+
+In _Configuration -> Integration -> PKI -> HSMs_, add an HSM:
+
+[options="header"]
+|===
+| Field | Value
+| *Name* | A name for the HSM.
+| *PKCS#11 module* | Path of the vendor PKCS#11 library, as seen by the `pfpki` container, for example `/usr/lib/softhsm/libsofthsm2.so`.
+| *Token label* | Label of the token (or partition) holding the CA keys.
+| *PIN* | PIN of the token user. It is never displayed again; leave it empty when editing the HSM to keep it.
+|===
+
+PacketFence opens the token when the HSM is saved, so a wrong module
+path, token label or PIN is reported right away. An HSM can't be deleted
+while CA keys are held in it.
+
+===== Create a CA with its key in the HSM
+
+Create the Certificate Authority as usual (see above) and select the HSM
+in the *HSM* field, with an RSA or ECDSA key type. The key is generated
+in the HSM, labelled `pfpki CA <common name>`, and its PKCS#11 ID is
+shown as *HSM key ID* on the CA. Templates and certificates then use
+this CA like any other.

@@ -303,6 +303,32 @@ CALL AddColumnUnlessExists('pki_profiles', 'est_password',
     'longtext DEFAULT NULL AFTER `est_username`');
 
 --
+-- pfpki: CA keys held in an HSM (PKCS#11)
+--
+\! echo "Creating table pki_hsms...";
+CREATE TABLE IF NOT EXISTS `pki_hsms` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `module` longtext DEFAULT NULL,
+  `token_label` longtext DEFAULT NULL,
+  `pin` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_pki_hsms_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+\! echo "Adding HSM columns to pki_cas...";
+CALL AddColumnUnlessExists('pki_cas', 'hsm_id',
+    'bigint(20) unsigned DEFAULT NULL AFTER `serial_number`');
+CALL AddColumnUnlessExists('pki_cas', 'hsm_key_id',
+    'varchar(64) DEFAULT NULL AFTER `hsm_id`');
+CALL AddIndexUnlessExists('pki_cas', 'hsm_id',
+    'KEY `hsm_id` (`hsm_id`)');
+
+--
 -- pfpki: ACME state tables
 --
 \! echo "Creating ACME tables...";
