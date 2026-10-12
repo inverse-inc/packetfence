@@ -203,7 +203,8 @@ func TestHSM_CA(t *testing.T) {
 	}
 
 	// --- An HSM holding CA keys can't be deleted; its PIN can be changed
-	// only to one that opens the token, and is kept when omitted.
+	// only to one that opens the token, and the fields left out of a
+	// PATCH are kept.
 	if status, body = doJSON(t, env, "DELETE", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), ""); status != http.StatusConflict {
 		t.Fatalf("DELETE an HSM in use -> %d, want 409:\n%s", status, body)
 	}
@@ -212,6 +213,12 @@ func TestHSM_CA(t *testing.T) {
 	}
 	if status, body = doJSON(t, env, "PATCH", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), fmt.Sprintf(`{"module":%q,"token_label":%q}`, cfg.Module, cfg.TokenLabel)); status != http.StatusOK {
 		t.Fatalf("PATCH without a PIN -> %d:\n%s", status, body)
+	}
+	if status, body = doJSON(t, env, "PATCH", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), `{"pin":"wrong-pin"}`); status != http.StatusUnprocessableEntity {
+		t.Fatalf("PATCH with only a wrong PIN -> %d, want 422:\n%s", status, body)
+	}
+	if status, body = doJSON(t, env, "PATCH", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), fmt.Sprintf(`{"pin":%q}`, cfg.Pin)); status != http.StatusOK {
+		t.Fatalf("PATCH with only the PIN -> %d:\n%s", status, body)
 	}
 	_, leaf2ID := mustIssueLeafFromHTTP(t, env, prof, "hsm-leaf-after-patch")
 	if _, err := loadLeafFromDB(t, env, leaf2ID).Verify(x509.VerifyOptions{Roots: roots, KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageAny}}); err != nil {
