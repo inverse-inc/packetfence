@@ -18,6 +18,7 @@ import PkiProfilesSearch from '../pki/profiles/_components/TheSearch'
 import PkiCertsSearch from '../pki/certs/_components/TheSearch'
 import PkiRevokedCertsSearch from '../pki/revokedCerts/_components/TheSearch'
 import PkiScepServersSearch from '../pki/scepServers/_components/TheSearch'
+import PkiHsmsSearch from '../pki/hsms/_components/TheSearch'
 
 const tabs = {
   pkiCas: {
@@ -39,6 +40,10 @@ const tabs = {
   pkiScepServers: {
     title: 'SCEP Servers', // i18n defer
     component: PkiScepServersSearch
+  },
+  pkiHsms: {
+    title: 'HSMs', // i18n defer
+    component: PkiHsmsSearch
   }
 }
 
