@@ -81,7 +81,7 @@ func (vars *Vars2) SqlOrder(class interface{}) (string, error) {
 		vars.Sort = append(vars.Sort, f.Tag.Get("default"))
 	}
 
-	classFields := SqlFields(class)
+	classFields := SearchableFields(class)
 	orderFields := make([]string, 0)
 	var valid bool = false
 	for _, sort := range vars.Sort {
