@@ -52,6 +52,7 @@ func (c CA) New() (types.Info, error) {
 	var key crypto.PrivateKey
 	var hsmKeyID []byte
 	var err error
+	created := false
 	if c.InHSM() {
 		// The key is generated in the HSM and never leaves it: only its
 		// id is stored, Key stays empty.
@@ -59,6 +60,13 @@ func (c CA) New() (types.Info, error) {
 		signer, hsmKeyID, err = c.generateHSMKey(c.DB)
 		if err == nil {
 			pub, key = signer.Public(), signer
+			// Don't leave an orphan key pair in the token when the CA
+			// isn't created.
+			defer func() {
+				if !created {
+					c.deleteHSMKey(c.DB, hsmKeyID)
+				}
+			}()
 		}
 	} else {
 		keyOut, pub, key, err = certutils.GenerateKey(*c.KeyType, c.KeySize)
@@ -108,6 +116,7 @@ func (c CA) New() (types.Info, error) {
 
 	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, pub, key)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -131,6 +140,7 @@ func (c CA) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
+	created = true
 
 	Information.Entries = []CA{newCA}
 
