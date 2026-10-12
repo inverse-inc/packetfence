@@ -394,6 +394,13 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 			return Information, err
 		}
 		RevokeDate = RevokeDate.AddDate(0, 0, profile.RevokedValidUntil)
+		// The grace period never outlives the certificate.
+		if RevokeDate.After(cert.ValidUntil) {
+			RevokeDate = time.Now()
+			if cert.ValidUntil.After(RevokeDate) {
+				RevokeDate = cert.ValidUntil
+			}
+		}
 	}
 	revoked := RevokedCert{Cn: cert.Cn, Mail: cert.Mail, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.PostalCode, Key: cert.Key, Cert: cert.Cert, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}
 	// Move the row: a certificate is either live or revoked, never both
@@ -815,25 +822,38 @@ func (c Cert) ProcessCloudRevocations() (types.Info, error) {
 
 func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
-	var certdb []Cert
 
-	// We can't filter `alert <> 1` here anymore: under the multi-threshold
-	// schedule a cert may have been notified at the 14d threshold but
-	// still need 7d/1d notifications. Iterate every row and let the
-	// threshold logic gate the per-cert decision.
-	if CertDB := c.DB.Find(&certdb); CertDB.Error != nil {
+	// Load the profiles once per run, and the largest renewal-mail
+	// threshold among them: only the certificates within that many days
+	// of their expiry (the expired ones included) need a look.
+	var profiles []Profile
+	if ProfDB := c.DB.Find(&profiles); ProfDB.Error != nil {
+		Information.Error = ProfDB.Error.Error()
+		return Information, ProfDB.Error
+	}
+	profByID := make(map[uint]Profile, len(profiles))
+	maxDays := 0
+	for _, prof := range profiles {
+		profByID[prof.ID] = prof
+		if prof.RenewalMail != 1 {
+			continue
+		}
+		thresholds, _ := parseRenewalThresholds(prof)
+		for _, T := range thresholds {
+			if T > maxDays {
+				maxDays = T
+			}
+		}
+	}
+
+	now := time.Now()
+	var certdb []Cert
+	if CertDB := c.DB.Where("valid_until <= ?", now.AddDate(0, 0, maxDays)).Find(&certdb); CertDB.Error != nil {
 		Information.Error = CertDB.Error.Error()
 		return Information, CertDB.Error
 	}
 
-	now := time.Now()
 	for _, v := range certdb {
-		var prof Profile
-		if profDB := c.DB.First(&prof, v.ProfileID); profDB.Error != nil {
-			Information.Error = profDB.Error.Error()
-			return Information, errors.New(dbError)
-		}
-
 		// Revoke due certificate
 		if now.Unix() > v.ValidUntil.Unix() {
 			c.Revoke(map[string]string{
@@ -843,6 +863,10 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			continue
 		}
 
+		prof, ok := profByID[v.ProfileID]
+		if !ok {
+			continue
+		}
 		if prof.RenewalMail != 1 {
 			continue
 		}
@@ -856,7 +880,7 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			continue
 		}
 
-		if _, err := emailRenewal(c.Ctx, v, prof); err != nil {
+		if _, err := sendRenewalMail(c.Ctx, v, prof); err != nil {
 			log.LoggerWContext(c.Ctx).Error(fmt.Sprintf("renewal mail for cert %d failed: %v", v.ID, err))
 			continue
 		}
@@ -865,9 +889,20 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			notfalse := true
 			v.Alert = &notfalse
 		} else {
-			v.AlertedDays = appendAlertedDay(v.AlertedDays, due)
+			// The mail for the closest threshold replaces the ones for
+			// the larger thresholds: never send them late.
+			thresholds, _ := parseRenewalThresholds(prof)
+			for _, T := range thresholds {
+				if T >= due {
+					v.AlertedDays = appendAlertedDay(v.AlertedDays, T)
+				}
+			}
 		}
-		if err := c.DB.Save(&v).Error; err != nil {
+		state := map[string]interface{}{"alerted_days": v.AlertedDays}
+		if fallbackOneShot {
+			state = map[string]interface{}{"alert": true}
+		}
+		if err := c.DB.Model(&Cert{}).Where("id = ?", v.ID).Updates(state).Error; err != nil {
 			log.LoggerWContext(c.Ctx).Error(fmt.Sprintf("persist alert state for cert %d failed: %v", v.ID, err))
 		}
 	}
@@ -875,9 +910,15 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
-// nextDueRenewalThreshold returns the smallest (most-imminent) threshold
-// in days for which a renewal email should be sent now and hasn't been
-// sent yet. -1 means nothing is due.
+// sendRenewalMail sends the renewal mail of a certificate (replaced in
+// tests).
+var sendRenewalMail = emailRenewal
+
+// nextDueRenewalThreshold returns the threshold in days for which a
+// renewal email should be sent now: the smallest (most-imminent) crossed
+// threshold, unless its mail was already sent. -1 means nothing is due.
+// The caller marks the larger thresholds as sent along with it, so a
+// mail for a larger threshold is never sent after a smaller one.
 //
 // fallbackOneShot tells the caller to record the decision on the legacy
 // Cert.Alert boolean rather than appending to AlertedDays — used when the
@@ -901,14 +942,14 @@ func nextDueRenewalThreshold(now time.Time, cert Cert, prof Profile) (threshold 
 	}
 
 	already := parseAlertedDays(cert.AlertedDays)
-	// Send for the smallest (closest-to-expiry) unsent crossed threshold,
-	// so the operator gets one mail per cron tick — not a backlog.
+	// Only the smallest crossed threshold counts: one mail per cron tick,
+	// not a backlog, and never one for a larger threshold after it.
 	for _, T := range thresholds {
-		if already[T] {
-			continue
-		}
 		if !thresholdCrossed(now, cert.ValidUntil, T) {
 			continue
+		}
+		if already[T] {
+			return -1, false
 		}
 		return T, false
 	}
@@ -1098,6 +1139,10 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	// match was fragile when the request body omitted Cn (a "click and
 	// renew" with no edits) and could silently update nothing.
 	existing.SerialNumber = SerialNumber.String()
+	// The new validity window gets its own renewal mails.
+	notAlerted := false
+	existing.Alert = &notAlerted
+	existing.AlertedDays = ""
 	existing.NotBefore = tmpl.NotBefore
 	existing.ValidUntil = tmpl.NotAfter
 	existing.Cert = certBuff.String()

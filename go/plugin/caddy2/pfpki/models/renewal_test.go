@@ -63,6 +63,8 @@ func TestNextDueRenewalThreshold_MultiSchedule(t *testing.T) {
 		{"6 days out, 14+7 sent -> nothing (1 not crossed)", 6, "14,7", -1},
 		{"0.5 days out, 14+7 sent -> 1 due", 0, "14,7", 1},
 		{"0.5 days out, all sent -> nothing", 0, "14,7,1", -1},
+		{"6 days out, 7 sent but not 14 -> nothing (no late 14d mail)", 6, "7", -1},
+		{"0.5 days out, nothing sent -> only 1 due", 0, "", 1},
 	}
 
 	for _, c := range cases {
