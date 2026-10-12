@@ -12,7 +12,9 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -85,14 +87,20 @@ func newCSR(t *testing.T, cn string, dns ...string) (string, crypto.Signer) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	der, err := x509.CreateCertificateRequest(rand.Reader, &x509.CertificateRequest{
+	return signCSR(t, key, &x509.CertificateRequest{
 		Subject:  pkix.Name{CommonName: cn, Organization: []string{"Ignored"}},
 		DNSNames: dns,
-	}, key)
+	}), key
+}
+
+// signCSR returns the base64 CSR of tmpl signed with key.
+func signCSR(t *testing.T, key crypto.Signer, tmpl *x509.CertificateRequest) string {
+	t.Helper()
+	der, err := x509.CreateCertificateRequest(rand.Reader, tmpl, key)
 	if err != nil {
 		t.Fatal(err)
 	}
-	return base64.StdEncoding.EncodeToString(der), key
+	return base64.StdEncoding.EncodeToString(der)
 }
 
 func do(t *testing.T, method, url, body string, auth bool, password string) *http.Response {
@@ -207,18 +215,31 @@ func TestEST(t *testing.T) {
 	csr2, _ := newCSR(t, "device1.example.test")
 	wantStatus(t, do(t, http.MethodPost, base+"/simpleenroll", csr2, true, estPassword), http.StatusForbidden)
 
-	// simplereenroll replaces it.
-	resp = do(t, http.MethodPost, base+"/simplereenroll", csr2, true, estPassword)
+	// simplereenroll with another key doesn't replace it: only the
+	// holder of the certificate key may renew it.
+	wantStatus(t, do(t, http.MethodPost, base+"/simplereenroll", csr2, true, estPassword), http.StatusForbidden)
+	var live int64
+	env.DB.Model(&models.Cert{}).Where("cn = ?", "device1.example.test").Count(&live)
+	if live != 1 {
+		t.Fatalf("%d live certificates for the CN after a refused re-enrollment, want 1", live)
+	}
+
+	// simplereenroll with the certificate key replaces it.
+	resp = do(t, http.MethodPost, base+"/simplereenroll", signCSR(t, key, &x509.CertificateRequest{
+		Subject: pkix.Name{CommonName: "device1.example.test"},
+	}), true, estPassword)
 	wantStatus(t, resp, http.StatusOK)
 	renewed := readCerts(t, resp.Body)[0]
 	if renewed.SerialNumber.Cmp(leaf.SerialNumber) == 0 {
 		t.Fatalf("re-enrollment reused serial %s", leaf.SerialNumber)
 	}
+	if !renewed.PublicKey.(*ecdsa.PublicKey).Equal(key.Public()) {
+		t.Errorf("renewed public key differs from the CSR's")
+	}
 	var revoked models.RevokedCert
 	if err := env.DB.Where("serial_number = ?", leaf.SerialNumber.String()).First(&revoked).Error; err != nil {
 		t.Errorf("previous certificate not revoked: %v", err)
 	}
-	var live int64
 	env.DB.Model(&models.Cert{}).Where("cn = ?", "device1.example.test").Count(&live)
 	if live != 1 {
 		t.Errorf("%d live certificates for the CN after re-enrollment, want 1", live)
@@ -275,6 +296,27 @@ func TestEST(t *testing.T) {
 		t.Errorf("serverkeygen key does not match the certificate")
 	}
 
+	// A device may only name itself: SANs other than its CN are refused,
+	// whatever the operation.
+	other, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	for name, tmpl := range map[string]*x509.CertificateRequest{
+		"foreign DNS name": {Subject: pkix.Name{CommonName: "device3.example.test"}, DNSNames: []string{"device3.example.test", "www.bank.test"}},
+		"foreign email":    {Subject: pkix.Name{CommonName: "device3.example.test"}, EmailAddresses: []string{"admin@bank.test"}},
+		"IP address":       {Subject: pkix.Name{CommonName: "device3.example.test"}, IPAddresses: []net.IP{net.ParseIP("10.0.0.1")}},
+		"URI":              {Subject: pkix.Name{CommonName: "device3.example.test"}, URIs: []*url.URL{{Scheme: "https", Host: "bank.test"}}},
+	} {
+		for _, op := range []string{"/simpleenroll", "/serverkeygen"} {
+			resp := do(t, http.MethodPost, base+op, signCSR(t, other, tmpl), true, estPassword)
+			if resp.StatusCode != http.StatusForbidden {
+				t.Errorf("%s with %s: status %d, want 403", op, name, resp.StatusCode)
+			}
+		}
+	}
+	resp = do(t, http.MethodPost, base+"/simpleenroll", signCSR(t, other, &x509.CertificateRequest{
+		Subject: pkix.Name{CommonName: "Device3.example.test"}, DNSNames: []string{"device3.example.test"},
+	}), true, estPassword)
+	wantStatus(t, resp, http.StatusOK)
+
 	// Disabling EST on the profile closes every endpoint.
 	env.DB.Model(&models.Profile{}).Where("name = ?", "est-prof").Update("est_enabled", 0)
 	wantStatus(t, do(t, http.MethodGet, base+"/cacerts", "", false, ""), http.StatusNotFound)
@@ -303,4 +345,36 @@ func mustMarshalPub(t *testing.T, pub crypto.PublicKey) []byte {
 		t.Fatal(err)
 	}
 	return b
+}
+
+// Requests the reverse proxy received over plain HTTP are refused.
+func TestESTRequiresHTTPS(t *testing.T) {
+	env := testutil.NewEnv(t)
+	mustEnableESTProfile(t, env, "est-https")
+	base := env.Server.URL + "/api/v1/.well-known/est/est-https"
+	csr, _ := newCSR(t, "device.example.test")
+	for _, protos := range [][]string{{"http"}, {"https", "http"}, {"https, http"}} {
+		req, _ := http.NewRequest(http.MethodPost, base+"/simpleenroll", strings.NewReader(csr))
+		req.SetBasicAuth(estUser, estPassword)
+		for _, p := range protos {
+			req.Header.Add("X-Forwarded-Proto", p)
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusForbidden {
+			t.Errorf("X-Forwarded-Proto %v: status %d, want 403", protos, resp.StatusCode)
+		}
+	}
+	req, _ := http.NewRequest(http.MethodPost, base+"/simpleenroll", strings.NewReader(csr))
+	req.SetBasicAuth(estUser, estPassword)
+	req.Header.Set("X-Forwarded-Proto", "https")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	wantStatus(t, resp, http.StatusOK)
 }
