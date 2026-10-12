@@ -89,24 +89,31 @@ func buildAuthzResponse(r *http.Request, profileName string, authz *models.AcmeA
 	if !authz.ExpiresAt.IsZero() {
 		out.Expires = authz.ExpiresAt.Format(time.RFC3339)
 	}
-	for _, ch := range challenges {
-		entry := challengeResponse{
-			Type:   ch.Type,
-			URL:    challengeURL(r, profileName, ch.ID),
-			Status: ch.Status,
-			Token:  ch.Token,
-		}
-		if !ch.Validated.IsZero() {
-			entry.Validated = ch.Validated.Format(time.RFC3339)
-		}
-		if ch.Error != "" {
-			var prob any
-			_ = json.Unmarshal([]byte(ch.Error), &prob)
-			entry.Error = prob
-		}
-		out.Challenges = append(out.Challenges, entry)
+	for i := range challenges {
+		out.Challenges = append(out.Challenges, buildChallengeResponse(r, profileName, &challenges[i]))
 	}
 	return out
+}
+
+// buildChallengeResponse converts a stored challenge into the §7.1.5
+// JSON shape. Shared by /authz/{id} and /chall/{id} so a failed
+// challenge carries its `error` problem document on both.
+func buildChallengeResponse(r *http.Request, profileName string, ch *models.AcmeChallenge) challengeResponse {
+	entry := challengeResponse{
+		Type:   ch.Type,
+		URL:    challengeURL(r, profileName, ch.ID),
+		Status: ch.Status,
+		Token:  ch.Token,
+	}
+	if !ch.Validated.IsZero() {
+		entry.Validated = ch.Validated.Format(time.RFC3339)
+	}
+	if ch.Error != "" {
+		var prob any
+		_ = json.Unmarshal([]byte(ch.Error), &prob)
+		entry.Error = prob
+	}
+	return entry
 }
 
 func challengeURL(r *http.Request, profileName string, challengeID uint) string {
