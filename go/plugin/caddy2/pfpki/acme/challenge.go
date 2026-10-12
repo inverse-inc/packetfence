@@ -13,6 +13,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // challengeByIDHandler is the §7.5.1 "respond to challenge" endpoint.
@@ -154,6 +155,15 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 	}
 
 	return h.DB.Transaction(func(tx *gorm.DB) error {
+		// Lock the order row before touching any of its authzs. Every
+		// challenge outcome on the order serialises here, so two
+		// validations of different authzs can't each count the other's
+		// authz as still pending and both leave the order pending.
+		var order models.AcmeOrder
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			First(&order, authz.OrderID).Error; err != nil {
+			return err
+		}
 		now := time.Now()
 		if validateErr != nil {
 			problem := Problem{
@@ -196,19 +206,18 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 			Updates(authzUpdate).Error; err != nil {
 			return err
 		}
-		return maybePromoteOrder(tx, authz.OrderID)
+		return maybePromoteOrder(tx, &order)
 	})
 }
 
 // maybePromoteOrder flips an order from pending to ready iff every one
-// of its referenced authzs has reached the `valid` state. Called from
-// each challenge-success path; idempotent so concurrent validations of
-// the same order land in a consistent state.
-func maybePromoteOrder(tx *gorm.DB, orderID uint) error {
-	var order models.AcmeOrder
-	if err := tx.First(&order, orderID).Error; err != nil {
-		return err
-	}
+// of its referenced authzs has reached the `valid` state. The caller
+// holds the order row lock (SELECT ... FOR UPDATE) taken before its own
+// authz update, so validations of the same order run one after the
+// other and the last one sees every authz valid. The count is a locking
+// read too, so it sees the latest committed authz states rather than
+// the transaction's snapshot.
+func maybePromoteOrder(tx *gorm.DB, order *models.AcmeOrder) error {
 	if order.Status != "pending" {
 		// Either already ready/processing/valid, or invalid — leave alone.
 		return nil
@@ -218,7 +227,7 @@ func maybePromoteOrder(tx *gorm.DB, orderID uint) error {
 		return nil
 	}
 	var validCount int64
-	if err := tx.Model(&models.AcmeAuthz{}).
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&models.AcmeAuthz{}).
 		Where("id IN ? AND status = ?", ids, "valid").
 		Count(&validCount).Error; err != nil {
 		return err
@@ -228,6 +237,6 @@ func maybePromoteOrder(tx *gorm.DB, orderID uint) error {
 		// flip the order yet.
 		return nil
 	}
-	return tx.Model(&models.AcmeOrder{}).Where("id = ?", orderID).
+	return tx.Model(&models.AcmeOrder{}).Where("id = ? AND status = ?", order.ID, "pending").
 		Update("status", "ready").Error
 }
