@@ -156,6 +156,9 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 	profile.AcmeAccountExpiry = p.AcmeAccountExpiry
 	profile.AcmeOrderExpiry = p.AcmeOrderExpiry
 	profile.AcmeAuthzExpiry = p.AcmeAuthzExpiry
+	profile.EstEnabled = p.EstEnabled
+	profile.EstUsername = p.EstUsername
+	profile.EstPassword = p.EstPassword
 	profile.ScepServer = *scepserver
 
 	p.DB.Save(&profile)

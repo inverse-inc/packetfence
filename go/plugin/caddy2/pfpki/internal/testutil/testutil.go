@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/acme"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/est"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
@@ -173,6 +174,9 @@ func newRouter(h *types.Handler) chi.Router {
 		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(h))
 		// ACME (RFC 8555) — mirror the production mount in pfpki.go.
 		r.Mount("/pki/acme", acme.Mount(h))
+		estRouter := est.Mount(h)
+		r.Mount("/.well-known/est", estRouter)
+		r.Mount("/pki/est", estRouter)
 		r.Route("/pki/ocsp", func(r chi.Router) {
 			r.Get("/", handlers.ManageOcsp(h))
 			r.Post("/", handlers.ManageOcsp(h))

@@ -4,6 +4,7 @@ import {
   BaseFormGroupChosenCountry,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
+  BaseFormGroupInputPassword,
   BaseFormGroupSwitch,
   BaseFormGroupTextarea,
 } from '@/components/new/'
@@ -72,6 +73,9 @@ export {
   BaseFormGroupInputNumber                as FormGroupAcmeAccountExpiry,
   BaseFormGroupInputNumber                as FormGroupAcmeOrderExpiry,
   BaseFormGroupInputNumber                as FormGroupAcmeAuthzExpiry,
+  BaseFormGroupSwitch                     as FormGroupEstEnabled,
+  BaseFormGroupInput                      as FormGroupEstUsername,
+  BaseFormGroupInputPassword              as FormGroupEstPassword,
   TheForm,
   TheView,
 
