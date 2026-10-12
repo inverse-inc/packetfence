@@ -24,6 +24,9 @@ export const keyTypes = [
   { value: '3', text: 'KEY_ED25519', sizes: [ '256' ] }
 ]
 
+// key types that can be generated in an HSM (ECDSA, RSA)
+export const hsmKeyTypes = [ '0', '1' ]
+
 export const keySizes = [...(new Set(
     keyTypes.reduce((sizes, type) => ([ ...sizes, ...type.sizes.map(size => +size) ]), [])
   ))]

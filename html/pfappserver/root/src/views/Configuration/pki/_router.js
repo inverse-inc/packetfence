@@ -7,6 +7,7 @@ import CertsRoutes from './certs/_router'
 import ProfilesRoutes from './profiles/_router'
 import RevokedCertsRoutes from './revokedCerts/_router'
 import ScepServersRoutes from './scepServers/_router'
+import HsmsRoutes from './hsms/_router'
 
 export const beforeEnter = (to, from, next = () => { }) => {
   if (!store.state.$_pkis)
@@ -26,5 +27,6 @@ export default [
   ...CertsRoutes,
   ...ProfilesRoutes,
   ...RevokedCertsRoutes,
-  ...ScepServersRoutes
+  ...ScepServersRoutes,
+  ...HsmsRoutes
 ]

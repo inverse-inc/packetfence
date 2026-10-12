@@ -1,7 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import { keyTypes } from '../config'
+import { keyTypes, hsmKeyTypes } from '../config'
 
 yup.addMethod(yup.string, 'pkiCaCnNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -26,7 +26,7 @@ export default (props) => {
   } = props
 
   // reactive variables for `yup.when`
-  const { cn, key_type } = form || {}
+  const { cn, key_type, hsm_id } = form || {}
 
   return yup.object().shape({
     id: yup.string()
@@ -52,7 +52,12 @@ export default (props) => {
     locality: yup.string().required(i18n.t('Locality required.')).max(255),
     street_address: yup.string().max(255),
     postal_code: yup.string().max(255),
-    key_type: yup.string().nullable().required(i18n.t('Key type required.')),
+    key_type: yup.string().nullable().when('hsm_id', () => {
+      const _schema = yup.string().nullable().required(i18n.t('Key type required.'))
+      if ((isNew || isClone) && hsm_id && `${hsm_id}` !== '0')
+        return _schema.in(hsmKeyTypes, i18n.t('Only RSA and ECDSA keys can be generated in an HSM.'))
+      return _schema
+    }),
     key_size: yup.string().nullable().when('key_type', () => {
       // array to friendly csv, eg: [a, b] => 'a or b', [a, b, c] => 'a, b or c'
       const arrToLocale = (arr) => {
