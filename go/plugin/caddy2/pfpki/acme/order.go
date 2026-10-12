@@ -25,7 +25,15 @@ type identifier struct {
 	Value string `json:"value"`
 }
 
-// newOrderPayload is the §7.4 request body.
+// maxOrderIdentifiers bounds how many identifiers one new-order may
+// carry. Each identifier costs an authz and a challenge row plus, for
+// http-01, an outbound fetch, so an unbounded list is a cheap way to
+// bloat the state tables.
+const maxOrderIdentifiers = 100
+
+// newOrderPayload is the §7.4 request body. notBefore/notAfter are
+// decoded only so they can be refused: the certificate validity comes
+// from the profile template.
 type newOrderPayload struct {
 	Identifiers []identifier `json:"identifiers"`
 	NotBefore   string       `json:"notBefore,omitempty"`
@@ -68,6 +76,19 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "identifiers must be non-empty")
 			return
 		}
+		if len(payload.Identifiers) > maxOrderIdentifiers {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed,
+				"too many identifiers, at most "+strconv.Itoa(maxOrderIdentifiers)+" per order")
+			return
+		}
+		// RFC 8555 §7.4 lets the server refuse validity hints it won't
+		// honour. Echoing them back while signing with the profile's
+		// own validity would mislead the client, so refuse instead.
+		if payload.NotBefore != "" || payload.NotAfter != "" {
+			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed,
+				"notBefore/notAfter are not supported, the certificate validity is set by the profile")
+			return
+		}
 
 		// Identifier-type gate: a profile that omits AcmeAllowedIdentifiers
 		// rejects every type. The default profile-create form should
@@ -107,15 +128,11 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 		orderExpiry := time.Now().AddDate(0, 0, jc.Profile.AcmeOrderExpiry)
 		authzExpiry := time.Now().Add(time.Duration(jc.Profile.AcmeAuthzExpiry) * time.Hour)
 
-		notBefore, notAfter := parseValidityHints(payload.NotBefore, payload.NotAfter)
-
 		order := models.AcmeOrder{
 			AccountID:   jc.Account.ID,
 			Status:      "pending",
 			ExpiresAt:   orderExpiry,
 			Identifiers: string(identifiersJSON),
-			NotBefore:   notBefore,
-			NotAfter:    notAfter,
 		}
 
 		var authzIDs []uint
@@ -478,21 +495,6 @@ func parseAuthzIDs(csv string) []uint {
 		}
 	}
 	return out
-}
-
-// parseValidityHints handles the client's optional notBefore/notAfter
-// hints. RFC 8555 says the server MAY honor them; we treat them as
-// best-effort and silently fall back to zero-time on parse failure,
-// which the finalize path interprets as "use the profile default".
-func parseValidityHints(nb, na string) (time.Time, time.Time) {
-	var notBefore, notAfter time.Time
-	if nb != "" {
-		notBefore, _ = time.Parse(time.RFC3339, nb)
-	}
-	if na != "" {
-		notAfter, _ = time.Parse(time.RFC3339, na)
-	}
-	return notBefore, notAfter
 }
 
 // pickChallengeType maps (identifier-type, profile attestation policy)
