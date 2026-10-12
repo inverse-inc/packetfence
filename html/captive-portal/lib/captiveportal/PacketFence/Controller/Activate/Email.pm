@@ -94,6 +94,11 @@ sub code : Path : Args(2) {
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
             pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
+            # The access was granted with the activation timeout, apply the new unregdate on the network device (ex: Unifi guest authorization)
+            if (defined($node_mac)) {
+                eval { pf::enforcement::reevaluate_access($node_mac, "manage_register", force => 1) };
+                get_logger->error("Unable to re-evaluate the access of $node_mac after its e-mail activation: $@") if $@;
+            }
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
