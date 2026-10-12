@@ -133,3 +133,25 @@ func TestFindSerial_FallsBackToFirstCA(t *testing.T) {
 		t.Errorf("serials %v then %v: the fallback didn't use the first CA", first, second)
 	}
 }
+
+// Cert.New doesn't store the request's internal state fields.
+func TestCertNew_IgnoresStateFields(t *testing.T) {
+	env := testutil.NewEnv(t)
+	_, prof := newTestProfile(t, env, "certnew")
+	yes := true
+	req := models.Cert{DB: env.DB, Ctx: env.Ctx, Cn: "leaf", ProfileID: prof.ID,
+		Scep: &yes, Csr: &yes, Alert: &yes, AlertedDays: "14,7", Date: time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC), AcmeAccountID: 42}
+	if _, err := req.New(); err != nil {
+		t.Fatalf("Cert.New: %v", err)
+	}
+	var stored models.Cert
+	if err := env.DB.Where("cn = ?", "leaf").First(&stored).Error; err != nil {
+		t.Fatal(err)
+	}
+	if (stored.Scep != nil && *stored.Scep) || (stored.Csr != nil && *stored.Csr) || (stored.Alert != nil && *stored.Alert) || stored.AlertedDays != "" || stored.AcmeAccountID != 0 {
+		t.Errorf("request state stored: scep=%v csr=%v alert=%v alerted_days=%q acme=%d", stored.Scep, stored.Csr, stored.Alert, stored.AlertedDays, stored.AcmeAccountID)
+	}
+	if stored.Date.Year() == 2001 {
+		t.Errorf("request date stored: %v", stored.Date)
+	}
+}
