@@ -81,6 +81,7 @@ func NewEnv(t *testing.T) *Env {
 		&models.Cert{},
 		&models.RevokedCert{},
 		&models.SCEPServer{},
+		&models.HSM{},
 		&models.AcmeAccount{},
 		&models.AcmeNonce{},
 		&models.AcmeOrder{},
@@ -193,6 +194,16 @@ func newRouter(h *types.Handler) chi.Router {
 			r.Get("/", handlers.GetSetSCEPServer(h))
 			r.Post("/", handlers.GetSetSCEPServer(h))
 			r.Post("/search", handlers.SearchSCEPServer(h))
+		})
+		r.Route("/pki/hsms", func(r chi.Router) {
+			r.Get("/", handlers.GetSetHSM(h))
+			r.Post("/", handlers.GetSetHSM(h))
+			r.Post("/search", handlers.SearchHSM(h))
+		})
+		r.Route("/pki/hsm", func(r chi.Router) {
+			r.Get("/{id}", handlers.HSMByID(h))
+			r.Patch("/{id}", handlers.HSMByID(h))
+			r.Delete("/{id}", handlers.HSMByID(h))
 		})
 		r.Route("/pki/scepserver", func(r chi.Router) {
 			r.Get("/{id}", handlers.SCEPServerByID(h))

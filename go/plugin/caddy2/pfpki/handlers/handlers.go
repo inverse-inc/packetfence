@@ -142,6 +142,9 @@ func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information t
 		log.Request, _ = admin_api_audit_log.MaskSecrets(
 			string(body),
 			"scep_challenge_password",
+			"est_password",
+			"shared_secret",
+			"pin",
 		)
 	}
 	return log
