@@ -32,7 +32,8 @@ func withoutPins(hsms []HSM) []HSM {
 	return hsms
 }
 
-// New saves an HSM once its token can be opened with the given settings.
+// New saves an HSM once its token can be opened with the given settings
+// (hsm.Check logs the token out first, so the PIN is really checked).
 func (h HSM) New() (types.Info, error) {
 	Information := types.Info{}
 
@@ -124,8 +125,9 @@ func (h HSM) Update(params map[string]string) (types.Info, error) {
 	if h.Pin != "" {
 		hsmdb.Pin = h.Pin
 	}
-	// A token stays logged in while a session is open, so close the
-	// current one first: otherwise any PIN would be accepted.
+	// Close the context of the previous settings; Check closes every
+	// context of the new token before trying the PIN (a token stays
+	// logged in while a session is open, so any PIN would be accepted).
 	hsm.Release(previous)
 	if err := hsm.Check(hsmdb.Config()); err != nil {
 		Information.Error = err.Error()

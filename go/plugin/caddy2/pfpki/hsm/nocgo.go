@@ -21,3 +21,5 @@ func GenerateKey(cfg Config, keyType KeyType, size int, label string) (crypto.Si
 func FindKey(cfg Config, id []byte) (crypto.Signer, error) {
 	return nil, errNoCgo
 }
+
+func DeleteKey(cfg Config, id []byte) error { return errNoCgo }
