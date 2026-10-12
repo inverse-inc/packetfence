@@ -27,6 +27,11 @@
                                :text="$i18n.t('The text to display in the SSO login button in the admin interface.')"
     />
 
+    <form-group-sso-allowed-callback-hosts namespace="sso_allowed_callback_hosts"
+                                           :column-label="$i18n.t('SSO Allowed Admin Hosts')"
+                                           :text="$i18n.t('Comma-separated list of additional host names the admin interface is reached with (ex: a DNS alias or a reverse proxy). After an SSO login, the token is only sent back to an admin URL on this server host name, its management addresses or one of these hosts.')"
+    />
+
     <form-group-sso-authorize-path namespace="sso_authorize_path"
                                    :column-label="$i18n.t('SSO Authorize Path')"
                                    :text="$i18n.t('The path to obtain the authorization data after the SSO.')"
@@ -47,6 +52,7 @@ import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
 import {
   FormGroupAllowUsernamePassword,
+  FormGroupSsoAllowedCallbackHosts,
   FormGroupSsoAuthorizePath,
   FormGroupSsoBaseUrl,
   FormGroupSsoLoginPath,
@@ -58,6 +64,7 @@ const components = {
   BaseForm,
 
   FormGroupAllowUsernamePassword,
+  FormGroupSsoAllowedCallbackHosts,
   FormGroupSsoAuthorizePath,
   FormGroupSsoBaseUrl,
   FormGroupSsoLoginPath,
