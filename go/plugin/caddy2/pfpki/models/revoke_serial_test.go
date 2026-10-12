@@ -115,3 +115,21 @@ func TestCertRevoke_MovesRow(t *testing.T) {
 }
 
 func itoaUint(n uint) string { return fmt.Sprint(n) }
+
+// FindSerial falls back to the first CA when the profile's CA is gone.
+func TestFindSerial_FallsBackToFirstCA(t *testing.T) {
+	env := testutil.NewEnv(t)
+	caRow, _ := newTestProfile(t, env, "fallback")
+	depot := models.CA{DB: env.DB, Ctx: env.Ctx}
+	first, err := depot.FindSerial(models.Profile{CaID: caRow.ID + 100})
+	if err != nil {
+		t.Fatalf("FindSerial with a missing CA: %v", err)
+	}
+	second, err := depot.FindSerial(models.Profile{CaID: caRow.ID})
+	if err != nil {
+		t.Fatalf("FindSerial: %v", err)
+	}
+	if second.Int64() != first.Int64()+1 {
+		t.Errorf("serials %v then %v: the fallback didn't use the first CA", first, second)
+	}
+}
