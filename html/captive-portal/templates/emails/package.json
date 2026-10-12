@@ -4,6 +4,6 @@
   "description": "",
   "author": "Inverse inc",
   "dependencies": {
-    "mjml": "^4.x.x"
+    "mjml": "^5.0.0"
   }
 }
