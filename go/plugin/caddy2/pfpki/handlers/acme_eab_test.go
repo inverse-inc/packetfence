@@ -152,7 +152,9 @@ func TestAcme_MobileConfig(t *testing.T) {
 	for _, want := range []string{
 		"<string>com.apple.security.acme</string>",
 		"<key>DirectoryURL</key>",
-		"/api/v1/pki/acme/mc-prof/directory",
+		// The admin API is on another port: devices enroll through the
+		// captive portal, HTTPS on the default port.
+		"<string>https://127.0.0.1/api/v1/pki/acme/mc-prof/directory</string>",
 		"<key>ClientIdentifier</key>\n      <string>ABC123</string>",
 		"<string>ECSECPrimeRandom</string>",
 		"<key>Attest</key>\n      <true/>",
