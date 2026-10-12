@@ -378,3 +378,22 @@ func TestNewOrder_RejectsHostileIdentifiers(t *testing.T) {
 		t.Fatalf("%d orders were persisted for rejected identifiers", n)
 	}
 }
+
+// TestRevokeCert_AlreadyRevoked: revoking a certificate a second time is
+// answered with alreadyRevoked rather than a 404 "not issued".
+func TestRevokeCert_AlreadyRevoked(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-own-twice")
+	a, kidA := bootstrapAcmeAccount(t, env, prof)
+	leaf, _, _ := issueLeaf(t, env, prof, a, kidA, "twice.example.test")
+
+	u := revokeURL(env, prof)
+	payload := map[string]any{"certificate": base64.RawURLEncoding.EncodeToString(leaf.Raw)}
+	first := a.post(t, u, a.signed(u, modeKID, kidA, a.fetchNonce(), payload))
+	first.Body.Close()
+	if first.StatusCode != http.StatusOK {
+		t.Fatalf("first revoke: status=%d", first.StatusCode)
+	}
+	second := a.post(t, u, a.signed(u, modeKID, kidA, a.fetchNonce(), payload))
+	expectProblem(t, second, http.StatusBadRequest, "alreadyRevoked")
+}
