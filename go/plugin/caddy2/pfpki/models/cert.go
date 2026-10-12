@@ -24,6 +24,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"golang.org/x/crypto/ocsp"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 )
 
@@ -362,13 +363,9 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		}
 	}
 
-	// Find the Profile
-	var profile Profile
-
-	error := c.DB.Model(&profile).Where(&cert)
-	if error.Error != nil {
-		Information.Error = error.Error.Error()
-		return Information, error.Error
+	if cert.ID == 0 {
+		Information.Error = "Certificate not found"
+		return Information, errors.New("Certificate not found")
 	}
 
 	intreason, err := strconv.Atoi(reason)
@@ -376,12 +373,29 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		Information.Error = "Reason unsupported"
 		return Information, errors.New("Reason unsupported")
 	}
-	RevokeDate := time.Now().AddDate(0, 0, profile.RevokedValidUntil)
-	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: cert.Ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}).Error; err != nil {
-		Information.Error = err.Error()
-		return Information, err
+
+	// A superseded certificate stays valid (OCSP good) for the profile's
+	// RevokedValidUntil days, so a device keeps working until it has
+	// installed its new certificate. Any other reason (key compromise,
+	// ...) takes effect at once.
+	RevokeDate := time.Now()
+	if intreason == ocsp.Superseded {
+		var profile Profile
+		if err := c.DB.First(&profile, cert.ProfileID).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			Information.Error = err.Error()
+			return Information, err
+		}
+		RevokeDate = RevokeDate.AddDate(0, 0, profile.RevokedValidUntil)
 	}
-	if err := c.DB.Unscoped().Delete(&cert).Error; err != nil {
+	revoked := RevokedCert{Cn: cert.Cn, Mail: cert.Mail, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.PostalCode, Key: cert.Key, Cert: cert.Cert, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}
+	// Move the row: a certificate is either live or revoked, never both
+	// or neither.
+	if err := c.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Omit(clause.Associations).Create(&revoked).Error; err != nil {
+			return err
+		}
+		return tx.Unscoped().Delete(&Cert{}, cert.ID).Error
+	}); err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
