@@ -40,7 +40,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20251014220800-3f4796ad84c9
 	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
-	github.com/inverse-inc/scep v0.0.0-20261012132338-742cc31bf00f
+	github.com/inverse-inc/scep v0.0.0-20261012142215-e66821f8930f
 	github.com/jcuga/golongpoll v1.3.1
 	github.com/jpillora/backoff v1.0.0
 	github.com/jpillora/requestlog v1.0.0
@@ -136,7 +136,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
 	github.com/huandu/go-clone v1.7.0 // indirect
-	github.com/inverse-inc/pkcs7 v0.0.0-20261012132313-77fb79842abb
+	github.com/inverse-inc/pkcs7 v0.0.0-20261012141443-24bf2d538d99
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
