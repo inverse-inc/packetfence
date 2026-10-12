@@ -27,9 +27,10 @@ import (
 // so a renamed OID over there breaks the test cleanly rather than
 // silently.
 var (
-	oidAppleNonce  = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 2}
-	oidAppleUDID   = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 3}
-	oidAppleSerial = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 5}
+	// https://support.apple.com/guide/security/sec8a37b4cb2/web
+	oidAppleNonce  = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 11, 1}
+	oidAppleUDID   = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 9, 2}
+	oidAppleSerial = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 9, 1}
 )
 
 // appleFixture is a synthetic Apple attestation chain (root + leaf)
@@ -77,21 +78,11 @@ func buildAppleFixture(t *testing.T, nonce []byte, udid, serial string) *appleFi
 		t.Fatalf("leaf key: %v", err)
 	}
 
-	// Wrap the nonce as a bare OCTET STRING — the validator accepts
-	// SEQUENCE{OCTETSTRING}, bare OCTET STRING, and raw 32-byte forms.
-	// Bare is the simplest to produce in tests.
-	nonceExt, err := asn1.Marshal(nonce)
-	if err != nil {
-		t.Fatalf("marshal nonce ext: %v", err)
-	}
-	udidExt, err := asn1.MarshalWithParams(udid, "utf8")
-	if err != nil {
-		t.Fatalf("marshal udid: %v", err)
-	}
-	serialExt, err := asn1.MarshalWithParams(serial, "utf8")
-	if err != nil {
-		t.Fatalf("marshal serial: %v", err)
-	}
+	// Apple puts the raw values in the extensions: the 32-byte digest
+	// for the freshness code, the bytes of the string for UDID / serial.
+	nonceExt := nonce
+	udidExt := []byte(udid)
+	serialExt := []byte(serial)
 
 	leafTmpl := &x509.Certificate{
 		SerialNumber: big.NewInt(2),
