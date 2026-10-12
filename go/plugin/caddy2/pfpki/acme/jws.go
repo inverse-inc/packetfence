@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 
 	jose "github.com/go-jose/go-jose/v4"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
@@ -31,8 +32,9 @@ type jwsContext struct {
 	// Exactly one of Account / JWK is non-nil after middleware:
 	//   Account is set when the JWS used `kid` (an existing account
 	//     posted authenticated to /order, /authz, etc.)
-	//   JWK is set when the JWS used `jwk` (new-account, key-rollover
-	//     outer JWS, or a revoke-cert signed by the cert's own key).
+	//   JWK is set when the JWS used `jwk` (new-account, or a
+	//     revoke-cert signed by the cert's own key). key-change uses
+	//     `kid` on the outer JWS; its `jwk` inner JWS is the payload.
 	Account *models.AcmeAccount
 	JWK     *jose.JSONWebKey
 	Alg     string
@@ -89,8 +91,8 @@ func expectedRequestURL(r *http.Request) string {
 // ACME problem document and returns; the handler is never called with
 // an unverified context.
 //
-// mode controls whether the request must carry `jwk` (new-account /
-// key rollover), `kid` (every other endpoint) or may carry either
+// mode controls whether the request must carry `jwk` (new-account),
+// `kid` (every other endpoint, key-change included) or may carry either
 // (revoke-cert).
 func jwsMiddleware(h *types.Handler, mode jwsMode, next func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -212,6 +214,16 @@ func jwsMiddleware(h *types.Handler, mode jwsMode, next func(http.ResponseWriter
 					"signature verify: "+verr.Error())
 				return
 			}
+			// Checked once the signature proves the caller holds the
+			// key, so the account state isn't disclosed to anyone else.
+			if acct.Status != "valid" {
+				_ = WriteProblem(w, http.StatusUnauthorized, ErrUnauthorized, "account is "+acct.Status)
+				return
+			}
+			if accountExpired(acct, time.Now()) {
+				_ = WriteProblem(w, http.StatusUnauthorized, ErrUnauthorized, "account has expired")
+				return
+			}
 			jctx.Account = acct
 			jctx.JWK = jwk
 			jctx.Payload = payload
@@ -242,7 +254,9 @@ const (
 
 // lookupAccountByKID resolves an ACME `kid` URL (e.g.
 // https://pfpki/.../account/42) to the matching AcmeAccount row + a
-// usable JSONWebKey for signature verification.
+// usable JSONWebKey for signature verification. The account's status
+// and expiry are left to the caller, which checks them only after the
+// signature verifies.
 func lookupAccountByKID(h *types.Handler, profileID uint, kid string) (*models.AcmeAccount, *jose.JSONWebKey, error) {
 	var acct models.AcmeAccount
 	if err := h.DB.Where("profile_id = ? AND key_id = ?", profileID, kid).First(&acct).Error; err != nil {

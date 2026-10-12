@@ -9,10 +9,6 @@ import (
 // "/{profile}/...". The same chi.Router can be mounted both under
 // /api/v1/pki/acme and under a bare /acme — the caller does the
 // mounting via chi.Router.Mount("/acme", acme.Mount(h)).
-//
-// As Phase 1 lands, the new handlers (account/order/authz/challenge/
-// finalize/cert/revoke) attach here. The skeleton serves /directory
-// and /new-nonce only.
 func Mount(h *types.Handler) chi.Router {
 	r := chi.NewRouter()
 	r.Route("/{profile}", func(r chi.Router) {
@@ -21,6 +17,8 @@ func Mount(h *types.Handler) chi.Router {
 		r.Get("/new-nonce", newNonceHandler(h))
 		r.Post("/new-account", newAccountHandler(h))
 		r.Post("/account/{id}", accountByIDHandler(h))
+		r.Post("/account/{id}/orders", accountOrdersHandler(h))
+		r.Post("/key-change", keyChangeHandler(h))
 		r.Post("/new-order", newOrderHandler(h))
 		r.Post("/order/{id}", orderByIDHandler(h))
 		r.Post("/order/{id}/finalize", orderFinalizeHandler(h))
