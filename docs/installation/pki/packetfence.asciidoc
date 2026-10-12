@@ -487,7 +487,7 @@ Templates_), *ACME* tab:
 | *Attestation formats* | `apple`. Without it, a `permanent-identifier` order is refused, since no other challenge can prove it.
 | *Require External Account Binding* | *Off*. Apple's ACME client has no EAB support; on an Apple template attestation is the authentication. Keep it on for templates used by generic ACME clients.
 | *Attestation root CAs (PEM)* | Leave empty. PacketFence embeds the Apple Enterprise Attestation Root CA (SHA-256 `CC:F5:9E:F8:FC:B3:01:7D:97:F8:B5:FA:6F:A9:0E:7A:3F:92:83:F7:6B:55:AC:6C:F6:ED:A8:B8:B9:49:F0:5B`, valid until 2047). A value here *replaces* the embedded root; use it only if Apple publishes a new root or for lab attestation chains of your own.
-| *Account / Order / Authorization expiry* | Defaults (365 days / 7 days / 24 hours) are fine. Order and authorization expiries bound how long that ACME state is kept before the cleanup task drops it; accounts are not removed by the cleanup task.
+| *Account / Order / Authorization expiry* | Defaults (365 days / 7 days / 24 hours) are fine. Order and authorization expiries bound how long that ACME state is kept before the cleanup task drops it. An expired account is refused until the device registers its key again (new-account), which renews it; 0 means accounts never expire. Accounts are not removed by the cleanup task.
 |===
 
 The template's ACME directory is then:
@@ -902,7 +902,8 @@ The PKI runs in the `pfpki` container, which must see the library and
 everything it needs (configuration files, certificates, local token
 storage, ...). List them in `/usr/local/pf/conf/pfpki-hsm-volumes`, one
 Docker volume per line (`host-path[:container-path[:options]]`, the
-container path defaults to the host path), and set the environment
+container path defaults to the host path; paths must be absolute and
+cannot contain spaces, other lines are ignored with a warning), and set the environment
 variables the library needs in `/usr/local/pf/conf/pfpki-hsm.env`
 (`NAME=value` lines). For example, for a SoftHSM2 token (for testing
 only):

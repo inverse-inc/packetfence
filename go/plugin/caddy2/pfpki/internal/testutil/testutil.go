@@ -159,6 +159,7 @@ func newRouter(h *types.Handler) chi.Router {
 			r.Get("/{id}/download/{password}", handlers.DownloadCert(h))
 			r.Get("/{profile}/{id}/download/{password}", handlers.DownloadCert(h))
 			r.Get("/{id}/email", handlers.EmailCert(h))
+			r.Post("/{id}/email", handlers.EmailCert(h))
 			r.Delete("/{id}/{reason}", handlers.RevokeCert(h))
 			r.Post("/resign/{id}", handlers.ResignCert(h))
 			r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(h))
