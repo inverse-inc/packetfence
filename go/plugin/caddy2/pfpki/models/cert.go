@@ -743,16 +743,18 @@ func isDuplicateSubjectError(err error) bool {
 // download makes it useless on the SCEP request path, which handles
 // re-enrollment by superseding (see CA.HasCN).
 //
-// All error paths log and return 0.
-func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
-	vcloud, err := cloud.Create(ctx, "intune", prof.CloudService)
+// It returns an error when the provider can't be reached or the queue
+// can't be processed; the per-request failures are reported to the
+// provider instead.
+func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) (int, error) {
+	vcloud, err := cloudCreate(ctx, "intune", prof.CloudService)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn("drainCloudRevocations: cloud.Create: " + err.Error())
-		return 0
+		return 0, err
 	}
 	rp, ok := vcloud.(cloud.RevocationProcessor)
 	if !ok {
-		return 0
+		return 0, nil
 	}
 	helper := Cert{DB: db, Ctx: ctx}
 	var localApplied int
@@ -789,9 +791,13 @@ func drainCloudRevocations(ctx context.Context, prof Profile, db *gorm.DB) int {
 	}
 	if _, err := rp.ProcessRevocations(ctx, prof.Ca.Cn, revoke); err != nil {
 		log.LoggerWContext(ctx).Warn("drainCloudRevocations: ProcessRevocations: " + err.Error())
+		return localApplied, err
 	}
-	return localApplied
+	return localApplied, nil
 }
+
+// cloudCreate opens the cloud provider of a profile (replaced in tests).
+var cloudCreate = cloud.Create
 
 // cloudRevocationReason is the RFC 5280 CRLReason recorded for a
 // revocation pulled from the cloud queue. Intune's feed carries no
@@ -800,7 +806,8 @@ const cloudRevocationReason = 0
 
 // ProcessCloudRevocations iterates every cloud-enabled profile and asks
 // its provider for any pending revocation requests, applying them
-// locally. Returns the total number of local revocations applied (the
+// locally. It fails when the queue of any profile couldn't be processed.
+// Returns the total number of local revocations applied (the
 // number reported in Information.TotalCount), so a caller / operator
 // can confirm progress on a manual trigger.
 func (c Cert) ProcessCloudRevocations() (types.Info, error) {
@@ -813,10 +820,22 @@ func (c Cert) ProcessCloudRevocations() (types.Info, error) {
 	}
 
 	applied := 0
+	var failures []string
 	for _, prof := range profiles {
-		applied += drainCloudRevocations(c.Ctx, prof, c.DB)
+		n, err := drainCloudRevocations(c.Ctx, prof, c.DB)
+		applied += n
+		if err != nil {
+			failures = append(failures, fmt.Sprintf("profile %q: %s", prof.Name, err))
+		}
 	}
 	Information.TotalCount = applied
+	// Every profile is processed, but the run fails when one of them did,
+	// so the task (and the operator) see it.
+	if len(failures) > 0 {
+		err := errors.New("cloud revocations failed for " + strings.Join(failures, "; "))
+		Information.Error = err.Error()
+		return Information, err
+	}
 	return Information, nil
 }
 
