@@ -137,6 +137,17 @@ func revokeCertHandler(h *types.Handler) http.HandlerFunc {
 		row, issued, err := loadIssuedCert(h.DB, jc.Profile.ID, serial, der)
 		if err != nil {
 			if errors.Is(err, errCertNotIssued) {
+				// RevokeBySerial moves the row to pki_revoked_certs, so
+				// a second revoke no longer finds it in pki_certs.
+				revoked, rerr := isAlreadyRevoked(h.DB, jc.Profile.ID, serial, der)
+				if rerr != nil {
+					_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, rerr.Error())
+					return
+				}
+				if revoked {
+					_ = WriteProblem(w, http.StatusBadRequest, ErrAlreadyRevoked, "certificate has already been revoked")
+					return
+				}
 				_ = WriteProblem(w, http.StatusNotFound, ErrMalformed, err.Error())
 				return
 			}
@@ -183,13 +194,13 @@ func revokeCertHandler(h *types.Handler) http.HandlerFunc {
 		actor := requestActor(jc)
 		if !found {
 			// Race: the cert was revoked by another caller between
-			// the lookup above and the revoke. Treat as success per
-			// §7.6 idempotency, but still emit an audit row so the
-			// double-revoke is observable.
+			// the lookup above and the revoke. Answer as for any other
+			// already-revoked certificate, but still emit an audit row
+			// so the double-revoke is observable.
 			auditACMEEvent(r.Context(), h.DB, jc.Profile.Name, actor, "acme.cert.revoke",
-				serial, r.Method, requestURLForAudit(r), http.StatusOK,
+				serial, r.Method, requestURLForAudit(r), http.StatusBadRequest,
 				map[string]any{"reason": reason, "already_revoked": true})
-			w.WriteHeader(http.StatusOK)
+			_ = WriteProblem(w, http.StatusBadRequest, ErrAlreadyRevoked, "certificate has already been revoked")
 			return
 		}
 		auditACMEEvent(r.Context(), h.DB, jc.Profile.Name, actor, "acme.cert.revoke",
@@ -199,6 +210,26 @@ func revokeCertHandler(h *types.Handler) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 	return jwsMiddleware(h, jwsAllowEither, inner)
+}
+
+// isAlreadyRevoked reports whether the certificate pfpki issued under
+// profileID with this serial sits in pki_revoked_certs. As in
+// loadIssuedCert, the presented DER must be the stored certificate, so
+// a forged certificate reusing a revoked serial is not reported as
+// revoked.
+func isAlreadyRevoked(db *gorm.DB, profileID uint, serial string, der []byte) (bool, error) {
+	var rows []models.RevokedCert
+	if err := db.Where("serial_number = ? AND profile_id = ?", serial, profileID).
+		Find(&rows).Error; err != nil {
+		return false, err
+	}
+	for _, row := range rows {
+		block, _ := pem.Decode([]byte(row.Cert))
+		if block != nil && bytes.Equal(block.Bytes, der) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // publicKeysEqual compares two public keys by their DER
