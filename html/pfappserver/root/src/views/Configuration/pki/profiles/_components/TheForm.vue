@@ -171,7 +171,7 @@
         />
         <form-group-acme-account-expiry namespace="acme_account_expiry"
                                         :column-label="$i18n.t('Account expiry (days)')"
-                                        :text="$i18n.t('Lifetime recorded on a new ACME account. The ACME state cleanup task does not remove accounts, it only removes expired nonces, authorizations, orders and challenges.')"
+                                        :text="$i18n.t('Lifetime of a new ACME account. An expired account is refused until the device registers its key again, which renews it. Use 0 for accounts that never expire. The ACME state cleanup task does not remove accounts.')"
         />
         <form-group-acme-order-expiry namespace="acme_order_expiry"
                                       :column-label="$i18n.t('Order expiry (days)')"
@@ -237,7 +237,7 @@
         />
         <form-group-revoked-valid-until namespace="revoked_valid_until"
                                         :column-label="$i18n.t('Days after revoked certificate is valid')"
-                                        :text="$i18n.t('Number of days an old certificate is still valid after it has been revoked.')"
+                                        :text="$i18n.t('Number of days a certificate superseded by a newer one with the same Common Name stays valid. Certificates revoked for any other reason are refused at once.')"
         />
       </base-form-tab>
 
