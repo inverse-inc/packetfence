@@ -125,7 +125,7 @@ Control -> Connection Profiles_.
 ==== Kickbox
 
 To use Kickbox, an API key is needed. To get one, first create an account on
-<https://kickbox.io>, then navigate to
+<https://kickbox.com>, then navigate to
 <https://app.kickbox.com/settings/keys>. Click on `API Keys -> Create Key`.
 Pick a name and choose `Production` mode and `Single` verification.
 
