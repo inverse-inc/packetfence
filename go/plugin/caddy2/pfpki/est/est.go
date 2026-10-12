@@ -58,6 +58,7 @@ var oidSubjectAltName = asn1.ObjectIdentifier{2, 5, 29, 17}
 // /.well-known/est (and /pki/est for the API front end).
 func Mount(h *types.Handler) chi.Router {
 	r := chi.NewRouter()
+	r.Use(requireTLS)
 	routes := func(r chi.Router) {
 		r.Get("/cacerts", caCertsHandler(h))
 		r.Get("/csrattrs", csrAttrsHandler(h))
@@ -68,6 +69,26 @@ func Mount(h *types.Handler) chi.Router {
 	routes(r)
 	r.Route("/{profile}", routes)
 	return r
+}
+
+// requireTLS refuses the requests a reverse proxy received over plain
+// HTTP (X-Forwarded-Proto other than https): EST sends the enrollment
+// password and the server-generated keys, it only runs over TLS. The
+// portal haproxy adds the header, so a client value can't hide a plain
+// HTTP request: every value is checked.
+func requireTLS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		for _, header := range r.Header.Values("X-Forwarded-Proto") {
+			for _, proto := range strings.Split(header, ",") {
+				if !strings.EqualFold(strings.TrimSpace(proto), "https") {
+					logInfo(r, "refused a request received over "+strings.TrimSpace(proto))
+					http.Error(w, "EST requires HTTPS", http.StatusForbidden)
+					return
+				}
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func logInfo(r *http.Request, msg string) {
@@ -187,7 +208,8 @@ func serverKeyGenHandler(h *types.Handler) http.HandlerFunc {
 			return
 		}
 
-		// Re-sign the client's Subject and SubjectAltName with the new key.
+		// Re-sign the client's Subject and SubjectAltName with the new key
+		// (IssueESTCert then checks the names like for simpleenroll).
 		tmpl := &x509.CertificateRequest{RawSubject: clientCSR.RawSubject}
 		for _, ext := range clientCSR.Extensions {
 			if ext.Id.Equal(oidSubjectAltName) {
