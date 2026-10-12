@@ -10,7 +10,8 @@ end)
 
 local string = require("string");
 
--- The pfpki endpoints a device may reach through the portal: SCEP and OCSP.
+-- The pfpki endpoints a device may reach through the portal: SCEP, OCSP
+-- and EST.
 -- The pki backend sends the request to the PKI API without authentication,
 -- so any other path, such as the certificates or their keys, must not get
 -- there: match the whole path, not a part of it.
@@ -22,12 +23,16 @@ local pki_paths = {
     '^/scep/?$',
     '^/scep/[^/]+$',
     '^/scep/[^/]+/pkiclient%.exe$',
+    '^/%.well%-known/est/[^/]+$',
+    '^/%.well%-known/est/[^/]+/[^/]+$',
 }
 
 local function is_pki_path(path)
     -- no dot segments: the PKI API routes the path as it is
-    if string.find(path, "/%.") then
-        return false
+    for segment in string.gmatch(path, "[^/]+") do
+        if segment == "." or segment == ".." then
+            return false
+        end
     end
     for _, pattern in ipairs(pki_paths) do
         if string.match(path, pattern) then
