@@ -347,6 +347,7 @@ CREATE TABLE IF NOT EXISTS `pki_acme_accounts` (
   `expires_at` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `acme_account_keyid` (`key_id`),
+  UNIQUE KEY `acme_account_profile_thumbprint` (`profile_id`,`key_thumbprint`),
   KEY `acme_account_thumbprint` (`key_thumbprint`),
   KEY `idx_pki_acme_accounts_profile_id` (`profile_id`),
   KEY `idx_pki_acme_accounts_external_account_key_id` (`external_account_key_id`),
@@ -447,6 +448,11 @@ CREATE TABLE IF NOT EXISTS `pki_acme_eab_keys` (
   KEY `idx_pki_acme_eab_keys_deleted_at` (`deleted_at`),
   CONSTRAINT `fk_pki_acme_eab_keys_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+-- One account per key per profile; covers pki_acme_accounts created by a
+-- pre-release build before the unique key was part of the table.
+CALL AddIndexUnlessExists('pki_acme_accounts', 'acme_account_profile_thumbprint',
+    'UNIQUE KEY `acme_account_profile_thumbprint` (`profile_id`,`key_thumbprint`)');
 
 --
 -- Clean up the helper / validation procedures

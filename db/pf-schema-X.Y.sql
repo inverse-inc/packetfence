@@ -1648,6 +1648,7 @@ CREATE TABLE `pki_acme_accounts` (
   `expires_at` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `acme_account_keyid` (`key_id`),
+  UNIQUE KEY `acme_account_profile_thumbprint` (`profile_id`,`key_thumbprint`),
   KEY `acme_account_thumbprint` (`key_thumbprint`),
   KEY `idx_pki_acme_accounts_profile_id` (`profile_id`),
   KEY `idx_pki_acme_accounts_external_account_key_id` (`external_account_key_id`),

@@ -136,6 +136,15 @@ func newAccountHandler(h *types.Handler) http.HandlerFunc {
 			return nil
 		})
 		if err != nil {
+			// A concurrent new-account for the same key won the race and
+			// tripped the (profile_id, key_thumbprint) unique key: answer
+			// as for any existing account (§7.3.1).
+			var winner models.AcmeAccount
+			if h.DB.Where("profile_id = ? AND key_thumbprint = ?", jc.Profile.ID, thumb).
+				First(&winner).Error == nil {
+				writeAccount(w, r, &winner, http.StatusOK)
+				return
+			}
 			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
 			return
 		}
