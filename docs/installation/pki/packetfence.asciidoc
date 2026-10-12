@@ -361,9 +361,11 @@ PacketFence handles this in two complementary ways.
   devices), so their certificates are revoked in the PKI and refused
   by OCSP instead of staying valid until expiry, and it acknowledges
   the certificates already superseded at re-enrollment. The same sweep
-  can be triggered by hand:
+  can be triggered by hand, through the admin API on the web admin
+  port (1443) with an API token:
 +
- curl -X POST https://<pf-fqdn>/api/v1/pki/process_cloud_revocations
+ TOKEN=$(curl -s https://<pf-fqdn>:1443/api/v1/login -d '{"username":"admin","password":"<password>"}' | jq -r .token)
+ curl -X POST -H "Authorization: $TOKEN" https://<pf-fqdn>:1443/api/v1/pki/process_cloud_revocations
 +
 which returns the number of local revocations applied.
 
@@ -485,7 +487,7 @@ Templates_), *ACME* tab:
 | *Attestation formats* | `apple`. Without it, a `permanent-identifier` order is refused, since no other challenge can prove it.
 | *Require External Account Binding* | *Off*. Apple's ACME client has no EAB support; on an Apple template attestation is the authentication. Keep it on for templates used by generic ACME clients.
 | *Attestation root CAs (PEM)* | Leave empty. PacketFence embeds the Apple Enterprise Attestation Root CA (SHA-256 `CC:F5:9E:F8:FC:B3:01:7D:97:F8:B5:FA:6F:A9:0E:7A:3F:92:83:F7:6B:55:AC:6C:F6:ED:A8:B8:B9:49:F0:5B`, valid until 2047). A value here *replaces* the embedded root; use it only if Apple publishes a new root or for lab attestation chains of your own.
-| *Account / Order / Authorization expiry* | Defaults (365 days / 7 days / 24 hours) are fine. They bound how long ACME state is kept before the cleanup task drops it.
+| *Account / Order / Authorization expiry* | Defaults (365 days / 7 days / 24 hours) are fine. Order and authorization expiries bound how long that ACME state is kept before the cleanup task drops it; accounts are not removed by the cleanup task.
 |===
 
 The template's ACME directory is then:
@@ -515,9 +517,10 @@ Authorities_, then:
   below).
 . _RADIUS -> TLS Profiles_: create a TLS profile that uses that
   certificate profile. Optionally create an _OCSP Profile_ pointing at
-  `https://<pf-fqdn>/api/v1/pki/ocsp` and attach it, so a certificate
-  revoked in the PKI is refused at the next authentication instead of
-  at expiry.
+  `http://127.0.0.1:22225/api/v1/pki/ocsp` (the PKI service on the
+  PacketFence server itself, the same URL as the default OCSP profile)
+  and attach it, so a certificate revoked in the PKI is refused at the
+  next authentication instead of at expiry.
 . _RADIUS -> EAP Profiles_: create an EAP profile with `tls` as the
   default EAP type, using that TLS profile.
 . _Configuration -> Policies and Access Control -> Domains -> Realms_:
@@ -544,13 +547,14 @@ valid certificate into a role:
 
 ====== Step 4 — Maintenance tasks
 
-Enable in _Configuration -> System Configuration -> Maintenance_:
+Check in _Configuration -> System Configuration -> Maintenance_:
 
 [options="compact"]
-* `pki_acme_state_cleanup`: sweeps expired nonces, challenges,
-  authorizations and orders (hourly, 1 hour grace window by default).
-  ACME state grows with every enrollment; without this task the
-  `pki_acme_*` tables grow unbounded.
+* `pki_acme_state_cleanup` (enabled by default): sweeps expired nonces,
+  challenges, authorizations and orders (hourly, 1 hour grace window by
+  default). It does not remove ACME accounts. ACME state grows with
+  every enrollment; without this task the `pki_acme_*` tables grow
+  unbounded.
 * `pki_revoked_certs_cleanup` (optional): drops revoked certificates
   once their natural expiry is well past.
 
@@ -758,14 +762,17 @@ internal web service):
   other non-routable targets.
 * *Require External Account Binding*: keep it *on*, otherwise any host
   that can answer an HTTP request for a name can obtain a certificate
-  for it. Mint a key pair per client:
+  for it. Mint a key pair per client through the admin API, on the web
+  admin port (1443) with an API token (there is no EAB screen in the
+  web admin):
 +
+ TOKEN=$(curl -s https://<pf-fqdn>:1443/api/v1/login -d '{"username":"admin","password":"<password>"}' | jq -r .token)
  # Mint — the hmac is returned once and never again
- curl -X POST https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/eab \
+ curl -X POST -H "Authorization: $TOKEN" https://<pf-fqdn>:1443/api/v1/pki/profile/<template_id>/acme/eab \
       -H 'Content-Type: application/json' -d '{"reference": "printer-42"}'
  # List (hmac blanked) / revoke
- curl https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/eab
- curl -X DELETE https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/eab/<eab_id>
+ curl -H "Authorization: $TOKEN" https://<pf-fqdn>:1443/api/v1/pki/profile/<template_id>/acme/eab
+ curl -X DELETE -H "Authorization: $TOKEN" https://<pf-fqdn>:1443/api/v1/pki/profile/<template_id>/acme/eab/<eab_id>
 +
 and pass `key_id` / `hmac` to the client (`certbot --eab-kid ...
 --eab-hmac-key ...`, `step ca certificate --acme ... --eab-key-id ...
@@ -773,6 +780,15 @@ and pass `key_id` / `hmac` to the client (`certbot --eab-kid ...
 it.
 * The certificate Common Name and DNS/IP SANs must be identifiers of
   the order; the Subject attributes come from the template.
+
+===== Protocol notes
+
+[options="compact"]
+* The validity of the certificate always comes from the template: a
+  `new-order` request carrying `notBefore` or `notAfter` is refused.
+* An order carries at most 100 identifiers.
+* Account key rollover (`keyChange`), the list of an account's orders
+  and account deactivation are supported.
 
 ===== Audit log
 
@@ -805,7 +821,7 @@ available on the web admin port under `/api/v1/pki/est/<template_name>/`.
 | `cacerts` | GET | None | Returns the template's CA certificate.
 | `csrattrs` | GET | None | Answers _204 No Content_: the Subject is built from the template.
 | `simpleenroll` | POST | HTTP Basic | Issues a certificate for the PKCS#10 request.
-| `simplereenroll` | POST | HTTP Basic | Issues a new certificate for a common name that already has one under the template, then revokes the previous certificate(s) as superseded.
+| `simplereenroll` | POST | HTTP Basic | Issues a new certificate for a common name that already has one under the template, then revokes the previous certificate(s) as superseded. The CSR must reuse the key of the currently valid certificate; to change the key (rekey), use `simpleenroll`.
 | `serverkeygen` | POST | HTTP Basic | Generates the key pair (template *Key type* and *Key size*) and returns the private key (PKCS#8) and the certificate.
 |===
 
@@ -813,6 +829,12 @@ As with SCEP, the common name and Subject Alt Names come from the
 request; the other Subject attributes, key usage, extended key usage,
 validity and digest come from the template. `simpleenroll` follows the
 template's duplicate common name settings and *Days before renewal*.
+
+Subject Alt Names are restricted: a DNS or email SAN must be equal to
+the common name, and IP or URI SANs are refused.
+
+EST requires HTTPS: a request forwarded to the PKI over plain HTTP is
+refused.
 
 ===== Configure PacketFence
 
