@@ -182,6 +182,22 @@
                                       :text="$i18n.t('Lifetime of an authorization (and its challenges) before reclamation. ACME clients refresh this from the directory.')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('EST')">
+        <form-group-est-enabled namespace="est_enabled"
+                                :column-label="$i18n.t('Enable EST')"
+                                :text="$i18n.t('Enable RFC 7030 EST enrollment under this profile at /.well-known/est/&lt;profile&gt;/ (cacerts, csrattrs, simpleenroll, simplereenroll, serverkeygen).')"
+                                :enabled-value="1"
+                                :disabled-value="0"
+        />
+        <form-group-est-username namespace="est_username"
+                                 :column-label="$i18n.t('EST username')"
+                                 :text="$i18n.t('HTTP Basic user name EST clients must present. Leave empty to accept any user name.')"
+        />
+        <form-group-est-password namespace="est_password"
+                                 :column-label="$i18n.t('EST password')"
+                                 :text="$i18n.t('HTTP Basic password EST clients must present to enroll. Enrollment is refused while it is empty.')"
+        />
+      </base-form-tab>
       <base-form-tab :title="$i18n.t('Renewal Configuration')">
         <form-group-days-before-renewal namespace="days_before_renewal"
                                         :column-label="$i18n.t('Days before renewal')"
@@ -293,7 +309,10 @@ import {
   FormGroupAcmeAttestationRoots,
   FormGroupAcmeAccountExpiry,
   FormGroupAcmeOrderExpiry,
-  FormGroupAcmeAuthzExpiry
+  FormGroupAcmeAuthzExpiry,
+  FormGroupEstEnabled,
+  FormGroupEstUsername,
+  FormGroupEstPassword
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
 import {keySizes, keyTypes} from '../../config'
@@ -350,7 +369,10 @@ const components = {
   FormGroupAcmeAttestationRoots,
   FormGroupAcmeAccountExpiry,
   FormGroupAcmeOrderExpiry,
-  FormGroupAcmeAuthzExpiry
+  FormGroupAcmeAuthzExpiry,
+  FormGroupEstEnabled,
+  FormGroupEstUsername,
+  FormGroupEstPassword
 }
 
 export const props = {

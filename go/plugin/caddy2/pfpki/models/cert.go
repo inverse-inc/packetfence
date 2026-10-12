@@ -492,7 +492,14 @@ func SignCSRForACME(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byt
 	if err := ValidateACMECSR(csr, identifiers); err != nil {
 		return nil, err
 	}
+	return issueFromCSR(db, ctx, prof, csr, accountID)
+}
 
+// issueFromCSR signs csr with the profile's CA and persists the result
+// to pki_certs. The Subject is built from the profile (only the CN comes
+// from the CSR) and the SANs are copied from the CSR, so callers must
+// have validated them first. Shared by ACME finalize and EST enrollment.
+func issueFromCSR(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.CertificateRequest, accountID uint) (*Cert, error) {
 	// Atomically allocate a serial.
 	serial, err := nextSerialNumber(db, prof.Ca.ID, false)
 	if err != nil {
