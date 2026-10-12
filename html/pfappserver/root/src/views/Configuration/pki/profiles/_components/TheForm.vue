@@ -146,7 +146,7 @@
       <base-form-tab :title="$i18n.t('ACME')">
         <form-group-acme-enabled namespace="acme_enabled"
                                  :column-label="$i18n.t('Enable ACME')"
-                                 :text="$i18n.t('Enable RFC 8555 ACME enrollment under this profile. Devices contact /acme/&lt;profile&gt;/directory; everything else is link-discovered. Apple managed-device payloads use this.')"
+                                 :text="$i18n.t('Enable RFC 8555 ACME enrollment under this profile. Devices contact /api/v1/pki/acme/&lt;profile&gt;/directory; everything else is link-discovered. Apple managed-device payloads use this.')"
                                  :enabled-value="1"
                                  :disabled-value="0"
         />
@@ -156,7 +156,7 @@
         />
         <form-group-acme-eab-required namespace="acme_eab_required"
                                       :column-label="$i18n.t('Require External Account Binding')"
-                                      :text="$i18n.t('When enabled, /new-account must carry a valid EAB inner JWS. Mint keys in the EAB tab and distribute via MDM payload.')"
+                                      :text="$i18n.t('When enabled, /new-account must carry a valid EAB inner JWS. Keys are minted through the API (POST /api/v1/pki/profile/&lt;id&gt;/acme/eab) and distributed via MDM payload, see the PKI documentation.')"
                                       :enabled-value="1"
                                       :disabled-value="0"
         />
@@ -171,7 +171,7 @@
         />
         <form-group-acme-account-expiry namespace="acme_account_expiry"
                                         :column-label="$i18n.t('Account expiry (days)')"
-                                        :text="$i18n.t('How long an ACME account lives before the state cleanup task is allowed to drop it.')"
+                                        :text="$i18n.t('Lifetime recorded on a new ACME account. The ACME state cleanup task does not remove accounts, it only removes expired nonces, authorizations, orders and challenges.')"
         />
         <form-group-acme-order-expiry namespace="acme_order_expiry"
                                       :column-label="$i18n.t('Order expiry (days)')"
