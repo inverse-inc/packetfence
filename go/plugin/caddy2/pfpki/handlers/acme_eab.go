@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -298,22 +299,22 @@ func csvContains(csv, want string) bool {
 	return false
 }
 
-// acmeDirectoryURL mirrors the URL pfpki/acme/directory.go::baseURL
-// builds at request time. Reproduced here (instead of imported) because
-// the admin handler is unauthenticated for ACME purposes and shouldn't
-// drag in the ACME package's JWS internals.
+// acmeDirectoryURL is the directory URL put in the device payload. The
+// payload is downloaded from the admin API (port 1443), but devices
+// enroll through the captive portal: HTTPS on the default port of the
+// same name, where haproxy-portal routes /api/v1/pki/acme to pfpki.
 func acmeDirectoryURL(r *http.Request, profileName string) string {
-	scheme := "https"
-	if r.Header.Get("X-Forwarded-Proto") != "" {
-		scheme = r.Header.Get("X-Forwarded-Proto")
-	} else if r.TLS == nil {
-		scheme = "http"
-	}
 	host := r.Host
 	if fwd := r.Header.Get("X-Forwarded-Host"); fwd != "" {
 		host = fwd
 	}
-	return fmt.Sprintf("%s://%s/api/v1/pki/acme/%s/directory", scheme, host, profileName)
+	if h, _, err := net.SplitHostPort(host); err == nil {
+		host = h
+		if strings.Contains(host, ":") {
+			host = "[" + host + "]"
+		}
+	}
+	return fmt.Sprintf("https://%s/api/v1/pki/acme/%s/directory", host, profileName)
 }
 
 // buildACMEMobileConfig renders the Apple ACME payload plist. Kept as

@@ -432,12 +432,19 @@ can retry with a correct one.
   *custom configuration profile*.
 * Devices must reach `https://<pf-fqdn>/api/v1/pki/acme/...` at
   enrollment time, and Apple's attestation service on the Internet.
+  This URL is served by the captive portal (HTTPS, port 443), so
+  `<pf-fqdn>` must resolve, for the devices, to an interface where the
+  portal runs. If the devices reach PacketFence on its management
+  address, enable the portal on the management interface (see
+  <<_enabling_portal_on_management_interface>>).
   Enrollment usually happens before the device has its Wi-Fi
   certificate, so plan for cellular, an onboarding SSID, or wired
   access to PacketFence.
 * Apple requires the directory URL to be HTTPS with a certificate the
-  device trusts. Use a publicly trusted certificate on the PacketFence
-  web interface, or push your internal root to the devices first.
+  device trusts. The captive portal presents the HTTP certificate (see
+  <<_install_the_ssltls_http_certificate_on_the_server>>): use a
+  publicly trusted certificate, or push your internal root to the
+  devices first.
 * If PacketFence sits behind a reverse proxy or load balancer, it must
   pass `X-Forwarded-Host` and `X-Forwarded-Proto`: every URL in the
   ACME dialogue is built from the request and must match what the
@@ -484,6 +491,9 @@ Templates_), *ACME* tab:
 The template's ACME directory is then:
 
  https://<pf-fqdn>/api/v1/pki/acme/<template_name>/directory
+
+It is served by the captive portal on port 443, not by the web admin
+port (1443): see the requirements above.
 
 This URL is deliberately unauthenticated at the web-server level:
 every ACME request is signed by the device (JWS) and validated by the
@@ -547,9 +557,16 @@ Enable in _Configuration -> System Configuration -> Maintenance_:
 ====== Step 5 — Get the MDM payload
 
 For Intune (and any MDM that takes a `.mobileconfig`), PacketFence
-renders the Apple ACME payload for the template:
+renders the Apple ACME payload for the template. It is an admin API
+call, on the web admin port (1443) with an API token:
 
- curl -OJ "https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/mobileconfig?client_identifier=<variable>"
+ TOKEN=$(curl -s https://<pf-fqdn>:1443/api/v1/login -d '{"username":"admin","password":"<password>"}' | jq -r .token)
+ curl -OJ -H "Authorization: $TOKEN" "https://<pf-fqdn>:1443/api/v1/pki/profile/<template_id>/acme/mobileconfig?client_identifier=<variable>"
+
+The directory URL in the payload uses the name of this request, without
+the admin port: `https://<pf-fqdn>/api/v1/pki/acme/<template_name>/directory`,
+on the captive portal. Download the payload with the name the devices
+use to reach PacketFence.
 
 `<template_id>` is the numeric id shown in the template list. The
 endpoint answers `409` with the reason if the template is not set up
@@ -622,7 +639,7 @@ unrelated to the device certificates issued by PacketFence.
 
 . Download the payload from PacketFence with the Intune token:
 +
- curl -OJ "https://<pf-fqdn>/api/v1/pki/profile/<template_id>/acme/mobileconfig?client_identifier=%7B%7Bserialnumber%7D%7D"
+ curl -OJ -H "Authorization: $TOKEN" "https://<pf-fqdn>:1443/api/v1/pki/profile/<template_id>/acme/mobileconfig?client_identifier=%7B%7Bserialnumber%7D%7D"
 +
 (`%7B%7Bserialnumber%7D%7D` is `{{serialnumber}}` URL-encoded. The
 token is case-sensitive.)
