@@ -131,7 +131,7 @@ const actions = {
       return response.result
     }).catch(err => {
       commit('TEST_STATUS', types.ERROR)
-      throw err.message
+      throw err.response?.data?.result || err.response?.data?.message || err.message
     })
   }
 }
