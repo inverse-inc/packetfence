@@ -17,20 +17,23 @@ import (
 // x509.Extension values. Layout per Apple Platform Deployment
 // (managed-device attestation reference):
 //
-//	1.2.840.113635.100.8.2   nonce         (DER OCTET STRING wrapped
-//	                                         in a SEQUENCE)
-//	1.2.840.113635.100.8.3   device UDID   (UTF8String)
-//	1.2.840.113635.100.8.5   device serial (UTF8String)
-//	1.2.840.113635.100.8.10  OS version    (UTF8String)
+//	1.2.840.113635.100.8.11.1  freshness code: SHA-256 of the
+//	                           device-attest-01 token
+//	1.2.840.113635.100.8.9.2   device UDID
+//	1.2.840.113635.100.8.9.1   device serial
+//	1.2.840.113635.100.8.10.1  OS version
+//
+// (https://support.apple.com/guide/security/sec8a37b4cb2/web). Serial
+// and UDID are left out for User Enrollment devices.
 //
 // We don't actually need the OS version for the protocol — we leave it
 // extractable so operators can audit-log it later without a second
 // parse.
 var (
-	oidAppleAttestNonce     = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 2}
-	oidAppleAttestUDID      = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 3}
-	oidAppleAttestSerial    = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 5}
-	oidAppleAttestOSVersion = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 10}
+	oidAppleAttestNonce     = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 11, 1}
+	oidAppleAttestUDID      = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 9, 2}
+	oidAppleAttestSerial    = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 9, 1}
+	oidAppleAttestOSVersion = asn1.ObjectIdentifier{1, 2, 840, 113635, 100, 8, 10, 1}
 )
 
 // appleAttestationObject is the WebAuthn-style CBOR shape Apple's
@@ -170,9 +173,8 @@ type extractedDevice struct {
 	nonce []byte
 }
 
-// extractAppleDevice walks the leaf cert's extensions, pulls the four
-// Apple OID values we care about, and unwraps the ASN.1 framing Apple
-// puts around the nonce extension.
+// extractAppleDevice walks the leaf cert's extensions and pulls the
+// four Apple OID values we care about.
 func extractAppleDevice(leaf *x509.Certificate) (extractedDevice, error) {
 	out := extractedDevice{deviceInfo: deviceInfo{Leaf: leaf}}
 	for _, ext := range leaf.Extensions {
@@ -209,10 +211,15 @@ func extractAppleDevice(leaf *x509.Certificate) (extractedDevice, error) {
 	return out, nil
 }
 
-// unwrapAppleNonce strips the ASN.1 SEQUENCE { OCTET STRING } wrapper
-// Apple puts around the 32-byte SHA-256 digest, and also accepts a
-// bare OCTET STRING for forward compatibility / test fixtures.
+// unwrapAppleNonce returns the SHA-256 digest carried by the freshness
+// code extension: Apple puts the raw 32 bytes in it. A SEQUENCE { OCTET
+// STRING } or bare OCTET STRING wrapping is accepted as well.
 func unwrapAppleNonce(raw []byte) ([]byte, error) {
+	// The raw digest first: a wrapped value is never exactly 32 bytes,
+	// while a raw one could happen to parse as ASN.1.
+	if len(raw) == sha256.Size {
+		return raw, nil
+	}
 	// Try SEQUENCE { OCTET STRING }.
 	var wrapped struct {
 		Nonce []byte `asn1:"tag:4"`
@@ -225,17 +232,11 @@ func unwrapAppleNonce(raw []byte) ([]byte, error) {
 	if _, err := asn1.Unmarshal(raw, &bare); err == nil && len(bare) > 0 {
 		return bare, nil
 	}
-	// Last resort: assume the extension value is already the raw
-	// digest. Apple has been known to ship both shapes across iOS
-	// releases.
-	if len(raw) == sha256.Size {
-		return raw, nil
-	}
 	return nil, errors.New("nonce extension is neither SEQUENCE{OCTETSTRING} nor bare OCTET STRING nor 32-byte raw digest")
 }
 
-// unwrapAppleUTF8 decodes an Apple UTF8String extension value.
-// Tolerates the bare-bytes form some early iOS releases emitted.
+// unwrapAppleUTF8 decodes an Apple string extension value: raw bytes
+// (what Apple sends) or an ASN.1 string.
 func unwrapAppleUTF8(raw []byte) (string, error) {
 	var s string
 	if _, err := asn1.Unmarshal(raw, &s); err == nil && s != "" {
