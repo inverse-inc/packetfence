@@ -137,35 +137,43 @@ func (c Cert) New() (types.Info, error) {
 
 	// Sign the certificate
 	certByte, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, cakey)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 
 	certBuff := new(bytes.Buffer)
 
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	// Start from the request body and overwrite the fields that come from
-	// signing-time state (serial, CA-derived names, key/cert bytes, …).
-	newCert := c
-	newCert.ID = 0
-	newCert.Ca = prof.Ca
-	newCert.CaName = prof.Ca.Cn
-	newCert.ProfileName = prof.Name
-	newCert.SerialNumber = SerialNumber.String()
-	newCert.IPAddresses = strings.Join(IPAddresses, ",")
-	newCert.Mail = Email
-	newCert.StreetAddress = strings.Join(Subject.StreetAddress, "")
-	newCert.Organisation = strings.Join(Subject.Organization, "")
-	newCert.OrganisationalUnit = strings.Join(Subject.OrganizationalUnit, "")
-	newCert.Country = strings.Join(Subject.Country, "")
-	newCert.State = strings.Join(Subject.Province, "")
-	newCert.Locality = strings.Join(Subject.Locality, "")
-	newCert.PostalCode = strings.Join(Subject.PostalCode, "")
-	newCert.Profile = prof
-	newCert.Key = keyOut.String()
-	newCert.Cert = certBuff.String()
-	newCert.ValidUntil = cert.NotAfter
-	newCert.NotBefore = cert.NotBefore
-	newCert.Subject = Subject.String()
+	// Build the row from explicit fields: request-only state (date, scep,
+	// alert, alerted_days, ...) must not be persisted from the body.
+	newCert := Cert{
+		Cn:                 c.Cn,
+		Ca:                 prof.Ca,
+		CaID:               prof.Ca.ID,
+		CaName:             prof.Ca.Cn,
+		Profile:            prof,
+		ProfileID:          prof.ID,
+		ProfileName:        prof.Name,
+		SerialNumber:       SerialNumber.String(),
+		DNSNames:           c.DNSNames,
+		IPAddresses:        strings.Join(IPAddresses, ","),
+		Mail:               Email,
+		StreetAddress:      strings.Join(Subject.StreetAddress, ""),
+		Organisation:       strings.Join(Subject.Organization, ""),
+		OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""),
+		Country:            strings.Join(Subject.Country, ""),
+		State:              strings.Join(Subject.Province, ""),
+		Locality:           strings.Join(Subject.Locality, ""),
+		PostalCode:         strings.Join(Subject.PostalCode, ""),
+		Key:                keyOut.String(),
+		Cert:               certBuff.String(),
+		ValidUntil:         cert.NotAfter,
+		NotBefore:          cert.NotBefore,
+		Subject:            Subject.String(),
+	}
 	if err := c.DB.Create(&newCert).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
