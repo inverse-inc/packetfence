@@ -626,6 +626,11 @@ func containsFold(xs []string, want string) bool {
 // external system may correspond to. pki_certs stores big.Int.String()
 // (decimal), while Intune and most X.509 tooling show hex, sometimes
 // with colon or space separators or a 0x prefix.
+//
+// Every decimal string is also valid hex, so the input is read as hex
+// only when it can't be decimal: a 0x prefix, separators or an a-f
+// digit. "100" is serial 100, never also 0x100 (256): matching both
+// would let a revocation for one device hit another device's cert.
 func serialCandidates(serial string) []string {
 	s := strings.TrimSpace(serial)
 	if s == "" {
@@ -640,8 +645,11 @@ func serialCandidates(serial string) []string {
 		}
 	}
 	add(s)
-	if n, ok := new(big.Int).SetString(s, 10); ok {
-		add(n.String())
+	if !serialLooksHex(s) {
+		if n, ok := new(big.Int).SetString(s, 10); ok {
+			add(n.String())
+		}
+		return out
 	}
 	h := strings.NewReplacer(":", "", " ", "", "-", "").Replace(s)
 	h = strings.TrimPrefix(strings.TrimPrefix(h, "0x"), "0X")
@@ -649,6 +657,14 @@ func serialCandidates(serial string) []string {
 		add(n.String())
 	}
 	return out
+}
+
+// serialLooksHex tells whether a serial can only be read as hex.
+func serialLooksHex(s string) bool {
+	if strings.HasPrefix(s, "0x") || strings.HasPrefix(s, "0X") || strings.ContainsAny(s, ": -") {
+		return true
+	}
+	return strings.ContainsAny(s, "abcdefABCDEF")
 }
 
 // RevokeBySerial looks up a leaf by serial number under the given CA
