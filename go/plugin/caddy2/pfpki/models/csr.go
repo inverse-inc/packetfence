@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"net/http"
@@ -24,6 +25,21 @@ func NewCsrModel(pfpki *types.Handler) *CSR {
 	Csr.Ctx = *pfpki.Ctx
 
 	return Csr
+}
+
+// parseCSR decodes a PKCS#10 request given as PEM, as bare base64 (the
+// PEM body without its armor, line breaks and spaces allowed) or as raw
+// DER.
+func parseCSR(s string) (*x509.CertificateRequest, error) {
+	if block, _ := pem.Decode([]byte(strings.TrimSpace(s))); block != nil {
+		return x509.ParseCertificateRequest(block.Bytes)
+	}
+	if der, err := base64.StdEncoding.DecodeString(strings.Join(strings.Fields(s), "")); err == nil {
+		if req, err := x509.ParseCertificateRequest(der); err == nil {
+			return req, nil
+		}
+	}
+	return x509.ParseCertificateRequest([]byte(s))
 }
 
 func (csr CSR) New(params map[string]string) (types.Info, error) {
@@ -49,18 +65,7 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 		return Information, errors.New(dbError)
 	}
 
-	// Decode the CSR. Accept PEM (with BEGIN/END markers) or raw DER.
-	var (
-		err error
-		der []byte
-	)
-	if block, _ := pem.Decode([]byte(csr.Csr)); block != nil {
-		der = block.Bytes
-	} else {
-		der = []byte(csr.Csr)
-	}
-
-	certRequest, err := x509.ParseCertificateRequest(der)
+	certRequest, err := parseCSR(csr.Csr)
 	if err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusUnprocessableEntity

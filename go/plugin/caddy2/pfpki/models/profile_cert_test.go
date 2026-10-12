@@ -8,6 +8,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"strings"
@@ -223,6 +224,22 @@ func TestCSR_New_SignsExternalCSR(t *testing.T) {
 		}
 		assertLeafChains(t, info, caRow)
 	})
+
+	// Bare base64, as a single line or wrapped like the PEM body.
+	b64 := base64.StdEncoding.EncodeToString(csrDER)
+	for name, in := range map[string]string{
+		"base64 input":         b64,
+		"wrapped base64 input": "\n" + b64[:64] + "\r\n" + b64[64:128] + "\n " + b64[128:] + "\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			csr := models.CSR{DB: env.DB, Ctx: env.Ctx, Csr: in}
+			info, err := csr.New(map[string]string{"id": fmt.Sprintf("%d", profile.ID)})
+			if err != nil {
+				t.Fatalf("CSR.New(%s): %v (info=%+v)", name, err, info)
+			}
+			assertLeafChains(t, info, caRow)
+		})
+	}
 
 	t.Run("invalid PEM", func(t *testing.T) {
 		csr := models.CSR{DB: env.DB, Ctx: env.Ctx, Csr: "this is not a CSR"}
