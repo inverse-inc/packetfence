@@ -206,7 +206,8 @@ type finalizePayload struct {
 
 // orderFinalizeHandler implements §7.4 finalize. Preconditions:
 //   - Order must exist and belong to the JWS account.
-//   - Order must be in `ready` state (all authzs valid).
+//   - Order must be in `ready` state (all authzs valid), and neither
+//     the order nor any of its authzs may have expired.
 //   - Posted CSR must be parseable and self-signature-valid.
 //   - CSR's CN/SANs must be a subset of the order's identifiers, and
 //     for a device-attest-01 order the CSR key must be the attested key.
@@ -259,6 +260,24 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 				"order status is "+order.Status+", finalize requires ready")
 			return
 		}
+		// A ready order is only as good as its authorizations: the
+		// order itself and every authz it references must still be
+		// live. Otherwise the order is dead (§7.1.6) and is moved to
+		// invalid so the client starts over.
+		authzs, reason, err := orderAuthzsForFinalize(h.DB, &order)
+		if err != nil {
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
+			return
+		}
+		if reason != "" {
+			problem := Problem{Type: ErrOrderNotReady, Detail: reason, Status: http.StatusForbidden}
+			pb, _ := json.Marshal(problem)
+			_ = h.DB.Model(&models.AcmeOrder{}).
+				Where("id = ? AND status = ?", order.ID, "ready").
+				Updates(map[string]any{"status": "invalid", "error": string(pb)}).Error
+			_ = WriteProblem(w, http.StatusForbidden, ErrOrderNotReady, reason)
+			return
+		}
 
 		var payload finalizePayload
 		if err := json.Unmarshal(jc.Payload, &payload); err != nil {
@@ -294,7 +313,7 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, err.Error())
 			return
 		}
-		if err := checkAttestedKey(h.DB, order.ID, csr); err != nil {
+		if err := checkAttestedKey(authzs, ids, csr); err != nil {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, err.Error())
 			return
 		}
@@ -345,32 +364,73 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 	return jwsMiddleware(h, jwsRequireKID, inner)
 }
 
-// checkAttestedKey enforces the device-attest-01 key binding at
-// finalize: every permanent-identifier authz on the order recorded the
-// SubjectPublicKeyInfo of the key the attestation chain vouched for,
-// and the CSR must carry that same key. Without this a device could
-// attest a Secure Enclave key and then have an unrelated, exportable
-// key certified.
-func checkAttestedKey(db *gorm.DB, orderID uint, csr *x509.CertificateRequest) error {
+// orderAuthzsForFinalize loads the authorizations a ready order
+// references and checks they still back it. A non-empty reason means
+// the order must not be finalized: the order or one of its authzs has
+// expired, or an authz is missing or no longer valid.
+func orderAuthzsForFinalize(db *gorm.DB, order *models.AcmeOrder) ([]models.AcmeAuthz, string, error) {
+	now := time.Now()
+	if !order.ExpiresAt.After(now) {
+		return nil, "order has expired", nil
+	}
+	ids := parseAuthzIDs(order.AuthzIDs)
+	if len(ids) == 0 {
+		return nil, "order has no authorizations", nil
+	}
 	var authzs []models.AcmeAuthz
-	if err := db.Where("order_id = ? AND identifier_type = ?", orderID, "permanent-identifier").
-		Find(&authzs).Error; err != nil {
-		return err
+	if err := db.Where("id IN ? AND order_id = ?", ids, order.ID).Find(&authzs).Error; err != nil {
+		return nil, "", err
 	}
-	if len(authzs) == 0 {
-		return nil
+	if len(authzs) != len(ids) {
+		return nil, "an authorization of this order no longer exists", nil
 	}
-	spki, err := x509.MarshalPKIXPublicKey(csr.PublicKey)
-	if err != nil {
-		return fmt.Errorf("CSR public key: %w", err)
-	}
-	want := base64.StdEncoding.EncodeToString(spki)
 	for _, a := range authzs {
-		if a.AttestedSPKI == "" {
-			return errors.New("permanent-identifier authorization carries no attested key")
+		if a.Status != "valid" {
+			return nil, "authorization for " + a.Value + " is " + a.Status, nil
 		}
-		if a.AttestedSPKI != want {
-			return errors.New("CSR public key does not match the attested device key")
+		if !a.ExpiresAt.After(now) {
+			return nil, "authorization for " + a.Value + " has expired", nil
+		}
+	}
+	return authzs, "", nil
+}
+
+// checkAttestedKey enforces the device-attest-01 key binding at
+// finalize: every permanent-identifier of the order must be backed by
+// an authz of the order that recorded the SubjectPublicKeyInfo of the
+// key the attestation chain vouched for, and the CSR must carry that
+// same key. It fails closed: an identifier without such an authz is
+// refused rather than skipped. Without this a device could attest a
+// Secure Enclave key and then have an unrelated, exportable key
+// certified.
+func checkAttestedKey(authzs []models.AcmeAuthz, ids []models.AcmeIdentifier, csr *x509.CertificateRequest) error {
+	var want string
+	for _, id := range ids {
+		if id.Type != "permanent-identifier" {
+			continue
+		}
+		if want == "" {
+			spki, err := x509.MarshalPKIXPublicKey(csr.PublicKey)
+			if err != nil {
+				return fmt.Errorf("CSR public key: %w", err)
+			}
+			want = base64.StdEncoding.EncodeToString(spki)
+		}
+		attested := false
+		for _, a := range authzs {
+			if a.IdentifierType != "permanent-identifier" || a.Value != id.Value {
+				continue
+			}
+			if a.AttestedSPKI == "" {
+				return errors.New("permanent-identifier authorization carries no attested key")
+			}
+			if a.AttestedSPKI != want {
+				return errors.New("CSR public key does not match the attested device key")
+			}
+			attested = true
+		}
+		if !attested {
+			return errors.New("no attested authorization for permanent-identifier " + id.Value)
 		}
 	}
 	return nil
