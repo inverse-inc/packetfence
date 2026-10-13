@@ -277,7 +277,8 @@ EOT
     #            without this rule its processlist SELECT (and the
     #            performance_schema SELECTs of newer netdata functions) match
     #            rule 4 → HG 30 and ProxySQL rejects them with error 9006
-    #            (locked to hostgroup)
+    #            (locked to hostgroup). (?s) lets .* cross the newlines of
+    #            those multi-line queries
     #   rule 4 — SELECT                    → HG 30 (readers preferred)
     #            writer is also in HG 30 (weight=50) only as fallback
     #            if all pure readers go down
@@ -305,7 +306,7 @@ mysql_query_rules =
     {
         rule_id=2,
         active=1,
-        match_pattern="^SELECT \@\@global.read_only",
+        match_pattern="^SELECT \@\@global[.]read_only",
         destination_hostgroup=$writer_hostgroup,
         apply=1,
         comment="SELECT global.read_only goes to writer"
@@ -313,7 +314,7 @@ mysql_query_rules =
     {
         rule_id=3,
         active=1,
-        match_pattern="(information_schema[.]processlist|performance_schema[.])",
+        match_pattern="(?s)^SELECT.*(information_schema[.]processlist|performance_schema[.])",
         destination_hostgroup=$writer_hostgroup,
         apply=1,
         comment="processlist and performance_schema SELECTs stay on writer — netdata session is locked to HG $writer_hostgroup by SET SESSION"
