@@ -195,11 +195,11 @@ func (api *API) setupRoutes() {
 				r.Post("/upgrade", systemUpgrade(api))
 			})
 			r.Get("/logs/{name}", tailLog(api))
+			// Terminal activation, called by the pfconnector server's API
+			// through the tunnel (one-time uuid check via remote-terminal,
+			// then the TOTP code).
+			r.Get("/authorize/{id}", enableTerminal(api))
 		})
-		// Not localhost-only: the admin's browser reaches this directly on
-		// the remote's IP to activate a terminal session authorized by the
-		// pfconnector server (one-time uuid check via remote-terminal).
-		r.Get("/authorize/{id}", enableTerminal(api))
 	})
 }
 

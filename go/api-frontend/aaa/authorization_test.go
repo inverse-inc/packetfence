@@ -333,3 +333,24 @@ func TestPftestAdminRoleMapping(t *testing.T) {
 		}
 	}
 }
+
+// The remote terminal opens a root shell on the connector-remote, so all its
+// routes require CONNECTORS_UPDATE, whatever the method.
+func TestTerminalAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	for _, method := range []string{"GET", "POST"} {
+		for _, path := range []string{"/api/v1/terminal", "/api/v1/terminal/connector1/", "/api/v1/terminal/connector1/authorize/abc"} {
+			if res, _ := m.isAuthorizedAdminActions(ctx, method, path, map[string]bool{"NODES_READ": true}); res {
+				t.Errorf("%s %s was authorized without any CONNECTORS role", method, path)
+			}
+			if res, _ := m.isAuthorizedAdminActions(ctx, method, path, map[string]bool{"CONNECTORS_READ": true}); res {
+				t.Errorf("%s %s was authorized with CONNECTORS_READ only", method, path)
+			}
+			if res, err := m.isAuthorizedAdminActions(ctx, method, path, map[string]bool{"CONNECTORS_UPDATE": true}); !res {
+				t.Errorf("%s %s was not authorized with CONNECTORS_UPDATE, error: %v", method, path, err)
+			}
+		}
+	}
+}
