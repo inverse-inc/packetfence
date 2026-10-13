@@ -8,13 +8,14 @@ pf::role_networks - networks associated to a role across the switch configuratio
 
 =head1 DESCRIPTION
 
-A role ACL may name another role as its destination instead of a network:
+A role ACL may name another role as its source or destination instead of a
+network:
 
     #permit ip any net Printer
 
 The line is commented out so that a switch module that does not know the
 C<net E<lt>RoleE<gt>> keyword ignores it. This module expands such a line into
-one ACL per CIDR network mapped to the destination role (the C<E<lt>RoleE<gt>Network>
+one ACL per CIDR network mapped to the role (the C<E<lt>RoleE<gt>Network>
 attribute of every switch with C<NetworkMap> enabled), merging adjacent networks.
 
 The role to networks map is kept in the C<role_networks> distributed cache, one
@@ -22,7 +23,9 @@ entry per role. It is populated when the switch configuration is committed
 (see L<pf::ConfigStore::Switch>) and only the roles whose networks changed are
 rewritten, so a device connecting never has to walk the switch configuration.
 A cache miss falls back to a computation from the current switch configuration
-and primes the cache.
+and primes the cache. Entries expire (see C<conf/chi.conf.defaults>), so a
+change made without a commit, such as an edit of switches.conf followed by a
+configreload, still applies.
 
 =cut
 
@@ -34,6 +37,7 @@ use pf::log;
 use pf::CHI;
 use pf::util();
 use pfconfig::cached_hash;
+use Cisco::AccessList::Parser;
 
 our $CACHE_NAMESPACE = 'role_networks';
 
@@ -41,9 +45,12 @@ our $CACHE_NAMESPACE = 'role_networks';
 # roles that no longer have any network.
 our $ROLES_INDEX_KEY = '__roles__';
 
-# A destination written as "net <Role>" in a commented out ACL. The line may
-# carry a direction prefix and anything after the role (ports, flags).
-our $NET_ROLE_RE = qr/^#\s*((?:in\||out\|)?)(.*?)\s+net\s+(\S+)(.*)$/;
+# A commented out ACL naming a role with "net <Role>", as its source or its
+# destination. The line may carry a direction prefix.
+our $NET_ROLE_LINE_RE = qr/^#\s*((?:in\||out\|)?)(.*\snet\s+\S.*)$/;
+
+# The first "net <Role>" of a line: what comes before, the role, what follows.
+our $NET_ROLE_RE = qr/^(.*?)\s+net\s+(\S+)(.*)$/;
 
 tie our %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 
@@ -78,7 +85,8 @@ sub compute_role_networks {
         next if $id eq 'default' || $id =~ /^group /;
         my $switch = $switches->{$id};
         next if !defined $switch || ref($switch) ne 'HASH';
-        next unless pf::util::isenabled($switch->{NetworkMap});
+        # pf::Switch enables NetworkMap when the switch does not set it
+        next unless pf::util::isenabled($switch->{NetworkMap} // 'enabled');
         my $networks = $switch->{networks};
         next unless ref($networks) eq 'HASH';
         for my $role (keys %$networks) {
@@ -204,9 +212,16 @@ sub acl_destinations {
 
 =head2 expand_acls
 
-Replace every C<#... net E<lt>RoleE<gt> ...> line of an ACL text with one
-uncommented line per network of the role. A line whose role has no network is
-left untouched (still commented out) so the switch module skips it.
+Replace every commented out ACL line naming a role with C<net E<lt>RoleE<gt>>
+(as its source or its destination) with one uncommented line per network of
+the role. A line naming several roles gets one line per combination of their
+networks.
+
+The line is left untouched (still commented out, so the switch module skips
+it) when one of its roles has no network, or when a line it expands to is not
+a valid ACL: a comment that happens to contain "net <Role>" must not be
+uncommented, since the switch modules parse all the ACLs of a role at once and
+a single invalid line makes them drop every ACL of the role.
 
 Takes and returns the ACL text (lines separated by newlines).
 
@@ -215,23 +230,59 @@ Takes and returns the ACL text (lines separated by newlines).
 sub expand_acls {
     my ($acls) = @_;
     return $acls unless defined $acls && $acls =~ /\snet\s/;
+    my $logger = get_logger();
     my @expanded;
     for my $line (split /\n/, $acls) {
-        if ($line =~ $NET_ROLE_RE) {
-            my ($direction, $before, $role, $after) = ($1, $2, $3, $4);
-            my @destinations = acl_destinations($role);
-            if (!@destinations) {
-                get_logger->warn("No network found for destination role $role, skipping ACL: $line");
-                push @expanded, $line;
-                next;
-            }
-            $after =~ s/\s+$//;
-            push @expanded, map { "$direction$before $_$after" } @destinations;
+        if ($line !~ $NET_ROLE_LINE_RE) {
+            push @expanded, $line;
             next;
         }
-        push @expanded, $line;
+        my ($direction, $body) = ($1, $2);
+        $body =~ s/\s+$//;
+        my @bodies = _expand_net_roles($body);
+        if (!@bodies) {
+            $logger->warn("A role named in this ACL has no network, skipping it: $line");
+            push @expanded, $line;
+            next;
+        }
+        if (my ($invalid) = grep { !_is_valid_acl($_) } @bodies) {
+            $logger->warn("Not a valid ACL once its roles are expanded ($invalid), skipping it: $line");
+            push @expanded, $line;
+            next;
+        }
+        push @expanded, map { "$direction$_" } @bodies;
     }
     return join("\n", @expanded);
+}
+
+=head2 _expand_net_roles
+
+Expand every C<net E<lt>RoleE<gt>> of an ACL line into the networks of the
+role. Returns the expanded lines, or an empty list when a role has no network.
+
+=cut
+
+sub _expand_net_roles {
+    my ($body) = @_;
+    return ($body) if $body !~ $NET_ROLE_RE;
+    my ($before, $role, $after) = ($1, $2, $3);
+    my @destinations = acl_destinations($role);
+    return if !@destinations;
+    return map { _expand_net_roles("$before $_$after") } @destinations;
+}
+
+=head2 _is_valid_acl
+
+Whether a line is a single valid ACL entry for L<Cisco::AccessList::Parser>,
+which the switch modules use.
+
+=cut
+
+sub _is_valid_acl {
+    my ($line) = @_;
+    my ($acl_ref) = eval { Cisco::AccessList::Parser->new->parse(input => "ip access-list extended packetfence\n$line\n") };
+    my $entries = ref($acl_ref) eq 'HASH' ? $acl_ref->{packetfence}{entries} : undef;
+    return ref($entries) eq 'ARRAY' && @$entries == 1;
 }
 
 =head1 AUTHOR

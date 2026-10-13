@@ -435,9 +435,9 @@ This can also be configured with the admin interface in _Configuration -> Polici
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 
-===== Role networks as ACL destinations
+===== Role networks in ACLs
 
-When the networks of a role are declared on the switches (`<role_name>Network=<cidr>` with `NetworkMap=Y`, or _Role by Network_ in the switch configuration), an ACL of a role can name another role as its destination instead of a network. The line must be commented out and use the `net` keyword:
+When the networks of a role are declared on the switches (`<role_name>Network=<cidr>`, or _Role by Network_ in the switch configuration, on switches where it is not disabled), an ACL of a role can name another role instead of a network, as its destination or its source. The line must be commented out and use the `net` keyword:
 
   #permit tcp any net Printer eq 9100
 
@@ -446,7 +446,15 @@ When a device connects, PacketFence replaces the line with one ACL per network m
   permit tcp any 10.0.0.0 0.0.0.255 eq 9100
   permit tcp any 10.0.2.0 0.0.0.255 eq 9100
 
-The role to networks map is kept in the `role_networks` cache (see [filename]`conf/chi.conf.defaults`) and is refreshed when the switch configuration is saved, so only the roles whose networks changed are recomputed. A destination role without any network leaves the line commented out and the ACL is skipped.
+A line naming several roles, for example `#permit tcp net Laptop net Printer eq 9100`, gets one ACL per combination of their networks.
+
+The line is left commented out, so the switch skips it, when one of the roles it names has no network, or when it is not a valid ACL once expanded. A comment that happens to contain `net <role_name>` is therefore never turned into an ACL. A warning is logged in `packetfence.log` in both cases.
+
+This only applies to the ACLs defined on the roles (including the Fingerbank dynamic ACLs). The ACLs defined on a switch entry and the bypass ACLs of a node are sent as they are, so a `net` line there is skipped.
+
+The role to networks map is kept in the `role_networks` cache (see [filename]`conf/chi.conf.defaults`). It is refreshed when the switch configuration is saved from the administration interface or the API, so only the roles whose networks changed are recomputed. Its entries also expire after an hour, so a change made directly in [filename]`switches.conf` applies within the hour, or immediately with:
+
+  /usr/local/pf/bin/pfcmd cache role_networks clear
 
 ==== VoIP Integration with CDP, LLDP and LLDP-MED
 

@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 22;
 
 #This test will running last
 use Test::NoWarnings;
@@ -42,6 +42,12 @@ is_deeply(
     pf::role_networks::compute_role_networks($switches),
     { Printer => ['10.0.0.0/24', '10.0.2.0/24'], Camera => ['10.1.0.7/32'] },
     "merge adjacent networks, skip default, groups, NetworkMap disabled and IPv6"
+);
+
+is_deeply(
+    pf::role_networks::compute_role_networks({ '10.0.0.9' => { networks => { Printer => '10.0.9.0/24' } } }),
+    { Printer => ['10.0.9.0/24'] },
+    "a switch that does not set NetworkMap maps networks, like pf::Switch does"
 );
 
 is_deeply(
@@ -111,6 +117,46 @@ is(
 );
 
 is(pf::role_networks::expand_acls("permit ip any any"), "permit ip any any", "ACL without net destination is untouched");
+
+# The switch modules parse all the ACLs of a role at once and drop every one of
+# them on a single invalid line, so an expansion must never produce one.
+is(
+    pf::role_networks::expand_acls("# printers on the net Printer queue are blocked\ndeny ip any any"),
+    "# printers on the net Printer queue are blocked\ndeny ip any any",
+    "a comment that mentions net <Role> is not a valid ACL once expanded, it stays commented out"
+);
+
+is(
+    pf::role_networks::expand_acls("#permit tcp net Server net Multi eq 9100"),
+    join("\n",
+        'permit tcp host 10.5.5.5 10.0.0.0 0.0.0.255 eq 9100',
+        'permit tcp host 10.5.5.5 10.0.2.0 0.0.0.255 eq 9100',
+    ),
+    "every net <Role> of a line is expanded, one line per combination of networks"
+);
+
+is(
+    pf::role_networks::expand_acls("#permit tcp net Server net Camera eq 9100"),
+    "#permit tcp net Server net Camera eq 9100",
+    "a line naming a role without network stays commented out, even when its other role has networks"
+);
+
+is(
+    pf::role_networks::expand_acls("#out|permit ip net Server any"),
+    "out|permit ip host 10.5.5.5 any",
+    "net <Role> is expanded as a source too, with its direction"
+);
+
+is(
+    pf::role_networks::expand_acls("#permit tcp any net Server eq"),
+    "#permit tcp any net Server eq",
+    "an ACL that is malformed once expanded stays commented out"
+);
+
+ok(
+    !pf::role_networks::_is_valid_acl("printers on the 10.0.0.0 0.0.0.255 queue"),
+    "free text is not a valid ACL"
+);
 
 $cache->set('Other', ['1.1.1.0/24']);
 pf::role_networks::networks_for_role('Unknown');
