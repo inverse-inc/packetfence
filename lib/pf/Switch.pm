@@ -3478,6 +3478,7 @@ Takes into account the active/active clustering and centralized deauth
 sub deauth_source_ip {
     my ($self,$dst_ip,$using_connector) = @_;
     my $logger = $self->logger();
+    $dst_ip = $self->resolve_deauth_host($dst_ip);
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
                                          my @interface_src = split(" ", safe_pf_run(qw(sudo ip route get), $dst_ip));
@@ -4193,8 +4194,31 @@ sub find_user_by_psk {
     return undef;
 }
 
+=head2 resolve_deauth_host
+
+Returns the IPv4 address to use to reach the given deauthentication host.
+IP addresses are returned unchanged.
+A hostname (e.g. a controllerIp configured as a FQDN) is resolved to its first IPv4 address.
+If the hostname cannot be resolved, it is returned unchanged.
+
+=cut
+
+sub resolve_deauth_host {
+    my ($self, $host) = @_;
+    return $host if !defined($host) || $host eq '' || Net::IP::ip_is_ipv4($host) || Net::IP::ip_is_ipv6($host);
+    my $addresses = resolve($host);
+    if (!defined($addresses) || !@$addresses) {
+        $self->logger->warn("Unable to resolve $host to an IP address for the deauthentication");
+        return $host;
+    }
+    $self->logger->debug("Resolved $host to $addresses->[0] for the deauthentication");
+    return $addresses->[0];
+}
+
 sub radius_deauth_connection_info {
     my ($self, $send_disconnect_to) = @_;
+
+    $send_disconnect_to = $self->resolve_deauth_host($send_disconnect_to);
 
     my $using_connector = $FALSE;
     if($self->shouldUseConnectorForRadiusDeauth()) {
