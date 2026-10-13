@@ -227,6 +227,32 @@ use constant SWITCHING_FILTER_CONDITIONS_LIMIT => 20;
 # blocked: the filter stops there and denies everything else instead.
 use constant SWITCHING_FILTER_DENY_ALL => 'Match Destination-ip 0.0.0.0/0 Action deny';
 
+# The Cisco port names Cisco::AccessList::Parser accepts, by IP protocol. The
+# filter only takes port numbers.
+our %CISCO_PORT_NAMES = (
+    6 => {
+        'bgp' => 179, 'chargen' => 19, 'cmd' => 514, 'daytime' => 13,
+        'discard' => 9, 'domain' => 53, 'echo' => 7, 'exec' => 512,
+        'finger' => 79, 'ftp' => 21, 'ftp-data' => 20, 'gopher' => 70,
+        'hostname' => 101, 'ident' => 113, 'irc' => 194, 'klogin' => 543,
+        'kshell' => 544, 'login' => 513, 'lpd' => 515, 'nntp' => 119,
+        'pim-auto-rp' => 496, 'pop2' => 109, 'pop3' => 110, 'smtp' => 25,
+        'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49, 'talk' => 517,
+        'telnet' => 23, 'time' => 37, 'uucp' => 540, 'whois' => 43,
+        'www' => 80,
+    },
+    17 => {
+        'biff' => 512, 'bootpc' => 68, 'bootps' => 67, 'discard' => 9,
+        'dnsix' => 195, 'domain' => 53, 'echo' => 7, 'isakmp' => 500,
+        'mobile-ip' => 434, 'nameserver' => 42, 'netbios-dgm' => 138,
+        'netbios-ns' => 137, 'netbios-ss' => 139, 'non500-isakmp' => 4500,
+        'ntp' => 123, 'pim-auto-rp' => 496, 'rip' => 520, 'snmp' => 161,
+        'snmptrap' => 162, 'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49,
+        'talk' => 517, 'tftp' => 69, 'time' => 37, 'who' => 513,
+        'xdmcp' => 177,
+    },
+);
+
 =head2 returnRadiusAccessAccept
 
 Add the ACLs of the role to the Access-Accept as C<Juniper-Switching-Filter>
@@ -480,18 +506,25 @@ sub _switchingFilterTerm {
             $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': non contiguous wildcard mask '".$destination->{'wildcard'}."' has no prefix length");
             return;
         }
-        push @match, "Destination-ip " . $destination->{'ipv4_addr'} . ($prefix == 32 ? '' : "/$prefix");
+        # Cisco ignores the address bits the wildcard covers, send the network
+        my $network = $self->_aclNetworkAddress($destination->{'ipv4_addr'}, $destination->{'wildcard'});
+        push @match, "Destination-ip " . $network . ($prefix == 32 ? '' : "/$prefix");
     }
 
     foreach my $side (['source', 'Source-port'], ['destination', 'Destination-port']) {
         my ($key, $keyword) = @$side;
         my $port = $entry->{$key}->{'port'};
         next if !defined $port;
-        if ($port !~ /^eq\s+(\d+)$/) {
+        if ($port !~ /^eq\s+(\S+)$/) {
             $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': port operator '$port' cannot be represented, only 'eq' is supported");
             return;
         }
-        push @match, "$keyword $1";
+        my $number = $self->_aclPortNumber($1, $protocol);
+        if (!defined $number) {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': unknown port name in '$port'");
+            return;
+        }
+        push @match, "$keyword $number";
     }
 
     # "Match Action deny" is not valid grammar, so a catch all needs an explicit
@@ -548,6 +581,33 @@ sub _aclWildcardToPrefixLen {
     return if join('.', unpack('C4', pack('N', $contiguous))) ne $mask;
 
     return $bits;
+}
+
+=head2 _aclNetworkAddress
+
+The network address of an address and its Cisco wildcard mask, which ignores
+the address bits the wildcard covers: 10.0.0.5 0.0.0.255 is 10.0.0.0.
+
+=cut
+
+sub _aclNetworkAddress {
+    my ($self, $address, $wildcard) = @_;
+    my $mask = norm_net_mask($wildcard);
+    return join('.', unpack('C4', pack('C4', split(/\./, $address)) & pack('C4', split(/\./, $mask))));
+}
+
+=head2 _aclPortNumber
+
+The number of a port given as a number or as a Cisco port name of the
+protocol. Returns undef for a name the protocol does not know.
+
+=cut
+
+sub _aclPortNumber {
+    my ($self, $port, $protocol) = @_;
+    return $port if $port =~ /^\d+$/;
+    return if !defined $protocol || !exists $CISCO_PORT_NAMES{$protocol};
+    return $CISCO_PORT_NAMES{$protocol}{lc($port)};
 }
 
 
