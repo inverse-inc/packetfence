@@ -7,7 +7,6 @@ import (
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/inverse-inc/packetfence/go/connector"
 )
 
 // proxyConnectorLogs reverse proxies
@@ -31,7 +30,7 @@ func (h APIHandler) proxyConnectorLogs() http.HandlerFunc {
 		r.URL.Path = "api/v1/logs/" + name
 		r.Header.Set("X-Forwarded-For", "127.0.0.1")
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return

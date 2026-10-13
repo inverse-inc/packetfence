@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -44,6 +45,9 @@ type API struct {
 	// terminalActivity is the unix-nano timestamp of the last terminal
 	// activity (user input to the pty). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
+	// terminalIdle is the idle-timeout watcher of the current terminal
+	// session. Pointer so it survives API being copied.
+	terminalIdle *terminalIdleWatcher
 	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
 	// whether activating the terminal requires the TOTP second factor.
 	terminalTOTPRequired bool
@@ -87,6 +91,7 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 
 	Api.commandChan = make(chan Message)
 	Api.terminalActivity = &atomic.Int64{}
+	Api.terminalIdle = &terminalIdleWatcher{}
 	Api.LogsEnabled = logsEnabled()
 	var err error
 	Api.TerminalEnabled, err = Api.terminal()
@@ -220,7 +225,8 @@ func enableTerminal(api *API) http.HandlerFunc {
 			return
 		}
 
-		r, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?connectorid=%s&id=%s", api.ConnectorId, id))
+		query := url.Values{"connectorid": {api.ConnectorId}, "id": {id}}
+		r, err := http.Get("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?" + query.Encode())
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
 			return
@@ -265,26 +271,8 @@ func enableTerminal(api *API) http.HandlerFunc {
 				timeout = time.Duration(secs) * time.Second
 			}
 		}
-		// Idle timeout: any user input in the terminal resets
-		// the clock; the terminal is only stopped after `timeout` without any.
-		// Start the clock now so an untouched session still expires.
+		// Start the idle clock now so an untouched session still expires.
 		api.terminalActivity.Store(time.Now().UnixNano())
-		go func(timeout time.Duration) {
-			ticker := time.NewTicker(5 * time.Second)
-			defer ticker.Stop()
-			for {
-				select {
-				case <-api.ctx.Done():
-					return
-				case <-ticker.C:
-				}
-				last := time.Unix(0, api.terminalActivity.Load())
-				if time.Since(last) >= timeout {
-					api.commandChan <- Message{Type: StopProcessing}
-					return
-				}
-			}
-		}(timeout)
 
 		select {
 		case api.commandChan <- Message{Type: StartProcessing}:
@@ -293,11 +281,55 @@ func enableTerminal(api *API) http.HandlerFunc {
 			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)
 			return
 		}
+		api.watchTerminalIdle(timeout)
 
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(`{"message": "Terminal is enabled"}`))
 	})
+}
+
+// terminalIdleWatcher holds the cancel function of the idle-timeout watcher
+// of the current terminal session, so that a new activation replaces the
+// previous watcher instead of piling up another one.
+type terminalIdleWatcher struct {
+	mu     sync.Mutex
+	cancel context.CancelFunc
+}
+
+// watchTerminalIdle stops the terminal once it has seen no user input for
+// timeout. It replaces the watcher of any previous activation, so only the
+// latest session's timeout applies.
+func (api *API) watchTerminalIdle(timeout time.Duration) {
+	ctx, cancel := context.WithCancel(api.ctx)
+	api.terminalIdle.mu.Lock()
+	if api.terminalIdle.cancel != nil {
+		api.terminalIdle.cancel()
+	}
+	api.terminalIdle.cancel = cancel
+	api.terminalIdle.mu.Unlock()
+
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+			last := time.Unix(0, api.terminalActivity.Load())
+			if time.Since(last) >= timeout {
+				// The command goroutine is gone once api.ctx is done: don't
+				// block forever on the unbuffered channel.
+				select {
+				case api.commandChan <- Message{Type: StopProcessing}:
+				case <-ctx.Done():
+				}
+				return
+			}
+		}
+	}()
 }
 
 // credcacheProxy forwards every request under /api/v1/credcache to the URL
