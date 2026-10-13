@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"time"
 
@@ -76,7 +75,11 @@ func (a AuthLog) Search(vars sql.Vars) (DBRes, error) {
 	a.DB.Model(&AuthLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 
 	if count == 0 {
-		return res, errors.New("entries not found")
+		// No match isn't an error: return an empty page
+		total := 0
+		res.Total = &total
+		res.Items = []AuthLog{}
+		return res, nil
 	}
 
 	counter := int(count)

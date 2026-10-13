@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"strings"
 	"time"
@@ -118,7 +117,11 @@ func (a RadiusAuditLog) Search(vars sql.Vars) (DBRes, error) {
 	a.DB.Model(&RadiusAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 
 	if count == 0 {
-		return res, errors.New("entries not found")
+		// No match isn't an error: return an empty page
+		total := 0
+		res.Total = &total
+		res.Items = []RadiusAuditLog{}
+		return res, nil
 	}
 
 	counter := int(count)
@@ -153,7 +156,11 @@ func (a RadiusAuditLog) Search2(vars *sql.Vars2) (DBRes, error) {
 	a.DB.Model(&RadiusAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 
 	if count == 0 {
-		return res, errors.New("entries not found")
+		// No match isn't an error: return an empty page
+		total := 0
+		res.Total = &total
+		res.Items = []RadiusAuditLog{}
+		return res, nil
 	}
 
 	counter := int(count)
