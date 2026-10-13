@@ -30,6 +30,7 @@ use pfconfig::cached_hash;
 
 use pf::authentication;
 use pf::cluster;
+use pf::log;
 use pf::util;
 use Socket;
 
@@ -1682,6 +1683,10 @@ sub _extract_radiusd_certificates {
                 my @certs = split_pem($cext);
                 foreach my $cert (@certs) {
                     my $mcert = pf::ssl::x509_from_string($cert);
+                    unless ($mcert) {
+                        get_logger->warn("Skipping a certificate that can't be decoded in $install_dir/conf/ssl/radius_${key}_${tls}.${ext}");
+                        next;
+                    }
                     my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
                     unless($key_match_res) {
                         $hcerts{$cert} = $mcert;
