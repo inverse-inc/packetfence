@@ -2,6 +2,7 @@ package clientapi
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -100,6 +101,11 @@ func (slave *BashSlave) Close() error {
 }
 
 func (api *API) terminal() (bool, error) {
+	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
+	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
+		log.Println("PFCONNECTOR_TERMINAL is not enabled")
+		return false, nil
+	}
 
 	// Options for the GoTTY server
 	options := &server.Options{
@@ -126,7 +132,9 @@ func (api *API) terminal() (bool, error) {
 	// Create the GoTTY server
 	gottyServer, err := server.New(factory, options)
 	if err != nil {
-		log.Fatal("Error creating GoTTY server:", err)
+		// Only the terminal is unavailable: the rest of the connector
+		// (tunnel, RADIUS, ...) keeps running.
+		return false, fmt.Errorf("error creating GoTTY server: %w", err)
 	}
 
 	var serverCtx context.Context
@@ -184,12 +192,6 @@ func (api *API) terminal() (bool, error) {
 	}()
 
 	time.Sleep(time.Millisecond * 100)
-
-	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
-	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
-		log.Println("PFCONNECTOR_TERMINAL is not enabled")
-		return false, nil
-	}
 
 	log.Println("PFCONNECTOR_TERMINAL is enabled")
 
