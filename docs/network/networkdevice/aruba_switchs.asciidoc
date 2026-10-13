@@ -150,6 +150,7 @@ are exported. `Number of Samples` increases in `show sflow` and
 
 The CX 6000 has no flow monitoring command in 10.14, so IPFIX is not
 available on this series.
+
 ===== Troubleshooting
 
 `show port-access clients detail` shows, for each client, the VLAN and the role
