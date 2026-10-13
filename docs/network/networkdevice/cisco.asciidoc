@@ -1510,11 +1510,11 @@ it consistent across all the roles of the switch:
 * *VLAN enforcement*: leave 'Role by access list' unchecked in the 'Roles' tab
   and map each role to a VLAN. This is the default and the simplest model.
 * *ACL enforcement*: the port stays in the VLAN configured with `switchport
-  access vlan`, and each role is a set of ACLs. Set the VLAN of every role to
-  the access VLAN of the port, or leave the role VLANs empty, so that
-  PacketFence does not return any `Tunnel-*` attribute. The simplest way to
-  guarantee it is to uncheck 'Role by VLAN ID' in the 'Roles' tab of the
-  switch, next to 'Role by access list'.
+  access vlan`, and each role is a set of ACLs. Uncheck 'Role by VLAN ID' in
+  the 'Roles' tab of the switch, next to 'Role by access list', so that
+  PacketFence does not return any `Tunnel-*` attribute. While 'Role by VLAN ID'
+  is checked, PacketFence returns the VLAN of the role even when it is the same
+  as the access VLAN of the port.
 
 ===== Supported models and NX-OS releases
 
@@ -1751,14 +1751,21 @@ multiple of 256 and the total must fit in the TCAM banks of the platform, so
 another region has to be shrunk by the same amount, as `ing-racl` is above. Check
 the result with `show hardware access-list tcam region`.
 
-Once the region is carved, enable _Role by access list_ in the 'Roles' tab of
-the switch configuration in PacketFence and define one access list per role, as
-described in the 'Dynamic ACLs' section of the Cisco IOS 15.5 documentation
-above.
+Once the region is carved, configure the switch in PacketFence:
+
+[options="compact"]
+* in the 'Roles' tab, check _Role by access list_, uncheck _Role by VLAN ID_
+  and define one access list per role
+* in the 'ACLs' tab, enable _Downloadable ACLs_. It is disabled by default, and
+  without it PacketFence sends the ACLs as `ip:inacl` attributes in the
+  Access-Accept instead of a downloadable ACL
+
+See the 'Downloadable ACLs' section of the Cisco IOS 15.5 documentation above
+for how PacketFence sends them.
 
 As stated at the beginning of this section, DACL and dynamic VLAN are not
-supported together on the same port. When you enforce with ACLs, make sure no
-role returns a VLAN that differs from the access VLAN of the port.
+supported together on the same port, which is why _Role by VLAN ID_ must be
+unchecked when you enforce with ACLs.
 
 ===== NetFlow
 
