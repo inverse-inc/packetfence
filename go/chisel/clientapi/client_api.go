@@ -42,7 +42,7 @@ type API struct {
 	commandChan   chan Message
 	serverRunning int32
 	// terminalActivity is the unix-nano timestamp of the last terminal
-	// activity (pty read/write). Pointer so it survives API being copied.
+	// activity (user input to the pty). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
 	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
 	// whether activating the terminal requires the TOTP second factor.
@@ -206,7 +206,7 @@ func (api *API) setupRoutes() {
 // enableTerminal validates the one-time terminal session id against the
 // pfconnector server (through the tunnel-local 22226 bind) and starts the
 // gotty terminal. The authorized duration is an idle timeout: the terminal
-// stays up as long as there is activity and stops once it has been idle for
+// stays up as long as the user types and stops once it has been idle for
 // that long.
 func enableTerminal(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -265,7 +265,7 @@ func enableTerminal(api *API) http.HandlerFunc {
 				timeout = time.Duration(secs) * time.Second
 			}
 		}
-		// Idle timeout: any terminal activity (keystrokes or output) resets
+		// Idle timeout: any user input in the terminal resets
 		// the clock; the terminal is only stopped after `timeout` without any.
 		// Start the clock now so an untouched session still expires.
 		api.terminalActivity.Store(time.Now().UnixNano())

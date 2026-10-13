@@ -97,7 +97,7 @@ The seed is generated on the pfconnector-remote host when the packetfence-pfconn
 
 The otpauth URL it prints (kept in [filename]`/usr/local/pfconnector-remote/conf/terminal_totp`) can also be entered manually in the authenticator. To rotate the seed (for example when someone who knew it leaves), delete the file, restart the service and re-enroll.
 
-Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes of inactivity.
+Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes without any input, even if a command is still printing output.
 
 ===== Upgrading a Remote Connector
 

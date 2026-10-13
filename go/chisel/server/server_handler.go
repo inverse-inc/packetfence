@@ -956,6 +956,23 @@ type DnsLookupReply struct {
 	Error     string   `json:"error,omitempty"`
 }
 
+// isDnsConnectorPort reports whether port is the pfconnector_port of one of
+// the configured DNS connectors.
+func isDnsConnectorPort(ctx context.Context, port string) bool {
+	dnsConnectors := pfconfigdriver.PfConfDnsConnectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &dnsConnectors); err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to fetch DNS connectors configuration: %s", err))
+		return false
+	}
+	for _, entryRaw := range dnsConnectors.Element {
+		entry, _ := entryRaw.(map[string]interface{})
+		if p, ok := entry["pfconnector_port"].(string); ok && p == port {
+			return true
+		}
+	}
+	return false
+}
+
 // handleDnsLookup performs a DNS query against one of this server's local
 // tunnel listeners (a DNS connector's pfconnector_port), exercising the full
 // path: server bind -> chisel tunnel -> connector-remote -> DNS server.
@@ -978,6 +995,13 @@ func (s *Server) handleDnsLookup(w http.ResponseWriter, req *http.Request) {
 	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid port"})
+		return
+	}
+	// Only query a DNS connector's tunnel listener, never an arbitrary local
+	// port of the server.
+	if !isDnsConnectorPort(req.Context(), port) {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusForbidden, Message: "Port is not the pfconnector_port of a DNS connector"})
 		return
 	}
 	qtype, ok := dns.StringToType[strings.ToUpper(qtypeStr)]
@@ -1093,8 +1117,7 @@ func (s *Server) handleConnectorDetail(w http.ResponseWriter, req *http.Request)
 
 // terminalSessionTimeout is the idle timeout of a remotely-authorized
 // terminal session: the connector-remote shuts gotty down once the terminal
-// has seen no activity (input or output) for this long. Any activity resets
-// the clock.
+// has seen no user input for this long. Any input resets the clock.
 const terminalSessionTimeout = 600 * time.Second
 
 // handleRemoteTerm validates a one-time terminal session id created by the
