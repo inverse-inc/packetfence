@@ -19,6 +19,7 @@ use base qw(pf::cmd);
 use pf::file_paths qw($syslog_config_file $syslog_default_config_file $log_dir $rsyslog_packetfence_config_file);
 use pf::IniFiles;
 use Template;
+use File::Slurp qw(write_file);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::syslog;
 
@@ -88,10 +89,14 @@ sub file_action {
     return "-$log_dir/$log";
 }
 
+# Same as RSYSLOG_TraditionalForwardFormat without truncating the tag to 32 characters
+our $FORWARD_TEMPLATE_NAME = 'PacketFenceForwardFormat';
+our $FORWARD_TEMPLATE = qq{template(name="$FORWARD_TEMPLATE_NAME" type="string" string="<%PRI%>%TIMESTAMP% %HOSTNAME% %syslogtag%%msg:::sp-if-no-1st-sp%%msg%")\n};
+
 sub server_action {
     my ($data, $log) = @_;
     my $proto = $data->{proto} eq 'udp' ? '@' : '@@';
-    return "${proto}$data->{host}:$data->{port}";
+    return "${proto}$data->{host}:$data->{port};$FORWARD_TEMPLATE_NAME";
 }
 
 sub section_data {
@@ -109,7 +114,10 @@ sub _run {
     my ($self) = @_;
     my $template = "/usr/local/pf/conf/rsyslog.conf.tt";
     my $tt = Template->new(ABSOLUTE => 1);
-    $tt->process($template, {items => $self->items}, $rsyslog_packetfence_config_file) || die $tt->error();
+    my $output = '';
+    $tt->process($template, {items => $self->items}, \$output) || die $tt->error();
+    # The template used by the forwarding actions must be defined before them
+    write_file($rsyslog_packetfence_config_file, $FORWARD_TEMPLATE . $output);
     return $EXIT_SUCCESS; 
 }
 
