@@ -72,6 +72,7 @@ use pf::radius::constants;
 use pf::Switch::constants;
 use pf::util;
 use pf::access_filter::radius;
+use Cisco::AccessList::Parser;
 
 =head1 SUPPORTED TECHNOLOGIES
 
@@ -259,85 +260,177 @@ sub returnAuthorizeRead {
 
 =item acl_chewer
 
-Translate PacketFence's Cisco-style ACL lines into Comware C<rule> syntax so the
-ACL can be pushed to the switch (PushACLs). Any C<in|>/C<out|> direction prefix
-is preserved; PacketFence strips it when it renders the per-role ACL file.
+Translate PacketFence's Cisco-style ACL lines into Comware advanced ACL C<rule>
+lines, pushed to the switch by PushACLs. The C<in|>/C<out|> direction prefix is
+kept: PacketFence splits the result into the C<E<lt>roleE<gt>> and
+C<E<lt>roleE<gt>out> ACLs.
+
+Each line is parsed with L<Cisco::AccessList::Parser>, like the other switch
+modules. A line, or a qualifier, the translation cannot carry is never dropped
+silently, since dropping a condition widens a permit:
+
+=over
+
+=item * a permit that cannot be expressed is skipped, which only narrows the role
+
+=item * a deny that cannot be expressed ends the ACLs of its direction with C<rule deny ip>, so the lines after it cannot allow what it blocks
+
+=item * a direction whose lines were all skipped gets C<rule deny ip> rather than nothing
+
+=back
+
+Not expressed: TCP flags, ICMP types, non contiguous masks, and the C<dscp>,
+C<precedence>, C<tos>, C<fragments> and C<time-range> qualifiers, which the
+parser accepts but does not report.
 
 =cut
 
+# The Cisco port names Cisco::AccessList::Parser accepts, by IP protocol. The
+# rules are sent with port numbers.
+our %CISCO_PORT_NAMES = (
+    6 => {
+        'bgp' => 179, 'chargen' => 19, 'cmd' => 514, 'daytime' => 13,
+        'discard' => 9, 'domain' => 53, 'echo' => 7, 'exec' => 512,
+        'finger' => 79, 'ftp' => 21, 'ftp-data' => 20, 'gopher' => 70,
+        'hostname' => 101, 'ident' => 113, 'irc' => 194, 'klogin' => 543,
+        'kshell' => 544, 'login' => 513, 'lpd' => 515, 'nntp' => 119,
+        'pim-auto-rp' => 496, 'pop2' => 109, 'pop3' => 110, 'smtp' => 25,
+        'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49, 'talk' => 517,
+        'telnet' => 23, 'time' => 37, 'uucp' => 540, 'whois' => 43,
+        'www' => 80,
+    },
+    17 => {
+        'biff' => 512, 'bootpc' => 68, 'bootps' => 67, 'discard' => 9,
+        'dnsix' => 195, 'domain' => 53, 'echo' => 7, 'isakmp' => 500,
+        'mobile-ip' => 434, 'nameserver' => 42, 'netbios-dgm' => 138,
+        'netbios-ns' => 137, 'netbios-ss' => 139, 'non500-isakmp' => 4500,
+        'ntp' => 123, 'pim-auto-rp' => 496, 'rip' => 520, 'snmp' => 161,
+        'snmptrap' => 162, 'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49,
+        'talk' => 517, 'tftp' => 69, 'time' => 37, 'who' => 513,
+        'xdmcp' => 177,
+    },
+);
+
+use constant COMWARE_DENY_ALL => 'rule deny ip';
+
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
-    my $out = '';
+    my $logger = $self->logger;
+    $role //= '';
+
+    my (%rules, %had, %cut);
+    my @order;
     while ($acl =~ /([^\n]+)\n?/g) {
         my $line = $1;
+        $line =~ s/^\s+|\s+$//g;
+        next if $line eq '' || $line =~ /^(?:remark|#)/i;
+
+        my $dir = 'in';
         my $prefix = '';
-        if ($line =~ /^(in\||out\|)(.*)/) {
-            $prefix = $1;
-            $line   = $2;
+        if ($line =~ /^(in|out)\|(.*)$/) {
+            ($dir, $prefix, $line) = ($1, "$1|", $2);
         }
-        my $rule = $self->_cisco_to_comware_rule($line);
-        next unless defined $rule;
-        $out .= $prefix . $rule . "\n";
+        next if $cut{$dir};
+        push @order, $dir if !$had{$dir}++;
+
+        my ($action, $rule, $reason) = $self->_comwareRule($line);
+        if (defined $rule) {
+            push @{$rules{$dir}}, "$prefix$rule";
+            next;
+        }
+        if (!defined $action || $action ne 'deny') {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason: $line");
+            next;
+        }
+        $logger->warn("(".$self->{'_id'}.") Ending the $dir ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through: $line");
+        push @{$rules{$dir}}, $prefix . COMWARE_DENY_ALL;
+        $cut{$dir} = 1;
+    }
+
+    my $out = '';
+    foreach my $dir (@order) {
+        if (!@{$rules{$dir} // []}) {
+            $logger->warn("(".$self->{'_id'}.") Denying all the $dir traffic of role '$role': none of its $dir ACLs can be translated");
+            push @{$rules{$dir}}, ($dir eq 'out' ? 'out|' : '') . COMWARE_DENY_ALL;
+        }
+        $out .= join('', map { "$_\n" } @{$rules{$dir}});
     }
     return $out;
 }
 
-=item _comware_addr
+=item _comwareRule
 
-Consume the leading address tokens of a Cisco ACL line and return the Comware
-address form: C<any> stays C<any>, C<host X> becomes C<X 0>, and C<X wildcard>
-is kept as is.
+Translate one Cisco extended ACL line, without direction prefix, into a Comware
+advanced ACL C<rule>. Returns the action, the rule, and why the line cannot be
+translated when the rule is undef.
 
 =cut
 
-sub _comware_addr {
-    my ($self, $t) = @_;
-    return undef unless @$t;
-    my $tok = shift @$t;
-    return 'any'         if $tok eq 'any';
-    return (shift @$t) . ' 0' if $tok eq 'host';
-    my $wc = (@$t && $t->[0] =~ /^\d+\.\d+\.\d+\.\d+$/) ? shift @$t : '0';
-    return "$tok $wc";
+sub _comwareRule {
+    my ($self, $line) = @_;
+
+    my ($acl_ref) = eval { Cisco::AccessList::Parser->new->parse(input => "ip access-list extended packetfence\n$line\n") };
+    my $entries = ref($acl_ref) eq 'HASH' ? $acl_ref->{'packetfence'}{'entries'} : undef;
+    if (ref($entries) ne 'ARRAY' || @$entries != 1) {
+        my ($action) = $line =~ /^(permit|deny)\b/i;
+        return (defined $action ? lc($action) : undef, undef, "not a valid ACL");
+    }
+    my $entry = $entries->[0];
+    my $action = $entry->{'action'};
+
+    # Cisco::AccessList::Parser accepts these qualifiers without reporting them
+    # in the parsed entry: the line would be translated without its condition.
+    return ($action, undef, "the '$1' qualifier is not translated") if $line =~ /\s(dscp|precedence|tos|fragments|time-range)(?:\s|$)/i;
+    return ($action, undef, "TCP flags are not translated ('".$entry->{'tcp_flags'}."')") if defined $entry->{'tcp_flags'};
+    return ($action, undef, "ICMP types are not translated ('".$entry->{'icmp_qualifier'}."')") if defined $entry->{'icmp_qualifier'};
+
+    my $protocol;
+    my $number;
+    if (($entry->{'protocol'} // '') =~ /^ip\(\)$/) {
+        $protocol = 'ip';
+    } elsif (($entry->{'protocol'} // '') =~ /\((\d+)\)/) {
+        $number = $1;
+        $protocol = { 1 => 'icmp', 6 => 'tcp', 17 => 'udp' }->{$number} // $number;
+    } else {
+        return ($action, undef, "unknown protocol '".($entry->{'protocol'} // '')."'");
+    }
+
+    my $rule = "rule $action $protocol";
+    foreach my $side (['source', 'source', 'source-port'], ['destination', 'destination', 'destination-port']) {
+        my ($key, $keyword, $port_keyword) = @$side;
+        my $address = $entry->{$key};
+        if (!($address->{'ipv4_addr'} eq '0.0.0.0' && $address->{'wildcard'} eq '255.255.255.255')) {
+            return ($action, undef, "the $key mask '".$address->{'wildcard'}."' is not contiguous") if !$self->_comwareWildcardIsContiguous($address->{'wildcard'});
+            $rule .= " $keyword $address->{'ipv4_addr'} " . ($address->{'wildcard'} eq '0.0.0.0' ? '0' : $address->{'wildcard'});
+        }
+        next if !defined $address->{'port'};
+        my ($operator, @ports) = split(/\s+/, $address->{'port'});
+        return ($action, undef, "the $key port '".$address->{'port'}."' is not translated")
+            if $operator !~ /^(?:eq|neq|gt|lt|range)$/ || @ports != ($operator eq 'range' ? 2 : 1) || !defined $number;
+        my @numbers;
+        foreach my $port (@ports) {
+            my $value = $port =~ /^\d+$/ ? $port : $CISCO_PORT_NAMES{$number}{lc($port)};
+            return ($action, undef, "unknown port name '$port'") if !defined $value;
+            push @numbers, $value;
+        }
+        $rule .= " $port_keyword $operator " . join(' ', @numbers);
+    }
+    return ($action, $rule, undef);
 }
 
-=item _cisco_to_comware_rule
+=item _comwareWildcardIsContiguous
 
-Translate a single Cisco extended-ACL line (permit/deny) into a Comware
-advanced-ACL C<rule> line. Handles ip/tcp/udp/icmp, any/host/wildcard source and
-destination, and eq/neq/gt/lt/range ports. Returns undef for lines it cannot map
-(remarks, blanks) so they are skipped.
+Whether a Cisco wildcard mask is a run of low bits (0.0.0.255), i.e. has a
+prefix length.
 
 =cut
 
-sub _cisco_to_comware_rule {
-    my ($self, $line) = @_;
-    $line =~ s/^\s+//;
-    $line =~ s/\s+$//;
-    return undef if $line eq '' || $line =~ /^(remark|#)/i;
-    my @t = split /\s+/, $line;
-    my $action = shift @t;
-    return undef unless defined $action && ($action eq 'permit' || $action eq 'deny');
-    my $proto = shift @t;
-    return undef unless defined $proto;
-    my $rule = "rule $action $proto";
-    my $tcpudp = ($proto eq 'tcp' || $proto eq 'udp');
-
-    my $src = $self->_comware_addr(\@t);
-    $rule .= " source $src" if defined $src && $src ne 'any';
-    if ($tcpudp && @t && $t[0] =~ /^(eq|neq|gt|lt|range)$/) {
-        my $op = shift @t;
-        $rule .= " source-port $op " . shift(@t);
-        $rule .= " " . shift(@t) if ($op eq 'range' && @t);
-    }
-
-    my $dst = $self->_comware_addr(\@t);
-    $rule .= " destination $dst" if defined $dst && $dst ne 'any';
-    if ($tcpudp && @t && $t[0] =~ /^(eq|neq|gt|lt|range)$/) {
-        my $op = shift @t;
-        $rule .= " destination-port $op " . shift(@t);
-        $rule .= " " . shift(@t) if ($op eq 'range' && @t);
-    }
-    return $rule;
+sub _comwareWildcardIsContiguous {
+    my ($self, $wildcard) = @_;
+    my @octets = split(/\./, $wildcard // '');
+    return 0 if @octets != 4 || grep { !/^\d+$/ || $_ > 255 } @octets;
+    my $bits = unpack('N', pack('C4', @octets));
+    return (($bits + 1) & $bits) == 0 ? 1 : 0;
 }
 
 =head1 AUTHOR
