@@ -32,9 +32,11 @@ fi
 log "Upgrading $PACKAGE to PacketFence $target (currently ${current:-unknown})"
 
 # Point the PacketFence repository at the target version wherever it is
-# configured (the sources file name varies between installs)
+# configured: the sources file name varies between installs, and it can be in
+# the one-line format (sources.list, *.list) or the deb822 format (*.sources,
+# the default since Debian 13), where the URL is on the URIs: line
 changed=""
-for list in /etc/apt/sources.list.d/*.list; do
+for list in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
   [ -f "$list" ] || continue
   if grep -qE 'inverse\.ca/downloads/PacketFence/debian/[0-9]+\.[0-9]+' "$list"; then
     sed -i -E "s|(inverse\.ca/downloads/PacketFence/debian/)[0-9]+\.[0-9]+|\1${target}|g" "$list"
@@ -42,7 +44,7 @@ for list in /etc/apt/sources.list.d/*.list; do
   fi
 done
 if [ -z "$changed" ]; then
-  log "No PacketFence repository entry found in /etc/apt/sources.list.d, aborting"
+  log "No PacketFence repository entry found in /etc/apt/sources.list or /etc/apt/sources.list.d, aborting"
   exit 1
 fi
 log "Repository version set to $target in:$changed"

@@ -21,6 +21,9 @@ type adminRoleMapping struct {
 	prefix     string
 	role       string
 	roleSuffix string
+	// methodSuffixes overrides methodSuffixMap for some methods on this
+	// prefix, when roleSuffix is not set
+	methodSuffixes map[string]string
 }
 
 const ALLOW_ANY = "*"
@@ -33,7 +36,9 @@ var pathAdminRolesMap = []adminRoleMapping{
 	// POST) requires the write privilege on connectors.
 	adminRoleMapping{prefix: apiPrefix + "/terminal", role: "CONNECTORS", roleSuffix: "_UPDATE"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/dns-lookup", role: "CONNECTORS", roleSuffix: "_READ"},
-	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS"},
+	// POST on a connector-remote (restart, upgrade) acts on an existing
+	// connector, it does not create anything.
+	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS", methodSuffixes: map[string]string{"POST": "_UPDATE"}},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
@@ -231,6 +236,9 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		if strings.HasPrefix(path, base) && role != "" {
 			baseAdminRole = role
 			suffix = o.roleSuffix
+			if suffix == "" {
+				suffix = o.methodSuffixes[method]
+			}
 			break
 		}
 	}

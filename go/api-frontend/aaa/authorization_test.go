@@ -354,3 +354,34 @@ func TestTerminalAdminRoleMapping(t *testing.T) {
 		}
 	}
 }
+
+// Restarting or upgrading a connector-remote modifies an existing connector:
+// it requires CONNECTORS_UPDATE, while reading its status, its logs or doing
+// a DNS lookup only requires CONNECTORS_READ.
+func TestPfconnectorRemotesAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	tests := []struct {
+		method, path, role string
+	}{
+		{"POST", "/api/v1/pfconnector-remotes/connector1/restart", "CONNECTORS_UPDATE"},
+		{"POST", "/api/v1/pfconnector-remotes/connector1/upgrade", "CONNECTORS_UPDATE"},
+		{"GET", "/api/v1/pfconnector-remotes/connector1/status", "CONNECTORS_READ"},
+		{"GET", "/api/v1/pfconnector-remotes/connector1/logs/pfconnector-client", "CONNECTORS_READ"},
+		{"POST", "/api/v1/pfconnector-remotes/dns-lookup", "CONNECTORS_READ"},
+	}
+	for _, test := range tests {
+		if res, err := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{test.role: true}); !res {
+			t.Errorf("%s %s was not authorized with %s, error: %v", test.method, test.path, test.role, err)
+		}
+		for _, other := range []string{"CONNECTORS_READ", "CONNECTORS_CREATE", "CONNECTORS_UPDATE", "CONNECTORS_DELETE"} {
+			if other == test.role {
+				continue
+			}
+			if res, _ := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{other: true}); res {
+				t.Errorf("%s %s was authorized with %s instead of %s", test.method, test.path, other, test.role)
+			}
+		}
+	}
+}
