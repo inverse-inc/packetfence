@@ -1,0 +1,34 @@
+---
+- hosts: 'pf[123]*dev'
+  name: Capture bounded resource metrics across recovery reboots
+  become: True
+  gather_facts: false
+  tasks:
+    - name: Install numeric resource sampler
+      ansible.builtin.copy:
+        src: '{{ playbook_dir }}/../../../../addons/vagrant/playbooks/files/sample-resource-usage.py'
+        dest: /usr/local/sbin/pf-test-resource-sampler.py
+        mode: '0755'
+
+    - name: Install sampler boot service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/pf-test-resource-sampler.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=PacketFence test numeric resource metrics
+          After=local-fs.target
+          [Service]
+          ExecStart=/usr/bin/python3 /usr/local/sbin/pf-test-resource-sampler.py {{ venom_dir }}/results/resource-usage.jsonl --guest
+          StandardOutput=null
+          StandardError=null
+          UMask=0077
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable sampling through power cycles
+      ansible.builtin.systemd:
+        name: pf-test-resource-sampler.service
+        daemon_reload: true
+        enabled: true
+        state: started

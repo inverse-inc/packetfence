@@ -46,7 +46,7 @@ function import_mysqldump() {
 
   sub_splitter
   echo "Recreating database $db_name"
-  mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name"
+  mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'"
 
   sub_splitter
   # Detect a trigger-less dump (a pf-user mysqldump omits triggers); reapplied after import below.

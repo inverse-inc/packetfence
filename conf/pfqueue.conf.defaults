@@ -57,15 +57,21 @@ workers=1
 #
 # pfdhcplistener queue configuration
 #
+# Hashed by client DHCP MAC: each MAC is pinned to one of `workers`
+# dedicated workers, so per-client packet ordering is preserved while
+# different clients can be processed in parallel. Weight is unused for
+# hashed queues (pfconfig forces weight=0 internally).
+#
 [queue pfdhcplistener]
 #
-# The weight of queue among shared workers
+# The number of dedicated workers for queue (one Redis list per worker:
+# pfdhcplistener_000 .. pfdhcplistener_NNN-1)
 #
-weight=4
+workers=4
 #
-# The number of dedicated workers for queue
+# Fan packets out into per-worker lists keyed by hash of the submission id
 #
-workers=1
+hashed=enabled
 
 #
 # pfdhcplistener_external queue configuration

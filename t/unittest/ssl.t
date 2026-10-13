@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 use Test::NoWarnings;
 
 use pf::constants qw($TRUE $FALSE);
@@ -408,14 +408,16 @@ my $x509_ca = pf::ssl::x509_from_string($cert_with_chain_ca);
 is(ref($x509_ca), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSSL::X509");
 
 {
-    my $res;
+    my ($res, $message);
     is($x509_ca->subject(), "C=CA, ST=QC, L=Montreal, O=Inverse, CN=Azure_Test", "right intermediate subject was found");
 
     ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca]);
     is($res, $TRUE, "Cert with custom chain should be valid");
     
-    ($res, undef) = pf::ssl::verify_chain($x509, []);
+    ($res, $message) = pf::ssl::verify_chain($x509, []);
     is($res, $FALSE, "Cert with custom chain shouldn't be valid unless all certs are passed");
+    like($message, qr/unable to get local issuer certificate/i,
+        "Failed chain verification preserves the OpenSSL diagnostic");
 }
 
 my $multi_san_cert = <<EOF;
