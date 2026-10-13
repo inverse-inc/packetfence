@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 45;
 use pf::Switch::Juniper::Junos_v18_x;
 use pf::Switch::Juniper::Junos;
 
@@ -55,6 +55,31 @@ is(
     $switch->acl_chewer("permit ip any 10.0.0.0 0.0.0.255", 'testrole'),
     "Match Destination-ip 10.0.0.0/24 Action allow\n",
     "a wildcard mask becomes a prefix length"
+);
+
+is(
+    $switch->acl_chewer("permit ip any 10.0.0.5 0.0.0.255", 'testrole'),
+    "Match Destination-ip 10.0.0.0/24 Action allow\n",
+    "the address bits the wildcard covers are cleared, as Cisco ignores them"
+);
+
+is(
+    $switch->acl_chewer("permit tcp any any eq www", 'testrole'),
+    "Match Ip-protocol 6, Destination-port 80 Action allow\n",
+    "a Cisco TCP port name becomes its number"
+);
+
+is(
+    $switch->acl_chewer("permit udp any eq bootpc any eq bootps", 'testrole'),
+    "Match Ip-protocol 17, Source-port 68, Destination-port 67 Action allow\n",
+    "Cisco UDP port names become their numbers, on both sides"
+);
+
+is(
+    $switch->acl_chewer("deny tcp any any eq ftp-data\npermit ip any any", 'testrole'),
+    "Match Ip-protocol 6, Destination-port 20 Action deny\n"
+    . "Match Destination-ip 0.0.0.0/0 Action allow\n",
+    "a deny on a named port is sent, it no longer cuts the filter"
 );
 
 is(
@@ -155,6 +180,9 @@ is($switch->_aclWildcardToPrefixLen('0.0.0.255'), 24, "a 0.0.0.255 wildcard is a
 is($switch->_aclWildcardToPrefixLen('0.255.0.255'), undef, "a non contiguous wildcard has no prefix length");
 is($switch->_aclProtocolNumber('tcp(6)'), 6, "the protocol number is taken from the parenthesis");
 is($switch->_aclProtocolNumber('ip()'), undef, "ip matches any protocol so it has no number");
+is($switch->_aclPortNumber('domain', 17), 53, "a port name is looked up for its protocol");
+is($switch->_aclPortNumber('www', 17), undef, "a port name the protocol does not know has no number");
+is($switch->_aclNetworkAddress('192.168.1.130', '0.0.0.63'), '192.168.1.128', "the network address clears the wildcard bits");
 
 # _switchingFilterTerms: what actually reaches the Access-Accept
 

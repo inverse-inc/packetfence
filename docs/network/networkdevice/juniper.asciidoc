@@ -135,17 +135,24 @@ is not available with the older Junos modules. To use it:
 * Define the ACL for each role under _Configuration -> Policies and Access
   Control -> Roles_, in the Cisco syntax used by the other modules, for example:
 
-  permit udp any any eq 53
-  permit tcp any host 192.168.1.5 eq 443
-  permit ip any 10.0.0.0 0.0.0.255
-  deny ip any any
+  deny tcp any host 192.168.1.5 eq 22
+  deny ip any 10.0.0.0 0.0.0.255
+  permit ip any any
 
 PacketFence sends one attribute per ACL line:
 
-  Juniper-Switching-Filter = "Match Ip-protocol 17, Destination-port 53 Action allow"
-  Juniper-Switching-Filter = "Match Ip-protocol 6, Destination-ip 192.168.1.5, Destination-port 443 Action allow"
-  Juniper-Switching-Filter = "Match Destination-ip 10.0.0.0/24 Action allow"
-  Juniper-Switching-Filter = "Match Destination-ip 0.0.0.0/0 Action deny"
+  Juniper-Switching-Filter = "Match Ip-protocol 6, Destination-ip 192.168.1.5, Destination-port 22 Action deny"
+  Juniper-Switching-Filter = "Match Destination-ip 10.0.0.0/24 Action deny"
+  Juniper-Switching-Filter = "Match Destination-ip 0.0.0.0/0 Action allow"
+
+IMPORTANT: The switch drops the traffic that matches no line, *ARP included*,
+unlike a Cisco ACL whose implicit deny does not apply to ARP. A role that only
+lists what it permits leaves the endpoint unable to resolve its gateway, so it
+cannot reach even the destinations it permits. Write the ACL as the traffic to
+block followed by `permit ip any any`, which lets ARP through.
+
+Ports can be given as numbers or as Cisco port names (`www`, `domain`,
+`bootps`, ...), which are sent as their numbers.
 
 The attribute filters the traffic sent by the endpoint and only matches on the
 IP protocol, the destination address and the source and destination ports. An
@@ -160,11 +167,13 @@ ACL line that cannot be represented is not sent, and a warning is logged in
 
 Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
 after it allow what it blocks, so the list is cut at that `deny` and ends with
-`Match Destination-ip 0.0.0.0/0 Action deny`.
+`Match Destination-ip 0.0.0.0/0 Action deny`. Since that also drops ARP, an
+endpoint whose ACL was cut this way loses its network access: check
+`packetfence.log` for the warning naming the line.
 
 The switch silently ignores a filter over 20 match conditions or 4000
 characters, and one attribute holds at most 247 characters. PacketFence cuts
-the list at the limit and ends it with the same deny all. On EX2300 and EX3400,
+the list at the limit and ends it with the same deny all, with the same effect. On EX2300 and EX3400,
 filters of more than one line need Junos 15.1X53-D55 or later.
 
 A refused attribute makes the switch refuse the whole Access-Accept: the
