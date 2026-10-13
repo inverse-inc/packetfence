@@ -5,6 +5,14 @@
     :schema="schema"
     :isLoading="isLoading"
   >
+    <the-status v-if="!isNew && !isClone && id"
+      :id="id"
+    />
+
+    <the-equipment v-if="!isNew && !isClone && id"
+      :id="id"
+    />
+
     <div v-if="!isNew && !isClone" class="card mx-3 bg-light">
       <div class="card-body">
         <b-row align-v="center">
@@ -84,6 +92,8 @@ import {
   FormGroupNetworks,
   FormGroupSecret,
   FormGroupFingerbankEnvironment,
+  TheStatus,
+  TheEquipment,
 } from './'
 
 const components = {
@@ -95,6 +105,8 @@ const components = {
   FormGroupNetworks,
   FormGroupSecret,
   FormGroupFingerbankEnvironment,
+  TheStatus,
+  TheEquipment,
 }
 
 export const props = {

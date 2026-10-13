@@ -200,9 +200,11 @@ require (
 )
 
 require (
+	github.com/alicebob/miniredis/v2 v2.39.0
 	github.com/caddyserver/caddy/v2 v2.11.4
 	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
+	github.com/creack/pty v1.1.24
 	github.com/fatih/structtag v1.2.0
 	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
 	github.com/godbus/dbus/v5 v5.2.2
@@ -210,9 +212,12 @@ require (
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.27.2
 	github.com/onsi/gomega v1.38.2
+	github.com/pquerna/otp v1.4.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/shirou/gopsutil/v4 v4.26.2
 	github.com/smallstep/nosql v0.8.0
+	github.com/sorenisanerd/gotty v1.5.0
 	go.uber.org/zap v1.28.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -249,8 +254,8 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
+	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/alecthomas/chroma/v2 v2.24.1 // indirect
-	github.com/alicebob/miniredis/v2 v2.39.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/aws/aws-sdk-go-v2 v1.43.4 // indirect
@@ -269,6 +274,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.38.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.45.4 // indirect
 	github.com/aws/smithy-go v1.27.6 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/buger/jsonparser v1.1.2 // indirect
 	github.com/caddyserver/certmagic v0.25.4 // indirect
 	github.com/caddyserver/zerossl v0.1.5 // indirect
@@ -339,7 +345,6 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shirou/gopsutil/v4 v4.26.2 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect

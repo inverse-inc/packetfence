@@ -13,6 +13,9 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+# pf-release feeds PF_PATCH_RELEASE (config.mk), embedded as the pfconnector
+# build version
+COPY ./conf/pf-release /usr/local/pf/conf/pf-release
 RUN cd /usr/local/pf/go/ && make pfconnector
 
 # Stage 1: Runtime image with s6-overlay
@@ -36,7 +39,7 @@ RUN if [ -f /usr/bin/systemctl ]; then mv /usr/bin/systemctl /usr/bin/systemctl.
     chmod +x /usr/sbin/policy-rc.d && \
     apt-get update && \
     apt-get install -y packetfence-ntlm-wrapper fingerbank-collector-remote packetfence-connector-cache=0.1.3-1 sqlite3 && \
-    apt-get remove -y fingerbank-collector 2>/dev/null || true && \
+    { apt-get remove -y fingerbank-collector 2>/dev/null || true; } && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     rm -f /usr/sbin/policy-rc.d /usr/bin/systemctl && \
     if [ -f /usr/bin/systemctl.real ]; then mv /usr/bin/systemctl.real /usr/bin/systemctl; fi

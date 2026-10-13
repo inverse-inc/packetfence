@@ -2244,6 +2244,7 @@ sub setup_api_v1_config_connectors_routes {
     );
 
     $collection_route->register_sub_action({ action => 'status', method => 'GET' });
+    $resource_route->register_sub_action({ action => 'equipment', method => 'GET' });
 
     return ($collection_route, $resource_route);
 }

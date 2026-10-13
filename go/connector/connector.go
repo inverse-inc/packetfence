@@ -86,6 +86,17 @@ func (c *Connector) FingerbankCollectorEndpoint(ctx context.Context) (string, er
 	return resp.Endpoint, nil
 }
 
+// ServerCall performs an API call against the pfconnector server currently
+// holding this connector's tunnel (resolved via Redis, like DynReverse) and
+// decodes the JSON response into out.
+func (c *Connector) ServerCall(ctx context.Context, method, path string, out interface{}) error {
+	client, err := c.connectorServerApiClient(ctx)
+	if err != nil {
+		return err
+	}
+	return client.Call(ctx, method, path, out)
+}
+
 func (c *Connector) DynReverse(ctx context.Context, to string) (DynReverseConnectionInfo, error) {
 	client, err := c.connectorServerApiClient(ctx)
 	if err != nil {
