@@ -26,6 +26,13 @@
                                      disabled-value="disabled"
     />
 
+    <form-group-connector-cache namespace="connector-cache"
+                                column-label="connector-cache"
+                                :text="$i18n.t('Should the connector-cache be managed by PacketFence? It only runs when a realm has the degraded mode enabled.')"
+                                enabled-value="enabled"
+                                disabled-value="disabled"
+    />
+
     <form-group-haproxy-admin namespace="haproxy-admin"
                               column-label="haproxy-admin"
                               :text="$i18n.t(`Should haproxy-admin be started?`)"
@@ -303,6 +310,7 @@ import schemaFn from '../schema'
 import {
   FormGroupApiFrontend,
   FormGroupFingerbankCollector,
+  FormGroupConnectorCache,
   FormGroupGaleraAutofix,
   FormGroupHaproxyAdmin,
   FormGroupHaproxyDb,
@@ -351,6 +359,7 @@ const components = {
 
   FormGroupApiFrontend,
   FormGroupFingerbankCollector,
+  FormGroupConnectorCache,
   FormGroupGaleraAutofix,
   FormGroupHaproxyAdmin,
   FormGroupHaproxyDb,

@@ -143,6 +143,7 @@ type PfConfServices struct {
 	PfconfigNS           string `val:"config::Pf"`
 	PfconfigHashNS       string `val:"services"`
 	ApiFrontend          string `json:"api-frontend"`
+	ConnectorCache       string `json:"connector-cache"`
 	GaleraAutofix        string `json:"galera-autofix"`
 	FingerbankCollector  string `json:"fingerbank-collector"`
 	HaproxyAdmin         string `json:"haproxy-admin"`
