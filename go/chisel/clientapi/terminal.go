@@ -19,7 +19,7 @@ import (
 
 // BashFactory builds the bash slaves served by gotty. activity is the shared
 // last-activity clock (unix nanos) that the idle watcher in enableTerminal
-// reads; every pty read/write bumps it.
+// reads; every write to the pty (user input) bumps it.
 type BashFactory struct {
 	activity *atomic.Int64
 }
@@ -85,12 +85,11 @@ func (slave *BashSlave) Write(data []byte) (int, error) {
 	return slave.pty.Write(data)
 }
 
+// Read does not count as activity: a command that keeps printing (top,
+// tail -f) in a forgotten tab must not keep the root shell open forever.
+// Only the user's input resets the idle timeout.
 func (slave *BashSlave) Read(data []byte) (int, error) {
-	n, err := slave.pty.Read(data)
-	if n > 0 {
-		slave.touch()
-	}
-	return n, err
+	return slave.pty.Read(data)
 }
 
 func (slave *BashSlave) Close() error {
