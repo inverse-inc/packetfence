@@ -7,6 +7,7 @@ import {
 import BaseFormGroupClusterConfig from './BaseFormGroupClusterConfig'
 import BaseFormGroupHostConfigs from './BaseFormGroupHostConfigs'
 import BaseFormGroupAuths from './BaseFormGroupAuths'
+import ButtonServiceKafka from './ButtonServiceKafka'
 import BaseFormGroupIptables from './BaseFormGroupIptables'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -22,6 +23,7 @@ export {
   BaseFormGroupIptables       as FormGroupIptables,
 
   BaseViewResource as BaseView,
+  ButtonServiceKafka,
   TheForm,
   TheView
 }
