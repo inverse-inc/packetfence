@@ -13,6 +13,7 @@ import {
   BaseFormGroupDigest,
   BaseFormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage,
+  BaseFormGroupChosenOneHsm,
 } from '../../_components/'
 import ButtonCaResign from './ButtonCaResign'
 import ButtonCaGenerateCsr from './ButtonCaGenerateCsr'
@@ -34,6 +35,8 @@ export {
   BaseFormGroupInput            as FormGroupStreetAddress,
   BaseFormGroupInput            as FormGroupPostalCode,
   BaseFormGroupInput            as FormGroupOcspUrl,
+  BaseFormGroupChosenOneHsm     as FormGroupHsmId,
+  BaseFormGroupInput            as FormGroupHsmKeyId,
   BaseFormGroupKeyType          as FormGroupKeyType,
   BaseFormGroupKeySize          as FormGroupKeySize,
   BaseFormGroupDigest           as FormGroupDigest,

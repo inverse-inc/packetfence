@@ -15,6 +15,8 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/acme"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/est"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
@@ -105,6 +107,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(handlers.LimitRequestBody)
 
 	PFPki := &pfpki
 
@@ -134,6 +137,12 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Patch("/{id}", handlers.GetProfileByID(PFPki))
 			r.Get("/{id}", handlers.GetProfileByID(PFPki))
 			r.Post("/{id}/sign_csr", handlers.SignCSR(PFPki))
+			// EAB management — admin mints/lists/revokes External
+			// Account Binding keys for ACME enrollment under {id}.
+			r.Get("/{id}/acme/eab", handlers.AcmeEABList(PFPki))
+			r.Post("/{id}/acme/eab", handlers.AcmeEABCreate(PFPki))
+			r.Delete("/{id}/acme/eab/{eab_id}", handlers.AcmeEABDelete(PFPki))
+			r.Get("/{id}/acme/mobileconfig", handlers.AcmeMobileConfig(PFPki))
 
 		})
 		// Certs api endpoint
@@ -148,6 +157,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Get("/{id}/download/{password}", handlers.DownloadCert(PFPki))
 			r.Get("/{profile}/{id}/download/{password}", handlers.DownloadCert(PFPki))
 			r.Get("/{id}/email", handlers.EmailCert(PFPki))
+			r.Post("/{id}/email", handlers.EmailCert(PFPki))
 			r.Delete("/{id}/{reason}", handlers.RevokeCert(PFPki))
 			r.Post("/resign/{id}", handlers.ResignCert(PFPki))
 			r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki))
@@ -163,11 +173,25 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 		})
 		// Check renewal api endpoint
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
+		// Drain pending cloud-side (Intune) revocations and apply them.
+		r.Get("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
+		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
 		// OCSP api endpoint
 		r.Route("/pki/ocsp", func(r chi.Router) {
 			r.Get("/", handlers.ManageOcsp(PFPki))
 			r.Post("/", handlers.ManageOcsp(PFPki))
 		})
+		// ACME (RFC 8555). Per-profile sub-routes at
+		// /api/v1/pki/acme/{profile}/{directory|new-nonce|…}. ACME
+		// clients only need the /directory URL configured in their MDM
+		// payload; everything else is link-discovered from there.
+		r.Mount("/pki/acme", acme.Mount(PFPki))
+		// EST (RFC 7030). Devices reach /.well-known/est/{profile}/...
+		// through haproxy-portal; /pki/est is the same router on the
+		// API front end.
+		estRouter := est.Mount(PFPki)
+		r.Mount("/.well-known/est", estRouter)
+		r.Mount("/pki/est", estRouter)
 		// SCEP api endpoint
 		r.Route("/pki/scep", func(r chi.Router) {
 			r.Get("/", handlers.ManageSCEP(PFPki))
@@ -192,6 +216,16 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Get("/", handlers.GetSetSCEPServer(PFPki))
 			r.Post("/", handlers.GetSetSCEPServer(PFPki))
 			r.Post("/search", handlers.SearchSCEPServer(PFPki))
+		})
+		r.Route("/pki/hsms", func(r chi.Router) {
+			r.Get("/", handlers.GetSetHSM(PFPki))
+			r.Post("/", handlers.GetSetHSM(PFPki))
+			r.Post("/search", handlers.SearchHSM(PFPki))
+		})
+		r.Route("/pki/hsm", func(r chi.Router) {
+			r.Get("/{id}", handlers.HSMByID(PFPki))
+			r.Patch("/{id}", handlers.HSMByID(PFPki))
+			r.Delete("/{id}", handlers.HSMByID(PFPki))
 		})
 		r.Route("/pki/scepserver", func(r chi.Router) {
 			r.Get("/{id}", handlers.SCEPServerByID(PFPki))

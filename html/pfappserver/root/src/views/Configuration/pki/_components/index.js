@@ -1,6 +1,7 @@
 import BaseFormGroupChosenOneCa from '../cas/_components/BaseFormGroupChosenOneCa'
 import BaseFormGroupChosenOneProfile from '../profiles/_components/BaseFormGroupChosenOneProfile'
 import BaseFormGroupChosenOneScepServer from '../scepServers/_components/BaseFormGroupChosenOneScepServer'
+import BaseFormGroupChosenOneHsm from '../hsms/_components/BaseFormGroupChosenOneHsm'
 
 import BaseFormGroupDigest from './BaseFormGroupDigest'
 import BaseFormGroupExtendedKeyUsage from './BaseFormGroupExtendedKeyUsage'
@@ -13,6 +14,7 @@ export {
   BaseFormGroupChosenOneCa,
   BaseFormGroupChosenOneProfile,
   BaseFormGroupChosenOneScepServer,
+  BaseFormGroupChosenOneHsm,
 
   BaseFormGroupDigest,
   BaseFormGroupExtendedKeyUsage,

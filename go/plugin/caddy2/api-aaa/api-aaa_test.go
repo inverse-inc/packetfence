@@ -170,3 +170,26 @@ func TestRespond(t *testing.T) {
 	tester.AssertGetResponse("http://localhost:9080/api/v1/pfconnector/tunnel", 200, "")
 
 }
+
+func TestIsNoAuthPath(t *testing.T) {
+	h := &ApiAAAHandler{NoAuthPaths: map[string]bool{
+		"/api/v1/pfconnector/tunnel": true,
+		"/api/v1/pki/est/*":          true,
+	}}
+	for p, want := range map[string]bool{
+		"/api/v1/pfconnector/tunnel":       true,
+		"/api/v1/pfconnector/tunnel/x":     false,
+		"/api/v1/pki/est/EST/cacerts":      true,
+		"/api/v1/pki/est/":                 true,
+		"/api/v1/pki/est":                  false,
+		"/api/v1/pki/estimate":             false,
+		"/api/v1/pki/est/../profiles":      false,
+		"/api/v1/pki/est/x/../../profiles": false,
+		"/api/v1/pki/est//cacerts":         false,
+		"/api/v1/pki/profiles":             false,
+	} {
+		if got := h.isNoAuthPath(p); got != want {
+			t.Errorf("isNoAuthPath(%q) = %v, want %v", p, got, want)
+		}
+	}
+}

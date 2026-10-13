@@ -15,6 +15,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dnstap/golang-dnstap v0.4.0
+	github.com/eclipse-keypont/crypto11 v1.6.8
 	github.com/farsightsec/golang-framestream v0.3.0 // indirect
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
@@ -40,7 +41,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20251014220800-3f4796ad84c9
 	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
-	github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98
+	github.com/inverse-inc/scep v0.0.0-20261012142215-e66821f8930f
 	github.com/jcuga/golongpoll v1.3.1
 	github.com/jpillora/backoff v1.0.0
 	github.com/jpillora/requestlog v1.0.0
@@ -136,7 +137,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
 	github.com/huandu/go-clone v1.7.0 // indirect
-	github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 // indirect
+	github.com/inverse-inc/pkcs7 v0.0.0-20261012141443-24bf2d538d99
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -192,7 +193,9 @@ require (
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
+	github.com/miekg/pkcs11 v1.1.2 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
+	github.com/thales-e-security/pool v0.0.2 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	golang.org/x/term v0.45.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
@@ -204,6 +207,8 @@ require (
 	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
 	github.com/fatih/structtag v1.2.0
+	github.com/fxamacker/cbor/v2 v2.9.0
+	github.com/go-jose/go-jose/v4 v4.1.4
 	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
 	github.com/godbus/dbus/v5 v5.2.2
 	github.com/gosnmp/gosnmp v1.43.1
@@ -215,6 +220,7 @@ require (
 	github.com/smallstep/nosql v0.8.0
 	go.uber.org/zap v1.28.0
 	gorm.io/driver/mysql v1.5.2
+	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gorm v1.25.5
 	layeh.com/radius v0.0.0-00010101000000-000000000000
 )
@@ -288,9 +294,7 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20240924180020-3414d57e47da // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.5 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
@@ -315,6 +319,7 @@ require (
 	github.com/linkdata/deadlock v0.5.5 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260216142805-b3301c5f2a88 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.18 // indirect
 	github.com/mdlayher/socket v0.6.0 // indirect
 	github.com/mdlayher/vsock v1.3.0 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
@@ -348,7 +353,7 @@ require (
 	github.com/smallstep/cli-utils v0.12.2 // indirect
 	github.com/smallstep/go-attestation v0.4.4-0.20241119153605-2306d5b464ca // indirect
 	github.com/smallstep/linkedca v0.25.0 // indirect
-	github.com/smallstep/pkcs7 v0.2.1 // indirect
+	github.com/smallstep/pkcs7 v0.2.1
 	github.com/smallstep/scep v0.0.0-20250318231241-a25cabb69492 // indirect
 	github.com/smallstep/truststore v0.13.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect

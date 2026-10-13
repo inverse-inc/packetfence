@@ -162,6 +162,9 @@ const api = {
   getPkiScepServers () {
     return apiGo.getAll('pki/scepservers')
   },
+  getPkiHsms () {
+    return apiGo.getAll('pki/hsms')
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -358,6 +361,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     pkiCertsStatus: '',
     pkiScepServers: false,
     pkiScepServersStatus: '',
+    pkiHsms: false,
+    pkiHsmsStatus: '',
     pkiProviders: false,
     pkiProvidersStatus: '',
     portalModules: false,
@@ -571,6 +576,9 @@ const getters = {
   },
   isLoadingPkiScepServers: state => {
     return state.pkiScepServersStatus === types.LOADING
+  },
+  isLoadingPkiHsms: state => {
+    return state.pkiHsmsStatus === types.LOADING
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
@@ -1434,6 +1442,26 @@ const actions = {
       commit('PKI_SCEPSERVERS_RESET')
     }
   },
+  getPkiHsms: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiHsms) {
+      return Promise.resolve(state.pkiHsms)
+    }
+    if (!state.pkiHsms) {
+      commit('PKI_HSMS_REQUEST')
+      return api.getPkiHsms().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_HSMS_UPDATED', items || [])
+        return state.pkiHsms
+      })
+    } else {
+      return Promise.resolve(state.pkiHsms)
+    }
+  },
+  resetPkiHsms: ({ state, commit }) => {
+    if (state.pkiHsms) {
+      commit('PKI_HSMS_RESET')
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return Promise.resolve(state.pkiProviders)
@@ -2160,6 +2188,16 @@ const mutations = {
   },
   PKI_SCEPSERVERS_RESET: (state) => {
     state.pkiScepServers = false
+  },
+  PKI_HSMS_REQUEST: (state) => {
+    state.pkiHsmsStatus = types.LOADING
+  },
+  PKI_HSMS_UPDATED: (state, pkiHsms) => {
+    state.pkiHsms = pkiHsms
+    state.pkiHsmsStatus = types.SUCCESS
+  },
+  PKI_HSMS_RESET: (state) => {
+    state.pkiHsms = false
   },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING

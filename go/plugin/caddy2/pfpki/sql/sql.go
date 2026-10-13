@@ -10,7 +10,17 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
+
+// sqlFieldsCache memoises SqlFields per reflect.Type. The result is purely
+// a function of the struct's field tags, so it's safe to cache for the
+// lifetime of the process; callers (GetByID, Paginated, Search) hit this
+// once per request and previously paid for the reflection every time.
+var sqlFieldsCache sync.Map // reflect.Type -> []string
+
+// searchableFieldsCache memoises SearchableFields per reflect.Type.
+var searchableFieldsCache sync.Map // reflect.Type -> []string
 
 type (
 	// SQL struct
@@ -67,19 +77,56 @@ func (vars Vars) Sql(class interface{}) (Sql, error) {
 }
 
 func SqlFields(class interface{}) []string {
-	jsonTags := make([]string, 0)
-	jsonTags = append(jsonTags, "id")
-	fields := reflect.TypeOf(class)
-	numFields := fields.NumField()
+	t := reflect.TypeOf(class)
+	if cached, ok := sqlFieldsCache.Load(t); ok {
+		// Callers pop the fields they match, so each gets its own copy:
+		// the cached list must never be modified.
+		return append([]string(nil), cached.([]string)...)
+	}
+	jsonTags := []string{"id"}
+	numFields := t.NumField()
 	for i := 0; i < numFields; i++ {
-		if jsonTag := fields.Field(i).Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
+		if jsonTag := t.Field(i).Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
 			if commaIdx := strings.Index(jsonTag, ","); commaIdx > 0 {
 				jsonTag = jsonTag[:commaIdx]
 			}
 			jsonTags = append(jsonTags, jsonTag)
 		}
 	}
-	return jsonTags
+	sqlFieldsCache.Store(t, jsonTags)
+	return append([]string(nil), jsonTags...)
+}
+
+// SearchableFields returns the fields of SqlFields that a request may
+// filter or sort on: the ones without a `search:"-"` tag. Secrets (PINs,
+// passwords) are tagged so that a starts_with search can't recover them
+// one character at a time.
+func SearchableFields(class interface{}) []string {
+	t := reflect.TypeOf(class)
+	if cached, ok := searchableFieldsCache.Load(t); ok {
+		return append([]string(nil), cached.([]string)...)
+	}
+	hidden := map[string]bool{}
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if f.Tag.Get("search") != "-" {
+			continue
+		}
+		if jsonTag := f.Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
+			if commaIdx := strings.Index(jsonTag, ","); commaIdx > 0 {
+				jsonTag = jsonTag[:commaIdx]
+			}
+			hidden[jsonTag] = true
+		}
+	}
+	fields := make([]string, 0)
+	for _, field := range SqlFields(class) {
+		if !hidden[field] {
+			fields = append(fields, field)
+		}
+	}
+	searchableFieldsCache.Store(t, fields)
+	return append([]string(nil), fields...)
 }
 
 func (vars Vars) SqlSelect(class interface{}) (string, error) {
@@ -121,7 +168,7 @@ func (vars Vars) SqlOrder(class interface{}) (string, error) {
 		f, _ := reflect.TypeOf(vars).FieldByName("Sort")
 		vars.Sort = append(vars.Sort, f.Tag.Get("default"))
 	}
-	classFields := SqlFields(class)
+	classFields := SearchableFields(class)
 	orderFields := make([]string, 0)
 	var valid bool = false
 	for _, sort := range vars.Sort {
@@ -222,7 +269,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 			}
 		}
 	} else {
-		classFields := SqlFields(class)
+		classFields := SearchableFields(class)
 		var valid bool = false
 		for _, classField := range classFields {
 			if strings.ToLower(classField) == strings.ToLower(search.Field) {

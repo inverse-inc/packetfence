@@ -9,4 +9,40 @@ args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 22225:22225"
 args="$args -p 2024:2024"
 args="$args -v /usr/local/pf/html/captive-portal/templates:/usr/local/pf/html/captive-portal/templates"
 
+# HSMs holding CA keys: each line of conf/pfpki-hsm-volumes is a docker
+# bind mount (/host-path[:/container-path[:options]], the container path
+# defaults to the host path) giving the container the vendor PKCS#11
+# library and what it needs; conf/pfpki-hsm.env holds the environment
+# variables of the library.
+#
+# run_img word-splits the arguments, so a volume is only accepted when it
+# is made of absolute paths without whitespace or glob characters and of
+# plain mount options (ro, rw, z, ...): a line can't add other docker
+# options.
+hsm_volumes=/usr/local/pf/conf/pfpki-hsm-volumes
+hsm_path_re='/[^:[:space:]*?[]*'
+hsm_volume_re="^($hsm_path_re)(:($hsm_path_re)(:([a-zA-Z]+(,[a-zA-Z]+)*))?)?\$"
+if [ -f "$hsm_volumes" ]; then
+  while IFS= read -r volume || [ -n "$volume" ]; do
+    # Trim the surrounding whitespace, skip blank lines and comments.
+    volume="${volume#"${volume%%[![:space:]]*}"}"
+    volume="${volume%"${volume##*[![:space:]]}"}"
+    case "$volume" in
+      ''|'#'*) continue ;;
+    esac
+    if ! [[ "$volume" =~ $hsm_volume_re ]]; then
+      echo "Ignoring invalid HSM volume '$volume' in $hsm_volumes: expected /host-path[:/container-path[:options]] without spaces" >&2
+      continue
+    fi
+    volume="${BASH_REMATCH[1]}:${BASH_REMATCH[3]:-${BASH_REMATCH[1]}}"
+    if [ -n "${BASH_REMATCH[5]}" ]; then
+      volume="$volume:${BASH_REMATCH[5]}"
+    fi
+    args="$args -v $volume"
+  done < "$hsm_volumes"
+fi
+if [ -f /usr/local/pf/conf/pfpki-hsm.env ]; then
+  args="$args --env-file /usr/local/pf/conf/pfpki-hsm.env"
+fi
+
 run $name "$args"
