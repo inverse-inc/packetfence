@@ -80,7 +80,7 @@
             :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
             ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
             <portal-module v-for="(mid, i) in getModulesByType(moduleType)" :key="mid"
-              @update="onUpdate"
+              @update="onUpdate" @delete="onDelete"
               :index="i" :id="mid" :module="getModule(mid)" :modules="items" v-show="mid" is-root />
           </draggable>
         </b-tab>
@@ -127,10 +127,11 @@ import {
 } from '../config'
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import { useSearch, useStore } from '../_composables/useCollection'
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+  const { root: { $store } = {}, root: $root } = context
   const {
     updateItem,
     deleteItem
@@ -155,10 +156,13 @@ const setup = (props, context) => {
 
   const mutableItems = ref([])
   watch(items, () => {
-    mutableItems.value = items.value
+    // copy, so the changes made in the editor are detected (isMutated)
+    mutableItems.value = JSON.parse(JSON.stringify(items.value))
   }, { deep: true, immediate: true })
 
-  const isMutated = computed(() => JSON.stringify(items.value) !== JSON.stringify(mutableItems.value))
+  // ignore the color added for display by getModule
+  const withoutColor = (key, value) => (key === 'color') ? undefined : value
+  const isMutated = computed(() => JSON.stringify(items.value, withoutColor) !== JSON.stringify(mutableItems.value, withoutColor))
 
   const rootModules = computed(() => mutableItems.value
     .filter(module => ['Root', 'RootSSO'].includes(module.type))
@@ -285,6 +289,20 @@ const setup = (props, context) => {
     }
   }
 
+  const onDelete = id => {
+    const { description } = getModule(id) || {}
+    $root.$bvModal.msgBoxConfirm(i18n.t('Delete module {module}?', { module: description || id }), {
+      title: i18n.t('Delete Module'),
+      okVariant: 'danger',
+      okTitle: i18n.t('Delete'),
+      cancelTitle: i18n.t('Cancel'),
+      centered: true
+    }).then(confirmed => {
+      if (confirmed)
+        deleteItem({ id }).then(() => reSearch())
+    })
+  }
+
   const onReset = () => {
     reSearch()
   }
@@ -315,6 +333,7 @@ const setup = (props, context) => {
     validateMove,
     onSave,
     onRemove,
+    onDelete,
     onReset,
     onUpdate,
   }
