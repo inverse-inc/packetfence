@@ -45,6 +45,8 @@ type APIHandler struct {
 	router *chi.Mux
 	ctx    context.Context
 	db     *sql.DB
+	// connectors is shared by all the requests, see pfconnector()
+	connectors *sharedConnectors
 }
 
 // Setup the api middleware
@@ -68,6 +70,7 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
 	m.ctx = ctx
+	m.connectors = &sharedConnectors{}
 	router := chi.NewRouter()
 	m.router = router
 

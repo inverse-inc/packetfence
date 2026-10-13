@@ -38,7 +38,7 @@ func (h APIHandler) pfconnectorRemoteStatus() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -132,7 +132,7 @@ func (h APIHandler) pfconnectorRemoteUpgrade() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -168,7 +168,7 @@ func (h APIHandler) pfconnectorRemoteRestart() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
