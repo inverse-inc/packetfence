@@ -1531,6 +1531,132 @@ Uplink settings:
   dot1x credentials EAP_PRO
   dot1x supplicant eap profile EAP_PRO  
 
+==== Industrial Ethernet IE3400 Series
+
+The Cisco Catalyst IE3400 rugged switches run IOS XE and are supported in
+802.1X and MAC Authentication Bypass with the 'Cisco IOS 15.5' switch type.
+The example below uses 802.1X with MAC Authentication fallback, a critical VLAN
+when PacketFence is unreachable and NetFlow export to the Fingerbank collector.
+
+In this example:
+
+[options="compact"]
+* `192.168.1.5` is the PacketFence management IP address
+* `69` is the access VLAN of the switchport
+* `GigabitEthernet1/6` is the switchport where the endpoints are connected
+
+AAA groups and configuration:
+
+  aaa new-model
+  !
+  aaa group server radius packetfence
+   server name packetfence
+  !
+  aaa authentication login default local
+  aaa authentication dot1x default group packetfence
+  aaa authorization network default group packetfence
+  aaa accounting delay-start all
+  aaa accounting update newinfo periodic 15
+  aaa accounting dot1x default start-stop group packetfence
+  aaa accounting network default start-stop group packetfence
+  aaa session-id common
+
+Global config settings:
+
+  dot1x system-auth-control
+  authentication mac-move permit
+  lldp run
+
+RADIUS server configuration:
+
+  radius-server attribute 6 on-for-login-auth
+  radius-server attribute 6 support-multiple
+  radius-server attribute 8 include-in-access-req
+  radius-server attribute 25 access-request include
+  radius-server attribute 31 mac format ietf upper-case
+  radius-server attribute 31 send nas-port-detail
+  radius-server dead-criteria time 5 tries 4
+  radius-server deadtime 1
+  radius-server vsa send authentication
+  !
+  radius server packetfence
+   address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+   automate-tester username dummy ignore-acct-port idle-time 3
+   key useStrongerSecret
+
+CoA configuration:
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+   port 3799
+
+Device tracking policy (IP address learning of the endpoints):
+
+  device-tracking policy PF-TRACK
+   no protocol udp
+   tracking enable
+
+On each interface:
+
+  interface GigabitEthernet1/6
+   switchport access vlan 69
+   switchport mode access
+   device-tracking attach-policy PF-TRACK
+   authentication event fail action next-method
+   authentication event server dead action authorize vlan 69
+   authentication event server dead action authorize voice
+   authentication event server alive action reinitialize
+   authentication host-mode multi-auth
+   authentication order dot1x mab
+   authentication priority dot1x mab
+   authentication port-control auto
+   authentication violation restrict
+   mab
+   dot1x pae authenticator
+   dot1x timeout tx-period 10
+
+NOTE: Adding `authentication open` on the interface enables the monitor mode:
+the traffic of the endpoints is allowed before and regardless of the
+authentication result. Only use it during a deployment phase.
+
+===== NetFlow export to the Fingerbank collector
+
+Optionally, the switch can export NetFlow to the Fingerbank collector of
+PacketFence to improve the device profiling:
+
+  flow record Input
+   match ipv4 source address
+   match ipv4 destination address
+   match transport source-port
+   match transport destination-port
+   match ipv4 protocol
+   match datalink mac source address input
+   match datalink mac destination address input
+  !
+  flow exporter fingerbank
+   destination 192.168.1.5
+   source Vlan69
+   transport udp 2055
+   option interface-table timeout 300
+   option sampler-table timeout 300
+   option application-table timeout 300
+  !
+  flow monitor FLOW-MONITOR-INPUT
+   exporter fingerbank
+   record Input
+
+Then apply the flow monitor on each interface:
+
+  interface GigabitEthernet1/6
+   ip flow monitor FLOW-MONITOR-INPUT input
+
+PacketFence switch configuration:
+
+[options="compact"]
+* Select the type to 'Cisco IOS 15.5'
+* Set the 'RADIUS secret' and the 'CoA port' (3799) to match the switch configuration
+* Enable 'Role by VLAN ID' and set the VLANs of your roles
+
 ==== Device Sensor for Cisco Equipment
 
 Device sensor is a way to be able to receive some information about endpoints
