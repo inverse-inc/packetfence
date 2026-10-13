@@ -145,7 +145,12 @@ sub test_domain {
     my $response = $ua->get($Config{lets_encrypt}{test_uri} . "?domain=".uri_escape($domain)."&uuid=".uri_escape($uuid));
 
     unlink $file;
-    
+
+    # An HTML error page (proxy or gateway error) isn't readable in the admin UI, use the status line instead
+    if (!$response->is_success && $response->content_type eq 'text/html') {
+        return ($FALSE, "Domain testing service error: " . $response->status_line);
+    }
+
     return ($response->is_success, $response->decoded_content);
 }
 
