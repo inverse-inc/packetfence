@@ -779,6 +779,11 @@ echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
+# Reserve the pfconfig port so it is never picked as a local port while pfconfig is down (#8576)
+echo "# pfconfig port reserved by packetfence" > /etc/sysctl.d/99-packetfence-reserved-ports.conf
+echo "net.ipv4.ip_local_reserved_ports = 44444" >> /etc/sysctl.d/99-packetfence-reserved-ports.conf
+sysctl -p /etc/sysctl.d/99-packetfence-reserved-ports.conf || true
+
 /usr/local/pf/bin/pfcmd fixpermissions
 
 # reloading systemd unit files
