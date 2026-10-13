@@ -274,14 +274,28 @@ export const setup = (props, context) => {
     requestTerminal(terminalCode.value)
   }
 
+  // Called from a click handler: the tab is opened right away, while the
+  // browser still sees the user's click, and only pointed at the terminal
+  // once the session is authorized. Opening it after the API calls would get
+  // it blocked as a popup, after the session and the TOTP code were used.
   const requestTerminal = code => {
+    if (isTerminalLoading.value)
+      return
+    const terminalWindow = window.open('', '_blank')
+    if (!terminalWindow) {
+      $store.dispatch('notification/danger', { message: i18n.t('The terminal tab was blocked by the browser. Allow popups for this site and try again.') })
+      return
+    }
+    terminalWindow.document.title = i18n.t('Opening terminal...')
+    terminalWindow.document.body.textContent = i18n.t('Opening terminal...')
     isTerminalLoading.value = true
     api.terminalSession(props.id).then(session => {
       return api.terminalAuthorize(props.id, session.uuid, code).then(() => {
         showTerminalModal.value = false
-        window.open(`/api/v1/terminal/${props.id}/`, '_blank')
+        terminalWindow.location.href = `/api/v1/terminal/${props.id}/`
       })
     }).catch(error => {
+      terminalWindow.close()
       const { response: { data } = {} } = error || {}
       const detail = (typeof data === 'string' && data.trim()) ? ` (${data.trim()})` : ''
       $store.dispatch('notification/danger', { message: i18n.t('Unable to open a terminal on the remote connector.') + detail })
