@@ -8,10 +8,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -41,18 +43,67 @@ func terminalPath(connectorID string) string {
 	return "/api/v1/terminal/" + url.PathEscape(connectorID) + "/"
 }
 
-// pfconnectorRedis returns a client for the pfconnector Redis, the one the
-// chisel server uses to validate terminal sessions.
+// sharedConnectors is the connectors container shared by the requests of
+// the API. It is created on first use and refreshed on each use, which only
+// re-instantiates the connectors when their configuration changed, instead of
+// building every connector again on each request.
+type sharedConnectors struct {
+	once      sync.Once
+	container *connector.ConnectorsContainer
+}
+
+// pfconnectors returns the shared connectors container, refreshed.
+func (h APIHandler) pfconnectors(ctx context.Context) *connector.ConnectorsContainer {
+	h.connectors.once.Do(func() {
+		h.connectors.container = connector.NewConnectorsContainer(h.ctx)
+	})
+	h.connectors.container.Refresh(ctx)
+	return h.connectors.container
+}
+
+// pfconnector returns the connector id, or nil if it does not exist.
+func (h APIHandler) pfconnector(ctx context.Context, id string) *connector.Connector {
+	return h.pfconnectors(ctx).Get(ctx, id)
+}
+
+// pfconnectorForIP returns the connector that holds the static tunnel
+// towards ip, or nil.
+func (h APIHandler) pfconnectorForIP(ctx context.Context, ip net.IP) *connector.Connector {
+	return h.pfconnectors(ctx).ForIP(ctx, ip)
+}
+
+var pfconnectorRedisClient struct {
+	sync.Mutex
+	addr   string
+	client *redis.Client
+}
+
+// pfconnectorRedis returns the client of the pfconnector Redis, the one the
+// chisel server uses to validate terminal sessions. The client, and its
+// connection pool, is shared by all the requests; it is only replaced when
+// the configured Redis server changes. Callers must not close it.
 func pfconnectorRedis(ctx context.Context) *redis.Client {
 	pfconnectorConfiguration := pfconfigdriver.GetType[pfconfigdriver.PfConfPfconnector](ctx)
+	addr := pfconnectorConfiguration.RedisServer
+
+	pfconnectorRedisClient.Lock()
+	defer pfconnectorRedisClient.Unlock()
+	if pfconnectorRedisClient.client != nil && pfconnectorRedisClient.addr == addr {
+		return pfconnectorRedisClient.client
+	}
+	if pfconnectorRedisClient.client != nil {
+		pfconnectorRedisClient.client.Close()
+	}
 	network := "tcp"
-	if strings.HasPrefix(pfconnectorConfiguration.RedisServer, "/") {
+	if strings.HasPrefix(addr, "/") {
 		network = "unix"
 	}
-	return redis.NewClient(&redis.Options{
-		Addr:    pfconnectorConfiguration.RedisServer,
+	pfconnectorRedisClient.addr = addr
+	pfconnectorRedisClient.client = redis.NewClient(&redis.Options{
+		Addr:    addr,
 		Network: network,
 	})
+	return pfconnectorRedisClient.client
 }
 
 // validTerminalAccess checks that the request carries the access token issued
@@ -64,7 +115,6 @@ func validTerminalAccess(r *http.Request, connectorID string) bool {
 		return false
 	}
 	redisClient := pfconnectorRedis(r.Context())
-	defer redisClient.Close()
 	token, err := redisClient.Get(r.Context(), terminalAccessKey(connectorID)).Result()
 	if err != nil || subtle.ConstantTimeCompare([]byte(token), []byte(cookie.Value)) != 1 {
 		return false
@@ -84,7 +134,6 @@ func grantTerminalAccess(w http.ResponseWriter, r *http.Request, connectorID str
 	}
 	token := hex.EncodeToString(b)
 	redisClient := pfconnectorRedis(r.Context())
-	defer redisClient.Close()
 	if err := redisClient.Set(r.Context(), terminalAccessKey(connectorID), token, terminalAccessTTL).Err(); err != nil {
 		return err
 	}
@@ -128,7 +177,7 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 		r.Header.Del("Cookie")
 		r.Header.Del("Authorization")
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -162,7 +211,7 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -173,7 +222,7 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 			return
 		}
 
-		authorizeURL := "http://" + remoteCon.Host + ":" + string(remoteCon.Port) + "/api/v1/authorize/" + sessionUUID
+		authorizeURL := "http://" + remoteCon.Host + ":" + string(remoteCon.Port) + "/api/v1/authorize/" + url.PathEscape(sessionUUID)
 		// Relay the TOTP code; it is validated by the connector-remote
 		// against the seed stored on its own filesystem.
 		if code := r.URL.Query().Get("code"); code != "" {
@@ -227,7 +276,6 @@ func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 		}
 
 		redisClient := pfconnectorRedis(r.Context())
-		defer redisClient.Close()
 
 		if err := redisClient.Ping(r.Context()).Err(); err != nil {
 			http.Error(w, "Redis server is not reachable", http.StatusInternalServerError)

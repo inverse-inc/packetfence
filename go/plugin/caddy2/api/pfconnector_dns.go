@@ -110,7 +110,7 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 
 		// The connector owning the DNS server's IP holds the static tunnel
 		// (same logic as resource::pfconnector_static_connections)
-		conn := connector.NewConnectorsContainer(h.ctx).ForIP(h.ctx, net.ParseIP(dnsIP))
+		conn := h.pfconnectorForIP(h.ctx, net.ParseIP(dnsIP))
 		if conn == nil {
 			http.Error(w, "No connector (not even local_connector) matches the DNS server IP", http.StatusUnprocessableEntity)
 			return
