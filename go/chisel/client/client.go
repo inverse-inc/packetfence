@@ -339,8 +339,8 @@ func (c *Client) reportConnectorInfoLoop(ctx context.Context) {
 }
 
 // reportConnectorInfo sends the IPs of the default-route interface to the
-// pfconnector server (through the tunnel-local bind on 22226) so the server
-// can expose how to reach this connector's local API.
+// pfconnector server (through the tunnel-local bind on 22226), which displays
+// them in the admin UI status panel.
 func (c *Client) reportConnectorInfo() {
 	clientInfo := struct {
 		IPs         []string `json:"ips"`
@@ -363,7 +363,17 @@ func (c *Client) reportConnectorInfo() {
 		return
 	}
 
-	res, err := http.Post("http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", "application/json", bytes.NewBuffer(clientInfoJSON))
+	req, err := http.NewRequest(http.MethodPost, "http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", bytes.NewBuffer(clientInfoJSON))
+	if err != nil {
+		fmt.Printf("failed to build client info request: %v\n", err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	// The server identifies the connector by its tunnel credentials, not by
+	// the connector_id of the body.
+	authID, authSecret, _ := strings.Cut(c.config.Auth, ":")
+	req.SetBasicAuth(authID, authSecret)
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Printf("failed to send client info: %v\n", err)
 		return

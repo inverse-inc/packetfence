@@ -3,6 +3,7 @@ package chserver
 import (
 	"bufio"
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -1059,7 +1060,7 @@ const terminalSessionTimeout = 600 * time.Second
 // handleRemoteTerm validates a one-time terminal session id created by the
 // admin API (terminal:<uuid> in Redis, holding the target connector id).
 // The connector-remote calls this before starting its gotty terminal; the
-// id is deleted on first use.
+// id is deleted on first use, whether it matches the connector or not.
 func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 	id := req.URL.Query().Get("id")
 	connectorID := req.URL.Query().Get("connectorid")
@@ -1072,7 +1073,9 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resolvedConnectorID := s.redis.Get(req.Context(), "terminal:"+id)
+	// One-time use: GETDEL reads and removes the session in a single step, so
+	// two concurrent activations cannot both use it.
+	resolvedConnectorID := s.redis.GetDel(req.Context(), "terminal:"+id)
 	if err := resolvedConnectorID.Err(); err != nil {
 		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error retrieving connector ID for terminal session %s: %s", id, err))
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -1084,8 +1087,6 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// One-time use: remove the terminal session from Redis
-	s.redis.Del(req.Context(), "terminal:"+id)
 	log.LoggerWContext(req.Context()).Info(fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -1096,11 +1097,34 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
+// connectorIPsTTL is how long the IPs reported by a connector-remote are
+// kept. Connectors report them every few seconds while their tunnel is up, so
+// the IPs of a connector that went away expire on their own.
+const connectorIPsTTL = 5 * time.Minute
+
 // handlePfconnectorInfo stores the IPs a connector-remote reports about
 // itself (POSTed through the tunnel after its remote binds are up) under
-// ips:<connector-id> in Redis, so the terminal API can build a URL that
-// reaches the remote's local API directly.
+// ips:<connector-id> in Redis, for the admin UI status panel.
+//
+// Every connector reaches this API through the same tunnel-local bind, so the
+// request does not tell which tunnel it came from: the connector
+// authenticates with its tunnel credentials (HTTP basic auth, the same
+// id:secret as the tunnel itself), which prevents one connector from
+// overwriting the IPs of another.
 func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request) {
+	authID, authSecret, ok := req.BasicAuth()
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	s.refreshUsersPfconfig()
+	user, found := s.users.Get(authID)
+	if !found || subtle.ConstantTimeCompare([]byte(user.Pass), []byte(authSecret)) != 1 {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("Refused connector information with invalid credentials for connector %s", authID))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	clientInfo := struct {
 		IPs         []string `json:"ips"`
 		ConnectorID string   `json:"connector_id"`
@@ -1115,8 +1139,13 @@ func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request)
 		http.Error(w, "Missing connector_id", http.StatusBadRequest)
 		return
 	}
+	if clientInfo.ConnectorID != authID {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("Connector %s tried to report the information of connector %s", authID, clientInfo.ConnectorID))
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	ips := strings.Join(clientInfo.IPs, ",")
-	if status := s.redis.Set(req.Context(), "ips:"+clientInfo.ConnectorID, ips, 0); status.Err() != nil {
+	if status := s.redis.Set(req.Context(), "ips:"+clientInfo.ConnectorID, ips, connectorIPsTTL); status.Err() != nil {
 		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error storing client info in Redis: %s", status.Err()))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

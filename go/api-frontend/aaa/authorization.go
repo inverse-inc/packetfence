@@ -28,7 +28,10 @@ const ALLOW_ANY = "*"
 var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
-	adminRoleMapping{prefix: apiPrefix + "/terminal", role: ALLOW_ANY},
+	// Opening a terminal gives a root shell on the connector-remote, so every
+	// terminal route (create, authorize and the proxied websocket, all GET or
+	// POST) requires the write privilege on connectors.
+	adminRoleMapping{prefix: apiPrefix + "/terminal", role: "CONNECTORS", roleSuffix: "_UPDATE"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/dns-lookup", role: "CONNECTORS", roleSuffix: "_READ"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS"},
 

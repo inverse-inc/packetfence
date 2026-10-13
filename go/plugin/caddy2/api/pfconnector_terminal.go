@@ -1,6 +1,10 @@
 package api
 
 import (
+	"context"
+	"crypto/rand"
+	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +12,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -15,6 +20,84 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/redis/go-redis/v9"
 )
+
+// terminalSessionTTL bounds how long a terminal session uuid created by
+// pfconnectorTerminalGet can wait for its authorize call.
+const terminalSessionTTL = 2 * time.Minute
+
+// terminalAccessTTL is how long a terminal access token stays valid without
+// any request through proxyTerminal; each proxied request renews it.
+const terminalAccessTTL = time.Hour
+
+// terminalAccessCookie holds the access token issued once a terminal session
+// is authorized. It is scoped to the path of that connector's terminal.
+const terminalAccessCookie = "PF-TERMINAL"
+
+func terminalAccessKey(connectorID string) string {
+	return "terminal-access:" + connectorID
+}
+
+func terminalPath(connectorID string) string {
+	return "/api/v1/terminal/" + url.PathEscape(connectorID) + "/"
+}
+
+// pfconnectorRedis returns a client for the pfconnector Redis, the one the
+// chisel server uses to validate terminal sessions.
+func pfconnectorRedis(ctx context.Context) *redis.Client {
+	pfconnectorConfiguration := pfconfigdriver.GetType[pfconfigdriver.PfConfPfconnector](ctx)
+	network := "tcp"
+	if strings.HasPrefix(pfconnectorConfiguration.RedisServer, "/") {
+		network = "unix"
+	}
+	return redis.NewClient(&redis.Options{
+		Addr:    pfconnectorConfiguration.RedisServer,
+		Network: network,
+	})
+}
+
+// validTerminalAccess checks that the request carries the access token issued
+// to the browser that authorized the current terminal session of the
+// connector, and renews its TTL.
+func validTerminalAccess(r *http.Request, connectorID string) bool {
+	cookie, err := r.Cookie(terminalAccessCookie)
+	if err != nil || cookie.Value == "" {
+		return false
+	}
+	redisClient := pfconnectorRedis(r.Context())
+	defer redisClient.Close()
+	token, err := redisClient.Get(r.Context(), terminalAccessKey(connectorID)).Result()
+	if err != nil || subtle.ConstantTimeCompare([]byte(token), []byte(cookie.Value)) != 1 {
+		return false
+	}
+	redisClient.Expire(r.Context(), terminalAccessKey(connectorID), terminalAccessTTL)
+	return true
+}
+
+// grantTerminalAccess issues a new access token for the connector's terminal,
+// replacing the previous one, and sets it as a cookie scoped to the terminal
+// path. Only the browser that passed the authorize step (session uuid and
+// TOTP code) can then reach the terminal through proxyTerminal.
+func grantTerminalAccess(w http.ResponseWriter, r *http.Request, connectorID string) error {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return err
+	}
+	token := hex.EncodeToString(b)
+	redisClient := pfconnectorRedis(r.Context())
+	defer redisClient.Close()
+	if err := redisClient.Set(r.Context(), terminalAccessKey(connectorID), token, terminalAccessTTL).Err(); err != nil {
+		return err
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:     terminalAccessCookie,
+		Value:    token,
+		Path:     terminalPath(connectorID),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
+	return nil
+}
 
 // proxyTerminal reverse proxies /api/v1/terminal/{connectorID}/* to the
 // connector-remote's local API (:8081) through an on-demand dynreverse
@@ -27,13 +110,30 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 			return
 		}
 
+		// gotty has no authentication of its own: without this check, any
+		// request reaching this route would attach to a terminal opened by
+		// someone else.
+		if !validTerminalAccess(r, connectorID) {
+			http.Error(w, "No authorized terminal session for this PFconnector", http.StatusForbidden)
+			return
+		}
+
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal/"+connectorID)
 		r.Host = "127.0.0.1:8081"
 		r.URL.Path = "api/v1/terminal" + r.URL.Path
 		r.Header.Set("X-Forwarded-For", "127.0.0.1")
+		// Never forward the admin's credentials (API token cookie or header,
+		// terminal access token) to the connector-remote: gotty needs none
+		// of them.
+		r.Header.Del("Cookie")
+		r.Header.Del("Authorization")
 
-		conn := connector.NewConnectorsContainer(h.ctx)
-		remoteCon, err := conn.Get(h.ctx, connectorID).DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
+		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+		remoteCon, err := conn.DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
 		if err != nil {
 			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
 			return
@@ -85,6 +185,12 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 			return
 		}
 		defer res.Body.Close()
+		if res.StatusCode == http.StatusOK {
+			if err := grantTerminalAccess(w, r, connectorID); err != nil {
+				http.Error(w, "Failed to grant access to the terminal", http.StatusInternalServerError)
+				return
+			}
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(res.StatusCode)
 		io.Copy(w, res.Body)
@@ -93,16 +199,16 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 
 // pfconnectorTerminalGet creates a one-time terminal session for a
 // connector: it stores terminal:<uuid> -> connector id in the pfconnector
-// Redis (validated by the chisel server's remote-terminal endpoint) and
-// returns the URL, on the remote's own IP, that activates the session.
+// Redis, valid for terminalSessionTTL, which the chisel server's
+// remote-terminal endpoint validates and consumes when the session is
+// authorized through proxyTerminalAuthorize.
 func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type request struct {
 			PFconnectorID string `json:"pfconnector_id"`
 		}
 		type reply struct {
-			UUID        string `json:"uuid"`
-			RedirectURL string `json:"redirect_url"`
+			UUID string `json:"uuid"`
 		}
 
 		body, err := io.ReadAll(r.Body)
@@ -111,22 +217,16 @@ func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 			return
 		}
 		var req request
-		json.Unmarshal(body, &req)
+		if err := json.Unmarshal(body, &req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
 		if len(req.PFconnectorID) == 0 {
 			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
 			return
 		}
 
-		pfconnectorConfiguration := pfconfigdriver.GetType[pfconfigdriver.PfConfPfconnector](r.Context())
-		network := "tcp"
-		if strings.HasPrefix(pfconnectorConfiguration.RedisServer, "/") {
-			network = "unix"
-		}
-
-		redisClient := redis.NewClient(&redis.Options{
-			Addr:    pfconnectorConfiguration.RedisServer,
-			Network: network,
-		})
+		redisClient := pfconnectorRedis(r.Context())
 		defer redisClient.Close()
 
 		if err := redisClient.Ping(r.Context()).Err(); err != nil {
@@ -135,23 +235,14 @@ func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 		}
 
 		newUUID := uuid.New()
-		if err := redisClient.Set(r.Context(), "terminal:"+newUUID.String(), req.PFconnectorID, 0).Err(); err != nil {
+		if err := redisClient.Set(r.Context(), "terminal:"+newUUID.String(), req.PFconnectorID, terminalSessionTTL).Err(); err != nil {
 			http.Error(w, "Failed to store PFconnector ID", http.StatusInternalServerError)
 			return
 		}
 
-		redirect := reply{UUID: newUUID.String()}
-		// Legacy direct-activation URL, usable when the admin's browser can
-		// reach the remote's IP. The proxied activation
-		// (/api/v1/terminal/{connectorID}/authorize/{uuid}) works everywhere.
-		ips := redisClient.Get(r.Context(), "ips:"+req.PFconnectorID).Val()
-		ipList := strings.Split(ips, ",")
-		if len(ipList) > 0 && ipList[0] != "" {
-			redirect.RedirectURL = "http://" + ipList[0] + ":8081/api/v1/authorize/" + newUUID.String()
-		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(redirect); err != nil {
+		if err := json.NewEncoder(w).Encode(reply{UUID: newUUID.String()}); err != nil {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 			return
 		}
