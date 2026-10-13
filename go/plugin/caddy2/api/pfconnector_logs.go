@@ -31,8 +31,12 @@ func (h APIHandler) proxyConnectorLogs() http.HandlerFunc {
 		r.URL.Path = "api/v1/logs/" + name
 		r.Header.Set("X-Forwarded-For", "127.0.0.1")
 
-		conn := connector.NewConnectorsContainer(h.ctx)
-		remoteCon, err := conn.Get(h.ctx, connectorID).DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
+		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+		remoteCon, err := conn.DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
 		if err != nil {
 			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
 			return
