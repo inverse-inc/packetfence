@@ -15,8 +15,10 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Data::Dumper;
 use MIME::Base64;
+use Encode qw();
 use pf::error qw(is_error);
 use pf::config::util qw();
+use pf::file_paths qw($conf_dir);
 
 sub handle_email_payload {
     my ($self) = @_;
@@ -39,8 +41,8 @@ sub preview {
 
     return unless($data);
 
-    my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args});
-    return $self->render(json => {body => MIME::Base64::decode($msg->body_as_string)});
+    my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args}, email_template_options($data->{locale}));
+    return $self->render(json => {body => Encode::decode_utf8(MIME::Base64::decode($msg->body_as_string))});
 }
 
 sub send_email {
@@ -54,10 +56,45 @@ sub send_email {
         return $self->render_error(422, "Missing 'to' parameter");
     }
 
-    my $msg = pf::config::util::build_email($data->{template}, $data->{to}, $data->{subject}, $data->{args});
+    my $msg = pf::config::util::build_email($data->{template}, $data->{to}, $data->{subject}, $data->{args}, email_template_options($data->{locale}));
     my $success = pf::config::util::send_using_smtp_callback($msg);
     my $user_message = $success ? "Successfully sent email to $data->{to}" : "Failed to send email to $data->{to}. Check server side logs for details";
     return $self->render(json => {message => $user_message}, status => ($success ? 200 : 500));
+}
+
+=head2 email_template_options
+
+The template options of build_email for the locale requested by the client (e.g. the admin UI language)
+
+=cut
+
+sub email_template_options {
+    my ($lang) = @_;
+    my $locale = email_locale($lang);
+    return defined $locale ? { __locale => $locale } : {};
+}
+
+=head2 email_locale
+
+Map a language (fr, fr-CA, pt_BR) to a locale PacketFence has translations for (fr_FR, fr_CA, pt_BR)
+Returns undef when there is none, so the default language is used
+
+=cut
+
+sub email_locale {
+    my ($lang) = @_;
+    return undef unless defined $lang && $lang =~ /^([a-zA-Z]{2,3})(?:[-_]([a-zA-Z]{2}))?$/;
+    my ($language, $region) = (lc($1), $2);
+    return 'en_US' if $language eq 'en' && !defined $region;
+    my @candidates;
+    push @candidates, "${language}_\U$region" if defined $region;
+    push @candidates, map { m{/([^/]+)$} ? $1 : () } sort glob("$conf_dir/locale/${language}_*");
+    push @candidates, "${language}_\U$language";
+    for my $locale (@candidates) {
+        # gettext falls back from fr_FR to fr
+        return $locale if -d "$conf_dir/locale/$locale" || -d "$conf_dir/locale/$language";
+    }
+    return undef;
 }
 
 sub pfmailer {
