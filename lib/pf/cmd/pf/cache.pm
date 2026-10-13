@@ -25,6 +25,7 @@ Namespaces:
   pfdhcp_api
   pfdns
   provisioning
+  role_networks
   route_int
   switch
   switch.overlay
