@@ -30,7 +30,7 @@ use pf::error qw(is_success);
 
 extends 'pf::Authentication::Source::NullSource';
 
-Readonly our $KICKBOX_HOST => "https://api.kickbox.io";
+Readonly our $KICKBOX_HOST => "https://api.kickbox.com";
 Readonly our $VERIFY_URI => "/v2/verify";
 Readonly our @ACCEPTABLE_RESULTS => qw(deliverable);
 
@@ -62,7 +62,8 @@ sub authenticate {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $uri);
 
-    $logger->info("Calling Kickbox.io service using URI : $uri");
+    # The URI holds the API key, don't log it
+    $logger->info("Calling Kickbox service on $KICKBOX_HOST$VERIFY_URI for e-mail address $username");
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
