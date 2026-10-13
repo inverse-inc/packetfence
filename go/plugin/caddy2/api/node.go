@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -42,10 +43,15 @@ func (h *APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http
 	// across all collectors. Anything that can't be resolved falls back to the configured
 	// (clustered) collector. Clients are cached per connector id to avoid redundant lookups.
 	connectors := connector.NewConnectorsContainer(ctx)
+	switchIPs := map[string]string{}
+	if connectors.HasRemoteConnectors(ctx) {
+		switchIPs = h.switchIPsForMacs(ctx, requestPayload.Nodes)
+	}
+
 	clientCache := map[string]collectorCaller{}
 	clientForMac := map[string]collectorCaller{}
 	for _, mac := range requestPayload.Nodes {
-		clientForMac[mac] = h.collectorClientForMac(ctx, mac, defaultClient, connectors, clientCache)
+		clientForMac[mac] = collectorClientForSwitchIP(ctx, switchIPs[normalizeMac(mac)], defaultClient, connectors, clientCache)
 	}
 
 	endpoints := map[string]common.CollectorEndpointCommunications{}
@@ -89,18 +95,13 @@ func fetchEndpointData(ctx context.Context, mac string, client, defaultClient co
 	return ed, err
 }
 
-// collectorClientForMac returns the fingerbank collector client to query for a given MAC.
-// When the device is behind a pfconnector (resolved from its open locationlog switch IP),
-// it returns a client pointed at that connector's co-located collector. On any failure
-// (no DB handle, no open session, local connector, tunnel down, etc.) it returns the
+// collectorClientForSwitchIP returns the fingerbank collector client to query for a
+// device whose open locationlog session is on switchIP. When that switch is behind a
+// pfconnector, it returns a client pointed at that connector's co-located collector. On
+// any failure (no open session, local connector, tunnel down, etc.) it returns the
 // configured (clustered) collector client.
-func (h *APIHandler) collectorClientForMac(ctx context.Context, mac string, defaultClient collectorCaller, connectors *connector.ConnectorsContainer, clientCache map[string]collectorCaller) collectorCaller {
+func collectorClientForSwitchIP(ctx context.Context, switchIP string, defaultClient collectorCaller, connectors *connector.ConnectorsContainer, clientCache map[string]collectorCaller) collectorCaller {
 	logger := log.LoggerWContext(ctx)
-
-	switchIP := h.switchIPForMac(ctx, mac)
-	if switchIP == "" {
-		return defaultClient
-	}
 
 	ip := net.ParseIP(switchIP)
 	if ip == nil {
@@ -135,29 +136,62 @@ func (h *APIHandler) collectorClientForMac(ctx context.Context, mac string, defa
 	return client
 }
 
-// switchIPForMac returns the switch IP of the device's open locationlog session, or an
-// empty string when it can't be determined.
-func (h *APIHandler) switchIPForMac(ctx context.Context, mac string) string {
-	if h.db == nil {
+// normalizeMac returns mac in the lowercase colon-separated form the locationlog
+// stores, or an empty string when it isn't a MAC address.
+func normalizeMac(mac string) string {
+	hw, err := net.ParseMAC(mac)
+	if err != nil || len(hw) != 6 {
 		return ""
+	}
+	return hw.String()
+}
+
+// switchIPsForMacs returns, keyed by normalized MAC, the switch IP of each device's
+// open locationlog session, read in a single query. Devices without one are absent.
+func (h *APIHandler) switchIPsForMacs(ctx context.Context, macs []string) map[string]string {
+	switchIPs := map[string]string{}
+	if h.db == nil {
+		return switchIPs
 	}
 
-	var switchIP sql.NullString
-	err := h.db.QueryRowContext(
-		ctx,
-		"SELECT switch_ip FROM locationlog WHERE mac = ? AND end_time = '0000-00-00 00:00:00' ORDER BY start_time DESC LIMIT 1",
-		mac,
-	).Scan(&switchIP)
-	if err != nil {
-		if err != sql.ErrNoRows {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Unable to resolve switch IP for %s from locationlog: %s", mac, err))
+	args := []interface{}{}
+	for _, mac := range macs {
+		if mac = normalizeMac(mac); mac != "" {
+			args = append(args, mac)
 		}
-		return ""
 	}
-	if !switchIP.Valid {
-		return ""
+	if len(args) == 0 {
+		return switchIPs
 	}
-	return switchIP.String
+
+	// Rows come oldest session first so the most recent open one wins.
+	rows, err := h.db.QueryContext(
+		ctx,
+		"SELECT mac, switch_ip FROM locationlog WHERE mac IN (?"+strings.Repeat(",?", len(args)-1)+") AND end_time = '0000-00-00 00:00:00' ORDER BY start_time",
+		args...,
+	)
+	if err != nil {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Unable to resolve switch IPs from locationlog: %s", err))
+		return switchIPs
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var mac string
+		var switchIP sql.NullString
+		if err := rows.Scan(&mac, &switchIP); err != nil {
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Unable to read a locationlog switch IP: %s", err))
+			continue
+		}
+		if switchIP.Valid && switchIP.String != "" {
+			switchIPs[mac] = switchIP.String
+		}
+	}
+	if err := rows.Err(); err != nil {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Unable to read the locationlog switch IPs: %s", err))
+	}
+
+	return switchIPs
 }
 
 // buildCollectorClientFromEndpoint builds a fingerbank collector client targeting the

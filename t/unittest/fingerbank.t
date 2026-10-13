@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 29;
 
 use Test::NoWarnings;
 use Test::Exception;
@@ -83,6 +83,7 @@ my $test_mac = "00:11:22:33:44:55";
 sub collector_suffix_for {
     my ($entry, $for_ip) = @_;
     $fingerbank_mock->mock(locationlog_view_open_mac => sub { return $entry });
+    $factory_mock->mock(has_remote_connectors => sub { 1 });
     $factory_mock->mock(for_ip => $for_ip);
     return pf::fingerbank::_collector_suffix_for_mac($test_mac);
 }
@@ -107,6 +108,13 @@ is(collector_suffix_for({ switch_ip => "10.1.2.3" }, sub { return test::connecto
 is(collector_suffix_for({ switch_ip => "10.1.2.3" }, sub { die "no connector for this IP
 " }), "local",
     "A failure to resolve the connector falls back to the configured collector");
+
+my $locationlog_lookups = 0;
+$fingerbank_mock->mock(locationlog_view_open_mac => sub { $locationlog_lookups++; return { switch_ip => "10.1.2.3" } });
+$factory_mock->mock(has_remote_connectors => sub { 0 });
+is(pf::fingerbank::_collector_suffix_for_mac($test_mac), "local",
+    "Without a remote connector, every device uses the configured collector");
+is($locationlog_lookups, 0, "Without a remote connector, the locationlog is not looked up");
 
 $fingerbank_mock->unmock_all();
 $factory_mock->unmock_all();
@@ -139,6 +147,7 @@ collector_name_for_mac() for 1..2;
 is($builds, 1, "A connector's collector is resolved once within the TTL");
 
 {
+    no warnings 'once';
     local $pf::fingerbank::CONNECTOR_COLLECTOR_TTL = 0;
     pf::fingerbank::CLONE();
     $builds = 0;
@@ -182,9 +191,10 @@ is($builds, 1, "A dedicated collector answering a client error is kept");
 
 ($called, $code) = collector_request_with(500, 200);
 is_deeply($called, ["connA", "local"], "An unreachable dedicated collector is retried on the configured collector");
-collector_name_for_mac();
-is($builds, 2, "An unreachable dedicated collector is resolved again on the next lookup");
+is(collector_name_for_mac(), "local", "An unreachable dedicated collector is skipped on the next lookup");
+is($builds, 1, "An unreachable dedicated collector is not resolved again within the TTL");
 
+pf::fingerbank::CLONE();
 ($called, $code) = collector_request_with(500, 500);
 is($code, 500, "The configured collector's failure is returned when both fail");
 

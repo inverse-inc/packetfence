@@ -47,7 +47,6 @@ use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
 use pf::locationlog qw(locationlog_view_open_mac);
 use pf::factory::connector;
-use URI;
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -292,7 +291,13 @@ sub _local_collector {
 
 Send a request for a MAC's endpoint data to the collector resolved for it. A dedicated
 (per-connector) collector that fails is retried once on the configured collector; when
-it could not be reached at all, it is forgotten so the next lookup resolves it again.
+it could not be reached at all, the connector is marked as having no dedicated collector
+for $CONNECTOR_COLLECTOR_TTL seconds so the following lookups go straight to the
+configured collector instead of failing on it again.
+
+Reads and writes go to the same collector: a collector only applies a PATCH to its own
+copy of the endpoint, so writing elsewhere than where the data is read would leave the
+written attributes invisible to the next read.
 
 =cut
 
@@ -304,7 +309,9 @@ sub _collector_request {
     return $res if ($res->is_success || $suffix eq "local");
 
     get_logger->warn("Dedicated fingerbank collector for connector '$suffix' failed for $mac (".$res->status_line."). Retrying on the configured collector.");
-    delete $connector_collectors{$suffix} if $res->is_server_error;
+    if ($res->is_server_error) {
+        $connector_collectors{$suffix} = { collector => undef, ua => undef, expires_at => time + $CONNECTOR_COLLECTOR_TTL };
+    }
 
     ($collector, $collector_ua) = _local_collector();
     return _send_collector_request($collector, $collector_ua, $name, $method, $mac, $content);
@@ -341,6 +348,10 @@ locationlog entry and the connector that handles its switch IP.
 sub _collector_suffix_for_mac {
     my ($mac) = @_;
 
+    # Without a connector that has networks, every device is on the local connector:
+    # don't pay for a locationlog lookup on every fingerprint.
+    return "local" unless(eval { pf::factory::connector->has_remote_connectors });
+
     my $entry = eval { locationlog_view_open_mac($mac) };
     return "local" unless($entry);
 
@@ -371,23 +382,13 @@ sub _build_connector_collector {
         return undef;
     }
 
-    my $res = eval {
-        $connector->connectorServerApiClient->call("GET", "/api/v1/pfconnector/fingerbank-collector-endpoint?connector-id=".$connector_id, undef);
-    };
-    if(!$res || !$res->{endpoint}) {
+    my $uri = eval { $connector->fingerbank_collector_endpoint };
+    unless($uri) {
         $logger->debug("Unable to obtain a dedicated fingerbank collector endpoint for connector '$connector_id'. Falling back to the configured collector. ".($@ // ""));
         return undef;
     }
 
-    my $uri = URI->new($res->{endpoint});
     my $host = $uri->host;
-
-    # Override the host value if this is a container so that it always goes through the local
-    # containers interface, the same way pf::connector::dynreverse does.
-    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && $ENV{PF_SAAS} ne 'yes') ) {
-        $host = "containers-gateway.internal";
-    }
-
     $logger->debug("Using dedicated fingerbank collector $host:".$uri->port." for connector '$connector_id'");
 
     return fingerbank::Collector->new(

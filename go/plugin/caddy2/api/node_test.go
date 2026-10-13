@@ -24,13 +24,14 @@ func (c *fakeCollector) Call(ctx context.Context, method, path string, payload, 
 	return fmt.Errorf("fakeCollector %s was called", c.name)
 }
 
-// locationlogDriver answers the single locationlog query switchIPForMac makes:
-// switchIP is returned as the open session's switch_ip, an empty string as no
-// row at all, and queryErr as a failed read.
+// locationlogDriver answers the locationlog query switchIPsForMacs makes:
+// switchIPs maps a MAC to its open session's switch_ip, a MAC absent from it has
+// no open session, and queryErr is a failed read. The MACs queried are recorded.
 type locationlogDriver struct {
-	switchIP string
-	queryErr error
-	queries  int
+	switchIPs map[string]string
+	queryErr  error
+	queries   int
+	queried   []string
 }
 
 func (d *locationlogDriver) Open(string) (driver.Conn, error) { return &locationlogConn{d: d}, nil }
@@ -50,36 +51,44 @@ func (s *locationlogStmt) Exec([]driver.Value) (driver.Result, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (s *locationlogStmt) Query([]driver.Value) (driver.Rows, error) {
+func (s *locationlogStmt) Query(args []driver.Value) (driver.Rows, error) {
 	s.d.queries++
 	if s.d.queryErr != nil {
 		return nil, s.d.queryErr
 	}
 
-	return &locationlogRows{value: s.d.switchIP}, nil
+	rows := &locationlogRows{}
+	for _, arg := range args {
+		mac := arg.(string)
+		s.d.queried = append(s.d.queried, mac)
+		if switchIP, ok := s.d.switchIPs[mac]; ok {
+			rows.rows = append(rows.rows, [2]string{mac, switchIP})
+		}
+	}
+	return rows, nil
 }
 
-// locationlogRows returns one switch_ip, or no row when value is empty, which
-// database/sql turns into sql.ErrNoRows.
+// locationlogRows returns one (mac, switch_ip) row per open session.
 type locationlogRows struct {
-	value string
-	done  bool
+	rows [][2]string
+	next int
 }
 
-func (r *locationlogRows) Columns() []string { return []string{"switch_ip"} }
+func (r *locationlogRows) Columns() []string { return []string{"mac", "switch_ip"} }
 func (r *locationlogRows) Close() error      { return nil }
 
 func (r *locationlogRows) Next(dest []driver.Value) error {
-	if r.done || r.value == "" {
+	if r.next >= len(r.rows) {
 		return io.EOF
 	}
 
-	r.done = true
-	dest[0] = r.value
+	dest[0] = r.rows[r.next][0]
+	dest[1] = r.rows[r.next][1]
+	r.next++
 	return nil
 }
 
-func locationlogHandler(t *testing.T, d *locationlogDriver) APIHandler {
+func locationlogHandler(t *testing.T, d *locationlogDriver) *APIHandler {
 	t.Helper()
 	name := fmt.Sprintf("pf-locationlog-test-%d", time.Now().UnixNano())
 	sql.Register(name, d)
@@ -89,7 +98,7 @@ func locationlogHandler(t *testing.T, d *locationlogDriver) APIHandler {
 	}
 
 	t.Cleanup(func() { db.Close() })
-	return APIHandler{db: db}
+	return &APIHandler{db: db}
 }
 
 // connectorsFor builds a container holding the given connectors without going
@@ -118,34 +127,49 @@ func connectorsFor(t *testing.T, networksByID map[string][]string) *connector.Co
 	return cc
 }
 
-func TestSwitchIPForMac(t *testing.T) {
+func TestSwitchIPsForMacs(t *testing.T) {
 	ctx := log.LoggerDummyContext()
-	const mac = "00:11:22:33:44:55"
 
 	t.Run("no database handle", func(t *testing.T) {
-		if got := (&APIHandler{}).switchIPForMac(ctx, mac); got != "" {
-			t.Errorf("switchIPForMac without a handle = %q, want an empty string", got)
+		if got := (&APIHandler{}).switchIPsForMacs(ctx, []string{"00:11:22:33:44:55"}); len(got) != 0 {
+			t.Errorf("switchIPsForMacs without a handle = %v, want none", got)
 		}
 	})
 
-	t.Run("open session", func(t *testing.T) {
-		h := locationlogHandler(t, &locationlogDriver{switchIP: "10.1.2.3"})
-		if got := h.switchIPForMac(ctx, mac); got != "10.1.2.3" {
-			t.Errorf("switchIPForMac = %q, want 10.1.2.3", got)
+	t.Run("open sessions in one query", func(t *testing.T) {
+		d := &locationlogDriver{switchIPs: map[string]string{"00:11:22:33:44:55": "10.1.2.3"}}
+		got := locationlogHandler(t, d).switchIPsForMacs(ctx, []string{"00:11:22:33:44:55", "00:11:22:33:44:56"})
+		if len(got) != 1 || got["00:11:22:33:44:55"] != "10.1.2.3" {
+			t.Errorf("switchIPsForMacs = %v, want only 00:11:22:33:44:55 => 10.1.2.3", got)
+		}
+		if d.queries != 1 {
+			t.Errorf("switchIPsForMacs ran %d queries, want 1", d.queries)
 		}
 	})
 
-	t.Run("no open session", func(t *testing.T) {
-		h := locationlogHandler(t, &locationlogDriver{})
-		if got := h.switchIPForMac(ctx, mac); got != "" {
-			t.Errorf("switchIPForMac with no open session = %q, want an empty string", got)
+	t.Run("MACs are normalized to the locationlog form", func(t *testing.T) {
+		d := &locationlogDriver{switchIPs: map[string]string{"aa:bb:cc:dd:ee:ff": "10.1.2.3"}}
+		got := locationlogHandler(t, d).switchIPsForMacs(ctx, []string{"AA-BB-CC-DD-EE-FF", "not-a-mac"})
+		if got[normalizeMac("AA-BB-CC-DD-EE-FF")] != "10.1.2.3" {
+			t.Errorf("switchIPsForMacs = %v, want aa:bb:cc:dd:ee:ff => 10.1.2.3", got)
+		}
+		if len(d.queried) != 1 || d.queried[0] != "aa:bb:cc:dd:ee:ff" {
+			t.Errorf("switchIPsForMacs queried %v, want only aa:bb:cc:dd:ee:ff", d.queried)
+		}
+	})
+
+	t.Run("no valid MAC, no query", func(t *testing.T) {
+		d := &locationlogDriver{}
+		locationlogHandler(t, d).switchIPsForMacs(ctx, []string{"not-a-mac"})
+		if d.queries != 0 {
+			t.Errorf("switchIPsForMacs ran %d queries for no valid MAC, want 0", d.queries)
 		}
 	})
 
 	t.Run("failed read", func(t *testing.T) {
 		h := locationlogHandler(t, &locationlogDriver{queryErr: errors.New("lost connection during query")})
-		if got := h.switchIPForMac(ctx, mac); got != "" {
-			t.Errorf("switchIPForMac on a failed read = %q, want an empty string", got)
+		if got := h.switchIPsForMacs(ctx, []string{"00:11:22:33:44:55"}); len(got) != 0 {
+			t.Errorf("switchIPsForMacs on a failed read = %v, want none", got)
 		}
 	})
 }
@@ -153,58 +177,27 @@ func TestSwitchIPForMac(t *testing.T) {
 // Every way the device's connector can fail to resolve must fall back to the
 // configured collector, which is what the deployment used before this targeting
 // existed.
-func TestCollectorClientForMacFallsBackToTheConfiguredCollector(t *testing.T) {
+func TestCollectorClientForSwitchIPFallsBackToTheConfiguredCollector(t *testing.T) {
 	ctx := log.LoggerDummyContext()
-	const mac = "00:11:22:33:44:55"
 	fallback := &fakeCollector{name: "configured"}
 
 	cases := []struct {
 		name       string
-		handler    func(t *testing.T) APIHandler
+		switchIP   string
 		connectors map[string][]string
 	}{
-		{
-			name:       "no database handle",
-			handler:    func(t *testing.T) APIHandler { return APIHandler{} },
-			connectors: map[string][]string{"connA": {"10.1.0.0/16"}},
-		},
-		{
-			name: "no open locationlog session",
-			handler: func(t *testing.T) APIHandler {
-				return locationlogHandler(t, &locationlogDriver{})
-			},
-			connectors: map[string][]string{"connA": {"10.1.0.0/16"}},
-		},
-		{
-			name: "unparseable switch IP",
-			handler: func(t *testing.T) APIHandler {
-				return locationlogHandler(t, &locationlogDriver{switchIP: "not-an-ip"})
-			},
-			connectors: map[string][]string{"connA": {"10.1.0.0/16"}},
-		},
-		{
-			name: "switch IP behind no connector",
-			handler: func(t *testing.T) APIHandler {
-				return locationlogHandler(t, &locationlogDriver{switchIP: "192.168.1.1"})
-			},
-			connectors: map[string][]string{"connA": {"10.1.0.0/16"}},
-		},
-		{
-			name: "device on the local connector",
-			handler: func(t *testing.T) APIHandler {
-				return locationlogHandler(t, &locationlogDriver{switchIP: "192.168.1.1"})
-			},
-			connectors: map[string][]string{"local_connector": {}},
-		},
+		{name: "no open locationlog session", connectors: map[string][]string{"connA": {"10.1.0.0/16"}}},
+		{name: "unparseable switch IP", switchIP: "not-an-ip", connectors: map[string][]string{"connA": {"10.1.0.0/16"}}},
+		{name: "switch IP behind no connector", switchIP: "192.168.1.1", connectors: map[string][]string{"connA": {"10.1.0.0/16"}}},
+		{name: "device on the local connector", switchIP: "192.168.1.1", connectors: map[string][]string{"local_connector": {}}},
 	}
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			h := c.handler(t)
 			cache := map[string]collectorCaller{}
-			got := h.collectorClientForMac(ctx, mac, fallback, connectorsFor(t, c.connectors), cache)
+			got := collectorClientForSwitchIP(ctx, c.switchIP, fallback, connectorsFor(t, c.connectors), cache)
 			if got != collectorCaller(fallback) {
-				t.Errorf("collectorClientForMac = %#v, want the configured collector", got)
+				t.Errorf("collectorClientForSwitchIP = %#v, want the configured collector", got)
 			}
 
 			if len(cache) != 0 {
@@ -214,22 +207,42 @@ func TestCollectorClientForMacFallsBackToTheConfiguredCollector(t *testing.T) {
 	}
 }
 
+func TestHasRemoteConnectors(t *testing.T) {
+	ctx := log.LoggerDummyContext()
+	cases := []struct {
+		name       string
+		connectors map[string][]string
+		want       bool
+	}{
+		{name: "local connector only", connectors: map[string][]string{"local_connector": {}}, want: false},
+		{name: "remote connector without networks", connectors: map[string][]string{"local_connector": {}, "connA": {}}, want: false},
+		{name: "remote connector with networks", connectors: map[string][]string{"local_connector": {}, "connA": {"10.1.0.0/16"}}, want: true},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := connectorsFor(t, c.connectors).HasRemoteConnectors(ctx); got != c.want {
+				t.Errorf("HasRemoteConnectors = %v, want %v", got, c.want)
+			}
+		})
+	}
+}
+
 // The batch handler resolves one client per connector, not one per MAC: a
 // connector already in the cache must be answered from it, without another
 // endpoint lookup over the tunnel.
-func TestCollectorClientForMacUsesTheCachedClient(t *testing.T) {
+func TestCollectorClientForSwitchIPUsesTheCachedClient(t *testing.T) {
 	ctx := log.LoggerDummyContext()
 	fallback := &fakeCollector{name: "configured"}
 	dedicated := &fakeCollector{name: "connA"}
 
-	h := locationlogHandler(t, &locationlogDriver{switchIP: "10.1.2.3"})
 	connectors := connectorsFor(t, map[string][]string{"connA": {"10.1.0.0/16"}})
 	cache := map[string]collectorCaller{"connA": dedicated}
 
-	for _, mac := range []string{"00:11:22:33:44:55", "00:11:22:33:44:56"} {
-		got := h.collectorClientForMac(ctx, mac, fallback, connectors, cache)
+	for _, switchIP := range []string{"10.1.2.3", "10.1.2.4"} {
+		got := collectorClientForSwitchIP(ctx, switchIP, fallback, connectors, cache)
 		if got != collectorCaller(dedicated) {
-			t.Fatalf("%s: collectorClientForMac = %#v, want the cached connA collector", mac, got)
+			t.Fatalf("%s: collectorClientForSwitchIP = %#v, want the cached connA collector", switchIP, got)
 		}
 	}
 }
@@ -247,11 +260,11 @@ func TestBuildCollectorClientFromEndpointRejectsAMalformedURL(t *testing.T) {
 func TestHandlerMethodsSeeTheDatabaseSetAfterRegistration(t *testing.T) {
 	ctx := log.LoggerDummyContext()
 	m := &APIHandler{}
-	bound := m.switchIPForMac
-	m.db = locationlogHandler(t, &locationlogDriver{switchIP: "10.1.2.3"}).db
+	bound := m.switchIPsForMacs
+	m.db = locationlogHandler(t, &locationlogDriver{switchIPs: map[string]string{"00:11:22:33:44:55": "10.1.2.3"}}).db
 
-	if got := bound(ctx, "00:11:22:33:44:55"); got != "10.1.2.3" {
-		t.Errorf("switchIPForMac bound before the handle was set = %q, want 10.1.2.3", got)
+	if got := bound(ctx, []string{"00:11:22:33:44:55"}); got["00:11:22:33:44:55"] != "10.1.2.3" {
+		t.Errorf("switchIPsForMacs bound before the handle was set = %v, want 00:11:22:33:44:55 => 10.1.2.3", got)
 	}
 }
 
