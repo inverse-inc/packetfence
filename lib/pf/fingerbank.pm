@@ -108,6 +108,12 @@ sub process {
     
     my $node_before = node_attributes($mac);
 
+    # A node without a device type (ex: deleted then recreated) must be profiled even if
+    # this MAC was processed recently, the query rate limit below still applies
+    if (!$node_before || !$node_before->{device_type}) {
+        $force = $TRUE;
+    }
+
     my $cache = cache();
     my $cache_key = "pf::fingerbank::process($mac)";
 
