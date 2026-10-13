@@ -27,7 +27,18 @@ my %FIELD_VALIDATORS = (
     'upstream.api_key' => sub {
       my (undef, $field) = @_;
       my $key = $field->value;
-      my ($result, $msg) = fingerbank::API->new_from_config->test_key($key);
+      # Test the key with the submitted upstream settings, not the saved ones,
+      # so wrong saved settings can be fixed
+      my $api = fingerbank::API->new_from_config;
+      my $form = $field->form;
+      for my $name (qw(host port use_https)) {
+          my $submitted = $form->field($name);
+          next unless $submitted;
+          # The fields may not be validated yet, fall back to their input
+          my $value = $submitted->value // $submitted->input;
+          $api->$name($value) if defined($value) && $value ne '';
+      }
+      my ($result, $msg) = $api->test_key($key);
       if(is_error($result)) {
         $field->add_error($msg);
       }
