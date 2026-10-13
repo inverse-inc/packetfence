@@ -13,6 +13,7 @@ export {
   BaseFormGroupSwitch                as FormGroupAllowUsernamePassword,
   BaseFormGroupInput                 as FormGroupSsoAuthorizePath,
   BaseFormGroupInput                 as FormGroupSsoBaseUrl,
+  BaseFormGroupInput                 as FormGroupSsoCallbackAllowedHosts,
   BaseFormGroupInput                 as FormGroupSsoLoginPath,
   BaseFormGroupInput                 as FormGroupSsoLoginText,
   BaseFormGroupSwitch                as FormGroupSsoStatus,

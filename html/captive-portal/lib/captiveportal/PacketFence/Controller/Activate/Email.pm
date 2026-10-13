@@ -129,6 +129,8 @@ sub login : Private {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
+    # Single sign-on through the SelfRegSSO root module, back to this activation link
+    $self->stashSsoLogin($c);
     $c->stash(
         title => "Guest Sponsor Login",
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
@@ -177,34 +179,53 @@ sub doSponsorRegistration : Private {
             # so we go ahead and allow the guest in
             if ( !defined( $c->user_session->{"username"} ) ) {
 
+                if ( my $token = $request->param("token") ) {
+                    # Sponsor is coming back from the single sign-on flow (SelfRegSSO root module)
+                    $self->loginFromSsoToken($c, $token);
+                    $c->detach('login') if $c->has_errors;
+                }
                 # User is not logged and didn't provide username or password: show login form
-                if (!(  $request->param("username") && $request->param("password")
-                    )
-                  ) {
+                elsif ( !( $request->param("username") && $request->param("password") ) || !$self->ssoPasswordLoginAllowed ) {
                     $logger->info(
                         "Sponsor needs to authenticate in order to activate guest. Guest token: $code"
                     );
                     $c->detach('login');
                 }
-
-                # User provided username and password: authenticate
-                $c->forward(Authenticate => 'authenticationLogin');
-                $c->detach('login') if $c->has_errors;
+                else {
+                    # User provided username and password: authenticate
+                    $c->forward(Authenticate => 'authenticationLogin');
+                    $c->detach('login') if $c->has_errors;
+                }
             }
-            # Verify if the user has the role mark as sponsor
+            # Verify if the user has the role mark as sponsor.
+            # After a single sign-on the rules were already evaluated with the full source context
+            # (SAML/OAuth attributes) by the portal modules, so we use those results.
+            my $sponsor_sso = $c->user_session->{sso_login};
             my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::MARK_AS_SPONSOR, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
-            my $values = $matched->{values};
+            my $values;
+            if ($sponsor_sso) {
+                $values = {
+                    $Actions::MARK_AS_SPONSOR      => $sponsor_sso->{mark_as_sponsor},
+                    $Actions::SET_ACCESS_DURATIONS => $sponsor_sso->{access_durations},
+                };
+            }
+            else {
+                my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::MARK_AS_SPONSOR, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+                $values = $matched->{values};
+            }
 
             unless (defined $values->{$Actions::MARK_AS_SPONSOR}) {
                 $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
                 $c->user_session->{username} = undef;
+                delete $c->user_session->{sso_login};
                 $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
 
-            $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::SET_ACCESS_DURATIONS, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
-            $values = $matched->{values};
+            unless ($sponsor_sso) {
+                my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::SET_ACCESS_DURATIONS, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+                $values = $matched->{values};
+            }
             if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
                 if ($request->param("access_duration")) {
                     my $unregdate = pf::config::access_duration($request->param("access_duration"));

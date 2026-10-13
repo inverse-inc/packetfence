@@ -32,6 +32,11 @@
                                    :text="$i18n.t('The path to obtain the authorization data after the SSO.')"
     />
 
+    <form-group-sso-callback-allowed-hosts namespace="sso_callback_allowed_hosts"
+                                           :column-label="$i18n.t('SSO Callback Allowed Hosts')"
+                                           :text="$i18n.t('Comma-separated hostnames the SSO flow may redirect back to with the login token. The host of the SSO base URL and this server hostname.domain are always allowed.')"
+    />
+
     <form-group-allow-username-password namespace="allow_username_password"
                                         :column-label="$i18n.t('Allow SSO username and password')"
                                         :text="$i18n.t('Whether or not username/password authentication is allowed for the admin interface login. Disabling this will force users to use SSO. Changing this requires to restart the api-frontend service.')"
@@ -49,6 +54,7 @@ import {
   FormGroupAllowUsernamePassword,
   FormGroupSsoAuthorizePath,
   FormGroupSsoBaseUrl,
+  FormGroupSsoCallbackAllowedHosts,
   FormGroupSsoLoginPath,
   FormGroupSsoLoginText,
   FormGroupSsoStatus,
@@ -60,6 +66,7 @@ const components = {
   FormGroupAllowUsernamePassword,
   FormGroupSsoAuthorizePath,
   FormGroupSsoBaseUrl,
+  FormGroupSsoCallbackAllowedHosts,
   FormGroupSsoLoginPath,
   FormGroupSsoLoginText,
   FormGroupSsoStatus,
