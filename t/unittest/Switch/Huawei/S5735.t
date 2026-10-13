@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 31;
+use Test::More tests => 42;
 use pf::Switch::Huawei::S5735;
 use pf::Switch::Huawei::S5710;
 
@@ -115,27 +115,75 @@ is(
 );
 
 is(
-    $switch->acl_chewer("permit gre any host 10.0.0.1", 'testrole'),
-    "",
+    $switch->acl_chewer("permit gre any host 10.0.0.1\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
     "a protocol with no HW-Data-Filter keyword is dropped"
 );
 
 is(
-    $switch->acl_chewer("permit tcp any host 10.0.0.1 range 80 443", 'testrole'),
-    "",
+    $switch->acl_chewer("permit tcp any host 10.0.0.1 range 80 443\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
     "a port range is dropped, only eq is supported"
 );
 
 is(
-    $switch->acl_chewer("permit tcp any host 10.0.0.1 gt 1024", 'testrole'),
-    "",
+    $switch->acl_chewer("permit tcp any host 10.0.0.1 gt 1024\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
     "a port operator other than eq is dropped"
 );
 
 is(
-    $switch->acl_chewer("permit ip any 10.0.0.0 0.0.255.0", 'testrole'),
-    "",
+    $switch->acl_chewer("permit ip any 10.0.0.0 0.0.255.0\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
     "a non contiguous wildcard mask has no prefix length and is dropped"
+);
+
+is(
+    $switch->acl_chewer("permit tcp any any established\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
+    "TCP flags have no keyword, dropping only the flag would permit every TCP packet"
+);
+
+is(
+    $switch->acl_chewer("permit icmp any any echo\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
+    "an ICMP type has no keyword, dropping only the type would permit every ICMP packet"
+);
+
+# acl_chewer: a deny that cannot be represented ends the access list with the
+# catch all, skipping it would let the rules after it allow what it blocks
+
+is(
+    $switch->acl_chewer("permit udp any any eq 53\ndeny tcp any any gt 1024\npermit ip any any", 'testrole'),
+    "permit udp dst any 53\ndeny\n",
+    "a deny with a port operator other than eq cuts the access list"
+);
+
+is(
+    $switch->acl_chewer("deny tcp any any established\npermit ip any any", 'testrole'),
+    "deny\n",
+    "a deny with TCP flags cuts the access list"
+);
+
+is(
+    $switch->acl_chewer("out|deny ip any host 10.0.0.1\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
+    "an outbound deny is only dropped, the attribute never enforces it"
+);
+
+# acl_chewer: a role whose ACLs are all dropped is denied everything, sending
+# no rule at all would leave the endpoint unrestricted
+
+is(
+    $switch->acl_chewer("permit tcp any any gt 1024", 'testrole'),
+    "deny\n",
+    "a role whose ACLs are all dropped gets the catch all deny"
+);
+
+is(
+    $switch->acl_chewer("#permit ip any any", 'testrole'),
+    "",
+    "a role without any ACL entry still gets no access list"
 );
 
 # _dataFilterRules: numbering, the catch all, and the rule budget
@@ -162,6 +210,32 @@ is_deeply(
     [$switch->_dataFilterRules("permit gre any any\n", 'testrole')],
     ['$1 deny'],
     "an access list that is entirely untranslatable denies rather than opens up"
+);
+
+is_deeply(
+    [$switch->_dataFilterRules($switch->acl_chewer("permit udp any any eq 53\ndeny tcp any any gt 1024\npermit ip any any", 'testrole'), 'testrole')],
+    ['$1 permit udp dst any 53', '$2 deny'],
+    "a role access list cut by acl_chewer ends with a single catch all"
+);
+
+is_deeply(
+    [$switch->_dataFilterRules($switch->acl_chewer("permit tcp any any gt 1024", 'testrole'), 'testrole')],
+    ['$1 deny'],
+    "a role whose ACLs are all dropped reaches the switch as the catch all only"
+);
+
+# _getAccessListByName returns bypass_acls and switch entry ACLs untouched, so
+# they are translated line by line here and the cut has to happen here too.
+is_deeply(
+    [$switch->_dataFilterRules("permit udp any any eq 53\ndeny tcp any any gt 1024\npermit ip any any\n", 'testrole')],
+    ['$1 permit udp dst any 53', '$2 deny'],
+    "raw Cisco syntax stops at a deny that cannot be represented"
+);
+
+is_deeply(
+    [$switch->_dataFilterRules("permit tcp any any gt 1024\npermit ip any host 10.0.0.9\n", 'testrole')],
+    ['$1 permit dst 10.0.0.9/32', '$2 deny'],
+    "raw Cisco syntax only skips a permit that cannot be represented"
 );
 
 is_deeply(

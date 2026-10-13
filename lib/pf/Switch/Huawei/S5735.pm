@@ -52,6 +52,14 @@ C<Acct-Session-Id> does not match the current session (no Disconnect-NAK), and
 the endpoint stays online, so a stale accounting session id would make every
 re-evaluation fail without an error.
 
+=head2 A deny that cannot be represented ends the access list
+
+A permit the attribute cannot carry (a port operator other than C<eq>, TCP flags,
+an ICMP type, a protocol without keyword, a non contiguous mask) is dropped,
+which only narrows the role. A deny it cannot carry is not dropped: the access
+list is cut there and ends with the catch all deny, otherwise the rules after it
+would allow what it blocks.
+
 =head2 Outbound access lists cannot be represented
 
 The authentication profile filters traffic sent by the endpoint (control
@@ -203,14 +211,16 @@ sub _dataFilterRules {
         next if $line !~ /\S/;
 
         my @chewed;
+        my $cut;
         if ($self->_isDataFilterRule($line)) {
             # already in the switch's syntax, only the numbering is redone
             $line =~ s/^\s*\$\d+\s+//;
+            $line =~ s/\s+$//;
             @chewed = ($line);
         }
         else {
-            @chewed = grep { $self->_isDataFilterRule($_) }
-                split(/\n/, $self->acl_chewer($line, $role) // '');
+            my ($entries) = $self->_chewEntries($line, $role);
+            @chewed = grep { $self->_isDataFilterRule($_) } @$entries;
         }
 
         if (!@chewed) {
@@ -218,6 +228,8 @@ sub _dataFilterRules {
             next;
         }
         push @rules, @chewed;
+        # nothing after a catch all deny can match
+        last if $chewed[-1] eq 'deny';
     }
 
     my @numbered;
@@ -247,7 +259,7 @@ sub _dataFilterRules {
     # list is written against has to be spelled out. It is appended even when
     # nothing survived the translation: denying the endpoint is visible and
     # fixable, silently granting it full access is not.
-    push @numbered, '$' . $i . ' deny';
+    push @numbered, '$' . $i . ' deny' if !@numbered || $numbered[-1] !~ /^\$\d+ deny$/;
 
     return @numbered;
 }
@@ -304,18 +316,52 @@ access list when one rule does not parse, and leaves the endpoint unrestricted.
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
 
-    my ($acl_ref, @direction) = $self->format_acl($acl);
-
-    my $chewed = '';
-    my $i = 0;
-    foreach my $entry (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        my $dir = $direction[$i++] // 'in';
-        my $rule = $self->_dataFilterRule($entry, $dir, $role);
-        next if !defined $rule;
-        $chewed .= $rule . "\n";
+    my ($rules, $had_entries) = $self->_chewEntries($acl, $role);
+    if (!@$rules && $had_entries) {
+        # The role has ACLs but none of them can be sent. Sending no rule at all
+        # leaves the endpoint unrestricted, since the switch permits what no
+        # rule matches.
+        $self->logger->warn("(".$self->{'_id'}.") Denying everything to role '$role': none of its ACLs can be expressed as an HW-Data-Filter rule");
+        return "deny\n";
     }
 
-    return $chewed;
+    return join('', map { "$_\n" } @$rules);
+}
+
+=head2 _chewEntries
+
+Translate the entries of an access list. Returns the rules, whether the access
+list had any entry, and whether it was cut.
+
+A permit that cannot be represented is dropped, which only narrows the role. A
+deny that cannot be represented would let the rules after it allow what it
+blocks, so the list is cut there and ends with the catch all C<deny>.
+
+=cut
+
+sub _chewEntries {
+    my ($self, $acl, $role) = @_;
+
+    my ($acl_ref, @direction) = $self->format_acl($acl);
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+
+    my @rules;
+    my $i = 0;
+    foreach my $entry (@$entries) {
+        my $dir = $direction[$i++] // 'in';
+        my $rule = $self->_dataFilterRule($entry, $dir, $role);
+        if (!defined $rule) {
+            # an egress rule is never enforced by the attribute, dropping it
+            # changes nothing on the switch
+            next if $dir eq 'out' || $entry->{'action'} ne 'deny';
+            $self->logger->warn("(".$self->{'_id'}.") Ending the ACLs of role '$role' with a deny all: a deny that cannot be represented must not let the ACLs after it through");
+            push @rules, 'deny';
+            return (\@rules, scalar(@$entries), $TRUE);
+        }
+        push @rules, $rule;
+    }
+
+    return (\@rules, scalar(@$entries), $FALSE);
 }
 
 =head2 _dataFilterRule
@@ -333,6 +379,18 @@ sub _dataFilterRule {
     # egress access list has no equivalent.
     if ($dir eq 'out') {
         $logger->warn("(".$self->{'_id'}.") Skipping outbound ACL of role '$role': HW-Data-Filter only filters traffic sent by the endpoint");
+        return;
+    }
+
+    # There is no TCP flag or ICMP type keyword. Dropping the qualifier would
+    # turn "permit tcp any any established" into a permit of every TCP packet,
+    # so the whole rule is dropped instead.
+    if (defined $entry->{'tcp_flags'}) {
+        $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': HW-Data-Filter has no TCP flags keyword ('".$entry->{'tcp_flags'}."')");
+        return;
+    }
+    if (defined $entry->{'icmp_qualifier'}) {
+        $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': HW-Data-Filter has no ICMP type keyword ('".$entry->{'icmp_qualifier'}."')");
         return;
     }
 
