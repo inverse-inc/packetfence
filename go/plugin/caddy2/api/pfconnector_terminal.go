@@ -120,7 +120,7 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal/"+connectorID)
 		r.Host = "127.0.0.1:8081"
-		r.URL.Path = "api/v1/terminal" + r.URL.Path
+		r.URL.Path = "/api/v1/terminal" + r.URL.Path
 		r.Header.Set("X-Forwarded-For", "127.0.0.1")
 		// Never forward the admin's credentials (API token cookie or header,
 		// terminal access token) to the connector-remote: gotty needs none
