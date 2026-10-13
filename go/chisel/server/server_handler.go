@@ -149,8 +149,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//missing :O
-	w.WriteHeader(404)
-	w.Write([]byte("Not found"))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: "Unknown path " + r.URL.Path})
 }
 
 // dhcpEvent mirrors the fingerbank-collector's dhcp_forwarder.DhcpEvent JSON.

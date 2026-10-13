@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -95,6 +96,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/pki/") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": http.StatusNotFound, "message": "Unknown path " + r.URL.Path})
 		return nil
 	}
 

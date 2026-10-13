@@ -3,8 +3,10 @@ package pfipset
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -173,6 +175,13 @@ func (h *PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 		h.router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/ipset/") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": http.StatusNotFound, "message": "Unknown path " + r.URL.Path})
 		return nil
 	}
 
