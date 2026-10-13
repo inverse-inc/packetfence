@@ -61,7 +61,10 @@ sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger();
 
-    $uri = $self->protocol."://".$self->host.":".$self->port."/".$uri;
+    my $host = $self->host;
+    # An IPv6 address must be enclosed in brackets in a URL
+    $host = "[$host]" if $host =~ /:/ && $host !~ /^\[/;
+    $uri = $self->protocol."://".$host.":".$self->port."/".$uri;
 
     my $curl = pf::Curl::easy();
     my $request = $post_fields;
