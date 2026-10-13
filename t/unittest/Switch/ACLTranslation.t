@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 58;
+use Test::More tests => 62;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -48,6 +48,14 @@ sub chew {
     return $switch->acl_chewer($acl, 'testrole') // '';
 }
 
+# What a switch gets when none of the ACLs of a role can be sent: a deny of
+# everything, in the format of the module, never no ACL at all, which would
+# leave the device unrestricted.
+sub deny_all {
+    my ($switch) = @_;
+    return chew($switch, "deny ip any any");
+}
+
 # NAS-Filter-Rule: what can be expressed
 
 is(chew($aruba, "permit tcp any host 10.0.0.1 eq 443"), "in|permit in tcp from any to 10.0.0.1 443\n", "Aruba CX: eq port");
@@ -55,14 +63,21 @@ is(chew($arista, "permit tcp any host 10.0.0.1 eq 443"), "in|permit in 6 from an
 is(chew($aos, "permit tcp any host 10.0.0.1 eq 443"), "in|permit in tcp from any to 10.0.0.1 443\n", "AOS: the destination port is sent, it used to be dropped");
 is(chew($aruba, "permit tcp any any range 100 200"), "in|permit in tcp from any to any 100-200\n", "Aruba CX: a range becomes a port range");
 
-# NAS-Filter-Rule: a permit that cannot be expressed is skipped
+# NAS-Filter-Rule: a permit that cannot be expressed is skipped. Alone, it leaves
+# nothing to send, so the role is denied everything rather than unrestricted.
+
+is(
+    chew($aruba, "permit tcp any any gt 1024"),
+    "in|deny in ip from any to any \n",
+    "Aruba CX: a role whose ACLs are all skipped is denied everything, not sent no ACL"
+);
 
 foreach my $switch ([$aruba, 'Aruba CX'], [$arista, 'Arista'], [$aos, 'AOS']) {
     my ($s, $name) = @$switch;
-    is(chew($s, "permit ip host 10.1.1.1 any"), "", "$name: a source address is not dropped into a permit from any");
-    is(chew($s, "permit udp any eq 53 any"), "", "$name: a source port is not dropped into a permit of every port");
-    is(chew($s, "permit tcp any any gt 1024"), "", "$name: gt is not turned into eq or dropped");
-    is(chew($s, "permit icmp any any echo"), "", "$name: an ICMP type is not dropped into a permit of all ICMP");
+    is(chew($s, "permit ip host 10.1.1.1 any"), deny_all($s), "$name: a source address is not dropped into a permit from any");
+    is(chew($s, "permit udp any eq 53 any"), deny_all($s), "$name: a source port is not dropped into a permit of every port");
+    is(chew($s, "permit tcp any any gt 1024"), deny_all($s), "$name: gt is not turned into eq or dropped");
+    is(chew($s, "permit icmp any any echo"), deny_all($s), "$name: an ICMP type is not dropped into a permit of all ICMP");
     is(
         chew($s, "permit tcp any any established\npermit ip any host 8.8.8.8"),
         chew($s, "permit ip any host 8.8.8.8"),
@@ -70,7 +85,7 @@ foreach my $switch ([$aruba, 'Aruba CX'], [$arista, 'Arista'], [$aos, 'AOS']) {
     );
 }
 
-is(chew($arista, "permit tcp any any range 100 200"), "", "Arista: a range is not sent as two bare ports");
+is(chew($arista, "permit tcp any any range 100 200"), deny_all($arista), "Arista: a range is not sent as two bare ports");
 
 # NAS-Filter-Rule: a deny that cannot be expressed ends the ACLs with a deny all
 
@@ -94,7 +109,7 @@ is(
 
 foreach my $switch ([$aruba, 'Aruba CX'], [$arista, 'Arista'], [$aos, 'AOS'], [$forti, 'FortiSwitch']) {
     my ($s, $name) = @$switch;
-    is(chew($s, "permit ip any 10.0.0.0 0.255.0.255"), "", "$name: a non contiguous mask is skipped instead of dying");
+    is(chew($s, "permit ip any 10.0.0.0 0.255.0.255"), deny_all($s), "$name: a non contiguous mask is skipped instead of dying");
 }
 
 is($cisco->aclWildcardIsContiguous('0.0.0.255'), 1, "a wildcard is contiguous");
@@ -109,26 +124,26 @@ is(chew($cisco, "permit tcp any host 10.0.0.1 eq 443"), "in|permit tcp any host 
 is(chew($cisco, "permit tcp any any gt 1024"), "in|permit tcp any any gt 1024\n", "Cisco: port operators are sent");
 is(chew($cisco, "permit tcp any any established"), "in|permit tcp any any  established\n", "Cisco: TCP flags are sent");
 is(chew($cisco, "permit ip any 10.0.0.0 0.255.0.255"), "in|permit ip any 10.0.0.0 0.255.0.255\n", "Cisco: a non contiguous wildcard is sent as is");
-is(chew($cisco, "permit ip host 10.1.1.1 any"), "", "Cisco: a source address is not replaced by the endpoint");
-is(chew($cisco, "permit udp any eq 53 any"), "", "Cisco: a source port is not dropped");
-is(chew($cisco, "permit icmp any any echo"), "", "Cisco: an ICMP type is not dropped");
+is(chew($cisco, "permit ip host 10.1.1.1 any"), deny_all($cisco), "Cisco: a source address is not replaced by the endpoint");
+is(chew($cisco, "permit udp any eq 53 any"), deny_all($cisco), "Cisco: a source port is not dropped");
+is(chew($cisco, "permit icmp any any echo"), deny_all($cisco), "Cisco: an ICMP type is not dropped");
 is(chew($cisco, "deny ip host 10.1.1.1 any\npermit ip any any"), "in|deny ip any any\n", "Cisco: a deny that cannot be sent ends the ACLs with a deny all");
 
 # FortiSwitch: NAS-Filter-Rule with the source address
 
 is(chew($forti, "permit ip host 10.1.1.1 any"), "permit in ip from 10.1.1.1/32 to any\n", "FortiSwitch: the source address is sent");
 is(chew($forti, "permit tcp any any range 100 200"), "permit in tcp from any to any 100-200\n", "FortiSwitch: a range becomes a port range");
-is(chew($forti, "permit tcp any any gt 1024"), "", "FortiSwitch: gt is not turned into eq");
-is(chew($forti, "permit tcp any any neq 22"), "", "FortiSwitch: neq is not turned into eq");
-is(chew($forti, "permit udp any eq 53 any"), "", "FortiSwitch: a source port is not dropped");
+is(chew($forti, "permit tcp any any gt 1024"), deny_all($forti), "FortiSwitch: gt is not turned into eq");
+is(chew($forti, "permit tcp any any neq 22"), deny_all($forti), "FortiSwitch: neq is not turned into eq");
+is(chew($forti, "permit udp any eq 53 any"), deny_all($forti), "FortiSwitch: a source port is not dropped");
 is(chew($forti, "deny tcp any any established\npermit ip any any"), "deny in ip from any to any\n", "FortiSwitch: a deny with TCP flags ends the ACLs with a deny all");
 
 # Dell N1500: only a destination host is sent
 
 is(chew($dell, "permit tcp any host 10.0.0.1 eq 443"), "in|permit tcp any host 10.0.0.1 eq 443\n", "Dell N1500: the direction has its separator, the line used to be dropped");
-is(chew($dell, "permit ip any 10.0.0.0 0.0.0.255"), "", "Dell N1500: a network is not turned into a host");
-is(chew($dell, "permit ip host 10.1.1.1 any"), "", "Dell N1500: a source address is not dropped");
-is(chew($dell, "permit tcp any any established"), "", "Dell N1500: TCP flags are not dropped");
+is(chew($dell, "permit ip any 10.0.0.0 0.0.0.255"), deny_all($dell), "Dell N1500: a network is not turned into a host");
+is(chew($dell, "permit ip host 10.1.1.1 any"), deny_all($dell), "Dell N1500: a source address is not dropped");
+is(chew($dell, "permit tcp any any established"), deny_all($dell), "Dell N1500: TCP flags are not dropped");
 is(chew($dell, "deny ip any 10.0.0.0 0.0.0.255\npermit ip any any"), "in|deny ip any any \n", "Dell N1500: a deny of a network ends the ACLs with a deny all");
 is_deeply(
     [$dell->returnAccessListAttribute(101, "in|permit tcp any host 10.0.0.1 eq 443")],
@@ -162,6 +177,42 @@ is_deeply(
     ['out deny ip()', 'in permit ip()'],
     "an outbound cut drops the outbound ACLs after it and keeps the inbound ones"
 );
+
+($entries, @direction) = pf::Switch::filterUntranslatableAcls(
+    $aruba,
+    { packetfence => { entries => [
+        { action => 'permit', protocol => 'tcp(6)', source => $any, destination => $any, bad => 1 },
+        { action => 'permit', protocol => 'ip()',   source => $any, destination => $any },
+        { action => 'permit', protocol => 'tcp(6)', source => $any, destination => $any, bad => 1 },
+    ] } },
+    ['in', 'out', 'in'],
+    'testrole',
+    sub { $_[0]->{bad} ? 'bad' : undef },
+);
+is_deeply(
+    [map { "$direction[$_] $entries->[$_]{action} $entries->[$_]{protocol}" } 0 .. $#$entries],
+    ['out permit ip()', 'in deny ip()'],
+    "a direction whose ACLs were all skipped is denied everything, the other direction is kept"
+);
+
+($entries, @direction) = pf::Switch::filterUntranslatableAcls(
+    $aruba,
+    { packetfence => { entries => [
+        { action => 'permit', protocol => 'tcp(6)', source => $any, destination => $any, bad => 1 },
+        { action => 'permit', protocol => 'ip()',   source => $any, destination => $any },
+    ] } },
+    ['in', 'in'],
+    'testrole',
+    sub { $_[0]->{bad} ? 'bad' : undef },
+);
+is_deeply(
+    [map { "$direction[$_] $entries->[$_]{action} $entries->[$_]{protocol}" } 0 .. $#$entries],
+    ['in permit ip()'],
+    "a direction that keeps an ACL gets no extra deny, the switch denies the rest"
+);
+
+($entries, @direction) = pf::Switch::filterUntranslatableAcls($aruba, { packetfence => { entries => [] } }, [], 'testrole', sub { undef });
+is_deeply($entries, [], "a role without ACLs gets none");
 
 =head1 AUTHOR
 

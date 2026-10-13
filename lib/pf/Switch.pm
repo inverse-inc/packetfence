@@ -4389,6 +4389,10 @@ entry is dropped. Skipping a deny would let the entries after it allow what it
 blocks, so the ACLs of that direction are cut there and end with a deny of
 everything.
 
+A direction whose entries were all skipped also gets that deny of everything:
+sending no ACL at all would leave the device unrestricted, while the switch
+denies whatever an ACL does not permit.
+
 Returns the entries to translate and their direction, like L</format_acl>.
 
 =cut
@@ -4397,7 +4401,7 @@ sub filterUntranslatableAcls {
     my ($self, $acl_ref, $direction, $role, $untranslatable) = @_;
     my $logger = $self->logger;
 
-    my (@entries, @entries_direction, %cut);
+    my (@entries, @entries_direction, %cut, %kept, %skipped);
     my $i = 0;
     foreach my $entry (@{$acl_ref->{'packetfence'}->{'entries'} // []}) {
         my $dir = $direction->[$i++];
@@ -4407,24 +4411,38 @@ sub filterUntranslatableAcls {
         if (!defined $reason) {
             push @entries, $entry;
             push @entries_direction, $dir;
+            $kept{$dir_key} = 1;
             next;
         }
         if ($entry->{'action'} ne 'deny') {
             $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
+            $skipped{$dir_key} //= $dir;
             next;
         }
         $logger->warn("(".$self->{'_id'}.") Ending the $dir_key ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through");
-        push @entries, {
-            action      => 'deny',
-            protocol    => 'ip()',
-            source      => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
-            destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
-        };
+        push @entries, _denyAllAclEntry();
         push @entries_direction, $dir;
         $cut{$dir_key} = 1;
+        $kept{$dir_key} = 1;
+    }
+
+    foreach my $dir_key (sort keys %skipped) {
+        next if $kept{$dir_key};
+        $logger->warn("(".$self->{'_id'}.") Denying all the $dir_key traffic of role '$role': none of its $dir_key ACLs can be sent, and sending none would leave the device unrestricted");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $skipped{$dir_key};
     }
 
     return (\@entries, @entries_direction);
+}
+
+sub _denyAllAclEntry {
+    return {
+        action      => 'deny',
+        protocol    => 'ip()',
+        source      => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+        destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+    };
 }
 
 =head2 untranslatableFilterRule
