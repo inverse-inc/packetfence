@@ -492,18 +492,29 @@ sub radiusDisconnect {
     my $response;
     try {
         my $locationlog = locationlog_view_open_mac($mac);
+        # The locationlog can already be closed (e.g. the node was deleted), use the last known AP
+        if (!$locationlog || !$locationlog->{'switch_mac'}) {
+            my $last = locationlog_last_entry_mac(clean_mac($mac));
+            $locationlog = $last if ($last && $last->{'switch_mac'});
+        }
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
+        my $original_mac = $mac;
         $mac = uc($mac);
         $mac =~ s/:/-/g;
-        my $nasID = $locationlog->{'switch_mac'};
-        $nasID =~ s/://g;
         # Standard Attributes
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-            'NAS-Identifier' => $nasID,
         };
+        my $nasID = $locationlog ? $locationlog->{'switch_mac'} : undef;
+        if (defined($nasID) && $nasID ne '') {
+            $nasID =~ s/://g;
+            $attributes_ref->{'NAS-Identifier'} = $nasID;
+        } else {
+            # An empty NAS-Identifier makes the AP drop the request ("parse DA message failed")
+            $logger->warn("No AP MAC address found in the locationlog of $original_mac, sending the Disconnect-Request without NAS-Identifier");
+        }
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
