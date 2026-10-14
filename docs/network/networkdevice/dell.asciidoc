@@ -170,9 +170,10 @@ On each interface (not uplink)
 
 ==== N1500 Series (FW >= 6.6.0.17)
 
-This configuration has been tested with firmware 6.6.0.17
+This configuration has been tested with firmware 6.6.0.17 and validated again
+with firmware 6.8.1.11 (802.1X PEAP, MAB, RADIUS VLAN assignment and CoA).
 
-Global config settings:
+Global config settings (the PacketFence server is 192.168.1.5):
 
   aaa authentication login "defaultList" local
   authentication enable
@@ -181,19 +182,26 @@ Global config settings:
   aaa authentication dot1x default radius
   aaa authorization network default radius
   aaa accounting dot1x default start-stop radius
+  radius server vsa send authentication
   ip device tracking
-  authentication dynamic-vlan enable
   radius server auth 192.168.1.5
-  key useStrongerSecret
-  usage authmgr
   name "PacketFence"
+  key useStrongerSecret
+  primary
   exit
   radius server acct 192.168.1.5
   name "PacketFenceAccounting"
   key useStrongerSecret
   exit
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key useStrongerSecret
+  exit
   snmp-server community "private" rw
   snmp-server community "public" ro
+
+The `aaa server radius dynamic-author` block is required for the RADIUS
+disconnect (CoA) that PacketFence sends when a device changes role, so set the
+switch *Deauthentication Method* to RADIUS in PacketFence.
 
 802.1X/MAB with VoIP interface configuration:
 
@@ -203,14 +211,30 @@ Global config settings:
   switchport general allowed vlan add 1-4093
   authentication host-mode multi-domain
   authentication periodic
+  authentication order dot1x mab
+  authentication priority dot1x mab
+  dot1x timeout tx-period 5
+  dot1x max-req 2
   dot1x timeout quiet-period 10
   mab auth-type pap
-  authentication order mab
   no authentication allow-unauth dhcp
   lldp tlv-select system-description system-capabilities management-address
   lldp notification
   lldp med confignotification
   switchport voice vlan 100
+
+CAUTION: `switchport mode general` is mandatory on every port managed by
+PacketFence. On a port left in the default access mode the switch accepts the
+Access-Accept but refuses the VLAN (`show logging` reports `... is configured in
+access mode with VLAN 1. VLAN membership change to N is not allowed`) and the
+session is torn down, so the device never gets an address.
+
+NOTE: Keep 802.1X first in `authentication order`. With `authentication order
+mab dot1x` the switch authorizes a supplicant's MAC through MAB and then answers
+the supplicant with an EAP-Failure, so 802.1X never runs. To keep the MAB
+fallback short for devices without a supplicant, lower the EAP timers instead
+(`dot1x timeout tx-period 5` and `dot1x max-req 2` give a fallback to MAB in
+about 10 seconds; the default is around 90 seconds).
 
 Uplink port:
 
@@ -235,12 +259,23 @@ Web-Auth:
 
 ==== N1500 Series (FW >= 6.8)
 
-Downloadable ACLs:
+Dynamic ACLs:
 
-This configuration has been tested on FW 6.8.1.
+This configuration has been tested on FW 6.8.1 (re-validated on 6.8.1.11 with
+MAC authentication and 802.1X). In PacketFence, enable *Role by Access List* on
+the switch and define the access list of the roles the devices land in; the
+rules are sent inline in the Access-Accept as `Cisco-AVPair =
+ip:inacl#101=...`, one attribute per rule. The switch builds a per-session ACL
+named `IP-DACL-IN-<id>#d` that `show ip access-lists` displays bound inbound to
+the port. A `permit tcp any host 9.9.9.9 eq 443` style rule (protocol,
+destination host and port) is accepted.
+
 Important, even if "authentication allow-srcipanyacl enable" has been enable on
 the switch, it doesn't support ACL with source ip and the ACL direction are only
-in.
+in. When a rule cannot be parsed the switch logs `Unsupported type or direction
+received in AV-Pair attribute <rule>` followed by `Unable to validate AV-Pair
+attribute` in `show logging`, and the whole authentication session is dropped
+(the device stays unauthorized), so validate new ACL syntax there first.
 So, for example, if you have this configured in PacketFence:
 
  permit ip 10.0.0.1 host 192.168.3.1
