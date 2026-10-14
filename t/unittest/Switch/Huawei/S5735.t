@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 42;
+use Test::More tests => 47;
 use pf::Switch::Huawei::S5735;
 use pf::Switch::Huawei::S5710;
 
@@ -148,6 +148,41 @@ is(
     $switch->acl_chewer("permit icmp any any echo\npermit ip any host 10.0.0.9", 'testrole'),
     "permit dst 10.0.0.9/32\n",
     "an ICMP type has no keyword, dropping only the type would permit every ICMP packet"
+);
+
+# Qualifiers the parser reads without returning them: the entry of
+# "permit ip any any dscp ef" is the one of "permit ip any any"
+
+is(
+    $switch->acl_chewer("permit ip any any dscp ef\npermit ip any host 10.0.0.9", 'testrole'),
+    "permit dst 10.0.0.9/32\n",
+    "a permit on a DSCP value is dropped, not sent as a permit of everything"
+);
+
+is(
+    $switch->acl_chewer("permit ip any any time-range work", 'testrole'),
+    "deny\n",
+    "a role whose only permit is on a time range is denied everything"
+);
+
+is(
+    $switch->acl_chewer("deny tcp any host 10.0.0.1 eq 80 fragments\npermit ip any any", 'testrole'),
+    "deny\n",
+    "a deny of fragments cuts the access list"
+);
+
+# ACLs the parser cannot read: it returns no entry at all
+
+is(
+    $switch->acl_chewer("permit ip any host 10.0.0.9\npermit ip any any ttl eq 5", 'testrole'),
+    "deny\n",
+    "ACLs that cannot be parsed deny everything instead of sending no rule"
+);
+
+is_deeply(
+    [$switch->_dataFilterRules("permit ip any host 10.0.0.9\npermit ip any any ttl eq 5\npermit ip any any", 'testrole')],
+    ['$1 permit dst 10.0.0.9/32', '$2 deny'],
+    "a line that cannot be parsed ends the access list with the catch all"
 );
 
 # acl_chewer: a deny that cannot be represented ends the access list with the

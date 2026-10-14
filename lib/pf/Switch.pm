@@ -4325,7 +4325,7 @@ sub format_acl {
 
     my $acls = "ip access-list extended packetfence\n";
     my $i = 0;
-    my @direction;
+    my (@direction, @lines);
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
@@ -4356,15 +4356,44 @@ sub format_acl {
             } else {
                 next;
             }
+            $lines[$i] = $raw_acl;
         } else {
             $acls .= $acl_line."\n";
             $direction[$i] = "in";
+            $lines[$i] = $acl_line;
         }
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
+    # The parser drops some qualifiers of a line, keep the line of each entry
+    # for untranslatableAclQualifier
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$entries == @lines) {
+        $entries->[$_]->{'acl_line'} = $lines[$_] for 0 .. $#lines;
+    } else {
+        get_logger->error("Cannot parse the ACLs: " . join(' ', map { s/\s+$//r } @{$err // []}));
+    }
     return ($acl_ref, @direction);
+}
+
+=head2 untranslatableAclQualifier
+
+Why a parsed ACL entry cannot be translated whatever the switch, or undef when
+it can.
+
+Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
+time-range and option qualifiers of a line without returning them, so the entry
+of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
+it would widen the ACL. An "evaluate" line gives an entry with no action.
+
+=cut
+
+sub untranslatableAclQualifier {
+    my ($self, $entry) = @_;
+    return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
+    return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    return undef;
 }
 
 =head2 acl_chewer

@@ -337,6 +337,8 @@ A permit that cannot be represented is dropped, which only narrows the role. A
 deny that cannot be represented would let the rules after it allow what it
 blocks, so the list is cut there and ends with the catch all C<deny>.
 
+ACLs the parser cannot read are replaced by the catch all C<deny>.
+
 =cut
 
 sub _chewEntries {
@@ -344,6 +346,13 @@ sub _chewEntries {
 
     my ($acl_ref, @direction) = $self->format_acl($acl);
     my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+
+    # The parser returns no entry for ACLs it cannot read, and sending no rule
+    # would leave the endpoint unrestricted
+    if (@$entries != @direction) {
+        $self->logger->warn("(".$self->{'_id'}.") Denying everything to role '$role': its ACLs cannot be parsed");
+        return (['deny'], scalar(@direction), $TRUE);
+    }
 
     my @rules;
     my $i = 0;
@@ -379,6 +388,12 @@ sub _dataFilterRule {
     # egress access list has no equivalent.
     if ($dir eq 'out') {
         $logger->warn("(".$self->{'_id'}.") Skipping outbound ACL of role '$role': HW-Data-Filter only filters traffic sent by the endpoint");
+        return;
+    }
+
+    my $reason = $self->untranslatableAclQualifier($entry);
+    if (defined $reason) {
+        $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
         return;
     }
 
