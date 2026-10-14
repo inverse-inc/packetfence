@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 62;
+use Test::More tests => 77;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -213,6 +213,30 @@ is_deeply(
 
 ($entries, @direction) = pf::Switch::filterUntranslatableAcls($aruba, { packetfence => { entries => [] } }, [], 'testrole', sub { undef });
 is_deeply($entries, [], "a role without ACLs gets none");
+
+# Qualifiers the parser reads without returning them: the entry of
+# "permit ip any any dscp ef" is the one of "permit ip any any"
+
+foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
+    is(chew($switch, "permit ip any any dscp ef"), deny_all($switch), ref($switch).": a permit on a DSCP value is skipped, not sent as a permit of everything");
+}
+is(
+    chew($aruba, "permit ip any any precedence 5\npermit tcp any host 10.0.0.1 eq 443\npermit ip any any time-range work"),
+    "in|permit in tcp from any to 10.0.0.1 443\n",
+    "Aruba CX: the permits on a precedence and a time range are skipped, the others are kept"
+);
+is(
+    chew($aruba, "deny tcp any host 10.0.0.1 eq 80 fragments\npermit ip any any"),
+    deny_all($aruba),
+    "Aruba CX: a deny of fragments cuts the ACLs, the permit after it is not sent"
+);
+is(pf::Switch::untranslatableAclQualifier($aruba, { sequence_number => undef, evaluate => 'evaluate' }), "the ACL is not a permit or a deny", "an evaluate entry is not translated");
+
+# ACLs the parser cannot read: it returns no entry at all
+
+foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
+    is(chew($switch, "permit tcp any host 10.0.0.1 eq 443\npermit ip any any ttl eq 5"), deny_all($switch), ref($switch).": ACLs that cannot be parsed deny everything instead of sending nothing");
+}
 
 =head1 AUTHOR
 

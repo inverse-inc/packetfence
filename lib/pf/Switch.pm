@@ -4325,7 +4325,7 @@ sub format_acl {
 
     my $acls = "ip access-list extended packetfence\n";
     my $i = 0;
-    my @direction;
+    my (@direction, @lines);
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
@@ -4356,15 +4356,44 @@ sub format_acl {
             } else {
                 next;
             }
+            $lines[$i] = $raw_acl;
         } else {
             $acls .= $acl_line."\n";
             $direction[$i] = "in";
+            $lines[$i] = $acl_line;
         }
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
+    # The parser drops some qualifiers of a line, keep the line of each entry
+    # for untranslatableAclQualifier
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$entries == @lines) {
+        $entries->[$_]->{'acl_line'} = $lines[$_] for 0 .. $#lines;
+    } else {
+        get_logger->error("Cannot parse the ACLs: " . join(' ', map { s/\s+$//r } @{$err // []}));
+    }
     return ($acl_ref, @direction);
+}
+
+=head2 untranslatableAclQualifier
+
+Why a parsed ACL entry cannot be translated whatever the switch, or undef when
+it can.
+
+Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
+time-range and option qualifiers of a line without returning them, so the entry
+of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
+it would widen the ACL. An "evaluate" line gives an entry with no action.
+
+=cut
+
+sub untranslatableAclQualifier {
+    my ($self, $entry) = @_;
+    return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
+    return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    return undef;
 }
 
 =head2 acl_chewer
@@ -4393,6 +4422,10 @@ A direction whose entries were all skipped also gets that deny of everything:
 sending no ACL at all would leave the device unrestricted, while the switch
 denies whatever an ACL does not permit.
 
+The entries L</untranslatableAclQualifier> rejects are handled the same way,
+and ACLs the parser cannot read are replaced by a deny of everything in each
+of their directions.
+
 Returns the entries to translate and their direction, like L</format_acl>.
 
 =cut
@@ -4401,13 +4434,21 @@ sub filterUntranslatableAcls {
     my ($self, $acl_ref, $direction, $role, $untranslatable) = @_;
     my $logger = $self->logger;
 
+    my $parsed = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$parsed != @$direction) {
+        my %seen;
+        my @denied = grep { !$seen{$_ // 'in'}++ } @$direction;
+        $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': its ACLs cannot be parsed, and sending none would leave the device unrestricted");
+        return ([map { _denyAllAclEntry() } @denied], @denied);
+    }
+
     my (@entries, @entries_direction, %cut, %kept, %skipped);
     my $i = 0;
-    foreach my $entry (@{$acl_ref->{'packetfence'}->{'entries'} // []}) {
+    foreach my $entry (@$parsed) {
         my $dir = $direction->[$i++];
         my $dir_key = $dir // 'in';
         next if $cut{$dir_key};
-        my $reason = $untranslatable->($entry);
+        my $reason = $self->untranslatableAclQualifier($entry) // $untranslatable->($entry);
         if (!defined $reason) {
             push @entries, $entry;
             push @entries_direction, $dir;
