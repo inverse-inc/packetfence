@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 16;
 use Test::NoWarnings;
 
 use pf::authentication;
@@ -126,6 +126,19 @@ $_->conditions([
 ($rule) = $source->match({ username => 'bob', rule_class => $Rules::AUTH });
 ok(!defined $rule, "No rule matched");
 is($FakeLDAP::SEARCHES, 1, "Three non-matching regexp rules cost one search");
+
+# A rule that dies (invalid regexp) must not leave the request's state on the source
+$rules[0]->conditions([
+    pf::Authentication::Condition->new({
+        attribute => 'memberOf',
+        operator  => $Conditions::MATCHES,
+        value     => 'VLAN_(10',
+        type      => $Conditions::LDAP_ATTRIBUTE,
+    }),
+]);
+ok(!eval { $source->match({ username => 'bob', rule_class => $Rules::AUTH }); 1 }, "An invalid regexp still dies out of match()");
+ok(!defined $source->_search_memo, "The memo is dropped when a rule dies");
+ok(!defined $source->_cached_connection, "The connection is released when a rule dies");
 
 =head1 AUTHOR
 

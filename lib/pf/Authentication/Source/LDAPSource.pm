@@ -464,8 +464,6 @@ sub match_in_subclass {
     if (defined($forcedbasedn) && $forcedbasedn ne '') {
         $basedn = $forcedbasedn;
     }
-    my $rule_id = $rule->id;
-    $logger->warn("[$id $rule_id] Searching for $filter, from $basedn, with scope $self->{'scope'}");
     return $self->_match_in_subclass($basedn, $filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
@@ -515,6 +513,7 @@ sub _match_in_subclass {
         ($result_count, @entries) = ($memo->{$memo_key}{count}, @{$memo->{$memo_key}{entries}});
         $logger->debug("[$self->{'id'} $rule->{'id'}] Reusing the result of the search $filter from $basedn already done for this request");
     } else {
+        $logger->warn("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $basedn, with scope $self->{'scope'}");
         $result = do {
             my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
             $connection->search(
