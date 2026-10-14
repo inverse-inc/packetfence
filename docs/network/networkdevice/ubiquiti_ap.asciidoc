@@ -94,10 +94,13 @@ PacketFence switches with a configuration similar to this:
 Where :
 
 [options="compact"]
-* *wsTransport* is the protocol used to connect to port 8443 of the Unifi controller and should be HTTPS. This is configured in the 'Web Services' tab of the switch.
+* *wsTransport* is the protocol used to talk to the API of the Unifi controller and should be HTTPS (UniFi OS redirects HTTP to HTTPS). This is configured in the 'Web Services' tab of the switch.
 * *wsUser* is a valid administrator username on your Unifi controller. This is configured in the 'Web Services' tab of the switch.
 * *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
 * *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
+* *controllerPort* is the API port of the controller and is normally left empty: PacketFence probes 443 then 11443 (UniFi OS Server) for a UniFi OS controller (UDM, Cloud Key Gen2, UniFi OS Server, ...) and falls back to 8443 for the classic software controller. Set it only when the controller listens elsewhere. This is configured in the 'Definition' tab of the switch.
+
+NOTE: On a UniFi OS controller use a local administrator account of the controller (not a Ubiquiti SSO account); a `403 Forbidden` on `/api/auth/login` in the logs means the credentials are refused. The CSRF token that UniFi OS requires on every command is handled by PacketFence.
 
 ==== VLAN Enforcement
 
