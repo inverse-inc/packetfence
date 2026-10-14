@@ -1928,6 +1928,10 @@ the format of the set type pf::ipset::iptables_generate creates: bitmap:ip
 bitmap:ip,mac (address,mac). Feeding "ip,mac" to a bitmap:ip set is an ipset
 syntax error that aborts the whole restore.
 
+inline_mangle_rules only pre-populates the reg and isolation sets, so it never
+gets the address,mac form; the unreg case mirrors the pfipset daemon, which
+adds to that set too.
+
 =cut
 
 sub _inline_session_entry {
@@ -1956,15 +1960,28 @@ sub _ipset_restore {
     my (@ops) = @_;
     my $logger = get_logger();
 
-    my %sets = map { chomp(my $name = $_); ($name => 1) } safe_pf_run(qw(sudo ipset list -n));
+    # Only filter when the listing succeeded: an empty but successful listing
+    # means no set exists at all, while a failed one tells nothing
+    my $list_status;
+    my @names = safe_pf_run(qw(sudo ipset list -n), { status_ref => \$list_status });
+    my $listed = defined($list_status) && $list_status == 0;
+    my %sets = map { chomp(my $name = $_); ($name => 1) } @names;
+
     my @lines;
+    my %skipped;
     foreach my $op (@ops) {
         my ($set) = $op =~ /^add\s+(\S+)/;
-        if (%sets && defined($set) && !$sets{$set}) {
-            $logger->warn("ipset $set does not exist, skipping '$op'");
+        if ($listed && defined($set) && !$sets{$set}) {
+            push @{$skipped{$set}}, $op;
             next;
         }
         push @lines, $op;
+    }
+    # One warning per missing set: a missing role set would otherwise log one
+    # line per node of that role
+    foreach my $set (sort keys %skipped) {
+        my $count = scalar(@{$skipped{$set}});
+        $logger->warn("ipset $set does not exist, skipping $count " . ($count == 1 ? "entry" : "entries") . " (first: '$skipped{$set}[0]')");
     }
     return 1 unless @lines;
 
