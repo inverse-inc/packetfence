@@ -321,7 +321,7 @@ configreload
 
 sub_splitter
 echo "Updating systemd services state"
-/usr/local/pf/bin/pfcmd service pf updatesystemd
+PF_SKIP_SYSTEMD_TARGET_PROMOTION=1 /usr/local/pf/bin/pfcmd service pf updatesystemd
 
 main_splitter
 echo "Completed the upgrade. Perform any necessary adjustments and restart PacketFence."

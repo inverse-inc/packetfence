@@ -17,7 +17,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Log::Log4perl;
 use File::Basename qw(basename);
 
@@ -84,6 +84,63 @@ foreach my $user_key (sort keys %$snmpv3_users) {
     is($engine_id, shift(@engine_ids), "Engine ID parsed correctly");
     is($username, "readUser", "Username parsed correctly");
 }
+
+subtest 'boot target promotion' => sub {
+    my @cases = (
+        { name => 'installer keeps base target', configurator => 'enabled', skip => 1 },
+        { name => 'CLI promotes configured standalone', target => 'packetfence.target' },
+        { name => 'CLI accepts disabled aliases', configurator => 'no', target => 'packetfence.target' },
+        { name => 'upgrade preserves configured base target', upgrade => 1, skip => 1 },
+        { name => 'upgrade preserves cluster base target', upgrade => 1, cluster => 1, skip => 1 },
+        { name => 'explicit zero does not suppress promotion', upgrade => 0, target => 'packetfence.target' },
+        { name => 'completion promotes with stale configurator cache', configurator => 'enabled', finishing => 1, target => 'packetfence.target' },
+        { name => 'CLI promotes configured cluster', cluster => 1, target => 'packetfence-cluster.target' },
+        { name => 'wizard selects cluster target', configurator => 'enabled', finishing => 1, cluster => 1, target => 'packetfence-cluster.target' },
+        { name => 'preserve standalone target', default => 'packetfence.target' },
+        { name => 'preserve cluster target', default => 'packetfence-cluster.target' },
+        { name => 'preserve administrator target', default => 'multi-user.target' },
+        { name => 'report get-default failure', get_status => 256, error => qr/Unable to read/ },
+        { name => 'reject missing get-default output', empty_output => 1, error => qr/Unable to read/ },
+        { name => 'report set-default failure', target => 'packetfence.target', set_status => 256, error => qr/Unable to set/ },
+    );
+    for my $case (@cases) {
+        subtest $case->{name} => sub {
+            local $ENV{PF_SKIP_SYSTEMD_TARGET_PROMOTION} = $case->{upgrade} // '';
+            my %config = (advanced => { configurator => $case->{configurator} // 'disabled' });
+            my $cluster = $case->{cluster} // 0;
+            my @commands;
+            no warnings qw(redefine once);
+            local *pf::services::Config = \%config;
+            local *pf::services::cluster_enabled = \$cluster;
+            local *pf::services::safe_pf_run = sub {
+                my $options = pop @_;
+                push @commands, [@_];
+                if ($_[1] eq 'get-default') {
+                    ${$options->{status_ref}} = $case->{get_status} // 0;
+                    return if $case->{get_status} || $case->{empty_output};
+                    return ($case->{default} // 'packetfence-base.target') . "\n";
+                }
+                ${$options->{status_ref}} = $case->{set_status} // 0;
+                return; # Successful set-default need not produce stdout.
+            };
+
+            my $result = eval {
+                pf::services::promote_default_systemd_target(configurator_finishing => $case->{finishing});
+            };
+            my $error = $@;
+            if ($case->{error}) {
+                like($error, $case->{error}, 'command failure reaches caller');
+            } else {
+                is($error, '', 'no error');
+                ok($result, 'promotion or deliberate no-op succeeds');
+            }
+            my @expected;
+            push @expected, ['systemctl', 'get-default'] unless $case->{skip};
+            push @expected, ['sudo', 'systemctl', 'set-default', $case->{target}] if $case->{target};
+            is_deeply(\@commands, \@expected, 'only the intended boot target is changed');
+        };
+    }
+};
 
 =head1 AUTHOR
 

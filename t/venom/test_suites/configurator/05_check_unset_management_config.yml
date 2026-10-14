@@ -1,0 +1,65 @@
+name: Generate config for services before management is configured
+# Step 1 is what creates the management interface. Before it runs,
+# pf::config::management_network is '' instead of an interface object, so these
+# generators must tolerate it rather than die: they are also reached by
+# `pfcmd service pf generateconfig` and by starting a service by hand.
+# Runs with the real unset management network and writes only to temp dirs.
+testcases:
+- name: netdata_without_management
+  steps:
+  - type: exec
+    script: |
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 <<'PERL'
+      use strict;
+      use warnings;
+      use File::Temp qw(tempdir);
+      use File::Path qw(make_path);
+      use pf::services::manager::netdata;
+
+      # '' is the unset value, so ref() is the check: defined() is always true.
+      die "Management must be unset before this test\n" if ref($pf::config::management_network);
+      die "Clustering must be configured after the wizard\n" if $pf::cluster::cluster_enabled;
+      my $tmp = tempdir(CLEANUP => 1);
+      make_path(map { "$tmp/monitoring/$_" } qw(health.d statsd.d go.d));
+      local $pf::services::manager::netdata::generated_conf_dir = $tmp;
+      pf::services::manager::netdata->new->generateConfig();
+      for my $file ('netdata.conf', 'go.d/mysql.conf', 'go.d/haproxy.conf') {
+          die "Missing generated Netdata $file\n" unless -s "$tmp/monitoring/$file";
+      }
+      PERL
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: radius_without_management
+  steps:
+  - type: exec
+    script: |
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 <<'PERL'
+      use strict;
+      use warnings;
+      use File::Temp qw(tempdir);
+      use File::Path qw(make_path);
+      use File::Slurp qw(read_file);
+      use pf::services::manager::radiusd_child;
+
+      die "Management must be unset before this test\n" if ref($pf::config::management_network);
+      die "Clustering must be configured after the wizard\n" if $pf::cluster::cluster_enabled;
+      my $tmp = tempdir(CLEANUP => 1);
+      make_path("$tmp/raddb/sites-enabled", "$tmp/raddb/mods-config/attr_filter");
+      local $pf::services::manager::radiusd_child::install_dir = $tmp;
+      my $manager = pf::services::manager::radiusd_child->new(name => 'radiusd-auth');
+      my $tt = Template->new(ABSOLUTE => 1);
+      $manager->generate_radiusd_mainconf($tt);
+      $manager->generate_radiusd_proxy($tt);
+      # The normal RADIUS generator calls this even when clustering is disabled.
+      $manager->generate_radiusd_cluster($tt);
+      die "Missing RADIUS main config\n" unless -s "$tmp/raddb/radiusd.conf";
+      die "Missing RADIUS clients include\n" unless -f "$tmp/raddb/clients.conf.inc";
+      my $proxy = read_file("$tmp/raddb/proxy.conf.inc");
+      my ($pfacct) = $proxy =~ /(home_server pfacct_local \{.*?\n\})/s;
+      die "Missing default pfacct proxy configuration\n" unless defined $pfacct;
+      # A valueless "src_ipaddr =" makes radiusd -C fail, so it must be absent.
+      die "RADIUS must omit an unset source address\n" if $pfacct =~ /^\s*src_ipaddr\s*=/m;
+      PERL
+    assertions:
+      - result.code ShouldEqual 0

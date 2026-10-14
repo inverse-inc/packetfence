@@ -142,7 +142,8 @@ sub _run {
     # On pfcmd pf status we don't want to run updatesystemd
     # On pfcmd pf updatesystemd we don't want to run it twice
     if ($service eq 'pf' && ($action ne 'status' && $action ne 'updatesystemd')) {
-        updateSystemd->($service, grep {$_ ne 'pf'} @pf::services::ALL_SERVICES);
+        my $status = updateSystemd->($service, grep {$_ ne 'pf'} @pf::services::ALL_SERVICES);
+        return $status if $status != $EXIT_SUCCESS;
     }
     my $output = "Service";
     $output .= (" " x 49);
@@ -211,15 +212,22 @@ sub updateSystemd {
         print $SERVICE_HEADER;
         $show = $TRUE;
     }
+    my @failed;
     for my $manager (@managers) {
-        _doUpdateSystemd($manager, $show);
+        push @failed, $manager->name unless _doUpdateSystemd($manager, $show);
     }
-    if(isenabled($Config{monit}{status})) {
-        system("sudo systemctl enable monit")
-    } else {
-        system("sudo systemctl disable monit")
+    my $status;
+    my $monit_action = isenabled($Config{monit}{status}) ? 'enable' : 'disable';
+    safe_pf_run('sudo', 'systemctl', $monit_action, 'monit', { status_ref => \$status });
+    push @failed, 'monit' unless defined($status) && $status == 0;
+    $status = undef;
+    safe_pf_run(qw(sudo systemctl daemon-reload), { status_ref => \$status });
+    push @failed, 'daemon-reload' unless defined($status) && $status == 0;
+    if (@failed) {
+        warn "Unable to update systemd for: " . join(', ', @failed) . "\n";
+        return $EXIT_FAILURE;
     }
-    system("sudo systemctl daemon-reload");
+    pf::services::promote_default_systemd_target() if $service eq 'pf';
     return $EXIT_SUCCESS;
 }
 
@@ -294,8 +302,10 @@ sub _doUpdateSystemd {
     my ($manager, $show) = @_;
     my $command;
     my $color = '';
+    my $updated;
     if ( $manager->isManaged ) {
-        if ( $manager->sysdEnable() ) {
+        $updated = $manager->sysdEnable();
+        if ( $updated ) {
             $command = 'Service enabled';
             $color =  $COLORS->{success};
         }
@@ -305,7 +315,8 @@ sub _doUpdateSystemd {
         }
     }
     else {
-        if ( $manager->sysdDisable() ) {
+        $updated = $manager->sysdDisable();
+        if ( $updated ) {
             $command = 'Service disabled';
             $color =  $COLORS->{success};
         }
@@ -317,6 +328,7 @@ sub _doUpdateSystemd {
     my $service = "packetfence-".$manager->name.".service";
     $service .= (" " x (50 - length($service)));
     print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
+    return $updated;
 }
 
 sub stopService {
