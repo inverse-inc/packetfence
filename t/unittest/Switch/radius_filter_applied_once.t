@@ -42,8 +42,18 @@ my @classes = qw(
     pf::Switch::Ruckus::Unleashed
 );
 
+# Modules that answer by themselves only with external portal enforcement, and
+# otherwise leave the answer, and the filter, to their parent
+my @portal_classes = qw(
+    pf::Switch::AeroHIVE::AP
+    pf::Switch::Fortinet::FortiGate
+    pf::Switch::Meraki::MR
+    pf::Switch::Mojo
+    pf::Switch::Xirrus
+);
+
 use Test::More;
-plan tests => scalar(@classes) + 1;
+plan tests => scalar(@classes) + 2 * scalar(@portal_classes) + 1;
 use Test::NoWarnings;
 
 # Minimal connection profile: the wireless modules ask it about DPSK
@@ -61,11 +71,13 @@ my $calls = 0;
     *pf::access_filter::radius::test = sub { $calls++; return undef };
 }
 
-for my $class (@classes) {
+sub filter_calls {
+    my ($class, $switch_args, %node_info) = @_;
     eval "require $class; 1" or die $@;
     my $switch = $class->new({
         id => '10.9.9.9', ip => '10.9.9.9',
         SNMPUseConnector => 'N', radiusDeauthUseConnector => 'N',
+        %$switch_args,
     });
     $calls = 0;
     eval {
@@ -75,13 +87,37 @@ for my $class (@classes) {
             vlan => 1,
             connection_type => 4096,
             radius_request => {},
-            node_info => {},
+            node_info => \%node_info,
             switch => $switch,
             profile => StubProfile->new,
             ssid => 'test',
         });
     };
-    is($calls, 1, "$class evaluates the returnRadiusAccessAccept filter once") or diag($@);
+    diag($@) if $@;
+    return $calls;
+}
+
+for my $class (@classes) {
+    is(filter_calls($class, {}), 1, "$class evaluates the returnRadiusAccessAccept filter once");
+}
+
+# No role mapping: the role is irrelevant here
+my %portal_switch_args = (RoleMap => 'N');
+for my $class (@portal_classes) {
+    is(filter_calls($class, \%portal_switch_args), 1, "$class evaluates the returnRadiusAccessAccept filter once");
+}
+
+{
+    no warnings qw(redefine once);
+    local *pf::Switch::externalPortalEnforcement = sub { 1 };
+    local *pf::security_event::security_event_view_top = sub { undef };
+    for my $class (@portal_classes) {
+        is(
+            filter_calls($class, \%portal_switch_args, status => 'reg', unregdate => '0000-00-00 00:00:00'),
+            1,
+            "$class evaluates the returnRadiusAccessAccept filter once with external portal enforcement"
+        );
+    }
 }
 
 =head1 AUTHOR
