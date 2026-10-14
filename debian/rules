@@ -404,7 +404,9 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/db/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/containers/*.sh
-	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons -X$(PREFIX)/pfconnector-remote
+	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons -X$(PREFIX)/$(NAME)/conf/ -X$(PREFIX)/pfconnector-remote
+	# Configuration files are installed without permissions for others
+	find $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf -type f -exec chmod 0660 '{}' +
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
