@@ -71,21 +71,6 @@ sub for_ip {
     return $class->local_connector();
 }
 
-=head2 has_remote_connectors
-
-Whether any connector other than the local one has networks, i.e. whether for_ip can
-return anything but the local connector.
-
-=cut
-
-sub has_remote_connectors {
-    for my $connector_id (@connectors_ordered) {
-        next if $connector_id eq "local_connector";
-        return $TRUE if @{$ConfigConnector{$connector_id}{networks} // []};
-    }
-    return $FALSE;
-}
-
 sub ip_part_of {
     my ( $ip ) = @_;
     $ip = NetAddr::IP->new($ip);

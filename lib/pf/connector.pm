@@ -100,11 +100,25 @@ sub dynreverse {
     #been programmed for a while), whereas the instance address we just used for this
     #API call is directly reachable. Required for long-lived calls like the domain join
     #where dialing the ClusterIP hangs and the tunnel gets reaped mid-request.
+    #In K8S/SaaS the connector is otherwise reached through PFCONNECTOR_SERVICE_HOST; the
+    #host the server returns (e.g. containers-gateway.internal) doesn't resolve from this
+    #pod, so whenever PFCONNECTOR_SERVICE_HOST is defined we prefer it.
+    #Otherwise, on a 'Classic PF' container, force the local containers interface so that
+    #the docker proxy gets the packets back on the containers network.
     if ($opts->{pod_direct}) {
         $connector_conn->{host} = $client->host;
     }
-    else {
-        $connector_conn->{host} = reverse_host($connector_conn->{host}, $client, $owns_tunnel);
+    elsif ($ENV{PFCONNECTOR_SERVICE_HOST}) {
+        #A dynreverse port is bound on the single pfconnector instance that owns the
+        #tunnel and, unlike the static connections, it is never published on the
+        #pfconnector k8s Service. Sending to the Service ClusterIP on such a port has
+        #no kube-proxy rule behind it, so the packets are silently dropped: RADIUS
+        #CoA/Disconnect and SNMP going through a connector simply time out and nothing
+        #ever reaches the connector. Dial the owning instance directly when we know it.
+        $connector_conn->{host} = $owns_tunnel ? $client->host : $ENV{PFCONNECTOR_SERVICE_HOST};
+    }
+    elsif ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
+        $connector_conn->{host} = "containers-gateway.internal";
     }
     
     get_logger->debug("Using pfconnector dynreverse ".$connector_conn->{host}.":".$connector_conn->{port}." via ".$self->id);
@@ -115,59 +129,6 @@ sub dynreverse {
     }
 
     return $connector_conn;
-}
-
-=head2 reverse_host
-
-The host to dial for a reverse port that the pfconnector server bound on its side of
-a connector's tunnel (a dynreverse port or the connector's fingerbank collector port),
-given the host the server returned, the API client used to reach that server and
-whether that client points at the instance owning the tunnel.
-
-=cut
-
-sub reverse_host {
-    my ($host, $client, $owns_tunnel) = @_;
-
-    #In K8S/SaaS the connector is reached through PFCONNECTOR_SERVICE_HOST; the
-    #host the server returns (e.g. containers-gateway.internal) doesn't resolve from this
-    #pod, so whenever PFCONNECTOR_SERVICE_HOST is defined we prefer it.
-    if ($ENV{PFCONNECTOR_SERVICE_HOST}) {
-        #A dynamic reverse port is bound on the single pfconnector instance that owns the
-        #tunnel and, unlike the static connections, it is never published on the
-        #pfconnector k8s Service. Sending to the Service ClusterIP on such a port has
-        #no kube-proxy rule behind it, so the packets are silently dropped: RADIUS
-        #CoA/Disconnect and SNMP going through a connector simply time out and nothing
-        #ever reaches the connector. Dial the owning instance directly when we know it.
-        return $owns_tunnel ? $client->host : $ENV{PFCONNECTOR_SERVICE_HOST};
-    }
-
-    #On a 'Classic PF' container, force the local containers interface so that
-    #the docker proxy gets the packets back on the containers network.
-    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
-        return "containers-gateway.internal";
-    }
-
-    return $host;
-}
-
-=head2 fingerbank_collector_endpoint
-
-The fingerbank collector co-located with this connector, as a URI pointing at the
-reverse port the pfconnector server bound for it. Dies when the server has no active
-remote tunnel for this connector.
-
-=cut
-
-sub fingerbank_collector_endpoint {
-    my ($self) = @_;
-    my ($client, $owns_tunnel) = $self->connectorServerApiClientWithOwnership;
-    my $res = $client->call("GET", "/api/v1/pfconnector/fingerbank-collector-endpoint?connector-id=".$self->id, undef);
-    die "No fingerbank collector endpoint returned for connector ".$self->id."\n" unless $res && $res->{endpoint};
-
-    my $uri = URI->new($res->{endpoint});
-    $uri->host(reverse_host($uri->host, $client, $owns_tunnel));
-    return $uri;
 }
 
 =head2 reprovision_static
