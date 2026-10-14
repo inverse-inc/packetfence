@@ -1554,7 +1554,7 @@ EOT
     if (@compute) {
         my $condition = join(' || ', @compute);
         $tags->{'degraded_cache_miss_compute'} = <<"EOT";
-		if ( &control:PacketFence-Degraded == "Cache-Miss" && ( $condition ) ) {
+		if ( "%{control:PacketFence-Degraded}" == "Cache-Miss" && ( $condition ) ) {
 			rest
 		}
 EOT
