@@ -17,9 +17,10 @@ import RadiusGeneralView from '../radius/general/_components/TheView'
 import RadiusEapSearch from '../radius/eap/_components/TheSearch'
 import RadiusTlsSearch from '../radius/tls/_components/TheSearch'
 import RadiusFastSearch from '../radius/fast/_components/TheSearch'
+import RadiusTeapSearch from '../radius/teap/_components/TheSearch'
 import RadiusSslSearch from '../radius/ssl/_components/TheSearch'
 import RadiusOcspSearch from '../radius/ocsp/_components/TheSearch'
-['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps']
+['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusTeaps', 'radiusSsls', 'radiusOcsps']
 const tabs = {
   radiusGeneral: {
     title: 'General Configuration', // i18n defer
@@ -36,6 +37,10 @@ const tabs = {
   radiusFasts: {
     title: 'Fast Profiles', // i18n defer
     component: RadiusFastSearch
+  },
+  radiusTeaps: {
+    title: 'TEAP Profiles', // i18n defer
+    component: RadiusTeapSearch
   },
   radiusSsls: {
     title: 'PKI SSL Certificates', // i18n defer

@@ -52,5 +52,6 @@ export const pfEapType = {
   '45': 'EAP-Link',
   '43': 'EAP-FAST',
   '19': 'SRP-SHA1',
-  '5': 'One-Time-Password'
+  '5': 'One-Time-Password',
+  '55': 'EAP-TEAP'
 }

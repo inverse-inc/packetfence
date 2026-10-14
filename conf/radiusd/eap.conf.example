@@ -847,6 +847,93 @@ eap [% key -%] {
 		#  identify it.
 #		identity = "FreeRADIUS"
 	}
+[% ELSIF eaptype == "TEAP" %]
+	#  EAP-TEAP
+	#
+	#  The TEAP module implements the EAP-TEAP protocol
+	#
+	teap {
+		#  Point to the common TLS configuration
+		#
+		tls = [% eap.$key.teap_config.tls %]
+
+		default_eap_type = [% eap.$key.teap_config.default_eap_type %]
+
+		#  Set the EAP type for user / machine authentication.
+		#
+		#  If set, these values over-ride "default_eap_type"
+		#
+		#  These values can be over-ridden at run time by setting
+		#
+		#	&session-state:TEAP-Type-User = ...
+		#
+		#  and
+		#	&session-state:TEAP-Type-Machine = ...
+		#
+		#  The values for those attributes are the same as for EAP-Type.
+		#
+		#  Note that if you try to use "EAP-Type := TEAP" in the
+		#  "inner-tunnel" virtual server, it will not work.
+
+		#  PASSWORDS
+		#
+		#  Some supplicants support password authentication inside of
+		#  TEAP.  This can be configured automatically by setting
+		#
+		#	identity_type = "user"
+		#
+		#  and then not setting "default_eap_type" or
+		#  "user_eap_type".  The TEAP module will then
+		#  automatically initiate password authentication.
+		#
+		#  The user credentials are placed into the User-Name
+		#  and User-Password attributes inside of the
+		#  "inner-tunnel" virtual server.  These attributes
+		#  are not sent in TEAP, but are created by the module
+		#  from the Basic-Password-Auth-Resp TLV which is in TEAP.
+		#
+		#  Supported authentication methods inside of TEAP are
+		#  EAP-TLS, EAP-MSCHAPv2, and PAP.
+
+		user_eap_type = [% eap.$key.teap_config.user_eap_type %]
+		machine_eap_type = [% eap.$key.teap_config.machine_eap_type %]
+
+		#  Authority ID of the server
+		#
+		#  If you are running a cluster of RADIUS servers, you should make
+		#  the value chosen here the same on all your RADIUS servers.
+		#  This value should be unique to your installation.  We suggest
+		#  using a domain name.
+		#
+		authority_identity = [% eap.$key.teap_config.authority_identity %]
+
+
+		#
+		#  Automatically go through the workflow of first machine, then user
+		#  authentication.
+		#
+		#  allowed values:  	"machine,user"
+		#  	   					"user,machine"
+		#						"user"
+		#						"machine"
+		#
+		#  If this isn't set, then TEAP likely won't work.
+		#
+		#  This configuration sets &session-state:FreeRADIUS-EAP-TEAP-TLV-Identity-Type with the
+		#  relevant values.  The TEAP module then picks those values, in order, to authenticate the
+		#  chosen identity.  You can set &session-state:FreeRADIUS-EAP-TEAP-TLV-Identity-Type
+		#  manually, but that is substantially more complicated.
+		#
+		identity_types = "[% eap.$key.teap_config.identity_types %]"
+
+		#  Same as for TTLS, PEAP, etc.
+		#
+		virtual_server = "packetfence-tunnel-fast"
+
+		copy_request_to_tunnel = yes
+
+		use_tunneled_reply = yes
+	}
 
 [% ELSIF eaptype == "FAST" %]
 	## EAP-FAST

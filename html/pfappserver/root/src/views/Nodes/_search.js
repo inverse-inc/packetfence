@@ -193,6 +193,18 @@ export const search = {
       sortable: true
     },
     {
+      key: 'locationlog.teap_username',
+      label: 'TEAP Username', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
+      key: 'locationlog.teap_machinename',
+      label: 'TEAP Machine Name', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
       key: 'bypass_vlan',
       label: 'Bypass VLAN', // i18n defer
       searchable: false,
@@ -496,6 +508,18 @@ export const search = {
       text: 'SSID', // i18n defer
       types: [conditionType.SUBSTRING],
       icon: 'wifi'
+    },
+    {
+      value: 'locationlog.teap_username',
+      text: 'TEAP Username', // i18n defer
+      types: [conditionType.SUBSTRING],
+      icon: 'user'
+    },
+    {
+      value: 'locationlog.teap_machinename',
+      text: 'TEAP Machine Name', // i18n defer
+      types: [conditionType.SUBSTRING],
+      icon: 'user'
     },
     {
       value: 'user_agent',
