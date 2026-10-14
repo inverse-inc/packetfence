@@ -64,6 +64,11 @@ our $DEFAULT_HTTPS_PORT = 443;
 # UniFi OS Server (the software controller) listens on 11443 by default
 our $UOS_SERVER_PORT = 11443;
 our $ALT_DEFAULT_PORT = 8443;
+
+# Where each controller was found, so the port probe runs once per process and
+# not on every command: "transport://ip" => { url => ..., unifi_os => 0|1 }
+our %DETECTED_CONTROLLERS;
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -219,7 +224,26 @@ sub _connect {
     # /proxy/network/status on 443, or 11443 for UniFi OS Server. Probe the
     # candidates in order unless a controller port is configured. A 401 is a
     # healthy controller asking for a login, so it counts as found.
-    my @uos_ports = $controllerPort ? ($controllerPort)
+    # A controller already found by this process is tried first, the full probe
+    # only runs again when it stops answering there.
+    my $detected_key = $controllerPort ? undef : $base_url;
+    my $detected = defined $detected_key ? $DETECTED_CONTROLLERS{$detected_key} : undef;
+    if ($detected && !$detected->{unifi_os}) {
+        $logger->debug("Unifi controller previously found on $detected->{url} (not UniFi OS)");
+    } elsif ($detected) {
+        $url = $detected->{url};
+        $response = $ua->get($url."/proxy/network/status");
+        if ($response->code == 401 || $response->is_success) {
+            $unifi_os = $TRUE;
+        } else {
+            $logger->info("Unifi controller no longer answers on $url (" . $response->status_line . "), probing it again");
+            delete $DETECTED_CONTROLLERS{$detected_key};
+            $detected = undef;
+        }
+    }
+
+    my @uos_ports = $detected ? ()
+                  : $controllerPort ? ($controllerPort)
                   : ($transport eq 'http' ? ($DEFAULT_HTTP_PORT) : ($DEFAULT_HTTPS_PORT, $UOS_SERVER_PORT));
     foreach my $port (@uos_ports) {
         $url = "${base_url}:${port}";
@@ -229,9 +253,10 @@ sub _connect {
             # UniFi OS redirects http to https: keep talking to where the probe ended up
             my $final = $response->request->uri;
             if ($final->scheme ne $transport || $final->port != $port) {
-                $url = $final->scheme . "://" . $final->host . ":" . $final->port;
+                $url = $final->scheme . "://" . $final->host_port;
                 $logger->info("Unifi controller redirected $base_url:$port to $url, using it");
             }
+            $DETECTED_CONTROLLERS{$detected_key} = { url => $url, unifi_os => $TRUE } if defined $detected_key;
             last;
         }
         $logger->debug("No UniFi OS controller on $url (" . $response->status_line . ")");
@@ -243,19 +268,31 @@ sub _connect {
         $api_prefix = "/proxy/network";
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
         # An authenticated session gets its token with the status response; a
-        # 401 carries nothing and the login below will provide it
-        $self->_set_unifi_os_csrf_token($ua, $response) unless $cookie_invalid;
+        # 401 carries nothing and the login below will provide it. A session
+        # without any token cannot send commands, so log in again to get one.
+        if (!$cookie_invalid && !$self->_set_unifi_os_csrf_token($ua, $response, $TRUE)) {
+            $logger->info("No CSRF token for the current Unifi controller session, logging in again");
+            $cookie_invalid = $TRUE;
+        }
     } else {
         # Old controller on port 8443 unless a controller port is configured
         $url = "${base_url}:" . ($controllerPort || $ALT_DEFAULT_PORT);
         # Check if cookie is still valid for old controller
         $response = $ua->get($url."/api/self");
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
+        if (defined $detected_key) {
+            if ($cookie_invalid || $response->is_success) {
+                $DETECTED_CONTROLLERS{$detected_key} = { url => $url, unifi_os => $FALSE };
+            } else {
+                # Nothing answered: probe everything again next time
+                delete $DETECTED_CONTROLLERS{$detected_key};
+            }
+        }
     }
     if ($cookie_invalid) {
         # Clear old cookies before re-authenticating to avoid sending invalid session
         $ua->cookie_jar->clear();
-        $response = $ua->post($url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
+        $response = $ua->post($url.$login_path, Content => encode_json({ username => $username, password => $password, remember => "true" }));
 
         unless($response->is_success) {
             my $hint = ($unifi_os && $response->code == 403) ? " (a 403 on $login_path means the credentials are refused: use a local controller admin account)" : "";
@@ -277,41 +314,47 @@ embedded in the TOKEN session cookie (the csrfToken claim of its JWT). Take it
 from wherever it is, send it on every request, and follow the controller when
 it rotates it.
 
+Return true when a token was found. With $quiet, a missing token is left to the
+caller to handle instead of being warned about.
+
 =cut
 
 sub _set_unifi_os_csrf_token {
-    my ($self, $ua, $response) = @_;
+    my ($self, $ua, $response, $quiet) = @_;
     my $logger = $self->logger;
 
     my $token = $response->header('x-updated-csrf-token') || $response->header('x-csrf-token');
     if (!$token) {
-        # Fall back to the csrfToken claim of the TOKEN cookie (a JWT)
-        $ua->cookie_jar->scan(sub {
-            my ($version, $key, $val) = @_;
-            return if $token || $key ne 'TOKEN' || !defined $val;
-            my ($payload) = (split /\./, $val)[1];
-            return unless defined $payload;
+        # Fall back to the csrfToken claim of the TOKEN cookie (a JWT). The jar
+        # file is shared by every Unifi controller, so only take the cookie the
+        # jar would send to this one.
+        my $probe = HTTP::Request->new(GET => $response->request->uri);
+        $ua->cookie_jar->add_cookie_header($probe);
+        my ($val) = ($probe->header('Cookie') // '') =~ /(?:^|;\s*)TOKEN=([^;\s]+)/;
+        my ($payload) = defined $val ? (split /\./, $val)[1] : ();
+        if (defined $payload) {
             $payload =~ tr{-_}{+/};
             $payload .= '=' x ((4 - length($payload) % 4) % 4);
             my $claims = eval { decode_json(MIME::Base64::decode_base64($payload)) };
             $token = $claims->{csrfToken} if ref($claims) eq 'HASH' && $claims->{csrfToken};
-        });
+        }
     }
     if (!$token) {
-        $logger->warn("No CSRF token found in the Unifi controller response nor in its session cookie: POST commands will likely be refused");
-        return;
+        $logger->warn("No CSRF token found in the Unifi controller response nor in its session cookie: POST commands will likely be refused") unless $quiet;
+        return $FALSE;
     }
     $ua->default_header('X-CSRF-Token' => $token);
     $logger->debug("Using the Unifi controller CSRF token for this session");
 
-    # The controller may hand out a rotated token on any response
-    $ua->remove_handler('response_done');
-    $ua->add_handler(response_done => sub {
+    # The controller may hand out a rotated token on any response. Replace only
+    # this handler: the cookie jar has its own response_done handler.
+    $ua->set_my_handler(response_done => sub {
         my ($res, $agent) = @_;
         my $updated = $res->header('x-updated-csrf-token') || $res->header('x-csrf-token');
         $agent->default_header('X-CSRF-Token' => $updated) if $updated;
         return;
-    });
+    }, owner => __PACKAGE__ . '::csrf_token');
+    return $TRUE;
 }
 
 
@@ -425,12 +468,16 @@ sub _deauthenticateMacWithHTTP {
                 $response = $ua->post("$base_url/api/s/$site_opts{'name'}/cmd/stamgr", Content => encode_json($args));
                 if ($response->is_success) {
                     $logger->trace("Deauth on site: $site_opts{'desc'} for $switch_id");
+                } else {
+                    $logger->warn("Command $command refused by the Unifi controller for $mac on site $site_opts{'desc'} via $switch_id: ".$response->status_line);
                 }
             } else {
                 foreach my $entry (@{$sites->{'data'}}) {
                     $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
                     if ($response->is_success) {
                         $logger->trace("Deauth on site: $entry->{'desc'} for $switch_id");
+                    } else {
+                        $logger->warn("Command $command refused by the Unifi controller for $mac on site $entry->{'desc'} via $switch_id: ".$response->status_line);
                     }
                 }
             }

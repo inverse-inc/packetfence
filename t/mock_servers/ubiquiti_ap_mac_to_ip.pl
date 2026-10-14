@@ -26,16 +26,31 @@ $SIG{PIPE} = "IGNORE";
 # 8445 only so the classic-controller emulation below keeps its behaviour on the
 # other ports: /proxy/network prefix, /api/auth/login, TOKEN cookie whose JWT
 # carries the csrfToken claim, and POST commands refused with 403 unless the
-# X-CSRF-Token header matches. The token is rotated on each command.
+# X-CSRF-Token header matches the csrfToken claim of the session cookie. Each
+# command renews the cookie with a new token, so only the latest pair works.
 my $UOS_PORT = 8445;
 my $CSRF_TOKEN = 'csrf-token-1';
-my $CSRF_ROTATED = 'csrf-token-2';
 my $SEND_CSRF_HEADERS = 1;
+my $TOKEN_SERIAL = 1;
+my $LOGINS = 0;
+my @COMMANDS;
 
 sub uos { return $_[0]->tx->local_port == $UOS_PORT }
 sub b64url { my $b = MIME::Base64::encode_base64($_[0], ''); $b =~ tr{+/}{-_}; $b =~ s/=+$//; return $b }
+sub b64url_decode { my $b = $_[0]; $b =~ tr{-_}{+/}; $b .= '=' x ((4 - length($b) % 4) % 4); return MIME::Base64::decode_base64($b) }
 sub uos_cookie_ok { my $t = $_[0]->cookie('TOKEN'); return defined $t && $t =~ /^header\./ }
+sub cookie_csrf {
+    my ($payload) = (split /\./, $_[0]->cookie('TOKEN') // '')[1];
+    my $claims = defined $payload ? eval { Mojo::JSON::decode_json(b64url_decode($payload)) } : undef;
+    return ref($claims) eq 'HASH' ? $claims->{csrfToken} : undef;
+}
+sub set_session { my ($c, $t) = @_; $c->cookie(TOKEN => 'header.' . b64url(Mojo::JSON::encode_json({ csrfToken => $t, userId => 'test' })) . '.signature', { path => '/' }) }
 sub send_csrf { my ($c, $t) = @_; return unless $SEND_CSRF_HEADERS; $c->res->headers->header('x-csrf-token' => $t); $c->res->headers->header('x-updated-csrf-token' => $t) }
+
+get '/mock/state' => sub {
+    my ($c) = @_;
+    $c->render(json => { logins => $LOGINS, commands => \@COMMANDS });
+};
 
 post '/mock/csrf-headers/:state' => sub {
     my ($c) = @_;
@@ -47,7 +62,8 @@ get '/proxy/network/status' => sub {
     my ($c) = @_;
     return $c->render(status => 404, json => {}) unless uos($c);
     return $c->render(status => 401, json => { code => 'AUTHENTICATION_REQUIRED' }) unless uos_cookie_ok($c);
-    send_csrf($c, $CSRF_TOKEN);
+    my $token = cookie_csrf($c);
+    send_csrf($c, $token) if defined $token;
     $c->render(json => { meta => { rc => 'ok' }, data => [] });
 };
 
@@ -57,7 +73,9 @@ post '/api/auth/login' => sub {
     my $body = $c->req->json // {};
     return $c->render(status => 403, json => { code => 'AUTHENTICATION_FAILED' })
       unless ($body->{username} // '') eq 'admin' && ($body->{password} // '') eq 'admin';
-    $c->cookie(TOKEN => 'header.' . b64url(Mojo::JSON::encode_json({ csrfToken => $CSRF_TOKEN, userId => 'test' })) . '.signature', { path => '/' });
+    $LOGINS++;
+    $TOKEN_SERIAL = 1;
+    set_session($c, $CSRF_TOKEN);
     send_csrf($c, $CSRF_TOKEN);
     $c->render(json => { unique_id => 'test', username => 'admin' });
 };
@@ -81,9 +99,13 @@ post '/proxy/network/api/s/:site/cmd/stamgr' => sub {
     return $c->render(status => 404, json => {}) unless uos($c);
     return $c->render(status => 401, json => {}) unless uos_cookie_ok($c);
     my $token = $c->req->headers->header('X-CSRF-Token') // '';
-    return $c->rendered(403) unless $token eq $CSRF_TOKEN || $token eq $CSRF_ROTATED;
-    send_csrf($c, $CSRF_ROTATED);
+    my $expected = cookie_csrf($c);
+    return $c->rendered(403) unless defined $expected && $token eq $expected;
+    my $renewed = 'csrf-token-' . ++$TOKEN_SERIAL;
+    set_session($c, $renewed);
+    send_csrf($c, $renewed);
     my $body = $c->req->json // {};
+    push @COMMANDS, { site => $c->stash('site'), %$body };
     $c->render(json => { meta => { rc => 'ok' }, data => [ { mac => $body->{mac}, authorized_by => 'api' } ] });
 };
 
