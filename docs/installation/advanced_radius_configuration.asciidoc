@@ -317,11 +317,19 @@ check_interval = 10
 num_answers_to_alive = 3
 revive_interval = 60
 zombie_period = 10
+response_window = 3
 ----
++
+A remote server is only declared dead after a request stayed unanswered for
+`response_window` seconds (20 by default), keep it below the RADIUS timeout of
+the switches or they will declare PacketFence dead first.
+* The realm must have `nostrip` in its options, the EAP identity has to match
+  the `User-Name` proxied to the remote server.
 * In degraded mode the EAP conversation is terminated by PacketFence with the
   certificates of the EAP profile of the realm, not by the remote server. The
   supplicants must trust the certificate of this EAP profile or the EAP-TLS
-  and PEAP authentications will fail during an outage.
+  and PEAP authentications will fail during an outage. For EAP-TLS the CA of
+  the client certificates must also be trusted by this EAP profile.
 * PEAP-MSCHAPv2 requires PacketFence to be able to validate the credentials
   (domain joined, or NT hashes cached).
 * The realm is matched on the `Realm` attribute of the request, if you proxy
