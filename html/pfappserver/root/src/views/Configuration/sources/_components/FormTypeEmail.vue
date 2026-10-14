@@ -31,7 +31,7 @@
 
     <form-group-wait-for-activation namespace="wait_for_activation"
                                     :column-label="$i18n.t('Wait for activation')"
-                                    :text="$i18n.t('Keep the device on the captive portal until the activation link is clicked, typically from another device (e.g. a phone). No temporary network access is granted and the Email Activation Timeout only bounds the validity of the link.')"
+                                    :text="$i18n.t('Keep the device on the captive portal until the activation link is clicked, typically from another device (e.g. a phone). No temporary network access is granted and the Email Activation Timeout only bounds the validity of the link. The activation link must be reachable from that other device (e.g. over mobile data), see activation_domain.')"
                                     enabled-value="enabled"
                                     disabled-value="disabled"
     />
