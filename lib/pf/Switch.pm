@@ -5041,15 +5041,12 @@ sub generateAnsibleConfiguration {
                 }
             }
             my $implicit_acl = $self->implicit_acl();
-            if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
-            } elsif (defined($in_acls)) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
-            }
-            if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
-            } elsif (defined($out_acls)) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+            foreach my $direction (['in', $in_acls], ['out', $out_acls]) {
+                my ($dir, $dir_acls) = @$direction;
+                $dir_acls = $implicit_acl if (!defined($dir_acls) || $dir_acls eq "") && $implicit_acl;
+                next if !defined($dir_acls);
+                my $name = $self->pushAclsName($role, $dir);
+                $vars{'switches'}{$switch_id}{'acls'}{$name} = $dir_acls if defined($name);
             }
         }
     }
@@ -5072,6 +5069,18 @@ sub generateAnsibleConfiguration {
             timeout_ms => 500,
         }
     )->notify('push_acls', %args);
+}
+
+=head2 pushAclsName
+
+The name of the ACL PushACLs creates on the switch for the in or out ACLs of a
+role, or undef to not push them. Only called for ACLs there are to push.
+
+=cut
+
+sub pushAclsName {
+    my ($self, $role, $direction) = @_;
+    return $direction eq 'out' ? $role."out" : $role;
 }
 
 =head2 implicit_acl
