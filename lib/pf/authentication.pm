@@ -459,6 +459,24 @@ sub match2 {
     return undef;
 }
 
+=item baseTypeForType
+
+The source family (pf::Authentication::Source::base_type) for a source type,
+e.g. 'OAuth' for 'Facebook'. Resolved from the type's class, so it does not need
+the configured source and still works after that source was deleted.
+
+Returns '' for an unknown type, including the comma joined lists of types the
+"failed against every source tried" paths record.
+
+=cut
+
+sub baseTypeForType {
+    my ($type) = @_;
+    return '' unless defined $type && length $type;
+    my $module = $TYPE_TO_SOURCE{lc($type)};
+    return $module ? $module->base_type : '';
+}
+
 =item getAuthenticationClassByType
 
 Get the authentication class by it's type

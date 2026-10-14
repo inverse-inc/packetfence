@@ -1389,8 +1389,23 @@ sub update_data {
     }
 
     $self->update_regdate($data);
+    $self->update_source_types($data);
     $self->ensure_person_exists($data);
     return $data;
+}
+
+=head2 update_source_types
+
+The update is a plain SQL UPDATE, so pf::dal::node::pre_save does not run:
+derive the source type columns here when source is being changed.
+
+=cut
+
+sub update_source_types {
+    my ($self, $data) = @_;
+    return if !exists $data->{source};
+    @{$data}{qw(source_type source_base_type)} = pf::dal::node::source_types($data->{source});
+    return;
 }
 
 =head2 update_regdate

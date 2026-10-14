@@ -374,7 +374,14 @@ sub authorize {
         $args->{'action'} = $role->{action};
     }
     my $vlan;
-    $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
+    if (defined($role->{'source'}) && $role->{'source'} ne '') {
+        # Persisted on the node; pf::dal::node derives source_type and
+        # source_base_type from it when it changes.
+        $args->{'node_info'}{'source'} = $role->{'source'};
+        # node_info also carries the source persisted by an earlier login, so the
+        # audit log takes the source matched by this request from here instead.
+        $args->{'matched_source'} = $role->{'source'};
+    }
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};
     $info{portal} = $args->{node_info}{portal};
@@ -1267,11 +1274,13 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
     user_role => 'PacketFence-Role',
     time => 'PacketFence-Request-Time',
     portal => 'PacketFence-Profile',
+    matched_source => 'PacketFence-Source',
 );
 
+# source is deliberately not mapped: node.source is persisted, so it would report
+# the source of a past login on requests that matched none (see matched_source).
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
     status => 'PacketFence-Status',
-    source => 'PacketFence-Source',
     portal => 'PacketFence-Profile',
     computername => 'PacketFence-Computer-Name',
 );

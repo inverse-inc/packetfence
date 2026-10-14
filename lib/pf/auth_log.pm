@@ -36,6 +36,26 @@ use pf::log;
 # ($source->id, $source->type). The paths that record a failure against every
 # source they tried pass comma joined lists of both.
 
+=head2 _base_type_for
+
+The source family for a source type, e.g. 'OAuth' for any of the six OAuth
+providers. Derived from the type's class, so a new provider is classified
+correctly without anything here changing, and it resolves from the type the
+caller already holds -- no lookup of the configured source, which may have been
+deleted between attempt and completion.
+
+Returns '' when it cannot be resolved -- an unknown type, or one of the comma
+joined lists the "failed against every source tried" paths pass. Consumers must
+read '' as UNCLASSIFIED rather than as a match or a non-match.
+
+=cut
+
+sub _base_type_for {
+    my ($source_type) = @_;
+    require pf::authentication;
+    return pf::authentication::baseTypeForType($source_type);
+}
+
 =head2 invalidate_previous
 
 =cut
@@ -65,6 +85,7 @@ sub record_oauth_attempt {
         process_name => process_name,
         source => $source,
         source_type => $source_type,
+        source_base_type => _base_type_for($source_type),
         mac => $mac,
         attempted_at => \'NOW()',
         status => $INCOMPLETE,
@@ -82,7 +103,8 @@ sub record_completed_oauth {
             pid => $pid,
             # Keep the source_type recorded at attempt time when the caller
             # could not resolve it (e.g. the source was deleted in between)
-            (defined $source_type && length $source_type ? (source_type => $source_type) : ()),
+            (defined $source_type && length $source_type
+                ? (source_type => $source_type, source_base_type => _base_type_for($source_type)) : ()),
             profile => $profile,
         },
         -where => {
@@ -103,6 +125,7 @@ sub record_guest_attempt {
         process_name => process_name,
         source => $source,
         source_type => $source_type,
+        source_base_type => _base_type_for($source_type),
         mac => $mac,
         pid => ($pid // ''),
         attempted_at => \'NOW()',
@@ -120,7 +143,8 @@ sub record_completed_guest {
             status => $auth_status,
             # Keep the source_type recorded at attempt time when the caller
             # could not resolve it (e.g. the source was deleted in between)
-            (defined $source_type && length $source_type ? (source_type => $source_type) : ()),
+            (defined $source_type && length $source_type
+                ? (source_type => $source_type, source_base_type => _base_type_for($source_type)) : ()),
             profile => $profile,
         },
         -where => {
@@ -140,6 +164,7 @@ sub record_auth {
         process_name => process_name,
         source => $source,
         source_type => $source_type,
+        source_base_type => _base_type_for($source_type),
         mac => $mac,
         pid => ($pid // ''),
         attempted_at => \'NOW()',
