@@ -427,16 +427,29 @@ Dropping a permit only narrows the role, dropping a deny would widen it: an
 inbound deny that cannot be represented ends the list with
 L</SWITCHING_FILTER_DENY_ALL> instead.
 
+A role whose inbound ACLs were all dropped, or cannot be parsed, gets
+L</SWITCHING_FILTER_DENY_ALL> rather than no filter, which would leave the
+supplicant unrestricted.
+
 =cut
 
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
 
     my ($acl_ref, @direction) = $self->format_acl($acl);
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    my $inbound = grep { ($_ // 'in') eq 'in' } @direction;
+
+    # The parser returns no entry for ACLs it cannot read
+    if (@$entries != @direction) {
+        return '' if !$inbound;
+        $self->logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': its ACLs cannot be parsed, and sending no filter would leave the supplicant unrestricted");
+        return SWITCHING_FILTER_DENY_ALL . "\n";
+    }
 
     my $chewed = '';
     my $i = 0;
-    foreach my $entry (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $entry (@$entries) {
         my $dir = $direction[$i++] // 'in';
         my $term = $self->_switchingFilterTerm($entry, $dir, $role);
         if (!defined $term) {
@@ -449,6 +462,13 @@ sub acl_chewer {
             last;
         }
         $chewed .= $term . "\n";
+    }
+
+    # Sending no filter would leave the supplicant unrestricted, while the
+    # switch denies whatever a filter does not allow
+    if ($chewed eq '' && $inbound) {
+        $self->logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': none of its inbound ACLs can be represented");
+        $chewed = SWITCHING_FILTER_DENY_ALL . "\n";
     }
 
     return $chewed;
@@ -472,6 +492,12 @@ sub _switchingFilterTerm {
     # direction, so an egress ACL cannot be represented.
     if ($dir eq 'out') {
         $logger->warn("(".$self->{'_id'}.") Skipping outbound ACL of role '$role': Juniper-Switching-Filter only filters traffic sent by the supplicant");
+        return;
+    }
+
+    my $reason = $self->untranslatableAclQualifier($entry);
+    if (defined $reason) {
+        $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
         return;
     }
 

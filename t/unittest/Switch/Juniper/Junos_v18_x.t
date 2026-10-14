@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 45;
+use Test::More tests => 51;
 use pf::Switch::Juniper::Junos_v18_x;
 use pf::Switch::Juniper::Junos;
 
@@ -96,41 +96,45 @@ is(
     "each ACL line becomes its own term, in order"
 );
 
-# acl_chewer: ACLs the VSA cannot represent are dropped rather than mistranslated
+# acl_chewer: ACLs the VSA cannot represent are dropped rather than mistranslated.
+# Alone, they leave nothing to send, so the role is denied everything rather
+# than left unrestricted.
+
+my $deny_all = "Match Destination-ip 0.0.0.0/0 Action deny\n";
 
 is(
     $switch->acl_chewer("permit ip host 10.1.1.1 any", 'testrole'),
-    "",
+    $deny_all,
     "there is no source address match condition so the term is dropped"
 );
 
 is(
     $switch->acl_chewer("permit tcp any any range 100 200", 'testrole'),
-    "",
+    $deny_all,
     "only the eq port operator can be represented"
 );
 
 is(
     $switch->acl_chewer("permit tcp any any gt 1024", 'testrole'),
-    "",
+    $deny_all,
     "the gt port operator is dropped"
 );
 
 is(
     $switch->acl_chewer("permit ip any 10.0.0.0 0.255.0.255", 'testrole'),
-    "",
+    $deny_all,
     "a non contiguous wildcard mask has no prefix length so the term is dropped"
 );
 
 is(
     $switch->acl_chewer("permit tcp any any established", 'testrole'),
-    "",
+    $deny_all,
     "there is no TCP flags match condition, dropping only the flag would permit every TCP packet"
 );
 
 is(
     $switch->acl_chewer("permit icmp any any echo", 'testrole'),
-    "",
+    $deny_all,
     "there is no ICMP type match condition, dropping only the type would permit every ICMP packet"
 );
 
@@ -155,6 +159,38 @@ is(
     "Match Destination-ip 8.8.8.8 Action allow\n",
     "a permit that cannot be represented is only skipped, the ACLs after it are kept"
 );
+
+# Qualifiers the parser reads without returning them
+
+is(
+    $switch->acl_chewer("permit ip any any dscp ef\npermit ip any host 8.8.8.8", 'testrole'),
+    "Match Destination-ip 8.8.8.8 Action allow\n",
+    "a permit on a DSCP value is skipped, not sent as a permit of everything"
+);
+
+is(
+    $switch->acl_chewer("permit ip any any time-range work", 'testrole'),
+    $deny_all,
+    "a role whose only permit is on a time range is denied everything"
+);
+
+is(
+    $switch->acl_chewer("deny tcp any host 10.0.0.1 eq 80 fragments\npermit ip any any", 'testrole'),
+    $deny_all,
+    "a deny of fragments ends the filter with a deny all"
+);
+
+# ACLs the parser cannot read: it returns no entry at all
+
+is(
+    $switch->acl_chewer("permit ip any host 8.8.8.8\npermit ip any any ttl eq 5", 'testrole'),
+    $deny_all,
+    "ACLs that cannot be parsed deny everything instead of sending no filter"
+);
+
+is($switch->acl_chewer("", 'testrole'), "", "a role without ACLs gets no filter");
+
+is($switch->acl_chewer("remark nothing to filter", 'testrole'), "", "a role with only a remark gets no filter");
 
 # The direction guard is only reachable when pushACLs is enabled, since
 # format_acl drops out| lines for a switch that does not support outbound ACLs.
@@ -202,8 +238,8 @@ is_deeply(
 
 is_deeply(
     [$switch->_switchingFilterTerms("permit ip host 10.1.1.1 any", 'testrole')],
-    [],
-    "an ACL that cannot be expressed is dropped, never sent malformed"
+    ["Match Destination-ip 0.0.0.0/0 Action deny"],
+    "an ACL that cannot be expressed is never sent malformed, and the role is denied everything rather than unrestricted"
 );
 
 is_deeply(
