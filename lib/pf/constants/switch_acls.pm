@@ -43,7 +43,7 @@ our %ACLsSupports;
                                                     'Dell::N1500' => 1,
                                                     'Extreme::EXOS' => 1,
                                                     'Fortinet::FortiSwitch' => 1,
-                                                    'Huawei::S5710' => 1,
+                                                    'Huawei::S5735' => 1,
                                                     'Juniper::EX2200' => 1,
                                                     'Juniper::EX2200_v15' => 1,
                                                     'Juniper::EX2300' => 1,
