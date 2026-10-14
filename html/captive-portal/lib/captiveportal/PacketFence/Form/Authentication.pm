@@ -81,8 +81,11 @@ sub render_email_instructions {
     }
     my $email_timeout = normalize_time($source->email_activation_timeout);
     $email_timeout = int($email_timeout / 60);
+    my $instructions = $source->waitForActivation
+        ? $self->app->i18n_format("After registering, an activation link will be emailed to you. This page will wait until you click the link from another device (the link is valid for %s minutes).", $email_timeout)
+        : $self->app->i18n_format("After registering, you will be given temporary network access for %s minutes. In order to complete your registration, you will need to click on the link emailed to you.", $email_timeout);
     return "<div class='text-center email-instructions'>" .
-        $self->app->i18n_format("After registering, you will be given temporary network access for %s minutes. In order to complete your registration, you will need to click on the link emailed to you.", $email_timeout) .
+        $instructions .
         "</div>" .
         "<input name='fields[email_instructions]' type='hidden' value='1'>";
 }
