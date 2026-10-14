@@ -62,6 +62,16 @@ sub execute_child {
     elsif($self->source->waitForActivation && $self->session_activation_pending()){
         $self->waiting_room();
     }
+    elsif($self->source->waitForActivation && !$self->session->{activation_code} && pf::activation::activation_has_entry($self->current_mac, $pf::activation::GUEST_ACTIVATION)){
+        # The session that was waiting for this code is gone (portal window
+        # closed, cookies cleared): nothing would register the device once the
+        # link is clicked, so invalidate the code instead of leaving a link that
+        # tells the user to return to a waiting room that no longer exists
+        get_logger->info("Cannot restore the pending activation code from the user session, invalidating the codes of the device");
+        pf::activation::invalidate_codes_for_mac($self->current_mac, $pf::activation::GUEST_ACTIVATION);
+        $self->app->flash->{error} = "Your previous registration could not be resumed. Please register again.";
+        $self->prompt_fields();
+    }
     elsif($self->session->{email_activated}){
         # Cleared before done() so that if the actions fail, the user gets the
         # form back instead of looping on done() with an already verified code
@@ -118,29 +128,30 @@ sub check_activation {
 
     $self->check_session_activation();
 
+    # Checked first: a code only leaves the pending state (verified, invalidated
+    # or expired), so the record read below cannot be older than this answer
+    # and a link clicked in between is not reported as expired
+    if($self->source->waitForActivation && $self->session_activation_pending()){
+        get_logger->debug("Activation record has not yet been validated");
+        $self->app->response_code(401);
+        $self->app->template_output('');
+        return;
+    }
+
     my $record = pf::activation::view_by_code($pf::activation::GUEST_ACTIVATION, $self->session->{activation_code});
     if(defined($record) && $record->{status} eq $pf::activation::VERIFIED){
         get_logger->info("Activation record has been validated.");
         $self->session->{email_activated} = $TRUE;
-        $self->app->response_code(200);
-        $self->app->template_output('');
     }
     elsif(!$self->source->waitForActivation){
         get_logger->info("The source no longer waits for the activation on the portal. Sending the user back to the signup form.");
-        $self->app->response_code(200);
-        $self->app->template_output('');
-    }
-    elsif(!$self->session_activation_pending()){
-        get_logger->info("Activation record has expired or was invalidated. Sending the user back to the signup form.");
-        $self->app->flash->{error} = "The activation link has expired. Please register again.";
-        $self->app->response_code(200);
-        $self->app->template_output('');
     }
     else {
-        get_logger->debug("Activation record has not yet been validated");
-        $self->app->response_code(401);
-        $self->app->template_output('');
+        get_logger->info("Activation record has expired or was invalidated. Sending the user back to the signup form.");
+        $self->app->flash->{error} = "The activation link has expired or is no longer valid. Please register again.";
     }
+    $self->app->response_code(200);
+    $self->app->template_output('');
 }
 
 =head2 waiting_room
