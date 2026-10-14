@@ -312,3 +312,32 @@ Clear an authorized session by MAC address:
 Example:
 
  execute 802-1x clear mac 00:21:cc:d2:76:72
+
+==== CLI Login
+
+to authenticate admin logins to the switch against PacketFence use the following config snippet
+
+ config user radius
+     edit "RADIUS-Admin"
+         set server "10.3.8.33"
+         set radius-port 1815
+         set secret <shared-secret>
+         set auth-type pap
+     next
+ end
+
+ config user group
+     edit "RADIUS_Admins"
+         set member "RADIUS-Admin"
+     next
+ end
+
+ config system admin
+     edit "RADIUS_Admins"
+         set remote-auth enable
+         set wildcard enable
+         set remote-group "RADIUS_Admins"
+         set accprofile "super_admin"
+         set accprofile-override enable
+     next
+ end
