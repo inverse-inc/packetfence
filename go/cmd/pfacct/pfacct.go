@@ -51,6 +51,7 @@ type PfAcct struct {
 	LoggerCtx                 context.Context
 	Dispatcher                *Dispatcher
 	SwitchInfoCache           *cache.Cache
+	EndpointSwitchCache       *cache.Cache
 	NodeSessionCache          *cache.Cache
 	AcctSessionCache          *cache.Cache
 	RateLimitCache            *cache.Cache
@@ -111,6 +112,7 @@ func NewPfAcct(logLevel string) *PfAcct {
 		AAANotifyQueueSize:  DefaultAAANotifyQueueSize,
 	}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
+	pfAcct.EndpointSwitchCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(nodeSessionExpiration, nodeSessionCleanupInterval)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.SessionOnlineCache = cache.New(sessionOnlineRefreshTtl, 10*time.Minute)

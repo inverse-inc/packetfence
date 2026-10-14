@@ -392,8 +392,12 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac, native n
 	}
 
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
-		attr["NAS-IP-Address"] = strings.Split(r.RemoteAddr.String(), ":")[0]
-		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
+		if info, ok := ctx.Value(switchInfoKey).(*SwitchInfo); ok && info.NasIP != "" {
+			attr["NAS-IP-Address"] = info.NasIP
+		} else {
+			attr["NAS-IP-Address"] = strings.Split(r.RemoteAddr.String(), ":")[0]
+			logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
+		}
 	}
 
 	status := rfc2866.AcctStatusType_Get(r.Packet)
@@ -648,16 +652,45 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		}
 	}
 
-	switchInfo, err := h.SwitchLookup(macStr, srcIpAddr, nasIpAddr)
-	if err != nil {
-		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+srcIpAddr+"' not found :"+err.Error())
-		return nil, nil, err
+	// Connector accounting is signed with the unified secret, not the inner
+	// switch's secret (see below).
+	viaConnector := h.unifiedSecret != "" && hasPacketFenceConnectorID(attrs)
+
+	var switchInfo *SwitchInfo
+	lookupErr := errNoSwitch
+	if nasIpAddr == "" {
+		// The switch of this endpoint was already identified from its location
+		// (see below): skip the lookups that failed for it then.
+		if cached, ok := h.switchFromEndpointCache(attrs, raw, viaConnector); ok {
+			switchInfo, lookupErr = cached, nil
+		}
 	}
 
-	// Validate that the packet authenticates with the resolved secret.
-	if _, err := radius.Parse(raw, []byte(switchInfo.Secret)); err != nil {
-		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
-		return nil, nil, err
+	if lookupErr != nil {
+		switchInfo, lookupErr = h.SwitchLookup(macStr, srcIpAddr, nasIpAddr)
+		if lookupErr == nil {
+			// Validate that the packet authenticates with the resolved secret.
+			// radius.Parse only decodes: the Accounting-Request authenticator has to
+			// be checked explicitly, otherwise the first radius_nas entry matching
+			// the source is accepted whatever its secret.
+			lookupErr = h.checkAuthenticator(raw, switchInfo, viaConnector)
+		}
+
+		if lookupErr != nil && nasIpAddr == "" {
+			// No NAS-IP-Address (Junos never sends it in accounting) and the source
+			// address did not identify the switch: behind the docker-proxy of the
+			// pfacct container every packet comes from the bridge gateway. Try the
+			// switch the endpoint was last authenticated on; it is only accepted if
+			// the packet authenticator validates with that switch's secret.
+			if fallback, ok := h.switchFromEndpointLocation(attrs, raw, viaConnector); ok {
+				switchInfo, lookupErr = fallback, nil
+			}
+		}
+	}
+
+	if lookupErr != nil {
+		logError(h.LoggerCtx, "RADIUSSecret: switch for source '"+srcIpAddr+"' (NAS-IP-Address '"+nasIpAddr+"', Called-Station-Id '"+macStr+"'): "+lookupErr.Error())
+		return nil, nil, lookupErr
 	}
 
 	// switchInfo is a shared cached pointer; never mutate it. Copy before overriding.
@@ -667,7 +700,7 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	// with the unified secret, not the inner switch's secret. Keep the switch
 	// identity (attributes) resolved above, but validate and respond with
 	// the unified secret, mirroring the auth dynamic-clients ConnectorID resolution.
-	if h.unifiedSecret != "" && hasPacketFenceConnectorID(attrs) {
+	if viaConnector {
 		cp := *info
 		cp.Secret = h.unifiedSecret
 		info = &cp
@@ -822,6 +855,7 @@ func logDebug(ctx context.Context, msg string) {
 
 type RadiusStatements struct {
 	switchLookup                    *sql.Stmt
+	lastSwitchIpOfEndpoint          *sql.Stmt
 	insertBandwidthAccountingStart  *sql.Stmt
 	insertBandwidthAccountingUpdate *sql.Stmt
 	softNodeTimeBalanceUpdate       *sql.Stmt
@@ -904,6 +938,10 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 			( SELECT nasname, secret, unique_session_attributes , 2 as o from radius_nas WHERE INET_ATON(?) BETWEEN start_ip AND end_ip order by range_length limit 1)
 
 		) as x ORDER BY o LIMIT 1;
+	`)
+
+	setupStmt(db, &rs.lastSwitchIpOfEndpoint, `
+		SELECT switch_ip FROM locationlog WHERE mac = ? AND switch_ip IS NOT NULL AND switch_ip != '' ORDER BY start_time DESC LIMIT 1;
 	`)
 
 	setupStmt(db, &rs.insertBandwidthAccountingStart, `
@@ -1104,6 +1142,111 @@ func (rs *RadiusStatements) NodeBandwidthBalanceSubtract(mac mac.Mac, balance in
 type SwitchInfo struct {
 	Nasname, Secret  string
 	RadiusAttributes db.CsvArray
+	// NasIP is the address of the switch when pfacct had to identify it without
+	// a NAS-IP-Address (see switchFromEndpointLocation); it then stands in for
+	// the missing attribute when the request is handed to PacketFence.
+	NasIP string
+}
+
+// errBadAuthenticator: the request does not authenticate with the secret of
+// the switch it was attributed to.
+var errBadAuthenticator = errors.New("request authenticator does not match the switch secret")
+
+// checkAuthenticator verifies that raw is a well formed request signed with
+// the secret of info (or with the unified secret for connector traffic).
+func (h *PfAcct) checkAuthenticator(raw []byte, info *SwitchInfo, viaConnector bool) error {
+	secret := info.Secret
+	if viaConnector {
+		secret = h.unifiedSecret
+	}
+	if _, err := radius.Parse(raw, []byte(secret)); err != nil {
+		return err
+	}
+	if !radius.IsAuthenticRequest(raw, []byte(secret)) {
+		return errBadAuthenticator
+	}
+	return nil
+}
+
+// errNoSwitch: no switch was looked up yet for the request.
+var errNoSwitch = errors.New("no switch found for the request")
+
+// callingStationMac returns the endpoint MAC of the request (Calling-Station-Id).
+func callingStationMac(attrs radius.Attributes) (string, bool) {
+	attr, ok := attrs.Lookup(rfc2865.CallingStationID_Type)
+	if !ok {
+		return "", false
+	}
+
+	endpoint, err := mac.NewFromString(string(attr))
+	if err != nil {
+		return "", false
+	}
+
+	return endpoint.String(), true
+}
+
+// switchFromEndpointCache returns the switch switchFromEndpointLocation
+// identified for this endpoint, if the packet still authenticates with its
+// secret. An endpoint that moved to a switch with another secret is forgotten
+// and looked up again.
+func (h *PfAcct) switchFromEndpointCache(attrs radius.Attributes, raw []byte, viaConnector bool) (*SwitchInfo, bool) {
+	if h.EndpointSwitchCache == nil {
+		return nil, false
+	}
+
+	endpoint, ok := callingStationMac(attrs)
+	if !ok {
+		return nil, false
+	}
+
+	item, found := h.EndpointSwitchCache.Get(endpoint)
+	if !found {
+		return nil, false
+	}
+
+	info := item.(*SwitchInfo)
+	if err := h.checkAuthenticator(raw, info, viaConnector); err != nil {
+		h.EndpointSwitchCache.Delete(endpoint)
+		return nil, false
+	}
+
+	return info, true
+}
+
+// switchFromEndpointLocation identifies the NAS of an accounting request that
+// carries no NAS-IP-Address from the switch where its Calling-Station-Id was
+// last authenticated (locationlog.switch_ip). The candidate is only returned if
+// the packet authenticator validates with its secret, so a wrong guess is
+// rejected exactly like an unknown source.
+func (h *PfAcct) switchFromEndpointLocation(attrs radius.Attributes, raw []byte, viaConnector bool) (*SwitchInfo, bool) {
+	endpoint, ok := callingStationMac(attrs)
+	if !ok {
+		return nil, false
+	}
+
+	var switchIp string
+	if err := h.lastSwitchIpOfEndpoint.QueryRow(endpoint).Scan(&switchIp); err != nil || switchIp == "" {
+		return nil, false
+	}
+
+	candidate, err := h.SwitchLookup("", switchIp, switchIp)
+	if err != nil {
+		return nil, false
+	}
+
+	if err := h.checkAuthenticator(raw, candidate, viaConnector); err != nil {
+		return nil, false
+	}
+
+	// candidate is a shared cached pointer: copy before setting NasIP
+	info := *candidate
+	info.NasIP = switchIp
+	if h.EndpointSwitchCache != nil {
+		h.EndpointSwitchCache.Set(endpoint, &info, cache.DefaultExpiration)
+	}
+	logInfo(h.LoggerCtx, fmt.Sprintf("No NAS-IP-Address in the accounting request for %s: identified the switch %s from where the endpoint was authenticated", endpoint, switchIp))
+	return &info, true
 }
 
 func (h *PfAcct) SwitchLookup(mac, srcIp, nasIp string) (*SwitchInfo, error) {
