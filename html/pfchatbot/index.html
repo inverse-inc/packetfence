@@ -1,0 +1,1864 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>PacketFence Assistant</title>
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel=stylesheet>
+<style>
+:root{
+  /* refined console — deep slate + amber */
+  --bg:#12151a;--surface:#181c23;--raised:#1f242d;--border:#2c333e;--border-soft:#232932;
+  --text:#e2e6ec;--muted:#8b95a4;--faint:#616c7c;
+  --accent:#f0a63c;--accent-strong:#ffc06a;--accent-dim:rgba(240,166,60,.12);--accent-line:rgba(240,166,60,.40);
+  --ok:#4bbf8a;--err:#f0685c;--codebg:#0d1015;--shade:rgba(8,10,14,.66);--glow:rgba(240,166,60,.05);
+  --rule:#242b35;--serif-ink:#f2f4f7;
+  --mono:'JetBrains Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+[data-theme=light]{
+  /* warm workbench — paper + burnt orange */
+  --bg:#f2ece1;--surface:#fbf7f0;--raised:#ebe3d5;--border:#d6cbb7;--border-soft:#e3dacb;
+  --text:#2b2724;--muted:#6f6659;--faint:#9a9083;
+  --accent:#c2500f;--accent-strong:#a8430b;--accent-dim:rgba(194,80,15,.09);--accent-line:rgba(194,80,15,.40);
+  --ok:#1d7f57;--err:#b83a2c;--codebg:#ece4d6;--shade:rgba(48,38,26,.34);--glow:rgba(194,80,15,.05);
+  --rule:#ded3c0;--serif-ink:#241f1b;
+}
+*{box-sizing:border-box}
+body,header,footer,aside,.bubble,.panel,textarea,select,input{transition:background-color .18s,border-color .18s,color .18s}
+html,body{height:100%;margin:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;font-size:14.5px;line-height:1.55;
+  /* slashed zero + disambiguated l/I: this console is full of hex, MACs and
+     serials where Inter's default 0/O and 1/l/I are near-identical */
+  font-feature-settings:'zero' 1,'ss02' 1;
+  background-image:radial-gradient(1100px 500px at 85% -10%,var(--glow),transparent 60%)}
+main{flex:1;display:flex;flex-direction:column;min-width:0;height:100%}
+
+/* ── sidebar ── */
+aside{width:250px;flex:none;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%}
+.side-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--border)}
+.side-head span{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+#threads{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:3px}
+#threads::-webkit-scrollbar{width:8px}
+#threads::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+.thread{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;flex-wrap:wrap}
+.thread:hover{background:var(--raised)}
+.thread.active{background:var(--raised);border-color:var(--accent-line)}
+.thread .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.thread .tw{font-family:var(--mono);font-size:9.5px;color:var(--faint);flex:none;font-variant-numeric:tabular-nums}
+.thread .del{flex:none;background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;padding:0 3px;border-radius:5px;opacity:0}
+.thread:hover .del{opacity:1}
+.thread .del:hover{color:var(--err)}
+.thread .tsnip{flex-basis:100%;font-size:10.5px;color:var(--faint);font-style:italic;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.side-empty{font-family:var(--mono);font-size:11px;color:var(--faint);padding:14px;text-align:center}
+.side-head-btns{display:flex;gap:6px;align-items:center}
+.side-head-btns .hbtn{padding:4px 8px;display:flex;align-items:center}
+.threadfilter{display:none;flex-direction:column;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.threadfilter.open{display:flex}
+#threadq{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;
+  padding:6px 10px;font-size:12px;font-family:var(--mono)}
+#threadq::placeholder{color:var(--faint)}
+#threadq:focus{outline:none;border-color:var(--accent-line)}
+#threadsort{background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:7px;
+  padding:5px 8px;font-size:11px;font-family:var(--mono);cursor:pointer}
+#burger{display:none}
+@media (max-width:780px){
+  aside{position:fixed;left:0;top:0;bottom:0;z-index:20;transform:translateX(-100%);transition:transform .2s;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  aside.open{transform:none}
+  #burger{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:none;
+    border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:15px;flex:none}
+}
+
+/* ── header ── */
+header{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);
+  background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(6px);position:sticky;top:0;z-index:5}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(62,207,142,.16);flex:none}
+.titles{display:flex;flex-direction:column;gap:1px;min-width:0}
+h1{font-size:13px;font-weight:700;letter-spacing:.06em;margin:0;text-transform:uppercase}
+.sub{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.04em}
+#pfver:not(:empty){color:var(--muted)}
+#pfver:not(:empty)::before{content:' \00b7 ';color:var(--faint)}
+.spacer{flex:1}
+.hbtn{font-family:var(--mono);font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);
+  border-radius:7px;padding:5px 10px;cursor:pointer;letter-spacing:.03em}
+.hbtn:hover{color:var(--text);border-color:var(--accent-line)}
+
+/* ── log ── */
+#log{flex:1;overflow-y:auto;padding:22px 18px 10px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+#log::-webkit-scrollbar{width:9px}
+#log::-webkit-scrollbar-thumb{background:var(--border);border-radius:9px;border:2px solid var(--bg)}
+.wrap{width:100%;max-width:880px;margin:0 auto;display:flex;flex-direction:column}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:4px}
+/* the query sits right-aligned and hugs its own text; the answer runs left */
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.bot{align-self:flex-start}
+/* Assistant replies are typeset as documents: no card, no border, just a hairline
+   rule and generous measure. The user's own turns stay as compact bubbles so the
+   conversation still reads as a dialogue. */
+.msg.bot{max-width:74ch}
+.who{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;padding:0 2px}
+.bubble{position:relative;word-break:break-word}
+/* the user's own turn is a quiet grey card — the amber is reserved for the
+   assistant's machine values and links, so the query doesn't shout over them */
+.user .bubble{background:var(--raised);border:1px solid var(--border);border-radius:13px;
+  border-bottom-right-radius:5px;padding:11px 14px;white-space:pre-wrap}
+/* on paper, --raised reads muddy against --bg; the lighter surface reads as a card */
+[data-theme=light] .user .bubble{background:var(--surface)}
+.bot .bubble{background:none;border:none;border-left:2px solid var(--rule);border-radius:0;
+  padding:2px 0 2px 18px;font-size:15px;line-height:1.68}
+.bot .bubble>*:first-child{margin-top:0}
+.bot .bubble>*:last-child{margin-bottom:0}
+.bot .bubble p{margin:.35em 0}
+.fbbar{display:flex;align-items:center;gap:4px;margin:3px 2px 0 2px;align-self:flex-start;
+  opacity:0;transition:opacity .14s}
+.msg.bot:hover .fbbar,.fbbar:focus-within{opacity:1}
+.fbbar .fbbtn.on{opacity:1}
+.fbbtn{background:none;border:1px solid transparent;border-radius:6px;cursor:pointer;
+  font-size:12px;line-height:1;padding:2px 5px;filter:grayscale(1) opacity(.6);transition:filter .12s,border-color .12s}
+.fbbtn:hover{border-color:var(--border);filter:grayscale(0) opacity(1)}
+.fbbtn.on{filter:grayscale(0) opacity(1);border-color:var(--accent-line);background:var(--accent-dim)}
+.fbnote{font-family:var(--mono);font-size:10px;color:var(--faint);margin-left:4px}
+/* download chips shown under a reply that produced files */
+.filechips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 2px 0}
+.filechip{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+  font-family:var(--mono);font-size:11px;color:var(--accent-strong);
+  background:var(--accent-dim);border:1px solid var(--accent-line);border-radius:8px;padding:4px 10px}
+.filechip:hover{background:var(--accent);color:#fff8f0}
+.filechip .fsz{color:var(--faint);font-size:10px}
+.filechip:hover .fsz{color:#fff8f0}
+/* files side pane */
+#nodepane{width:290px;flex:none;background:var(--surface);border-left:1px solid var(--border);
+  display:none;flex-direction:column;height:100%}
+#nodepane.open{display:flex}
+.np-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;
+  border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10.5px;
+  color:var(--faint);letter-spacing:.09em;text-transform:uppercase}
+.np-body{flex:1;overflow-y:auto;padding:14px}
+.np-mac{font-family:var(--mono);font-size:13px;color:var(--accent-strong);word-break:break-all}
+.np-status{display:inline-block;margin-top:7px;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.05em;text-transform:uppercase;padding:2px 9px;border-radius:999px;
+  border:1px solid var(--border);color:var(--muted)}
+.np-status.reg{color:var(--ok);border-color:var(--ok)}
+.np-status.unreg{color:var(--accent-strong);border-color:var(--accent-line)}
+.np-facts{margin:14px 0 0;display:flex;flex-direction:column;gap:7px}
+.np-fact{display:flex;gap:8px;font-size:12.5px;line-height:1.4}
+.np-fact dt{flex:none;width:88px;color:var(--faint);font-family:var(--mono);font-size:10px;
+  letter-spacing:.04em;text-transform:uppercase;padding-top:2px}
+.np-fact dd{margin:0;color:var(--text);word-break:break-word;font-variant-numeric:tabular-nums}
+.np-acts{margin-top:16px;display:flex;flex-direction:column;gap:7px}
+.np-act{font-family:var(--sans);font-size:12.5px;text-align:left;background:none;
+  border:1px solid var(--border);border-radius:9px;padding:8px 12px;color:var(--text);cursor:pointer}
+.np-act:hover{border-color:var(--accent-line);color:var(--accent-strong);background:var(--accent-dim)}
+.np-act.danger:hover{border-color:var(--err);color:var(--err);background:none}
+.np-refresh{background:none;border:none;color:var(--faint);cursor:pointer;font-size:13px;
+  line-height:1;padding:2px 5px;border-radius:6px}
+.np-refresh:hover{color:var(--accent-strong);background:var(--accent-dim)}
+.np-refresh.spin{animation:npspin .7s linear infinite}
+@keyframes npspin{to{transform:rotate(360deg)}}
+.np-rolebox{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.np-rolelabel{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+.np-rolerow{display:flex;gap:6px}
+#nprole{flex:1;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--border);
+  border-radius:9px;padding:7px 9px;font-size:12.5px;font-family:var(--sans);cursor:pointer}
+#nprole:focus{outline:none;border-color:var(--accent-line)}
+[data-theme=light] #nprole{background:var(--surface)}
+#nproleapply{flex:none;background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);
+  border-radius:9px;padding:0 13px;font-family:var(--mono);font-size:11.5px;font-weight:600;cursor:pointer}
+#nproleapply:hover:not(:disabled){filter:brightness(1.07)}
+#nproleapply:disabled{opacity:.4;cursor:default}
+.np-msg{font-family:var(--mono);font-size:10.5px;color:var(--faint);min-height:13px}
+.np-msg.bad{color:var(--err)}
+.np-note{margin-top:14px;font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--faint)}
+.np-empty{font-family:var(--mono);font-size:11px;color:var(--faint);padding:14px;text-align:center}
+@media (max-width:980px){#nodepane{position:fixed;right:0;top:0;bottom:0;z-index:21;
+  box-shadow:-4px 0 24px rgba(0,0,0,.4)}}
+#filespane{width:260px;flex:none;background:var(--surface);border-left:1px solid var(--border);
+  display:none;flex-direction:column;height:100%}
+#filespane.open{display:flex}
+.fp-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;
+  border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10.5px;
+  color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+.fp-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:4px}
+.fp-item{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;
+  border:1px solid transparent}
+.fp-item:hover{background:var(--raised);border-color:var(--border)}
+.fp-row{display:flex;align-items:center;gap:6px}
+.fp-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:12.5px;color:var(--accent-strong);text-decoration:none}
+.fp-name:hover{text-decoration:underline}
+.fp-del{background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;padding:0 2px;opacity:0}
+.fp-item:hover .fp-del{opacity:1}
+.fp-del:hover{color:var(--err)}
+.fp-meta{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.fp-kind{font-size:9px;border:1px solid var(--border);border-radius:999px;padding:0 6px;
+  color:var(--faint);text-transform:uppercase;letter-spacing:.04em;flex:none}
+.fp-empty{font-family:var(--mono);font-size:11px;color:var(--faint);padding:14px;text-align:center}
+.fp-foot{padding:9px 13px;border-top:1px solid var(--border);font-family:var(--mono);
+  font-size:9.5px;color:var(--faint)}
+#attachbtn{background:none;border:1px solid var(--border);border-radius:11px;width:42px;height:42px;
+  color:var(--muted);cursor:pointer;flex:none;display:inline-flex;align-items:center;justify-content:center}
+#attachbtn:hover{color:var(--accent-strong);border-color:var(--accent-line)}
+#attachbtn.busy{opacity:.5;cursor:default}
+@media (max-width:980px){#filespane{position:fixed;right:0;top:0;bottom:0;z-index:20;
+  box-shadow:-4px 0 24px rgba(0,0,0,.4)}}
+.bot .bubble h1,.bot .bubble h2,.bot .bubble h3,.bot .bubble h4{
+  margin:1.05em 0 .3em;font-weight:600;line-height:1.25;color:var(--text)}
+.bot .bubble h1,.bot .bubble h2,.bot .bubble h3{letter-spacing:-.011em}
+.bot .bubble h1{font-size:1.5em}
+.bot .bubble h2{font-size:1.28em}
+/* h3 is the workhorse: the diagnose report heads every section with ### */
+.bot .bubble h3{font-size:1.14em}
+/* h4 demotes to a caption so a fourth level reads as a label, not a heading */
+.bot .bubble h4{font-size:.82em;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.09em;margin-top:1.2em}
+.bot .bubble h1:first-child,.bot .bubble h2:first-child,.bot .bubble h3:first-child{margin-top:0}
+.bot .bubble p:first-child{margin-top:0}
+.bot .bubble p:last-child{margin-bottom:0}
+.bot .bubble ol,.bot .bubble ul{margin:.4em 0;padding-left:1.5em;display:flex;flex-direction:column;gap:.25em}
+/* Every highlight — machine values, UI labels and admin nav paths — renders the
+   same way: plain emphasis, no chip, no box. Fenced code blocks keep mono. */
+/* Machine values (MACs, IPs, ids, paths) are set in the mono face; UI labels and
+   admin nav paths stay in the UI face. No chips — emphasis comes from colour. */
+.bubble :not(pre)>code,.bubble a.navlink,.bubble .uilabel{
+  background:none;border:none;padding:0;border-radius:0;
+  color:var(--accent-strong);font-weight:600;overflow-wrap:anywhere}
+.bubble :not(pre)>code{font-family:var(--mono);font-size:.88em;font-weight:500;letter-spacing:-.1px}
+.bubble a.navlink,.bubble .uilabel{font-family:var(--sans);font-size:inherit}
+.bubble :not(pre)>code{position:relative}
+/* the only differentiator: a faint underline so a nav path reads as clickable */
+.bubble a.navlink{text-decoration:none;border-bottom:1px dotted var(--accent-line)}
+.bubble a.navlink:hover{border-bottom-style:solid}
+.bubble a.navlink .navsep{opacity:.55;font-weight:500}
+/* only MAC addresses are copyable — other highlights are plain emphasis */
+.bubble code.mac{cursor:pointer}
+.bubble code.copied{color:var(--ok)}
+/* small collapsed copy button, shown on hover over a MAC token */
+.bubble :not(pre)>code.mac::after{content:'copy';position:absolute;top:-14px;right:-4px;
+  font-family:var(--mono);font-size:8.5px;line-height:1;letter-spacing:.03em;
+  padding:2px 6px;border-radius:5px;background:var(--raised);border:1px solid var(--border);
+  color:var(--muted);white-space:nowrap;opacity:0;transform:translateY(2px);
+  transition:opacity .12s,transform .12s;z-index:6;cursor:pointer;pointer-events:auto}
+.bubble :not(pre)>code.mac:hover::after{opacity:1;transform:translateY(0)}
+.bubble :not(pre)>code.mac.copied::after{content:'copied';color:var(--ok);border-color:var(--ok);opacity:1;transform:translateY(0)}
+.bubble code.copyfail{color:var(--err)}
+.bubble :not(pre)>code.mac.copyfail::after{content:'failed';color:var(--err);border-color:var(--err);opacity:1;transform:translateY(0)}
+.bubble pre{background:var(--codebg);border:1px solid var(--border-soft);border-radius:9px;padding:11px 13px;overflow-x:auto;margin:.5em 0}
+.bubble pre code{background:none;border:none;padding:0;cursor:text;white-space:pre;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:400;overflow-wrap:normal}
+.bubble a{color:var(--accent-strong)}
+.copybtn{position:absolute;top:7px;right:7px;font-family:var(--mono);font-size:10px;color:var(--muted);
+  background:var(--raised);border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;
+  opacity:0;transition:opacity .15s}
+.msg.bot:hover .copybtn{opacity:1}
+.copybtn:hover{color:var(--text)}
+.copybtn.done{color:var(--ok);opacity:1}
+
+/* ── agent trace (signature element) ── */
+.trace{font-family:var(--mono);font-size:11.5px;color:var(--muted);align-self:flex-start;max-width:88%;font-variant-numeric:tabular-nums;
+  border-left:2px solid var(--accent-line);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:4px}
+.trace .row{display:flex;gap:7px;align-items:baseline}
+.trace .row::before{content:"\203A";color:var(--accent);flex:none}
+.trace .row.err{color:var(--err)}
+.trace .row.dbg{color:var(--faint);font-size:10.5px}
+.trace .row.dbg::before{color:var(--faint)}
+.trace .row.err::before{color:var(--err)}
+.curlrow{align-items:baseline}
+.curltxt{word-break:break-all}
+.curlrow .curlcopy{flex:none;margin-left:8px;font-family:var(--mono);font-size:9.5px;background:none;
+  border:1px solid var(--border);border-radius:5px;color:var(--faint);padding:1px 7px;cursor:pointer;
+  opacity:0;transition:opacity .12s}
+.curlrow:hover .curlcopy{opacity:1}
+.curlrow .curlcopy:hover{color:var(--text);border-color:var(--accent-line)}
+.curlrow .curlcopy.done{color:var(--ok);border-color:var(--ok);opacity:1}
+.pending .cursor{display:inline-block;width:7px;height:12px;background:var(--accent);margin-left:2px;
+  animation:blink 1s steps(1) infinite;vertical-align:-2px}
+.pending .t{color:var(--faint)}
+@keyframes blink{50%{opacity:0}}
+
+/* ── footer / composer ── */
+footer{border-top:1px solid var(--border);background:var(--surface);padding:12px 18px 14px}
+.diagbar{display:flex;align-items:center;gap:8px;max-width:880px;margin:0 auto 10px}
+.diaglabel{font-family:var(--mono);font-size:11px;color:var(--accent-strong);letter-spacing:.04em;
+  text-transform:uppercase;flex:none;display:flex;align-items:center;gap:5px;
+  background:none;border:none;cursor:pointer;padding:4px 2px}
+.diaglabel::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;
+  transition:transform .15s}
+.diaglabel[aria-expanded=true]::before{transform:scale(1.25);background:var(--ok)}
+.diaglabel[aria-expanded=true]{color:var(--ok)}
+.diaglabel:hover{color:var(--accent)}
+.diaglabel[aria-expanded=true]:hover{color:var(--ok)}
+.diagfields{display:none;flex:1;align-items:center;gap:8px}
+.diagfields.open{display:flex}
+#diagin{flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;
+  padding:7px 11px;font-size:13px;font-family:var(--mono)}
+#diagin::placeholder{color:var(--faint)}
+#diagin:focus{outline:none;border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(255,148,64,.08)}
+#diagbtn{flex:none;background:var(--accent-dim);color:var(--accent-strong);border:1px solid var(--accent-line);
+  border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--mono)}
+#diagbtn:hover{background:var(--accent);color:#fff8f0}
+.chips{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;max-width:880px;margin:0 auto 10px;
+  scrollbar-width:none;-ms-overflow-style:none}
+.confirmcard{max-width:880px;margin:4px auto 14px;background:var(--raised);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:10px;padding:13px 16px}
+.confirmhd{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);letter-spacing:.02em;margin-bottom:6px}
+.confirmbody{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.confirmbody b{color:var(--text)}
+.confirmrow{display:flex;gap:10px}
+.confirmno,.confirmyes{font-family:var(--mono);font-size:12px;font-weight:600;padding:7px 16px;border-radius:8px;cursor:pointer;border:1px solid var(--border)}
+.confirmno{background:transparent;color:var(--muted)}
+.confirmno:hover{color:var(--text);border-color:var(--muted)}
+.confirmyes{background:var(--accent);color:#fff8f0;border-color:var(--accent)}
+.confirmyes:hover{filter:brightness(1.06)}
+.confirmmsg{font-family:var(--mono);font-size:11.5px;margin-top:10px;min-height:0;color:var(--muted)}
+.confirmmsg.ok{color:var(--ok)}.confirmmsg.bad{color:var(--err)}
+.confirmresp{margin-top:10px;background:var(--codebg);border:1px solid var(--border-soft);border-radius:8px;
+  padding:10px 12px;font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text);
+  white-space:pre-wrap;word-break:break-word;max-height:260px;overflow:auto}
+.nodeactions{max-width:880px;margin:2px auto 14px;display:flex;flex-direction:column;gap:8px}
+.natoggle{display:flex;align-items:center;gap:7px;background:none;border:none;cursor:pointer;padding:2px 0;
+  font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em}
+.natoggle:hover{color:var(--text)}
+.natoggle .naicon{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;transition:transform .15s}
+.natoggle[aria-expanded=true] .naicon{transform:scale(1.3)}
+.namac{color:var(--accent-strong)}
+.nastatus{font-size:10px;padding:1px 7px;border-radius:999px;border:1px solid var(--border);color:var(--faint);text-transform:uppercase;letter-spacing:.04em}
+.nabtns{display:none;gap:6px;flex-wrap:wrap;padding-left:14px}
+.nabtns.open{display:flex}
+.nabtn{font-family:var(--mono);font-size:11px;color:var(--accent-strong);background:var(--accent-dim);
+  border:1px solid var(--accent-line);border-radius:999px;padding:4px 12px;cursor:pointer;transition:background .15s,color .15s}
+.nabtn:hover{background:var(--accent);color:#fff8f0}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;white-space:nowrap;font-family:var(--mono);font-size:11.5px;color:var(--muted);background:var(--raised);border:1px solid var(--border);
+  border-radius:999px;padding:6px 12px;cursor:pointer;transition:border-color .15s,color .15s}
+.chip:hover{color:var(--accent-strong);border-color:var(--accent-line)}
+.composer{display:flex;gap:9px;align-items:flex-end;max-width:880px;margin:0 auto}
+textarea{flex:1;resize:none;max-height:140px;min-height:42px;background:var(--bg);color:var(--text);
+  border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:14.5px;font-family:var(--sans);line-height:1.4}
+textarea::placeholder{color:var(--faint)}
+textarea:focus{outline:none;border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(255,148,64,.08)}
+.send{background:var(--accent);color:#fff8f0;border:none;border-radius:11px;width:42px;height:42px;cursor:pointer;
+  font-size:18px;font-weight:700;flex:none;transition:background .15s}
+.send:hover:not(:disabled){background:var(--accent-strong)}
+.send:disabled{opacity:.35;cursor:default}
+/* while a request is in flight the same control becomes Stop */
+/* must out-specify .send:hover:not(:disabled), which would otherwise repaint
+   the stop control in the accent colour whenever the pointer rests on it */
+.send.stop,.send.stop:hover:not(:disabled){background:var(--err);border-color:var(--err)}
+.send.stop:hover:not(:disabled){filter:brightness(1.08)}
+.send.stopping{opacity:.72}
+.hintrow{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:880px;margin:8px auto 0}
+.hint{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.03em}
+.dbgpill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.03em;
+  color:var(--faint);background:none;border:1px solid var(--border);border-radius:999px;padding:3px 10px;cursor:pointer;flex:none}
+.dbgpill:hover{color:var(--text);border-color:var(--accent-line)}
+.dbgpill .dbgdot{width:6px;height:6px;border-radius:50%;background:var(--border);flex:none}
+.dbgpill.on{color:var(--accent-strong);border-color:var(--accent-line);background:var(--accent-dim)}
+.pillgroup{display:flex;gap:8px;align-items:center}
+.modelwrap{position:relative}
+.modelpop{position:absolute;bottom:calc(100% + 8px);right:0;width:min(320px,80vw);max-height:340px;
+  background:var(--raised);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.28);
+  display:none;flex-direction:column;overflow:hidden;z-index:40}
+.modelpop.open{display:flex}
+.modelpop-head{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;
+  border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10.5px;color:var(--faint);
+  letter-spacing:.05em;text-transform:uppercase}
+.modelpop-head button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px}
+.modelpop-head button:hover{color:var(--accent-strong)}
+.modellist{overflow-y:auto;padding:6px}
+.modelopt{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;cursor:pointer;
+  font-family:var(--mono);font-size:12px;color:var(--text)}
+.modelopt:hover{background:var(--bg)}
+.modelopt.active{background:var(--accent-dim);color:var(--accent-strong)}
+.modelopt .mdot{width:6px;height:6px;border-radius:50%;background:transparent;flex:none}
+.modelopt.active .mdot{background:var(--accent-strong)}
+.modelopt .mrec{margin-left:auto;font-size:9px;color:var(--ok);border:1px solid var(--ok);border-radius:999px;
+  padding:1px 7px;letter-spacing:.03em;flex:none}
+.modelmsg{padding:14px;font-family:var(--mono);font-size:11px;color:var(--faint);text-align:center}
+.dbgpill.on .dbgdot{background:var(--accent)}
+/* model pill: green dot + subtle active styling when a model is live */
+#modelpill.active{color:var(--text);border-color:var(--ok)}
+#modelpill.active .dbgdot{background:var(--ok);box-shadow:0 0 0 3px rgba(62,207,142,.15)}
+#modelpill.active b{color:var(--ok)}
+@media (max-width:640px){.hint{display:none}.hintrow{justify-content:flex-end}}
+
+/* ── settings modal ── */
+.hicon{background:none;border:1px solid var(--border);border-radius:8px;width:34px;height:34px;color:var(--muted);
+  cursor:pointer;flex:none;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.hicon:hover{color:var(--accent-strong);border-color:var(--accent-line);background:var(--raised)}
+.hicon svg{display:block}
+.tswitch{position:relative;width:58px;height:28px;border-radius:999px;border:1px solid var(--border);
+  background:var(--raised);cursor:pointer;padding:0;flex:none}
+.tswitch:hover{border-color:var(--accent-line)}
+.ticon{position:absolute;top:50%;transform:translateY(-50%);display:inline-flex;color:var(--faint);z-index:2;pointer-events:none}
+.tsun{left:8px}.tmoon{right:8px}
+.tknob{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--accent);
+  box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:1}
+[data-theme=light] .tknob{transform:none}
+[data-theme=light] .tsun{color:#fff8f0}
+html:not([data-theme=light]) .tknob{transform:translateX(30px)}
+html:not([data-theme=light]) .tmoon{color:#fff8f0}
+#overlay{position:fixed;inset:0;background:var(--shade);z-index:30;display:none;align-items:center;justify-content:center}
+#overlay.open{display:flex}
+.panel{width:min(430px,92vw);background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.panel h2{margin:0 0 3px;font-size:14px;letter-spacing:.05em;text-transform:uppercase}
+.panel .cur{font-family:var(--mono);font-size:11px;color:var(--faint);margin-bottom:16px}
+.panel label{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;
+  text-transform:uppercase;margin:12px 0 5px}
+.panel select,.panel input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);
+  border-radius:9px;padding:9px 11px;font-size:14px;font-family:var(--sans)}
+.panel select:focus,.panel input:focus{outline:none;border-color:var(--accent-line)}
+.panel .row2{display:flex;gap:9px;margin-top:18px}
+.keyrow{display:flex;gap:8px;align-items:stretch}
+.keyrow #setkey{flex:1}
+.pbtn.keytest{flex:0 0 auto;width:auto;padding:0 16px;font-size:12px}
+.pbtn{flex:1;border-radius:9px;padding:9px 0;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border)}
+.pbtn.save{background:var(--accent);border-color:var(--accent);color:#fff8f0}
+.pbtn.pulse{animation:ttpulse 1.2s ease-in-out 2}
+/* A standalone action button. .pbtn deliberately has no horizontal padding
+   because it is normally stretched by a flex row — used on its own, the label
+   overflowed the border. This one sizes to its text and matches "Run test". */
+.actbtn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;
+  background:var(--accent);border:1px solid var(--accent);color:#fff8f0;border-radius:9px;
+  padding:9px 18px;font-family:var(--sans);font-size:13px;font-weight:600;
+  line-height:1.2;white-space:nowrap;cursor:pointer}
+.actbtn:hover:not(:disabled){filter:brightness(1.07)}
+.actbtn:disabled{opacity:.55;cursor:default}
+@keyframes ttpulse{0%,100%{box-shadow:0 0 0 0 rgba(224,106,16,.5)}50%{box-shadow:0 0 0 6px rgba(224,106,16,0)}}
+.pbtn.save:hover{background:var(--accent-strong)}
+.pbtn.ghost{background:none;color:var(--muted)}
+.pbtn.ghost:hover{color:var(--text);border-color:var(--accent-line)}
+#ttoverlay{position:fixed;inset:0;background:var(--shade);z-index:30;display:none;align-items:center;justify-content:center}
+#ttoverlay.open{display:flex}
+#capoverlay{position:fixed;inset:0;background:var(--shade);z-index:30;display:none;align-items:center;justify-content:center}
+#capoverlay.open{display:flex}
+#usageoverlay{position:fixed;inset:0;background:var(--shade);z-index:30;display:none;align-items:center;justify-content:center}
+#usageoverlay.open{display:flex}
+.usagepanel{width:min(600px,94vw);max-height:88vh;overflow-y:auto}
+.utabs{display:flex;gap:8px;margin-bottom:16px}
+.utab{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 16px;font-size:11.5px;font-family:var(--mono);cursor:pointer;color:var(--muted);letter-spacing:.04em}
+.utab.active{border-color:var(--accent-line);color:var(--accent-strong);background:var(--accent-dim)}
+.utbl{width:100%;border-collapse:collapse;font-size:12.5px;font-family:var(--mono)}
+.utbl th{text-align:left;color:var(--faint);font-weight:400;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:0 8px 8px 0;border-bottom:1px solid var(--border)}
+.utbl th:not(:first-child){text-align:right}
+.utbl td{padding:7px 8px 7px 0;border-bottom:1px solid var(--border-soft);color:var(--text);white-space:nowrap}
+.utbl td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+.utbl tr:last-child td{border-bottom:none}
+.utbl .utotal{color:var(--accent-strong);font-weight:600}
+#usagemsg{font-family:var(--mono);font-size:11px;margin-top:8px;color:var(--faint)}
+.caprow{display:flex;gap:12px}.caprow>div{flex:1}
+.ttpanel{width:min(560px,94vw);max-height:88vh;overflow-y:auto}
+.ttstate{font-family:var(--mono);font-size:10px;font-weight:400;padding:2px 8px;border-radius:999px;letter-spacing:.04em;vertical-align:middle}
+.ttstate.on{color:var(--ok);border:1px solid var(--ok)}
+.ttstate.off{color:var(--err);border:1px solid var(--err)}
+#ttedit{width:100%;min-height:150px;background:var(--codebg);color:var(--text);border:1px solid var(--border);
+  border-radius:9px;padding:11px 12px;font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;white-space:pre}
+#ttedit:focus{outline:none;border-color:var(--accent-line)}
+.tthealthbox{font-family:var(--mono);font-size:11px;border:1px solid var(--border);border-radius:9px;
+  padding:10px 12px;margin:10px 0;display:flex;flex-direction:column;gap:4px}
+.ttchk{display:flex;gap:8px;align-items:baseline}
+.ttchk .mk{flex:none;width:12px}
+.ttchk.ok .mk{color:var(--ok)}.ttchk.bad .mk{color:var(--err)}
+.ttchk .nm{color:var(--muted);min-width:120px}
+.ttchk .dt{color:var(--faint)}
+.ttedithint{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px;line-height:1.5}
+.ttlink{background:none;border:none;color:var(--accent-strong);cursor:pointer;font:inherit;padding:0;text-decoration:underline}
+.ttpre{background:var(--codebg);border:1px solid var(--border-soft);border-radius:9px;padding:12px;margin-top:12px;
+  font-family:var(--mono);font-size:11.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow-y:auto;color:var(--text)}
+.ttpre .tag{color:var(--accent-strong)}
+.ttverdict{font-family:var(--mono);font-size:12px;font-weight:600;margin-top:12px;padding:9px 12px;border-radius:8px}
+.ttverdict.pass{color:var(--ok);background:rgba(62,207,142,.10);border:1px solid var(--ok)}
+.ttverdict.fail{color:var(--err);background:rgba(255,107,94,.10);border:1px solid var(--err)}
+#setmsg{font-family:var(--mono);font-size:11px;margin-top:11px;min-height:14px}
+#setmsg.ok{color:var(--ok)}#setmsg.bad{color:var(--err)}
+#ttmsg,#capmsg{font-family:var(--mono);font-size:11px;margin-top:11px;min-height:14px}
+#ttmsg.ok,#capmsg.ok{color:var(--ok)}#ttmsg.bad,#capmsg.bad{color:var(--err)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:640px){.msg{max-width:96%}.trace{max-width:96%}#log{padding:16px 12px 8px}header,footer{padding-left:12px;padding-right:12px}}
+</style>
+
+<aside id=side>
+  <div class=side-head>
+    <span>threads</span>
+    <div class=side-head-btns>
+      <button class=hbtn id=threadsearch title="Search / sort threads" aria-label="Search threads">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+      <button class=hbtn id=newthread>+ new</button>
+    </div>
+  </div>
+  <div id=threadfilter class=threadfilter>
+    <input id=threadq placeholder="filter threads…" autocomplete=off spellcheck=false>
+    <select id=threadsort title="Sort order">
+      <option value=newest>Newest first</option>
+      <option value=oldest>Oldest first</option>
+      <option value=relevance>Best match</option>
+      <option value=frequency>Most messages</option>
+      <option value=az>Title A–Z</option>
+    </select>
+  </div>
+  <div id=threads></div>
+</aside>
+<main>
+<header>
+  <button id=burger aria-label="Toggle threads">&#9776;</button>
+  <span class=dot></span>
+  <div class=titles><h1>PacketFence Assistant</h1><div class=sub>ops console<span id=pfver></span></div></div>
+  <div class=spacer></div>
+  <button id=themebtn class=tswitch role=switch aria-checked=true title="Toggle light/dark theme" aria-label="Dark mode">
+    <span class="ticon tsun"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg></span>
+    <span class="ticon tmoon"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.2A8.5 8.5 0 0 1 9.8 3.6a8.5 8.5 0 1 0 10.6 10.6Z"/></svg></span>
+    <span class=tknob></span>
+  </button>
+  <button class=hicon id=filesbtn title="Files in this conversation" aria-label="Files">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h3.4l1.6 2h8A1.5 1.5 0 0 1 20 7.5v11A1.5 1.5 0 0 1 18.5 20h-13A1.5 1.5 0 0 1 4 18.5z"/></svg>
+  </button>
+  <button class=hicon id=usagebtn title="Token usage" aria-label="Token usage">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+  </button>
+  <button class=hicon id=ttbtn title="Test tools (802.1X / RADIUS)" aria-label="Test tools">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 5 8 3.2" fill="none"/><path d="M14.4 5 16 3.2" fill="none"/><g fill="none"><path d="M7.3 10.3 4.5 8.6"/><path d="M6.9 13.4H4"/><path d="M7.3 16.4 4.5 18.1"/><path d="M16.7 10.3 19.5 8.6"/><path d="M17.1 13.4H20"/><path d="M16.7 16.4 19.5 18.1"/></g><path d="M8.3 8.4a3.7 3.7 0 0 1 7.4 0z"/><path d="M11.4 8.8a4.3 5.8 0 0 0 0 11.1 Z"/><path d="M12.6 8.8a4.3 5.8 0 0 1 0 11.1 Z"/></svg>
+  </button>
+  <button class=hicon id=gear title="Provider settings" aria-label="Provider settings">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+  </button>
+</header>
+<div id=log><div class=wrap id=logwrap></div></div>
+<footer>
+  <div class=chips id=chips>
+    <button class=chip>show all nodes</button>
+    <button class=chip>what are the minimum hardware requirements?</button>
+    <button class=chip>show node 00:11:22:33:44:55</button>
+    <button class=chip>how do I register a device?</button>
+  </div>
+  <div class=diagbar>
+    <button class=diaglabel id=diagtoggle title="Diagnose a device or user" aria-expanded=false>Diagnose</button>
+    <div class=diagfields id=diagfields>
+      <input id=diagin placeholder="paste a MAC or username…" autocomplete=off spellcheck=false>
+      <button id=diagbtn title="Run end-to-end diagnosis">Go</button>
+    </div>
+  </div>
+  <div class=composer>
+    <input type=file id=fileinput style="display:none" multiple>
+    <button id=attachbtn title="Attach a file (not indexed for search)" aria-label="Attach a file">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5 12.5 20a5 5 0 0 1-7-7l8.5-8.5a3.4 3.4 0 0 1 4.8 4.8L10.2 17.9a1.8 1.8 0 0 1-2.5-2.5l7.8-7.8"/></svg>
+    </button>
+    <textarea id=in rows=1 placeholder="Ask about nodes, users, config, or the docs…" autofocus></textarea>
+    <button class=send id=send aria-label="Send">&uarr;</button>
+  </div>
+  <div class=hintrow>
+    <span class=hint>enter to send &middot; shift+enter for newline &middot; click a <span style="color:var(--accent-strong)">MAC</span> to copy</span>
+    <div class=pillgroup>
+      <div class=modelwrap>
+        <button id=modelpill class=dbgpill title="Choose the LLM model (fetched from your provider)">
+          <span class=dbgdot></span>model: <b id=modellabel>…</b>
+        </button>
+        <div id=modelpop class=modelpop>
+          <div class=modelpop-head><span id=modelpop-prov>models</span><button id=modelrefresh title="Refresh list">↻</button></div>
+          <div id=modellist class=modellist></div>
+        </div>
+      </div>
+      <button id=dbgpill class=dbgpill title="Toggle verbose trace: shows tool arguments, every API request (LLM + PacketFence), sizes and timing">
+        <span class=dbgdot></span>trace: <b id=dbglabel>standard</b>
+      </button>
+    </div>
+  </div>
+</footer>
+</main>
+<aside id=nodepane>
+  <div class=np-head><span>node inspector</span>
+    <span style="display:flex;gap:2px;align-items:center">
+      <button class=np-refresh id=nprefresh title="Re-read this node from the API">&#8635;</button>
+      <button class=hbtn id=npclose>&times;</button>
+    </span>
+  </div>
+  <div class=np-body id=npbody></div>
+</aside>
+<aside id=filespane>
+  <div class=fp-head><span>files</span><button class=hbtn id=fpclose>&times;</button></div>
+  <div class=fp-list id=fplist></div>
+  <div class=fp-foot id=fpfoot></div>
+</aside>
+<div id=overlay>
+  <div class=panel role=dialog aria-label="Provider settings">
+    <h2>Provider settings</h2>
+    <div class=cur id=setcur>loading&hellip;</div>
+    <label for=setprov>Provider</label>
+    <select id=setprov></select>
+    <label for=setmodel>Model <span style="text-transform:none">(blank = provider default)</span></label>
+    <input id=setmodel placeholder="e.g. gpt-4o, claude-sonnet-4-5">
+    <label for=setkey>API key</label>
+    <div class=keyrow>
+      <input id=setkey type=password autocomplete=off placeholder="paste key">
+      <button class="pbtn ghost keytest" id=settest>Test</button>
+    </div>
+    <div class=row2>
+      <button class="pbtn ghost" id=setreset>Reset to .env defaults</button>
+      <button class="pbtn save" id=setsave>Save &amp; apply</button>
+    </div>
+    <div id=setmsg></div>
+  </div>
+</div>
+<div id=ttoverlay>
+  <div class="panel ttpanel" role=dialog aria-label="Test tools">
+    <h2>Test tools <span class=ttstate id=ttstate></span></h2>
+    <div class=cur>Run 802.1X / RADIUS tests against PacketFence and see the raw output.
+      <button class=ttlink id=tthealth>check environment</button></div>
+    <div id=tthealthbox class=tthealthbox style=display:none></div>
+    <label for=tttool>Tool</label>
+    <select id=tttool></select>
+    <label for=ttvar>Variant</label>
+    <select id=ttvar></select>
+    <div id=ttfields></div>
+    <div class=row2>
+      <button class="pbtn ghost" id=ttpreview>Preview</button>
+      <button class="pbtn save" id=ttrun>Run test</button>
+    </div>
+    <div id=ttmsg></div>
+    <div id=tteditwrap style=display:none>
+      <label for=ttedit style="margin-top:14px">Editable config <span style="text-transform:none">(runs exactly what's below)</span></label>
+      <textarea id=ttedit spellcheck=false></textarea>
+      <div class=ttedithint>Edit freely, then <b>Run test</b>. Target host & secret are fixed by the server. <button class=ttlink id=ttregen>reset to defaults</button></div>
+    </div>
+    <pre id=ttpre class=ttpre style=display:none></pre>
+  </div>
+</div>
+<div id=usageoverlay>
+  <div class="panel usagepanel" role=dialog aria-label="Token usage">
+    <h2>Token usage</h2>
+    <div class=cur>Daily and monthly LLM token consumption.</div>
+    <div class=utabs>
+      <button class="utab active" id=utab-daily>Daily</button>
+      <button class=utab id=utab-monthly>Monthly</button>
+    </div>
+    <div id=usage-table></div>
+    <div id=usagemsg></div>
+  </div>
+</div>
+
+<script>
+const THEME_KEY='pf-theme', DEBUG_KEY='pf-debug';
+
+// ── base path: the UI may be served under a prefix ───────────────────────────
+// Standalone this page lives at "/". Behind the PacketFence admin API it lives at
+// "/api/v1/pfchatbot/" -- caddy strips that prefix before proxying, so the
+// SERVER still sees "/config", but every request the BROWSER makes must carry it.
+// Rather than touch 28 call sites, prefix root-relative URLs in one place.
+const BASE=location.pathname.replace(/\/(?:index\.html)?$/,'');
+function withBase(p){return (BASE&&typeof p==='string'&&p.startsWith('/')&&!p.startsWith('//'))?BASE+p:p;}
+
+// Behind the admin API, requests must also carry the admin session token. The
+// AAA layer accepts a "token" cookie or an Authorization header. If the admin
+// SPA keeps its token in localStorage (same origin, so readable here), send it
+// as a header; a cookie, when present, works on its own.
+function pfToken(){
+  try{for(const k of ['user-token','token','pf-token']){const v=localStorage.getItem(k);if(v)return v;}}catch(e){}
+  return '';
+}
+(function(){
+  const raw=window.fetch.bind(window);
+  window.fetch=function(u,o){
+    if(typeof u==='string'&&BASE){
+      u=withBase(u);
+      const t=pfToken();
+      if(t){o=Object.assign({},o||{});const h=new Headers(o.headers||{});
+        if(!h.has('Authorization'))h.set('Authorization','Bearer '+t);o.headers=h;}
+    }
+    return raw(u,o);
+  };
+})();
+// Download links are plain <a> anchors and cannot send an Authorization
+// header; the AAA layer also accepts a "token" cookie, so mirror it once.
+(function(){
+  try{
+    const t=pfToken();
+    if(t&&BASE&&!document.cookie.split('; ').some(c=>c.startsWith('token=')))
+      document.cookie='token='+t+'; path='+BASE+'/; SameSite=Strict; Secure';
+  }catch(e){}
+})();
+
+function setTheme(t){document.documentElement.dataset.theme=t;
+  try{localStorage.setItem(THEME_KEY,t);}catch(e){}
+  const b=document.getElementById('themebtn');if(b)b.setAttribute('aria-checked',t!=='light');}
+(function(){let t=null;try{t=localStorage.getItem(THEME_KEY);}catch(e){}
+  if(!t)t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+  document.documentElement.dataset.theme=t;})();
+let debugMode=false;try{debugMode=localStorage.getItem(DEBUG_KEY)==='1';}catch(e){}
+
+const log=document.getElementById('log'),wrap=document.getElementById('logwrap'),
+      input=document.getElementById('in'),send=document.getElementById('send'),
+      chips=document.getElementById('chips'),threadsEl=document.getElementById('threads'),
+      newBtn=document.getElementById('newthread'),side=document.getElementById('side'),
+      burger=document.getElementById('burger');
+const threadQ=document.getElementById('threadq'),threadSort=document.getElementById('threadsort'),
+      threadFilter=document.getElementById('threadfilter'),threadSearchBtn=document.getElementById('threadsearch');
+threadSearchBtn.onclick=()=>{
+  const open=threadFilter.classList.toggle('open');
+  if(open)threadQ.focus(); else {threadQ.value='';_searchResults=null;renderThreads();}
+};
+threadQ.addEventListener('input',runThreadSearch);
+threadSort.addEventListener('change',renderThreads);
+let currentThread=null,busy=false,timer=null;
+
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+// Clipboard that also works over plain HTTP: navigator.clipboard only exists in
+// secure contexts (https / localhost), so when the UI is opened via the server's
+// bare IP the modern API is undefined and copying silently fails. Fall back to a
+// hidden textarea + execCommand('copy'), which works everywhere.
+function copyText(t){
+  if(navigator.clipboard&&window.isSecureContext){
+    return navigator.clipboard.writeText(t).catch(()=>_copyFallback(t));
+  }
+  return _copyFallback(t);
+}
+function _copyFallback(t){
+  return new Promise((res,rej)=>{
+    const ta=document.createElement('textarea');ta.value=t;
+    ta.setAttribute('readonly','');ta.style.position='fixed';
+    ta.style.top='0';ta.style.left='0';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    let ok=false;
+    try{ok=document.execCommand('copy');}catch(e){}
+    ta.remove();
+    ok?res():rej(new Error('copy not supported'));
+  });
+}
+
+// ── PacketFence admin deep-links ─────────────────────────────────────────────
+// The model writes menu paths like "Configuration > Policies and Access Control
+// > Connection Profiles". Those are MENU LABELS, not URL segments — PacketFence's
+// admin routes are flat slugs and the middle entry is only a menu heading, so
+// joining the labels ("/Configuration/Policies%20and.../...") yields a dead
+// route. Instead we resolve the LEAF label to a known route, fall back to the
+// section root, and if we recognise neither we leave the text unlinked — a nav
+// link should never land on a 404 and never appear on ordinary prose.
+// Label -> admin route. Verified against the PacketFence admin UI; anything not
+// listed falls back to the snake_case of the label (which is how PacketFence
+// names its routes, e.g. "System Configuration" -> /configuration/system_configuration).
+// To correct or extend a route without editing this file, return a
+// {"label":"/admin/#/..."} object as `nav_routes` from the /config endpoint.
+const PF_ROUTES_DEFAULT={
+  // top level
+  'status':'/admin/#/status','reports':'/admin/#/reports','auditing':'/admin/#/auditing',
+  'nodes':'/admin/#/nodes','users':'/admin/#/users',
+  'configuration':'/admin/#/configuration',
+  // section landing pages
+  'system configuration':'/admin/#/configuration/system_configuration',
+  'policies and access control':'/admin/#/configuration/policies_access_control',
+  'network configuration':'/admin/#/configuration/network_configuration',
+  'compliance':'/admin/#/configuration/compliance',
+  'integration':'/admin/#/configuration/integration',
+  // labels whose route is NOT the snake_case of the label
+  'ssl certificates':'/admin/#/configuration/certificates',
+  'authentication sources':'/admin/#/configuration/sources',
+  'sources':'/admin/#/configuration/sources',
+  'active directory domain':'/admin/#/configuration/domains'
+};
+let PF_ROUTES=Object.assign({},PF_ROUTES_DEFAULT);
+const _norm=s=>(s||'').toLowerCase().replace(/\s+/g,' ').trim();
+const _slug=s=>(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+function pfRoute(segs){
+  const leaf=_norm(segs[segs.length-1]);
+  if(PF_ROUTES[leaf])return PF_ROUTES[leaf];
+  const head=_norm(segs[0]);
+  // under Configuration the leaf is a page: derive its slug
+  if(head==='configuration'||head==='system configuration')
+    return '/admin/#/configuration/'+_slug(segs[segs.length-1]);
+  // otherwise the deepest label we recognise wins
+  for(let i=segs.length-2;i>=0;i--){
+    const k=_norm(segs[i]);
+    if(PF_ROUTES[k])return PF_ROUTES[k];
+  }
+  return null;                       // unknown path -> don't linkify
+}
+// A menu label: either a `backticked` chunk (the model usually writes each step
+// that way) or a run of capitalized words. Capping the word count stops the
+// match from swallowing the rest of the sentence after the last segment.
+const _W='[A-Z][A-Za-z0-9_-]*';
+const _WORDS=_W+'(?:\\s+(?:and|or|of|the|&amp;)\\s+'+_W+'|\\s+'+_W+'){0,4}';
+const _SEG='(?:`[^`\\n]+`|'+_WORDS+')';
+const _SEP='\\s*(?:&gt;|-&gt;|→|»|›)\\s*';
+const NAV_RE=new RegExp(_SEG+'(?:'+_SEP+_SEG+'){1,5}','g');
+const NAV_SEP=/\s*(?:&gt;|-&gt;|→|»|›)\s*/;
+function navLinks(s,hold){
+  if(!pfAdminUrl)return s;
+  return s.replace(NAV_RE,(m)=>{
+    let text=m,prefix='',tail='';
+    // sentence punctuation after the last label isn't part of it
+    const tm=text.match(/[.,;:!?]+$/);
+    if(tm){tail=tm[0];text=text.slice(0,-tail.length);}
+    const segs=text.split(NAV_SEP)
+      .map(x=>x.trim().replace(/^`+|`+$/g,'').trim()).filter(Boolean);
+    if(segs.length<2)return m;
+    // a capitalized sentence-opening word can glue onto the first label
+    // ("Open Configuration > Networks") — drop words until the head is known
+    const w=segs[0].split(/\s+/);
+    for(let i=0;i<w.length;i++){
+      const cand=w.slice(i).join(' '),lc=cand.toLowerCase();
+      if(PF_ROUTES[lc]){
+        if(i>0){prefix=w.slice(0,i).join(' ')+' ';segs[0]=cand;}
+        break;
+      }
+    }
+    const route=pfRoute(segs);
+    if(!route)return m;              // not a PacketFence menu path — leave as text
+    // if the whole path sat inside backticks, swallow them so we emit a plain link
+    if(prefix.endsWith('`'))prefix=prefix.slice(0,-1);
+    if(tail.startsWith('`'))tail=tail.slice(1);
+    const url=pfAdminUrl+route;
+    // render the whole path as ONE breadcrumb link instead of separate chips
+    hold.push('<a class=navlink href="'+url+'" target="_blank" rel="noopener" title="'+url+'">'
+      +segs.join(' <span class=navsep>\u2192</span> ')+'</a>');
+    return prefix+'\u0002'+(hold.length-1)+'\u0002'+tail;
+  });
+}
+
+// only MACs get a copy affordance: colon/dash separated, cisco dotted, or bare
+const MAC_RE=/^(?:[0-9A-Fa-f]{2}(?:[:-][0-9A-Fa-f]{2}){5}|[0-9A-Fa-f]{4}(?:\.[0-9A-Fa-f]{4}){2}|[0-9A-Fa-f]{12})$/;
+// A backticked chunk that is really a UI label ("New domain", "Create & Join",
+// "REALMS") shouldn't get a code-block chip — it isn't code. Anything with a
+// path/URL/identifier character, or a single lowercase/snake token, stays code.
+function isUiLabel(t){
+  if(/[\/\\:=<>{}$|]/.test(t))return false;          // paths, URLs, shell, templates
+  if(/^[A-Z][A-Z0-9]{1,15}$/.test(t))return true;    // REALMS, AD, NULL
+  return /\s/.test(t) && !/_/.test(t);               // multi-word label, not snake_case
+}
+
+function md(s){
+  s=esc(s);
+  const pre=[],hold=[];
+  s=s.replace(/```\w*\n?([\s\S]*?)```/g,(m,c)=>{pre.push('<pre><code>'+c.replace(/\n$/,'')+'</code></pre>');return '\u0001'+(pre.length-1)+'\u0001';});
+  // nav paths FIRST, while the segments are still backticked — the model writes
+  // them as `Configuration` -> `Domains`, so this must run before the inline
+  // code pass hides them. Matched paths collapse into one breadcrumb link.
+  s=navLinks(s,hold);
+  // remaining inline code -> held aside so later passes can't mangle it
+  s=s.replace(/`([^`\n]+)`/g,(m,c)=>{
+    const t=c.trim();
+    if(MAC_RE.test(t))hold.push('<code class=mac>'+c+'</code>');
+    else if(isUiLabel(t))hold.push('<span class=uilabel>'+c+'</span>');
+    else hold.push('<code>'+c+'</code>');
+    return '\u0002'+(hold.length-1)+'\u0002';
+  });
+  s=s.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s=s.replace(/(?<!["=])(https?:\/\/[^\s<)]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+  const lines=s.split('\n');let out=[],mode=null,olSeq=0;
+  const close=()=>{if(mode){out.push(mode==='ol'?'</ol>':'</ul>');mode=null;}};
+  for(const ln of lines){let m;
+    if(m=ln.match(/^\s*(#{1,4})\s+(.*)/)){close();olSeq=0;const h=m[1].length;out.push('<h'+h+'>'+m[2].trim()+'</h'+h+'>');}
+    // Numbered steps almost always have bullets between them, which closes the
+    // <ol> — so every step opened a fresh list and rendered as "1.". Carry the
+    // sequence across those breaks with an explicit start=, and keep counting
+    // even when the model writes "1." for every step (they often do).
+    else if(m=ln.match(/^\s*(\d+)[.)]\s+(.*)/)){
+      const n=parseInt(m[1],10);
+      const num=(n>1)?n:(olSeq?olSeq+1:1);
+      olSeq=num;
+      if(mode!=='ol'){close();out.push('<ol start="'+num+'">');mode='ol';}
+      out.push('<li>'+m[2]+'</li>');}
+    else if(m=ln.match(/^\s*[-*]\s+(.*)/)){if(mode!=='ul'){close();out.push('<ul>');mode='ul';}out.push('<li>'+m[1]+'</li>');}
+    else{close();if(ln.trim()==='')out.push('\u0000');else out.push('<p>'+ln+'</p>');}}
+  close();
+  s=out.join('').replace(/\u0000+/g,'');
+  // Restore repeatedly: a held item can contain another placeholder (a nav path
+  // written inside backticks becomes a link placeholder that the inline-code pass
+  // then wraps in a second one). String.replace never rescans its own output, so a
+  // single pass left the inner \u0002N\u0002 in the text — invisible control chars
+  // around a bare index, which is why a breadcrumb rendered as "Go to 0."
+  for(let pass=0;pass<6 && s.indexOf('\u0002')>=0;pass++){
+    s=s.replace(/\u0002(\d+)\u0002/g,(m,i)=>hold[i]!==undefined?hold[i]:'');
+  }
+  return s.replace(/<p>\u0001(\d+)\u0001<\/p>|\u0001(\d+)\u0001/g,(m,a,b)=>pre[a!==undefined?a:b]);
+}
+
+function nearBottom(){return log.scrollHeight-log.scrollTop-log.clientHeight<90;}
+function scrollDown(force){if(force||nearBottom())log.scrollTop=log.scrollHeight;}
+
+function add(cls,html,label,msgId,feedback,files){
+  const stick=nearBottom();
+  const m=document.createElement('div');m.className='msg '+cls;
+  const w=document.createElement('div');w.className='who';w.textContent=label;m.appendChild(w);
+  const b=document.createElement('div');b.className='bubble';b.innerHTML=html;
+  if(cls==='bot'){const c=document.createElement('button');c.className='copybtn';c.textContent='copy';
+    c.onclick=()=>{copyText(b.innerText.replace(/^copy\n?/,'')).then(()=>{c.textContent='copied';c.classList.add('done');
+      setTimeout(()=>{c.textContent='copy';c.classList.remove('done');},1400);});};
+    b.appendChild(c);}
+  m.appendChild(b);
+  // download links for files this reply produced
+  if(cls==='bot'&&files&&files.length)m.appendChild(makeFileChips(files));
+  // feedback bar (bot only, and only when we have a message id to attach it to)
+  if(cls==='bot'&&msgId){m.appendChild(makeFeedback(msgId,feedback));}
+  wrap.appendChild(m);scrollDown(stick||cls==='user');return b;
+}
+
+function fmtSize(n){
+  if(n<1024)return n+' B';
+  if(n<1048576)return (n/1024).toFixed(n<10240?1:0)+' KB';
+  return (n/1048576).toFixed(1)+' MB';
+}
+function makeFileChips(files){
+  const w=document.createElement('div');w.className='filechips';
+  for(const f of files){
+    const a=document.createElement('a');a.className='filechip';
+    a.href=withBase('/files/'+f.id+'/download');a.setAttribute('download',f.name);
+    a.innerHTML='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>'
+      +'<span class=fnm></span><span class=fsz>'+fmtSize(f.size_bytes)+'</span>';
+    a.querySelector('.fnm').textContent=f.name;
+    w.appendChild(a);
+  }
+  return w;
+}
+
+function makeFeedback(msgId,initial){
+  const fb=document.createElement('div');fb.className='fbbar';
+  const up=document.createElement('button');up.className='fbbtn';up.title='Good response';up.textContent='\u{1F44D}';
+  const down=document.createElement('button');down.className='fbbtn';down.title='Not good';down.textContent='\u{1F44E}';
+  const note=document.createElement('span');note.className='fbnote';
+  function paint(v){
+    up.classList.toggle('on',v===1);down.classList.toggle('on',v===-1);
+    note.textContent=v===1?'thanks — I\u2019ll keep this style':(v===-1?'noted':'');
+  }
+  paint(initial||0);
+  async function send(v){
+    const cur=up.classList.contains('on')?1:(down.classList.contains('on')?-1:0);
+    const next=(cur===v)?0:v;         // clicking the active one clears it
+    paint(next);
+    try{await fetch('/feedback',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message_id:msgId,rating:next})});}
+    catch(e){paint(cur);}            // revert on failure
+  }
+  up.onclick=()=>send(1);down.onclick=()=>send(-1);
+  fb.appendChild(up);fb.appendChild(down);fb.appendChild(note);
+  return fb;
+}
+
+function trace(rows){
+  if(!rows.length)return;
+  const stick=nearBottom();
+  const a=document.createElement('div');a.className='trace';
+  rows.forEach(t=>{const s=String(t);const dbg=s.startsWith('\u00b7');
+    const inner=dbg?s.slice(1).trim():s;
+    // special-case the curl line: "curl [200]:: curl -sS ..." -> a normal dbg
+    // row styled like the others, with a small copy button that appears on hover
+    const cm=inner.match(/^curl \[([^\]]*)\]:: ([\s\S]+)$/);
+    if(cm){
+      const cmd=cm[2];
+      const r=document.createElement('div');r.className='row dbg curlrow';
+      const txt=document.createElement('span');txt.className='curltxt';txt.textContent='curl '+cmd.replace(/^curl\s+/,'');
+      const copy=document.createElement('button');copy.className='curlcopy';copy.textContent='copy';
+      copy.onclick=()=>{copyText(cmd).then(()=>{copy.textContent='copied';copy.classList.add('done');
+        setTimeout(()=>{copy.textContent='copy';copy.classList.remove('done');},1500);});};
+      r.appendChild(txt);r.appendChild(copy);a.appendChild(r);
+      return;
+    }
+    const r=document.createElement('div');r.className='row'+(dbg?' dbg':'');
+    r.textContent=inner;a.appendChild(r);});
+  wrap.appendChild(a);scrollDown(stick);
+}
+
+function startPending(){
+  const a=document.createElement('div');a.className='trace pending';a.id='pending';
+  const r=document.createElement('div');r.className='row';
+  r.innerHTML='working <span class=t id=el></span><span class=cursor></span>';
+  a.appendChild(r);wrap.appendChild(a);scrollDown(true);
+  const t0=Date.now();
+  timer=setInterval(()=>{const el=document.getElementById('el');
+    if(el)el.textContent=Math.round((Date.now()-t0)/1000)+'s';},1000);
+}
+function stopPending(){clearInterval(timer);timer=null;
+  const p=document.getElementById('pending');if(p)p.remove();}
+
+function ago(ts){
+  // a missing/invalid timestamp used to render as the literal 'NaNd'
+  const n=Number(ts); if(!isFinite(n)||n<=0)return '';
+  const s=Date.now()/1000-n;
+  if(s<0)return 'now';
+  if(s<90)return 'now'; if(s<3600)return Math.round(s/60)+'m';
+  if(s<86400)return Math.round(s/3600)+'h'; return Math.round(s/86400)+'d';}
+
+let pfAdminUrl='',pfVersion='';
+async function initConfig(){
+  try{
+    const r=await fetch('/config');const d=await r.json();
+    pfAdminUrl=d.pf_admin_url||'';
+    pfVersion=d.pf_version||'';
+    const ve=document.getElementById('pfver');
+    if(ve)ve.textContent=pfVersion?('PacketFence '+pfVersion):'';
+    // optional server-side corrections: {"ssl certificates":"/admin/#/..."}
+    if(d.nav_routes&&typeof d.nav_routes==='object'){
+      for(const k in d.nav_routes)PF_ROUTES[_norm(k)]=d.nav_routes[k];
+    }
+  }catch(e){}
+}
+
+let _threads=[];
+let _searchResults=null;   // backend content-search results when a query is active
+let _searchTimer=null;
+async function loadThreads(){
+  try{
+    const r=await fetch('/threads');_threads=await r.json();
+    renderThreads();
+  }catch(e){}
+}
+// content search hits the backend (title + message bodies); debounced
+function runThreadSearch(){
+  const q=(threadQ.value||'').trim();
+  clearTimeout(_searchTimer);
+  if(!q){_searchResults=null;renderThreads();return;}
+  _searchTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('/threads/search?q='+encodeURIComponent(q));
+      _searchResults=await r.json();
+    }catch(e){_searchResults=[];}
+    renderThreads();
+  },200);
+}
+function renderThreads(){
+  const q=(threadQ.value||'').trim().toLowerCase();
+  const sort=threadSort.value;
+  // when searching, use backend results (title + content matches); else full list
+  let list=(q&&_searchResults!==null)?_searchResults.slice():_threads.slice();
+  // sort
+  const cmp={
+    newest:(a,b)=>(b.updated||0)-(a.updated||0),
+    oldest:(a,b)=>(a.updated||0)-(b.updated||0),
+    frequency:(a,b)=>(b.msg_count||0)-(a.msg_count||0),
+    az:(a,b)=>(a.title||'').localeCompare(b.title||''),
+    relevance:(a,b)=>(b.match_count||0)-(a.match_count||0)||(b.updated||0)-(a.updated||0),
+  }[sort]||((a,b)=>b.updated-a.updated);
+  // with a query, default to relevance ordering unless the user picked another sort
+  if(q&&sort==='newest')list.sort((a,b)=>(b.match_count||0)-(a.match_count||0)||(b.updated||0)-(a.updated||0));
+  else list.sort(cmp);
+
+  threadsEl.innerHTML='';
+  if(!_threads.length){threadsEl.innerHTML='<div class=side-empty>no saved threads yet</div>';return;}
+  if(q&&_searchResults===null){threadsEl.innerHTML='<div class=side-empty>searching…</div>';return;}
+  if(!list.length){threadsEl.innerHTML='<div class=side-empty>no threads match “'+esc(q)+'”</div>';return;}
+  for(const t of list){
+    const el=document.createElement('div');el.className='thread'+(t.id===currentThread?' active':'');
+    el.dataset.id=t.id;
+    const hasSnip=q&&t.snippet;
+    el.innerHTML='<span class=tt></span><span class=tw>'+ago(t.updated)
+      +(t.match_count?' · '+t.match_count+' match'+(t.match_count>1?'es':''):'')+'</span>'
+      +(hasSnip?'<span class=tsnip></span>':'')
+      +'<button class=del title="Delete thread">&times;</button>';
+    el.querySelector('.tt').textContent=t.title;
+    if(hasSnip)el.querySelector('.tsnip').textContent=t.snippet;
+    el.onclick=e=>{if(e.target.classList.contains('del'))return;openThread(t.id);};
+    el.querySelector('.del').onclick=async()=>{
+      await fetch('/threads/'+t.id,{method:'DELETE'});
+      if(t.id===currentThread)newThread();
+      loadThreads();};
+    threadsEl.appendChild(el);
+  }
+}
+
+async function openThread(id){
+  try{
+    const r=await fetch('/threads/'+id);
+    if(!r.ok)return;
+    const d=await r.json();
+    currentThread=id;wrap.innerHTML='';chips.style.display='none';
+    for(const m of d.messages){
+      if(m.role==='user')add('user',esc(m.content),'you');
+      else{trace(m.activity||[]);add('bot',md(m.content),'assistant',m.id,m.feedback,
+        (d.files||[]).filter(f=>f.message_id===m.id));}
+    }
+    scrollDown(true);loadThreads();loadFiles();side.classList.remove('open');input.focus();
+  }catch(e){}
+}
+
+function newThread(){currentThread=null;wrap.innerHTML='';chips.style.display='';greet();
+  side.classList.remove('open');loadThreads();input.focus();}
+
+let _chatAbort=null,_runId=null,_stopAsked=false;
+function newRunId(){
+  try{ if(crypto&&crypto.randomUUID)return crypto.randomUUID(); }catch(e){}
+  return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+}
+function setSendMode(mode){   // 'send' | 'stop' | 'stopping'
+  send.classList.toggle('stop',mode!=='send');
+  send.classList.toggle('stopping',mode==='stopping');
+  send.innerHTML=mode==='send'?'&uarr;':'&#9632;';
+  const t=mode==='send'?'Send':(mode==='stop'?'Stop after the current step':'Stopping\u2026 press again to abandon');
+  send.title=t;send.setAttribute('aria-label',mode==='send'?'Send':'Stop');
+}
+
+async function go(text){
+  const t=(text!==undefined?text:input.value).trim();
+  if(!t||busy)return;
+  busy=true;input.value='';input.style.height='auto';
+  chips.style.display='none';
+  _runId=newRunId();_stopAsked=false;setSendMode('stop');
+  add('user',esc(t),'you');
+  startPending();
+  const t0=Date.now();
+  _chatAbort=new AbortController();
+  try{
+    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:t,thread_id:currentThread,debug:debugMode,run_id:_runId}),
+      signal:_chatAbort.signal});
+    if(!r.ok){const b=await r.text().catch(()=>'' );
+      throw Object.assign(new Error('http '+r.status),{http:r.status,body:b});}
+    const d=await r.json();
+    stopPending();
+    if(d.thread_id)currentThread=d.thread_id;
+    trace(debugMode?(d.activity||[]).concat(['\u00b7 round-trip '+((Date.now()-t0)/1000).toFixed(1)+'s']):(d.activity||[]));
+    add('bot',md(d.reply||''),'assistant',d.message_id,null,d.files);
+    if(d.files&&d.files.length)loadFiles();
+    if(d.confirm)showConfirm(d.confirm);
+    if(d.node_actions)showNodeActions(d.node_actions);
+    if(d.prepare_test)prepareTest(d.prepare_test);
+    if(d.prepare_capture)prepareCapture(d.prepare_capture);
+    loadThreads();
+  }catch(e){
+    stopPending();
+    const a=document.createElement('div');a.className='trace';
+    const r=document.createElement('div');r.className='row'+(e&&e.name==='AbortError'?'':' err');
+    // A local abort abandons the reply here; the server run was already asked to
+    // stop, but whatever step it was on still completes and is saved.
+    r.textContent=(e&&e.name==='AbortError')
+      ? 'abandoned here \u2014 reopen the thread to see whatever the server saved'
+      : (e&&e.http===401)?'not authenticated (HTTP 401) \u2014 log in to the PacketFence admin, then retry'
+      : (e&&e.http===403)?'permission denied (HTTP 403) \u2014 your admin role lacks CHATBOT access'
+      : (e&&e.http)?('request failed (HTTP '+e.http+')')
+      : 'request failed \u2014 check that the service is running, then try again';
+    a.appendChild(r);wrap.appendChild(a);scrollDown(true);
+  }
+  _chatAbort=null;_runId=null;_stopAsked=false;
+  busy=false;setSendMode('send');input.focus();
+}
+
+// First press: ask the server to stop at its next tool boundary, so the
+// remaining model calls are never paid for. Second press: give up waiting.
+async function stopGo(){
+  if(!busy)return;
+  if(!_stopAsked&&_runId){
+    _stopAsked=true;setSendMode('stopping');
+    const p=document.getElementById('pending');
+    if(p){const row=p.querySelector('.row');
+      if(row)row.innerHTML='stopping after the current step <span class=t id=el></span><span class=cursor></span>';}
+    try{await fetch('/cancel',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({run_id:_runId})});}catch(e){}
+    return;
+  }
+  if(_chatAbort){try{_chatAbort.abort();}catch(e){}}
+}
+
+send.onclick=()=>{ if(busy)stopGo(); else go(); };
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();}});
+
+// ── write-confirmation dialog ──
+function showConfirm(c){
+  const box=document.createElement('div');box.className='confirmcard';
+  box.innerHTML='<div class=confirmhd>Confirm this action</div>'
+    +'<div class=confirmbody>Run <b>'+esc(c.method)+' '+esc(c.path)+'</b>'
+    +(c.summary?' \u2014 '+esc(c.summary):'')+'?</div>'
+    +'<div class=confirmrow><button class=confirmno>Cancel</button>'
+    +'<button class=confirmyes>Confirm</button></div>'
+    +'<div class=confirmmsg></div>'
+    +'<pre class=confirmresp style=display:none></pre>';
+  wrap.appendChild(box);scrollDown(true);
+  const msg=box.querySelector('.confirmmsg');
+  const resp=box.querySelector('.confirmresp');
+  box.querySelector('.confirmno').onclick=async()=>{
+    await fetch('/write/confirm_write',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({confirm_token:c.confirm_token,approved:false})});
+    box.querySelector('.confirmrow').remove();msg.textContent='Cancelled \u2014 no change made.';msg.className='confirmmsg';
+  };
+  box.querySelector('.confirmyes').onclick=async()=>{
+    msg.textContent='running\u2026';
+    try{
+      const r=await fetch('/write/confirm_write',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({confirm_token:c.confirm_token,approved:true})});
+      const d=await r.json();
+      box.querySelector('.confirmrow').remove();
+      if(d.executed){
+        const res=d.result||{};const sc=res.status_code||'';const ok=sc&&sc<400;
+        msg.textContent=(ok?'\u2713 done':'completed')+(sc?' (HTTP '+sc+')':'');
+        msg.className='confirmmsg '+(ok?'ok':'bad');
+        if(res.body!==undefined){
+          let bodyText;
+          try{bodyText=typeof res.body==='string'?res.body:JSON.stringify(res.body,null,2);}
+          catch(e){bodyText=String(res.body);}
+          if(bodyText&&bodyText!=='null'&&bodyText!=='{}'){resp.textContent=bodyText;resp.style.display='';}
+        }
+      }
+      else{msg.textContent=d.error||'failed';msg.className='confirmmsg bad';}
+    }catch(e){msg.textContent='request failed';msg.className='confirmmsg bad';}
+  };
+}
+
+// ── node quick-actions (from a diagnose / single-MAC lookup) ──
+// Rendered ONLY from structured backend data (pf_diagnose), never scraped from
+// chat text — so it appears for an intentional single-node action, not under
+// every MAC in a list. Status drives Register vs Deregister. Collapsed by default.
+function showNodeActions(na){
+  const mac=na.mac;if(!mac)return;
+  const status=na.status||null;
+  renderNodePane(na);                       // right-docked inspector
+  const box=document.createElement('div');box.className='nodeactions';
+  const head=document.createElement('button');head.className='natoggle';head.setAttribute('aria-expanded','false');
+  head.innerHTML='<span class=naicon></span>Actions for <span class=namac>'+esc(mac)+'</span>'
+    +(status?' <span class=nastatus>'+esc(status)+'</span>':'');
+  const grp=document.createElement('div');grp.className='nabtns';
+  for(const a of nodeActionList(na)){
+    const btn=document.createElement('button');btn.className='nabtn';btn.textContent=a.label;
+    btn.onclick=()=>a.direct?a.direct():go(a.cmd);grp.appendChild(btn);
+  }
+  head.onclick=()=>{const open=grp.classList.toggle('open');head.setAttribute('aria-expanded',open?'true':'false');};
+  box.appendChild(head);box.appendChild(grp);
+  wrap.appendChild(box);scrollDown(true);
+}
+
+// One source of truth for the actions, shared by the inline block and the pane.
+function nodeActionList(na){
+  const mac=na.mac, status=na.status||null, acts=[];
+  // Register/deregister/reevaluate resolve to known endpoints, so they are
+  // staged directly: no model round-trip, which is what made these take tens of
+  // seconds and occasionally fail to find the endpoint at all. The confirmation
+  // card is identical either way — the write guard is not bypassed.
+  const reg   ={label:'Register node',  direct:()=>stageStatus(mac,'reg')};
+  const unreg ={label:'Deregister node',direct:()=>stageStatus(mac,'unreg'),danger:true};
+  if(status==='registered')acts.push(unreg);
+  else if(status==='unregistered')acts.push(reg);
+  else {acts.push(reg);acts.push(unreg);}
+  acts.push({label:'Reevaluate access',direct:()=>stageReevaluate(mac)});
+  acts.push({label:'Diagnose again',cmd:'Diagnose '+mac});   // genuinely needs the model
+  return acts;
+}
+
+// Ask the server to stage a node write, then show the normal confirm card.
+async function stageNodeWrite(url,body,what){
+  try{
+    const d=await (await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body||{})})).json();
+    if(d.confirm){showConfirm(d.confirm);scrollDown(true);return;}
+    add('bot',md('Could not prepare **'+what+'**: '+(d.error||'unexpected response')),'assistant');
+  }catch(e){add('bot',md('Could not reach the server to prepare **'+what+'**.'),'assistant');}
+}
+const stageStatus=(mac,st)=>stageNodeWrite('/write/node/'+encodeURIComponent(mac)+'/status',
+                                           {status:st},(st==='reg'?'register':'deregister'));
+const stageReevaluate=mac=>stageNodeWrite('/write/node/'+encodeURIComponent(mac)+'/reevaluate',
+                                          {},'reevaluate access');
+
+// ── node inspector ──
+// Populated from the SAME structured pf_diagnose payload as the quick actions,
+// never scraped from the reply text, so it only appears for a deliberate
+// single-node lookup rather than under every MAC in a list.
+const nodePane=document.getElementById('nodepane'),npBody=document.getElementById('npbody');
+document.getElementById('npclose').onclick=()=>nodePane.classList.remove('open');
+// Legacy fallback only: a current backend sends an ordered `facts` array, so the
+// field list lives in ONE place and can't drift between app.py and ui.py.
+const NP_FIELDS=[['status','Status'],['role','Role'],['vlan','VLAN'],['pid','Owner'],
+                 ['device_type','Device'],['last_seen','Last seen'],['switch_ip','Switch'],
+                 ['connection_type','Connection'],['profile','Profile'],['notes','Notes']];
+function npFacts(na){
+  if(Array.isArray(na.facts))
+    return na.facts.filter(f=>f&&f.label&&f.value!==null&&f.value!==undefined&&String(f.value)!=='');
+  const out=[];
+  for(const [k,label] of NP_FIELDS)
+    if(na[k]!==undefined&&na[k]!==null&&na[k]!=='')out.push({label,value:String(na[k])});
+  return out;
+}
+let _npMac=null;
+function renderNodePane(na){
+  if(!na||!na.mac)return;
+  _npMac=na.mac;
+  const st=(na.status||'').toLowerCase();
+  const cls=st==='registered'?'reg':(st==='unregistered'?'unreg':'');
+  let h='<div class=np-mac></div>'+(na.status?'<span class="np-status '+cls+'"></span>':'');
+  const facts=npFacts(na);
+  if(facts.length){
+    h+='<dl class=np-facts>'+facts.map(()=>'<div class=np-fact><dt></dt><dd></dd></div>').join('')+'</dl>';
+  }
+  h+='<div class=np-acts></div>'
+    +'<div class=np-rolebox><span class=np-rolelabel>Change role</span>'
+    +'<div class=np-rolerow><select id=nprole></select>'
+    +'<button id=nproleapply disabled>Apply</button></div>'
+    +'<div class=np-msg id=nprolemsg></div></div>'
+    +'<div class=np-note>Writes are confirmed in the chat before they run.</div>';
+  npBody.innerHTML=h;
+  npBody.querySelector('.np-mac').textContent=na.mac;
+  const stEl=npBody.querySelector('.np-status'); if(stEl)stEl.textContent=na.status;
+  npBody.querySelectorAll('.np-fact').forEach((el,i)=>{
+    el.querySelector('dt').textContent=facts[i].label;
+    el.querySelector('dd').textContent=facts[i].value;});
+  const acts=npBody.querySelector('.np-acts');
+  for(const a of nodeActionList(na)){
+    const b=document.createElement('button');b.className='np-act'+(a.danger?' danger':'');
+    b.textContent=a.label;b.onclick=()=>a.direct?a.direct():go(a.cmd);acts.appendChild(b);
+  }
+  wireRolePicker(na);
+  nodePane.classList.add('open');
+}
+
+// Roles are fetched once and cached: the list changes rarely, and the pane is
+// repainted on every diagnose.
+let _roles=null;
+async function loadRoles(){
+  if(_roles)return _roles;
+  try{const d=await (await fetch('/roles')).json();_roles=d.roles||[];}catch(e){_roles=[];}
+  return _roles;
+}
+async function wireRolePicker(na){
+  const sel=document.getElementById('nprole'),btn=document.getElementById('nproleapply'),
+        msg=document.getElementById('nprolemsg');
+  if(!sel)return;
+  const roles=await loadRoles();
+  if(!roles.length){
+    sel.innerHTML='<option>unavailable</option>';sel.disabled=true;
+    msg.textContent='role list unavailable';return;
+  }
+  const cur=(na.role||'').toLowerCase();
+  sel.innerHTML='<option value="">select a role…</option>';
+  for(const r of roles){
+    const o=document.createElement('option');o.value=r.category_id;o.textContent=r.name;
+    if(r.name.toLowerCase()===cur)o.selected=true;
+    sel.appendChild(o);
+  }
+  const startId=sel.value;
+  sel.onchange=()=>{btn.disabled=(!sel.value||sel.value===startId);msg.textContent='';msg.className='np-msg';};
+  btn.onclick=async()=>{
+    if(!sel.value)return;
+    btn.disabled=true;msg.className='np-msg';msg.textContent='preparing\u2026';
+    try{
+      const d=await (await fetch('/write/node/'+encodeURIComponent(na.mac)+'/role',
+        {method:'POST',headers:{'Content-Type':'application/json'},
+         body:JSON.stringify({category_id:sel.value})})).json();
+      if(d.confirm){
+        msg.textContent='confirm in the chat \u2193';
+        showConfirm(d.confirm);      // same guard as any other write
+      }else{
+        msg.textContent=d.error||'could not prepare the change';msg.className='np-msg bad';
+        btn.disabled=false;
+      }
+    }catch(e){msg.textContent='request failed';msg.className='np-msg bad';btn.disabled=false;}
+  };
+}
+
+// Re-read the node straight from the API — no model call, so it is instant.
+document.getElementById('nprefresh').onclick=async()=>{
+  if(!_npMac)return;
+  const b=document.getElementById('nprefresh');b.classList.add('spin');
+  try{
+    const d=await (await fetch('/node/'+encodeURIComponent(_npMac))).json();
+    if(d.node_actions)renderNodePane(d.node_actions);
+  }catch(e){}
+  b.classList.remove('spin');
+};
+input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';});
+chips.addEventListener('click',e=>{if(e.target.classList.contains('chip'))go(e.target.textContent);});
+const diagIn=document.getElementById('diagin'),diagBtn=document.getElementById('diagbtn');
+function runDiagnose(){
+  const v=diagIn.value.trim();
+  if(!v)return;
+  diagIn.value='';
+  go('Diagnose '+v);   // the agent routes this to pf_diagnose
+  diagFields.classList.remove('open');
+  diagToggle.setAttribute('aria-expanded','false');
+}
+diagBtn.onclick=runDiagnose;
+diagIn.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runDiagnose();}});
+const diagToggle=document.getElementById('diagtoggle'),diagFields=document.getElementById('diagfields');
+diagToggle.onclick=()=>{
+  const open=diagFields.classList.toggle('open');
+  diagToggle.setAttribute('aria-expanded',open?'true':'false');
+  if(open)diagIn.focus();
+};
+newBtn.onclick=newThread;
+burger.onclick=()=>side.classList.toggle('open');
+
+// ── settings ──
+const overlay=document.getElementById('overlay'),gear=document.getElementById('gear'),
+      sProv=document.getElementById('setprov'),sModel=document.getElementById('setmodel'),
+      sKey=document.getElementById('setkey'),sMsg=document.getElementById('setmsg'),
+      sCur=document.getElementById('setcur');
+let settings=null;
+
+async function loadSettings(){
+  try{
+    const r=await fetch('/settings');settings=await r.json();
+    sProv.innerHTML='';
+    for(const p of settings.providers){const o=document.createElement('option');o.value=p;o.textContent=p;sProv.appendChild(o);}
+    if(settings.provider)sProv.value=settings.provider;
+    sModel.value='';sModel.placeholder=settings.model||'provider default';
+    sKey.value='';
+    sKey.placeholder=settings.key_hint?('saved key '+settings.key_hint+' \u2014 leave blank to keep'):'paste key';
+    sCur.textContent='active: '+(settings.provider||'none')+' / '+(settings.model||'\u2013')
+      +' \u00b7 config from '+(settings.source==='override'?'UI settings':'.env');
+    sMsg.textContent='';sMsg.className='';
+  }catch(e){sCur.textContent='could not load settings';}
+}
+document.getElementById('themebtn').onclick=()=>{
+  setTheme(document.documentElement.dataset.theme==='light'?'dark':'light');};
+setTheme(document.documentElement.dataset.theme);
+const dbgPill=document.getElementById('dbgpill'),dbgLabel=document.getElementById('dbglabel');
+function paintDbg(){dbgLabel.textContent=debugMode?'verbose':'standard';dbgPill.classList.toggle('on',debugMode);}
+dbgPill.onclick=()=>{debugMode=!debugMode;try{localStorage.setItem(DEBUG_KEY,debugMode?'1':'0');}catch(e){}paintDbg();};
+paintDbg();
+
+// ── model picker pill (fetches provider's models, opens upward) ──
+const modelPill=document.getElementById('modelpill'),modelLabel=document.getElementById('modellabel'),
+      modelPop=document.getElementById('modelpop'),modelList=document.getElementById('modellist'),
+      modelProv=document.getElementById('modelpop-prov'),modelRefresh=document.getElementById('modelrefresh');
+let _modelsLoaded=false,_curModel='';
+function shortModel(m){return m&&m.length>22?m.slice(0,21)+'…':(m||'—');}
+function paintModel(){
+  modelLabel.textContent=shortModel(_curModel);
+  // green dot + active styling whenever a model is set and in use
+  modelPill.classList.toggle('active',!!_curModel);
+}
+async function refreshCurrentModel(){
+  try{const s=await (await fetch('/settings')).json();_curModel=s.model||'';paintModel();}
+  catch(e){_curModel='';paintModel();}
+}
+async function loadModels(force){
+  if(_modelsLoaded&&!force)return;
+  modelList.innerHTML='<div class=modelmsg>loading…</div>';
+  try{
+    const d=await (await fetch('/models')).json();
+    if(d.error){modelList.innerHTML='<div class=modelmsg>'+esc(d.error)+'</div>';return;}
+    modelProv.textContent=(d.provider||'models')+' models';
+    _curModel=d.current||_curModel;paintModel();
+    if(!d.models||!d.models.length){modelList.innerHTML='<div class=modelmsg>no models returned</div>';return;}
+    modelList.innerHTML='';
+    for(const m of d.models){
+      const row=document.createElement('div');row.className='modelopt'+(m.id===d.current?' active':'');
+      row.innerHTML='<span class=mdot></span><span class=mid></span>'+(m.recommended?'<span class=mrec>recommended</span>':'');
+      row.querySelector('.mid').textContent=m.id;
+      row.onclick=()=>switchModel(m.id);
+      modelList.appendChild(row);
+    }
+    _modelsLoaded=true;
+  }catch(e){modelList.innerHTML='<div class=modelmsg>failed to load</div>';}
+}
+async function switchModel(id){
+  modelList.querySelectorAll('.modelopt').forEach(r=>r.classList.toggle('active',
+    r.querySelector('.mid').textContent===id));
+  try{
+    const d=await (await fetch('/write/models',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:id})})).json();
+    if(d.ok){_curModel=id;paintModel();
+      setTimeout(()=>modelPop.classList.remove('open'),250);}
+    else{modelProv.textContent=(d.error||'switch failed');}
+  }catch(e){}
+}
+modelPill.onclick=(e)=>{e.stopPropagation();const open=modelPop.classList.toggle('open');if(open)loadModels(false);};
+modelRefresh.onclick=(e)=>{e.stopPropagation();loadModels(true);};
+document.addEventListener('click',e=>{if(!modelPop.contains(e.target)&&e.target!==modelPill&&!modelPill.contains(e.target))modelPop.classList.remove('open');});
+refreshCurrentModel();
+gear.onclick=()=>{overlay.classList.add('open');loadSettings();};
+
+// ── test tools ──
+const ttOverlay=document.getElementById('ttoverlay'),ttBtn=document.getElementById('ttbtn'),
+      ttTool=document.getElementById('tttool'),ttVar=document.getElementById('ttvar'),
+      ttFields=document.getElementById('ttfields'),ttMsg=document.getElementById('ttmsg'),
+      ttPre=document.getElementById('ttpre'),ttState=document.getElementById('ttstate');
+let ttMeta=null;
+let ttCapIfaces=[];
+async function ttLoadCapIfaces(){
+  try{
+    const d=await (await fetch('/write/testtools/capture',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({preview:true,params:{preset:'radius'}})})).json();
+    if(d.ok&&d.preview&&d.preview.interfaces){ttCapIfaces=d.preview.interfaces;
+      // if the iface select is currently shown, repopulate it
+      const sel=document.getElementById('ttf_iface');
+      if(sel){const cur=sel.value;sel.innerHTML='';
+        for(const n of ttCapIfaces.concat(['any'])){const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);}
+        if(ttCapIfaces.includes(cur)||cur==='any')sel.value=cur;}
+    }
+  }catch(e){}
+}
+
+async function loadTT(){
+  try{
+    const r=await fetch('/testtools');ttMeta=await r.json();
+    ttState.textContent=ttMeta.enabled?'helper online':'helper offline';
+    ttState.className='ttstate '+(ttMeta.enabled?'on':'off');
+    ttTool.innerHTML='';
+    for(const [k,v] of Object.entries(ttMeta.tools)){
+      const o=document.createElement('option');o.value=k;o.textContent=v.label;ttTool.appendChild(o);}
+    renderVariants();
+  }catch(e){ttState.textContent='could not load';ttState.className='ttstate off';}
+}
+function renderVariants(){
+  const t=ttMeta.tools[ttTool.value];ttVar.innerHTML='';
+  for(const [k,v] of Object.entries(t.variants)){
+    const o=document.createElement('option');o.value=k;o.textContent=v.label;ttVar.appendChild(o);}
+  renderFields();
+}
+function renderFields(){
+  const v=ttMeta.tools[ttTool.value].variants[ttVar.value];
+  ttFields.innerHTML='';
+  for(const f of v.fields){
+    const lab=document.createElement('label');lab.textContent=f.label;lab.htmlFor='ttf_'+f.name;
+    let inp;
+    if(f.type==='select'){
+      inp=document.createElement('select');inp.id='ttf_'+f.name;inp.dataset.name=f.name;
+      let opts=f.options||[];
+      // interface list is discovered at runtime
+      if(f.name==='iface'&&ttCapIfaces.length)opts=ttCapIfaces.concat(['any']);
+      for(const opt of opts){const o=document.createElement('option');o.value=opt;o.textContent=opt;inp.appendChild(o);}
+      if(f.default)inp.value=f.default;
+    }else{
+      inp=document.createElement('input');inp.id='ttf_'+f.name;inp.dataset.name=f.name;
+      inp.type=f.type==='password'?'password':'text';inp.value=f.default||'';
+      inp.autocomplete='off';
+    }
+    ttFields.appendChild(lab);ttFields.appendChild(inp);}
+  ttPre.style.display='none';ttMsg.textContent='';ttMsg.className='';
+  const ew=document.getElementById('tteditwrap');if(ew){ew.style.display='none';}
+  const ed=document.getElementById('ttedit');if(ed){ed.value='';}
+  // capture tool: hide the config-editor (eapol/radclient only) and relabel Run
+  const isCap=!!ttMeta.tools[ttTool.value].capture;
+  const runB=document.getElementById('ttrun');if(runB)runB.textContent=isCap?'Run capture':'Run test';
+  if(isCap&&!ttCapIfaces.length)ttLoadCapIfaces();
+}
+function ttParams(){
+  const p={};ttFields.querySelectorAll('input,select').forEach(i=>{if(i.value.trim())p[i.dataset.name]=i.value;});
+  return p;
+}
+function ttPayload(preview,useEdited){
+  const tool=ttTool.value, variant=ttVar.value, params=ttParams();
+  if(useEdited && ttEdit && ttEdit.value.trim())params.config=ttEdit.value;
+  const body={tool,params,preview};
+  if(tool==='eapol_test')body.eap=variant;
+  return body;
+}
+function showOutput(text,highlight){
+  ttPre.style.display='';
+  if(highlight){ // colorize SUCCESS/FAILURE/Access-Accept/Reject
+    const esc=text.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    ttPre.innerHTML=esc.replace(/(SUCCESS|Access-Accept|CTRL-EVENT-EAP-SUCCESS)/g,'<span class=tag style="color:var(--ok)">$1</span>')
+      .replace(/(FAILURE|Access-Reject|CTRL-EVENT-EAP-FAILURE|timed out)/g,'<span class=tag style="color:var(--err)">$1</span>');
+  }else ttPre.textContent=text;
+}
+const ttHealthBox=document.getElementById('tthealthbox');
+async function ttCheckHealth(){
+  ttHealthBox.innerHTML='<span style="color:var(--faint)">checking environment\u2026</span>';
+  try{
+    const r=await fetch('/testtools/health');const d=await r.json();
+    if(!d.ok&&d.error){ttHealthBox.innerHTML='<span style="color:var(--err)">'+d.error+'</span>';return;}
+    const rows=(d.checks||[]).map(c=>
+      '<div class="ttchk '+(c.ok?'ok':'bad')+'"><span class=mk>'+(c.ok?'\u2713':'\u2717')+'</span>'
+      +'<span class=nm>'+c.name+'</span><span class=dt>'+c.detail+'</span></div>').join('');
+    const hdr=d.ok?'<span style="color:var(--ok)">environment ready</span>'
+      :'<span style="color:var(--err)">environment not ready \u2014 fix the \u2717 items</span>';
+    ttHealthBox.innerHTML=hdr+rows;
+  }catch(e){ttHealthBox.innerHTML='<span style="color:var(--err)">could not reach helper</span>';}
+}
+let ttHealthLoaded=false;
+document.getElementById('tthealth').onclick=()=>{
+  const box=ttHealthBox, showing=box.style.display==='flex';
+  if(!showing){box.style.display='flex';if(!ttHealthLoaded){ttHealthLoaded=true;ttCheckHealth();}
+    document.getElementById('tthealth').textContent='hide environment check';}
+  else{box.style.display='none';document.getElementById('tthealth').textContent='check environment';}
+};
+ttBtn.onclick=()=>{ttOverlay.classList.add('open');loadTT();};
+
+// Open the Test Tools panel prefilled from a chat request (pf_run_test), then
+// leave it for the user to review and click Run. Password is filled but the run
+// is NOT automatic — the user confirms by clicking Run test.
+async function prepareTest(pt){
+  ttOverlay.classList.add('open');
+  await loadTT();                       // populates tool list + meta
+  if(pt.tool && ttMeta.tools[pt.tool]){ttTool.value=pt.tool;renderVariants();}
+  if(pt.variant){ttVar.value=pt.variant;renderFields();}
+  // fill fields by name
+  const f=pt.fields||{};
+  for(const [name,val] of Object.entries(f)){
+    const inp=document.getElementById('ttf_'+name);
+    if(inp)inp.value=val;
+  }
+  // highlight the Run button and scroll it into view so the review step is obvious
+  const runBtn=document.getElementById('ttrun');
+  if(runBtn){runBtn.classList.add('pulse');setTimeout(()=>runBtn.classList.remove('pulse'),2400);
+    runBtn.scrollIntoView({behavior:'smooth',block:'center'});}
+}
+
+// ── capture via the merged Test Tools panel (tool = tcpdump) ──
+async function prepareCapture(pc){
+  ttOverlay.classList.add('open');
+  await loadTT();
+  if(ttMeta.tools['tcpdump']){ttTool.value='tcpdump';renderVariants();}
+  await ttLoadCapIfaces();               // populate the interface <select>
+  // setter that works for both <input> and <select>; for a select, add the
+  // option if it isn't already present so a chat-specified value still applies.
+  const set=(n,v)=>{
+    if(v===undefined||v===null||v==='')return;
+    const e=document.getElementById('ttf_'+n);if(!e)return;
+    if(e.tagName==='SELECT'){
+      if(![...e.options].some(o=>o.value===String(v))){
+        const o=document.createElement('option');o.value=String(v);o.textContent=String(v);e.appendChild(o);}
+    }
+    e.value=String(v);
+  };
+  set('iface',pc.iface);
+  set('preset',pc.preset);
+  set('filter',pc.filter);
+  set('seconds',pc.seconds);
+  set('packets',pc.packets);
+  const rb=document.getElementById('ttrun');
+  if(rb){rb.classList.add('pulse');setTimeout(()=>rb.classList.remove('pulse'),2400);
+    rb.scrollIntoView({behavior:'smooth',block:'center'});}
+}
+ttOverlay.addEventListener('click',e=>{if(e.target===ttOverlay)ttOverlay.classList.remove('open');});
+ttTool.onchange=renderVariants;ttVar.onchange=renderFields;
+
+const ttEditWrap=document.getElementById('tteditwrap'),ttEdit=document.getElementById('ttedit');
+let ttLastCmd='';
+
+async function ttBuildPreview(){
+  const r=await fetch('/write/testtools/run',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(ttPayload(true))});
+  return r.json();
+}
+async function ttShowEditable(fromFields){
+  ttMsg.textContent='building config\u2026';ttMsg.className='';ttPre.style.display='none';
+  try{
+    const d=await ttBuildPreview();
+    if(d.ok&&d.preview){
+      ttLastCmd=d.preview.command;
+      // fill the EDITABLE box with the real, runnable config (config_editable);
+      // config is masked for display only and would break the run if used here
+      if(fromFields||!ttEdit.value.trim())ttEdit.value=d.preview.config_editable||d.preview.config;
+      ttEditWrap.style.display='';
+      ttMsg.innerHTML='<span style="color:var(--faint)"># '+d.preview.command+'</span>';ttMsg.className='';
+    }else{ttMsg.textContent=d.error||'preview failed';ttMsg.className='bad';}
+  }catch(e){ttMsg.textContent='request failed';ttMsg.className='bad';}
+}
+document.getElementById('ttpreview').onclick=()=>{
+  if(ttMeta&&ttMeta.tools[ttTool.value]&&ttMeta.tools[ttTool.value].capture)return ttCapPreview();
+  ttShowEditable(true);
+};
+document.getElementById('ttregen').onclick=()=>ttShowEditable(true);
+
+// capture preview/run (used when the selected tool is tcpdump)
+function ttCapParams(){
+  const g=n=>{const e=document.getElementById('ttf_'+n);return e?e.value:'';};
+  return {iface:g('iface'),preset:g('preset'),filter:(g('filter')||'').trim(),
+          seconds:g('seconds'),packets:g('packets')};
+}
+async function ttCapPreview(){
+  ttMsg.textContent='building…';ttMsg.className='';ttPre.style.display='none';
+  try{
+    const d=await (await fetch('/write/testtools/capture',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({preview:true,params:ttCapParams()})})).json();
+    if(d.ok&&d.preview){ttMsg.innerHTML='<span style="color:var(--faint)"># '+esc(d.preview.command)+'</span>';}
+    else{ttMsg.textContent=d.error||'preview failed';ttMsg.className='bad';}
+  }catch(e){ttMsg.textContent='request failed';ttMsg.className='bad';}
+}
+async function ttCapRun(){
+  ttMsg.textContent='capturing… (up to '+(ttCapParams().seconds||20)+'s)';ttMsg.className='';ttPre.style.display='none';
+  try{
+    const d=await (await fetch('/write/testtools/capture',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({params:ttCapParams()})})).json();
+    if(d.ok){
+      ttMsg.textContent='capture complete';ttMsg.className='ok';
+      const summary=d.summary||'(no summary)';
+      showOutput(summary,true);
+      ttOverlay.classList.remove('open');
+      const pr=ttCapParams();
+      go('Analyze this packet capture summary (preset: '+pr.preset+', filter: '+(pr.filter||'—')+'):\n\n'+summary);
+    }else{ttMsg.textContent=d.error||'capture failed';ttMsg.className='bad';showOutput(d.error||'',false);}
+  }catch(e){ttMsg.textContent='request failed';ttMsg.className='bad';}
+}
+document.getElementById('ttrun').onclick=async()=>{
+  if(ttMeta&&ttMeta.tools[ttTool.value]&&ttMeta.tools[ttTool.value].capture)return ttCapRun();
+  ttMsg.textContent='running test\u2026 (up to ~20s)';ttMsg.className='';ttPre.style.display='none';
+  try{
+    const r=await fetch('/write/testtools/run',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(ttPayload(false,true))});
+    if(!r.ok){
+      ttMsg.textContent='HTTP '+r.status+(r.status===401?' \u2014 not authenticated'
+        :r.status===403?' \u2014 your admin role lacks CHATBOT_WRITE':'');
+      ttMsg.className='bad';showOutput(await r.text().catch(()=>'' ),false);return;}
+    const d=await r.json();
+    if(d.ok){
+      const out=d.output||'(no output)';
+      const pass=/SUCCESS|Access-Accept|EAP-SUCCESS/.test(out)&&!/FAILURE|Access-Reject/.test(out);
+      ttMsg.textContent='completed (exit '+(d.rc)+')';ttMsg.className='ok';
+      showOutput(out,true);
+      const v=document.createElement('div');v.className='ttverdict '+(pass?'pass':'fail');
+      v.textContent=pass?'\u2713 authentication succeeded':'\u2717 authentication did not succeed';
+      ttPre.after(v);setTimeout(()=>v.remove(),12000);
+      // pull the identity used in the test so the LLM can correlate logs
+      const params=ttParams();
+      const ident=params.identity||params.username||params.user||params.mac||params.User_Name||'';
+      // compact record in chat
+      add('bot',md('**Test tool: '+ttTool.value+' / '+ttVar.value+'** \u2014 '+(pass?'\u2713 success':'\u2717 failed')
+        +'\n```\n'+out.split('\n').slice(-12).join('\n')+'\n```'),'test tools');
+      // offer to analyze the result (fetch logs for the identity + diagnose-style report)
+      const ab=document.createElement('button');ab.className='actbtn';
+      ab.textContent='Analyze with logs';
+      ab.onclick=()=>{ab.disabled=true;ab.textContent='analyzing\u2026';
+        ttOverlay.classList.remove('open');
+        const label=ttTool.value+(ttTool.value==='eapol_test'?' ('+ttVar.value+')':'');
+        go('Analyze this '+label+' authentication test result'
+          +(ident?' for '+ident:'')+'. Fetch the relevant PacketFence logs'
+          +(ident?' for '+ident:'')+' and give the full diagnose-style report '
+          +'(Recent log entries, Verdict, Details, Overall analysis). '
+          +'Test output:\n\n```\n'+out+'\n```');
+      };
+      ttMsg.after(ab);setTimeout(()=>ab.remove(),30000);
+    }else{ttMsg.textContent=d.error||'run failed';ttMsg.className='bad';showOutput(d.error||'',false);}
+  }catch(e){ttMsg.textContent='request failed';ttMsg.className='bad';}
+};
+overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){
+  // every overlay closes on Escape, not just two of them
+  overlay.classList.remove('open');usageOverlay.classList.remove('open');
+  ttOverlay.classList.remove('open');}});
+
+document.getElementById('settest').onclick=async()=>{
+  sMsg.textContent='testing key\u2026';sMsg.className='';
+  try{
+    const r=await fetch('/write/settings/test',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({provider:sProv.value,model:sModel.value,api_key:sKey.value})});
+    const d=await r.json();
+    if(d.ok){sMsg.textContent='\u2713 '+(d.detail||'key valid');sMsg.className='ok';}
+    else{sMsg.textContent='\u2717 '+(d.error||'test failed');sMsg.className='bad';}
+  }catch(e){sMsg.textContent='request failed';sMsg.className='bad';}
+};
+document.getElementById('setsave').onclick=async()=>{
+  sMsg.textContent='applying\u2026';sMsg.className='';
+  try{
+    const r=await fetch('/write/settings',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({provider:sProv.value,model:sModel.value,api_key:sKey.value})});
+    const d=await r.json();
+    if(d.ok){sMsg.textContent='saved \u2014 now using '+d.provider+' / '+d.model
+      +' (key is validated on the next message)';sMsg.className='ok';loadSettings();}
+    else{sMsg.textContent=d.error||'failed';sMsg.className='bad';}
+  }catch(e){sMsg.textContent='request failed';sMsg.className='bad';}
+};
+document.getElementById('setreset').onclick=async()=>{
+  sMsg.textContent='resetting\u2026';sMsg.className='';
+  try{
+    const r=await fetch('/write/settings',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reset:true})});
+    const d=await r.json();
+    if(d.ok){sMsg.textContent=d.note||('reset \u2014 using '+d.provider+' / '+d.model+' from .env');
+      sMsg.className='ok';loadSettings();}
+    else{sMsg.textContent=d.error||'failed';sMsg.className='bad';}
+  }catch(e){sMsg.textContent='request failed';sMsg.className='bad';}
+};
+
+wrap.addEventListener('click',e=>{
+  const c=e.target.closest('code');
+  if(c&&c.classList.contains('mac')&&!c.closest('pre')){
+    copyText(c.textContent).then(()=>{
+      c.classList.remove('copyfail');c.classList.add('copied');
+      setTimeout(()=>c.classList.remove('copied'),1300);
+    }).catch(()=>{
+      c.classList.add('copyfail');
+      setTimeout(()=>c.classList.remove('copyfail'),1300);
+    });
+  }
+});
+
+// ── token usage ──
+const usageOverlay=document.getElementById('usageoverlay'),usageBtn=document.getElementById('usagebtn');
+let _usageData=null,_usageTab='daily';
+function _fmtN(n){return n==null?'—':n.toLocaleString();}
+function _renderUsage(){
+  const el=document.getElementById('usage-table'),msg=document.getElementById('usagemsg');
+  msg.textContent='';
+  if(!_usageData){el.innerHTML='';msg.textContent='loading…';return;}
+  const rows=_usageTab==='daily'?_usageData.daily:_usageData.monthly;
+  if(!rows||!rows.length){el.innerHTML='';msg.textContent='No usage data yet — tokens are recorded after each chat.';return;}
+  const hdr=_usageTab==='daily'?'Date':'Month';
+  let h='<table class=utbl><thead><tr><th>'+hdr+'</th><th>Input</th><th>Output</th><th>Total</th></tr></thead><tbody>';
+  for(const r of rows){
+    const lbl=esc(_usageTab==='daily'?r.date:r.month);
+    h+='<tr><td>'+lbl+'</td><td>'+_fmtN(r.input_tokens)+'</td><td>'+_fmtN(r.output_tokens)+'</td><td class=utotal>'+_fmtN(r.total_tokens)+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+async function _openUsage(){
+  usageOverlay.classList.add('open');
+  _usageData=null;_renderUsage();
+  try{const r=await fetch('/usage');_usageData=await r.json();}
+  catch(e){document.getElementById('usagemsg').textContent='could not load usage';}
+  _renderUsage();
+}
+usageBtn.onclick=_openUsage;
+document.getElementById('utab-daily').onclick=()=>{
+  _usageTab='daily';
+  document.getElementById('utab-daily').classList.add('active');
+  document.getElementById('utab-monthly').classList.remove('active');
+  _renderUsage();
+};
+document.getElementById('utab-monthly').onclick=()=>{
+  _usageTab='monthly';
+  document.getElementById('utab-monthly').classList.add('active');
+  document.getElementById('utab-daily').classList.remove('active');
+  _renderUsage();
+};
+usageOverlay.addEventListener('click',e=>{if(e.target===usageOverlay)usageOverlay.classList.remove('open');});
+
+// ── files pane + uploads ──
+const filesPane=document.getElementById('filespane'),fpList=document.getElementById('fplist'),
+      fpFoot=document.getElementById('fpfoot'),filesBtn=document.getElementById('filesbtn'),
+      attachBtn=document.getElementById('attachbtn'),fileInput=document.getElementById('fileinput');
+let _quotas=null;
+async function loadFiles(){
+  if(!filesPane.classList.contains('open'))return;
+  try{
+    const u='/files'+(currentThread?'?thread_id='+encodeURIComponent(currentThread):'');
+    const d=await (await fetch(u)).json();
+    _quotas=d.quotas||_quotas;
+    fpList.innerHTML='';
+    if(!d.files||!d.files.length){
+      fpList.innerHTML='<div class=fp-empty>no files yet \u2014 attach one, or ask the assistant to export something</div>';
+    }else{
+      for(const f of d.files){
+        const el=document.createElement('div');el.className='fp-item';
+        el.innerHTML='<div class=fp-row><a class=fp-name download></a>'
+          +'<span class=fp-kind>'+esc(f.kind)+'</span>'
+          +'<button class=fp-del title="Delete file">&times;</button></div>'
+          +'<div class=fp-meta>'+fmtSize(f.size_bytes)+' \u00b7 '+ago(f.created)+'</div>';
+        const a=el.querySelector('.fp-name');a.textContent=f.name;a.href=withBase('/files/'+f.id+'/download');
+        a.setAttribute('download',f.name);
+        el.querySelector('.fp-del').onclick=async()=>{
+          await fetch('/files/'+f.id,{method:'DELETE'});loadFiles();};
+        fpList.appendChild(el);
+      }
+    }
+    const used=d.used_bytes||0;
+    fpFoot.textContent=fmtSize(used)+' used'
+      +(_quotas?' \u00b7 max '+fmtSize(_quotas.file_max)+'/file':'')
+      +' \u00b7 uploads are not indexed for search';
+  }catch(e){fpList.innerHTML='<div class=fp-empty>could not load files</div>';}
+}
+filesBtn.onclick=()=>{filesPane.classList.toggle('open');loadFiles();};
+document.getElementById('fpclose').onclick=()=>filesPane.classList.remove('open');
+
+attachBtn.onclick=()=>fileInput.click();
+fileInput.onchange=async()=>{
+  const files=[...fileInput.files];fileInput.value='';
+  if(!files.length)return;
+  attachBtn.classList.add('busy');
+  for(const f of files){
+    const fd=new FormData();fd.append('file',f);fd.append('thread_id',currentThread||'');
+    try{
+      const r=await fetch('/files/upload',{method:'POST',body:fd});
+      const d=await r.json();
+      if(d.ok){
+        if(d.thread_id)currentThread=d.thread_id;
+        add('bot',md('Attached **'+d.name+'** ('+fmtSize(d.size_bytes)+'). '
+          +'It is not indexed for search \u2014 ask me to read it and I will. '
+          +'Note that its contents go to the LLM provider when I do.'),'files');
+      }else{
+        add('bot',md('Could not attach **'+esc(f.name)+'**: '+esc(d.error||'upload failed')),'files');
+      }
+    }catch(e){add('bot',md('Upload of **'+esc(f.name)+'** failed.'),'files');}
+  }
+  attachBtn.classList.remove('busy');
+  loadThreads();loadFiles();
+};
+
+function greet(){add('bot',md('PacketFence Assistant ready. Ask about live data, the documentation \u2014 or pick a shortcut from below.'),'assistant');}
+// await the admin URL before the first render so nav links work on message one
+initConfig().then(()=>{greet();loadThreads();});
+</script></html>
