@@ -163,6 +163,7 @@ ACL line that cannot be represented is not sent, and a warning is logged in
 * `out|` ACLs,
 * port operators other than `eq`,
 * TCP flags (`established`, `syn`, ...) and ICMP types,
+* the `dscp`, `precedence`, `tos`, `fragments`, `time-range` and `option` qualifiers,
 * non contiguous destination masks.
 
 Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
@@ -170,6 +171,10 @@ after it allow what it blocks, so the list is cut at that `deny` and ends with
 `Match Destination-ip 0.0.0.0/0 Action deny`. Since that also drops ARP, an
 endpoint whose ACL was cut this way loses its network access: check
 `packetfence.log` for the warning naming the line.
+
+A role whose lines were all skipped gets that deny all as well, and so do ACLs
+PacketFence cannot parse: sending no filter would leave the endpoint
+unrestricted.
 
 The switch silently ignores a filter over 20 match conditions or 4000
 characters, and one attribute holds at most 247 characters. PacketFence cuts
