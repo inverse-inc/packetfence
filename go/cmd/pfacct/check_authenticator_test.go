@@ -2,7 +2,9 @@ package main
 
 import (
 	"testing"
+	"time"
 
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
@@ -50,5 +52,35 @@ func TestCheckAuthenticator(t *testing.T) {
 	}
 	if err := h.checkAuthenticator(viaConnector, &SwitchInfo{Secret: "switch-secret"}, false); err != errBadAuthenticator {
 		t.Fatalf("connector traffic must not validate with the switch secret, got %v", err)
+	}
+}
+
+func TestSwitchFromEndpointCache(t *testing.T) {
+	h := &PfAcct{EndpointSwitchCache: cache.New(5*time.Minute, 10*time.Minute)}
+	raw := junosAccountingRequest(t, "switch-secret")
+	attrs, err := radius.ParseAttributes(raw[20:])
+	if err != nil {
+		t.Fatalf("parse attributes: %s", err)
+	}
+
+	if _, ok := h.switchFromEndpointCache(attrs, raw, false); ok {
+		t.Fatal("an empty cache must not identify a switch")
+	}
+
+	// Keyed by the normalized Calling-Station-Id
+	endpoint := "02:4a:55:4e:49:02"
+	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "switch-secret", NasIP: "192.168.40.19"}, cache.DefaultExpiration)
+	info, ok := h.switchFromEndpointCache(attrs, raw, false)
+	if !ok || info.NasIP != "192.168.40.19" {
+		t.Fatalf("the cached switch must be returned while the packet validates with its secret, got %v, %v", info, ok)
+	}
+
+	// The endpoint moved to a switch with another secret: forget the entry
+	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "other-secret", NasIP: "192.168.40.19"}, cache.DefaultExpiration)
+	if _, ok := h.switchFromEndpointCache(attrs, raw, false); ok {
+		t.Fatal("a cached switch whose secret does not validate must not be returned")
+	}
+	if _, found := h.EndpointSwitchCache.Get(endpoint); found {
+		t.Fatal("a cached switch whose secret does not validate must be evicted")
 	}
 }
