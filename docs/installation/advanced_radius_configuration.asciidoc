@@ -271,6 +271,72 @@ Now when a device connect with the username bob@zammitcorp.com then the
 authentication and accounting requests will be forwarded to one of the
 ZAMMITCORP RADIUS servers.
 
+==== RADIUS Proxy Degraded Mode
+
+When the degraded mode of a realm is enabled, PacketFence keeps answering the
+devices of this realm when all of its remote RADIUS servers are unreachable.
+
+How it works:
+
+* While the remote RADIUS servers are reachable, every Access-Accept they
+  return is stored, per device (Calling-Station-Id), in a local cache (the
+  `connector-cache` service). Only the attributes returned by the remote
+  server are stored, the EAP and MS-MPPE keys attributes are dropped.
+* When all the home servers of the realm are dead, FreeRADIUS falls back to the
+  local `packetfence-degraded` virtual server which authenticates the device
+  itself, with the EAP profile of the realm (EAP-TLS, or PEAP/EAP-TTLS through
+  the `packetfence-degraded-tunnel` inner tunnel), and answers with the
+  attributes cached for the device. A MAC authentication is accepted when the
+  User-Name is the MAC address of the device. Accounting requests are
+  acknowledged.
+* As soon as a remote RADIUS server is alive again, the requests are proxied
+  to it again.
+
+To enable it, go in _Configuration -> Policies and Access Control -> REALMS_,
+in the `Freeradius Proxy` tab of the realm, enable `Degraded mode` and choose
+what to do when a device has no cached answer (`Degraded mode cache miss`):
+
+* `Authorize from PacketFence`: PacketFence computes the role of the device
+  like for a local authentication.
+* `Accept without attributes`: the device is accepted with no attributes.
+* `Reject`: only the devices accepted before by a remote server can connect.
+
+When `Authorize from PacketFence` is enabled on the realm, PacketFence also
+computes the role of the device in degraded mode, whatever the cached answer.
+
+Requirements:
+
+* The remote RADIUS servers must be detected as dead quickly: add a status
+  check in the options of the RADIUS sources, per example:
++
+[source,bash]
+----
+type = auth+acct
+status_check = status-server
+check_interval = 10
+num_answers_to_alive = 3
+revive_interval = 60
+zombie_period = 10
+response_window = 3
+----
++
+A remote server is only declared dead after a request stayed unanswered for
+`response_window` seconds (20 by default), keep it below the RADIUS timeout of
+the switches or they will declare PacketFence dead first.
+* The realm must have `nostrip` in its options, the EAP identity has to match
+  the `User-Name` proxied to the remote server.
+* In degraded mode the EAP conversation is terminated by PacketFence with the
+  certificates of the EAP profile of the realm, not by the remote server. The
+  supplicants must trust the certificate of this EAP profile or the EAP-TLS
+  and PEAP authentications will fail during an outage. For EAP-TLS the CA of
+  the client certificates must also be trusted by this EAP profile.
+* PEAP-MSCHAPv2 requires PacketFence to be able to validate the credentials
+  (domain joined, or NT hashes cached).
+* The realm is matched on the `Realm` attribute of the request, if you proxy
+  with a RADIUS filter set it in the answer (see below).
+* In a cluster each server keeps its own cache: a device is only known by the
+  servers which proxied an answer for it.
+
 ==== RADIUS Proxy Advanced
 
 In this section we will explain how to proxy RADIUS requests based on an

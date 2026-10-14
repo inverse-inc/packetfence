@@ -37,6 +37,7 @@ DEFAULT
     PacketFence-Authorization-Status      !* ANY,
     PacketFence-ShortName                 !* ANY,
     PacketFence-Proxied-From              !* ANY,
+    PacketFence-Degraded                  !* ANY,
     PacketFence-UserName                  !* ANY,
     PacketFence-NTLMv2-Only               !* ANY,
     PacketFence-NTLM-Auth-Host            !* ANY,

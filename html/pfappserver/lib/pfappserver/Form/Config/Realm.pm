@@ -105,6 +105,33 @@ has_field 'radius_auth_proxy_type' =>
              help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
   );
 
+has_field 'radius_degraded' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "disabled",
+   label => 'Degraded mode',
+   tags => { after_element => \&help,
+             help => 'Cache the attributes returned by the remote RADIUS servers and, when all of them are unreachable, authenticate locally and answer from the cache.' },
+  );
+
+has_field 'radius_degraded_cache_miss' =>
+  (
+   type => 'Select',
+   label => 'Degraded mode cache miss',
+   required => 1,
+   options =>
+   [
+    { value => 'compute_in_pf', label => 'Authorize from PacketFence' },
+    { value => 'accept', label => 'Accept without attributes' },
+    { value => 'reject', label => 'Reject' },
+   ],
+   default => 'compute_in_pf',
+   tags => { after_element => \&help,
+             help => 'What to do in degraded mode when the device has no cached answer' },
+  );
+
 has_field 'radius_acct' =>
   (
    type => 'Select',

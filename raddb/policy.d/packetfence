@@ -109,6 +109,31 @@ packetfence-audit-log-reject {
     }
 }
 
+#
+#  Degraded mode of a proxied realm: accept a MAC authentication (the
+#  User-Name is the device MAC address) since there is no remote server
+#  to validate it. Any other non EAP request is left to pap and rejected.
+#
+packetfence-degraded-mab {
+    if (!EAP-Message && &User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+        update {
+            &request:Tmp-String-2 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+        }
+        if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+            if (&Tmp-String-1 == &Tmp-String-2) {
+                update control {
+                    &Auth-Type := Accept
+                }
+                updated
+            }
+        }
+    }
+    noop
+}
+
 packetfence-mschap-authenticate {
     if(PacketFence-Domain) {
       if ( "%{User-Name}" =~ /^host\/.*/) {

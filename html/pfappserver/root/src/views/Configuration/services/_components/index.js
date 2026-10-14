@@ -13,6 +13,7 @@ export {
 
   BaseFormGroupSwitch                 as FormGroupApiFrontend,
   BaseFormGroupSwitch                 as FormGroupFingerbankCollector,
+  BaseFormGroupSwitch                 as FormGroupConnectorCache,
   BaseFormGroupSwitch                 as FormGroupGaleraAutofix,
   BaseFormGroupSwitch                 as FormGroupHaproxyAdmin,
   BaseFormGroupSwitch                 as FormGroupHaproxyDb,

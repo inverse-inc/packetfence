@@ -23,6 +23,8 @@ export {
   BaseFormGroupChosenMultiple         as FormGroupRadiusAuth,
   BaseFormGroupChosenOne              as FormGroupRadiusAuthProxyType,
   BaseFormGroupSwitch                 as FormGroupRadiusAuthComputeInPf,
+  BaseFormGroupSwitch                 as FormGroupRadiusDegraded,
+  BaseFormGroupChosenOne              as FormGroupRadiusDegradedCacheMiss,
   BaseFormGroupChosenMultiple         as FormGroupRadiusAcct,
   BaseFormGroupChosenOne              as FormGroupRadiusAcctProxyType,
   BaseFormGroupTextarea               as FormGroupEduroamOptions,
