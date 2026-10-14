@@ -31,6 +31,8 @@ Developed and tested on a QX-S4148GT-4G-PW running Comware Software version 7.2.
 
 =item Dynamic ACL assignment (Filter-Id referencing a numbered ACL)
 
+=item PushACLs (role ACLs pushed as numbered advanced ACLs)
+
 =item Voice over IP (voice VLAN + device-traffic-class=voice)
 
 =item RADIUS Disconnect (dynamic-author server)
@@ -52,7 +54,13 @@ attribute (C<ip:inacl#N=...>), which this firmware silently ignores.
 Enforcement therefore goes through role-based enforcement: enable "Role by
 Switch Role" and set the numbered ACL (for example C<3999>) as the switch role
 for each PacketFence role. The ACL itself is pre-configured on the switch, or
-provisioned to it out of band.
+pushed by PushACLs.
+
+Comware 7.2.8 reads a C<Filter-Id> that is not a number as a user profile name,
+a user profile cannot apply an ACL on this firmware, and a numbered ACL cannot
+also be named. PushACLs therefore pushes the ACLs of a role as the advanced ACL
+whose number (3000 to 3999) the role is mapped to, and C<Filter-Id> carries that
+number. A role with ACLs but without such a mapping is not pushed.
 
 =cut
 
@@ -63,6 +71,7 @@ use base ('pf::Switch::H3C::Comware_v7');
 
 use pf::constants;
 use pf::config qw(
+    %ConfigRoles
     $MAC
     $PORT
     $WIRED_802_1X
@@ -124,6 +133,51 @@ an ACL name or a user profile name that must already exist on the switch.
 sub returnRoleAttribute {
     my ($self) = @_;
     return 'Filter-Id';
+}
+
+=item returnRoleAttributes
+
+With PushACLs, PacketFence sends the name of the role, which Comware reads as a
+user profile and does not enforce. Send the ACL the role is mapped to instead.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    if ($self->usePushACLs && defined($role) && exists $ConfigRoles{$role}) {
+        my $mapped = $self->getRoleByName($role);
+        if (defined($mapped) && $mapped ne '') {
+            $role = $mapped;
+        } else {
+            $self->logger->warn("(".$self->{'_id'}.") Role '$role' is not mapped to an ACL number, the switch will not enforce its ACLs");
+        }
+    }
+    return ($self->returnRoleAttribute() => $role);
+}
+
+=item pushAclsName
+
+PushACLs creates the ACLs of a role as the advanced ACL the role is mapped to,
+3000 to 3999. A role without such a mapping, or sharing its number with another
+role, is not pushed. Outbound ACLs are never pushed: L</acl_chewer> drops them.
+
+=cut
+
+sub pushAclsName {
+    my ($self, $role, $direction) = @_;
+    return undef if $direction ne 'in';
+    my $roles = $self->{'_roles'} // {};
+    my $number = $roles->{$role};
+    if (!defined($number) || $number !~ /^\d+$/ || $number < 3000 || $number > 3999) {
+        $self->logger->warn("(".$self->{'_id'}.") Not pushing the ACLs of role '$role': map the role to an advanced ACL number, 3000 to 3999");
+        return undef;
+    }
+    my @shared = grep { $_ ne $role && ($roles->{$_} // '') eq $number } sort keys %$roles;
+    if (@shared) {
+        $self->logger->warn("(".$self->{'_id'}.") Not pushing the ACLs of role '$role': ACL $number is also mapped to ".join(', ', @shared));
+        return undef;
+    }
+    return $number;
 }
 
 =item getVoipVsa
@@ -261,9 +315,10 @@ sub returnAuthorizeRead {
 =item acl_chewer
 
 Translate PacketFence's Cisco-style ACL lines into Comware advanced ACL C<rule>
-lines, pushed to the switch by PushACLs. The C<in|>/C<out|> direction prefix is
-kept: PacketFence splits the result into the C<E<lt>roleE<gt>> and
-C<E<lt>roleE<gt>out> ACLs.
+lines, pushed to the switch by PushACLs.
+
+The switch filters the traffic sent by the endpoint with the authorization ACL,
+so C<out|> lines are dropped, and the C<in|> prefix is removed.
 
 Each line is parsed with L<Cisco::AccessList::Parser>, like the other switch
 modules. A line, or a qualifier, the translation cannot carry is never dropped
@@ -273,15 +328,15 @@ silently, since dropping a condition widens a permit:
 
 =item * a permit that cannot be expressed is skipped, which only narrows the role
 
-=item * a deny that cannot be expressed ends the ACLs of its direction with C<rule deny ip>, so the lines after it cannot allow what it blocks
+=item * a deny that cannot be expressed ends the ACL with C<rule deny ip>, so the lines after it cannot allow what it blocks
 
-=item * a direction whose lines were all skipped gets C<rule deny ip> rather than nothing
+=item * a role whose lines were all skipped gets C<rule deny ip> rather than nothing
 
 =back
 
 Not expressed: TCP flags, ICMP types, non contiguous masks, and the C<dscp>,
-C<precedence>, C<tos>, C<fragments> and C<time-range> qualifiers, which the
-parser accepts but does not report.
+C<precedence>, C<tos>, C<fragments>, C<time-range> and C<option> qualifiers,
+which the parser accepts but does not report.
 
 =cut
 
@@ -318,44 +373,39 @@ sub acl_chewer {
     my $logger = $self->logger;
     $role //= '';
 
-    my (%rules, %had, %cut);
-    my @order;
+    my @rules;
+    my $had;
     while ($acl =~ /([^\n]+)\n?/g) {
         my $line = $1;
         $line =~ s/^\s+|\s+$//g;
         next if $line eq '' || $line =~ /^(?:remark|#)/i;
 
-        my $dir = 'in';
-        my $prefix = '';
-        if ($line =~ /^(in|out)\|(.*)$/) {
-            ($dir, $prefix, $line) = ($1, "$1|", $2);
+        if ($line =~ /^out\|/) {
+            $logger->warn("(".$self->{'_id'}.") Skipping outbound ACL of role '$role': the switch only filters the traffic sent by the endpoint: $line");
+            next;
         }
-        next if $cut{$dir};
-        push @order, $dir if !$had{$dir}++;
+        $line =~ s/^in\|//;
+        $had = 1;
 
         my ($action, $rule, $reason) = $self->_comwareRule($line);
         if (defined $rule) {
-            push @{$rules{$dir}}, "$prefix$rule";
+            push @rules, $rule;
             next;
         }
         if (!defined $action || $action ne 'deny') {
             $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason: $line");
             next;
         }
-        $logger->warn("(".$self->{'_id'}.") Ending the $dir ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through: $line");
-        push @{$rules{$dir}}, $prefix . COMWARE_DENY_ALL;
-        $cut{$dir} = 1;
+        $logger->warn("(".$self->{'_id'}.") Ending the ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through: $line");
+        push @rules, COMWARE_DENY_ALL;
+        last;
     }
 
-    my $out = '';
-    foreach my $dir (@order) {
-        if (!@{$rules{$dir} // []}) {
-            $logger->warn("(".$self->{'_id'}.") Denying all the $dir traffic of role '$role': none of its $dir ACLs can be translated");
-            push @{$rules{$dir}}, ($dir eq 'out' ? 'out|' : '') . COMWARE_DENY_ALL;
-        }
-        $out .= join('', map { "$_\n" } @{$rules{$dir}});
+    if ($had && !@rules) {
+        $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': none of its ACLs can be translated");
+        push @rules, COMWARE_DENY_ALL;
     }
-    return $out;
+    return join('', map { "$_\n" } @rules);
 }
 
 =item _comwareRule
@@ -380,7 +430,7 @@ sub _comwareRule {
 
     # Cisco::AccessList::Parser accepts these qualifiers without reporting them
     # in the parsed entry: the line would be translated without its condition.
-    return ($action, undef, "the '$1' qualifier is not translated") if $line =~ /\s(dscp|precedence|tos|fragments|time-range)(?:\s|$)/i;
+    return ($action, undef, "the '$1' qualifier is not translated") if $line =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
     return ($action, undef, "TCP flags are not translated ('".$entry->{'tcp_flags'}."')") if defined $entry->{'tcp_flags'};
     return ($action, undef, "ICMP types are not translated ('".$entry->{'icmp_qualifier'}."')") if defined $entry->{'icmp_qualifier'};
 

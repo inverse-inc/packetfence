@@ -31,7 +31,7 @@ version 7.2.8 and supports the following technologies:
 * 802.1X with MAC Authentication fallback
 * RADIUS dynamic VLAN assignment
 * Role assignment through the `Filter-Id` attribute (ACL number, ACL name or user profile already defined on the switch)
-* Per-role ACLs pushed to the switch by PacketFence (PushACLs), referenced through `Filter-Id`
+* Per-role ACLs pushed to the switch by PacketFence (PushACLs) as numbered ACLs, referenced through `Filter-Id`
 * RADIUS Disconnect (dynamic-author server)
 * RADIUS CLI login
 
@@ -244,22 +244,37 @@ the session.
 
 Instead of defining the ACL by hand on every switch, enable _Use PushACLs_ on
 the switch and give it CLI credentials (`cliUser` / `cliPwd`). PacketFence then
-translates each role's ACL into Comware `rule` syntax and pushes it to the
-switch through the `pfsetacls` service over SSH, using PacketFence's bundled
-`packetfence.comware` Ansible collection, and creating one named advanced ACL per
-role. The RADIUS reply
-still references the ACL by name through `Filter-Id`. The switch account used by
-PushACLs must have write (network-admin) rights.
+translates the ACL of each role into Comware `rule` syntax and pushes it to the
+switch through the `pfsetacls` service over SSH, using the bundled
+`packetfence.comware` Ansible collection, and saves the configuration. The
+switch account used by PushACLs must have write (network-admin) rights.
+
+The ACL of a role is pushed as the advanced ACL whose number the role is mapped
+to, and `Filter-Id` carries that number. Keep _Role by Switch Role_ enabled and
+map each role whose ACL PacketFence pushes to its own number from 3000 to 3999,
+for example `3901`. On Comware 7.2.8 a `Filter-Id` that is not a number is read
+as a user profile name and is not enforced (`display mac-authentication
+connection` shows the user profile as `NOT effective`), a user profile cannot
+apply an ACL, and a numbered ACL cannot also be named, so a role with ACLs that
+is not mapped to such a number, or shares it with another role, is not pushed
+and a warning is logged in `packetfence.log`. PushACLs replaces the rules of
+the mapped ACLs: do not map a role to an ACL defined by hand on the switch.
+
+The switch filters the traffic sent by the endpoint with this ACL, so `out|`
+ACL lines are not pushed. A line that cannot be translated without changing its
+meaning is not pushed either, and a warning is logged:
+
+* TCP flags (`established`, ...) and ICMP types,
+* the `dscp`, `precedence`, `tos`, `fragments`, `time-range` and `option` qualifiers,
+* non contiguous masks.
+
+Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
+after it allow what it blocks, so the ACL ends at that `deny` with `rule deny
+ip`. A role whose lines were all skipped gets `rule deny ip` as well.
 
 [NOTE]
 ====
-Two environment requirements for the Comware push, learned in testing on the
-QX-S 7.2.8:
-
-. *Disable paging on the switch's VTY lines* (`line vty 0 63` then
-`screen-length 0`), otherwise the SSH session pauses at `---- More ----` and the
-Ansible run times out.
-. *Old firmware offers only an `ssh-rsa` host key*, which modern SSH rejects. The
+Old firmware offers only an `ssh-rsa` host key, which modern SSH rejects. The
 generated inventory already passes `HostKeyAlgorithms=+ssh-rsa` (and uses the
 paramiko connection) to get past this.
 
@@ -268,7 +283,8 @@ Comware terminal + cliconf plugin) for this, because the public `h3c_open.comwar
 collection's plugins mis-handle Comware (prompt patterns do not match the
 config-view prompt `[...]`, and `cli_config`'s enable-mode logic does not apply
 to Comware). PacketFence copies the bundled collection into the per-switch
-`pf_collections` directory and drives the push with `cli_command`.
+`pf_collections` directory and drives the push with `cli_command`. The terminal
+plugin disables paging for the session, so the VTY lines need no change.
 ====
 
 ===== Flow export (sFlow)
