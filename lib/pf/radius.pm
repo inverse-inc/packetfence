@@ -1352,6 +1352,9 @@ sub handleConnectionTypeChange {
     }
 }
 
+# Scopes already warned about a request without a switch IP, see radius_filter
+my %WARNED_NO_SWITCH_IP;
+
 =head2 radius_filter
 
 Handle radius filter request
@@ -1369,12 +1372,17 @@ sub radius_filter {
     # reply unless rest.conf asks for the original request as well
     # (body_lists = "request ..."): without NAS-IP-Address there is no switch
     # and no endpoint to evaluate the filters against.
+    # Warned once per process and scope, and no Reply-Message: in post-proxy it
+    # would end up in the Access-Accept sent to the switch.
     if (!defined($switch_ip) || $switch_ip eq '') {
-        $logger->warn(
-            "No NAS-IP-Address in the RADIUS request handed to the $scope filter: skipping the filters. "
-            ."In the pre-proxy/post-proxy sections make sure rest.conf sends the request list (body_lists)."
-        );
-        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "No request attributes for the RADIUS filter") ];
+        unless ($WARNED_NO_SWITCH_IP{$scope}++) {
+            $logger->warn(
+                "No switch IP (NAS-IP-Address / Client-IP-Address) in the RADIUS request handed to the $scope filter: skipping the filters. "
+                ."In the pre-proxy/post-proxy sections make sure rest.conf sends the request list (body_lists). "
+                ."Logged once per process."
+            );
+        }
+        return [ $RADIUS::RLM_MODULE_NOOP ];
     }
 
     $logger->debug("instantiating switch");
