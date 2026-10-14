@@ -78,10 +78,13 @@ sub code : Path : Args(2) {
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
 
         my $source = pf::authentication::getAuthenticationSource($activation_record->{source_id});
+        my $unregdate = $activation_record->{unregdate};
 
         # The device is waiting on the portal: just mark the code as verified,
         # the portal registers the device once it sees the verified status.
-        if ( $source && $source->can('waitForActivation') && $source->waitForActivation ) {
+        # A code with an unregdate was issued with temporary access (before the
+        # option was enabled) and goes through the regular flow below.
+        if ( !$unregdate && $source && $source->can('waitForActivation') && $source->waitForActivation ) {
             get_logger->info("Activation code verified, the device is waiting on the portal to complete its registration");
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
             pf::auth_log::record_completed_guest($activation_record->{source_id}, $source->type, $node_mac, $pf::auth_log::COMPLETED);
@@ -93,7 +96,6 @@ sub code : Path : Args(2) {
             $c->detach();
         }
 
-        my $unregdate = $activation_record->{unregdate};
         if($unregdate) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
