@@ -11,6 +11,7 @@
       - unit_tests/golang_tests.yml
       - unit_tests/perl_tests.yml
       - unit_tests/addons_functions_tests.yml
+      - uid_gid_migration
       - pfcron
       - backup_db_and_restore
       - backup_db_and_restore/teardown
