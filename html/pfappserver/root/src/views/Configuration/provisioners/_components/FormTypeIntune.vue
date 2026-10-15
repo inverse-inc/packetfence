@@ -88,6 +88,11 @@
                           namespace="loginUrl"
     />
 
+    <form-group-device-lookup :column-label="$i18n.t('Device lookup')"
+                              :text="$i18n.t('How to find the device in Intune, tried in this order. Intune records a single Wi-Fi and a single Ethernet MAC per device, so devices connecting through a dock, a USB adapter or a secondary NIC are not found by MAC address. With EAP-TLS and a SCEP profile whose subject is CN={{AAD_Device_ID}} (or CN={{DeviceId}}), select the matching device ID method first. Defaults to the MAC address only.')"
+                              namespace="device_lookup"
+    />
+
     <form-group-android-agent-download-uri :column-label="$i18n.t('Android agent download URI')"
                                            namespace="android_agent_download_uri"
     />
@@ -120,6 +125,7 @@ import {
   FormGroupAutoRegister,
   FormGroupCategory,
   FormGroupDescription,
+  FormGroupDeviceLookup,
   FormGroupDomains,
   FormGroupEnforce,
   FormGroupHost,
@@ -148,6 +154,7 @@ const components = {
   FormGroupAutoRegister,
   FormGroupCategory,
   FormGroupDescription,
+  FormGroupDeviceLookup,
   FormGroupDomains,
   FormGroupEnforce,
   FormGroupHost,

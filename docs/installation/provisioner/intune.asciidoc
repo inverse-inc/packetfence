@@ -75,7 +75,41 @@ Now configure this new provisioner with the information you got above.
 * The default Login URL should work. 
 * The port and protocol should be left to default.
 * The 'Agent download URI' should be ok.
+* 'Device lookup' selects how devices are found in Intune; see below.
 * Authorized domains need to be adapted to allow the device to reach the download URI (per example google play needs multiple domains to be able to install the agent).
+
+===== Matching devices in Intune
+
+To check compliance, PacketFence has to find the connecting device in
+Intune. The *Device lookup* setting lists the methods it tries, in
+order:
+
+[cols="1,2",options="header"]
+|===
+| Method | What it matches
+| Azure AD device ID | The 802.1X identity of the node (the EAP-TLS certificate subject, stored as the node's 802.1X username) is the Azure AD / Entra device ID. This is the case with an Intune SCEP or PKCS profile whose subject is `CN={{AAD_Device_ID}}`.
+| Intune device ID | Same, with a subject of `CN={{DeviceId}}` (the Intune managed device ID).
+| Device name | The node's computer name (learned from DHCP / Fingerbank), or the host name in a `host/name.domain` 802.1X identity, is the Intune device name.
+| MAC address | The historical method: the MAC of the connecting interface is the Wi-Fi or Ethernet MAC Intune recorded for the device.
+|===
+
+Intune records a single Wi-Fi MAC and a single Ethernet MAC per device
+— typically the built-in adapters. A laptop connecting through a
+docking station, a USB adapter or any other interface is therefore
+*not found* by MAC address, and neither are devices whose first-seen
+adapter was a virtual one. Whenever devices authenticate with EAP-TLS,
+put one of the device ID methods first and keep *MAC address* last as
+a fallback: the device ID lookups are a single filtered Graph query,
+while the MAC lookup walks the whole device list.
+
+A device found by none of the methods is treated as not enrolled: it
+is not compliant, the *Non compliance security event* is raised if one
+is configured, and no `intune` data is available to the rules.
+
+TIP: The Azure AD authentication source can use the same
+`CN={{AAD_Device_ID}}` certificate to check group membership; see
+_Using Azure AD EAP-TLS machine authentication_ in the Azure AD
+section of this guide.
 
 ===== Add the provisioner to the profile
 
