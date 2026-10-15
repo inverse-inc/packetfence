@@ -436,10 +436,10 @@ sub desAssociate : Public : Fork {
         return;
     }
 
-    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'}, $postdata->{'connection_type'});
-
     my $filter = pf::access_filter::switch->new;
     $filter->filterSwitch('reevaluate',\$switch, $postdata);
+
+    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'}, $postdata->{'connection_type'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};

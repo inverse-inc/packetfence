@@ -22,7 +22,7 @@ BEGIN {
 
 use pf::SwitchFactory;
 use pf::access_filter::switch;
-use Test::More tests => 3;
+use Test::More tests => 8;
 
 #This test will running last
 use Test::NoWarnings;
@@ -41,6 +41,32 @@ is(
     $switch->{_ExternalPortalEnforcement},
     'Y',
     "Switch filtered",
+);
+
+# A rule with a switch module and parameters (#7023): the module is only used
+# to instantiate the switch, the parameters change the switch on the other scopes
+is(
+    $switch_filter->filter('instantiate_module', { test_7023 => 'yes' }),
+    'Cisco::Cisco_IOS_15_5',
+    "instantiate_module returns the switch module of the rule",
+);
+
+my $reevaluate = $switch_filter->filter('reevaluate', { test_7023 => 'yes' });
+is_deeply(
+    $reevaluate,
+    { _useCoA => 'N' },
+    "reevaluate returns the parameters of the rule, not its switch module",
+);
+
+$switch->{_useCoA} = 'Y';
+eval { $switch_filter->filterSwitch('reevaluate', \$switch, { test_7023 => 'yes' }) };
+is($@, '', "filterSwitch does not die on a rule with a switch module");
+is($switch->{_useCoA}, 'N', "the parameters of the rule are applied");
+
+is(
+    $switch_filter->filter('instantiate_module', { test_7023 => 'no' }),
+    undef,
+    "no rule, no switch module",
 );
 
 =head1 AUTHOR

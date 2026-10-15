@@ -27,14 +27,17 @@ use List::MoreUtils qw(any);
 =cut
 
 sub filterRule {
-    my ($self, $rule, $args) = @_;
+    my ($self, $rule, $args, $scope) = @_;
     my $logger = $self->logger;
     my $switch_params = {};
     if(defined $rule) {
-        if (defined($rule->{'switch'}) && $rule->{'switch'} ne '') {
-            my $switch = $rule->{'switch'};
-            return $switch;
-        } elsif ( any { $_ eq 'radius_authorize' || $_ eq 'reevaluate' }  @{$rule->{'scopes'} // [] } ) {
+        # The switch module of a rule only applies when the switch is instantiated,
+        # the other scopes change the switch parameters
+        if (!defined($scope) || $scope eq 'instantiate_module') {
+            return $rule->{'switch'} if defined($rule->{'switch'}) && $rule->{'switch'} ne '';
+            return undef if defined($scope);
+        }
+        if ( any { $_ eq 'radius_authorize' || $_ eq 'reevaluate' }  @{$rule->{'scopes'} // [] } ) {
             $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
             for my $p (@{$rule->{params} // []}) {
                 my @answer = $p =~ /([a-zA-Z_-]*)\s*=\s*(.*)/;
@@ -127,7 +130,7 @@ sub filterSwitch {
     my ($self, $scope, $switch, $args) = @_;
     my $switch_params = $self->filter($scope, $args);
 
-    if (defined($switch_params)) {
+    if (ref($switch_params) eq 'HASH') {
         foreach my $key (keys %{$switch_params}) {
             if (ref($switch_params->{$key}) eq 'ARRAY') {
                 foreach my $param (@{$switch_params->{$key}}) {
