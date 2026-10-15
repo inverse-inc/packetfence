@@ -104,7 +104,7 @@ ATTRIBUTE       Extreme-Dynamic-Config          252     string
 END-VENDOR      Extreme
 ....
 
-FreeRADIUS reads the file through [filename]`/usr/local/pf/raddb/dictionary`, so the attribute can be returned in an Access-Accept, and PacketFence loads the same definitions to send it in the RADIUS CoA and Disconnect requests of the `coa`, `disconnect` and `bounce` scopes. Without it, those requests are sent without the attribute and the logs show `Unknown RADIUS tuple`. Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api after a change. The file is not synchronized between the members of a cluster: copy it to each of them.
+FreeRADIUS reads the file through [filename]`/usr/local/pf/raddb/dictionary`, so the attribute can be returned in an Access-Accept, and PacketFence loads the same definitions to send it in the RADIUS CoA and Disconnect requests of the `coa`, `disconnect` and `bounce` scopes. Without it, those requests are sent without the attribute and the logs show `Unknown RADIUS tuple`. Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api after a change. A syntax error in the file prevents FreeRADIUS from starting (only a missing file is ignored), so restart a single RADIUS service first and check that it starts before restarting the others. PacketFence ignores, with a warning in its logs, the lines it can't use: an attribute of an unknown vendor, or of a vendor whose `format=` is not `1,1`. The file is not synchronized between the members of a cluster: copy it to each of them.
 
 === Dynamic RADIUS Attribute Value Syntax
 

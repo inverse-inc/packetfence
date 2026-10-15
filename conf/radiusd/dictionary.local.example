@@ -6,6 +6,7 @@
 #
 # Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api
 # after a change.
+# A syntax error in this file prevents FreeRADIUS from starting.
 #
 # Example: Extreme-Dynamic-Config, the vendor-specific attribute of Extreme
 # Networks Fabric Engine (vendor 1916, attribute 252). Sent in the coa or

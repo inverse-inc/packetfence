@@ -19,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 31;
 use Test::NoWarnings;
 use File::Temp qw(tempdir);
 use Storable qw(dclone);
@@ -74,6 +74,41 @@ is(scalar(grep { /unsupported keyword FLAGS/ } @warnings), 1, 'unsupported keywo
 is(scalar(grep { /dictionary.missing/ } @warnings), 0, 'a missing optional include is silent');
 
 is_deeply([pf::util::radius_dictionary_local::merge(dclone($RADIUS_DICTIONARY), "$dir/none")], [], 'no local file, no warnings');
+
+# Lines that can't be used must not replace the shipped attributes
+write_file("$dir/dictionary.bad", <<'EOT');
+BEGIN-VENDOR    Extrme
+ATTRIBUTE       Extreme-Dynamic-Config      252     string
+VALUE           Extreme-Dynamic-Config      Bounce  1
+END-VENDOR      Extrme
+ATTRIBUTE       Lab-Typo-Attr   1   string  Typo-Vendor
+ATTRIBUTE       Lab-Secret-Attr 3997    string  encrypt=1
+VENDOR          Lab-Wide        65002   format=2,1
+BEGIN-VENDOR    Lab-Wide
+ATTRIBUTE       Lab-Wide-Attr   2   string
+END-VENDOR      Lab-Wide
+BEGIN-VENDOR    Extreme format=Extended-Vendor-Specific-1
+ATTRIBUTE       Lab-Extended-Attr   3   string
+END-VENDOR      Extreme
+BEGIN-VENDOR    extreme
+ATTRIBUTE       Lab-Lowercase-Vendor-Attr   250     string
+END-VENDOR      extreme
+ATTRIBUTE       Lab-Lowercase-Old-Style-Attr    249     string  extreme
+EOT
+my $bad = dclone($RADIUS_DICTIONARY);
+my @bad_warnings = pf::util::radius_dictionary_local::merge($bad, "$dir/dictionary.bad");
+is_deeply($bad->{rattr}{252}, $RADIUS_DICTIONARY->{rattr}{252}, 'an attribute in the block of an unknown vendor does not replace a standard one');
+ok(!exists $bad->{attr}{'Extreme-Dynamic-Config'}, 'an attribute in the block of an unknown vendor is not added');
+is(scalar(grep { /inside the block of vendor Extrme/ } @bad_warnings), 2, 'ATTRIBUTE and VALUE in the block of an unknown vendor are reported');
+is_deeply($bad->{rattr}{1}, $RADIUS_DICTIONARY->{rattr}{1}, 'an old style attribute of an unknown vendor does not replace User-Name');
+is(scalar(grep { /unknown vendor Typo-Vendor, ignored/ } @bad_warnings), 1, 'an old style unknown vendor is reported');
+is_deeply($bad->{attr}{'Lab-Secret-Attr'}, [3997, 'string'], 'options in place of the vendor make a standard attribute');
+ok(!exists $bad->{vendors}{'Lab-Wide'}, 'a vendor with another format is not added');
+ok(!exists $bad->{attr}{'Lab-Wide-Attr'} && !exists $bad->{avendors}{'Lab-Wide-Attr'}, 'the attributes of a vendor with another format are ignored');
+is(scalar(grep { /only format=1,1 is supported/ } @bad_warnings), 2, 'unsupported vendor formats are reported');
+ok(!exists $bad->{attr}{'Lab-Extended-Attr'} && !exists $bad->{avendors}{'Lab-Extended-Attr'}, 'the attributes of an extended vendor block are ignored');
+is($bad->{avendors}{'Lab-Lowercase-Vendor-Attr'}, 'Extreme', 'a vendor block name is matched without regard to case');
+is($bad->{avendors}{'Lab-Lowercase-Old-Style-Attr'}, 'Extreme', 'an old style vendor name is matched without regard to case');
 
 # a CoA-Request carrying the custom attribute is encoded and decoded back
 my $packet = Net::Radius::Packet->new($dict);

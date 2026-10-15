@@ -52,6 +52,25 @@ sub _number {
     return undef;
 }
 
+# FreeRADIUS matches dictionary names without regard to case
+sub _vendor {
+    my ($dict, $name) = @_;
+    return undef unless defined $name;
+    return $name if exists $dict->{vendors}{$name};
+    my ($found) = grep { lc($_) eq lc($name) } keys %{ $dict->{vendors} };
+    return $found;
+}
+
+# Options of an old style ATTRIBUTE line, in place of a vendor name
+my $ATTRIBUTE_OPTIONS = qr/^(?:has_tag|encrypt=\d+|array|concat|virtual|long)(?:,(?:has_tag|encrypt=\d+|array|concat|virtual|long))*$/;
+
+# Net::Radius packs vendor-specific attributes with a one byte type and length
+sub _vendor_format_supported {
+    my ($option) = @_;
+    return 1 unless defined $option;
+    return $option =~ /^format=1,1$/i ? 1 : 0;
+}
+
 sub _read {
     my ($dict, $file, $warnings, $seen) = @_;
     my $real = File::Spec->rel2abs($file);
@@ -64,7 +83,8 @@ sub _read {
         push @$warnings, "$file: cannot open: $!";
         return;
     }
-    my $vendor;    # set between BEGIN-VENDOR and END-VENDOR
+    my $vendor;        # set between BEGIN-VENDOR and END-VENDOR
+    my $bad_vendor;    # set between BEGIN-VENDOR and END-VENDOR of a vendor that can't be used
     while (my $line = <$fh>) {
         $line =~ s/#.*//;
         my @f = split ' ', $line;
@@ -86,18 +106,33 @@ sub _read {
                 push @$warnings, "$where: invalid VENDOR";
                 next;
             }
+            if (!_vendor_format_supported($f[3])) {
+                push @$warnings, "$where: vendor $f[1] uses $f[3], only format=1,1 is supported, ignored";
+                next;
+            }
             $dict->{vendors}{$f[1]} = $id;
         }
         elsif ($keyword eq 'BEGIN-VENDOR') {
-            if (!defined $f[1] || !exists $dict->{vendors}{$f[1]}) {
+            my $name = _vendor($dict, $f[1]);
+            $vendor = $bad_vendor = undef;
+            if (!defined $name) {
                 push @$warnings, "$where: unknown vendor " . ($f[1] // '');
-                $vendor = undef;
+                $bad_vendor = $f[1] // '';
                 next;
             }
-            $vendor = $f[1];
+            if (!_vendor_format_supported($f[2])) {
+                push @$warnings, "$where: vendor block $name uses $f[2], only format=1,1 is supported";
+                $bad_vendor = $name;
+                next;
+            }
+            $vendor = $name;
         }
         elsif ($keyword eq 'END-VENDOR') {
-            $vendor = undef;
+            $vendor = $bad_vendor = undef;
+        }
+        elsif (defined $bad_vendor && ($keyword eq 'ATTRIBUTE' || $keyword eq 'VALUE')) {
+            # Read as standard attributes, they would replace the shipped ones
+            push @$warnings, "$where: inside the block of vendor $bad_vendor, which can't be used, ignored";
         }
         elsif ($keyword eq 'ATTRIBUTE') {
             my ($name, $number, $type, $extra) = @f[1 .. 4];
@@ -108,7 +143,14 @@ sub _read {
             }
             # old style: ATTRIBUTE name number type vendor
             my $attr_vendor = $vendor;
-            $attr_vendor = $extra if !defined $attr_vendor && defined $extra && exists $dict->{vendors}{$extra};
+            if (!defined $attr_vendor && defined $extra && $extra !~ $ATTRIBUTE_OPTIONS) {
+                $attr_vendor = _vendor($dict, $extra);
+                if (!defined $attr_vendor) {
+                    # Read as a standard attribute, it would replace a shipped one
+                    push @$warnings, "$where: unknown vendor $extra, ignored";
+                    next;
+                }
+            }
             if (defined $attr_vendor) {
                 my $id = $dict->{vendors}{$attr_vendor};
                 $dict->{vsattr}{$id}{$name} = [ $num, $type ];
