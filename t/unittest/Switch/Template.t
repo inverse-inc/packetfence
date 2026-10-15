@@ -28,7 +28,7 @@ BEGIN {
 use pf::config::builder::template_switches;
 use pf::Switch::Template;
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 6;
+use Test::More tests => (scalar @FILES) + 8;
 #This test will running last
 use Test::NoWarnings;
 for my $file (@FILES) {
@@ -86,6 +86,13 @@ for my $file (@FILES) {
         [$RADIUS::RLM_MODULE_OK, 'Cisco-AVPair' => 'shell:priv-lvl=15'],
         "returnAuthorizeWrite"
     );
+}
+
+{
+    # Why coaOrDisconnect sends a Disconnect-Request although useCoA is enabled (#5124)
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
+    like($switch->_coaFallbackReason(undef), qr/no role on this switch/, "no role for the node");
+    like($switch->_coaFallbackReason('guest'), qr/role mapping is disabled/, "a role but no role mapping");
 }
 
 =head1 AUTHOR
