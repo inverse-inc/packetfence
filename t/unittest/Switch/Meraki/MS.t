@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 29;
 use pf::Switch::Meraki::MS;
 use pf::Switch::Meraki::MS_v15;
 
@@ -44,6 +44,7 @@ my %walk = (
 {
     package FakeSNMPSession;
     sub new { bless {}, shift }
+    sub error { undef }
     sub _cmp {
         my @a = split /\./, $_[0];
         my @b = split /\./, $_[1];
@@ -122,6 +123,27 @@ ok($cache->get("10.0.0.2-CDP-snmp-unreachable"), "the failure is remembered");
 ok(!$no_snmp->isPhoneAtIfIndex($laptop, 14), "the next lookup is not a phone");
 ok(!$no_snmp->_cdpRecheck({ mac => $laptop, ifIndex => 14, isPhone => 0 }), "no re-authentication when the switch does not answer SNMP");
 is($probes, 1, "the switch is not probed again");
+
+# connectRead succeeds from its cached sysLocation, but the switch no longer
+# answers: the CDP request times out
+{
+    package FakeTimeoutSNMPSession;
+    sub new { bless { calls => 0 }, shift }
+    sub get_next_request { $_[0]{calls}++; return undef }
+    sub get_request { $_[0]{calls}++; return undef }
+    sub error { 'No response from remote host "10.0.0.3"' }
+}
+my $timeout_session = FakeTimeoutSNMPSession->new;
+my $stale = pf::Switch::Meraki::MS_v15->new({ id => '10.0.0.3', ip => '10.0.0.3', VoIPEnabled => 'Y', VoIPDHCPDetect => 'N' });
+$stale->{_sessionRead} = $timeout_session;
+$cache->remove("10.0.0.3-CDP-snmp-unreachable");
+$cache->remove("10.0.0.3-CDP-recheck-$laptop");
+is_deeply([$stale->getPhonesCDPAtIfIndex(14)], [], "no phone when the CDP request times out");
+ok($cache->get("10.0.0.3-CDP-snmp-unreachable"), "the timeout is remembered");
+my $calls = $timeout_session->{calls};
+ok(!$stale->isPhoneAtIfIndex($laptop, 14), "the next lookup is not a phone");
+is($timeout_session->{calls}, $calls, "the switch is not queried again");
+ok(!$stale->_cdpRecheck({ mac => $laptop, ifIndex => 14, isPhone => 0 }), "no re-authentication after a timeout");
 
 =head1 AUTHOR
 

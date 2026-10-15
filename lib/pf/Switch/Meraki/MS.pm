@@ -86,7 +86,13 @@ sub getPhonesCDPAtIfIndex {
     my ($self, $ifIndex) = @_;
     return () if !$self->isVoIPEnabled() || !$self->_cdpLookupAvailable();
     require pf::Switch::Cisco;
-    return pf::Switch::Cisco::getPhonesCDPAtIfIndex($self, $ifIndex);
+    my @phones = pf::Switch::Cisco::getPhonesCDPAtIfIndex($self, $ifIndex);
+    # connectRead can succeed from its cached sysLocation while the switch no
+    # longer answers (SNMP disabled since, wrong community): a CDP request that
+    # timed out counts as well
+    my $error = $self->{_sessionRead} ? $self->{_sessionRead}->error() : undef;
+    $self->_snmpUnreachable($error) if !@phones && defined($error) && $error =~ /No response/i;
+    return @phones;
 }
 
 =head2 _cdpLookupAvailable
@@ -99,13 +105,22 @@ and without this every request would wait for the SNMP timeout.
 
 sub _cdpLookupAvailable {
     my ($self) = @_;
-    my $key = $self->{_id} . "-CDP-snmp-unreachable";
-    my $cache = $self->cache_distributed;
-    return $FALSE if $cache->get($key);
+    return $FALSE if $self->cache_distributed->get($self->{_id} . "-CDP-snmp-unreachable");
     return $TRUE if $self->connectRead();
-    $self->logger->warn("$self->{_id} does not answer SNMP: VoIP phones are not looked up in its CDP neighbors for the next " . SNMP_UNREACHABLE_MEMORY . ". Enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable the CDP detection of VoIP phones on the switch");
-    $cache->set($key, 1, SNMP_UNREACHABLE_MEMORY);
+    $self->_snmpUnreachable($self->{_error});
     return $FALSE;
+}
+
+=head2 _snmpUnreachable
+
+Remember for SNMP_UNREACHABLE_MEMORY that the switch does not answer SNMP.
+
+=cut
+
+sub _snmpUnreachable {
+    my ($self, $error) = @_;
+    $self->logger->warn("$self->{_id} does not answer SNMP" . (defined($error) && $error ne '' ? " ($error)" : '') . ": VoIP phones are not looked up in its CDP neighbors for the next " . SNMP_UNREACHABLE_MEMORY . ". Enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable the CDP detection of VoIP phones on the switch");
+    $self->cache_distributed->set($self->{_id} . "-CDP-snmp-unreachable", 1, SNMP_UNREACHABLE_MEMORY);
 }
 
 =head2 isPhoneAtIfIndex
