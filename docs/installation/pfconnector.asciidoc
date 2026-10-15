@@ -274,3 +274,35 @@ systemctl status packetfence-pfconnector-remote
 In cases where there needs be a static port where the packetfence host needs communicate to a service reserve the ports 30000-30999.
 
 Currently these are defined for Radius Sources and DNS Connectors.
+
+===== Antivirus False Positives
+
+The PacketFence Connector tunnels traffic back to the PacketFence server using
+https://github.com/jpillora/chisel[chisel]. Because the same tool is also used by
+attackers for lateral movement, antivirus and EDR products frequently report the
+`pfconnector` binary as a hacktool or riskware, under names such as
+`HackTool/Chisel`, `Riskware.Chisel` or a generic machine-learning verdict like
+`Trojan:Win32/Wacatac.B!ml`.
+
+These detections are false positives. Before adding any exclusion, confirm the
+binary is the one shipped by the package:
+
+[source,bash]
+----
+sha256sum /usr/local/pfconnector-remote/bin/pfconnector
+----
+
+Compare the result with the checksum published for your release. If it does not
+match, do not create an exclusion — treat the host as potentially compromised.
+
+Once the checksum is confirmed, exclude the following from on-access scanning,
+preferring a checksum-based exclusion over a path-based one where your product
+supports it:
+
+* `/usr/local/pfconnector-remote/bin/pfconnector`
+* the `packetfence-pfconnector-remote-combined` systemd service
+* the Docker storage directory holding the connector image layers, usually
+  `/var/lib/docker/overlay2`
+
+Reporting the file to VirusTotal does not clear it: VirusTotal aggregates the
+verdicts of the individual engines, it does not set them.

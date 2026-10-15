@@ -23,10 +23,13 @@ CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 
+# Stamp the release and drop build paths: an unidentifiable static Go binary
+# embedding chisel trips antivirus heuristics.
 pfconnector: CGO_ENABLED=0
+pfconnector: BUILD_ARGS = -trimpath -ldflags "-X github.com/inverse-inc/packetfence/go/chisel/share.BuildVersion=$(PF_PATCH_RELEASE)"
 
 $(ALL_BINARIES):
-	$(build_cmd) -C cmd/$@ -o ../../$@
+	$(build_cmd) -C cmd/$@ -o ../../$@ $(BUILD_ARGS)
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
 $(ALL_BINARIES_RACE):
