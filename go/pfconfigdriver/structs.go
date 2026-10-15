@@ -596,7 +596,6 @@ type PfConfAdvanced struct {
 	UpdateIplogWithAccounting        string   `json:"update_iplog_with_accounting"`
 	UpdateIplogWithAuthentication    string   `json:"update_iplog_with_authentication"`
 	AdminCspSecurityHeaders          string   `json:"admin_csp_security_headers"`
-	Multihost                        string   `json:"multihost"`
 	SsoOnAccessReevaluation          string   `json:"sso_on_access_reevaluation"`
 	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
 	TimingStatsLevel                 string   `json:"timing_stats_level"`
@@ -1171,6 +1170,7 @@ type PfConfSwitch struct {
 	MacSearchesMaxNb         string        `json:"macSearchesMaxNb"`
 	MacSearchesSleepInterval string        `json:"macSearchesSleepInterval"`
 	DeauthOnPrevious         string        `json:"deauthOnPrevious"`
+	HostMode                 string        `json:"host_mode"`
 	Uplink                   []string      `json:"uplink"`
 }
 
