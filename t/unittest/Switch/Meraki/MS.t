@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 18;
+use Test::More tests => 24;
 use pf::Switch::Meraki::MS;
 use pf::Switch::Meraki::MS_v15;
 
@@ -103,6 +103,25 @@ ok(!$switch->_cdpRecheck({ mac => 'e8:ed:f3:aa:88:46', ifIndex => 13, isPhone =>
 
 $switch->{_VoIPEnabled} = 'N';
 is_deeply([$switch->getPhonesCDPAtIfIndex(13)], [], "nothing when VoIP is disabled");
+
+# A switch that does not answer SNMP (SNMP disabled in the Meraki dashboard) is
+# probed once, then not queried again for 10 minutes: no RADIUS request waits
+# for the SNMP timeout, and no re-authentication is asked for
+my $probes = 0;
+{
+    no warnings qw(redefine once);
+    *t::MS_no_snmp::connectRead = sub { $probes++; return 0 };
+    @t::MS_no_snmp::ISA = ('pf::Switch::Meraki::MS_v15');
+}
+my $no_snmp = t::MS_no_snmp->new({ id => '10.0.0.2', ip => '10.0.0.2', VoIPEnabled => 'Y', VoIPDHCPDetect => 'N' });
+$cache->remove("10.0.0.2-CDP-snmp-unreachable");
+$cache->remove("10.0.0.2-CDP-recheck-$laptop");
+is_deeply([$no_snmp->getPhonesCDPAtIfIndex(13)], [], "no phone when the switch does not answer SNMP");
+is($probes, 1, "the switch is probed once");
+ok($cache->get("10.0.0.2-CDP-snmp-unreachable"), "the failure is remembered");
+ok(!$no_snmp->isPhoneAtIfIndex($laptop, 14), "the next lookup is not a phone");
+ok(!$no_snmp->_cdpRecheck({ mac => $laptop, ifIndex => 14, isPhone => 0 }), "no re-authentication when the switch does not answer SNMP");
+is($probes, 1, "the switch is not probed again");
 
 =head1 AUTHOR
 

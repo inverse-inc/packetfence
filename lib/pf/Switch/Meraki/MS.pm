@@ -46,6 +46,10 @@ use pf::radius::constants;
 use constant CDP_RECHECK_TIMEOUT => 300;
 use constant CDP_RECHECK_WINDOW => 900;
 use constant CDP_RECHECK_MEMORY => '48h';
+# When the switch does not answer SNMP (SNMP is disabled in the Meraki dashboard
+# by default), the CDP lookup is skipped for SNMP_UNREACHABLE_MEMORY instead of
+# making every RADIUS request wait for the SNMP timeout.
+use constant SNMP_UNREACHABLE_MEMORY => '10m';
 
 =head1 SUBROUTINES
 
@@ -79,8 +83,29 @@ parameters have to be set on the switch.
 =cut
 
 sub getPhonesCDPAtIfIndex {
+    my ($self, $ifIndex) = @_;
+    return () if !$self->isVoIPEnabled() || !$self->_cdpLookupAvailable();
     require pf::Switch::Cisco;
-    goto &pf::Switch::Cisco::getPhonesCDPAtIfIndex;
+    return pf::Switch::Cisco::getPhonesCDPAtIfIndex($self, $ifIndex);
+}
+
+=head2 _cdpLookupAvailable
+
+Whether the switch answers SNMP. A switch that does not answer is not queried
+again for SNMP_UNREACHABLE_MEMORY: the lookup runs during the RADIUS request,
+and without this every request would wait for the SNMP timeout.
+
+=cut
+
+sub _cdpLookupAvailable {
+    my ($self) = @_;
+    my $key = $self->{_id} . "-CDP-snmp-unreachable";
+    my $cache = $self->cache_distributed;
+    return $FALSE if $cache->get($key);
+    return $TRUE if $self->connectRead();
+    $self->logger->warn("$self->{_id} does not answer SNMP: VoIP phones are not looked up in its CDP neighbors for the next " . SNMP_UNREACHABLE_MEMORY . ". Enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable the CDP detection of VoIP phones on the switch");
+    $cache->set($key, 1, SNMP_UNREACHABLE_MEMORY);
+    return $FALSE;
 }
 
 =head2 isPhoneAtIfIndex
@@ -156,6 +181,8 @@ sub _cdpRecheck {
     return $FALSE if !$self->isVoIPEnabled();
     return $FALSE if defined($self->{_VoIPCDPDetect}) && !isenabled($self->{_VoIPCDPDetect});
     return $FALSE if !defined($args->{'mac'}) || !defined($args->{'ifIndex'}) || $args->{'ifIndex'} eq '';
+    # authenticating again can't find a phone if the switch does not answer SNMP
+    return $FALSE if !$self->_cdpLookupAvailable();
     my $key = $self->{_id} . "-CDP-recheck-" . $args->{'mac'};
     my $cache = $self->cache_distributed;
     my $now = time();
