@@ -135,11 +135,12 @@ use Utils;
 # ----------------------------------------------------------------------------
 
 {
-    # single-host: the configured deauthMethod is honoured as is
-    my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
+    # not multi-auth: the configured deauthMethod is honoured as is (a Cisco module,
+    # which has both an SNMP and a RADIUS technique)
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.42');
     $switch->{_deauthMethod} = $SNMP::SNMP;
     is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X), 'dot1xPortReauthenticate',
-        'single-host switch keeps its configured SNMP method: port-wide dot1xPortReauthenticate');
+        'multi-host switch keeps its configured SNMP method: port-wide dot1xPortReauthenticate');
 
     # multi-auth: RADIUS is forced whatever the configured deauthMethod
     $switch = pf::SwitchFactory->instantiate('172.16.8.41');
@@ -162,7 +163,7 @@ use Utils;
     # multi-auth on a module without a RADIUS technique: the module default is used.
     # pf::Switch::wiredeauthTechniques only knows the SNMP techniques.
     {
-        no warnings 'redefine';
+        no warnings qw(redefine once);
         local *pf::Switch::Cisco::Cisco_IOS_15_0::wiredeauthTechniques = \&pf::Switch::wiredeauthTechniques;
         is($switch->wiredReevaluationDeauthTechnique($WIRED_802_1X), 'dot1xPortReauthenticate',
             'multi-auth switch without a RADIUS technique falls back on the module default');
