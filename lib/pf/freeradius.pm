@@ -155,22 +155,28 @@ sub freeradius_populate_nas_config {
         return;
     }
 
-    my @entries = (
-        (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
-        additional_switches(),
-        pfconnector_nas_row(),
-    );
-    #Looping through all the switches 100 at a time
-    my $it = natatime 100, @entries;
-    while (my @sw = $it->()) {
-        my @rows = map {
-            _build_radius_nas_row($_->{id}, $_, $timestamp)
-        } @sw;
-        # insert NAS
-        _insert_nas_bulk( @rows );
-    }
-    _delete_expired($timestamp);
+    # The lock is released even if the update dies, the connection of the worker
+    # is kept and would otherwise keep it
+    eval {
+        my @entries = (
+            (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
+            additional_switches(),
+            pfconnector_nas_row(),
+        );
+        #Looping through all the switches 100 at a time
+        my $it = natatime 100, @entries;
+        while (my @sw = $it->()) {
+            my @rows = map {
+                _build_radius_nas_row($_->{id}, $_, $timestamp)
+            } @sw;
+            # insert NAS
+            _insert_nas_bulk( @rows );
+        }
+        _delete_expired($timestamp);
+    };
+    my $error = $@;
     _unlock_radius_nas($lock);
+    die $error if $error;
     validate_radius_nas_table($timestamp);
 }
 

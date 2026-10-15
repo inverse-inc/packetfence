@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile);
 use Time::HiRes qw();
@@ -32,6 +32,8 @@ use Test::NoWarnings;
 
 my $dir = tempdir(CLEANUP => 1);
 my $file = catfile($dir, "lock.conf");
+# Keep the lock files of the test out of the real run directory
+local $pf::ConfigStore::run_dir = $dir;
 open(my $fh, '>', $file) or die "$file: $!";
 print $fh "[existing]\nkey=value\n";
 close($fh);
@@ -73,11 +75,14 @@ is_deeply([sort $ini->Sections], [qw(existing first second third)], "No section 
         %pf::ConfigStore::LOCKS = ();
         local $pf::ConfigStore::LOCK_TIMEOUT = 0.3;
         my $other = pf::ConfigStore->new(configFile => $file);
-        exit($other->lock_config ? 1 : 0);
+        my $locked = $other->lock_config;
+        exit(defined $locked && !$locked ? 0 : 1);
     }
     waitpid($child, 0);
-    is($? >> 8, 0, "The lock times out while another process holds it");
+    is($? >> 8, 0, "The lock times out (false, not undef) while another process holds it");
 }
+
+ok(-e catfile($dir, "configstore" . ($file =~ s#/#_#gr) . ".lock"), "The lock file is in the run directory");
 
 ok(!exists $pf::ConfigStore::LOCKS{$file}, "The lock is released once its stores are destroyed");
 

@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller::RestRoute
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
+use pf::ConfigStore;
 
 sub list {
     my ($self) = @_;
@@ -54,6 +55,27 @@ sub replace {
 sub search {
     my ($self) = @_;
     return $self->render_error(404, "Unimplemented");
+}
+
+my %WRITE_METHODS = (POST => 1, PUT => 1, PATCH => 1, DELETE => 1);
+
+=head2 lock_config_store
+
+Lock the config file of the store for the lifetime of the store during a write request,
+so concurrent writers do not overwrite each other's changes.
+Dies with a pf::ConfigStore::LockTimeout (rendered as a 503) when another writer
+keeps the file locked.
+
+=cut
+
+sub lock_config_store {
+    my ($self, $cs) = @_;
+    return unless $WRITE_METHODS{$self->req->method};
+    my $locked = $cs->lock_config;
+    if (defined $locked && !$locked) {
+        die pf::ConfigStore::LockTimeout->new(file => $cs->configFile);
+    }
+    return $locked;
 }
 
 =head1 AUTHOR

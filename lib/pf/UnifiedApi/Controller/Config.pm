@@ -240,20 +240,6 @@ sub config_store {
     return $cs;
 }
 
-my %WRITE_METHODS = (POST => 1, PUT => 1, PATCH => 1, DELETE => 1);
-
-=head2 lock_config_store
-
-Lock the config file of the store for the lifetime of the store during a write request,
-so concurrent writers do not overwrite each other's changes
-
-=cut
-
-sub lock_config_store {
-    my ($self, $cs) = @_;
-    return unless $WRITE_METHODS{$self->req->method};
-    $cs->lock_config;
-}
 
 sub form {
     my ($self, $item, @args) = @_;

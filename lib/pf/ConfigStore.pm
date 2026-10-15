@@ -180,6 +180,10 @@ The lock is held until unlock_config is called or the store is destroyed.
 It is shared by the stores of the same process using the same file.
 The cached config is cleared so it is read again once the lock is held.
 
+Returns true when the lock is held, false when another writer kept it for
+$LOCK_TIMEOUT seconds, undef when there is nothing to lock or the lock file
+cannot be opened.
+
 =cut
 
 our %LOCKS;
@@ -192,7 +196,7 @@ sub lock_config {
     my $lock = $LOCKS{$file};
     if (!$lock) {
         my $fh = _flock_config_file($file);
-        return undef unless $fh;
+        return $fh unless $fh;
         $lock = $LOCKS{$file} = { fh => $fh, count => 0 };
     }
 
@@ -202,6 +206,8 @@ sub lock_config {
     return $TRUE;
 }
 
+# The handle of the locked file, $FALSE on timeout, undef when the lock file
+# cannot be opened
 sub _flock_config_file {
     my ($file) = @_;
     (my $name = $file) =~ s#/#_#g;
@@ -216,9 +222,9 @@ sub _flock_config_file {
     my $deadline = Time::HiRes::time() + $LOCK_TIMEOUT;
     until (flock($fh, LOCK_EX | LOCK_NB)) {
         if (Time::HiRes::time() >= $deadline) {
-            $logger->warn("Unable to lock $file after $LOCK_TIMEOUT seconds, continuing without the lock");
+            $logger->warn("Unable to lock $file after $LOCK_TIMEOUT seconds, another writer holds it");
             close($fh);
-            return undef;
+            return $FALSE;
         }
         Time::HiRes::sleep(0.05);
     }
@@ -1048,6 +1054,26 @@ sub flatten_list_cr {
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
+package pf::ConfigStore::LockTimeout;
+
+=head2 pf::ConfigStore::LockTimeout
+
+The exception raised when the config file stays locked by another writer
+
+=cut
+
+sub new {
+    my ($class, %args) = @_;
+    return bless {%args}, $class;
+}
+
+sub file { $_[0]{file} }
+
+sub message {
+    my ($self) = @_;
+    return "The configuration file $self->{file} is being modified by another request, please try again";
+}
 
 =head1 COPYRIGHT
 
