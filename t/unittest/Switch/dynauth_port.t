@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use pf::Switch;
 
 #This test will running last
@@ -54,6 +54,25 @@ is(sent_port($no_coa_port, 'handleRadiusCoa'), undef, "CoA-Request does not use 
 my $defaults = pf::Switch->new({ id => '10.0.0.3', ip => '10.0.0.3', disconnectPort => '', coaPort => '' });
 is(sent_port($defaults, 'handleRadiusDisconnect'), undef, "no port configured leaves the 3799 default to perform_dynauth");
 is(sent_port($defaults, 'handleRadiusCoa'), undef, "no CoA port configured leaves the 3799 default to perform_dynauth");
+
+# AeroHIVE chooses between CoA and Disconnect after building the connection info
+require pf::Switch::AeroHIVE;
+my $use_coa;
+{
+    no warnings qw(redefine once);
+    *pf::Switch::AeroHIVE::shouldUseCoA = sub { $use_coa };
+    *pf::roles::custom::getRoleForNode = sub { 'default' };
+}
+my $aerohive = pf::Switch::AeroHIVE->new({ id => '10.0.0.4', ip => '10.0.0.4', radiusSecret => 'secret', disconnectPort => 1700, coaPort => 1701 });
+sub aerohive_sent {
+    @sent = ();
+    $aerohive->radiusDisconnect('02:47:49:00:00:01');
+    return join(' ', map { "$_->[0]:" . ($_->[1]{nas_port} // 'default') } @sent);
+}
+$use_coa = 1;
+is(aerohive_sent(), 'coa:1701', "AeroHIVE sends its CoA-Request to coaPort");
+$use_coa = 0;
+is(aerohive_sent(), 'disconnect:1700', "AeroHIVE sends its Disconnect-Request to disconnectPort");
 
 =head1 AUTHOR
 
