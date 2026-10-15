@@ -89,7 +89,7 @@ would affect every other build in the repo):
     DI
 
 ### 5. Environment
-Copy pfchatbot.env.example to /usr/local/pf/conf/pfchatbot.env, fill it in,
+Copy lib/pfchatbot/pfchatbot.env.example to /usr/local/pf/conf/pfchatbot.env, fill it in,
 create /usr/local/pf/conf/pfchatbot-testtool.env (see example), chmod 600 both.
 
 HARD REQUIREMENTS learned the hard way:
