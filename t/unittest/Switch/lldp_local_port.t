@@ -19,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 use Test::NoWarnings;
 use pf::Switch;
 
@@ -75,7 +75,16 @@ is($by_name->ifIndexToLldpLocalPort(507), 7, 'port found by ifName');
 # Port 3 is described as "Ethernet4": the description table is ambiguous for Ethernet4
 with_tables({ "$DESC.3" => 'Ethernet4', "$DESC.4" => 'Ethernet4' }, { "$ID.3" => 'Ethernet3', "$ID.4" => 'Ethernet4' });
 my $clash = fake_switch(t_ifdesc => { 4 => 'Ethernet4' }, t_ifname => { 4 => 'Ethernet4' });
-is($clash->ifIndexToLldpLocalPort(4), 4, 'an ambiguous description falls back to the port ID');
+is($clash->ifIndexToLldpLocalPort(4), 4, 'the port ID wins over an ambiguous description');
+
+# Uplink Ethernet48 described after its peer port, "Ethernet1"
+with_tables({ "$DESC.1" => '', "$DESC.48" => 'Ethernet1' }, { "$ID.1" => 'Ethernet1', "$ID.48" => 'Ethernet48' });
+is($arista->ifIndexToLldpLocalPort(1), 1, 'a port described with the name of another port is not taken for it');
+
+# The port ID is the MAC address of the port, not a name
+with_tables({ "$DESC.5" => 'port 5' }, { "$ID.5" => "\x00\x1b\x21\x3a\x4c\x05" });
+my $by_desc = fake_switch(t_ifdesc => { 5 => 'port 5' }, t_ifname => { 5 => '5' });
+is($by_desc->ifIndexToLldpLocalPort(5), 5, 'port found by its description when the port ID is not a name');
 
 with_tables({ "$DESC.1" => 'Lab endpoint' }, { "$ID.1" => 'Ethernet1' });
 my $unknown = fake_switch(t_ifdesc => { 9 => 'Ethernet9' }, t_ifname => { 9 => 'Ethernet9' });

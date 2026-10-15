@@ -63,9 +63,6 @@ use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
 use pf::StatsD;
 use pf::util::statsd qw(called);
-
-our $OID_lldpLocPortId   = '1.0.8802.1.1.2.1.3.7.1.3'; # from LLDP-MIB
-our $OID_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
 use Time::HiRes;
 use pf::access_filter::radius;
 use File::Spec::Functions;
@@ -107,6 +104,9 @@ use pf::dal::switch_observability;
 use pf::dal::switch_observability_acls;
 
 our $cache_switch_observability =  CHI->new(driver => 'RawMemory', datastore => {});
+
+our $OID_lldpLocPortId   = '1.0.8802.1.1.2.1.3.7.1.3'; # from LLDP-MIB
+our $OID_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
 
 #
 # %TRAP_NORMALIZERS
@@ -3985,7 +3985,7 @@ sub _getLldpLocPortTable {
 Translate an ifIndex into an LLDP Local Port number.
 
 We look up the interface ifDescr, then its ifName, first in the
-lldpLocPortDesc table and then in the lldpLocPortId table.
+lldpLocPortId table and then in the lldpLocPortDesc table.
 
 =cut
 
@@ -4000,7 +4000,10 @@ sub ifIndexToLldpLocalPort {
     my @names = grep { defined($_) && $_ ne '' && !$seen{$_}++ } ($self->getIfDesc($ifIndex), $self->getIfName($ifIndex));
     return if (!@names);
 
-    foreach my $table ([$OID_lldpLocPortDesc, 'getLldpLocPortDesc'], [$OID_lldpLocPortId, 'getLldpLocPortId']) {
+    # The port ID is the interface name on the switches that send one; the
+    # description can be set by the administrator (Arista EOS) and repeat the
+    # name of another port, e.g. an uplink described after its peer port.
+    foreach my $table ([$OID_lldpLocPortId, 'getLldpLocPortId'], [$OID_lldpLocPortDesc, 'getLldpLocPortDesc']) {
         my ($oid, $getter) = @$table;
         my $result = $self->$getter() || {};
         foreach my $name (@names) {
