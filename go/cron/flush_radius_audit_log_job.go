@@ -225,7 +225,13 @@ func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{
 	args[0] = formatRequestValue(request["Calling-Station-Id"], "N/A")
 	args[1] = formatRequestValue(request["Framed-IP-Address"], "N/A")
 	args[2] = formatRequestValue(control["PacketFence-Computer-Name"], "N/A")
-	args[3] = formatRequestValue(request["User-Name"], "N/A")
+	// The user name PacketFence used for the request (for instance the
+	// identity of the client certificate in EAP-TLS), the User-Name of the
+	// request otherwise
+	args[3] = formatRequestValue(control["PacketFence-UserName"], "")
+	if args[3] == "" {
+		args[3] = formatRequestValue(request["User-Name"], "N/A")
+	}
 	args[4] = formatRequestValue(request["Stripped-User-Name"], "N/A")
 	args[5] = formatRequestValue(request["Realm"], "N/A")
 	args[6] = "Radius-Access-Request"

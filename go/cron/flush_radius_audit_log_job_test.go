@@ -682,3 +682,28 @@ func TestToRequest(t *testing.T) {
 	}
 
 }
+
+func TestFlushRadiusAuditLogUserName(t *testing.T) {
+	j := &FlushRadiusAuditLogJob{}
+	entryWith := func(packetfenceUserName string) []interface{} {
+		var entry []interface{}
+		if err := json.Unmarshal([]byte(RADIUS_ENTRY), &entry); err != nil {
+			t.Fatalf("Cannot parse the entry: %s", err.Error())
+		}
+		if packetfenceUserName != "" {
+			control := entry[3].(map[string]interface{})
+			control["PacketFence-UserName"] = map[string]interface{}{"type": "string", "value": packetfenceUserName}
+		}
+		return entry
+	}
+
+	// EAP-TLS with an anonymous outer identity: PacketFence used the identity of the certificate (#6115)
+	if userName := j.argsFromEntry(entryWith("jbon-tls"))[3]; userName != "jbon-tls" {
+		t.Errorf("user_name is %v, expected the PacketFence user name jbon-tls", userName)
+	}
+
+	// No PacketFence user name (reject, no response): the User-Name of the request
+	if userName := j.argsFromEntry(entryWith(""))[3]; userName != "a0:00:00:00:00:01" {
+		t.Errorf("user_name is %v, expected the User-Name of the request", userName)
+	}
+}
