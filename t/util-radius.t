@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::NoWarnings;
 
 =head1 Tests
@@ -45,6 +45,18 @@ is(
     pf::util::radius::format_audit_log_attributes(['Message-Authenticator', "\x01\xff\x00"]),
     'Message-Authenticator =3D =220x01ff00=22',
     "a binary value is written in hexadecimal"
+);
+
+is(
+    pf::util::radius::format_audit_log_attributes(['Message-Authenticator', "\xf3\xed\xd2\x8b"]),
+    'Message-Authenticator =3D =220xf3edd28b=22',
+    "a binary value without control characters is written in hexadecimal"
+);
+
+is(
+    pf::util::radius::format_audit_log_attributes(['Reply-Message', "caf\xc3\xa9"]),
+    'Reply-Message =3D =22caf=C3=A9=22',
+    "a UTF-8 value is kept"
 );
 
 is(

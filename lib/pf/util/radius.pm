@@ -224,8 +224,8 @@ RADIUS audit log, the way the radius audit log flush job does for the requests
 handled by FreeRADIUS: one 'Name = "value"' per attribute, separated by ",\n",
 with every byte outside [A-Za-z0-9@.-_: /] written as =XX.
 
-A value with control characters, such as Message-Authenticator, is written in
-hexadecimal (0x...) as FreeRADIUS does.
+A binary value, with control characters or not valid UTF-8 (such as
+Message-Authenticator), is written in hexadecimal (0x...) as FreeRADIUS does.
 
 =cut
 
@@ -236,7 +236,8 @@ sub format_audit_log_attributes {
         my ($name, $value) = @$attribute;
         $value //= '';
         utf8::encode($value) if utf8::is_utf8($value);
-        $value = '0x' . unpack('H*', $value) if $value =~ /[\x00-\x1f\x7f]/;
+        my $copy = $value;
+        $value = '0x' . unpack('H*', $value) if $value =~ /[\x00-\x1f\x7f]/ || !utf8::decode($copy);
         push @parts, qq{$name = "$value"};
     }
     my $formatted = join(",\n", @parts);
