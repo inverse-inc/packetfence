@@ -20,10 +20,11 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::NoWarnings;
 use DateTime;
 use DateTime::Format::MySQL;
+use POSIX ();
 use pf::constants qw($ZERO_DATE);
 use pf::Switch::Ubiquiti::Unifi;
 
@@ -42,7 +43,19 @@ is($switch->guestAuthorizationMinutes($in->(90), $now), 2, 'a partial minute is 
 is($switch->guestAuthorizationMinutes($in->(-2 * 3600), $now), 1, 'an expired date gives 1 minute, not the absolute difference');
 is($switch->guestAuthorizationMinutes($ZERO_DATE, $now), $pf::Switch::Ubiquiti::Unifi::GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY, 'no unregistration date gets the long default');
 is($switch->guestAuthorizationMinutes(undef, $now), $pf::Switch::Ubiquiti::Unifi::GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY, 'undefined unregistration date gets the long default');
-ok($switch->guestAuthorizationMinutes('not a date', $now) > 0, 'an unparseable date still returns a positive duration');
+is($switch->guestAuthorizationMinutes('not a date', $now), undef, 'an unparseable date leaves the duration to the controller');
+is($switch->guestAuthorizationMinutes('2027-02-30 10:00:00', $now), undef, 'an invalid date leaves the duration to the controller');
+
+{
+    # 02:30 doesn't exist on 2027-03-14 in America/Toronto (02:00 EST -> 03:00 EDT)
+    local $ENV{TZ} = 'America/Toronto';
+    POSIX::tzset();
+    my $midnight = DateTime->new(year => 2027, month => 3, day => 14, time_zone => 'America/Toronto')->epoch;
+    my $minutes = $switch->guestAuthorizationMinutes('2027-03-14 02:30:00', $midnight);
+    ok(defined($minutes) && ($minutes == 90 || $minutes == 150), 'a time skipped by DST still gives the remaining time')
+        or diag("got " . ($minutes // 'undef'));
+}
+POSIX::tzset();
 cmp_ok($pf::Switch::Ubiquiti::Unifi::GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY, '>', 480, 'the no-expiry default is longer than the controller defaults');
 
 =head1 AUTHOR
