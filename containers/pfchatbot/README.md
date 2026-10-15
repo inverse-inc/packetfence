@@ -20,6 +20,46 @@ Tested on PacketFence 15.1 and 15.2 (containerized installs).
 Two enforcement layers: the Go path-gate (by role, by path prefix) and the
 app's may_write() (reads X-PacketFence-Admin-Roles, which carries ROLE NAMES).
 
+## Repository layout
+
+    lib/pfchatbot/                        # the Python service
+      app.py                              #   FastAPI app: agent loop, write guard,
+                                          #   /chat /write/* endpoints, static UI mount
+      store.py                            #   conversation store (PF MariaDB, socket;
+                                          #   zero-touch credential fallback)
+      prompts.py  tools.py                #   system prompt + tool schemas
+      pf-testtool-helper.py               #   host-side RADIUS/capture helper (unix socket)
+      fetch_docs.sh                       #   pulls version-matched PF guides for RAG
+      providers/                          #   openai / anthropic (BYOK)
+      rag/                                #   corpus chunking, fastembed index, reranker
+      pfchatbot.env.example               #   env template
+      pfchatbot-testtool.env.example
+    html/pfchatbot/
+      index.html                          # the whole single-page UI
+    containers/pfchatbot/
+      Dockerfile  requirements.txt        # python:3.12-slim + test tools, dual users
+      supervisor.sh                       #   runs helper (pfhelper) + app (pfbot); safe
+                                          #   auto-bind via containers-gateway.internal
+      rebuild.sh                          #   verify -> build -> verify image -> restart
+      packetfence-chatbot.service         #   systemd unit (docker run, mounts, caps)
+      README.md                           #   this file
+    addons/pfchatbot/
+      inject-launcher.sh                  # adds the NacBot button to THIS host's admin UI
+      admin-index.html                    #   launcher snippet source (never deploy wholesale)
+      MODIFICATIONS.md                    #   what PF upgrades clobber + re-apply steps
+
+    # PR-9319 integration (edits to existing PF files, included in this branch):
+    conf/pf.conf.defaults                 # [services_url] pfchatbot=...gateway:8800
+    conf/caddy-services/api.conf.example  # handle_path /api/v1/pfchatbot/* block
+    conf/adminroles.conf.example          # [chatbot-user] / [chatbot-admin]
+    go/api-frontend/aaa/authorization.go  # path -> CHATBOT_READ / CHATBOT_WRITE map
+    lib/pf/constants/admin_roles.pm       # the two actions
+    lib/pf/services/manager/roles/env_golang_service.pm  # services_url -> Go env
+
+Deliberately NOT in the repo (created at install): conf/pfchatbot*.env (secrets),
+containers/pfchatbot/docs/ (generated), /usr/local/pf/.dockerignore, and the
+live api.conf / adminroles.conf mirrors.
+
 ## Install
 
 ### 0. Prerequisites
@@ -130,6 +170,38 @@ Create an admin per role and run (TOK = that user's /api/v1/login token):
                                  CHATBOT_WRITE administrative role")
     chatbot-admin  200     200
     ALL (admin)    200     200
+
+## Permission model
+
+Four gates sit between an admin and a chatbot write:
+
+    Gate 0  NacBot button      launcher snippet: shows for ANY logged-in admin
+                               (not role-aware; clicking may still 401 at gate 1)
+    Gate 1  read anything      Go AAA: /api/v1/pfchatbot/*  needs CHATBOT_READ
+    Gate 2  write endpoints    Go AAA: /api/v1/pfchatbot/write/*  needs CHATBOT_WRITE
+    Gate 3  app-level check    may_write(): forwarded ROLE NAME must be in
+                               {CHATBOT-ADMIN, ALL, ALL_PF_ONLY, ...}
+                               (X-PacketFence-Admin-Roles carries role names;
+                               override the set with CHATBOT_WRITE_GRANTS)
+    always  confirmation card  no write executes without a human click; the
+                               model can only STAGE changes
+
+    admin role          button  read/chat  writes   note
+    ALL                   yes      yes       yes    superset everywhere
+    ALL_PF_ONLY           yes      yes       yes    PF-scoped superset
+    chatbot-admin         yes      yes       yes    the intended writer role
+    chatbot-user          yes      yes       403    read-only by design
+    other roles only      yes*     401       401    *button shows, click 401s
+                                                     (gate 0 is role-blind)
+
+Role grants are additive-only (no deny): combinations union, so
+ALL + anything behaves as ALL — which is why acceptance tests need
+single-role test users.
+
+A bare chatbot-user can reach the assistant by URL but can barely render
+the admin UI around it (other pages need their own read actions). The
+realistic read-only persona is chatbot-user plus a few read actions
+(NODES_READ, USERS_READ, ...).
 
 Plus: the UI at https://<host>:1443/api/v1/pfchatbot/ (log into the admin UI
 first, SAME hostname — token lives per-origin), Run test (exercises the
