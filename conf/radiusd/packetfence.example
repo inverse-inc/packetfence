@@ -190,6 +190,12 @@ server packetfence {
 				ok
 			}
 			else {
+				# EAP-MSCHAPv2 outside of a tunnel (IKEv2 VPN) does not go through the
+				# authorize section that looks up the domain: look it up here. The
+				# authorize method of the perl module does the lookup.
+				if (!PacketFence-Domain) {
+					packetfence-multi-domain.authorize
+				}
 				packetfence-mschap-authenticate
 			}
 		}

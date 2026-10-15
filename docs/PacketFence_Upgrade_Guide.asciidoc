@@ -958,6 +958,34 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== EAP-MSCHAPv2 VPN authentication against Active Directory
+
+EAP-MSCHAPv2 outside of a PEAP or TTLS tunnel, as used by IKEv2 VPNs (for
+example FortiGate), was verified with the generic `mschap` module instead of the
+Active Directory domain of the realm, and failed (`Program returned code (5)`).
+[filename]`/usr/local/pf/conf/radiusd/packetfence` now looks the domain up in the
+`Auth-Type MS-CHAP` section of the `authenticate` section.
+
+The file is a package configuration file: it is updated automatically unless
+you modified it (see the general procedure above). If you kept a customized
+copy, add the domain lookup before `packetfence-mschap-authenticate` in the
+`Auth-Type MS-CHAP` section of `server packetfence`:
+
+[source]
+----
+if (!PacketFence-Domain) {
+        packetfence-multi-domain.authorize
+}
+packetfence-mschap-authenticate
+----
+
+and restart the RADIUS authentication servers:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
