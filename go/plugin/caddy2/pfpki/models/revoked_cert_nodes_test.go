@@ -75,3 +75,10 @@ func TestShouldDeregisterOnRevocation(t *testing.T) {
 		}
 	}
 }
+
+func TestDeregisterNodeArgs(t *testing.T) {
+	want := []interface{}{"mac", "02:44:45:4c:80:17", "skip_pki_revoke", 1}
+	if got := deregisterNodeArgs("02:44:45:4c:80:17"); !reflect.DeepEqual(got, want) {
+		t.Errorf("deregisterNodeArgs = %v, want %v (without skip_pki_revoke, revoke_on_unregistration revokes the next certificate of the CN)", got, want)
+	}
+}

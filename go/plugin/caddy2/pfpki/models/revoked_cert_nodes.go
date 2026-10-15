@@ -19,13 +19,21 @@ type nodeTLS struct {
 	TLSClientCertIssuer string `gorm:"column:TLSClientCertIssuer"`
 }
 
+// deregisterNodeArgs: the pf::api functions take their arguments as a flat
+// list of name/value pairs. skip_pki_revoke stops node_deregister from
+// revoking by CN (revoke_on_unregistration): the certificate is already
+// revoked, and that would revoke the next certificate of the same CN, whose
+// devices would be deregistered in turn.
+func deregisterNodeArgs(mac string) []interface{} {
+	return []interface{}{"mac", mac, "skip_pki_revoke", 1}
+}
+
 // deregisterNodes deregisters the nodes and re-evaluates their access so the
-// switch drops the session. A variable so tests can replace it. The pf::api
-// functions take their arguments as a flat list of name/value pairs.
+// switch drops the session. A variable so tests can replace it.
 var deregisterNodes = func(ctx context.Context, macs []string, cn string) {
 	client := jsonrpc2.NewClientFromConfig(ctx)
 	for _, mac := range macs {
-		if _, err := client.Call(ctx, "deregister_node", []interface{}{"mac", mac}); err != nil {
+		if _, err := client.Call(ctx, "deregister_node", deregisterNodeArgs(mac)); err != nil {
 			log.LoggerWContext(ctx).Error("Unable to deregister node " + mac + " of revoked certificate " + cn + ": " + err.Error())
 			continue
 		}
