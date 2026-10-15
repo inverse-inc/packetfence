@@ -216,8 +216,10 @@ sub handle_response {
 
 =head2 _attribute_value
 
-The content of the first value of a SAML attribute, undef when the attribute
-has no value or an empty one (<saml:AttributeValue/>)
+The content of the value of a SAML attribute, undef when the attribute has no
+value or an empty one (<saml:AttributeValue/>). For a multi-valued attribute it
+is the last value: the Lasso getters return the last element in scalar
+context, as the code did before.
 
 =cut
 
