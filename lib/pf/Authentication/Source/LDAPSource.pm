@@ -279,6 +279,10 @@ sub _connect {
         if($self->use_connector) {
             require pf::factory::connector;
             my $dest_ip = pf::factory::connector->resolve($LDAPServer);
+            if (!defined $dest_ip) {
+                $logger->warn("[$self->{'id'}] Unable to resolve $LDAPServer, switching to next server");
+                next TRYSERVER;
+            }
             my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$LDAPServerPort");
             $connection = pf::LDAP->new(
                 $connector_conn->{host},
