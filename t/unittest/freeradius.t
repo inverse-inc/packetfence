@@ -20,13 +20,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 use pf::freeradius;
 use pf::SwitchFactory;
+use pf::dal::radius_nas;
+use Time::HiRes qw();
 
 #This test will running last
 use Test::NoWarnings;
-my $timestamp = $$;
+my $timestamp = int(Time::HiRes::time() * 1000000);
 
 my %config = %pf::SwitchFactory::SwitchConfig;
 pf::freeradius::freeradius_populate_nas_config(\%config, $timestamp);
@@ -41,6 +43,13 @@ delete $config{'172.16.8.29'};
 pf::freeradius::freeradius_populate_nas_config(\%config, $timestamp);
 $validation = pf::freeradius::validation_results($timestamp);
 ok($validation->{config_valid}, "Config is valid");
+
+# A job carrying an older config runs last (#8959)
+pf::freeradius::freeradius_populate_nas_config({%pf::SwitchFactory::SwitchConfig}, $timestamp - 1);
+$validation = pf::freeradius::validation_results($timestamp);
+ok($validation->{config_valid}, "An older config does not replace a newer one");
+my (undef, $count) = pf::dal::radius_nas->count(-where => {nasname => '172.16.8.29'});
+is($count, 0, "A switch removed by the newer config is not added back");
 
 =head1 AUTHOR
 
