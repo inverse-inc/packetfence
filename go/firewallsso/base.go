@@ -321,8 +321,11 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		return false, nil
 	}
 
+	// Expected filtering (status, role, network) is logged at DEBUG: it happens for
+	// every SSO event of every firewall that does not apply. A firewall without any
+	// role applies to no device at all, a misconfiguration worth a warning.
 	if !fw.CheckStatus(ctx, info) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Start since the device is not registered (status '%s')", info["status"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the device is not registered (status '%s')", info["status"]))
 		return false, nil
 	}
 
@@ -330,13 +333,13 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		if roles := fw.GetRoles(ctx); len(roles) == 0 {
 			log.LoggerWContext(ctx).Warn("Not sending SSO Start since no role is selected for this firewall: it applies to the devices of the selected roles only")
 		} else {
-			log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Start since the role '%s' is not one of the roles of this firewall (%s)", info["role"], strings.Join(roles, ", ")))
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the role '%s' is not one of the roles of this firewall (%s)", info["role"], strings.Join(roles, ", ")))
 		}
 		return false, nil
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Start for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Start")
@@ -380,7 +383,7 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Not sending SSO Stop for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Stop for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Stop")
