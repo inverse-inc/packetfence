@@ -23,8 +23,8 @@ CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 
-# Stamp the release and drop build paths: an unidentifiable static Go binary
-# embedding chisel trips antivirus heuristics.
+# Identify the PacketFence release and omit local build paths.
+# These build metadata changes do not guarantee a change in antivirus verdicts.
 pfconnector: CGO_ENABLED=0
 pfconnector: BUILD_ARGS = -trimpath -ldflags "-X github.com/inverse-inc/packetfence/go/chisel/share.BuildVersion=$(PF_PATCH_RELEASE)"
 

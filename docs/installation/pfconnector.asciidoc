@@ -275,34 +275,62 @@ In cases where there needs be a static port where the packetfence host needs com
 
 Currently these are defined for Radius Sources and DNS Connectors.
 
-===== Antivirus False Positives
+===== Antivirus Detections
 
 The PacketFence Connector tunnels traffic back to the PacketFence server using
-https://github.com/jpillora/chisel[chisel]. Because the same tool is also used by
-attackers for lateral movement, antivirus and EDR products frequently report the
-`pfconnector` binary as a hacktool or riskware, under names such as
-`HackTool/Chisel`, `Riskware.Chisel` or a generic machine-learning verdict like
-`Trojan:Win32/Wacatac.B!ml`.
+https://github.com/jpillora/chisel[chisel]. Tunneling tools can also be used by
+attackers, so antivirus and EDR products may classify `pfconnector` as a hacktool,
+proxy tool or riskware. Reported Linux detection names include
+`HackTool:Linux/Chisel.C`, `Tool.Linux.Chisel.6` and
+`Not-a-virus:HEUR:Server-Proxy.Linux.Chisel.gen`. Other engines may issue generic
+malware verdicts. A Chisel detection can identify legitimate tunneling
+functionality, but the detection name alone does not establish that a file is
+safe or that its use is authorized.
 
-These detections are false positives. Before adding any exclusion, confirm the
-binary is the one shipped by the package:
+Before requesting an exception, record the detected file's path, SHA-256,
+package version or container image digest, and the detecting vendor's verdict.
+Verify the actual flagged artifact. For the executable installed on the remote
+host by the Debian package:
 
 [source,bash]
 ----
 sha256sum /usr/local/pfconnector-remote/bin/pfconnector
 ----
 
-Compare the result with the checksum published for your release. If it does not
-match, do not create an exclusion — treat the host as potentially compromised.
+Compare it with the executable extracted from the same version and architecture
+of the package obtained through the authenticated PacketFence APT repository.
+A package archive checksum is not the checksum of the executable inside it.
 
-Once the checksum is confirmed, exclude the following from on-access scanning,
-preferring a checksum-based exclusion over a path-based one where your product
-supports it:
+The combined remote connector runs a separately built executable inside its
+container. For a running container, obtain that executable's checksum with:
 
-* `/usr/local/pfconnector-remote/bin/pfconnector`
-* the `packetfence-pfconnector-remote-combined` systemd service
-* the Docker storage directory holding the connector image layers, usually
-  `/var/lib/docker/overlay2`
+[source,bash]
+----
+docker exec pfconnector-remote-combined sha256sum /usr/local/pf/sbin/pfconnector
+----
 
-Reporting the file to VirusTotal does not clear it: VirusTotal aggregates the
-verdicts of the individual engines, it does not set them.
+Compare this with the executable from a trusted copy of the same published
+image digest. The host package's executable and the container's executable need
+not have identical checksums. If the alert names a file in Docker storage,
+identify its owning image or container before comparing it. Investigate any
+unexplained mismatch before allowing the file.
+
+Once provenance and authorized use are confirmed, submit suspected false
+positives to the detecting vendors with the hash, verdict, release information
+and an explanation of the connector's purpose. VirusTotal aggregates vendor
+verdicts and cannot remove them itself; see its
+https://docs.virustotal.com/docs/false-positive[false-positive guidance].
+Reanalyse the file after a vendor correction, and assess rebuilt release
+artifacts separately because their hashes change.
+
+If an operational exception is needed while a vendor reviews the detection,
+use the narrowest exception supported by the product, preferably the verified
+executable's SHA-256, under your organization's security policy. Review it on
+upgrades and remove it when no longer needed. Do not exclude all Docker storage
+(such as `/var/lib/docker/overlay2`) or all processes in the combined service:
+these scopes also cover software other than the connector executable.
+
+The connector build embeds the PacketFence release version and omits local
+build paths. These changes improve identification and build hygiene; they do
+not remove the tunneling functionality or guarantee that antivirus detections
+will disappear.
