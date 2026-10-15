@@ -182,7 +182,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 			// Delete any entries for this MAC that aren't matching this cache key
 			for k, _ := range h.updateCache.Items() {
 				// If its not our current cache key but its made for the same MAC, then we'll remove it since its not relevant anymore
-				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]) {
+				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]+"|ip|") {
 					log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
 					h.updateCache.Delete(k)
 				}
