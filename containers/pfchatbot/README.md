@@ -57,18 +57,21 @@ GATE: with an admin token, GET /api/v1/pfchatbot/config through :1443 must
 return 502/503 (routed + authorized, backend not deployed yet). 404 = caddy
 block/env missing; 401 = overlay did not take.
 
-### 3. Database user
-Conversation history lives in PF's MariaDB (socket connection). store.init()
-creates its tables (chatbot_thread, chatbot_message, ... SINGULAR names) on
-first boot, so the user needs CREATE:
+### 3. Database access
+Zero-touch: when no CHATBOT_DB_* env is set, the service reads PacketFence's
+own DB credentials (pfconfig.conf [mysql], then pf.conf [database]; template
+values ignored) and connects over the mounted MySQL socket as 'pf'@'localhost'.
 
-    mysql -S /var/lib/mysql/mysql.sock -e "
-    CREATE USER IF NOT EXISTS 'pfchatbot'@'localhost' IDENTIFIED BY '<STRONG-PW>';
-    GRANT ALL PRIVILEGES ON pf.* TO 'pfchatbot'@'localhost';
-    FLUSH PRIVILEGES;"
+One-time install grant: store.init() creates its tables (chatbot_thread,
+chatbot_message, ... singular names) on first boot, and PF's localhost grant
+lacks DDL by default (it already holds DROP + full DML, so this is not a
+meaningful widening):
 
-(Scope down post-install if desired: CREATE + ALL on the chatbot_* tables,
-SELECT on pf.person.)
+    mysql -S /var/lib/mysql/mysql.sock -e \
+      "GRANT CREATE, ALTER, INDEX ON pf.* TO 'pf'@'localhost'; FLUSH PRIVILEGES;"
+
+Hardened alternative: create a dedicated user and set the CHATBOT_DB_* block
+in the env (see pfchatbot.env.example).
 
 ### 4. Deploy the service
     PF=/usr/local/pf

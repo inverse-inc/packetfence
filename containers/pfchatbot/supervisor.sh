@@ -18,19 +18,20 @@ set -eu
 # over who can reach the assistant. Set it explicitly in .env to pin it.
 #
 # "auto" picks, in order:
-#   1. the PacketFence management IP (host of PF_ADMIN_URL) -- the address you
-#      already reach the admin UI on, reachable from your browser AND from the
-#      other PF containers (needed later for the caddy /api/v1/pfchatbot route)
+#   1. the address containers-gateway.internal resolves to -- BY DEFINITION where
+#      caddy's {$PF_SERVICES_URL_PFCHATBOT} default will look for us, and an
+#      internal (container-gateway) address, never the public management IP
 #   2. 100.64.0.1, PacketFence's internal host address (containers only)
 #   3. 127.0.0.1
-# It never picks 0.0.0.0. Whatever it binds is reachable by anything that can
-# route to that address, so keep 8800 firewalled from outside the management
-# network -- the identity header is only trustworthy behind the PF proxy.
+# It never picks 0.0.0.0 and never the management IP: on hosts whose management
+# address is public, binding there exposes the assistant to the internet with
+# no authentication in front (the identity header is only trustworthy behind
+# the PF proxy). Set BIND_HOST explicitly in the env to override.
 _addr_present() { ip -4 -o addr show 2>/dev/null | grep -q "inet ${1}/"; }
 if [ "${BIND_HOST:-auto}" = "auto" ]; then
-  mgmt="$(printf '%s' "${PF_ADMIN_URL:-}" | sed -n 's|^[a-z]*://\([^:/]*\).*|\1|p')"
-  if [ -n "$mgmt" ] && _addr_present "$mgmt"; then
-    BIND_HOST="$mgmt"
+  gw="$(getent hosts containers-gateway.internal 2>/dev/null | awk '{print $1; exit}')"
+  if [ -n "$gw" ] && _addr_present "$gw"; then
+    BIND_HOST="$gw"
   elif _addr_present 100.64.0.1; then
     BIND_HOST=100.64.0.1
   else

@@ -42,6 +42,56 @@ DB_NAME = os.environ.get("CHATBOT_DB_NAME", os.environ.get("PF_DB_NAME", "pf"))
 DB_USER = os.environ.get("CHATBOT_DB_USER", os.environ.get("PF_DB_USER", "pf"))
 DB_PASS = os.environ.get("CHATBOT_DB_PASSWORD", os.environ.get("PF_DB_PASSWORD", ""))
 DB_SOCKET = os.environ.get("CHATBOT_DB_SOCKET", "")          # optional unix socket
+
+# Zero-touch default: when no password is configured, read PacketFence's own
+# [database] credentials from pf.conf (mounted read-only by the service unit).
+# An explicit CHATBOT_DB_* block always wins — use it with a dedicated,
+# least-privilege DB user when hardening matters more than zero-config.
+# Layered like PF's own config: defaults first, pf.conf overrides; pfconfig.conf
+# ([mysql] section) covers containerized installs that keep credentials there.
+PF_CONF_DIR = os.environ.get("PF_CONF_DIR", "/usr/local/pf/conf")
+
+def _read_ini_section(path: str, want: set) -> dict:
+    out, section = {}, None
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("[") and line.endswith("]"):
+                    section = line[1:-1].strip().lower()
+                    continue
+                if section in want and "=" in line:
+                    k, v = line.split("=", 1)
+                    v = v.strip()
+                    if "[%" in v:        # unexpanded template (pf.conf.defaults)
+                        continue
+                    out[k.strip().lower()] = v
+    except OSError:
+        pass
+    return out
+
+def _pf_conf_database() -> dict:
+    merged = {}
+    for fname, sections in (("pf.conf.defaults", {"database"}),
+                            ("pfconfig.conf",   {"mysql"}),
+                            ("pf.conf",         {"database"})):
+        merged.update(_read_ini_section(os.path.join(PF_CONF_DIR, fname), sections))
+    return merged
+
+if not DB_PASS:
+    _pfdb = _pf_conf_database()
+    if _pfdb.get("pass"):
+        DB_PASS = _pfdb["pass"]
+        if "CHATBOT_DB_USER" not in os.environ and _pfdb.get("user"):
+            DB_USER = _pfdb["user"]
+        if "CHATBOT_DB_NAME" not in os.environ and _pfdb.get("db"):
+            DB_NAME = _pfdb["db"]
+        if not DB_SOCKET and os.path.exists("/var/lib/mysql/mysql.sock"):
+            DB_SOCKET = "/var/lib/mysql/mysql.sock"
+        print(f"[pf-bot] store: using PacketFence's database credentials "
+              f"(user={DB_USER}, socket={DB_SOCKET or 'tcp'}); set CHATBOT_DB_* to override", flush=True)
 PREFIX = os.environ.get("CHATBOT_TABLE_PREFIX", "chatbot_")
 DEFAULT_PID = os.environ.get("CHATBOT_DEFAULT_PID", "admin")
 KEY_BLOCK_SIZE = int(os.environ.get("CHATBOT_KEY_BLOCK_SIZE", "8"))

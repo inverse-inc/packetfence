@@ -45,6 +45,9 @@ ExecStart=/usr/bin/docker run --rm --name pf-chatbot \
   -v /usr/local/pf/docs:/pfdocs:ro \
   -v /usr/local/pf/conf/pf-release:/pf-release:ro \
   -v /usr/local/pf/conf/local_secret:/usr/local/pf/conf/local_secret:ro \
+  -v /usr/local/pf/conf/pf.conf:/usr/local/pf/conf/pf.conf:ro \
+  -v /usr/local/pf/conf/pf.conf.defaults:/usr/local/pf/conf/pf.conf.defaults:ro \
+  -v /usr/local/pf/conf/pfconfig.conf:/usr/local/pf/conf/pfconfig.conf:ro \
   -v pf-chatbot-cache:/home/pfbot/.cache \
   -v pf-chatbot-files:/var/lib/pf-chatbot/files \
   -v /usr/local/pf/docs/api/spec/openapi.json:/spec/openapi.json:ro \
