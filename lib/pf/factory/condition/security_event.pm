@@ -22,6 +22,10 @@ use Module::Pluggable
   require     => 1;
 use List::MoreUtils qw(any);
 use pf::constants;
+# built directly for the switch group triggers, without getModuleName that loads
+# the condition modules
+use pf::condition::equals;
+use pf::condition::switch_group;
 
 our @MODULES;
 
