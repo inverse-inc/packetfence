@@ -2006,7 +2006,14 @@ CHATBOT_USER_HEADER = os.environ.get("CHATBOT_USER_HEADER", "X-PF-Username")
 # The admin proxy also passes the caller's admin actions. A user who lacks the
 # write action may ask anything but may not stage or run a change.
 CHATBOT_ROLES_HEADER = os.environ.get("CHATBOT_ROLES_HEADER", "X-PF-Admin-Actions")
-CHATBOT_WRITE_ACTION = os.environ.get("CHATBOT_WRITE_ACTION", "CHATBOT_UPDATE")
+CHATBOT_WRITE_ACTION = os.environ.get("CHATBOT_WRITE_ACTION", "CHATBOT_WRITE")
+# The proxy forwards the caller's admin ROLE NAMES (X-PacketFence-Admin-Roles,
+# set in go/api-frontend/aaa/authorization.go), not expanded actions. Accept the
+# integration's write-capable role plus the superuser roles; override the list
+# with CHATBOT_WRITE_GRANTS=name1,name2 if a deployment defines its own roles.
+_WRITE_GRANTS = {g.strip().upper() for g in os.environ.get(
+    "CHATBOT_WRITE_GRANTS",
+    CHATBOT_WRITE_ACTION + ",CHATBOT-ADMIN,ALL,ALL_PF_ONLY").split(",") if g.strip()}
 # Open by default so a standalone install keeps working; the PacketFence
 # integration sets this to 1 so an unproxied request can never write.
 CHATBOT_REQUIRE_WRITE_ACTION = os.environ.get("CHATBOT_REQUIRE_WRITE_ACTION", "0") == "1"
@@ -2030,7 +2037,7 @@ def may_write(request) -> bool:
     if not CHATBOT_REQUIRE_WRITE_ACTION:
         return True
     acts = admin_actions(request)
-    return bool(acts & {CHATBOT_WRITE_ACTION, "ALL", "ALL_PF_ONLY"})
+    return bool(acts & _WRITE_GRANTS)
 
 
 def deny_write():
