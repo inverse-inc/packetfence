@@ -133,16 +133,104 @@ else
   bash "$PF/addons/pfchatbot/inject-launcher.sh" || warn "launcher inject failed — run it manually later"
 fi
 
-step "7. Verification"
+step "7. Self-tests"
+PASS=0; FAIL=0; SKIP=0
+t_ok(){ PASS=$((PASS+1)); echo "  pass  $*"; }
+t_fail(){ FAIL=$((FAIL+1)); echo "  FAIL  $*" >&2; }
+t_skip(){ SKIP=$((SKIP+1)); echo "  skip  $*"; }
+
 HOST="${BIND%%:*}"; PORT="${BIND##*:}"
+[ -n "$HOST" ] || { HOST=""; t_fail "could not determine bind address from the journal"; }
+
+# 7.0 wait out first-boot indexing (model download + RAG embed can take minutes)
 if [ -n "$HOST" ]; then
-  if curl -s -m 10 "http://$HOST:$PORT/" | head -c 15 | grep -q '<!doctype'; then
-    ok "UI serves at $HOST:$PORT"
+  echo "  ...   waiting for startup complete (up to 600s; first boot embeds the RAG index)"
+  i=0
+  until journalctl -u "$UNIT" --since '15 min ago' --no-pager 2>/dev/null | grep -q 'startup complete'; do
+    i=$((i+10)); [ $i -ge 600 ] && break
+    systemctl is-active --quiet "$UNIT" || break
+    sleep 10
+  done
+  if journalctl -u "$UNIT" --since '15 min ago' --no-pager 2>/dev/null | grep -q 'startup complete'; then
+    t_ok "startup complete"
   else
-    warn "UI not answering yet — first boot embeds the RAG index (minutes);"
-    warn "watch: journalctl -u $UNIT -f   until 'startup complete'"
+    t_fail "no 'startup complete' within 600s — journalctl -u $UNIT -f"
   fi
 fi
+
+# 7.1 UI serves
+if [ -n "$HOST" ] && curl -s -m 10 "http://$HOST:$PORT/" | head -c 15 | grep -q '<!doctype'; then
+  t_ok "UI serves at $HOST:$PORT"
+else
+  [ -n "$HOST" ] && t_fail "UI not serving at $HOST:$PORT"
+fi
+
+# 7.2 conversation store (via journal — /chat transitively proves it too)
+if journalctl -u "$UNIT" --since '15 min ago' --no-pager 2>/dev/null | grep -q 'conversation store ready'; then
+  t_ok "conversation store ready"
+else
+  t_fail "store not ready — check DB grant / credentials (journalctl -u $UNIT | grep store)"
+fi
+
+# 7.3 provider configured? (informational — key may legitimately come later via the UI)
+if journalctl -u "$UNIT" --since '15 min ago' --no-pager 2>/dev/null | grep -q 'provider='; then
+  t_ok "LLM provider initialized"
+else
+  t_skip "no provider yet — set API_KEY in conf/pfchatbot.env or via the UI gear icon"
+fi
+
+# 7.4 chat round-trip (only meaningful with a provider)
+if [ -n "$HOST" ]; then
+  R=$(curl -s -m 60 -X POST "http://$HOST:$PORT/chat" -H 'Content-Type: application/json'       -d '{"message":"ping"}' | sed -n 's/.*"reply"[": ]*"\([^"]*\).*/\1/p' | head -c 60)
+  case "$R" in
+    "") t_fail "/chat returned no reply (journalctl -u $UNIT -n 40)" ;;
+    *"starting up"*|*"No provider"*) t_skip "/chat: $R" ;;
+    *) t_ok "/chat answers: $R" ;;
+  esac
+fi
+
+# 7.5 test-tool helper socket
+if [ -n "$HOST" ] && curl -s -m 10 "http://$HOST:$PORT/testtools" | grep -q '"enabled": *true'; then
+  t_ok "test-tool helper reachable"
+else
+  t_skip "test-tool helper not enabled (socket missing?) — Run test will be unavailable"
+fi
+
+# 7.6 not exposed beyond the bind address (probe every OTHER global IPv4)
+EXPOSED=""
+for ip in $(ip -4 -o addr show scope global 2>/dev/null | awk '{split($4,a,"/"); print a[1]}'); do
+  [ "$ip" = "$HOST" ] && continue
+  curl -s -m 3 "http://$ip:$PORT/" >/dev/null 2>&1 && EXPOSED="$EXPOSED $ip"
+done
+if [ -n "$EXPOSED" ]; then
+  t_fail "port $PORT ALSO answers on:$EXPOSED — set BIND_HOST explicitly and restart"
+else
+  t_ok "port $PORT answers only on $HOST"
+fi
+
+# 7.7 proxied path: routing + authz gates (unauthenticated — 401 IS the pass:
+#     it proves haproxy->caddy routed the path and the AAA layer gated it)
+ADMIN_HOST=$(sed -n 's/^PF_ADMIN_URL=https*:\/\/\([^:/]*\).*/\1/p' "$PF/conf/pfchatbot.env" 2>/dev/null | head -1)
+ADMIN_HOST="${ADMIN_HOST:-127.0.0.1}"
+CODE=$(curl -sk -m 10 -o /dev/null -w '%{http_code}' "https://$ADMIN_HOST:1443/api/v1/pfchatbot/config" 2>/dev/null)
+case "$CODE" in
+  401) t_ok "proxy path routed and auth-gated (401 unauthenticated, as designed)" ;;
+  200) t_fail "proxy answered 200 WITHOUT a token — AAA is not gating /api/v1/pfchatbot" ;;
+  404) t_fail "proxy 404 — caddy block missing or PF_SERVICES_URL_PFCHATBOT not set in the api-frontend env" ;;
+  502|503) t_fail "proxy routed but cannot reach the bot — bind ($HOST:$PORT) vs services_url mismatch" ;;
+  000|"") t_skip "could not reach https://$ADMIN_HOST:1443 from here" ;;
+  *) t_fail "proxy returned unexpected HTTP $CODE" ;;
+esac
+
+echo
+echo "${B}Self-tests: $PASS passed, $FAIL failed, $SKIP skipped.${N}"
+[ "$FAIL" = 0 ] || echo "  Fix the failures above, then re-run this script (idempotent)."
+echo
+echo "Authenticated acceptance (needs an admin token; see README for the full matrix):"
+echo "  TOK=\$(curl -sk https://$ADMIN_HOST:1443/api/v1/login -d '{\"username\":\"admin\",\"password\":\"...\"}' | jq -r .token)"
+echo "  curl -sk -H \"Authorization: \$TOK\" https://$ADMIN_HOST:1443/api/v1/pfchatbot/config | jq ."
+echo "  curl -sk -X POST -H \"Authorization: \$TOK\" -H 'Content-Type: application/json' \\"
+echo "    https://$ADMIN_HOST:1443/api/v1/pfchatbot/chat -d '{\"message\":\"ping\"}' | jq -r .reply"
 echo
 echo "${B}Done.${N} Remaining manual items:"
 echo "  - put real credentials in $PF/conf/pfchatbot.env if warned above, then: systemctl restart $UNIT"
