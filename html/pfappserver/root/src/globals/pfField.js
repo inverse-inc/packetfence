@@ -354,7 +354,7 @@ export const pfFieldTypeValues = {
     store.dispatch('config/getBaseGuestsAdminRegistration').then(() =>
       // a time balance is an absolute amount of time: leave out the
       // durations that are relative to a period (F/R base)
-      store.getters['config/accessDurationsList'].filter(option => !option.base)
+      store.getters['config/accessDurationsList'].filter(option => option && !option.base)
     ),
 
   [pfFieldType.YESNO]: () =>
