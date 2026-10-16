@@ -231,21 +231,34 @@ Review the checkup output to ensure no errors are shown. Any 'FATAL' error will 
 
 ===== Start service on node C
 
+Nodes A and B keep handling the traffic while the services start on node C,
+so node C must not take the virtual IP addresses yet. Since node C now ignores
+nodes A and B, its `keepalived` does not take part in the same election: it
+would claim the virtual IP addresses as soon as it starts, and devices could
+then register on node C while RADIUS still authenticates them on nodes A and
+B, whose database doesn't know about the registration. Prevent `keepalived`
+from starting on node C until nodes A and B are stopped:
+
+.On node C
+[source,bash]
+----
+systemctl mask --runtime packetfence-keepalived
+----
+
 Next, start the application service on node C using the instructions provided
 in
 <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
+All services start except `packetfence-keepalived`. Node C holds no virtual
+IP address, so it does not answer DHCP nor receive the RADIUS and portal
+traffic, which still go to nodes A and B.
 
-NOTE: Nodes A and B are still active at this point and keep handling the
-traffic. Since both sides were told to ignore each other earlier in this
-procedure, node C runs as a standalone cluster and will take over once the
-services on nodes A and B are stopped. Proceed with the next step as soon as
-the services on node C are confirmed started in order to keep this overlap
-as short as possible.
+NOTE: Proceed with the next steps as soon as the services on node C are
+started, to keep short the time during which nodes A and B accept changes that
+will not reach node C.
 
 ===== Stop services on nodes A and B
 
-Then, stop all application services on node A and B so that node C takes
-over the virtual IP addresses and starts handling the traffic:
+Then, stop all application services on node A and B:
 
 
 .Stop PacketFence services
@@ -263,6 +276,24 @@ systemctl stop packetfence-mariadb
 IMPORTANT: `packetfence-config` should stay started in order to run
 `/usr/local/pf/bin/cluster/node` commands.
 
+===== Start keepalived on node C
+
+Finally, let node C take over the virtual IP addresses:
+
+.On node C
+[source,bash]
+----
+systemctl unmask --runtime packetfence-keepalived
+systemctl start packetfence-keepalived
+----
+
+The service is only interrupted between the moment nodes A and B are stopped
+and the moment node C takes over the virtual IP addresses.
+
+NOTE: `mask --runtime` does not survive a reboot. If node C is rebooted before
+this step, `packetfence-keepalived` starts with the other services, so make
+sure nodes A and B are stopped first.
+
 ==== Validate migration
 
 Node C should now have full service and all functionnalities should be validated as working as expected. Once continuing past this point, there will be no way to migrate back to nodes A and B in case of issues other than to use the snapshots taken prior to the upgrade.
@@ -278,6 +309,15 @@ systemctl stop packetfence-mariadb
 /usr/local/pf/bin/pfcmd service pf stop
 ----
 
+If `packetfence-keepalived` is still masked on node C, unmask it so it is not
+left masked:
+
+.On node C
+[source,bash]
+----
+systemctl unmask --runtime packetfence-keepalived
+----
+
 .On nodes A and B
 [source,bash]
 ----
@@ -285,7 +325,7 @@ systemctl start packetfence-mariadb
 /usr/local/pf/bin/pfcmd service pf start
 ----
 
-Once confident to try the failover to node C again, do the exact opposite of the commands above to try the upgrade again.
+Once confident to try the failover to node C again, follow the steps from <<_start_service_on_node_c,Start service on node C>> again, masking `packetfence-keepalived` on node C before starting its services.
 
 ===== If all goes well
 
