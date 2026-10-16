@@ -34,12 +34,25 @@ Add a localizable sring to the list.
 
 =cut
 
-sub add_string {
-    my ($string, $source) = @_;
+# The escapes of a JavaScript string literal
+my %JS_ESCAPES = ( n => "\n", r => "\r", t => "\t" );
 
-    $string =~ s/\\'/'/g; # unescape single-quotes
-    $string =~ s/(?<!\\)\\/\\\\/g; # escape backslashes
-    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
+sub add_string {
+    my ($string, $source, %options) = @_;
+
+    # A string from the JavaScript source is a literal: turn its escapes into the
+    # characters they stand for, so the msgid is the string looked up at runtime
+    # (e.g. 'domain\\username' is domain\username)
+    if ($options{js}) {
+        $string =~ s/\\(.)/exists $JS_ESCAPES{$1} ? $JS_ESCAPES{$1} : $1/ge;
+    }
+
+    # Escape the string for the PO file
+    $string =~ s/\\/\\\\/g;
+    $string =~ s/"/\\"/g;
+    $string =~ s/\n/\\n/g;
+    $string =~ s/\r/\\r/g;
+    $string =~ s/\t/\\t/g;
     unless ($strings{$string}) {
         $strings{$string} = [];
     }
@@ -122,12 +135,12 @@ sub parse_js {
             # $t() inside <template>
             while ($line =~ m/\$t\(['`](.+?(?<!\\))['`](,.*)?\)/g) {
                 my $string = $1;
-                add_string($string, "$file:$nb");
+                add_string($string, "$file:$nb", js => 1);
             }
             # v-t inside <template>
             while ($line =~ m/v-t="['`](.+?(?<!\\))['`]"/g) {
                 my $string = $1;
-                add_string($string, "$file:$nb");
+                add_string($string, "$file:$nb", js => 1);
             }
             # i18n.t() inside <script>
             while ($line =~ m/
@@ -138,12 +151,12 @@ sub parse_js {
                     (?<!\\)\k{s}  #Match quote named s that does not has a \ in front
                 [\),]/xg) {
                 my $string = $+{i};
-                add_string($string, "$file:$nb");
+                add_string($string, "$file:$nb", js => 1);
             }
             # i18n defer inside <script>
             if ($line =~ m/['`](.+?(?<!\/\/))['`],?\s+\/\/ i18n defer$/g) {
                 my $string = $1;
-                add_string($string, "$file:$nb");
+                add_string($string, "$file:$nb", js => 1);
             }
             # Report untranslatable strings
             while ($line =~ m/(\$t\(|v-t="|i18n\.t\()([^'`].+?)[\)"]/g) {
