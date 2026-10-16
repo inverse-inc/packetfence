@@ -15,6 +15,7 @@ use warnings;
 use Moo;
 extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::password;
+use pf::UnifiedApi::Search::Builder qw(map_dal_field_to_join_spec);
 
 
 our @PASSWORD_JOIN =  (
@@ -22,6 +23,9 @@ our @PASSWORD_JOIN =  (
     qw(password =>{node_category.category_id=password.category} node_category)
 );
 
+# The local account fields that can be searched. An explicit list rather than
+# every column of the table, so the password, or a column added later, is
+# never exposed by accident.
 our @PASSWORD_FIELDS = qw(
     valid_from
     expiration
@@ -44,15 +48,7 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace     => 'password',
         rewrite_query => \&rewrite_account_type_query,
     },
-    (
-        map {;
-            "password.$_" => {
-                join_spec   => \@PASSWORD_JOIN,
-                column_spec => \"`password`.`$_` AS `password.$_`",
-                namespace   => 'password',
-            }
-        } @PASSWORD_FIELDS
-    ),
+    (map { map_dal_field_to_join_spec('password', $_, \@PASSWORD_JOIN) } @PASSWORD_FIELDS),
 );
 
 sub allowed_join_fields {
