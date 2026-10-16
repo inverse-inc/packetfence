@@ -1,10 +1,3 @@
-[% MACRO duration_str(secs) BLOCK -%]
-  [%- d = secs div 86400; h = (secs mod 86400) div 3600; m = (secs mod 3600) div 60 -%]
-  [%- parts = [] -%]
-  [%- IF d; parts.push(d _ i18n("d")); END; IF h; parts.push(h _ i18n("h")); END; IF m; parts.push(m _ i18n("m")); END -%]
-  [%- IF !d && !h && !m; parts.push((secs mod 60) _ i18n("s")); END -%]
-  [%- parts.join(' ') -%]
-[%- END -%]
 <script type="text/javascript" src="/content/countdown.min.js"></script>
 <script id="variables" type="text/json">
 {
