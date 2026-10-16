@@ -37,6 +37,11 @@ has 'idp_entity_id' => ( is => 'rw', required => 1 );
 
 has 'username_attribute' => ( is => 'rw', default => "urn:oid:0.9.2342.19200300.100.1.1" );
 
+# Send the Assertion Consumer Service URL in the authentication request.
+# Disabled by default: an IdP that validates it only accepts a URL registered
+# exactly as sent, so turning it on changes the behavior of existing sources.
+has 'send_acs_url' => ( is => 'rw', default => 'disabled' );
+
 =head2 dynamic_routing_module
 
 Which module to use for DynamicRouting
@@ -147,8 +152,10 @@ sub sso_url {
         $lassoLogin->request->ForceAuthn(0);
         $lassoLogin->request->IsPassive(0);
         # Tell the IdP where to post the assertion so a single IdP application can serve several PacketFence servers
-        $lassoLogin->request->AssertionConsumerServiceURL($self->assertion_consumer_service_url);
-        $lassoLogin->request->ProtocolBinding($pf::constants::saml::SAML2_METADATA_BINDING_POST);
+        if (isenabled($self->send_acs_url)) {
+            $lassoLogin->request->AssertionConsumerServiceURL($self->assertion_consumer_service_url);
+            $lassoLogin->request->ProtocolBinding($pf::constants::saml::SAML2_METADATA_BINDING_POST);
+        }
         if($relayState) {
             $lassoLogin->msg_relayState($relayState);
         }
@@ -243,8 +250,8 @@ The Assertion Consumer Service URL of the Service Provider (this server), as in 
 
 sub assertion_consumer_service_url {
     my ($self) = @_;
-    require pf::config;
-    return $self->sp_protocol . "://$pf::config::fqdn/saml/assertion";
+    require pf::config::util;
+    return pf::config::util::get_captive_portal_uri() . "/saml/assertion";
 }
 
 =head2 generate_sp_metadata
