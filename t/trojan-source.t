@@ -5,10 +5,14 @@ trojan-source.t
 
 =head1 DESCRIPTION
 
-Ensure the source tree contains no Unicode bidirectional control or
-zero-width characters, which can be abused to make reviewed code differ
-from what the compiler sees (CVE-2021-42574 "Trojan Source") or to craft
-homoglyph identifiers (CVE-2021-42694).
+Ensure the source tree contains no Unicode bidirectional control or invisible
+characters, which can be abused to make reviewed code differ from what the
+compiler or the shell sees (CVE-2021-42574 "Trojan Source").
+
+Every regular text file of the tree is scanned, whatever its extension
+(scripts without one, Dockerfiles, FreeRADIUS configuration, documentation
+snippets...). Look-alike letters from other scripts (homoglyphs,
+CVE-2021-42694) are not detected.
 
 =cut
 
@@ -27,39 +31,35 @@ use pf::file_paths qw($install_dir);
 
 plan tests => 2;
 
-# UTF-8 byte sequences of the characters abused by CVE-2021-42574/CVE-2021-42694:
+# UTF-8 byte sequences of the bidirectional and invisible characters:
 # U+202A..U+202E (LRE, RLE, PDF, LRO, RLO), U+2066..U+2069 (LRI, RLI, FSI, PDI),
 # U+200B (ZWSP), U+200E/U+200F (LRM, RLM), U+2060 (WJ), U+061C (ALM).
 # Matching raw bytes keeps the test immune to files with invalid UTF-8.
 my $TROJAN_RE = qr/\xE2\x80[\x8B\x8E\x8F\xAA-\xAE]|\xE2\x81[\xA0\xA6-\xA9]|\xD8\x9C/;
 
-my @SCAN_DIRS = grep { -d $_ }
-    map { "$install_dir/$_" }
-    qw(addons bin sbin lib go html conf raddb src db debian rpm ci containers t tools);
+# runtime data, vendored CPAN modules and build output are not part of the source
+my $PRUNE_RE = qr{^\Q$install_dir\E/(?:var|logs|lib_perl|\.git)$|/(?:node_modules|dist)$};
 
-# source code and configuration; translation catalogs (.po) are maintained by
-# translators and may legitimately carry direction marks
-my %EXTENSIONS = map { $_ => 1 }
-    qw(pm pl cgi t go js vue mjml html tt css scss sh py sql yml yaml json conf example asciidoc c h);
-
-my $PRUNE_RE = qr/\/(?:node_modules|dist|\.git)$/;
+# translation catalogs are maintained by translators and may legitimately carry
+# direction marks
+my $SKIP_RE = qr/\.po$/;
 
 my @offenders;
 find({
     no_chdir => 1,
     wanted => sub {
         my $path = $File::Find::name;
-        if (-d $path && $path =~ $PRUNE_RE) {
-            $File::Find::prune = 1;
+        if (-d $path) {
+            $File::Find::prune = 1 if $path =~ $PRUNE_RE;
             return;
         }
-        return unless -f $path;
-        my ($ext) = $path =~ /\.([^.\/]+)$/;
-        return unless defined $ext && exists $EXTENSIONS{lc $ext};
+        return if -l $path || !-f _ || $path =~ $SKIP_RE;
         open(my $fh, '<:raw', $path) or return;
         local $/ = undef;
         my $content = <$fh>;
         close($fh);
+        # binaries (compiled Go programs, images, archives) carry NUL bytes
+        return if index(substr($content, 0, 8192), "\0") >= 0;
         return unless $content =~ $TROJAN_RE;
         my $line = 1;
         for (split /\n/, $content, -1) {
@@ -67,10 +67,10 @@ find({
             $line++;
         }
     },
-}, @SCAN_DIRS);
+}, $install_dir);
 
-ok(!@offenders, "no Unicode bidi or zero-width characters in the source tree")
-    or diag("Unicode bidi/zero-width characters (CVE-2021-42574, CVE-2021-42694) found in:\n"
+ok(!@offenders, "no Unicode bidirectional or invisible characters in the source tree")
+    or diag("Unicode bidirectional or invisible characters (CVE-2021-42574) found in:\n"
         . join("\n", @offenders));
 
 =head1 AUTHOR
