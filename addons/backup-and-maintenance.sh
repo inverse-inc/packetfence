@@ -168,6 +168,15 @@ should_backup_database(){
     fi
 }
 
+reenable_galera_sync(){
+    if [ $MARIADB_LOCAL_CLUSTER -eq 1 ] && [ $MARIADB_DISABLE_GALERA -eq 1 ]; then
+         echo "Reenabling Galera cluster sync"
+         mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;' || die "mysql command failed"
+    else
+        echo "Not a Galera cluster, nothing to reenable"
+    fi
+}
+
 backup_database(){
     # Check to see if Mariabackup is installed
     if hash mariabackup 2>/dev/null; then
@@ -207,23 +216,33 @@ backup_database(){
         else
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql.gz
+            DUMP_ERROR=""
             mysqldump --opt --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME  pf_version > dummy
             BACKUPRC=$?
-            if (( $BACKUPRC == 0 )); then
+            if (( $BACKUPRC > 0 )); then
+                DUMP_ERROR="mysqldump returned  error code: $BACKUPRC"
+            else
                 # --skip-triggers: pf user lacks TRIGGER privilege, so dumping triggers truncates the dump; reapplied on import from triggers.sql.
                 mysqldump --opt --skip-triggers --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
                 # $? is the exit code of gzip, check the exit code of mysqldump first
                 PIPE_RC=("${PIPESTATUS[@]}")
-                BACKUPRC=${PIPE_RC[0]}
-                if (( $BACKUPRC == 0 )); then
+                if (( ${PIPE_RC[0]} > 0 )); then
+                    BACKUPRC=${PIPE_RC[0]}
+                    DUMP_ERROR="mysqldump returned  error code: $BACKUPRC"
+                elif (( ${PIPE_RC[1]} > 0 )); then
                     BACKUPRC=${PIPE_RC[1]}
+                    DUMP_ERROR="gzip returned error code: $BACKUPRC while compressing the mysqldump output"
+                else
+                    BACKUPRC=0
                 fi
             fi
-            if (( $BACKUPRC > 0 )); then
-                echo "mysqldump returned  error code: $BACKUPRC" >&2
-                echo "mysqldump returned  error code: $BACKUPRC" > /usr/local/pf/var/backup_db.status
+            if [ -n "$DUMP_ERROR" ]; then
+                echo "$DUMP_ERROR" >&2
+                echo "$DUMP_ERROR" > /usr/local/pf/var/backup_db.status
                 # Don't keep an incomplete dump that could be mistaken for a valid backup
                 rm -f ${current_filename}
+                # the Galera sync was disabled for the backup
+                reenable_galera_sync
                 exit $BACKUPRC
             else
                 echo "mysqldump completed"
@@ -232,12 +251,7 @@ backup_database(){
             fi
         fi
 
-        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ] && [ $MARIADB_DISABLE_GALERA -eq 1 ]; then
-             echo "Reenabling Galera cluster sync"
-             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;' || die "mysql command failed"
-        else
-            echo "Not a Galera cluster, nothing to reenable"
-        fi
+        reenable_galera_sync
 
     else 
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." >&2
