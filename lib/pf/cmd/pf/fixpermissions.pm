@@ -44,6 +44,7 @@ use pf::constants qw($DIR_MODE $PFCMD_MODE);
 use pf::constants::user;
 use pf::util;
 use File::Find;
+use Cwd qw(abs_path);
 
 use fingerbank::FilePath;
 use fingerbank::Util;
@@ -135,8 +136,10 @@ sub action_file {
             return $EXIT_FAILURE;
         }
         _changeFilesToOwner($user,$file);
-        # fingerbank.conf contains the Fingerbank API key: no world-readable bit
-        my $mode = ($file eq $fingerbank::FilePath::CONF_FILE) ? 0660 : 0664;
+        # fingerbank.conf contains the Fingerbank API key: no world-readable bit.
+        # Compare the canonical paths so another spelling of it is caught too.
+        my $is_fingerbank_conf = (abs_path($file) // '') eq (abs_path($fingerbank::FilePath::CONF_FILE) // $fingerbank::FilePath::CONF_FILE);
+        my $mode = $is_fingerbank_conf ? 0660 : 0664;
         chmod $mode, $file;
         print "Fixed permissions on file $file \n";
     }
