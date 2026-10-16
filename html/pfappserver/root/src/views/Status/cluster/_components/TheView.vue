@@ -26,7 +26,8 @@
             <b-badge v-if="item.management" pill variant="primary" class="ml-1">{{ $t('Management') }}</b-badge>
           </template>
           <template #cell(owners)="{ item }">
-            <b-badge v-if="item.owners.length === 0" pill variant="danger">{{ $t('No owner') }}</b-badge>
+            <b-badge v-if="item.status === 'unknown'" pill variant="secondary" v-b-tooltip.hover.top :title="$t('A member of the cluster could not be queried, it may hold this virtual IP.')">{{ $t('Unknown') }}</b-badge>
+            <b-badge v-else-if="item.owners.length === 0" pill variant="danger">{{ $t('No owner') }}</b-badge>
             <template v-else>
               <b-badge v-for="owner in item.owners" :key="owner" pill :variant="(item.owners.length > 1) ? 'danger' : 'success'" class="mr-1">{{ owner }}</b-badge>
               <b-badge v-if="item.owners.length > 1" pill variant="warning">{{ $t('Split brain') }}</b-badge>
@@ -96,13 +97,17 @@ const setup = () => {
   const vips = ref([])
   const servers = ref([])
 
+  // the zone is only shown on a multi-zone cluster
+  const isMultiZone = computed(() => new Set(servers.value.map(server => server.zone)).size > 1)
   const vipFields = computed(() => ([
+    ...((isMultiZone.value) ? [{ key: 'zone', label: i18n.t('Zone') }] : []),
     { key: 'vip', label: i18n.t('Virtual IP') },
     { key: 'interface', label: i18n.t('Interface') },
     { key: 'owners', label: i18n.t('Owner') },
     { key: 'since', label: i18n.t('Since') }
   ]))
   const serverFields = computed(() => ([
+    ...((isMultiZone.value) ? [{ key: 'zone', label: i18n.t('Zone') }] : []),
     { key: 'host', label: i18n.t('Server') },
     { key: 'management_ip', label: i18n.t('Management IP') },
     { key: 'vips', label: i18n.t('Virtual IPs held') }

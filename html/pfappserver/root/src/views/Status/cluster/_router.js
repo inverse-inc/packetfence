@@ -9,7 +9,9 @@ export default [
     name: 'statusCluster',
     component: TheView,
     meta: {
-      can: () => acl.$can('read', 'system') && !store.getters['system/isSaas'] && store.getters['cluster/isCluster'],
+      // not on cluster/isCluster: it is loaded asynchronously, so a reload of
+      // this page would redirect away. On a standalone server the lists are empty.
+      can: () => acl.$can('read', 'system') && !store.getters['system/isSaas'],
       isFailRoute: true
     }
   }
