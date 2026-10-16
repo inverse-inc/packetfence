@@ -294,7 +294,7 @@ sub apply_new_node_info {
             $notice .= $self->app->i18n_format(" with unregistration date : %s,", $self->new_node_info->{unregdate});
         }
         if ($self->new_node_info->{time_balance}) {
-            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->new_node_info->{time_balance});
+            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->app->duration_str($self->new_node_info->{time_balance}));
         }
         if ($self->new_node_info->{bandwidth_balance}) {
             $notice .= $self->app->i18n_format(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
