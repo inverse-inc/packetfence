@@ -165,7 +165,8 @@ sub handle_callback {
 
     if ($response->is_success) {
         my $info = $self->_decode_response($response);
-        get_logger->debug(sub { use Data::Dumper; "OAuth2 response: ".Dumper($info) });
+        # only the attribute names: the values are personal data
+        get_logger->debug(sub { "OAuth2 response attributes: " . join(", ", sort keys %{ ref($info) eq 'HASH' ? $info : {} }) });
         $self->save_provider_info($info);
         my $pid = $self->_extract_username_from_response($info);
         
