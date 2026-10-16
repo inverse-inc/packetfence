@@ -1659,7 +1659,7 @@ async function ttCapRun(){
       showOutput(summary,true);
       ttOverlay.classList.remove('open');
       const pr=ttCapParams();
-      go('Analyze this packet capture summary (preset: '+pr.preset+', filter: '+(pr.filter||'—')+'):\n\n'+summary);
+      go('Analyze this packet capture summary (preset: '+pr.preset+', filter: '+(pr.filter||'—')+'):\n\n```\n'+summary+'\n```');
     }else{ttMsg.textContent=d.error||'capture failed';ttMsg.className='bad';showOutput(d.error||'',false);}
   }catch(e){ttMsg.textContent='request failed';ttMsg.className='bad';}
 }

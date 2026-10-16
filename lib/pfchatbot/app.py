@@ -1364,7 +1364,7 @@ def diagnose(mac: str = "", username: str = "") -> dict:
         report["steps"].append("node_lookup:" + ("ok" if "node" in node else "not_found"))
 
     # 2. logs (radius first — that's where auth results live)
-    logs = search_logs(mac=mac, username=username, which="both", limit=60) if (mac or username) else {}
+    logs = search_logs(mac=mac, username=username, which="both", limit=150) if (mac or username) else {}
     report["logs"] = logs.get("logs", {})
     rc = sum(v.get("match_count", 0) for v in report["logs"].values() if isinstance(v, dict))
     report["steps"].append(f"log_search:{rc}_lines")
@@ -1396,6 +1396,55 @@ def diagnose(mac: str = "", username: str = "") -> dict:
     # radius autz request", runs to the "returned RADIUS Access-*" line).
     latest_block = _latest_autz_block(
         (report["logs"].get("packetfence") or {}).get("lines", []))
+    def _ln_ts(s):
+        m3 = re.match(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[.\d]*)", s.strip())
+        return m3.group(1) if m3 else ""
+    _rad_latest = ""
+    for _ln in (report["logs"].get("radius") or {}).get("lines", []):
+        _t = _ln_ts(_ln)
+        if _t > _rad_latest:
+            _rad_latest = _t
+    def _stale_block(block):
+        # True when the autz trail predates the newest radius verdict line —
+        # i.e. we grepped the file before the pipeline flushed this attempt.
+        if not block or not _rad_latest:
+            return False
+        _bt = ""
+        for _ln in block:
+            _t = _ln_ts(_ln)
+            if _t > _bt:
+                _bt = _t
+        return bool(_bt) and _bt < _rad_latest
+    if (not latest_block) or _stale_block(latest_block):
+        # A username search mostly matches admin-API (httpd.aaa) noise — including
+        # this assistant's own calls — while the RADIUS policy trail is keyed by
+        # MAC. Pull a MAC from the radius verdict lines and re-grep by it.
+        fb_mac = mac or None
+        if not fb_mac:
+            for ln in reversed((report["logs"].get("radius") or {}).get("lines", [])):
+                m2 = re.search(r"[0-9A-Fa-f]{2}(?:[:\-][0-9A-Fa-f]{2}){5}", ln)
+                if m2:
+                    fb_mac = m2.group(0)
+                    break
+        if fb_mac:
+            for _attempt in range(3):
+                pf2 = search_logs(mac=fb_mac, which="packetfence", limit=200)
+                grp = (pf2.get("logs") or {}).get("packetfence")
+                blk = _latest_autz_block(grp.get("lines") or []) if isinstance(grp, dict) else []
+                if blk and not _stale_block(blk):
+                    latest_block = blk
+                    report["logs"]["packetfence"] = grp
+                    report["steps"].append(f"autz_refetch_by_mac:{fb_mac} (attempt {_attempt + 1})")
+                    break
+                if _attempt == 2 and blk:
+                    # out of retries: a slightly stale trail beats an empty verdict
+                    latest_block = blk
+                    report["logs"]["packetfence"] = grp
+                    report["steps"].append(f"autz_refetch_by_mac:{fb_mac} (stale after retries)")
+                    break
+                if _attempt < 2:
+                    time.sleep(2.5)
+                    report["steps"].append("autz_wait_for_log_flush:2.5s")
     if latest_block:
         report["latest_attempt_pf"] = latest_block
         report["returned_attributes"] = _attrs_from_autz_block(latest_block)
