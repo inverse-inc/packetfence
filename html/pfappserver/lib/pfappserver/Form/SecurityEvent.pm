@@ -106,6 +106,9 @@ has_field 'user_template_email' =>
   (
    type => 'Select',
    options_method => \&options_email_template,
+   # a value that is not in the list (e.g. saved before this was a select) is
+   # kept, so the security event can still be saved
+   no_option_validation => 1,
    label => 'User template email',
    tags => { after_element => \&help,
              help => 'Template email to use to send the security event by email to the endpoint owner.' },
@@ -155,6 +158,9 @@ has_field 'recipient_template_email' =>
   (
    type => 'Select',
    options_method => \&options_email_template,
+   # a value that is not in the list (e.g. saved before this was a select) is
+   # kept, so the security event can still be saved
+   no_option_validation => 1,
    label => 'Recipient template email',
    tags => { after_element => \&help,
              help => 'Template email to use to send the security event by email.' },
@@ -480,7 +486,7 @@ sub build_email_templates {
     my @templates;
     foreach my $dir (@dirs) {
         next unless opendir(my $dh, $dir);
-        push @templates, map { /^emails-([^\.]+)\.html$/ ? $1 : () } readdir($dh);
+        push @templates, map { /^emails-(.+)\.html$/ ? $1 : () } readdir($dh);
         closedir($dh);
     }
 
