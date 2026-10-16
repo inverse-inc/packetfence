@@ -21,8 +21,11 @@ endif::[]
 === Checking which server holds the virtual IPs
 
 In the administration interface, _Status -> Cluster_ shows in realtime which
-cluster member currently holds each virtual IP, and since when. A virtual IP
-held by more than one member (split brain) or by no member is highlighted.
+cluster member currently holds each virtual IP, and since when, in every zone
+of the cluster. A virtual IP held by more than one member (split brain) or by
+no member is highlighted. When a member can't be queried (each member gets a
+few seconds to answer), the virtual IPs of its zone that no other member holds
+are shown as unknown.
 
 The same information is available from the API:
 
