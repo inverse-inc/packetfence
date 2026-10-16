@@ -2641,6 +2641,12 @@ msgstr ""
 msgid "Check for SSL certificates validity in packetfence pki"
 msgstr ""
 
+#: conf/pfcron.conf.defaults:[pki_revoked_certs_cleanup]/description
+msgid ""
+"Cleanup revoked PKI certificates. A revoked certificate is removed once it "
+"was revoked more than the window ago and it is expired."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheForm.vue:36
 msgid "Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration."
 msgstr ""

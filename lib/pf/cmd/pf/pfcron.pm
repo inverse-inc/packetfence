@@ -33,6 +33,8 @@ pfcmd pfcron <task> [options...]
 
 =item pki_certificates_check
 
+=item pki_revoked_certs_cleanup
+
 =item cleanup_chi_database_cache
 
 =item cluster_check

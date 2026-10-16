@@ -29,11 +29,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - New pfcron task pki_revoked_certs_cleanup, disabled by default, to purge revoked PKI certificates that are expired and were revoked more than the window ago (#6907)
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
   - FreeRADIUS thread pool size (`max_servers`) is now configurable as `radius_configuration.radiusd_max_servers` (Configuration > RADIUS > General) and defaults to 128 instead of 64; it also bounds the rlm_rest connection pool to httpd.aaa
 
 === Bug Fixes
 
+  - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on
