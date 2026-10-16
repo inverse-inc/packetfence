@@ -462,8 +462,9 @@ sub getType {
             $type = $interface->{type};
             my $enforcement = $interface->{enforcement} // '';
             # a DNS enforcement interface has type=internal,enforcement=dns in pf.conf
+            # (type=internal,radius when the radius daemon was added)
             if ($enforcement =~ /^dns$/i) {
-                $type = 'dns-enforcement';
+                $type = ($type =~ /radius/i) ? 'dns-enforcement,radius' : 'dns-enforcement';
             }
             elsif ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcp/i) {
                 $type = ($type =~ /management|managed/i) ? 'management' : 'other';
@@ -506,9 +507,12 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        # ^dns$ must not match dns-enforcement: that type needs its entry in
-        # networks.conf (is_dns_enforcement_enabled relies on it)
-        if ( $type =~ /management|portal|^radius$|dhcp|^dns$/ ) {
+        # The type can carry the additional listening daemons (e.g.
+        # vlan-registration,portal or dns-enforcement,dhcp), so the decision is made
+        # on the primary type only: an enforcement interface keeps its network
+        # whatever daemons are added to it.
+        my $primary_type = (split /,/, $type)[0];
+        if ( $primary_type =~ /^(?:management|portal|radius|dhcp|dhcp-listener|dns)$/i ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
@@ -725,9 +729,12 @@ sub _prepare_interface_for_pfconf {
             $int_config_ref->{'type'} .= ",radius";
         }
     }
-    elsif ($type eq "dns-enforcement") {
+    elsif ($type =~ /^dns-enforcement/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'dns';
+        if ($type =~ /radius/i) {
+            $int_config_ref->{'type'} .= ",radius";
+        }
     }
     elsif ($type eq "inline") {
         $int_config_ref->{'type'} = 'internal';
