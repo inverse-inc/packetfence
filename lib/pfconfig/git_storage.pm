@@ -296,14 +296,24 @@ sub update {
         # fingerbank_db_directory may be absent from older deployments
         my $fb_db_directory = $proto->fingerbank_db_directory;
         if($fb_db_directory) {
-            my @fb_db_files = glob($proto->git_directory . "/fingerbank/db/*");
-            if(@fb_db_files) {
-                safe_pf_run("cp", "-a", @fb_db_files, $fb_db_directory . "/", { status_ref => \$status });
-                if(!defined($status) || $status != 0) {
-                    $last_error = "Unable to copy fingerbank/db/ repository files";
-                    sleep 3;
-                    next;
+            # The databases are SQLite files that other processes may have open: copy each one
+            # next to its destination and rename it in place, so a reader never sees a partially
+            # written file. cp -a keeps the mtime, which the fingerbank client uses to notice the change.
+            my $copy_error;
+            foreach my $fb_db_file (glob($proto->git_directory . "/fingerbank/db/*")) {
+                my $dst = $fb_db_directory . "/" . basename($fb_db_file);
+                my $tmp = $fb_db_directory . "/." . basename($fb_db_file) . ".git_storage.$$";
+                safe_pf_run("cp", "-a", $fb_db_file, $tmp, { status_ref => \$status });
+                if(!defined($status) || $status != 0 || !rename($tmp, $dst)) {
+                    unlink($tmp);
+                    $copy_error = "Unable to copy fingerbank/db/ repository file " . basename($fb_db_file);
+                    last;
                 }
+            }
+            if($copy_error) {
+                $last_error = $copy_error;
+                sleep 3;
+                next;
             }
         }
 
