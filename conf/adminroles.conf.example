@@ -23,3 +23,11 @@ actions=FLEETDM_EVENTS_READ
 [pftest Operator]
 description=Run pftest authentication and profile filter tests
 actions=PFTEST_CREATE
+
+[chatbot-user]
+description=PacketFence Assistant - read only
+actions=CHATBOT_READ
+
+[chatbot-admin]
+description=PacketFence Assistant - read and write
+actions=CHATBOT_READ,CHATBOT_WRITE

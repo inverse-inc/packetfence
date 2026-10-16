@@ -1,0 +1,65 @@
+[Unit]
+Description=PacketFence Assistant (chatbot + RADIUS/capture test-tool helper)
+After=docker.service network-online.target packetfence-mariadb.service
+Requires=docker.service
+PartOf=packetfence-mariadb.service
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/local/pf
+ExecStartPre=-/usr/bin/docker rm -f pf-chatbot
+#
+# --network host is required for packet capture: a bridge-networked container
+# sees only its veth pair, never the real interfaces.
+#
+# Capabilities are pared to the minimum this container actually uses:
+#   NET_RAW, NET_ADMIN  tcpdump: raw sockets and promiscuous mode
+#   CHOWN               supervisor.sh giving the socket dir to pfhelper
+#   SETUID, SETGID      setpriv dropping from root to pfbot / pfhelper
+# no-new-privileges is deliberately NOT set: it makes execve ignore file
+# capabilities, which is precisely how tcpdump obtains NET_RAW as a non-root
+# user, so capture would fail silently with it on. PacketFence's own
+# netdata container uses --privileged + SYS_ADMIN + SYS_PTRACE because it
+# inspects other processes' namespaces; tcpdump needs only NET_RAW (raw
+# sockets) and NET_ADMIN (promiscuous mode), so everything else is dropped.
+# That matters more here than for netdata: this service acts on LLM output.
+#
+# With host networking there is no -p mapping, so BIND_HOST is the only thing
+# controlling reachability. "auto" resolves to PacketFence's internal host
+# address (100.64.0.1) when present, else 127.0.0.1 — never 0.0.0.0.
+ExecStart=/usr/bin/docker run --rm --name pf-chatbot \
+  --network host \
+  --cap-drop ALL \
+  --cap-add NET_RAW \
+  --cap-add NET_ADMIN \
+  --cap-add CHOWN \
+  --cap-add SETUID \
+  --cap-add SETGID \
+  -e BIND_PORT=8800 \
+  --env-file /usr/local/pf/conf/pfchatbot.env \
+  --env-file /usr/local/pf/conf/pfchatbot-testtool.env \
+  -v /usr/local/pf/containers/pfchatbot/docs:/docs:ro \
+  -v /usr/local/pf/docs:/pfdocs:ro \
+  -v /usr/local/pf/conf/pf-release:/pf-release:ro \
+  -v /usr/local/pf/conf/local_secret:/usr/local/pf/conf/local_secret:ro \
+  -v /usr/local/pf/conf/pf.conf:/usr/local/pf/conf/pf.conf:ro \
+  -v /usr/local/pf/conf/pf.conf.defaults:/usr/local/pf/conf/pf.conf.defaults:ro \
+  -v /usr/local/pf/conf/pfconfig.conf:/usr/local/pf/conf/pfconfig.conf:ro \
+  -v pf-chatbot-cache:/home/pfbot/.cache \
+  -v pf-chatbot-files:/var/lib/pf-chatbot/files \
+  -v /usr/local/pf/docs/api/spec/openapi.json:/spec/openapi.json:ro \
+  -v /usr/local/pf/logs:/pflogs:ro \
+  -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock \
+  --group-add 2025 \
+  --memory 2g \
+  --memory-swap 2g \
+  pf-chatbot
+ExecStop=/usr/bin/docker stop pf-chatbot
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
