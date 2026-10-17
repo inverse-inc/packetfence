@@ -376,11 +376,6 @@ msgstr "Firma"
 msgid "Computer name "
 msgstr "Computername"
 
-# html/captive-
-# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr "Handynummer bestätigen"
-
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"
 msgstr ""
@@ -636,6 +631,11 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Enter a valid telephone number"
 msgstr "Geben Sie eine gültige Telefonnummer ein"
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "Enter the PIN sent to your phone"
+msgstr "Geben Sie die an Ihr Telefon gesendete PIN ein"
 
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
