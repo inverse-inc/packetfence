@@ -223,13 +223,6 @@ export const search = {
       sortable: true
     },
     {
-      key: 'last_arp',
-      label: 'Last ARP', // i18n defer
-      sortable: true,
-      formatter: formatter.datetimeIgnoreZero,
-      class: 'text-nowrap'
-    },
-    {
       key: 'last_dhcp',
       label: 'Last DHCP', // i18n defer
       sortable: true,
@@ -374,12 +367,6 @@ export const search = {
     {
       value: 'unregdate',
       text: 'Unregistered Date', // i18n defer
-      types: [conditionType.DATETIME],
-      icon: 'calendar-alt'
-    },
-    {
-      value: 'last_arp',
-      text: 'Last ARP Date', // i18n defer
       types: [conditionType.DATETIME],
       icon: 'calendar-alt'
     },
