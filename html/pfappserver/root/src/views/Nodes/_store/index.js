@@ -49,12 +49,9 @@ const getters = {
 }
 
 const actions = {
-  exists: ({ state, commit }, mac) => {
-    // Only trust a cached positive answer: a node that didn't exist (or was deleted)
-    // can be created at any time, for example when the device connects again
-    if (state.nodeExists[mac]) {
-      return Promise.resolve(true)
-    }
+  exists: ({ commit }, mac) => {
+    // Always ask the API: a node can be created (ex: when the device connects again) or
+    // deleted (ex: by another admin or the node cleanup task) at any time
     let body = {
       fields: ['mac'],
       limit: 1,
