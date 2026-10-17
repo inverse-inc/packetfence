@@ -57,7 +57,7 @@ fi
 
 # Only update and load the query rules when some of them are not in the expected state, ProxySQL logs every load.
 # There are no such rules when the cluster has no read hostgroup.
-RULE_STATE="rule_id IN ($QUERY_RULE_IDS) AND NOT (destination_hostgroup=$DESTINATION_HOSTGROUP AND replace_pattern IS $REPLACE_PATTERN)"
+RULE_STATE="rule_id IN ($QUERY_RULE_IDS) AND NOT (destination_hostgroup IS $DESTINATION_HOSTGROUP AND replace_pattern IS $REPLACE_PATTERN)"
 RULES_TO_CHANGE=$($PROXYSQL_CMDLINE "SELECT (SELECT COUNT(*) FROM mysql_query_rules WHERE $RULE_STATE) + (SELECT COUNT(*) FROM runtime_mysql_query_rules WHERE $RULE_STATE)" 2>> ${ERR_FILE})
 if [ "${RULES_TO_CHANGE}" = "0" ]; then
   echo `date` Query rules already route to hostgroup $DESTINATION_HOSTGROUP >> ${ERR_FILE}
