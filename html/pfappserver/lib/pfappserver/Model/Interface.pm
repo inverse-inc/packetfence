@@ -130,6 +130,10 @@ sub delete {
         return ($status, $status_msg);
     }
 
+    # Remove the deleted interface from the persistent OS configuration; it is
+    # named for the writers that keep what they don't know about
+    $models->{'system'}->write_network_persistent($self->get('all'), $models->{'system'}->getDefaultGateway(), removed => [$interface]);
+
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
@@ -397,10 +401,12 @@ sub update {
 
     # Persistent OS change
     if ( $network_configuration_changed ) {
-        if ($ipaddress && $ipaddress ne '') {
-            my $interfaces = $self->get('all');
-            $models->{'system'}->write_network_persistent($interfaces,$gateway);
-        }
+        # Also for an interface without an IP address, so that it is brought up at boot
+        my $interfaces = $self->get('all');
+        # the type is saved below (setType): give the writer the one being set,
+        # it only brings up an address-less interface that PacketFence configures
+        $interfaces->{$interface}{type} = $interface_ref->{type} if $interfaces->{$interface} && $interface_ref->{type};
+        $models->{'system'}->write_network_persistent($interfaces,$gateway);
 
         @result = $self->_listInterfaces('all');
         $models->{network}->cleanupNetworks(\@result);
