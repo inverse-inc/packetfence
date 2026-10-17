@@ -22264,12 +22264,8 @@ msgstr ""
 "attribuer le rôle."
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:70
-msgid ""
-"When enabled, PacketFence will unset the role of the device if no "
-"authentication sources returned one."
-msgstr ""
-"Lorsqu'il est activé, PacketFence annulera le rôle du périphérique si aucune"
-" source d'authentification n'en a renvoyée."
+msgid "When enabled, PacketFence will unset the role of the device if no authentication sources returned one, the device is then unregistered and gets the registration role."
+msgstr "Lorsqu'il est activé, PacketFence annulera le rôle du périphérique si aucune source d'authentification n'en a renvoyé, le périphérique est alors désenregistré et reçoit le rôle d'enregistrement."
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:73
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:77
