@@ -105,6 +105,7 @@ use warnings;
 
 use Net::SNMP;
 use Try::Tiny;
+use Socket qw(inet_pton AF_INET6);
 use Switch;
 
 use base ('pf::Switch::Cisco');
@@ -154,6 +155,10 @@ The WLC can be configured to send another identifier of the AP than its MAC
 address before the SSID in the Called-Station-Id, for example its name
 ("AP-Name:SSID" with the ap-name-ssid format).
 
+Only an identifier made of letters, digits, "_", "." and "-" is taken as the
+AP identifier, so that other formats containing a colon (a location with
+spaces, an IPv6 address with the ipaddr format) don't give a wrong SSID.
+
 =cut
 
 sub extractSSIDFromCalledStationId {
@@ -161,7 +166,8 @@ sub extractSSIDFromCalledStationId {
     my $called_station_id = $radius_request->{'Called-Station-Id'};
     if (defined($called_station_id)
         && $called_station_id !~ /^[a-f0-9]{2}(?:[-:]?[a-f0-9]{2}){5}(?::|$)/i
-        && $called_station_id =~ /^[^:]+:(.+)$/) {
+        && !defined(inet_pton(AF_INET6, $called_station_id))
+        && $called_station_id =~ /^[\w.-]+:(.+)$/) {
         return $1;
     }
 

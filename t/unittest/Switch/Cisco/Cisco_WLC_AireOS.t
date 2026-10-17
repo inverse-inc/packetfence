@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 
 #This test will running last
 use Test::NoWarnings;
@@ -37,6 +37,10 @@ for my $test (
     [ "AP-Name:Guest:WiFi", "Guest:WiFi", "AP name and SSID with a colon" ],
     [ "aa:bb:cc:dd:ee:ff", "Bob", "AP MAC address without SSID uses Called-Station-SSID" ],
     [ "AP-Name", "Bob", "AP name without SSID uses Called-Station-SSID" ],
+    [ "ap1.floor-2:PFTest", "PFTest", "AP name with dots and dashes and SSID" ],
+    [ "Bldg A:Floor 2", "Bob", "Location with a space (ap-location) uses Called-Station-SSID" ],
+    [ "2001:db8::5", "Bob", "IPv6 address (ipaddr) uses Called-Station-SSID" ],
+    [ "fe80::1:2:3:4:5", "Bob", "IPv6 address with 6 groups uses Called-Station-SSID" ],
 ) {
     my ($called_station_id, $expected, $name) = @$test;
     is(
