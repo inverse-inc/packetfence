@@ -16,9 +16,10 @@ use strict;
 use warnings;
 
 use HTML::FormHandler::Moose::Role;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 
-use pf::config qw($fqdn);
+use pf::config qw($fqdn %ConfigPortalModules);
+use pf::util qw(isenabled);
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
@@ -703,6 +704,70 @@ sub validate {
             last;
         }
     }
+
+    $self->warn_preregistration_without_local_account();
+}
+
+=head2 warn_preregistration_without_local_account
+
+With preregistration, the portal shows the local account created while
+registering: warn when none of the sources the portal can use creates one, the
+users wouldn't be able to complete the portal
+
+=cut
+
+sub warn_preregistration_without_local_account {
+    my ($self) = @_;
+    my $value = $self->value;
+    return if !isenabled($value->{preregistration});
+    return if any { source_creates_local_account($_) } preregistration_source_ids($value);
+    $self->add_pf_warning({
+        message => "Preregistration is enabled but none of the authentication sources of this connection profile and its portal modules creates local accounts: users won't be able to complete the portal. Enable \"Create local account\" on a source.",
+    });
+}
+
+=head2 preregistration_source_ids
+
+The sources the portal of a connection profile can authenticate with: the
+sources of the connection profile (all the non exclusive sources when none is
+selected) and the sources set on the portal modules under its root module
+
+=cut
+
+sub preregistration_source_ids {
+    my ($profile) = @_;
+    my @source_ids = @{$profile->{sources} // []};
+    if (!@source_ids) {
+        @source_ids = map { $_->id } grep { $_->class ne 'exclusive' } @{pf::authentication::getAllAuthenticationSources()};
+    }
+    my @modules = ($profile->{root_module} || $pf::constants::Connection::Profile::DEFAULT_ROOT_MODULE);
+    my %seen;
+    while (defined(my $id = shift @modules)) {
+        next if $seen{$id}++;
+        my $module = $ConfigPortalModules{$id} or next;
+        push @modules, _list($module->{modules});
+        push @source_ids, _list($module->{source_id});
+    }
+    return uniq @source_ids;
+}
+
+sub _list {
+    my ($value) = @_;
+    return () if !defined $value || $value eq '';
+    return @$value if ref($value) eq 'ARRAY';
+    return split(/\s*,\s*/, $value);
+}
+
+=head2 source_creates_local_account
+
+Whether the authentication source creates a local account
+
+=cut
+
+sub source_creates_local_account {
+    my ($source_id) = @_;
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    return $source && $source->can('create_local_account') && isenabled($source->create_local_account);
 }
 
 =head2 field_default_value
