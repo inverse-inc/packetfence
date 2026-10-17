@@ -71,6 +71,10 @@ msgstr "Demande d'accès invité"
 msgid "%s: Guest access request accepted"
 msgstr "%s: Requête d’accès invité acceptée"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Choisissez un opérateur---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -670,6 +674,10 @@ msgid ""
 "network access."
 msgstr "Votre accès au réseau sera désactivé si vous le ne faites pas d’ici %s minutes."
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Femme"
+
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
 msgstr "Invite de confiance de l'autorité de certification Firefox"
@@ -986,6 +994,10 @@ msgid ""
 "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When "
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr "Assurez-vous que la <i>confiance</i> est développée et sélectionnez la liste déroulante en regard de <i>Lors de l'utilisation de ce certificat</i>: et modifiez-la en <i>Toujours faire confiance</i>."
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Homme"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"
