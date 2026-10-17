@@ -8,7 +8,8 @@ use lib '/usr/local/pf/lib_perl/lib/perl5';
 use pf::file_paths qw($generated_iptables_conf_dir $conf_dir);
 use pf::log;
 use pf::iptables qw(iptables_generate_config);
-use pf::config qw($management_network);
+use pf::config qw($management_network %Config);
+use pf::util qw(isenabled);
 use Linux::Inotify2;
 
 my $inotify = new Linux::Inotify2 or die "Unable to create inotify object: $!";
@@ -36,10 +37,14 @@ sub generate_iptables_configuration {
     }
 }
 
+# services.iptables is disabled: stay up without touching iptables (the
+# services that want packetfence-iptables would otherwise restart it in a
+# loop) and start managing the rules once it is enabled again
+my $was_disabled = 0;
 unless ( pf::iptables::iptables_is_managed() ) {
-    # services.iptables is disabled: stay up without touching iptables, the
-    # services that want packetfence-iptables would otherwise restart it in a loop
-    sleep(3600) while 1;
+    $was_disabled = 1;
+    sleep(30) until isenabled($Config{'services'}{'iptables'});
+    get_logger->info("services.iptables was enabled, PacketFence manages iptables again");
 }
 
 if ( $managed ) {
@@ -55,6 +60,8 @@ if ( $managed ) {
         my $file = $event->fullname;
         generate_iptables_configuration($file);
     });
+    # The rules files were written while iptables wasn't managed, apply them now
+    generate_iptables_configuration("services.iptables") if $was_disabled;
 }
 
 while ( $managed ) {
