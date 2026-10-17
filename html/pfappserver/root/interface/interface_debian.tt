@@ -2,7 +2,7 @@ auto lo
 iface lo inet loopback
 [% FOREACH interface IN interfaces.keys.sort %]
 [% IF interfaces.$interface.is_running %]auto [% interface %] [% END %]
-[% IF interfaces.$interface.ipaddress %] iface [% interface %] inet static[% ELSIF interfaces.$interface.is_running %] iface [% interface %] inet manual[% END %]
+[%# an interface PacketFence configures without an IPv4 address (e.g. a dhcp-listener VLAN) is brought up at boot; the other ones (bond members, DHCP configured NICs) are left as they are %][% IF interfaces.$interface.ipaddress %] iface [% interface %] inet static[% ELSIF interfaces.$interface.is_running && interfaces.$interface.type && interfaces.$interface.type != 'none' %] iface [% interface %] inet manual[% END %]
 [% IF interfaces.$interface.ipaddress %]    address [% interfaces.$interface.ipaddress %][% END %]
 [% IF interfaces.$interface.ipaddress && interfaces.$interface.netmask %]    netmask [% interfaces.$interface.netmask %][% END %]
 [% IF interfaces.$interface.ipaddress && interface == gateway_interface %]    gateway [% gateway %][% END %]
