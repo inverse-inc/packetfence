@@ -166,6 +166,13 @@ sub handle_callback {
     if ($response->is_success) {
         my $info = $self->_decode_response($response); 
         my $pid = $self->_extract_username_from_response($info); 
+        if (!defined($pid) || $pid eq '') {
+            get_logger->error("OAuth2: no username found in the response of the provider");
+            pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
+            $self->app->flash->{error} = "OAuth2 Error: Your account didn't provide a username, please use another login method";
+            $self->landing();
+            return;
+        }
         
         $self->username($pid);
         if($info->{email}) { 

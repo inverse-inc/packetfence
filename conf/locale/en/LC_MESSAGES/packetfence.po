@@ -1773,6 +1773,10 @@ msgstr ""
 msgid "You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method."
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "
 msgstr ""
