@@ -57,8 +57,6 @@
                         <string>[% payload_uuid.wifi %]</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
-                        <key>PayloadCertificateUUID</key>
-                        <string>[% payload_uuid.identity %]</string>
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
                 </dict>
