@@ -181,10 +181,17 @@ sub restart_pfconfig {
 
 =head2 write_network_persistent
 
+Write the persistent OS network configuration of the interfaces.
+
+  $system->write_network_persistent($interfaces, $gateway, removed => \@interfaces);
+
+removed lists the interfaces that were just deleted: they are not in
+$interfaces anymore and must not be kept in the OS configuration.
+
 =cut
 
 sub write_network_persistent {
-    my ( $self, $interfaces_ref, $gateway ) = @_;
+    my ( $self, $interfaces_ref, $gateway, %options ) = @_;
     my $logger = get_logger();
 
     my ($status, $status_msg, $systemObj);
@@ -209,7 +216,7 @@ sub write_network_persistent {
     return ($status, $systemObj) if ( is_error($status) );
 
     # Write persistent network configurations
-    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface);
+    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface, %options);
     return ($status, $status_msg) if ( is_error($status) );
 
     $status_msg = "Persistent network configurations successfully written";
@@ -457,7 +464,7 @@ our $var_dir              ="/usr/local/pf/var/";
 =cut
 
 sub writeNetworkConfigs {
-    my ( $self, $interfaces_ref, $gateway, $gateway_interface ) = @_;
+    my ( $self, $interfaces_ref, $gateway, $gateway_interface, %options ) = @_;
     my $logger = get_logger();
 
     my $status_msg;
@@ -487,7 +494,7 @@ sub writeNetworkConfigs {
         $existing = <$fh> // '';
         close($fh);
     }
-    my $content = merge_interfaces_config($generated, $existing, [ keys %{$interfaces_ref // {}} ]);
+    my $content = merge_interfaces_config($generated, $existing, [ keys %{$interfaces_ref // {}} ], $options{removed});
 
     if (open(my $fh, '>', "$var_dir$_network_conf_file")) {
         print $fh $content;
@@ -566,12 +573,15 @@ manage is not lost:
  - a managed interface without an address keeps its non static stanza (ex:
    manual for a bond member), a static one is dropped as its IP was removed
  - source and source-directory lines are kept
+ - the stanzas and auto lines of the removed interfaces (just deleted in
+   PacketFence) are dropped
 
 =cut
 
 sub merge_interfaces_config {
-    my ($generated, $existing, $managed_names) = @_;
+    my ($generated, $existing, $managed_names, $removed_names) = @_;
     my %managed = map { $_ => 1 } ('lo', @{$managed_names // []});
+    my %removed = map { $_ => 1 } grep { !$managed{$_} } @{$removed_names // []};
     my $new = parse_interfaces_config($generated);
     my $old = parse_interfaces_config($existing);
 
@@ -588,7 +598,7 @@ sub merge_interfaces_config {
         # The auto lines of managed interfaces come from the generated configuration only
         my @names = grep { !$seen_auto{"$item->{keyword} $_"}++ } @{$item->{names}};
         if (!grep { $_ eq $item } @$new) {
-            @names = grep { !$managed{$_} } @names;
+            @names = grep { !$managed{$_} && !$removed{$_} } @names;
         }
         push @out, join(' ', $item->{keyword}, @names) if @names;
     }
@@ -609,7 +619,7 @@ sub merge_interfaces_config {
 
     for my $item (@$old) {
         if ($item->{type} eq 'iface') {
-            next if $new_iface{"$item->{name} $item->{family}"};
+            next if $new_iface{"$item->{name} $item->{family}"} || $removed{$item->{name}};
             next if $managed{$item->{name}} && ($item->{method} eq 'static' || $item->{name} eq 'lo');
         } elsif ($item->{type} ne 'mapping' && $item->{type} ne 'other') {
             next;

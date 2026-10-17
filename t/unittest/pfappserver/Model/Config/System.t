@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 19;
 
 #This test will running last
 use Test::NoWarnings;
@@ -116,6 +116,17 @@ is_deeply(normalize($fresh), normalize($generated), 'without an existing file th
 # Merging twice gives the same result
 my $again = pfappserver::Model::Config::System::Debian::merge_interfaces_config($generated, $merged, [qw(bond0 eth0 eth2)]);
 is($again, $merged, 'merge is idempotent');
+
+# A deleted interface is not kept as an unmanaged one: its stanza and auto entry are dropped
+my $removed = pfappserver::Model::Config::System::Debian::merge_interfaces_config($generated, $merged, [qw(bond0 eth0 eth2)], [qw(br0)]);
+my $removed_items = normalize($removed);
+ok(!$removed_items->{iface}{'br0 inet'}, 'stanza of a removed interface is dropped') or diag($removed);
+ok(!(grep { $_ eq 'br0' } @{$removed_items->{auto}}), 'auto entry of a removed interface is dropped');
+is_deeply($removed_items->{iface}{'eth9 inet'}, ['iface eth9 inet dhcp'], 'the other unmanaged interfaces are kept');
+
+# An interface both managed and removed stays managed
+my $managed_removed = pfappserver::Model::Config::System::Debian::merge_interfaces_config($generated, $merged, [qw(bond0 eth0 eth2)], [qw(eth0)]);
+is($managed_removed, $merged, 'a managed interface is not removed');
 
 =head1 AUTHOR
 
