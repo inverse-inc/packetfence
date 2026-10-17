@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 20;
 use Test::MockModule;
 use Test::NoWarnings;
 use DateTime;
@@ -56,46 +56,56 @@ my $cache = pf::fingerbank::cache();
 my $query_cache_key = "fingerbank::_query-" . pf::fingerbank::_query_cache_key({ dhcp_fingerprint => '1,3,6,15', mac => $mac });
 $cache->remove($_) for ("pf::fingerbank::process($mac)", pf::fingerbank::_retry_cache_key($mac), $query_cache_key);
 
+sub retry { pf::fingerbank::process($_[0], undef, $_[1], retry => 1) }
+my $retry_key = pf::fingerbank::_retry_cache_key($mac);
+
 # First lookup fails: a retry is scheduled
 ok(!pf::fingerbank::process($mac, undef, { hostname => 'host1' }), 'failed lookup returns false');
 is(scalar @queued, 1, 'a retry is scheduled');
-is_deeply([ @{ $queued[0] }[1, 2, 3] ], [ 'fingerbank_process', $mac, { hostname => 'host1' } ], 'the retry processes the same device with the same attributes');
-is($cache->get(pf::fingerbank::_retry_cache_key($mac)), 1, 'one retry counted');
+is_deeply([ @{ $queued[0] }[1, 2, 3] ], [ 'fingerbank_process_retry', $mac, { hostname => 'host1' } ], 'the retry processes the same device with the same attributes');
+is($cache->get($retry_key), 1, 'one retry counted');
 
-# The retry is not skipped although the collector has no new data, and the failure is not served from the cache
+# The other callers keep the freshness guard and the rate limiting cache
+$queries = 0;
+ok(pf::fingerbank::process($mac), 'a regular process right after the failure');
+is($queries, 0, 'is skipped without new data');
+pf::fingerbank::process($mac, 1);
+is($queries, 0, 'a forced process (portal, #9526) is served the cached failure');
+is(scalar @queued, 2, 'which schedules the next retry');
+
+# The queued retry runs without new data and doesn't use the cached failure
 $query_ok = 1;
 $queries = 0;
-ok(pf::fingerbank::process($mac, undef, { hostname => 'host1' }), 'retry succeeds');
+ok(retry($mac, { hostname => 'host1' }), 'retry succeeds');
 is($queries, 1, 'retry queried Fingerbank again');
 is($recorded, 1, 'result recorded');
-ok(!defined($cache->get(pf::fingerbank::_retry_cache_key($mac))), 'retry counter cleared after success');
-is(scalar @queued, 1, 'no new retry after success');
+ok(!defined($cache->get($retry_key)), 'retry counter cleared after success');
+is(scalar @queued, 2, 'no new retry after success');
 
 # Without new data, the next process is skipped as before
 $queries = 0;
 ok(pf::fingerbank::process($mac), 'next process without new data');
 is($queries, 0, 'no query without new data');
 
-# Retries are bounded
+# Retries are bounded, also across the regular calls made after giving up
 $query_ok = 0;
 @queued = ();
-$cache->remove("pf::fingerbank::process($mac)");
-# Drop the successful result kept by the rate limiting cache
 $cache->remove($query_cache_key);
-for (1 .. $MAX_RETRIES + 1) {
-    pf::fingerbank::process($mac);
-}
-is(scalar @queued, $MAX_RETRIES, "at most $MAX_RETRIES retries in a row");
-ok(!defined($cache->get(pf::fingerbank::_retry_cache_key($mac))), 'retry counter reset after giving up');
-
-$cache->remove("pf::fingerbank::process($mac)");
+pf::fingerbank::process($mac, 1);
+retry($mac) for 1 .. $MAX_RETRIES;
+is(scalar @queued, $MAX_RETRIES, "at most $MAX_RETRIES retries");
+pf::fingerbank::process($mac, 1);
+retry($mac);
+is(scalar @queued, $MAX_RETRIES, 'no new retry cycle after giving up');
+ok(defined($cache->get($retry_key)), 'the retry count is kept after giving up');
 
 # Failure to fetch the attributes from the collector also schedules a retry
+$cache->remove($retry_key);
 @queued = ();
 $fingerbank->mock('endpoint_attributes', sub { undef });
 pf::fingerbank::process($mac);
 is(scalar @queued, 1, 'collector failure schedules a retry');
-$cache->remove($_) for ("pf::fingerbank::process($mac)", pf::fingerbank::_retry_cache_key($mac), $query_cache_key);
+$cache->remove($_) for ("pf::fingerbank::process($mac)", $retry_key, $query_cache_key);
 
 =head1 AUTHOR
 
