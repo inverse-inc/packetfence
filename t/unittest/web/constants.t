@@ -29,6 +29,8 @@ BEGIN {
         '/Cisco::Cisco_IOS_15_5',
         '/Cisco::Cisco_WLC_AireOS',
         '/Aruba::2930M/sid123456',
+        '/Aruba::ArubaOS_Switch_16_x/sid123456',
+        '/Dell::N1500/sid123456',
     );
 }
 
