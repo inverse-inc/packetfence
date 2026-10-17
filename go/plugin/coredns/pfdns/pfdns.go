@@ -741,14 +741,27 @@ func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
 	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error
 	for _, v := range portal.DetectionMecanismUrls {
-		fqdn, err := url.Parse(v)
+		host, err := detectionMechanismHost(v)
 		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to parse the url %s", err))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Ignoring the detection mechanism URL %q: %s", v, err))
 			continue
 		}
-		err = pf.addDetectionMechanismsToList(ctx, fqdn.Hostname())
+		err = pf.addDetectionMechanismsToList(ctx, host)
 	}
 	return err
+}
+
+// detectionMechanismHost returns the host name of a detection mechanism URL
+func detectionMechanismHost(rawURL string) (string, error) {
+	fqdn, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	host := fqdn.Hostname()
+	if host == "" {
+		return "", fmt.Errorf("no host name, the URL must start with http:// or https://")
+	}
+	return host, nil
 }
 
 // addDetectionMechanismsToList add all detection mechanisms in a list

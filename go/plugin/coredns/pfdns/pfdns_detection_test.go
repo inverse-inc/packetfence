@@ -33,3 +33,22 @@ func TestCheckDetectionMechanisms(t *testing.T) {
 		}
 	}
 }
+
+func TestDetectionMechanismHost(t *testing.T) {
+	for _, test := range []struct {
+		url      string
+		expected string
+		valid    bool
+	}{
+		{"http://www.gstatic.com/generate_204", "www.gstatic.com", true},
+		{"http://captive.apple.com", "captive.apple.com", true},
+		{"https://detect.example.com:8443/check", "detect.example.com", true},
+		{"captive.example.com", "", false},
+		{"", "", false},
+	} {
+		host, err := detectionMechanismHost(test.url)
+		if (err == nil) != test.valid || host != test.expected {
+			t.Errorf("detectionMechanismHost(%q) = %q, %v, expected %q (valid: %t)", test.url, host, err, test.expected, test.valid)
+		}
+	}
+}
