@@ -625,7 +625,23 @@ sub test {
   if (!defined($connection)) {
     my $binddn = $self->{'binddn'} // '';
     $logger->warn("[$id] Unable to connect to any LDAP server");
-    return ($FALSE, "Can't connect to server or bind with '$binddn' on $LDAPServer:$LDAPServerPort");
+    my @hosts = @{$self->{'host'} // []};
+    my ($unresolved, $outside) = $self->_unresolvable_hosts;
+    my @problems;
+    if (@$unresolved) {
+      push @problems, "Unable to resolve " . join(', ', @$unresolved) . ", check the DNS configuration" . ($self->use_connector ? " of the connector" : "");
+    }
+    foreach my $host (sort keys %$outside) {
+      my @ips = @{$outside->{$host}};
+      push @problems, "$host resolves to " . join(', ', @ips) . (@ips > 1 ? ", none of which is" : " which isn't") . " in any network of the connector, check the networks of the connector";
+    }
+    # Only blame the name resolution when none of the hosts could be used, otherwise a
+    # connection or bind error on the other hosts is the main problem
+    if (@problems && @$unresolved + keys(%$outside) == @hosts) {
+      return ($FALSE, join('. ', @problems));
+    }
+    my $server = $LDAPServer // join(', ', @hosts);
+    return ($FALSE, join('. ', "Can't connect to server or bind with '$binddn' on $server:$LDAPServerPort", @problems));
   }
   my $base = $self->{basedn};
   # Search
@@ -644,6 +660,38 @@ sub test {
   }
 
   return ($TRUE, 'LDAP connect, bind and search successful');
+}
+
+=head2 _unresolvable_hosts
+
+The configured hosts that are not IP addresses and can't be used because of
+their name, using the same resolver as _connect: the hosts that can't be
+resolved (arrayref), and with the connector the hosts whose addresses aren't
+in any network of the connector (hashref host => addresses)
+
+=cut
+
+sub _unresolvable_hosts {
+  my ($self) = @_;
+  my (@unresolved, %outside);
+  foreach my $host (@{$self->{'host'} // []}) {
+    next if valid_ip($host);
+    if ($self->use_connector) {
+      require pf::factory::connector;
+      next if defined(pf::factory::connector->resolve($host));
+      # resolve fails when the name can't be resolved or when none of its
+      # addresses is in a network of the connector, tell them apart
+      my ($ips) = pf::factory::connector::resolve_dns_with_custom_resolver($host =~ /\.$/ ? $host : "$host.", $Config{pfdns_connector}{pfdns_connector_server});
+      if ($ips && @$ips) {
+        $outside{$host} = $ips;
+      } else {
+        push @unresolved, $host;
+      }
+    } else {
+      push @unresolved, $host unless @{ resolve($host) // [] };
+    }
+  }
+  return (\@unresolved, \%outside);
 }
 
 =head2 ldap_filter_for_conditions
