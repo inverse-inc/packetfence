@@ -17,8 +17,6 @@ use Moo;
 use pf::constants;
 use namespace::autoclean;
 use pf::Authentication::utils;
-use pf::dal::password;
-use pf::person qw();
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
@@ -217,10 +215,19 @@ sub cleanupBeforeDelete {
 
 Remove the password and the person that pfcron created for a Password Of The Day source
 
+pfcron only creates a person (with potd=yes) when none exists with the id of
+the source, an existing person (a local user, admin, ...) is left untouched.
+This runs before the configuration is committed: if the commit fails, pfcron
+creates the person and the password again on its next run.
+
 =cut
 
 sub cleanupPotd {
     my ($self, $id) = @_;
+    require pf::person;
+    require pf::dal::password;
+    my $person = pf::person::person_view($id);
+    return if !$person || ($person->{potd} // '') ne 'yes';
     pf::dal::password->remove_by_id({pid => $id});
     pf::person::person_delete($id);
 }
