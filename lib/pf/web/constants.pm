@@ -221,15 +221,51 @@ filter is applied without restarting the portal.
 my ($profile_filter_source, $profile_filter_regex) = ('', undef);
 
 sub allowed_resources_profile_filter {
-    my @components_profile_filter = _clean_urls_match_filter();
-    # add $ to non-slash ending URLs
-    foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
-    my $allow_profile = join('|', @components_profile_filter);
+    my $allow_profile = join('|', map { profile_filter_pattern($_) } _clean_urls_match_filter());
     if ($allow_profile ne $profile_filter_source) {
+        my ($regex, $error) = compile_profile_filter($allow_profile);
+        if (defined $error) {
+            # Keep the previous regex, the error is logged once per change of the filters
+            require pf::log;
+            pf::log::get_logger()->error("Invalid connection profile URI filter, keeping the previous ones: $error");
+        } else {
+            $profile_filter_regex = $regex;
+        }
         $profile_filter_source = $allow_profile;
-        $profile_filter_regex = $allow_profile ne '' ? qr/ ^(?: $allow_profile ) /x : undef; # eXtended pattern
     }
     return $profile_filter_regex;
+}
+
+=item profile_filter_pattern
+
+The pattern of a connection profile URI filter: a URL ending with / is only
+anchored at the beginning, an ending anchor is added otherwise
+
+=cut
+
+sub profile_filter_pattern {
+    my ($filter) = @_;
+    $filter =~ s{([^/])$}{$1\$};
+    return $filter;
+}
+
+=item compile_profile_filter
+
+Compile the alternation of URI filter patterns, returns the regex (undef when
+there is no filter) and the error message if it doesn't compile
+
+=cut
+
+sub compile_profile_filter {
+    my ($allow_profile) = @_;
+    return (undef, undef) if $allow_profile eq '';
+    my $regex = eval { qr/ ^(?: $allow_profile ) /x }; # eXtended pattern
+    if (!defined $regex) {
+        my $error = $@ || 'unknown error';
+        $error =~ s/\s+$//;
+        return (undef, $error);
+    }
+    return ($regex, undef);
 }
 
 =item EXTERNAL_PORTAL_URL
