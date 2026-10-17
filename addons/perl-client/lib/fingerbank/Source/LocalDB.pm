@@ -111,12 +111,13 @@ sub _buildResult {
         $result->{$key} = $combination->{$key};
     }
 
-    # Get device info along with its parents, which are needed to compute the device class
-    ( $status, my $device ) = fingerbank::Model::Device->read($combination->{device_id}, $TRUE);
+    # Get device info
+    ( $status, my $device ) = fingerbank::Model::Device->read_hashref($combination->{device_id}, $TRUE);
     return $status if ( is_error($status) );
 
-    $result->{device} = _row_to_hashref($device);
-    $result->{device}->{parents} = [ map { _row_to_hashref($_) } @{ $device->{parents} // [] } ];
+    foreach my $key ( keys %$device ) {
+        $result->{device}->{$key} = $device->{$key};
+    }
 
     # Tracking down from where the result is coming
     $result->{'SOURCE'} = "Local";
@@ -125,17 +126,6 @@ sub _buildResult {
     return ( $fingerbank::Status::OK, $result );
 }
 
-
-=head2 _row_to_hashref
-
-Not meant to be used outside of this class. Converts a database row to a hashref of its columns
-
-=cut
-
-sub _row_to_hashref {
-    my ( $row ) = @_;
-    return { map { $_ => $row->$_ } grep { $row->can($_) } $row->result_source->columns };
-}
 
 =head2 _getQueryKeyIDs
 
