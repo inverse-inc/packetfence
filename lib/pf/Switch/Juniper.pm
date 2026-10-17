@@ -171,6 +171,8 @@ sub setAdminStatus {
     my $session;
     eval {
         require Net::Appliance::Session;
+        # The SSH transport of Net::CLI::Interact doesn't check the host key of the switch (no known_hosts is
+        # managed for the switches), as with the other switch modules using the CLI
         $session = Net::Appliance::Session->new({
             host        => $self->{_ip},
             timeout     => 20,
@@ -216,11 +218,25 @@ sub setAdminStatus {
 
     if ($@) {
         $logger->error("Unable to set admin status for port $port: $@");
-        $session->close();
+        # Discard the uncommitted change, otherwise leaving the configure mode asks for a confirmation
+        eval { $session->cmd('rollback', { timeout => 10 }) if $session->in_configure_mode };
+        _close_session($session, $logger);
         return;
     }
-    $session->close();
+    _close_session($session, $logger);
     return 1;
+}
+
+=item _close_session
+
+Close a Net::Appliance::Session, which leaves the configure mode if needed and can die
+
+=cut
+
+sub _close_session {
+    my ($session, $logger) = @_;
+    eval { $session->close() };
+    $logger->warn("Error while closing the CLI session: $@") if $@;
 }
 
 =item handleReAssignVlanTrapForWiredMacAuth
