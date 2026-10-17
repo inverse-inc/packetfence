@@ -2120,6 +2120,10 @@ msgid ""
 "id='timeleft'>%s</strong>"
 msgstr "Vous n'êtes pas connecté au réseau, mais il vous reste <strong id = 'timeleft'>% s</strong>"
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method."
+msgstr "Votre compte n'a pas fourni d'adresse courriel, nécessaire pour créer votre compte local. Veuillez utiliser une autre méthode de connexion."
+
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "
 msgstr "Votre clé Wi-Fi WPA :"
