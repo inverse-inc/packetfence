@@ -31,6 +31,7 @@ use pfconfig::cached_hash;
 use pf::authentication;
 use pf::cluster;
 use pf::util;
+use pf::log;
 use Socket;
 
 use pf::constants qw($TRUE $FALSE);
@@ -1643,25 +1644,69 @@ sub generate_radiusd_certificates {
     }
     foreach my $key (keys %ConfigEAP) {
         foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
-            # A previous run may have left a symlink to the default certificates that must not be written
-            # through, or a file that would prevent the symlink to be created
-            unlink(map { "$install_dir/conf/ssl/radius_".$key."_".$tls.".$_" } qw(crt key pem));
+            # The files are replaced with a rename: a symlink left by a previous run is replaced instead of
+            # written through, and the radiusd instances generating their configuration at the same time
+            # never see a missing or partial file
             if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
-                symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
-                symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
-                symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
+                _replace_with_symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
+                _replace_with_symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                _replace_with_symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
             } else {
                $vars{'cert'} = $cert{$key}{$tls}{cert};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
                $vars{'cert'} = "";
                $vars{'key'} = $cert{$key}{$tls}{key};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
                $vars{'key'} = "";
                $vars{'ca'} = $cert{$key}{$tls}{ca};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
                $vars{'ca'} = "";
             }
         }
+    }
+}
+
+=head2 _replace_with_symlink
+
+Make $path a symlink to $target, unless it already is one
+
+=cut
+
+sub _replace_with_symlink {
+    my ($target, $path) = @_;
+    return if -l $path && readlink($path) eq $target;
+    my $tmp = "$path.tmp.$$";
+    unlink($tmp);
+    if (!symlink($target, $tmp) || !rename($tmp, $path)) {
+        get_logger->error("Unable to link $path to $target: $!");
+        unlink($tmp);
+    }
+}
+
+=head2 _replace_with_template
+
+Write the radiusd certificate template to $path through a temporary file, so
+that the file of a previous run (a symlink to the default certificates) is
+replaced and not written through, and is kept when the template fails
+
+=cut
+
+sub _replace_with_template {
+    my ($tt, $vars, $path) = @_;
+    my $tmp = "$path.tmp.$$";
+    unlink($tmp);
+    if (!$tt->process("$conf_dir/radiusd/cert", $vars, $tmp)) {
+        unlink($tmp);
+        die $tt->error();
+    }
+    # keep the mode of the previous file, the key is a private key
+    if (!-l $path && (my @stat = stat($path))) {
+        chmod($stat[2] & 07777, $tmp);
+    }
+    if (!rename($tmp, $path)) {
+        my $error = $!;
+        unlink($tmp);
+        die "Unable to write $path: $error";
     }
 }
 
