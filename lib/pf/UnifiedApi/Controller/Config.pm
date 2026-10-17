@@ -26,8 +26,7 @@ use pf::error qw(is_error is_success);
 use Data::UUID;
 use pf::pfqueue::status_updater::redis;
 use pf::UnifiedApi::Search::Builder::Config;
-use pf::condition_parser qw(parse_condition_string ast_to_object);
-use pf::ConfigStore;
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
 use Scalar::Util qw(looks_like_number);
 
 has 'config_store_class';
@@ -1584,29 +1583,7 @@ sub parse_condition {
         return $self->render_error(422, "Cannot parse condition", [$err]);
     }
 
-    $self->render(json => { item => {condition_string => $condition, condition => top_condition(ast_to_object($ast)) } });
-}
-
-=head2 top_condition
-
-Wrap a condition in a top level and/not_and like a saved condition is
-expanded (pf::ConfigStore::expandCondition), the condition editor needs an
-operator with values at the top
-
-=cut
-
-sub top_condition {
-    my ($condition) = @_;
-    my $op = $condition->{op};
-    if (exists $pf::ConfigStore::TOP_OPS{$op}) {
-        return $condition;
-    }
-
-    if ($op eq 'not') {
-        return { op => 'not_and', values => $condition->{values} };
-    }
-
-    return { op => 'and', values => [$condition] };
+    $self->render(json => { item => {condition_string => $condition, condition => top_level_condition(ast_to_object($ast)) } });
 }
 
 sub flatten_condition {

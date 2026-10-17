@@ -28,13 +28,7 @@ use pf::config::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);
-use pf::condition_parser qw(parse_condition_string ast_to_object);
-our %TOP_OPS = (
-    not_and => undef,
-    not_or => undef,
-    and => undef,
-    or => undef,
-);
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
 
 =head1 FIELDS
 
@@ -883,12 +877,8 @@ sub expandCondition {
         } else {
             $condition = { op => $top_op, values => [$condition]};
         }
-    } elsif (!exists $TOP_OPS{$op}) {
-        if ($op eq 'not') {
-            $condition = { op => 'not_and', values => $condition->{values}};
-        } else {
-            $condition = { op => 'and', values => [$condition]};
-        }
+    } else {
+        $condition = top_level_condition($condition);
     }
 
     $item->{$key} = $condition;
