@@ -18,11 +18,13 @@ PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 # Files pulled in by the guides through include:: directives. Every guide
 # depends on all of them so that editing an included file rebuilds the docs.
 DOC_INCLUDES := $(shell find docs -mindepth 2 \( -name '*.asciidoc' -o -name '*.help' \) -not -path '*/node_modules/*') $(filter-out $(addprefix docs/,$(ASCIIDOCS)),$(wildcard docs/*.asciidoc))
+# The PDF guides embed the images
+DOC_IMAGES := $(shell find docs/images -type f)
 
 clean:
 	rm -f docs/*.html docs/index.js docs/*.pdf docs/styles/*.min.css
 
-docs/%.pdf: docs/%.asciidoc $(DOC_INCLUDES)
+docs/%.pdf: docs/%.asciidoc $(DOC_INCLUDES) $(DOC_IMAGES)
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
