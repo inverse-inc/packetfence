@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 15;
 
 #This test will running last
 use Test::NoWarnings;
@@ -37,6 +37,17 @@ ok(!pf::api::_is_mac_auth_without_calling_station_id({ %neap, 'Service-Type' => 
 ok(!pf::api::_is_mac_auth_without_calling_station_id({ %neap, 'Service-Type' => 'NAS-Prompt-User' }), 'NAS-Prompt-User (named) is a CLI login');
 ok(!pf::api::_is_mac_auth_without_calling_station_id({ %neap, 'NAS-Port-Type' => [5] }), 'Virtual port is a CLI login');
 ok(!pf::api::_is_mac_auth_without_calling_station_id({ %neap, 'NAS-Port-Type' => [0] }), 'Async port is a CLI login');
+ok(!pf::api::_is_mac_auth_without_calling_station_id({ %neap, 'NAS-Port-Type' => undef }), 'without NAS-Port-Type it stays a switch login');
+ok(pf::api::_is_mac_auth_without_calling_station_id({ %neap, 'NAS-Port-Type' => [19] }), 'Wireless-802.11 is a MAC authentication');
+
+# The Nortel and Avaya modules take the MAC from the User-Name when there is no Calling-Station-Id
+use pf::Switch::Nortel::ERS4000;
+use pf::Switch::Avaya::ERS4000;
+for my $class (qw(pf::Switch::Nortel::ERS4000 pf::Switch::Avaya::ERS4000)) {
+    my $switch = $class->new({ id => '192.0.2.1', ip => '192.0.2.1' });
+    is(($switch->parseRequest({ %neap }))[2], '00:e0:4c:68:03:08', "$class: MAC from the User-Name without Calling-Station-Id");
+    is(($switch->parseRequest({ %neap, 'Calling-Station-Id' => ['aa-bb-cc-dd-ee-ff'] }))[2], 'aa:bb:cc:dd:ee:ff', "$class: the Calling-Station-Id comes first");
+}
 
 =head1 AUTHOR
 
