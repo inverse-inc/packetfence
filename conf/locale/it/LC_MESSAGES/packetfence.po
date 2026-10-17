@@ -62,6 +62,10 @@ msgstr "%s: richiesta di accesso Guest"
 msgid "%s: Guest access request accepted"
 msgstr "%s: richiesta di accesso Guest accettato"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Scegli un operatore---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -661,6 +665,10 @@ msgid ""
 "network access."
 msgstr "Hai a disposizione %s minuti, oltre questo tempo l'accesso alla rete verrà revocato."
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Femmina"
+
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
 msgstr ""
@@ -978,6 +986,10 @@ msgid ""
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Maschio"
+
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"
 msgstr ""
@@ -989,10 +1001,6 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
 msgstr "Provider mobile"
-
-# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid "---Choose a Provider---"
-msgstr "---Scegli un operatore---"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm

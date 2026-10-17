@@ -54,6 +54,10 @@ msgstr "%s: Misafir erişim isteği"
 msgid "%s: Guest access request accepted"
 msgstr "%s: Misafir erişim isteği kabul edildi"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Bir operatör seçin---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -653,6 +657,10 @@ msgid ""
 "network access."
 msgstr "Bunu %s dakika içinde yapmamanız durumunda ağ erişiminizin sonlandırılmasına neden olacaktır."
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Kadın"
+
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
 msgstr "Firefox CA güven sorgusu"
@@ -970,6 +978,10 @@ msgid ""
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr "<i>Güven</i> seçeneğinin genişletildiğinden emin olun ve <i>Bu sertifikayı kullanırken</i> seçeneğinin yanındaki açılır menüyü seçin:ve <i>Her Zaman Güven</i> olarak değiştirin."
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Erkek"
+
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"
 msgstr "Yönet"
@@ -981,10 +993,6 @@ msgstr "Cihazlarınızı yönetin"
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
 msgstr "Mobil sağlayıcı"
-
-# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid "---Choose a Provider---"
-msgstr "---Bir operatör seçin---"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
