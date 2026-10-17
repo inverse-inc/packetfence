@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
@@ -42,6 +42,7 @@ ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $ke
 ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $unset }, { status => 'reg', category => 'guest' }), 'a rule matched: registered');
 ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $unset }, {}), 'no status computed: registered');
 ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55' }, { status => 'unreg' }), 'no profile: registered');
+ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $unset }, { status => 'unreg', category => 'gaming' }), 'no rule matched but a provisioner applied a role: registered with it');
 
 =head1 AUTHOR
 

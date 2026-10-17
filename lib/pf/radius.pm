@@ -99,6 +99,27 @@ sub new {
     return $self;
 }
 
+=item * _unregister_on_unmatch
+
+When the role is recomputed for an autoregistered 802.1X node and no rule
+matched, pf::role::getNodeInfoForAutoReg leaves the node unregistered. If the
+connection profile unsets the role on unmatch ("Dot1x unset on unmatch"), keep
+it unregistered instead of registering it without a role, so it gets the
+registration role. A role computed anyway (ex: applied by a provisioner) keeps
+the node registered with it.
+
+=cut
+
+sub _unregister_on_unmatch {
+    my ($self, $args, $node_defaults) = @_;
+    return $FALSE unless ($node_defaults->{'status'} // '') eq 'unreg';
+    return $FALSE unless ($node_defaults->{'category'} // '') eq '';
+    my $profile = $args->{'profile'};
+    return $FALSE unless $profile && isenabled($profile->dot1xUnsetOnUnmatch);
+    $self->logger->info("No rule matched for $args->{'mac'} and the connection profile " . $profile->getName . " unsets the role on unmatch, the node stays unregistered");
+    return $TRUE;
+}
+
 =item * authorize - handling the RADIUS authorize call
 
 Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant
@@ -107,25 +128,6 @@ to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk in S
 See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
 
 =cut
-
-=item * _unregister_on_unmatch
-
-When the role is recomputed for an autoregistered 802.1X node and no rule
-matched, pf::role::getNodeInfoForAutoReg leaves the node unregistered. If the
-connection profile unsets the role on unmatch ("Dot1x unset on unmatch"), keep
-it unregistered instead of registering it without a role, so it gets the
-registration role.
-
-=cut
-
-sub _unregister_on_unmatch {
-    my ($self, $args, $node_defaults) = @_;
-    return $FALSE unless ($node_defaults->{'status'} // '') eq 'unreg';
-    my $profile = $args->{'profile'};
-    return $FALSE unless $profile && isenabled($profile->dot1xUnsetOnUnmatch);
-    $self->logger->info("No rule matched for $args->{'mac'} and the connection profile " . $profile->getName . " unsets the role on unmatch, the node stays unregistered");
-    return $TRUE;
-}
 
 # WARNING: You cannot change the return structure of this sub unless you also update its clients (like the SOAP 802.1x
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
@@ -328,6 +330,7 @@ sub authorize {
             $do_auto_reg = 0;
             $args->{'autoreg'} = 0;
             $node_obj->{status} = "unreg";
+            $node_obj->{autoreg} = "no";
         } else {
             $logger->debug("[$mac] auto-registering node");
             # automatic registration
@@ -1048,6 +1051,7 @@ sub vpn {
                 $do_auto_reg = 0;
                 $args->{'autoreg'} = 0;
                 $node_obj->{status} = "unreg";
+                $node_obj->{autoreg} = "no";
             } else {
                 $logger->debug("[$mac] auto-registering node");
                 # automatic registration
