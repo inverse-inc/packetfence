@@ -311,22 +311,31 @@ our %FIELD_VALIDATORS = (
     "general.domain" => sub { validate_pf_domain(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
     "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
     "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
-    "fencing.interception_proxy_port" => \&validate_port_list,
-    "inline.ports_redirect" => \&validate_port_protocol_list,
-    "inline.interfaceSNAT" => \&validate_interface_list,
+    "fencing.interception_proxy_port" => sub { validate_port_list(@_, 'lines') },
+    "inline.ports_redirect" => sub { validate_port_protocol_list(@_, 'commas') },
+    "inline.interfaceSNAT" => sub { validate_interface_list(@_, 'lines') },
+    "network.interfaceSNAT" => sub { validate_interface_list(@_, 'strict') },
 );
 
 =head2 _list_items
 
-Split a comma or line separated list
+Split a list the way it is read when the iptables rules are generated:
+
+ - lines: a list field, comma or line separated (lines are saved as commas)
+ - commas: a text field split on commas, spaces around them are ignored
+ - strict: a text field split on commas only, an item with spaces is invalid
 
 =cut
 
 sub _list_items {
-    my ($value) = @_;
+    my ($value, $mode) = @_;
     $value //= '';
+    if ($mode eq 'strict') {
+        return grep { $_ ne '' } split(/,/, $value);
+    }
     $value =~ s/^\s+|\s+$//g;
-    return grep { $_ ne '' } split(/\s*[,\r\n]+\s*/, $value);
+    my $separator = $mode eq 'lines' ? qr/\s*[,\r\n]+\s*/ : qr/\s*,\s*/;
+    return grep { $_ ne '' } split($separator, $value);
 }
 
 sub _is_port {
@@ -341,8 +350,8 @@ Validate a list of ports (ex: 8080,3128)
 =cut
 
 sub validate_port_list {
-    my (undef, $field) = @_;
-    for my $item (_list_items($field->value)) {
+    my (undef, $field, $mode) = @_;
+    for my $item (_list_items($field->value, $mode)) {
         next if _is_port($item);
         $field->add_error("'$item' is not a valid port (1-65535)");
     }
@@ -355,24 +364,24 @@ Validate a list of port/protocol (ex: 80/tcp,443/tcp)
 =cut
 
 sub validate_port_protocol_list {
-    my (undef, $field) = @_;
-    for my $item (_list_items($field->value)) {
+    my (undef, $field, $mode) = @_;
+    for my $item (_list_items($field->value, $mode)) {
         my ($port, $protocol, @rest) = split('/', $item);
-        next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /^(tcp|udp)$/;
+        next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /^(tcp|udp)$/i;
         $field->add_error("'$item' is not a valid port/protocol (ex: 80/tcp)");
     }
 }
 
 =head2 validate_interface_list
 
-Validate a list of network interface names
+Validate a list of network interface names, a trailing + is the iptables wildcard (ex: eth+)
 
 =cut
 
 sub validate_interface_list {
-    my (undef, $field) = @_;
-    for my $item (_list_items($field->value)) {
-        next if $item =~ /^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,14}$/;
+    my (undef, $field, $mode) = @_;
+    for my $item (_list_items($field->value, $mode)) {
+        next if $item =~ /^(?=.{1,15}$)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?$/;
         $field->add_error("'$item' is not a valid interface name");
     }
 }
