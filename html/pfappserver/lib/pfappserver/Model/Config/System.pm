@@ -181,10 +181,17 @@ sub restart_pfconfig {
 
 =head2 write_network_persistent
 
+Write the persistent OS network configuration of the interfaces.
+
+  $system->write_network_persistent($interfaces, $gateway, removed => \@interfaces);
+
+removed lists the interfaces that were just deleted: they are not in
+$interfaces anymore and must not be kept in the OS configuration.
+
 =cut
 
 sub write_network_persistent {
-    my ( $self, $interfaces_ref, $gateway ) = @_;
+    my ( $self, $interfaces_ref, $gateway, %options ) = @_;
     my $logger = get_logger();
 
     my ($status, $status_msg, $systemObj);
@@ -209,7 +216,7 @@ sub write_network_persistent {
     return ($status, $systemObj) if ( is_error($status) );
 
     # Write persistent network configurations
-    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface);
+    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface, %options);
     return ($status, $status_msg) if ( is_error($status) );
 
     $status_msg = "Persistent network configurations successfully written";
@@ -457,7 +464,7 @@ our $var_dir              ="/usr/local/pf/var/";
 =cut
 
 sub writeNetworkConfigs {
-    my ( $self, $interfaces_ref, $gateway, $gateway_interface ) = @_;
+    my ( $self, $interfaces_ref, $gateway, $gateway_interface, %options ) = @_;
     my $logger = get_logger();
 
     my $status_msg;
@@ -470,13 +477,31 @@ sub writeNetworkConfigs {
 
     my $template = Template->new({
         INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
-        OUTPUT_PATH     => $var_dir,
     });
-    $template->process( "interface_debian.tt", $vars, $_network_conf_file ) || $logger->error($template->error());
+    my $generated = '';
+    $template->process( "interface_debian.tt", $vars, \$generated ) || $logger->error($template->error());
 
     if ( $template->error() ) {
         $status_msg = "Error while writing system network interfaces configuration";
         $logger->error("$status_msg");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Keep what PacketFence doesn't manage (bonds, bridges, MTU, DNS, other interfaces, ...)
+    my $existing = '';
+    if (open(my $fh, '<', "$_network_conf_dir$_network_conf_file")) {
+        local $/;
+        $existing = <$fh> // '';
+        close($fh);
+    }
+    my $content = merge_interfaces_config($generated, $existing, [ keys %{$interfaces_ref // {}} ], $options{removed});
+
+    if (open(my $fh, '>', "$var_dir$_network_conf_file")) {
+        print $fh $content;
+        close($fh);
+    } else {
+        $status_msg = "Error while writing system network interfaces configuration";
+        $logger->error("$status_msg: $!");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
     my $status = safe_pf_run('sudo', 'tee', "$_network_conf_dir$_network_conf_file", {stdin => "$var_dir$_network_conf_file", redirect_stderr_to_stdout => 1});
@@ -492,6 +517,120 @@ sub writeNetworkConfigs {
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
+}
+
+# Options of an iface stanza that PacketFence manages, the generated value always wins
+our %MANAGED_OPTIONS = map { $_ => 1 } qw(address netmask gateway broadcast network);
+
+=head2 parse_interfaces_config
+
+Parse an /etc/network/interfaces content (ifupdown) into a list of items:
+iface/mapping stanzas with their option lines, auto/allow-* lines, source lines
+and anything else
+
+=cut
+
+sub parse_interfaces_config {
+    my ($content) = @_;
+    my @items;
+    my $stanza;
+    $content //= '';
+    $content =~ s/\\\n\s*/ /g;
+    for my $line (split /\n/, $content) {
+        next if $line =~ /^\s*(#|$)/;
+        $line =~ s/^\s+|\s+$//g;
+        my ($keyword, @args) = split /\s+/, $line;
+        if ($keyword eq 'iface') {
+            $stanza = { type => 'iface', name => $args[0], family => $args[1] // '', method => $args[2] // '', header => $line, options => [] };
+            push @items, $stanza;
+        } elsif ($keyword eq 'mapping') {
+            $stanza = { type => 'mapping', name => $args[0], header => $line, options => [] };
+            push @items, $stanza;
+        } elsif ($keyword eq 'auto' || $keyword =~ /^allow-/) {
+            undef $stanza;
+            push @items, { type => 'auto', keyword => $keyword, names => \@args };
+        } elsif ($keyword eq 'source' || $keyword eq 'source-directory') {
+            undef $stanza;
+            push @items, { type => 'source', line => $line };
+        } elsif ($stanza) {
+            push @{$stanza->{options}}, $line;
+        } else {
+            push @items, { type => 'other', line => $line };
+        }
+    }
+    return \@items;
+}
+
+=head2 merge_interfaces_config
+
+Merge the configuration generated for the interfaces managed by PacketFence
+with the existing /etc/network/interfaces so that what PacketFence doesn't
+manage is not lost:
+
+ - stanzas of the interfaces not managed by PacketFence are kept as is
+ - the extra options (mtu, bond-*, bridge_ports, dns-*, ...) of a managed
+   interface are kept, PacketFence only sets its address, netmask and gateway
+ - a managed interface without an address keeps its non static stanza (ex:
+   manual for a bond member), a static one is dropped as its IP was removed
+ - source and source-directory lines are kept
+ - the stanzas and auto lines of the removed interfaces (just deleted in
+   PacketFence) are dropped
+
+=cut
+
+sub merge_interfaces_config {
+    my ($generated, $existing, $managed_names, $removed_names) = @_;
+    my %managed = map { $_ => 1 } ('lo', @{$managed_names // []});
+    my %removed = map { $_ => 1 } grep { !$managed{$_} } @{$removed_names // []};
+    my $new = parse_interfaces_config($generated);
+    my $old = parse_interfaces_config($existing);
+
+    my (@out, %new_iface, %seen_auto);
+    for my $item (@$new) {
+        $new_iface{"$item->{name} $item->{family}"} = $item if $item->{type} eq 'iface';
+    }
+    my %old_iface = map { ("$_->{name} $_->{family}" => $_) } grep { $_->{type} eq 'iface' } @$old;
+
+    for my $item (grep { $_->{type} eq 'source' } @$old) {
+        push @out, $item->{line};
+    }
+    for my $item (grep { $_->{type} eq 'auto' } @$new, @$old) {
+        # The auto lines of managed interfaces come from the generated configuration only
+        my @names = grep { !$seen_auto{"$item->{keyword} $_"}++ } @{$item->{names}};
+        if (!grep { $_ eq $item } @$new) {
+            @names = grep { !$managed{$_} && !$removed{$_} } @names;
+        }
+        push @out, join(' ', $item->{keyword}, @names) if @names;
+    }
+
+    for my $item (@$new) {
+        next unless $item->{type} eq 'iface';
+        my @options = @{$item->{options}};
+        my %set = map { ((split /\s+/, $_)[0] => 1) } @options;
+        if (my $previous = $old_iface{"$item->{name} $item->{family}"}) {
+            for my $option (@{$previous->{options}}) {
+                my ($key) = split /\s+/, $option;
+                next if $MANAGED_OPTIONS{$key} || $set{$key};
+                push @options, $option;
+            }
+        }
+        push @out, '', $item->{header}, map { "    $_" } @options;
+    }
+
+    for my $item (@$old) {
+        if ($item->{type} eq 'iface') {
+            next if $new_iface{"$item->{name} $item->{family}"} || $removed{$item->{name}};
+            next if $managed{$item->{name}} && ($item->{method} eq 'static' || $item->{name} eq 'lo');
+        } elsif ($item->{type} ne 'mapping' && $item->{type} ne 'other') {
+            next;
+        }
+        if ($item->{type} eq 'other') {
+            push @out, $item->{line};
+            next;
+        }
+        push @out, '', $item->{header}, map { "    $_" } @{$item->{options}};
+    }
+    return join("\n", @out) . "\n";
 }
 
 =head1 AUTHOR
