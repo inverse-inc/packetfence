@@ -23,7 +23,18 @@
                                 <key>PayloadCertificateAnchorUUID</key>
                                 <array>
                                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
+                                        [%# The RADIUS CA is also an anchor so that a renewed server certificate is trusted %]
+                                        [% IF for_ios AND provisioner.raw_ca_cert_string() != "" %]
+                                        <string>EADECED2-961E-4A8B-85B4-E22A70FBF684</string>
+                                        [% END %]
                                 </array>
+                                [% IF for_ios AND provisioner.raw_ca_cert_string() != "" %]
+                                [%# Only the RADIUS server name is accepted among the certificates issued by the CA %]
+                                <key>TLSTrustedServerNames</key>
+                                <array>
+                                        <string>[% provisioner.server_certificate_cn() %]</string>
+                                </array>
+                                [% END %]
                                 <key>UserName</key>
                                 <string>[% username %]</string>
                         </dict>
@@ -108,7 +119,7 @@
                         <key>PayloadType</key>
                         <string>com.apple.security.root</string>
                         <key>PayloadUUID</key>
-                        <string>c83817c4-d7c4-11e4-b9d6-696969696969</string>
+                        <string>EADECED2-961E-4A8B-85B4-E22A70FBF684</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
