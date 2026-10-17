@@ -668,7 +668,7 @@ sub security_event_trigger {
         my $class = class_view($security_event_id);
         if (!$class) {
             $logger->error(
-                "security_event $security_event_id triggered not found." .
+                "security_event $security_event_id triggered not found. " .
                 "Not adding security_event."
             );
             next;
