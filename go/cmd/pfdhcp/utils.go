@@ -904,7 +904,10 @@ func IsDisabled(hostname string) bool {
 // legacy PXE ROMs look for them: they often don't request options 66/67 and
 // only read the next-server and boot file of the BOOTP header.
 func setBootFields(p dhcp.Packet, options dhcp.Options) {
-	if server := strings.TrimRight(string(options[dhcp.OptionTFTPServerName]), "\x00"); server != "" {
+	// Option 66 is a server name, but saved with the ipaddr type it holds the 4 bytes of an IPv4 address
+	if raw := options[dhcp.OptionTFTPServerName]; len(raw) == net.IPv4len && !isHostnameBytes(raw) {
+		p.SetSIAddr(net.IP(raw).To4())
+	} else if server := strings.TrimRight(string(raw), "\x00"); server != "" {
 		if ip := net.ParseIP(server).To4(); ip != nil {
 			p.SetSIAddr(ip)
 		}
@@ -915,4 +918,14 @@ func setBootFields(p dhcp.Packet, options dhcp.Options) {
 	if file := strings.TrimRight(string(options[dhcp.OptionBootFileName]), "\x00"); file != "" && len(file) < 128 {
 		p.SetFile([]byte(file))
 	}
+}
+
+// isHostnameBytes tells if the value only has the characters of a host name or an IP address
+func isHostnameBytes(value []byte) bool {
+	for _, c := range value {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_') {
+			return false
+		}
+	}
+	return true
 }

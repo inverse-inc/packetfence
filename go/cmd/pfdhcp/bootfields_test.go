@@ -36,6 +36,26 @@ func TestSetBootFields(t *testing.T) {
 		t.Errorf("sname = %q, want tftp.example.com", got)
 	}
 
+	// Option 66 saved with the ipaddr type holds the 4 bytes of the address: siaddr only
+	reply = dhcp.ReplyPacket(req, dhcp.Offer, net.IPv4(192, 168, 43, 1), net.IPv4(192, 168, 43, 10), time.Minute, nil)
+	setBootFields(reply, dhcp.Options{dhcp.OptionTFTPServerName: net.IPv4(192, 168, 43, 5).To4()})
+	if got := reply.SIAddr().String(); got != "192.168.43.5" {
+		t.Errorf("siaddr = %s, want 192.168.43.5 for a 4 bytes option", got)
+	}
+	if len(reply.SName()) != 0 {
+		t.Errorf("sname = %q, want empty for a 4 bytes option", reply.SName())
+	}
+
+	// A 4 characters host name is still a name
+	reply = dhcp.ReplyPacket(req, dhcp.Offer, net.IPv4(192, 168, 43, 1), net.IPv4(192, 168, 43, 10), time.Minute, nil)
+	setBootFields(reply, dhcp.Options{dhcp.OptionTFTPServerName: []byte("tftp")})
+	if got := reply.SIAddr().String(); got != "0.0.0.0" {
+		t.Errorf("siaddr = %s, want 0.0.0.0 for a 4 characters host name", got)
+	}
+	if got := string(reply.SName()); got != "tftp" {
+		t.Errorf("sname = %q, want tftp", got)
+	}
+
 	// Without options 66/67 the BOOTP fields stay empty
 	reply = dhcp.ReplyPacket(req, dhcp.Offer, net.IPv4(192, 168, 43, 1), net.IPv4(192, 168, 43, 10), time.Minute, nil)
 	setBootFields(reply, dhcp.Options{})
