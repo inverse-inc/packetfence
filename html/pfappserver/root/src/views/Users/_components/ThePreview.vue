@@ -68,11 +68,15 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
   const usersTemplates = ref([])
   const users = computed(() => $store.state['$_users'].createdUsers)
+  // the previews of an earlier round (the switch toggled again before they returned) are ignored
+  let previewRound = 0
   watch([users, withAup], () => {
+    const round = ++previewRound
     usersTemplates.value = []
     users.value.forEach(user => {
       $store.dispatch('$_users/previewEmail', { ...user, withAup: withAup.value }).then(response => {
-        usersTemplates.value.push({ pid: user.pid, email: user.email, html: response.body })
+        if (round === previewRound)
+          usersTemplates.value.push({ pid: user.pid, email: user.email, html: response.body })
       })
     })
   }, { immediate: true })

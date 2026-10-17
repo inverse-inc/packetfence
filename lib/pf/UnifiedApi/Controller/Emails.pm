@@ -15,6 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Data::Dumper;
 use MIME::Base64;
+use Encode qw();
 use pf::error qw(is_error);
 use pf::config::util qw();
 
@@ -46,7 +47,8 @@ sub preview {
     return unless($data);
 
     my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args});
-    return $self->render(json => {body => MIME::Base64::decode($msg->body_as_string)});
+    # The body is UTF-8 encoded, decode it so that the JSON doesn't encode it a second time
+    return $self->render(json => {body => Encode::decode_utf8(MIME::Base64::decode($msg->body_as_string))});
 }
 
 sub send_email {
