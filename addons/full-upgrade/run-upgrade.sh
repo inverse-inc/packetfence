@@ -192,12 +192,13 @@ function handle_pkgnew_file() {
   echo "Attempting a dry-run of the patch on $non_pkgnew_file"
   if ! patch -p1 -f --dry-run < $patch_file; then
     mv -f $pkgnew_file $kept_pkgnew_file
-    echo "Patching $non_pkgnew_file failed. You will keep the current configuration file ($non_pkgnew_file) BUT, please, check $kept_pkgnew_file file if some modifications are needed in your config file $non_pkgnew_file.\nThis should be addressed manually after the upgrade is completed. Previous configuration is restored. Press enter to continue..."
+    echo -e "Patching $non_pkgnew_file failed. You will keep the current configuration file ($non_pkgnew_file) BUT, please, check $kept_pkgnew_file file if some modifications are needed in your config file $non_pkgnew_file.\nThis should be addressed manually after the upgrade is completed. Previous configuration is restored. Press enter to continue..."
     cp -a $backup_file $non_pkgnew_file
     read
   else
     echo "Dry-run completed successfully, applying the patch"
-    patch -p1 -f < $patch_file
+    # No <file>.orig when a hunk applies with an offset: the previous file is already kept as $backup_file
+    patch -p1 -f --no-backup-if-mismatch < $patch_file
     rm -f $pkgnew_file
   fi
 
