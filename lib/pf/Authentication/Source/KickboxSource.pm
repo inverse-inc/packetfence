@@ -46,7 +46,7 @@ sub authenticate {
 
     # Checking if it's valid first so we don't do unecessary hits on Kickbox
     unless(Email::Valid->address($username)) {
-        $logger->info("$username is not a valid e-mail address. Not verifying with kickbox.io");
+        $logger->info("$username is not a valid e-mail address. Not verifying with Kickbox");
         return ($FALSE, "Invalid e-mail");
     }
 
@@ -74,17 +74,17 @@ sub authenticate {
         my $info = decode_json($response_body);
         if( any {$_ eq $info->{result}} @ACCEPTABLE_RESULTS){
             $logger->info("$info->{result} is acceptable for e-mail address $username. Considering as valid.");
-            return ($TRUE, "E-mail is valid according to kickbox.io")
+            return ($TRUE, "E-mail is valid according to Kickbox")
         }
         else {
             $logger->info("$info->{result} is NOT acceptable for e-mail address $username. Considering as invalid.");
-            return ($FALSE, "E-mail is not acceptable according to kickbox.io");
+            return ($FALSE, "E-mail is not acceptable according to Kickbox");
         }
     }
     else {
         my $curl_error = $curl->errbuf;
         $logger->error("e-mail could not be validated. Server replied with $response_body. Curl error : $curl_error");
-        return ($FALSE, "Error while contacting kickbox.io");
+        return ($FALSE, "Error while contacting Kickbox");
     }
 
 

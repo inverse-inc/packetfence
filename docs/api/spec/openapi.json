@@ -31971,7 +31971,7 @@
                   "type" : "array"
                },
                "api_key" : {
-                  "description" : "Kickbox.io API key.",
+                  "description" : "Kickbox API key.",
                   "type" : "string"
                },
                "authentication_rules" : {
