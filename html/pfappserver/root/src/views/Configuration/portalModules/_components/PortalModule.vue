@@ -3,7 +3,7 @@
     <b-row align-v="center" class="portal-module-row row-nowrap" :class="{ first: index === 0, last: (last && !isChained), disconnected: isChained, 'first-in-chain': firstInChain }">
       <icon v-if="!isChained" class="connector-arrow" name="caret-right" />
       <portal-module-button :class="{ first: index === 0, last: (last && (isRoot || !isChained)), leaf: !children }"
-        :module="currentModule" :is-root="isRoot" v-bind="$attrs" @remove="onRemove" />
+        :module="currentModule" :is-root="isRoot" :removable="isRoot || parents.length > 0" v-bind="$attrs" @remove="onRemove" />
       <!-- vertical children -->
       <b-col v-if="!isRoot && !isChained && children" class="portal-module-col" :class="{ dragging: dragging }">
         <draggable v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"

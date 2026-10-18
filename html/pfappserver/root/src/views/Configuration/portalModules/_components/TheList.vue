@@ -291,8 +291,14 @@ const setup = (props, context) => {
 
   const onDelete = id => {
     const { description } = getModule(id) || {}
-    $root.$bvModal.msgBoxConfirm(i18n.t('Delete module {module}?', { module: description || id }), {
-      title: i18n.t('Delete Module'),
+    const h = $root.$createElement
+    // the list is reloaded after the delete, which drops the changes not saved in the tree
+    const message = h('div', [
+      h('p', { class: 'mb-0' }, description || id),
+      isMutated.value && h('p', { class: 'mt-2 mb-0 text-warning' }, i18n.t('The unsaved changes of the portal modules will be lost.'))
+    ])
+    $root.$bvModal.msgBoxConfirm(message, {
+      title: i18n.t('Delete Module?'),
       okVariant: 'danger',
       okTitle: i18n.t('Delete'),
       cancelTitle: i18n.t('Cancel'),
