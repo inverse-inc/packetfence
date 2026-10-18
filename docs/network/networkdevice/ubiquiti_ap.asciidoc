@@ -97,7 +97,7 @@ Where :
 * *wsTransport* is the protocol used to connect to port 8443 of the Unifi controller and should be HTTPS. This is configured in the 'Web Services' tab of the switch.
 * *wsUser* is a valid administrator username on your Unifi controller. This is configured in the 'Web Services' tab of the switch.
 * *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
-* *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
+* *controllerIp* is the IP address or the FQDN of your Unifi controller (e.g. a cloud hosted controller). A FQDN must resolve from the PacketFence server. This is configured in the 'Definition' tab of the switch.
 
 ==== VLAN Enforcement
 
