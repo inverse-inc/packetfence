@@ -129,7 +129,7 @@ const props = {
 }
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import { notifyAlarm } from '../../_composables/useAlarmNotifications'
+import { notifyHostAlarms } from '../../_composables/useAlarmNotifications'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import allSections from '../_config'
@@ -236,9 +236,7 @@ const setup = (props, context) => {
     if ($store.state['$_status'].allCharts) {
       Object.values(cluster.value).forEach(({ management_ip: ip }) => {
         $store.dispatch(`$_status/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
-          Object.keys(alarms).forEach(url => {
-            notifyAlarm($store, hostname, url, alarms[url])
-          })
+          notifyHostAlarms($store, hostname, alarms)
           getAlarmsTimer.value = setTimeout(getAlarms, alarmsInterval.value)
         })
       })
