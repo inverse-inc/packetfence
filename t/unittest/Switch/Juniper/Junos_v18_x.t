@@ -34,8 +34,8 @@ my $switch = pf::Switch::Juniper::Junos_v18_x->new({ id => 'test', ip => '1.1.1.
 # acl_chewer: ACLs that translate to a Juniper-Switching-Filter term
 
 is(
-    $switch->acl_chewer("permit tcp any host 192.168.40.10 eq 443", 'testrole'),
-    "Match Ip-protocol 6, Destination-ip 192.168.40.10, Destination-port 443 Action allow\n",
+    $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443", 'testrole'),
+    "Match Ip-protocol 6, Destination-ip 192.0.2.10, Destination-port 443 Action allow\n",
     "protocol, host destination and port become one term"
 );
 
@@ -89,9 +89,9 @@ is(
 );
 
 is(
-    $switch->acl_chewer("permit udp any any eq 53\npermit tcp any host 192.168.40.10 eq 443\ndeny ip any any", 'testrole'),
+    $switch->acl_chewer("permit udp any any eq 53\npermit tcp any host 192.0.2.10 eq 443\ndeny ip any any", 'testrole'),
     "Match Ip-protocol 17, Destination-port 53 Action allow\n"
-    . "Match Ip-protocol 6, Destination-ip 192.168.40.10, Destination-port 443 Action allow\n"
+    . "Match Ip-protocol 6, Destination-ip 192.0.2.10, Destination-port 443 Action allow\n"
     . "Match Destination-ip 0.0.0.0/0 Action deny\n",
     "each ACL line becomes its own term, in order"
 );
