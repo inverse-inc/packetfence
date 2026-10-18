@@ -4193,6 +4193,28 @@ sub find_user_by_psk {
     return undef;
 }
 
+=head2 locationlog_for_disconnect
+
+The open locationlog entry of a MAC, or when there's none its last entry
+(history included) if it was on this switch. The locationlog can already be
+closed when the deauthentication runs: the node removal closes it right after
+queueing the deauthentication.
+
+=cut
+
+sub locationlog_for_disconnect {
+    my ($self, $mac) = @_;
+    my $locationlog = locationlog_view_open_mac($mac);
+    return $locationlog if $locationlog;
+    my $last = locationlog_last_entry_mac(clean_mac($mac));
+    return undef unless $last;
+    my %ids = map { $_ => 1 } grep { defined($_) && $_ ne '' } ($self->{_id}, $self->{_ip});
+    foreach my $field (qw(switch switch_ip switch_mac)) {
+        return $last if defined($last->{$field}) && $ids{$last->{$field}};
+    }
+    return undef;
+}
+
 sub radius_deauth_connection_info {
     my ($self, $send_disconnect_to) = @_;
 
