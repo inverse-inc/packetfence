@@ -324,7 +324,7 @@ sub update {
     my $id = $self->id;
     my ($status, $message) = $model->update($id, \%data);
     if (is_error($status)) {
-        $self->render_error($status, $message);
+        return $self->render_error($status, $message);
     }
 
     my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
