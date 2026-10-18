@@ -169,6 +169,8 @@ document.addEventListener('DOMContentLoaded', function () {
       parent.appendChild(template);
       template.insertBefore(input, button);
       button.addEventListener('click', function (event) {
+        // the button is a link to '#': don't follow it (the preview reloads the page and loses the typed values)
+        event.preventDefault();
         var type = '', label = '', state = '';
         if (button.dataset.state === 'hide') {
           label = button.dataset.hide;
@@ -195,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function () {
         input = rep;
         button.dataset.state = state;
         button.innerHTML = label;
-        return false;
       });
     });
   }
