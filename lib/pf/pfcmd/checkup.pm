@@ -1177,8 +1177,41 @@ sub cluster {
             }
         }
     }
+    else {
+        # The zones can have different interfaces, but an interface not defined for a server is ignored on it
+        add_problem($WARN, $_) for multi_zone_interface_problems(\@ints, \@servers, \%pf::cluster::all_cluster_sections);
+    }
 
     _check_database_host_in_cluster();
+}
+
+=item multi_zone_interface_problems
+
+The interfaces of pf.conf that are ignored on servers of a multi-zone cluster
+because cluster.conf doesn't define them for these servers: on a server of this
+zone when other servers of the zone have it (a whole zone without an interface
+is fine), or on every server when no server of any zone has it.
+
+Takes the interfaces of pf.conf, the servers of this zone (with the CLUSTER
+entry of the zone) and the servers of each zone, returns the messages.
+
+=cut
+
+sub multi_zone_interface_problems {
+    my ($ints, $zone_servers, $all_zones) = @_;
+    my @problems;
+    my @all_servers = map { @{$_ // []} } values %{$all_zones // {}};
+    foreach my $int (map { $_->{name} } @$ints) {
+        my $section = "interface $int";
+        my @missing = grep { !exists $_->{$section} } @$zone_servers;
+        if (!grep { exists $_->{$section} } @all_servers) {
+            push @problems, "Interface $int of pf.conf is defined for no server in cluster.conf: it is ignored on every server";
+        }
+        elsif (@missing && @missing < @$zone_servers) {
+            push @problems, "Interface $int is defined for other servers of this zone but not for $_->{host} in cluster.conf: it is ignored on $_->{host}" for @missing;
+        }
+    }
+    return @problems;
 }
 
 

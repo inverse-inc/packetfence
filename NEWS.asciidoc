@@ -34,6 +34,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Cluster: an interface of pf.conf that cluster.conf doesn't define for a server is now ignored on that server, instead of being used there with the IP address of the server where pf.conf was configured (in a multi-zone cluster, keepalived refused to start on the members of a zone without that interface). In a multi-zone cluster, `pfcmd checkup` warns about an interface ignored on a server while the other servers of its zone have it, and about an interface defined for no server, including the ones without an IP address (e.g. monitor or dhcp-listener), which now need their sections in cluster.conf
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on
