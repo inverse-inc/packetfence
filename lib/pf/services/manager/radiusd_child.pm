@@ -1677,8 +1677,13 @@ sub _extract_radiusd_certificates {
     foreach my $ext (@vals){
         foreach my $key (keys %ConfigEAP) {
             foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
-                my $ckey = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
-                my $mkey = pf::ssl::rsa_from_string($ckey);
+                my $key_file = "$install_dir/conf/ssl/radius_".$key."_".$tls.".key";
+                my $ckey = read_file($key_file);
+                # An EC or a password-protected key can't be loaded: the certificates can't be compared with it
+                my $mkey = eval { pf::ssl::rsa_from_string($ckey) };
+                unless ($mkey) {
+                    get_logger->warn("Unable to load the private key $key_file to tell the server certificate from its CAs, keeping the CA certificates only");
+                }
                 my $cext = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".".$ext);
                 my @certs = split_pem($cext);
                 foreach my $cert (@certs) {
@@ -1687,10 +1692,15 @@ sub _extract_radiusd_certificates {
                         get_logger->warn("Skipping a certificate that can't be decoded in $install_dir/conf/ssl/radius_${key}_${tls}.${ext}");
                         next;
                     }
-                    my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
-                    unless($key_match_res) {
-                        $hcerts{$cert} = $mcert;
+                    if ($mkey) {
+                        my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
+                        next if $key_match_res;
                     }
+                    else {
+                        my $basic_constraints = eval { $mcert->extensions_by_name->{basicConstraints} };
+                        next unless $basic_constraints && $basic_constraints->basicC('ca');
+                    }
+                    $hcerts{$cert} = $mcert;
                 }
             }
         }
