@@ -112,7 +112,10 @@ sub userIsAuthenticated : Private {
         my $has_dpsk_provisioner = $FALSE;
 
         foreach my $provisioner (@provisioners) {
-            next unless $provisioner->isa("pf::provisioner::dpsk");
+            # The DPSK provisioner, or a mobileconfig based one (Apple, Android, Windows) with DPSK enabled,
+            # generates the PSK when the user doesn't have one yet
+            next unless $provisioner->isa("pf::provisioner::dpsk")
+                || ($provisioner->isa("pf::provisioner::mobileconfig") && isenabled($provisioner->dpsk));
             $has_dpsk_provisioner = $TRUE;
             my $dpsk = $provisioner->generate_dpsk($pid);
             if (!$dpsk) {
@@ -121,7 +124,7 @@ sub userIsAuthenticated : Private {
             $c->stash( psk => $dpsk);
         }
 
-        # Without a DPSK provisioner, show the PSK the user already has (if any)
+        # Without a provisioner generating the PSK, show the PSK the user already has (if any)
         if (!$has_dpsk_provisioner && defined $pid) {
             my $person = person_view($pid);
             if ($person && defined $person->{psk} && $person->{psk} ne '') {
