@@ -107,6 +107,7 @@ sub section_data {
 
 
 our $RSYSLOG_MAIN_CONFIG = '/etc/rsyslog.conf';
+our $RSYSLOG_DROPIN_DIR = '/etc/rsyslog.d';
 
 =head2 inputs_config
 
@@ -118,25 +119,33 @@ On a first start without a state file, it starts at the end of the journal.
 
 It is configured with module() since the distributions load imuxsock that
 way, which makes the legacy directives ($SystemLogRateLimitInterval, ...)
-invalid. When the main configuration already loads imjournal (e.g. EL), it
-is left as is.
+invalid. When the configuration already loads imjournal (e.g. the main
+configuration of EL), it isn't loaded again (rsyslog refuses it). Its rate
+limiting is then disabled with the legacy directives, which still apply to a
+module loaded with module() (unlike the imuxsock ones).
 
 =cut
 
 sub inputs_config {
-    return '' if main_config_loads_imjournal();
+    return qq{\$imjournalRatelimitInterval 0\n\$imjournalRatelimitBurst 0\n} if main_config_loads_imjournal();
     return qq{module(load="imjournal" StateFile="imjournal.state" IgnorePreviousMessages="on" Ratelimit.Interval="0" Ratelimit.Burst="0")\n};
 }
 
 =head2 main_config_loads_imjournal
 
-Whether the main rsyslog configuration loads imjournal
+Whether the rsyslog configuration already loads imjournal: the main file, or
+another file of rsyslog.d than the one generated here. Loading it a second time
+would be ignored, with its parameters.
 
 =cut
 
 sub main_config_loads_imjournal {
-    my $config = eval { read_file($RSYSLOG_MAIN_CONFIG) } // '';
-    return $config =~ /^\s*(?:module\s*\(\s*load\s*=\s*"imjournal"|\$ModLoad\s+imjournal\b)/m ? 1 : 0;
+    my @files = ($RSYSLOG_MAIN_CONFIG, grep { $_ ne $rsyslog_packetfence_config_file } sort glob("$RSYSLOG_DROPIN_DIR/*.conf"));
+    foreach my $file (@files) {
+        my $config = eval { read_file($file) } // '';
+        return 1 if $config =~ /^\s*(?:module\s*\(\s*load\s*=\s*["']imjournal["']|\$ModLoad\s+imjournal\b)/m;
+    }
+    return 0;
 }
 
 =head2 remove_legacy_inputs_config
