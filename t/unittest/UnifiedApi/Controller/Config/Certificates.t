@@ -56,7 +56,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 50;
+use Test::More tests => 55;
 use Test::Mojo;
 use Test::NoWarnings;
 
@@ -156,7 +156,7 @@ $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_ce
 # Generate independent CA/server bundles with validity relative to this run.
 # Fixed PEM fixtures eventually expire and turn the successful update into a 422.
 sub generate_radius_bundle {
-    my ($name) = @_;
+    my ($name, $server_extra_ext) = @_;
     my $dir = File::Temp::tempdir(CLEANUP => 1);
     # The CA is signed through "x509 -req" rather than "req -x509" so that the
     # extensions below are the only ones present. "req -x509" adds its own
@@ -167,7 +167,8 @@ sub generate_radius_bundle {
         . "subjectKeyIdentifier=hash\n");
     write_file("$dir/server.ext", "basicConstraints=critical,CA:FALSE\n"
         . "keyUsage=critical,digitalSignature,keyEncipherment\n"
-        . "extendedKeyUsage=serverAuth\n");
+        . "extendedKeyUsage=serverAuth\n"
+        . ($server_extra_ext // ''));
     my @commands = (
         ['genrsa', '-out', "$dir/ca.key", '2048'],
         ['req', '-new', '-batch', '-key', "$dir/ca.key",
@@ -240,6 +241,20 @@ $t->get_ok('/api/v1/config/certificate/http/info')
 # Without the chain, it can't be verified (the certificate has no AIA to fetch it)
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $chain_cert, private_key => $chain_key })
   ->status_is(422);
+
+# An empty intermediate_cas doesn't hide the chain pasted in the certificate field
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => "$chain_cert$chain_ca_cert", private_key => $chain_key, intermediate_cas => [] })
+  ->status_is(200);
+
+# The info of a certificate file without intermediates doesn't fetch them through the AIA
+{
+    my ($aia_cert, $aia_key) = generate_radius_bundle('aia', "authorityInfoAccess=caIssuers;URI:http://127.0.0.1:9/ca.crt\n");
+    write_file($server_cert, $aia_cert);
+    write_file($server_key, $aia_key);
+    $t->get_ok('/api/v1/config/certificate/http/info')
+      ->status_is(200)
+      ->json_hasnt('/intermediate_cas/0');
+}
 
 # test CSR with missing information
 $t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {})
