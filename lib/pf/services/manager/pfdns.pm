@@ -32,8 +32,9 @@ use pf::file_paths qw(
 );
 
 use pf::util;
+use pf::util::dns;
 use pf::log;
-use File::Slurp qw(read_file write_file);
+use File::Slurp qw(write_file);
 
 extends 'pf::services::manager';
 
@@ -76,23 +77,12 @@ EOT
 
     my $content = '';
     $tt->process("$conf_dir/pfdns.conf", \%tags, \$content) or die $tt->error();
-    unless (has_resolv_nameservers()) {
-        get_logger->warn("No nameserver found in $RESOLV_CONF, pfdns will not forward the queries it doesn't handle");
+    # The forward plugin refuses to start when pointed to a resolv.conf without a nameserver
+    unless (@{ pf::util::dns::get_resolv_dns_servers($RESOLV_CONF) }) {
+        get_logger->warn("No nameserver found in $RESOLV_CONF, pfdns will not forward the queries it doesn't handle. Restart pfdns once a nameserver is configured");
         $content = remove_resolv_conf_forwards($content);
     }
     write_file("$generated_conf_dir/pfdns.conf", $content);
-}
-
-=head2 has_resolv_nameservers
-
-Whether the system resolv.conf defines at least one nameserver.
-The forward plugin refuses to start when pointed to a resolv.conf without one.
-
-=cut
-
-sub has_resolv_nameservers {
-    my $resolv_conf = eval { read_file($RESOLV_CONF) } // '';
-    return $resolv_conf =~ /^\s*nameserver\s+\S+/m ? 1 : 0;
 }
 
 =head2 remove_resolv_conf_forwards

@@ -16,8 +16,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 7;
-use File::Temp qw(tempfile);
+use Test::More tests => 4;
 use pf::services::manager::pfdns;
 
 my $content = <<'CONF';
@@ -43,12 +42,6 @@ unlike($out, qr{/etc/resolv\.conf\s*(\{|\n)}, "resolv.conf forwards removed");
 like($out, qr{forward example\.com\. 10\.0\.0\.1}, "domain forward kept");
 like($out, qr{forward \. 10\.0\.0\.53 \{\n\s+network_source}, "inline forward kept");
 like($out, qr{pfdns \{\n\s+\}}, "pfdns block kept");
-
-sub resolv { my ($fh, $f) = tempfile(); print $fh $_[0]; close $fh; $pf::services::manager::pfdns::RESOLV_CONF = $f; pf::services::manager::pfdns::has_resolv_nameservers() }
-is(resolv("# empty\nsearch example.com\n"), 0, "no nameserver");
-is(resolv("nameserver 2001:db8::53\n"), 1, "ipv6 nameserver");
-$pf::services::manager::pfdns::RESOLV_CONF = '/nonexistent';
-is(pf::services::manager::pfdns::has_resolv_nameservers(), 0, "missing file");
 
 =head1 AUTHOR
 
