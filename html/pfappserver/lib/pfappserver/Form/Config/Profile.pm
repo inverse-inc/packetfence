@@ -20,6 +20,7 @@ with 'pfappserver::Form::Config::ProfileCommon';
 
 use pf::config qw(%Config);
 use pf::condition_parser;
+use pf::factory::condition::profile;
 use List::MoreUtils qw(uniq);
 
 =head1 FIELDS
@@ -129,6 +130,13 @@ after validate => sub {
         my ($conditions, $err) = pf::condition_parser::parse_condition_string($advanced_filter);
         if ($err) {
             $self->field('advanced_filter')->add_error($err->{message});
+        } elsif ($condition_str ne '') {
+            # Build it like the connection profiles do, to report invalid values (e.g. dates)
+            eval { pf::factory::condition::profile->instantiate_advanced($condition_str) };
+            if (my $build_err = $@) {
+                chomp($build_err);
+                $self->field('advanced_filter')->add_error($build_err);
+            }
         }
     }
 };
