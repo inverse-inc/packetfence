@@ -51,8 +51,11 @@ mariadb_args=""
 if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
-    read -s mariadb_root_pass
-    mariadb_args="$mariadb_args -p$mariadb_root_pass"
+    read -rs mariadb_root_pass
+    echo
+    # Passed through the environment so passwords with spaces or quotes survive
+    # the unquoted $mariadb_args expansions below.
+    export MYSQL_PWD="$mariadb_root_pass"
   fi
 
   db_name=$(/usr/local/pf/bin/get_pf_conf database db)
