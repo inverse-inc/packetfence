@@ -25,9 +25,6 @@ use pf::config::crypt::object::freeze;
 
 use base 'pfconfig::backend';
 
-our $DB_CONNECT_TIMEOUT = 5;
-our $DB_READ_WRITE_TIMEOUT = 15;
-
 sub init {
     my ($self) = @_;
     $self->{should_clear} = 0;
@@ -74,8 +71,12 @@ sub _get_db {
     my $compression = ($cfg->{host} // '') eq 'localhost' ? 0 : 1;
     eval {
         # pfconfig serves one request at a time: bound the DB calls so a stalled database
-        # (e.g. a galera flow control pause) can't block the whole configuration service
-        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket};mysql_connect_timeout=$DB_CONNECT_TIMEOUT;mysql_read_timeout=$DB_READ_WRITE_TIMEOUT;mysql_write_timeout=$DB_READ_WRITE_TIMEOUT",
+        # (e.g. a galera flow control pause) can't block the whole configuration service.
+        # Its request alarm can't interrupt a blocking libmysqlclient call, only these socket timeouts can.
+        my $connect_timeout = $cfg->{connect_timeout} || 5;
+        my $read_timeout = $cfg->{read_timeout} || 15;
+        my $write_timeout = $cfg->{write_timeout} || 15;
+        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket};mysql_connect_timeout=$connect_timeout;mysql_read_timeout=$read_timeout;mysql_write_timeout=$write_timeout",
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1, mysql_compression => $compression } );
     };
     if($@) {

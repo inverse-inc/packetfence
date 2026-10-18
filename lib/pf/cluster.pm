@@ -306,21 +306,24 @@ sub members_ips {
 =head2 api_client
 
 A JSON-RPC client to the webservices of a cluster member.
-The connection and the request are bounded so an unreachable or hung member can't block the caller (and its worker) indefinitely.
+The connection and the request are bounded (active_active.api_connect_timeout and
+active_active.api_timeout, in seconds) so an unreachable or hung member can't block
+the caller (and its worker) indefinitely.
+Options of pf::api::jsonrpcclient override them, e.g. timeout_ms => 0 for a long operation.
 
 =cut
 
-our $API_CONNECT_TIMEOUT_MS = 5_000;
-our $API_TIMEOUT_MS = 60_000;
-
 sub api_client {
-    my ($host) = @_;
+    my ($host, %options) = @_;
     require pf::api::jsonrpcclient;
+    no warnings 'once';
+    my $config = $pf::config::Config{active_active} // {};
     return pf::api::jsonrpcclient->new(
         proto              => 'https',
         host               => $host,
-        connect_timeout_ms => $API_CONNECT_TIMEOUT_MS,
-        timeout_ms         => $API_TIMEOUT_MS,
+        connect_timeout_ms => 1000 * ($config->{api_connect_timeout} || 5),
+        timeout_ms         => 1000 * ($config->{api_timeout} || 60),
+        %options,
     );
 }
 
@@ -332,13 +335,24 @@ Call an API method on each member of the cluster
 
 sub api_call_each_server {
     my ($asynchronous, $api_method, @api_args) = @_;
+    return _api_call_each_server({}, $asynchronous, $api_method, @api_args);
+}
+
+=head2 _api_call_each_server
+
+api_call_each_server with options for the API client of each member
+
+=cut
+
+sub _api_call_each_server {
+    my ($client_options, $asynchronous, $api_method, @api_args) = @_;
 
     require pf::api::jsonrpcclient;
     my @failed;
     my $method = $asynchronous ? "notify" : "call";
     foreach my $server (config_enabled_servers()){
         next if($server->{host} eq $host_id);
-        my $apiclient = api_client($server->{management_ip});
+        my $apiclient = api_client($server->{management_ip}, %$client_options);
         eval {
             pf::log::get_logger->info("Calling $api_method on $server->{host}");
             my ($result) = $apiclient->$method($api_method, @api_args);
@@ -368,7 +382,8 @@ sub sync_files {
     foreach my $file (@$files){
         pf::log::get_logger->info("Synching file $file to cluster members");
         my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
-        push @failed, @{api_call_each_server($options{async}, 'distant_download_configfile', %data)};
+        # Each member downloads the file from this server (bounded there by the lack of progress): no total timeout
+        push @failed, @{_api_call_each_server({timeout_ms => 0}, $options{async}, 'distant_download_configfile', %data)};
     }
     return \@failed;
 }
@@ -509,6 +524,18 @@ sub call_server {
     return $apiclient->call(@args);
 }
 
+=head2 call_server_without_timeout
+
+Call an API method on a cluster member for a long operation (e.g. sync_config_as_master): only the connection is bounded
+
+=cut
+
+sub call_server_without_timeout {
+    my ($cluster_id, @args) = @_;
+    my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
+    return api_client($server->{management_ip}, timeout_ms => 0)->call(@args);
+}
+
 =head2 queue_stats
 
 Get queue stats for the cluster
@@ -634,7 +661,7 @@ sub handle_config_conflict {
         # pick the first server of the ones that are at that version and remotely call the sync on it
         my $server = $versions_map->{$latest}->[0];
         get_logger->info("Using $server from the servers holding running the latest version to sync as the master.");
-        call_server($server, 'sync_config_as_master');
+        call_server_without_timeout($server, 'sync_config_as_master');
     }
 
     return;
@@ -648,7 +675,7 @@ sub handle_config_conflict {
     else {
         my $server = $versions_map->{$quorum_version}->[0];
         get_logger->info("Using $server from the servers holding quorum to sync as the master.");
-        call_server($server, 'sync_config_as_master');
+        call_server_without_timeout($server, 'sync_config_as_master');
     }
 
     return;

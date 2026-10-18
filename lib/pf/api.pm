@@ -764,7 +764,8 @@ sub distant_download_configfile : Public {
 
     my $file = $postdata{conf_file};
     my %data = ( conf_file => $file );
-    my $apiclient = pf::cluster::api_client($postdata{from});
+    # The file can be big (e.g. the Fingerbank database) and the link slow: abort only when the transfer stalls
+    my $apiclient = pf::cluster::api_client($postdata{from}, timeout_ms => 0, low_speed_limit => 1, low_speed_time => 120);
     my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
     pf::util::safe_file_update($file, $result, undef, $mode);
     return 1;

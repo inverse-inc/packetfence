@@ -1334,6 +1334,17 @@ radius_proxy_with_vip=enabled
 # Process Firewall SSO only on the managemenr server (the current load balancer).
 # Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
 firewall_sso_on_management=disabled
+#
+# active_active.api_connect_timeout
+#
+# Timeout in seconds to connect to the webservices of another cluster member
+api_connect_timeout=5
+#
+# active_active.api_timeout
+#
+# Timeout in seconds of a call to the webservices of another cluster member.
+# The long operations (syncing the configuration, transferring files) aren't capped by it.
+api_timeout=60
 
 [parking]
 #
