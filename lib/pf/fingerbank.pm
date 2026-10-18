@@ -43,6 +43,7 @@ use fingerbank::Collector;
 use pf::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
+use Date::Parse qw(str2time);
 use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
 
@@ -108,12 +109,6 @@ sub process {
     
     my $node_before = node_attributes($mac);
 
-    # A node without a device type (ex: deleted then recreated) must be profiled even if
-    # this MAC was processed recently, the query rate limit below still applies
-    if (!$node_before || !$node_before->{device_type}) {
-        $force = $TRUE;
-    }
-
     my $cache = cache();
     my $cache_key = "pf::fingerbank::process($mac)";
 
@@ -121,6 +116,17 @@ sub process {
         $force = $TRUE;
         return DateTime->now(time_zone => "local");
     });
+
+    # A node deleted then recreated after this MAC was last processed has no device type
+    # and the collector may have no newer data: profile it again. A node that Fingerbank
+    # can't classify keeps being processed only on new data.
+    if (!$force && $node_before && !$node_before->{device_type} && $node_before->{detect_date}) {
+        my $detected = str2time($node_before->{detect_date});
+        if (defined($detected) && $detected > $process_timestamp->epoch) {
+            $logger->debug("$mac has no device type and was detected after it was last processed, profiling it again");
+            $force = $TRUE;
+        }
+    }
 
     # Querying for a resultset
     my $query_args = endpoint_attributes($mac);
