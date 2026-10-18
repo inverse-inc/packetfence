@@ -422,7 +422,7 @@ carried by the C<Juniper-Switching-Filter> RADIUS VSA (Juniper VSA 48).
 
 Each returned line is one complete term, for example:
 
-    Match Ip-protocol 6, Destination-ip 192.168.40.10 Action allow
+    Match Ip-protocol 6, Destination-ip 192.0.2.10 Action allow
 
 The caller sends each line as its own instance of the attribute: a single
 instance is capped at 247 characters and Junos accepts roughly 4000 characters
