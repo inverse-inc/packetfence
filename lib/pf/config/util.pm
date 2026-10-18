@@ -634,8 +634,15 @@ sub send_using_smtp_callback {
 
     if ($args{StartTLS}) {
         # Never continue in cleartext (and send the credentials) when STARTTLS fails
+        # SSL_ERROR is a global that isn't reset by a new connection
+        local $IO::Socket::SSL::SSL_ERROR = '';
         if (!$smtp->starttls) {
-            my $error = $IO::Socket::SSL::SSL_ERROR || $smtp->message || $!;
+            # A rejected STARTTLS (or EHLO after it) leaves the server's reply, a failed handshake the TLS error
+            my $code = $smtp->code // '';
+            my $error = ($code ne '' && $code !~ /^2/)
+              ? $smtp->message
+              : ($IO::Socket::SSL::SSL_ERROR || $smtp->message || $!);
+            $error //= '';
             $error =~ s/\s+$//;
             die "SMTP STARTTLS failed on $hostname: $error\n";
         }
