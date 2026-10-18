@@ -373,6 +373,11 @@ switch refuses the whole Access-Accept over a single malformed attribute.
 
 The list stops at L</SWITCHING_FILTER_DENY_ALL>: nothing after it can match.
 
+The lines are translated one at a time, so a line whose permits are all skipped
+gives nothing rather than the deny all L</acl_chewer> ends a role with: the
+lines after it still apply. When no term is left at all from inbound lines,
+the list is the deny all, like a role whose ACLs were all skipped.
+
 =cut
 
 sub _switchingFilterTerms {
@@ -380,6 +385,7 @@ sub _switchingFilterTerms {
     my $logger = $self->logger;
 
     my @terms;
+    my $inbound = 0;
     while ($access_list =~ /([^\n]+)\n?/g) {
         my $line = $1;
         next if $line !~ /\S/;
@@ -390,13 +396,19 @@ sub _switchingFilterTerms {
             next;
         }
 
-        my @chewed = grep { /^Match\s/ } split(/\n/, $self->acl_chewer($line, $role) // '');
+        $inbound ||= $line !~ /^\s*out\|/;
+        my @chewed = grep { /^Match\s/ } split(/\n/, $self->acl_chewer($line, $role, allow_empty => 1) // '');
         if (!@chewed) {
             $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': cannot be expressed as a Juniper-Switching-Filter term: $line");
             next;
         }
         push @terms, @chewed;
         last if $chewed[-1] eq SWITCHING_FILTER_DENY_ALL;
+    }
+
+    if (!@terms && $inbound) {
+        $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': none of its inbound ACLs can be represented");
+        push @terms, SWITCHING_FILTER_DENY_ALL;
     }
 
     return @terms;
@@ -429,12 +441,14 @@ L</SWITCHING_FILTER_DENY_ALL> instead.
 
 A role whose inbound ACLs were all dropped, or cannot be parsed, gets
 L</SWITCHING_FILTER_DENY_ALL> rather than no filter, which would leave the
-supplicant unrestricted.
+supplicant unrestricted. With C<allow_empty>, all dropped ACLs give an empty
+result instead, for callers that translate a role one line at a time and add
+the deny all once at the end (L</_switchingFilterTerms>).
 
 =cut
 
 sub acl_chewer {
-    my ($self, $acl, $role) = @_;
+    my ($self, $acl, $role, %options) = @_;
 
     my ($acl_ref, @direction) = $self->format_acl($acl);
     my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
@@ -456,7 +470,7 @@ sub acl_chewer {
             # An egress ACL is never enforced by the VSA, so skipping it changes
             # nothing on the switch. Skipping an ingress deny would let the terms
             # after it allow what it blocks.
-            next if $dir eq 'out' || $entry->{'action'} ne 'deny';
+            next if $dir eq 'out' || ($entry->{'action'} // '') ne 'deny';
             $self->logger->warn("(".$self->{'_id'}.") Ending the ACLs of role '$role' with a deny all: a deny that cannot be represented must not let the ACLs after it through");
             $chewed .= SWITCHING_FILTER_DENY_ALL . "\n";
             last;
@@ -466,7 +480,7 @@ sub acl_chewer {
 
     # Sending no filter would leave the supplicant unrestricted, while the
     # switch denies whatever a filter does not allow
-    if ($chewed eq '' && $inbound) {
+    if ($chewed eq '' && $inbound && !$options{allow_empty}) {
         $self->logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': none of its inbound ACLs can be represented");
         $chewed = SWITCHING_FILTER_DENY_ALL . "\n";
     }

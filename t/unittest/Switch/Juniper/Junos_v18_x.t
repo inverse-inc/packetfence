@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 51;
+use Test::More tests => 56;
 use pf::Switch::Juniper::Junos_v18_x;
 use pf::Switch::Juniper::Junos;
 
@@ -261,6 +261,33 @@ is_deeply(
     ["Match Destination-ip 0.0.0.0/0 Action deny"],
     "nothing after a deny all can match, so it is not sent"
 );
+
+# A skipped permit only narrows the role: the lines after it still apply
+is_deeply(
+    [$switch->_switchingFilterTerms("permit ip host 10.1.1.1 any\npermit ip any any", 'testrole')],
+    ["Match Destination-ip 0.0.0.0/0 Action allow"],
+    "a permit that cannot be represented is skipped without cutting the lines after it"
+);
+
+is_deeply(
+    [$switch->_switchingFilterTerms("permit ip any host 8.8.8.8\npermit tcp any any gt 1024\npermit ip any host 9.9.9.9", 'testrole')],
+    ["Match Destination-ip 8.8.8.8 Action allow", "Match Destination-ip 9.9.9.9 Action allow"],
+    "a skipped permit between two others leaves both"
+);
+
+is_deeply(
+    [$switch->_switchingFilterTerms("permit ip host 10.1.1.1 any\npermit tcp any any gt 1024", 'testrole')],
+    ["Match Destination-ip 0.0.0.0/0 Action deny"],
+    "when every line is skipped, the role is denied everything once"
+);
+
+is_deeply(
+    [$switch->_switchingFilterTerms("out|permit ip any host 8.8.8.8", 'testrole')],
+    [],
+    "egress lines alone give no filter, as for a role"
+);
+
+is($switch->acl_chewer("permit ip host 10.1.1.1 any", 'testrole', allow_empty => 1), '', "acl_chewer with allow_empty returns nothing when every entry is skipped");
 
 # _switchingFilterBudget: the limits of the switch
 
