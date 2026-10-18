@@ -148,6 +148,14 @@
                                       rows="6" auto-fit
               />
 
+              <b-form-group v-if="id === 'radius'" label-cols="3">
+                <button-pki-import :modes="['cert', 'csr']"
+                                   :private-key="(form.certificate || {}).private_key"
+                                   :modal-title="$i18n.t('Import {name} Server Certificate from PacketFence PKI', { name })"
+                                   @import="onPkiImportCertificate"
+                />
+              </b-form-group>
+
               <form-group-find-intermediate-cas :switch-value="isFindIntermediateCas"
                                                 :on-change="findIntermediateCasOnChange"
                                                 :column-label="$i18n.t('Find {name} Server intermediate CA(s) automatically', { name })"
@@ -175,6 +183,13 @@
                              :text="$i18n.t('Trusted client authority certificates including root or intermediate certificates used for EAP-TLS must be added here.')"
                              rows="6" auto-fit
               />
+
+              <b-form-group v-if="id === 'radius'" label-cols="3">
+                <button-pki-import :modes="['ca']"
+                                   :button-text="$i18n.t('Add a Certificate Authority from PacketFence PKI')"
+                                   @import="onPkiImportCa"
+                />
+              </b-form-group>
 
             </template>
           </base-form>
@@ -223,7 +238,9 @@ import {
   FormGroupPrivateKey,
   TheCsr
 } from './'
-import {computed, ref, toRefs} from '@vue/composition-api'
+import ButtonPkiImport from '../../pki/_components/ButtonPkiImport'
+import {appendPem} from '../../pki/_composables/usePkiImport'
+import {computed, ref, set, toRefs} from '@vue/composition-api'
 import {useForm, useFormProps} from '../_composables/useForm'
 import {
   useViewCollectionItemFixed,
@@ -236,6 +253,7 @@ const components = {
   BaseForm,
   BaseFormButtonBar,
   BaseServices,
+  ButtonPkiImport,
   FormGroupCa,
   FormGroupCertificate,
   FormGroupCheckChain,
@@ -319,6 +337,20 @@ const setup = (props, context) => {
 
   const tabIndex = ref(0)
 
+  const onPkiImportCertificate = ({certificate, private_key, intermediate_cas = [], ca}) => {
+    const {certificate: item} = form.value
+    set(item, 'certificate', certificate)
+    set(item, 'private_key', private_key)
+    set(item, 'intermediate_cas', intermediate_cas)
+    // the issuing CA must be trusted for the chain validation
+    set(item, 'ca', appendPem(item.ca, ca))
+  }
+
+  const onPkiImportCa = ({ca}) => {
+    const {certificate: item} = form.value
+    set(item, 'ca', appendPem(item.ca, ca))
+  }
+
   return {
     name,
     // useViewCollectionItemFixed
@@ -350,7 +382,9 @@ const setup = (props, context) => {
 
     // custom
     onSaveWrapper,
-    tabIndex
+    tabIndex,
+    onPkiImportCertificate,
+    onPkiImportCa
   }
 }
 
