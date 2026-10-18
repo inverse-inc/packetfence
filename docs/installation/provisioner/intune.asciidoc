@@ -87,9 +87,9 @@ order:
 [cols="1,2",options="header"]
 |===
 | Method | What it matches
-| Azure AD device ID | The 802.1X identity of the node (the EAP-TLS certificate subject, stored as the node's 802.1X username) is the Azure AD / Entra device ID. This is the case with an Intune SCEP or PKCS profile whose subject is `CN={{AAD_Device_ID}}`.
+| Azure AD device ID | The common name (CN) of the EAP-TLS client certificate, or the 802.1X username, is the Azure AD / Entra device ID. This is the case with an Intune SCEP or PKCS profile whose subject is `CN={{AAD_Device_ID}}`.
 | Intune device ID | Same, with a subject of `CN={{DeviceId}}` (the Intune managed device ID).
-| Device name | The node's computer name (learned from DHCP / Fingerbank), or the host name in a `host/name.domain` 802.1X identity, is the Intune device name.
+| Device name | The host name in an 802.1X machine identity (`host/name.domain`, as sent by Windows machine authentication) is the Intune device name.
 | MAC address | The historical method: the MAC of the connecting interface is the Wi-Fi or Ethernet MAC Intune recorded for the device.
 |===
 
@@ -101,6 +101,23 @@ adapter was a virtual one. Whenever devices authenticate with EAP-TLS,
 put one of the device ID methods first and keep *MAC address* last as
 a fallback: the device ID lookups are a single filtered Graph query,
 while the MAC lookup walks the whole device list.
+
+During RADIUS authentication, the certificate CN and the username of
+the current request are used. Outside RADIUS (for example the
+_Enforce provisioning_ security event action), PacketFence uses the
+last 802.1X username of the node. The 802.1X username comes from the
+attributes listed in _Configuration -> System Configuration -> RADIUS
+-> General -> Username attributes_, which prefer the certificate
+subject alternative names (UPN, DNS) over the CN. With a certificate
+that carries a SAN, the device ID methods therefore only work during
+RADIUS authentication, where the CN is read directly.
+
+*Device name* is weaker than the device ID methods: a device name is
+not unique in Intune and isn't bound to the certificate. PacketFence
+only uses the name from an 802.1X machine identity, never the DHCP host
+name (the client chooses it), and doesn't use a name shared by several
+devices in Intune. Prefer the device ID methods whenever devices use
+EAP-TLS.
 
 A device found by none of the methods is treated as not enrolled: it
 is not compliant, the *Non compliance security event* is raised if one

@@ -89,7 +89,7 @@
     />
 
     <form-group-device-lookup :column-label="$i18n.t('Device lookup')"
-                              :text="$i18n.t('How to find the device in Intune, tried in this order. Intune records a single Wi-Fi and a single Ethernet MAC per device, so devices connecting through a dock, a USB adapter or a secondary NIC are not found by MAC address. With EAP-TLS and a SCEP profile whose subject is CN={{AAD_Device_ID}} (or CN={{DeviceId}}), select the matching device ID method first. Defaults to the MAC address only.')"
+                              :text="$i18n.t('How to find the device in Intune, tried in this order. Intune records a single Wi-Fi and a single Ethernet MAC per device, so devices connecting through a dock, a USB adapter or a secondary NIC are not found by MAC address. With EAP-TLS and a SCEP profile whose subject is CN={{AAD_Device_ID}} (or CN={{DeviceId}}), select the matching device ID method first. Device name is weaker: it only uses the host name of an 802.1X machine identity (host/name.domain), and a name shared by several Intune devices is not used. Defaults to the MAC address only.')"
                               namespace="device_lookup"
     />
 

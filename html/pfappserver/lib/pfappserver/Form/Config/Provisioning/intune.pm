@@ -112,15 +112,15 @@ has_field 'device_lookup' =>
    multiple => 1,
    label => 'Device lookup',
    options => [
-     { label => 'Azure AD device ID (802.1X identity / certificate CN)', value => 'azure_ad_device_id' },
-     { label => 'Intune device ID (802.1X identity / certificate CN)', value => 'intune_device_id' },
-     { label => 'Device name (computer name)', value => 'device_name' },
+     { label => 'Azure AD device ID (certificate CN / 802.1X identity)', value => 'azure_ad_device_id' },
+     { label => 'Intune device ID (certificate CN / 802.1X identity)', value => 'intune_device_id' },
+     { label => 'Device name (802.1X machine identity host/name)', value => 'device_name' },
      { label => 'MAC address (Wi-Fi / Ethernet MAC registered in Intune)', value => 'mac' },
    ],
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'MAC address'},
    tags => { after_element => \&help,
-             help => 'How to find the device in Intune, tried in this order. Intune records a single Wi-Fi and a single Ethernet MAC per device, so devices connecting through a dock, a USB adapter or a secondary NIC are not found by MAC address. With EAP-TLS and a SCEP profile whose subject is CN={{AAD_Device_ID}} (or CN={{DeviceId}}), select the matching device ID method first. Defaults to the MAC address only.' },
+             help => 'How to find the device in Intune, tried in this order. Intune records a single Wi-Fi and a single Ethernet MAC per device, so devices connecting through a dock, a USB adapter or a secondary NIC are not found by MAC address. With EAP-TLS and a SCEP profile whose subject is CN={{AAD_Device_ID}} (or CN={{DeviceId}}), select the matching device ID method first. Device name is weaker: it only uses the host name of an 802.1X machine identity (host/name.domain), and a name shared by several Intune devices is not used. Defaults to the MAC address only.' },
   );
 
 has_block definition =>
