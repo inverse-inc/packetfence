@@ -2,13 +2,13 @@ package types
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"gorm.io/gorm"
@@ -100,9 +100,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 	}
 
 	if strings.HasPrefix(r.URL.Path, "/api/v1/pki/") {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]interface{}{"status": http.StatusNotFound, "message": "Unknown path " + r.URL.Path})
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool { return h.Router.Match(chi.NewRouteContext(), method, r.URL.Path) }) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

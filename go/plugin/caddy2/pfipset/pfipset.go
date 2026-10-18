@@ -3,7 +3,6 @@ package pfipset
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -179,9 +179,16 @@ func (h *PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 	}
 
 	if strings.HasPrefix(r.URL.Path, "/api/v1/ipset/") {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]interface{}{"status": http.StatusNotFound, "message": "Unknown path " + r.URL.Path})
+		// The route match error isn't reliable to detect a method mismatch with several routes on a sub-router
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool {
+			other := r.Clone(r.Context())
+			other.Method = method
+			return h.router.Match(other, &mux.RouteMatch{})
+		}) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

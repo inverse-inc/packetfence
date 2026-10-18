@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -31,6 +30,7 @@ import (
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -1039,21 +1039,12 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	}
 }
 
-// jsonError replies with a JSON error like the rest of the API
-func jsonError(status int, message string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(status)
-		json.NewEncoder(w).Encode(map[string]interface{}{"status": status, "message": message + " " + r.URL.Path})
-	}
-}
-
 // setupAPIRoutes configures the HTTP API routes
 func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
 	api := &API{DB: db, Ctx: ctx}
 	router := mux.NewRouter()
-	router.NotFoundHandler = http.HandlerFunc(jsonError(http.StatusNotFound, "Unknown path"))
-	router.MethodNotAllowedHandler = http.HandlerFunc(jsonError(http.StatusMethodNotAllowed, "Method not allowed"))
+	router.NotFoundHandler = http.HandlerFunc(unifiedapierrors.UnknownPath)
+	router.MethodNotAllowedHandler = http.HandlerFunc(unifiedapierrors.MethodNotAllowed)
 
 	// API endpoints
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleMac2Ip).Methods("GET")
