@@ -171,7 +171,7 @@ sub _can_delete {
 #
 sub node_delete {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac) = @_;
+    my ($mac, %opts) = @_;
     my $logger = get_logger();
 
     $mac = clean_mac($mac);
@@ -198,18 +198,38 @@ sub node_delete {
         return ($FALSE, "Unable to delete '$mac' internal error");
     }
 
-    node_clear_portal_session($mac);
+    node_clear_portal_session($mac) unless $opts{keep_portal_session};
     $logger->info("node $mac deleted");
     return ($TRUE, '');
 }
 
 =item node_clear_portal_session
 
-Remove the captive portal session of a device (keyed by its MAC address) so the portal starts over on its next visit
+Remove the captive portal session of a device (keyed by its MAC address) so the portal starts over on its next visit.
+The portal sessions are in the local cache of the server the device reached: in a cluster, the removal is sent to every member.
 
 =cut
 
 sub node_clear_portal_session {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    return unless valid_mac($mac);
+    require pf::cluster;
+    if ($pf::cluster::cluster_enabled) {
+        eval { pf::cluster::notify_each_server('clear_portal_session', $mac) };
+        get_logger->warn("Unable to send the removal of the portal session of $mac to the cluster members: $@") if $@;
+        return;
+    }
+    return node_remove_portal_session($mac);
+}
+
+=item node_remove_portal_session
+
+Remove the captive portal session of a device from the cache of this server
+
+=cut
+
+sub node_remove_portal_session {
     my ($mac) = @_;
     $mac = clean_mac($mac);
     return unless valid_mac($mac);
@@ -924,7 +944,9 @@ sub node_cleanup {
                 $logger->info("mac $mac not seen for $delete_time seconds, deleting");
                 require pf::locationlog;
                 pf::locationlog::locationlog_update_end_mac($mac);
-                node_delete($mac);
+                # The portal sessions expire after 6h by default (httpd.portal in chi.conf): a node not seen for a
+                # day has none, which saves a request to each cluster member per deleted node
+                node_delete($mac, keep_portal_session => ($delete_time >= 86400));
             }
 
             my $end_time = time;

@@ -28,7 +28,7 @@ use pf::locationlog;
 use pf::security_event qw(security_event_view_last_closed);
 use Utils;
 use pf::constants::config qw($WIRELESS_802_1X);
-use Test::More tests => 25;
+use Test::More tests => 29;
 
 #This test will running last
 use Test::NoWarnings;
@@ -130,6 +130,21 @@ ok (node_modify($node_mac, category_id => 4), "Not changing anything");
     ok ($deleted, "$mac deleted");
     ok (!defined $cache->get("session:$session_id"), "portal session of $mac removed with the node");
     ok (!defined $cache->get("expires:$session_id"), "portal session expiration of $mac removed with the node");
+}
+
+{
+    require pf::CHI;
+    require pf::api;
+    my $cache = pf::CHI->new(namespace => 'httpd.portal');
+    my $mac = Utils::test_mac();
+    (my $session_id = $mac) =~ s/://g;
+    ok (node_add_simple($mac), "$mac added");
+    $cache->set("session:$session_id", { username => 'bob' });
+    my ($deleted) = node_delete($mac, keep_portal_session => 1);
+    ok (defined $cache->get("session:$session_id"), "portal session of $mac kept with keep_portal_session (node cleanup)");
+    pf::api->clear_portal_session($mac);
+    ok (!defined $cache->get("session:$session_id"), "the clear_portal_session API method removes the portal session of $mac");
+    ok ($deleted, "$mac deleted");
 }
 
 =head1 AUTHOR

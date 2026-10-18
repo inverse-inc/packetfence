@@ -1827,6 +1827,17 @@ sub chi_cache_clear : Public {
     return $cache->clear();
 }
 
+=head2 clear_portal_session
+
+Remove the captive portal session of a device from the cache of this server (see pf::node::node_clear_portal_session)
+
+=cut
+
+sub clear_portal_session : Public {
+    my ($class, $mac) = @_;
+    return pf::node::node_remove_portal_session($mac);
+}
+
 =head2 enableMABFloatingInQueue
 
 Call enableMABFloating in the local queue
