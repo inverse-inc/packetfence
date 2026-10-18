@@ -15,10 +15,25 @@
       auto-fit
     />
 
+    <b-form-group label-cols="3">
+      <button-pki-import :modes="['cert', 'csr']"
+        :private-key="(form || {}).key"
+        :modal-title="$i18n.t('Import Certificate from PacketFence PKI')"
+        @import="onPkiImportCertificate"
+      />
+    </b-form-group>
+
     <form-group-ca namespace="ca"
       :column-label="$i18n.t('Certificate Authority')"
       auto-fit
     />
+
+    <b-form-group label-cols="3">
+      <button-pki-import :modes="['ca']"
+        :button-text="$i18n.t('Add a Certificate Authority from PacketFence PKI')"
+        @import="onPkiImportCa"
+      />
+    </b-form-group>
 
     <form-group-key namespace="key"
       :column-label="$i18n.t('Private Key')"
@@ -37,11 +52,13 @@
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
+import { computed, set, toRefs } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
 import schemaFn from '../schema'
+import ButtonPkiImport from '../../../pki/_components/ButtonPkiImport'
+import { appendPem } from '../../../pki/_composables/usePkiImport'
 import {
   FormGroupIdentifier,
   FormGroupCert,
@@ -53,6 +70,7 @@ import {
 
 const components = {
   BaseForm,
+  ButtonPkiImport,
 
   FormGroupIdentifier,
   FormGroupCert,
@@ -89,8 +107,26 @@ export const props = {
 export const setup = (props) => {
   const schema = computed(() => schemaFn(props))
 
+  const { form } = toRefs(props)
+
+  const onPkiImportCertificate = ({ certificate, private_key, intermediate_cas = [], ca }) => {
+    set(form.value, 'cert', certificate)
+    if (private_key !== form.value.key) {
+      set(form.value, 'key', private_key)
+      set(form.value, 'private_key_password', null) // keys exported from the PKI are not encrypted
+    }
+    set(form.value, 'intermediate', intermediate_cas.join(''))
+    set(form.value, 'ca', appendPem(form.value.ca, ca))
+  }
+
+  const onPkiImportCa = ({ ca }) => {
+    set(form.value, 'ca', appendPem(form.value.ca, ca))
+  }
+
   return {
-    schema
+    schema,
+    onPkiImportCertificate,
+    onPkiImportCa
   }
 }
 
