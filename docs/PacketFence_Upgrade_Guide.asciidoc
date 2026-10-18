@@ -958,6 +958,28 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== NTLM auth API host of domains joined before 15.1
+
+Domains joined before 15.1 are saved with `ntlm_auth_host=127.0.0.1` in
+[filename]`/usr/local/pf/conf/domain.conf`. The domain status check of the
+admin interface runs in a container, where 127.0.0.1 is the container itself,
+so it fails with `connection refused` (RADIUS authentication is not affected).
+The following script replaces a loopback `ntlm_auth_host` with
+`containers-gateway.internal`, as for the domains joined since 15.1. Domains
+using a connector are not changed.
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-ntlm-auth-host.pl
+/usr/local/pf/bin/pfcmd configreload hard
+systemctl restart packetfence-ntlm-auth-api
+----
+
+In a cluster, restart `packetfence-ntlm-auth-api` on every server.
+
+NOTE: The script doesn't depend on this release: on 15.1 or 15.2, it can be
+run the same way to fix the domain status check before upgrading.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
