@@ -2,6 +2,7 @@
 * "$_certificates" store module
 */
 import Vue from 'vue'
+import escape from 'lodash/escape'
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import i18n from '@/utils/locale'
@@ -128,10 +129,11 @@ const actions = {
     commit('TEST_STATUS', types.LOADING)
     return api.testLetsEncrypt(domain).then(response => {
       commit('TEST_STATUS', types.SUCCESS)
-      return response.result
+      // shown as the feedback of the field (HTML): the reply of the testing service can echo the domain
+      return escape(response.result)
     }).catch(err => {
       commit('TEST_STATUS', types.ERROR)
-      throw err.response?.data?.result || err.response?.data?.message || err.message
+      throw escape(err.response?.data?.result || err.response?.data?.message || err.message)
     })
   }
 }
