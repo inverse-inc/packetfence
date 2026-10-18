@@ -3,6 +3,12 @@
   <h5 class="u-mb--">[% i18n("Password: ") %] [% psk %]</h5>
   <h5 class="u-mb--">[% i18n("SSID: ") %] [% ssid %]</h5>
 
+  [% IF psk AND ssid %]
+  <p class="u-margin-top">[% i18n("Or scan this QR code with your device's camera to connect automatically.") %]</p>
+  <div id="wifi-qrcode" data-ssid="[% ssid %]" data-psk="[% psk %]"></div>
+  <script src="/common/wifi-qrcode.js"></script>
+  [% END %]
+
    [% IF skipable %]
    <a href="/captive-portal?next=next" class="c-btn c-btn--tertiary u-margin-top">
    [% i18n("Continue") %]

@@ -1191,6 +1191,10 @@ msgstr "Installation du certificat Opera"
 msgid "Opera issuer trust prompt"
 msgstr "Invite de confiance de l'émetteur Opera"
 
+# html/captive-portal/templates/provisioner/dpsk.html
+msgid "Or scan this QR code with your device's camera to connect automatically."
+msgstr "Ou scannez ce code QR avec l'appareil photo de votre appareil pour vous connecter automatiquement."
+
 # html/captive-portal/templates/ssl_inspection/menu.html
 msgid "Other"
 msgstr "Autre"

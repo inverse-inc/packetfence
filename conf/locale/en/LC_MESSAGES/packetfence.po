@@ -1010,6 +1010,10 @@ msgstr ""
 msgid "Opera issuer trust prompt"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/dpsk.html
+msgid "Or scan this QR code with your device's camera to connect automatically."
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/menu.html
 msgid "Other"
 msgstr ""
