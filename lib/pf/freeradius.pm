@@ -148,7 +148,9 @@ sub freeradius_populate_nas_config {
         $timestamp = int (time * 1000000);
     }
 
-    my $current = _current_radius_nas_timestamp();
+    # On a cluster the jobs are not serialized (no GET_LOCK on Galera) and their
+    # timestamps come from the clocks of different servers: don't skip there
+    my $current = $cluster_enabled ? undef : _current_radius_nas_timestamp();
     if (defined $current && $current > $timestamp) {
         $logger->info("Skipping the radius_nas update from $timestamp, a newer configuration ($current) is already loaded");
         _unlock_radius_nas($lock);
