@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -91,6 +91,10 @@ is_deeply(
 is_deeply(
     pf::web::util::match_browser_locales([qw(c ca *)], \@authorized_locales), [],
     "no match when only the language prefix differs"
+);
+is_deeply(
+    pf::web::util::match_browser_locales([qw(fil frr fr es_419)], [qw(en_US fr_FR fi_FI es_ES)]), [qw(fr_FR es_ES)],
+    "a three-letter language isn't taken for the two-letter one it starts with"
 );
 
 =head2 pf::web::constants

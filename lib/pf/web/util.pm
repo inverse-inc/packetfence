@@ -334,7 +334,8 @@ sub match_browser_locales {
     my ($browser_languages, $authorized_locales) = @_;
     my @locales;
     foreach my $browser_language (@{$browser_languages // []}) {
-        next unless $browser_language =~ /^\s*([a-zA-Z]{2})(?:_([a-zA-Z]{2}))?/;
+        # two-letter language only: a three-letter one (fil, frr) isn't another language's code
+        next unless $browser_language =~ /^\s*([a-zA-Z]{2})(?![a-zA-Z])(?:_([a-zA-Z]{2}))?/;
         my $language = lc($1);
         my $locale = defined($2) ? "${language}_" . uc($2) : $language;
         my $match = first { $_ eq $locale } @$authorized_locales;
