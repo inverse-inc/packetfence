@@ -13,6 +13,9 @@ EmailPreview:
           args:
             type: object
             description: Key-value map of template values.
+          locale:
+            type: string
+            description: Language of the email (ex. fr, fr-CA, pt_BR), matched against the supported locales. Defaults to the Accept-Language header of the request, then to the default language.
         example:
           template: guest_local_account_creation
           args:
@@ -42,6 +45,9 @@ EmailSend:
           subject:
             type: string
             description: Email subject.
+          locale:
+            type: string
+            description: Language of the email (ex. fr, fr-CA, pt_BR), matched against the supported locales. Defaults to the Accept-Language header of the request, then to the default language.
         example:
           template: guest_local_account_creation
           args:
