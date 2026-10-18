@@ -28,6 +28,7 @@ use pf::CHI;
 use pf::constants qw($TRUE $FALSE);
 use pf::config qw(%Config $fqdn $management_network);
 use pf::cluster;
+use pf::config::util ();
 use Bytes::Random::Secure;
 use Sys::Hostname ();
 use URI;
@@ -69,6 +70,8 @@ sub logout {
     my ($self) = @_;
     my $callback = $self->app->session->{callback};
     $self->app->reset_session;
+    # No callback when it was missing or refused by is_valid_callback
+    return $self->redirect_root() unless defined($callback);
     $self->app->redirect($callback."?error=canceled");
 }
 
@@ -104,7 +107,7 @@ sub execute_child {
             $self->app->session->{callback} = $callback;
         }
         else {
-            get_logger->warn("Ignoring admin SSO callback '$callback': it isn't an admin URL of this server. Add its host to admin_login.sso_allowed_callback_hosts if needed.");
+            get_logger->warn("Ignoring admin SSO callback '$callback': it isn't an HTTPS admin URL of this server. Add its host to admin_login.sso_allowed_callback_hosts if needed.");
         }
     }
 
@@ -113,14 +116,18 @@ sub execute_child {
 
 =head2 allowed_callback_hosts
 
-The hosts the admin SSO token can be sent to: the names and management addresses of this server (and of the cluster), the SSO base URL host and admin_login.sso_allowed_callback_hosts
+The hosts the admin SSO token can be sent to: the addresses of this server
+(those of pf::config::util::portal_hosts: the fqdn and the IPs, VIPs and IPv6
+addresses of the interfaces, with those of the cluster members), the management
+IPv6 address, the host names, the cluster VIP and members names, the SSO base
+URL host and admin_login.sso_allowed_callback_hosts
 
 =cut
 
 sub allowed_callback_hosts {
-    my @hosts = ($fqdn, $Config{general}{hostname}, Sys::Hostname::hostname());
+    my @hosts = (pf::config::util::portal_hosts(), $fqdn, $Config{general}{hostname}, Sys::Hostname::hostname());
     if ($management_network) {
-        push @hosts, $management_network->tag('ip'), $management_network->tag('vip');
+        push @hosts, $management_network->tag('ipv6_address');
     }
     if ($pf::cluster::cluster_enabled) {
         push @hosts, pf::cluster::management_cluster_ip();
@@ -136,14 +143,15 @@ sub allowed_callback_hosts {
 
 =head2 is_valid_callback
 
-Whether the callback is an admin URL of this server, the token is only sent there
+Whether the callback is an HTTPS admin URL of this server, the token is only sent there
 
 =cut
 
 sub is_valid_callback {
     my ($callback) = @_;
     my $uri = eval { URI->new($callback) };
-    return $FALSE unless $uri && $uri->scheme && $uri->scheme =~ /^https?$/;
+    # The admin interface is only served over HTTPS
+    return $FALSE unless $uri && $uri->scheme && $uri->scheme eq 'https';
     return $FALSE if defined($uri->userinfo);
     return $FALSE unless ($uri->path // '') =~ m{^/admin(?:/|$)};
     my $host = lc($uri->host // '');

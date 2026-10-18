@@ -958,6 +958,26 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Admin SSO login
+
+If the SSO login of the admin interface is enabled
+(_Configuration -> System Configuration -> Admin Login_):
+
+* The sources of the admin SSO connection profile must have an
+  administration rule that sets an access level for the administrators. A
+  user matching none is now refused instead of being logged in without any
+  access. Every SSO login now authenticates the user and evaluates the rules
+  again.
+* The token is only sent back to an HTTPS admin URL on this server: its host
+  name, the addresses of its interfaces (and of the cluster members) or the
+  host of 'SSO Base URL'. If administrators reach the admin interface with
+  another name, such as a DNS alias or a reverse proxy, add it to the new
+  'SSO Allowed Admin Hosts' setting. Otherwise the SSO login completes without
+  logging the administrator in, and [filename]`packetfence.log` shows
+  `Ignoring admin SSO callback`.
+
+See the <<PacketFence_Installation_Guide.asciidoc#_advanced_access_control_for_admin_login,Advanced Access Control For Admin Login>> section.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

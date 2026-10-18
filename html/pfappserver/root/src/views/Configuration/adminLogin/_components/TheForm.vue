@@ -29,7 +29,7 @@
 
     <form-group-sso-allowed-callback-hosts namespace="sso_allowed_callback_hosts"
                                            :column-label="$i18n.t('SSO Allowed Admin Hosts')"
-                                           :text="$i18n.t('Comma-separated list of additional host names the admin interface is reached with (ex: a DNS alias or a reverse proxy). After an SSO login, the token is only sent back to an admin URL on this server host name, its management addresses or one of these hosts.')"
+                                           :text="$i18n.t('Comma-separated list of additional host names the admin interface is reached with (ex: a DNS alias or a reverse proxy). After an SSO login, the token is only sent back to an HTTPS admin URL on this server host name, the addresses of its interfaces (and of the cluster members) or one of these hosts.')"
     />
 
     <form-group-sso-authorize-path namespace="sso_authorize_path"
