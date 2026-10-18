@@ -34,6 +34,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Cluster: `/usr/local/pf/bin/cluster/sync --from` checks the webservices of the server to sync from first and stops with what to verify when they can't be used, instead of logging the same error for each file. It now exits with 1 when a file can't be synced, including an entry of `cluster-files.txt` that doesn't exist on that server or can't be written locally (it exited with 0)
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on

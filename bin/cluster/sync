@@ -129,11 +129,14 @@ if($as_master){
 if($master_server){
     get_logger->info("Synching this server from node $master_server");
 
-    my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
+    my %client_args = (host => $master_server, proto => 'https', username => $api_user, password => $api_password);
+    # The downloads can be long (big files, slow link): only the connection is bounded
+    my $apiclient = pf::api::jsonrpcclient->new(%client_args, connect_timeout_ms => 5_000);
 
-    # Check that the webservices of the master can be used before trying to download each file
+    # Check that the webservices of the master can be used before trying to download each file,
+    # bounded so a server that accepts the connection but never answers can't hang here
     eval {
-        $apiclient->call( 'download_configfile', conf_file => $config_version_file );
+        pf::api::jsonrpcclient->new(%client_args, connect_timeout_ms => 5_000, timeout_ms => 60_000)->call('echo', 'cluster sync');
     };
     if (my $error = $@) {
         $error =~ s/\s+$//;
@@ -160,9 +163,9 @@ if($master_server){
             get_logger->info("Synching file : $file");
             my %data = ( conf_file => $file );
             my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
-            open(my $fh, '>', $file);
-            print $fh $result;
-            close($fh);
+            open(my $fh, '>', $file) or die "Unable to write $file: $!\n";
+            print $fh $result or die "Unable to write $file: $!\n";
+            close($fh) or die "Unable to write $file: $!\n";
             safe_pf_run("chown", "pf:pf", $file);
             # apply the mode returned by the master; log if chmod fails
             if (defined $mode) {
