@@ -134,21 +134,21 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function initForm() {
-    var form = false;
+    var forms = [];
     var inputs = Array.prototype.slice.call(document.querySelectorAll('form input, form select'));
     if (inputs.length) {
       inputs.forEach(function (input) {
         var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
-        form = inputForm;
+        if (inputForm && forms.indexOf(inputForm) === -1) {
+          forms.push(inputForm);
+        }
         var inputHandler = function () { checkForm(inputForm); };
         // 'input' also catches paste (touch/context menu) and autofill, which don't trigger keyup
         input.addEventListener('input', inputHandler);
         input.addEventListener('keyup', inputHandler);
         input.addEventListener('change', inputHandler);
       });
-      if (form) {
-        checkForm(form);
-      }
+      forms.forEach(checkForm);
     }
     else {
       // no input/select
