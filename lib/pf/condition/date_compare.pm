@@ -12,7 +12,9 @@ Base class to compare a given date with the actual (or supplied) date
 
 Date format is YYYY-MM-DD HH:MM:SS or YYYY-MM-DD.
 An empty value or 'now' means the date at the moment of the evaluation.
-A date that can't be parsed (e.g. an unset 0000-00-00 00:00:00 date) never matches.
+Any other value that isn't a valid date makes the construction fail.
+A compared date that can't be parsed (e.g. an unset 0000-00-00 00:00:00 date)
+never matches, also when the comparison is negated.
 
 =cut
 
@@ -31,7 +33,55 @@ has value => (
     required => 0,
 );
 
+=head2 negate
+
+Negate the comparison (not_date_is_before, not_date_is_after). Unlike wrapping
+the condition in pf::condition::not, a date that can't be parsed still doesn't match.
+
+=cut
+
+has negate => (
+    is => 'ro',
+    isa => 'Bool',
+    default => 0,
+);
+
+has _control_date => (
+    is => 'rw',
+);
+
 our $DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
+
+our @FORMATS = (
+    [qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, $DATE_FORMAT],
+    [qr/^\d{4}-\d{2}-\d{2}$/, "%Y-%m-%d"],
+);
+
+=head2 BUILD
+
+Parse a fixed control date once, die when it isn't valid
+
+=cut
+
+sub BUILD {
+    my ($self) = @_;
+    return if $self->is_now;
+    my $date = parse_date($self->value);
+    die "Invalid date '" . $self->value . "', the format is YYYY-MM-DD HH:MM:SS, YYYY-MM-DD or now\n" if !defined $date;
+    $self->_control_date($date);
+}
+
+=head2 is_now
+
+Whether the control date is the time of the evaluation (empty value or 'now')
+
+=cut
+
+sub is_now {
+    my ($self) = @_;
+    my $value = $self->value;
+    return !defined $value || $value =~ /^\s*(now)?\s*$/i;
+}
 
 =head2 match
 
@@ -48,13 +98,8 @@ sub match {
         return 0;
     }
 
-    my $date_control = $self->control_date;
-    if (!defined $date_control) {
-        get_logger->warn("Unable to parse the control date '" . $self->value . "', not matching");
-        return 0;
-    }
-
-    return $self->compare_dates($date_to_compare, $date_control) ? 1 : 0;
+    my $result = $self->compare_dates($date_to_compare, $self->control_date) ? 1 : 0;
+    return $self->negate ? !$result || 0 : $result;
 }
 
 =head2 control_date
@@ -65,12 +110,11 @@ The date to compare with, the current time when the value is empty or 'now'
 
 sub control_date {
     my ($self) = @_;
-    my $value = $self->value;
-    if (!defined $value || $value =~ /^\s*(now)?\s*$/i) {
+    if ($self->is_now) {
         # Parsed back like the given dates so both are compared the same way
         return Time::Piece->strptime(localtime->strftime($DATE_FORMAT), $DATE_FORMAT);
     }
-    return parse_date($value);
+    return $self->_control_date;
 }
 
 =head2 parse_date
@@ -84,11 +128,10 @@ sub parse_date {
     return undef if !defined $date;
     $date =~ s/^\s+|\s+$//g;
     return undef if $date eq '' || $date =~ /^0000-00-00/;
-    # strptime warns about trailing characters it doesn't parse
-    local $SIG{__WARN__} = sub {};
-    for my $format ($DATE_FORMAT, "%Y-%m-%d") {
-        my $parsed = eval { Time::Piece->strptime($date, $format) };
-        return $parsed if defined $parsed;
+    for my $format (@FORMATS) {
+        my ($re, $strptime_format) = @$format;
+        next if $date !~ $re;
+        return scalar eval { Time::Piece->strptime($date, $strptime_format) };
     }
     return undef;
 }

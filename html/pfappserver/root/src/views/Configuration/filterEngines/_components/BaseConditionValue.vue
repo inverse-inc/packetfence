@@ -42,6 +42,7 @@
           class="flex-grow-1 m-1"
           :namespace="`${namespace}.value`"
           :disabled="disabled"
+          :placeholder="valuePlaceholder"
         />
 
       </template>
@@ -86,6 +87,7 @@ import useDraggable from '@/composables/useDraggable'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { pfOperators } from '@/globals/pfOperators'
+import i18n from '@/utils/locale'
 
 const props = {
   ...useInputMetaProps,
@@ -196,6 +198,12 @@ const setup = (props, context) => {
   })
   const hasValueOptions = computed(() => valueOptions.value.length > 0)
 
+  const valuePlaceholder = computed(() => {
+    if (['date_is_before', 'not_date_is_before', 'date_is_after', 'not_date_is_after'].includes(inputValueOperator.value))
+      return i18n.t('YYYY-MM-DD [HH:MM:SS] or now')
+    return undefined
+  })
+
   const onClone = () => emit('clone')
   const onDelete = () => emit('delete')
 
@@ -213,6 +221,7 @@ const setup = (props, context) => {
     operatorOptions,
     operatorRequiresField,
     operatorRequiresValue,
+    valuePlaceholder,
     valueOptions,
     hasValueOptions,
     onClone,

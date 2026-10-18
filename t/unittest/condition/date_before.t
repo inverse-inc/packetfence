@@ -20,11 +20,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;                      # last test to print
+use Test::More tests => 29;                      # last test to print
 
 use Test::NoWarnings;
 
 use_ok("pf::condition::date_before");
+use pf::condition_parser;
+use pf::factory::condition;
 
 my $filter = new_ok ( "pf::condition::date_before", [value => '2034-10-28 13:37:42'],"Test pf::condition::date_before constructor with control date");
 
@@ -60,9 +62,37 @@ ok($filter->match('2015-11-27 13:49:42'), "date only control date");
 
 ok($filter->match("2015-11-27"), "date only given date");
 
-$filter = new_ok ( "pf::condition::date_before", [value => 'garbage'],"Test pf::condition::date_before constructor with an invalid control date");
+ok(!eval { pf::condition::date_before->new(value => 'garbage') }, "invalid control date fails the construction");
 
-ok(!$filter->match('2015-11-27 13:49:42'), "invalid control date doesn't match");
+like($@, qr/Invalid date 'garbage'/, "with the reason");
+
+ok(!eval { pf::condition::date_before->new(value => '2030-01-01 12:00') }, "control date with a partial time fails the construction");
+
+ok(!eval { pf::condition::date_before->new(value => '2030-01-01T12:00:00') }, "control date in another format fails the construction");
+
+$filter = pf::condition::date_before->new(value => 'now');
+
+ok(!$filter->match('2015-11-27 12:00'), "given date with a partial time doesn't match");
+
+# the negated operator, built like a filter rule
+sub rule {
+    my ($condition) = @_;
+    my ($ast, $err) = pf::condition_parser::parse_condition_string($condition);
+    die $err->{highlighted_error} if $err;
+    return pf::factory::condition::buildCondition($ast);
+}
+
+my $not_rule = rule('not_date_is_before(node_info.unregdate, "now")');
+
+ok($not_rule->match({ node_info => { unregdate => '2042-11-27 13:49:42' } }), "not_date_is_before matches a date not before now");
+
+ok(!$not_rule->match({ node_info => { unregdate => '2015-11-27 13:49:42' } }), "not_date_is_before doesn't match a date before now");
+
+ok(!$not_rule->match({ node_info => { unregdate => '0000-00-00 00:00:00' } }), "not_date_is_before doesn't match an unset date");
+
+ok(!$not_rule->match({ node_info => { } }), "not_date_is_before doesn't match a missing date");
+
+ok(!eval { rule('not_date_is_before(node_info.unregdate, "2030-13")') }, "a rule with an invalid control date fails to build");
 
 =head1 AUTHOR
 
