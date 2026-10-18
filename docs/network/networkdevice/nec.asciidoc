@@ -36,7 +36,7 @@ version 7.2.8 and supports the following technologies:
 * RADIUS CLI login
 
 In the examples below, `192.168.1.5` is the PacketFence server and
-`192.168.40.21` is the switch management address.
+`192.168.1.21` is the switch management address.
 
 ===== RADIUS scheme and ISP domain
 
@@ -44,7 +44,7 @@ In the examples below, `192.168.1.5` is the PacketFence server and
    primary authentication 192.168.1.5 1812 key simple useStrongerSecret
    primary accounting 192.168.1.5 1813 key simple useStrongerSecret
    user-name-format without-domain
-   nas-ip 192.168.40.21
+   nas-ip 192.168.1.21
    quit
   domain packetfence
    authentication lan-access radius-scheme packetfence
@@ -260,6 +260,10 @@ is not mapped to such a number, or shares it with another role, is not pushed
 and a warning is logged in `packetfence.log`. PushACLs replaces the rules of
 the mapped ACLs: do not map a role to an ACL defined by hand on the switch.
 
+Map each child role to its own number as well. A child role without a mapping
+gets the number of its parent role in `Filter-Id`, but only the parent's ACL is
+pushed to that number: the child's own ACL is not.
+
 The switch filters the traffic sent by the endpoint with this ACL, so `out|`
 ACL lines are not pushed. A line that cannot be translated without changing its
 meaning is not pushed either, and a warning is logged:
@@ -295,8 +299,8 @@ PacketFence on UDP 6343. The global settings name the agent and the
 collector, sampling is enabled per interface. The sampling rate ranges from
 1 packet out of 1000 to 1 out of 500000:
 
-  sflow agent ip 192.168.40.21
-  sflow source ip 192.168.40.21
+  sflow agent ip 192.168.1.21
+  sflow source ip 192.168.1.21
   sflow collector 1 ip 192.168.1.5
   interface GigabitEthernet1/0/1
    sflow sampling-rate 1000
