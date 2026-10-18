@@ -65,19 +65,18 @@ func (a AdminApiAuditLog) Search(vars sql.Vars) (DBRes, error) {
 	res := DBRes{}
 	sqls, err := vars.Sql(a)
 	if err != nil {
-		return res, err
+		return res, invalidSearch(err)
 	}
 
 	var count int64
 	var items []AdminApiAuditLog
-	a.DB.Model(&AdminApiAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
+	if err := a.DB.Model(&AdminApiAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count).Error; err != nil {
+		return res, err
+	}
 
 	if count == 0 {
 		// No match isn't an error: return an empty page
-		total := 0
-		res.Total = &total
-		res.Items = []AdminApiAuditLog{}
-		return res, nil
+		return emptyPage[AdminApiAuditLog](), nil
 	}
 	counter := int(count)
 	res.Total = &counter

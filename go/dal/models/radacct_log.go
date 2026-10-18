@@ -67,19 +67,18 @@ func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
 	res := DBRes{}
 	sqls, err := vars.Sql(a)
 	if err != nil {
-		return res, err
+		return res, invalidSearch(err)
 	}
 
 	var count int64
 	var items []RadacctLog
-	a.DB.Model(&RadacctLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
+	if err := a.DB.Model(&RadacctLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count).Error; err != nil {
+		return res, err
+	}
 
 	if count == 0 {
 		// No match isn't an error: return an empty page
-		total := 0
-		res.Total = &total
-		res.Items = []RadacctLog{}
-		return res, nil
+		return emptyPage[RadacctLog](), nil
 	}
 
 	counter := int(count)
