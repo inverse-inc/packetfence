@@ -247,10 +247,14 @@ func TestSearchDnsAuditLogNoMatch(t *testing.T) {
 }
 
 func TestSearchDnsAuditLogInvalid(t *testing.T) {
-	// A search query that can't be built is the client's error
-	status, _ := searchDnsAuditLog(t, `{"query":{"op":"and","values":[{"op":"equals","field":"id","value":1},{"op":"equals","field":"no_such_field","value":1}]}}`)
-	if status != http.StatusUnprocessableEntity {
-		t.Fatalf("unexpected http response code %d for an invalid search", status)
+	// A search query that can't be built is the client's error, with one condition or several
+	for _, payload := range []string{
+		`{"query":{"op":"and","values":[{"op":"equals","field":"no_such_field","value":1}]}}`,
+		`{"query":{"op":"and","values":[{"op":"equals","field":"id","value":1},{"op":"equals","field":"no_such_field","value":1}]}}`,
+	} {
+		if status, _ := searchDnsAuditLog(t, payload); status != http.StatusUnprocessableEntity {
+			t.Fatalf("unexpected http response code %d for the invalid search %s", status, payload)
+		}
 	}
 }
 
