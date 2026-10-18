@@ -148,10 +148,10 @@ case "$1" in
         echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
         sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
-        # Reserve the pfconfig port so it is never picked as a local port while pfconfig is down (#8576)
-        echo "# pfconfig port reserved by packetfence" > /etc/sysctl.d/99-packetfence-reserved-ports.conf
-        echo "net.ipv4.ip_local_reserved_ports = 44444" >> /etc/sysctl.d/99-packetfence-reserved-ports.conf
-        sysctl -p /etc/sysctl.d/99-packetfence-reserved-ports.conf || true
+        # Reserve the pfconfig port (99-packetfence-reserved-ports.conf, #8576). Merge it with the current
+        # reservations so the ones applied by other files aren't dropped until the next boot
+        current=$(sysctl -n net.ipv4.ip_local_reserved_ports 2>/dev/null)
+        sysctl -w net.ipv4.ip_local_reserved_ports="${current:+$current,}44444" > /dev/null || true
 
         if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
           echo "" >> /etc/hosts
