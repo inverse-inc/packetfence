@@ -71,9 +71,7 @@ integration. Although other MySQL based clustering stacks are supported, they
 aren't covered in this guide. If you use an external database or want to use
 another clustering stack for the database, you can ignore this section and the
 next one, and continue with <<_basic_packetfence_configuration,Basic PacketFence configuration>>.
-The Galera-specific <<_database_setup,Database setup>> and
-<<_mariadb_sync_second_and_third_servers,MariaDB sync>> steps later in this
-guide can be skipped as well.
+Later steps have a note telling what to skip with an external database.
 
 CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with
 an odd number of servers).
@@ -331,6 +329,10 @@ don't see any cluster configuration related errors during the checkup.
 
 ==== Database setup
 
+NOTE: With an external database, skip the MariaDB commands of this section
+(on all servers), but still restart PacketFence on the first server: the
+configuration sync of the other servers relies on its services.
+
 ===== Second and third servers
 
 Make sure you stopped MariaDB on the two others servers:
@@ -448,6 +450,8 @@ systemctl restart packetfence-config
 
 ==== MariaDB sync (second and third servers)
 
+NOTE: With an external database, skip this section.
+
 Ensure `packetfence-mariadb` is still stopped on the two servers that will
 be joined:
 
@@ -483,6 +487,9 @@ it again.
 
 ==== Starting the first server normally
 
+NOTE: With an external database, skip the MariaDB commands of this section,
+but still restart `packetfence-iptables`.
+
 Once all servers are synced, go *on the first server* that should still be
 running with the `--force-new-cluster` option and run:
 
@@ -501,6 +508,8 @@ systemctl restart packetfence-iptables
 ----
 
 ===== Enabling galera-autofix service (first server)
+
+NOTE: With an external database, skip this section.
 
 Before starting services on all servers, `galera-autofix` service need to be
 re-enabled and configuration synced across cluster:
