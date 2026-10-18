@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 41;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -130,6 +130,16 @@ $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => {  })
 $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => { async => \1 })
   ->status_is(202);
 
+
+# get_nodes_for_role logs a database error instead of dying on an undefined get_logger
+{
+    ok(defined(&pf::UnifiedApi::Controller::Config::Roles::get_logger), "get_logger is imported");
+    no warnings qw(redefine once);
+    local *pf::dal::node::db_execute = sub { return (500, undef) };
+    my @result = eval { pf::UnifiedApi::Controller::Config::Roles::get_nodes_for_role('default') };
+    is($@, '', "get_nodes_for_role doesn't die on a database error");
+    is_deeply(\@result, [500, []], "get_nodes_for_role returns the error status and no nodes");
+}
 
 =head1 AUTHOR
 
