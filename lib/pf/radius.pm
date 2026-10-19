@@ -120,6 +120,21 @@ sub _unregister_on_unmatch {
     return $TRUE;
 }
 
+=item * _keep_unregistered
+
+Leave the node unregistered, as pf::node::node_deregister does: no
+autoregistration and no registration dates kept from a previous registration
+
+=cut
+
+sub _keep_unregistered {
+    my ($node_obj) = @_;
+    $node_obj->{status} = "unreg";
+    $node_obj->{autoreg} = "no";
+    $node_obj->{regdate} = $ZERO_DATE;
+    $node_obj->{unregdate} = $ZERO_DATE;
+}
+
 =item * authorize - handling the RADIUS authorize call
 
 Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant
@@ -329,8 +344,7 @@ sub authorize {
         if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
             $do_auto_reg = 0;
             $args->{'autoreg'} = 0;
-            $node_obj->{status} = "unreg";
-            $node_obj->{autoreg} = "no";
+            _keep_unregistered($node_obj);
         } else {
             $logger->debug("[$mac] auto-registering node");
             # automatic registration
@@ -1050,8 +1064,7 @@ sub vpn {
             if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
                 $do_auto_reg = 0;
                 $args->{'autoreg'} = 0;
-                $node_obj->{status} = "unreg";
-                $node_obj->{autoreg} = "no";
+                _keep_unregistered($node_obj);
             } else {
                 $logger->debug("[$mac] auto-registering node");
                 # automatic registration

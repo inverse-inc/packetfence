@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 #This test will running last
 use Test::NoWarnings;
@@ -43,6 +43,10 @@ ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $un
 ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $unset }, {}), 'no status computed: registered');
 ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55' }, { status => 'unreg' }), 'no profile: registered');
 ok(!$radius->_unregister_on_unmatch({ mac => '00:11:22:33:44:55', profile => $unset }, { status => 'unreg', category => 'gaming' }), 'no rule matched but a provisioner applied a role: registered with it');
+
+my $node = { status => 'reg', autoreg => 'yes', regdate => '2026-10-01 10:00:00', unregdate => '2026-11-01 10:00:00' };
+pf::radius::_keep_unregistered($node);
+is_deeply($node, { status => 'unreg', autoreg => 'no', regdate => '0000-00-00 00:00:00', unregdate => '0000-00-00 00:00:00' }, 'a node kept unregistered loses its autoregistration and registration dates, as with node_deregister');
 
 =head1 AUTHOR
 
