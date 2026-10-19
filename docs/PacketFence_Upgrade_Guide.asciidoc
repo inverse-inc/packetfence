@@ -958,6 +958,13 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Customized OAuth and SAML landing templates
+
+Wrap the AUP part of a customized [filename]`oauth2/landing.html` or
+[filename]`saml.html` in `[% IF with_aup %]`, and only hide the button
+(`c-card--hidden`) when `with_aup` is set, as in the shipped templates.
+Otherwise a module without an AUP shows a hidden button to returning users.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
